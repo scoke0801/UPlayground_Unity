@@ -483,6 +483,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+**/.idea
 
 **/Library
 **/Logs

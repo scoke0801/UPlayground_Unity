@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 public abstract class Character : BaseActor
 {
-    [Header("캐릭터 스탯")]
+[Header("캐릭터 스탯")]
     [SerializeField] protected float maxHP = 100f;
     [SerializeField] protected float maxMP = 50f;
     [SerializeField] protected float maxStamina = 100f;
@@ -50,8 +50,8 @@ public abstract class Character : BaseActor
     public bool IsRolling => isRolling;
     
     // 이벤트
-    public System.Action<Character, float, float> OnHPChanged; // (character, newHP, maxHP)
-    public System.Action<Character, float, float> OnMPChanged; // (character, newMP, maxMP)
+    public System.Action<Character, float, float> OnHPChanged;
+    public System.Action<Character, float, float> OnMPChanged;
     public System.Action<Character> OnCharacterDied;
     public System.Action<Character, StatusEffect> OnStatusEffectAdded;
     
@@ -66,32 +66,33 @@ public abstract class Character : BaseActor
     
     protected override void Initialize()
     {
-        // 스탯 초기화
         currentHP = maxHP;
         currentMP = maxMP;
         currentStamina = maxStamina;
         
-        // 이동 속도 설정
         moveSpeed = walkSpeed;
     }
     
-    protected override void UpdateActor()
+    // Update: 일반 게임 로직
+    protected override void UpdateGameLogic()
+    {
+        if (!isAlive) return;
+        
+        UpdateRegeneration();
+        UpdateStatusEffects();
+    }
+    
+    // FixedUpdate: 물리 기반 처리
+    protected override void HandlePhysicsMovement()
     {
         if (!isAlive) return;
         
         UpdateGroundCheck();
-        UpdateRegeneration();
-        UpdateStatusEffects();
-        UpdateCharacter();
+        base.HandlePhysicsMovement();
     }
     
     /// <summary>
-    /// 캐릭터별 업데이트 로직 (상속 클래스에서 구현)
-    /// </summary>
-    protected abstract void UpdateCharacter();
-    
-    /// <summary>
-    /// 지면 체크
+    /// 지면 체크 (FixedUpdate에서 실행)
     /// </summary>
     protected virtual void UpdateGroundCheck()
     {
@@ -179,7 +180,7 @@ public abstract class Character : BaseActor
     }
     
     /// <summary>
-    /// 점프
+    /// 점프 (FixedUpdate에서 호출됨)
     /// </summary>
     public virtual void Jump()
     {
@@ -194,7 +195,7 @@ public abstract class Character : BaseActor
     }
     
     /// <summary>
-    /// 구르기
+    /// 구르기 (FixedUpdate에서 호출됨)
     /// </summary>
     public virtual void Roll(Vector3 direction)
     {

@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public abstract class BaseActor : MonoBehaviour
 {
-    [Header("기본 속성")]
+ [Header("기본 속성")]
     [SerializeField] protected string actorName = "Unknown";
     [SerializeField] protected bool isActive = true;
     
@@ -31,7 +31,10 @@ public abstract class BaseActor : MonoBehaviour
     protected Rigidbody actorRigidbody;
     protected Collider actorCollider;
     
-    // 초기화
+    // 이동 관련 변수
+    protected Vector3 movementInput;
+    protected Vector3 rotationTarget;
+    
     protected virtual void Awake()
     {
         InitializeComponents();
@@ -42,35 +45,82 @@ public abstract class BaseActor : MonoBehaviour
         Initialize();
     }
     
+    // 입력 처리 및 일반 게임 로직 (60fps 기준)
     protected virtual void Update()
     {
         if (!isActive) return;
-        
-        UpdateActor();
+        HandleInput();
+        UpdateGameLogic();
     }
     
-    /// <summary>
-    /// 컴포넌트 참조 초기화
-    /// </summary>
+    // 물리 기반 이동 처리 (50fps 고정)
+    protected virtual void FixedUpdate()
+    {
+        if (!isActive) return;
+        HandlePhysicsMovement();
+    }
+    
+    // 카메라 및 후처리 로직 (모든 Update 후 실행)
+    protected virtual void LateUpdate()
+    {
+        if (!isActive) return;
+        HandleLateUpdate();
+    }
+    
     protected virtual void InitializeComponents()
     {
         actorRigidbody = GetComponent<Rigidbody>();
         actorCollider = GetComponent<Collider>();
     }
     
-    /// <summary>
-    /// 액터 초기화 (상속 클래스에서 구현)
-    /// </summary>
     protected abstract void Initialize();
     
-    /// <summary>
-    /// 매 프레임 업데이트 (상속 클래스에서 구현)
-    /// </summary>
-    protected abstract void UpdateActor();
+    // 입력 처리 (상속 클래스에서 구현)
+    protected virtual void HandleInput() { }
     
-    /// <summary>
-    /// 액터 활성화/비활성화
-    /// </summary>
+    // 일반 게임 로직 (상속 클래스에서 구현)
+    protected virtual void UpdateGameLogic() { }
+    
+    // 물리 기반 이동 처리
+    protected virtual void HandlePhysicsMovement()
+    {
+        if (actorRigidbody == null) return;
+        
+        // 이동 처리
+        if (movementInput != Vector3.zero)
+        {
+            Vector3 movement = movementInput.normalized * moveSpeed * Time.fixedDeltaTime;
+            actorRigidbody.MovePosition(transform.position + movement);
+        }
+        
+        // 회전 처리
+        if (rotationTarget != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(rotationTarget);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, 
+                targetRotation, 
+                rotationSpeed * Time.fixedDeltaTime
+            );
+        }
+    }
+    
+    // 후처리 로직 (상속 클래스에서 구현)
+    protected virtual void HandleLateUpdate() { }
+    
+    // 이동 입력 설정
+    public virtual void SetMovementInput(Vector3 direction)
+    {
+        movementInput = direction;
+    }
+    
+    // 회전 타겟 설정
+    public virtual void SetRotationTarget(Vector3 targetDirection)
+    {
+        rotationTarget = targetDirection;
+    }
+    
+    // 기존 메서드들 유지...
     public virtual void SetActive(bool active)
     {
         if (isActive == active) return;
@@ -80,69 +130,30 @@ public abstract class BaseActor : MonoBehaviour
         OnActiveStateChanged?.Invoke(this, active);
     }
     
-    /// <summary>
-    /// 액터 이동
-    /// </summary>
-    public virtual void Move(Vector3 direction)
-    {
-        if (!isActive || actorRigidbody == null) return;
-        
-        Vector3 movement = direction.normalized * moveSpeed * Time.deltaTime;
-        actorRigidbody.MovePosition(transform.position + movement);
-    }
-    
-    /// <summary>
-    /// 액터 회전
-    /// </summary>
-    public virtual void Rotate(Vector3 targetDirection)
-    {
-        if (!isActive || targetDirection == Vector3.zero) return;
-        
-        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation, 
-            targetRotation, 
-            rotationSpeed * Time.deltaTime
-        );
-    }
-    
-    /// <summary>
-    /// 충돌 검사
-    /// </summary>
     public virtual bool CheckCollision(Vector3 position, float radius = -1f)
     {
         float checkRadius = radius < 0 ? collisionRadius : radius;
         return Physics.CheckSphere(position, checkRadius, collisionLayers);
     }
     
-    /// <summary>
-    /// 거리 계산
-    /// </summary>
     public float GetDistanceTo(BaseActor other)
     {
         if (other == null) return float.MaxValue;
         return Vector3.Distance(transform.position, other.transform.position);
     }
     
-    /// <summary>
-    /// 방향 벡터 계산
-    /// </summary>
     public Vector3 GetDirectionTo(BaseActor other)
     {
         if (other == null) return Vector3.zero;
         return (other.transform.position - transform.position).normalized;
     }
     
-    /// <summary>
-    /// 액터 제거
-    /// </summary>
     public virtual void DestroyActor()
     {
         OnActorDestroyed?.Invoke(this);
         Destroy(gameObject);
     }
     
-    // 디버그용 기즈모 그리기
     protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

@@ -29,6 +29,12 @@ public class Player : Character
     private float cameraRotationX = 0f;
     private float cameraRotationY = 0f;
     
+    // 이동 관련 (FixedUpdate에서 사용)
+    private Vector3 calculatedMoveDirection;
+    private bool shouldJump;
+    private bool shouldRoll;
+    private Vector3 rollDirection;
+    
     // 인벤토리 및 장비
     private PlayerInventory inventory;
     private PlayerEquipment equipment;
@@ -42,20 +48,18 @@ public class Player : Character
     
     // 이벤트
     public System.Action<int> OnLevelUp;
-    public System.Action<int, int> OnExpChanged; // (currentExp, expToNext)
+    public System.Action<int, int> OnExpChanged;
     
     protected override void InitializeComponents()
     {
         base.InitializeComponents();
         
-        // 카메라 설정
         if (playerCamera == null)
             playerCamera = Camera.main;
         
         if (cameraFollowTarget == null)
             cameraFollowTarget = transform;
         
-        // 컴포넌트 초기화
         inventory = GetComponent<PlayerInventory>();
         equipment = GetComponent<PlayerEquipment>();
         
@@ -69,22 +73,169 @@ public class Player : Character
     protected override void Initialize()
     {
         base.Initialize();
-        
-        // 플레이어 전용 초기화
         SetupCamera();
         InitializeInput();
         
-        // 커서 잠금
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
     
-    protected override void UpdateCharacter()
+    // Update: 입력 처리 및 일반 게임 로직
+    protected override void HandleInput()
     {
-        HandleInput();
-        UpdateMovement();
-        UpdateCamera();
+        // 이동 입력
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        moveInput = new Vector2(horizontal, vertical);
+        
+        // 마우스 입력 (카메라용)
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+        lookInput = new Vector2(mouseX, mouseY);
+        
+        // 액션 입력
+        jumpInput = Input.GetButtonDown("Jump");
+        runInput = Input.GetKey(KeyCode.LeftShift);
+        rollInput = Input.GetKeyDown(KeyCode.LeftControl);
+    }
+    
+    protected override void UpdateGameLogic()
+    {
+        ProcessMovementInput();
         UpdateAnimations();
+    }
+    
+    // FixedUpdate: 물리 기반 이동 처리
+    protected override void HandlePhysicsMovement()
+    {
+        // 기본 이동 처리
+        base.HandlePhysicsMovement();
+        
+        // 점프 처리
+        if (shouldJump)
+        {
+            Jump();
+            shouldJump = false;
+        }
+        
+        // 구르기 처리
+        if (shouldRoll)
+        {
+            Roll(rollDirection);
+            shouldRoll = false;
+        }
+    }
+    
+    // LateUpdate: 카메라 업데이트
+    protected override void HandleLateUpdate()
+    {
+        UpdateCameraRotation();
+        UpdateCameraPosition();
+    }
+    
+    /// <summary>
+    /// 이동 입력을 물리 이동으로 변환
+    /// </summary>
+    private void ProcessMovementInput()
+    {
+        if (moveInput.magnitude > 0.1f)
+        {
+            // 카메라 기준 이동 방향 계산
+            Vector3 cameraForward = playerCamera.transform.forward;
+            Vector3 cameraRight = playerCamera.transform.right;
+            
+            cameraForward.y = 0;
+            cameraRight.y = 0;
+            
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+            
+            Vector3 moveDirection = cameraForward * moveInput.y + cameraRight * moveInput.x;
+            
+            // FixedUpdate에서 사용할 이동 방향 설정
+            SetMovementInput(moveDirection);
+            
+            // 캐릭터 회전 방향 설정
+            if (moveDirection != Vector3.zero)
+            {
+                SetRotationTarget(moveDirection);
+            }
+        }
+        else
+        {
+            SetMovementInput(Vector3.zero);
+        }
+        
+        // 달리기 설정
+        SetRunning(runInput && moveInput.magnitude > 0.1f);
+        
+        // 점프 처리 (FixedUpdate에서 실행하도록 플래그 설정)
+        if (jumpInput)
+        {
+            shouldJump = true;
+        }
+        
+        // 구르기 처리 (FixedUpdate에서 실행하도록 플래그 설정)
+        if (rollInput && moveInput.magnitude > 0.1f)
+        {
+            rollDirection = transform.forward;
+            if (moveInput.magnitude > 0.1f)
+            {
+                Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + playerCamera.transform.right * moveInput.x;
+                inputDirection.y = 0;
+                rollDirection = inputDirection.normalized;
+            }
+            shouldRoll = true;
+        }
+    }
+    
+    /// <summary>
+    /// 카메라 회전 계산
+    /// </summary>
+    private void UpdateCameraRotation()
+    {
+        if (playerCamera == null) return;
+        
+        // 마우스 입력으로 카메라 회전
+        cameraRotationY += lookInput.x * mouseSensitivity;
+        cameraRotationX -= lookInput.y * mouseSensitivity;
+        cameraRotationX = Mathf.Clamp(cameraRotationX, -80f, 80f);
+    }
+    
+    /// <summary>
+    /// 카메라 위치 업데이트 (LateUpdate에서 실행)
+    /// </summary>
+    private void UpdateCameraPosition()
+    {
+        if (playerCamera == null || cameraFollowTarget == null) return;
+        
+        // 카메라 위치 및 회전 계산
+        Quaternion cameraRotation = Quaternion.Euler(cameraRotationX, cameraRotationY, 0);
+        Vector3 cameraOffset = cameraRotation * Vector3.back * cameraDistance + Vector3.up * cameraHeight;
+        Vector3 targetPosition = cameraFollowTarget.position + cameraOffset;
+        
+        // 카메라 이동 (부드럽게)
+        playerCamera.transform.position = Vector3.Lerp(
+            playerCamera.transform.position, 
+            targetPosition, 
+            Time.deltaTime * 10f
+        );
+        
+        playerCamera.transform.LookAt(
+            cameraFollowTarget.position + Vector3.up * cameraHeight * 0.5f
+        );
+    }
+    
+    /// <summary>
+    /// 애니메이션 업데이트
+    /// </summary>
+    private void UpdateAnimations()
+    {
+        if (characterAnimator == null) return;
+        
+        float moveSpeed = moveInput.magnitude;
+        SetAnimationFloat("MoveSpeed", moveSpeed);
+        SetAnimationBool("IsGrounded", isGrounded);
     }
     
     /// <summary>
@@ -106,147 +257,30 @@ public class Player : Character
     private void InitializeInput()
     {
         // InputSystem 액션맵 설정은 여기서 구현
-        // 실제 프로젝트에서는 InputActionAsset을 사용
     }
     
-    /// <summary>
-    /// 입력 처리
-    /// </summary>
-    private void HandleInput()
-    {
-        // 이동 입력
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        moveInput = new Vector2(horizontal, vertical);
-        
-        // 마우스 입력
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
-        lookInput = new Vector2(mouseX, mouseY);
-        
-        // 액션 입력
-        jumpInput = Input.GetButtonDown("Jump");
-        runInput = Input.GetKey(KeyCode.LeftShift);
-        rollInput = Input.GetKeyDown(KeyCode.LeftControl);
-    }
-    
-    /// <summary>
-    /// 이동 처리
-    /// </summary>
-    private void UpdateMovement()
-    {
-        if (moveInput.magnitude > 0.1f)
-        {
-            // 카메라 기준 이동 방향 계산
-            Vector3 cameraForward = playerCamera.transform.forward;
-            Vector3 cameraRight = playerCamera.transform.right;
-            
-            cameraForward.y = 0;
-            cameraRight.y = 0;
-            
-            cameraForward.Normalize();
-            cameraRight.Normalize();
-            
-            Vector3 moveDirection = cameraForward * moveInput.y + cameraRight * moveInput.x;
-            
-            // 캐릭터 이동
-            Move(moveDirection);
-            
-            // 캐릭터 회전
-            if (moveDirection != Vector3.zero)
-            {
-                Rotate(moveDirection);
-            }
-        }
-        
-        // 달리기 설정
-        SetRunning(runInput && moveInput.magnitude > 0.1f);
-        
-        // 점프
-        if (jumpInput)
-        {
-            Jump();
-        }
-        
-        // 구르기
-        if (rollInput && moveInput.magnitude > 0.1f)
-        {
-            Vector3 rollDirection = transform.forward;
-            if (moveInput.magnitude > 0.1f)
-            {
-                Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + playerCamera.transform.right * moveInput.x;
-                inputDirection.y = 0;
-                rollDirection = inputDirection.normalized;
-            }
-            Roll(rollDirection);
-        }
-    }
-    
-    /// <summary>
-    /// 카메라 업데이트
-    /// </summary>
-    private void UpdateCamera()
-    {
-        if (playerCamera == null) return;
-        
-        // 마우스 입력으로 카메라 회전
-        cameraRotationY += lookInput.x * mouseSensitivity;
-        cameraRotationX -= lookInput.y * mouseSensitivity;
-        cameraRotationX = Mathf.Clamp(cameraRotationX, -80f, 80f);
-        
-        // 카메라 위치 및 회전 계산
-        Quaternion cameraRotation = Quaternion.Euler(cameraRotationX, cameraRotationY, 0);
-        Vector3 cameraOffset = cameraRotation * Vector3.back * cameraDistance + Vector3.up * cameraHeight;
-        Vector3 targetPosition = cameraFollowTarget.position + cameraOffset;
-        
-        // 카메라 이동 (부드럽게)
-        playerCamera.transform.position = Vector3.Lerp(playerCamera.transform.position, targetPosition, Time.deltaTime * 10f);
-        playerCamera.transform.LookAt(cameraFollowTarget.position + Vector3.up * cameraHeight * 0.5f);
-    }
-    
-    /// <summary>
-    /// 애니메이션 업데이트
-    /// </summary>
-    private void UpdateAnimations()
-    {
-        if (characterAnimator == null) return;
-        
-        // 이동 속도 애니메이션
-        float moveSpeed = moveInput.magnitude;
-        SetAnimationFloat("MoveSpeed", moveSpeed);
-        SetAnimationBool("IsGrounded", isGrounded);
-    }
-    
-    /// <summary>
-    /// 경험치 획득
-    /// </summary>
+    // 기존 메서드들...
     public void GainExp(int exp)
     {
         currentExp += exp;
         OnExpChanged?.Invoke(currentExp, expToNext);
         
-        // 레벨업 체크
         while (currentExp >= expToNext)
         {
             LevelUp();
         }
     }
     
-    /// <summary>
-    /// 레벨업
-    /// </summary>
     private void LevelUp()
     {
         currentExp -= expToNext;
         level++;
         expToNext = CalculateExpToNext();
         
-        // 스탯 증가
         maxHP += 20f;
         maxMP += 10f;
         maxStamina += 15f;
         
-        // 체력 완전 회복
         CurrentHP = maxHP;
         CurrentMP = maxMP;
         CurrentStamina = maxStamina;
@@ -257,25 +291,16 @@ public class Player : Character
         Debug.Log($"레벨업! 현재 레벨: {level}");
     }
     
-    /// <summary>
-    /// 다음 레벨까지 필요한 경험치 계산
-    /// </summary>
     private int CalculateExpToNext()
     {
-        return 100 + (level - 1) * 50; // 레벨이 오를수록 더 많은 경험치 필요
+        return 100 + (level - 1) * 50;
     }
     
-    /// <summary>
-    /// 마우스 감도 설정
-    /// </summary>
     public void SetMouseSensitivity(float sensitivity)
     {
         mouseSensitivity = Mathf.Clamp(sensitivity, 0.1f, 10f);
     }
     
-    /// <summary>
-    /// 카메라 거리 설정
-    /// </summary>
     public void SetCameraDistance(float distance)
     {
         cameraDistance = Mathf.Clamp(distance, 2f, 15f);
@@ -284,17 +309,11 @@ public class Player : Character
     protected override void Die()
     {
         base.Die();
-        
-        // 플레이어 사망 처리
         Debug.Log("플레이어가 사망했습니다!");
-        
-        // 게임 오버 UI 표시 등의 로직
-        // GameManager.Instance.ShowGameOver();
     }
     
     private void OnValidate()
     {
-        // 인스펙터에서 값 변경 시 실시간 적용
         if (Application.isPlaying)
         {
             mouseSensitivity = Mathf.Clamp(mouseSensitivity, 0.1f, 10f);

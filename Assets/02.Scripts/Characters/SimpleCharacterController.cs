@@ -66,7 +66,7 @@ public class SimpleCharacterController : MonoBehaviour
             characterController.Move(moveDirection * Time.deltaTime);
             
             // 애니메이션 업데이트
-            animationController.PlayMovement(currentSpeed);
+            //animationController.PlayMovement(currentSpeed);
         }
         else
         {

@@ -427,8 +427,8 @@ MonoBehaviour:
   runClip: {fileID: 6200578666267062213, guid: ddbad665bf68e9b4db085076a4ece8de, type: 3}
   jumpClip: {fileID: -2993534804863918692, guid: 18b123cc39eb47542b38c15b39a071d5, type: 3}
   attackClip: {fileID: -6239216113759591374, guid: be7a70de98a2c6941a43aed7f59c7578, type: 3}
-  walkSpeed: 2
-  runSpeed: 5
+  walkSpeed: 0.5
+  runSpeed: 1
   transitionDuration: 0.3
 --- !u!114 &1056033495
 MonoBehaviour:

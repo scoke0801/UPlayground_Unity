@@ -67,22 +67,22 @@ public class CharacterAnimationController : MonoBehaviour
     /// 이동 속도에 따른 애니메이션 재생 (Walk/Run)
     /// </summary>
     /// <param name="moveSpeed">이동 속도</param>
-    public void PlayMovement(float moveSpeed)
+    /// <param name="isRunning">달리기 여부</param>
+    public void PlayMovement(float moveSpeed, bool isRunning)
     {
         if (moveSpeed <= 0.1f)
         {
             PlayIdle();
             return;
         }
-
-        // 속도에 따라 Walk 또는 Run 애니메이션 선택
-        if (moveSpeed <= walkSpeed)
+        
+        if (isRunning)
         {
-            PlayWalk();
+            PlayRun();
         }
         else
         {
-            PlayRun();
+            PlayWalk();
         }
     }
 

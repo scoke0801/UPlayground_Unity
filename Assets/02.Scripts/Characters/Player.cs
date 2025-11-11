@@ -42,6 +42,9 @@ public class Player : Character
     private PlayerInventory inventory;
     private PlayerEquipment equipment;
     
+    // 애니메이션
+    private CharacterAnimationController animationController;
+    
     // 프로퍼티
     public int Level => level;
     public int CurrentExp => currentExp;
@@ -57,6 +60,8 @@ public class Player : Character
     protected override void InitializeComponents()
     {
         base.InitializeComponents();
+        
+        animationController = GetComponent<CharacterAnimationController>();
         
         if (playerCamera == null)
             playerCamera = Camera.main;
@@ -240,6 +245,9 @@ public class Player : Character
         float moveSpeed = moveInput.magnitude;
         SetAnimationFloat("MoveSpeed", moveSpeed);
         SetAnimationBool("IsGrounded", isGrounded);
+       
+        // 애니메이션 업데이트
+        animationController.PlayMovement(moveSpeed, isRunning);
     }
     
     /// <summary>

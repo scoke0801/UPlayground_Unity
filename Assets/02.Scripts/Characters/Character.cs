@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 public abstract class Character : BaseActor
 {
-[Header("캐릭터 스탯")]
+    [Header("캐릭터 스탯")]
     [SerializeField] protected float maxHP = 100f;
     [SerializeField] protected float maxMP = 50f;
     [SerializeField] protected float maxStamina = 100f;

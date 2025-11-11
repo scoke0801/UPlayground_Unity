@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public abstract class BaseActor : MonoBehaviour
 {
- [Header("기본 속성")]
+    [Header("기본 속성")]
     [SerializeField] protected string actorName = "Unknown";
     [SerializeField] protected bool isActive = true;
     
@@ -89,7 +89,7 @@ public abstract class BaseActor : MonoBehaviour
         // 이동 처리
         if (movementInput != Vector3.zero)
         {
-            Vector3 movement = movementInput.normalized * moveSpeed * Time.fixedDeltaTime;
+            Vector3 movement = moveSpeed * Time.fixedDeltaTime * movementInput.normalized ;
             actorRigidbody.MovePosition(transform.position + movement);
         }
         
@@ -120,7 +120,6 @@ public abstract class BaseActor : MonoBehaviour
         rotationTarget = targetDirection;
     }
     
-    // 기존 메서드들 유지...
     public virtual void SetActive(bool active)
     {
         if (isActive == active) return;

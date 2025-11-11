@@ -18,6 +18,9 @@ public class Player : Character
     [SerializeField] private int currentExp = 0;
     [SerializeField] private int expToNext = 100;
     
+    [Header("재화 시스템")]
+    [SerializeField] private int gold = 0;
+    
     // 입력 관련
     private Vector2 moveInput;
     private Vector2 lookInput;
@@ -43,6 +46,7 @@ public class Player : Character
     public int Level => level;
     public int CurrentExp => currentExp;
     public int ExpToNext => expToNext;
+    public int Gold => gold;
     public PlayerInventory Inventory => inventory;
     public PlayerEquipment Equipment => equipment;
     
@@ -271,6 +275,71 @@ public class Player : Character
         }
     }
     
+    /// <summary>
+    /// 경험치 획득 (NPC/Enemy 시스템용 호환 메서드)
+    /// </summary>
+    public void GainExperience(int experience)
+    {
+        GainExp(experience);
+    }
+    
+    /// <summary>
+    /// 골드 획득
+    /// </summary>
+    public void GainGold(int amount)
+    {
+        gold += amount;
+        Debug.Log($"골드 {amount}개를 획득했습니다. 총 골드: {gold}");
+    }
+    
+    /// <summary>
+    /// 골드 사용
+    /// </summary>
+    public bool SpendGold(int amount)
+    {
+        if (gold >= amount)
+        {
+            gold -= amount;
+            Debug.Log($"골드 {amount}개를 사용했습니다. 남은 골드: {gold}");
+            return true;
+        }
+        
+        Debug.Log("골드가 부족합니다.");
+        return false;
+    }
+    
+    /// <summary>
+    /// 현재 골드 반환
+    /// </summary>
+    public int GetGold()
+    {
+        return gold;
+    }
+    
+    /// <summary>
+    /// 인벤토리에 아이템 추가
+    /// </summary>
+    public bool AddItemToInventory(string itemID, int quantity)
+    {
+        return inventory.AddItem(itemID, quantity);
+    }
+    
+    /// <summary>
+    /// 인벤토리에서 아이템 제거
+    /// </summary>
+    public bool RemoveItemFromInventory(string itemID, int quantity)
+    {
+        return inventory.RemoveItem(itemID, quantity);
+    }
+    
+    /// <summary>
+    /// 아이템 보유 여부 확인
+    /// </summary>
+    public bool HasItem(string itemID, int quantity)
+    {
+        return inventory.HasItem(itemID, quantity);
+    }
+    
     private void LevelUp()
     {
         currentExp -= expToNext;
@@ -323,14 +392,131 @@ public class Player : Character
 }
 
 /// <summary>
-/// 플레이어 인벤토리 (간단한 구현)
+/// 플레이어 인벤토리 시스템
 /// </summary>
 public class PlayerInventory : MonoBehaviour
 {
+    [Header("인벤토리 설정")]
     [SerializeField] private int maxSlots = 30;
     
-    // 실제 프로젝트에서는 아이템 시스템과 연동
+    // 아이템 저장용 딕셔너리 (아이템 ID -> 수량)
+    private System.Collections.Generic.Dictionary<string, int> items = 
+        new System.Collections.Generic.Dictionary<string, int>();
+    
+    // 프로퍼티
     public int MaxSlots => maxSlots;
+    public int UsedSlots => items.Count;
+    public int AvailableSlots => maxSlots - UsedSlots;
+    
+    // 이벤트
+    public System.Action<string, int> OnItemAdded;
+    public System.Action<string, int> OnItemRemoved;
+    public System.Action OnInventoryChanged;
+    
+    /// <summary>
+    /// 아이템 추가
+    /// </summary>
+    public bool AddItem(string itemID, int quantity)
+    {
+        if (string.IsNullOrEmpty(itemID) || quantity <= 0)
+            return false;
+        
+        // 기존 아이템이 있으면 수량 증가
+        if (items.ContainsKey(itemID))
+        {
+            items[itemID] += quantity;
+        }
+        else
+        {
+            // 새 아이템 추가 (슬롯 확인)
+            if (UsedSlots >= maxSlots)
+            {
+                Debug.Log("인벤토리가 가득 찼습니다.");
+                return false;
+            }
+            
+            items[itemID] = quantity;
+        }
+        
+        OnItemAdded?.Invoke(itemID, quantity);
+        OnInventoryChanged?.Invoke();
+        
+        Debug.Log($"아이템 추가: {itemID} x{quantity}");
+        return true;
+    }
+    
+    /// <summary>
+    /// 아이템 제거
+    /// </summary>
+    public bool RemoveItem(string itemID, int quantity)
+    {
+        if (string.IsNullOrEmpty(itemID) || quantity <= 0)
+            return false;
+        
+        if (!items.ContainsKey(itemID))
+        {
+            Debug.Log($"아이템이 없습니다: {itemID}");
+            return false;
+        }
+        
+        int currentQuantity = items[itemID];
+        if (currentQuantity < quantity)
+        {
+            Debug.Log($"아이템이 부족합니다: {itemID} (보유: {currentQuantity}, 필요: {quantity})");
+            return false;
+        }
+        
+        items[itemID] -= quantity;
+        
+        // 수량이 0이 되면 아이템 제거
+        if (items[itemID] <= 0)
+        {
+            items.Remove(itemID);
+        }
+        
+        OnItemRemoved?.Invoke(itemID, quantity);
+        OnInventoryChanged?.Invoke();
+        
+        Debug.Log($"아이템 제거: {itemID} x{quantity}");
+        return true;
+    }
+    
+    /// <summary>
+    /// 아이템 보유 여부 확인
+    /// </summary>
+    public bool HasItem(string itemID, int quantity = 1)
+    {
+        if (!items.ContainsKey(itemID))
+            return false;
+        
+        return items[itemID] >= quantity;
+    }
+    
+    /// <summary>
+    /// 아이템 수량 반환
+    /// </summary>
+    public int GetItemQuantity(string itemID)
+    {
+        return items.ContainsKey(itemID) ? items[itemID] : 0;
+    }
+    
+    /// <summary>
+    /// 모든 아이템 정보 반환
+    /// </summary>
+    public System.Collections.Generic.Dictionary<string, int> GetAllItems()
+    {
+        return new System.Collections.Generic.Dictionary<string, int>(items);
+    }
+    
+    /// <summary>
+    /// 인벤토리 초기화
+    /// </summary>
+    public void ClearInventory()
+    {
+        items.Clear();
+        OnInventoryChanged?.Invoke();
+        Debug.Log("인벤토리를 초기화했습니다.");
+    }
 }
 
 /// <summary>

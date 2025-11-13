@@ -4,9 +4,15 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// TPS 액션 RPG를 위한 기본 애니메이션 컨트롤러
-/// Animancer Lite를 사용하여 간단한 애니메이션 제어를 구현
+/// [DEPRECATED] 간단한 테스트용 애니메이션 컨트롤러
+/// 
+/// 새로운 프로젝트에서는 AdvancedCharacterAnimationController를 사용하세요.
+/// 이 클래스는 Animation Sequence와 Animation Montage를 지원하는
+/// 언리얼 스타일의 애니메이션 시스템을 제공합니다.
+/// 
+/// 참고: Assets/02.Scripts/Core/AnimationSystemGuide.md
 /// </summary>
+[System.Obsolete("Use AdvancedCharacterAnimationController instead")]
 [RequireComponent(typeof(AnimancerComponent))]
 public class CharacterAnimationController : MonoBehaviour
 {

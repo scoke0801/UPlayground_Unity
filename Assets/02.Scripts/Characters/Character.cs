@@ -3,26 +3,15 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 모든 캐릭터(플레이어, NPC, 적)의 기본 클래스
+/// 속성은 ScriptableObject로 관리하여 간결한 코드 유지
 /// </summary>
 public abstract class Character : BaseActor
 {
-    [Header("캐릭터 스탯")]
-    [SerializeField] protected float maxHP = 100f;
-    [SerializeField] protected float maxMP = 50f;
-    [SerializeField] protected float maxStamina = 100f;
+    [Header("캐릭터 데이터")]
+    [SerializeField] protected CharacterStatsData statsData;
+    [SerializeField] protected MovementSettingsData movementData;
     
-    [Header("재생률")]
-    [SerializeField] protected float hpRegenRate = 5f;
-    [SerializeField] protected float mpRegenRate = 10f;
-    [SerializeField] protected float staminaRegenRate = 20f;
-    
-    [Header("이동 속성")]
-    [SerializeField] protected float walkSpeed = 3f;
-    [SerializeField] protected float runSpeed = 6f;
-    [SerializeField] protected float jumpPower = 5f;
-    [SerializeField] protected float rollDistance = 3f;
-    
-    // 현재 스탯
+    // 현재 스탯 (런타임)
     protected float currentHP;
     protected float currentMP;
     protected float currentStamina;
@@ -36,14 +25,29 @@ public abstract class Character : BaseActor
     // 상태 이상
     protected List<StatusEffect> statusEffects = new List<StatusEffect>();
     
-    // 프로퍼티
-    public float CurrentHP { get => currentHP; protected set => currentHP = Mathf.Clamp(value, 0, maxHP); }
-    public float CurrentMP { get => currentMP; protected set => currentMP = Mathf.Clamp(value, 0, maxMP); }
-    public float CurrentStamina { get => currentStamina; protected set => currentStamina = Mathf.Clamp(value, 0, maxStamina); }
-    public float MaxHP { get => maxHP; protected set => maxHP = value; }
-    public float MaxMP { get => maxMP; protected set => maxMP = value; }
-    public float MaxStamina { get => maxStamina; protected set => maxStamina = value; }
+    // 프로퍼티 - 현재 스탯
+    public float CurrentHP 
+    { 
+        get => currentHP; 
+        protected set => currentHP = Mathf.Clamp(value, 0, MaxHP); 
+    }
+    public float CurrentMP 
+    { 
+        get => currentMP; 
+        protected set => currentMP = Mathf.Clamp(value, 0, MaxMP); 
+    }
+    public float CurrentStamina 
+    { 
+        get => currentStamina; 
+        protected set => currentStamina = Mathf.Clamp(value, 0, MaxStamina); 
+    }
     
+    // 프로퍼티 - 최대 스탯 (데이터 참조, 상속 클래스에서 수정 가능)
+    public virtual float MaxHP { get; protected set; }
+    public virtual float MaxMP { get; protected set; }
+    public virtual float MaxStamina { get; protected set; }
+    
+    // 상태 프로퍼티
     public bool IsAlive => isAlive;
     public bool IsRunning => isRunning;
     public bool IsGrounded => isGrounded;
@@ -62,18 +66,40 @@ public abstract class Character : BaseActor
     {
         base.InitializeComponents();
         characterAnimator = GetComponent<Animator>();
+        
+        // 데이터 유효성 검사
+        if (statsData == null)
+        {
+            Debug.LogError($"{gameObject.name}: CharacterStatsData가 할당되지 않았습니다!");
+        }
+        if (movementData == null)
+        {
+            Debug.LogError($"{gameObject.name}: MovementSettingsData가 할당되지 않았습니다!");
+        }
     }
     
     protected override void Initialize()
     {
-        currentHP = maxHP;
-        currentMP = maxMP;
-        currentStamina = maxStamina;
+        // 데이터로부터 초기 스탯 설정
+        if (statsData != null)
+        {
+            MaxHP = statsData.maxHP;
+            MaxMP = statsData.maxMP;
+            MaxStamina = statsData.maxStamina;
+            
+            currentHP = MaxHP;
+            currentMP = MaxMP;
+            currentStamina = MaxStamina;
+        }
         
-        moveSpeed = walkSpeed;
+        // 이동 속도 설정
+        if (movementData != null)
+        {
+            moveSpeed = movementData.walkSpeed;
+            rotationSpeed = movementData.rotationSpeed;
+        }
     }
     
-    // Update: 일반 게임 로직
     protected override void UpdateGameLogic()
     {
         if (!isAlive) return;
@@ -82,7 +108,6 @@ public abstract class Character : BaseActor
         UpdateStatusEffects();
     }
     
-    // FixedUpdate: 물리 기반 처리
     protected override void HandlePhysicsMovement()
     {
         if (!isAlive) return;
@@ -96,7 +121,9 @@ public abstract class Character : BaseActor
     /// </summary>
     protected virtual void UpdateGroundCheck()
     {
-        float groundCheckDistance = 0.1f;
+        if (movementData == null) return;
+        
+        float groundCheckDistance = movementData.groundCheckDistance;
         isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance + 0.1f);
     }
     
@@ -105,14 +132,16 @@ public abstract class Character : BaseActor
     /// </summary>
     protected virtual void UpdateRegeneration()
     {
-        if (currentHP < maxHP)
-            CurrentHP += hpRegenRate * Time.deltaTime;
+        if (statsData == null) return;
         
-        if (currentMP < maxMP)
-            CurrentMP += mpRegenRate * Time.deltaTime;
+        if (currentHP < MaxHP)
+            CurrentHP += statsData.hpRegenRate * Time.deltaTime;
         
-        if (currentStamina < maxStamina && !isRunning)
-            CurrentStamina += staminaRegenRate * Time.deltaTime;
+        if (currentMP < MaxMP)
+            CurrentMP += statsData.mpRegenRate * Time.deltaTime;
+        
+        if (currentStamina < MaxStamina && !isRunning)
+            CurrentStamina += statsData.staminaRegenRate * Time.deltaTime;
     }
     
     /// <summary>
@@ -139,7 +168,7 @@ public abstract class Character : BaseActor
         if (!isAlive) return;
         
         CurrentHP -= damage;
-        OnHPChanged?.Invoke(this, currentHP, maxHP);
+        OnHPChanged?.Invoke(this, currentHP, MaxHP);
         
         if (currentHP <= 0)
         {
@@ -153,7 +182,7 @@ public abstract class Character : BaseActor
     public virtual void Heal(float amount)
     {
         CurrentHP += amount;
-        OnHPChanged?.Invoke(this, currentHP, maxHP);
+        OnHPChanged?.Invoke(this, currentHP, MaxHP);
     }
     
     /// <summary>
@@ -164,7 +193,7 @@ public abstract class Character : BaseActor
         if (currentMP < amount) return false;
         
         CurrentMP -= amount;
-        OnMPChanged?.Invoke(this, currentMP, maxMP);
+        OnMPChanged?.Invoke(this, currentMP, MaxMP);
         return true;
     }
     
@@ -184,11 +213,12 @@ public abstract class Character : BaseActor
     /// </summary>
     public virtual void Jump()
     {
-        if (!isGrounded || !UseStamina(20f)) return;
+        if (statsData == null || movementData == null) return;
+        if (!isGrounded || !UseStamina(statsData.jumpStaminaCost)) return;
         
         if (actorRigidbody != null)
         {
-            actorRigidbody.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+            actorRigidbody.AddForce(Vector3.up * movementData.jumpPower, ForceMode.Impulse);
         }
         
         SetAnimationTrigger("Jump");
@@ -199,7 +229,8 @@ public abstract class Character : BaseActor
     /// </summary>
     public virtual void Roll(Vector3 direction)
     {
-        if (!isGrounded || isRolling || !UseStamina(30f)) return;
+        if (statsData == null || movementData == null) return;
+        if (!isGrounded || isRolling || !UseStamina(statsData.rollStaminaCost)) return;
         
         StartCoroutine(PerformRoll(direction));
     }
@@ -209,13 +240,15 @@ public abstract class Character : BaseActor
     /// </summary>
     protected virtual System.Collections.IEnumerator PerformRoll(Vector3 direction)
     {
+        if (movementData == null) yield break;
+        
         isRolling = true;
         SetAnimationTrigger("Roll");
         
-        float rollTime = 0.5f;
+        float rollTime = movementData.rollDuration;
         float timer = 0f;
         Vector3 startPos = transform.position;
-        Vector3 targetPos = startPos + direction.normalized * rollDistance;
+        Vector3 targetPos = startPos + direction.normalized * movementData.rollDistance;
         
         while (timer < rollTime)
         {
@@ -233,6 +266,7 @@ public abstract class Character : BaseActor
     /// </summary>
     public virtual void SetRunning(bool running)
     {
+        if (statsData == null || movementData == null) return;
         if (isRolling) return;
         
         if (running && currentStamina <= 0)
@@ -241,11 +275,11 @@ public abstract class Character : BaseActor
         }
         
         isRunning = running;
-        moveSpeed = running ? runSpeed : walkSpeed;
+        moveSpeed = running ? movementData.runSpeed : movementData.walkSpeed;
         
         if (running)
         {
-            UseStamina(10f * Time.deltaTime);
+            UseStamina(statsData.runStaminaCostPerSecond * Time.deltaTime);
         }
         
         SetAnimationBool("IsRunning", running);

@@ -1,35 +1,21 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
 
 /// <summary>
-/// Enemy (적) 클래스
-/// AI 전투 시스템, 공격 패턴 관리, 드롭 아이템 시스템, 경험치 제공을 포함
+/// Enemy (적) 클래스 - 리팩토링 버전
+/// 데이터 기반 구조로 간결하고 재사용 가능
 /// </summary>
 public class Enemy : Character
 {
-    [Header("적 설정")]
+    [Header("Enemy 데이터")]
+    [SerializeField] private EnemyAIData aiData;
+    [SerializeField] private EnemyCombatData combatData;
+    [SerializeField] private EnemyRewardData rewardData;
+    
+    [Header("Enemy 설정")]
     [SerializeField] private string enemyName = "Enemy";
     [SerializeField] private EnemyType enemyType = EnemyType.Normal;
     [SerializeField] private int level = 1;
-    [SerializeField] private int experienceReward = 50;
-    
-    [Header("AI 설정")]
-    [SerializeField] private float detectionRange = 10f;
-    [SerializeField] private float attackRange = 2f;
-    [SerializeField] private float chaseRange = 15f;
-    [SerializeField] private float patrolRange = 5f;
-    [SerializeField] private float lostTargetTime = 3f;
-    
-    [Header("전투 설정")]
-    [SerializeField] private float attackDamage = 20f;
-    [SerializeField] private float attackCooldown = 2f;
-    [SerializeField] private List<AttackPattern> attackPatterns = new List<AttackPattern>();
-    
-    [Header("드롭 시스템")]
-    [SerializeField] private List<DropItem> dropItems = new List<DropItem>();
-    [SerializeField] private int minGoldDrop = 10;
-    [SerializeField] private int maxGoldDrop = 50;
     
     // AI 상태
     private EnemyState currentState = EnemyState.Patrol;
@@ -43,6 +29,7 @@ public class Enemy : Character
     // 전투 관련
     private bool isInCombat = false;
     private float combatTimer = 0f;
+    private float currentAttackDamage;
     
     // 컴포넌트
     private SphereCollider detectionCollider;
@@ -60,6 +47,25 @@ public class Enemy : Character
     public System.Action<Enemy, Character> OnTargetLost;
     public System.Action<Enemy, AttackPattern> OnAttackExecuted;
     
+    protected override void InitializeComponents()
+    {
+        base.InitializeComponents();
+        
+        // 데이터 유효성 검사
+        if (aiData == null)
+        {
+            Debug.LogError($"{gameObject.name}: EnemyAIData가 할당되지 않았습니다!");
+        }
+        if (combatData == null)
+        {
+            Debug.LogError($"{gameObject.name}: EnemyCombatData가 할당되지 않았습니다!");
+        }
+        if (rewardData == null)
+        {
+            Debug.LogError($"{gameObject.name}: EnemyRewardData가 할당되지 않았습니다!");
+        }
+    }
+    
     protected override void Initialize()
     {
         base.Initialize();
@@ -76,13 +82,14 @@ public class Enemy : Character
     /// </summary>
     private void InitializeStats()
     {
-        // 레벨에 따른 스탯 증가
-        maxHP = 100f + (level - 1) * 20f;
-        attackDamage = 20f + (level - 1) * 5f;
-        experienceReward = 50 + (level - 1) * 25;
+        if (statsData == null || combatData == null) return;
         
-        // 현재 체력을 최대치로 설정
-        currentHP = maxHP;
+        // 레벨에 따른 스탯 증가
+        MaxHP = statsData.maxHP + (level - 1) * 20f;
+        currentHP = MaxHP;
+        
+        // 공격력 계산
+        currentAttackDamage = combatData.baseAttackDamage + (level - 1) * combatData.attackDamagePerLevel;
     }
     
     /// <summary>
@@ -90,9 +97,11 @@ public class Enemy : Character
     /// </summary>
     private void SetupDetectionCollider()
     {
+        if (aiData == null) return;
+        
         detectionCollider = gameObject.AddComponent<SphereCollider>();
         detectionCollider.isTrigger = true;
-        detectionCollider.radius = detectionRange;
+        detectionCollider.radius = aiData.detectionRange;
     }
     
     protected override void UpdateGameLogic()
@@ -124,9 +133,6 @@ public class Enemy : Character
             case EnemyState.Returning:
                 HandleReturningState();
                 break;
-            case EnemyState.Dead:
-                // 사망 상태는 별도 처리하지 않음
-                break;
         }
     }
     
@@ -135,8 +141,10 @@ public class Enemy : Character
     /// </summary>
     private void HandlePatrolState()
     {
+        if (aiData == null || movementData == null) return;
+        
         // 목표가 있으면 추적 시작
-        if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRange)
+        if (target != null && Vector3.Distance(transform.position, target.position) <= aiData.detectionRange)
         {
             ChangeState(EnemyState.Chasing);
             return;
@@ -152,7 +160,7 @@ public class Enemy : Character
         }
         
         SetMovementInput(direction);
-        MoveSpeed = walkSpeed;
+        MoveSpeed = movementData.walkSpeed;
         
         if (direction != Vector3.zero)
         {
@@ -165,6 +173,8 @@ public class Enemy : Character
     /// </summary>
     private void HandleChasingState()
     {
+        if (aiData == null || movementData == null) return;
+        
         if (target == null)
         {
             ChangeState(EnemyState.Patrol);
@@ -174,10 +184,10 @@ public class Enemy : Character
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         
         // 추적 범위를 벗어났으면 목표 잃음
-        if (distanceToTarget > chaseRange)
+        if (distanceToTarget > aiData.chaseRange)
         {
             lostTargetTimer += Time.deltaTime;
-            if (lostTargetTimer >= lostTargetTime)
+            if (lostTargetTimer >= aiData.lostTargetTime)
             {
                 LoseTarget();
                 ChangeState(EnemyState.Returning);
@@ -190,7 +200,7 @@ public class Enemy : Character
         }
         
         // 공격 범위에 들어왔으면 공격
-        if (distanceToTarget <= attackRange)
+        if (distanceToTarget <= aiData.attackRange)
         {
             ChangeState(EnemyState.Attacking);
             return;
@@ -201,7 +211,7 @@ public class Enemy : Character
         direction.y = 0;
         
         SetMovementInput(direction);
-        MoveSpeed = runSpeed;
+        MoveSpeed = movementData.runSpeed;
         
         if (direction != Vector3.zero)
         {
@@ -214,6 +224,8 @@ public class Enemy : Character
     /// </summary>
     private void HandleAttackingState()
     {
+        if (aiData == null) return;
+        
         if (target == null)
         {
             ChangeState(EnemyState.Patrol);
@@ -223,7 +235,7 @@ public class Enemy : Character
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         
         // 공격 범위를 벗어났으면 다시 추적
-        if (distanceToTarget > attackRange)
+        if (distanceToTarget > aiData.attackRange)
         {
             ChangeState(EnemyState.Chasing);
             return;
@@ -235,7 +247,7 @@ public class Enemy : Character
         SetRotationTarget(lookDirection);
         
         // 공격 쿨다운 확인
-        if (Time.time >= lastAttackTime + attackCooldown)
+        if (Time.time >= lastAttackTime + aiData.attackCooldown)
         {
             ExecuteAttack();
             lastAttackTime = Time.time;
@@ -250,6 +262,8 @@ public class Enemy : Character
     /// </summary>
     private void HandleReturningState()
     {
+        if (movementData == null) return;
+        
         Vector3 direction = (startPosition - transform.position).normalized;
         direction.y = 0;
         
@@ -261,7 +275,7 @@ public class Enemy : Character
         }
         
         SetMovementInput(direction);
-        MoveSpeed = walkSpeed;
+        MoveSpeed = movementData.walkSpeed;
         
         if (direction != Vector3.zero)
         {
@@ -274,7 +288,6 @@ public class Enemy : Character
     /// </summary>
     private void ChangeState(EnemyState newState)
     {
-        EnemyState previousState = currentState;
         currentState = newState;
         
         // 상태별 초기화
@@ -290,7 +303,10 @@ public class Enemy : Character
                 isInCombat = true;
                 combatTimer = 0f;
                 SetAnimationBool("IsRunning", true);
-                OnTargetDetected?.Invoke(this, target.GetComponent<Character>());
+                if (target != null)
+                {
+                    OnTargetDetected?.Invoke(this, target.GetComponent<Character>());
+                }
                 break;
                 
             case EnemyState.Attacking:
@@ -301,8 +317,10 @@ public class Enemy : Character
             case EnemyState.Returning:
                 isInCombat = false;
                 SetAnimationBool("IsRunning", false);
-                SetAnimationBool("IsAttacking", false);
-                OnTargetLost?.Invoke(this, target?.GetComponent<Character>());
+                if (target != null)
+                {
+                    OnTargetLost?.Invoke(this, target.GetComponent<Character>());
+                }
                 break;
         }
     }
@@ -312,18 +330,20 @@ public class Enemy : Character
     /// </summary>
     private void ExecuteAttack()
     {
-        if (attackPatterns.Count == 0)
+        if (combatData == null) return;
+        
+        // 공격 패턴이 없으면 기본 공격
+        if (combatData.attackPatterns == null || combatData.attackPatterns.Count == 0)
         {
-            // 기본 공격
             PerformBasicAttack();
             return;
         }
         
         // 패턴 공격 실행
-        AttackPattern pattern = attackPatterns[currentAttackPatternIndex];
+        AttackPattern pattern = combatData.attackPatterns[currentAttackPatternIndex];
         StartCoroutine(PerformAttackPattern(pattern));
         
-        currentAttackPatternIndex = (currentAttackPatternIndex + 1) % attackPatterns.Count;
+        currentAttackPatternIndex = (currentAttackPatternIndex + 1) % combatData.attackPatterns.Count;
     }
     
     /// <summary>
@@ -336,7 +356,7 @@ public class Enemy : Character
             Character targetCharacter = target.GetComponent<Character>();
             if (targetCharacter != null)
             {
-                targetCharacter.TakeDamage(attackDamage);
+                targetCharacter.TakeDamage(currentAttackDamage);
                 SetAnimationTrigger("Attack");
             }
         }
@@ -363,7 +383,7 @@ public class Enemy : Character
             Character targetCharacter = target.GetComponent<Character>();
             if (targetCharacter != null)
             {
-                float damage = attackDamage * pattern.DamageMultiplier;
+                float damage = currentAttackDamage * pattern.DamageMultiplier;
                 targetCharacter.TakeDamage(damage);
                 
                 // 특수 효과 적용
@@ -406,6 +426,11 @@ public class Enemy : Character
     /// </summary>
     private void LoseTarget()
     {
+        if (target != null)
+        {
+            Character targetChar = target.GetComponent<Character>();
+            OnTargetLost?.Invoke(this, targetChar);
+        }
         target = null;
         lostTargetTimer = 0f;
     }
@@ -415,7 +440,9 @@ public class Enemy : Character
     /// </summary>
     private Vector3 GetRandomPatrolPoint()
     {
-        Vector2 randomPoint = Random.insideUnitCircle * patrolRange;
+        if (aiData == null) return startPosition;
+        
+        Vector2 randomPoint = Random.insideUnitCircle * aiData.patrolRange;
         return startPosition + new Vector3(randomPoint.x, 0, randomPoint.y);
     }
     
@@ -427,7 +454,7 @@ public class Enemy : Character
         base.Die();
         
         ChangeState(EnemyState.Dead);
-        DropItems();
+        DropRewards();
         GiveExperience();
         
         OnEnemyDied?.Invoke(this);
@@ -437,21 +464,28 @@ public class Enemy : Character
     }
     
     /// <summary>
-    /// 아이템 드롭
+    /// 보상 드롭 (골드 + 아이템)
     /// </summary>
-    private void DropItems()
+    private void DropRewards()
     {
+        if (rewardData == null) return;
+        
         // 골드 드롭
-        int goldAmount = Random.Range(minGoldDrop, maxGoldDrop + 1);
+        int baseGold = Random.Range(rewardData.minGoldDrop, rewardData.maxGoldDrop + 1);
+        float levelBonus = 1f + ((level - 1) * rewardData.goldIncreasePerLevel / 100f);
+        int goldAmount = Mathf.RoundToInt(baseGold * levelBonus);
         DropGold(goldAmount);
         
         // 아이템 드롭
-        foreach (DropItem dropItem in dropItems)
+        if (rewardData.dropItems != null)
         {
-            if (Random.Range(0f, 100f) <= dropItem.DropChance)
+            foreach (DropItem dropItem in rewardData.dropItems)
             {
-                int quantity = Random.Range(dropItem.MinQuantity, dropItem.MaxQuantity + 1);
-                DropItem(dropItem.ItemID, quantity);
+                if (Random.Range(0f, 100f) <= dropItem.DropChance)
+                {
+                    int quantity = Random.Range(dropItem.MinQuantity, dropItem.MaxQuantity + 1);
+                    DropItem(dropItem.ItemID, quantity);
+                }
             }
         }
     }
@@ -479,12 +513,15 @@ public class Enemy : Character
     /// </summary>
     private void GiveExperience()
     {
+        if (rewardData == null) return;
+        
         if (target != null)
         {
             Player player = target.GetComponent<Player>();
             if (player != null)
             {
-                player.GainExperience(experienceReward);
+                int exp = rewardData.baseExperience + (level - 1) * rewardData.experiencePerLevel;
+                player.GainExperience(exp);
             }
         }
     }
@@ -508,14 +545,6 @@ public class Enemy : Character
         }
     }
     
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player") && target == other.transform)
-        {
-            // 추적 범위를 벗어났을 때는 즉시 목표를 잃지 않고 일정 시간 대기
-        }
-    }
-    
     // 공용 메서드
     public void ForceSetTarget(Transform newTarget)
     {
@@ -530,6 +559,15 @@ public class Enemy : Character
     {
         LoseTarget();
         ChangeState(EnemyState.Patrol);
+    }
+    
+    /// <summary>
+    /// 경험치 보상 계산
+    /// </summary>
+    public int GetExperienceReward()
+    {
+        if (rewardData == null) return 0;
+        return rewardData.baseExperience + (level - 1) * rewardData.experiencePerLevel;
     }
 }
 

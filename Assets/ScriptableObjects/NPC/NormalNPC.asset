@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f79d91b77dffc74fbc9c5d4f17d5d11, type: 3}
+  m_Name: NormalNPC
+  m_EditorClassIdentifier: 
+  npcType: 0
+  interactionRange: 3
+  patrolRange: 5
+  npcWalkSpeed: 2
+  idleTimeMin: 2
+  idleTimeMax: 5
+  dialogues:
+  - "\uC548\uB155\uD558\uC138\uC694!"
+  - "\uC88B\uC740 \uB0A0\uC528\uB124\uC694."
+  - "\uC5EC\uAE30\uB294 \uD3C9\uD654\uB85C\uC6B4 \uB9C8\uC744\uC785\uB2C8\uB2E4."
+  availableQuests: []
+  shopItems: []
+  shopBuyBackPercentage: 50

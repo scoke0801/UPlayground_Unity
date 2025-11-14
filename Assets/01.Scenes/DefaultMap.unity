@@ -356,25 +356,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   collisionRadius: 1
-  maxHP: 100
-  maxMP: 50
-  maxStamina: 100
-  hpRegenRate: 5
-  mpRegenRate: 10
-  staminaRegenRate: 20
-  walkSpeed: 3
-  runSpeed: 6
-  jumpPower: 5
-  rollDistance: 3
+  statsData: {fileID: 11400000, guid: 7597f0467c8eceb48ab9cfa3d71e016d, type: 2}
+  movementData: {fileID: 11400000, guid: d8cfe9dc479a7e24f8e9a18aa61ee53d, type: 2}
+  playerSettings: {fileID: 11400000, guid: e5da207b4adf04e45b8b97fbf0f092e1, type: 2}
   playerCamera: {fileID: 860765916}
   cameraFollowTarget: {fileID: 1056033488}
-  mouseSensitivity: 2
-  cameraDistance: 5
-  cameraHeight: 2
-  level: 1
-  currentExp: 0
-  expToNext: 100
-  gold: 0
 --- !u!54 &1056033491
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -708,20 +694,30 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8318723611206520418, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3376001476925263522, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1837850280}
+      addedObject: {fileID: 1837850283}
+    - targetCorrespondingSourceObject: {fileID: 3376001476925263522, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1837850284}
+    - targetCorrespondingSourceObject: {fileID: 3376001476925263522, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1837850285}
   m_SourcePrefab: {fileID: 100100000, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
 --- !u!1 &1837850279 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3376001476925263522, guid: e5ab23fc0e5079048ab426731fddcfbb, type: 3}
   m_PrefabInstance: {fileID: 1837850278}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1837850280
+--- !u!114 &1837850283
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -741,31 +737,64 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   collisionRadius: 1
-  maxHP: 100
-  maxMP: 50
-  maxStamina: 100
-  hpRegenRate: 5
-  mpRegenRate: 10
-  staminaRegenRate: 20
-  walkSpeed: 3
-  runSpeed: 6
-  jumpPower: 5
-  rollDistance: 3
+  statsData: {fileID: 11400000, guid: 7597f0467c8eceb48ab9cfa3d71e016d, type: 2}
+  movementData: {fileID: 11400000, guid: d8cfe9dc479a7e24f8e9a18aa61ee53d, type: 2}
+  aiData: {fileID: 11400000, guid: 457b612fbd3926a4083a0ca97476ce5d, type: 2}
+  combatData: {fileID: 11400000, guid: 60715dfcb1760d448b7eb8ac78869e5f, type: 2}
+  rewardData: {fileID: 11400000, guid: a3d6d0365c0ba65409b5faa040a9d885, type: 2}
   enemyName: Enemy
   enemyType: 0
   level: 1
-  experienceReward: 50
-  detectionRange: 10
-  attackRange: 2
-  chaseRange: 15
-  patrolRange: 5
-  lostTargetTime: 3
-  attackDamage: 20
-  attackCooldown: 2
-  attackPatterns: []
-  dropItems: []
-  minGoldDrop: 10
-  maxGoldDrop: 50
+--- !u!54 &1837850284
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837850279}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
+--- !u!136 &1837850285
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837850279}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.8, z: 0}
 --- !u!1001 &4551581353238241855
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -818,6 +847,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: SK_LittleBoyRyan
       objectReference: {fileID: 0}
+    - target: {fileID: 4276389468966266011, guid: 02e5eadde479ff1478b5a06eaca33acc, type: 3}
+      propertyPath: statsData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7597f0467c8eceb48ab9cfa3d71e016d, type: 2}
+    - target: {fileID: 4276389468966266011, guid: 02e5eadde479ff1478b5a06eaca33acc, type: 3}
+      propertyPath: npcSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: 750fa5fce19275a44947b1f8283e704b, type: 2}
+    - target: {fileID: 4276389468966266011, guid: 02e5eadde479ff1478b5a06eaca33acc, type: 3}
+      propertyPath: movementData
+      value: 
+      objectReference: {fileID: 11400000, guid: d8cfe9dc479a7e24f8e9a18aa61ee53d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

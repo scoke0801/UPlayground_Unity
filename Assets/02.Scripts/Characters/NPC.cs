@@ -1,31 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
 
 /// <summary>
-/// NPC (비플레이어 캐릭터) 클래스
-/// AI 행동 패턴, 대화 시스템, 퀘스트 제공/완료, 상점 기능을 포함
+/// NPC (비플레이어 캐릭터) 클래스 - 리팩토링 버전
+/// 데이터 기반 구조로 간결하고 재사용 가능
 /// </summary>
 public class NPC : Character
 {
+    [Header("NPC 데이터")]
+    [SerializeField] private NPCSettingsData npcSettings;
+    
     [Header("NPC 설정")]
     [SerializeField] private string npcName = "NPC";
-    [SerializeField] private NPCType npcType = NPCType.Normal;
-    [SerializeField] private float interactionRange = 3f;
-    [SerializeField] private float patrolRange = 5f;
-    [SerializeField] private float npcWalkSpeed = 2f;
-    
-    [Header("대화 시스템")]
-    [SerializeField] private List<string> dialogues = new List<string>();
-    [SerializeField] private int currentDialogueIndex = 0;
-    
-    [Header("퀘스트 시스템")]
-    [SerializeField] private List<Quest> availableQuests = new List<Quest>();
-    [SerializeField] private List<Quest> completableQuests = new List<Quest>();
-    
-    [Header("상점 시스템 (상인용)")]
-    [SerializeField] private List<ShopItem> shopItems = new List<ShopItem>();
-    [SerializeField] private int shopBuyBackPercentage = 50;
     
     // AI 상태
     private NPCState currentState = NPCState.Idle;
@@ -34,12 +20,22 @@ public class NPC : Character
     private float stateTimer = 0f;
     private Transform player;
     
+    // 대화 시스템
+    private int currentDialogueIndex = 0;
+    
+    // 퀘스트 시스템 (런타임)
+    private List<Quest> runtimeAvailableQuests = new List<Quest>();
+    private List<Quest> completableQuests = new List<Quest>();
+    
+    // 상점 시스템 (런타임)
+    private List<ShopItem> runtimeShopItems = new List<ShopItem>();
+    
     // 컴포넌트
     private SphereCollider interactionCollider;
     
     // 프로퍼티
     public string NPCName => npcName;
-    public NPCType Type => npcType;
+    public NPCType Type => npcSettings != null ? npcSettings.npcType : NPCType.Normal;
     public bool CanInteract { get; private set; } = false;
     
     // 이벤트
@@ -47,6 +43,17 @@ public class NPC : Character
     public System.Action<NPC, Quest> OnQuestOffered;
     public System.Action<NPC, Quest> OnQuestCompleted;
     public System.Action<NPC> OnShopOpened;
+    
+    protected override void InitializeComponents()
+    {
+        base.InitializeComponents();
+        
+        // 데이터 유효성 검사
+        if (npcSettings == null)
+        {
+            Debug.LogError($"{gameObject.name}: NPCSettingsData가 할당되지 않았습니다!");
+        }
+    }
     
     protected override void Initialize()
     {
@@ -57,7 +64,28 @@ public class NPC : Character
         player = FindFirstObjectByType<Player>()?.transform;
         
         SetupInteractionCollider();
+        InitializeRuntimeData();
         SetRandomTarget();
+    }
+    
+    /// <summary>
+    /// 런타임 데이터 초기화 (데이터 복사)
+    /// </summary>
+    private void InitializeRuntimeData()
+    {
+        if (npcSettings == null) return;
+        
+        // 퀘스트 데이터 복사
+        if (npcSettings.availableQuests != null)
+        {
+            runtimeAvailableQuests = new List<Quest>(npcSettings.availableQuests);
+        }
+        
+        // 상점 아이템 복사
+        if (npcSettings.shopItems != null)
+        {
+            runtimeShopItems = new List<ShopItem>(npcSettings.shopItems);
+        }
     }
     
     /// <summary>
@@ -65,9 +93,11 @@ public class NPC : Character
     /// </summary>
     private void SetupInteractionCollider()
     {
+        if (npcSettings == null) return;
+        
         interactionCollider = gameObject.AddComponent<SphereCollider>();
         interactionCollider.isTrigger = true;
-        interactionCollider.radius = interactionRange;
+        interactionCollider.radius = npcSettings.interactionRange;
     }
     
     protected override void UpdateGameLogic()
@@ -85,6 +115,8 @@ public class NPC : Character
     /// </summary>
     private void UpdateAI()
     {
+        if (npcSettings == null) return;
+        
         stateTimer += Time.deltaTime;
         
         switch (currentState)
@@ -106,7 +138,10 @@ public class NPC : Character
     /// </summary>
     private void HandleIdleState()
     {
-        if (stateTimer >= Random.Range(2f, 5f))
+        if (npcSettings == null) return;
+        
+        float waitTime = Random.Range(npcSettings.idleTimeMin, npcSettings.idleTimeMax);
+        if (stateTimer >= waitTime)
         {
             SetRandomTarget();
             ChangeState(NPCState.Walking);
@@ -118,8 +153,10 @@ public class NPC : Character
     /// </summary>
     private void HandleWalkingState()
     {
+        if (npcSettings == null) return;
+        
         Vector3 direction = (currentTarget - transform.position).normalized;
-        direction.y = 0; // Y축 이동 제한
+        direction.y = 0;
         
         if (Vector3.Distance(transform.position, currentTarget) < 0.5f)
         {
@@ -142,8 +179,10 @@ public class NPC : Character
     /// </summary>
     private void HandleInteractingState()
     {
+        if (npcSettings == null) return;
+        
         // 플레이어가 멀어지면 원래 상태로 복귀
-        if (player != null && Vector3.Distance(transform.position, player.position) > interactionRange)
+        if (player != null && Vector3.Distance(transform.position, player.position) > npcSettings.interactionRange)
         {
             ChangeState(NPCState.Idle);
         }
@@ -154,6 +193,8 @@ public class NPC : Character
     /// </summary>
     private void ChangeState(NPCState newState)
     {
+        if (npcSettings == null) return;
+        
         currentState = newState;
         stateTimer = 0f;
         
@@ -163,7 +204,7 @@ public class NPC : Character
                 SetMovementInput(Vector3.zero);
                 break;
             case NPCState.Walking:
-                MoveSpeed = npcWalkSpeed;
+                MoveSpeed = npcSettings.npcWalkSpeed;
                 break;
             case NPCState.Interacting:
                 SetMovementInput(Vector3.zero);
@@ -183,7 +224,9 @@ public class NPC : Character
     /// </summary>
     private void SetRandomTarget()
     {
-        Vector2 randomPoint = Random.insideUnitCircle * patrolRange;
+        if (npcSettings == null) return;
+        
+        Vector2 randomPoint = Random.insideUnitCircle * npcSettings.patrolRange;
         currentTarget = startPosition + new Vector3(randomPoint.x, 0, randomPoint.y);
     }
     
@@ -192,10 +235,10 @@ public class NPC : Character
     /// </summary>
     private void UpdateInteraction()
     {
-        if (player == null) return;
+        if (player == null || npcSettings == null) return;
         
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        CanInteract = distanceToPlayer <= interactionRange;
+        CanInteract = distanceToPlayer <= npcSettings.interactionRange;
     }
     
     /// <summary>
@@ -203,11 +246,11 @@ public class NPC : Character
     /// </summary>
     public void Interact()
     {
-        if (!CanInteract) return;
+        if (!CanInteract || npcSettings == null) return;
         
         ChangeState(NPCState.Interacting);
         
-        switch (npcType)
+        switch (npcSettings.npcType)
         {
             case NPCType.Normal:
                 StartDialogue();
@@ -226,17 +269,19 @@ public class NPC : Character
     /// </summary>
     private void StartDialogue()
     {
-        if (dialogues.Count == 0)
+        if (npcSettings == null) return;
+        
+        if (npcSettings.dialogues == null || npcSettings.dialogues.Count == 0)
         {
             OnDialogue?.Invoke(this, "안녕하세요!");
             return;
         }
         
-        string dialogue = dialogues[currentDialogueIndex];
+        string dialogue = npcSettings.dialogues[currentDialogueIndex];
         OnDialogue?.Invoke(this, dialogue);
         
         // 다음 대화로 진행
-        currentDialogueIndex = (currentDialogueIndex + 1) % dialogues.Count;
+        currentDialogueIndex = (currentDialogueIndex + 1) % npcSettings.dialogues.Count;
     }
     
     /// <summary>
@@ -253,9 +298,9 @@ public class NPC : Character
         }
         
         // 제공 가능한 퀘스트 처리
-        if (availableQuests.Count > 0)
+        if (runtimeAvailableQuests.Count > 0)
         {
-            Quest quest = availableQuests[0];
+            Quest quest = runtimeAvailableQuests[0];
             OfferQuest(quest);
             return;
         }
@@ -270,7 +315,7 @@ public class NPC : Character
     private void OfferQuest(Quest quest)
     {
         OnQuestOffered?.Invoke(this, quest);
-        availableQuests.Remove(quest);
+        runtimeAvailableQuests.Remove(quest);
     }
     
     /// <summary>
@@ -281,14 +326,14 @@ public class NPC : Character
         OnQuestCompleted?.Invoke(this, quest);
         completableQuests.Remove(quest);
         
-        // 보상 지급 로직
+        // 보상 지급
         if (player != null)
         {
             Player playerComponent = player.GetComponent<Player>();
             if (playerComponent != null)
             {
                 playerComponent.GainExperience(quest.ExperienceReward);
-                // 골드 보상 등 추가 가능
+                playerComponent.GainGold(quest.GoldReward);
             }
         }
     }
@@ -306,7 +351,6 @@ public class NPC : Character
     /// </summary>
     public bool BuyItem(ShopItem item, Player buyer)
     {
-        // 구매 로직 구현
         if (buyer.GetGold() >= item.Price)
         {
             buyer.SpendGold(item.Price);
@@ -321,12 +365,13 @@ public class NPC : Character
     /// </summary>
     public bool SellItem(string itemID, int quantity, Player seller)
     {
-        // 판매 로직 구현
+        if (npcSettings == null) return false;
+        
         if (seller.HasItem(itemID, quantity))
         {
             seller.RemoveItemFromInventory(itemID, quantity);
             
-            // 판매가 계산 (상점에서 설정한 비율로)
+            // 판매가 계산
             int sellPrice = GetItemSellPrice(itemID) * quantity;
             seller.GainGold(sellPrice);
             return true;
@@ -339,10 +384,12 @@ public class NPC : Character
     /// </summary>
     private int GetItemSellPrice(string itemID)
     {
-        ShopItem shopItem = shopItems.Find(item => item.ItemID == itemID);
+        if (npcSettings == null) return 10;
+        
+        ShopItem shopItem = runtimeShopItems.Find(item => item.ItemID == itemID);
         if (shopItem != null)
         {
-            return Mathf.RoundToInt(shopItem.Price * (shopBuyBackPercentage / 100f));
+            return Mathf.RoundToInt(shopItem.Price * (npcSettings.shopBuyBackPercentage / 100f));
         }
         return 10; // 기본 판매가
     }
@@ -380,8 +427,8 @@ public class NPC : Character
     }
     
     // 유틸리티 메서드
-    public List<ShopItem> GetShopItems() => shopItems;
-    public List<Quest> GetAvailableQuests() => availableQuests;
+    public List<ShopItem> GetShopItems() => runtimeShopItems;
+    public List<Quest> GetAvailableQuests() => runtimeAvailableQuests;
     public List<Quest> GetCompletableQuests() => completableQuests;
 }
 

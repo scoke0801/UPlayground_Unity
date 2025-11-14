@@ -1,38 +1,38 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// 플레이어 캐릭터 클래스
+/// 설정 데이터를 ScriptableObject로 관리하여 코드 간결화
 /// </summary>
 public class Player : Character
 {
-    [Header("플레이어 설정")]
+    [Header("플레이어 데이터")]
+    [SerializeField] private PlayerSettingsData playerSettings;
+    
+    [Header("컴포넌트 참조")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform cameraFollowTarget;
-    [SerializeField] private float mouseSensitivity = 2f;
-    [SerializeField] private float cameraDistance = 5f;
-    [SerializeField] private float cameraHeight = 2f;
     
-    [Header("레벨 시스템")]
-    [SerializeField] private int level = 1;
-    [SerializeField] private int currentExp = 0;
-    [SerializeField] private int expToNext = 100;
+    // 레벨 시스템
+    private int level;
+    private int currentExp;
+    private int expToNext;
     
-    [Header("재화 시스템")]
-    [SerializeField] private int gold = 0;
+    // 재화
+    private int gold;
     
-    // 입력 관련
+    // 입력
     private Vector2 moveInput;
     private Vector2 lookInput;
     private bool jumpInput;
     private bool runInput;
     private bool rollInput;
     
-    // 카메라 관련
+    // 카메라
     private float cameraRotationX = 0f;
     private float cameraRotationY = 0f;
     
-    // 이동 관련 (FixedUpdate에서 사용)
+    // 물리 처리용 플래그
     private Vector3 calculatedMoveDirection;
     private bool shouldJump;
     private bool shouldRoll;
@@ -72,11 +72,26 @@ public class Player : Character
         
         if (equipment == null)
             equipment = gameObject.AddComponent<PlayerEquipment>();
+        
+        // 데이터 유효성 검사
+        if (playerSettings == null)
+        {
+            Debug.LogError($"{gameObject.name}: PlayerSettingsData가 할당되지 않았습니다!");
+        }
     }
     
     protected override void Initialize()
     {
         base.Initialize();
+        
+        // 플레이어 설정 초기화
+        if (playerSettings != null)
+        {
+            level = playerSettings.startLevel;
+            expToNext = CalculateExpToNext();
+            gold = playerSettings.startGold;
+        }
+        
         SetupCamera();
         InitializeInput();
         
@@ -84,7 +99,6 @@ public class Player : Character
         Cursor.visible = false;
     }
     
-    // Update: 입력 처리 및 일반 게임 로직
     protected override void HandleInput()
     {
         // 이동 입력
@@ -92,7 +106,7 @@ public class Player : Character
         float vertical = Input.GetAxis("Vertical");
         moveInput = new Vector2(horizontal, vertical);
         
-        // 마우스 입력 (카메라용)
+        // 마우스 입력 (카메라)
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         lookInput = new Vector2(mouseX, mouseY);
@@ -105,14 +119,13 @@ public class Player : Character
     
     protected override void UpdateGameLogic()
     {
+        base.UpdateGameLogic();
         ProcessMovementInput();
         UpdateAnimations();
     }
     
-    // FixedUpdate: 물리 기반 이동 처리
     protected override void HandlePhysicsMovement()
     {
-        // 기본 이동 처리
         base.HandlePhysicsMovement();
         
         // 점프 처리
@@ -130,7 +143,6 @@ public class Player : Character
         }
     }
     
-    // LateUpdate: 카메라 업데이트
     protected override void HandleLateUpdate()
     {
         UpdateCameraRotation();
@@ -156,10 +168,8 @@ public class Player : Character
             
             Vector3 moveDirection = cameraForward * moveInput.y + cameraRight * moveInput.x;
             
-            // FixedUpdate에서 사용할 이동 방향 설정
             SetMovementInput(moveDirection);
             
-            // 캐릭터 회전 방향 설정
             if (moveDirection != Vector3.zero)
             {
                 SetRotationTarget(moveDirection);
@@ -173,19 +183,20 @@ public class Player : Character
         // 달리기 설정
         SetRunning(runInput && moveInput.magnitude > 0.1f);
         
-        // 점프 처리 (FixedUpdate에서 실행하도록 플래그 설정)
+        // 점프 플래그
         if (jumpInput)
         {
             shouldJump = true;
         }
         
-        // 구르기 처리 (FixedUpdate에서 실행하도록 플래그 설정)
+        // 구르기 플래그
         if (rollInput && moveInput.magnitude > 0.1f)
         {
             rollDirection = transform.forward;
             if (moveInput.magnitude > 0.1f)
             {
-                Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + playerCamera.transform.right * moveInput.x;
+                Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + 
+                                        playerCamera.transform.right * moveInput.x;
                 inputDirection.y = 0;
                 rollDirection = inputDirection.normalized;
             }
@@ -198,12 +209,14 @@ public class Player : Character
     /// </summary>
     private void UpdateCameraRotation()
     {
-        if (playerCamera == null) return;
+        if (playerCamera == null || playerSettings == null) return;
         
         // 마우스 입력으로 카메라 회전
-        cameraRotationY += lookInput.x * mouseSensitivity;
-        cameraRotationX -= lookInput.y * mouseSensitivity;
-        cameraRotationX = Mathf.Clamp(cameraRotationX, -80f, 80f);
+        cameraRotationY += lookInput.x * playerSettings.mouseSensitivity;
+        cameraRotationX -= lookInput.y * playerSettings.mouseSensitivity;
+        cameraRotationX = Mathf.Clamp(cameraRotationX, 
+            playerSettings.cameraMinVerticalAngle, 
+            playerSettings.cameraMaxVerticalAngle);
     }
     
     /// <summary>
@@ -211,22 +224,23 @@ public class Player : Character
     /// </summary>
     private void UpdateCameraPosition()
     {
-        if (playerCamera == null || cameraFollowTarget == null) return;
+        if (playerCamera == null || cameraFollowTarget == null || playerSettings == null) return;
         
         // 카메라 위치 및 회전 계산
         Quaternion cameraRotation = Quaternion.Euler(cameraRotationX, cameraRotationY, 0);
-        Vector3 cameraOffset = cameraRotation * Vector3.back * cameraDistance + Vector3.up * cameraHeight;
+        Vector3 cameraOffset = cameraRotation * Vector3.back * playerSettings.cameraDistance + 
+                              Vector3.up * playerSettings.cameraHeight;
         Vector3 targetPosition = cameraFollowTarget.position + cameraOffset;
         
         // 카메라 이동 (부드럽게)
         playerCamera.transform.position = Vector3.Lerp(
             playerCamera.transform.position, 
             targetPosition, 
-            Time.deltaTime * 10f
+            Time.deltaTime * playerSettings.cameraSmoothness
         );
         
         playerCamera.transform.LookAt(
-            cameraFollowTarget.position + Vector3.up * cameraHeight * 0.5f
+            cameraFollowTarget.position + Vector3.up * playerSettings.cameraHeight * 0.5f
         );
     }
     
@@ -247,9 +261,11 @@ public class Player : Character
     /// </summary>
     private void SetupCamera()
     {
-        if (playerCamera != null)
+        if (playerCamera != null && cameraFollowTarget != null && playerSettings != null)
         {
-            Vector3 cameraPos = cameraFollowTarget.position - cameraFollowTarget.forward * cameraDistance + Vector3.up * cameraHeight;
+            Vector3 cameraPos = cameraFollowTarget.position - 
+                               cameraFollowTarget.forward * playerSettings.cameraDistance + 
+                               Vector3.up * playerSettings.cameraHeight;
             playerCamera.transform.position = cameraPos;
             playerCamera.transform.LookAt(cameraFollowTarget);
         }
@@ -260,10 +276,14 @@ public class Player : Character
     /// </summary>
     private void InitializeInput()
     {
-        // InputSystem 액션맵 설정은 여기서 구현
+        // InputSystem 액션맵 설정
     }
     
-    // 기존 메서드들...
+    #region 레벨링 시스템
+    
+    /// <summary>
+    /// 경험치 획득
+    /// </summary>
     public void GainExp(int exp)
     {
         currentExp += exp;
@@ -276,12 +296,54 @@ public class Player : Character
     }
     
     /// <summary>
-    /// 경험치 획득 (NPC/Enemy 시스템용 호환 메서드)
+    /// 경험치 획득 (호환성 메서드)
     /// </summary>
     public void GainExperience(int experience)
     {
         GainExp(experience);
     }
+    
+    /// <summary>
+    /// 레벨업 처리
+    /// </summary>
+    private void LevelUp()
+    {
+        if (playerSettings == null) return;
+        
+        currentExp -= expToNext;
+        level++;
+        expToNext = CalculateExpToNext();
+        
+        // 스탯 증가
+        MaxHP += playerSettings.hpIncreasePerLevel;
+        MaxMP += playerSettings.mpIncreasePerLevel;
+        MaxStamina += playerSettings.staminaIncreasePerLevel;
+        
+        // 현재 스탯 회복
+        CurrentHP = MaxHP;
+        CurrentMP = MaxMP;
+        CurrentStamina = MaxStamina;
+        
+        OnLevelUp?.Invoke(level);
+        OnExpChanged?.Invoke(currentExp, expToNext);
+        
+        Debug.Log($"레벨업! 현재 레벨: {level}");
+    }
+    
+    /// <summary>
+    /// 다음 레벨 경험치 계산
+    /// </summary>
+    private int CalculateExpToNext()
+    {
+        if (playerSettings == null) 
+            return 100;
+        
+        return playerSettings.baseExpRequired + (level - 1) * playerSettings.expIncreasePerLevel;
+    }
+    
+    #endregion
+    
+    #region 재화 시스템
     
     /// <summary>
     /// 골드 획득
@@ -316,6 +378,10 @@ public class Player : Character
         return gold;
     }
     
+    #endregion
+    
+    #region 인벤토리 시스템
+    
     /// <summary>
     /// 인벤토리에 아이템 추가
     /// </summary>
@@ -340,54 +406,38 @@ public class Player : Character
         return inventory.HasItem(itemID, quantity);
     }
     
-    private void LevelUp()
-    {
-        currentExp -= expToNext;
-        level++;
-        expToNext = CalculateExpToNext();
-        
-        maxHP += 20f;
-        maxMP += 10f;
-        maxStamina += 15f;
-        
-        CurrentHP = maxHP;
-        CurrentMP = maxMP;
-        CurrentStamina = maxStamina;
-        
-        OnLevelUp?.Invoke(level);
-        OnExpChanged?.Invoke(currentExp, expToNext);
-        
-        Debug.Log($"레벨업! 현재 레벨: {level}");
-    }
+    #endregion
     
-    private int CalculateExpToNext()
-    {
-        return 100 + (level - 1) * 50;
-    }
+    #region 설정 조정
     
+    /// <summary>
+    /// 마우스 감도 설정
+    /// </summary>
     public void SetMouseSensitivity(float sensitivity)
     {
-        mouseSensitivity = Mathf.Clamp(sensitivity, 0.1f, 10f);
+        if (playerSettings != null)
+        {
+            playerSettings.mouseSensitivity = Mathf.Clamp(sensitivity, 0.1f, 10f);
+        }
     }
     
+    /// <summary>
+    /// 카메라 거리 설정
+    /// </summary>
     public void SetCameraDistance(float distance)
     {
-        cameraDistance = Mathf.Clamp(distance, 2f, 15f);
+        if (playerSettings != null)
+        {
+            playerSettings.cameraDistance = Mathf.Clamp(distance, 2f, 15f);
+        }
     }
+    
+    #endregion
     
     protected override void Die()
     {
         base.Die();
         Debug.Log("플레이어가 사망했습니다!");
-    }
-    
-    private void OnValidate()
-    {
-        if (Application.isPlaying)
-        {
-            mouseSensitivity = Mathf.Clamp(mouseSensitivity, 0.1f, 10f);
-            cameraDistance = Mathf.Clamp(cameraDistance, 2f, 15f);
-        }
     }
 }
 
@@ -399,36 +449,28 @@ public class PlayerInventory : MonoBehaviour
     [Header("인벤토리 설정")]
     [SerializeField] private int maxSlots = 30;
     
-    // 아이템 저장용 딕셔너리 (아이템 ID -> 수량)
     private System.Collections.Generic.Dictionary<string, int> items = 
         new System.Collections.Generic.Dictionary<string, int>();
     
-    // 프로퍼티
     public int MaxSlots => maxSlots;
     public int UsedSlots => items.Count;
     public int AvailableSlots => maxSlots - UsedSlots;
     
-    // 이벤트
     public System.Action<string, int> OnItemAdded;
     public System.Action<string, int> OnItemRemoved;
     public System.Action OnInventoryChanged;
     
-    /// <summary>
-    /// 아이템 추가
-    /// </summary>
     public bool AddItem(string itemID, int quantity)
     {
         if (string.IsNullOrEmpty(itemID) || quantity <= 0)
             return false;
         
-        // 기존 아이템이 있으면 수량 증가
         if (items.ContainsKey(itemID))
         {
             items[itemID] += quantity;
         }
         else
         {
-            // 새 아이템 추가 (슬롯 확인)
             if (UsedSlots >= maxSlots)
             {
                 Debug.Log("인벤토리가 가득 찼습니다.");
@@ -445,9 +487,6 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
     
-    /// <summary>
-    /// 아이템 제거
-    /// </summary>
     public bool RemoveItem(string itemID, int quantity)
     {
         if (string.IsNullOrEmpty(itemID) || quantity <= 0)
@@ -468,7 +507,6 @@ public class PlayerInventory : MonoBehaviour
         
         items[itemID] -= quantity;
         
-        // 수량이 0이 되면 아이템 제거
         if (items[itemID] <= 0)
         {
             items.Remove(itemID);
@@ -481,9 +519,6 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
     
-    /// <summary>
-    /// 아이템 보유 여부 확인
-    /// </summary>
     public bool HasItem(string itemID, int quantity = 1)
     {
         if (!items.ContainsKey(itemID))
@@ -492,25 +527,16 @@ public class PlayerInventory : MonoBehaviour
         return items[itemID] >= quantity;
     }
     
-    /// <summary>
-    /// 아이템 수량 반환
-    /// </summary>
     public int GetItemQuantity(string itemID)
     {
         return items.ContainsKey(itemID) ? items[itemID] : 0;
     }
     
-    /// <summary>
-    /// 모든 아이템 정보 반환
-    /// </summary>
     public System.Collections.Generic.Dictionary<string, int> GetAllItems()
     {
         return new System.Collections.Generic.Dictionary<string, int>(items);
     }
     
-    /// <summary>
-    /// 인벤토리 초기화
-    /// </summary>
     public void ClearInventory()
     {
         items.Clear();
@@ -520,7 +546,7 @@ public class PlayerInventory : MonoBehaviour
 }
 
 /// <summary>
-/// 플레이어 장비 (간단한 구현)
+/// 플레이어 장비
 /// </summary>
 public class PlayerEquipment : MonoBehaviour
 {
@@ -528,7 +554,6 @@ public class PlayerEquipment : MonoBehaviour
     [SerializeField] private Transform weaponSlot;
     [SerializeField] private Transform shieldSlot;
     
-    // 실제 프로젝트에서는 장비 아이템 시스템과 연동
     public Transform WeaponSlot => weaponSlot;
     public Transform ShieldSlot => shieldSlot;
 }

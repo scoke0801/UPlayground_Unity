@@ -29,7 +29,7 @@ namespace Animation.Editor
         private readonly Color selectedColor = new Color(0.9f, 0.6f, 0.3f);
         private readonly Color notifyColor = new Color(0.9f, 0.3f, 0.3f);
         
-        [MenuItem("Window/Animation/Montage Editor")]
+        [MenuItem("Tools/Animation/Montage Editor")]
         public static void OpenWindow()
         {
             var window = GetWindow<AnimationMontageWindow>("Montage Editor");

@@ -92,7 +92,7 @@ public class URPMaterialConverter : EditorWindow
         }
     };
 
-    [MenuItem("도구/URP 머티리얼 변환기")]
+    [MenuItem("Tools/URP/URP 머티리얼 변환기")]
     public static void ShowWindow()
     {
         GetWindow<URPMaterialConverter>("URP 머티리얼 변환기");

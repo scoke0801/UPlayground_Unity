@@ -325,9 +325,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 501365680713365651, guid: a8431833258cc814da43e4b0596752ab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1056033495}
-    - targetCorrespondingSourceObject: {fileID: 501365680713365651, guid: a8431833258cc814da43e4b0596752ab, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1056033493}
   m_SourcePrefab: {fileID: 100100000, guid: a8431833258cc814da43e4b0596752ab, type: 3}
 --- !u!1 &1056033487 stripped
 GameObject:
@@ -410,26 +407,6 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 8913820322913869054, guid: a8431833258cc814da43e4b0596752ab, type: 3}
   m_PrefabInstance: {fileID: 1056033486}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1056033493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1056033487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2eeb39a0e493e749a2a4ca6987a9e49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  idleClip: {fileID: -5252816984213320552, guid: 087ff1ea10bf03840aeff665152375b2, type: 3}
-  walkClip: {fileID: -3419257869308726280, guid: 968dfb8d6801002438fdce1fb456db30, type: 3}
-  runClip: {fileID: 6200578666267062213, guid: ddbad665bf68e9b4db085076a4ece8de, type: 3}
-  jumpClip: {fileID: -2993534804863918692, guid: 18b123cc39eb47542b38c15b39a071d5, type: 3}
-  attackClip: {fileID: -6239216113759591374, guid: be7a70de98a2c6941a43aed7f59c7578, type: 3}
-  walkSpeed: 0.5
-  runSpeed: 1
-  transitionDuration: 0.3
 --- !u!114 &1056033495
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -65,7 +65,7 @@ namespace Animation
                     // Avatar Mask 적용
                     if (slot.AvatarMask != null)
                     {
-                        layer.SetMask(slot.AvatarMask);
+                        layer.Mask = slot.AvatarMask;
                     }
                     
                     _layerCache[slot.LayerIndex] = layer;

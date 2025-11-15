@@ -325,17 +325,6 @@ public class NPC : Character
     {
         OnQuestCompleted?.Invoke(this, quest);
         completableQuests.Remove(quest);
-        
-        // 보상 지급
-        if (player != null)
-        {
-            Player playerComponent = player.GetComponent<Player>();
-            if (playerComponent != null)
-            {
-                playerComponent.GainExperience(quest.ExperienceReward);
-                playerComponent.GainGold(quest.GoldReward);
-            }
-        }
     }
     
     /// <summary>
@@ -351,12 +340,6 @@ public class NPC : Character
     /// </summary>
     public bool BuyItem(ShopItem item, Player buyer)
     {
-        if (buyer.GetGold() >= item.Price)
-        {
-            buyer.SpendGold(item.Price);
-            buyer.AddItemToInventory(item.ItemID, item.Quantity);
-            return true;
-        }
         return false;
     }
     
@@ -367,15 +350,6 @@ public class NPC : Character
     {
         if (npcSettings == null) return false;
         
-        if (seller.HasItem(itemID, quantity))
-        {
-            seller.RemoveItemFromInventory(itemID, quantity);
-            
-            // 판매가 계산
-            int sellPrice = GetItemSellPrice(itemID) * quantity;
-            seller.GainGold(sellPrice);
-            return true;
-        }
         return false;
     }
     

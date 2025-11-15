@@ -1,45 +1,35 @@
 using UnityEngine;
 
 /// <summary>
-/// 플레이어 전용 설정 데이터
-/// 카메라, 레벨링, 성장 시스템 등
+/// 플레이어 설정 데이터
 /// </summary>
-[CreateAssetMenu(fileName = "New Player Settings", menuName = "RPG/Player/Player Settings")]
+[CreateAssetMenu(fileName = "PlayerSettings", menuName = "Game/Player Settings")]
 public class PlayerSettingsData : ScriptableObject
 {
     [Header("카메라 설정")]
     [Tooltip("마우스 감도")]
-    [Range(0.1f, 10f)]
-    public float mouseSensitivity = 2f;
-    [Tooltip("카메라 거리")]
-    [Range(2f, 15f)]
+    public float mouseSensitivity = 1f;
+    
+    [Tooltip("카메라와 플레이어 간 거리")]
     public float cameraDistance = 5f;
+    
     [Tooltip("카메라 높이")]
     public float cameraHeight = 2f;
-    [Tooltip("카메라 수직 각도 제한 (최소)")]
-    public float cameraMinVerticalAngle = -80f;
-    [Tooltip("카메라 수직 각도 제한 (최대)")]
-    public float cameraMaxVerticalAngle = 80f;
-    [Tooltip("카메라 이동 부드러움")]
+    
+    [Tooltip("카메라 이동 부드러움 정도")]
     public float cameraSmoothness = 10f;
     
-    [Header("레벨링 시스템")]
-    [Tooltip("시작 레벨")]
-    public int startLevel = 1;
-    [Tooltip("기본 경험치 요구량")]
-    public int baseExpRequired = 100;
-    [Tooltip("레벨당 추가 경험치")]
-    public int expIncreasePerLevel = 50;
+    [Tooltip("카메라 최소 수직 각도")]
+    public float cameraMinVerticalAngle = -30f;
     
-    [Header("레벨업 성장")]
-    [Tooltip("레벨당 HP 증가")]
-    public float hpIncreasePerLevel = 20f;
-    [Tooltip("레벨당 MP 증가")]
-    public float mpIncreasePerLevel = 10f;
-    [Tooltip("레벨당 스태미나 증가")]
-    public float staminaIncreasePerLevel = 15f;
+    [Tooltip("카메라 최대 수직 각도")]
+    public float cameraMaxVerticalAngle = 70f;
     
-    [Header("초기 재화")]
-    [Tooltip("시작 골드")]
-    public int startGold = 0;
+    [Header("입력 설정")]
+    [Tooltip("Y축 반전 여부")]
+    public bool invertYAxis = false;
+    
+    [Tooltip("입력 데드존 (스틱 입력 무시 범위)")]
+    [Range(0f, 0.5f)]
+    public float deadzone = 0.1f;
 }

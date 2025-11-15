@@ -4,27 +4,27 @@
 public interface IManager
 {
     /// <summary>
-    /// 매니저 초기화 (GameManager에서 호출)
+    /// 매니저 초기화 (최초 1회 실행)
     /// </summary>
     void Init();
-
+    
     /// <summary>
-    /// 매니저 정리 (씬 전환 또는 게임 종료 시)
+    /// 매니저 정리 (씬 전환 또는 종료 시 실행)
     /// </summary>
     void Dispose();
-
+    
     /// <summary>
-    /// 매니저 업데이트 (매 프레임)
+    /// 매 프레임 실행 (Update)
     /// </summary>
     void OnUpdate();
-
+    
     /// <summary>
-    /// 물리 업데이트 (고정 프레임)
+    /// 고정 시간 간격 실행 (FixedUpdate)
     /// </summary>
     void OnFixedUpdate();
-
+    
     /// <summary>
-    /// 후처리 업데이트 (카메라 이후)
+    /// Update 이후 실행 (LateUpdate)
     /// </summary>
     void OnLateUpdate();
 }

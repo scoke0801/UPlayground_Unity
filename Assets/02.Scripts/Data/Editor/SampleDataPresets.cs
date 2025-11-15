@@ -126,13 +126,6 @@ public class SampleDataPresets
         playerSettings.cameraMinVerticalAngle = -80f;
         playerSettings.cameraMaxVerticalAngle = 80f;
         playerSettings.cameraSmoothness = 10f;
-        playerSettings.startLevel = 1;
-        playerSettings.baseExpRequired = 100;
-        playerSettings.expIncreasePerLevel = 50;
-        playerSettings.hpIncreasePerLevel = 20f;
-        playerSettings.mpIncreasePerLevel = 10f;
-        playerSettings.staminaIncreasePerLevel = 15f;
-        playerSettings.startGold = 0;
         AssetDatabase.CreateAsset(playerSettings, path + "DefaultPlayerSettings.asset");
         
         Debug.Log("✅ Player Settings 프리셋 생성 완료");

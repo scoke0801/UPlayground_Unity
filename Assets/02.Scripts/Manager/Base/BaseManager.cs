@@ -9,9 +9,6 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
     private static readonly object _lock = new object();
     private static bool _applicationIsQuitting = false;
 
-    /// <summary>
-    /// 싱글톤 인스턴스
-    /// </summary>
     public static T Instance
     {
         get
@@ -26,7 +23,7 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
             {
                 if (_instance == null)
                 {
-                    _instance = FindFirstObjectByType<T>();
+                    _instance = FindObjectOfType<T>();
 
                     if (_instance == null)
                     {
@@ -41,9 +38,6 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 씬 전환 시에도 오브젝트를 유지할지 여부 (기본값: true)
-    /// </summary>
     [SerializeField] protected bool dontDestroyOnLoad = true;
 
     protected virtual void Awake()
@@ -74,6 +68,33 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
         if (_instance == this)
         {
             _instance = null;
+            
+            #if UNITY_EDITOR
+            // 에디터에서 Play 모드 종료 시 정리
+            _applicationIsQuitting = false;
+            #endif
         }
     }
+
+    #if UNITY_EDITOR
+    /// <summary>
+    /// 에디터 전용: Play 모드 변경 감지
+    /// </summary>
+    [UnityEditor.InitializeOnLoadMethod]
+    private static void OnEditorLoad()
+    {
+        UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeChanged;
+    }
+
+    private static void OnPlayModeChanged(UnityEditor.PlayModeStateChange state)
+    {
+        if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+        {
+            // Play 모드 종료 시 정적 변수 초기화
+            _instance = null;
+            _applicationIsQuitting = false;
+            Debug.Log($"[{typeof(T)}] 에디터 Play 모드 종료 - 정적 변수 초기화");
+        }
+    }
+    #endif
 }

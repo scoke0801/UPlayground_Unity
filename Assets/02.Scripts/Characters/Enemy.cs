@@ -520,8 +520,6 @@ public class Enemy : Character
             Player player = target.GetComponent<Player>();
             if (player != null)
             {
-                int exp = rewardData.baseExperience + (level - 1) * rewardData.experiencePerLevel;
-                player.GainExperience(exp);
             }
         }
     }

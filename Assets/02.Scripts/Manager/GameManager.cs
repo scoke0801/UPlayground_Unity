@@ -1,27 +1,28 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
-/// 게임의 모든 매니저를 총괄하는 최상위 매니저
-/// - 다른 매니저들의 초기화 순서 관리
-/// - Unity 라이프사이클 이벤트를 각 매니저에 전파
+/// 모든 매니저를 관리하는 최상위 매니저
 /// </summary>
 public class GameManager : BaseManager<GameManager>
 {
-    private List<IManager> _managers = new List<IManager>();
+    // 등록된 매니저 리스트
+    private List<IManager> _registeredManagers = new List<IManager>();
+    
+    // 초기화 플래그
     private bool _isInitialized = false;
-
+    
     protected override void Awake()
     {
         base.Awake();
-
-        // 중복 인스턴스가 아닐 때만 초기화
-        if (this == Instance)
+        
+        // BaseManager의 Awake가 실행된 후, 이 인스턴스가 유효하면 초기화
+        if (this != null && !_isInitialized)
         {
             InitializeManagers();
         }
     }
-
+    
     /// <summary>
     /// 모든 매니저 초기화
     /// </summary>
@@ -32,18 +33,19 @@ public class GameManager : BaseManager<GameManager>
 
         Debug.Log("[GameManager] 매니저 초기화 시작");
 
-        // TODO: 여기에 사용할 매니저들을 추가
-        // 예시:
-        // RegisterManager(UIManager.Instance);
-        // RegisterManager(SoundManager.Instance);
-        // RegisterManager(ResourceManager.Instance);
+        // 초기화 순서대로 등록
+        RegisterManager(InputManager.Instance);        // 입력 시스템
+        // RegisterManager(ResourceManager.Instance);  // 리소스 관리
+        // RegisterManager(SoundManager.Instance);     // 사운드 관리
+        RegisterManager(UIManager.Instance);           // UI 관리
 
         _isInitialized = true;
-        Debug.Log($"[GameManager] 총 {_managers.Count}개의 매니저 초기화 완료");
+        
+        Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");
     }
-
+    
     /// <summary>
-    /// 매니저 등록
+    /// 매니저 등록 및 초기화
     /// </summary>
     public void RegisterManager(IManager manager)
     {
@@ -52,94 +54,96 @@ public class GameManager : BaseManager<GameManager>
             Debug.LogWarning("[GameManager] null 매니저는 등록할 수 없습니다.");
             return;
         }
-
-        if (_managers.Contains(manager))
+        
+        if (_registeredManagers.Contains(manager))
         {
-            Debug.LogWarning($"[GameManager] 이미 등록된 매니저입니다: {manager.GetType().Name}");
+            Debug.LogWarning($"[GameManager] {manager.GetType().Name}은 이미 등록되어 있습니다.");
             return;
         }
-
-        _managers.Add(manager);
+        
+        _registeredManagers.Add(manager);
         manager.Init();
-        Debug.Log($"[GameManager] 매니저 등록: {manager.GetType().Name}");
+        
+        Debug.Log($"[GameManager] {manager.GetType().Name} 등록 완료");
     }
-
+    
     /// <summary>
     /// 매니저 등록 해제
     /// </summary>
     public void UnregisterManager(IManager manager)
     {
-        if (manager == null)
-            return;
-
-        if (_managers.Remove(manager))
+        if (manager == null) return;
+        
+        if (_registeredManagers.Contains(manager))
         {
             manager.Dispose();
-            Debug.Log($"[GameManager] 매니저 등록 해제: {manager.GetType().Name}");
+            _registeredManagers.Remove(manager);
+            Debug.Log($"[GameManager] {manager.GetType().Name} 등록 해제");
         }
     }
-
-    private void Update()
-    {
-        if (!_isInitialized)
-            return;
-
-        // 모든 매니저에게 Update 전파
-        for (int i = 0; i < _managers.Count; i++)
-        {
-            _managers[i]?.OnUpdate();
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (!_isInitialized)
-            return;
-
-        // 모든 매니저에게 FixedUpdate 전파
-        for (int i = 0; i < _managers.Count; i++)
-        {
-            _managers[i]?.OnFixedUpdate();
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (!_isInitialized)
-            return;
-
-        // 모든 매니저에게 LateUpdate 전파
-        for (int i = 0; i < _managers.Count; i++)
-        {
-            _managers[i]?.OnLateUpdate();
-        }
-    }
-
-    protected override void OnDestroy()
-    {
-        // 모든 매니저 정리
-        for (int i = _managers.Count - 1; i >= 0; i--)
-        {
-            _managers[i]?.Dispose();
-        }
-
-        _managers.Clear();
-        _isInitialized = false;
-
-        base.OnDestroy();
-    }
-
+    
     /// <summary>
     /// 특정 타입의 매니저 가져오기
     /// </summary>
     public T GetManager<T>() where T : class, IManager
     {
-        for (int i = 0; i < _managers.Count; i++)
+        foreach (var manager in _registeredManagers)
         {
-            if (_managers[i] is T manager)
-                return manager;
+            if (manager is T typedManager)
+            {
+                return typedManager;
+            }
         }
-
+        
         return null;
+    }
+    
+    private void Update()
+    {
+        if (!_isInitialized) return;
+        
+        // 모든 매니저의 OnUpdate 호출
+        foreach (var manager in _registeredManagers)
+        {
+            manager?.OnUpdate();
+        }
+    }
+    
+    private void FixedUpdate()
+    {
+        if (!_isInitialized) return;
+        
+        // 모든 매니저의 OnFixedUpdate 호출
+        foreach (var manager in _registeredManagers)
+        {
+            manager?.OnFixedUpdate();
+        }
+    }
+    
+    private void LateUpdate()
+    {
+        if (!_isInitialized) return;
+        
+        // 모든 매니저의 OnLateUpdate 호출
+        foreach (var manager in _registeredManagers)
+        {
+            manager?.OnLateUpdate();
+        }
+    }
+    
+    protected override void OnDestroy()
+    {
+        // 모든 매니저 정리
+        for (int i = _registeredManagers.Count - 1; i >= 0; i--)
+        {
+            _registeredManagers[i]?.Dispose();
+        }
+        
+        _registeredManagers.Clear();
+        _isInitialized = false;
+        
+        Debug.Log("[GameManager] 정리 완료");
+        
+        base.OnDestroy();
     }
 }

@@ -1,8 +1,8 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
-/// 플레이어 캐릭터 클래스
-/// 설정 데이터를 ScriptableObject로 관리하여 코드 간결화
+/// 플레이어 캐릭터 클래스 - Input System 버전
 /// </summary>
 public class Player : Character
 {
@@ -13,42 +13,21 @@ public class Player : Character
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform cameraFollowTarget;
     
-    // 레벨 시스템
-    private int level;
-    private int currentExp;
-    private int expToNext;
-    
-    // 재화
-    private int gold;
-    
     // 입력
     private Vector2 moveInput;
     private Vector2 lookInput;
-    private bool jumpInput;
-    private bool runInput;
-    private bool rollInput;
     
     // 카메라
     private float cameraRotationX = 0f;
     private float cameraRotationY = 0f;
     
     // 물리 처리용 플래그
-    private Vector3 calculatedMoveDirection;
     private bool shouldJump;
     private bool shouldRoll;
     private Vector3 rollDirection;
     
-    // 인벤토리 및 장비
-    private PlayerInventory inventory;
-    private PlayerEquipment equipment;
-    
-    // 프로퍼티
-    public int Level => level;
-    public int CurrentExp => currentExp;
-    public int ExpToNext => expToNext;
-    public int Gold => gold;
-    public PlayerInventory Inventory => inventory;
-    public PlayerEquipment Equipment => equipment;
+    // Input Manager 참조
+    private InputManager inputManager;
     
     // 이벤트
     public System.Action<int> OnLevelUp;
@@ -64,19 +43,17 @@ public class Player : Character
         if (cameraFollowTarget == null)
             cameraFollowTarget = transform;
         
-        inventory = GetComponent<PlayerInventory>();
-        equipment = GetComponent<PlayerEquipment>();
-        
-        if (inventory == null)
-            inventory = gameObject.AddComponent<PlayerInventory>();
-        
-        if (equipment == null)
-            equipment = gameObject.AddComponent<PlayerEquipment>();
-        
         // 데이터 유효성 검사
         if (playerSettings == null)
         {
             Debug.LogError($"{gameObject.name}: PlayerSettingsData가 할당되지 않았습니다!");
+        }
+        
+        // InputManager 참조
+        inputManager = InputManager.Instance;
+        if (inputManager == null)
+        {
+            Debug.LogError($"{gameObject.name}: InputManager를 찾을 수 없습니다!");
         }
     }
     
@@ -84,37 +61,77 @@ public class Player : Character
     {
         base.Initialize();
         
-        // 플레이어 설정 초기화
-        if (playerSettings != null)
-        {
-            level = playerSettings.startLevel;
-            expToNext = CalculateExpToNext();
-            gold = playerSettings.startGold;
-        }
-        
         SetupCamera();
-        InitializeInput();
+        SubscribeToInputEvents();
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
     
+    /// <summary>
+    /// 입력 이벤트 구독
+    /// </summary>
+    private void SubscribeToInputEvents()
+    {
+        if (inputManager == null) return;
+        
+        // 버튼 액션 이벤트 구독
+        if (inputManager.JumpAction != null)
+            inputManager.JumpAction.performed += OnJumpPerformed;
+        
+        if (inputManager.RollAction != null)
+            inputManager.RollAction.performed += OnRollPerformed;
+        
+        if (inputManager.AttackAction != null)
+            inputManager.AttackAction.performed += OnAttackPerformed;
+        
+        if (inputManager.InteractAction != null)
+            inputManager.InteractAction.performed += OnInteractPerformed;
+        
+        Debug.Log("[Player] 입력 이벤트 구독 완료");
+    }
+    
+    /// <summary>
+    /// 입력 이벤트 구독 해제
+    /// </summary>
+    private void UnsubscribeFromInputEvents()
+    {
+        if (inputManager == null) return;
+        
+        if (inputManager.JumpAction != null)
+            inputManager.JumpAction.performed -= OnJumpPerformed;
+        
+        if (inputManager.RollAction != null)
+            inputManager.RollAction.performed -= OnRollPerformed;
+        
+        if (inputManager.AttackAction != null)
+            inputManager.AttackAction.performed -= OnAttackPerformed;
+        
+        if (inputManager.InteractAction != null)
+            inputManager.InteractAction.performed -= OnInteractPerformed;
+        
+        Debug.Log("[Player] 입력 이벤트 구독 해제");
+    }
+    
     protected override void HandleInput()
     {
-        // 이동 입력
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        moveInput = new Vector2(horizontal, vertical);
+        if (inputManager == null) return;
         
-        // 마우스 입력 (카메라)
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
-        lookInput = new Vector2(mouseX, mouseY);
+        // 게임플레이 모드일 때만 입력 처리
+        if (inputManager.CurrentMode != InputMode.Gameplay) 
+        {
+            moveInput = Vector2.zero;
+            lookInput = Vector2.zero;
+            return;
+        }
         
-        // 액션 입력
-        jumpInput = Input.GetButtonDown("Jump");
-        runInput = Input.GetKey(KeyCode.LeftShift);
-        rollInput = Input.GetKeyDown(KeyCode.LeftControl);
+        // 이동 입력 (연속)
+        if (inputManager.MoveAction != null)
+            moveInput = inputManager.MoveAction.ReadValue<Vector2>();
+        
+        // 시점 입력 (연속)
+        if (inputManager.LookAction != null)
+            lookInput = inputManager.LookAction.ReadValue<Vector2>();
     }
     
     protected override void UpdateGameLogic()
@@ -149,12 +166,63 @@ public class Player : Character
         UpdateCameraPosition();
     }
     
+    #region 입력 이벤트 핸들러
+    
+    private void OnJumpPerformed(InputAction.CallbackContext context)
+    {
+        if (inputManager.CurrentMode != InputMode.Gameplay) return;
+        shouldJump = true;
+        Debug.Log("[Player] 점프 입력");
+    }
+    
+    private void OnRollPerformed(InputAction.CallbackContext context)
+    {
+        if (inputManager.CurrentMode != InputMode.Gameplay) return;
+        
+        if (moveInput.magnitude > 0.1f)
+        {
+            // 입력 방향으로 구르기
+            Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + 
+                                    playerCamera.transform.right * moveInput.x;
+            inputDirection.y = 0;
+            rollDirection = inputDirection.normalized;
+            shouldRoll = true;
+        }
+        else
+        {
+            // 현재 바라보는 방향으로 구르기
+            rollDirection = transform.forward;
+            shouldRoll = true;
+        }
+        
+        Debug.Log("[Player] 구르기 입력");
+    }
+    
+    private void OnAttackPerformed(InputAction.CallbackContext context)
+    {
+        if (inputManager.CurrentMode != InputMode.Gameplay) return;
+        PerformAttack();
+    }
+    
+    private void OnInteractPerformed(InputAction.CallbackContext context)
+    {
+        if (inputManager.CurrentMode != InputMode.Gameplay) return;
+        TryInteract();
+    }
+    
+    #endregion
+    
+    #region 이동 및 카메라
+    
     /// <summary>
     /// 이동 입력을 물리 이동으로 변환
     /// </summary>
     private void ProcessMovementInput()
     {
-        if (moveInput.magnitude > 0.1f)
+        if (inputManager == null || playerSettings == null) return;
+        
+        Debug.Log($"moveInput: {moveInput}");
+        if (moveInput.magnitude > playerSettings.deadzone)
         {
             // 카메라 기준 이동 방향 계산
             Vector3 cameraForward = playerCamera.transform.forward;
@@ -180,28 +248,13 @@ public class Player : Character
             SetMovementInput(Vector3.zero);
         }
         
-        // 달리기 설정
-        SetRunning(runInput && moveInput.magnitude > 0.1f);
-        
-        // 점프 플래그
-        if (jumpInput)
+        // 달리기 설정 (Hold 방식)
+        bool isRunning = false;
+        if (inputManager.RunAction != null)
         {
-            shouldJump = true;
+            isRunning = inputManager.RunAction.IsPressed() && moveInput.magnitude > playerSettings.deadzone;
         }
-        
-        // 구르기 플래그
-        if (rollInput && moveInput.magnitude > 0.1f)
-        {
-            rollDirection = transform.forward;
-            if (moveInput.magnitude > 0.1f)
-            {
-                Vector3 inputDirection = playerCamera.transform.forward * moveInput.y + 
-                                        playerCamera.transform.right * moveInput.x;
-                inputDirection.y = 0;
-                rollDirection = inputDirection.normalized;
-            }
-            shouldRoll = true;
-        }
+        SetRunning(isRunning);
     }
     
     /// <summary>
@@ -210,10 +263,15 @@ public class Player : Character
     private void UpdateCameraRotation()
     {
         if (playerCamera == null || playerSettings == null) return;
+        if (inputManager == null || inputManager.CurrentMode != InputMode.Gameplay) return;
         
         // 마우스 입력으로 카메라 회전
-        cameraRotationY += lookInput.x * playerSettings.mouseSensitivity;
-        cameraRotationX -= lookInput.y * playerSettings.mouseSensitivity;
+        float sensitivity = playerSettings.mouseSensitivity;
+        cameraRotationY += lookInput.x * sensitivity;
+        
+        float yInput = playerSettings.invertYAxis ? lookInput.y : -lookInput.y;
+        cameraRotationX += yInput * sensitivity;
+        
         cameraRotationX = Mathf.Clamp(cameraRotationX, 
             playerSettings.cameraMinVerticalAngle, 
             playerSettings.cameraMaxVerticalAngle);
@@ -244,6 +302,48 @@ public class Player : Character
         );
     }
     
+    #endregion
+    
+    #region 액션
+    
+    /// <summary>
+    /// 공격 실행
+    /// </summary>
+    private void PerformAttack()
+    {
+        Debug.Log("[Player] 공격!");
+        SetAnimationTrigger("Attack");
+        
+        // TODO: 공격 로직 구현
+        // - 무기 스윙
+        // - 데미지 판정
+        // - 이펙트 재생
+    }
+    
+    /// <summary>
+    /// 상호작용 시도
+    /// </summary>
+    private void TryInteract()
+    {
+        // NPC와의 상호작용 체크
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
+        
+        foreach (var col in colliders)
+        {
+            NPC npc = col.GetComponent<NPC>();
+            if (npc != null && npc.CanInteract)
+            {
+                npc.Interact();
+                Debug.Log($"[Player] {npc.NPCName}와 상호작용!");
+                return;
+            }
+        }
+        
+        Debug.Log("[Player] 상호작용 가능한 대상이 없습니다.");
+    }
+    
+    #endregion
+    
     /// <summary>
     /// 애니메이션 업데이트
     /// </summary>
@@ -268,292 +368,26 @@ public class Player : Character
                                Vector3.up * playerSettings.cameraHeight;
             playerCamera.transform.position = cameraPos;
             playerCamera.transform.LookAt(cameraFollowTarget);
+            
+            Debug.Log("[Player] 카메라 초기 설정 완료");
         }
     }
-    
-    /// <summary>
-    /// 입력 시스템 초기화
-    /// </summary>
-    private void InitializeInput()
-    {
-        // InputSystem 액션맵 설정
-    }
-    
-    #region 레벨링 시스템
-    
-    /// <summary>
-    /// 경험치 획득
-    /// </summary>
-    public void GainExp(int exp)
-    {
-        currentExp += exp;
-        OnExpChanged?.Invoke(currentExp, expToNext);
-        
-        while (currentExp >= expToNext)
-        {
-            LevelUp();
-        }
-    }
-    
-    /// <summary>
-    /// 경험치 획득 (호환성 메서드)
-    /// </summary>
-    public void GainExperience(int experience)
-    {
-        GainExp(experience);
-    }
-    
-    /// <summary>
-    /// 레벨업 처리
-    /// </summary>
-    private void LevelUp()
-    {
-        if (playerSettings == null) return;
-        
-        currentExp -= expToNext;
-        level++;
-        expToNext = CalculateExpToNext();
-        
-        // 스탯 증가
-        MaxHP += playerSettings.hpIncreasePerLevel;
-        MaxMP += playerSettings.mpIncreasePerLevel;
-        MaxStamina += playerSettings.staminaIncreasePerLevel;
-        
-        // 현재 스탯 회복
-        CurrentHP = MaxHP;
-        CurrentMP = MaxMP;
-        CurrentStamina = MaxStamina;
-        
-        OnLevelUp?.Invoke(level);
-        OnExpChanged?.Invoke(currentExp, expToNext);
-        
-        Debug.Log($"레벨업! 현재 레벨: {level}");
-    }
-    
-    /// <summary>
-    /// 다음 레벨 경험치 계산
-    /// </summary>
-    private int CalculateExpToNext()
-    {
-        if (playerSettings == null) 
-            return 100;
-        
-        return playerSettings.baseExpRequired + (level - 1) * playerSettings.expIncreasePerLevel;
-    }
-    
-    #endregion
-    
-    #region 재화 시스템
-    
-    /// <summary>
-    /// 골드 획득
-    /// </summary>
-    public void GainGold(int amount)
-    {
-        gold += amount;
-        Debug.Log($"골드 {amount}개를 획득했습니다. 총 골드: {gold}");
-    }
-    
-    /// <summary>
-    /// 골드 사용
-    /// </summary>
-    public bool SpendGold(int amount)
-    {
-        if (gold >= amount)
-        {
-            gold -= amount;
-            Debug.Log($"골드 {amount}개를 사용했습니다. 남은 골드: {gold}");
-            return true;
-        }
-        
-        Debug.Log("골드가 부족합니다.");
-        return false;
-    }
-    
-    /// <summary>
-    /// 현재 골드 반환
-    /// </summary>
-    public int GetGold()
-    {
-        return gold;
-    }
-    
-    #endregion
-    
-    #region 인벤토리 시스템
-    
-    /// <summary>
-    /// 인벤토리에 아이템 추가
-    /// </summary>
-    public bool AddItemToInventory(string itemID, int quantity)
-    {
-        return inventory.AddItem(itemID, quantity);
-    }
-    
-    /// <summary>
-    /// 인벤토리에서 아이템 제거
-    /// </summary>
-    public bool RemoveItemFromInventory(string itemID, int quantity)
-    {
-        return inventory.RemoveItem(itemID, quantity);
-    }
-    
-    /// <summary>
-    /// 아이템 보유 여부 확인
-    /// </summary>
-    public bool HasItem(string itemID, int quantity)
-    {
-        return inventory.HasItem(itemID, quantity);
-    }
-    
-    #endregion
-    
-    #region 설정 조정
-    
-    /// <summary>
-    /// 마우스 감도 설정
-    /// </summary>
-    public void SetMouseSensitivity(float sensitivity)
-    {
-        if (playerSettings != null)
-        {
-            playerSettings.mouseSensitivity = Mathf.Clamp(sensitivity, 0.1f, 10f);
-        }
-    }
-    
-    /// <summary>
-    /// 카메라 거리 설정
-    /// </summary>
-    public void SetCameraDistance(float distance)
-    {
-        if (playerSettings != null)
-        {
-            playerSettings.cameraDistance = Mathf.Clamp(distance, 2f, 15f);
-        }
-    }
-    
-    #endregion
     
     protected override void Die()
     {
         base.Die();
-        Debug.Log("플레이어가 사망했습니다!");
-    }
-}
-
-/// <summary>
-/// 플레이어 인벤토리 시스템
-/// </summary>
-public class PlayerInventory : MonoBehaviour
-{
-    [Header("인벤토리 설정")]
-    [SerializeField] private int maxSlots = 30;
-    
-    private System.Collections.Generic.Dictionary<string, int> items = 
-        new System.Collections.Generic.Dictionary<string, int>();
-    
-    public int MaxSlots => maxSlots;
-    public int UsedSlots => items.Count;
-    public int AvailableSlots => maxSlots - UsedSlots;
-    
-    public System.Action<string, int> OnItemAdded;
-    public System.Action<string, int> OnItemRemoved;
-    public System.Action OnInventoryChanged;
-    
-    public bool AddItem(string itemID, int quantity)
-    {
-        if (string.IsNullOrEmpty(itemID) || quantity <= 0)
-            return false;
         
-        if (items.ContainsKey(itemID))
+        // 입력 비활성화
+        if (inputManager != null)
         {
-            items[itemID] += quantity;
-        }
-        else
-        {
-            if (UsedSlots >= maxSlots)
-            {
-                Debug.Log("인벤토리가 가득 찼습니다.");
-                return false;
-            }
-            
-            items[itemID] = quantity;
+            inputManager.DisableAllInput();
         }
         
-        OnItemAdded?.Invoke(itemID, quantity);
-        OnInventoryChanged?.Invoke();
-        
-        Debug.Log($"아이템 추가: {itemID} x{quantity}");
-        return true;
+        Debug.Log("[Player] 플레이어가 사망했습니다!");
     }
     
-    public bool RemoveItem(string itemID, int quantity)
+    private void OnDestroy()
     {
-        if (string.IsNullOrEmpty(itemID) || quantity <= 0)
-            return false;
-        
-        if (!items.ContainsKey(itemID))
-        {
-            Debug.Log($"아이템이 없습니다: {itemID}");
-            return false;
-        }
-        
-        int currentQuantity = items[itemID];
-        if (currentQuantity < quantity)
-        {
-            Debug.Log($"아이템이 부족합니다: {itemID} (보유: {currentQuantity}, 필요: {quantity})");
-            return false;
-        }
-        
-        items[itemID] -= quantity;
-        
-        if (items[itemID] <= 0)
-        {
-            items.Remove(itemID);
-        }
-        
-        OnItemRemoved?.Invoke(itemID, quantity);
-        OnInventoryChanged?.Invoke();
-        
-        Debug.Log($"아이템 제거: {itemID} x{quantity}");
-        return true;
+        UnsubscribeFromInputEvents();
     }
-    
-    public bool HasItem(string itemID, int quantity = 1)
-    {
-        if (!items.ContainsKey(itemID))
-            return false;
-        
-        return items[itemID] >= quantity;
-    }
-    
-    public int GetItemQuantity(string itemID)
-    {
-        return items.ContainsKey(itemID) ? items[itemID] : 0;
-    }
-    
-    public System.Collections.Generic.Dictionary<string, int> GetAllItems()
-    {
-        return new System.Collections.Generic.Dictionary<string, int>(items);
-    }
-    
-    public void ClearInventory()
-    {
-        items.Clear();
-        OnInventoryChanged?.Invoke();
-        Debug.Log("인벤토리를 초기화했습니다.");
-    }
-}
-
-/// <summary>
-/// 플레이어 장비
-/// </summary>
-public class PlayerEquipment : MonoBehaviour
-{
-    [Header("장비 슬롯")]
-    [SerializeField] private Transform weaponSlot;
-    [SerializeField] private Transform shieldSlot;
-    
-    public Transform WeaponSlot => weaponSlot;
-    public Transform ShieldSlot => shieldSlot;
 }

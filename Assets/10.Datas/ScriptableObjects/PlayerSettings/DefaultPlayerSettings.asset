@@ -12,11 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442ba39f5d994c644bd280b984d11e35, type: 3}
   m_Name: DefaultPlayerSettings
   m_EditorClassIdentifier: 
-  mouseSensitivity: 7
-  cameraDistance: 5
-  cameraHeight: 2
-  cameraSmoothness: 10
-  cameraMinVerticalAngle: -80
-  cameraMaxVerticalAngle: 80
-  invertYAxis: 0
   deadzone: 0.1
+  mouseSensitivity: 8.4
+  invertYAxis: 0
+  cameraMinVerticalAngle: -81.2
+  cameraMaxVerticalAngle: 0
+  cameraRotationSmoothing: 0.025
+  cameraDistance: 5
+  cameraMinDistance: 1.5
+  cameraMaxDistance: 10
+  zoomSpeed: 2
+  zoomSmoothing: 10
+  cameraHeight: 2
+  cameraLookAtHeight: 1.2
+  cameraSmoothness: 10
+  minHorizontalDistance: 1
+  cameraCollisionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  cameraCollisionRadius: 0.2
+  cameraCollisionBuffer: 0.2

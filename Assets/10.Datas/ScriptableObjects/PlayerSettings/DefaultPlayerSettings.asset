@@ -12,16 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442ba39f5d994c644bd280b984d11e35, type: 3}
   m_Name: DefaultPlayerSettings
   m_EditorClassIdentifier: 
-  mouseSensitivity: 2
+  mouseSensitivity: 7
   cameraDistance: 5
   cameraHeight: 2
+  cameraSmoothness: 10
   cameraMinVerticalAngle: -80
   cameraMaxVerticalAngle: 80
-  cameraSmoothness: 10
-  startLevel: 1
-  baseExpRequired: 100
-  expIncreasePerLevel: 50
-  hpIncreasePerLevel: 20
-  mpIncreasePerLevel: 10
-  staminaIncreasePerLevel: 15
-  startGold: 0
+  invertYAxis: 0
+  deadzone: 0.1

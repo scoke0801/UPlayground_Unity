@@ -8,7 +8,8 @@ public class PlayerSettingsData : ScriptableObject
 {
     [Header("카메라 설정")]
     [Tooltip("마우스 감도")]
-    public float mouseSensitivity = 1f;
+    [Range(1f, 30f)]
+    public float mouseSensitivity = 1f; //
     
     [Tooltip("카메라와 플레이어 간 거리")]
     public float cameraDistance = 5f;

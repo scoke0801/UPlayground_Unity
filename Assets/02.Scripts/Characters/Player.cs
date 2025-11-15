@@ -265,13 +265,17 @@ public class Player : Character
         if (playerCamera == null || playerSettings == null) return;
         if (inputManager == null || inputManager.CurrentMode != InputMode.Gameplay) return;
         
-        // 마우스 입력으로 카메라 회전
-        float sensitivity = playerSettings.mouseSensitivity;
+        // 마우스 입력으로 카메라 회전 (Time.deltaTime 적용)
+        float sensitivity = playerSettings.mouseSensitivity * Time.deltaTime;
+    
+        // 수평 회전 (Y축)
         cameraRotationY += lookInput.x * sensitivity;
-        
+    
+        // 수직 회전 (X축)
         float yInput = playerSettings.invertYAxis ? lookInput.y : -lookInput.y;
         cameraRotationX += yInput * sensitivity;
-        
+    
+        // 수직 회전 각도 제한
         cameraRotationX = Mathf.Clamp(cameraRotationX, 
             playerSettings.cameraMinVerticalAngle, 
             playerSettings.cameraMaxVerticalAngle);

@@ -30,7 +30,7 @@ public class InputManager : BaseManager<InputManager>, IManager
     public InputAction PointAction { get; private set; }
     
     // 현재 모드
-    private InputMode currentMode = InputMode.Gameplay;
+    private InputMode currentMode = InputMode.None;
     
     // 이벤트
     public System.Action<InputMode> OnInputModeChanged;
@@ -89,7 +89,7 @@ public class InputManager : BaseManager<InputManager>, IManager
         if (MoveAction == null) Debug.LogWarning("[InputManager] Move 액션을 찾을 수 없습니다!");
         if (LookAction == null) Debug.LogWarning("[InputManager] Look 액션을 찾을 수 없습니다!");
         if (JumpAction == null) Debug.LogWarning("[InputManager] Jump 액션을 찾을 수 없습니다!");
-        
+
         // Pause 이벤트 구독
         if (PauseAction != null)
         {
@@ -253,6 +253,7 @@ public class InputManager : BaseManager<InputManager>, IManager
 /// </summary>
 public enum InputMode
 {
+    None,
     Gameplay,   // 게임플레이
     UI          // UI
 }

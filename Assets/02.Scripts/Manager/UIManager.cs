@@ -36,7 +36,11 @@ public class UIManager : BaseManager<UIManager>, IManager
 
     // 타입별 UI 추적 (빠른 타입 검색용)
     private Dictionary<System.Type, UI_Base> _uiByType;
-
+    
+    private const string DATABASE_PATH = "UIPrefabDatabase";
+    // UI 프리팹 데이터베이스
+    [SerializeField]private UIPrefabDatabase _uiPrefabDatabase;
+    
     #region IManager 구현
 
     public void Init()
@@ -49,7 +53,8 @@ public class UIManager : BaseManager<UIManager>, IManager
         _uiByType = new Dictionary<System.Type, UI_Base>();
 
         CreateCanvasLayers();
-
+        LoadUIPrefabDatabase();
+        
         Debug.Log("[UIManager] 초기화 완료");
     }
 
@@ -87,7 +92,25 @@ public class UIManager : BaseManager<UIManager>, IManager
     public void OnLateUpdate() { }
 
     #endregion
+    
+    /// <summary>
+    /// UIPrefabDatabase를 Resources 폴더에서 자동 로드
+    /// </summary>
+    private void LoadUIPrefabDatabase()
+    {
+        _uiPrefabDatabase = Resources.Load<UIPrefabDatabase>(DATABASE_PATH);
 
+        if (_uiPrefabDatabase == null)
+        {
+            Debug.LogError($"[UIManager] UIPrefabDatabase를 '{DATABASE_PATH}' 경로에서 찾을 수 없습니다. " +
+                           $"Resources 폴더에 UIPrefabDatabase를 생성해주세요.");
+            return;
+        }
+
+        _uiPrefabDatabase.Initialize();
+        Debug.Log($"[UIManager] UIPrefabDatabase 로드 완료");
+    }
+    
     #region 캔버스 생성 및 관리
 
     /// <summary>
@@ -205,7 +228,39 @@ public class UIManager : BaseManager<UIManager>, IManager
 
         return uiInstance;
     }
+    
+    /// <summary>
+    /// Key로 UI 프리팹을 로드하여 표시
+    /// </summary>
+    /// <param name="uiKey">UI 식별 키</param>
+    /// <param name="layer">배치할 캔버스 레이어 (null이면 기본 레이어 사용)</param>
+    /// <returns>생성된 UI GameObject</returns>
+    public GameObject ShowUI(string uiKey, CanvasLayer? layer = null)
+    {
+        if (_uiPrefabDatabase == null)
+        {
+            Debug.LogError("[UIManager] UIPrefabDatabase가 로드되지 않았습니다.");
+            return null;
+        }
 
+        var prefabEntry = _uiPrefabDatabase.GetPrefabEntry(uiKey);
+        if (prefabEntry == null)
+        {
+            Debug.LogError($"[UIManager] '{uiKey}' UI를 찾을 수 없습니다.");
+            return null;
+        }
+
+        if (prefabEntry.prefab == null)
+        {
+            Debug.LogError($"[UIManager] '{uiKey}' UI의 프리팹이 null입니다.");
+            return null;
+        }
+
+        CanvasLayer targetLayer = layer ?? prefabEntry.defaultLayer;
+
+        return ShowUI(prefabEntry.prefab, targetLayer, uiKey);
+    }
+    
     /// <summary>
     /// UI를 이름으로 숨기기 (삭제)
     /// </summary>

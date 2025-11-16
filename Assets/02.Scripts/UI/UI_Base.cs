@@ -63,7 +63,7 @@ public abstract class UI_Base : MonoBehaviour
         // ESC 키 입력 처리
         if (_canCloseWithEsc && IsVisible && Input.GetKeyDown(KeyCode.Escape))
         {
-            Close();
+       //     Close();
         }
     }
 

@@ -258,6 +258,17 @@
                 },
                 {
                     "name": "",
+                    "id": "96fb2f73-c97b-4a15-bcdd-1c913ce14f69",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "0399919c-932f-4ee7-80d8-eed3b5ef6684",
                     "path": "<Mouse>/delta",
                     "interactions": "",

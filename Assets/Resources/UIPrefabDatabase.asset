@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b76b694d66f0f740a397600f0df8257, type: 3}
   m_Name: UIPrefabDatabase
   m_EditorClassIdentifier: 
-  uiPrefabs:
-  - key: UI_Menu
-    prefab: {fileID: 8824486308643915082, guid: 686fefc66561a8145a0d80c6168e223b, type: 3}
+  prefabs:
+  - key: PauseMenu
+    prefab: {fileID: 7909205799143995593, guid: 686fefc66561a8145a0d80c6168e223b, type: 3}
     defaultLayer: 1
+    description: 

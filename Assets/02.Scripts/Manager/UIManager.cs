@@ -196,7 +196,9 @@ public class UIManager : BaseManager<UIManager>, IManager
 
         // UI 인스턴스 생성
         GameObject uiInstance = Instantiate(uiPrefab, targetCanvas.transform);
-
+        // ✨ false를 사용하면 로컬 위치/스케일 유지
+        //uiInstance.transform.SetParent(targetCanvas.transform, false);
+        
         // UI 이름 설정 및 추적
         string finalName = string.IsNullOrEmpty(uiName) ? uiPrefab.name : uiName;
         uiInstance.name = finalName;

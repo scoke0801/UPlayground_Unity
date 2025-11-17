@@ -106,7 +106,7 @@ public class MotionSetPlayer : MonoBehaviour
             // 다음 모션으로 자동 전환 설정
             if (state != null && !motion.loopable)
             {
-                state.Events.OnEnd = () =>
+                state.Events(this).OnEnd ??= () =>
                 {
                     _currentSequentialIndex++;
                     if (_currentSequentialIndex < motionSet.Motions.Count)
@@ -156,7 +156,7 @@ public class MotionSetPlayer : MonoBehaviour
         {
             AnimancerLayer layer = GetOrCreateLayer(mask);
             var state = layer.Play(motion.clip, fadeDuration);
-            state.IsLooping = motion.loopable;
+            // IsLooping은 Clip 자체 설정을 따름
             return state;
         }
         
@@ -194,14 +194,13 @@ public class MotionSetPlayer : MonoBehaviour
     {
         var mixer = new LinearMixerState();
         
+        // 모션 추가
         foreach (var motion in motionSet.Motions)
         {
             if (motion.HasValidAnimation)
             {
                 var clip = motion.GetClip();
-                var state = mixer.CreateState();
-                state.Clip = clip;
-                state.Threshold = motion.threshold;
+                mixer.Add(clip, motion.threshold);
             }
         }
         
@@ -213,31 +212,42 @@ public class MotionSetPlayer : MonoBehaviour
     /// </summary>
     private void SetupCartesianBlend(MotionSet motionSet, AnimancerLayer layer)
     {
-        var mixer = new CartesianMixerState();
-        
-        foreach (var motion in motionSet.Motions)
+        // 방향성 블렌딩인 경우 DirectionalMixerState 사용
+        if (motionSet.BlendType == MotionBlendType.Directional)
         {
-            if (motion.HasValidAnimation)
+            var mixer = new DirectionalMixerState();
+            
+            foreach (var motion in motionSet.Motions)
             {
-                var clip = motion.GetClip();
-                var state = mixer.CreateState();
-                state.Clip = clip;
-                
-                // 방향성 블렌딩인 경우 각도를 2D 좌표로 변환
-                if (motionSet.BlendType == MotionBlendType.Directional)
+                if (motion.HasValidAnimation)
                 {
+                    var clip = motion.GetClip();
                     float rad = motion.directionAngle * Mathf.Deg2Rad;
-                    state.Position = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-                }
-                else
-                {
-                    state.Position = new Vector2(motion.threshold, 0);
+                    Vector2 position = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+                    mixer.Add(clip, position);
                 }
             }
+            
+            layer.Play(mixer);
+            _mixerByMask[motionSet.AvatarMask] = mixer;
         }
-        
-        layer.Play(mixer);
-        _mixerByMask[motionSet.AvatarMask] = mixer;
+        else // Cartesian
+        {
+            var mixer = new CartesianMixerState();
+            
+            foreach (var motion in motionSet.Motions)
+            {
+                if (motion.HasValidAnimation)
+                {
+                    var clip = motion.GetClip();
+                    Vector2 position = new Vector2(motion.threshold, 0);
+                    mixer.Add(clip, position);
+                }
+            }
+            
+            layer.Play(mixer);
+            _mixerByMask[motionSet.AvatarMask] = mixer;
+        }
     }
     
     /// <summary>
@@ -353,7 +363,7 @@ public class MotionSetPlayer : MonoBehaviour
         
         // 새 레이어 생성
         AnimancerLayer newLayer = animancer.Layers[_nextLayerIndex];
-        newLayer.SetMask(mask);
+        newLayer.Mask = mask;  // SetMask 대신 Mask 속성 사용
         
         _layerByMask[mask] = newLayer;
         _nextLayerIndex++;

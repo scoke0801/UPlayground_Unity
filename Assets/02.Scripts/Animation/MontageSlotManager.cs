@@ -80,7 +80,7 @@ namespace Animation
                         if (activePlayer != null && activePlayer != player && activePlayer.IsPlaying)
                         {
                             Debug.Log($"Stopping montage in slot '{slot}' due to new montage in same group '{groupName}'");
-                            activePlayer.StopMontage();
+                            activePlayer.Stop();
                         }
                     }
                 }

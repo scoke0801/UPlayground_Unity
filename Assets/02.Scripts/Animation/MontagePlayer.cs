@@ -15,6 +15,7 @@ public class MontagePlayer : MonoBehaviour
     // 현재 재생 중인 몽타주 정보
     private AnimationMontage _currentMontage;
     private AnimancerState _currentState;
+    private AnimancerLayer _currentLayer;  // 현재 레이어 추적
     private MontageSection _currentSection;
     
     // 레이어별 재생 상태 관리 (AvatarMask 기반)
@@ -51,18 +52,19 @@ public class MontagePlayer : MonoBehaviour
         
         // AvatarMask에 따라 적절한 레이어 선택
         AnimancerLayer targetLayer = GetOrCreateLayer(montage.AvatarMask);
+        _currentLayer = targetLayer;  // 현재 레이어 저장
         
         // 애니메이션 재생
         _currentState = targetLayer.Play(montage.AnimationClip, fadeDuration);
         
-        // 루프 설정
-        _currentState.IsLooping = montage.IsLooping;
-        
         // 노티파이 설정
         SetupNotifies();
         
-        // 완료 이벤트 설정
-        _currentState.Events.OnEnd = OnAnimationEnd;
+        // 완료 이벤트 설정 (루프가 아닐 때만)
+        if (!montage.IsLooping)
+        {
+            _currentState.Events(this).OnEnd ??= OnAnimationEnd;
+        }
         
         return _currentState;
     }
@@ -94,8 +96,11 @@ public class MontagePlayer : MonoBehaviour
             state.Time = section.startTime * state.Length;
             
             // 섹션 종료 시간 이벤트 설정
-            float endTime = section.endTime * state.Length;
-            state.Events.Add(endTime, OnSectionEnd);
+            if (state.Events(this, out var events))
+            {
+                float endTime = section.endTime * state.Length;
+                events.Add(endTime, OnSectionEnd);
+            }
         }
         
         return state;
@@ -106,9 +111,10 @@ public class MontagePlayer : MonoBehaviour
     /// </summary>
     public void Stop(float fadeDuration = 0.25f)
     {
-        if (_currentState != null)
+        if (_currentLayer != null)
         {
-            _currentState.Stop(fadeDuration);
+            _currentLayer.StartFade(0, fadeDuration);
+            _currentLayer = null;
             _currentState = null;
             _currentMontage = null;
             _currentSection = null;
@@ -138,7 +144,7 @@ public class MontagePlayer : MonoBehaviour
         
         // 새 레이어 생성
         AnimancerLayer newLayer = animancer.Layers[_nextLayerIndex];
-        newLayer.SetMask(mask);
+        newLayer.Mask = mask;  // SetMask 대신 Mask 속성 사용
         
         _layerByMask[mask] = newLayer;
         _nextLayerIndex++;
@@ -185,15 +191,18 @@ public class MontagePlayer : MonoBehaviour
         if (_currentMontage == null || _currentState == null)
             return;
         
-        foreach (var notify in _currentMontage.Notifies)
+        if (_currentState.Events(this, out var events))
         {
-            float notifyTime = notify.normalizedTime * _currentState.Length;
-            
-            _currentState.Events.Add(notifyTime, () =>
+            foreach (var notify in _currentMontage.Notifies)
             {
-                OnNotifyTriggered?.Invoke(notify.notifyName);
-                notify.OnNotifyTriggered?.Invoke(notify.eventParameter);
-            });
+                float notifyTime = notify.normalizedTime * _currentState.Length;
+                
+                events.Add(notifyTime, () =>
+                {
+                    OnNotifyTriggered?.Invoke(notify.notifyName);
+                    notify.OnNotifyTriggered?.Invoke(notify.eventParameter);
+                });
+            }
         }
     }
     

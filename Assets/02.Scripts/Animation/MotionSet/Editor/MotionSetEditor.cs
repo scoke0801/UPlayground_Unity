@@ -13,9 +13,8 @@ public class MotionSetEditor : Editor
     private SerializedProperty playModeProp;
     private SerializedProperty blendTypeProp;
     private SerializedProperty motionsProp;
-    private SerializedProperty targetSlotAssetProp;
-    private SerializedProperty targetSlotProp;
-    private SerializedProperty blendParameterRangeProp;
+    private SerializedProperty avatarMaskProp;
+    private SerializedProperty blendParameterMaxProp;
     
     private bool showPresets = true;
     private bool showMotions = true;
@@ -42,9 +41,8 @@ public class MotionSetEditor : Editor
         playModeProp = serializedObject.FindProperty("playMode");
         blendTypeProp = serializedObject.FindProperty("blendType");
         motionsProp = serializedObject.FindProperty("motions");
-        targetSlotAssetProp = serializedObject.FindProperty("targetSlotAsset");
-        targetSlotProp = serializedObject.FindProperty("targetSlot");
-        blendParameterRangeProp = serializedObject.FindProperty("blendParameterRange");
+        avatarMaskProp = serializedObject.FindProperty("avatarMask");
+        blendParameterMaxProp = serializedObject.FindProperty("blendParameterMax");
     }
     
     public override void OnInspectorGUI()
@@ -155,16 +153,9 @@ public class MotionSetEditor : Editor
         
         EditorGUILayout.PropertyField(motionSetNameProp, new GUIContent("모션 세트 이름"));
         EditorGUILayout.PropertyField(playModeProp, new GUIContent("재생 방식"));
+        EditorGUILayout.PropertyField(avatarMaskProp, new GUIContent("Avatar Mask"));
         
-        // Slot Asset (우선)
-        EditorGUILayout.PropertyField(targetSlotAssetProp, new GUIContent("타겟 슬롯 (Asset)"));
-        
-        // Slot 이름 (하위 호환용)
-        if (targetSlotAssetProp.objectReferenceValue == null)
-        {
-            EditorGUILayout.PropertyField(targetSlotProp, new GUIContent("타겟 슬롯 (이름)"));
-            EditorGUILayout.HelpBox("Slot Asset을 사용하는 것을 권장합니다.", MessageType.Info);
-        }
+        EditorGUILayout.HelpBox("Avatar Mask를 사용하여 신체 부위별 재생을 제어합니다.", MessageType.Info);
         
         EditorGUILayout.EndVertical();
     }
@@ -184,19 +175,23 @@ public class MotionSetEditor : Editor
         {
             case MotionPlayMode.Blend:
                 EditorGUILayout.PropertyField(blendTypeProp, new GUIContent("블렌딩 타입"));
+                EditorGUILayout.PropertyField(blendParameterMaxProp, new GUIContent("최대 파라미터 값"));
                 
                 MotionBlendType blendType = (MotionBlendType)blendTypeProp.enumValueIndex;
                 
                 if (blendType == MotionBlendType.Linear)
                 {
-                    EditorGUILayout.PropertyField(blendParameterRangeProp, new GUIContent("파라미터 범위 (Min, Max)"));
+                    EditorGUILayout.HelpBox(
+                        "Linear 블렌딩: 1D 블렌딩 (0 ~ 최대값)\n" +
+                        "각 모션의 Threshold를 설정해야 합니다.",
+                        MessageType.Info
+                    );
                 }
                 else if (blendType == MotionBlendType.Cartesian || blendType == MotionBlendType.Directional)
                 {
-                    EditorGUILayout.PropertyField(blendParameterRangeProp, new GUIContent("파라미터 범위 (Min, Max)"));
                     EditorGUILayout.HelpBox(
-                        "2D 블렌딩: X, Y 좌표 범위를 설정합니다.\n" +
-                        "각 모션의 Threshold와 ThresholdY를 설정해야 합니다.", 
+                        "2D 블렌딩: X, Y 좌표 기반\n" +
+                        "각 모션의 Direction Angle을 설정해야 합니다.", 
                         MessageType.Info
                     );
                 }
@@ -293,12 +288,10 @@ public class MotionSetEditor : Editor
     {
         SerializedProperty motionProp = motionsProp.GetArrayElementAtIndex(index);
         
-        SerializedProperty sourceTypeProp = motionProp.FindPropertyRelative("sourceType");
         SerializedProperty clipProp = motionProp.FindPropertyRelative("clip");
         SerializedProperty montageProp = motionProp.FindPropertyRelative("montage");
         SerializedProperty motionNameProp = motionProp.FindPropertyRelative("motionName");
         SerializedProperty thresholdProp = motionProp.FindPropertyRelative("threshold");
-        SerializedProperty thresholdYProp = motionProp.FindPropertyRelative("thresholdY");
         SerializedProperty directionAngleProp = motionProp.FindPropertyRelative("directionAngle");
         SerializedProperty loopableProp = motionProp.FindPropertyRelative("loopable");
         
@@ -323,20 +316,11 @@ public class MotionSetEditor : Editor
         
         EditorGUI.indentLevel++;
         
-        // 소스 타입
-        EditorGUILayout.PropertyField(sourceTypeProp, new GUIContent("소스 타입"));
+        // AnimationClip 또는 AnimationMontage 선택
+        EditorGUILayout.PropertyField(clipProp, new GUIContent("Animation Clip"));
+        EditorGUILayout.PropertyField(montageProp, new GUIContent("Animation Montage"));
         
-        MotionSourceType sourceType = (MotionSourceType)sourceTypeProp.enumValueIndex;
-        
-        // 소스 타입에 따라 Clip 또는 Montage 표시
-        if (sourceType == MotionSourceType.Clip)
-        {
-            EditorGUILayout.PropertyField(clipProp, new GUIContent("Animation Clip"));
-        }
-        else
-        {
-            EditorGUILayout.PropertyField(montageProp, new GUIContent("Animation Montage"));
-        }
+        EditorGUILayout.HelpBox("Clip 또는 Montage 중 하나를 선택하세요.", MessageType.Info);
         
         // 모션 이름
         EditorGUILayout.PropertyField(motionNameProp, new GUIContent("모션 이름"));
@@ -348,12 +332,7 @@ public class MotionSetEditor : Editor
             {
                 EditorGUILayout.PropertyField(thresholdProp, new GUIContent("Threshold"));
             }
-            else if (blendType == MotionBlendType.Cartesian)
-            {
-                EditorGUILayout.PropertyField(thresholdProp, new GUIContent("Threshold X"));
-                EditorGUILayout.PropertyField(thresholdYProp, new GUIContent("Threshold Y"));
-            }
-            else if (blendType == MotionBlendType.Directional)
+            else if (blendType == MotionBlendType.Cartesian || blendType == MotionBlendType.Directional)
             {
                 DrawDirectionSettings(directionAngleProp);
             }
@@ -500,8 +479,7 @@ public class MotionSetEditor : Editor
         motionSetNameProp.stringValue = "Locomotion";
         playModeProp.enumValueIndex = (int)MotionPlayMode.Blend;
         blendTypeProp.enumValueIndex = (int)MotionBlendType.Linear;
-        blendParameterRangeProp.vector2Value = new Vector2(0f, 10f);
-        targetSlotProp.stringValue = "FullBody";
+        blendParameterMaxProp.floatValue = 10f;
         
         motionsProp.ClearArray();
         
@@ -513,7 +491,6 @@ public class MotionSetEditor : Editor
         {
             motionsProp.InsertArrayElementAtIndex(i);
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            motion.FindPropertyRelative("sourceType").enumValueIndex = (int)MotionSourceType.Clip;
             motion.FindPropertyRelative("motionName").stringValue = names[i];
             motion.FindPropertyRelative("threshold").floatValue = thresholds[i];
             motion.FindPropertyRelative("loopable").boolValue = true;
@@ -531,7 +508,6 @@ public class MotionSetEditor : Editor
         
         motionSetNameProp.stringValue = "Combat Combo";
         playModeProp.enumValueIndex = (int)MotionPlayMode.Sequential;
-        targetSlotProp.stringValue = "UpperBody";
         
         motionsProp.ClearArray();
         
@@ -540,7 +516,6 @@ public class MotionSetEditor : Editor
         {
             motionsProp.InsertArrayElementAtIndex(i);
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            motion.FindPropertyRelative("sourceType").enumValueIndex = (int)MotionSourceType.Clip;
             motion.FindPropertyRelative("motionName").stringValue = $"Attack {i + 1}";
             motion.FindPropertyRelative("loopable").boolValue = false;
         }
@@ -557,7 +532,6 @@ public class MotionSetEditor : Editor
         
         motionSetNameProp.stringValue = "8 Direction Movement";
         playModeProp.enumValueIndex = (int)MotionPlayMode.Directional;
-        targetSlotProp.stringValue = "FullBody";
         
         motionsProp.ClearArray();
         
@@ -578,7 +552,6 @@ public class MotionSetEditor : Editor
         {
             motionsProp.InsertArrayElementAtIndex(i);
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            motion.FindPropertyRelative("sourceType").enumValueIndex = (int)MotionSourceType.Clip;
             motion.FindPropertyRelative("motionName").stringValue = directions[i].name;
             motion.FindPropertyRelative("directionAngle").floatValue = directions[i].angle;
             motion.FindPropertyRelative("loopable").boolValue = true;
@@ -596,7 +569,6 @@ public class MotionSetEditor : Editor
         
         motionSetNameProp.stringValue = "Idle Variations";
         playModeProp.enumValueIndex = (int)MotionPlayMode.Random;
-        targetSlotProp.stringValue = "FullBody";
         
         motionsProp.ClearArray();
         
@@ -607,7 +579,6 @@ public class MotionSetEditor : Editor
         {
             motionsProp.InsertArrayElementAtIndex(i);
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            motion.FindPropertyRelative("sourceType").enumValueIndex = (int)MotionSourceType.Clip;
             motion.FindPropertyRelative("motionName").stringValue = names[i];
             motion.FindPropertyRelative("loopable").boolValue = true;
         }
@@ -628,18 +599,18 @@ public class MotionSetEditor : Editor
         
         Undo.RecordObject(motionSet, "Auto Calculate Thresholds");
         
-        Vector2 range = blendParameterRangeProp.vector2Value;
-        float step = (range.y - range.x) / (motionsProp.arraySize - 1);
+        float maxValue = blendParameterMaxProp.floatValue;
+        float step = maxValue / (motionsProp.arraySize - 1);
         
         for (int i = 0; i < motionsProp.arraySize; i++)
         {
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            motion.FindPropertyRelative("threshold").floatValue = range.x + (i * step);
+            motion.FindPropertyRelative("threshold").floatValue = i * step;
         }
         
         serializedObject.ApplyModifiedProperties();
         
-        Debug.Log($"Threshold 자동 계산 완료: {range.x} ~ {range.y} 범위, {motionsProp.arraySize}개 구간");
+        Debug.Log($"Threshold 자동 계산 완료: 0 ~ {maxValue} 범위, {motionsProp.arraySize}개 구간");
     }
     
     /// <summary>
@@ -678,21 +649,18 @@ public class MotionSetEditor : Editor
         for (int i = 0; i < motionsProp.arraySize; i++)
         {
             var motion = motionsProp.GetArrayElementAtIndex(i);
-            var sourceTypeProp = motion.FindPropertyRelative("sourceType");
             var clipProp = motion.FindPropertyRelative("clip");
             var montageProp = motion.FindPropertyRelative("montage");
             var nameProp = motion.FindPropertyRelative("motionName");
             
             if (string.IsNullOrEmpty(nameProp.stringValue))
             {
-                MotionSourceType sourceType = (MotionSourceType)sourceTypeProp.enumValueIndex;
-                
-                if (sourceType == MotionSourceType.Clip && clipProp.objectReferenceValue != null)
+                if (clipProp.objectReferenceValue != null)
                 {
                     nameProp.stringValue = clipProp.objectReferenceValue.name;
                     count++;
                 }
-                else if (sourceType == MotionSourceType.Montage && montageProp.objectReferenceValue != null)
+                else if (montageProp.objectReferenceValue != null)
                 {
                     nameProp.stringValue = montageProp.objectReferenceValue.name;
                     count++;

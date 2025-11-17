@@ -141,7 +141,15 @@ public class MotionSetWindow : EditorWindow
         if (string.IsNullOrEmpty(path)) return;
         
         MotionSet newMotionSet = CreateInstance<MotionSet>();
-        newMotionSet.motionSetName = System.IO.Path.GetFileNameWithoutExtension(path);
+        
+        // SerializedObject를 통해 private 필드에 접근
+        SerializedObject serializedMotionSet = new SerializedObject(newMotionSet);
+        SerializedProperty nameProperty = serializedMotionSet.FindProperty("motionSetName");
+        if (nameProperty != null)
+        {
+            nameProperty.stringValue = System.IO.Path.GetFileNameWithoutExtension(path);
+            serializedMotionSet.ApplyModifiedProperties();
+        }
         
         AssetDatabase.CreateAsset(newMotionSet, path);
         AssetDatabase.SaveAssets();

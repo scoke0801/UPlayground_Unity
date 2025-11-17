@@ -551,7 +551,8 @@ public class Player : Character
     
     #region 디버그 (Gizmos)
     
-    private void OnDrawGizmosSelected()
+    protected override void OnDrawGizmosSelected()
+
     {
         if (cameraFollowTarget == null || playerSettings == null) return;
         

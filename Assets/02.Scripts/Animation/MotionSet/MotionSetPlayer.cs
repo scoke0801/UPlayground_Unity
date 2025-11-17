@@ -1,10 +1,10 @@
 using UnityEngine;
 using Animancer;
-using Animation;
-using System;
+using System.Collections.Generic;
 
 /// <summary>
-/// MotionSet을 재생하는 플레이어
+/// MotionSet 재생 컴포넌트
+/// AvatarMask를 사용하여 신체 부위별 모션 세트 재생 제어
 /// </summary>
 [RequireComponent(typeof(AnimancerComponent))]
 public class MotionSetPlayer : MonoBehaviour
@@ -12,502 +12,400 @@ public class MotionSetPlayer : MonoBehaviour
     [SerializeField] private AnimancerComponent animancer;
     [SerializeField] private MontagePlayer montagePlayer;
     
-    private MotionSet currentMotionSet;
-    private int sequentialIndex = 0;
-    private MotionData currentMotion;
+    // 현재 재생 중인 모션 세트 정보
+    private MotionSet _currentMotionSet;
+    private int _currentSequentialIndex = 0;
+    private MotionData _currentMotion;
     
-    // Blend 모드용 Mixer State
-    private LinearMixerState linearMixer;
-    private CartesianMixerState cartesianMixer;
-    private DirectionalMixerState directionalMixer;
-    
-    // 이벤트
-    public event Action<MotionSet> OnMotionSetStarted;
-    public event Action<MotionSet> OnMotionSetEnded;
-    public event Action<MotionData> OnMotionChanged;
-    public event Action<MotionData> OnMotionEnded;
+    // 레이어별 재생 상태 관리
+    private Dictionary<AvatarMask, AnimancerLayer> _layerByMask = new Dictionary<AvatarMask, AnimancerLayer>();
+    private Dictionary<AvatarMask, MixerState<Vector2>> _mixerByMask = new Dictionary<AvatarMask, MixerState<Vector2>>();
+    private int _nextLayerIndex = 0;
     
     private void Awake()
     {
         if (animancer == null)
+        {
             animancer = GetComponent<AnimancerComponent>();
+        }
+        
+        if (montagePlayer == null)
+        {
+            montagePlayer = GetComponent<MontagePlayer>();
+        }
     }
+    
+    #region 모션 세트 재생
     
     /// <summary>
     /// MotionSet 재생
     /// </summary>
-    public void Play(MotionSet motionSet)
+    public void Play(MotionSet motionSet, float fadeDuration = 0.25f)
     {
-        if (motionSet == null)
+        if (motionSet == null || motionSet.Motions.Count == 0)
         {
-            Debug.LogWarning("[MotionSetPlayer] MotionSet is null!");
+            Debug.LogWarning("[MotionSetPlayer] MotionSet이 비어있거나 null입니다.");
             return;
         }
         
-        currentMotionSet = motionSet;
-        sequentialIndex = 0;
+        _currentMotionSet = motionSet;
+        _currentSequentialIndex = 0;
         
-        OnMotionSetStarted?.Invoke(motionSet);
-        
-        switch (motionSet.playMode)
+        switch (motionSet.PlayMode)
         {
             case MotionPlayMode.Single:
-                PlaySingle(motionSet);
+                PlaySingle(motionSet, fadeDuration);
                 break;
                 
             case MotionPlayMode.Sequential:
-                PlaySequential(motionSet, 0);
+                PlaySequential(motionSet, 0, fadeDuration);
                 break;
                 
             case MotionPlayMode.Blend:
-                SetupBlendMode(motionSet);
+                SetupBlendMotionSet(motionSet);
                 break;
                 
             case MotionPlayMode.Directional:
-                // Directional은 PlayByDirection 메서드로 별도 제어
-                Debug.Log("[MotionSetPlayer] Directional mode ready. Call PlayByDirection() to play.");
+                // Directional은 방향 입력 시 재생
                 break;
                 
             case MotionPlayMode.Random:
-                PlayRandom(motionSet);
+                PlayRandom(motionSet, fadeDuration);
                 break;
         }
     }
     
     /// <summary>
-    /// 현재 MotionSet 정지
+    /// 단일 모션 재생
     /// </summary>
-    public void Stop(float fadeDuration = 0.25f)
+    private void PlaySingle(MotionSet motionSet, float fadeDuration)
     {
-        if (linearMixer != null)
+        MotionData motion = motionSet.GetMotionByIndex(0);
+        if (motion != null && motion.HasValidAnimation)
         {
-            linearMixer.Stop();
-            linearMixer = null;
+            PlayMotion(motion, motionSet.AvatarMask, fadeDuration);
         }
-        
-        if (cartesianMixer != null)
-        {
-            cartesianMixer.Stop();
-            cartesianMixer = null;
-        }
-        
-        if (directionalMixer != null)
-        {
-            directionalMixer.Stop();
-            directionalMixer = null;
-        }
-        
-        if (montagePlayer != null && montagePlayer.IsPlaying)
-        {
-            montagePlayer.StopMontage(fadeDuration);
-        }
-        
-        var motionSet = currentMotionSet;
-        currentMotionSet = null;
-        currentMotion = null;
-        
-        if (motionSet != null)
-            OnMotionSetEnded?.Invoke(motionSet);
     }
     
     /// <summary>
-    /// 단일 재생
+    /// 순차 모션 재생
     /// </summary>
-    private void PlaySingle(MotionSet motionSet)
+    private void PlaySequential(MotionSet motionSet, int index, float fadeDuration)
     {
-        if (motionSet.motions.Count == 0) return;
-        
-        var motion = motionSet.motions[0];
-        PlayMotionData(motion);
-    }
-    
-    /// <summary>
-    /// 순차 재생
-    /// </summary>
-    public void PlaySequential(MotionSet motionSet, int index)
-    {
-        var motion = motionSet.GetMotionByIndex(index);
-        if (motion == null)
+        if (index >= motionSet.Motions.Count)
         {
-            Debug.LogWarning($"[MotionSetPlayer] Motion at index {index} not found!");
+            _currentSequentialIndex = 0;
             return;
         }
         
-        sequentialIndex = index;
-        PlayMotionData(motion);
-    }
-    
-    /// <summary>
-    /// 다음 콤보 재생
-    /// </summary>
-    public void PlayNextSequential()
-    {
-        if (currentMotionSet == null) return;
-        if (currentMotionSet.playMode != MotionPlayMode.Sequential) return;
-        
-        sequentialIndex = (sequentialIndex + 1) % currentMotionSet.motions.Count;
-        PlaySequential(currentMotionSet, sequentialIndex);
-    }
-    
-    /// <summary>
-    /// 이전 콤보로 돌아가기
-    /// </summary>
-    public void PlayPreviousSequential()
-    {
-        if (currentMotionSet == null) return;
-        if (currentMotionSet.playMode != MotionPlayMode.Sequential) return;
-        
-        sequentialIndex--;
-        if (sequentialIndex < 0)
-            sequentialIndex = currentMotionSet.motions.Count - 1;
-        
-        PlaySequential(currentMotionSet, sequentialIndex);
-    }
-    
-    /// <summary>
-    /// 랜덤 재생
-    /// </summary>
-    private void PlayRandom(MotionSet motionSet)
-    {
-        var motion = motionSet.GetRandomMotion();
-        if (motion != null)
-            PlayMotionData(motion);
-    }
-    
-    /// <summary>
-    /// 블렌드 모드 설정
-    /// </summary>
-    private void SetupBlendMode(MotionSet motionSet)
-    {
-        switch (motionSet.blendType)
+        MotionData motion = motionSet.GetMotionByIndex(index);
+        if (motion != null && motion.HasValidAnimation)
         {
-            case MotionBlendType.Linear:
-                SetupLinearMixer(motionSet);
-                break;
-                
-            case MotionBlendType.Cartesian:
-                SetupCartesianMixer(motionSet);
-                break;
-                
-            case MotionBlendType.Directional:
-                SetupDirectionalMixer(motionSet);
-                break;
-                
-            default:
-                Debug.LogWarning($"[MotionSetPlayer] Blend mode but blendType is None!");
-                break;
-        }
-    }
-    
-    /// <summary>
-    /// Linear Mixer 설정 (1D 블렌딩)
-    /// </summary>
-    private void SetupLinearMixer(MotionSet motionSet)
-    {
-        linearMixer = new LinearMixerState();
-        int layerIndex = motionSet.GetLayerIndex();
-        
-        foreach (var motion in motionSet.motions)
-        {
-            if (!motion.IsValid()) continue;
+            var state = PlayMotion(motion, motionSet.AvatarMask, fadeDuration);
             
-            if (motion.sourceType == MotionSourceType.Clip && motion.clip != null)
+            // 다음 모션으로 자동 전환 설정
+            if (state != null && !motion.loopable)
             {
-                linearMixer.Add(motion.clip, motion.threshold);
-            }
-            else if (motion.sourceType == MotionSourceType.Montage && motion.montage != null)
-            {
-                // Montage의 첫 섹션 클립 사용
-                var firstSection = motion.montage.GetFirstSection();
-                if (firstSection?.Clip != null)
+                state.Events.OnEnd = () =>
                 {
-                    linearMixer.Add(firstSection.Clip, motion.threshold);
-                }
+                    _currentSequentialIndex++;
+                    if (_currentSequentialIndex < motionSet.Motions.Count)
+                    {
+                        PlaySequential(motionSet, _currentSequentialIndex, fadeDuration);
+                    }
+                };
             }
         }
-        
-        if (linearMixer.ChildCount > 0)
+    }
+    
+    /// <summary>
+    /// 랜덤 모션 재생
+    /// </summary>
+    private void PlayRandom(MotionSet motionSet, float fadeDuration)
+    {
+        MotionData motion = motionSet.GetRandomMotion();
+        if (motion != null && motion.HasValidAnimation)
         {
-            animancer.Layers[layerIndex].Play(linearMixer);
-            Debug.Log($"[MotionSetPlayer] Linear Mixer setup with {linearMixer.ChildCount} motions on layer {layerIndex}");
-        }
-        else
-        {
-            Debug.LogWarning("[MotionSetPlayer] No valid clips found for Linear Mixer!");
+            PlayMotion(motion, motionSet.AvatarMask, fadeDuration);
         }
     }
     
     /// <summary>
-    /// Cartesian Mixer 설정 (2D 블렌딩)
+    /// 개별 모션 재생
     /// </summary>
-    private void SetupCartesianMixer(MotionSet motionSet)
+    private AnimancerState PlayMotion(MotionData motion, AvatarMask mask, float fadeDuration)
     {
-        cartesianMixer = new CartesianMixerState();
-        int layerIndex = motionSet.GetLayerIndex();
+        _currentMotion = motion;
         
-        foreach (var motion in motionSet.motions)
-        {
-            if (!motion.IsValid()) continue;
-            
-            Vector2 position = motion.GetPosition2D();
-            
-            if (motion.sourceType == MotionSourceType.Clip && motion.clip != null)
-            {
-                cartesianMixer.Add(motion.clip, position);
-            }
-            else if (motion.sourceType == MotionSourceType.Montage && motion.montage != null)
-            {
-                var firstSection = motion.montage.GetFirstSection();
-                if (firstSection?.Clip != null)
-                {
-                    cartesianMixer.Add(firstSection.Clip, position);
-                }
-            }
-        }
-        
-        if (cartesianMixer.ChildCount > 0)
-        {
-            animancer.Layers[layerIndex].Play(cartesianMixer);
-            Debug.Log($"[MotionSetPlayer] Cartesian Mixer setup with {cartesianMixer.ChildCount} motions on layer {layerIndex}");
-        }
-        else
-        {
-            Debug.LogWarning("[MotionSetPlayer] No valid clips found for Cartesian Mixer!");
-        }
-    }
-    
-    /// <summary>
-    /// Directional Mixer 설정 (2D 방향 블렌딩)
-    /// </summary>
-    private void SetupDirectionalMixer(MotionSet motionSet)
-    {
-        directionalMixer = new DirectionalMixerState();
-        int layerIndex = motionSet.GetLayerIndex();
-        
-        foreach (var motion in motionSet.motions)
-        {
-            if (!motion.IsValid()) continue;
-            if (motion.directionAngle < 0) continue; // 방향 설정 안된 모션 제외
-            
-            Vector2 direction = motion.GetDirectionVector();
-            
-            if (motion.sourceType == MotionSourceType.Clip && motion.clip != null)
-            {
-                directionalMixer.Add(motion.clip, direction);
-            }
-            else if (motion.sourceType == MotionSourceType.Montage && motion.montage != null)
-            {
-                var firstSection = motion.montage.GetFirstSection();
-                if (firstSection?.Clip != null)
-                {
-                    directionalMixer.Add(firstSection.Clip, direction);
-                }
-            }
-        }
-        
-        if (directionalMixer.ChildCount > 0)
-        {
-            animancer.Layers[layerIndex].Play(directionalMixer);
-            Debug.Log($"[MotionSetPlayer] Directional Mixer setup with {directionalMixer.ChildCount} motions on layer {layerIndex}");
-        }
-        else
-        {
-            Debug.LogWarning("[MotionSetPlayer] No valid clips found for Directional Mixer!");
-        }
-    }
-    
-    /// <summary>
-    /// 블렌드 파라미터 업데이트 (1D - Linear용)
-    /// </summary>
-    public void UpdateBlendParameter(float parameter)
-    {
-        if (linearMixer != null)
-        {
-            linearMixer.Parameter = parameter;
-        }
-        else
-        {
-            Debug.LogWarning("[MotionSetPlayer] Linear Mixer is not active!");
-        }
-    }
-    
-    /// <summary>
-    /// 블렌드 파라미터 업데이트 (2D - Cartesian/Directional용)
-    /// </summary>
-    public void UpdateBlendParameter(Vector2 parameter)
-    {
-        if (cartesianMixer != null)
-        {
-            cartesianMixer.Parameter = parameter;
-        }
-        else if (directionalMixer != null)
-        {
-            directionalMixer.Parameter = parameter;
-        }
-        else
-        {
-            Debug.LogWarning("[MotionSetPlayer] 2D Mixer (Cartesian/Directional) is not active!");
-        }
-    }
-    
-    /// <summary>
-    /// 방향에 따라 재생 (Directional 모드 - Mixer 미사용 버전)
-    /// </summary>
-    public void PlayByDirection(Vector2 direction)
-    {
-        if (currentMotionSet == null)
-        {
-            Debug.LogWarning("[MotionSetPlayer] No MotionSet is loaded!");
-            return;
-        }
-        
-        if (currentMotionSet.playMode != MotionPlayMode.Directional)
-        {
-            Debug.LogWarning("[MotionSetPlayer] MotionSet is not in Directional mode!");
-            return;
-        }
-        
-        var motion = currentMotionSet.GetMotionByDirection(direction);
-        if (motion != null)
-            PlayMotionData(motion);
-    }
-    
-    /// <summary>
-    /// 개별 MotionData 재생
-    /// </summary>
-    private void PlayMotionData(MotionData motion)
-    {
-        if (motion == null || !motion.IsValid())
-        {
-            Debug.LogWarning("[MotionSetPlayer] Invalid motion data!");
-            return;
-        }
-        
-        currentMotion = motion;
-        int layerIndex = currentMotionSet?.GetLayerIndex() ?? 0;
-        
-        OnMotionChanged?.Invoke(motion);
-        
-        // Montage로 재생
-        if (motion.sourceType == MotionSourceType.Montage && motion.montage != null)
+        // Montage가 있으면 MontagePlayer 사용
+        if (motion.montage != null)
         {
             if (montagePlayer != null)
             {
-                montagePlayer.PlayMontage(motion.montage);
-                
-                // Montage 종료 이벤트 구독
-                montagePlayer.OnMontageEnded -= HandleMontageEnded;
-                montagePlayer.OnMontageEnded += HandleMontageEnded;
+                return montagePlayer.Play(motion.montage, fadeDuration);
             }
             else
             {
-                Debug.LogWarning("[MotionSetPlayer] MontagePlayer is not assigned!");
+                Debug.LogWarning("[MotionSetPlayer] MontagePlayer가 없어 Montage를 재생할 수 없습니다.");
+                return null;
             }
         }
-        // Clip으로 재생
-        else if (motion.sourceType == MotionSourceType.Clip && motion.clip != null)
+        
+        // 일반 Clip 재생
+        if (motion.clip != null)
         {
-            var state = animancer.Layers[layerIndex].Play(motion.clip);
-            
-            // 루프 설정 - Animancer v8에서는 Events로 제어
-            if (!motion.loopable)
+            AnimancerLayer layer = GetOrCreateLayer(mask);
+            var state = layer.Play(motion.clip, fadeDuration);
+            state.IsLooping = motion.loopable;
+            return state;
+        }
+        
+        return null;
+    }
+    
+    #endregion
+    
+    #region 블렌딩
+    
+    /// <summary>
+    /// 블렌딩 모션 세트 설정
+    /// </summary>
+    private void SetupBlendMotionSet(MotionSet motionSet)
+    {
+        AnimancerLayer layer = GetOrCreateLayer(motionSet.AvatarMask);
+        
+        switch (motionSet.BlendType)
+        {
+            case MotionBlendType.Linear:
+                SetupLinearBlend(motionSet, layer);
+                break;
+                
+            case MotionBlendType.Cartesian:
+            case MotionBlendType.Directional:
+                SetupCartesianBlend(motionSet, layer);
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 1D 선형 블렌딩 설정
+    /// </summary>
+    private void SetupLinearBlend(MotionSet motionSet, AnimancerLayer layer)
+    {
+        var mixer = new LinearMixerState();
+        
+        foreach (var motion in motionSet.Motions)
+        {
+            if (motion.HasValidAnimation)
             {
-                // 루프하지 않으면 종료 이벤트 설정
-                state.Events(this).OnEnd = () => HandleMotionEnded(motion);
+                var clip = motion.GetClip();
+                var state = mixer.CreateState();
+                state.Clip = clip;
+                state.Threshold = motion.threshold;
             }
-            else
+        }
+        
+        layer.Play(mixer);
+    }
+    
+    /// <summary>
+    /// 2D 블렌딩 설정
+    /// </summary>
+    private void SetupCartesianBlend(MotionSet motionSet, AnimancerLayer layer)
+    {
+        var mixer = new CartesianMixerState();
+        
+        foreach (var motion in motionSet.Motions)
+        {
+            if (motion.HasValidAnimation)
             {
-                // 루프하면 OnEnd를 null로 (또는 설정하지 않음)
-                if (state.Events(this, out var events))
+                var clip = motion.GetClip();
+                var state = mixer.CreateState();
+                state.Clip = clip;
+                
+                // 방향성 블렌딩인 경우 각도를 2D 좌표로 변환
+                if (motionSet.BlendType == MotionBlendType.Directional)
                 {
-                    events.OnEnd = null;
+                    float rad = motion.directionAngle * Mathf.Deg2Rad;
+                    state.Position = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+                }
+                else
+                {
+                    state.Position = new Vector2(motion.threshold, 0);
                 }
             }
-            
-            Debug.Log($"[MotionSetPlayer] Playing clip '{motion.motionName}' on layer {layerIndex}");
         }
-    }
-    
-    /// <summary>
-    /// Montage 종료 핸들러
-    /// </summary>
-    private void HandleMontageEnded(AnimationMontage montage)
-    {
-        if (currentMotion != null && currentMotion.montage == montage)
-        {
-            HandleMotionEnded(currentMotion);
-        }
-    }
-    
-    /// <summary>
-    /// 모션 종료 핸들러
-    /// </summary>
-    private void HandleMotionEnded(MotionData motion)
-    {
-        OnMotionEnded?.Invoke(motion);
         
-        // Sequential 모드에서 자동으로 다음 모션 재생
-        if (currentMotionSet != null && currentMotionSet.playMode == MotionPlayMode.Sequential)
+        layer.Play(mixer);
+        _mixerByMask[motionSet.AvatarMask] = mixer;
+    }
+    
+    /// <summary>
+    /// 블렌딩 파라미터 업데이트 (1D)
+    /// </summary>
+    public void UpdateBlendParameter(float parameter)
+    {
+        if (_currentMotionSet == null || _currentMotionSet.PlayMode != MotionPlayMode.Blend)
+            return;
+        
+        AnimancerLayer layer = GetLayer(_currentMotionSet.AvatarMask);
+        if (layer != null && layer.CurrentState is LinearMixerState mixer)
         {
-            int nextIndex = sequentialIndex + 1;
-            
-            if (nextIndex < currentMotionSet.motions.Count)
-            {
-                PlaySequential(currentMotionSet, nextIndex);
-            }
-            else
-            {
-                // 마지막 모션이면 MotionSet 종료
-                var motionSet = currentMotionSet;
-                currentMotionSet = null;
-                currentMotion = null;
-                OnMotionSetEnded?.Invoke(motionSet);
-            }
+            mixer.Parameter = parameter;
         }
     }
     
     /// <summary>
-    /// 재생 속도 변경
+    /// 블렌딩 파라미터 업데이트 (2D)
     /// </summary>
-    public void SetSpeed(float speed)
+    public void UpdateBlendParameter(Vector2 parameter)
     {
-        if (linearMixer != null)
-            linearMixer.Speed = speed;
-        else if (cartesianMixer != null)
-            cartesianMixer.Speed = speed;
-        else if (directionalMixer != null)
-            directionalMixer.Speed = speed;
-        else if (montagePlayer != null)
-            montagePlayer.SetPlayRate(speed);
-    }
-    
-    /// <summary>
-    /// 현재 재생 상태
-    /// </summary>
-    public bool IsPlaying
-    {
-        get
+        if (_currentMotionSet == null || _currentMotionSet.PlayMode != MotionPlayMode.Blend)
+            return;
+        
+        if (_mixerByMask.TryGetValue(_currentMotionSet.AvatarMask, out var mixer))
         {
-            if (linearMixer != null && linearMixer.IsPlaying) return true;
-            if (cartesianMixer != null && cartesianMixer.IsPlaying) return true;
-            if (directionalMixer != null && directionalMixer.IsPlaying) return true;
-            if (montagePlayer != null && montagePlayer.IsPlaying) return true;
-            return false;
+            mixer.Parameter = parameter;
         }
     }
     
-    /// <summary>
-    /// 현재 MotionSet
-    /// </summary>
-    public MotionSet CurrentMotionSet => currentMotionSet;
+    #endregion
+    
+    #region 방향성 재생
     
     /// <summary>
-    /// 현재 재생 중인 모션
+    /// 방향으로 모션 재생
     /// </summary>
-    public MotionData CurrentMotion => currentMotion;
+    public void PlayByDirection(Vector2 direction, float fadeDuration = 0.25f)
+    {
+        if (_currentMotionSet == null || _currentMotionSet.PlayMode != MotionPlayMode.Directional)
+        {
+            Debug.LogWarning("[MotionSetPlayer] Directional 모드가 아닙니다.");
+            return;
+        }
+        
+        MotionData motion = _currentMotionSet.GetMotionByDirection(direction);
+        if (motion != null && motion.HasValidAnimation)
+        {
+            PlayMotion(motion, _currentMotionSet.AvatarMask, fadeDuration);
+        }
+    }
+    
+    #endregion
+    
+    #region 순차 재생 제어
     
     /// <summary>
-    /// 현재 Sequential 인덱스
+    /// 다음 순차 모션 재생
     /// </summary>
-    public int CurrentSequentialIndex => sequentialIndex;
+    public void PlayNextSequential(float fadeDuration = 0.25f)
+    {
+        if (_currentMotionSet == null || _currentMotionSet.PlayMode != MotionPlayMode.Sequential)
+        {
+            Debug.LogWarning("[MotionSetPlayer] Sequential 모드가 아닙니다.");
+            return;
+        }
+        
+        _currentSequentialIndex++;
+        if (_currentSequentialIndex >= _currentMotionSet.Motions.Count)
+        {
+            _currentSequentialIndex = 0;
+        }
+        
+        PlaySequential(_currentMotionSet, _currentSequentialIndex, fadeDuration);
+    }
+    
+    /// <summary>
+    /// 특정 인덱스의 모션 재생
+    /// </summary>
+    public void PlaySequentialAtIndex(int index, float fadeDuration = 0.25f)
+    {
+        if (_currentMotionSet == null || _currentMotionSet.PlayMode != MotionPlayMode.Sequential)
+        {
+            Debug.LogWarning("[MotionSetPlayer] Sequential 모드가 아닙니다.");
+            return;
+        }
+        
+        _currentSequentialIndex = Mathf.Clamp(index, 0, _currentMotionSet.Motions.Count - 1);
+        PlaySequential(_currentMotionSet, _currentSequentialIndex, fadeDuration);
+    }
+    
+    #endregion
+    
+    #region 레이어 관리 (AvatarMask 기반)
+    
+    /// <summary>
+    /// AvatarMask에 맞는 레이어 가져오기 또는 생성
+    /// </summary>
+    private AnimancerLayer GetOrCreateLayer(AvatarMask mask)
+    {
+        // AvatarMask가 없으면 기본 레이어 사용
+        if (mask == null)
+        {
+            return animancer.Layers[0];
+        }
+        
+        // 이미 생성된 레이어가 있으면 재사용
+        if (_layerByMask.TryGetValue(mask, out AnimancerLayer existingLayer))
+        {
+            return existingLayer;
+        }
+        
+        // 새 레이어 생성
+        AnimancerLayer newLayer = animancer.Layers[_nextLayerIndex];
+        newLayer.SetMask(mask);
+        
+        _layerByMask[mask] = newLayer;
+        _nextLayerIndex++;
+        
+        return newLayer;
+    }
+    
+    /// <summary>
+    /// 특정 마스크의 레이어 가져오기
+    /// </summary>
+    public AnimancerLayer GetLayer(AvatarMask mask)
+    {
+        if (mask == null)
+        {
+            return animancer.Layers[0];
+        }
+        
+        return _layerByMask.TryGetValue(mask, out AnimancerLayer layer) ? layer : null;
+    }
+    
+    /// <summary>
+    /// 모든 레이어 중지
+    /// </summary>
+    public void StopAll(float fadeDuration = 0.25f)
+    {
+        foreach (var layer in animancer.Layers)
+        {
+            if (layer != null)
+            {
+                layer.StartFade(0f, fadeDuration);
+            }
+        }
+    }
+    
+    #endregion
+    
+    #region 유틸리티
+    
+    /// <summary>
+    /// 현재 모션 세트
+    /// </summary>
+    public MotionSet CurrentMotionSet => _currentMotionSet;
+    
+    /// <summary>
+    /// 현재 모션
+    /// </summary>
+    public MotionData CurrentMotion => _currentMotion;
+    
+    /// <summary>
+    /// 현재 순차 인덱스
+    /// </summary>
+    public int CurrentSequentialIndex => _currentSequentialIndex;
+    
+    #endregion
 }

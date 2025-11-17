@@ -1,95 +1,75 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
-using Animation;
+using System;
 
 /// <summary>
-/// 제네릭한 애니메이션 모션 세트
-/// 블렌딩, 방향성, 순차 재생 등 다양한 방식 지원
+/// 모션 재생 방식
 /// </summary>
-[CreateAssetMenu(fileName = "New MotionSet", menuName = "Animation/Motion Set")]
+public enum MotionPlayMode
+{
+    Single,       // 단일 재생
+    Sequential,   // 순차 재생
+    Blend,        // 블렌딩
+    Directional,  // 방향성
+    Random        // 랜덤
+}
+
+/// <summary>
+/// 블렌딩 타입
+/// </summary>
+public enum MotionBlendType
+{
+    Linear,      // 1D 블렌딩
+    Cartesian,   // 2D 블렌딩 (X, Y)
+    Directional  // 2D 방향 블렌딩
+}
+
+/// <summary>
+/// 모션 세트 - 여러 애니메이션을 그룹으로 관리
+/// AvatarMask를 사용하여 신체 부위별 재생 제어
+/// </summary>
+[CreateAssetMenu(fileName = "New Motion Set", menuName = "Animation/Motion Set")]
 public class MotionSet : ScriptableObject
 {
-    [Header("기본 정보")]
-    public string motionSetName;
-    
-    [Header("재생 방식")]
-    public MotionPlayMode playMode = MotionPlayMode.Sequential;
-    public MotionBlendType blendType = MotionBlendType.None;
-    
-    [Header("애니메이션 데이터")]
-    public List<MotionData> motions = new List<MotionData>();
-    
-    [Header("슬롯 설정")]
-    [Tooltip("애니메이션을 재생할 슬롯 (ScriptableObject 참조)")]
-    public AnimationSlot targetSlotAsset;
-    
-    [Tooltip("슬롯 이름 (하위 호환용, targetSlotAsset이 없을 때 사용)")]
-    public string targetSlot = "FullBody";
+    [Header("기본 설정")]
+    [SerializeField] private string motionSetName;
+    [SerializeField] private MotionPlayMode playMode = MotionPlayMode.Single;
+    [SerializeField] private AvatarMask avatarMask; // targetSlot 대체
     
     [Header("블렌딩 설정")]
-    [Tooltip("블렌딩 파라미터 범위 (Min, Max)")]
-    public Vector2 blendParameterRange = new Vector2(0f, 10f);
+    [SerializeField] private MotionBlendType blendType = MotionBlendType.Linear;
+    [SerializeField] private float blendParameterMax = 10f;
+    
+    [Header("모션 리스트")]
+    [SerializeField] private List<MotionData> motions = new List<MotionData>();
+    
+    public string MotionSetName => motionSetName;
+    public MotionPlayMode PlayMode => playMode;
+    public AvatarMask AvatarMask => avatarMask;
+    public MotionBlendType BlendType => blendType;
+    public float BlendParameterMax => blendParameterMax;
+    public List<MotionData> Motions => motions;
+    
+    #region 모션 검색
     
     /// <summary>
-    /// 레이어 인덱스 가져오기 (Slot Asset 우선)
-    /// </summary>
-    public int GetLayerIndex()
-    {
-        return targetSlotAsset != null ? targetSlotAsset.LayerIndex : 0;
-    }
-    
-    /// <summary>
-    /// 슬롯 이름 가져오기 (Slot Asset 우선)
-    /// </summary>
-    public string GetSlotName()
-    {
-        return targetSlotAsset != null ? targetSlotAsset.SlotName : targetSlot;
-    }
-    
-    /// <summary>
-    /// 파라미터 값에 따라 적절한 모션 반환 (블렌딩용)
+    /// 파라미터 값으로 모션 찾기 (Blend 모드)
     /// </summary>
     public MotionData GetMotionByParameter(float parameter)
     {
-        if (motions.Count == 0) return null;
+        if (motions.Count == 0)
+            return null;
         
-        // 파라미터를 0~1 범위로 정규화
-        float normalized = Mathf.InverseLerp(blendParameterRange.x, blendParameterRange.y, parameter);
-        
-        for (int i = 0; i < motions.Count; i++)
-        {
-            float normalizedThreshold = Mathf.InverseLerp(
-                blendParameterRange.x, 
-                blendParameterRange.y, 
-                motions[i].threshold
-            );
-            
-            if (normalized <= normalizedThreshold)
-                return motions[i];
-        }
-        
-        return motions[motions.Count - 1];
-    }
-    
-    /// <summary>
-    /// 2D 파라미터로 모션 반환 (Cartesian 블렌딩용)
-    /// </summary>
-    public MotionData GetMotionByParameter2D(Vector2 parameter)
-    {
-        if (motions.Count == 0) return null;
-        
-        // 가장 가까운 모션 찾기
+        // 파라미터에 가장 가까운 모션 찾기
         MotionData closestMotion = motions[0];
-        float closestDistance = float.MaxValue;
+        float minDiff = Mathf.Abs(parameter - closestMotion.threshold);
         
         foreach (var motion in motions)
         {
-            Vector2 motionPos = new Vector2(motion.threshold, motion.thresholdY);
-            float distance = Vector2.Distance(parameter, motionPos);
-            
-            if (distance < closestDistance)
+            float diff = Mathf.Abs(parameter - motion.threshold);
+            if (diff < minDiff)
             {
-                closestDistance = distance;
+                minDiff = diff;
                 closestMotion = motion;
             }
         }
@@ -98,26 +78,28 @@ public class MotionSet : ScriptableObject
     }
     
     /// <summary>
-    /// 방향에 따라 적절한 모션 반환 (방향성용)
+    /// 방향으로 모션 찾기 (Directional 모드)
     /// </summary>
     public MotionData GetMotionByDirection(Vector2 direction)
     {
-        if (motions.Count == 0) return null;
+        if (motions.Count == 0)
+            return null;
         
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        // 입력 방향의 각도 계산
+        float inputAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (inputAngle < 0)
+            inputAngle += 360f;
         
-        // 가장 가까운 방향 찾기
+        // 가장 가까운 각도의 모션 찾기
         MotionData closestMotion = motions[0];
-        float closestAngleDiff = float.MaxValue;
+        float minAngleDiff = GetAngleDifference(inputAngle, closestMotion.directionAngle);
         
         foreach (var motion in motions)
         {
-            if (motion.directionAngle < 0) continue; // 방향 설정 안된 모션 제외
-            
-            float angleDiff = Mathf.Abs(Mathf.DeltaAngle(angle, motion.directionAngle));
-            if (angleDiff < closestAngleDiff)
+            float angleDiff = GetAngleDifference(inputAngle, motion.directionAngle);
+            if (angleDiff < minAngleDiff)
             {
-                closestAngleDiff = angleDiff;
+                minAngleDiff = angleDiff;
                 closestMotion = motion;
             }
         }
@@ -126,130 +108,113 @@ public class MotionSet : ScriptableObject
     }
     
     /// <summary>
-    /// 인덱스로 모션 반환 (순차 재생용)
+    /// 인덱스로 모션 찾기
     /// </summary>
     public MotionData GetMotionByIndex(int index)
     {
-        if (index < 0 || index >= motions.Count) return null;
+        if (index < 0 || index >= motions.Count)
+        {
+            Debug.LogWarning($"[MotionSet] 인덱스 범위 초과: {index}");
+            return null;
+        }
+        
         return motions[index];
     }
     
     /// <summary>
-    /// 랜덤 모션 반환
+    /// 랜덤 모션 가져오기
     /// </summary>
     public MotionData GetRandomMotion()
     {
-        if (motions.Count == 0) return null;
-        int randomIndex = Random.Range(0, motions.Count);
+        if (motions.Count == 0)
+            return null;
+        
+        int randomIndex = UnityEngine.Random.Range(0, motions.Count);
         return motions[randomIndex];
     }
+    
+    #endregion
+    
+    #region 유틸리티
+    
+    /// <summary>
+    /// 두 각도의 최소 차이 계산
+    /// </summary>
+    private float GetAngleDifference(float angle1, float angle2)
+    {
+        float diff = Mathf.Abs(angle1 - angle2);
+        if (diff > 180f)
+            diff = 360f - diff;
+        return diff;
+    }
+    
+    /// <summary>
+    /// 모션 추가
+    /// </summary>
+    public void AddMotion(MotionData motion)
+    {
+        motions.Add(motion);
+    }
+    
+    /// <summary>
+    /// 모션 제거
+    /// </summary>
+    public void RemoveMotion(MotionData motion)
+    {
+        motions.Remove(motion);
+    }
+    
+    /// <summary>
+    /// 모든 모션 클리어
+    /// </summary>
+    public void ClearMotions()
+    {
+        motions.Clear();
+    }
+    
+    #endregion
 }
 
 /// <summary>
-/// 재생 방식
+/// 모션 데이터 - 개별 애니메이션 정보
 /// </summary>
-public enum MotionPlayMode
-{
-    Sequential,     // 순차 재생 (콤보, 스킬 체인 등)
-    Blend,          // 블렌딩 (이동 속도에 따른 Idle->Walk->Run)
-    Directional,    // 방향성 (8방향 이동)
-    Random,         // 랜덤 (Idle 배리에이션)
-    Single          // 단일 재생 (일반 애니메이션)
-}
-
-/// <summary>
-/// 블렌딩 타입 (Blend 모드일 때만 사용)
-/// </summary>
-public enum MotionBlendType
-{
-    None,           // 블렌딩 없음
-    Linear,         // 1D 블렌딩 (속도)
-    Cartesian,      // 2D 블렌딩 (X, Y)
-    Directional     // 2D 방향 블렌딩
-}
-
-/// <summary>
-/// 모션 소스 타입
-/// </summary>
-public enum MotionSourceType
-{
-    Clip,           // AnimationClip 사용
-    Montage         // AnimationMontage 사용
-}
-
-/// <summary>
-/// 개별 모션 데이터
-/// </summary>
-[System.Serializable]
+[Serializable]
 public class MotionData
 {
-    [Header("모션 소스")]
-    [Tooltip("어떤 타입의 애니메이션을 사용할지 선택")]
-    public MotionSourceType sourceType = MotionSourceType.Clip;
-    
     [Header("애니메이션")]
-    [Tooltip("일반 AnimationClip")]
+    [Tooltip("AnimationClip 또는 AnimationMontage 중 하나만 사용")]
     public AnimationClip clip;
-    
-    [Tooltip("Montage (섹션, 노티파이가 필요한 경우)")]
     public AnimationMontage montage;
     
-    [Header("블렌딩 설정")]
-    [Tooltip("블렌딩 임계값 X (Linear: 속도, Cartesian: X좌표)")]
-    public float threshold;
-    
-    [Tooltip("블렌딩 임계값 Y (Cartesian 블렌딩 전용)")]
-    public float thresholdY;
-    
-    [Header("방향 설정")]
-    [Tooltip("방향 각도 (0=오른쪽, 90=위, 180=왼쪽, 270=아래), -1=사용안함")]
-    public float directionAngle = -1f;
-    
-    [Header("메타데이터")]
+    [Header("설정")]
     public string motionName;
-    public bool loopable = true;
+    public bool loopable = false;
+    
+    [Header("블렌딩 (Blend 모드)")]
+    [Tooltip("블렌딩 임계값")]
+    public float threshold = 0f;
+    
+    [Header("방향성 (Directional 모드)")]
+    [Tooltip("방향 각도 (0~360)")]
+    [Range(0f, 360f)]
+    public float directionAngle = 0f;
     
     /// <summary>
-    /// 모션이 유효한지 확인
+    /// 유효한 애니메이션이 있는지 확인
     /// </summary>
-    public bool IsValid()
-    {
-        return sourceType == MotionSourceType.Clip ? clip != null : montage != null;
-    }
+    public bool HasValidAnimation => clip != null || (montage != null && montage.AnimationClip != null);
     
     /// <summary>
-    /// 모션 길이 반환
+    /// 실제 재생할 AnimationClip 가져오기
     /// </summary>
-    public float GetDuration()
+    public AnimationClip GetClip()
     {
-        if (sourceType == MotionSourceType.Clip && clip != null)
-            return clip.length;
+        if (clip != null)
+            return clip;
         
-        if (sourceType == MotionSourceType.Montage && montage != null)
-        {
-            var firstSection = montage.GetFirstSection();
-            return firstSection?.Clip?.length ?? 0f;
-        }
+        if (montage != null)
+            return montage.AnimationClip;
         
-        return 0f;
-    }
-    
-    /// <summary>
-    /// 2D 위치 반환 (Cartesian 블렌딩용)
-    /// </summary>
-    public Vector2 GetPosition2D()
-    {
-        return new Vector2(threshold, thresholdY);
-    }
-    
-    /// <summary>
-    /// 방향 벡터 반환 (Directional 블렌딩용)
-    /// </summary>
-    public Vector2 GetDirectionVector()
-    {
-        if (directionAngle < 0) return Vector2.zero;
-        
-        float rad = directionAngle * Mathf.Deg2Rad;
-        return new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+        return null;
     }
 }

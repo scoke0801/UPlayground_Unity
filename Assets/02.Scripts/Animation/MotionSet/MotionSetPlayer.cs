@@ -389,11 +389,11 @@ public class MotionSetPlayer : MonoBehaviour
     /// </summary>
     public void StopAll(float fadeDuration = 0.25f)
     {
-        foreach (var layer in animancer.Layers)
+        for (int i = 0; i < animancer.Layers.Count; i++)
         {
-            if (layer != null)
+            if (animancer.Layers[i] != null)
             {
-                layer.StartFade(0f, fadeDuration);
+                animancer.Layers[i].StartFade(0f, fadeDuration);
             }
         }
     }

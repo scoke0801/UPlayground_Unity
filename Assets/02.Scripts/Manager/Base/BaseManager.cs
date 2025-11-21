@@ -80,11 +80,11 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
     /// <summary>
     /// 에디터 전용: Play 모드 변경 감지
     /// </summary>
-    [UnityEditor.InitializeOnLoadMethod]
-    private static void OnEditorLoad()
-    {
-        UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeChanged;
-    }
+    //[UnityEditor.InitializeOnLoadMethod]
+    //private static void OnEditorLoad()
+    //{
+    //    UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeChanged;
+    //}
 
     private static void OnPlayModeChanged(UnityEditor.PlayModeStateChange state)
     {

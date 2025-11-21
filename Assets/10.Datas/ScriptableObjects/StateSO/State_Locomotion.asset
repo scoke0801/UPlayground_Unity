@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79eaa17cbcf44ca1ad535fe8ea2949e5, type: 3}
+  m_Name: State_Locomotion
+  m_EditorClassIdentifier: 
+  MoveSpeed: 6
+  RotationSpeed: 15
+  Mixer:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Animations:
+    - {fileID: -5252816984213320552, guid: 087ff1ea10bf03840aeff665152375b2, type: 3}
+    - {fileID: -3419257869308726280, guid: 968dfb8d6801002438fdce1fb456db30, type: 3}
+    - {fileID: 6200578666267062213, guid: ddbad665bf68e9b4db085076a4ece8de, type: 3}
+    _Speeds: []
+    _SynchronizeChildren: 
+    _Thresholds:
+    - 0
+    - 0.5
+    - 1
+    _DefaultParameter: 0
+    _ExtrapolateSpeed: 1
+    _ParameterName: {fileID: 0}
+  LightAttackStart: {fileID: 0}
+  HeavyAttackStart: {fileID: 0}
+  JumpState: {fileID: 0}
+  DodgeState: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

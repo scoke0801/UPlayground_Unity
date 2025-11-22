@@ -39,7 +39,6 @@ namespace Game.FSM
         public bool IsJumpPressed { get; private set; }
         public bool IsDodgePressed { get; private set; }
 
-        // [수정 1] private -> protected virtual로 변경하여 자식이 호출 가능하게 함
         protected virtual void Awake()
         {
             Animancer = GetComponent<AnimancerComponent>();
@@ -73,7 +72,7 @@ namespace Game.FSM
         {
             HandleInput();
             
-            // 1. 상태 전환을 먼저 체크합니다. (가장 중요)
+            // 1. 상태 전환을 먼저 체크합니다.
             CheckStateTransitions();
             
             // 2. 전환이 일어나지 않았을 때만 현재 상태의 Update 로직을 실행합니다.
@@ -88,7 +87,7 @@ namespace Game.FSM
         // 자식이 오버라이드할 함수
         protected virtual void HandleInput() { }
 
-        // [수정 2] 자식 클래스(PlayerBrain, MonsterBrain)에서 값을 세팅하기 위한 메서드들 추가
+        // 자식 클래스(PlayerBrain, MonsterBrain)에서 값을 세팅하기 위한 메서드들 추가
         protected void SetInputDirection(Vector3 dir) => InputDirection = dir;
         protected void SetAttackInput(AttackInputType type) => CurrentInput = type;
         protected void SetJumpInput(bool active) => IsJumpPressed = active;

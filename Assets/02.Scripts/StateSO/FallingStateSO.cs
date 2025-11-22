@@ -1,5 +1,4 @@
-﻿// FallStateSO.cs (신규)
-using UnityEngine;
+﻿using UnityEngine;
 using Animancer;
 
 namespace Game.FSM
@@ -13,8 +12,8 @@ namespace Game.FSM
         public float AirMoveSpeed = 3f;
         
         [Header("Transitions")]
-        public StateSO LandingState; // 착지할 목표 상태 (필수)
-
+        public StateSO LandingState;
+        
         public override void OnEnter(CharacterBrain brain)
         {
             
@@ -27,15 +26,13 @@ namespace Game.FSM
 
         public override void OnUpdate(CharacterBrain brain)
         {
-            // 1. 착지 체크 (가장 높은 우선순위)
+            // 1. 착지 체크
             if (brain.IsGrounded())
             {
                 // 땅에 닿으면 즉시 착지 상태로 전환
                 brain.ChangeState(LandingState);
                 return;
             }
-            
-            // 2. 공중 회전/이동 로직은 OnFixedUpdate에서 처리 (옵션)
         }
         
         public override void OnFixedUpdate(CharacterBrain brain)

@@ -14,6 +14,7 @@ namespace Game.FSM
         [Range(0, 1)] public float HitEnd = 0.6f;   // 공격 판정 끝 (60% 지점)
         public float ComboResetTime = 2.0f;         // 콤보 유지 시간
 
+        [SerializeField] private float fadeDuration = 0.1f;
         public override void OnEnter(CharacterBrain brain)
         {
             // 1. 블랙보드에서 데이터 가져오기
@@ -44,7 +45,7 @@ namespace Game.FSM
                 return;
             }
             // 3. 애니메이션 재생
-            var animState = brain.Animancer.Play(currentAnim);
+            var animState = brain.Animancer.Play(currentAnim, fadeDuration);
             
             // 4. 이벤트 바인딩 (히트박스 켜고 끄기)
             if (animState.Events(brain, out AnimancerEvent.Sequence events))

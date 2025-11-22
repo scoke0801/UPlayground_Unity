@@ -15,7 +15,6 @@ namespace Game.FSM
         private NavMeshAgent _agent;
         private float _lastAttackTime;
 
-        // [해결] 이제 부모의 Awake가 protected이므로 에러 없음
         protected override void Awake()
         {
             base.Awake(); 
@@ -28,7 +27,6 @@ namespace Game.FSM
         {
             if (Target == null) 
             {
-                // [해결] 부모에 SetInputDirection 메서드가 추가되어 에러 없음
                 SetInputDirection(Vector3.zero);
                 return;
             }
@@ -52,7 +50,6 @@ namespace Game.FSM
             {
                 if (Time.time - _lastAttackTime > AttackCooldown)
                 {
-                    // [해결] 부모에 SetAttackInput 메서드가 추가되어 에러 없음
                     SetAttackInput(AttackInputType.Light);
                     _lastAttackTime = Time.time;
                 }

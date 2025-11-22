@@ -12,15 +12,17 @@ namespace Game.FSM
         
         [Header("Animation")]
         public string MixerKey = "Locomotion";
+        [SerializeField] private float fadeDuration = 0.1f;
         
         [Header("Transitions (Branching)")]
-        public StateSO FallState; // [추가] 낙하 상태 레퍼런스
+        public StateSO FallState;
+        
         
         public override void OnEnter(CharacterBrain brain)
         {
             LinearMixerTransition mixer = brain.AnimData.GetMixerTransition(MixerKey);
             
-            AnimancerState state = brain.Animancer.Play(mixer);
+            AnimancerState state = brain.Animancer.Play(mixer, fadeDuration);
             
             brain.SetData("LocomotionState", state);
         }
@@ -36,13 +38,6 @@ namespace Game.FSM
                 // 입력이 0이면 state.Parameter에 0이 들어가 Idle 애니메이션이 재생됨
                 state.Parameter = inputMagnitude;
             }
-            
-            // 2. 캐릭터 회전 (OnFixedUpdate에서 처리하는 것이 일반적이나, Update에서도 가능)
-            // if (brain.InputDirection.sqrMagnitude > 0.01f)
-            // {
-            //     Quaternion targetRotation = Quaternion.LookRotation(brain.InputDirection);
-            //     brain.transform.rotation = Quaternion.Slerp(brain.transform.rotation, targetRotation, Time.deltaTime * RotationSpeed);
-            // }
         }
 
         public override void OnFixedUpdate(CharacterBrain brain)
@@ -61,7 +56,6 @@ namespace Game.FSM
                 targetVelocity = brain.InputDirection * MoveSpeed;
             }
 
-            // [중요] Rigidbody의 Y축 속도(중력)는 유지해야 함!
             targetVelocity.y = brain.Rb.linearVelocity.y;
 
             // 속도 적용
@@ -74,7 +68,6 @@ namespace Game.FSM
             {
                 Quaternion targetRotation = Quaternion.LookRotation(brain.InputDirection);
                 
-                // Rigidbody 회전은 MoveRotation 사용 (물리 안정성)
                 Quaternion nextRotation = Quaternion.Slerp(
                     brain.transform.rotation, 
                     targetRotation, 

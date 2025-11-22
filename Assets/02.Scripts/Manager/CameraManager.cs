@@ -9,12 +9,6 @@ using UnityEngine;
 /// - 마우스 스크롤: 줌인/줌아웃
 /// - 충돌 감지: 벽에 막히면 자동으로 카메라 당김
 /// 
-/// 설정 방법:
-/// 1. 씬에 CameraInitializer 추가하고 플레이어 할당 (또는 태그로 자동 검색)
-/// 2. GameManager가 자동으로 CameraManager 초기화
-/// 
-/// 카메라 기준 이동 사용 (선택사항):
-/// - Player에 PlayerBrain 대신 CameraPlayerBrain 사용
 /// </summary>
 public class CameraManager : BaseManager<CameraManager>, IManager
 {
@@ -25,7 +19,7 @@ public class CameraManager : BaseManager<CameraManager>, IManager
     [SerializeField] private Transform target; // 추적할 타겟 (플레이어)
     
     [Header("Camera Settings")]
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 2f, 0f); // 타겟 기준 카메라 피벗 오프셋
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
     [SerializeField] private float defaultDistance = 5f;   // 기본 거리
     [SerializeField] private float minDistance = 2f;       // 최소 거리
     [SerializeField] private float maxDistance = 10f;      // 최대 거리
@@ -88,6 +82,8 @@ public class CameraManager : BaseManager<CameraManager>, IManager
         targetDistance = defaultDistance;
         currentYaw = 0f;
         currentPitch = 20f; // 기본 각도
+        
+        collisionLayers &= ~(1 << LayerMask.NameToLayer("Player"));
         
         if (target != null)
         {
@@ -184,21 +180,18 @@ public class CameraManager : BaseManager<CameraManager>, IManager
         // 카메라 회전 (Look 액션 사용)
         if (inputManager.LookAction != null)
         {
-            bool canRotate = !requireRightClick || Input.GetMouseButton(1);
-            
-            if (canRotate)
-            {
-                Vector2 lookInput = inputManager.LookAction.ReadValue<Vector2>();
-                
-                // Delta 값을 사용하므로 Time.deltaTime 제거
-                currentYaw += lookInput.x * rotationSpeed * 0.01f;
-                currentPitch -= lookInput.y * rotationSpeed * 0.01f;
-                
-                // 상하 각도 제한
-                currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
-            }
+
+            Vector2 lookInput = inputManager.LookAction.ReadValue<Vector2>();
+
+            // Delta 값을 사용하므로 Time.deltaTime 제거
+            currentYaw += lookInput.x * rotationSpeed * 0.01f;
+            currentPitch -= lookInput.y * rotationSpeed * 0.01f;
+
+            // 상하 각도 제한
+            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+
         }
-        
+
         // 마우스 스크롤로 줌인/줌아웃 (Legacy Input 사용)
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scrollInput) > 0.01f)

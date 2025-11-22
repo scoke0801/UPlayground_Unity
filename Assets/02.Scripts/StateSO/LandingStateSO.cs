@@ -1,5 +1,4 @@
-﻿// LandingStateSO.cs (신규)
-using UnityEngine;
+﻿using UnityEngine;
 using Animancer;
 
 namespace Game.FSM

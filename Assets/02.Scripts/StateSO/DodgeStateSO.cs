@@ -12,6 +12,8 @@ namespace Game.FSM
         public float InvincibleDuration = 0.5f; 
 
         private Vector3 _dodgeDir;
+        
+        [SerializeField] private float fadeDuration = 0.1f;
 
         public override void OnEnter(CharacterBrain brain)
         {
@@ -25,7 +27,7 @@ namespace Game.FSM
             ClipTransition dodgeAnim = brain.AnimData.GetClipTransition(DodgeAnimKey);
             if (dodgeAnim.Clip == null) { Debug.LogError($"[{DodgeAnimKey}] 클립이 없습니다!"); return; }
             
-            var state = brain.Animancer.Play(dodgeAnim);
+            var state = brain.Animancer.Play(dodgeAnim, fadeDuration);
             
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {

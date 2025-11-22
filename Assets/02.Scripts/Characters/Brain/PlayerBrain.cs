@@ -14,7 +14,6 @@ namespace Game.FSM
         }
         protected override void HandleInput()
         {
-            // 플레이어: 키보드/마우스 입력 -> 변수에 할당
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical"); 
             
@@ -42,7 +41,5 @@ namespace Game.FSM
             SetJumpInput(Input.GetKeyDown(KeyCode.Space));
             SetDodgeInput(Input.GetKeyDown(KeyCode.LeftShift));
         }
-        
-        // *CharacterBrain에 protected Set 메서드들을 추가해줘야 합니다.
     }
 }

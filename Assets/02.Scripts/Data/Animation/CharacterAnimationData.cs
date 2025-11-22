@@ -1,11 +1,9 @@
-// CharacterAnimationData.cs (수정된 부분)
 using UnityEngine;
 using System.Collections.Generic;
 using Animancer;
 
 namespace Game.FSM
 {
-    // ... (ClipEntry, MixerEntry, Fields 부분은 동일) ...
     public class CharacterAnimationData : MonoBehaviour
     {
         [System.Serializable]
@@ -43,9 +41,6 @@ namespace Game.FSM
             {
                 if (string.IsNullOrEmpty(entry.key)) continue;
                 
-                // [참고] ClipTransition의 유효성 검사는 유지
-                // if (entry.transition.Clip == null) continue; // 필요하다면 유지
-                
                 clipDictionary[entry.key] = entry.transition;
             }
 
@@ -53,9 +48,6 @@ namespace Game.FSM
             foreach (var entry in mixerAnimations)
             {
                 if (string.IsNullOrEmpty(entry.key)) continue;
-                
-                // [수정] LinearMixerTransition은 Clip 속성을 가지지 않으므로, 유효성 검사 코드를 제거합니다.
-                // 믹서 내부 클립이 null인 것은 런타임에 Animancer가 경고합니다.
                 
                 mixerDictionary[entry.key] = entry.mixer;
             }
@@ -84,9 +76,6 @@ namespace Game.FSM
 
             if (mixerDictionary.TryGetValue(key, out LinearMixerTransition mixer))
             {
-                // [수정] 컴파일 에러를 일으키는 유효성 검사 코드를 제거합니다.
-                // if (mixer.Clip == null) { Debug.LogWarning(...); } 
-                
                 return mixer;
             }
 

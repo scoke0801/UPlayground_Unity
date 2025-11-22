@@ -12,6 +12,8 @@ namespace Game.FSM
         public float JumpForce = 7f;
         public float AirMoveSpeed = 3f; 
         
+        [SerializeField] private float fadeDuration = 0.1f;
+        
         [Header("Transitions")]
         public StateSO FallState; // 상승 완료 후 전환할 상태
         
@@ -22,9 +24,9 @@ namespace Game.FSM
             if (jumpStartAnim.Clip == null) { Debug.LogError($"[{JumpStartKey}] 클립이 없습니다!"); return; }
             
             // 1. 애니메이션 재생
-            var animState = brain.Animancer.Play(jumpStartAnim);
+            var animState = brain.Animancer.Play(jumpStartAnim, fadeDuration);
             
-            // 2. 물리 힘 적용 (기존과 동일)
+            // 2. 물리 힘 적용
             Vector3 velocity = brain.Rb.linearVelocity;
             velocity.y = 0; 
             brain.Rb.linearVelocity = velocity;
@@ -48,11 +50,10 @@ namespace Game.FSM
 
         public override void OnUpdate(CharacterBrain brain)
         {
-            // 1. 상승 종료 체크 (가장 중요한 전환 조건)
+            // 1. 상승 종료 체크
             if (brain.Rb.linearVelocity.y <= 0 && FallState != null)
             {
                 // 상승이 끝나고 하강하기 시작하면, FallState로 즉시 전환
-                // 이 시점에서는 IsGrounded() 체크가 필요하지 않으므로 물리 지연 버그 발생 여지가 없습니다.
                 brain.ChangeState(FallState);
                 return;
             }

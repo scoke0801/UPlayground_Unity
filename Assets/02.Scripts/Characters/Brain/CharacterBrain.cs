@@ -72,10 +72,8 @@ namespace Game.FSM
         {
             HandleInput();
             
-            // 1. 상태 전환을 먼저 체크합니다.
             CheckStateTransitions();
             
-            // 2. 전환이 일어나지 않았을 때만 현재 상태의 Update 로직을 실행합니다.
             CurrentState?.OnUpdate(this);
         }
 

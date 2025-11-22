@@ -12,13 +12,7 @@ namespace Game.FSM
         
         [Header("Animation")]
         public LinearMixerTransition Mixer; // Idle - Walk - Run 블렌딩
-
-        [Header("Transitions (Branching)")]
-        public StateSO LightAttackStart; // A키 첫타
-        public StateSO HeavyAttackStart; // B키 첫타
-        public StateSO JumpState;        // 점프 상태
-        public StateSO DodgeState;       // 회피 상태
-
+        
         public override void OnEnter(CharacterBrain brain)
         {
             AnimancerState state = brain.Animancer.Play(Mixer);
@@ -28,39 +22,7 @@ namespace Game.FSM
 
         public override void OnUpdate(CharacterBrain brain)
         {
-            // 1. 상태 전환 체크 (회피, 점프, 공격)
-            
-            // 회피 (가장 높은 우선순위)
-            if (brain.IsDodgePressed && DodgeState != null)
-            {
-                // [참고] IsDodgePressed는 CharacterBrain의 HandleInput에서 GetKeyDown으로 처리해야 함
-                brain.ChangeState(DodgeState);
-                return;
-            }
-
-            // 점프 (땅에 있을 때만)
-            if (brain.IsJumpPressed && JumpState != null && brain.IsGrounded())
-            {
-                // [참고] IsJumpPressed는 CharacterBrain의 HandleInput에서 GetKeyDown으로 처리해야 함
-                brain.ChangeState(JumpState);
-                return;
-            }
-
-            // 공격 체크
-            if (brain.CurrentInput == AttackInputType.Light && LightAttackStart != null)
-            {
-                brain.ConsumeInput();
-                brain.ChangeState(LightAttackStart);
-                return;
-            }
-            else if (brain.CurrentInput == AttackInputType.Heavy && HeavyAttackStart != null)
-            {
-                brain.ConsumeInput();
-                brain.ChangeState(HeavyAttackStart);
-                return;
-            }
-            
-            // 2. 애니메이션 블렌딩 처리 (★ 중요: 입력 여부와 상관없이 항상 실행)
+            // 1. 애니메이션 블렌딩 처리
             var state = brain.GetData<LinearMixerState>("LocomotionState");
             if (state != null)
             {
@@ -70,12 +32,12 @@ namespace Game.FSM
                 state.Parameter = inputMagnitude;
             }
             
-            // 3. 캐릭터 회전 (OnFixedUpdate에서 처리하는 것이 일반적이나, Update에서도 가능)
-            if (brain.InputDirection.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(brain.InputDirection);
-                brain.transform.rotation = Quaternion.Slerp(brain.transform.rotation, targetRotation, Time.deltaTime * RotationSpeed);
-            }
+            // 2. 캐릭터 회전 (OnFixedUpdate에서 처리하는 것이 일반적이나, Update에서도 가능)
+            // if (brain.InputDirection.sqrMagnitude > 0.01f)
+            // {
+            //     Quaternion targetRotation = Quaternion.LookRotation(brain.InputDirection);
+            //     brain.transform.rotation = Quaternion.Slerp(brain.transform.rotation, targetRotation, Time.deltaTime * RotationSpeed);
+            // }
         }
 
         public override void OnFixedUpdate(CharacterBrain brain)

@@ -9,6 +9,10 @@ namespace Game.FSM
     /// </summary>
     public abstract class StateSO : ScriptableObject
     {
+        [Header("Data Driven Transitions")]
+        // LocomotionState에서 나갈 수 있는 모든 전환 조건 목록
+        public StateTransition[] Transitions;
+        
         // 상태 진입 시 1회 실행
         public virtual void OnEnter(CharacterBrain brain) { }
 

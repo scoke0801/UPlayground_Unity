@@ -28,7 +28,7 @@ namespace Game.FSM
             }
 
             // 3. 애니메이션 재생
-            var animState = brain.Animancer.Play(ComboAnimations[comboIndex]);
+             var animState = brain.Animancer.Play(ComboAnimations[comboIndex]);
             
             // 4. 이벤트 바인딩 (히트박스 켜고 끄기)
             if (animState.Events(brain, out AnimancerEvent.Sequence events))

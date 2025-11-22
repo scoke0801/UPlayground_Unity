@@ -9,22 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c61c20f99b3948c2b552e2cdbe6426ff, type: 3}
-  m_Name: State_ComboAttack
+  m_Script: {fileID: 11500000, guid: d47cf84f27cad1e4aa3395fd053db254, type: 3}
+  m_Name: State_Dodge
   m_EditorClassIdentifier: 
   Transitions: []
-  ComboAnimations:
-  - _FadeDuration: 0.25
+  DodgeAnim:
+    _FadeDuration: 0.25
     _Speed: 1
     _Events:
       _NormalizedTimes: []
       _Callbacks: []
       _Names: []
-    _Clip: {fileID: -6239216113759591374, guid: be7a70de98a2c6941a43aed7f59c7578, type: 3}
+    _Clip: {fileID: 0}
     _NormalizedStartTime: NaN
-  HitStart: 0.3
-  HitEnd: 0.6
-  ComboResetTime: 2
+  DodgeSpeed: 10
+  InvincibleDuration: 0.5
   references:
     version: 2
     RefIds: []

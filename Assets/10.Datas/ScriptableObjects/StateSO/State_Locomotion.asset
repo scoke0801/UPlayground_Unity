@@ -12,6 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79eaa17cbcf44ca1ad535fe8ea2949e5, type: 3}
   m_Name: State_Locomotion
   m_EditorClassIdentifier: 
+  Transitions:
+  - Condition: {fileID: 11400000, guid: 38bef89ac53d33046940c786e62e14bc, type: 2}
+    TargetState: {fileID: 11400000, guid: 18ad6a350ce007a4f8c3d4b25249e9c3, type: 2}
+    Priority: 0
+    ConsumeInputOnTransition: 1
+  - Condition: {fileID: 11400000, guid: d06129f92dc6f544bb1bab1497346f6e, type: 2}
+    TargetState: {fileID: 11400000, guid: 99eaf08d63b5273498ab691bedeacaf1, type: 2}
+    Priority: 0
+    ConsumeInputOnTransition: 1
+  - Condition: {fileID: 11400000, guid: 502b5ef93658b57409749394627b97ee, type: 2}
+    TargetState: {fileID: 11400000, guid: 6f5ab4c8aed631d4fb197df656aea904, type: 2}
+    Priority: 0
+    ConsumeInputOnTransition: 1
   MoveSpeed: 6
   RotationSpeed: 15
   Mixer:
@@ -34,10 +47,6 @@ MonoBehaviour:
     _DefaultParameter: 0
     _ExtrapolateSpeed: 1
     _ParameterName: {fileID: 0}
-  LightAttackStart: {fileID: 0}
-  HeavyAttackStart: {fileID: 0}
-  JumpState: {fileID: 0}
-  DodgeState: {fileID: 0}
   references:
     version: 2
     RefIds: []

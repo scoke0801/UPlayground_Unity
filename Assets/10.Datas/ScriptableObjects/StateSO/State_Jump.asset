@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0dbed5efe3c4f709b4562837c591ad2, type: 3}
+  m_Name: State_Jump
+  m_EditorClassIdentifier: 
+  Transitions: []
+  JumpStartAnim:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Clip: {fileID: -9070578397753738753, guid: 406f4c94f7ac0094ea777db5efc275fd, type: 3}
+    _NormalizedStartTime: NaN
+  JumpLoopAnim:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Clip: {fileID: -7284213031989373608, guid: 3a4c6dbbaea5ed84c9ffdea9748a5533, type: 3}
+    _NormalizedStartTime: NaN
+  JumpEndAnim:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Clip: {fileID: 8698526773485126825, guid: 877308dcc5514bb4d86f65fd65a49f05, type: 3}
+    _NormalizedStartTime: NaN
+  JumpForce: 7
+  AirMoveSpeed: 3
+  references:
+    version: 2
+    RefIds: []

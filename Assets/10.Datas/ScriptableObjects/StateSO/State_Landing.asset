@@ -9,22 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0dbed5efe3c4f709b4562837c591ad2, type: 3}
-  m_Name: State_Jump
+  m_Script: {fileID: 11500000, guid: 2bca55cf9ebc4bb781bff772f9ed9fc7, type: 3}
+  m_Name: State_Landing
   m_EditorClassIdentifier: 
   Transitions: []
-  JumpStartAnim:
+  LandAnim:
     _FadeDuration: 0.25
     _Speed: 1
     _Events:
       _NormalizedTimes: []
       _Callbacks: []
       _Names: []
-    _Clip: {fileID: -9070578397753738753, guid: 406f4c94f7ac0094ea777db5efc275fd, type: 3}
+    _Clip: {fileID: 8698526773485126825, guid: 877308dcc5514bb4d86f65fd65a49f05, type: 3}
     _NormalizedStartTime: NaN
-  JumpForce: 7
-  AirMoveSpeed: 3
-  FallState: {fileID: 11400000, guid: a95fa7ac69965304aa28a13fab370696, type: 2}
   references:
     version: 2
     RefIds: []

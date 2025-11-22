@@ -35,6 +35,7 @@ public class GameManager : BaseManager<GameManager>
 
         // 초기화 순서대로 등록
         RegisterManager(InputManager.Instance);        // 입력 시스템
+        RegisterManager(CameraManager.Instance);       // 카메라 시스템
         // RegisterManager(ResourceManager.Instance);  // 리소스 관리
         // RegisterManager(SoundManager.Instance);     // 사운드 관리
         RegisterManager(UIManager.Instance);           // UI 관리

@@ -8,14 +8,17 @@ namespace Game.FSM
     public class LandingStateSO : StateSO
     {
         [Header("Settings")]
-        public ClipTransition LandAnim; 
+        public string LandAnimKey = "Land";
         
         public override void OnEnter(CharacterBrain brain)
         {
+            ClipTransition landAnim = brain.AnimData.GetClipTransition(LandAnimKey);
+            if (landAnim.Clip == null) { Debug.LogError($"[{LandAnimKey}] 클립이 없습니다!"); return; }
+            
             // 착지 애니메이션 재생
-            var animState = brain.Animancer.Play(LandAnim);
+            var state = brain.Animancer.Play(landAnim);
 
-            if (animState.Events(brain, out AnimancerEvent.Sequence events))
+            if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
                 // 애니메이션 끝나면 기본 상태(Locomotion)로 복귀
                 events.OnEnd = () => 

@@ -7,7 +7,7 @@ namespace Game.FSM
     public class DodgeStateSO : StateSO
     {
         [Header("Settings")]
-        public ClipTransition DodgeAnim; 
+        public string DodgeAnimKey = "Dodge";
         public float DodgeSpeed = 10f;   
         public float InvincibleDuration = 0.5f; 
 
@@ -21,11 +21,12 @@ namespace Game.FSM
                 _dodgeDir = brain.transform.forward;
 
             brain.transform.rotation = Quaternion.LookRotation(_dodgeDir);
-
-            var state = brain.Animancer.Play(DodgeAnim);
-
-            // [수정] Animancer 이벤트 할당 문법 수정
-            // state.Events.OnEnd 방식 대신 아래 방식을 사용하세요.
+            
+            ClipTransition dodgeAnim = brain.AnimData.GetClipTransition(DodgeAnimKey);
+            if (dodgeAnim.Clip == null) { Debug.LogError($"[{DodgeAnimKey}] 클립이 없습니다!"); return; }
+            
+            var state = brain.Animancer.Play(dodgeAnim);
+            
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
                 events.OnEnd = () => brain.ChangeState(brain.DefaultState);

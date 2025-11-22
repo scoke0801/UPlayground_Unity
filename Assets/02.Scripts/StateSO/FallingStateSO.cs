@@ -8,7 +8,8 @@ namespace Game.FSM
     public class FallStateSO : StateSO
     {
         [Header("Settings")]
-        public ClipTransition FallLoopAnim; // 공중 하강 애니메이션
+        
+        public string FallLoopAnimKey = "Fall";
         public float AirMoveSpeed = 3f;
         
         [Header("Transitions")]
@@ -16,8 +17,12 @@ namespace Game.FSM
 
         public override void OnEnter(CharacterBrain brain)
         {
+            
+            ClipTransition fallAnim = brain.AnimData.GetClipTransition(FallLoopAnimKey);
+            if (fallAnim.Clip == null) { Debug.LogError($"[{FallLoopAnimKey}] 클립이 없습니다!"); return; }
+
             // 낙하 애니메이션 재생
-            brain.Animancer.Play(FallLoopAnim);
+            brain.Animancer.Play(fallAnim);
         }
 
         public override void OnUpdate(CharacterBrain brain)

@@ -11,14 +11,16 @@ namespace Game.FSM
         public float RotationSpeed = 15f;
         
         [Header("Animation")]
-        public LinearMixerTransition Mixer; // Idle - Walk - Run 블렌딩
+        public string MixerKey = "Locomotion";
         
         [Header("Transitions (Branching)")]
         public StateSO FallState; // [추가] 낙하 상태 레퍼런스
         
         public override void OnEnter(CharacterBrain brain)
         {
-            AnimancerState state = brain.Animancer.Play(Mixer);
+            LinearMixerTransition mixer = brain.AnimData.GetMixerTransition(MixerKey);
+            
+            AnimancerState state = brain.Animancer.Play(mixer);
             
             brain.SetData("LocomotionState", state);
         }

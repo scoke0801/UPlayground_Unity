@@ -11,7 +11,8 @@ namespace Game.FSM
         Heavy   
     }
 
-    [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(AnimancerComponent))]
+    [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
+    [RequireComponent(typeof(AnimancerComponent), typeof(CharacterAnimationData))]
     public class CharacterBrain : MonoBehaviour
     {
         [Header("References")]
@@ -26,7 +27,10 @@ namespace Game.FSM
         [Header("State Config")]
         public StateSO CurrentState;
         public StateSO DefaultState;
-
+        
+        [Header("Animation Data")]
+        public CharacterAnimationData AnimData;
+        
         private Dictionary<string, object> _blackboard = new Dictionary<string, object>();
 
         // 프로퍼티는 읽기 전용(private set)으로 둡니다.
@@ -40,6 +44,12 @@ namespace Game.FSM
         {
             Animancer = GetComponent<AnimancerComponent>();
             Rb = GetComponent<Rigidbody>();
+            
+            AnimData = GetComponent<CharacterAnimationData>();
+            if (AnimData != null) 
+            {
+                AnimData.Initialize();
+            }
             
             if(HitBox != null) HitBox.SetActive(false);
 

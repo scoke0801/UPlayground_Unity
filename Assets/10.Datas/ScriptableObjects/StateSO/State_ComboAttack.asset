@@ -13,18 +13,16 @@ MonoBehaviour:
   m_Name: State_ComboAttack
   m_EditorClassIdentifier: 
   Transitions: []
-  ComboAnimations:
-  - _FadeDuration: 0.25
-    _Speed: 1
-    _Events:
-      _NormalizedTimes: []
-      _Callbacks: []
-      _Names: []
-    _Clip: {fileID: -6239216113759591374, guid: be7a70de98a2c6941a43aed7f59c7578, type: 3}
-    _NormalizedStartTime: NaN
+  ComboAnimationKeys:
+  - LightAttack_1
+  - LightAttack_2
+  - LightAttack_3
+  - HeavyAttack_1
+  - HeavyAttack_2
+  - HeavyAttack_3
+  - SpecialAttack_1
+  - SpecialAttack_2
+  - SpecialAttack_3
   HitStart: 0.3
   HitEnd: 0.6
   ComboResetTime: 2
-  references:
-    version: 2
-    RefIds: []

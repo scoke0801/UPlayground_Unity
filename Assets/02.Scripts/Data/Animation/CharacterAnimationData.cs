@@ -1,123 +1,97 @@
+// CharacterAnimationData.cs (수정된 부분)
 using UnityEngine;
 using System.Collections.Generic;
+using Animancer;
 
-/// <summary>
-/// 캐릭터별 애니메이션 클립을 관리하는 ScriptableObject
-/// Key(String) - Value(AnimationClip) 구조로 관리
-/// </summary>
-[CreateAssetMenu(fileName = "New Character Animation Data", menuName = "Animation/Character Animation Data")]
-public class CharacterAnimationData : ScriptableObject
+namespace Game.FSM
 {
-    [System.Serializable]
-    public class AnimationEntry
+    // ... (ClipEntry, MixerEntry, Fields 부분은 동일) ...
+    public class CharacterAnimationData : MonoBehaviour
     {
-        public string key;
-        public AnimationClip clip;
-    }
-    
-    [Header("애니메이션 클립 목록")]
-    [SerializeField] private List<AnimationEntry> animations = new List<AnimationEntry>();
-    
-    // 런타임에서 빠른 검색을 위한 Dictionary (초기화 시 생성)
-    private Dictionary<string, AnimationClip> animationDictionary;
-    
-    /// <summary>
-    /// Dictionary 초기화
-    /// </summary>
-    public void Initialize()
-    {
-        animationDictionary = new Dictionary<string, AnimationClip>();
-        
-        foreach (var entry in animations)
+        [System.Serializable]
+        public class ClipEntry
         {
-            if (string.IsNullOrEmpty(entry.key))
+            public string key;
+            public ClipTransition transition;
+        }
+
+        [System.Serializable]
+        public class MixerEntry
+        {
+            public string key;
+            public LinearMixerTransition mixer;
+        }
+
+        [Header("단일 애니메이션 클립 목록")]
+        [SerializeField] private List<ClipEntry> clipAnimations = new List<ClipEntry>();
+
+        [Header("믹서 애니메이션 클립 목록")]
+        [SerializeField] private List<MixerEntry> mixerAnimations = new List<MixerEntry>();
+
+        private Dictionary<string, ClipTransition> clipDictionary;
+        private Dictionary<string, LinearMixerTransition> mixerDictionary;
+
+        /// <summary>
+        /// Dictionary 초기화 (CharacterBrain에서 호출)
+        /// </summary>
+        public void Initialize()
+        {
+            if (clipDictionary != null) return; 
+
+            clipDictionary = new Dictionary<string, ClipTransition>();
+            foreach (var entry in clipAnimations)
             {
-                Debug.LogWarning($"[CharacterAnimationData] 빈 Key가 있습니다: {name}");
-                continue;
+                if (string.IsNullOrEmpty(entry.key)) continue;
+                
+                // [참고] ClipTransition의 유효성 검사는 유지
+                // if (entry.transition.Clip == null) continue; // 필요하다면 유지
+                
+                clipDictionary[entry.key] = entry.transition;
             }
-            
-            if (entry.clip == null)
+
+            mixerDictionary = new Dictionary<string, LinearMixerTransition>();
+            foreach (var entry in mixerAnimations)
             {
-                Debug.LogWarning($"[CharacterAnimationData] '{entry.key}' 클립이 null입니다: {name}");
-                continue;
+                if (string.IsNullOrEmpty(entry.key)) continue;
+                
+                // [수정] LinearMixerTransition은 Clip 속성을 가지지 않으므로, 유효성 검사 코드를 제거합니다.
+                // 믹서 내부 클립이 null인 것은 런타임에 Animancer가 경고합니다.
+                
+                mixerDictionary[entry.key] = entry.mixer;
             }
-            
-            if (animationDictionary.ContainsKey(entry.key))
+        }
+
+        public ClipTransition GetClipTransition(string key)
+        {
+            if (clipDictionary == null) Initialize();
+
+            if (clipDictionary.TryGetValue(key, out ClipTransition transition))
             {
-                Debug.LogWarning($"[CharacterAnimationData] 중복된 Key '{entry.key}': {name}");
-                continue;
+                if (transition.Clip == null)
+                {
+                    Debug.LogWarning($"[CharacterAnimationData] '{key}' 클립이 null입니다: {gameObject.name}");
+                }
+                return transition;
             }
-            
-            animationDictionary.Add(entry.key, entry.clip);
+
+            Debug.LogWarning($"[CharacterAnimationData] '{key}' ClipTransition을 찾을 수 없습니다: {gameObject.name}");
+            return default;
         }
-        
-        Debug.Log($"[CharacterAnimationData] '{name}' 초기화 완료 - {animationDictionary.Count}개 애니메이션");
-    }
-    
-    /// <summary>
-    /// Key로 애니메이션 클립 가져오기
-    /// </summary>
-    public AnimationClip GetClip(string key)
-    {
-        if (animationDictionary == null)
+
+        public LinearMixerTransition GetMixerTransition(string key)
         {
-            Initialize();
+            if (mixerDictionary == null) Initialize();
+
+            if (mixerDictionary.TryGetValue(key, out LinearMixerTransition mixer))
+            {
+                // [수정] 컴파일 에러를 일으키는 유효성 검사 코드를 제거합니다.
+                // if (mixer.Clip == null) { Debug.LogWarning(...); } 
+                
+                return mixer;
+            }
+
+            Debug.LogWarning($"[CharacterAnimationData] '{key}' MixerTransition을 찾을 수 없습니다: {gameObject.name}");
+            return default;
         }
-        
-        if (animationDictionary.TryGetValue(key, out AnimationClip clip))
-        {
-            return clip;
-        }
-        
-        Debug.LogWarning($"[CharacterAnimationData] '{key}' 애니메이션을 찾을 수 없습니다: {name}");
-        return null;
-    }
-    
-    /// <summary>
-    /// 특정 Key의 애니메이션이 존재하는지 확인
-    /// </summary>
-    public bool HasClip(string key)
-    {
-        if (animationDictionary == null)
-        {
-            Initialize();
-        }
-        
-        return animationDictionary.ContainsKey(key);
-    }
-    
-    /// <summary>
-    /// 모든 애니메이션 Key 목록 가져오기
-    /// </summary>
-    public List<string> GetAllKeys()
-    {
-        if (animationDictionary == null)
-        {
-            Initialize();
-        }
-        
-        return new List<string>(animationDictionary.Keys);
-    }
-    
-    /// <summary>
-    /// 에디터용 - 애니메이션 추가
-    /// </summary>
-    public void AddAnimation(string key, AnimationClip clip)
-    {
-        #if UNITY_EDITOR
-        animations.Add(new AnimationEntry { key = key, clip = clip });
-        UnityEditor.EditorUtility.SetDirty(this);
-        #endif
-    }
-    
-    /// <summary>
-    /// 에디터용 - 애니메이션 제거
-    /// </summary>
-    public void RemoveAnimation(string key)
-    {
-        #if UNITY_EDITOR
-        animations.RemoveAll(entry => entry.key == key);
-        UnityEditor.EditorUtility.SetDirty(this);
-        #endif
     }
 }

@@ -7,7 +7,8 @@ namespace Game.FSM
     public class JumpStateSO : StateSO
     {
         [Header("Settings")]
-        public ClipTransition JumpStartAnim; // 점프 시작 모션
+        public string JumpStartKey = "JumpStart";
+        
         public float JumpForce = 7f;
         public float AirMoveSpeed = 3f; 
         
@@ -16,8 +17,12 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
+            ClipTransition jumpStartAnim = brain.AnimData.GetClipTransition(JumpStartKey);
+            
+            if (jumpStartAnim.Clip == null) { Debug.LogError($"[{JumpStartKey}] 클립이 없습니다!"); return; }
+            
             // 1. 애니메이션 재생
-            var animState = brain.Animancer.Play(JumpStartAnim);
+            var animState = brain.Animancer.Play(jumpStartAnim);
             
             // 2. 물리 힘 적용 (기존과 동일)
             Vector3 velocity = brain.Rb.linearVelocity;

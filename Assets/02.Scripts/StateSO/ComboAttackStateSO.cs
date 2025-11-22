@@ -7,8 +7,7 @@ namespace Game.FSM
     public class ComboAttackStateSO : StateSO
     {
         [Header("Combo Settings")]
-        // 콤보 단계별 애니메이션 (ClipTransition에는 Fade 시간 등이 포함됨)
-        public ClipTransition[] ComboAnimations;
+        public string[] ComboAnimationKeys;
         
         [Header("Timing Settings")]
         [Range(0, 1)] public float HitStart = 0.3f; // 공격 판정 시작 (30% 지점)
@@ -22,13 +21,30 @@ namespace Game.FSM
             float lastAttackTime = brain.GetData<float>("LastAttackTime", 0f);
 
             // 2. 콤보 리셋 조건 (시간 초과 or 콤보 끝)
-            if (Time.time - lastAttackTime > ComboResetTime || comboIndex >= ComboAnimations.Length)
+            if (Time.time - lastAttackTime > ComboResetTime || comboIndex >= ComboAnimationKeys.Length)
             {
                 comboIndex = 0;
             }
-
+            
+            //애니메이션 데이터 가져오기
+            if (ComboAnimationKeys == null || ComboAnimationKeys.Length <= comboIndex)
+            {
+                Debug.LogError("콤보 애니메이션 키 설정이 잘못되었습니다.");
+                brain.ChangeState(brain.DefaultState);
+                return;
+            }
+            
+            string animKey = ComboAnimationKeys[comboIndex];
+            ClipTransition currentAnim = brain.AnimData.GetClipTransition(animKey);
+            
+            if (currentAnim.Clip == null)
+            {
+                Debug.LogError($"콤보 인덱스 {comboIndex}의 클립({animKey})이 null입니다.");
+                brain.ChangeState(brain.DefaultState);
+                return;
+            }
             // 3. 애니메이션 재생
-             var animState = brain.Animancer.Play(ComboAnimations[comboIndex]);
+            var animState = brain.Animancer.Play(currentAnim);
             
             // 4. 이벤트 바인딩 (히트박스 켜고 끄기)
             if (animState.Events(brain, out AnimancerEvent.Sequence events))

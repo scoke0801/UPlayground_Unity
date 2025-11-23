@@ -51,7 +51,7 @@ namespace Game.FSM
         public override void OnUpdate(CharacterBrain brain)
         {
             // 1. 상승 종료 체크
-            if (brain.Rb.linearVelocity.y <= 0 && FallState != null)
+            if (false == brain.IsGrounded() && brain.Rb.linearVelocity.y <= 0 && FallState != null)
             {
                 // 상승이 끝나고 하강하기 시작하면, FallState로 즉시 전환
                 brain.ChangeState(FallState);

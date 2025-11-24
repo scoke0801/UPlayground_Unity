@@ -125,7 +125,7 @@ namespace Game.FSM
 
             foreach (var transition in transitions)
             {
-                // 조건 SO를 실행하여 참/거짓을 판별합니다. (데이터 기반 체크)
+                // 조건 SO를 실행하여 전이할 지 여부를 판단
                 if (transition.Condition.CheckCondition(this))
                 {
                     // 조건 충족 시 상태 변경
@@ -136,10 +136,7 @@ namespace Game.FSM
                     {
                         ConsumeInputData(transition.TargetState);
                     }
-                    // 상태를 변경했으므로, 사용된 입력이나 데이터는 여기서 소모하는 것이 좋습니다.
-                    // 예: 입력 기반 조건(IsDodgePressedCondition)이라면, ChangeState 직후 해당 bool 값을 false로 리셋해야 합니다.
-                    // (이 리셋 로직은 조건 SO 내부에서 처리하거나, ChangeState 직후 특정 로직을 호출하도록 설계 가능)
-            
+                    
                     return; // 전환에 성공했으므로 즉시 종료
                 }
             }
@@ -149,24 +146,22 @@ namespace Game.FSM
         private void ConsumeInputData(StateSO targetState)
         {
             // 어떤 상태로 전환되었는지에 따라 관련된 입력 데이터를 초기화
-    
-            // 1. 점프 상태로 전환되면 점프 입력 상태를 false로 만듭니다.
+            // 1. 점프 상태로 전환되면 점프 입력 상태를 false
             if (targetState is JumpStateSO)
             {
                 SetJumpInput(false); 
             }
     
-            // 2. 회피 상태로 전환되면 회피 입력 상태를 false로 만듭니다.
+            // 2. 회피 상태로 전환되면 회피 입력 상태를 false
             if (targetState is DodgeStateSO)
             {
                 SetDodgeInput(false);
             }
     
-            // 3. 공격 상태로 전환되면 공격 입력 상태를 None으로 만듭니다.
-            // 이는 CharacterBrain의 ConsumeInput() 메서드를 사용해도 됩니다.
+            // 3. 공격 상태로 전환되면 공격 입력 상태를 None됩니다.
             if (targetState is ComboAttackStateSO)
             {
-                ConsumeInput(); // CurrentInput = AttackInputType.None;
+                ConsumeInput();
             }
         }
         

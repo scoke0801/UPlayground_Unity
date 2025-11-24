@@ -8,7 +8,7 @@ using UnityEngine;
 public static class UIManagerExtensions
 {
     /// <summary>
-    /// UI_Base를 상속받은 UI 표시 (제네릭 버전)
+    /// UI_Base를 상속받은 UI 표시
     /// </summary>
     public static T ShowUI<T>(this UIManager manager, GameObject uiPrefab, CanvasLayer layer, string uiName = null) where T : UI_Base
     {

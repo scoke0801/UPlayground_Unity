@@ -361,8 +361,13 @@ public class JSONTableViewer : EditorWindow
 
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         
-        // 행 번호
-        GUILayout.Label(index.ToString(), EditorStyles.toolbarButton, GUILayout.Width(40));
+        // [변경 1] 행 번호를 클릭했을 때 해당 행이 선택되도록 변경 (데이터 셀이 텍스트 필드가 되었기 때문)
+        if (GUILayout.Button(index.ToString(), EditorStyles.toolbarButton, GUILayout.Width(40)))
+        {
+            selectedIndex = actualIndex;
+            // 텍스트 필드에서 포커스를 빼서, 상세 뷰가 즉시 갱신되도록 함
+            GUI.FocusControl(null);
+        }
 
         var row = actualRow as JObject;
         if (row != null)
@@ -372,10 +377,13 @@ public class JSONTableViewer : EditorWindow
                 string value = GetCellValue(row, column);
                 float width = columnWidths[column];
                 
-                if (GUILayout.Button(value, EditorStyles.toolbarButton, GUILayout.Width(width)))
-                {
-                    selectedIndex = actualIndex;
-                }
+                // [변경 2] 기존 Button을 TextField로 변경하여 텍스트 드래그 및 복사(Ctrl+C) 가능하게 함
+                // 'EditorStyles.textField' 스타일을 적용해 입력창 형태를 갖춤
+                string newValue = EditorGUILayout.TextField(value, EditorStyles.textField, GUILayout.Width(width));
+                
+                // (선택 사항) 만약 여기서 값을 수정해서 JSON에 반영하고 싶다면 
+                // newValue를 사용하여 row[column] 값을 업데이트하는 로직을 추가할 수 있습니다.
+                // 현재는 뷰어 목적이므로 값만 표시합니다.
             }
         }
 
@@ -411,12 +419,12 @@ public class JSONTableViewer : EditorWindow
                 }
                 else if (item is JObject jobj)
                 {
-                    string objStr = FormatObjectBrief(jobj);
+                    string objStr = FormatObjectFull(jobj);
                     items.Add(objStr);
                 }
                 else if (item is JArray jarray)
                 {
-                    items.Add($"[{jarray.Count}개]");
+                    items.Add(FormatTokenValue(jarray));
                 }
             }
             
@@ -424,7 +432,7 @@ public class JSONTableViewer : EditorWindow
         }
         else if (token is JObject obj)
         {
-            return FormatObjectBrief(obj);
+            return FormatObjectFull(obj);
         }
         
         return token.ToString();
@@ -470,6 +478,37 @@ public class JSONTableViewer : EditorWindow
         return $"{{{result}}}";
     }
 
+    private string FormatObjectFull(JObject obj)
+    {
+        var props = obj.Properties().ToList();
+        
+        if (props.Count == 0) return "{}";
+        
+        var pairs = props.Select(p =>
+        {
+            string val;
+            if (p.Value is JValue jv)
+            {
+                val = jv.ToString();
+            }
+            else if (p.Value is JArray jarr)
+            {
+                val = $"[{jarr.Count}개]";
+            }
+            else if (p.Value is JObject jobj)
+            {
+                val = "{...}";
+            }
+            else
+            {
+                val = "...";
+            }
+            return $"{p.Name}:{val}";
+        });
+        
+        return $"{{{string.Join(", ", pairs)}}}";
+    }
+
     private void DrawDetailView(Rect rect)
     {
         GUI.Box(rect, "", EditorStyles.helpBox);
@@ -512,18 +551,34 @@ public class JSONTableViewer : EditorWindow
     private void DrawProperty(string name, JToken value, int indent)
     {
         EditorGUILayout.BeginHorizontal();
+        // 들여쓰기 여백 처리
         GUILayout.Space(indent * 20);
+
+        // 라벨 너비 계산 (들여쓰기가 너무 깊어져서 너비가 깨지는 것을 방지하기 위해 최소값 설정)
+        float labelWidth = Mathf.Max(50, 200 - indent * 20);
 
         if (value is JObject || value is JArray)
         {
-            EditorGUILayout.LabelField(name, EditorStyles.boldLabel, GUILayout.Width(200 - indent * 20));
+            // [변경] 복합 데이터(객체/배열)의 키 이름
+            // LabelField 대신 TextField를 사용하여 키 이름도 복사 가능하게 변경
+            // (기존의 EditorStyles.boldLabel은 TextField에서 텍스트 선택이 어려울 수 있어 기본 스타일 사용)
+            EditorGUILayout.TextField(name, GUILayout.Width(labelWidth));
+            
             EditorGUILayout.EndHorizontal();
+            
+            // 재귀 호출로 내부 데이터 표시
             DrawDetailProperties(value, indent + 1);
         }
         else
         {
-            EditorGUILayout.LabelField(name, GUILayout.Width(200 - indent * 20));
-            EditorGUILayout.LabelField(value?.ToString() ?? "null");
+            // [변경] 단일 데이터의 키(Key)
+            EditorGUILayout.TextField(name, GUILayout.Width(labelWidth));
+            
+            // [변경] 단일 데이터의 값(Value)
+            // 값을 TextField로 그려서 마우스 드래그 및 Ctrl+C 가능하게 처리
+            string displayValue = value?.ToString() ?? "null";
+            EditorGUILayout.TextField(displayValue);
+            
             EditorGUILayout.EndHorizontal();
         }
     }

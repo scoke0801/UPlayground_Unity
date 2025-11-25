@@ -25,6 +25,11 @@ public class JSONTableViewer : EditorWindow
     private int resizingColumnIndex = -1;
     private float resizeStartX;
     private float resizeStartWidth;
+    
+    // 분할 뷰 조절
+    private float splitRatio = 0.6f;
+    private bool isResizingSplit = false;
+    private const float splitterHeight = 5f;
 
     [MenuItem("Tools/JSON Table Viewer")]
     public static void ShowWindow()
@@ -39,12 +44,14 @@ public class JSONTableViewer : EditorWindow
         
         if (jsonData == null) return;
 
-        float splitY = position.height * 0.6f;
+        float splitY = position.height * splitRatio;
         
         DrawTableView(new Rect(0, 70, position.width, splitY - 70));
-        DrawDetailView(new Rect(0, splitY, position.width, position.height - splitY));
+        DrawSplitter(new Rect(0, splitY - splitterHeight / 2, position.width, splitterHeight));
+        DrawDetailView(new Rect(0, splitY + splitterHeight / 2, position.width, position.height - splitY - splitterHeight / 2));
         
         HandleColumnResize();
+        HandleSplitResize();
     }
 
     public void LoadJSONFromPath(string path)
@@ -303,6 +310,40 @@ public class JSONTableViewer : EditorWindow
             else if (Event.current.type == EventType.MouseUp)
             {
                 resizingColumnIndex = -1;
+            }
+        }
+    }
+
+    private void DrawSplitter(Rect rect)
+    {
+        EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
+        EditorGUIUtility.AddCursorRect(rect, MouseCursor.ResizeVertical);
+    }
+
+    private void HandleSplitResize()
+    {
+        Event evt = Event.current;
+        float splitY = position.height * splitRatio;
+        Rect splitterRect = new Rect(0, splitY - splitterHeight / 2, position.width, splitterHeight);
+
+        if (evt.type == EventType.MouseDown && splitterRect.Contains(evt.mousePosition))
+        {
+            isResizingSplit = true;
+            evt.Use();
+        }
+
+        if (isResizingSplit)
+        {
+            if (evt.type == EventType.MouseDrag)
+            {
+                splitRatio = Mathf.Clamp(evt.mousePosition.y / position.height, 0.2f, 0.8f);
+                Repaint();
+                evt.Use();
+            }
+            else if (evt.type == EventType.MouseUp)
+            {
+                isResizingSplit = false;
+                evt.Use();
             }
         }
     }

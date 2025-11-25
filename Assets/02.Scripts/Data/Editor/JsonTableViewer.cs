@@ -1,358 +1,489 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 using System.Collections.Generic;
-using Unity.Plastic.Newtonsoft.Json.Linq;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-public class JsonTableViewer : EditorWindow
+public class JSONTableViewer : EditorWindow
 {
-    private TextAsset jsonFile;
-    private Vector2 masterScrollPosition;
-    private Vector2 detailScrollPosition;
-    private JArray jsonArray;
+    private string jsonFilePath = "";
+    private JToken jsonData;
+    private List<JToken> dataRows = new List<JToken>();
+    private List<JToken> filteredRows = new List<JToken>();
     private List<string> columnNames = new List<string>();
-    private Dictionary<int, bool> expandedRows = new Dictionary<int, bool>();
-    private string searchFilter = "";
+    private Dictionary<string, float> columnWidths = new Dictionary<string, float>();
     
+    private int selectedIndex = -1;
+    private Vector2 tableScrollPos;
+    private Vector2 detailScrollPos;
+    private float defaultColumnWidth = 150f;
+    private float minColumnWidth = 50f;
+    private float maxColumnWidth = 500f;
+    
+    private string searchText = "";
+    private int resizingColumnIndex = -1;
+    private float resizeStartX;
+    private float resizeStartWidth;
+
     [MenuItem("Tools/JSON Table Viewer")]
     public static void ShowWindow()
     {
-        var window = GetWindow<JsonTableViewer>("JSON Viewer");
-        window.minSize = new Vector2(1000, 700);
+        GetWindow<JSONTableViewer>("JSON 테이블 뷰어");
     }
-    
-    void OnGUI()
+
+    private void OnGUI()
     {
+        HandleDragAndDrop();
         DrawToolbar();
         
-        if (jsonArray != null && jsonArray.Count > 0)
+        if (jsonData == null) return;
+
+        float splitY = position.height * 0.6f;
+        
+        DrawTableView(new Rect(0, 70, position.width, splitY - 70));
+        DrawDetailView(new Rect(0, splitY, position.width, position.height - splitY));
+        
+        HandleColumnResize();
+    }
+
+    public void LoadJSONFromPath(string path)
+    {
+        try
         {
-            DrawTable();
+            jsonFilePath = path;
+            string jsonText = System.IO.File.ReadAllText(path);
+            jsonData = JToken.Parse(jsonText);
+            ParseJSON();
+            selectedIndex = -1;
+            searchText = "";
+            Repaint();
         }
-        else
+        catch (System.Exception e)
         {
-            EditorGUILayout.Space(20);
-            EditorGUILayout.HelpBox("JSON 파일을 선택하고 'Load JSON' 버튼을 클릭하세요.\n\nJSON 배열 형식 [{ ... }, { ... }]을 지원합니다.", MessageType.Info);
+            EditorUtility.DisplayDialog("오류", $"JSON 파일 로드 실패: {e.Message}", "확인");
         }
     }
-    
-    void DrawToolbar()
+    private void HandleDragAndDrop()
+    {
+        Event evt = Event.current;
+        
+        if (evt.type == EventType.DragUpdated || evt.type == EventType.DragPerform)
+        {
+            if (DragAndDrop.paths != null && DragAndDrop.paths.Length > 0)
+            {
+                string path = DragAndDrop.paths[0];
+                if (path.EndsWith(".json"))
+                {
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                    
+                    if (evt.type == EventType.DragPerform)
+                    {
+                        DragAndDrop.AcceptDrag();
+                        LoadJSONFromPath(path);
+                    }
+                    evt.Use();
+                }
+            }
+        }
+    }
+
+    private void DrawToolbar()
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         
-        GUILayout.Label("JSON File:", GUILayout.Width(70));
-        jsonFile = (TextAsset)EditorGUILayout.ObjectField(jsonFile, typeof(TextAsset), false, GUILayout.Width(250));
-        
-        if (GUILayout.Button("Load JSON", EditorStyles.toolbarButton, GUILayout.Width(80)))
+        if (GUILayout.Button("JSON 파일 열기", EditorStyles.toolbarButton, GUILayout.Width(100)))
         {
-            LoadJsonData();
+            LoadJSONFile();
         }
-        
-        if (jsonArray != null && jsonArray.Count > 0)
-        {
-            GUILayout.Label($"| {jsonArray.Count} rows", EditorStyles.miniLabel);
-        }
+
+        GUILayout.Label(string.IsNullOrEmpty(jsonFilePath) ? "파일 없음" : System.IO.Path.GetFileName(jsonFilePath), 
+            EditorStyles.toolbarButton);
         
         GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
         
-        GUILayout.Label("Search:", GUILayout.Width(50));
-        searchFilter = EditorGUILayout.TextField(searchFilter, EditorStyles.toolbarSearchField, GUILayout.Width(150));
+        // 검색 바
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        GUILayout.Label("검색:", GUILayout.Width(40));
         
-        if (!string.IsNullOrEmpty(searchFilter) && GUILayout.Button("X", EditorStyles.toolbarButton, GUILayout.Width(20)))
+        string newSearchText = EditorGUILayout.TextField(searchText, EditorStyles.toolbarTextField);
+        if (newSearchText != searchText)
         {
-            searchFilter = "";
+            searchText = newSearchText;
+            ApplySearch();
+        }
+        
+        if (GUILayout.Button("×", EditorStyles.toolbarButton, GUILayout.Width(20)))
+        {
+            searchText = "";
+            ApplySearch();
             GUI.FocusControl(null);
         }
         
         EditorGUILayout.EndHorizontal();
     }
-    
-    void LoadJsonData()
+
+    private void LoadJSONFile()
     {
-        if (jsonFile == null)
+        string path = EditorUtility.OpenFilePanel("JSON 파일 선택", Application.dataPath, "json");
+        if (!string.IsNullOrEmpty(path))
         {
-            EditorUtility.DisplayDialog("오류", "JSON 파일을 선택하세요.", "확인");
-            return;
-        }
-        
-        try
-        {
-            string jsonText = jsonFile.text.Trim();
-            
-            // JSON 배열 파싱
-            if (jsonText.StartsWith("["))
-            {
-                jsonArray = JArray.Parse(jsonText);
-            }
-            else if (jsonText.StartsWith("{"))
-            {
-                // 단일 객체면 배열로 감싸기
-                jsonArray = new JArray(JObject.Parse(jsonText));
-            }
-            else
-            {
-                throw new System.Exception("JSON은 배열 [] 또는 객체 {} 형식이어야 합니다.");
-            }
-            
-            // 컬럼 이름 자동 추출
-            columnNames.Clear();
-            expandedRows.Clear();
-            
-            if (jsonArray.Count > 0)
-            {
-                // 모든 행에서 키를 수집 (첫 행만이 아니라)
-                HashSet<string> allKeys = new HashSet<string>();
-                
-                foreach (JObject obj in jsonArray.OfType<JObject>())
-                {
-                    foreach (var prop in obj.Properties())
-                    {
-                        allKeys.Add(prop.Name);
-                    }
-                }
-                
-                columnNames = allKeys.OrderBy(k => k).ToList();
-            }
-            
-            Debug.Log($"✓ JSON 로드 완료: {jsonArray.Count}개 행, {columnNames.Count}개 컬럼");
-        }
-        catch (System.Exception e)
-        {
-            EditorUtility.DisplayDialog("JSON 파싱 오류", e.Message, "확인");
-            Debug.LogError($"JSON 파싱 오류: {e.Message}");
-            jsonArray = null;
+            LoadJSONFromPath(path);
         }
     }
-    
-    void DrawTable()
+
+    private void ParseJSON()
     {
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"총 {jsonArray.Count}개 항목", EditorStyles.boldLabel);
-        GUILayout.FlexibleSpace();
-        
-        if (GUILayout.Button("모두 접기", EditorStyles.miniButton, GUILayout.Width(80)))
+        dataRows.Clear();
+        columnNames.Clear();
+        columnWidths.Clear();
+
+        if (jsonData is JArray array)
         {
-            expandedRows.Clear();
+            dataRows = array.ToList();
+        }
+        else if (jsonData is JObject obj)
+        {
+            foreach (var prop in obj.Properties())
+            {
+                dataRows.Add(new JObject(new JProperty("_key", prop.Name), new JProperty("_value", prop.Value)));
+            }
+        }
+
+        if (dataRows.Count > 0)
+        {
+            ExtractColumnNames();
+            InitializeColumnWidths();
         }
         
-        EditorGUILayout.EndHorizontal();
+        ApplySearch();
+    }
+
+    private void ExtractColumnNames()
+    {
+        HashSet<string> columns = new HashSet<string>();
         
-        EditorGUILayout.Space(5);
-        
-        masterScrollPosition = EditorGUILayout.BeginScrollView(masterScrollPosition);
-        
-        // 헤더 그리기
-        DrawHeader();
-        
-        // 데이터 행 그리기
-        for (int i = 0; i < jsonArray.Count; i++)
+        foreach (var row in dataRows)
         {
-            if (jsonArray[i] is JObject obj)
+            if (row is JObject obj)
             {
-                // 검색 필터 적용
-                if (!string.IsNullOrEmpty(searchFilter))
+                foreach (var prop in obj.Properties())
                 {
-                    string rowText = obj.ToString().ToLower();
-                    if (!rowText.Contains(searchFilter.ToLower()))
-                        continue;
+                    columns.Add(prop.Name);
                 }
-                
-                DrawRow(i, obj);
+            }
+        }
+
+        columnNames = columns.OrderBy(c => c).ToList();
+    }
+
+    private void InitializeColumnWidths()
+    {
+        foreach (var column in columnNames)
+        {
+            columnWidths[column] = defaultColumnWidth;
+        }
+    }
+
+    private void ApplySearch()
+    {
+        if (string.IsNullOrEmpty(searchText))
+        {
+            filteredRows = new List<JToken>(dataRows);
+        }
+        else
+        {
+            filteredRows = dataRows.Where(row => RowMatchesSearch(row, searchText)).ToList();
+        }
+    }
+
+    private bool RowMatchesSearch(JToken row, string search)
+    {
+        string searchLower = search.ToLower();
+        
+        if (row is JObject obj)
+        {
+            foreach (var prop in obj.Properties())
+            {
+                if (TokenContainsText(prop.Value, searchLower))
+                    return true;
             }
         }
         
+        return false;
+    }
+
+    private bool TokenContainsText(JToken token, string search)
+    {
+        if (token == null) return false;
+        
+        if (token is JValue value)
+        {
+            return value.ToString().ToLower().Contains(search);
+        }
+        else if (token is JObject obj)
+        {
+            foreach (var prop in obj.Properties())
+            {
+                if (TokenContainsText(prop.Value, search))
+                    return true;
+            }
+        }
+        else if (token is JArray array)
+        {
+            foreach (var item in array)
+            {
+                if (TokenContainsText(item, search))
+                    return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private void DrawTableView(Rect rect)
+    {
+        GUI.Box(rect, "", EditorStyles.helpBox);
+        
+        GUILayout.BeginArea(rect);
+        tableScrollPos = EditorGUILayout.BeginScrollView(tableScrollPos);
+
+        DrawTableHeader();
+
+        for (int i = 0; i < filteredRows.Count; i++)
+        {
+            DrawDataRow(i);
+        }
+
         EditorGUILayout.EndScrollView();
+        GUILayout.EndArea();
     }
-    
-    void DrawHeader()
+
+    private void DrawTableHeader()
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        GUILayout.Label("#", EditorStyles.toolbarButton, GUILayout.Width(40));
         
-        EditorGUILayout.LabelField("#", EditorStyles.boldLabel, GUILayout.Width(40));
-        
-        foreach (var column in columnNames)
+        for (int i = 0; i < columnNames.Count; i++)
         {
-            EditorGUILayout.LabelField(column, EditorStyles.boldLabel, GUILayout.Width(150));
+            string column = columnNames[i];
+            float width = columnWidths[column];
+            
+            GUILayout.Label(column, EditorStyles.toolbarButton, GUILayout.Width(width));
+            
+            // 리사이즈 핸들
+            Rect labelRect = GUILayoutUtility.GetLastRect();
+            Rect resizeRect = new Rect(labelRect.xMax - 2, labelRect.y, 4, labelRect.height);
+            EditorGUIUtility.AddCursorRect(resizeRect, MouseCursor.ResizeHorizontal);
+            
+            if (Event.current.type == EventType.MouseDown && resizeRect.Contains(Event.current.mousePosition))
+            {
+                resizingColumnIndex = i;
+                resizeStartX = Event.current.mousePosition.x;
+                resizeStartWidth = width;
+                Event.current.Use();
+            }
         }
         
         EditorGUILayout.EndHorizontal();
     }
-    
-    void DrawRow(int index, JObject row)
+
+    private void HandleColumnResize()
     {
-        // 배경색
+        if (resizingColumnIndex >= 0)
+        {
+            if (Event.current.type == EventType.MouseDrag)
+            {
+                float delta = Event.current.mousePosition.x - resizeStartX;
+                float newWidth = Mathf.Clamp(resizeStartWidth + delta, minColumnWidth, maxColumnWidth);
+                columnWidths[columnNames[resizingColumnIndex]] = newWidth;
+                Repaint();
+            }
+            else if (Event.current.type == EventType.MouseUp)
+            {
+                resizingColumnIndex = -1;
+            }
+        }
+    }
+
+    private void DrawDataRow(int index)
+    {
+        var actualRow = filteredRows[index];
+        int actualIndex = dataRows.IndexOf(actualRow);
+        
         Color originalColor = GUI.backgroundColor;
-        if (index % 2 == 0)
+        if (actualIndex == selectedIndex)
         {
-            GUI.backgroundColor = new Color(0.85f, 0.85f, 0.85f, 0.3f);
+            GUI.backgroundColor = new Color(0.3f, 0.5f, 0.8f);
         }
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         
-        EditorGUILayout.BeginVertical(GUI.skin.box);
-        GUI.backgroundColor = originalColor;
-        
-        EditorGUILayout.BeginHorizontal();
-        
-        // 인덱스
-        EditorGUILayout.LabelField(index.ToString(), GUILayout.Width(40));
-        
-        // 각 컬럼의 값 표시
-        foreach (var column in columnNames)
+        // 행 번호
+        GUILayout.Label(index.ToString(), EditorStyles.toolbarButton, GUILayout.Width(40));
+
+        var row = actualRow as JObject;
+        if (row != null)
         {
-            JToken token = row[column];
-            DrawCell(token, index);
+            foreach (var column in columnNames)
+            {
+                string value = GetCellValue(row, column);
+                float width = columnWidths[column];
+                
+                if (GUILayout.Button(value, EditorStyles.toolbarButton, GUILayout.Width(width)))
+                {
+                    selectedIndex = actualIndex;
+                }
+            }
         }
-        
+
         EditorGUILayout.EndHorizontal();
-        
-        // 확장된 상태면 중첩 데이터 표시
-        if (expandedRows.ContainsKey(index) && expandedRows[index])
-        {
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            DrawNestedData(row, 1);
-            EditorGUILayout.EndVertical();
-        }
-        
-        EditorGUILayout.EndVertical();
+        GUI.backgroundColor = originalColor;
     }
-    
-    void DrawCell(JToken token, int rowIndex)
+
+    private string GetCellValue(JObject row, string columnName)
     {
-        if (token == null)
-        {
-            EditorGUILayout.LabelField("-", GUILayout.Width(150));
-            return;
-        }
-        
-        switch (token.Type)
-        {
-            case JTokenType.Object:
-                // 중첩 객체
-                if (!expandedRows.ContainsKey(rowIndex))
-                    expandedRows[rowIndex] = false;
-                
-                JObject obj = (JObject)token;
-                string objLabel = $"{{ {obj.Count} props }}";
-                
-                if (GUILayout.Button(objLabel, GUILayout.Width(150)))
-                {
-                    expandedRows[rowIndex] = !expandedRows[rowIndex];
-                }
-                break;
-                
-            case JTokenType.Array:
-                // 배열
-                if (!expandedRows.ContainsKey(rowIndex))
-                    expandedRows[rowIndex] = false;
-                
-                JArray arr = (JArray)token;
-                string arrLabel = $"[ {arr.Count} items ]";
-                
-                if (GUILayout.Button(arrLabel, GUILayout.Width(150)))
-                {
-                    expandedRows[rowIndex] = !expandedRows[rowIndex];
-                }
-                break;
-                
-            case JTokenType.Boolean:
-                bool boolValue = (bool)token;
-                GUI.enabled = false;
-                EditorGUILayout.Toggle(boolValue, GUILayout.Width(150));
-                GUI.enabled = true;
-                break;
-                
-            case JTokenType.Integer:
-            case JTokenType.Float:
-                EditorGUILayout.LabelField(token.ToString(), GUILayout.Width(150));
-                break;
-                
-            case JTokenType.String:
-                string strValue = token.ToString();
-                if (strValue.Length > 20)
-                    strValue = strValue.Substring(0, 17) + "...";
-                
-                EditorGUILayout.SelectableLabel(strValue, EditorStyles.textField, GUILayout.Width(150), GUILayout.Height(18));
-                break;
-                
-            case JTokenType.Null:
-                GUI.color = Color.gray;
-                EditorGUILayout.LabelField("null", GUILayout.Width(150));
-                GUI.color = Color.white;
-                break;
-                
-            default:
-                EditorGUILayout.LabelField(token.ToString(), GUILayout.Width(150));
-                break;
-        }
+        if (!row.ContainsKey(columnName)) return "";
+
+        var token = row[columnName];
+        return FormatTokenValue(token);
     }
-    
-    void DrawNestedData(JToken token, int indentLevel)
+
+    private string FormatTokenValue(JToken token)
     {
-        EditorGUI.indentLevel = indentLevel;
+        if (token == null) return "null";
+
+        if (token is JValue value)
+        {
+            return value.ToString();
+        }
+        else if (token is JArray array)
+        {
+            var items = new List<string>();
+            
+            foreach (var item in array)
+            {
+                if (item is JValue jval)
+                {
+                    items.Add(jval.ToString());
+                }
+                else if (item is JObject jobj)
+                {
+                    string objStr = FormatObjectBrief(jobj);
+                    items.Add(objStr);
+                }
+                else if (item is JArray jarray)
+                {
+                    items.Add($"[{jarray.Count}개]");
+                }
+            }
+            
+            return $"[{string.Join(", ", items)}]";
+        }
+        else if (token is JObject obj)
+        {
+            return FormatObjectBrief(obj);
+        }
         
+        return token.ToString();
+    }
+
+    private string FormatObjectBrief(JObject obj)
+    {
+        var props = obj.Properties().ToList();
+        
+        if (props.Count == 0) return "{}";
+        
+        var primaryKeys = new[] { "id", "key", "name", "type", "skill_id", "item_id" };
+        var primaryProp = props.FirstOrDefault(p => primaryKeys.Contains(p.Name.ToLower()));
+        
+        if (primaryProp != null)
+        {
+            string mainValue = primaryProp.Value is JValue jv ? jv.ToString() : "...";
+            
+            if (props.Count > 1)
+            {
+                var otherProps = props.Where(p => p.Name != primaryProp.Name).Take(2);
+                var extras = string.Join(", ", otherProps.Select(p => 
+                {
+                    string val = p.Value is JValue jv ? jv.ToString() : "...";
+                    return $"{p.Name}:{val}";
+                }));
+                
+                return $"{mainValue} ({extras})";
+            }
+            
+            return mainValue;
+        }
+        
+        var pairs = props.Take(2).Select(p =>
+        {
+            string val = p.Value is JValue jv ? jv.ToString() : "...";
+            return $"{p.Name}:{val}";
+        });
+        
+        string result = string.Join(", ", pairs);
+        if (props.Count > 2) result += "...";
+        
+        return $"{{{result}}}";
+    }
+
+    private void DrawDetailView(Rect rect)
+    {
+        GUI.Box(rect, "", EditorStyles.helpBox);
+        
+        GUILayout.BeginArea(rect);
+        GUILayout.Label("상세 정보", EditorStyles.boldLabel);
+        
+        if (selectedIndex >= 0 && selectedIndex < dataRows.Count)
+        {
+            detailScrollPos = EditorGUILayout.BeginScrollView(detailScrollPos);
+            DrawDetailProperties(dataRows[selectedIndex], 0);
+            EditorGUILayout.EndScrollView();
+        }
+        else
+        {
+            GUILayout.Label("항목을 선택하세요", EditorStyles.centeredGreyMiniLabel);
+        }
+        
+        GUILayout.EndArea();
+    }
+
+    private void DrawDetailProperties(JToken token, int indent)
+    {
         if (token is JObject obj)
         {
             foreach (var prop in obj.Properties())
             {
-                EditorGUILayout.BeginHorizontal();
-                
-                if (prop.Value.Type == JTokenType.Object)
-                {
-                    EditorGUILayout.LabelField($"{prop.Name}:", EditorStyles.boldLabel);
-                    EditorGUILayout.EndHorizontal();
-                    DrawNestedData(prop.Value, indentLevel + 1);
-                }
-                else if (prop.Value.Type == JTokenType.Array)
-                {
-                    JArray arr = (JArray)prop.Value;
-                    EditorGUILayout.LabelField($"{prop.Name}: [{arr.Count} items]", EditorStyles.boldLabel);
-                    EditorGUILayout.EndHorizontal();
-                    
-                    // 배열 내용 표시
-                    for (int i = 0; i < arr.Count; i++)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(40));
-                        
-                        if (arr[i].Type == JTokenType.Object || arr[i].Type == JTokenType.Array)
-                        {
-                            EditorGUILayout.EndHorizontal();
-                            DrawNestedData(arr[i], indentLevel + 1);
-                        }
-                        else
-                        {
-                            EditorGUILayout.SelectableLabel(arr[i].ToString(), EditorStyles.textField, GUILayout.Height(18));
-                            EditorGUILayout.EndHorizontal();
-                        }
-                    }
-                }
-                else
-                {
-                    EditorGUILayout.LabelField($"{prop.Name}:", GUILayout.Width(150));
-                    EditorGUILayout.SelectableLabel(prop.Value.ToString(), EditorStyles.textField, GUILayout.Height(18));
-                    EditorGUILayout.EndHorizontal();
-                }
+                DrawProperty(prop.Name, prop.Value, indent);
             }
         }
         else if (token is JArray array)
         {
             for (int i = 0; i < array.Count; i++)
             {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(40));
-                
-                if (array[i].Type == JTokenType.Object || array[i].Type == JTokenType.Array)
-                {
-                    EditorGUILayout.EndHorizontal();
-                    DrawNestedData(array[i], indentLevel + 1);
-                }
-                else
-                {
-                    EditorGUILayout.SelectableLabel(array[i].ToString(), EditorStyles.textField, GUILayout.Height(18));
-                    EditorGUILayout.EndHorizontal();
-                }
+                DrawProperty($"[{i}]", array[i], indent);
             }
         }
-        
-        EditorGUI.indentLevel = 0;
+    }
+
+    private void DrawProperty(string name, JToken value, int indent)
+    {
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Space(indent * 20);
+
+        if (value is JObject || value is JArray)
+        {
+            EditorGUILayout.LabelField(name, EditorStyles.boldLabel, GUILayout.Width(200 - indent * 20));
+            EditorGUILayout.EndHorizontal();
+            DrawDetailProperties(value, indent + 1);
+        }
+        else
+        {
+            EditorGUILayout.LabelField(name, GUILayout.Width(200 - indent * 20));
+            EditorGUILayout.LabelField(value?.ToString() ?? "null");
+            EditorGUILayout.EndHorizontal();
+        }
     }
 }

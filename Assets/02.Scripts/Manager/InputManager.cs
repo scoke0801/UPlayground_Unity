@@ -24,6 +24,12 @@ public class InputManager : BaseManager<InputManager>, IManager
     public InputAction InteractAction { get; private set; }
     public InputAction PauseAction { get; private set; }
     
+    // Skill Actions (명조 스타일)
+    public InputAction Skill1Action { get; private set; }
+    public InputAction Skill2Action { get; private set; }
+    public InputAction Skill3Action { get; private set; }
+    public InputAction Skill4Action { get; private set; }
+    
     // UI Actions
     public InputAction NavigateAction { get; private set; }
     public InputAction SubmitAction { get; private set; }
@@ -81,6 +87,12 @@ public class InputManager : BaseManager<InputManager>, IManager
         InteractAction = gameplayActionMap.FindAction("Interact");
         PauseAction = gameplayActionMap.FindAction("Pause");
         
+        // Skill Actions 초기화
+        Skill1Action = gameplayActionMap.FindAction("Skill1");
+        Skill2Action = gameplayActionMap.FindAction("Skill2");
+        Skill3Action = gameplayActionMap.FindAction("Skill3");
+        Skill4Action = gameplayActionMap.FindAction("Skill4");
+        
         // UI Actions 초기화
         NavigateAction = uiActionMap.FindAction("Navigate");
         SubmitAction = uiActionMap.FindAction("Submit");
@@ -92,6 +104,12 @@ public class InputManager : BaseManager<InputManager>, IManager
         if (LookAction == null) Debug.LogWarning("[InputManager] Look 액션을 찾을 수 없습니다!");
         if (JumpAction == null) Debug.LogWarning("[InputManager] Jump 액션을 찾을 수 없습니다!");
         if (PauseAction == null) Debug.LogWarning("[InputManager] Pause 액션을 찾을 수 없습니다!");
+        
+        // 스킬 액션 유효성 검사
+        if (Skill1Action == null) Debug.LogWarning("[InputManager] Skill1 액션을 찾을 수 없습니다!");
+        if (Skill2Action == null) Debug.LogWarning("[InputManager] Skill2 액션을 찾을 수 없습니다!");
+        if (Skill3Action == null) Debug.LogWarning("[InputManager] Skill3 액션을 찾을 수 없습니다!");
+        if (Skill4Action == null) Debug.LogWarning("[InputManager] Skill4 액션을 찾을 수 없습니다!");
 
         // Pause 이벤트 구독
         if (PauseAction != null)

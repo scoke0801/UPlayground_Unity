@@ -12,9 +12,6 @@ using UnityEngine;
 /// </summary>
 public class CameraManager : BaseManager<CameraManager>, IManager
 {
-    [Header("Input Settings")]
-    [SerializeField] private bool requireRightClick = false;   // 우클릭 필요 여부 (false면 항상 회전)
-    
     [Header("Target")]
     [SerializeField] private Transform target; // 추적할 타겟 (플레이어)
     

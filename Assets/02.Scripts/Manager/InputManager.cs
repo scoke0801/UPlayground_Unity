@@ -20,6 +20,7 @@ public class InputManager : BaseManager<InputManager>, IManager
     public InputAction RunAction { get; private set; }
     public InputAction RollAction { get; private set; }
     public InputAction AttackAction { get; private set; }
+    public InputAction HeavyAttackAction { get; private set; }
     public InputAction InteractAction { get; private set; }
     public InputAction PauseAction { get; private set; }
     
@@ -76,6 +77,7 @@ public class InputManager : BaseManager<InputManager>, IManager
         RunAction = gameplayActionMap.FindAction("Run");
         RollAction = gameplayActionMap.FindAction("Roll");
         AttackAction = gameplayActionMap.FindAction("Attack");
+        HeavyAttackAction = gameplayActionMap.FindAction("HeavyAttack");
         InteractAction = gameplayActionMap.FindAction("Interact");
         PauseAction = gameplayActionMap.FindAction("Pause");
         
@@ -104,6 +106,7 @@ public class InputManager : BaseManager<InputManager>, IManager
         }
         
         // 게임플레이 모드로 시작
+        currentMode = InputMode.None;
         SwitchToGameplay();
         
         Debug.Log("[InputManager] 초기화 완료");

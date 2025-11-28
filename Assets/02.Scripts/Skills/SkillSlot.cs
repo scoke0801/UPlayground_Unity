@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Game.Skills
 {
-    /// <summary>
-    /// 스킬 슬롯 (쿨다운 관리)
-    /// </summary>
     [Serializable]
     public class SkillSlot
     {
@@ -13,15 +10,10 @@ namespace Game.Skills
         [SerializeField] private SkillData skillData;     // 장착된 스킬 데이터
         
         private float cooldownRemaining;                  // 남은 쿨다운 시간
-        private float chargeTime;                         // 차징 시간
-        private bool isCharging;                          // 차징 중인지
-        private bool isCasting;                           // 시전 중인지
         
-        // 이벤트
-        public event Action<int> OnSkillActivated;        // 스킬 발동
-        public event Action<int> OnSkillCharged;          // 차징 완료
-        public event Action<int, float> OnCooldownStart;  // 쿨다운 시작
-        public event Action<int> OnCooldownEnd;           // 쿨다운 종료
+        // UI 업데이트용 이벤트
+        public event Action<int, float> OnCooldownStart;  
+        public event Action<int> OnCooldownEnd;           
         
         public SkillSlot(int index)
         {
@@ -33,155 +25,51 @@ namespace Game.Skills
         public SkillData Data => skillData;
         public bool IsOnCooldown => cooldownRemaining > 0f;
         public float CooldownRemaining => cooldownRemaining;
-        public float CooldownProgress => skillData != null ? 1f - (cooldownRemaining / skillData.CooldownTime) : 1f;
-        public bool IsCharging => isCharging;
-        public float ChargeProgress => skillData != null ? chargeTime / skillData.ChargeTime : 0f;
-        public bool IsCasting => isCasting;
-        
-        /// <summary>
-        /// 스킬 장착
-        /// </summary>
+
+        // 스킬 장착
         public void EquipSkill(SkillData skill)
         {
             skillData = skill;
             cooldownRemaining = 0f;
-            chargeTime = 0f;
-            isCharging = false;
-            isCasting = false;
         }
         
-        /// <summary>
-        /// 스킬 해제
-        /// </summary>
+        // 스킬 해제
         public void UnequipSkill()
         {
             skillData = null;
             cooldownRemaining = 0f;
-            chargeTime = 0f;
-            isCharging = false;
-            isCasting = false;
         }
         
-        /// <summary>
-        /// 스킬 사용 가능 체크
-        /// </summary>
+        // 사용 가능 여부 체크 (단순 검사)
         public bool CanUseSkill()
         {
             if (skillData == null) return false;
             if (IsOnCooldown) return false;
-            if (isCasting) return false;
             
-            // TODO: 마나/에너지 체크
+            // TODO: 마나/스태미나 등 추가 자원 체크 로직이 있다면 여기에 추가
+            // if (currentMana < skillData.ManaCost) return false;
+            
             return true;
         }
-        
-        /// <summary>
-        /// 스킬 사용 시도
-        /// </summary>
-        public bool TryUseSkill()
-        {
-            if (!CanUseSkill())
-                return false;
-            
-            switch (skillData.Type)
-            {
-                case SkillType.Instant:
-                    ActivateSkill();
-                    return true;
-                    
-                case SkillType.Charged:
-                    StartCharging();
-                    return true;
-                    
-                case SkillType.Toggle:
-                case SkillType.Channeling:
-                    ActivateSkill();
-                    return true;
-                    
-                default:
-                    return false;
-            }
-        }
-        
-        /// <summary>
-        /// 차징 시작
-        /// </summary>
-        private void StartCharging()
-        {
-            isCharging = true;
-            chargeTime = 0f;
-        }
-        
-        /// <summary>
-        /// 차징 종료 (키를 떼면)
-        /// </summary>
-        public void StopCharging()
-        {
-            if (!isCharging) return;
-            
-            isCharging = false;
-            
-            // 최소 차징 시간 충족 시 발동
-            if (chargeTime >= skillData.ChargeTime)
-            {
-                ActivateSkill();
-                OnSkillCharged?.Invoke(slotIndex);
-            }
-            
-            chargeTime = 0f;
-        }
-        
-        /// <summary>
-        /// 스킬 발동
-        /// </summary>
-        private void ActivateSkill()
+
+        // 자원 소모 및 쿨타임 시작 (실제 사용 확정 시 호출)
+        public void ConsumeResources()
         {
             if (skillData == null) return;
             
-            // 쿨다운 시작
-            StartCooldown();
+            // 쿨타임 적용
+            if (skillData.CooldownTime > 0)
+            {
+                cooldownRemaining = skillData.CooldownTime;
+                OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
+            }
             
-            // 이벤트 발행
-            OnSkillActivated?.Invoke(slotIndex);
-            
-            Debug.Log($"[SkillSlot] 스킬 발동: {skillData.SkillName} (슬롯 {slotIndex})");
+            // TODO: 마나 감소 로직 등 추가
         }
         
-        /// <summary>
-        /// 쿨다운 시작
-        /// </summary>
-        private void StartCooldown()
-        {
-            if (skillData == null) return;
-            
-            cooldownRemaining = skillData.CooldownTime;
-            OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
-        }
-        
-        /// <summary>
-        /// 쿨다운 강제 시작 (외부에서 호출)
-        /// </summary>
-        public void ForceCooldown(float duration)
-        {
-            cooldownRemaining = duration;
-            OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
-        }
-        
-        /// <summary>
-        /// 쿨다운 초기화
-        /// </summary>
-        public void ResetCooldown()
-        {
-            cooldownRemaining = 0f;
-            OnCooldownEnd?.Invoke(slotIndex);
-        }
-        
-        /// <summary>
-        /// 매 프레임 업데이트
-        /// </summary>
+        // 쿨타임 업데이트
         public void Update(float deltaTime)
         {
-            // 쿨다운 감소
             if (cooldownRemaining > 0f)
             {
                 cooldownRemaining -= deltaTime;
@@ -191,12 +79,6 @@ namespace Game.Skills
                     cooldownRemaining = 0f;
                     OnCooldownEnd?.Invoke(slotIndex);
                 }
-            }
-            
-            // 차징 증가
-            if (isCharging && skillData != null)
-            {
-                chargeTime += deltaTime;
             }
         }
     }

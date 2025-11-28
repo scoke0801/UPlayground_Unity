@@ -1,10 +1,8 @@
 using UnityEngine;
+using Game.FSM; // StateSO 참조를 위해 추가
 
 namespace Game.Skills
 {
-    /// <summary>
-    /// 스킬 타입
-    /// </summary>
     public enum SkillType
     {
         Instant,    // 즉시 발동
@@ -13,9 +11,6 @@ namespace Game.Skills
         Channeling  // 지속 시전
     }
     
-    /// <summary>
-    /// 스킬 데이터 (ScriptableObject)
-    /// </summary>
     [CreateAssetMenu(fileName = "NewSkill", menuName = "Game/Skill Data", order = 0)]
     public class SkillData : ScriptableObject
     {
@@ -25,18 +20,23 @@ namespace Game.Skills
         [SerializeField] [TextArea(3, 5)] private string description = "스킬 설명";
         [SerializeField] private Sprite icon;
         
+        [Header("FSM 연결 (핵심 수정)")]
+        [Tooltip("스킬 사용 시 전환될 상태(State)입니다.")]
+        public StateSO ExecutionState; 
+
         [Header("스킬 설정")]
         [SerializeField] private SkillType skillType = SkillType.Instant;
         [SerializeField] private float cooldownTime = 5f;
-        [SerializeField] private float castTime = 0f;          // 시전 시간
-        [SerializeField] private float chargeTime = 1f;        // 차징 시간 (Charged 타입)
-        [SerializeField] private float duration = 0f;          // 지속 시간 (Channeling, Toggle)
+        
+        // FSM에서 직접 제어하므로 CastTime, ChargeTime 등은 StateSO 설정에 따라갈 수 있음.
+        // 하지만 UI 표기나 로직 참조용으로 남겨둘 수 있습니다.
+        [SerializeField] private float chargeTime = 1f; 
         
         [Header("코스트")]
         [SerializeField] private int manaCost = 0;
         [SerializeField] private int energyCost = 0;
         
-        [Header("시각 효과")]
+        // 기존 시각 효과 Prefab은 State의 OnEnter에서 생성하도록 변경 권장하지만, 데이터로 남겨둠
         [SerializeField] private GameObject skillEffectPrefab;
         [SerializeField] private AudioClip skillSound;
         
@@ -47,12 +47,13 @@ namespace Game.Skills
         public Sprite Icon => icon;
         public SkillType Type => skillType;
         public float CooldownTime => cooldownTime;
-        public float CastTime => castTime;
         public float ChargeTime => chargeTime;
-        public float Duration => duration;
         public int ManaCost => manaCost;
         public int EnergyCost => energyCost;
         public GameObject SkillEffectPrefab => skillEffectPrefab;
         public AudioClip SkillSound => skillSound;
+        
+        // State 접근용 프로퍼티
+        public StateSO ExecutionStateRef => ExecutionState;
     }
 }

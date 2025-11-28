@@ -25,7 +25,7 @@ namespace Game.Input
         public bool HeavyAttackPressed { get; private set; }
         public bool InteractPressed { get; private set; }
         
-        // 스킬 입력 (명조 스타일)
+        // 스킬 입력
         public bool Skill1Pressed { get; private set; }
         public bool Skill2Pressed { get; private set; }
         public bool Skill3Pressed { get; private set; }
@@ -35,7 +35,12 @@ namespace Game.Input
         public bool Skill2Held { get; private set; }
         public bool Skill3Held { get; private set; }
         public bool Skill4Held { get; private set; }
-
+        
+        public void OnSkill1(InputAction.CallbackContext context) => HandleSkillInput(context, 1);
+        public void OnSkill2(InputAction.CallbackContext context) => HandleSkillInput(context, 2);
+        public void OnSkill3(InputAction.CallbackContext context) => HandleSkillInput(context, 3);
+        public void OnSkill4(InputAction.CallbackContext context) => HandleSkillInput(context, 4);
+        
         // 이벤트
         public event Action OnJumpEvent;
         public event Action OnRollEvent;
@@ -223,6 +228,18 @@ namespace Game.Input
             OnInteractEvent?.Invoke();
         }
         
+        private void HandleSkillInput(InputAction.CallbackContext context, int skillIndex)
+        {
+            if (context.phase == InputActionPhase.Performed)
+            {
+                OnSkillPressed?.Invoke(skillIndex);
+            }
+            else if (context.phase == InputActionPhase.Canceled)
+            {
+                OnSkillReleased?.Invoke(skillIndex);
+            }
+        }
+
         private void OnSkillPerformed(int skillIndex)
         {
             switch (skillIndex)

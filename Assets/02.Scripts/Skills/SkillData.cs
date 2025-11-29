@@ -28,8 +28,11 @@ namespace Game.Skills
         [SerializeField] private SkillType skillType = SkillType.Instant;
         [SerializeField] private float cooldownTime = 5f;
         
-        // FSM에서 직접 제어하므로 CastTime, ChargeTime 등은 StateSO 설정에 따라갈 수 있음.
-        // 하지만 UI 표기나 로직 참조용으로 남겨둘 수 있습니다.
+        [Header("상태 전환 및 애니메이션")]
+        [Tooltip("스킬 발동 시 재생할 애니메이션 키")]
+        [SerializeField] private string actionAnimKey = "SkillActionDefault";
+        public string ActionAnimKey => actionAnimKey;
+        
         [SerializeField] private float chargeTime = 1f; 
         
         [Header("코스트")]

@@ -51,7 +51,23 @@ namespace Game.Skills
             
             return true;
         }
-
+        
+        /// <summary>
+        /// 쿨다운 시작
+        /// </summary>
+        public void StartCooldown()
+        {
+            if (skillData == null) return;
+            
+            // 쿨타임 적용
+            if (skillData.CooldownTime > 0)
+            {
+                cooldownRemaining = skillData.CooldownTime;
+                OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
+            }
+            
+            // TODO: 여기서 마나 감소 로직 등 추가
+        }
         // 자원 소모 및 쿨타임 시작 (실제 사용 확정 시 호출)
         public void ConsumeResources()
         {

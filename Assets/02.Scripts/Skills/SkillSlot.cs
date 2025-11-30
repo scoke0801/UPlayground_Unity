@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Game.Data;
 
 namespace Game.Skills
 {
@@ -7,9 +8,11 @@ namespace Game.Skills
     public class SkillSlot
     {
         [SerializeField] private int slotIndex;           // 슬롯 번호 (1-4)
-        [SerializeField] private SkillData skillData;     // 장착된 스킬 데이터
         
-        private float cooldownRemaining;                  // 남은 쿨다운 시간
+        // Json 데이터 참조
+        private SkillJsonData skillJsonData;
+        
+        private float cooldownRemaining;
         
         // UI 업데이트용 이벤트
         public event Action<int, float> OnCooldownStart;  
@@ -22,61 +25,75 @@ namespace Game.Skills
         
         // 프로퍼티
         public int SlotIndex => slotIndex;
-        public SkillData Data => skillData;
         public bool IsOnCooldown => cooldownRemaining > 0f;
         public float CooldownRemaining => cooldownRemaining;
-
-        // 스킬 장착
-        public void EquipSkill(SkillData skill)
+        
+        // Json 데이터 기반 프로퍼티
+        public SkillJsonData JsonData => skillJsonData;
+        public bool HasSkill => skillJsonData != null;
+        
+        // 통합 프로퍼티
+        public string SkillName => skillJsonData?.SkillName ?? "Empty";
+        public int SkillID => skillJsonData?.SkillID ?? 0;
+        public SkillType Type => skillJsonData?.Type ?? SkillType.Instant;
+        public float CooldownTime => skillJsonData?.CooldownTime ?? 0f;
+        public float ChargeTime => skillJsonData?.ChargeTime ?? 0f;
+        public int ManaCost => skillJsonData?.ManaCost ?? 0;
+        public int EnergyCost => skillJsonData?.EnergyCost ?? 0;
+        public Sprite Icon => skillJsonData?.Icon;
+        public GameObject EffectPrefab => skillJsonData?.SkillEffectPrefab;
+        public AudioClip Sound => skillJsonData?.SkillSound;
+        public string ActionAnimKey => skillJsonData?.ActionAnimKey ?? "Default";
+        public string ExecutionStatePath => skillJsonData?.executionStatePath ?? "";
+        
+        // Json 데이터로 스킬 장착
+        public void EquipSkill(SkillJsonData jsonData)
         {
-            skillData = skill;
+            skillJsonData = jsonData;
             cooldownRemaining = 0f;
         }
         
         // 스킬 해제
         public void UnequipSkill()
         {
-            skillData = null;
+            skillJsonData = null;
             cooldownRemaining = 0f;
         }
         
-        // 사용 가능 여부 체크 (단순 검사)
+        // 사용 가능 여부 체크
         public bool CanUseSkill()
         {
-            if (skillData == null) return false;
+            if (!HasSkill) return false;
             if (IsOnCooldown) return false;
             
-            // TODO: 마나/스태미나 등 추가 자원 체크 로직이 있다면 여기에 추가
-            // if (currentMana < skillData.ManaCost) return false;
+            // TODO: 마나/스태미나 등 추가 자원 체크
             
             return true;
         }
         
-        /// <summary>
-        /// 쿨다운 시작
-        /// </summary>
+        // 쿨다운 시작
         public void StartCooldown()
         {
-            if (skillData == null) return;
+            if (!HasSkill) return;
             
-            // 쿨타임 적용
-            if (skillData.CooldownTime > 0)
+            float cooldown = CooldownTime;
+            if (cooldown > 0)
             {
-                cooldownRemaining = skillData.CooldownTime;
+                cooldownRemaining = cooldown;
                 OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
             }
-            
-            // TODO: 여기서 마나 감소 로직 등 추가
         }
-        // 자원 소모 및 쿨타임 시작 (실제 사용 확정 시 호출)
+        
+        // 자원 소모
         public void ConsumeResources()
         {
-            if (skillData == null) return;
+            if (!HasSkill) return;
             
             // 쿨타임 적용
-            if (skillData.CooldownTime > 0)
+            float cooldown = CooldownTime;
+            if (cooldown > 0)
             {
-                cooldownRemaining = skillData.CooldownTime;
+                cooldownRemaining = cooldown;
                 OnCooldownStart?.Invoke(slotIndex, cooldownRemaining);
             }
             

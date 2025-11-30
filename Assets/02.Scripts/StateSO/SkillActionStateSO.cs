@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Animancer;
-using Game.Skills; // SkillSystem 참조를 위해 필요
+using Game.Skills;
+using Game.Data; // SkillJsonData 추가
 
 namespace Game.FSM
 {
@@ -25,7 +26,7 @@ namespace Game.FSM
             // ChargeRatio는 차징 스킬이 아닐 경우 0f가 들어갈 수 있습니다. (Instants 스킬과 공유할 경우)
             float chargeRatio = brain.GetData<float>(CHARGE_RATIO_KEY, 0f); 
             
-// SkillSystem 참조
+            // SkillSystem 참조
             SkillSystem skillSystem = brain.GetComponent<SkillSystem>();
             if (skillSystem == null || slotIndex == 0)
             {
@@ -34,17 +35,17 @@ namespace Game.FSM
                 return;
             }
 
-            // 🌟 2. SkillSystem을 통해 SkillData를 가져옵니다. 🌟
-            SkillData skillData = skillSystem.GetSkillData(slotIndex);
-            if (skillData == null)
+            // 2. SkillSlot을 통해 스킬 정보 가져오기
+            SkillSlot skillSlot = skillSystem.GetSkillSlot(slotIndex);
+            if (skillSlot == null || !skillSlot.HasSkill)
             {
                 Debug.LogError($"[SkillActionState] 슬롯 {slotIndex}에 스킬 데이터가 없습니다.");
                 CleanupAndTransition(brain, brain.DefaultState);
                 return;
             }
             
-            // 🌟 3. SkillData에서 애니메이션 키를 가져와 사용합니다. 🌟
-            string animKey = skillData.ActionAnimKey; // 새로 추가된 프로퍼티 사용!
+            // 3. SkillSlot에서 애니메이션 키를 가져와 사용
+            string animKey = skillSlot.ActionAnimKey;
             
             // 4. 애니메이션 재생
             ClipTransition animClip = brain.AnimData.GetClipTransition(animKey);
@@ -59,13 +60,8 @@ namespace Game.FSM
 
             // 5. 스킬 시스템에 최종 발동 요청 (쿨다운 및 로직 처리)
             skillSystem.ExecuteSkillAction(slotIndex, chargeRatio);
-            if (skillSystem != null)
-            {
-                // SkillSystem은 ChargeRatio를 받아 위력, 범위 등을 조절할 수 있습니다.
-                skillSystem.ExecuteSkillAction(slotIndex, chargeRatio); 
-            }
             
-            // 4. 애니메이션 종료 이벤트 바인딩
+            // 6. 애니메이션 종료 이벤트 바인딩
             if (animState.Events(brain, out AnimancerEvent.Sequence events))
             {
                 events.OnEnd = () => 

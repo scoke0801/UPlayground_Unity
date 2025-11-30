@@ -39,7 +39,8 @@ public class GameManager : BaseManager<GameManager>
         // RegisterManager(ResourceManager.Instance);  // 리소스 관리
         // RegisterManager(SoundManager.Instance);     // 사운드 관리
         RegisterManager(UIManager.Instance);           // UI 관리
-
+        RegisterManager(JsonDataManager.Instance);
+        
         _isInitialized = true;
         
         Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");

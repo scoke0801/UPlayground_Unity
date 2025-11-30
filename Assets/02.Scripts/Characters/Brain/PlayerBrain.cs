@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using Game.Input;
-using Game.Skills; // SkillSystem 네임스페이스 추가
+using Game.Skills;
+using Game.Data; // SkillJsonData 추가
 
 namespace Game.FSM
-{
+{    
+    /// <summary>
+    /// 플레이어 입력 처리 및 캐릭터 제어
+    /// </summary>
     public class PlayerBrain : CharacterBrain
     {
         [Header("Input")]
@@ -65,19 +69,45 @@ namespace Game.FSM
             ProcessMovementInput();
             ProcessBufferedInputs();
         }
-
+        
+        /// <summary>
+        /// 이동 입력 처리 (카메라 기준)
+        /// </summary>
         private void ProcessMovementInput()
         {
-            // (기존 코드와 동일하여 생략)
-            // ...
             Vector2 moveInput = inputReader.MoveInput;
+            if (_cachedCamera == null)
+            {
+                _cachedCamera = Camera.main;
+                if (_cachedCamera == null)
+                {
+                    SetInputDirection(Vector3.zero);
+                    return;
+                }
+            }
+
+            // 카메라 기준 방향 보정
+            Transform cameraTransform = _cachedCamera.transform;
+            Vector3 forward = cameraTransform.forward;
+            Vector3 right = cameraTransform.right;
+
+            // Y축 성분 제거 (평면 이동만)
+            forward.y = 0;
+            right.y = 0;
+
+            forward.Normalize();
+            right.Normalize();
+
+            // 카메라 기준 이동 방향 계산
+            Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
+            SetInputDirection(moveDirection);
             if (_cachedCamera == null) _cachedCamera = Camera.main;
             // ... 방향 계산 로직 ...
             // SetInputDirection(moveDirection);
         }
 
         /// <summary>
-        /// 버퍼된 입력 처리 (핵심 수정 파트)
+        /// 버퍼된 입력 처리
         /// </summary>
         private void ProcessBufferedInputs()
         {
@@ -143,24 +173,37 @@ namespace Game.FSM
             if (_skillSystem == null) return false;
 
             // SkillSystem에게 사용 가능 여부 확인 및 데이터 요청
-            if (_skillSystem.TryUseSkill(slotIndex, out SkillData data))
+            if (_skillSystem.TryUseSkill(slotIndex, out SkillJsonData jsonData))
             {
-                // 성공 시: 해당 스킬의 State로 즉시 전환
-                if (data != null && data.ExecutionState != null)
+                // Json 데이터에서 ExecutionState 경로 가져오기
+                if (jsonData != null && !string.IsNullOrEmpty(jsonData.executionStatePath))
                 {
-                    ChangeState(data.ExecutionState);
-                    _inputBuffer.ConsumeInput(inputKey);
-                    return true;
+                    // Resources에서 StateSO 로드
+                    StateSO executionState = Resources.Load<StateSO>(jsonData.executionStatePath);
+                    
+                    if (executionState != null)
+                    {
+                        // 블랙보드에 스킬 인덱스 저장 (SkillActionStateSO에서 사용)
+                        SetData("CurrentSkillIndex", slotIndex);
+                        SetData("ChargeRatio", 0f); // Instant 스킬은 차징 없음
+                        
+                        ChangeState(executionState);
+                        _inputBuffer.ConsumeInput(inputKey);
+                        return true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlayerBrain] ExecutionState를 로드할 수 없습니다: {jsonData.executionStatePath}");
+                    }
                 }
                 else
                 {
-                    Debug.LogWarning($"슬롯 {slotIndex} 스킬에 State가 할당되지 않았습니다.");
+                    Debug.LogWarning($"[PlayerBrain] 슬롯 {slotIndex} 스킬에 State가 할당되지 않았습니다.");
                 }
             }
             else
             {
-                // 실패 (쿨타임 등): 입력을 소비할지 말지는 기획 의도에 따름
-                // 여기서는 연타 방지를 위해 입력을 소비해버림
+                // 실패 (쿨타임 등): 입력 소비
                 _inputBuffer.ConsumeInput(inputKey);
             }
             return false;

@@ -1,0 +1,1009 @@
+[
+  {
+    "actor_key": "warrior_001",
+    "actor_name": "전사",
+    "skills": [
+      {
+        "skill_id": "warrior_basic_attack_1",
+        "skill_name": "기본 공격 1타",
+        "skill_type": "melee",
+        "animation_clip": "Assets/Animations/Warrior/BasicAttack_01.anim",
+        "skill_data": {
+          "damage": 25,
+          "attack_range": 2.5,
+          "attack_speed": 1.0,
+          "cooldown": 0.0,
+          "mana_cost": 0,
+          "cast_time": 0.3,
+          "duration": 0.5
+        },
+        "combo_info": {
+          "combo_index": 0,
+          "can_cancel": false,
+          "next_combo": ["warrior_basic_attack_2"],
+          "combo_window": 0.8,
+          "reset_time": 2.0
+        },
+        "effects": [
+          {
+            "effect_type": "hit",
+            "effect_path": "Assets/Effects/Warrior/Hit_Slash_01.prefab",
+            "spawn_time": 0.25,
+            "attach_to_target": true,
+            "duration": 0.5
+          },
+          {
+            "effect_type": "trail",
+            "effect_path": "Assets/Effects/Warrior/Weapon_Trail.prefab",
+            "spawn_time": 0.1,
+            "attach_to_target": false,
+            "duration": 0.4
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "swing",
+            "sound_path": "Assets/Sounds/Warrior/Sword_Swing_01.wav",
+            "play_time": 0.15,
+            "volume": 0.8
+          },
+          {
+            "sound_type": "hit",
+            "sound_path": "Assets/Sounds/Impact/Hit_Metal_01.wav",
+            "play_time": 0.3,
+            "volume": 1.0
+          }
+        ],
+        "hitbox": {
+          "shape": "sphere",
+          "radius": 2.0,
+          "offset": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 1.5
+          },
+          "active_frames": [
+            {
+              "start": 0.2,
+              "end": 0.4
+            }
+          ]
+        }
+      },
+      {
+        "skill_id": "warrior_basic_attack_2",
+        "skill_name": "기본 공격 2타",
+        "skill_type": "melee",
+        "animation_clip": "Assets/Animations/Warrior/BasicAttack_02.anim",
+        "skill_data": {
+          "damage": 35,
+          "attack_range": 2.8,
+          "attack_speed": 1.1,
+          "cooldown": 0.0,
+          "mana_cost": 0,
+          "cast_time": 0.35,
+          "duration": 0.6
+        },
+        "combo_info": {
+          "combo_index": 1,
+          "can_cancel": false,
+          "next_combo": ["warrior_basic_attack_3"],
+          "combo_window": 0.9,
+          "reset_time": 2.0
+        },
+        "effects": [
+          {
+            "effect_type": "hit",
+            "effect_path": "Assets/Effects/Warrior/Hit_Slash_02.prefab",
+            "spawn_time": 0.3,
+            "attach_to_target": true,
+            "duration": 0.5
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "swing",
+            "sound_path": "Assets/Sounds/Warrior/Sword_Swing_02.wav",
+            "play_time": 0.18,
+            "volume": 0.85
+          }
+        ],
+        "hitbox": {
+          "shape": "capsule",
+          "radius": 1.5,
+          "height": 3.0,
+          "offset": {
+            "x": 0.0,
+            "y": 1.2,
+            "z": 1.8
+          },
+          "active_frames": [
+            {
+              "start": 0.25,
+              "end": 0.45
+            }
+          ]
+        }
+      },
+      {
+        "skill_id": "warrior_basic_attack_3",
+        "skill_name": "기본 공격 3타 (피니셔)",
+        "skill_type": "melee",
+        "animation_clip": "Assets/Animations/Warrior/BasicAttack_03_Finish.anim",
+        "skill_data": {
+          "damage": 60,
+          "attack_range": 3.5,
+          "attack_speed": 1.2,
+          "cooldown": 0.0,
+          "mana_cost": 10,
+          "cast_time": 0.5,
+          "duration": 1.0
+        },
+        "combo_info": {
+          "combo_index": 2,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 2.0,
+          "is_finisher": true
+        },
+        "effects": [
+          {
+            "effect_type": "hit",
+            "effect_path": "Assets/Effects/Warrior/Hit_Impact_Heavy.prefab",
+            "spawn_time": 0.4,
+            "attach_to_target": true,
+            "duration": 1.0
+          },
+          {
+            "effect_type": "shockwave",
+            "effect_path": "Assets/Effects/Common/Shockwave.prefab",
+            "spawn_time": 0.4,
+            "attach_to_target": false,
+            "duration": 1.5
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "swing",
+            "sound_path": "Assets/Sounds/Warrior/Sword_Swing_Heavy.wav",
+            "play_time": 0.2,
+            "volume": 1.0
+          },
+          {
+            "sound_type": "impact",
+            "sound_path": "Assets/Sounds/Impact/Heavy_Impact.wav",
+            "play_time": 0.45,
+            "volume": 1.2
+          }
+        ],
+        "hitbox": {
+          "shape": "box",
+          "size": {
+            "x": 4.0,
+            "y": 2.5,
+            "z": 3.5
+          },
+          "offset": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 2.0
+          },
+          "active_frames": [
+            {
+              "start": 0.35,
+              "end": 0.55
+            }
+          ]
+        },
+        "camera_shake": {
+          "intensity": 0.5,
+          "duration": 0.3,
+          "start_time": 0.4
+        }
+      },
+      {
+        "skill_id": "warrior_skill_charge",
+        "skill_name": "돌진 베기",
+        "skill_type": "dash_attack",
+        "animation_clip": "Assets/Animations/Warrior/Skill_Charge.anim",
+        "skill_data": {
+          "damage": 80,
+          "attack_range": 8.0,
+          "attack_speed": 1.0,
+          "cooldown": 8.0,
+          "mana_cost": 30,
+          "cast_time": 0.2,
+          "duration": 1.2
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": true,
+          "next_combo": ["warrior_basic_attack_1", "warrior_skill_spinning"],
+          "combo_window": 1.0,
+          "reset_time": 1.5
+        },
+        "movement": {
+          "move_type": "dash",
+          "distance": 8.0,
+          "speed": 15.0,
+          "curve": "linear",
+          "can_pass_through_enemies": false
+        },
+        "effects": [
+          {
+            "effect_type": "charge_trail",
+            "effect_path": "Assets/Effects/Warrior/Charge_Trail.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 1.2
+          },
+          {
+            "effect_type": "hit",
+            "effect_path": "Assets/Effects/Warrior/Charge_Hit.prefab",
+            "spawn_time": 0.8,
+            "attach_to_target": true,
+            "duration": 0.8
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "charge",
+            "sound_path": "Assets/Sounds/Warrior/Charge_Dash.wav",
+            "play_time": 0.0,
+            "volume": 0.9
+          },
+          {
+            "sound_type": "hit",
+            "sound_path": "Assets/Sounds/Impact/Charge_Impact.wav",
+            "play_time": 0.8,
+            "volume": 1.0
+          }
+        ],
+        "hitbox": {
+          "shape": "capsule",
+          "radius": 2.0,
+          "height": 3.0,
+          "offset": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "active_frames": [
+            {
+              "start": 0.2,
+              "end": 1.0
+            }
+          ],
+          "continuous": true
+        },
+        "buffs": [
+          {
+            "buff_type": "super_armor",
+            "duration": 1.2,
+            "start_time": 0.0
+          }
+        ]
+      },
+      {
+        "skill_id": "warrior_skill_spinning",
+        "skill_name": "회오리 베기",
+        "skill_type": "aoe",
+        "animation_clip": "Assets/Animations/Warrior/Skill_Spinning_Slash.anim",
+        "skill_data": {
+          "damage": 45,
+          "attack_range": 4.0,
+          "attack_speed": 1.0,
+          "cooldown": 10.0,
+          "mana_cost": 40,
+          "cast_time": 0.3,
+          "duration": 2.0
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 2.0
+        },
+        "multi_hit": {
+          "hit_count": 5,
+          "hit_interval": 0.3,
+          "damage_per_hit": 45
+        },
+        "effects": [
+          {
+            "effect_type": "spinning",
+            "effect_path": "Assets/Effects/Warrior/Spinning_Blade.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 2.0
+          },
+          {
+            "effect_type": "wind",
+            "effect_path": "Assets/Effects/Common/Wind_Circle.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 2.0
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "spin",
+            "sound_path": "Assets/Sounds/Warrior/Spinning_Whoosh.wav",
+            "play_time": 0.0,
+            "volume": 1.0,
+            "loop": true
+          },
+          {
+            "sound_type": "hit",
+            "sound_path": "Assets/Sounds/Impact/Multi_Hit.wav",
+            "play_time": 0.3,
+            "volume": 0.8,
+            "loop": true,
+            "loop_interval": 0.3
+          }
+        ],
+        "hitbox": {
+          "shape": "sphere",
+          "radius": 4.0,
+          "offset": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "active_frames": [
+            {
+              "start": 0.3,
+              "end": 1.8
+            }
+          ],
+          "continuous": true
+        },
+        "camera_shake": {
+          "intensity": 0.3,
+          "duration": 2.0,
+          "start_time": 0.3
+        }
+      }
+    ],
+    "passive_skills": [
+      {
+        "passive_id": "warrior_passive_strength",
+        "passive_name": "전사의 힘",
+        "description": "공격력이 10% 증가합니다",
+        "icon_path": "Assets/UI/Icons/Passive_Strength.png",
+        "stat_modifiers": {
+          "attack_power": 1.1,
+          "critical_chance": 0.05
+        }
+      }
+    ]
+  },
+  {
+    "actor_key": "mage_001",
+    "actor_name": "마법사",
+    "skills": [
+      {
+        "skill_id": "mage_basic_attack",
+        "skill_name": "마법 화살",
+        "skill_type": "projectile",
+        "animation_clip": "Assets/Animations/Mage/BasicAttack_Cast.anim",
+        "skill_data": {
+          "damage": 40,
+          "attack_range": 15.0,
+          "attack_speed": 1.0,
+          "cooldown": 0.0,
+          "mana_cost": 5,
+          "cast_time": 0.5,
+          "duration": 0.8
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 0.0
+        },
+        "projectile": {
+          "prefab_path": "Assets/Prefabs/Projectiles/Magic_Arrow.prefab",
+          "spawn_time": 0.4,
+          "speed": 20.0,
+          "lifetime": 3.0,
+          "penetrate": false,
+          "homing": false,
+          "spawn_position": {
+            "x": 0.0,
+            "y": 1.5,
+            "z": 1.0
+          }
+        },
+        "effects": [
+          {
+            "effect_type": "cast",
+            "effect_path": "Assets/Effects/Mage/Cast_Glow.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 0.5
+          },
+          {
+            "effect_type": "hit",
+            "effect_path": "Assets/Effects/Mage/Magic_Hit.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": true,
+            "duration": 0.5,
+            "trigger_on_projectile_hit": true
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "cast",
+            "sound_path": "Assets/Sounds/Mage/Magic_Cast.wav",
+            "play_time": 0.2,
+            "volume": 0.7
+          },
+          {
+            "sound_type": "projectile",
+            "sound_path": "Assets/Sounds/Mage/Magic_Projectile.wav",
+            "play_time": 0.4,
+            "volume": 0.6
+          }
+        ]
+      },
+      {
+        "skill_id": "mage_skill_fireball",
+        "skill_name": "파이어볼",
+        "skill_type": "projectile",
+        "animation_clip": "Assets/Animations/Mage/Skill_Fireball.anim",
+        "skill_data": {
+          "damage": 150,
+          "attack_range": 20.0,
+          "attack_speed": 1.0,
+          "cooldown": 6.0,
+          "mana_cost": 50,
+          "cast_time": 1.2,
+          "duration": 1.5
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": true,
+          "next_combo": ["mage_skill_teleport"],
+          "combo_window": 0.5,
+          "reset_time": 1.0,
+          "cancel_timing": 0.8
+        },
+        "projectile": {
+          "prefab_path": "Assets/Prefabs/Projectiles/Fireball.prefab",
+          "spawn_time": 1.0,
+          "speed": 15.0,
+          "lifetime": 5.0,
+          "penetrate": false,
+          "homing": true,
+          "homing_strength": 5.0,
+          "spawn_position": {
+            "x": 0.0,
+            "y": 1.8,
+            "z": 1.2
+          },
+          "explosion": {
+            "radius": 5.0,
+            "damage": 150,
+            "knockback": 3.0
+          }
+        },
+        "effects": [
+          {
+            "effect_type": "charge",
+            "effect_path": "Assets/Effects/Mage/Fireball_Charge.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 1.0
+          },
+          {
+            "effect_type": "explosion",
+            "effect_path": "Assets/Effects/Mage/Fire_Explosion.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 2.0,
+            "trigger_on_projectile_hit": true
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "charge",
+            "sound_path": "Assets/Sounds/Mage/Fire_Charge.wav",
+            "play_time": 0.0,
+            "volume": 0.8
+          },
+          {
+            "sound_type": "launch",
+            "sound_path": "Assets/Sounds/Mage/Fire_Launch.wav",
+            "play_time": 1.0,
+            "volume": 0.9
+          },
+          {
+            "sound_type": "explosion",
+            "sound_path": "Assets/Sounds/Impact/Fire_Explosion.wav",
+            "play_time": 0.0,
+            "volume": 1.2,
+            "trigger_on_projectile_hit": true
+          }
+        ],
+        "camera_shake": {
+          "intensity": 0.7,
+          "duration": 0.5,
+          "start_time": 0.0,
+          "trigger_on_projectile_hit": true
+        }
+      },
+      {
+        "skill_id": "mage_skill_teleport",
+        "skill_name": "순간이동",
+        "skill_type": "mobility",
+        "animation_clip": "Assets/Animations/Mage/Skill_Teleport.anim",
+        "skill_data": {
+          "damage": 0,
+          "attack_range": 0.0,
+          "attack_speed": 1.0,
+          "cooldown": 12.0,
+          "mana_cost": 30,
+          "cast_time": 0.3,
+          "duration": 0.5
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": ["mage_basic_attack", "mage_skill_ice_storm"],
+          "combo_window": 0.8,
+          "reset_time": 1.0
+        },
+        "movement": {
+          "move_type": "teleport",
+          "distance": 10.0,
+          "target_type": "cursor_position",
+          "invincible_during_move": true
+        },
+        "effects": [
+          {
+            "effect_type": "disappear",
+            "effect_path": "Assets/Effects/Mage/Teleport_Out.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 0.5
+          },
+          {
+            "effect_type": "appear",
+            "effect_path": "Assets/Effects/Mage/Teleport_In.prefab",
+            "spawn_time": 0.3,
+            "attach_to_target": false,
+            "duration": 0.5
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "teleport_out",
+            "sound_path": "Assets/Sounds/Mage/Teleport_Vanish.wav",
+            "play_time": 0.0,
+            "volume": 0.8
+          },
+          {
+            "sound_type": "teleport_in",
+            "sound_path": "Assets/Sounds/Mage/Teleport_Appear.wav",
+            "play_time": 0.3,
+            "volume": 0.8
+          }
+        ],
+        "buffs": [
+          {
+            "buff_type": "invincible",
+            "duration": 0.5,
+            "start_time": 0.0
+          }
+        ]
+      },
+      {
+        "skill_id": "mage_skill_ice_storm",
+        "skill_name": "아이스 스톰",
+        "skill_type": "aoe",
+        "animation_clip": "Assets/Animations/Mage/Skill_Ice_Storm.anim",
+        "skill_data": {
+          "damage": 30,
+          "attack_range": 8.0,
+          "attack_speed": 1.0,
+          "cooldown": 15.0,
+          "mana_cost": 70,
+          "cast_time": 1.5,
+          "duration": 5.0
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 2.0
+        },
+        "area_of_effect": {
+          "shape": "circle",
+          "radius": 8.0,
+          "target_type": "ground_target",
+          "spawn_delay": 1.5,
+          "offset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        },
+        "multi_hit": {
+          "hit_count": 10,
+          "hit_interval": 0.5,
+          "damage_per_hit": 30
+        },
+        "effects": [
+          {
+            "effect_type": "cast_indicator",
+            "effect_path": "Assets/Effects/Common/Ground_Circle_Indicator.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 1.5
+          },
+          {
+            "effect_type": "ice_storm",
+            "effect_path": "Assets/Effects/Mage/Ice_Storm.prefab",
+            "spawn_time": 1.5,
+            "attach_to_target": false,
+            "duration": 5.0
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "cast",
+            "sound_path": "Assets/Sounds/Mage/Ice_Cast.wav",
+            "play_time": 0.0,
+            "volume": 0.8
+          },
+          {
+            "sound_type": "storm",
+            "sound_path": "Assets/Sounds/Mage/Ice_Storm_Loop.wav",
+            "play_time": 1.5,
+            "volume": 0.9,
+            "loop": true,
+            "loop_duration": 5.0
+          }
+        ],
+        "debuffs": [
+          {
+            "debuff_type": "slow",
+            "value": 0.5,
+            "duration": 2.0,
+            "apply_per_hit": true
+          },
+          {
+            "debuff_type": "freeze",
+            "value": 1.0,
+            "duration": 1.0,
+            "chance": 0.2,
+            "apply_per_hit": true
+          }
+        ]
+      }
+    ],
+    "passive_skills": [
+      {
+        "passive_id": "mage_passive_mana_regen",
+        "passive_name": "마나 회복",
+        "description": "마나 재생 속도가 50% 증가합니다",
+        "icon_path": "Assets/UI/Icons/Passive_Mana.png",
+        "stat_modifiers": {
+          "mana_regen": 1.5,
+          "max_mana": 1.2
+        }
+      },
+      {
+        "passive_id": "mage_passive_arcane_mastery",
+        "passive_name": "비전 숙련",
+        "description": "스킬 쿨다운이 10% 감소합니다",
+        "icon_path": "Assets/UI/Icons/Passive_Arcane.png",
+        "stat_modifiers": {
+          "cooldown_reduction": 0.1,
+          "spell_power": 1.15
+        }
+      }
+    ]
+  },
+  {
+    "actor_key": "archer_001",
+    "actor_name": "궁수",
+    "skills": [
+      {
+        "skill_id": "archer_basic_attack",
+        "skill_name": "빠른 사격",
+        "skill_type": "projectile",
+        "animation_clip": "Assets/Animations/Archer/BasicAttack_Shot.anim",
+        "skill_data": {
+          "damage": 35,
+          "attack_range": 18.0,
+          "attack_speed": 1.5,
+          "cooldown": 0.0,
+          "mana_cost": 0,
+          "cast_time": 0.4,
+          "duration": 0.6
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": true,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 0.0
+        },
+        "projectile": {
+          "prefab_path": "Assets/Prefabs/Projectiles/Arrow_Normal.prefab",
+          "spawn_time": 0.3,
+          "speed": 30.0,
+          "lifetime": 2.0,
+          "penetrate": false,
+          "homing": false,
+          "gravity_affected": true,
+          "spawn_position": {
+            "x": 0.3,
+            "y": 1.5,
+            "z": 0.5
+          }
+        },
+        "effects": [
+          {
+            "effect_type": "muzzle_flash",
+            "effect_path": "Assets/Effects/Archer/Bow_Flash.prefab",
+            "spawn_time": 0.3,
+            "attach_to_target": false,
+            "duration": 0.2
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "draw",
+            "sound_path": "Assets/Sounds/Archer/Bow_Draw.wav",
+            "play_time": 0.0,
+            "volume": 0.6
+          },
+          {
+            "sound_type": "release",
+            "sound_path": "Assets/Sounds/Archer/Bow_Release.wav",
+            "play_time": 0.3,
+            "volume": 0.8
+          }
+        ]
+      },
+      {
+        "skill_id": "archer_skill_multishot",
+        "skill_name": "다중 사격",
+        "skill_type": "projectile",
+        "animation_clip": "Assets/Animations/Archer/Skill_Multishot.anim",
+        "skill_data": {
+          "damage": 40,
+          "attack_range": 18.0,
+          "attack_speed": 1.0,
+          "cooldown": 8.0,
+          "mana_cost": 25,
+          "cast_time": 0.8,
+          "duration": 1.0
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": ["archer_skill_explosive_arrow"],
+          "combo_window": 1.0,
+          "reset_time": 1.5
+        },
+        "multi_projectile": {
+          "projectile_count": 5,
+          "spread_angle": 30.0,
+          "prefab_path": "Assets/Prefabs/Projectiles/Arrow_Multi.prefab",
+          "spawn_time": 0.6,
+          "speed": 28.0,
+          "lifetime": 2.5,
+          "penetrate": true,
+          "max_penetrate_count": 2,
+          "spawn_position": {
+            "x": 0.3,
+            "y": 1.5,
+            "z": 0.5
+          }
+        },
+        "effects": [
+          {
+            "effect_type": "charge",
+            "effect_path": "Assets/Effects/Archer/Multi_Charge.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 0.6
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "charge",
+            "sound_path": "Assets/Sounds/Archer/Bow_Charge.wav",
+            "play_time": 0.0,
+            "volume": 0.7
+          },
+          {
+            "sound_type": "multi_release",
+            "sound_path": "Assets/Sounds/Archer/Multi_Release.wav",
+            "play_time": 0.6,
+            "volume": 1.0
+          }
+        ]
+      },
+      {
+        "skill_id": "archer_skill_explosive_arrow",
+        "skill_name": "폭발 화살",
+        "skill_type": "projectile",
+        "animation_clip": "Assets/Animations/Archer/Skill_Explosive_Arrow.anim",
+        "skill_data": {
+          "damage": 120,
+          "attack_range": 20.0,
+          "attack_speed": 1.0,
+          "cooldown": 12.0,
+          "mana_cost": 40,
+          "cast_time": 1.0,
+          "duration": 1.2
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 2.0
+        },
+        "projectile": {
+          "prefab_path": "Assets/Prefabs/Projectiles/Arrow_Explosive.prefab",
+          "spawn_time": 0.8,
+          "speed": 25.0,
+          "lifetime": 3.0,
+          "penetrate": false,
+          "homing": false,
+          "gravity_affected": true,
+          "spawn_position": {
+            "x": 0.3,
+            "y": 1.5,
+            "z": 0.5
+          },
+          "explosion": {
+            "radius": 6.0,
+            "damage": 120,
+            "knockback": 5.0,
+            "delay": 0.1
+          }
+        },
+        "effects": [
+          {
+            "effect_type": "trail",
+            "effect_path": "Assets/Effects/Archer/Explosive_Trail.prefab",
+            "spawn_time": 0.8,
+            "attach_to_target": false,
+            "duration": 3.0,
+            "attach_to_projectile": true
+          },
+          {
+            "effect_type": "explosion",
+            "effect_path": "Assets/Effects/Common/Explosion_Large.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 1.5,
+            "trigger_on_projectile_hit": true
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "charge",
+            "sound_path": "Assets/Sounds/Archer/Explosive_Charge.wav",
+            "play_time": 0.0,
+            "volume": 0.8
+          },
+          {
+            "sound_type": "launch",
+            "sound_path": "Assets/Sounds/Archer/Explosive_Launch.wav",
+            "play_time": 0.8,
+            "volume": 0.9
+          },
+          {
+            "sound_type": "explosion",
+            "sound_path": "Assets/Sounds/Impact/Large_Explosion.wav",
+            "play_time": 0.0,
+            "volume": 1.3,
+            "trigger_on_projectile_hit": true
+          }
+        ],
+        "camera_shake": {
+          "intensity": 0.8,
+          "duration": 0.6,
+          "start_time": 0.0,
+          "trigger_on_projectile_hit": true
+        }
+      },
+      {
+        "skill_id": "archer_skill_rain_of_arrows",
+        "skill_name": "화살 비",
+        "skill_type": "aoe",
+        "animation_clip": "Assets/Animations/Archer/Skill_Arrow_Rain.anim",
+        "skill_data": {
+          "damage": 25,
+          "attack_range": 25.0,
+          "attack_speed": 1.0,
+          "cooldown": 20.0,
+          "mana_cost": 60,
+          "cast_time": 1.2,
+          "duration": 4.0
+        },
+        "combo_info": {
+          "combo_index": -1,
+          "can_cancel": false,
+          "next_combo": [],
+          "combo_window": 0.0,
+          "reset_time": 2.0
+        },
+        "area_of_effect": {
+          "shape": "circle",
+          "radius": 10.0,
+          "target_type": "ground_target",
+          "spawn_delay": 1.5,
+          "offset": {
+            "x": 0.0,
+            "y": 15.0,
+            "z": 0.0
+          }
+        },
+        "multi_hit": {
+          "hit_count": 20,
+          "hit_interval": 0.2,
+          "damage_per_hit": 25,
+          "random_position": true,
+          "random_radius": 10.0
+        },
+        "effects": [
+          {
+            "effect_type": "indicator",
+            "effect_path": "Assets/Effects/Common/Ground_Circle_Red.prefab",
+            "spawn_time": 0.0,
+            "attach_to_target": false,
+            "duration": 1.5
+          },
+          {
+            "effect_type": "arrow_rain",
+            "effect_path": "Assets/Effects/Archer/Arrow_Rain.prefab",
+            "spawn_time": 1.5,
+            "attach_to_target": false,
+            "duration": 4.0
+          }
+        ],
+        "sounds": [
+          {
+            "sound_type": "whistle",
+            "sound_path": "Assets/Sounds/Archer/Arrow_Whistle.wav",
+            "play_time": 0.8,
+            "volume": 0.9
+          },
+          {
+            "sound_type": "impacts",
+            "sound_path": "Assets/Sounds/Archer/Multiple_Impacts.wav",
+            "play_time": 1.5,
+            "volume": 1.0,
+            "loop": true,
+            "loop_duration": 4.0
+          }
+        ]
+      }
+    ],
+    "passive_skills": [
+      {
+        "passive_id": "archer_passive_precision",
+        "passive_name": "정밀 사격",
+        "description": "치명타 확률이 15% 증가합니다",
+        "icon_path": "Assets/UI/Icons/Passive_Precision.png",
+        "stat_modifiers": {
+          "critical_chance": 0.15,
+          "critical_damage": 1.5
+        }
+      }
+    ]
+  }
+]

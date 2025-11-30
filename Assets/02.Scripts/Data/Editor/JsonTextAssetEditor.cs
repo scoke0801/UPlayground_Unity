@@ -4,75 +4,89 @@ using UnityEngine;
 [CustomEditor(typeof(TextAsset))]
 public class JsonTextAssetEditor : Editor
 {
-    private TextAsset textAsset;
-    private bool isJsonFile;
-    private Vector2 scrollPosition;
+    private TextAsset targetTextAsset;
+    private bool isJsonFileType;
+    private Vector2 previewScrollPosition;
+
+    private string cachedPreviewContent;
+    private const int MAX_PREVIEW_CHARACTER_COUNT = 7700;
 
     private void OnEnable()
     {
-        textAsset = target as TextAsset;
-        
-        // JSON 파일인지 확인
-        string assetPath = AssetDatabase.GetAssetPath(textAsset);
-        isJsonFile = !string.IsNullOrEmpty(assetPath) && assetPath.EndsWith(".json");
+        targetTextAsset = target as TextAsset;
+        if (targetTextAsset == null) return;
+
+        string assetFilePath = AssetDatabase.GetAssetPath(targetTextAsset);
+        isJsonFileType = !string.IsNullOrEmpty(assetFilePath) && assetFilePath.EndsWith(".json", System.StringComparison.OrdinalIgnoreCase);
+
+        if (isJsonFileType)
+        {
+            string fullJsonText = targetTextAsset.text;
+            
+            if (fullJsonText.Length > MAX_PREVIEW_CHARACTER_COUNT)
+            {
+                cachedPreviewContent = fullJsonText.Substring(0, MAX_PREVIEW_CHARACTER_COUNT) + 
+                                       $"\n\n... (생략됨. 전체 내용은 뷰어로 확인하세요. 전체 길이: {fullJsonText.Length:N0} 자)";
+            }
+            else
+            {
+                cachedPreviewContent = fullJsonText;
+            }
+        }
     }
 
     public override void OnInspectorGUI()
     {
         // JSON 파일이 아니면 기본 Inspector 표시
-        if (!isJsonFile)
+        if (!isJsonFileType)
         {
             DrawDefaultInspector();
             return;
         }
 
-        // 기존 JSON 미리보기 기능 유지
-        EditorGUILayout.LabelField("JSON 파일", EditorStyles.boldLabel);
-        EditorGUILayout.Space(5);
-        
-        // JSON 텍스트 미리보기
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MaxHeight(300));
-        EditorGUILayout.TextArea(textAsset.text, EditorStyles.wordWrappedLabel);
-        EditorGUILayout.EndScrollView();
-
-        // 구분선
-        EditorGUILayout.Space(10);
-        DrawUILine(Color.gray);
-        EditorGUILayout.Space(5);
-
-        // JSON Table Viewer 버튼
-        GUI.backgroundColor = new Color(0.7f, 0.9f, 1f);
+        // GUI 활성화 (TextAsset이 읽기 전용이라도 버튼은 동작해야 함)
         GUI.enabled = true;
+
         if (GUILayout.Button("JSON Table Viewer로 열기", GUILayout.Height(30)))
         {
-            OpenInTableViewer();
+            OpenJsonInTableViewer();
         }
-        GUI.backgroundColor = Color.white;
+
+        EditorGUILayout.Space(10);
+        RenderSeparatorLine(Color.gray);
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.LabelField("JSON 미리보기 (Read Only)", EditorStyles.boldLabel);
+        EditorGUILayout.Space(5);
+
+        previewScrollPosition = EditorGUILayout.BeginScrollView(previewScrollPosition, GUILayout.MaxHeight(300));
+        
+        EditorGUILayout.TextArea(cachedPreviewContent, EditorStyles.wordWrappedLabel);
+        
+        EditorGUILayout.EndScrollView();
         
         EditorGUILayout.Space(5);
     }
 
-    private void OpenInTableViewer()
+    private void OpenJsonInTableViewer()
     {
-        // JSON Table Viewer 창 열기
-        JSONTableViewer window = EditorWindow.GetWindow<JSONTableViewer>("JSON 테이블 뷰어");
-        window.Show();
-        
-        // 현재 선택된 JSON 파일 경로를 가져와서 자동으로 로드
-        string assetPath = AssetDatabase.GetAssetPath(textAsset);
-        string fullPath = System.IO.Path.GetFullPath(assetPath);
-        
-        // public LoadJSON 메서드를 통해 파일 로드
-        window.LoadJSONFromPath(fullPath);
+        // JSON 뷰어 윈도우 가져오기 또는 생성
+        JsonTextViewer viewerWindow = EditorWindow.GetWindow<JsonTextViewer>("JSON 테이블 뷰어");
+        viewerWindow.Show();
+
+        string assetRelativePath = AssetDatabase.GetAssetPath(targetTextAsset);
+        string assetAbsolutePath = System.IO.Path.GetFullPath(assetRelativePath);
+
+        viewerWindow.LoadJSONFromPath(assetAbsolutePath);
     }
 
-    private void DrawUILine(Color color, int thickness = 1, int padding = 10)
+    private void RenderSeparatorLine(Color lineColor, int lineThickness = 1, int verticalPadding = 10)
     {
-        Rect rect = EditorGUILayout.GetControlRect(GUILayout.Height(padding + thickness));
-        rect.height = thickness;
-        rect.y += padding / 2;
-        rect.x -= 2;
-        rect.width += 6;
-        EditorGUI.DrawRect(rect, color);
+        Rect lineRect = EditorGUILayout.GetControlRect(GUILayout.Height(verticalPadding + lineThickness));
+        lineRect.height = lineThickness;
+        lineRect.y += verticalPadding * 0.5f;
+        lineRect.x -= 2;
+        lineRect.width += 6;
+        EditorGUI.DrawRect(lineRect, lineColor);
     }
 }

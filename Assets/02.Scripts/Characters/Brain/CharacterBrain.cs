@@ -159,7 +159,7 @@ namespace Game.FSM
             }
     
             // 3. 공격 상태로 전환되면 공격 입력 상태를 None됩니다.
-            if (targetState is ComboAttackStateSO)
+            if (targetState is SkillActionStateSO)
             {
                 ConsumeInput();
             }

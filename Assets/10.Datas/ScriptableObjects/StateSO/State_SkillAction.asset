@@ -13,6 +13,13 @@ MonoBehaviour:
   m_Name: State_SkillAction
   m_EditorClassIdentifier: 
   Transitions: []
-  AnimationKey: 
-  FadeDuration: 0.2
-  CanRotate: 0
+  fadeDuration: 0.15
+  ComboAnimationKeys:
+  - LightAttack_1
+  - LightAttack_2
+  - LightAttack_3
+  - HeavyAttack_1
+  HitStart: 0.3
+  HitEnd: 0.6
+  UseHitBox: 1
+  ComboResetTime: 2

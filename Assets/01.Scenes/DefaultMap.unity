@@ -976,7 +976,7 @@ PrefabInstance:
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[4].transition._Clip
       value: 
-      objectReference: {fileID: 8993902097722301239, guid: 087e2a58683812747ad5f485e6380950, type: 3}
+      objectReference: {fileID: 8993902097722301239, guid: afb1748b550bdf04c8008a8fa38ef1b2, type: 3}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[5].transition._Clip
       value: 

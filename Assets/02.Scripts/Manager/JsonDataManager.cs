@@ -34,6 +34,12 @@ public class JsonDataManager : BaseManager<JsonDataManager>, IManager
         // Addressable 키로 스킬 데이터 로드
         yield return LoadSkillDataFromAddressable("SkillDataTable");
         
+        // 콤보 데이터 로드
+        yield return LoadComboDataFromAddressable("ComboDataTable");
+        
+        // 스킬 체인 데이터 로드
+        yield return LoadSkillChainDataFromAddressable("SkillChainDataTable");
+        
         // 다른 데이터 타입 로드 예시
         // yield return LoadJsonData<WeaponData>("Table_Weapon");
         // yield return LoadJsonData<EnemyData>("Table_Enemy");
@@ -86,6 +92,112 @@ public class JsonDataManager : BaseManager<JsonDataManager>, IManager
                 _repositories.Add(type, dic);
 
             Debug.Log($"[JsonDataManager] Loaded [SkillJsonData]: {dic.Count} items");
+        }
+        else
+        {
+            Debug.LogError($"[JsonDataManager] Failed to load Addressable: {addressableKey}, Status: {handle.Status}");
+        }
+        
+        Addressables.Release(handle);
+    }
+    
+    /// <summary>
+    /// 콤보 데이터 Addressable 로드 (ComboJsonData 전용)
+    /// </summary>
+    private IEnumerator LoadComboDataFromAddressable(string addressableKey)
+    {
+        var handle = Addressables.LoadAssetAsync<TextAsset>(addressableKey);
+        yield return handle;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            string json = handle.Result.text;
+            
+            // 콤보 데이터 파싱
+            ComboDataWrapper wrapper = JsonUtility.FromJson<ComboDataWrapper>(json);
+            
+            if (wrapper == null || wrapper.combos == null)
+            {
+                Debug.LogError($"[JsonDataManager] {addressableKey} 파싱 실패!");
+                Addressables.Release(handle);
+                yield break;
+            }
+            
+            // Dictionary 생성
+            Dictionary<int, ComboJsonData> dic = new Dictionary<int, ComboJsonData>();
+            foreach (var data in wrapper.combos)
+            {
+                if (!dic.ContainsKey(data.GetKey()))
+                {
+                    dic.Add(data.GetKey(), data);
+                }
+                else
+                {
+                    Debug.LogWarning($"[JsonDataManager] 중복된 콤보 ID: {data.GetKey()}");
+                }
+            }
+
+            // 저장소에 등록
+            Type type = typeof(ComboJsonData);
+            if (_repositories.ContainsKey(type))
+                _repositories[type] = dic;
+            else
+                _repositories.Add(type, dic);
+
+            Debug.Log($"[JsonDataManager] Loaded [ComboJsonData]: {dic.Count} items");
+        }
+        else
+        {
+            Debug.LogError($"[JsonDataManager] Failed to load Addressable: {addressableKey}, Status: {handle.Status}");
+        }
+        
+        Addressables.Release(handle);
+    }
+    
+    /// <summary>
+    /// 스킬 체인 데이터 Addressable 로드 (SkillChainData 전용)
+    /// </summary>
+    private IEnumerator LoadSkillChainDataFromAddressable(string addressableKey)
+    {
+        var handle = Addressables.LoadAssetAsync<TextAsset>(addressableKey);
+        yield return handle;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            string json = handle.Result.text;
+            
+            // 스킬 체인 데이터 파싱
+            SkillChainDataWrapper wrapper = JsonUtility.FromJson<SkillChainDataWrapper>(json);
+            
+            if (wrapper == null || wrapper.chains == null)
+            {
+                Debug.LogError($"[JsonDataManager] {addressableKey} 파싱 실패!");
+                Addressables.Release(handle);
+                yield break;
+            }
+            
+            // Dictionary 생성
+            Dictionary<int, SkillChainData> dic = new Dictionary<int, SkillChainData>();
+            foreach (var data in wrapper.chains)
+            {
+                if (!dic.ContainsKey(data.GetKey()))
+                {
+                    dic.Add(data.GetKey(), data);
+                }
+                else
+                {
+                    Debug.LogWarning($"[JsonDataManager] 중복된 스킬 체인 ID: {data.GetKey()}");
+                }
+            }
+
+            // 저장소에 등록
+            Type type = typeof(SkillChainData);
+            if (_repositories.ContainsKey(type))
+                _repositories[type] = dic;
+            else
+                _repositories.Add(type, dic);
+
+            Debug.Log($"[JsonDataManager] Loaded [SkillChainData]: {dic.Count} items");
         }
         else
         {

@@ -184,6 +184,12 @@ public class UIManager : BaseManager<UIManager>, IManager
     /// <returns>생성된 UI GameObject</returns>
     public GameObject ShowUI(GameObject uiPrefab, CanvasLayer layer, string uiName = null)
     {
+        // 활성 UI에 존재하면 바로 반환
+        if (_activeUIObjects.TryGetValue(uiName, out var ui))
+        {
+            return ui;
+        }
+        
         if (uiPrefab == null)
         {
             Debug.LogError("[UIManager] UI 프리팹이 null입니다.");
@@ -215,7 +221,7 @@ public class UIManager : BaseManager<UIManager>, IManager
         _activeUIObjects.Add(finalName, uiInstance);
 
         // UI_Base 컴포넌트가 있으면 자동으로 관리
-        UI_Base uiBase = uiInstance.GetComponent<UI_Base>();
+        UI_Base uiBase = uiInstance.GetComponentInChildren<UI_Base>();
         if (uiBase != null)
         {
             _activeUIComponents.Add(finalName, uiBase);
@@ -266,7 +272,7 @@ public class UIManager : BaseManager<UIManager>, IManager
     }
     
     /// <summary>
-    /// UI를 이름으로 숨기기 (삭제)
+    /// UI를 이름으로 숨기기
     /// </summary>
     public void HideUI(string uiName)
     {
@@ -281,9 +287,39 @@ public class UIManager : BaseManager<UIManager>, IManager
                     _uiByType.Remove(uiBase.GetType());
                 }
 
+                uiBase.Hide();
+            }
+            else
+            {
+                // UI_Base가 아닌 경우 직접 숨김
+                uiObj.SetActive(false);
+            }
+
+            Debug.Log($"[UIManager] '{uiName}' UI를 숨김처리 했습니다.");
+        }
+        else
+        {
+            Debug.LogWarning($"[UIManager] '{uiName}' UI를 찾을 수 없습니다.");
+        }
+    }
+
+    /// <summary>
+    /// UI를 이름으로 삭제
+    /// </summary>
+    public void CloseUI(string uiName)
+    {
+        if (_activeUIObjects.TryGetValue(uiName, out GameObject uiObj))
+        {
+            // UI_Base 컴포넌트가 있으면 먼저 정리
+            if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
+            {
+                // 타입별 추적에서 제거
+                if (_uiByType.ContainsKey(uiBase.GetType()) && _uiByType[uiBase.GetType()] == uiBase)
+                {
+                    _uiByType.Remove(uiBase.GetType());
+                }
+
                 _activeUIComponents.Remove(uiName);
-                
-                // UI_Base의 Close 메서드 호출 (자동으로 Destroy 됨)
                 uiBase.Close();
             }
             else
@@ -293,6 +329,7 @@ public class UIManager : BaseManager<UIManager>, IManager
             }
 
             _activeUIObjects.Remove(uiName);
+
             Debug.Log($"[UIManager] '{uiName}' UI를 제거했습니다.");
         }
         else
@@ -300,7 +337,6 @@ public class UIManager : BaseManager<UIManager>, IManager
             Debug.LogWarning($"[UIManager] '{uiName}' UI를 찾을 수 없습니다.");
         }
     }
-
     /// <summary>
     /// 활성화된 UI 가져오기
     /// </summary>

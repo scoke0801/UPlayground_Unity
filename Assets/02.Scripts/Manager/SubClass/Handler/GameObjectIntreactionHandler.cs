@@ -1,15 +1,14 @@
 ﻿
 using System.Collections.Generic;
-using Animancer;
 using UnityEngine;
 
 public class GameObjectInteractionHandler
 {
     private InteractionConfig _config;
     private bool _isInitialized = false;
-    private GameObject _iconPrefab; 
-    
-    private Dictionary<Transform, GameObject> activeIcons = new Dictionary<Transform, GameObject>();
+
+    private UI_Base _activeIcon;
+    private RectTransform _activeIconRect;
     
     private Camera _camera;
     public GameObjectInteractionHandler()
@@ -24,6 +23,7 @@ public class GameObjectInteractionHandler
         
         _camera = Camera.main;
     }
+
     public void OnUpdate()
     {
         if (_isInitialized == false)
@@ -32,8 +32,12 @@ public class GameObjectInteractionHandler
         }
 
         Vector3 playerPosition = GameObjectManager.Instance.Player.transform.position;
-        Collider[] nearbyObjects = Physics.OverlapSphere(playerPosition, _config.checkRadius, _config.interactableLayer);
+        Collider[] nearbyObjects =
+            Physics.OverlapSphere(playerPosition, _config.checkRadius, _config.interactableLayer);
         HashSet<Transform> currentObjects = new HashSet<Transform>();
+
+        Transform closestObject = null;
+        float closestDistance = float.MaxValue;
 
         foreach (Collider obj in nearbyObjects)
         {
@@ -41,54 +45,59 @@ public class GameObjectInteractionHandler
 
             float distance = Vector3.Distance(playerPosition, targetTransform.position);
 
-            if (distance <= _config.activationDistance)
+            if (distance <= _config.activationDistance && distance < closestDistance)
             {
+                closestObject = targetTransform;
+                closestDistance = distance;
                 Debug.Log("Find InteractionObject");
                 ShowIcon(targetTransform);
                 currentObjects.Add(targetTransform);
             }
         }
-        
-        List<Transform> toRemove = new List<Transform>();
-        foreach (var iconEntry in activeIcons)
-        {
-            if (!currentObjects.Contains(iconEntry.Key))
-            {
-                iconEntry.Value.GetComponentInChildren<UI_InteractionKey>().AnimationChange("Out");
-                GameObject.Destroy(iconEntry.Value);
-                toRemove.Add(iconEntry.Key);
-            }
-        }
 
-        foreach (Transform transformToRemove in toRemove)
+        if (closestObject != null)
         {
-            activeIcons.Remove(transformToRemove);
+            ShowIcon(closestObject);
         }
-        
+        else if(_activeIcon != null && _activeIcon.IsVisible)
+        {
+            _activeIcon.AnimationChange("Out");
+        }
     }
 
     private void ShowIcon(Transform targetTransform)
     {
-        if (activeIcons.ContainsKey(targetTransform))
+        if (_activeIcon != null)
         {
-            UpdateIconPosition(targetTransform, activeIcons[targetTransform]);
+            UpdateIconPosition(targetTransform);
+            if (_activeIcon.IsVisible == false)
+            {
+                _activeIcon.Show();
+                _activeIcon.AnimationChange("On");
+            }
             return;
         }
 
-        GameObject icon = UIManager.Instance.ShowUI("InteractionKeyUI", CanvasLayer.Normal);
-        activeIcons[targetTransform] = icon;
+        GameObject iconObject = UIManager.Instance.ShowUI("InteractionKeyUI", CanvasLayer.Normal);
+        _activeIcon = iconObject.GetComponentInChildren<UI_Base>();
+        _activeIconRect = iconObject.GetComponent<RectTransform>();
         
-        UpdateIconPosition(targetTransform, icon);
+        UpdateIconPosition(targetTransform);
     }
 
-    private void UpdateIconPosition(Transform targetTransform, GameObject icon)
+    private void UpdateIconPosition(Transform targetTransform)
     {
+        if (_activeIcon == null || _activeIcon.IsVisible == false)
+        {
+            return;
+        }
+        
         Vector3 screenPositon = _camera.WorldToScreenPoint(new Vector3(
             targetTransform.position.x,
             targetTransform.position.y + 1.5f,
             targetTransform.position.z));
-        var rt = icon.GetComponent<RectTransform>();
-        rt.position = screenPositon;
-        rt.localScale = Vector3.one;
+        
+        _activeIconRect.position = screenPositon;
+        _activeIconRect.localScale = Vector3.one;
     }
 }

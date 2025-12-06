@@ -15,6 +15,8 @@ public abstract class UI_Base : MonoBehaviour
     protected CanvasGroup _canvasGroup;
     protected RectTransform _rectTransform;
 
+    [SerializeField]protected Animator _animator;
+    
     #endregion
 
     #region 속성
@@ -170,6 +172,14 @@ public abstract class UI_Base : MonoBehaviour
     #endregion
 
     #region 유틸리티
+
+    public void AnimationChange(string animKey)
+    {
+        if (_animator)
+        {
+            _animator.SetTrigger(animKey);
+        }
+    }
 
     /// <summary>
     /// 페이드 인 효과

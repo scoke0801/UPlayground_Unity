@@ -23,6 +23,10 @@ namespace Game.FSM
         private InputBuffer _inputBuffer;
         private Camera _cachedCamera;
 
+        // state
+        public bool IsOnInteraction { get; private set; }
+        public bool IsInteractionPressed { get; private set; }
+        
         protected override void Awake()
         {
             base.Awake();
@@ -45,6 +49,13 @@ namespace Game.FSM
             }
 
             SubscribeToInputEvents();
+            SubscribeToEvent();
+        }
+
+        private void SubscribeToEvent()
+        {
+            GameObjectManager.Instance.OnInteractionOn += OnInterfaction;
+            GameObjectManager.Instance.OnInteractionOut += OnInteractionOut;
         }
 
         private void SubscribeToInputEvents()
@@ -61,6 +72,8 @@ namespace Game.FSM
             
             // 차징 스킬용
             inputReader.OnSkillReleased += (index) => _inputBuffer.AddInput($"Skill{index}Released");
+            
+            inputReader.OnInteractEvent += () => _inputBuffer.AddInput("Interact");
         }
 
         protected override void HandleInput()
@@ -162,6 +175,12 @@ namespace Game.FSM
                 SetAttackInput(AttackInputType.Light);
                 _inputBuffer.ConsumeInput("Attack");
             }
+
+            if (_inputBuffer.HasInput("Interact"))
+            {
+                SetInteractionInput(true);
+                _inputBuffer.ConsumeInput("Interact");
+            }
         }
         
         /// <summary>
@@ -226,6 +245,17 @@ namespace Game.FSM
             // 이 시점에서는 상태 전환이 일어나지 않으므로 false를 반환합니다.
             // 상태 전환은 CurrentState의 OnUpdate(예: SkillChargeStateSO)에서 일어납니다.
             return false; 
+        }
+        
+        private void OnInterfaction()
+        {
+            IsOnInteraction = true;
+            // 별도 상태로 변경해도 괜찮을 것 같다.
+        }
+
+        private void OnInteractionOut()
+        {
+            IsOnInteraction = false;
         }
     }
 }

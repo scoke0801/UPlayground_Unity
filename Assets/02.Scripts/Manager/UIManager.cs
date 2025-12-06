@@ -185,9 +185,16 @@ public class UIManager : BaseManager<UIManager>, IManager
     public GameObject ShowUI(GameObject uiPrefab, CanvasLayer layer, string uiName = null)
     {
         // 활성 UI에 존재하면 바로 반환
-        if (_activeUIObjects.TryGetValue(uiName, out var ui))
+        if (_activeUIObjects.TryGetValue(uiName, out var uiObject))
         {
-            return ui;
+            UI_Base ui = uiObject.GetComponentInChildren<UI_Base>();
+            if (ui != null)
+            {
+                ui.Initialize();
+                ui.Show();
+            }
+            
+            return uiObject;
         }
         
         if (uiPrefab == null)

@@ -11,6 +11,9 @@ public class GameObjectInteractionHandler
     private RectTransform _activeIconRect;
     
     private Camera _camera;
+
+    private Transform _closestObject;
+    
     public GameObjectInteractionHandler()
     {
         Init();
@@ -22,6 +25,9 @@ public class GameObjectInteractionHandler
         _isInitialized = true;
         
         _camera = Camera.main;
+        _closestObject = null;
+        GameObjectManager.Instance.OnInteractionOn += OnInteractionOn;
+        GameObjectManager.Instance.OnInteractionOut += OnInteractionOut;
     }
 
     public void OnUpdate()
@@ -31,12 +37,17 @@ public class GameObjectInteractionHandler
             return;
         }
 
+        if (GameObjectManager.Instance.IsPlayerInteracting())
+        {
+            return;
+        }
+
         Vector3 playerPosition = GameObjectManager.Instance.Player.transform.position;
         Collider[] nearbyObjects =
             Physics.OverlapSphere(playerPosition, _config.checkRadius, _config.interactableLayer);
         HashSet<Transform> currentObjects = new HashSet<Transform>();
 
-        Transform closestObject = null;
+        _closestObject = null;
         float closestDistance = float.MaxValue;
 
         foreach (Collider obj in nearbyObjects)
@@ -47,7 +58,7 @@ public class GameObjectInteractionHandler
 
             if (distance <= _config.activationDistance && distance < closestDistance)
             {
-                closestObject = targetTransform;
+                _closestObject = targetTransform;
                 closestDistance = distance;
                 Debug.Log("Find InteractionObject");
                 ShowIcon(targetTransform);
@@ -55,11 +66,23 @@ public class GameObjectInteractionHandler
             }
         }
 
-        if (closestObject != null)
+        if (_closestObject != null)
         {
-            ShowIcon(closestObject);
+            ShowIcon(_closestObject);
         }
-        else if(_activeIcon != null && _activeIcon.IsVisible)
+        else
+        {
+            RemoveIcon();
+        }
+    }
+
+    public bool IsInteractionTargetExist()
+    {
+        return _closestObject != null;
+    }
+    private void RemoveIcon()
+    {
+        if(_activeIcon != null && _activeIcon.IsVisible)
         {
             _activeIcon.AnimationChange("Out");
         }
@@ -73,7 +96,6 @@ public class GameObjectInteractionHandler
             if (_activeIcon.IsVisible == false)
             {
                 _activeIcon.Show();
-                _activeIcon.AnimationChange("On");
             }
             return;
         }
@@ -99,5 +121,16 @@ public class GameObjectInteractionHandler
         
         _activeIconRect.position = screenPositon;
         _activeIconRect.localScale = Vector3.one;
+    }
+
+    private void OnInteractionOn()
+    {
+        UIManager.Instance.ShowUI("InteractionHPBoard", CanvasLayer.Normal);
+        
+    }
+
+    private void OnInteractionOut()
+    {
+        _closestObject = null;
     }
 }

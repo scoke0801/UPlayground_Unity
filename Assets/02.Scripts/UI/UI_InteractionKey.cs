@@ -6,8 +6,7 @@ public class UI_InteractionKey : UI_Base
 {
     protected override void OnShow()
     {
-        base.OnShow();
-        
+        AnimationChange("On");
         InputManager.Instance.InteractAction.performed += OnInteract;
     }
 
@@ -32,7 +31,6 @@ public class UI_InteractionKey : UI_Base
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        UIManager.Instance.ShowUI("InteractionHPBoard", CanvasLayer.Normal);
         Hide();
     }
 }

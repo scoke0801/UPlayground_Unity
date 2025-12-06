@@ -39,6 +39,8 @@ namespace Game.FSM
         public bool IsJumpPressed { get; private set; }
         public bool IsDodgePressed { get; private set; }
 
+        public bool IsInteractionPressed { get; private set; }
+        
         protected virtual void Awake()
         {
             Animancer = GetComponent<AnimancerComponent>();
@@ -90,10 +92,12 @@ namespace Game.FSM
         protected void SetAttackInput(AttackInputType type) => CurrentInput = type;
         protected void SetJumpInput(bool active) => IsJumpPressed = active;
         protected void SetDodgeInput(bool active) => IsDodgePressed = active;
+        protected void SetInteractionInput(bool active) => IsInteractionPressed = active;
 
         public void ConsumeInput()
         {
             CurrentInput = AttackInputType.None;
+            SetInteractionInput(false);
         }
 
         public void ChangeState(StateSO newState)
@@ -150,19 +154,17 @@ namespace Game.FSM
             if (targetState is JumpStateSO)
             {
                 SetJumpInput(false); 
+                return;
             }
     
             // 2. 회피 상태로 전환되면 회피 입력 상태를 false
             if (targetState is DodgeStateSO)
             {
                 SetDodgeInput(false);
+                return;
             }
     
-            // 3. 공격 상태로 전환되면 공격 입력 상태를 None됩니다.
-            if (targetState is SkillActionStateSO)
-            {
-                ConsumeInput();
-            }
+            ConsumeInput();
         }
         
         public bool IsGrounded()

@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79eaa17cbcf44ca1ad535fe8ea2949e5, type: 3}
-  m_Name: State_Locomotion
+  m_Script: {fileID: 11500000, guid: 28c5428a25d143739000384b8effd74a, type: 3}
+  m_Name: State_LifeInteraction
   m_EditorClassIdentifier: 
   Transitions:
   - Condition: {fileID: 11400000, guid: d06129f92dc6f544bb1bab1497346f6e, type: 2}
@@ -25,11 +25,8 @@ MonoBehaviour:
   - Condition: {fileID: 11400000, guid: 502b5ef93658b57409749394627b97ee, type: 2}
     TargetState: {fileID: 11400000, guid: 93e79752a344d22458a6f27d8124a7e4, type: 2}
     ConsumeInputOnTransition: 1
-  - Condition: {fileID: 11400000, guid: dce688787d200594a8831bf345609aef, type: 2}
-    TargetState: {fileID: 11400000, guid: da378e435c252a8448db77993780d4cf, type: 2}
+  - Condition: {fileID: 11400000, guid: 502b5ef93658b57409749394627b97ee, type: 2}
+    TargetState: {fileID: 11400000, guid: 93e79752a344d22458a6f27d8124a7e4, type: 2}
     ConsumeInputOnTransition: 1
-  MoveSpeed: 6
-  RotationSpeed: 15
-  MixerKey: Locomotion
-  fadeDuration: 0.1
-  FallState: {fileID: 0}
+  lifeInteractionType: 1
+  LocomotionState: {fileID: 0}

@@ -475,7 +475,7 @@ Transform:
   m_GameObject: {fileID: 860765914}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5710718, y: 0, z: 0, w: 0.82090014}
-  m_LocalPosition: {x: 0, y: 4, z: -1.3}
+  m_LocalPosition: {x: 0, y: 5.11, z: -1.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -985,7 +985,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.size
-      value: 12
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[5].key
@@ -1014,6 +1014,14 @@ PrefabInstance:
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[11].key
       value: HeavyAttack_4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[12].key
+      value: WOODCUTTING
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[13].key
+      value: MINING
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: mixerAnimations.Array.data[0].mixer._Speed
@@ -1052,6 +1060,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8993902097722301239, guid: 10b21c5af5fe6ab4bb113ebe4b759d86, type: 3}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[12].transition._Clip
+      value: 
+      objectReference: {fileID: 7400000, guid: 0b6a55f97efdec244a2e68d42cccbc68, type: 2}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[13].transition._Clip
+      value: 
+      objectReference: {fileID: -8563933113787661426, guid: b603cd9f7a4bca74281821e335157aa2, type: 3}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[5].transition._Speed
       value: 1
       objectReference: {fileID: 0}
@@ -1077,6 +1093,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[11].transition._Speed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[12].transition._Speed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[13].transition._Speed
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
@@ -1112,6 +1136,14 @@ PrefabInstance:
       value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[12].transition._FadeDuration
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[13].transition._FadeDuration
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[5].transition._NormalizedStartTime
       value: NaN
       objectReference: {fileID: 0}
@@ -1137,6 +1169,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
       propertyPath: clipAnimations.Array.data[11].transition._NormalizedStartTime
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[12].transition._NormalizedStartTime
+      value: NaN
+      objectReference: {fileID: 0}
+    - target: {fileID: 4303631415355396701, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}
+      propertyPath: clipAnimations.Array.data[13].transition._NormalizedStartTime
       value: NaN
       objectReference: {fileID: 0}
     - target: {fileID: 5663461623337081518, guid: 4affbaf3ee4081541a4e9596a6d1846d, type: 3}

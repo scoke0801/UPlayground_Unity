@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// MonoBehaviour 기반 싱글톤 베이스 클래스
@@ -97,4 +101,5 @@ public class BaseManager<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
     #endif
+
 }

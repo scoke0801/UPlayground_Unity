@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// 모든 매니저를 관리하는 최상위 매니저
@@ -40,6 +43,7 @@ public class GameManager : BaseManager<GameManager>
         // RegisterManager(SoundManager.Instance);     // 사운드 관리
         RegisterManager(UIManager.Instance);           // UI 관리
         RegisterManager(JsonDataManager.Instance);
+        RegisterManager(GameObjectManager.Instance);
         
         _isInitialized = true;
         
@@ -148,4 +152,25 @@ public class GameManager : BaseManager<GameManager>
         
         base.OnDestroy();
     }
+    
+    
+    #region  Util
+
+    public static async Task<T> LoadAddressableAsync<T>(string addressableKey)
+    {
+        var handle = Addressables.LoadAssetAsync<T>(addressableKey);
+        await handle.Task;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            return handle.Result;
+        }
+        else
+        {
+            Debug.LogError($"Failed to load Addressable: {addressableKey}, Status: {handle.Status}");
+            return default(T);
+        }
+    }
+
+    #endregion
 }

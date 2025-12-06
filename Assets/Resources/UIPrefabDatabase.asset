@@ -17,3 +17,7 @@ MonoBehaviour:
     prefab: {fileID: 7909205799143995593, guid: 686fefc66561a8145a0d80c6168e223b, type: 3}
     defaultLayer: 1
     description: 
+  - key: InteractionKeyUI
+    prefab: {fileID: 3283549912916363737, guid: 938097543b101ed4493ab914714a1d17, type: 3}
+    defaultLayer: 2
+    description: 

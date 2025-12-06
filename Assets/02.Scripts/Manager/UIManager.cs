@@ -140,11 +140,13 @@ public class UIManager : BaseManager<UIManager>, IManager
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = (int)layer * SORTING_ORDER_GAP;
+        
 
         // CanvasScaler 추가 (해상도 대응)
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+        scaler.referenceResolution = new Vector2(2560, 1440);
         scaler.matchWidthOrHeight = 0.5f;
 
         // GraphicRaycaster 추가 (UI 입력 처리)

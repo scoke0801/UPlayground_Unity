@@ -538,46 +538,12 @@ public class UIManager : BaseManager<UIManager>, IManager
     /// </summary>
     public bool IsUIActive(string uiName)
     {
-        return _activeUIObjects.ContainsKey(uiName);
-    }
-
-    /// <summary>
-    /// 활성 UI 개수 (모든 UI)
-    /// </summary>
-    public int GetActiveUICount()
-    {
-        return _activeUIObjects.Count;
-    }
-
-    /// <summary>
-    /// 활성 UI_Base 개수
-    /// </summary>
-    public int GetActiveUIBaseCount()
-    {
-        return _activeUIComponents.Count;
-    }
-
-    /// <summary>
-    /// 특정 레이어의 활성 UI 개수
-    /// </summary>
-    public int GetActiveUICountInLayer(CanvasLayer layer)
-    {
-        Canvas targetCanvas = GetCanvas(layer);
-        if (targetCanvas == null)
+        if (_activeUIComponents.TryGetValue(uiName, out UI_Base ui))
         {
-            return 0;
+            return ui.IsVisible;
         }
 
-        int count = 0;
-        foreach (var uiObj in _activeUIObjects.Values)
-        {
-            if (uiObj != null && uiObj.transform.parent == targetCanvas.transform)
-            {
-                count++;
-            }
-        }
-
-        return count;
+        return false;
     }
 
     #endregion

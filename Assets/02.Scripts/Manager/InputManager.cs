@@ -123,13 +123,16 @@ public class InputManager : BaseManager<InputManager>, IManager
             CancelAction.performed += OnCancelPerformed;
         }
         
+        InputSystem.onDeviceChange += OnDeviceChange;
+        
         // 게임플레이 모드로 시작
         currentMode = InputMode.None;
         SwitchToGameplay();
         
         Debug.Log("[InputManager] 초기화 완료");
     }
-    
+
+
     public void Dispose()
     {
         Debug.Log("[InputManager] 정리 시작");
@@ -144,7 +147,7 @@ public class InputManager : BaseManager<InputManager>, IManager
         {
             CancelAction.performed -= OnCancelPerformed;
         }
-        
+        InputSystem.onDeviceChange -= OnDeviceChange;
         // 모든 액션 비활성화
         gameplayActionMap?.Disable();
         uiActionMap?.Disable();
@@ -160,6 +163,49 @@ public class InputManager : BaseManager<InputManager>, IManager
     
     #region 입력 모드 전환
     
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (!(device is Gamepad gamepad))
+            return;
+        
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+                HandleGamepadConnected(gamepad);
+                break;
+
+            case InputDeviceChange.Removed:
+                HandleGamepadDisconnected(gamepad);
+                break;
+        }
+    }
+    /// <summary>
+    /// 게임패드 연결 처리
+    /// </summary>
+    private void HandleGamepadConnected(Gamepad gamepad)
+    {
+        Debug.Log($"[게임패드 연결] {gamepad.displayName} (ID: {gamepad.deviceId})");
+        
+    }
+
+    /// <summary>
+    /// 게임패드 해제 처리
+    /// </summary>
+    private void HandleGamepadDisconnected(Gamepad gamepad)
+    {
+        Debug.Log($"[게임패드 해제] {gamepad.displayName} (ID: {gamepad.deviceId})");
+    }
+
+    /// <summary>
+    /// 초기 연결된 게임패드 확인
+    /// </summary>
+    private void CheckInitialGamepads()
+    {
+        foreach (var gamepad in Gamepad.all)
+        {
+            Debug.Log($"[초기 게임패드] {gamepad.displayName} 이미 연결됨");
+        }
+    }
     /// <summary>
     /// 게임플레이 모드로 전환
     /// </summary>
@@ -254,24 +300,19 @@ public class InputManager : BaseManager<InputManager>, IManager
         // UI 모드로 전환
         SwitchToUI();
 
-        // 방법 1: UIPrefabDatabase 사용 (권장)
-        GameObject menuObj = UIManager.Instance.ShowUI("PauseMenu", CanvasLayer.Popup);
+        GameObject menuObj = UIManager.Instance.ShowUI("PauseMenu", CanvasLayer.Scene);
         
-        // 방법 2: Resources 직접 로드 (Database에 없을 경우 대체)
         if (menuObj == null)
         {
-            GameObject pauseMenuPrefab = Resources.Load<GameObject>("UI/PauseMenu");
-            if (pauseMenuPrefab != null)
-            {
-                UIManager.Instance.ShowUI(pauseMenuPrefab, CanvasLayer.Popup, "PauseMenu");
-                Debug.Log("[InputManager] Resources에서 PauseMenu를 로드했습니다.");
-            }
-            else
-            {
-                Debug.LogError("[InputManager] PauseMenu 프리팹을 찾을 수 없습니다!");
-            }
+            Debug.LogError("[InputManager] PauseMenu 프리팹을 찾을 수 없습니다!");
+            return;
         }
 
+        UI_Base ui = menuObj.GetComponent<UI_Base>();
+        if (ui != null)
+        {
+            ui.AnimationChange("Open");
+        }
         // 게임 일시정지 (선택사항 - 필요에 따라 주석 해제)
         // Time.timeScale = 0f;
         
@@ -283,7 +324,12 @@ public class InputManager : BaseManager<InputManager>, IManager
     /// </summary>
     private void ClosePauseMenu()
     {
-        UIManager.Instance.HideUI("PauseMenu");
+        UI_Base ui = UIManager.Instance.GetUI<UI_Base>("PauseMenu");
+        
+        if (ui != null)
+        {
+            ui.AnimationChange("Close");
+        }
         
         // 게임플레이 모드로 복귀
         SwitchToGameplay();

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// 일시정지 메뉴 UI
 /// </summary>
-public class PauseMenuUI : MonoBehaviour
+public class UI_PauseMenu : UI_Base
 {
     [Header("UI 버튼")]
     [SerializeField] private Button resumeButton;

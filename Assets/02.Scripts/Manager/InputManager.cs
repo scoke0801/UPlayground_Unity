@@ -23,6 +23,8 @@ public class InputManager : BaseManager<InputManager>, IManager
     public InputAction HeavyAttackAction { get; private set; }
     public InputAction InteractAction { get; private set; }
     public InputAction PauseAction { get; private set; }
+    public InputAction InventoryAction { get; private set; }
+    public InputAction UiInventoryAction { get; private set; }
     
     // Skill Actions (명조 스타일)
     public InputAction Skill1Action { get; private set; }
@@ -86,6 +88,8 @@ public class InputManager : BaseManager<InputManager>, IManager
         HeavyAttackAction = gameplayActionMap.FindAction("HeavyAttack");
         InteractAction = gameplayActionMap.FindAction("Interact");
         PauseAction = gameplayActionMap.FindAction("Pause");
+        InventoryAction = gameplayActionMap.FindAction("Inventory");
+        UiInventoryAction = uiActionMap.FindAction("Inventory");
         
         // Skill Actions 초기화
         Skill1Action = gameplayActionMap.FindAction("Skill1");
@@ -122,6 +126,15 @@ public class InputManager : BaseManager<InputManager>, IManager
         {
             CancelAction.performed += OnCancelPerformed;
         }
+
+        if (InventoryAction != null)
+        {
+            InventoryAction.performed += OnInventoryPerformed;
+        }
+        if (UiInventoryAction != null)
+        {
+            UiInventoryAction.performed += OnInventoryPerformed;
+        }
         
         InputSystem.onDeviceChange += OnDeviceChange;
         
@@ -147,6 +160,17 @@ public class InputManager : BaseManager<InputManager>, IManager
         {
             CancelAction.performed -= OnCancelPerformed;
         }
+        
+        if (InventoryAction != null)
+        {
+            InventoryAction.performed -= OnInventoryPerformed;
+        }
+
+        if (UiInventoryAction != null)
+        {
+            UiInventoryAction.performed -= OnInventoryPerformed;
+        }
+
         InputSystem.onDeviceChange -= OnDeviceChange;
         // 모든 액션 비활성화
         gameplayActionMap?.Disable();
@@ -292,6 +316,25 @@ public class InputManager : BaseManager<InputManager>, IManager
         }
     }
 
+    private void OnInventoryPerformed(InputAction.CallbackContext obj)
+    {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogWarning("[InputManager] UIManager가 없어서 일시정지 메뉴를 표시할 수 없습니다.");
+            return;
+        }
+
+        // 토글 방식: 이미 메뉴가 열려있으면 닫기
+        if (UIManager.Instance.IsUIActive("Inventory"))
+        {
+            CloseInventory();
+        }
+        else
+        {
+            OpenInventory();
+        }
+    }
+
     /// <summary>
     /// 일시정지 메뉴 열기
     /// </summary>
@@ -339,7 +382,47 @@ public class InputManager : BaseManager<InputManager>, IManager
         
         Debug.Log("[InputManager] 일시정지 메뉴 닫힘");
     }
+    private void OpenInventory()
+    {
+        // UI 모드로 전환
+        SwitchToUI();
 
+        GameObject menuObj = UIManager.Instance.ShowUI("Inventory", CanvasLayer.Scene);
+        
+        if (menuObj == null)
+        {
+            Debug.LogError("[InputManager] Inventory 프리팹을 찾을 수 없습니다!");
+            return;
+        }
+
+        UI_Base ui = menuObj.GetComponent<UI_Base>();
+        if (ui != null)
+        {
+            ui.AnimationChange("Open");
+        }
+        // 게임 일시정지 (선택사항 - 필요에 따라 주석 해제)
+        // Time.timeScale = 0f;
+        
+        Debug.Log("[InputManager] 인벤토리열림");
+    }
+    private void CloseInventory()
+    {
+        UI_Base ui = UIManager.Instance.GetUI<UI_Base>("Inventory");
+        
+        if (ui != null)
+        {
+            ui.AnimationChange("Close");
+        }
+        
+        // 게임플레이 모드로 복귀
+        SwitchToGameplay();
+
+        // 게임 재개
+        // Time.timeScale = 1f;
+        
+        Debug.Log("[InputManager] 인벤토리 닫힘");
+    }
+    
     /// <summary>
     /// 외부에서 일시정지 메뉴를 닫을 수 있도록 public 메서드 제공
     /// (UI의 Resume 버튼 등에서 호출)

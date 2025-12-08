@@ -26,6 +26,6 @@ MonoBehaviour:
     defaultLayer: 1
     description: 
   - key: Inventory
-    prefab: {fileID: 2086487908833178408, guid: 854d7bd0e65e07d469ffc56f6872967b, type: 3}
+    prefab: {fileID: 8452695791944074991, guid: 58e11420107a70047a5908f02d305384, type: 3}
     defaultLayer: 1
     description: 

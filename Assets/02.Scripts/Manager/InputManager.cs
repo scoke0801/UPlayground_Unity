@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,6 +39,9 @@ public class InputManager : BaseManager<InputManager>, IManager
     public InputAction SubmitAction { get; private set; }
     public InputAction CancelAction { get; private set; }
     public InputAction PointAction { get; private set; }
+    
+    // Test Action
+    public InputAction HoldAction { get; private set; }
     
     // 현재 모드
     private InputMode currentMode = InputMode.None;
@@ -103,6 +108,8 @@ public class InputManager : BaseManager<InputManager>, IManager
         CancelAction = uiActionMap.FindAction("Cancel");
         PointAction = uiActionMap.FindAction("Point");
         
+        HoldAction = gameplayActionMap.FindAction("HoldTest");
+        
         // 액션 유효성 검사
         if (MoveAction == null) Debug.LogWarning("[InputManager] Move 액션을 찾을 수 없습니다!");
         if (LookAction == null) Debug.LogWarning("[InputManager] Look 액션을 찾을 수 없습니다!");
@@ -137,12 +144,30 @@ public class InputManager : BaseManager<InputManager>, IManager
         }
         
         InputSystem.onDeviceChange += OnDeviceChange;
-        
+
+        HoldAction.started += OnHoldStarted;
+        HoldAction.performed += OnHoldPerformed;
+        HoldAction.canceled += OnHoldCanceled;
         // 게임플레이 모드로 시작
         currentMode = InputMode.None;
         SwitchToGameplay();
         
         Debug.Log("[InputManager] 초기화 완료");
+    }
+
+    private void OnHoldCanceled(InputAction.CallbackContext obj)
+    {
+        Debug.Log("[InputManager] OnHoldCanceled");
+    }
+
+    private void OnHoldPerformed(InputAction.CallbackContext obj)
+    {
+        Debug.Log("[InputManager] OnHoldPerformed");
+    }
+
+    private void OnHoldStarted(InputAction.CallbackContext obj)
+    {
+        Debug.Log("[InputManager] OnHoldStarted");
     }
 
 
@@ -184,7 +209,13 @@ public class InputManager : BaseManager<InputManager>, IManager
     public void OnLateUpdate() { }
     
     #endregion
-    
+        
+    // public void RegisterInput(string ActionMap, string Action, Action<InputAction.CallbackContext> OnPerform, Action<InputAction.CallbackContext> OnStarted, Action<InputAction.CallbackContext>OnCancel)
+    // {
+    //     Action.performed += OnPerform;
+    //     Action.started += OnStarted;
+    //     Action.canceled += OnCancel;
+    // }
     #region 입력 모드 전환
     
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)

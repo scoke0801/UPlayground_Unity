@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 /// <summary>
 /// TPS 카메라 시스템 관리 매니저
 /// 
@@ -190,7 +190,7 @@ public class CameraManager : BaseManager<CameraManager>, IManager
         }
 
         // 마우스 스크롤로 줌인/줌아웃 (Legacy Input 사용)
-        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        float scrollInput = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scrollInput) > 0.01f)
         {
             targetDistance -= scrollInput * zoomSpeed;

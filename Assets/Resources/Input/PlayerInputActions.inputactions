@@ -140,6 +140,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SwipeTest",
+                    "type": "Value",
+                    "id": "6478c50f-a499-4832-bffc-091dde0ee0b6",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "TouchPadTest",
+                    "type": "Button",
+                    "id": "ea3e2d74-ad62-425d-b1ee-e537a08fd09c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -349,6 +367,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "HoldTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e24ed165-8cb3-4623-b69e-46aa26fe5ebe",
+                    "path": "/<DualSenseGamepadHID>/touchpad/primaryTouch/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwipeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "19e1c05a-82ea-46ce-9875-b83371885644",
+                    "path": "<DualShockGamepad>/touchpadButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TouchPadTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

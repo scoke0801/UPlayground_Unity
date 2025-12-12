@@ -42,12 +42,18 @@ public class InputManager : BaseManager<InputManager>, IManager
     
     // Test Action
     public InputAction HoldAction { get; private set; }
+    public InputAction SwipeAction { get; private set; }
+    public InputAction TouchPadAction { get; private set; }
     
     // 현재 모드
     private InputMode currentMode = InputMode.None;
     
     // 이벤트
     public System.Action<InputMode> OnInputModeChanged;
+    
+    // 스와이프 동작으로 인식하기 위한 최소 움직임 임계값
+    [Tooltip("이 값보다 delta.magnitude가 커야 유의미한 스와이프로 인식")]
+    [SerializeField] private float swipeThreshold = 50.0f;
     
     #region IManager 구현
     
@@ -109,6 +115,8 @@ public class InputManager : BaseManager<InputManager>, IManager
         PointAction = uiActionMap.FindAction("Point");
         
         HoldAction = gameplayActionMap.FindAction("HoldTest");
+        SwipeAction = gameplayActionMap.FindAction("SwipeTest");
+        TouchPadAction = gameplayActionMap.FindAction("TouchPadTest");
         
         // 액션 유효성 검사
         if (MoveAction == null) Debug.LogWarning("[InputManager] Move 액션을 찾을 수 없습니다!");
@@ -148,11 +156,66 @@ public class InputManager : BaseManager<InputManager>, IManager
         HoldAction.started += OnHoldStarted;
         HoldAction.performed += OnHoldPerformed;
         HoldAction.canceled += OnHoldCanceled;
+
+        SwipeAction.started += OnSwipePerformed;
+        SwipeAction.performed += OnSwipePerformed;
+        SwipeAction.canceled += OnSwipePerformed;
+        TouchPadAction.performed += OnTouchPadPerformed;
+    
         // 게임플레이 모드로 시작
         currentMode = InputMode.None;
         SwitchToGameplay();
         
         Debug.Log("[InputManager] 초기화 완료");
+    }
+
+    private void OnTouchPadPerformed(InputAction.CallbackContext obj)
+    {
+        Debug.Log("[InputManager] TouchPadPerformed");
+    }
+
+    private void OnSwipePerformed(InputAction.CallbackContext context)
+    {
+        // Vector2 타입의 움직임 데이터(Delta)를 읽어옵니다.
+        // 이 값은 마지막 프레임 이후 손가락이 움직인 거리를 나타냅니다.
+        Vector2 delta = context.ReadValue<Vector2>();
+
+        // 1. 누적된 움직임 거리(Magnitude)가 임계값보다 큰지 확인
+        if (delta.magnitude >= swipeThreshold)
+        {
+            // 2. 스와이프 방향 결정
+            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+            {
+                // 좌/우 스와이프
+                if (delta.x > 0)
+                {
+                    Debug.Log(">>> 터치패드: 우측 스와이프!");
+                    // RightSwipeAction();
+                }
+                else
+                {
+                    Debug.Log(">>> 터치패드: 좌측 스와이프!");
+                    // LeftSwipeAction();
+                }
+            }
+            else
+            {
+                // 상/하 스와이프
+                if (delta.y > 0)
+                {
+                    Debug.Log(">>> 터치패드: 상단 스와이프!");
+                    // UpSwipeAction();
+                }
+                else
+                {
+                    Debug.Log(">>> 터치패드: 하단 스와이프!");
+                    // DownSwipeAction();
+                }
+            }
+        }
+        
+        // (참고: Delta 값은 매 프레임 발생하므로, 전체 스와이프 로직을 구현하려면 
+        // Started/Canceled를 함께 사용해 누적 거리를 계산해야 정확합니다.)
     }
 
     private void OnHoldCanceled(InputAction.CallbackContext obj)

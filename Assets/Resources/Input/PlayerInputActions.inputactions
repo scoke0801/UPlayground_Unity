@@ -383,6 +383,39 @@
                 },
                 {
                     "name": "",
+                    "id": "97d33e2a-77d6-4509-917a-f2d3b440ca84",
+                    "path": "<DualSenseGamepad>/touch0",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwipeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "875d9c6b-174a-4389-ae9d-9e6c72a268ba",
+                    "path": "<DualSenseGamepad>/touch0/pressure",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwipeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f7c7a8b-034b-4aa4-b6f6-f92b02360aa2",
+                    "path": "<DualSenseGamepad>/touch1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwipeTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "19e1c05a-82ea-46ce-9875-b83371885644",
                     "path": "<DualShockGamepad>/touchpadButton",
                     "interactions": "",

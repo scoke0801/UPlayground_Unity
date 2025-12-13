@@ -511,4 +511,7 @@ $RECYCLE.BIN/
 **/09.ResourceData
 **/ExternalAssets
 **/Plugins
+**/com.rlabrecque.steamworks.net
+steam_appid.txt
+
 Packages/

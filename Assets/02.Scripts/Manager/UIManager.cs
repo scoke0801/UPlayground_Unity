@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 /// <summary>
@@ -96,19 +97,27 @@ public class UIManager : BaseManager<UIManager>, IManager
     /// <summary>
     /// UIPrefabDatabase를 Resources 폴더에서 자동 로드
     /// </summary>
-    private void LoadUIPrefabDatabase()
+    private async void LoadUIPrefabDatabase()
     {
-        _uiPrefabDatabase = Resources.Load<UIPrefabDatabase>(DATABASE_PATH);
-
-        if (_uiPrefabDatabase == null)
+        var handle = Addressables.LoadAssetAsync<UIPrefabDatabase>(DATABASE_PATH);
+    
+        try
         {
-            Debug.LogError($"[UIManager] UIPrefabDatabase를 '{DATABASE_PATH}' 경로에서 찾을 수 없습니다. " +
-                           $"Resources 폴더에 UIPrefabDatabase를 생성해주세요.");
-            return;
+            _uiPrefabDatabase = await handle.Task;
+        
+            if (_uiPrefabDatabase == null)
+            {
+                Debug.LogError($"[UIManager] UIPrefabDatabase를 '{DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
+                return;
+            }
+        
+            _uiPrefabDatabase.Initialize();
+            Debug.Log($"[UIManager] UIPrefabDatabase 로드 완료");
         }
-
-        _uiPrefabDatabase.Initialize();
-        Debug.Log($"[UIManager] UIPrefabDatabase 로드 완료");
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[UIManager] UIPrefabDatabase 로드 실패: {e.Message}");
+        }
     }
     
     #region 캔버스 생성 및 관리

@@ -166,16 +166,6 @@ public class InputManager : BaseManager<InputManager>, IManager
         if (UiInventoryAction != null)
             UiInventoryAction.performed += OnInventoryPerformed;
         
-        if (HoldAction != null)
-        {
-            HoldAction.started += OnHoldStarted;
-            HoldAction.performed += OnHoldPerformed;
-            HoldAction.canceled += OnHoldCanceled;
-        }
-        
-        if (TouchPadAction != null)
-            TouchPadAction.performed += OnTouchPadPerformed;
-        
         InputSystem.onDeviceChange += OnDeviceChange;
     }
 
@@ -280,11 +270,39 @@ public class InputManager : BaseManager<InputManager>, IManager
     
     #endregion
     
-    #region 기존 메서드들 (생략 - 원본 유지)
+    #region 기존 메서드들
     
-    private void OnDeviceChange(InputDevice device, InputDeviceChange change) { }
-    private void HandleGamepadConnected(Gamepad gamepad) { }
-    private void HandleGamepadDisconnected(Gamepad gamepad) { }
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (!(device is Gamepad gamepad))
+            return;
+        
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+                HandleGamepadConnected(gamepad);
+                break;
+
+            case InputDeviceChange.Removed:
+                HandleGamepadDisconnected(gamepad);
+                break;
+        }
+    }
+    /// <summary>
+    /// 게임패드 연결 처리
+    /// </summary>
+    private void HandleGamepadConnected(Gamepad gamepad)
+    {
+        Debug.Log($"[게임패드 연결] {gamepad.displayName} (ID: {gamepad.deviceId})");
+        
+    }
+    /// <summary>
+    /// 게임패드 해제 처리
+    /// </summary>
+    private void HandleGamepadDisconnected(Gamepad gamepad)
+    {
+        Debug.Log($"[게임패드 해제] {gamepad.displayName} (ID: {gamepad.deviceId})");
+    }
     
     public void SwitchToGameplay()
     {
@@ -320,13 +338,207 @@ public class InputManager : BaseManager<InputManager>, IManager
     
     public InputMode CurrentMode => currentMode;
     
-    private void OnPausePerformed(InputAction.CallbackContext context) { }
-    private void OnCancelPerformed(InputAction.CallbackContext context) { }
-    private void OnInventoryPerformed(InputAction.CallbackContext obj) { }
-    private void OnHoldStarted(InputAction.CallbackContext obj) { }
-    private void OnHoldPerformed(InputAction.CallbackContext obj) { }
-    private void OnHoldCanceled(InputAction.CallbackContext obj) { }
-    private void OnTouchPadPerformed(InputAction.CallbackContext obj) { }
+    /// <summary>
+    /// ESC (Pause) 키 입력 처리 - 토글 방식
+    /// </summary>
+    private void OnPausePerformed(InputAction.CallbackContext context)
+    {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogWarning("[InputManager] UIManager가 없어서 일시정지 메뉴를 표시할 수 없습니다.");
+            return;
+        }
+
+        // 토글 방식: 이미 메뉴가 열려있으면 닫기
+        if (UIManager.Instance.IsUIActive("PauseMenu"))
+        {
+            ClosePauseMenu();
+        }
+        else
+        {
+            OpenPauseMenu();
+        }
+    }
+
+    /// <summary>
+    /// UI 모드에서 Cancel (ESC) 키 입력 처리
+    /// </summary>
+    private void OnCancelPerformed(InputAction.CallbackContext context)
+    {
+        // UI 모드일 때만 처리
+        if (currentMode == InputMode.UI && UIManager.Instance != null)
+        {
+            if (UIManager.Instance.IsUIActive("PauseMenu"))
+            {
+                ClosePauseMenu();
+            }
+        }
+    }
+
+    private void OnInventoryPerformed(InputAction.CallbackContext obj)
+    {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogWarning("[InputManager] UIManager가 없어서 일시정지 메뉴를 표시할 수 없습니다.");
+            return;
+        }
+
+        // 토글 방식: 이미 메뉴가 열려있으면 닫기
+        if (UIManager.Instance.IsUIActive("Inventory"))
+        {
+            CloseInventory();
+        }
+        else
+        {
+            OpenInventory();
+        }
+    }
+
+    /// <summary>
+    /// 일시정지 메뉴 열기
+    /// </summary>
+    private void OpenPauseMenu()
+    {
+        // UI 모드로 전환
+        SwitchToUI();
+
+        GameObject menuObj = UIManager.Instance.ShowUI("PauseMenu", CanvasLayer.Scene);
+        
+        if (menuObj == null)
+        {
+            Debug.LogError("[InputManager] PauseMenu 프리팹을 찾을 수 없습니다!");
+            return;
+        }
+
+        UI_Base ui = menuObj.GetComponent<UI_Base>();
+        if (ui != null)
+        {
+            ui.AnimationChange("Open");
+        }
+        // 게임 일시정지 (선택사항 - 필요에 따라 주석 해제)
+        // Time.timeScale = 0f;
+        
+        Debug.Log("[InputManager] 일시정지 메뉴 열림");
+    }
+
+    /// <summary>
+    /// 일시정지 메뉴 닫기
+    /// </summary>
+    private void ClosePauseMenu()
+    {
+        UI_Base ui = UIManager.Instance.GetUI<UI_Base>("PauseMenu");
+        
+        if (ui != null)
+        {
+            ui.AnimationChange("Close");
+        }
+        
+        // 게임플레이 모드로 복귀
+        SwitchToGameplay();
+
+        // 게임 재개
+        // Time.timeScale = 1f;
+        
+        Debug.Log("[InputManager] 일시정지 메뉴 닫힘");
+    }
+    private void OpenInventory()
+    {
+        // UI 모드로 전환
+        SwitchToUI();
+
+        GameObject menuObj = UIManager.Instance.ShowUI("Inventory", CanvasLayer.Scene);
+        
+        if (menuObj == null)
+        {
+            Debug.LogError("[InputManager] Inventory 프리팹을 찾을 수 없습니다!");
+            return;
+        }
+
+        UI_Base ui = menuObj.GetComponent<UI_Base>();
+        if (ui != null)
+        {
+            ui.AnimationChange("Open");
+        }
+        // 게임 일시정지 (선택사항 - 필요에 따라 주석 해제)
+        // Time.timeScale = 0f;
+        
+        Debug.Log("[InputManager] 인벤토리열림");
+    }
+    private void CloseInventory()
+    {
+        UI_Base ui = UIManager.Instance.GetUI<UI_Base>("Inventory");
+        
+        if (ui != null)
+        {
+            ui.AnimationChange("Close");
+        }
+        
+        // 게임플레이 모드로 복귀
+        SwitchToGameplay();
+
+        // 게임 재개
+        // Time.timeScale = 1f;
+        
+        Debug.Log("[InputManager] 인벤토리 닫힘");
+    }
+    
+    /// <summary>
+    /// 외부에서 일시정지 메뉴를 닫을 수 있도록 public 메서드 제공
+    /// (UI의 Resume 버튼 등에서 호출)
+    /// </summary>
+    public void ResumeGame()
+    {
+        if (UIManager.Instance != null && UIManager.Instance.IsUIActive("PauseMenu"))
+        {
+            ClosePauseMenu();
+        }
+    }
+    
+    #endregion
+    
+    #region 유틸리티
+    
+    /// <summary>
+    /// 모든 입력 비활성화
+    /// </summary>
+    public void DisableAllInput()
+    {
+        gameplayActionMap?.Disable();
+        uiActionMap?.Disable();
+        Debug.Log("[InputManager] 모든 입력 비활성화");
+    }
+    
+    /// <summary>
+    /// 모든 입력 활성화
+    /// </summary>
+    public void EnableAllInput()
+    {
+        if (currentMode == InputMode.Gameplay)
+        {
+            gameplayActionMap?.Enable();
+        }
+        else
+        {
+            uiActionMap?.Enable();
+        }
+        Debug.Log("[InputManager] 입력 활성화");
+    }
+    
+    /// <summary>
+    /// 특정 액션 활성화/비활성화
+    /// </summary>
+    public void SetActionEnabled(string actionName, bool enabled)
+    {
+        InputAction action = gameplayActionMap?.FindAction(actionName) ?? uiActionMap?.FindAction(actionName);
+        
+        if (action != null)
+        {
+            if (enabled)
+                action.Enable();
+            else
+                action.Disable();
+        }
+    }
     
     #endregion
 }

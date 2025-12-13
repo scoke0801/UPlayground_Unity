@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Actor
 {
@@ -6,43 +7,46 @@ namespace Actor
     {
         [SerializeField] private InteractableActorSO _dataSO;
         
-        public bool IsInteraction {get; private set;}
+        public bool IsInteraction { get; private set; }
+        public int Hp { get; private set; }
+        public int MaxHp => _dataSO.hp;
         
-        public int Hp {get; private set;}
+        // 이벤트 선언
+        public event Action<InteractableActor> OnInteractionStarted;
+        public event Action<InteractableActor, int, int> OnHpChanged; // (actor, currentHp, maxHp)
+        public event Action<InteractableActor> OnDestroyed;
+        
         public virtual void Interaction()
         {
-            // [TODO] 다른 방법으로 인터렉션 대상을 정리해야지 이렇게 하면 안된다..
-            PlayerActor.TargetActor = this;
-            
-            UIManager.Instance.ShowUI("InteractionHPBoard", CanvasLayer.Normal);
-            
             Hp = _dataSO.hp;
             IsInteraction = true;
+            
+            // UI 관리는 외부에서 이벤트를 구독하여 처리
+            OnInteractionStarted?.Invoke(this);
         }
 
         public void OnHit(int damage)
         {
             Hp -= damage;
-            HP_Init();
-        }
-        public virtual void HP_Init()
-        {
-            UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
-            if (ui != null)
-            {
-                ui.BoardFill(Hp, _dataSO.hp);
-            }
+            Hp = Mathf.Max(0, Hp);
+            
+            // HP 변경 이벤트 발생
+            OnHpChanged?.Invoke(this, Hp, MaxHp);
             
             if (Hp <= 0)
             {
-                GameObjectManager.Instance.OnEndInteraction();
-                
-                Destroy(this.gameObject);
-                
-                // [TODO] 다른 방법으로 인터렉션 대상을 정리해야지 이렇게 하면 안된다..
-                PlayerActor.TargetActor = null;
-                return;
+                HandleDestroy();
             }
+        }
+        
+        private void HandleDestroy()
+        {
+            IsInteraction = false;
+            
+            // 파괴 이벤트 발생
+            OnDestroyed?.Invoke(this);
+            
+            Destroy(gameObject);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Actor;
 using UnityEngine;
 
@@ -14,6 +13,7 @@ public class GameObjectInteractionHandler
     private Camera _camera;
 
     private Transform _closestObject;
+    private InteractableActor _currentInteractingActor;
     
     public GameObjectInteractionHandler()
     {
@@ -27,6 +27,7 @@ public class GameObjectInteractionHandler
         
         _camera = Camera.main;
         _closestObject = null;
+        
         GameObjectManager.Instance.OnInteractionOn += OnInteractionOn;
         GameObjectManager.Instance.OnInteractionOut += OnInteractionOut;
     }
@@ -46,7 +47,6 @@ public class GameObjectInteractionHandler
         Vector3 playerPosition = GameObjectManager.Instance.Player.transform.position;
         Collider[] nearbyObjects =
             Physics.OverlapSphere(playerPosition, _config.checkRadius, _config.interactableLayer);
-        HashSet<Transform> currentObjects = new HashSet<Transform>();
 
         _closestObject = null;
         float closestDistance = float.MaxValue;
@@ -63,7 +63,6 @@ public class GameObjectInteractionHandler
                 closestDistance = distance;
                 Debug.Log("Find InteractionObject");
                 ShowIcon(targetTransform);
-                currentObjects.Add(targetTransform);
             }
         }
 
@@ -81,6 +80,12 @@ public class GameObjectInteractionHandler
     {
         return _closestObject != null;
     }
+    
+    public InteractableActor GetCurrentTarget()
+    {
+        return _currentInteractingActor;
+    }
+    
     private void RemoveIcon()
     {
         if(_activeIcon != null && _activeIcon.IsVisible)
@@ -129,12 +134,63 @@ public class GameObjectInteractionHandler
         InteractableActor actor = _closestObject.GetComponent<InteractableActor>();
         if (actor != null)
         {
+            _currentInteractingActor = actor;
+            
+            // 이벤트 구독
+            actor.OnInteractionStarted += HandleInteractionStarted;
+            actor.OnHpChanged += HandleHpChanged;
+            actor.OnDestroyed += HandleActorDestroyed;
+            
             actor.Interaction();
         }
     }
 
     private void OnInteractionOut()
     {
+        UnsubscribeFromCurrentActor();
         _closestObject = null;
+        _currentInteractingActor = null;
+    }
+    
+    private void HandleInteractionStarted(InteractableActor actor)
+    {
+        // UI 표시
+        UIManager.Instance.ShowUI("InteractionHPBoard", CanvasLayer.Normal);
+        
+        // 초기 HP 업데이트
+        UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
+        if (ui != null)
+        {
+            ui.BoardFill(actor.Hp, actor.MaxHp);
+        }
+    }
+    
+    private void HandleHpChanged(InteractableActor actor, int currentHp, int maxHp)
+    {
+        // HP UI 업데이트
+        UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
+        if (ui != null)
+        {
+            ui.BoardFill(currentHp, maxHp);
+        }
+    }
+    
+    private void HandleActorDestroyed(InteractableActor actor)
+    {
+        // 인터랙션 종료 처리
+        GameObjectManager.Instance.OnEndInteraction();
+        
+        UnsubscribeFromCurrentActor();
+        _currentInteractingActor = null;
+    }
+    
+    private void UnsubscribeFromCurrentActor()
+    {
+        if (_currentInteractingActor != null)
+        {
+            _currentInteractingActor.OnInteractionStarted -= HandleInteractionStarted;
+            _currentInteractingActor.OnHpChanged -= HandleHpChanged;
+            _currentInteractingActor.OnDestroyed -= HandleActorDestroyed;
+        }
     }
 }

@@ -11,6 +11,7 @@ public class UI_InteractionHPBoard : UI_Base
     [SerializeField] private float _fillTimeScale = 5.0f;
     
     private Coroutine _fillCoroutine;
+    private bool _isSubscribed = false;
     
     #region UI_Base
     protected override void OnShow()
@@ -20,20 +21,17 @@ public class UI_InteractionHPBoard : UI_Base
         
         AnimationChange("On");
         
-        GameObjectManager.Instance.OnInteractionOut += OnInteractionOut;
+        SubscribeEvents();
     }
 
     protected override void OnHide()
     {
-        GameObjectManager.Instance.OnInteractionOut -= OnInteractionOut;
+        UnsubscribeEvents();
     }
 
     protected override void OnClose()
     {
-        if (GameObjectManager.Instance)
-        {
-            GameObjectManager.Instance.OnInteractionOut -= OnInteractionOut;
-        }
+        UnsubscribeEvents();
     }
     #endregion
     
@@ -57,6 +55,29 @@ public class UI_InteractionHPBoard : UI_Base
 
             yield return null;
         }
+    }
+    
+    private void SubscribeEvents()
+    {
+        if (_isSubscribed) return;
+        
+        if (GameObjectManager.Instance != null)
+        {
+            GameObjectManager.Instance.OnInteractionOut += OnInteractionOut;
+            _isSubscribed = true;
+        }
+    }
+    
+    private void UnsubscribeEvents()
+    {
+        if (!_isSubscribed) return;
+        
+        if (GameObjectManager.Instance != null)
+        {
+            GameObjectManager.Instance.OnInteractionOut -= OnInteractionOut;
+        }
+        
+        _isSubscribed = false;
     }
     
     private void OnInteractionOut()

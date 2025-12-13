@@ -4,29 +4,45 @@ using UnityEngine.InputSystem;
 
 public class UI_InteractionKey : UI_Base
 {
+    private bool _isSubscribed = false;
+    
     protected override void OnShow()
     {
         AnimationChange("On");
-        InputManager.Instance.InteractAction.performed += OnInteract;
+        SubscribeEvents();
     }
 
     protected override void OnHide()
     {
-        InputManager.Instance.InteractAction.performed -= OnInteract;
+        UnsubscribeEvents();
     }
 
     protected override void OnClose()
     {
-        if (InputManager.Instance == null) return;
-        if (InputManager.Instance.InteractAction == null) return;
-
-        InputManager.Instance.InteractAction.performed -= OnInteract;
-
+        UnsubscribeEvents();
     }
 
-    protected void OnDisable()
+    private void SubscribeEvents()
     {
+        if (_isSubscribed) return;
         
+        if (InputManager.Instance?.InteractAction != null)
+        {
+            InputManager.Instance.InteractAction.performed += OnInteract;
+            _isSubscribed = true;
+        }
+    }
+    
+    private void UnsubscribeEvents()
+    {
+        if (!_isSubscribed) return;
+        
+        if (InputManager.Instance?.InteractAction != null)
+        {
+            InputManager.Instance.InteractAction.performed -= OnInteract;
+        }
+        
+        _isSubscribed = false;
     }
 
     private void OnInteract(InputAction.CallbackContext context)

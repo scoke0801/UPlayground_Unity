@@ -58,4 +58,9 @@ public class GameObjectManager : BaseManager<GameObjectManager>, IManager
     {
         return _interactionHandler.IsInteractionTargetExist();
     }
+
+    public Actor.InteractableActor GetCurrentInteractionTarget()
+    {
+        return _interactionHandler.GetCurrentTarget();
+    }
 }

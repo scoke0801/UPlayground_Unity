@@ -20,10 +20,13 @@ namespace Game.FSM
             
             if (interactionAnim == null) { Debug.LogError($"[{interactionAnim}] 클립이 없습니다!"); return; }
             
-            // 1. 애니메이션 재생
+            // 애니메이션 재생
             brain.Animancer.Play(interactionAnim, 0f);
             
             GameObjectManager.Instance.OnStartInteraction();
+            
+            // 인터랙션 대상을 바라보도록 회전
+            RotateTowardsTarget(brain);
         }
 
         public override void OnUpdate(CharacterBrain brain)
@@ -37,6 +40,22 @@ namespace Game.FSM
         public override void OnExit(CharacterBrain brain)
         {
             GameObjectManager.Instance.OnEndInteraction();
+        }
+
+        private void RotateTowardsTarget(CharacterBrain brain)
+        {
+            Actor.InteractableActor target = GameObjectManager.Instance.GetCurrentInteractionTarget();
+            if (target != null)
+            {
+                Vector3 directionToTarget = target.transform.position - brain.transform.position;
+                directionToTarget.y = 0; // Y축 회전만 적용
+                
+                if (directionToTarget != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+                    brain.Rb.MoveRotation(targetRotation);
+                }
+            }
         }
 
         private string GetAnimKey()

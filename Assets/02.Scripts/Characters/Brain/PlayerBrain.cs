@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using Game.Input;
 using Game.Skills;
-using Game.Data; 
+using Game.Data;
+using UnityEngine.Serialization;
 
 namespace Game.FSM
 {    
@@ -10,8 +11,9 @@ namespace Game.FSM
     /// </summary>
     public class PlayerBrain : CharacterBrain
     {
+        [FormerlySerializedAs("inputReader")]
         [Header("Input")]
-        [SerializeField] private InputReader inputReader;
+        [SerializeField] private PlayerInputReader playerInputReader;
 
         [Header("Input Buffer")]
         [SerializeField] private float bufferTime = 0.15f;
@@ -38,12 +40,12 @@ namespace Game.FSM
             if (_skillSystem == null) Debug.LogWarning("[PlayerBrain] SkillSystem이 없습니다.");
 
             // InputReader 초기화 로직 (기존 유지)
-            if (inputReader == null)
+            if (playerInputReader == null)
             {
-                inputReader = GetComponent<InputReader>();
-                if (inputReader == null)
+                playerInputReader = GetComponent<PlayerInputReader>();
+                if (playerInputReader == null)
                 {
-                    inputReader = gameObject.AddComponent<InputReader>();
+                    playerInputReader = gameObject.AddComponent<PlayerInputReader>();
                 }
             }
 
@@ -59,25 +61,25 @@ namespace Game.FSM
 
         private void SubscribeToInputEvents()
         {
-            if (inputReader == null) return;
+            if (playerInputReader == null) return;
 
             // 기본 이동/액션
-            inputReader.OnJumpEvent += () => _inputBuffer.AddInput("Jump");
-            inputReader.OnRollEvent += () => _inputBuffer.AddInput("Roll");
-            inputReader.OnAttackEvent += () => _inputBuffer.AddInput("Attack");
+            playerInputReader.OnJumpEvent += () => _inputBuffer.AddInput("Jump");
+            playerInputReader.OnRollEvent += () => _inputBuffer.AddInput("Roll");
+            playerInputReader.OnAttackEvent += () => _inputBuffer.AddInput("Attack");
             
             // 스킬 입력 구독
-            inputReader.OnSkillPressed += (index) => _inputBuffer.AddInput($"Skill{index}");
+            playerInputReader.OnSkillPressed += (index) => _inputBuffer.AddInput($"Skill{index}");
             
             // 차징 스킬용
-            inputReader.OnSkillReleased += (index) => _inputBuffer.AddInput($"Skill{index}Released");
+            playerInputReader.OnSkillReleased += (index) => _inputBuffer.AddInput($"Skill{index}Released");
             
-            inputReader.OnInteractEvent += () => _inputBuffer.AddInput("Interact");
+            playerInputReader.OnInteractEvent += () => _inputBuffer.AddInput("Interact");
         }
 
         protected override void HandleInput()
         {
-            if (inputReader == null) return;
+            if (playerInputReader == null) return;
             ProcessMovementInput();
             ProcessBufferedInputs();
         }
@@ -87,7 +89,7 @@ namespace Game.FSM
         /// </summary>
         private void ProcessMovementInput()
         {
-            Vector2 moveInput = inputReader.MoveInput;
+            Vector2 moveInput = playerInputReader.MoveInput;
             if (_cachedCamera == null)
             {
                 _cachedCamera = Camera.main;

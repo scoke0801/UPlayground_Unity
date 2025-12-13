@@ -8,7 +8,7 @@ namespace Game.Input
     /// 입력 시스템의 추상화 레이어
     /// InputManager와 캐릭터 사이의 중간 다리 역할
     /// </summary>
-    public class InputReader : MonoBehaviour
+    public class PlayerInputReader : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField] private float mouseSensitivity = 1f;

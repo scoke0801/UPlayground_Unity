@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using Actor;
 using UnityEngine;
 
 public class GameObjectInteractionHandler
@@ -125,8 +126,11 @@ public class GameObjectInteractionHandler
 
     private void OnInteractionOn()
     {
-        UIManager.Instance.ShowUI("InteractionHPBoard", CanvasLayer.Normal);
-        
+        InteractableActor actor = _closestObject.GetComponent<InteractableActor>();
+        if (actor != null)
+        {
+            actor.Interaction();
+        }
     }
 
     private void OnInteractionOut()

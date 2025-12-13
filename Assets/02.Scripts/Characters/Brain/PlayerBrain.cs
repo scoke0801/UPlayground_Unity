@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Game.Input;
 using Game.Skills;
-using Game.Data; // SkillJsonData 추가
+using Game.Data; 
 
 namespace Game.FSM
 {    
@@ -25,7 +25,6 @@ namespace Game.FSM
 
         // state
         public bool IsOnInteraction { get; private set; }
-        public bool IsInteractionPressed { get; private set; }
         
         protected override void Awake()
         {

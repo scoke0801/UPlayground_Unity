@@ -68,10 +68,12 @@ public class SwipeGestureDetector : MonoBehaviour
         {
             touchStartPos = currentPos;
             touchStartTime = Time.time;
+            Debug.Log("Touchpad is touching");
         }
         // 터치 종료 - 스와이프 판정
         else if (!isTouching && wasTouching)
         {
+            Debug.Log("Touchpad is touching - swiped");
             float duration = Time.time - touchStartTime;
             
             if (duration <= maxSwipeTime)

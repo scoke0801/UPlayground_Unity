@@ -177,6 +177,13 @@ public class GameObjectInteractionHandler
     
     private void HandleActorDestroyed(InteractableActor actor)
     {
+        // 플레이어 상태를 기본 상태로 전환
+        if (GameObjectManager.Instance.PlayerBrain != null)
+        {
+            GameObjectManager.Instance.PlayerBrain.ChangeState(
+                GameObjectManager.Instance.PlayerBrain.DefaultState);
+        }
+        
         // 인터랙션 종료 처리
         GameObjectManager.Instance.OnEndInteraction();
         

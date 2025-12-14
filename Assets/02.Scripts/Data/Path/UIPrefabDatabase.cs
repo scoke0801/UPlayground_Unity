@@ -3,9 +3,9 @@ using UnityEngine;
 
 /// <summary>
 /// UI 프리팹 데이터베이스
-/// Resources 폴더에 저장하여 UIManager가 자동으로 로드
+/// UIManager가 자동으로 로드
 /// </summary>
-[CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "UI/UI Prefab Database")]
+[CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "PathDatabase/UI")]
 public class UIPrefabDatabase : ScriptableObject
 {
     [System.Serializable]

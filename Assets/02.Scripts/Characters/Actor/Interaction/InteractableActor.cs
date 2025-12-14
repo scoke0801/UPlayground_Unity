@@ -5,7 +5,7 @@ namespace Actor
 {
     public class InteractableActor : BaseActor
     {
-        [SerializeField] private InteractableActorSO _dataSO;
+        [SerializeField] protected InteractableActorSO _dataSO;
         
         public bool IsInteraction { get; private set; }
         public int Hp { get; private set; }
@@ -25,7 +25,7 @@ namespace Actor
             OnInteractionStarted?.Invoke(this);
         }
 
-        public void OnHit(int damage)
+        public virtual void OnHit(int damage)
         {
             Hp -= damage;
             Hp = Mathf.Max(0, Hp);

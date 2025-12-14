@@ -2,7 +2,7 @@
 using Game.FSM;
 using UnityEngine;
 
-public class GameObjectManager : BaseManager<GameObjectManager>, IManager
+public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
 {
     private GameObjectInteractionHandler _interactionHandler;
     private GameObject _player;
@@ -23,6 +23,8 @@ public class GameObjectManager : BaseManager<GameObjectManager>, IManager
         
         _player = GameObject.FindWithTag("Player");
         _playerBrain = _player.GetComponent<PlayerBrain>();
+
+        LoadFXPrefabDatabase();
     }
 
     public void Dispose()

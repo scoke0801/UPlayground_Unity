@@ -5,8 +5,8 @@ namespace Actor
 {
     public class InteractableActor : BaseActor
     {
-        [SerializeField] protected InteractableActorSO _dataSO;
-        
+        [SerializeField] private InteractableActorSO _dataSO;
+        [SerializeField] private ItemActor _itemActorPrefab;
         public bool IsInteraction { get; private set; }
         public int Hp { get; private set; }
         public int MaxHp => _dataSO.hp;
@@ -15,11 +15,17 @@ namespace Actor
         public event Action<InteractableActor> OnInteractionStarted;
         public event Action<InteractableActor, int, int> OnHpChanged; // (actor, currentHp, maxHp)
         public event Action<InteractableActor> OnDestroyed;
-        
-        public virtual void Interaction()
+
+        private void OnEnable()
         {
             Hp = _dataSO.hp;
+        }
+
+        public virtual void Interaction()
+        {
             IsInteraction = true;
+            
+            OnHit(0);
             
             // UI 관리는 외부에서 이벤트를 구독하여 처리
             OnInteractionStarted?.Invoke(this);
@@ -42,7 +48,11 @@ namespace Actor
         private void HandleDestroy()
         {
             IsInteraction = false;
-            
+
+            for (int i = 0; i < 5; ++i)
+            {
+                Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+            }
             // 파괴 이벤트 발생
             OnDestroyed?.Invoke(this);
             

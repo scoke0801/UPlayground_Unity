@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Actor;
+using FX;
 using UnityEngine;
 
 public class GameObjectInteractionHandler
@@ -183,7 +184,16 @@ public class GameObjectInteractionHandler
             GameObjectManager.Instance.PlayerBrain.ChangeState(
                 GameObjectManager.Instance.PlayerBrain.DefaultState);
         }
-        
+
+        GameObject fx = GameObjectManager.Instance.ShowFX("ObjectDestroyFX", actor.transform.position);
+        if (fx != null)
+        {
+            ActorDestroyParticle destroyParticle = fx.GetComponent<ActorDestroyParticle>();
+            if (destroyParticle != null)
+            {
+                destroyParticle.OnParticle(actor.transform.GetChild(0).GetComponent<MeshRenderer>());
+            }
+        }
         // 인터랙션 종료 처리
         GameObjectManager.Instance.OnEndInteraction();
         

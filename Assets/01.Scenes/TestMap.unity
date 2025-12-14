@@ -869,6 +869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dataSO: {fileID: 11400000, guid: 8c43976d409dc2c4293537453ff5535a, type: 2}
+  _itemActorPrefab: {fileID: 5715916981499740299, guid: 269393f526f05bb45b67b6331b5bcfa2, type: 3}
   _shakeAmount: 5
   _shakeDuration: 0.5
 --- !u!4 &1516286991 stripped
@@ -889,6 +890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dataSO: {fileID: 11400000, guid: 8c43976d409dc2c4293537453ff5535a, type: 2}
+  _itemActorPrefab: {fileID: 5715916981499740299, guid: 269393f526f05bb45b67b6331b5bcfa2, type: 3}
   _shakeAmount: 5
   _shakeDuration: 0.5
 --- !u!1001 &1553081127
@@ -978,6 +980,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dataSO: {fileID: 11400000, guid: 8c43976d409dc2c4293537453ff5535a, type: 2}
+  _itemActorPrefab: {fileID: 5715916981499740299, guid: 269393f526f05bb45b67b6331b5bcfa2, type: 3}
   _shakeAmount: 5
   _shakeDuration: 0.5
 --- !u!1 &1603460384
@@ -1124,6 +1127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dataSO: {fileID: 11400000, guid: 8c43976d409dc2c4293537453ff5535a, type: 2}
+  _itemActorPrefab: {fileID: 5715916981499740299, guid: 269393f526f05bb45b67b6331b5bcfa2, type: 3}
   _shakeAmount: 5
   _shakeDuration: 0.5
 --- !u!1001 &5681077154715942132

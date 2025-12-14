@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabs:
   - key: InteractionObjectHitFX
-    prefab: {fileID: 3504098649498813294, guid: 03394e37a42ad914996e3b98cd4ea1db, type: 3}
+    prefab: {fileID: 1429954232896169633, guid: 4d3e18a383d030e46bb43aa90bcc3549, type: 3}
+    description: 
+  - key: ObjectDestroyFX
+    prefab: {fileID: 7304407903156614383, guid: e63f1c579c8b7504bbe40ae8d6de6dd7, type: 3}
     description: 

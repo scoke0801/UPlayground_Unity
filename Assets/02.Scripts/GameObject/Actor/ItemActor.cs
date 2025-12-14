@@ -30,7 +30,7 @@ namespace Actor
 
         IEnumerator SpreadAndMoveToPlayer()
         {
-            Vector3 spreadDirection = Random.insideUnitCircle * _spreadRadius;
+            Vector3 spreadDirection = Random.insideUnitSphere * _spreadRadius;
             Vector3 spreadPosition = transform.position + spreadDirection;
 
             spreadPosition.y = Mathf.Max(spreadPosition.y, 5.0f);

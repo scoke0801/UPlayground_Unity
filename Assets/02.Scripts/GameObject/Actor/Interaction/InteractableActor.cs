@@ -49,9 +49,12 @@ namespace Actor
         {
             IsInteraction = false;
 
-            for (int i = 0; i < 5; ++i)
+            var items = ItemManager.Instance.GetDropItemList(_dataSO.dropItems);
+            for (int i = 0; i <items.Count; ++i)
             {
                 Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                
+                Debug.Log($"ID: {items[i].itemId}, Name: {items[i].itemName}, Description: {items[i].itemDescription}");
             }
             // 파괴 이벤트 발생
             OnDestroyed?.Invoke(this);

@@ -44,6 +44,8 @@ public class GameManager : BaseManager<GameManager>
         RegisterManager(UIManager.Instance);           // UI 관리
         RegisterManager(JsonDataManager.Instance);
         RegisterManager(GameObjectManager.Instance);
+        RegisterManager(AssetManager.Instance);
+        RegisterManager(ItemManager.Instance);
         
         _isInitialized = true;
         

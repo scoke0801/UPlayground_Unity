@@ -18,6 +18,9 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     {
         Debug.Log("[InputManager] 초기화 시작");
         
+        Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");;
+        
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         // SwipeDetector 초기화
         InitializeSwipeDetector();
 

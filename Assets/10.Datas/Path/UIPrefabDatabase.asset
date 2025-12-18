@@ -29,3 +29,7 @@ MonoBehaviour:
     prefab: {fileID: 8452695791944074991, guid: 58e11420107a70047a5908f02d305384, type: 3}
     defaultLayer: 1
     description: 
+  - key: Cursor
+    prefab: {fileID: 5133507297570702922, guid: 38675aff5481a7341bf5d89ae186fef9, type: 3}
+    defaultLayer: 4
+    description: 

@@ -2,7 +2,7 @@
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
-public class VirtualCursor : MonoBehaviour
+public class VirtualCursor : UI_Base
 {
     [Header("커서 설정")]
     [SerializeField] private RectTransform cursorTransform;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
@@ -7,7 +8,6 @@ public class VirtualCursor : UI_Base
     [Header("커서 설정")]
     [SerializeField] private RectTransform cursorTransform;
     [SerializeField] private float cursorSpeed = 1000f;
-    [SerializeField] private Canvas canvas;
     
     [Header("게임패드 입력")]
     [SerializeField] private float deadzone = 0.1f;
@@ -15,7 +15,7 @@ public class VirtualCursor : UI_Base
     private Vector2 currentCursorPosition;
     private Gamepad gamepad;
     
-    void Start()
+    private void OnEnable()
     {
         // 게임패드 연결 확인
         gamepad = Gamepad.current;
@@ -23,11 +23,8 @@ public class VirtualCursor : UI_Base
         // 커서 초기 위치 설정 (화면 중앙)
         currentCursorPosition = new Vector2(Screen.width / 2f, Screen.height / 2f);
         UpdateCursorPosition();
-        
-        // 마우스 커서 숨기기 (선택사항)
-        Cursor.visible = false;
     }
-    
+
     void Update()
     {
         if (gamepad == null)
@@ -39,6 +36,7 @@ public class VirtualCursor : UI_Base
         // 왼쪽 스틱으로 커서 이동
         Vector2 stickInput = gamepad.leftStick.ReadValue();
         
+        Debug.Log(stickInput);
         // 데드존 적용
         if (stickInput.magnitude < deadzone)
             stickInput = Vector2.zero;

@@ -19,6 +19,8 @@ public class GameManager : BaseManager<GameManager>
     {
         base.Awake();
         
+        Application.targetFrameRate = 60;
+        
         // BaseManager의 Awake가 실행된 후, 이 인스턴스가 유효하면 초기화
         if (this != null && !_isInitialized)
         {

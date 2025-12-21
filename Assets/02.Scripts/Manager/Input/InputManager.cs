@@ -14,7 +14,8 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     private int _cursorVisibleStack = 0;
     
     VirtualCursor _virtualCursor;
-    bool _isGamepadConnected = false;
+    
+    private bool _isGamepadActive = false;
     #region IManager 구현
     
     public void Init()
@@ -61,6 +62,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
             UiInventoryAction.performed += OnInventoryPerformed;
         
         InputSystem.onDeviceChange += OnDeviceChange;
+        InputSystem.onActionChange += OnActionChange;
     }
 
     public void Dispose()
@@ -95,6 +97,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         }
         
         InputSystem.onDeviceChange -= OnDeviceChange;
+        InputSystem.onActionChange -= OnActionChange;
         
         gameplayActionMap?.Disable();
         uiActionMap?.Disable();
@@ -108,7 +111,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     
     #endregion
     
-    #region 기존 메서드들
+    #region
     
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
@@ -126,14 +129,43 @@ public partial class InputManager : BaseManager<InputManager>, IManager
                 break;
         }
     }
+    
+    private void OnActionChange(object obj, InputActionChange change)
+    {
+        if (change == InputActionChange.ActionStarted || change == InputActionChange.ActionPerformed)
+        {
+            var action = (InputAction)obj;
+            var control = action.activeControl;
+
+            // 1. 센서 데이터 무시 (자이로, 가속도계 등)
+            if (control.device is Sensor)
+            {
+                return;
+            }
+
+            // 2. 미세한 입력 무시 (EvaluateMagnitude 사용)
+            // Magnitude가 임계값(예: 0.1)보다 작으면 장치 전환을 수행하지 않음
+            if (control.EvaluateMagnitude() < 0.1f)
+            {
+                return;
+            }
+            var inputAction = obj as InputAction;
+            var device = inputAction?.activeControl?.device;
+
+            bool current = device is Gamepad;
+            if (_isGamepadActive != current)
+            {
+                _isGamepadActive = current;
+                RefreshCursorState();
+            }
+        }
+    }
     /// <summary>
     /// 게임패드 연결 처리
     /// </summary>
     private void HandleGamepadConnected(Gamepad gamepad)
     {
-        _isGamepadConnected = true;
-
-        RefreshCursorState();
+       // RefreshCursorState();
         Debug.Log($"[게임패드 연결] {gamepad.displayName} (ID: {gamepad.deviceId})");
         
     }
@@ -142,9 +174,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     /// </summary>
     private void HandleGamepadDisconnected(Gamepad gamepad)
     {
-        _isGamepadConnected = false;
-        
-        RefreshCursorState();
+       // RefreshCursorState();
         Debug.Log($"[게임패드 해제] {gamepad.displayName} (ID: {gamepad.deviceId})");
     }
     
@@ -260,12 +290,12 @@ public partial class InputManager : BaseManager<InputManager>, IManager
             }
         }
         
-        Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadConnected}");
+        Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadActive}");
         bool finalVisibility = _cursorVisibleStack > 0;
 
         if (finalVisibility)
         {
-            if (_isGamepadConnected)
+            if (_isGamepadActive)
             {
                 if(_virtualCursor)
                     _virtualCursor.Show();

@@ -12,6 +12,9 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     public System.Action<InputMode> OnInputModeChanged;
 
     private int _cursorVisibleStack = 0;
+    
+    VirtualCursor _virtualCursor;
+    bool _isGamepadConnected = false;
     #region IManager 구현
     
     public void Init()
@@ -128,6 +131,9 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     /// </summary>
     private void HandleGamepadConnected(Gamepad gamepad)
     {
+        _isGamepadConnected = true;
+
+        RefreshCursorState();
         Debug.Log($"[게임패드 연결] {gamepad.displayName} (ID: {gamepad.deviceId})");
         
     }
@@ -136,6 +142,9 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     /// </summary>
     private void HandleGamepadDisconnected(Gamepad gamepad)
     {
+        _isGamepadConnected = false;
+        
+        RefreshCursorState();
         Debug.Log($"[게임패드 해제] {gamepad.displayName} (ID: {gamepad.deviceId})");
     }
     
@@ -234,12 +243,52 @@ public partial class InputManager : BaseManager<InputManager>, IManager
             }
         }
         
-        bool finalVisibility = _cursorVisibleStack > 0;
-        
-        Cursor.lockState = finalVisibility ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = finalVisibility;
+        RefreshCursorState();
         
         Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
+    }
+
+    private void RefreshCursorState()
+    {
+        // 가상 커서 세팅
+        if (_virtualCursor == null)
+        {
+            GameObject go = UIManager.Instance.ShowUI("Cursor");
+            if (go != null)
+            {
+                _virtualCursor = go.GetComponent<VirtualCursor>();
+            }
+        }
+        
+        Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadConnected}");
+        bool finalVisibility = _cursorVisibleStack > 0;
+
+        if (finalVisibility)
+        {
+            if (_isGamepadConnected)
+            {
+                if(_virtualCursor)
+                    _virtualCursor.Show();
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                if(_virtualCursor)
+                    _virtualCursor.Hide();
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                
+                Debug.Log("[InputManager] Cursor Show");
+            }
+        }
+        else
+        {
+            if(_virtualCursor)
+                _virtualCursor.Hide();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
     
     private void OnInventoryPerformed(InputAction.CallbackContext obj)

@@ -3,58 +3,58 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
-public class VirtualCursor : UI_Base
+public class UI_VirtualCursor : UI_Base
 {
     [Header("커서 설정")]
     [SerializeField] private RectTransform cursorTransform;
     [SerializeField] private float cursorSpeed = 1000f;
     
-    [Header("게임패드 입력")]
-    [SerializeField] private float deadzone = 0.1f;
+    [Header("Input Actions")]
+    [SerializeField] private InputAction moveAction;
+    [SerializeField] private InputAction clickAction;
     
     private Vector2 currentCursorPosition;
-    private Gamepad gamepad;
-    
-    private void OnEnable()
+    private Vector2 moveInput;
+
+    protected override void OnShow()
     {
-        // 게임패드 연결 확인
-        gamepad = Gamepad.current;
+        // InputAction 이벤트 연결
+        InputManager.Instance.CursorMoveAction.performed += OnMove;
+        InputManager.Instance.CursorMoveAction.canceled += OnMove;
+        InputManager.Instance.CursorClickAction.performed += OnClick;
         
         // 커서 초기 위치 설정 (화면 중앙)
         currentCursorPosition = new Vector2(Screen.width / 2f, Screen.height / 2f);
         UpdateCursorPosition();
     }
 
-    void Update()
+    protected override void OnHide()
     {
-        if (gamepad == null)
-        {
-            gamepad = Gamepad.current;
-            return;
-        }
-        
-        // 왼쪽 스틱으로 커서 이동
-        Vector2 stickInput = gamepad.leftStick.ReadValue();
-        
-        Debug.Log(stickInput);
-        // 데드존 적용
-        if (stickInput.magnitude < deadzone)
-            stickInput = Vector2.zero;
-        
+        InputManager.Instance.CursorMoveAction.performed -= OnMove;
+        InputManager.Instance.CursorMoveAction.canceled -= OnMove;
+        InputManager.Instance.CursorClickAction.performed -= OnClick;
+    }
+    
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+    }
+    
+    private void OnClick(InputAction.CallbackContext context)
+    {
+        SimulateClick();
+    }
+    
+    protected override void Update()
+    {
         // 커서 위치 업데이트
-        currentCursorPosition += stickInput * cursorSpeed * Time.deltaTime;
+        currentCursorPosition += cursorSpeed * Time.deltaTime * moveInput;
         
         // 화면 밖으로 나가지 않도록 제한
         currentCursorPosition.x = Mathf.Clamp(currentCursorPosition.x, 0, Screen.width);
         currentCursorPosition.y = Mathf.Clamp(currentCursorPosition.y, 0, Screen.height);
         
         UpdateCursorPosition();
-        
-        // A 버튼으로 클릭
-        if (gamepad.buttonSouth.wasPressedThisFrame)
-        {
-            SimulateClick();
-        }
     }
     
     void UpdateCursorPosition()

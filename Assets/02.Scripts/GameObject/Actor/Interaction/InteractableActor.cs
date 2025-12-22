@@ -52,7 +52,8 @@ namespace Actor
             var items = ItemManager.Instance.GetDropItemList(_dataSO.dropItems);
             for (int i = 0; i <items.Count; ++i)
             {
-                Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                go.Init(itemSO: items[i]);
                 
                 Debug.Log($"ID: {items[i].itemId}, Name: {items[i].itemName}, Description: {items[i].itemDescription}");
             }

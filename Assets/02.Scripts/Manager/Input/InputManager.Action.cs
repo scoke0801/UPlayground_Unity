@@ -38,6 +38,8 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     public InputAction SubmitAction { get; private set; }
     public InputAction CancelAction { get; private set; }
     public InputAction PointAction { get; private set; }
+    public InputAction CursorMoveAction { get; private set; }
+    public InputAction CursorClickAction { get; private set; }
     
     // Test Actions
     public InputAction HoldAction { get; private set; }
@@ -98,6 +100,8 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         CancelAction = uiActionMap.FindAction("Cancel");
         PointAction = uiActionMap.FindAction("Point");
         UiInventoryAction = uiActionMap.FindAction("Inventory");
+        CursorClickAction = uiActionMap.FindAction("CursorClick");
+        CursorMoveAction = uiActionMap.FindAction("CursorMove");
         
         // Test Actions
         HoldAction = gameplayActionMap.FindAction("HoldTest");

@@ -495,6 +495,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CursorClick",
+                    "type": "Button",
+                    "id": "a4d75528-1220-4e2e-9484-ca8f3046c091",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CursorMove",
+                    "type": "Value",
+                    "id": "6bcaaaa8-7ce1-4562-9c76-79cc27f48501",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -594,6 +612,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Inventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "330fa2f7-91ca-4f6b-ba19-3200ab7a2fa3",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CursorClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0cbb05e0-38ec-470b-b4db-547ed1d66b2a",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CursorMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

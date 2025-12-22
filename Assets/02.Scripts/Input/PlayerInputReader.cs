@@ -346,7 +346,7 @@ namespace Game.Input
         public void EnableGameplayInput()
         {
             if (InputManager.Instance != null)
-                InputManager.Instance.SwitchToGameplay();
+                InputManager.Instance.SwitchToGameplay(true);
         }
 
         public void DisableGameplayInput()

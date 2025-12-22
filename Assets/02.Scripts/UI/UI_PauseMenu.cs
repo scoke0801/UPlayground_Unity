@@ -35,31 +35,11 @@ public class UI_PauseMenu : UI_Base
     
     private void OnEnable()
     {
-        if (inputManager != null)
-        {
-            // UI 모드로 전환
-            inputManager.SwitchToUI();
-            
-            // ESC 키로 메뉴 닫기
-            if (inputManager.CancelAction != null)
-            {
-                inputManager.CancelAction.performed += OnCancelPerformed;
-            }
-        }
-        
-        // 게임 시간 정지
-        Time.timeScale = 0f;
+       
     }
     
     private void OnDisable()
     {
-        if (inputManager != null && inputManager.CancelAction != null)
-        {
-            inputManager.CancelAction.performed -= OnCancelPerformed;
-        }
-        
-        // 게임 시간 재개
-        Time.timeScale = 1f;
     }
     
     private void OnCancelPerformed(InputAction.CallbackContext context)
@@ -77,7 +57,7 @@ public class UI_PauseMenu : UI_Base
         // 게임플레이 모드로 전환
         if (inputManager != null)
         {
-            inputManager.SwitchToGameplay();
+            inputManager.SwitchToGameplay(false);
         }
         
         // UI 닫기

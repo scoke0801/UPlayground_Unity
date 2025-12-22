@@ -13,7 +13,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
 
     private int _cursorVisibleStack = 0;
     
-    VirtualCursor _virtualCursor;
+    UI_VirtualCursor _uiVirtualCursor;
     
     private bool _isGamepadActive = false;
     #region IManager 구현
@@ -36,7 +36,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         
         // 게임플레이 모드로 시작
         _currentMode = InputMode.None;
-        SwitchToGameplay();
+        SwitchToGameplay(true);
         
         Debug.Log("[InputManager] 초기화 완료");
     }
@@ -178,7 +178,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         Debug.Log($"[게임패드 해제] {gamepad.displayName} (ID: {gamepad.deviceId})");
     }
     
-    public void SwitchToGameplay()
+    public void SwitchToGameplay(bool isForce)
     {
         if (_currentMode == InputMode.Gameplay) return;
         
@@ -188,12 +188,12 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         _currentMode = InputMode.Gameplay;
         OnInputModeChanged?.Invoke(_currentMode);
         
-        ShowCursor(false, true);
+        ShowCursor(false, isForce);
         
         Debug.Log("[InputManager] 게임플레이 모드로 전환");
     }
     
-    public void SwitchToUI()
+    public void SwitchToUI(bool isForce)
     {
         if (_currentMode == InputMode.UI) return;
         
@@ -203,7 +203,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         _currentMode = InputMode.UI;
         OnInputModeChanged?.Invoke(_currentMode);
         
-        ShowCursor(true, true);
+        ShowCursor(true, isForce);
         
         Debug.Log("[InputManager] UI 모드로 전환");
     }
@@ -281,12 +281,12 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     private void RefreshCursorState()
     {
         // 가상 커서 세팅
-        if (_virtualCursor == null)
+        if (_uiVirtualCursor == null)
         {
             GameObject go = UIManager.Instance.ShowUI("Cursor");
             if (go != null)
             {
-                _virtualCursor = go.GetComponent<VirtualCursor>();
+                _uiVirtualCursor = go.GetComponent<UI_VirtualCursor>();
             }
         }
         
@@ -297,15 +297,15 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         {
             if (_isGamepadActive)
             {
-                if(_virtualCursor)
-                    _virtualCursor.Show();
+                if(_uiVirtualCursor)
+                    _uiVirtualCursor.Show();
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
             else
             {
-                if(_virtualCursor)
-                    _virtualCursor.Hide();
+                if(_uiVirtualCursor)
+                    _uiVirtualCursor.Hide();
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 
@@ -314,8 +314,8 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         }
         else
         {
-            if(_virtualCursor)
-                _virtualCursor.Hide();
+            if(_uiVirtualCursor)
+                _uiVirtualCursor.Hide();
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -346,7 +346,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     private void OpenPauseMenu()
     {
         // UI 모드로 전환
-        SwitchToUI();
+        SwitchToUI(true);
 
         GameObject menuObj = UIManager.Instance.ShowUI("PauseMenu", CanvasLayer.Scene);
         
@@ -380,7 +380,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         }
         
         // 게임플레이 모드로 복귀
-        SwitchToGameplay();
+        SwitchToGameplay(false);
 
         // 게임 재개
         // Time.timeScale = 1f;
@@ -390,7 +390,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     private void OpenInventory()
     {
         // UI 모드로 전환
-        SwitchToUI();
+        SwitchToUI(true);
 
         GameObject menuObj = UIManager.Instance.ShowUI("Inventory", CanvasLayer.Scene);
         
@@ -420,7 +420,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         }
         
         // 게임플레이 모드로 복귀
-        SwitchToGameplay();
+        SwitchToGameplay(false);
 
         // 게임 재개
         // Time.timeScale = 1f;

@@ -33,3 +33,7 @@ MonoBehaviour:
     prefab: {fileID: 5133507297570702922, guid: 38675aff5481a7341bf5d89ae186fef9, type: 3}
     defaultLayer: 4
     description: 
+  - key: ItemAcquisitionList
+    prefab: {fileID: 1174032328161560428, guid: c181b2e0ae739e5469aaaf3234f48d51, type: 3}
+    defaultLayer: 5
+    description: 

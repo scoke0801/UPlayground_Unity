@@ -17,6 +17,7 @@ namespace Actor
         private float _playerColliderHeight = 1.0f;
         private Transform _player;
 
+        private ItemSO _itemData;
         private void Start()
         {
             _player = GameObjectManager.Instance.PlayerBrain.transform;
@@ -26,6 +27,11 @@ namespace Actor
                 _playerColliderHeight = playerCollider.bounds.size.y * 0.5f;
             }
             StartCoroutine(SpreadAndMoveToPlayer());
+        }
+
+        public void Init(ItemSO itemSO)
+        {
+            _itemData = itemSO;
         }
 
         IEnumerator SpreadAndMoveToPlayer()
@@ -91,7 +97,12 @@ namespace Actor
             }
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
-            Destroy(this.gameObject);
+
+            var ui = UIManager.Instance.ShowUI("ItemAcquisitionList");
+            if (ui != null)
+            {
+                ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemData);
+            }
         }
     }
 }

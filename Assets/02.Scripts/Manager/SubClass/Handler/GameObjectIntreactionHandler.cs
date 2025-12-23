@@ -172,6 +172,7 @@ public class GameObjectInteractionHandler
         UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
         if (ui != null)
         {
+            ui.Show();
             ui.BoardFill(currentHp, maxHp);
         }
     }

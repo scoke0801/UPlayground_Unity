@@ -65,6 +65,9 @@ namespace Actor
             float elapsedTime = 0.0f;
             Vector3 endPosition;
 
+            Vector3 targetPosition = _player.position;
+            targetPosition.y += _playerColliderHeight;
+            
             while (true)
             {
                 endPosition = _player.position + new Vector3(0.0f, _playerColliderHeight, 0.0f);
@@ -89,11 +92,10 @@ namespace Actor
                     yield return null;
                 }
 
-                if (Vector3.Distance(transform.position, _player.position) < 0.5f)
+                if (Vector3.Distance(transform.position, targetPosition) < 0.5f)
                 {
                     break;
                 }
-                
             }
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
@@ -103,6 +105,7 @@ namespace Actor
             {
                 ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemData);
             }
+            Destroy(gameObject);
         }
     }
 }

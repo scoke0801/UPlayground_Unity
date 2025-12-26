@@ -3,11 +3,10 @@ using Animancer;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_Dodge", menuName = "FSM/States/Dodge")]
+    [CreateAssetMenu(fileName = "State_Dodge", menuName = "UP/FSM/States/Dodge")]
     public class DodgeStateSO : StateSO
     {
         [Header("Settings")]
-        public string DodgeAnimKey = "Dodge";
         public float DodgeSpeed = 10f;   
         public float InvincibleDuration = 0.5f; 
 
@@ -24,8 +23,8 @@ namespace Game.FSM
 
             brain.transform.rotation = Quaternion.LookRotation(_dodgeDir);
             
-            ClipTransition dodgeAnim = brain.AnimData.GetClipTransition(DodgeAnimKey);
-            if (dodgeAnim.Clip == null) { Debug.LogError($"[{DodgeAnimKey}] 클립이 없습니다!"); return; }
+            ITransition dodgeAnim = brain.AnimData.GetAnimation(AnimKey.Dodge);
+            if (dodgeAnim == null) { Debug.LogError($"[{AnimKey.Dodge}] 클립이 없습니다!"); return; }
             
             var state = brain.Animancer.Play(dodgeAnim, fadeDuration);
             

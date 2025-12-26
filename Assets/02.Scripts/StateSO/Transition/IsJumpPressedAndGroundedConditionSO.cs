@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "Cond_IsJumpAndGrounded", menuName = "FSM/Conditions/Is Jump Pressed And Grounded")]
+    [CreateAssetMenu(fileName = "Cond_IsJumpAndGrounded", menuName = "UP/FSM/Conditions/Is Jump Pressed And Grounded")]
     public class IsJumpPressedAndGroundedConditionSO : TransitionConditionSO
     {
         public override bool CheckCondition(CharacterBrain brain)

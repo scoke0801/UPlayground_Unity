@@ -3,12 +3,10 @@ using Animancer;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_Jump", menuName = "FSM/States/Jump")]
+    [CreateAssetMenu(fileName = "State_Jump", menuName = "UP/FSM/States/Jump")]
     public class JumpStateSO : StateSO
     {
         [Header("Settings")]
-        public string JumpStartKey = "JumpStart";
-        
         public float JumpForce = 7f;
         public float AirMoveSpeed = 3f; 
         
@@ -19,9 +17,9 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
-            ClipTransition jumpStartAnim = brain.AnimData.GetClipTransition(JumpStartKey);
+            ITransition jumpStartAnim = brain.AnimData.GetAnimation(AnimKey.Jump);
             
-            if (jumpStartAnim.Clip == null) { Debug.LogError($"[{JumpStartKey}] 클립이 없습니다!"); return; }
+            if (jumpStartAnim == null) { Debug.LogError($"[{AnimKey.Jump}] 클립이 없습니다!"); return; }
             
             // 1. 애니메이션 재생
             var animState = brain.Animancer.Play(jumpStartAnim, fadeDuration);

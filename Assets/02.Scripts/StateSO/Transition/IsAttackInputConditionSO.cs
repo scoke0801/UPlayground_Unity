@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "Cond_IsAttackInput", menuName = "FSM/Conditions/Is Attack Input")]
+    [CreateAssetMenu(fileName = "Cond_IsAttackInput", menuName = "UP/FSM/Conditions/Is Attack Input")]
     public class IsAttackInputConditionSO : TransitionConditionSO
     {
         public AttackInputType RequiredType = AttackInputType.Light;

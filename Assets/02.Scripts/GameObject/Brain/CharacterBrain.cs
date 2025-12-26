@@ -12,7 +12,7 @@ namespace Game.FSM
     }
 
     [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-    [RequireComponent(typeof(AnimancerComponent), typeof(CharacterAnimationData))]
+    [RequireComponent(typeof(AnimancerComponent))]
     public class CharacterBrain : MonoBehaviour
     {
         [Header("References")]
@@ -46,7 +46,6 @@ namespace Game.FSM
             Animancer = GetComponent<AnimancerComponent>();
             Rb = GetComponent<Rigidbody>();
             
-            AnimData = GetComponent<CharacterAnimationData>();
             if (AnimData != null) 
             {
                 AnimData.Initialize();

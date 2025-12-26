@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// FX 프리팹 데이터베이스
 /// </summary>
-[CreateAssetMenu(fileName = "FXPrefabDatabase", menuName = "PathDatabase/FX")]
+[CreateAssetMenu(fileName = "FXPrefabDatabase", menuName = "UP/PathDatabase/FX")]
 public class FXPrefabDatabase : ScriptableObject
 {
     [System.Serializable]

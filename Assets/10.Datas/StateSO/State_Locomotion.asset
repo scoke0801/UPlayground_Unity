@@ -22,14 +22,10 @@ MonoBehaviour:
   - Condition: {fileID: 11400000, guid: a5a41bd863158be40bae5874cf269bc2, type: 2}
     TargetState: {fileID: 11400000, guid: a95fa7ac69965304aa28a13fab370696, type: 2}
     ConsumeInputOnTransition: 1
-  - Condition: {fileID: 11400000, guid: 502b5ef93658b57409749394627b97ee, type: 2}
-    TargetState: {fileID: 11400000, guid: 93e79752a344d22458a6f27d8124a7e4, type: 2}
-    ConsumeInputOnTransition: 1
   - Condition: {fileID: 11400000, guid: dce688787d200594a8831bf345609aef, type: 2}
     TargetState: {fileID: 11400000, guid: da378e435c252a8448db77993780d4cf, type: 2}
     ConsumeInputOnTransition: 1
   MoveSpeed: 6
   RotationSpeed: 15
-  MixerKey: Locomotion
   fadeDuration: 0.1
   FallState: {fileID: 0}

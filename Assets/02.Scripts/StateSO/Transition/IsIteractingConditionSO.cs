@@ -2,7 +2,7 @@
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "Cond_IsInteracting", menuName = "FSM/Conditions/Is Interacting")]
+    [CreateAssetMenu(fileName = "Cond_IsInteracting", menuName = "UP/FSM/Conditions/Is Interacting")]
     public class InIteractingConditionSO : TransitionConditionSO
     {
         public override bool CheckCondition(CharacterBrain brain)

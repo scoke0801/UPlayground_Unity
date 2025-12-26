@@ -3,7 +3,7 @@ using Animancer;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_Locomotion_RB", menuName = "FSM/States/Locomotion (Rigidbody)")]
+    [CreateAssetMenu(fileName = "State_Locomotion_RB", menuName = "UP/FSM/States/Locomotion (Rigidbody)")]
     public class LocomotionStateSO : StateSO
     {
         [Header("Movement Settings")]
@@ -11,7 +11,6 @@ namespace Game.FSM
         public float RotationSpeed = 15f;
         
         [Header("Animation")]
-        public string MixerKey = "Locomotion";
         [SerializeField] private float fadeDuration = 0.1f;
         
         [Header("Transitions (Branching)")]
@@ -20,7 +19,7 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
-            LinearMixerTransition mixer = brain.AnimData.GetMixerTransition(MixerKey);
+            ITransition mixer = brain.AnimData.GetAnimation(AnimKey.Mixer_Locomotion);
             
             AnimancerState state = brain.Animancer.Play(mixer, fadeDuration);
             

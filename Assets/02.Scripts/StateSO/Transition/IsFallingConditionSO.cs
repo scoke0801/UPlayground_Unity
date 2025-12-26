@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "Cond_IsFalling", menuName = "FSM/Conditions/Is Falling")]
+    [CreateAssetMenu(fileName = "Cond_IsFalling", menuName = "UP/FSM/Conditions/Is Falling")]
     public class IsFallingConditionSO : TransitionConditionSO
     {
         public override bool CheckCondition(CharacterBrain brain)

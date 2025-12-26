@@ -5,7 +5,7 @@ using UnityEngine;
 /// UI 프리팹 데이터베이스
 /// UIManager가 자동으로 로드
 /// </summary>
-[CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "PathDatabase/UI")]
+[CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "UP/PathDatabase/UI")]
 public class UIPrefabDatabase : ScriptableObject
 {
     [System.Serializable]

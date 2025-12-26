@@ -4,19 +4,20 @@ using Animancer;
 
 namespace Game.FSM
 {
-    public class CharacterAnimationData : MonoBehaviour
+    [CreateAssetMenu(fileName = "AnimData", menuName = "UP/ActorData/AnimData")]
+    public class CharacterAnimationData : ScriptableObject
     {
         [System.Serializable]
         public class ClipEntry
         {
-            public string key;
+            public AnimKey key;
             public ClipTransition transition;
         }
 
         [System.Serializable]
         public class MixerEntry
         {
-            public string key;
+            public AnimKey key;
             public LinearMixerTransition mixer;
         }
 
@@ -26,61 +27,58 @@ namespace Game.FSM
         [Header("믹서 애니메이션 클립 목록")]
         [SerializeField] private List<MixerEntry> mixerAnimations = new List<MixerEntry>();
 
-        private Dictionary<string, ClipTransition> clipDictionary;
-        private Dictionary<string, LinearMixerTransition> mixerDictionary;
+        // 2. ITransition 인터페이스를 사용하여 통합 딕셔너리 구성
+        private Dictionary<AnimKey, ITransition> animationDictionary;
 
         /// <summary>
-        /// Dictionary 초기화 (CharacterBrain에서 호출)
+        /// Dictionary 초기화 (캐릭터 생성 시 1회 호출)
         /// </summary>
         public void Initialize()
         {
-            if (clipDictionary != null) return; 
+            if (animationDictionary != null) return; 
 
-            clipDictionary = new Dictionary<string, ClipTransition>();
+            animationDictionary = new Dictionary<AnimKey, ITransition>();
+
+            // 클립 데이터 삽입
             foreach (var entry in clipAnimations)
             {
-                if (string.IsNullOrEmpty(entry.key)) continue;
-                
-                clipDictionary[entry.key] = entry.transition;
+                if (entry.key == AnimKey.None) continue;
+                AddAnimation(entry.key, entry.transition);
             }
 
-            mixerDictionary = new Dictionary<string, LinearMixerTransition>();
+            // 믹서 데이터 삽입
             foreach (var entry in mixerAnimations)
             {
-                if (string.IsNullOrEmpty(entry.key)) continue;
-                
-                mixerDictionary[entry.key] = entry.mixer;
+                if (entry.key == AnimKey.None) continue;
+                AddAnimation(entry.key, entry.mixer);
             }
         }
 
-        public ClipTransition GetClipTransition(string key)
+        private void AddAnimation(AnimKey key, ITransition transition)
         {
-            if (clipDictionary == null) Initialize();
-
-            if (clipDictionary.TryGetValue(key, out ClipTransition transition))
+            if (animationDictionary.ContainsKey(key))
             {
-                if (transition.Clip == null)
-                {
-                    Debug.LogWarning($"[CharacterAnimationData] '{key}' 클립이 null입니다: {gameObject.name}");
-                }
-                return transition;
+                Debug.LogWarning($"[CharacterAnimationData] 중복된 키 발견: {key} (데이터: {name})");
+                return;
             }
-
-            Debug.LogWarning($"[CharacterAnimationData] '{key}' ClipTransition을 찾을 수 없습니다: {gameObject.name}");
-            return default;
+            animationDictionary[key] = transition;
         }
 
-        public LinearMixerTransition GetMixerTransition(string key)
+        /// <summary>
+        /// 클립/믹서 구분 없이 애니메이션 데이터를 가져옵니다.
+        /// </summary>
+        public ITransition GetAnimation(AnimKey key)
         {
-            if (mixerDictionary == null) Initialize();
+            if (animationDictionary == null) Initialize();
 
-            if (mixerDictionary.TryGetValue(key, out LinearMixerTransition mixer))
+            if (animationDictionary.TryGetValue(key, out ITransition anim))
             {
-                return mixer;
+                return anim;
             }
 
-            Debug.LogWarning($"[CharacterAnimationData] '{key}' MixerTransition을 찾을 수 없습니다: {gameObject.name}");
-            return default;
+            Debug.LogWarning($"[CharacterAnimationData] '{key}' 애니메이션을 찾을 수 없습니다: {name}");
+            return null;
         }
+        
     }
 }

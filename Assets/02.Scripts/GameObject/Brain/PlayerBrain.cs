@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Game.Input;
 using Game.Skills;
 using Game.Data;
@@ -27,7 +28,12 @@ namespace Game.FSM
 
         // state
         public bool IsOnInteraction { get; private set; }
-        
+
+        protected void OnDisable()
+        {
+            Debug.Log("23123");
+        }
+
         protected override void Awake()
         {
             base.Awake();

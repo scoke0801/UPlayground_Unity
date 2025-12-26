@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "Cond_IsDodgePressed", menuName = "FSM/Conditions/Is Dodge Pressed")]
+    [CreateAssetMenu(fileName = "Cond_IsDodgePressed", menuName = "UP/FSM/Conditions/Is Dodge Pressed")]
     public class IsDodgePressedConditionSO : TransitionConditionSO
     {
         public override bool CheckCondition(CharacterBrain brain)

@@ -3,12 +3,10 @@ using Animancer;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_Fall", menuName = "FSM/States/Fall")]
+    [CreateAssetMenu(fileName = "State_Fall", menuName = "UP/FSM/States/Fall")]
     public class FallStateSO : StateSO
     {
         [Header("Settings")]
-        
-        public string FallLoopAnimKey = "Fall";
         public float AirMoveSpeed = 3f;
         
         [Header("Transitions")]
@@ -16,9 +14,8 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
-            
-            ClipTransition fallAnim = brain.AnimData.GetClipTransition(FallLoopAnimKey);
-            if (fallAnim.Clip == null) { Debug.LogError($"[{FallLoopAnimKey}] 클립이 없습니다!"); return; }
+            ITransition fallAnim = brain.AnimData.GetAnimation(AnimKey.Fall);
+            if (fallAnim == null) { Debug.LogError($"[{AnimKey.Fall}] 클립이 없습니다!"); return; }
 
             // 낙하 애니메이션 재생
             brain.Animancer.Play(fallAnim);

@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_LifeInteraction", menuName = "FSM/States/LifeInteraction")]
+    [CreateAssetMenu(fileName = "State_LifeInteraction", menuName = "UP/FSM/States/LifeInteraction")]
     public class LifeInteractionStateSO : StateSO
     {
         [FormerlySerializedAs("interactionType")] [Header("Settings")]
@@ -16,7 +16,7 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
-            ClipTransition interactionAnim = brain.AnimData.GetClipTransition(GetAnimKey());
+            ITransition interactionAnim = brain.AnimData.GetAnimation(GetAnimKey());
             
             if (interactionAnim == null) { Debug.LogError($"[{interactionAnim}] 클립이 없습니다!"); return; }
             
@@ -58,9 +58,10 @@ namespace Game.FSM
             }
         }
 
-        private string GetAnimKey()
+        private AnimKey GetAnimKey()
         {
-            return lifeInteractionType.ToString();
+            // [TODO] 인터렉션 타입에 맞게 수정 필요
+            return AnimKey.WoodCut;
         }
     }
 }

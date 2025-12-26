@@ -3,11 +3,11 @@ using Animancer;
 
 namespace Game.FSM
 {
-    [CreateAssetMenu(fileName = "State_ComboAttack", menuName = "FSM/States/Combo Attack")]
+    [CreateAssetMenu(fileName = "State_ComboAttack", menuName = "UP/FSM/States/Combo Attack")]
     public class ComboAttackStateSO : StateSO
     {
         [Header("Combo Settings")]
-        public string[] ComboAnimationKeys;
+        public AnimKey[] ComboAnimationKeys;
         
         [Header("Timing Settings")]
         [Range(0, 1)] public float HitStart = 0.3f; // 공격 판정 시작 (30% 지점)
@@ -35,10 +35,10 @@ namespace Game.FSM
                 return;
             }
             
-            string animKey = ComboAnimationKeys[comboIndex];
-            ClipTransition currentAnim = brain.AnimData.GetClipTransition(animKey);
+            AnimKey animKey = ComboAnimationKeys[comboIndex];
+            ITransition currentAnim = brain.AnimData.GetAnimation(animKey);
             
-            if (currentAnim.Clip == null)
+            if (currentAnim == null)
             {
                 Debug.LogError($"콤보 인덱스 {comboIndex}의 클립({animKey})이 null입니다.");
                 brain.ChangeState(brain.DefaultState);

@@ -47,6 +47,9 @@ public class UI_InteractionKey : UI_Base
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        Hide();
+        if (this.gameObject != null)
+        {
+            Hide();   
+        }
     }
 }

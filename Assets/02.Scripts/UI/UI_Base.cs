@@ -113,8 +113,13 @@ public abstract class UI_Base : MonoBehaviour
     {
         IsVisible = false;
         OnHide();
-        gameObject.SetActive(false);
+        if(this.gameObject != null)
+        {
+            gameObject.SetActive(false);
+            
+        }
     }
+    
 
     /// <summary>
     /// UI 닫기 (제거)

@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5fbf1b2b78b437c8d10ba9ababffb7e, type: 3}
-  m_Name: HairColorEditPartData
+  m_Script: {fileID: 11500000, guid: af0f4356961b47eabaee095a090aef0e, type: 3}
+  m_Name: State_Move_Stop
   m_EditorClassIdentifier: 
-  _contentId: 0
-  _displayName: 
-  _meshName: 
-  _icon: {fileID: 0}
-  _material: {fileID: 0}
-  _hairStyleMaterials: []
+  Transitions: []
+  fadeDuration: 0.1

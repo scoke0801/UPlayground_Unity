@@ -43,8 +43,88 @@ MonoBehaviour:
         _Names: []
       _Clip: {fileID: 50548382346646705, guid: b47c7a11a25ed2f45b6d48a219f0cb91, type: 3}
       _NormalizedStartTime: NaN
-  mixerAnimations:
   - key: 12
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 8582000511600668943, guid: acb96a6ee8629714f9a7fa1013130c96, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 13
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 6195148283323240482, guid: 4c15cc0296d5b9d47baa041d13437f0b, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 14
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 5495570677938246794, guid: dea0bdf3f1845844a9fba3e1ce906ae2, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 15
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -4871473933056038789, guid: f478e272ad16e504c992d141de78aa8c, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 16
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -7789621157696843499, guid: 89e2cbca9c855f04c88a4fdc18170129, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 17
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8071410226439874427, guid: c865e7106cccad74bac2a0f4202ed59f, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 18
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8071410226439874427, guid: c865e7106cccad74bac2a0f4202ed59f, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 8
+    transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
+      _NormalizedStartTime: NaN
+  mixerAnimations:
+  - key: 19
     mixer:
       _FadeDuration: 0
       _Speed: 1
@@ -54,14 +134,16 @@ MonoBehaviour:
         _Names: []
       _Animations:
       - {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
-      - {fileID: 6735416948213278490, guid: 3708fbe86d6c80a4093941d613c7249f, type: 3}
-      - {fileID: -5573034066440343057, guid: c4680a91fb32a2348a757eaa8d3c9ed9, type: 3}
+      - {fileID: 5324003999186053431, guid: a76a672aafe9a8e4eacc90f6828d4add, type: 3}
+      - {fileID: 1901488457202629134, guid: d8afabdefce9a39468d556b3191266c8, type: 3}
+      - {fileID: 2257255305288897714, guid: d3ef18029dadeb147a0aee497e6fc08d, type: 3}
       _Speeds: []
       _SynchronizeChildren: 
       _Thresholds:
       - 0
-      - 0.5
       - 1
+      - 2
+      - 3
       _DefaultParameter: 0
       _ExtrapolateSpeed: 0
       _ParameterName: {fileID: 0}

@@ -47,6 +47,8 @@ namespace Game.Input
         public event Action OnAttackEvent;
         public event Action OnHeavyAttackEvent;
         public event Action OnInteractEvent;
+        public event Action OnSprintPerformEvent;
+        public event Action OnSprintCancelEvent;
         
         // 스킬 이벤트
         public event Action<int> OnSkillPressed;  // 스킬 번호 전달 (1-4)
@@ -61,6 +63,7 @@ namespace Game.Input
         private InputAction _attackAction;
         private InputAction _heavyAttackAction;
         private InputAction _interactAction;
+        private InputAction _sprintAction;
         
         // Skill Actions
         private InputAction _skill1Action;
@@ -99,6 +102,7 @@ namespace Game.Input
             _attackAction = InputManager.Instance.AttackAction;
             _heavyAttackAction = InputManager.Instance.HeavyAttackAction;
             _interactAction = InputManager.Instance.InteractAction;
+            _sprintAction = InputManager.Instance.SprintAction;
             
             // 스킬 액션 초기화
             _skill1Action = InputManager.Instance.Skill1Action;
@@ -149,7 +153,14 @@ namespace Game.Input
                 _skill4Action.performed += ctx => OnSkillPerformed(4);
                 _skill4Action.canceled += ctx => OnSkillCanceled(4);
             }
+
+            if (_sprintAction != null)
+            {
+                _sprintAction.performed += OnSprintPerformed;
+                _sprintAction.canceled += OnSprintCanceled;
+            }
         }
+
 
         private void Update()
         {
@@ -189,6 +200,7 @@ namespace Game.Input
                 Skill3Held = _skill3Action.IsPressed();
             if (_skill4Action != null)
                 Skill4Held = _skill4Action.IsPressed();
+            
         }
 
         #region 입력 이벤트 콜백
@@ -264,6 +276,15 @@ namespace Game.Input
             OnSkillReleased?.Invoke(skillIndex);
         }
 
+        private void OnSprintCanceled(InputAction.CallbackContext obj)
+        {
+            OnSprintCancelEvent?.Invoke();
+        }
+
+        private void OnSprintPerformed(InputAction.CallbackContext obj)
+        {
+            OnSprintPerformEvent?.Invoke();
+        }
         #endregion
 
         #region 입력 소비

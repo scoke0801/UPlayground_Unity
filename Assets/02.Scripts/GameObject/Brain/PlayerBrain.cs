@@ -80,8 +80,11 @@ namespace Game.FSM
             playerInputReader.OnSkillReleased += (index) => _inputBuffer.AddInput($"Skill{index}Released");
             
             playerInputReader.OnInteractEvent += () => _inputBuffer.AddInput("Interact");
-        }
 
+            playerInputReader.OnSprintPerformEvent += OnSprintPerformed;
+            playerInputReader.OnSprintCancelEvent += OnSprintCanceled;
+        }
+        
         protected override void HandleInput()
         {
             if (playerInputReader == null) return;
@@ -138,8 +141,13 @@ namespace Game.FSM
                 _inputBuffer.ConsumeInput("Roll");
                 return; // 회피가 발동되면 다른 행동 무시
             }
+
+            if (_inputBuffer.HasInput("Sprint"))
+            {
+                SetSprintInput(true);
+            }
             
-            // 2. 스킬 입력 처리
+            // 스킬 입력 처리
             for (int i = 1; i <= 4; i++)
             {
                 string key = $"Skill{i}";
@@ -262,6 +270,16 @@ namespace Game.FSM
         private void OnInteractionOut()
         {
             IsOnInteraction = false;
+        }
+        
+        private void OnSprintPerformed()
+        {
+            SetSprintInput(true);
+        }
+
+        private void OnSprintCanceled()
+        {
+            SetSprintInput(false);
         }
     }
 }

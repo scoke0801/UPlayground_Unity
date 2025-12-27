@@ -35,9 +35,11 @@ namespace Game.FSM
 
         // 프로퍼티는 읽기 전용(private set)으로 둡니다.
         public Vector3 InputDirection { get; private set; }
-        public AttackInputType CurrentInput { get; private set; }
+        public AttackInputType AttackInput { get; private set; }
         public bool IsJumpPressed { get; private set; }
         public bool IsDodgePressed { get; private set; }
+        public bool IsSprintPressed { get; private set; }
+
 
         public bool IsInteractionPressed { get; private set; }
         
@@ -62,8 +64,6 @@ namespace Game.FSM
             Rb.useGravity = true;
             Rb.interpolation = RigidbodyInterpolation.Interpolate;
             Rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-            Rb.linearVelocity = Vector3.zero;
         }
 
         protected virtual void Start()
@@ -90,14 +90,15 @@ namespace Game.FSM
 
         // 자식 클래스(PlayerBrain, MonsterBrain)에서 값을 세팅하기 위한 메서드들 추가
         protected void SetInputDirection(Vector3 dir) => InputDirection = dir;
-        protected void SetAttackInput(AttackInputType type) => CurrentInput = type;
+        protected void SetAttackInput(AttackInputType type) => AttackInput = type;
         protected void SetJumpInput(bool active) => IsJumpPressed = active;
         protected void SetDodgeInput(bool active) => IsDodgePressed = active;
+        protected void SetSprintInput(bool active) => IsSprintPressed = active;
         protected void SetInteractionInput(bool active) => IsInteractionPressed = active;
 
         public void ConsumeInput()
         {
-            CurrentInput = AttackInputType.None;
+            AttackInput = AttackInputType.None;
             SetInteractionInput(false);
         }
 

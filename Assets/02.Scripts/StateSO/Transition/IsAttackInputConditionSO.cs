@@ -11,7 +11,7 @@ namespace Game.FSM
         public override bool CheckCondition(CharacterBrain brain)
         {
             // 요구되는 공격 타입과 현재 입력된 공격 타입을 비교합니다.
-            return brain.CurrentInput == RequiredType;
+            return brain.AttackInput == RequiredType;
         }
     }
 }

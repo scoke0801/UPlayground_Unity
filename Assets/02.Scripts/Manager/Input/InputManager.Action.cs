@@ -20,6 +20,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     public InputAction RunAction { get; private set; }
     public InputAction RollAction { get; private set; }
     public InputAction AttackAction { get; private set; }
+    public InputAction SprintAction { get; private set; }
     public InputAction HeavyAttackAction { get; private set; }
     public InputAction InteractAction { get; private set; }
     public InputAction PauseAction { get; private set; }
@@ -82,6 +83,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         RunAction = gameplayActionMap.FindAction("Run");
         RollAction = gameplayActionMap.FindAction("Roll");
         AttackAction = gameplayActionMap.FindAction("Attack");
+        SprintAction = gameplayActionMap.FindAction("Sprint");
         HeavyAttackAction = gameplayActionMap.FindAction("HeavyAttack");
         InteractAction = gameplayActionMap.FindAction("Interact");
         PauseAction = gameplayActionMap.FindAction("Pause");

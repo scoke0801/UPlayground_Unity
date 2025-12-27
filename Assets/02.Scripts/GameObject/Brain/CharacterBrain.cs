@@ -62,6 +62,8 @@ namespace Game.FSM
             Rb.useGravity = true;
             Rb.interpolation = RigidbodyInterpolation.Interpolate;
             Rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+            Rb.linearVelocity = Vector3.zero;
         }
 
         protected virtual void Start()

@@ -28,6 +28,11 @@ namespace Game.FSM
             AnimancerState state = brain.Animancer.Play(mixer, fadeDuration);
             
             brain.SetData("LocomotionState", state);
+            
+            if (state is LinearMixerState mixerState)
+            {
+                mixerState.Parameter = 0f;
+            }
         }
         
         public override void OnUpdate(CharacterBrain brain)

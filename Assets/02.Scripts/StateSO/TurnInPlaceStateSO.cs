@@ -20,8 +20,16 @@ namespace Game.FSM
             var anim = brain.AnimData.GetAnimation(turnKey);
             var state = brain.Animancer.Play(anim, 0.1f);
             
+            // 애니메이션 도중 캐릭터가 입력 방향을 향하도록 부드럽게 보정
+            if (brain.InputDirection.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
+                brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 10f));
+            }
+            
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
+                brain.ChangeState(brain.DefaultState);
                 events.OnEnd = () => brain.ChangeState(brain.DefaultState);
             }
         }
@@ -31,8 +39,8 @@ namespace Game.FSM
             // 애니메이션 도중 캐릭터가 입력 방향을 향하도록 부드럽게 보정
             if (brain.InputDirection.sqrMagnitude > 0.01f)
             {
-                Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
-                brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 10f));
+                //Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
+                //brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 10f));
             }
         }
     }

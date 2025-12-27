@@ -27,6 +27,7 @@ MonoBehaviour:
     ConsumeInputOnTransition: 1
   MoveSpeed: 6
   RotationSpeed: 15
+  fadeDuration: 0.1
   StopState: {fileID: 11400000, guid: 6701ffbbf1eaac74a8c30df39fbd6a19, type: 2}
   TurnInPlaceState: {fileID: 11400000, guid: 2a8c402eaacd3174387efbbc77b09c10, type: 2}
   StopSpeedThreshold: 1.5

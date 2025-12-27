@@ -31,7 +31,6 @@ namespace Game.FSM
 
         protected void OnDisable()
         {
-            Debug.Log("23123");
         }
 
         protected override void Awake()

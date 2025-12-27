@@ -36,10 +36,6 @@ namespace Game.FSM
             // 3. 공중 이동 제어 (약간의 이동 허용)
             if (brain.InputDirection.sqrMagnitude > 0.01f)
             {
-                Vector3 airMove = brain.InputDirection * AirMoveSpeed;
-                // Y축 속도는 유지하고 X, Z만 변경
-                brain.Rb.linearVelocity = new Vector3(airMove.x, brain.Rb.linearVelocity.y, airMove.z);
-
                 // 공중 회전
                 Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
                 brain.transform.rotation = Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 5f);

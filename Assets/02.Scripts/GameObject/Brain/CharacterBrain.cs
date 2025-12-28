@@ -185,6 +185,12 @@ namespace Game.FSM
             else _blackboard.Add(key, value);
         }
 
+        public bool HasData(string key) => _blackboard.ContainsKey(key);
+
+        public void ClearData(string key)
+        {
+            _blackboard.Remove(key);
+        }
         public T GetData<T>(string key, T defaultValue = default)
         {
             if (_blackboard.TryGetValue(key, out object value))

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Animancer;
-using UnityEngine.Serialization;
 
 namespace Game.FSM
 {
@@ -12,7 +11,7 @@ namespace Game.FSM
         public float runSpeed = 9f;
         public float sprintSpeed = 12f;
         public float rotationSpeed = 15f;
-        public float acceleration = 10f; // 가속도
+        public float acceleration = 10f;
         
         [Header("Animation")]
         [SerializeField] private float fadeDuration = 0.1f;
@@ -22,24 +21,44 @@ namespace Game.FSM
         public StateSO turnInPlaceState;
 
         [Header("Thresholds")]
-        public float stopSpeedThreshold = 1.5f; // 이 속도 이상일 때 멈추면 Stop 애니메이션 재생
-        public float turnAngleThreshold = 45f;  // 이 각도 이상 차이날 때 제자리 회전 실행
+        public float stopSpeedThreshold = 1.5f;
+        public float turnAngleThreshold = 45f;
         
         private Vector3 _currentVelocity = Vector3.zero;
         
         public override void OnEnter(CharacterBrain brain)
         {
             ITransition mixer = brain.AnimData.GetAnimation(AnimKey.Mixer_Locomotion);
-            
             AnimancerState state = brain.Animancer.Play(mixer, fadeDuration);
             
             brain.SetData("LocomotionState", state);
             
-            _currentVelocity = Vector3.zero;
+            // 현재 속도 유지
+            Vector3 horizontalVelocity = new Vector3(brain.Rb.linearVelocity.x, 0, brain.Rb.linearVelocity.z);
+            _currentVelocity = horizontalVelocity;
+            
+            // 초기 애니메이션 파라미터 설정
             if (state is LinearMixerState mixerState)
             {
-                mixerState.Parameter = 0f;
+                float initialParameter = GetInitialMixerParameter(brain);
+                mixerState.Parameter = initialParameter;
             }
+        }
+        
+        private float GetInitialMixerParameter(CharacterBrain brain)
+        {
+            Vector3 horizontalVelocity = new Vector3(brain.Rb.linearVelocity.x, 0, brain.Rb.linearVelocity.z);
+            float currentSpeed = horizontalVelocity.magnitude;
+            float inputMag = brain.InputDirection.sqrMagnitude;
+            
+            if (inputMag > 0.1f)
+            {
+                if (currentSpeed >= runSpeed) return 3f;
+                else if (currentSpeed >= walkSpeed) return 2f;
+                else return 1f;
+            }
+            
+            return 0f;
         }
         
         public override void OnUpdate(CharacterBrain brain)
@@ -48,27 +67,23 @@ namespace Game.FSM
             Vector3 horizontalVelocity = new Vector3(brain.Rb.linearVelocity.x, 0, brain.Rb.linearVelocity.z);
             float currentSpeed = horizontalVelocity.magnitude;
 
-            // 1. 제자리 회전 체크: 거의 멈춰있는 상태에서 입력 각도가 클 때
-            if (inputMag > 0.01f && currentSpeed < 0.5f)
-            {
-                float angle = Vector3.SignedAngle(brain.transform.forward, brain.InputDirection, Vector3.up);
-                if (Mathf.Abs(angle) > turnAngleThreshold)
-                {
-                    brain.SetData("TurnAngle", angle);
-                    brain.ChangeState(turnInPlaceState);
-                    return;
-                }
+            brain.SetData("LastSpeed", currentSpeed);
+            
+            float angle = Vector3.SignedAngle(brain.transform.forward, brain.InputDirection, Vector3.up);
+            brain.SetData("TurnAngle", angle);
+            
+            if (inputMag > 0.01f && Mathf.Abs(angle) > turnAngleThreshold)
+            {                
+                //brain.ChangeState(turnInPlaceState);
+                //return;
             }
 
-            // 2. 정지 체크: 입력은 없는데 움직이던 속도가 빠를 때
             if (inputMag < 0.01f && currentSpeed > stopSpeedThreshold)
             {
-                brain.SetData("LastSpeed", currentSpeed);
                 brain.ChangeState(stopState);
                 return;
             }
 
-            // 3. 기존 애니메이션 믹서 업데이트
             var state = brain.GetData<LinearMixerState>("LocomotionState");
             
             if (state != null)
@@ -76,9 +91,9 @@ namespace Game.FSM
                 float targetSpeedValue = 0f;
                 if (inputMag > 0.1f)
                 {
-                    if (currentSpeed >= runSpeed) targetSpeedValue = 3f; // Sprint
-                    else if (currentSpeed >= walkSpeed) targetSpeedValue = 2f; // Run
-                    else targetSpeedValue = 1f; // Walk
+                    if (currentSpeed >= runSpeed) targetSpeedValue = 3f;
+                    else if (currentSpeed >= walkSpeed) targetSpeedValue = 2f;
+                    else targetSpeedValue = 1f;
                 }
 
                 state.Parameter = Mathf.MoveTowards(state.Parameter, targetSpeedValue, Time.deltaTime * 5f);
@@ -108,8 +123,8 @@ namespace Game.FSM
                 acceleration * Time.deltaTime
             );
             
-            _currentVelocity .y = brain.Rb.linearVelocity.y;
-            brain.Rb.linearVelocity = _currentVelocity ;
+            _currentVelocity.y = brain.Rb.linearVelocity.y;
+            brain.Rb.linearVelocity = _currentVelocity;
         }
 
         private void RotateCharacter(CharacterBrain brain)

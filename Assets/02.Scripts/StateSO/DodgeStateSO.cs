@@ -36,7 +36,7 @@ namespace Game.FSM
 
         public override void OnFixedUpdate(CharacterBrain brain)
         {
-            brain.Rb.linearVelocity = new Vector3(_dodgeDir.x * DodgeSpeed, brain.Rb.linearVelocity.y, _dodgeDir.z * DodgeSpeed);
+            //brain.Rb.linearVelocity = new Vector3(_dodgeDir.x * DodgeSpeed, brain.Rb.linearVelocity.y, _dodgeDir.z * DodgeSpeed);
         }
     }
 }

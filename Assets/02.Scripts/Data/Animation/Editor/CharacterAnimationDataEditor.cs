@@ -16,14 +16,14 @@ namespace Game.FSM
             CharacterAnimationData data = (CharacterAnimationData)target;
 
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("자동화 도구", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("데이터 관리 도구", EditorStyles.boldLabel);
 
-            if (GUILayout.Button("AnimKey 기반 리스트 동기화"))
+            if (GUILayout.Button("1. AnimKey 기반 리스트 동기화"))
             {
                 SyncWithEnum(data);
             }
 
-            if (GUILayout.Button("애니메이션 클립 자동 매칭 (InPlace 우선)"))
+            if (GUILayout.Button("2. 애니메이션 자동 매칭 (유연한 검색)"))
             {
                 AutoMatchClips(data);
             }
@@ -33,67 +33,75 @@ namespace Game.FSM
         {
             Undo.RecordObject(data, "Sync Enum");
 
-            // 리플렉션으로 private 필드인 clipAnimations에 접근
             var field = typeof(CharacterAnimationData).GetField("clipAnimations", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var list = (List<CharacterAnimationData.ClipEntry>)field.GetValue(data);
+            var targetList = (List<CharacterAnimationData.ClipEntry>)field.GetValue(data);
 
-            var existingKeys = list.Select(e => e.key).ToHashSet();
+            var existingKeys = targetList.Select(e => e.key).ToHashSet();
             
             foreach (AnimKey key in Enum.GetValues(typeof(AnimKey)))
             {
-                if (key == AnimKey.None || key == AnimKey.Mixer_Locomotion) continue;
+                if (key == AnimKey.None || key.ToString().Contains("Mixer")) continue;
 
                 if (!existingKeys.Contains(key))
                 {
-                    list.Add(new CharacterAnimationData.ClipEntry { key = key });
+                    targetList.Add(new CharacterAnimationData.ClipEntry { key = key });
                 }
             }
 
-            // Enum 순서대로 정렬
-            list.Sort((a, b) => a.key.CompareTo(b.key));
-            
+            targetList.Sort((a, b) => a.key.CompareTo(b.key));
             EditorUtility.SetDirty(data);
             Debug.Log("리스트 동기화 완료.");
         }
 
         private void AutoMatchClips(CharacterAnimationData data)
         {
-            Undo.RecordObject(data, "Auto Match Clips");
-            
-            // 1. 폴더 경로 가져오기
+            // 폴더 경로 확인
             string folderPath = AssetDatabase.GetAssetPath(data.animationFolder);
-    
             if (string.IsNullOrEmpty(folderPath))
             {
-                Debug.LogError("검색할 폴더가 지정되지 않았습니다!");
+                Debug.LogError("Source Folder가 비어있습니다. 폴더를 할당해주세요.");
                 return;
             }
+
+            Undo.RecordObject(data, "Auto Match Clips");
+
             var field = typeof(CharacterAnimationData).GetField("clipAnimations", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var targetList = (List<CharacterAnimationData.ClipEntry>)field.GetValue(data);
-            
-            // 2. 해당 폴더 내에서만 클립 검색
-            string[] searchPath = { folderPath };
-            string[] guids = AssetDatabase.FindAssets("t:AnimationClip", searchPath);
-    
-            var allClips = guids
-                .Select(g => AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetDatabase.GUIDToAssetPath(g)))
-                .ToList();
-            
+
+            // 해당 폴더 및 하위 폴더의 모든 클립 로드
+            string[] guids = AssetDatabase.FindAssets("t:AnimationClip", new[] { folderPath });
+            var allClips = guids.Select(g => AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetDatabase.GUIDToAssetPath(g))).ToList();
+
+            if (allClips.Count == 0)
+            {
+                Debug.LogWarning($"[{folderPath}] 내에 검색된 애니메이션 클립이 없습니다.");
+                return;
+            }
+
             int matchCount = 0;
             foreach (var entry in targetList)
             {
-                if (entry.transition.Clip != null) continue; // 이미 있는 경우 패스
+                // 이미 할당된 것은 유지하려면 아래 주석 해제
+                // if (entry.transition.Clip != null) continue;
 
-                string keyStr = entry.key.ToString().ToLower();
+                string enumName = entry.key.ToString().ToLower();
                 
-                // 매칭 규칙: 
-                // 1. Enum 이름 포함 여부 확인
-                // 2. InPlace가 붙은 파일을 우선 순위로 탐색
+                // 검색 알고리즘 개선:
+                // 1. Enum 이름에서 언더바(_) 제거 (예: stand_turn_l45 -> standturnl45)
+                // 2. 파일 이름에서 언더바 제거 및 소문자화
+                // 3. InPlace가 붙은 파일을 최우선순위로
                 var matchedClip = allClips
-                    .Where(c => c.name.ToLower().Contains(keyStr.Replace("_", ""))) 
-                    .OrderByDescending(c => c.name.Contains("InPlace"))
+                    .Where(clip => {
+                        string fileName = clip.name.ToLower().Replace("_", "");
+                        string searchKey = enumName.Replace("_", "");
+                        
+                        // 예외 처리: Walk_Turn_L45(Enum) -> Walk_F_Turn_L45(File) 대응을 위해 
+                        // Enum의 핵심 키워드들이 파일명에 포함되어 있는지 확인
+                        return fileName.Contains(searchKey) || IsFlexibleMatch(fileName, enumName);
+                    })
+                    .OrderByDescending(clip => clip.name.Contains("InPlace") == false)
                     .FirstOrDefault();
 
                 if (matchedClip != null)
@@ -104,7 +112,15 @@ namespace Game.FSM
             }
 
             EditorUtility.SetDirty(data);
-            Debug.Log($"{matchCount}개의 클립 자동 매칭 완료.");
+            Debug.Log($"{matchCount}개의 클립 매칭 완료. (검색 대상 폴더: {folderPath})");
+        }
+
+        // 간단한 키워드 포함 검사 (예: Walk_Turn_L180 이 Walk_F_Turn_L180_InPlace 에 매칭되도록)
+        private bool IsFlexibleMatch(string fileName, string enumName)
+        {
+            string[] parts = enumName.Split('_');
+            // Enum의 모든 단어가 파일명에 포함되어 있는지 확인 (F, B 같은 방향 지시자 제외하고도 매칭되게 함)
+            return parts.All(p => fileName.Contains(p.ToLower()));
         }
     }
 }

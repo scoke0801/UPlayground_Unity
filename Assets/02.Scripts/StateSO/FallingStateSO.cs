@@ -31,14 +31,5 @@ namespace Game.FSM
                 return;
             }
         }
-        
-        public override void OnFixedUpdate(CharacterBrain brain)
-        {
-            // JumpStateSO의 OnFixedUpdate 로직과 동일
-            if (brain.InputDirection.sqrMagnitude > 0.01f)
-            {
-                // ... 공중 이동 로직 (생략, 기존 JumpStateSO 참고)
-            }
-        }
     }
 }

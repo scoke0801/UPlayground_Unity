@@ -6,37 +6,43 @@ namespace Game.FSM
     [CreateAssetMenu(fileName = "State_TurnInPlace", menuName = "UP/FSM/States/Turn In Place")]
     public class TurnInPlaceStateSO : StateSO
     {
-        [SerializeField] private LocomotionStateSO locomotionState;
+        [Header("Animation")]
+        [SerializeField] private float fadeDuration = 0.25f;
         
+        [SerializeField] private LocomotionStateSO locomotionState;
+
+        private CharacterBrain _cachedBrain;
+        private AnimancerState _animState;
+        
+
         public override void OnEnter(CharacterBrain brain)
         {
+            brain.Animancer.Animator.applyRootMotion = true;
+            
             AnimKey turnKey = GetAnimKey(brain);
-
             var anim = brain.AnimData.GetAnimation(turnKey);
-            var state = brain.Animancer.Play(anim, 0.1f);
+            _animState = brain.Animancer.Play(anim, fadeDuration);
             
-            // 애니메이션 도중 캐릭터가 입력 방향을 향하도록 부드럽게 보정
-            if (brain.InputDirection.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
-                brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 10f));
-            }
+            _cachedBrain = brain;
             
-            if (state.Events(brain, out AnimancerEvent.Sequence events))
+            if (_animState.Events(brain, out AnimancerEvent.Sequence events))
             {
-                brain.ChangeState(brain.DefaultState);
-                events.OnEnd = () => brain.ChangeState(brain.DefaultState);
+                events.OnEnd = OnTransitionToLocomotion;
             }
         }
-
-        public override void OnFixedUpdate(CharacterBrain brain)
+        
+        public override void OnExit(CharacterBrain brain)
         {
-            // 애니메이션 도중 캐릭터가 입력 방향을 향하도록 부드럽게 보정
-            if (brain.InputDirection.sqrMagnitude > 0.01f)
-            {
-                //Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
-                //brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * 10f));
-            }
+            base.OnExit(brain);
+            
+            brain.Animancer.Animator.applyRootMotion = false;
+        }
+
+        private void OnTransitionToLocomotion()
+        {
+            _cachedBrain.Animancer.Animator.applyRootMotion = false;
+            // 회전 없이 바로 상태 전환
+            _cachedBrain.ChangeState(_cachedBrain.DefaultState);
         }
 
         private AnimKey GetAnimKey(CharacterBrain brain)
@@ -47,9 +53,8 @@ namespace Game.FSM
             
             if (lastSpeed > locomotionState.runSpeed)
             {
-                // sprint
                 if (absAngle > 90)
-                    return (angle > 0) ? AnimKey.Sprint_Turn_R180 : AnimKey.Sprint_Turn_L180;
+                    return AnimKey.Sprint_Turn_180;
                 else if(absAngle > 45)
                     return (angle > 0) ? AnimKey.Sprint_Turn_R90 : AnimKey.Sprint_Turn_L90;
                 return (angle > 0) ? AnimKey.Sprint_Turn_R45 : AnimKey.Sprint_Turn_L45;
@@ -57,14 +62,14 @@ namespace Game.FSM
             else if (lastSpeed > locomotionState.walkSpeed)
             {
                 if (absAngle > 90)
-                    return (angle > 0) ? AnimKey.Run_Turn_R180 : AnimKey.Run_Turn_L180;
+                    return AnimKey.Run_Turn_180;
                 else if(absAngle > 45)
                     return (angle > 0) ? AnimKey.Run_Turn_R90 : AnimKey.Run_Turn_L90;
                 return (angle > 0) ? AnimKey.Run_Turn_R45 : AnimKey.Run_Turn_L45;
             }
             
             if (absAngle > 90)
-                return (angle > 0) ? AnimKey.Walk_Turn_R180 : AnimKey.Walk_Turn_L180;
+                return AnimKey.Walk_Turn_180;
             else if(absAngle > 45)
                 return (angle > 0) ? AnimKey.Walk_Turn_R90 : AnimKey.Walk_Turn_L90;
             return (angle > 0) ? AnimKey.Walk_Turn_R45 : AnimKey.Walk_Turn_L45;

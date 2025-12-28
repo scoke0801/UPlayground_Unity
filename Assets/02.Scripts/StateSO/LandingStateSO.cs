@@ -14,10 +14,10 @@ namespace Game.FSM
             // 착지 애니메이션 재생
             
             var state = brain.Animancer.Play(landAnim);
-            state.OwnedEvents.OnEnd = () => 
+            if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
-                brain.ChangeState(brain.DefaultState);
-            };
+                events.Add(0.9f, () => brain.ChangeState(brain.DefaultState));
+            }
         }
     }
 }

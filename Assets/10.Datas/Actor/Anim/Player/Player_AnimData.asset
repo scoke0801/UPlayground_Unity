@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02bfa6f58259d3b4cb2605c8a8a5344e, type: 3}
   m_Name: Player_AnimData
   m_EditorClassIdentifier: 
+  animationFolder: {fileID: 102900000, guid: 0d3d8d64017dcab42891e00a9d731c1d, type: 3}
   clipAnimations:
   - key: 9
     transition:
@@ -124,7 +125,7 @@ MonoBehaviour:
       _Clip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
       _NormalizedStartTime: NaN
   mixerAnimations:
-  - key: 19
+  - key: 33
     mixer:
       _FadeDuration: 0.4
       _Speed: 1

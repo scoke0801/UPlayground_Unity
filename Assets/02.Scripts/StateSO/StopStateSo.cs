@@ -15,7 +15,7 @@ namespace Game.FSM
             AnimKey stopKey;
 
             // 속도 구간별 적절한 Stop 애니메이션 선택
-            if (lastSpeed > locomotionState.MoveSpeed) stopKey = AnimKey.Move_Stop_Sprinting;
+            if (lastSpeed > locomotionState.runSpeed) stopKey = AnimKey.Move_Stop_Sprinting;
             else if (lastSpeed > locomotionState.walkSpeed) stopKey = AnimKey.Move_Stop_Running;
             else stopKey = AnimKey.Move_Stop_Walking;
 

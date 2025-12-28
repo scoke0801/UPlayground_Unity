@@ -2,11 +2,18 @@ using UnityEngine;
 using System.Collections.Generic;
 using Animancer;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Game.FSM
 {
     [CreateAssetMenu(fileName = "AnimData", menuName = "UP/ActorData/AnimData")]
     public class CharacterAnimationData : ScriptableObject
     {
+        [Header("에디터 설정")]
+        public DefaultAsset animationFolder; // 검색할 폴더 지정
+        
         [System.Serializable]
         public class ClipEntry
         {

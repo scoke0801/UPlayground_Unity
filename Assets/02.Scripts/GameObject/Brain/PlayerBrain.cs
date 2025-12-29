@@ -123,9 +123,6 @@ namespace Game.FSM
             // 카메라 기준 이동 방향 계산
             Vector3 moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
             SetInputDirection(moveDirection);
-            if (_cachedCamera == null) _cachedCamera = Camera.main;
-            // ... 방향 계산 로직 ...
-            // SetInputDirection(moveDirection);
         }
 
         /// <summary>

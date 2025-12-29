@@ -7,7 +7,7 @@ namespace Game.FSM
     public class DodgeStateSO : StateSO
     {
         [Header("Settings")]
-        public float DodgeSpeed = 10f;   
+        public float DodgeSpeed = 1f;   
         public float InvincibleDuration = 0.5f; 
 
         private Vector3 _dodgeDir;
@@ -27,9 +27,13 @@ namespace Game.FSM
             if (dodgeAnim == null) { Debug.LogError($"[{AnimKey.Dodge}] 클립이 없습니다!"); return; }
             
             var state = brain.Animancer.Play(dodgeAnim, fadeDuration);
+
+            brain.Rb.linearVelocity = Vector3.zero;
+            //brain.Rb.AddForce(_dodgeDir * DodgeSpeed, ForceMode.Impulse);
             
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
+                events.Add(0.11f, () => brain.Rb.AddForce(_dodgeDir * DodgeSpeed, ForceMode.Impulse));
                 events.OnEnd = () => brain.ChangeState(brain.DefaultState);
             }
         }

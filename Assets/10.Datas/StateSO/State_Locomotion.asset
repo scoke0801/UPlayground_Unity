@@ -30,7 +30,7 @@ MonoBehaviour:
   sprintSpeed: 12
   rotationSpeed: 15
   acceleration: 2
-  fadeDuration: 0.1
+  fadeDuration: 0.5
   stopState: {fileID: 11400000, guid: 6701ffbbf1eaac74a8c30df39fbd6a19, type: 2}
   turnInPlaceState: {fileID: 11400000, guid: 2a8c402eaacd3174387efbbc77b09c10, type: 2}
   stopSpeedThreshold: 1.5

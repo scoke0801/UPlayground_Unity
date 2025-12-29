@@ -22,11 +22,12 @@ namespace Game.FSM
             var anim = brain.AnimData.GetAnimation(stopKey);
             var state = brain.Animancer.Play(anim, fadeDuration);
             
+            Debug.Log($"StopStateSO: state:{stopKey}, anim: {anim}");
             // 애니메이션이 끝나면 다시 Locomotion(Idle)으로 복귀
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
-                events.Add(0.85f, () => brain.ChangeState(brain.DefaultState));
-                //events.OnEnd = () => brain.ChangeState(brain.DefaultState);
+                //events.Add(0.85f, () => brain.ChangeState(brain.DefaultState));
+                events.OnEnd = () => brain.ChangeState(brain.DefaultState);
             }
         }
     }

@@ -36,12 +36,12 @@ namespace Game.FSM
             // 현재 속도 유지
             Vector3 horizontalVelocity = new Vector3(brain.Rb.linearVelocity.x, 0, brain.Rb.linearVelocity.z);
             _currentVelocity = horizontalVelocity;
-            
+            Debug.Log($"OnEnter: {_currentVelocity.magnitude}, mixer: {mixer}");
             // 초기 애니메이션 파라미터 설정
             if (state is LinearMixerState mixerState)
             {
-                float initialParameter = GetInitialMixerParameter(brain);
-                mixerState.Parameter = initialParameter;
+                //float initialParameter = GetInitialMixerParameter(brain);
+                mixerState.Parameter = 0;
             }
         }
         
@@ -68,24 +68,31 @@ namespace Game.FSM
             float currentSpeed = horizontalVelocity.magnitude;
 
             brain.SetData("LastSpeed", currentSpeed);
-            
+    
+            // 현재 보는 방향과 입력 방향 사이의 각도 계산
             float angle = Vector3.SignedAngle(brain.transform.forward, brain.InputDirection, Vector3.up);
             brain.SetData("TurnAngle", angle);
+            float absAngle = Mathf.Abs(angle);
             
-            if (inputMag > 0.01f && Mathf.Abs(angle) > turnAngleThreshold)
+            //Debug.Log($"OnUpdate Speed: {currentSpeed}, InputDirection: {brain.InputDirection}, angle: {angle}, absAngle: {absAngle}");
+
+            // [개선] 1. 방향 전환 검사 (최우선)
+            // 180도 턴은 입력이 반전되는 순간(inputMag가 잠시 낮아져도) 바로 실행되어야 함
+            if (inputMag > 0.01f && absAngle > turnAngleThreshold)
             {                
-                //brain.ChangeState(turnInPlaceState);
-                //return;
+                brain.ChangeState(turnInPlaceState);
+                return;
             }
 
+            // 2. 정지 상태 검사 (방향 전환 조건이 아닐 때만 실행)
             if (inputMag < 0.01f && currentSpeed > stopSpeedThreshold)
             {
                 brain.ChangeState(stopState);
                 return;
             }
 
+            // 3. 애니메이션 믹서 파라미터 업데이트 (가속/감속 표현)
             var state = brain.GetData<LinearMixerState>("LocomotionState");
-            
             if (state != null)
             {
                 float targetSpeedValue = 0f;
@@ -95,7 +102,6 @@ namespace Game.FSM
                     else if (currentSpeed >= walkSpeed) targetSpeedValue = 2f;
                     else targetSpeedValue = 1f;
                 }
-
                 state.Parameter = Mathf.MoveTowards(state.Parameter, targetSpeedValue, Time.deltaTime * 5f);
             }
         }
@@ -135,5 +141,6 @@ namespace Game.FSM
                 brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed));
             }
         }
+        
     }
 }

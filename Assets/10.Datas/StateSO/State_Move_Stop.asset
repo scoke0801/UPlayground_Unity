@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: State_Move_Stop
   m_EditorClassIdentifier: 
   Transitions: []
-  fadeDuration: 0.1
+  fadeDuration: 0.3
   locomotionState: {fileID: 11400000, guid: edc045dc7fe710d4b863034db31153ca, type: 2}

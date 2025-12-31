@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.U2D;
 
 public class ItemManager : BaseManager<ItemManager>, IManager
 {
@@ -32,12 +30,21 @@ public class ItemManager : BaseManager<ItemManager>, IManager
         for (int i = 0; i < itemDropList.Count; ++i)
         {
             float randomValue = Random.Range(0.0f, 100.0f);
-            if (randomValue <= itemDropList[i].value)
+            if (randomValue <= itemDropList[i].rate)
             {
                 itemList.Add(itemDropList[i].itemData);
             }
         }
 
         return itemList;
+    }
+
+    public static ItemInstance GET_ITEM(ItemSO itemData, int count)
+    {
+        ItemInstance itemInstance = new ItemInstance();
+        itemInstance.data = itemData;
+        itemInstance.count = count;
+
+        return itemInstance;
     }
 }

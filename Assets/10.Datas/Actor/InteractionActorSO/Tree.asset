@@ -18,12 +18,17 @@ MonoBehaviour:
   hp: 100
   dropItems:
   - itemData: {fileID: 11400000, guid: 13343f98d8ef54b44a7ea205d3698a33, type: 2}
-    value: 80
+    rate: 100
+    maximumDropCount: 5
   - itemData: {fileID: 11400000, guid: f50d1b71fd51f0f42897f98f6289d48d, type: 2}
-    value: 70
+    rate: 100
+    maximumDropCount: 5
   - itemData: {fileID: 11400000, guid: c70b103ae91d52841b8fa9c993178116, type: 2}
-    value: 60
+    rate: 100
+    maximumDropCount: 5
   - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
-    value: 50
+    rate: 100
+    maximumDropCount: 5
   - itemData: {fileID: 11400000, guid: 426dbc436f8596a4084fb158ff11a548, type: 2}
-    value: 40
+    rate: 100
+    maximumDropCount: 5

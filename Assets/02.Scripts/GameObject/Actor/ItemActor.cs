@@ -7,7 +7,6 @@ namespace Actor
 {
     public class ItemActor : BaseActor
     {
-
         [SerializeField] private float _spreadRadius = 10.0f;
         [SerializeField] private float _arcHeight = 5.0f;
         [SerializeField] private float _moveSpeed = 5.0f;
@@ -18,6 +17,8 @@ namespace Actor
         private Transform _player;
 
         private ItemSO _itemData;
+        private InteractableActorSO _interactableData;
+        
         private void Start()
         {
             _player = GameObjectManager.Instance.PlayerBrain.transform;
@@ -29,9 +30,10 @@ namespace Actor
             StartCoroutine(SpreadAndMoveToPlayer());
         }
 
-        public void Init(ItemSO itemSO)
+        public void Init(ItemSO itemSO, InteractableActorSO interactableData = null)
         {
             _itemData = itemSO;
+            _interactableData = interactableData;
         }
 
         IEnumerator SpreadAndMoveToPlayer()
@@ -88,11 +90,12 @@ namespace Actor
                     transform.position = currentPos;
 
                     // endPosition = _player.position;
-
                     yield return null;
                 }
 
-                if (Vector3.Distance(transform.position, targetPosition) < 0.5f)
+                targetPosition = _player.position;
+                targetPosition.y += _playerColliderHeight;
+                if (Vector3.Distance(transform.position, targetPosition) < 5.0f)
                 {
                     break;
                 }

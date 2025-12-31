@@ -46,6 +46,8 @@ public class GameManager : BaseManager<GameManager>
         RegisterManager(InputManager.Instance);        // 입력 시스템
         RegisterManager(GameObjectManager.Instance);
         RegisterManager(ItemManager.Instance);
+        RegisterManager(InventoryManager.Instance);
+        
         
         _isInitialized = true;
         

@@ -10,3 +10,13 @@ public class ItemSO : ScriptableObject
     public ItemType itemType;
     public ItemRarity itemRarity;
 }
+
+// 아이템 
+[System.Serializable]
+public class ItemInstance
+{
+    public int count;
+    public ItemSO data;
+
+    public int inventorySlotKey;
+}

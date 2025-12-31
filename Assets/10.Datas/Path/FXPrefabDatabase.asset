@@ -19,3 +19,6 @@ MonoBehaviour:
   - key: ObjectDestroyFX
     prefab: {fileID: 7304407903156614383, guid: e63f1c579c8b7504bbe40ae8d6de6dd7, type: 3}
     description: 
+  - key: ItemArriedToPlayerPos
+    prefab: {fileID: 3504098649498813294, guid: 03394e37a42ad914996e3b98cd4ea1db, type: 3}
+    description: 

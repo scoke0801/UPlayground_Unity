@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
   m_Name: Feather
   m_EditorClassIdentifier: 
-  itemId: 10002
+  itemId: 100002
   itemName: "\uAE43\uD138"
   itemDescription: 
   itemType: 3

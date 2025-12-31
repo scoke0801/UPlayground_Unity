@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
   m_Name: MonsterEnergy
   m_EditorClassIdentifier: 
-  itemId: 10005
+  itemId: 100005
   itemName: "\uBAAC\uC2A4\uD130\uC815\uC218"
   itemDescription: 
   itemType: 3

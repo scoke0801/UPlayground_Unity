@@ -24,15 +24,19 @@ public class ItemManager : BaseManager<ItemManager>, IManager
     {
     }
 
-    public List<ItemSO> GetDropItemList(List<ItemDropList> itemDropList)
+    public List<ItemInstance> GetDropItemList(List<ItemDropList> itemDropList)
     {
-        List<ItemSO> itemList = new List<ItemSO>();
+        List<ItemInstance> itemList = new List<ItemInstance>();
         for (int i = 0; i < itemDropList.Count; ++i)
         {
             float randomValue = Random.Range(0.0f, 100.0f);
             if (randomValue <= itemDropList[i].rate)
             {
-                itemList.Add(itemDropList[i].itemData);
+                ItemInstance itemInstance = new ItemInstance();
+                itemInstance.count = Random.Range(1, itemDropList[i].maximumDropCount);
+                itemInstance.data = itemDropList[i].itemData;
+                
+                itemList.Add(itemInstance);
             }
         }
 

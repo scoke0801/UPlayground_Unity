@@ -16,8 +16,7 @@ namespace Actor
         private float _playerColliderHeight = 1.0f;
         private Transform _player;
 
-        private ItemSO _itemData;
-        private InteractableActorSO _interactableData;
+        private ItemInstance _itemInstance;
         
         private void Start()
         {
@@ -30,10 +29,9 @@ namespace Actor
             StartCoroutine(SpreadAndMoveToPlayer());
         }
 
-        public void Init(ItemSO itemSO, InteractableActorSO interactableData = null)
+        public void Init(ItemInstance itemInstance)
         {
-            _itemData = itemSO;
-            _interactableData = interactableData;
+            _itemInstance = itemInstance;
         }
 
         IEnumerator SpreadAndMoveToPlayer()
@@ -106,8 +104,10 @@ namespace Actor
             var ui = UIManager.Instance.ShowUI("ItemAcquisitionList");
             if (ui != null)
             {
-                ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemData);
+                ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemInstance.data);
             }
+            
+            InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
             Destroy(gameObject);
         }
     }

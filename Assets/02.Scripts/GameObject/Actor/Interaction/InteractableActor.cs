@@ -53,13 +53,13 @@ namespace Actor
             for (int i = 0; i <items.Count; ++i)
             {
                 var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                go.Init(itemSO: items[i], interactableData: _dataSO);
                 
-                Debug.Log($"ID: {items[i].itemId}, Name: {items[i].itemName}, Description: {items[i].itemDescription}");
+                go.Init(itemInstance: items[i]);
             }
             
-            GameObjectManager.Instance.ShowFX("ItemArriedToPlayerPos", transform.position);
+            GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
             
+            //InventoryManager.Instance.AddItem(_dataSO.GetInstanceID(), 1);
             // 파괴 이벤트 발생
             OnDestroyed?.Invoke(this);
             

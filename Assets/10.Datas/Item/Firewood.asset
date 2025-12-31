@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
   m_Name: Firewood
   m_EditorClassIdentifier: 
-  itemId: 10003
+  itemId: 100003
   itemName: "\uC7A5\uC791"
   itemDescription: 
   itemType: 3

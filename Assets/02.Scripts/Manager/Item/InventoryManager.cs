@@ -2,7 +2,9 @@
 using UnityEngine;
 public class InventoryManager : BaseManager<InventoryManager>, IManager
 {
-    Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
+    private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
+    
+    public Dictionary<int, ItemInstance> ItemDict => _itemPair;
     
     public void Init()
     {
@@ -26,7 +28,7 @@ public class InventoryManager : BaseManager<InventoryManager>, IManager
     
     public void AddItem(int itemId, ItemInstance itemInstance)
     {
-        if (_itemPair.ContainsKey(itemId))
+        if (_itemPair.ContainsKey(itemId) == false)
         {
             _itemPair.TryAdd(itemId, itemInstance);
         

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
   m_Name: Crystal
   m_EditorClassIdentifier: 
-  itemId: 10001
+  itemId: 100001
   itemName: "\uC218\uC815"
   itemDescription: 
   itemType: 3

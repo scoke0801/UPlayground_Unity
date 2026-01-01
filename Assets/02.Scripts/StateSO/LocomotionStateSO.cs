@@ -95,13 +95,6 @@ namespace Game.FSM
             var state = brain.GetData<LinearMixerState>("LocomotionState");
             if (state != null)
             {
-                float targetSpeedValue = 0f;
-                if (inputMag > 0.1f)
-                {
-                    if (currentSpeed >= runSpeed) targetSpeedValue = 3f;
-                    else if (currentSpeed >= walkSpeed) targetSpeedValue = 2f;
-                    else targetSpeedValue = 1f;
-                }
                 state.Parameter = currentSpeed;
             }
         }

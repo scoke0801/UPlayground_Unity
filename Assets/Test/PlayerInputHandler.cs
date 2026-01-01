@@ -2,8 +2,9 @@
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    public MyPlayerController Controller;
+    //public MyPlayerController Controller;
     public Camera PlayerCamera;
+    public UnifiedPlayerController Controller;
 
     private void Update()
     {

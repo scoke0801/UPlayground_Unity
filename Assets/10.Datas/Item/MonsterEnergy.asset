@@ -15,5 +15,6 @@ MonoBehaviour:
   itemId: 100005
   itemName: "\uBAAC\uC2A4\uD130\uC815\uC218"
   itemDescription: 
+  weight: 1
   itemType: 3
   itemRarity: 4

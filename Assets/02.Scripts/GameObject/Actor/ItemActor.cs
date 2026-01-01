@@ -108,6 +108,12 @@ namespace Actor
             }
             
             InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
+
+            UI_Inventory inventory = UIManager.Instance.GetActiveUI("Inventory")?.GetComponent<UI_Inventory>();
+            if(inventory)
+            {
+                inventory.Show();
+            }
             Destroy(gameObject);
         }
     }

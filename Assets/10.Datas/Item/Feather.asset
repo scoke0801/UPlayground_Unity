@@ -15,5 +15,6 @@ MonoBehaviour:
   itemId: 100002
   itemName: "\uAE43\uD138"
   itemDescription: 
+  weight: 0.5
   itemType: 3
   itemRarity: 1

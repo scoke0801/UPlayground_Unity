@@ -282,9 +282,9 @@ MonoBehaviour:
       _SynchronizeChildren: 
       _Thresholds:
       - 0
-      - 1
-      - 2
-      - 3
+      - 5
+      - 9
+      - 12
       _DefaultParameter: 0
       _ExtrapolateSpeed: 0
       _ParameterName: {fileID: 0}

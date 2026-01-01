@@ -12,7 +12,9 @@ public class UI_ItemAcquisitionList : UI_Base
     
     public void SetItem(ItemSO itemDaItem)
     {
-        var go = Instantiate(_itemEntry.gameObject, _content);
+        var go = Instantiate(_itemEntry, _content);
         go.gameObject.SetActive(true);
+        
+        go.Init(itemDaItem);
     }
 }

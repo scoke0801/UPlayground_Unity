@@ -14,7 +14,7 @@ public class UI_ItemAcquisitionEntry : UI_Base
     public void Init(ItemSO itemData)
     {
         _rarityIcon.sprite = AssetManager.Instance.GetAtlas(itemData.itemRarity.ToString());
-        _itemIcon.sprite = AssetManager.Instance.GetAtlas(itemData.itemName);
+        _itemIcon.sprite = AssetManager.Instance.GetAtlas(itemData.itemId.ToString());
         _itemInfoText.text = itemData.itemName;
     }
 }

@@ -102,7 +102,7 @@ namespace Game.FSM
                     else if (currentSpeed >= walkSpeed) targetSpeedValue = 2f;
                     else targetSpeedValue = 1f;
                 }
-                state.Parameter = Mathf.MoveTowards(state.Parameter, targetSpeedValue, Time.deltaTime * 5f);
+                state.Parameter = currentSpeed;
             }
         }
 

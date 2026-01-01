@@ -5,6 +5,9 @@ public class InventoryManager : BaseManager<InventoryManager>, IManager
     private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
     
     public Dictionary<int, ItemInstance> ItemDict => _itemPair;
+
+    // [TODO] Config 데이터로 별도 분리 필요
+    public float MaxWeight => 3000.0f;
     
     public void Init()
     {
@@ -54,5 +57,27 @@ public class InventoryManager : BaseManager<InventoryManager>, IManager
     {
         _itemPair.TryGetValue(itemId, out ItemInstance item);
         return item;
+    }
+
+    public float GetItemWeight(int itemId)
+    {
+        if (HasItem(itemId))
+        {
+            ItemInstance item = _itemPair[itemId];
+            return item.data.weight * item.count;
+        }
+
+        return -1.0f;
+    }
+
+    public float GetTotalWeight()
+    {
+        float weight = 0;
+        foreach (ItemInstance item in _itemPair.Values)
+        {
+            weight += item.data.weight;
+        }
+
+        return weight;
     }
 }

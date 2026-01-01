@@ -15,5 +15,6 @@ MonoBehaviour:
   itemId: 100001
   itemName: "\uC218\uC815"
   itemDescription: 
+  weight: 5
   itemType: 3
   itemRarity: 5

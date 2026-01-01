@@ -7,6 +7,7 @@ public class ItemSO : ScriptableObject
     public int itemId;
     public string itemName;
     public string itemDescription;
+    public float weight;
     public ItemType itemType;
     public ItemRarity itemRarity;
 }

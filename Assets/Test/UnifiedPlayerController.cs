@@ -13,15 +13,22 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
     public LinearMixerTransition Locomotion; // Idle-Walk-Run 믹서
     public ClipTransition JumpClip;
 
-    [Header("Turn In Place Animations")]
-    public TurnInPlaceSet StandTurns;
+    [Header("Turn In Place Sets")]
+    public TurnInPlaceSet StandTurns;   // Stand_Idle_Turn_..._InPlace 
+    public TurnInPlaceSet WalkTurns;    // Walk_F_Turn_..._InPlace 
+    public TurnInPlaceSet RunTurns;     // Run_F_Turn_..._InPlace 
+    public TurnInPlaceSet SprintTurns;  // Sprint_F_Turn_..._InPlace
 
     [Header("Settings")]
     public float MaxRunSpeed = 5f;
     public float RotationSpeed = 15f;
     public float JumpSpeed = 7f;
     public float TurnThresholdAngle = 45f; // 이 각도 이상 차이나면 제자리 회전 실행
-
+    
+    [Header("Speed Thresholds")]
+    public float WalkSpeedThreshold = 2.0f;
+    public float RunSpeedThreshold = 5.0f;
+    
     private Vector3 _moveInputVector;
     private Vector3 _lookInputVector;
     private bool _jumpRequested = false;
@@ -53,44 +60,40 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
     {
+        // 1. 제자리 회전 중일 때 (Slerp 동기화 로직)
         if (_isTurningInPlace && _currentTurnState != null)
         {
-            // [웹 베스트 프랙티스] 애니메이션 재생 진행도(0~1)를 가져옵니다.
             float progress = Mathf.Clamp01(_currentTurnState.NormalizedTime);
-
-            // [핵심] 시작 각도에서 목표 각도까지 애니메이션 속도에 맞춰 물리 회전을 수행합니다.
-            // 이를 통해 애니메이션이 끝나는 순간 물리 회전도 자연스럽게 완료됩니다.
             currentRotation = Quaternion.Slerp(_startRotation, _targetRotation, progress);
 
-            // 애니메이션이 거의 완료(99%)되면 상태를 해제합니다.
             if (progress >= 0.99f)
             {
                 _isTurningInPlace = false;
                 _currentTurnState = null;
-                Animancer.Play(Locomotion, 0.2f); // Idle로 부드러운 전환
+                Animancer.Play(Locomotion, 0.2f); 
             }
             return;
         }
         
-// [상태 2] 캐릭터가 멈춰 있는지 확인 (Motor.Velocity 사용)
-        // KCC Motor의 Velocity magnitude가 매우 낮을 때 정지 상태로 간주합니다.
         float speed = Motor.Velocity.magnitude;
 
-        if (speed < 0.1f && _lookInputVector.sqrMagnitude > 0f)
+        // 2. 급격한 방향 전환 시 Turn In Place 트리거 (정지 혹은 이동 중 급회전)
+        if (_lookInputVector.sqrMagnitude > 0f)
         {
-            // 현재 캐릭터의 정면(CharacterForward)과 입력 벡터 사이의 각도 계산 
             float angle = Vector3.SignedAngle(Motor.CharacterForward, _lookInputVector, Motor.CharacterUp);
+            float absAngle = Mathf.Abs(angle);
+            // 정지 상태이거나, 이동 중이라도 각도가 급격히(예: 135도 이상) 변할 때 실행
+            bool isStationaryTurn = speed < 0.1f && absAngle > TurnThresholdAngle;
+            bool isQuickTurn = speed >= 0.1f && absAngle > 40; // 이동 중 급회전(Pivot) 조건
 
-            // 설정한 임계값(예: 45도)보다 각도가 클 때만 제자리 회전 실행
-            if (Mathf.Abs(angle) > TurnThresholdAngle)
+            if (isStationaryTurn || isQuickTurn)
             {
-                // 여기서 호출합니다!
-                PlayTurnInPlace(angle);
+                PlayTurnInPlace(angle, speed);
                 return;
             }
         }
 
-        // [상태 3] 이동 중일 때의 일반적인 부드러운 회전
+        // 3. 일반 부드러운 회전
         if (_lookInputVector.sqrMagnitude > 0f)
         {
             Quaternion targetRot = Quaternion.LookRotation(_lookInputVector, Motor.CharacterUp);
@@ -98,41 +101,43 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
         }
     }
 
-    private void PlayTurnInPlace(float angle)
+    private void PlayTurnInPlace(float angle, float currentSpeed)
     {
-        // 시작 방향과 목표 방향을 미리 저장합니다.
         _startRotation = Motor.TransientRotation;
         _targetRotation = Quaternion.Euler(0, angle, 0) * _startRotation;
-    
         _isTurningInPlace = true;
-        ClipTransition clip = GetTurnClip(angle);
+
+        // [핵심] 현재 속도에 따라 애니메이션 세트 선택
+        TurnInPlaceSet selectedSet = GetSetBySpeed(currentSpeed);
+        ClipTransition clip = GetTurnClipFromSet(selectedSet, angle);
 
         if (clip != null)
         {
             _currentTurnState = Animancer.Play(clip);
-            // OnEnd 이벤트는 이제 안전장치 역할만 합니다.
             _currentTurnState.OwnedEvents.OnEnd = () => {
                 _isTurningInPlace = false;
                 _currentTurnState = null;
             };
         }
-        
-        // _isTurningInPlace = true;
-        //
-        // if (clip != null)
-        // {
-        //     var state = Animancer.Play(clip);
-        //     if (state.Events(this, out AnimancerEvent.Sequence events))
-        //     {
-        //         events.OnEnd = () =>
-        //         {
-        //             _isTurningInPlace = false;
-        //             Motor.SetRotation(Quaternion.LookRotation(_lookInputVector, Motor.CharacterUp));
-        //             _lookInputVector = Vector3.zero;
-        //         };
-        //     }
-        // }
-        // else _isTurningInPlace = false;
+        else _isTurningInPlace = false;
+    }
+    private TurnInPlaceSet GetSetBySpeed(float speed)
+    {
+        if (speed < 0.1f) return StandTurns;
+        if (speed <= WalkSpeedThreshold) return WalkTurns;
+        if (speed <= RunSpeedThreshold) return RunTurns;
+        return SprintTurns;
+    }
+
+    private ClipTransition GetTurnClipFromSet(TurnInPlaceSet set, float angle)
+    {
+        float absAngle = Mathf.Abs(angle);
+        bool isLeft = angle < 0;
+
+        if (absAngle > 150f) return set.Turn180;
+        if (absAngle > 110f) return isLeft ? set.Left135 : set.Right135;
+        if (absAngle > 70f) return isLeft ? set.Left90 : set.Right90;
+        return isLeft ? set.Left45 : set.Right45;
     }
 
     private ClipTransition GetTurnClip(float angle)
@@ -165,10 +170,7 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
             currentVelocity += Vector3.down * 20f * deltaTime;
         }
 
-        if (_isTurningInPlace)
-        {
-            currentVelocity = Vector3.zero;
-        }
+        if (_isTurningInPlace) currentVelocity = Vector3.zero;
         UpdateAnimations();
     }
 

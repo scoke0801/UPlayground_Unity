@@ -7,4 +7,6 @@ public struct PlayerCharacterInputs
     public float MoveAxisRight;
     public Quaternion CameraRotation;
     public bool JumpDown;
+    public bool SprintHeld; // 추가: 달리기 키 유지 여부
+    public bool CrouchDown; // 추가: 앉기 버튼 입력
 }

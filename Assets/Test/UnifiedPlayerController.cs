@@ -60,47 +60,74 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
     {
-        // 1. 제자리 회전 중일 때 (Slerp 동기화 로직)
-        if (_isTurningInPlace && _currentTurnState != null)
+        // 1. 회전 애니메이션 재생 중일 때
+        if (_isTurningInPlace)
         {
-            float progress = Mathf.Clamp01(_currentTurnState.NormalizedTime);
-            currentRotation = Quaternion.Slerp(_startRotation, _targetRotation, progress);
-
-            if (progress >= 0.99f)
-            {
-                _isTurningInPlace = false;
-                _currentTurnState = null;
-                Animancer.Play(Locomotion, 0.2f); 
-            }
+            // OnAnimatorMove에서 Root Motion을 처리하므로 여기서는 물리 회전 로직을 생략합니다.
             return;
         }
-        
+    
         float speed = Motor.Velocity.magnitude;
 
-        // 2. 급격한 방향 전환 시 Turn In Place 트리거 (정지 혹은 이동 중 급회전)
         if (_lookInputVector.sqrMagnitude > 0f)
         {
             float angle = Vector3.SignedAngle(Motor.CharacterForward, _lookInputVector, Motor.CharacterUp);
             float absAngle = Mathf.Abs(angle);
-            // 정지 상태이거나, 이동 중이라도 각도가 급격히(예: 135도 이상) 변할 때 실행
-            bool isStationaryTurn = speed < 0.1f && absAngle > TurnThresholdAngle;
-            bool isQuickTurn = speed >= 0.1f && absAngle > 40; // 이동 중 급회전(Pivot) 조건
 
-            if (isStationaryTurn || isQuickTurn)
+            // 이동 속도와 상관없이 각도 차이가 클 때 (Turn Threshold 이상) 호출
+            if (absAngle > TurnThresholdAngle)
             {
-                PlayTurnInPlace(angle, speed);
+                PlayRootMotionTurn(angle, speed);
                 return;
             }
         }
 
-        // 3. 일반 부드러운 회전
+        // 일반 부드러운 회전
         if (_lookInputVector.sqrMagnitude > 0f)
         {
             Quaternion targetRot = Quaternion.LookRotation(_lookInputVector, Motor.CharacterUp);
             currentRotation = Quaternion.Slerp(currentRotation, targetRot, 1f - Mathf.Exp(-RotationSpeed * deltaTime));
         }
     }
+// 애니메이션의 이동/회전 정보를 KCC에 적용하는 핵심 메서드
+    private void OnAnimatorMove()
+    {
+        if (_isTurningInPlace)
+        {
+            // 1. 애니메이션에서 계산된 회전 변화량 적용
+            // Motor.RotateCharacter는 KCC 내부 TransientRotation을 안전하게 업데이트합니다.
+            Motor.RotateCharacter(Animancer.Animator.deltaRotation * Motor.TransientRotation);
 
+            // 2. 애니메이션에서 계산된 이동 변화량 적용
+            // 일반 Turn 애니메이션에 포함된 전진/측면 이동 성분을 물리 위치에 더합니다.
+            Motor.MoveCharacter(Motor.TransientPosition + Animancer.Animator.deltaPosition);
+        }
+    }
+
+    private void PlayRootMotionTurn(float angle, float currentSpeed)
+    {
+        _isTurningInPlace = true;
+
+        // 현재 속도에 맞는 세트 선택 (Stand, Walk, Run, Sprint)
+        TurnInPlaceSet selectedSet = GetSetBySpeed(currentSpeed);
+    
+        // [중요] InPlace가 아닌 '일반 Turn' 애니메이션 클립을 가져와야 합니다.
+        ClipTransition clip = GetTurnClipFromSet(selectedSet, angle);
+
+        if (clip != null)
+        {
+            Animancer.Animator.applyRootMotion = true;
+            _currentTurnState = Animancer.Play(clip);
+            _currentTurnState.OwnedEvents.OnEnd = () => 
+            {
+                Animancer.Animator.applyRootMotion = false;
+                _isTurningInPlace = false;
+                _currentTurnState = null;
+                _lookInputVector = Vector3.zero;
+            };
+        }
+        else _isTurningInPlace = false;
+    }
     private void PlayTurnInPlace(float angle, float currentSpeed)
     {
         _startRotation = Motor.TransientRotation;

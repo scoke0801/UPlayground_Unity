@@ -72,7 +72,6 @@ public class PlayerTurnInPlaceController : MonoBehaviour, ICharacterController
 
         // 각도에 따른 애니메이션 선택 로직
         if (absAngle > 155f) selectedClip = currentSet.Turn180;
-        else if (absAngle > 110f) selectedClip = (angle < 0) ? currentSet.Left135 : currentSet.Right135;
         else if (absAngle > 65f) selectedClip = (angle < 0) ? currentSet.Left90 : currentSet.Right90;
         else if (absAngle > 30f) selectedClip = (angle < 0) ? currentSet.Left45 : currentSet.Right45;
 

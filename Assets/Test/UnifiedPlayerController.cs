@@ -29,10 +29,14 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
     public float WalkSpeedThreshold = 2.0f;
     public float RunSpeedThreshold = 5.0f;
     
+    [Header("Stop Animations")]
+    public MovementStopSet StopAnimations;
+
     private Vector3 _moveInputVector;
     private Vector3 _lookInputVector;
     private bool _jumpRequested = false;
     private bool _isTurningInPlace = false;
+    private bool _isStopping = false;
     
     private Quaternion _targetRotation;
     private AnimancerState _currentTurnState;
@@ -69,7 +73,7 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
     
         float speed = Motor.Velocity.magnitude;
 
-        if (_lookInputVector.sqrMagnitude > 0f)
+        if (_lookInputVector.sqrMagnitude > 0f && _isStopping == false)
         {
             float angle = Vector3.SignedAngle(Motor.CharacterForward, _lookInputVector, Motor.CharacterUp);
             float absAngle = Mathf.Abs(angle);
@@ -92,7 +96,7 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
 // 애니메이션의 이동/회전 정보를 KCC에 적용하는 핵심 메서드
     private void OnAnimatorMove()
     {
-        if (_isTurningInPlace)
+        if (_isTurningInPlace || _isStopping)
         {
             // 1. 애니메이션에서 계산된 회전 변화량 적용
             // Motor.RotateCharacter는 KCC 내부 TransientRotation을 안전하게 업데이트합니다.
@@ -116,6 +120,7 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
 
         if (clip != null)
         {
+            Debug.Log($"PlayRootMotionTurn : {clip}");
             Animancer.Animator.applyRootMotion = true;
             _currentTurnState = Animancer.Play(clip);
             _currentTurnState.OwnedEvents.OnEnd = () => 
@@ -162,7 +167,6 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
         bool isLeft = angle < 0;
 
         if (absAngle > 150f) return set.Turn180;
-        if (absAngle > 110f) return isLeft ? set.Left135 : set.Right135;
         if (absAngle > 70f) return isLeft ? set.Left90 : set.Right90;
         return isLeft ? set.Left45 : set.Right45;
     }
@@ -182,14 +186,31 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
     {
         if (Motor.GroundingStatus.IsStableOnGround)
         {
-            float targetSpeed = _moveInputVector.magnitude * MaxRunSpeed;
-            currentVelocity = Vector3.Lerp(currentVelocity, _moveInputVector * targetSpeed, 1f - Mathf.Exp(-20f * deltaTime));
-
-            if (_jumpRequested)
+            // 1. 정지 로직 트리거: 입력은 없는데 속도는 남아있는 경우
+            if (!_isStopping && !_isTurningInPlace && _moveInputVector.sqrMagnitude == 0f && Motor.Velocity.magnitude > 0.1f)
             {
-                currentVelocity += Motor.CharacterUp * JumpSpeed;
-                _jumpRequested = false;
-                Motor.ForceUnground();
+                PlayStopAnimation(Motor.Velocity.magnitude);
+            }
+            
+            // 2. 일반 이동 로직 (정지 중이 아닐 때만)
+            if (!_isStopping && !_isTurningInPlace)
+            {
+                float targetSpeed = _moveInputVector.magnitude * MaxRunSpeed;
+                currentVelocity = Vector3.Lerp(currentVelocity, _moveInputVector * targetSpeed, 1f - Mathf.Exp(-20f * deltaTime));
+                
+                // 점프 로직
+                if (_jumpRequested)
+                {
+                    currentVelocity += Motor.CharacterUp * JumpSpeed;
+                    _jumpRequested = false;
+                    Motor.ForceUnground();
+                }
+            }
+            else
+            {
+                // 정지 또는 회전 중에는 KCC의 수동 속도 계산을 0으로 둡니다.
+                // (OnAnimatorMove에서 루트 모션으로 위치를 직접 제어하기 위함)
+                currentVelocity = Vector3.zero;
             }
         }
         else
@@ -200,17 +221,44 @@ public class UnifiedPlayerController : MonoBehaviour, ICharacterController
         if (_isTurningInPlace) currentVelocity = Vector3.zero;
         UpdateAnimations();
     }
+    
+    private void PlayStopAnimation(float currentSpeed)
+    {
+        ClipTransition stopClip = null;
 
+        // 속도에 따라 적절한 정지 애니메이션 선택 [cite: 35, 42, 57]
+        if (currentSpeed > RunSpeedThreshold) stopClip = StopAnimations.SprintStop;
+        else if (currentSpeed > WalkSpeedThreshold) stopClip = StopAnimations.RunStop;
+        else stopClip = StopAnimations.WalkStop;
+
+        if (stopClip != null)
+        {
+            Debug.Log($"Stop : {stopClip}");
+            _isStopping = true;
+            Animancer.Animator.applyRootMotion = true;
+            var state = Animancer.Play(stopClip);
+            
+            // 애니메이션이 끝나면 정지 상태 해제 및 Idle 전환
+            state.OwnedEvents.OnEnd = () => 
+            {
+                Animancer.Animator.applyRootMotion = false;
+                _isStopping = false;
+                Animancer.Play(Locomotion, 0.25f);
+            };
+        }
+    }
     private void UpdateAnimations()
     {
         if (!Motor.GroundingStatus.IsStableOnGround)
         {
+            Debug.Log($"UpdateAnimations : {JumpClip}");
             Animancer.Play(JumpClip, 0.1f);
             return;
         }
 
-        if (!_isTurningInPlace)
+        if (!_isTurningInPlace && ! _isStopping)
         {
+            Debug.Log($"UpdateAnimations : {Locomotion}");
             Animancer.Play(Locomotion, 0.25f);
             Locomotion.State.Parameter = Vector3.ProjectOnPlane(Motor.Velocity, Motor.CharacterUp).magnitude;
         }

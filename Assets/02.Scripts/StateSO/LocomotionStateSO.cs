@@ -11,15 +11,9 @@ namespace Game.FSM
         public float walkSpeed = 5f;
         public float runSpeed = 9f;
         public float sprintSpeed = 12f;
-        public float stableMovementSharpness = 15f;
         public float orientationSharpness = 10f;
-        
-        [Header("Air Movement")]
-        public float maxAirMoveSpeed = 15f;
-        public float airAccelerationSpeed = 15f;
-        public float drag = 0.1f;
-        public Vector3 gravity = new Vector3(0, -30f, 0);
-
+        public float accelerationSharpness = 7.5f; // 낮을수록 천천히 가속
+        public float decelerationSharpness = 15f; // 높을수록 빨리 멈춤
         
         [Header("Animation")]
         [SerializeField] private float fadeDuration = 0.1f;
@@ -44,6 +38,7 @@ namespace Game.FSM
             if (state is LinearMixerState mixerState)
             {   
                 mixerState.Parameter = 0;
+                mixerState.ApplyFootIK = true;
             }
         }
         
@@ -63,8 +58,8 @@ namespace Game.FSM
             // [개선] 1. 방향 전환 검사 (최우선)
             if (inputMag > 0.01f && absAngle > turnAngleThreshold)
             {                
-                brain.ChangeState(turnInPlaceState);
-                return;
+                //brain.ChangeState(turnInPlaceState);
+                //return;
             }
 
             // 2. 정지 상태 검사 (방향 전환 조건이 아닐 때만 실행)
@@ -81,7 +76,7 @@ namespace Game.FSM
                 state.Parameter = currentSpeed;
             }
         }
-
+        
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime, CharacterBrain brain)
         {
             // 1. 현재 속도를 수평(Horizontal)과 수직(Vertical) 성분으로 분리
@@ -105,10 +100,18 @@ namespace Game.FSM
                 Vector3 targetMovementDirection = brain.Motor.GetDirectionTangentToSurface(brain.InputDirection, brain.Motor.GroundingStatus.GroundNormal);
                 Vector3 targetMovementVelocity = targetMovementDirection * targetSpeed;
 
+                // 목표 속도에 따라 다른 Sharpness 적용
+                float currentSharpness = (targetSpeed > 0.01f) ? accelerationSharpness : decelerationSharpness;
+
                 // 4. 수평 속도만 목표치로 보간 (점진적 감소/증가)
                 // 1f - Mathf.Exp(-sharpness * deltaTime)은 프레임 레이트에 독립적인 보간 방식입니다.
-                horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetMovementVelocity, 1f - Mathf.Exp(-stableMovementSharpness * deltaTime));
-        
+                //horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetMovementVelocity, 1f - Mathf.Exp(-stableMovementSharpness * deltaTime));
+                horizontalVelocity = Vector3.Lerp(
+                    horizontalVelocity, 
+                    targetMovementVelocity, 
+                    1f - Mathf.Exp(-currentSharpness * deltaTime)
+                );
+                
                 // 지면에서는 중력으로 인해 쌓인 수직 속도를 초기화하여 바닥으로 파고드는 현상을 방지할 수 있습니다.
                 // (KCC Motor가 알아서 처리하지만, 명시적으로 0에 가깝게 유지하는 것이 안정적입니다)
                 verticalVelocity = Vector3.zero; 

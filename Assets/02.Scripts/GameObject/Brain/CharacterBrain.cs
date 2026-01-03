@@ -53,6 +53,8 @@ namespace Game.FSM
             Controller = GetComponent<PlayerCharacterController>();
             Controller.SetBrain(this);
             
+            Animancer.Layers[0].ApplyFootIK = true;
+            
             if (AnimData != null) 
             {
                 AnimData.Initialize();

@@ -57,6 +57,7 @@ namespace Game.FSM
             foreach (var entry in mixerAnimations)
             {
                 if (entry.key == AnimKey.None) continue;
+                
                 AddAnimation(entry.key, entry.mixer);
             }
         }

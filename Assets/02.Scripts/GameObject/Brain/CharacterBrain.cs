@@ -29,6 +29,10 @@ namespace Game.FSM
         [Header("Animation Data")]
         public CharacterAnimationData AnimData;
         
+        [Header("Movement Data")]
+        public Vector3 Gravity = new Vector3(0, -30f, 0);
+        public float Drag = 2f;
+
         private Dictionary<string, object> _blackboard = new Dictionary<string, object>();
 
         // 프로퍼티는 읽기 전용(private set)으로 둡니다.
@@ -47,6 +51,7 @@ namespace Game.FSM
             Animancer = GetComponent<AnimancerComponent>();
             Motor = GetComponent<KinematicCharacterMotor>();
             Controller = GetComponent<PlayerCharacterController>();
+            Controller.SetBrain(this);
             
             if (AnimData != null) 
             {
@@ -65,8 +70,7 @@ namespace Game.FSM
         {
             HandleInput();
             
-            Vector3 lookDirection = OverrideLookDirection ?? InputDirection;
-            Controller.SetInputs(InputDirection, lookDirection, IsJumpPressed, IsSprintPressed);
+            Controller.SetInputs(InputDirection);
             
             CheckStateTransitions();
             

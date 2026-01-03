@@ -6,29 +6,10 @@ namespace Game.FSM
     public class PlayerCharacterController : MonoBehaviour, ICharacterController
     {
         public KinematicCharacterMotor Motor;
+
+        private CharacterBrain _brain;
+        public Vector3 MoveInputVector { get; private set; }
         
-        [Header("Stable Movement")]
-        public float walkSpeed = 5f;
-        public float runSpeed = 9f;
-        public float sprintSpeed = 12f;
-        public float StableMovementSharpness = 15f;
-        public float OrientationSharpness = 10f;
-
-        [Header("Air Movement")]
-        public float MaxAirMoveSpeed = 15f;
-        public float AirAccelerationSpeed = 15f;
-        public float Drag = 0.1f;
-
-        [Header("Jumping")]
-        public float JumpUpSpeed = 10f;
-        
-        [Header("Misc")]
-        public Vector3 Gravity = new Vector3(0, -30f, 0);
-
-        private Vector3 _moveInputVector;
-        private Vector3 _lookInputVector;
-        private bool _jumpRequested = false;
-        private bool _isSprinting = false;
         private Vector3 _internalVelocityAdd = Vector3.zero;
 
         private void Awake()
@@ -41,79 +22,48 @@ namespace Game.FSM
             _internalVelocityAdd += velocity;
         }
 
-        public void SetInputs(Vector3 moveInput, Vector3 lookInput, bool jumpRequested, bool isSprinting)
+        public void SetBrain(CharacterBrain brain)
         {
-            _moveInputVector = moveInput;
-            _lookInputVector = lookInput;
-            _jumpRequested = jumpRequested;
-            _isSprinting = isSprinting;
+            _brain = brain;
+        }
+        
+        public void SetInputs(Vector3 moveInput)
+        {
+            MoveInputVector = moveInput;
         }
 
         public void BeforeCharacterUpdate(float deltaTime) { }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (_lookInputVector.sqrMagnitude > 0f && OrientationSharpness > 0f)
+            if (_brain.CurrentState is IMovementState movementState)
             {
-                Vector3 smoothedLookInputDirection = Vector3.Slerp(Motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-OrientationSharpness * deltaTime)).normalized;
-                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, Motor.CharacterUp);
+                movementState.UpdateRotation(ref currentRotation, deltaTime, _brain);
             }
-            
-            Vector3 currentUp = (currentRotation * Vector3.up);
-            Vector3 smoothedGravityDir = Vector3.Slerp(currentUp, Vector3.up, 1 - Mathf.Exp(-OrientationSharpness * deltaTime));
-            currentRotation = Quaternion.FromToRotation(currentUp, smoothedGravityDir) * currentRotation;
         }
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // Ground movement
-            if (Motor.GroundingStatus.IsStableOnGround)
+            if (_brain.CurrentState is IMovementState movementState)
             {
-                float targetSpeed = walkSpeed;
-                if (_isSprinting)
-                {
-                    targetSpeed = sprintSpeed;
-                }
-                else if (_moveInputVector.sqrMagnitude > 0.8f)
-                {
-                    targetSpeed = runSpeed;
-                }
-
-                Vector3 targetMovementVelocity = _moveInputVector * targetSpeed;
-
-                currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1f - Mathf.Exp(-StableMovementSharpness * deltaTime));
+                movementState.UpdateVelocity(ref currentVelocity, deltaTime, _brain);
             }
-            // Air movement
+    
+            // 지면에 없을 때만 중력을 적용하거나, 
+            // 지면일 때는 아주 최소한의 힘만 주어 바닥에 붙어있게 합니다.
+            if (!Motor.GroundingStatus.IsStableOnGround)
+            {
+                currentVelocity += _brain.Gravity * deltaTime;
+            }
             else
             {
-                if (_moveInputVector.sqrMagnitude > 0f)
-                {
-                    Vector3 addedVelocity = _moveInputVector * AirAccelerationSpeed * deltaTime;
-                    Vector3 currentVelocityOnInputsPlane = Vector3.ProjectOnPlane(currentVelocity, Motor.CharacterUp);
-
-                    if (currentVelocityOnInputsPlane.magnitude < MaxAirMoveSpeed)
-                    {
-                        Vector3 newTotal = Vector3.ClampMagnitude(currentVelocityOnInputsPlane + addedVelocity, MaxAirMoveSpeed);
-                        addedVelocity = newTotal - currentVelocityOnInputsPlane;
-                    }
-
-                    currentVelocity += addedVelocity;
-                }
-
-                currentVelocity += Gravity * deltaTime;
-                currentVelocity *= (1f / (1f + (Drag * deltaTime)));
+                // 지면에서는 중력이 속도 벡터에 누적되지 않도록 제어
+                // 대신 Motor의 GroundSnapping이 캐릭터를 바닥에 고정시킵니다.
             }
-
-            if (_jumpRequested)
-            {
-                if (Motor.GroundingStatus.IsStableOnGround)
-                {
-                    Motor.ForceUnground();
-                    currentVelocity += Motor.CharacterUp * JumpUpSpeed - Vector3.Project(currentVelocity, Motor.CharacterUp);
-                }
-                _jumpRequested = false;
-            }
-
+    
+            // 마찰력(Drag) 적용
+            currentVelocity *= (1f / (1f + (_brain.Drag * deltaTime)));
+    
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {
                 currentVelocity += _internalVelocityAdd;

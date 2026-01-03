@@ -5382,7 +5382,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 446879649456773652, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.2360322
+      value: 2.688
       objectReference: {fileID: 0}
     - target: {fileID: 446879649456773652, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5416,6 +5416,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 618760512415498972, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1132956
+      objectReference: {fileID: 0}
     - target: {fileID: 1008533480109712883, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: m_Name
       value: Player
@@ -5427,6 +5431,10 @@ PrefabInstance:
     - target: {fileID: 2165327037912272888, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: m_AnimatePhysics
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2469725879202871517, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.361604
       objectReference: {fileID: 0}
     - target: {fileID: 2834414276893198728, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: Motor
@@ -5440,6 +5448,14 @@ PrefabInstance:
       propertyPath: Controller
       value: 
       objectReference: {fileID: 4578013503278033084}
+    - target: {fileID: 6417169041456572236, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.109777
+      objectReference: {fileID: 0}
+    - target: {fileID: 8044294279148986180, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1829846
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,15 +1,25 @@
 ﻿using UnityEngine;
 using Animancer;
+using UnityEngine.Serialization;
 
 namespace Game.FSM
 {
     [CreateAssetMenu(fileName = "State_Locomotion_Advanced", menuName = "UP/FSM/States/Locomotion Advanced")]
-    public class LocomotionStateSO : StateSO
+    public class LocomotionStateSO : StateSO, IMovementState
     {
         [Header("Movement Settings")]
         public float walkSpeed = 5f;
         public float runSpeed = 9f;
         public float sprintSpeed = 12f;
+        public float stableMovementSharpness = 15f;
+        public float orientationSharpness = 10f;
+        
+        [Header("Air Movement")]
+        public float maxAirMoveSpeed = 15f;
+        public float airAccelerationSpeed = 15f;
+        public float drag = 0.1f;
+        public Vector3 gravity = new Vector3(0, -30f, 0);
+
         
         [Header("Animation")]
         [SerializeField] private float fadeDuration = 0.1f;
@@ -24,6 +34,7 @@ namespace Game.FSM
         
         public override void OnEnter(CharacterBrain brain)
         {
+            Debug.Log("LocomotionStateSO.OnEnter");
             ITransition mixer = brain.AnimData.GetAnimation(AnimKey.Mixer_Locomotion);
             AnimancerState state = brain.Animancer.Play(mixer, fadeDuration);
             
@@ -31,7 +42,7 @@ namespace Game.FSM
             
             // 초기 애니메이션 파라미터 설정
             if (state is LinearMixerState mixerState)
-            {
+            {   
                 mixerState.Parameter = 0;
             }
         }
@@ -71,8 +82,58 @@ namespace Game.FSM
             }
         }
 
-        public override void OnFixedUpdate(CharacterBrain brain)
+        public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime, CharacterBrain brain)
         {
+            // 1. 현재 속도를 수평(Horizontal)과 수직(Vertical) 성분으로 분리
+            Vector3 horizontalVelocity = Vector3.ProjectOnPlane(currentVelocity, brain.Motor.CharacterUp);
+            Vector3 verticalVelocity = Vector3.Project(currentVelocity, brain.Motor.CharacterUp);
+
+            if (brain.Motor.GroundingStatus.IsStableOnGround)
+            {
+                // 2. 입력 확인 및 목표 속도 결정
+                float targetSpeed = 0f;
+                // 아주 작은 입력은 무시하도록 데드존 설정 (0.01f)
+                if (brain.InputDirection.sqrMagnitude > 0.01f)
+                {
+                    if (brain.IsSprintPressed) targetSpeed = sprintSpeed;
+                    else if (brain.InputDirection.sqrMagnitude > 0.8f) targetSpeed = runSpeed;
+                    else targetSpeed = walkSpeed;
+                }
+
+                // 3. 지면의 경사(Normal)를 고려한 이동 방향 계산
+                // 단순히 InputDirection을 쓰는게 아니라 지면을 타고 흐르도록 합니다.
+                Vector3 targetMovementDirection = brain.Motor.GetDirectionTangentToSurface(brain.InputDirection, brain.Motor.GroundingStatus.GroundNormal);
+                Vector3 targetMovementVelocity = targetMovementDirection * targetSpeed;
+
+                // 4. 수평 속도만 목표치로 보간 (점진적 감소/증가)
+                // 1f - Mathf.Exp(-sharpness * deltaTime)은 프레임 레이트에 독립적인 보간 방식입니다.
+                horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetMovementVelocity, 1f - Mathf.Exp(-stableMovementSharpness * deltaTime));
+        
+                // 지면에서는 중력으로 인해 쌓인 수직 속도를 초기화하여 바닥으로 파고드는 현상을 방지할 수 있습니다.
+                // (KCC Motor가 알아서 처리하지만, 명시적으로 0에 가깝게 유지하는 것이 안정적입니다)
+                verticalVelocity = Vector3.zero; 
+            }
+            else
+            {
+                // 공중 상태일 때의 추가 로직 (필요 시)
+            }
+
+            // 5. 최종 속도 재조합
+            currentVelocity = horizontalVelocity + verticalVelocity;
+        }
+
+        public void UpdateRotation(ref Quaternion currentRotation, float deltaTime, CharacterBrain brain)
+        {
+            Vector3 lookDirection = brain.OverrideLookDirection ?? brain.InputDirection;
+            if (lookDirection.sqrMagnitude > 0f && orientationSharpness > 0f)
+            {
+                Vector3 smoothedLookInputDirection = Vector3.Slerp(brain.Motor.CharacterForward, lookDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, brain.Motor.CharacterUp);
+            }
+            
+            Vector3 currentUp = (currentRotation * Vector3.up);
+            Vector3 smoothedGravityDir = Vector3.Slerp(currentUp, Vector3.up, 1 - Mathf.Exp(-orientationSharpness * deltaTime));
+            currentRotation = Quaternion.FromToRotation(currentUp, smoothedGravityDir) * currentRotation;
         }
     }
 }

@@ -39,6 +39,7 @@ namespace Game.FSM
 
         public override void OnExit(CharacterBrain brain)
         {
+            brain.SetOverrideLookDirection(null);
             GameObjectManager.Instance.OnEndInteraction();
         }
 
@@ -52,8 +53,7 @@ namespace Game.FSM
                 
                 if (directionToTarget != Vector3.zero)
                 {
-                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-                    brain.Rb.MoveRotation(targetRotation);
+                    brain.SetOverrideLookDirection(directionToTarget);
                 }
             }
         }

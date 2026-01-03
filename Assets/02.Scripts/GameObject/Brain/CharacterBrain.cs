@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Animancer;
+using KinematicCharacterController;
 
 namespace Game.FSM
 {
@@ -11,18 +12,15 @@ namespace Game.FSM
         Heavy   
     }
 
-    [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-    [RequireComponent(typeof(AnimancerComponent))]
+    [RequireComponent(typeof(KinematicCharacterMotor), typeof(CapsuleCollider))]
+    [RequireComponent(typeof(AnimancerComponent), typeof(PlayerCharacterController))]
     public class CharacterBrain : MonoBehaviour
     {
         [Header("References")]
         public AnimancerComponent Animancer;
-        public Rigidbody Rb;
+        public KinematicCharacterMotor Motor;
+        public PlayerCharacterController Controller;
         public GameObject HitBox;
-
-        [Header("Physics Settings")]
-        public LayerMask GroundLayer;
-        public float GroundCheckRadius = 0.2f;
 
         [Header("State Config")]
         public StateSO CurrentState;
@@ -35,6 +33,7 @@ namespace Game.FSM
 
         // 프로퍼티는 읽기 전용(private set)으로 둡니다.
         public Vector3 InputDirection { get; private set; }
+        public Vector3? OverrideLookDirection { get; private set; }
         public AttackInputType AttackInput { get; private set; }
         public bool IsJumpPressed { get; private set; }
         public bool IsDodgePressed { get; private set; }
@@ -46,7 +45,8 @@ namespace Game.FSM
         protected virtual void Awake()
         {
             Animancer = GetComponent<AnimancerComponent>();
-            Rb = GetComponent<Rigidbody>();
+            Motor = GetComponent<KinematicCharacterMotor>();
+            Controller = GetComponent<PlayerCharacterController>();
             
             if (AnimData != null) 
             {
@@ -54,16 +54,6 @@ namespace Game.FSM
             }
             
             if(HitBox != null) HitBox.SetActive(false);
-
-            SetupRigidbody();
-        }
-
-        private void SetupRigidbody()
-        {
-            Rb.constraints = RigidbodyConstraints.FreezeRotation;
-            Rb.useGravity = true;
-            Rb.interpolation = RigidbodyInterpolation.Interpolate;
-            Rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         protected virtual void Start()
@@ -75,21 +65,23 @@ namespace Game.FSM
         {
             HandleInput();
             
+            Vector3 lookDirection = OverrideLookDirection ?? InputDirection;
+            Controller.SetInputs(InputDirection, lookDirection, IsJumpPressed, IsSprintPressed);
+            
             CheckStateTransitions();
             
             CurrentState?.OnUpdate(this);
         }
-
         protected virtual void FixedUpdate()
         {
             CurrentState?.OnFixedUpdate(this);
         }
-
         // 자식이 오버라이드할 함수
         protected virtual void HandleInput() { }
 
         // 자식 클래스(PlayerBrain, MonsterBrain)에서 값을 세팅하기 위한 메서드들 추가
         protected void SetInputDirection(Vector3 dir) => InputDirection = dir;
+        public void SetOverrideLookDirection(Vector3? direction) => OverrideLookDirection = direction;
         protected void SetAttackInput(AttackInputType type) => AttackInput = type;
         protected void SetJumpInput(bool active) => IsJumpPressed = active;
         protected void SetDodgeInput(bool active) => IsDodgePressed = active;
@@ -108,6 +100,7 @@ namespace Game.FSM
             if (CurrentState == newState) return;
 
             CurrentState?.OnExit(this);
+            SetOverrideLookDirection(null);
             CurrentState = newState;
             CurrentState.OnEnter(this);
         }
@@ -171,7 +164,7 @@ namespace Game.FSM
         
         public bool IsGrounded()
         {
-            return Physics.CheckSphere(transform.position + Vector3.up * 0.1f, GroundCheckRadius, GroundLayer);
+            return Motor.GroundingStatus.IsStableOnGround;
         }
 
         public void SetHitBox(bool active)
@@ -198,12 +191,6 @@ namespace Game.FSM
                 if (value is T tValue) return tValue;
             }
             return defaultValue;
-        }
-        
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position + Vector3.up * 0.1f, GroundCheckRadius);
         }
     }
 }

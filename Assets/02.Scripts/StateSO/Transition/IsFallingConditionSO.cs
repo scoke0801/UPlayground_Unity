@@ -9,7 +9,7 @@ namespace Game.FSM
         public override bool CheckCondition(CharacterBrain brain)
         {
             // 땅에 닿지 않았고 (점프/낙하 중), 하강 중일 때 (수직 속도가 음수)
-            return !brain.IsGrounded() && brain.Rb.linearVelocity.y < 0; 
+            return !brain.IsGrounded() && brain.Motor.Velocity.y < 0; 
         }
     }
 }

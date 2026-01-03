@@ -28,19 +28,15 @@ namespace Game.FSM
             
             var state = brain.Animancer.Play(dodgeAnim, fadeDuration);
 
-            brain.Rb.linearVelocity = Vector3.zero;
-            //brain.Rb.AddForce(_dodgeDir * DodgeSpeed, ForceMode.Impulse);
-            
             if (state.Events(brain, out AnimancerEvent.Sequence events))
             {
-                events.Add(0.11f, () => brain.Rb.AddForce(_dodgeDir * DodgeSpeed, ForceMode.Impulse));
+                events.Add(0.11f, () => brain.Controller.AddVelocity(_dodgeDir * DodgeSpeed));
                 events.OnEnd = () => brain.ChangeState(brain.DefaultState);
             }
         }
 
         public override void OnFixedUpdate(CharacterBrain brain)
         {
-            //brain.Rb.linearVelocity = new Vector3(_dodgeDir.x * DodgeSpeed, brain.Rb.linearVelocity.y, _dodgeDir.z * DodgeSpeed);
         }
     }
 }

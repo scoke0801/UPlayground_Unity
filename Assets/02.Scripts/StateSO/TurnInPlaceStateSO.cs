@@ -31,27 +31,6 @@ namespace Game.FSM
             }
         }
 
-        public override void OnFixedUpdate(CharacterBrain brain)
-        {
-            // [핵심] 턴 동작 중에도 입력이 있다면 이동 속도 유지
-            if (brain.InputDirection.sqrMagnitude > 0.01f)
-            {
-                float lastSpeed = brain.GetData<float>("LastSpeed");
-                // 이전 상태의 속도를 유지하며 입력 방향으로 속도 적용
-                Vector3 targetVelocity = brain.InputDirection * lastSpeed;
-
-                // 부드러운 속도 보간 (Locomotion의 가속도 로직 활용 가능)
-                Vector3 currentV = brain.Rb.linearVelocity;
-                targetVelocity.y = currentV.y;
-
-                //brain.Rb.linearVelocity = Vector3.Lerp(currentV, targetVelocity, Time.fixedDeltaTime * 5f);
-
-                // 회전은 애니메이션이 담당하거나, 서서히 타겟 방향을 보게 함
-                //Quaternion targetRot = Quaternion.LookRotation(brain.InputDirection);
-                //brain.Rb.MoveRotation(Quaternion.Slerp(brain.transform.rotation, targetRot, Time.fixedDeltaTime * locomotionState.rotationSpeed));
-            }
-        }
-
         public override void OnExit(CharacterBrain brain)
         {
             base.OnExit(brain);

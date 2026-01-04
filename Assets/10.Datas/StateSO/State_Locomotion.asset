@@ -28,8 +28,9 @@ MonoBehaviour:
   walkSpeed: 5
   runSpeed: 9
   sprintSpeed: 12
-  rotationSpeed: 15
-  acceleration: 2
+  orientationSharpness: 10
+  accelerationSharpness: 7.5
+  decelerationSharpness: 15
   fadeDuration: 0.25
   stopState: {fileID: 11400000, guid: 6701ffbbf1eaac74a8c30df39fbd6a19, type: 2}
   turnInPlaceState: {fileID: 11400000, guid: 2a8c402eaacd3174387efbbc77b09c10, type: 2}

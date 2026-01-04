@@ -62,7 +62,8 @@ namespace Game.FSM
             }
     
             // 마찰력(Drag) 적용
-            currentVelocity *= (1f / (1f + (_brain.Drag * deltaTime)));
+            float drag = Motor.GroundingStatus.IsStableOnGround ? _brain.Drag : _brain.AirDrag; 
+            currentVelocity *= (1f / (1f + (drag * deltaTime)));
     
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {

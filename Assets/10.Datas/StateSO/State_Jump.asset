@@ -13,18 +13,6 @@ MonoBehaviour:
   m_Name: State_Jump
   m_EditorClassIdentifier: 
   Transitions: []
-  JumpStartAnim:
-    _FadeDuration: 0.25
-    _Speed: 1
-    _Events:
-      _NormalizedTimes: []
-      _Callbacks: []
-      _Names: []
-    _Clip: {fileID: -9070578397753738753, guid: 406f4c94f7ac0094ea777db5efc275fd, type: 3}
-    _NormalizedStartTime: NaN
-  JumpForce: 7
-  AirMoveSpeed: 3
+  fadeDuration: 0.1
+  JumpUpSpeed: 11
   FallState: {fileID: 11400000, guid: a95fa7ac69965304aa28a13fab370696, type: 2}
-  references:
-    version: 2
-    RefIds: []

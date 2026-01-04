@@ -32,6 +32,7 @@ namespace Game.FSM
         [Header("Movement Data")]
         public Vector3 Gravity = new Vector3(0, -30f, 0);
         public float Drag = 2f;
+        public float AirDrag = 0.1f;
 
         private Dictionary<string, object> _blackboard = new Dictionary<string, object>();
 

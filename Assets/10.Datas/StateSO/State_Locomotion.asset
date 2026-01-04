@@ -25,6 +25,12 @@ MonoBehaviour:
   - Condition: {fileID: 11400000, guid: dce688787d200594a8831bf345609aef, type: 2}
     TargetState: {fileID: 11400000, guid: da378e435c252a8448db77993780d4cf, type: 2}
     ConsumeInputOnTransition: 1
+  - Condition: {fileID: 11400000, guid: 746a0d84624084949b03ac2e482f8c06, type: 2}
+    TargetState: {fileID: 11400000, guid: 2a8c402eaacd3174387efbbc77b09c10, type: 2}
+    ConsumeInputOnTransition: 1
+  - Condition: {fileID: 11400000, guid: 114ca140a09fca941981326ec87c5cc3, type: 2}
+    TargetState: {fileID: 11400000, guid: 6701ffbbf1eaac74a8c30df39fbd6a19, type: 2}
+    ConsumeInputOnTransition: 1
   walkSpeed: 5
   runSpeed: 9
   sprintSpeed: 12
@@ -32,6 +38,8 @@ MonoBehaviour:
   accelerationSharpness: 7.5
   decelerationSharpness: 15
   fadeDuration: 0.25
+  minMoveSpeed: 0.5
+  animationSyncSharpness: 10
   stopState: {fileID: 11400000, guid: 6701ffbbf1eaac74a8c30df39fbd6a19, type: 2}
   turnInPlaceState: {fileID: 11400000, guid: 2a8c402eaacd3174387efbbc77b09c10, type: 2}
   stopSpeedThreshold: 1.5

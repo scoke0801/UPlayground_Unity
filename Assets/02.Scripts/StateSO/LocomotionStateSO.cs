@@ -62,22 +62,7 @@ namespace Game.FSM
             // 현재 보는 방향과 입력 방향 사이의 각도 계산
             float angle = Vector3.SignedAngle(brain.transform.forward, brain.InputDirection, Vector3.up);
             brain.SetData("TurnAngle", angle);
-            float absAngle = Mathf.Abs(angle);
             
-            // [개선] 1. 방향 전환 검사 (최우선)
-            if (inputMag > 0.01f && absAngle > turnAngleThreshold)
-            {                
-                //brain.ChangeState(turnInPlaceState);
-                //return;
-            }
-
-            // 2. 정지 상태 검사 (방향 전환 조건이 아닐 때만 실행)
-            if (inputMag < 0.01f && currentSpeed > stopSpeedThreshold)
-            {
-                brain.ChangeState(stopState);
-                return;
-            }
-
             // 3. 애니메이션 믹서 파라미터 업데이트 (가속/감속 표현)
             var state = brain.GetData<LinearMixerState>("LocomotionState");
             if (state != null)

@@ -19,7 +19,7 @@ namespace Game.FSM
         [Header("Input Buffer")]
         [SerializeField] private float bufferTime = 0.15f;
         [SerializeField] private int maxBufferSize = 10;
-        
+        private Vector2 _rawMoveInput;
         // 참조 추가
         private SkillSystem _skillSystem;
 
@@ -57,7 +57,25 @@ namespace Game.FSM
             SubscribeToInputEvents();
             SubscribeToEvent();
         }
-
+        
+        public Vector3 GetRawInput()
+        {
+            // 카메라 회전 적용하여 3D 벡터로 변환
+            if (_rawMoveInput.sqrMagnitude > 0.01f)
+            {
+                Camera mainCamera = Camera.main;
+                Vector3 forward = mainCamera.transform.forward;
+                Vector3 right = mainCamera.transform.right;
+            
+                forward.y = 0f;
+                right.y = 0f;
+                forward.Normalize();
+                right.Normalize();
+            
+                return (forward * _rawMoveInput.y + right * _rawMoveInput.x).normalized;
+            }
+            return Vector3.zero;
+        }
         private void SubscribeToEvent()
         {
             GameObjectManager.Instance.OnInteractionOn += OnInterfaction;

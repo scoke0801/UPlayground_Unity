@@ -37,7 +37,8 @@ namespace Game.FSM
         private Dictionary<string, object> _blackboard = new Dictionary<string, object>();
 
         // 프로퍼티는 읽기 전용(private set)으로 둡니다.
-        public Vector3 InputDirection { get; private set; }
+        public Vector3 InputDirection { get; private set; } 
+        public Vector3 PreviousInputDirection { get; private set; }
         public Vector3? OverrideLookDirection { get; private set; }
         public AttackInputType AttackInput { get; private set; }
         public bool IsJumpPressed { get; private set; }
@@ -73,6 +74,11 @@ namespace Game.FSM
         {
             HandleInput();
             
+            // 입력 방향 업데이트 전에 이전 값 저장
+            if (InputDirection.sqrMagnitude > 0.01f)
+            {
+                PreviousInputDirection = InputDirection;
+            }
             Controller.SetInputs(InputDirection);
             
             CheckStateTransitions();

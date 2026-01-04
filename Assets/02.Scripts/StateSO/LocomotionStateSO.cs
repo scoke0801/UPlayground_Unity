@@ -18,6 +18,10 @@ namespace Game.FSM
         [Header("Animation")]
         [SerializeField] private float fadeDuration = 0.1f;
         
+        [Header("Animation Sync")]
+        public float minMoveSpeed = 0.5f;  // 이 속도 이하에서는 이동하지 않음
+        public float animationSyncSharpness = 10f;  // 애니메이션 파라미터 보간 속도
+        
         [Header("Transitions")]
         public StateSO stopState;
         public StateSO turnInPlaceState;
@@ -25,6 +29,9 @@ namespace Game.FSM
         [Header("Thresholds")]
         public float stopSpeedThreshold = 1.5f;
         public float turnAngleThreshold = 45f;
+        
+        // 애니메이션 파라미터를 부드럽게 업데이트하기 위한 변수
+        private float currentAnimationSpeed = 0f;
         
         public override void OnEnter(CharacterBrain brain)
         {
@@ -40,6 +47,8 @@ namespace Game.FSM
                 mixerState.Parameter = 0;
                 mixerState.ApplyFootIK = true;
             }
+            currentAnimationSpeed = 0f;
+
         }
         
         public override void OnUpdate(CharacterBrain brain)
@@ -73,7 +82,13 @@ namespace Game.FSM
             var state = brain.GetData<LinearMixerState>("LocomotionState");
             if (state != null)
             {
-                state.Parameter = currentSpeed;
+                currentAnimationSpeed = Mathf.Lerp(
+                    currentAnimationSpeed,
+                    currentSpeed,
+                    1f - Mathf.Exp(-animationSyncSharpness * Time.deltaTime)
+                );
+
+                state.Parameter = currentAnimationSpeed;
             }
         }
         
@@ -100,20 +115,24 @@ namespace Game.FSM
                 Vector3 targetMovementDirection = brain.Motor.GetDirectionTangentToSurface(brain.InputDirection, brain.Motor.GroundingStatus.GroundNormal);
                 Vector3 targetMovementVelocity = targetMovementDirection * targetSpeed;
 
-                // 목표 속도에 따라 다른 Sharpness 적용
-                float currentSharpness = (targetSpeed > 0.01f) ? accelerationSharpness : decelerationSharpness;
+                // 애니메이션이 어느정도 재생되기 전까지는 천천히 가속
+                float currentAnimSpeed = currentAnimationSpeed;
+                float effectiveSharpness = accelerationSharpness;
+        
+                // 애니메이션이 느리게 시작되면 물리 이동도 느리게
+                if (currentAnimSpeed < minMoveSpeed && targetSpeed > 0f)
+                {
+                    effectiveSharpness = accelerationSharpness * 0.5f;  // 초반 가속을 더 느리게
+                }
 
-                // 4. 수평 속도만 목표치로 보간 (점진적 감소/증가)
-                // 1f - Mathf.Exp(-sharpness * deltaTime)은 프레임 레이트에 독립적인 보간 방식입니다.
-                //horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetMovementVelocity, 1f - Mathf.Exp(-stableMovementSharpness * deltaTime));
+                float currentSharpness = (targetSpeed > 0.01f) ? effectiveSharpness : decelerationSharpness;
+
                 horizontalVelocity = Vector3.Lerp(
                     horizontalVelocity, 
                     targetMovementVelocity, 
                     1f - Mathf.Exp(-currentSharpness * deltaTime)
                 );
-                
-                // 지면에서는 중력으로 인해 쌓인 수직 속도를 초기화하여 바닥으로 파고드는 현상을 방지할 수 있습니다.
-                // (KCC Motor가 알아서 처리하지만, 명시적으로 0에 가깝게 유지하는 것이 안정적입니다)
+        
                 verticalVelocity = Vector3.zero; 
             }
             else

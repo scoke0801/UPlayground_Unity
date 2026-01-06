@@ -71,6 +71,16 @@ namespace Game.FSM
                 _internalVelocityAdd = Vector3.zero;
             }
         }
+        private void OnAnimatorMove()
+        {
+            // 현재 상태가 TurnInPlaceStateSO인지 확인
+            if (_brain.CurrentState is TurnInPlaceStateSO turnState)
+            {
+                // TurnInPlaceStateSO에 Root Motion 데이터 전달
+                turnState.OnAnimatorMoveCallback(_brain);
+            }
+            // 다른 상태들도 필요하면 추가 가능
+        }
 
         public void AfterCharacterUpdate(float deltaTime) { }
         public void PostGroundingUpdate(float deltaTime) { }

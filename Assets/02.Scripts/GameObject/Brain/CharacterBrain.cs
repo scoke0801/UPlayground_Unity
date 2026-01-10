@@ -22,17 +22,15 @@ namespace Game.FSM
         public PlayerCharacterController Controller;
         public GameObject HitBox;
 
+        [Header("Movement Data")]
+        public ActorMovementData MovementData;
+        
         [Header("State Config")]
         public StateSO CurrentState;
         public StateSO DefaultState;
         
         [Header("Animation Data")]
         public CharacterAnimationData AnimData;
-        
-        [Header("Movement Data")]
-        public Vector3 Gravity = new Vector3(0, -30f, 0);
-        public float Drag = 2f;
-        public float AirDrag = 0.1f;
 
         private Dictionary<string, object> _blackboard = new Dictionary<string, object>();
 

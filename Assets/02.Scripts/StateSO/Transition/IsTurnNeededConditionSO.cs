@@ -11,6 +11,8 @@ namespace Game.FSM
         
         public override bool CheckCondition(CharacterBrain brain)
         {
+			return false;
+
             float currentSpeed = brain.GetData<float>("LastSpeed");
             Vector3 currentInput = brain.InputDirection;
             Vector3 previousInput = brain.PreviousInputDirection;

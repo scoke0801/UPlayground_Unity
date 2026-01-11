@@ -42,16 +42,22 @@ namespace Game.FSM
             {
                 // state.NormalizedTime은 0(시작)에서 1(끝)까지 증가함
                 // 커브를 조절하고 싶다면 AnimationCurve를 serialize하여 사용할 수도 있음
-                float progress = Mathf.Clamp01(_animancerState.NormalizedTime);
+                float progress = Mathf.Clamp01(_animancerState.NormalizedTime) *  1.5f;
+                
+                _enteredVelocity.y = currentVelocity.y;
+                
+                Vector3 targetVelocity = Vector3.zero;
+                targetVelocity.y = currentVelocity.y;
                 
                 // 시작 속도에서 0으로 점진적 보간
-                currentVelocity = Vector3.Lerp(_enteredVelocity, Vector3.zero, progress);
+                currentVelocity = Vector3.Lerp(_enteredVelocity, targetVelocity, progress);
             }
         }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime, CharacterBrain brain)
         {
-            locomotionState.UpdateRotation(ref currentRotation, deltaTime, brain);
+            // 암것도하지않는다.
+            //locomotionState.UpdateRotation(ref currentRotation, deltaTime, brain);
         }
     }
 }

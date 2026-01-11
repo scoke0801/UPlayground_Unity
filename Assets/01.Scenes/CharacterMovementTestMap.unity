@@ -46322,6 +46322,38 @@ PrefabInstance:
       propertyPath: Motor
       value: 
       objectReference: {fileID: 2136252547}
+    - target: {fileID: 4253655344346545385, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_Height
+      value: 1.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253655344346545385, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_Radius
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253655344346545385, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_Center.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397579831418375893, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: CapsuleHeight
+      value: 1.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397579831418375893, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: CapsuleRadius
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397579831418375893, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: CapsuleYOffset
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397579831418375893, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: MinRequiredStepDepth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397579831418375893, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: MaxStableDistanceFromLedge
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5682084228767120454, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: Drag
       value: 0.1

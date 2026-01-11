@@ -51,9 +51,29 @@ namespace Game.FSM
         {
             if (_jumpApplied == false)
             {
+                // Calculate jump direction before ungrounding
+                Vector3 jumpDirection = brain.Motor.CharacterUp;
+                if (brain.Motor.GroundingStatus.FoundAnyGround && !brain.Motor.GroundingStatus.IsStableOnGround)
+                {
+                    jumpDirection = brain.Motor.GroundingStatus.GroundNormal;
+                }
+
+                // Makes the character skip ground probing/snapping on its next update. 
+                // If this line weren't here, the character would remain snapped to the ground when trying to jump. Try commenting this line out and see.
                 brain.Motor.ForceUnground();
-                currentVelocity += brain.Motor.CharacterUp * JumpUpSpeed - Vector3.Project(currentVelocity, brain.Motor.CharacterUp);
+
+                // Add to the return velocity and reset jump state
+                currentVelocity += (jumpDirection * JumpUpSpeed) - Vector3.Project(currentVelocity, brain.Motor.CharacterUp);
+                // currentVelocity += (brain.InputDirection * JumpScalableForwardSpeed);
+
+
+                //brain.Motor.ForceUnground();
+                //currentVelocity += brain.Motor.CharacterUp * JumpUpSpeed - Vector3.Project(currentVelocity, brain.Motor.CharacterUp);
                 _jumpApplied = true;
+            }
+            else
+            {
+                brain.Controller.DoDefaultUpdateVelocity(ref currentVelocity, deltaTime);
             }
         }
 

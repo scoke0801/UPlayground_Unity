@@ -30,11 +30,5 @@ namespace Game.FSM
                 return;
             }
         }
-
-        public void UpdateRotation(ref Quaternion currentRotation, float deltaTime, CharacterBrain brain)
-        {
-            // 공중에서는 특별한 회전 로직이 필요하지 않으므로 비워둡니다.
-            // 필요하다면 여기에 공중 회전 로직을 추가할 수 있습니다.
-        }
     }
 }

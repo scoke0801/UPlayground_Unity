@@ -7,6 +7,9 @@ public class ActorMovementData : ScriptableObject
     public float SprintSpeed = 12f;
     public float RunSpeed = 9f;
     public float WalkSpeed = 5f;
+
+    public float AirAcceleration = 30.0f;
+    public float MaxAirMoveSpeed = 10f;
     
     public float OrientationSharpness = 10f;
     public float AccelerationSharpness = 7.5f; // 낮을수록 천천히 가속

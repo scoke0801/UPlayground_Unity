@@ -54,6 +54,7 @@ namespace Game.FSM
             Controller.SetBrain(this);
             
             Animancer.Layers[0].ApplyFootIK = true;
+            Animancer.Layers[0].ApplyAnimatorIK = true;
             
             if (AnimData != null) 
             {

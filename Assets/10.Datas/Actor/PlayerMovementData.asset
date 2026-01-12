@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523c9cdb966f48b78cfe547899770a56, type: 3}
   m_Name: PlayerMovementData
   m_EditorClassIdentifier: 
-  SprintSpeed: 12
-  RunSpeed: 9
-  WalkSpeed: 5
+  SprintSpeed: 7
+  RunSpeed: 5
+  WalkSpeed: 2
+  AirAcceleration: 20
+  MaxAirMoveSpeed: 5
   OrientationSharpness: 10
   AccelerationSharpness: 7.5
   DecelerationSharpness: 15

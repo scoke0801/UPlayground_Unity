@@ -5587,6 +5587,63 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 271934942}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &279465177
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -48.4302
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -22.95606
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 1.3639232e-19
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.000000013822758
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.0000004446622
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: af0adcb624545c24e8c836635d07b769, type: 3}
+      propertyPath: m_Name
+      value: T-Pose
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: af0adcb624545c24e8c836635d07b769, type: 3}
 --- !u!1 &280014034
 GameObject:
   m_ObjectHideFlags: 0
@@ -36404,6 +36461,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706561003}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1707175199 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5699230618379748402, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+  m_PrefabInstance: {fileID: 2136252546}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad50f81b1d25c441943c37a89ba23f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1715440049
 GameObject:
   m_ObjectHideFlags: 0
@@ -46282,6 +46350,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8062378492483825705, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: animancer
+      value: 
+      objectReference: {fileID: 1707175199}
+    - target: {fileID: 8062378492483825705, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8062378492483825705, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 959
+      objectReference: {fileID: 0}
+    - target: {fileID: 8062378492483825705, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
+      propertyPath: useAnimationCurves
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -47217,3 +47301,4 @@ SceneRoots:
   - {fileID: 1870690903}
   - {fileID: 2136252546}
   - {fileID: 1044095447}
+  - {fileID: 279465177}

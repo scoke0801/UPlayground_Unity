@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.GameActor.MovementController;
 using UPlayGround.InputDefine;
 
 namespace UPlayGround.GameActor
@@ -7,13 +8,14 @@ namespace UPlayGround.GameActor
     /// <summary>
     /// 
     /// </summary>
-    public class PlayerActor : Base.GameActor
+    public class PlayerActor : Base.GameActor<PlayerMovementController>
     {
         private Vector2 _moveInput;
         
         #region Mono
-        private void Awake()
+        protected virtual void Awake()
         {
+            base.Awake();
             if (InputManager.Instance)
             {
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,
@@ -31,33 +33,37 @@ namespace UPlayGround.GameActor
                     OnMoveInput, OnMoveInput, OnMoveInput);
             }
         }
-        private void Update()
-        {
-            // 매 프레임 저장된 입력값으로 이동 처리
-            if (_moveInput.sqrMagnitude > 0)
-            {
-                Move(_moveInput);
-            }
-        }
+        // private void Update()
+        // {
+        //     // movementController.SetInp
+        //     // 매 프레임 저장된 입력값으로 이동 처리
+        //     if (_moveInput.sqrMagnitude > 0)
+        //     {
+        //         Move(_moveInput);
+        //     }
+        // }
         #endregion
         
-        private void Move(Vector2 direction)
-        {
-            // 실제 이동 로직 구현
-            transform.Translate(Time.deltaTime * 5f * direction );
-        }
         
         #region InputCallback
         private void OnMoveInput(InputAction.CallbackContext obj)
         {
             Vector2 inputMove = obj.ReadValue<Vector2>();
             
-            Debug.Log($"OnMoveInput : {inputMove}");
+            // 컨트롤러에 입력값 전달
+            if (movementController != null)
+            {
+                movementController.SetMoveInput(inputMove);
+            }
         }
         
         private void OnMoveCanceled()
         {
-            Debug.Log("OnMoveCanceled");
+            // 레이어 변경 등으로 인한 강제 중지 시 입력값 초기화
+            if (movementController != null)
+            {
+                movementController.SetMoveInput(Vector2.zero);
+            }
         }
         #endregion
     }

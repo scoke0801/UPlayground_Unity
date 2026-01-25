@@ -1,9 +1,16 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.GameActor.MovementController;
 
 namespace UPlayGround.GameActor.Base
 {
-    public class GameActor : MonoBehaviour
+    public abstract class GameActor<T> : MonoBehaviour where T : ActorMovementController
     {
+        protected T movementController;
+
+        protected virtual void Awake()
+        {
+            movementController = GetComponent<T>();
+        }
     }
 }

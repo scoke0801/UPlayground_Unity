@@ -107704,7 +107704,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2687664263803608197}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d1bc5515e3ab954e80599c538834774, type: 3}
   m_Name: 
@@ -110549,6 +110549,7 @@ GameObject:
   - component: {fileID: 2501911559922084711}
   - component: {fileID: 3032477569975854151}
   - component: {fileID: 3368287629227668347}
+  - component: {fileID: 3368287629227668348}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -119753,6 +119754,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9169078833fe406d98abcf842fd0b139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3368287629227668348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2687664263803608197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd60312d88344ac09efad526cdd475f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Motor: {fileID: 2501911559922084711}
+  Actor: {fileID: 0}
+  MaxStableMoveSpeed: 10
+  StableMovementSharpness: 15
+  OrientationSharpness: 10
+  MaxAirMoveSpeed: 10
+  AirAccelerationSpeed: 5
+  Drag: 0.1
+  RotationObstruction: 0
+  Gravity: {x: 0, y: -30, z: 0}
+  MeshRoot: {fileID: 0}
 --- !u!1 &3377219314227094675
 GameObject:
   m_ObjectHideFlags: 0

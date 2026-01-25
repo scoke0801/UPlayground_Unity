@@ -1,15 +1,10 @@
-﻿
-using Game.FSM;
-using UnityEngine;
+﻿using UnityEngine;
 
 public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
 {
-    private GameObjectInteractionHandler _interactionHandler;
     private GameObject _player;
-    private PlayerBrain _playerBrain;
     
     public GameObject Player => _player;
-    public PlayerBrain PlayerBrain => _playerBrain;
     
     public delegate void Interaction();
     public event Interaction OnInteractionOn;
@@ -19,22 +14,17 @@ public partial class GameObjectManager : BaseManager<GameObjectManager>, IManage
 
     public void Init()
     {
-        _interactionHandler = new GameObjectInteractionHandler();
-        
         _player = GameObject.FindWithTag("Player");
-        _playerBrain = _player.GetComponent<PlayerBrain>();
 
         LoadFXPrefabDatabase();
     }
 
     public void Dispose()
     {
-        _interactionHandler = null;
     }
 
     public void OnUpdate()
     {
-        _interactionHandler.OnUpdate();
     }
 
     public void OnFixedUpdate()
@@ -43,26 +33,5 @@ public partial class GameObjectManager : BaseManager<GameObjectManager>, IManage
 
     public void OnLateUpdate()
     {
-    }
-    
-    // 플레이어 상태 관련
-    public bool IsPlayerInteracting()
-    {
-        if (PlayerBrain == null)
-        {
-            return false;
-        }
-
-        return PlayerBrain.IsOnInteraction;
-    }
-
-    public bool IsInteractionTargetExist()
-    {
-        return _interactionHandler.IsInteractionTargetExist();
-    }
-
-    public Actor.InteractableActor GetCurrentInteractionTarget()
-    {
-        return _interactionHandler.GetCurrentTarget();
     }
 }

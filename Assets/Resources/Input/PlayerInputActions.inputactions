@@ -3,7 +3,7 @@
     "name": "PlayerInputActions",
     "maps": [
         {
-            "name": "Gameplay",
+            "name": "PlayerAction",
             "id": "b6abecd7-73ce-45d7-bfe2-9b709e4c6488",
             "actions": [
                 {
@@ -19,6 +19,15 @@
                     "name": "Look",
                     "type": "Value",
                     "id": "a53334cd-f28b-42e5-a8ac-6d284520dba6",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "5a1d6214-c68a-4dcf-ba49-1c4c266f85ec",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -64,6 +73,15 @@
                     "name": "HeavyAttack",
                     "type": "Button",
                     "id": "985bd00c-81ef-4053-99e8-2e087721ca23",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "c824e1c5-7cbe-4a62-be9f-a3daeefa4d81",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -118,60 +136,6 @@
                     "name": "Skill4",
                     "type": "Button",
                     "id": "b732cc03-39aa-4de4-bb8c-a7a7c5df99a9",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Inventory",
-                    "type": "Button",
-                    "id": "9ea7af54-1d0c-4cca-949c-ab19d7796a1f",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "HoldTest",
-                    "type": "Button",
-                    "id": "90beb7b6-1d7c-4d97-99ea-b9c4d362d9fa",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SwipeTest",
-                    "type": "Value",
-                    "id": "6478c50f-a499-4832-bffc-091dde0ee0b6",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "TouchPadTest",
-                    "type": "Button",
-                    "id": "ea3e2d74-ad62-425d-b1ee-e537a08fd09c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "ShowCursor",
-                    "type": "Button",
-                    "id": "d5115637-c021-4e1d-8a4b-fe8f70e54165",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Sprint",
-                    "type": "Button",
-                    "id": "c824e1c5-7cbe-4a62-be9f-a3daeefa4d81",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -368,85 +332,85 @@
                 },
                 {
                     "name": "",
-                    "id": "5c29081f-532f-48f0-8874-daa09ffb66a4",
-                    "path": "<Keyboard>/i",
+                    "id": "70ff4f6a-6fc9-4ccf-85b7-2a8b3e53df14",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Inventory",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "f8aad47b-c202-4044-b03f-0ab265c87160",
-                    "path": "<Keyboard>/h",
-                    "interactions": "Hold(duration=1.5)",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HoldTest",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e24ed165-8cb3-4623-b69e-46aa26fe5ebe",
-                    "path": "/<DualSenseGamepadHID>/touchpad/primaryTouch/position",
+                    "id": "1fdabd9f-0316-4a9f-84c2-c2e555521f50",
+                    "path": "<Mouse>/scroll",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwipeTest",
+                    "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "System",
+            "id": "ba9bdc69-e961-4a86-9627-eb5c1131cee3",
+            "actions": [
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "c62fef29-6c47-4843-b078-733880ee4629",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 },
                 {
+                    "name": "ShowCursor",
+                    "type": "Button",
+                    "id": "17cdc840-1abe-4eb1-bf58-986e864cf726",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Submit",
+                    "type": "Button",
+                    "id": "c8543e91-02ab-4c19-8220-9d8ab49cd65d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "ee58e825-908b-4eb1-9467-9607800c2b58",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
                     "name": "",
-                    "id": "97d33e2a-77d6-4509-917a-f2d3b440ca84",
-                    "path": "<DualSenseGamepad>/touch0",
+                    "id": "2d312ab1-b2ef-4b49-acba-a0c258e5e210",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwipeTest",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "875d9c6b-174a-4389-ae9d-9e6c72a268ba",
-                    "path": "<DualSenseGamepad>/touch0/pressure",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwipeTest",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1f7c7a8b-034b-4aa4-b6f6-f92b02360aa2",
-                    "path": "<DualSenseGamepad>/touch1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwipeTest",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "19e1c05a-82ea-46ce-9875-b83371885644",
-                    "path": "<DualShockGamepad>/touchpadButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TouchPadTest",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1027229e-4ebc-4063-ad52-5bbaf1615a4b",
-                    "path": "<Keyboard>/leftAlt",
+                    "id": "dcd08881-0da2-4634-aca8-909fbee83759",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -456,12 +420,23 @@
                 },
                 {
                     "name": "",
-                    "id": "70ff4f6a-6fc9-4ccf-85b7-2a8b3e53df14",
-                    "path": "<Keyboard>/shift",
+                    "id": "86f51422-94c5-4bd7-9318-1deffa5594de",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Sprint",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cabc08cf-4175-44d3-9917-9e2df80c2a7b",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -499,15 +474,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Point",
-                    "type": "PassThrough",
-                    "id": "a9dde808-1e29-497f-851a-2c0bd7d5ca15",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Inventory",
                     "type": "Button",
                     "id": "aa11865e-0a6f-4cde-8312-c51f2a9b4930",
@@ -533,6 +499,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Point",
+                    "type": "PassThrough",
+                    "id": "a9dde808-1e29-497f-851a-2c0bd7d5ca15",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [

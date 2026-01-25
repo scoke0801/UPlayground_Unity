@@ -24,7 +24,7 @@ public abstract class UI_Base : MonoBehaviour
     /// <summary>
     /// UI가 속한 캔버스 레이어
     /// </summary>
-    [SerializeField] protected CanvasLayer _layer = CanvasLayer.Normal;
+    [SerializeField] protected CanvasLayer _layer = CanvasLayer.Scene;
     public CanvasLayer Layer => _layer;
 
     /// <summary>

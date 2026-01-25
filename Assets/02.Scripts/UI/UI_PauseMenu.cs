@@ -57,7 +57,7 @@ public class UI_PauseMenu : UI_Base
         // 게임플레이 모드로 전환
         if (inputManager != null)
         {
-            inputManager.SwitchToGameplay(false);
+            //inputManager.SwitchToGameplay(false);
         }
         
         // UI 닫기

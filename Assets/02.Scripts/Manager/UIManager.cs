@@ -2,19 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
+using UPlayGround.InputDefine;
 
 /// <summary>
 /// UI 캔버스 레이어 정의
 /// </summary>
 public enum CanvasLayer
 {
-    Background = 0,    // 배경 UI (0)
-    Scene = 1,         // 씬 내 UI (100)
-    Normal = 2,        // 일반 UI (200)
-    Popup = 3,         // 팝업 UI (300)
-    System = 4,        // 시스템 UI (400)
-    Notification = 5,  // 알림 UI (500)
-    Top = 6            // 최상위 UI (600)
+    // HUD -> SceneWindow -> PopupWindow -> SystemMessage
+    HUD    = 0,            // HUD    
+    Scene  = 1000,         // 씬
+    Popup  = 2000,         // 팝업  
+    System = 3000,         // 시스템
 }
 
 /// <summary>

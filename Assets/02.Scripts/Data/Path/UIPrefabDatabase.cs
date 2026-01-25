@@ -18,7 +18,7 @@ public class UIPrefabDatabase : ScriptableObject
         public GameObject prefab;
         
         [Tooltip("기본 캔버스 레이어")]
-        public CanvasLayer defaultLayer = CanvasLayer.Normal;
+        public CanvasLayer defaultLayer = CanvasLayer.Popup;
         
         [Tooltip("설명 (선택)")]
         public string description;

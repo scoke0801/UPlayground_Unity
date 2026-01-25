@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.InputDefine;
+
 /// <summary>
 /// TPS 카메라 시스템 관리 매니저
 /// 
@@ -178,26 +180,28 @@ public class CameraManager : BaseManager<CameraManager>, IManager
         var inputManager = InputManager.Instance;
         
         // 카메라 회전 (Look 액션 사용)
-        if (inputManager.LookAction != null)
+        if (inputManager.GetAction(InputMapNames.PlayerAction, PlayerAction.Look, out InputAction lookAction))
         {
+            Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
-            Vector2 lookInput = inputManager.LookAction.ReadValue<Vector2>();
-
-            // Delta 값을 사용하므로 Time.deltaTime 제거
             currentYaw += lookInput.x * rotationSpeed * 0.01f;
             currentPitch -= lookInput.y * rotationSpeed * 0.01f;
 
             // 상하 각도 제한
             currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
-
         }
-
-        // 마우스 스크롤로 줌인/줌아웃 (Legacy Input 사용)
-        float scrollInput = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(scrollInput) > 0.01f)
+        
+        // 마우스 스크롤로 줌인/줌아웃 
+        if (inputManager.GetAction(InputMapNames.PlayerAction, PlayerAction.Zoom, out InputAction zoomAction))
         {
-            targetDistance -= scrollInput * zoomSpeed;
-            targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
+            Vector2 scrollValue = zoomAction.ReadValue<Vector2>();
+            float scrollInput = scrollValue.y;
+
+            if (Mathf.Abs(scrollInput) > 0.01f)
+            {
+                targetDistance -= scrollInput * zoomSpeed;
+                targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
+            }
         }
     }
     #endregion

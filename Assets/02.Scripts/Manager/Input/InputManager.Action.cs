@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.InputDefine;
 
 /// <summary>
 /// 입력 시스템 관리 매니저 - GameInputAction 관리
@@ -9,44 +11,10 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     [Header("Input Actions")]
     [SerializeField] private InputActionAsset inputActions;
     
-    // Action Maps
-    private InputActionMap gameplayActionMap;
-    private InputActionMap uiActionMap;
-    
-    // Gameplay Actions
-    public InputAction MoveAction { get; private set; }
-    public InputAction LookAction { get; private set; }
-    public InputAction JumpAction { get; private set; }
-    public InputAction RunAction { get; private set; }
-    public InputAction RollAction { get; private set; }
-    public InputAction AttackAction { get; private set; }
-    public InputAction SprintAction { get; private set; }
-    public InputAction HeavyAttackAction { get; private set; }
-    public InputAction InteractAction { get; private set; }
-    public InputAction PauseAction { get; private set; }
-    public InputAction InventoryAction { get; private set; }
-    public InputAction UiInventoryAction { get; private set; }
-    public InputAction ShowCursorAction { get; private set; }
-    
-    // Skill Actions
-    public InputAction Skill1Action { get; private set; }
-    public InputAction Skill2Action { get; private set; }
-    public InputAction Skill3Action { get; private set; }
-    public InputAction Skill4Action { get; private set; }
-    
-    // UI Actions
-    public InputAction NavigateAction { get; private set; }
-    public InputAction SubmitAction { get; private set; }
-    public InputAction CancelAction { get; private set; }
-    public InputAction PointAction { get; private set; }
-    public InputAction CursorMoveAction { get; private set; }
-    public InputAction CursorClickAction { get; private set; }
-    
-    // Test Actions
-    public InputAction HoldAction { get; private set; }
-    public InputAction SwipeAction { get; private set; }
-    public InputAction TouchPadAction { get; private set; }
-    
+    private Dictionary<(string /*ActionMap*/, string/*Action*/), InputAction> actionCache 
+        = new Dictionary<(string, string), InputAction>();
+    private Dictionary<string, InputActionMap> actionMapCache = new Dictionary<string, InputActionMap>();
+
     public void InitInputAction()
     {
         // Input Actions Asset 로드
@@ -60,54 +28,73 @@ public partial class InputManager : BaseManager<InputManager>, IManager
             }
         }
         
-        // Action Maps 가져오기
-        gameplayActionMap = inputActions.FindActionMap("Gameplay");
-        uiActionMap = inputActions.FindActionMap("UI");
-        
-        if (gameplayActionMap == null || uiActionMap == null)
-        {
-            Debug.LogError("[InputManager] ActionMap을 찾을 수 없습니다!");
-            return;
-        }
-        
         // Actions 초기화
         InitializeActions();
+
+        if (actionMapCache.TryGetValue(InputMapNames.PlayerAction, out InputActionMap actionMap))
+        {
+            actionMap.Enable();
+        }
     }
     
     private void InitializeActions()
     {
-        // Gameplay Actions
-        MoveAction = gameplayActionMap.FindAction("Move");
-        LookAction = gameplayActionMap.FindAction("Look");
-        JumpAction = gameplayActionMap.FindAction("Jump");
-        RunAction = gameplayActionMap.FindAction("Run");
-        RollAction = gameplayActionMap.FindAction("Roll");
-        AttackAction = gameplayActionMap.FindAction("Attack");
-        SprintAction = gameplayActionMap.FindAction("Sprint");
-        HeavyAttackAction = gameplayActionMap.FindAction("HeavyAttack");
-        InteractAction = gameplayActionMap.FindAction("Interact");
-        PauseAction = gameplayActionMap.FindAction("Pause");
-        InventoryAction = gameplayActionMap.FindAction("Inventory");
-        ShowCursorAction = gameplayActionMap.FindAction("ShowCursor");
+        // 모든 액션 맵 순회
+        foreach (var map in inputActions.actionMaps)
+        {
+            actionMapCache.Add(map.name, map);
+            
+            // 각 맵의 모든 액션 순회
+            foreach (var action in map.actions)
+            {
+                var key = (map.name, action.name);
+                actionCache[key] = action;
+                actionCache.TryAdd(key, action);
+                
+                action.started += OnInputEventStarted;
+                action.performed += OnInputEventPerformed;
+                action.canceled += OnInputEventCanceled;
+            }
+        }
         
-        // Skill Actions
-        Skill1Action = gameplayActionMap.FindAction("Skill1");
-        Skill2Action = gameplayActionMap.FindAction("Skill2");
-        Skill3Action = gameplayActionMap.FindAction("Skill3");
-        Skill4Action = gameplayActionMap.FindAction("Skill4");
-        
-        // UI Actions
-        NavigateAction = uiActionMap.FindAction("Navigate");
-        SubmitAction = uiActionMap.FindAction("Submit");
-        CancelAction = uiActionMap.FindAction("Cancel");
-        PointAction = uiActionMap.FindAction("Point");
-        UiInventoryAction = uiActionMap.FindAction("Inventory");
-        CursorClickAction = uiActionMap.FindAction("CursorClick");
-        CursorMoveAction = uiActionMap.FindAction("CursorMove");
-        
-        // Test Actions
-        HoldAction = gameplayActionMap.FindAction("HoldTest");
-        SwipeAction = gameplayActionMap.FindAction("SwipeTest");
-        TouchPadAction = gameplayActionMap.FindAction("TouchPadTest");
+        Debug.Log($"총 {actionCache.Count}개 액션 캐싱 완료");
+    }
+    
+    /// <summary>
+    /// 특정 액션 활성화/비활성화
+    /// </summary>
+    public void SetActionEnabled(string actionMapName, string actionName, bool inEnabled)
+    {
+        InputAction action = GetAction(actionMapName, actionName);
+        if (action == null)
+        {
+            return;
+        }
+
+        if (inEnabled)
+        {
+            action.Enable();
+        }
+        else
+        {
+            action.Disable();
+        }
+    }
+    
+    public InputAction GetAction(string mapName, string actionName)
+    {
+        var key = (mapName, actionName);
+        return actionCache.TryGetValue(key, out var action) ? action : null;
+    }
+    
+    public bool GetAction(string mapName, string actionName, out InputAction action)
+    {
+        var key = (mapName, actionName);
+        if (actionCache.TryGetValue(key, out action) )
+        {
+            return true;
+        }
+
+        return false;
     }
 }

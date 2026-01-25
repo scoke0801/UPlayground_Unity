@@ -174,22 +174,24 @@ public partial class InputManager : BaseManager<InputManager>, IManager
     /// </summary>
     private void InvokeCancelEvents(InputLayer newLayer)
     {
-        // 모든 딕셔너리를 순회하며 새로운 레이어보다 낮은 레이어의 CancelCallback을 실행합니다.
-        List<Dictionary<InputCallbackKey, List<InputCallbackData>>> allDicts = new() 
-        { 
-            startCallbackDict, performCallbackDict, cancelCallbackDict 
-        };
+        // 한 번의 레이어 변경에 대해 중복 실행을 방지하기 위한 집합
+        HashSet<Action> executedCancels = new HashSet<Action>();
 
-        foreach (var dict in allDicts)
+        var dicts = new[] { startCallbackDict, performCallbackDict, cancelCallbackDict };
+        foreach (var dict in dicts)
         {
             foreach (var list in dict.Values)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    // 새로운 레이어보다 우선순위가 낮아진 경우 Cancel 실행
-                    if (list[i].Layer < newLayer)
+                    var data = list[i];
+                    // 현재 레이어보다 낮은 레이어이면서, 아직 이번 턴에 실행되지 않은 CancelCallback만 실행
+                    if (data.Layer < CurrentLayer && data.CancelCallback != null)
                     {
-                        list[i].CancelCallback?.Invoke();
+                        if (executedCancels.Add(data.CancelCallback))
+                        {
+                            data.CancelCallback.Invoke();
+                        }
                     }
                 }
             }

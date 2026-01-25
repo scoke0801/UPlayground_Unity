@@ -32,7 +32,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 0}
+      _Clip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
       _NormalizedStartTime: NaN
   - key: 3
     transition:
@@ -42,7 +42,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 0}
+      _Clip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
       _NormalizedStartTime: NaN
   - key: 4
     transition:
@@ -275,16 +275,16 @@ MonoBehaviour:
         _Names: []
       _Animations:
       - {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
-      - {fileID: 5324003999186053431, guid: a76a672aafe9a8e4eacc90f6828d4add, type: 3}
+      - {fileID: -6271585683887189771, guid: fb8f7b6613728ae4d9f661fd3901a213, type: 3}
       - {fileID: 1901488457202629134, guid: d8afabdefce9a39468d556b3191266c8, type: 3}
       - {fileID: 2257255305288897714, guid: d3ef18029dadeb147a0aee497e6fc08d, type: 3}
       _Speeds: []
       _SynchronizeChildren: 
       _Thresholds:
       - 0
+      - 1
       - 2
-      - 5
-      - 7
+      - 3
       _DefaultParameter: 0
       _ExtrapolateSpeed: 0
       _ParameterName: {fileID: 0}

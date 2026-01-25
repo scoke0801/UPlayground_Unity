@@ -160,6 +160,9 @@ public class CameraManager : BaseManager<CameraManager>, IManager
     /// </summary>
     private void HandleInput()
     {
+        if (Cursor.visible)
+            return;
+
         // 입력 시스템 선택
         if (InputManager.Instance != null)
         {

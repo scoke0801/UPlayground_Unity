@@ -46364,7 +46364,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8062378492483825705, guid: 69181e4e37c2dce4d9ad693cec20bba1, type: 3}
       propertyPath: useAnimationCurves
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

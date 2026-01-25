@@ -161,45 +161,45 @@ namespace Game.FSM
             // }
             
             // 1. 현재 속도를 수평(Horizontal)과 수직(Vertical) 성분으로 분리
-            Vector3 horizontalVelocity = Vector3.ProjectOnPlane(currentVelocity, Motor.CharacterUp);
-            Vector3 verticalVelocity = Vector3.Project(currentVelocity, Motor.CharacterUp);
+                                                                                                                    Vector3 horizontalVelocity = Vector3.ProjectOnPlane(currentVelocity, Motor.CharacterUp);
+                                                                                                                    Vector3 verticalVelocity = Vector3.Project(currentVelocity, Motor.CharacterUp);
 
-            if (Motor.GroundingStatus.IsStableOnGround)
-            {
-                // 2. 입력 확인 및 목표 속도 결정
-                float targetSpeed = 0f;
+                                                                                                                    if (Motor.GroundingStatus.IsStableOnGround)
+                                                                                                                    {
+                                                                                                                        // 2. 입력 확인 및 목표 속도 결정
+                                                                                                                        float targetSpeed = 0f;
 
-                // 아주 작은 입력은 무시하도록 데드존 설정 (0.01f)
-                if (_brain.InputDirection.sqrMagnitude > 0.01f)
-                {
-                    if (_brain.IsSprintPressed) targetSpeed = _brain.MovementData.SprintSpeed;
-                    else if (_brain.InputDirection.sqrMagnitude > 0.8f) targetSpeed = _brain.MovementData.RunSpeed;
-                    else targetSpeed = _brain.MovementData.WalkSpeed;
-                }
+                                                                                                                        // 아주 작은 입력은 무시하도록 데드존 설정 (0.01f)
+                                                                                                                        if (_brain.InputDirection.sqrMagnitude > 0.01f)
+                                                                                                                        {
+                                                                                                                            if (_brain.IsSprintPressed) targetSpeed = _brain.MovementData.SprintSpeed;
+                                                                                                                            else if (_brain.InputDirection.sqrMagnitude > 0.8f) targetSpeed = _brain.MovementData.RunSpeed;
+                                                                                                                            else targetSpeed = _brain.MovementData.WalkSpeed;
+                                                                                                                        }
 
-                Vector3 effectiveGroundNormal = Motor.GroundingStatus.GroundNormal;
+                                                                                                                        Vector3 effectiveGroundNormal = Motor.GroundingStatus.GroundNormal;
 
-                // 3. 지면의 경사(Normal)를 고려한 이동 방향 계산
-                // 단순히 InputDirection을 쓰는게 아니라 지면을 타고 흐르도록 합니다.
-                Vector3 inputRight = Vector3.Cross(_brain.InputDirection, Motor.CharacterUp);
-                Vector3 reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized *
-                                          _brain.InputDirection.magnitude;
-                Vector3 targetMovementVelocity = reorientedInput * targetSpeed;
+                                                                                                                        // 3. 지면의 경사(Normal)를 고려한 이동 방향 계산
+                                                                                                                        // 단순히 InputDirection을 쓰는게 아니라 지면을 타고 흐르도록 합니다.
+                                                                                                                        Vector3 inputRight = Vector3.Cross(_brain.InputDirection, Motor.CharacterUp);
+                                                                                                                        Vector3 reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized *
+                                                                                                                                                  _brain.InputDirection.magnitude;
+                                                                                                                        Vector3 targetMovementVelocity = reorientedInput * targetSpeed;
 
-                float currentSharpness = (targetSpeed > 0.01f)
-                    ? _brain.MovementData.AccelerationSharpness
-                    : _brain.MovementData.DecelerationSharpness;
+                                                                                                                        float currentSharpness = (targetSpeed > 0.01f)
+                                                                                                                            ? _brain.MovementData.AccelerationSharpness
+                                                                                                                            : _brain.MovementData.DecelerationSharpness;
 
-                horizontalVelocity = Vector3.Lerp(
-                    horizontalVelocity,
-                    targetMovementVelocity,
-                    1f - Mathf.Exp(-currentSharpness * deltaTime)
-                );
+                                                                                                                        horizontalVelocity = Vector3.Lerp(
+                                                                                                                            horizontalVelocity,
+                                                                                                                            targetMovementVelocity,
+                                                                                                                            1f - Mathf.Exp(-currentSharpness * deltaTime)
+                                                                                                                        );
 
-                verticalVelocity = Vector3.zero;
-            
-                //최종 속도 재조합
-                currentVelocity = horizontalVelocity + verticalVelocity;
+                                                                                                                        verticalVelocity = Vector3.zero;
+                                                                                                                    
+                                                                                                                        //최종 속도 재조합
+                                                                                                                        currentVelocity = horizontalVelocity + verticalVelocity;
             }
             else
             {

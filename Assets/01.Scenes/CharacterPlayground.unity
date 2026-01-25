@@ -119774,6 +119774,9 @@ MonoBehaviour:
   MaxAirMoveSpeed: 10
   AirAccelerationSpeed: 5
   Drag: 0.1
+  JumpSpeed: 10
+  JumpPreGroundingGraceTime: 0.1
+  JumpPostGroundingGraceTime: 0.15
   RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
   MeshRoot: {fileID: 0}
@@ -242345,5 +242348,5 @@ SceneRoots:
   - {fileID: 5573864683772550979}
   - {fileID: 1870690903}
   - {fileID: 821006766}
-  - {fileID: 3368287629227668346}
   - {fileID: 1148299862}
+  - {fileID: 3368287629227668346}

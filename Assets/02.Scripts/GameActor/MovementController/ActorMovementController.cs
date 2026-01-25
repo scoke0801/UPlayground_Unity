@@ -15,10 +15,15 @@ namespace UPlayGround.GameActor.MovementController
         public float OrientationSharpness = 10;
 
         [Header("Air Movement")]
-        public float MaxAirMoveSpeed = 10f;
+        public float MaxAirMoveSpeed = 3f;
         public float AirAccelerationSpeed = 5f;
         public float Drag = 0.1f;
 
+        [Header("Jumping")]
+        public float JumpSpeed = 10f;
+        public float JumpPreGroundingGraceTime = 0.1f; // 땅에 닿기 직전 점프 입력 허용 시간
+        public float JumpPostGroundingGraceTime = 0.15f; // 낭떠러지에서 떨어진 후 점프 허용 시간 (코요테 타임)
+        
         [Header("Misc")]
         public bool RotationObstruction;
         public Vector3 Gravity = new Vector3(0, -30f, 0);

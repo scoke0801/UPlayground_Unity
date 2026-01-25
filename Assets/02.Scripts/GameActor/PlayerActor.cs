@@ -8,18 +8,28 @@ namespace UPlayGround.GameActor
     /// <summary>
     /// 
     /// </summary>
-    public class PlayerActor : Base.GameActor<PlayerMovementController>
+    public partial class PlayerActor : Base.GameActor<PlayerMovementController>
     {
-        private Vector2 _moveInput;
+        private Vector2 _currentMoveInput;
+        private Camera _camera;
+        
+        private bool _jumpRequest;
         
         #region Mono
-        protected virtual void Awake()
+        protected override void Awake()
         {
             base.Awake();
+            
+            _camera = Camera.main;
+            
             if (InputManager.Instance)
             {
+                InputLayer layer = InputLayer.Level_0;
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,
-                    OnMoveInput, OnMoveInput, OnMoveInput, null, OnMoveCanceled, InputLayer.Level_0);
+                    OnMoveInput, OnMoveInput, OnMoveInput, null, OnMoveCanceled, layer);
+                
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,
+                    null, OnJumpInput, null, null, null, layer);
             }
         }
 
@@ -28,44 +38,59 @@ namespace UPlayGround.GameActor
             if (InputManager.Instance)
             {
                 InputManager.Instance.UnRegisterInputEvent(
-                    InputMapNames.PlayerAction,
-                    PlayerAction.Move,
+                    InputMapNames.PlayerAction, PlayerAction.Move,
                     OnMoveInput, OnMoveInput, OnMoveInput);
+                
+                InputManager.Instance.UnRegisterInputEvent(
+                    InputMapNames.PlayerAction, PlayerAction.Jump,
+                    null, OnJumpInput, null);
             }
         }
-        // private void Update()
-        // {
-        //     // movementController.SetInp
-        //     // 매 프레임 저장된 입력값으로 이동 처리
-        //     if (_moveInput.sqrMagnitude > 0)
-        //     {
-        //         Move(_moveInput);
-        //     }
-        // }
+        
+        private void Update()
+        {
+            if (movementController == null) return;
+
+            // CameraManager를 통해 현재 메인 카메라의 회전값을 가져옴
+            Quaternion cameraRotation = Quaternion.identity;
+            if (_camera != null)
+            {
+                cameraRotation = _camera.transform.rotation;
+            }
+
+            // 이동 입력과 카메라 회전값을 함께 전달
+            movementController.SetInputs(_currentMoveInput, cameraRotation, _jumpRequest);
+            
+            // 전달 후 점프 요청 초기화 (한 프레임만 유효)
+            _jumpRequest = false;
+        }
         #endregion
-        
-        
+
+    }
+
+    // Input 처리
+    public partial class PlayerActor : Base.GameActor<PlayerMovementController>
+    {
         #region InputCallback
         private void OnMoveInput(InputAction.CallbackContext obj)
         {
-            Vector2 inputMove = obj.ReadValue<Vector2>();
-            
-            // 컨트롤러에 입력값 전달
-            if (movementController != null)
-            {
-                movementController.SetMoveInput(inputMove);
-            }
+            _currentMoveInput = obj.ReadValue<Vector2>();
         }
         
         private void OnMoveCanceled()
         {
-            // 레이어 변경 등으로 인한 강제 중지 시 입력값 초기화
-            if (movementController != null)
+            _currentMoveInput = Vector2.zero;
+            movementController.SetInputs(Vector2.zero, Quaternion.identity, _jumpRequest);
+        }
+        
+        private void OnJumpInput(InputAction.CallbackContext obj)
+        {
+            // 버튼이 눌린 순간(Started/Performed)에 true 설정
+            if (obj.performed)
             {
-                movementController.SetMoveInput(Vector2.zero);
+                _jumpRequest = true;
             }
         }
         #endregion
     }
-
 }

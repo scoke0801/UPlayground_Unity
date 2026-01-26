@@ -1,5 +1,6 @@
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
 
 /// <summary>
@@ -27,6 +28,7 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         
         ShowCursor(false, false);
         
+        RegisterInputEvent(InputMapNames.System, SystemAction.ShowCursor, OnStartedShowCursor, null, OnCanceledShowCursor, null, null, InputLayer.Level_Top);
         Debug.Log("[InputManager] 초기화 완료");
     }
     
@@ -64,6 +66,16 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         RefreshCursorState();
         
         Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
+    }
+    
+    private void OnStartedShowCursor(InputAction.CallbackContext obj)
+    {
+        ShowCursor(true, true);
+    }
+    
+    private void OnCanceledShowCursor(InputAction.CallbackContext obj)
+    {
+        ShowCursor(false);
     }
     
     private void RefreshCursorState()

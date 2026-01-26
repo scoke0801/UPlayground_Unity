@@ -4,6 +4,7 @@
     {
         public const string PlayerAction = "PlayerAction";
         public const string UI = "UI";
+        public const string System = "System";
     }
 
     public static class PlayerAction
@@ -12,26 +13,27 @@
         public const string Look = "Look";
         public const string Zoom = "Zoom";
         public const string Jump = "Jump";
-        public const string Run = "Run";
-        public const string Roll = "Roll";
+        public const string Crouching = "Crouching";
+        public const string Walk = "Walk";
+        public const string Sprint = "Sprint";
+        public const string Dodge = "Dodge";
         public const string Attack = "Attack";
         public const string HeavyAttack = "HeavyAttack";
-        public const string Sprint = "Sprint";
         public const string Interact = "Interact";
     }
 
-    public static class System
+    public static class SystemAction
     {   
         public const string ShowCursor = "ShowCursor";
-        public const string Navigate = "Navigate";
-        public const string Submit = "Submit";
-        public const string Cancel = "Cancel";
+        public const string Pause = "Pause";
     }
     
-    public static class UI
+    public static class UIAction
     {   
         public const string Inventory = "Inventory";
-        public const string Pause = "Pause";
+        
+        public const string Submit = "Submit";
+        public const string Cancel = "Cancel";
     }
 
     public enum InputLayer
@@ -43,5 +45,7 @@
         Level_1 = 1000,    // == Scene
         Level_2 = 2000,    // == Popup
         Level_3 = 3000,    // == System
+        
+        Level_Top = 10000  // 어디서든 입력 가능해야 하는 경우
     }
 }

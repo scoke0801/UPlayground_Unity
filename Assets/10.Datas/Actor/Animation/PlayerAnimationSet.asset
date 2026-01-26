@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a06f79b0b62433e920de336b94d98b2, type: 3}
+  m_Name: PlayerAnimationSet
+  m_EditorClassIdentifier: 
+  _animationList:
+  - key: 1
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 2
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 5324003999186053431, guid: a76a672aafe9a8e4eacc90f6828d4add, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 3
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 1901488457202629134, guid: d8afabdefce9a39468d556b3191266c8, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 4
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 2257255305288897714, guid: d3ef18029dadeb147a0aee497e6fc08d, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 9
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -3989899929696636710, guid: fc9c129024a7a4b4b817e7d32d6dbc44, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 10
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 1197025347177367725, guid: 79b62152564845e45a50f2fed594f1f5, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 11
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 50548382346646705, guid: b47c7a11a25ed2f45b6d48a219f0cb91, type: 3}
+      _NormalizedStartTime: NaN
+  references:
+    version: 2
+    RefIds: []

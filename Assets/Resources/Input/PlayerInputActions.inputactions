@@ -43,7 +43,16 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Run",
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "c824e1c5-7cbe-4a62-be9f-a3daeefa4d81",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Walk",
                     "type": "Button",
                     "id": "c2ef1723-b718-4294-becd-356167f36ba9",
                     "expectedControlType": "",
@@ -52,7 +61,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Roll",
+                    "name": "Dodge",
                     "type": "Button",
                     "id": "34bc25ba-ace5-4ec0-9acb-90f1962391e0",
                     "expectedControlType": "",
@@ -79,9 +88,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Sprint",
+                    "name": "Crouching",
                     "type": "Button",
-                    "id": "c824e1c5-7cbe-4a62-be9f-a3daeefa4d81",
+                    "id": "d4a30986-9f57-475c-ad44-e3f9a3599ebc",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -91,15 +100,6 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "ece4684a-8ba4-43f7-89d9-bb3d05bbaf3b",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Pause",
-                    "type": "Button",
-                    "id": "562142cd-24dd-4251-9b8f-fea9a02f88a5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -223,22 +223,22 @@
                 {
                     "name": "",
                     "id": "3c4a2251-40dc-48f8-ac84-2756d4bde264",
-                    "path": "<Keyboard>/leftShift",
+                    "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Run",
+                    "action": "Walk",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "be77e4cb-4ed6-49bc-8248-01d3e144118e",
-                    "path": "<Keyboard>/leftCtrl",
+                    "path": "<Keyboard>/ctrl",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Roll",
+                    "action": "Dodge",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -272,17 +272,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3b1e5ac8-bd02-4bcf-a447-403337712c01",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -351,6 +340,17 @@
                     "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a6925f45-d826-459d-9ee0-3b3c58269316",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouching",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -398,8 +398,8 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "2d312ab1-b2ef-4b49-acba-a0c258e5e210",
-                    "path": "",
+                    "id": "651e6c7a-ebf2-4e79-bdb3-6ffc9ccb145f",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -409,8 +409,8 @@
                 },
                 {
                     "name": "",
-                    "id": "dcd08881-0da2-4634-aca8-909fbee83759",
-                    "path": "",
+                    "id": "f88b27c7-8434-406b-887e-c4f6125956cb",
+                    "path": "<Keyboard>/alt",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

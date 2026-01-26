@@ -31,10 +31,15 @@ public partial class InputManager : BaseManager<InputManager>, IManager
         // Actions 초기화
         InitializeActions();
 
-        if (actionMapCache.TryGetValue(InputMapNames.PlayerAction, out InputActionMap actionMap))
+        foreach (var inputActionMap in actionMapCache.Values)
         {
-            actionMap.Enable();
+            inputActionMap.Enable();
         }
+        
+        // if (actionMapCache.TryGetValue(InputMapNames.PlayerAction, out InputActionMap actionMap))
+        // {
+        //     actionMap.Enable();
+        // }
     }
     
     private void InitializeActions()

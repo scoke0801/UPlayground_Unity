@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Data.Enum;
 
 namespace UPlayGround.GameActor.MovementController.State
 {
@@ -11,6 +12,10 @@ namespace UPlayGround.GameActor.MovementController.State
         
         private Collider[] _probedColliders = new Collider[8];
         private const float CrouchSpeedMultiplier = 0.5f;
+
+        private bool _isPlayedWakeUp = false;
+        private bool _isPlayedCrouching = false;
+        private bool _isIdleAnim = false;
         
         public PlayerCrouchingState(ActorMovementController controller) : base(controller)
         {
@@ -22,9 +27,28 @@ namespace UPlayGround.GameActor.MovementController.State
             
             // 캡슐 크기 축소
             motor.SetCapsuleDimensions(0.5f, 1f, 0.5f);
-            controller.MeshRoot.localScale = new Vector3(1f, 0.5f, 1f);
+            var animState = gameActor.Animator.PlayAnimation(AnimKey.Idle_To_Crouch, 0.25f);
+            if (animState != null)
+            {
+                _isPlayedCrouching = true;
+                animState.OwnedEvents.OnEnd += PlayCrouchingAnimation;
+            }
         }
-        
+
+        private void PlayCrouchingAnimation()
+        { 
+            if (playerController.HasMoveInput())
+            {
+                _isIdleAnim = false;
+                gameActor.Animator.PlayAnimation(AnimKey.Crouch_Walk, 0.25f);
+            }
+            else if(_isIdleAnim == false)
+            {
+                _isIdleAnim = true; 
+                gameActor.Animator.PlayAnimation(AnimKey.Crouch_Idle, 0.25f);
+            }
+        }
+
         public override void OnExit(GameActorState toState)
         {
             base.OnExit(toState);
@@ -36,29 +60,44 @@ namespace UPlayGround.GameActor.MovementController.State
         public override void UpdateState(float deltaTime)
         {
             // 웅크리기 해제 입력이 있으면 일어서기 시도
-            if (!playerController.HasCrouchInput())
+            if (!playerController.HasCrouchInput() && _isPlayedWakeUp == false)
             {
                 if (CanStandUp())
                 {
-                    // 이동 입력이 있으면 GroundMove, 없으면 Idle
-                    if (playerController.HasMoveInput())
+                    var animState = gameActor.Animator.PlayAnimation(AnimKey.Crouch_To_Idle, 0.25f);
+                    if (animState != null)
                     {
-                        playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                        animState.OwnedEvents.OnEnd = () =>
+                        {
+                            // 이동 입력이 있으면 GroundMove, 없으면 Idle
+                            if (playerController.HasMoveInput())
+                            {
+                                playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                            }
+                            else
+                            {
+                                playerController.TransitionToState(new PlayerIdleState(controller));
+                            }
+                        };
                     }
-                    else
-                    {
-                        playerController.TransitionToState(new PlayerIdleState(controller));
-                    }
+
+                    _isPlayedWakeUp = true;
                     return;
                 }
             }
             
-            // 점프 입력 (웅크린 상태에서는 점프 불가능하게 할 수도 있음)
-            // if (controller.HasJumpInput)
-            // {
-            //     controller.TransitionToState(new AirborneState(controller));
-            //     return;
-            // }
+            // 일어서기, 앉기 애니메이션 상태 재생 조건 검사 확인 후 일반 걷기 이동 or 걷기 Idle 애니메이션 재생
+            if(_isPlayedWakeUp == false && _isPlayedCrouching == true)
+            {
+                PlayCrouchingAnimation();
+            }
+            
+            if (playerController.HasJumpInput() && CanStandUp())
+            {
+                playerActor.ClearCrouchInput(); 
+                controller.TransitionToState(new PlayerAirborneState(controller));
+                return;
+            }
             
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
@@ -89,6 +128,17 @@ namespace UPlayGround.GameActor.MovementController.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            // 앉거나 일어나는 중에는 처리하지 않음.
+            if (_isPlayedWakeUp == true || _isPlayedCrouching == false)
+            {
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity, 
+                    Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime)); 
+                
+                return;
+            }
+            
             // 경사로 이동 보정
             currentVelocity = motor.GetDirectionTangentToSurface(
                 currentVelocity, 
@@ -116,7 +166,7 @@ namespace UPlayGround.GameActor.MovementController.State
         private bool CanStandUp()
         {
             // 일어선 크기로 임시 변경하여 충돌 체크
-            motor.SetCapsuleDimensions(0.5f, 2f, 1f);
+            motor.SetCapsuleDimensions(0.5f, 1.6f, 0.8f);
             
             int hitCount = motor.CharacterCollisionsOverlap(
                 motor.TransientPosition,
@@ -136,8 +186,8 @@ namespace UPlayGround.GameActor.MovementController.State
         {
             if (CanStandUp())
             {
-                motor.SetCapsuleDimensions(0.5f, 2f, 1f);
-                controller.MeshRoot.localScale = new Vector3(1f, 1f, 1f);
+                motor.SetCapsuleDimensions(0.5f, 1.6f, 0.8f);
+                //controller.MeshRoot.localScale = new Vector3(1f, 1f, 1f);
             }
             else
             {

@@ -26,7 +26,7 @@ namespace UPlayGround.GameActor.MovementController.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-
+            
             _dragSpeed = controller.Drag;
             
             if (playerController.HasJumpInput() == false)
@@ -39,10 +39,15 @@ namespace UPlayGround.GameActor.MovementController.State
         {
             _timeSinceLastAbleToJump += deltaTime;
             _timeSinceJumpRequested += deltaTime;
-            
-            // 지면에 착지하면 상태 전환
-            if (_hasLanded 
-                || (motor.GroundingStatus.IsStableOnGround && _landStarted == false))
+
+            if (_hasLanded)
+            {
+                ChangeToNextState();
+                return;
+            }
+
+            if (playerController.HasJumpInput() == false
+                && (motor.GroundingStatus.IsStableOnGround && _landStarted == false))
             {
                 ChangeToNextState();
                 return;

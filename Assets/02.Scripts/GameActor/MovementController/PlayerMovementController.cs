@@ -129,6 +129,11 @@ namespace UPlayGround.GameActor.MovementController
         {
             return _inputState.CrouchInput == InputCondition.Pressed;
         }
+
+        public void ClearCrouchInput()
+        {
+            _inputState.CrouchInput = InputCondition.None;
+        }
         
         public bool HasAttackInput()
         {

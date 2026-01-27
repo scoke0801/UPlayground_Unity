@@ -9,6 +9,14 @@ namespace UPlayGround.GameActor.MovementController.State
     public abstract class PlayerActorState : GameActorState
     {
         protected PlayerMovementController playerController;
+        protected PlayerActor playerActor;
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+         
+            playerActor = gameActor as PlayerActor;
+        }
         
         protected PlayerActorState(ActorMovementController controller) : base(controller)
         {

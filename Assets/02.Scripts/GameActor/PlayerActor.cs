@@ -92,13 +92,13 @@ namespace UPlayGround.GameActor
                     null, OnInputPerformedJump, null, null, null, layer);
                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,
-                    OnInputStartedWalk, null, OnInputCanceledWalk, null, null, layer);
+                    null, OnInputPerformedWalk, null, null, null, layer);
                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,
-                    OnInputStartedSprint, null, OnInputCanceledSprint, null, null, layer);
+                    null, OnInputPerformedSprint, null, null, null, layer);
                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,
-                    OnInputStartedCrouching, null, OnInputCanceledCrouching, null, null, layer);
+                    null, OnInputPerformedCrouching, null, null, null, layer);
                                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,
                     null, OnInputPerformedDodge, null, null, null, layer);
@@ -121,13 +121,13 @@ namespace UPlayGround.GameActor
                     null, OnInputPerformedJump, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,
-                    OnInputStartedWalk, null, OnInputCanceledWalk);
+                    null, OnInputPerformedWalk, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,
-                    OnInputStartedSprint, null, OnInputCanceledSprint);
+                    null, OnInputPerformedSprint, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,
-                    OnInputStartedCrouching, null, OnInputCanceledCrouching);
+                    null, OnInputPerformedCrouching, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,
                     null, OnInputPerformedDodge, null);
@@ -157,14 +157,10 @@ namespace UPlayGround.GameActor
             _jumpInputCondition = InputCondition.Pressed;
         }
         
-        private void OnInputStartedCrouching(InputAction.CallbackContext obj)
+        private void OnInputPerformedCrouching(InputAction.CallbackContext obj)
         {
-            _crouchInputCondition = InputCondition.Pressed;
-        }
-        
-        private void OnInputCanceledCrouching(InputAction.CallbackContext obj)
-        {
-            _crouchInputCondition = InputCondition.None;
+            _crouchInputCondition = (_crouchInputCondition == InputCondition.Pressed)
+                ? InputCondition.None : InputCondition.Pressed;
         }
         
         private void OnInputPerformedDodge(InputAction.CallbackContext obj)
@@ -172,24 +168,16 @@ namespace UPlayGround.GameActor
             _dodgeInputCondition = InputCondition.Pressed;
         }
         
-        private void OnInputStartedWalk(InputAction.CallbackContext obj)
+        private void OnInputPerformedWalk(InputAction.CallbackContext obj)
         {
-            MoveAnimType = BaseMoveAnimType.Walk;
+            MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
         }
         
-        private void OnInputCanceledWalk(InputAction.CallbackContext obj)
+        private void OnInputPerformedSprint(InputAction.CallbackContext obj)
         {
-            MoveAnimType = BaseMoveAnimType.Run;
+            MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
         }
-
-        private void OnInputStartedSprint(InputAction.CallbackContext obj)
-        {
-            MoveAnimType = BaseMoveAnimType.Sprint;
-        }
-        private void OnInputCanceledSprint(InputAction.CallbackContext obj)
-        {           
-            MoveAnimType = BaseMoveAnimType.Run;
-        }
+        
         private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
         {
             _attackInputCondition = InputCondition.Pressed;
@@ -200,5 +188,11 @@ namespace UPlayGround.GameActor
             _heavyInputCondition = InputCondition.Pressed;
         }
         #endregion
+
+        public void ClearCrouchInput()
+        {
+            _crouchInputCondition = InputCondition.None;
+            PlayerMovementController.ClearCrouchInput();
+        }
     }
 }

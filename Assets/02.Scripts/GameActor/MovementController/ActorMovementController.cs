@@ -2,7 +2,7 @@
 using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UPlayGround.GameActor.MovementController.State;
+using UPlayGround.GameActor.State;
 
 namespace UPlayGround.GameActor.MovementController
 {

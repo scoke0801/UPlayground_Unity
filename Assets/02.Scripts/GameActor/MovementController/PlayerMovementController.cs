@@ -1,8 +1,8 @@
 ﻿using JetBrains.Annotations;
 using KinematicCharacterController;
 using UnityEngine;
-using UPlayGround.GameActor.MovementController.State;
-using UPlayground.Input;
+using UPlayGround.GameActor.State;
+using UPlayGround.Input;
 
 namespace UPlayGround.GameActor.MovementController
 {

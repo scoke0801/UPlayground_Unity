@@ -1,4 +1,4 @@
-﻿namespace UPlayground.Input
+﻿namespace UPlayGround.Input
 {
     public enum InputCondition
     {

@@ -1,7 +1,8 @@
 ﻿using KinematicCharacterController;
 using UnityEngine;
+using UPlayGround.GameActor.MovementController;
 
-namespace UPlayGround.GameActor.MovementController.State
+namespace UPlayGround.GameActor.State
 {
     /// <summary>
     /// 모든 Actor 이동 상태의 베이스 클래스

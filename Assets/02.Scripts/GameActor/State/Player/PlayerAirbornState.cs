@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
+using UPlayGround.GameActor.MovementController;
 
-namespace UPlayGround.GameActor.MovementController.State
+namespace UPlayGround.GameActor.State
 {
     /// <summary>
     /// 공중 상태 - 점프/낙하

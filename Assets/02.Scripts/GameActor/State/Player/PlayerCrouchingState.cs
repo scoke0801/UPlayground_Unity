@@ -53,6 +53,8 @@ namespace UPlayGround.GameActor.MovementController.State
         {
             base.OnExit(toState);
             
+            playerActor.ClearCrouchInput(); 
+            
             // 캡슐 크기 복원 (안전하게 체크 후)
             TryStandUp();
         }
@@ -92,11 +94,19 @@ namespace UPlayGround.GameActor.MovementController.State
                 PlayCrouchingAnimation();
             }
             
-            if (playerController.HasJumpInput() && CanStandUp())
+            if (CanStandUp())
             {
-                playerActor.ClearCrouchInput(); 
-                controller.TransitionToState(new PlayerAirborneState(controller));
-                return;
+                if (playerController.HasJumpInput())
+                {
+                    controller.TransitionToState(new PlayerAirborneState(controller));
+                    return;
+                }
+
+                if (playerController.HasDodgeInput())
+                {
+                    controller.TransitionToState(new PlayerDodgeState(controller));
+                    return;
+                }
             }
             
             // 지면에서 떨어지면 Airborne 상태로 전환

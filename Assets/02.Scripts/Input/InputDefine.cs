@@ -20,6 +20,7 @@
         public const string Attack = "Attack";
         public const string HeavyAttack = "HeavyAttack";
         public const string Interact = "Interact";
+        public const string Equip = "Equip";
     }
 
     public static class SystemAction

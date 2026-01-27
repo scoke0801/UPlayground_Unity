@@ -140,6 +140,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Equip",
+                    "type": "Button",
+                    "id": "5b1fc20b-22f5-4a76-892c-be1896a3d7d3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -349,6 +358,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Crouching",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2ca92e52-f38b-49c8-8403-e4d08c5987f5",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Equip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

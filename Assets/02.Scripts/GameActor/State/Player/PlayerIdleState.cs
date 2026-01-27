@@ -22,6 +22,13 @@ namespace UPlayGround.GameActor.MovementController.State
 
         public override void UpdateState(float deltaTime)
         {
+            // 지면에서 떨어지면 Airborne 상태로 전환
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                return;
+            }
+            
             // 이동 입력이 있으면 GroundMove 상태로 전환
             if (playerController.HasMoveInput())
             {
@@ -35,6 +42,12 @@ namespace UPlayGround.GameActor.MovementController.State
                 playerController.TransitionToState(new PlayerAirborneState(playerController));
                 return;
             }
+
+            if (playerController.HasDodgeInput())
+            {
+                playerController.TransitionToState(new PlayerDodgeState(playerController));
+                return;
+            }
             
             // 웅크리기 입력이 있으면 Crouching 상태로 전환
             if (playerController.HasCrouchInput())
@@ -42,12 +55,16 @@ namespace UPlayGround.GameActor.MovementController.State
                 playerController.TransitionToState(new PlayerCrouchingState(playerController));
                 return;
             }
-            
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
+
+            if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(new PlayerAttackState(playerController));
                 return;
+            }
+
+            if (playerController.HasEquipInput())
+            {
+                PlayEquipItem();
             }
         }
         
@@ -72,6 +89,19 @@ namespace UPlayGround.GameActor.MovementController.State
                     currentVelocity,
                     targetVelocity,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            }
+        }
+
+        private void PlayEquipItem()
+        {
+            // 장착 상태에 따라 장착 / 장착 해제 애니메이션 재생이 필요하겠다.
+            var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
+            if (animState != null)
+            {
+                animState.OwnedEvents.OnEnd += () =>
+                {
+                    gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                };
             }
         }
     }

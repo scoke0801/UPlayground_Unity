@@ -33,6 +33,12 @@ namespace UPlayGround.GameActor.MovementController.State
                 return;
             }
             
+            if (playerController.HasDodgeInput())
+            {
+                playerController.TransitionToState(new PlayerDodgeState(playerController));
+                return;
+            }
+            
             // 웅크리기 입력이 있으면 Crouching 상태로 전환
             if (playerController.HasCrouchInput())
             {

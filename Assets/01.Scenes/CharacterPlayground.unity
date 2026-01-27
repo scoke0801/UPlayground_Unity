@@ -119767,16 +119767,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd60312d88344ac09efad526cdd475f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _motor: {fileID: 2501911559922084711}
-  MaxStableMoveSpeed: 10
+  MaxWalkMoveSpeed: 3
+  MaxRunMoveSpeed: 6.5
+  MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
+  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 10
   AirAccelerationSpeed: 5
   Drag: 0.1
   JumpSpeed: 10
   JumpPreGroundingGraceTime: 0.1
   JumpPostGroundingGraceTime: 0.15
+  LandDrag: 2
   RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
   MeshRoot: {fileID: 925837668119215137}

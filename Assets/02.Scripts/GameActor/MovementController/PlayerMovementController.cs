@@ -22,6 +22,9 @@ namespace UPlayGround.GameActor.MovementController
         // 일회성 상태 변경 - 공격
         public InputCondition AttackInput;
         public InputCondition HeavyAttackInput;
+        
+        // 일회성 상태 변경 - 기타
+        public InputCondition EquipInput;
 
         public void ClearAll()
         {
@@ -120,6 +123,10 @@ namespace UPlayGround.GameActor.MovementController
             return _moveInputVector.sqrMagnitude > 0;
         }
 
+        public bool HasDodgeInput()
+        {
+            return _inputState.DodgeInput == InputCondition.Pressed;
+        }
         public bool HasJumpInput()
         {
             return _inputState.JumpInput == InputCondition.Pressed;
@@ -143,6 +150,11 @@ namespace UPlayGround.GameActor.MovementController
         public bool HasHeavyAttackInput()
         {
             return _inputState.HeavyAttackInput == InputCondition.Pressed;
+        }
+
+        public bool HasEquipInput()
+        {
+            return _inputState.EquipInput == InputCondition.Pressed;
         }
     }
 

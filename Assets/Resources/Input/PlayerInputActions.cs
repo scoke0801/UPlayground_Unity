@@ -226,6 +226,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Equip"",
+                    ""type"": ""Button"",
+                    ""id"": ""5b1fc20b-22f5-4a76-892c-be1896a3d7d3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -435,6 +444,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Crouching"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2ca92e52-f38b-49c8-8403-e4d08c5987f5"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Equip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -757,6 +777,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Skill2 = m_PlayerAction.FindAction("Skill2", throwIfNotFound: true);
         m_PlayerAction_Skill3 = m_PlayerAction.FindAction("Skill3", throwIfNotFound: true);
         m_PlayerAction_Skill4 = m_PlayerAction.FindAction("Skill4", throwIfNotFound: true);
+        m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Pause = m_System.FindAction("Pause", throwIfNotFound: true);
@@ -869,6 +890,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Skill2;
     private readonly InputAction m_PlayerAction_Skill3;
     private readonly InputAction m_PlayerAction_Skill4;
+    private readonly InputAction m_PlayerAction_Equip;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -941,6 +963,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Skill4 => m_Wrapper.m_PlayerAction_Skill4;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/Equip".
+        /// </summary>
+        public InputAction @Equip => m_Wrapper.m_PlayerAction_Equip;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -1011,6 +1037,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill4.started += instance.OnSkill4;
             @Skill4.performed += instance.OnSkill4;
             @Skill4.canceled += instance.OnSkill4;
+            @Equip.started += instance.OnEquip;
+            @Equip.performed += instance.OnEquip;
+            @Equip.canceled += instance.OnEquip;
         }
 
         /// <summary>
@@ -1067,6 +1096,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill4.started -= instance.OnSkill4;
             @Skill4.performed -= instance.OnSkill4;
             @Skill4.canceled -= instance.OnSkill4;
+            @Equip.started -= instance.OnEquip;
+            @Equip.performed -= instance.OnEquip;
+            @Equip.canceled -= instance.OnEquip;
         }
 
         /// <summary>
@@ -1516,6 +1548,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Equip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquip(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

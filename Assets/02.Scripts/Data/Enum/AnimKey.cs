@@ -12,23 +12,38 @@ namespace UPlayGround.Data.Enum
         Walk,
         Run,
         Sprint,
-
-        Dodge,
-
-        Mining,
-        Fishing,
-        WoodCut,
-
-        Jump,
+        
+        Dodge = 10,
+        
+        Jump = 20,
         Fall,
         Land,
 
         // [TODO] 이런 경우는 하나의 묶음이 되어야 하지 않을까?
-        Crouch_Idle,
+        Crouch_Idle = 30,
         Crouch_Walk,
         Idle_To_Crouch,
         Crouch_To_Idle,
+        
 
+        Attack = 100,
+        HeavyAttack = 200,
+        
+        DashAttack = 300,
+        
+        JumpAttack = 400,
+        
+        Skill_1 = 500,
+        Skill_2,
+        Skill_3,
+        Skill_4,
+        
+        Mining = 1000,
+        Fishing,
+        WoodCut,
+
+        Equip_LeftWeapon = 2000,
+        
         // 정지 (Stop)
         Move_Stop_Walking,
         Move_Stop_Running,

@@ -54,6 +54,8 @@ namespace UPlayGround.GameActor
                 
                 AttackInput =  _attackInputCondition,
                 HeavyAttackInput =  _heavyInputCondition,
+                
+                EquipInput = _equipInputCondition,
             };
 
             // 이동 입력과 카메라 회전값을 함께 전달
@@ -65,6 +67,7 @@ namespace UPlayGround.GameActor
             _dodgeInputCondition = InputCondition.None;
             _attackInputCondition = InputCondition.None;
             _heavyInputCondition = InputCondition.None;
+            _equipInputCondition = InputCondition.None;
         }
         #endregion
     }
@@ -80,6 +83,8 @@ namespace UPlayGround.GameActor
         private InputCondition _attackInputCondition;
         private InputCondition _heavyInputCondition;
         
+        private InputCondition _equipInputCondition;
+
         private void RegisterInputEvents()
         {
             if (InputManager.Instance)
@@ -108,8 +113,12 @@ namespace UPlayGround.GameActor
                                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack,
                     null, OnInputPerformedHeavyAttack, null, null, null, layer);
+                
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
+                    null, OnInputPerformedEquipWeapon, null, null, null, layer);
             }
         }
+
         private void UnRegisterInputEvents()
         {   
             if (InputManager.Instance)
@@ -137,6 +146,9 @@ namespace UPlayGround.GameActor
                                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack,
                     null, OnInputPerformedHeavyAttack, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
+                    null, OnInputPerformedEquipWeapon, null);
             }
         }
         
@@ -186,6 +198,11 @@ namespace UPlayGround.GameActor
         private void OnInputPerformedAttack(InputAction.CallbackContext obj)
         {
             _heavyInputCondition = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)
+        {
+            _equipInputCondition = InputCondition.Pressed;
         }
         #endregion
 

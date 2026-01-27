@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
 using UPlayGround.GameActor.MovementController;
@@ -14,6 +16,7 @@ namespace UPlayGround.GameActor
     {
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
+        
         
         #region Mono
         protected override void Awake()
@@ -210,6 +213,40 @@ namespace UPlayGround.GameActor
         {
             _crouchInputCondition = InputCondition.None;
             PlayerMovementController.ClearCrouchInput();
+        }
+    }
+
+    // Equip
+    public partial class PlayerActor : Base.GameActor
+    {
+        public float WeaponEquipTestTime = 1.5f;
+        [SerializeField] private ParentConstraint _weaponConstraint;
+        
+        public ParentConstraint GetWeaponConstraint() => _weaponConstraint;
+
+        public bool IsEquippedRightWeapon { get; set; } = false;
+        // 애니메이션 이벤트 콜백
+        private void OnEquipRightWeapon()
+        {
+            var rightHand = _weaponConstraint.GetSource(0);
+            var back = _weaponConstraint.GetSource(1);
+    
+            if (IsEquippedRightWeapon)
+            {
+                // UnEquip - 등으로
+                rightHand.weight = 0;
+                back.weight = 1;
+            }
+            else
+            {
+                // Equip - 손으로
+                rightHand.weight = 1;
+                back.weight = 0;
+            }
+    
+            // weight 수정 후 다시 설정
+            _weaponConstraint.SetSource(0, rightHand);
+            _weaponConstraint.SetSource(1, back);
         }
     }
 }

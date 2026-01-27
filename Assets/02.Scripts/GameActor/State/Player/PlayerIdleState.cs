@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UPlayGround.Data.Enum;
 
 namespace UPlayGround.GameActor.MovementController.State
@@ -62,7 +63,7 @@ namespace UPlayGround.GameActor.MovementController.State
                 return;
             }
 
-            if (playerController.HasEquipInput())
+            if (playerController.HasEquipInput() )
             {
                 PlayEquipItem();
             }
@@ -94,15 +95,33 @@ namespace UPlayGround.GameActor.MovementController.State
 
         private void PlayEquipItem()
         {
-            // 장착 상태에 따라 장착 / 장착 해제 애니메이션 재생이 필요하겠다.
-            var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
-            if (animState != null)
+            if (playerActor.IsEquippedRightWeapon == false)
             {
-                animState.OwnedEvents.OnEnd += () =>
+                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
+                if (animState != null)
                 {
-                    gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
-                };
+
+                    animState.OwnedEvents.OnEnd += () =>
+                    {
+                        playerActor.IsEquippedRightWeapon = true;
+                        gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                    };
+                }
+            }
+            else
+            {
+                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
+                if (animState != null)
+                {
+                    animState.OwnedEvents.OnEnd += () =>
+                    {
+                        playerActor.IsEquippedRightWeapon = false;
+                        gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                    };
+                }
             }
         }
+        
+
     }
 }

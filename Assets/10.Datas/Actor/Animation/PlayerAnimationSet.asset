@@ -220,7 +220,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -8174038465418026063, guid: ca6c449e25e60bf4abb06a28a4c98f2a, type: 3}
+      _Clip: {fileID: -2919265213301922866, guid: d8e1bdc862be7a14f98fbe358fc63cb1, type: 3}
       _NormalizedStartTime: NaN
   references:
     version: 2

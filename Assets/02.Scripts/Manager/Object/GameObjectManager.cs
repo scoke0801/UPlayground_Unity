@@ -17,6 +17,7 @@ public partial class GameObjectManager : BaseManager<GameObjectManager>, IManage
         _player = GameObject.FindWithTag("Player");
 
         LoadFXPrefabDatabase();
+        LoadWeaponPrefabDatabase();
     }
 
     public void Dispose()

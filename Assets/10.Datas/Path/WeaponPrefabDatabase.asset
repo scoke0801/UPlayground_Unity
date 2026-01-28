@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ed4d0f09a1c4a5cb6365b7345f848f0, type: 3}
+  m_Name: WeaponPrefabDatabase
+  m_EditorClassIdentifier: 
+  prefabs:
+  - key: Sword_1
+    prefab: {fileID: 3988488165111841622, guid: 8d3cee83fd272b546ba2294e15d4e02c, type: 3}
+    description: 
+    weaponType: 1
+    equipPosition: 2
+  - key: Sword_2
+    prefab: {fileID: 7745649433749508234, guid: 6dac8b79cd968fd40bb1d0e571ac5f31, type: 3}
+    description: 
+    weaponType: 1
+    equipPosition: 2
+  - key: Sword_3
+    prefab: {fileID: 4408365316925764055, guid: aa59f7477363d194a9b735e03ac5e787, type: 3}
+    description: 
+    weaponType: 1
+    equipPosition: 2
+  - key: Sword_4
+    prefab: {fileID: 3683807311389393637, guid: c2442a7008b0e2e45b534487cf0a95e6, type: 3}
+    description: 
+    weaponType: 1
+    equipPosition: 2
+  - key: Sword_5
+    prefab: {fileID: 7406692618536058888, guid: 737988eca5ff8d24ead274bd6ac5b113, type: 3}
+    description: 
+    weaponType: 1
+    equipPosition: 2
+  - key: GreatSword_1
+    prefab: {fileID: 5357859777792645778, guid: c8fe355accfcad14b94743f854d1d943, type: 3}
+    description: 
+    weaponType: 3
+    equipPosition: 2
+  - key: GreatSword_2
+    prefab: {fileID: 3825058192206000316, guid: b64d7f6726a8a2e478271c6739a35529, type: 3}
+    description: 
+    weaponType: 3
+    equipPosition: 2
+  - key: GreatSword_3
+    prefab: {fileID: 5311040176348140353, guid: dd41ee9eee7dec7418f88b82c8e0323d, type: 3}
+    description: 
+    weaponType: 3
+    equipPosition: 2
+  - key: GreatSword_4
+    prefab: {fileID: 8346164348127421618, guid: d34b175e2c5ea0d4aae19ec41434f8ed, type: 3}
+    description: 
+    weaponType: 3
+    equipPosition: 2
+  - key: GreatSword_5
+    prefab: {fileID: 452046738407645699, guid: bf824834a88854d4399012a642287b51, type: 3}
+    description: 
+    weaponType: 3
+    equipPosition: 2
+  - key: Shield_1
+    prefab: {fileID: 721968354175901190, guid: e4d1b353608e138449a2022c1bd4d9df, type: 3}
+    description: 
+    weaponType: 2
+    equipPosition: 1
+  - key: Shield_2
+    prefab: {fileID: 3762241545012656992, guid: 68601bb6ae62b2d4cba112a05ff34121, type: 3}
+    description: 
+    weaponType: 2
+    equipPosition: 1
+  - key: Shield_3
+    prefab: {fileID: 8408120885765742095, guid: ee0fae5ead149c4429b063eeb60e8ce5, type: 3}
+    description: 
+    weaponType: 2
+    equipPosition: 1
+  - key: Shield_4
+    prefab: {fileID: 2668512244568231291, guid: 970930aead058954cb80e4d7f0321101, type: 3}
+    description: 
+    weaponType: 2
+    equipPosition: 1
+  - key: Shield_5
+    prefab: {fileID: 8911077153171209343, guid: 39f963784c0f708469f39e549791a74e, type: 3}
+    description: 
+    weaponType: 2
+    equipPosition: 1
+  - key: Staff_1
+    prefab: {fileID: 6730376527981543390, guid: b0302d07cfe09494b9c4d4f41460dd12, type: 3}
+    description: 
+    weaponType: 4
+    equipPosition: 2
+  - key: Staff_2
+    prefab: {fileID: 6657487384071595606, guid: b244a04a4f8036b40931d6b0dc7edd2b, type: 3}
+    description: 
+    weaponType: 4
+    equipPosition: 2
+  - key: Staff_3
+    prefab: {fileID: 2137444353683179445, guid: ae45fc9e7f41d1d4c96e46c981172214, type: 3}
+    description: 
+    weaponType: 4
+    equipPosition: 2
+  - key: Staff_4
+    prefab: {fileID: 9052813228776065051, guid: 7d0fe03c63dae994b8a9c1b0002eba72, type: 3}
+    description: 
+    weaponType: 4
+    equipPosition: 2
+  - key: Bow_1
+    prefab: {fileID: 7391259195251517037, guid: d70d5885dc167c944a04bcd51ef0192b, type: 3}
+    description: 
+    weaponType: 5
+    equipPosition: 2
+  - key: Bow_2
+    prefab: {fileID: 2440309838855612882, guid: 781681ce461e8934ebd2df6d19af6eda, type: 3}
+    description: 
+    weaponType: 5
+    equipPosition: 2
+  - key: Bow_3
+    prefab: {fileID: 5084944294077558170, guid: a04e1db6e1e93974bbc561cc968d74ea, type: 3}
+    description: 
+    weaponType: 0
+    equipPosition: 2
+  - key: Bow_4
+    prefab: {fileID: 7354970500527499257, guid: 78d6c9bd2a4e41b47b91fa12e84ba908, type: 3}
+    description: 
+    weaponType: 5
+    equipPosition: 2
+  - key: Arrow_1
+    prefab: {fileID: 1440157380156977189, guid: 66559cb0440315545a0b7791d12467dc, type: 3}
+    description: 
+    weaponType: 6
+    equipPosition: 1
+  - key: Arrow_2
+    prefab: {fileID: 7561779493595026610, guid: 8d21c82dc02bf284198057fcb7254998, type: 3}
+    description: 
+    weaponType: 6
+    equipPosition: 1
+  - key: Arrow_3
+    prefab: {fileID: 5121073887911271839, guid: 892cda470aa0f93488381619adb48fbb, type: 3}
+    description: 
+    weaponType: 6
+    equipPosition: 1

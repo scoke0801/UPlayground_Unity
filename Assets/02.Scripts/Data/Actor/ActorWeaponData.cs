@@ -1,14 +1,18 @@
 ﻿
 
 using UnityEngine;
+using UnityEngine.Serialization;
+using UPlayGround.Data.Enum;
 
 namespace UPlayGround.Data.Actor
 {
     [System.Serializable]
     public class WeaponData
     {
-        public string weaponName;
-        public GameObject weaponPrefab;
-        public float attackPower;
+        [FormerlySerializedAs("equipment")] public WeaponType weaponType;
+        public string weaponKey;
+        
+        // todo
+        
     }
 }

@@ -1,38 +1,41 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UPlayGround.Data.Enum;
 
 namespace UPlayGround.Data.Path
 {
     /// <summary>
-    /// UI 프리팹 데이터베이스
-    /// UIManager가 자동으로 로드
+    /// Weapon 프리팹 데이터베이스
+    /// 
     /// </summary>
-    [CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "UP/PathDatabase/UI")]
-    public class UIPrefabDatabase : ScriptableObject
+    [CreateAssetMenu(fileName = "WeaponPrefabDatabase", menuName = "UP/PathDatabase/Weapon")]
+    public class WeaponPrefabDatabase : ScriptableObject
     {
         [System.Serializable]
-        public class UIPrefabEntry
+        public class WeaponPrefabEntry
         {
-            [Tooltip("UI 식별 키 (ShowUI 호출 시 사용)")] public string key;
+            [Tooltip("Weapon 식별 키 ")] public string key;
 
-            [Tooltip("UI 프리팹")] public GameObject prefab;
-
-            [Tooltip("기본 캔버스 레이어")] public CanvasLayer defaultLayer = CanvasLayer.Popup;
+            [Tooltip("Weapon 프리팹")] public GameObject prefab;
 
             [Tooltip("설명 (선택)")] public string description;
+
+            public WeaponType weaponType;
+            public EquipPosition equipPosition;
         }
 
-        [SerializeField] private List<UIPrefabEntry> prefabs = new List<UIPrefabEntry>();
+        [SerializeField] private List<WeaponPrefabEntry> prefabs = new List<WeaponPrefabEntry>();
 
         // 빠른 검색을 위한 딕셔너리
-        private Dictionary<string, UIPrefabEntry> _prefabDictionary;
+        private Dictionary<string, WeaponPrefabEntry> _prefabDictionary;
 
-        /// <summary>
+        /// <summary>   
         /// 초기화 (UIManager가 호출)
         /// </summary>
         public void Initialize()
         {
-            _prefabDictionary = new Dictionary<string, UIPrefabEntry>();
+            _prefabDictionary = new Dictionary<string, WeaponPrefabEntry>();
 
             foreach (var entry in prefabs)
             {
@@ -57,7 +60,7 @@ namespace UPlayGround.Data.Path
         /// <summary>
         /// 키로 프리팹 엔트리 가져오기
         /// </summary>
-        public UIPrefabEntry GetPrefabEntry(string key)
+        public WeaponPrefabEntry GetPrefabEntry(string key)
         {
             if (_prefabDictionary == null)
             {
@@ -65,7 +68,7 @@ namespace UPlayGround.Data.Path
                 return null;
             }
 
-            if (_prefabDictionary.TryGetValue(key, out UIPrefabEntry entry))
+            if (_prefabDictionary.TryGetValue(key, out WeaponPrefabEntry entry))
             {
                 return entry;
             }
@@ -90,34 +93,5 @@ namespace UPlayGround.Data.Path
             return new List<string>(_prefabDictionary.Keys);
         }
 
-        /// <summary>
-        /// Editor용: 프리팹 추가
-        /// </summary>
-        public void AddPrefab(string key, GameObject prefab, CanvasLayer layer, string description = "")
-        {
-            prefabs.Add(new UIPrefabEntry
-            {
-                key = key,
-                prefab = prefab,
-                defaultLayer = layer,
-                description = description
-            });
-
-#if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-#endif
-        }
-
-        /// <summary>
-        /// Editor용: 프리팹 제거
-        /// </summary>
-        public void RemovePrefab(string key)
-        {
-            prefabs.RemoveAll(p => p.key == key);
-
-#if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-#endif
-        }
     }
 }

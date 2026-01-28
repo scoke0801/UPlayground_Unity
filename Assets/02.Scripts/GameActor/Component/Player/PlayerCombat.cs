@@ -88,7 +88,7 @@ namespace UPlayGround.GameActor.Component
         /// </summary>
         public AttackData ExecuteAttack()
         {
-            if (!_equipment.IsLeftWeaponEquipped)
+            if (!_equipment.IsRightWeaponEquipped)
             {
                 return null;
             }
@@ -97,7 +97,7 @@ namespace UPlayGround.GameActor.Component
             {
                 ResetCombo();
             }
-
+    
             _attackState = AttackState.NormalAttack;
             // 콤보 체인 체크
             if (CanContinueCombo())

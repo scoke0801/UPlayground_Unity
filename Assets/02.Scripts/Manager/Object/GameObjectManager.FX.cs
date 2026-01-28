@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UPlayGround.Data.Path;
 
 public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
 {
-    private const string FX_DATABASE_PATH = "UIPrefabDatabase";
+    private const string FX_DATABASE_PATH = "FXPrefabDatabase";
     [SerializeField] private FXPrefabDatabase _fxPrefabDatabase;
     private async void LoadFXPrefabDatabase()
     {
@@ -15,16 +16,16 @@ public partial class GameObjectManager : BaseManager<GameObjectManager>, IManage
         
             if (_fxPrefabDatabase == null)
             {
-                Debug.LogError($"[UIManager] UIPrefabDatabase를 '{FX_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
+                Debug.LogError($"[GameObjectManager] FXPrefabDatabase를 '{FX_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
                 return;
             }
         
             _fxPrefabDatabase.Initialize();
-            Debug.Log($"[UIManager] FXPrefabDatabase 로드 완료");
+            Debug.Log($"[GameObjectManager] FXPrefabDatabase 로드 완료");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[UIManager] FXPrefabDatabase 로드 실패: {e.Message}");
+            Debug.LogError($"[GameObjectManager] FXPrefabDatabase 로드 실패: {e.Message}");
         }
     }
 

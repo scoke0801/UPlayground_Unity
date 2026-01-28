@@ -36,6 +36,13 @@ namespace UPlayGround.GameActor.State
             }
         }
 
+        public override void OnExit(GameActorState state)
+        {
+            playerActor.ClearJumpInput();
+            
+            base.OnExit(state);
+        }
+
         public override void UpdateState(float deltaTime)
         {
             _timeSinceLastAbleToJump += deltaTime;
@@ -46,6 +53,8 @@ namespace UPlayGround.GameActor.State
                 ChangeToNextState();
                 return;
             }
+
+            Debug.Log($"UpdateState - {playerController.HasJumpInput()}");
 
             if (playerController.HasJumpInput() == false
                 && (motor.GroundingStatus.IsStableOnGround && _landStarted == false))
@@ -137,6 +146,8 @@ namespace UPlayGround.GameActor.State
                 if (_timeSinceJumpRequested <= controller.JumpPreGroundingGraceTime 
                     && _timeSinceLastAbleToJump <= controller.JumpPostGroundingGraceTime)
                 {
+                    playerActor.ClearJumpInput();
+                    
                     // 수직 속도 초기화 후 점프 속도 적용
                     currentVelocity = Vector3.ProjectOnPlane(currentVelocity, motor.CharacterUp);
                     currentVelocity += motor.CharacterUp * controller.JumpSpeed;

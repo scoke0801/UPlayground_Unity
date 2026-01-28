@@ -77,7 +77,7 @@ namespace UPlayGround.GameActor
             
             // 전달 후 요청 초기화 (한 프레임만 유효)
             // [TODO] 어느정도 입력 버퍼 시간이 필요하다면... 바로 초기화를 하지 않아야한다.
-            _jumpInputCondition = InputCondition.None;
+            //_jumpInputCondition = InputCondition.None;
             _dodgeInputCondition = InputCondition.None;
             _attackInputCondition = InputCondition.None;
             _heavyInputCondition = InputCondition.None;
@@ -278,6 +278,12 @@ namespace UPlayGround.GameActor
             _crouchInputCondition = InputCondition.None;
             PlayerMovementController.ClearCrouchInput();
         }
+
+        public void ClearJumpInput()
+        {
+            _jumpInputCondition = InputCondition.None;
+            PlayerMovementController.ClearJumpInput();
+        }
     }
 
     // Component
@@ -297,6 +303,23 @@ namespace UPlayGround.GameActor
         {
             _equipment = GetComponent<PlayerEquipment>();
             _combat = GetComponent<PlayerCombat>();
+            
+            _equipment.SetLeftWeaponType(WeaponType.Shield);
+            _equipment.SetRightWeaponType(WeaponType.Sword);
+
+            StartCoroutine(EquipWeapon());
+        }
+
+        private IEnumerator EquipWeapon()
+        {
+            while (true)
+            {
+                if(GameObjectManager.Instance.IsWeaponDBLoaded == false)
+                    yield return new WaitForSeconds(0.1f);
+                    
+                //_equipment.EquipWeapon("GreatSword_1");
+                break;
+            }
         }
     }
 }

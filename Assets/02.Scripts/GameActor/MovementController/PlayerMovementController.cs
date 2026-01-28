@@ -145,6 +145,11 @@ namespace UPlayGround.GameActor.MovementController
             _inputState.CrouchInput = InputCondition.None;
         }
         
+        public void ClearJumpInput()
+        {
+            _inputState.JumpInput = InputCondition.None;
+        }
+        
         public bool HasAttackInput()
         {
             return _inputState.AttackInput == InputCondition.Pressed;
@@ -167,6 +172,7 @@ namespace UPlayGround.GameActor.MovementController
             
             return _inputState.SkillInput[index] == InputCondition.Pressed;
         }
+
     }
 
     public partial class PlayerMovementController : ActorMovementController

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 
 /// <summary>

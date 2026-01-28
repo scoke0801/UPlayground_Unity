@@ -129,15 +129,6 @@ namespace UPlayGround.GameActor.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
-            // // 1. Animator에서 이번 프레임에 이동해야 할 루트 모션 델타값 추출
-            // Vector3 rootMovement = playerActor.Animator.DeltaPosition;
-            // Quaternion rootRotation = playerActor.Animator.DeltaRotation;
-            //
-            // // 2. KCC의 KinematicCharacterMotor에 해당 이동량 적용
-            // // 루트 모션은 거리(m) 단위이므로, 속도(m/s)로 변환하려면 Time.deltaTime으로 나눕니다.
-            // Vector3 velocityFromRootMotion = rootMovement / Time.deltaTime;
-            // currentVelocity = velocityFromRootMotion;
-
             currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
         }
     }

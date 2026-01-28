@@ -25,5 +25,9 @@ namespace UPlayGround.GameActor.Base
                 _animator.Init(this);
             }
         }
+        
+        protected virtual void Start()
+        {
+        }
     }
 }

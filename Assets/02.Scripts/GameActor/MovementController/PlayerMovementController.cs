@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.GameActor.State;
@@ -25,6 +26,8 @@ namespace UPlayGround.GameActor.MovementController
         
         // 일회성 상태 변경 - 기타
         public InputCondition EquipInput;
+        
+        public List<InputCondition> SkillInput;
 
         public void ClearAll()
         {
@@ -155,6 +158,14 @@ namespace UPlayGround.GameActor.MovementController
         public bool HasEquipInput()
         {
             return _inputState.EquipInput == InputCondition.Pressed;
+        }
+
+        public bool HasSkillInput(int index)
+        {
+            if (_inputState.SkillInput == null || _inputState.SkillInput.Count <= index)
+                return false;
+            
+            return _inputState.SkillInput[index] == InputCondition.Pressed;
         }
     }
 

@@ -192,7 +192,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill1"",
+                    ""name"": ""Skill_1"",
                     ""type"": ""Button"",
                     ""id"": ""93265fb2-78c7-4879-88bb-6da049daaeef"",
                     ""expectedControlType"": """",
@@ -201,7 +201,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill2"",
+                    ""name"": ""Skill_2"",
                     ""type"": ""Button"",
                     ""id"": ""1faf009b-06c8-4dff-b1f3-41db850db54b"",
                     ""expectedControlType"": """",
@@ -210,7 +210,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill3"",
+                    ""name"": ""Skill_3"",
                     ""type"": ""Button"",
                     ""id"": ""4318244c-319e-4264-ad6a-75c64f263b5c"",
                     ""expectedControlType"": """",
@@ -219,7 +219,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill4"",
+                    ""name"": ""Skill_4"",
                     ""type"": ""Button"",
                     ""id"": ""b732cc03-39aa-4de4-bb8c-a7a7c5df99a9"",
                     ""expectedControlType"": """",
@@ -377,7 +377,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill1"",
+                    ""action"": ""Skill_1"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -388,7 +388,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill2"",
+                    ""action"": ""Skill_2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -399,7 +399,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill3"",
+                    ""action"": ""Skill_3"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -410,7 +410,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill4"",
+                    ""action"": ""Skill_4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -773,10 +773,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_HeavyAttack = m_PlayerAction.FindAction("HeavyAttack", throwIfNotFound: true);
         m_PlayerAction_Crouching = m_PlayerAction.FindAction("Crouching", throwIfNotFound: true);
         m_PlayerAction_Interact = m_PlayerAction.FindAction("Interact", throwIfNotFound: true);
-        m_PlayerAction_Skill1 = m_PlayerAction.FindAction("Skill1", throwIfNotFound: true);
-        m_PlayerAction_Skill2 = m_PlayerAction.FindAction("Skill2", throwIfNotFound: true);
-        m_PlayerAction_Skill3 = m_PlayerAction.FindAction("Skill3", throwIfNotFound: true);
-        m_PlayerAction_Skill4 = m_PlayerAction.FindAction("Skill4", throwIfNotFound: true);
+        m_PlayerAction_Skill_1 = m_PlayerAction.FindAction("Skill_1", throwIfNotFound: true);
+        m_PlayerAction_Skill_2 = m_PlayerAction.FindAction("Skill_2", throwIfNotFound: true);
+        m_PlayerAction_Skill_3 = m_PlayerAction.FindAction("Skill_3", throwIfNotFound: true);
+        m_PlayerAction_Skill_4 = m_PlayerAction.FindAction("Skill_4", throwIfNotFound: true);
         m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
@@ -886,10 +886,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_HeavyAttack;
     private readonly InputAction m_PlayerAction_Crouching;
     private readonly InputAction m_PlayerAction_Interact;
-    private readonly InputAction m_PlayerAction_Skill1;
-    private readonly InputAction m_PlayerAction_Skill2;
-    private readonly InputAction m_PlayerAction_Skill3;
-    private readonly InputAction m_PlayerAction_Skill4;
+    private readonly InputAction m_PlayerAction_Skill_1;
+    private readonly InputAction m_PlayerAction_Skill_2;
+    private readonly InputAction m_PlayerAction_Skill_3;
+    private readonly InputAction m_PlayerAction_Skill_4;
     private readonly InputAction m_PlayerAction_Equip;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
@@ -947,21 +947,21 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_PlayerAction_Interact;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill1".
+        /// Provides access to the underlying input action "PlayerAction/Skill_1".
         /// </summary>
-        public InputAction @Skill1 => m_Wrapper.m_PlayerAction_Skill1;
+        public InputAction @Skill_1 => m_Wrapper.m_PlayerAction_Skill_1;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill2".
+        /// Provides access to the underlying input action "PlayerAction/Skill_2".
         /// </summary>
-        public InputAction @Skill2 => m_Wrapper.m_PlayerAction_Skill2;
+        public InputAction @Skill_2 => m_Wrapper.m_PlayerAction_Skill_2;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill3".
+        /// Provides access to the underlying input action "PlayerAction/Skill_3".
         /// </summary>
-        public InputAction @Skill3 => m_Wrapper.m_PlayerAction_Skill3;
+        public InputAction @Skill_3 => m_Wrapper.m_PlayerAction_Skill_3;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill4".
+        /// Provides access to the underlying input action "PlayerAction/Skill_4".
         /// </summary>
-        public InputAction @Skill4 => m_Wrapper.m_PlayerAction_Skill4;
+        public InputAction @Skill_4 => m_Wrapper.m_PlayerAction_Skill_4;
         /// <summary>
         /// Provides access to the underlying input action "PlayerAction/Equip".
         /// </summary>
@@ -1025,18 +1025,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
-            @Skill1.started += instance.OnSkill1;
-            @Skill1.performed += instance.OnSkill1;
-            @Skill1.canceled += instance.OnSkill1;
-            @Skill2.started += instance.OnSkill2;
-            @Skill2.performed += instance.OnSkill2;
-            @Skill2.canceled += instance.OnSkill2;
-            @Skill3.started += instance.OnSkill3;
-            @Skill3.performed += instance.OnSkill3;
-            @Skill3.canceled += instance.OnSkill3;
-            @Skill4.started += instance.OnSkill4;
-            @Skill4.performed += instance.OnSkill4;
-            @Skill4.canceled += instance.OnSkill4;
+            @Skill_1.started += instance.OnSkill_1;
+            @Skill_1.performed += instance.OnSkill_1;
+            @Skill_1.canceled += instance.OnSkill_1;
+            @Skill_2.started += instance.OnSkill_2;
+            @Skill_2.performed += instance.OnSkill_2;
+            @Skill_2.canceled += instance.OnSkill_2;
+            @Skill_3.started += instance.OnSkill_3;
+            @Skill_3.performed += instance.OnSkill_3;
+            @Skill_3.canceled += instance.OnSkill_3;
+            @Skill_4.started += instance.OnSkill_4;
+            @Skill_4.performed += instance.OnSkill_4;
+            @Skill_4.canceled += instance.OnSkill_4;
             @Equip.started += instance.OnEquip;
             @Equip.performed += instance.OnEquip;
             @Equip.canceled += instance.OnEquip;
@@ -1084,18 +1084,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
-            @Skill1.started -= instance.OnSkill1;
-            @Skill1.performed -= instance.OnSkill1;
-            @Skill1.canceled -= instance.OnSkill1;
-            @Skill2.started -= instance.OnSkill2;
-            @Skill2.performed -= instance.OnSkill2;
-            @Skill2.canceled -= instance.OnSkill2;
-            @Skill3.started -= instance.OnSkill3;
-            @Skill3.performed -= instance.OnSkill3;
-            @Skill3.canceled -= instance.OnSkill3;
-            @Skill4.started -= instance.OnSkill4;
-            @Skill4.performed -= instance.OnSkill4;
-            @Skill4.canceled -= instance.OnSkill4;
+            @Skill_1.started -= instance.OnSkill_1;
+            @Skill_1.performed -= instance.OnSkill_1;
+            @Skill_1.canceled -= instance.OnSkill_1;
+            @Skill_2.started -= instance.OnSkill_2;
+            @Skill_2.performed -= instance.OnSkill_2;
+            @Skill_2.canceled -= instance.OnSkill_2;
+            @Skill_3.started -= instance.OnSkill_3;
+            @Skill_3.performed -= instance.OnSkill_3;
+            @Skill_3.canceled -= instance.OnSkill_3;
+            @Skill_4.started -= instance.OnSkill_4;
+            @Skill_4.performed -= instance.OnSkill_4;
+            @Skill_4.canceled -= instance.OnSkill_4;
             @Equip.started -= instance.OnEquip;
             @Equip.performed -= instance.OnEquip;
             @Equip.canceled -= instance.OnEquip;
@@ -1521,33 +1521,33 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Skill_1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill1(InputAction.CallbackContext context);
+        void OnSkill_1(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Skill_2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill2(InputAction.CallbackContext context);
+        void OnSkill_2(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Skill_3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill3(InputAction.CallbackContext context);
+        void OnSkill_3(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Skill_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill4(InputAction.CallbackContext context);
+        void OnSkill_4(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Equip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

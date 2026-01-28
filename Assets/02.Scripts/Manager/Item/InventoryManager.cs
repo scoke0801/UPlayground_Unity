@@ -48,6 +48,11 @@ public class InventoryManager : BaseManager<InventoryManager>, IManager
         _itemPair.Remove(itemId);
     }
 
+    public int GetItemCount(int itemId)
+    {
+        return _itemPair.TryGetValue(itemId, out var item) ? item.count : 0;
+    }
+    
     public bool HasItem(int itemId)
     {
         return _itemPair.ContainsKey(itemId);

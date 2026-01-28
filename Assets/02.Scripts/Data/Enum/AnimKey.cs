@@ -26,8 +26,27 @@ namespace UPlayGround.Data.Enum
         Crouch_To_Idle,
         
 
-        Attack = 100,
-        HeavyAttack = 200,
+        Attack_1 = 100,
+        Attack_2,
+        Attack_3,
+        Attack_4,
+        Attack_5,
+        Attack_6,
+        Attack_7,
+        Attack_8,
+        Attack_9,
+        Attack_10,
+        
+        HeavyAttack_1 = 200,
+        HeavyAttack_2,
+        HeavyAttack_3,
+        HeavyAttack_4,
+        HeavyAttack_5,
+        HeavyAttack_6,
+        HeavyAttack_7,
+        HeavyAttack_8,
+        HeavyAttack_9,
+        HeavyAttack_10,
         
         DashAttack = 300,
         
@@ -43,6 +62,7 @@ namespace UPlayGround.Data.Enum
         WoodCut,
 
         Equip_LeftWeapon = 2000,
+        Equip_RightWeapon = 2001,
         
         // 정지 (Stop)
         Move_Stop_Walking,

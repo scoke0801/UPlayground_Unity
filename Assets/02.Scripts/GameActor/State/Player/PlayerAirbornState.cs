@@ -27,7 +27,7 @@ namespace UPlayGround.GameActor.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
+
             _dragSpeed = controller.Drag;
             
             if (playerController.HasJumpInput() == false)
@@ -35,7 +35,7 @@ namespace UPlayGround.GameActor.State
                 gameActor.Animator.PlayAnimation(AnimKey.Fall);
             }
         }
-        
+
         public override void UpdateState(float deltaTime)
         {
             _timeSinceLastAbleToJump += deltaTime;

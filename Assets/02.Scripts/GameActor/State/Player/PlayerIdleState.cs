@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.Enum;
+using UPlayGround.GameActor.Component;
 using UPlayGround.GameActor.MovementController;
 
 namespace UPlayGround.GameActor.State
@@ -12,6 +13,7 @@ namespace UPlayGround.GameActor.State
     {
         public override string StateName => "Idle";
         
+        private PlayerEquipment _equipment;
         public PlayerIdleState(ActorMovementController controller) : base(controller)
         {
         }
@@ -19,6 +21,7 @@ namespace UPlayGround.GameActor.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            _equipment = playerActor.GetPlayerEquipment();
             gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.25f);
         }
 
@@ -58,10 +61,21 @@ namespace UPlayGround.GameActor.State
                 return;
             }
 
-            if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
+            if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
+                {
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    return;
+                }
+
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (!playerController.HasSkillInput(i)) continue;
+
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    return;
+                }
             }
 
             if (playerController.HasEquipInput() )
@@ -98,13 +112,39 @@ namespace UPlayGround.GameActor.State
         {
             if (playerActor.IsEquippedRightWeapon == false)
             {
+                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_RightWeapon, 0.25f);
+                if (animState != null)
+                {
+                    animState.OwnedEvents.OnEnd += () =>
+                    {
+                        PlayEquip_Left();
+                        //gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                    };
+                }
+            }
+            else
+            {
+                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_RightWeapon, 0.25f);
+                if (animState != null)
+                {
+                    animState.OwnedEvents.OnEnd += () =>
+                    {
+                        PlayEquip_Left();
+                        //gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                    };
+                }
+            }
+        }
+    
+        private void PlayEquip_Left()
+        {
+            if (playerActor.IsEquippedLeftWeapon == false)
+            {
                 var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
                 if (animState != null)
                 {
-
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        playerActor.IsEquippedRightWeapon = true;
                         gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
                     };
                 }
@@ -116,13 +156,10 @@ namespace UPlayGround.GameActor.State
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        playerActor.IsEquippedRightWeapon = false;
                         gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
                     };
                 }
             }
         }
-        
-
     }
 }

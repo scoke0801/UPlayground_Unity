@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
+using UPlayGround.GameActor.Component;
 using UPlayGround.GameActor.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
@@ -16,8 +18,7 @@ namespace UPlayGround.GameActor
     {
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
-        
-        
+
         #region Mono
         protected override void Awake()
         {
@@ -26,6 +27,8 @@ namespace UPlayGround.GameActor
             _camera = Camera.main;
             PlayerMovementController = MovementController as PlayerMovementController;
 
+            InitComponents();
+            
             RegisterInputEvents();
         }
 
@@ -59,6 +62,14 @@ namespace UPlayGround.GameActor
                 HeavyAttackInput =  _heavyInputCondition,
                 
                 EquipInput = _equipInputCondition,
+                
+                SkillInput =  new List<InputCondition>()
+                {
+                    _skillInputCondition[0],
+                    _skillInputCondition[1],
+                    _skillInputCondition[2],
+                    _skillInputCondition[3],
+                },
             };
 
             // 이동 입력과 카메라 회전값을 함께 전달
@@ -71,6 +82,11 @@ namespace UPlayGround.GameActor
             _attackInputCondition = InputCondition.None;
             _heavyInputCondition = InputCondition.None;
             _equipInputCondition = InputCondition.None;
+
+            for (int i = 0; i < _skillInputCondition.Count; ++i)
+            {
+                _skillInputCondition[i] = InputCondition.None;
+            }
         }
         #endregion
     }
@@ -87,7 +103,14 @@ namespace UPlayGround.GameActor
         private InputCondition _heavyInputCondition;
         
         private InputCondition _equipInputCondition;
-
+        private List<InputCondition> _skillInputCondition = new List<InputCondition> 
+        { 
+            InputCondition.None,
+            InputCondition.None,
+            InputCondition.None,
+            InputCondition.None 
+        };
+        
         private void RegisterInputEvents()
         {
             if (InputManager.Instance)
@@ -116,7 +139,19 @@ namespace UPlayGround.GameActor
                                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack,
                     null, OnInputPerformedHeavyAttack, null, null, null, layer);
-                
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,
+                    null, OnInputPerformedSkill_1, null, null, null, layer);
+              
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,
+                    null, OnInputPerformedSkill_2, null, null, null, layer);
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,
+                    null, OnInputPerformedSkill_3, null, null, null, layer);
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,
+                    null, OnInputPerformedSkill_4, null, null, null, layer);
+
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null, null, null, layer);
             }
@@ -149,6 +184,18 @@ namespace UPlayGround.GameActor
                                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack,
                     null, OnInputPerformedHeavyAttack, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,
+                    null, OnInputPerformedSkill_1, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,
+                    null, OnInputPerformedSkill_2, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,
+                    null, OnInputPerformedSkill_3, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,
+                    null, OnInputPerformedSkill_4, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null);
@@ -195,17 +242,34 @@ namespace UPlayGround.GameActor
         
         private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
         {
-            _attackInputCondition = InputCondition.Pressed;
+            _heavyInputCondition = InputCondition.Pressed;
         }
 
         private void OnInputPerformedAttack(InputAction.CallbackContext obj)
         {
-            _heavyInputCondition = InputCondition.Pressed;
+            _attackInputCondition = InputCondition.Pressed;
         }
         
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)
         {
             _equipInputCondition = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[0] = InputCondition.Pressed;
+        }
+        private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[1] = InputCondition.Pressed;
+        }
+        private void OnInputPerformedSkill_3(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[2] = InputCondition.Pressed;
+        }
+        private void OnInputPerformedSkill_4(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[3] = InputCondition.Pressed;
         }
         #endregion
 
@@ -216,37 +280,23 @@ namespace UPlayGround.GameActor
         }
     }
 
-    // Equip
+    // Component
     public partial class PlayerActor : Base.GameActor
     {
-        public float WeaponEquipTestTime = 1.5f;
-        [SerializeField] private ParentConstraint _weaponConstraint;
+        // 추가 컴포넌트
+        private PlayerEquipment _equipment;
+        private PlayerCombat _combat;
         
-        public ParentConstraint GetWeaponConstraint() => _weaponConstraint;
+        public PlayerEquipment GetPlayerEquipment() { return _equipment; }
+        public PlayerCombat GetCombat() { return _combat; }
 
-        public bool IsEquippedRightWeapon { get; set; } = false;
-        // 애니메이션 이벤트 콜백
-        private void OnEquipRightWeapon()
+        public bool IsEquippedRightWeapon => _equipment.IsRightWeaponEquipped;
+        public bool IsEquippedLeftWeapon => _equipment.IsLeftWeaponEquipped;
+
+        private void InitComponents()
         {
-            var rightHand = _weaponConstraint.GetSource(0);
-            var back = _weaponConstraint.GetSource(1);
-    
-            if (IsEquippedRightWeapon)
-            {
-                // UnEquip - 등으로
-                rightHand.weight = 0;
-                back.weight = 1;
-            }
-            else
-            {
-                // Equip - 손으로
-                rightHand.weight = 1;
-                back.weight = 0;
-            }
-    
-            // weight 수정 후 다시 설정
-            _weaponConstraint.SetSource(0, rightHand);
-            _weaponConstraint.SetSource(1, back);
+            _equipment = GetComponent<PlayerEquipment>();
+            _combat = GetComponent<PlayerCombat>();
         }
     }
 }

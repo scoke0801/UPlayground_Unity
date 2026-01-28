@@ -17,9 +17,17 @@
         public const string Walk = "Walk";
         public const string Sprint = "Sprint";
         public const string Dodge = "Dodge";
+        
         public const string Attack = "Attack";
         public const string HeavyAttack = "HeavyAttack";
+        
+        public const string Skill_1 = "Skill_1";
+        public const string Skill_2 = "Skill_2";
+        public const string Skill_3 = "Skill_3";
+        public const string Skill_4 = "Skill_4";
+        
         public const string Interact = "Interact";
+        
         public const string Equip = "Equip";
     }
 

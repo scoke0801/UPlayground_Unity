@@ -16,7 +16,11 @@ public class UI_Inventory : UI_Base
     [SerializeField] private Transform _content;
     [SerializeField] private Image _imgWeightFill;
     [SerializeField] private TextMeshProUGUI _txtWeight;
-    
+   
+    [Header("Character Preview")]
+    [SerializeField] private RawImage _characterPreview;
+    [SerializeField] private CharacterPreviewRenderer _previewRenderer;
+
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
     private int itemMaximumValue = 50;
 
@@ -25,19 +29,40 @@ public class UI_Inventory : UI_Base
     private void Awake()
     {
         Init();
+        
+        // RenderTexture 연결
+        if (_previewRenderer != null && _characterPreview != null)
+        {
+            _characterPreview.texture = _previewRenderer.GetRenderTexture();
+        }
     }
 
     protected override void OnShow()
     {
         RefreshDictItem();
         SetInventory();
+        
+        // 캐릭터 프리뷰 활성화
+        if (_previewRenderer != null)
+        {
+            _previewRenderer.ShowPreview();
+        }
     }
 
+    protected override void OnHide()
+    {
+        // 캐릭터 프리뷰 비활성화
+        if (_previewRenderer != null)
+        {
+            _previewRenderer.HidePreview();
+        }
+    }
+    
     public void SetInventory()
     {
-        for (int i = 0; i < _uiSlots.Count; ++i)
+        foreach (var t in _uiSlots)
         {
-            _uiSlots[i].RefreshUI();
+            t.RefreshUI();
         }
 
         _imgWeightFill.fillAmount = InventoryManager.Instance.GetTotalWeight() / InventoryManager.Instance.MaxWeight;

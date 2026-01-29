@@ -80,6 +80,9 @@ namespace UPlayGround.GameActor.MovementController
         // PlayerActor에서 호출하여 입력 전달
         public void SetInputs(PlayerCharacterInputs input)
         {
+            if (Motor == null)
+                return;
+            
             _inputState = input;
             
             // 1. 기본적인 이동 입력 벡터 (X, Z)

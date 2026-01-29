@@ -503,6 +503,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "EquipInventory",
+                    "type": "Button",
+                    "id": "045f0adf-12ef-420d-b025-f05ca4a329de",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "CursorClick",
                     "type": "Button",
                     "id": "a4d75528-1220-4e2e-9484-ca8f3046c091",
@@ -649,6 +658,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "CursorMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bcf495bc-6bbc-497e-b89a-cf9d00eee3cf",
+                    "path": "<Keyboard>/o",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipInventory",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

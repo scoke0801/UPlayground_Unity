@@ -589,6 +589,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""EquipInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""045f0adf-12ef-420d-b025-f05ca4a329de"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""CursorClick"",
                     ""type"": ""Button"",
                     ""id"": ""a4d75528-1220-4e2e-9484-ca8f3046c091"",
@@ -737,6 +746,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""CursorMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bcf495bc-6bbc-497e-b89a-cf9d00eee3cf"",
+                    ""path"": ""<Keyboard>/o"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EquipInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -790,6 +810,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_Submit = m_UI.FindAction("Submit", throwIfNotFound: true);
         m_UI_Cancel = m_UI.FindAction("Cancel", throwIfNotFound: true);
         m_UI_Inventory = m_UI.FindAction("Inventory", throwIfNotFound: true);
+        m_UI_EquipInventory = m_UI.FindAction("EquipInventory", throwIfNotFound: true);
         m_UI_CursorClick = m_UI.FindAction("CursorClick", throwIfNotFound: true);
         m_UI_CursorMove = m_UI.FindAction("CursorMove", throwIfNotFound: true);
         m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
@@ -1269,6 +1290,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Submit;
     private readonly InputAction m_UI_Cancel;
     private readonly InputAction m_UI_Inventory;
+    private readonly InputAction m_UI_EquipInventory;
     private readonly InputAction m_UI_CursorClick;
     private readonly InputAction m_UI_CursorMove;
     private readonly InputAction m_UI_Point;
@@ -1299,6 +1321,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/Inventory".
         /// </summary>
         public InputAction @Inventory => m_Wrapper.m_UI_Inventory;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/EquipInventory".
+        /// </summary>
+        public InputAction @EquipInventory => m_Wrapper.m_UI_EquipInventory;
         /// <summary>
         /// Provides access to the underlying input action "UI/CursorClick".
         /// </summary>
@@ -1349,6 +1375,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Inventory.started += instance.OnInventory;
             @Inventory.performed += instance.OnInventory;
             @Inventory.canceled += instance.OnInventory;
+            @EquipInventory.started += instance.OnEquipInventory;
+            @EquipInventory.performed += instance.OnEquipInventory;
+            @EquipInventory.canceled += instance.OnEquipInventory;
             @CursorClick.started += instance.OnCursorClick;
             @CursorClick.performed += instance.OnCursorClick;
             @CursorClick.canceled += instance.OnCursorClick;
@@ -1381,6 +1410,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Inventory.started -= instance.OnInventory;
             @Inventory.performed -= instance.OnInventory;
             @Inventory.canceled -= instance.OnInventory;
+            @EquipInventory.started -= instance.OnEquipInventory;
+            @EquipInventory.performed -= instance.OnEquipInventory;
+            @EquipInventory.canceled -= instance.OnEquipInventory;
             @CursorClick.started -= instance.OnCursorClick;
             @CursorClick.performed -= instance.OnCursorClick;
             @CursorClick.canceled -= instance.OnCursorClick;
@@ -1627,6 +1659,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInventory(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EquipInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquipInventory(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "CursorClick" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

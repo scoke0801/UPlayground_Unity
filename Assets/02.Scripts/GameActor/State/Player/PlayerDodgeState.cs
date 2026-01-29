@@ -19,7 +19,8 @@ namespace UPlayGround.GameActor.State
         {
             base.OnEnter(fromState);
 
-            controller.AddVelocity(motor.CharacterForward * controller.DodgePower);
+            gameActor.Animator.ApplyRootMotion(true);
+            //controller.AddVelocity(motor.CharacterForward * controller.DodgePower);
             
             var animState = gameActor.Animator.PlayAnimation(AnimKey.Dodge, 0.25f);
             if (animState != null)
@@ -27,11 +28,19 @@ namespace UPlayGround.GameActor.State
                 animState.OwnedEvents.OnEnd = ChangeToNextState;
             }
         }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.ApplyRootMotion(false);
+            
+            base.OnExit(toState);
+        }
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // Drag
-            currentVelocity *= (1f / (1f + (controller.LandDrag * deltaTime)));
+            // // Drag
+            // currentVelocity *= (1f / (1f + (controller.LandDrag * deltaTime)));
+            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
         }
         private void ChangeToNextState()
         {

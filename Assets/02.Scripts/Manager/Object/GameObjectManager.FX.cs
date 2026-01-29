@@ -2,55 +2,59 @@
 using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
 
-public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
+namespace UPlayGround.Manager
 {
-    private const string FX_DATABASE_PATH = "FXPrefabDatabase";
-    [SerializeField] private FXPrefabDatabase _fxPrefabDatabase;
-    private async void LoadFXPrefabDatabase()
+    public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
     {
-        var handle = Addressables.LoadAssetAsync<FXPrefabDatabase>(FX_DATABASE_PATH);
-    
-        try
+        private const string FX_DATABASE_PATH = "FXPrefabDatabase";
+        [SerializeField] private FXPrefabDatabase _fxPrefabDatabase;
+
+        private async void LoadFXPrefabDatabase()
         {
-            _fxPrefabDatabase = await handle.Task;
-        
+            var handle = Addressables.LoadAssetAsync<FXPrefabDatabase>(FX_DATABASE_PATH);
+
+            try
+            {
+                _fxPrefabDatabase = await handle.Task;
+
+                if (_fxPrefabDatabase == null)
+                {
+                    Debug.LogError($"[GameObjectManager] FXPrefabDatabase를 '{FX_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
+                    return;
+                }
+
+                _fxPrefabDatabase.Initialize();
+                Debug.Log($"[GameObjectManager] FXPrefabDatabase 로드 완료");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[GameObjectManager] FXPrefabDatabase 로드 실패: {e.Message}");
+            }
+        }
+
+        public GameObject ShowFX(string key, Vector3 position, Quaternion rotation = default, Transform parent = null)
+        {
             if (_fxPrefabDatabase == null)
             {
-                Debug.LogError($"[GameObjectManager] FXPrefabDatabase를 '{FX_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
-                return;
+                Debug.LogError("[GameObjectManager] FXPrefabDatabase 로드되지 않았습니다.");
+                return null;
             }
-        
-            _fxPrefabDatabase.Initialize();
-            Debug.Log($"[GameObjectManager] FXPrefabDatabase 로드 완료");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[GameObjectManager] FXPrefabDatabase 로드 실패: {e.Message}");
-        }
-    }
 
-    public GameObject ShowFX(string key, Vector3 position, Quaternion rotation = default, Transform parent = null)
-    {
-        if (_fxPrefabDatabase == null)
-        {
-            Debug.LogError("[GameObjectManager] FXPrefabDatabase 로드되지 않았습니다.");
-            return null;
-        }
+            var prefabEntry = _fxPrefabDatabase.GetPrefabEntry(key);
+            if (prefabEntry == null)
+            {
+                Debug.LogError($"[GameObjectManager] '{key}' FX를 찾을 수 없습니다.");
+                return null;
+            }
 
-        var prefabEntry = _fxPrefabDatabase.GetPrefabEntry(key);
-        if (prefabEntry == null)
-        {
-            Debug.LogError($"[GameObjectManager] '{key}' FX를 찾을 수 없습니다.");
-            return null;
-        }
+            if (prefabEntry.prefab == null)
+            {
+                Debug.LogError($"[GameObjectManager] '{key}' FX의 프리팹이 null입니다.");
+                return null;
+            }
 
-        if (prefabEntry.prefab == null)
-        {
-            Debug.LogError($"[GameObjectManager] '{key}' FX의 프리팹이 null입니다.");
-            return null;
+            // 인스턴스 생성
+            return Instantiate(prefabEntry.prefab, position, rotation, parent);
         }
-        
-        // 인스턴스 생성
-        return Instantiate(prefabEntry.prefab, position, rotation, parent);
     }
 }

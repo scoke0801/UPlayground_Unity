@@ -62,7 +62,13 @@ namespace UPlayGround.Data.Enum
         WoodCut,
 
         Equip_LeftWeapon = 2000,
-        Equip_RightWeapon = 2001,
+        Equip_RightWeapon,
+        Equip_Sword,
+        Equip_Shield,
+        Equip_GreatSword,
+        Equip_Staff,
+        Equip_Bow,
+        Equip_Arrow,
         
         // 정지 (Stop)
         Move_Stop_Walking,

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Manager;
 
 /// <summary>
 /// 인벤토리 UI

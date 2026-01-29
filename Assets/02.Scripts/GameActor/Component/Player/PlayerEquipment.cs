@@ -4,6 +4,7 @@ using UnityEngine.Animations;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enum;
+using UPlayGround.Manager;
 
 namespace UPlayGround.GameActor.Component
 {

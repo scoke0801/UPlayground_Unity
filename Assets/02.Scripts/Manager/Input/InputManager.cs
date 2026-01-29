@@ -3,119 +3,136 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
 
-/// <summary>
-/// 입력 시스템 관리 매니저
-/// </summary>
-public partial class InputManager : BaseManager<InputManager>, IManager
+namespace UPlayGround.Manager
 {
-    private int _cursorVisibleStack = 0;
-    
-    private bool _isGamepadActive = false;
+    /// <summary>
+    /// 입력 시스템 관리 매니저
+    /// </summary>
+    public partial class InputManager : BaseManager<InputManager>, IManager
+    {
+        private int _cursorVisibleStack = 0;
 
-    public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
-    
-    #region IManager 구현
-    public void Init()
-    {
-        Debug.Log("[InputManager] 초기화 시작");
-        
-        Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");;
-        
-        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+        private bool _isGamepadActive = false;
 
-        // Actions 초기화
-        InitInputAction();
-        
-        ShowCursor(false, false);
-        
-        RegisterInputEvent(InputMapNames.System, SystemAction.ShowCursor, OnStartedShowCursor, null, OnCanceledShowCursor, null, null, InputLayer.Level_Top);
-        Debug.Log("[InputManager] 초기화 완료");
-    }
-    
-    public void Dispose()
-    {
-        Debug.Log("[InputManager] 정리 시작");
-        
-        Debug.Log("[InputManager] 정리 완료");
-    }
-    
-    public void OnUpdate() { }
-    public void OnFixedUpdate() { }
-    public void OnLateUpdate() { }
-    
-    #endregion
-    #region 유틸리티
-    private void ShowCursor(bool isShow, bool isForce = false)
-    {
-        if (isForce)
+        public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
+
+        #region IManager 구현
+
+        public void Init()
         {
-            _cursorVisibleStack = isShow ? 1 : 0;
+            Debug.Log("[InputManager] 초기화 시작");
+
+            Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");
+            ;
+
+            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+
+            // Actions 초기화
+            InitInputAction();
+
+            ShowCursor(false, false);
+
+            RegisterInputEvent(InputMapNames.System, SystemAction.ShowCursor, OnStartedShowCursor, null,
+                OnCanceledShowCursor, null, null, InputLayer.Level_Top);
+            Debug.Log("[InputManager] 초기화 완료");
         }
-        else
+
+        public void Dispose()
         {
-            if (isShow)
+            Debug.Log("[InputManager] 정리 시작");
+
+            Debug.Log("[InputManager] 정리 완료");
+        }
+
+        public void OnUpdate()
+        {
+        }
+
+        public void OnFixedUpdate()
+        {
+        }
+
+        public void OnLateUpdate()
+        {
+        }
+
+        #endregion
+
+        #region 유틸리티
+
+        private void ShowCursor(bool isShow, bool isForce = false)
+        {
+            if (isForce)
             {
-                ++_cursorVisibleStack;
+                _cursorVisibleStack = isShow ? 1 : 0;
             }
             else
             {
-                _cursorVisibleStack = math.max(0, _cursorVisibleStack - 1);
+                if (isShow)
+                {
+                    ++_cursorVisibleStack;
+                }
+                else
+                {
+                    _cursorVisibleStack = math.max(0, _cursorVisibleStack - 1);
+                }
             }
-        }
-        
-        RefreshCursorState();
-        
-        Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
-    }
-    
-    private void OnStartedShowCursor(InputAction.CallbackContext obj)
-    {
-        ShowCursor(true, true);
-    }
-    
-    private void OnCanceledShowCursor(InputAction.CallbackContext obj)
-    {
-        ShowCursor(false);
-    }
-    
-    private void RefreshCursorState()
-    {
-        Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadActive}");
-        bool finalVisibility = _cursorVisibleStack > 0;
 
-        if (finalVisibility)
+            RefreshCursorState();
+
+            Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
+        }
+
+        private void OnStartedShowCursor(InputAction.CallbackContext obj)
         {
-            if (_isGamepadActive)
+            ShowCursor(true, true);
+        }
+
+        private void OnCanceledShowCursor(InputAction.CallbackContext obj)
+        {
+            ShowCursor(false);
+        }
+
+        private void RefreshCursorState()
+        {
+            Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadActive}");
+            bool finalVisibility = _cursorVisibleStack > 0;
+
+            if (finalVisibility)
+            {
+                if (_isGamepadActive)
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+                else
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+
+                    Debug.Log("[InputManager] Cursor Show");
+                }
+            }
+            else
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
-            else
+        }
+
+        public void SetInputLayer(InputLayer layer)
+        {
+            if (CurrentLayer == layer)
             {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                
-                Debug.Log("[InputManager] Cursor Show");
+                return;
             }
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-    }
-    
-    public void SetInputLayer(InputLayer layer)
-    {
-        if (CurrentLayer == layer)
-        {
-            return;
+
+            CurrentLayer = layer;
+
+            InvokeCancelEvents(layer);
         }
 
-        CurrentLayer = layer;
-        
-        InvokeCancelEvents(layer);
+        #endregion
     }
 
-    #endregion
 }

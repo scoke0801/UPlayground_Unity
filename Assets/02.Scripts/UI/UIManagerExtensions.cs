@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Manager;
 
 /// <summary>
 /// UIManager 확장 메서드

@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a06f79b0b62433e920de336b94d98b2, type: 3}
+  m_Name: PlayerAnimationSet____
+  m_EditorClassIdentifier: 
+  _animationList:
+  - key: 1
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -1943237886964049240, guid: 857892e7c68ccca4bb4ab51da611f122, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 2
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8972700108683493808, guid: 1dea5f16d173eab4e97b5669523d5f71, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 3
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 8022793987941797176, guid: 3558dc693b7e49e418e92bc51129834c, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 4
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8022753674482683167, guid: 6a5ac1c4627152147a1246622dfc5d3d, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 10
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 1289535187269116740, guid: 9f638ca6748ba1c44be760d0df7597d7, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 20
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -3989899929696636710, guid: fc9c129024a7a4b4b817e7d32d6dbc44, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 21
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 1197025347177367725, guid: 79b62152564845e45a50f2fed594f1f5, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 22
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 50548382346646705, guid: b47c7a11a25ed2f45b6d48a219f0cb91, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 30
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 4659165650557470915, guid: 904f0e11cda6e23419d771e0d02fe4b2, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 32
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8871164253525096230, guid: a731eeef30429884da775bc28c84eff4, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 33
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -3885751980837023362, guid: 589806218d6f0484c93f6b9fd08e2530, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 31
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8124918117320496865, guid: 96657c36338116941acac554d2ee6567, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 1000
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 2000
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -8396770448412342643, guid: f4942b50d5f14e840986267163f626a6, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 2001
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -2919265213301922866, guid: d8e1bdc862be7a14f98fbe358fc63cb1, type: 3}
+      _NormalizedStartTime: NaN
+  references:
+    version: 2
+    RefIds: []

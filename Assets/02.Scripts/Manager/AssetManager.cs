@@ -2,55 +2,59 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.U2D;
 
-public class AssetManager : BaseManager<AssetManager>, IManager
+namespace UPlayGround.Manager
 {
-    private SpriteAtlas _itemAtlas;
-    
-    public void Init()
+    public class AssetManager : BaseManager<AssetManager>, IManager
     {
-        LoadItemAtlas();
-    }
+        private SpriteAtlas _itemAtlas;
 
-    public void Dispose()
-    {
-    }
-
-    public void OnUpdate()
-    {
-    }
-
-    public void OnFixedUpdate()
-    {
-    }
-
-    public void OnLateUpdate()
-    {
-    }
-
-    public Sprite GetAtlas(string key)
-    {
-        return _itemAtlas.GetSprite(key);
-    }
-    private async void LoadItemAtlas()
-    {
-        const string path = "ItemAtlas";
-        
-        var handle = Addressables.LoadAssetAsync<SpriteAtlas>(path);
-        try
+        public void Init()
         {
-            _itemAtlas = await handle.Task;
-        
-            if (_itemAtlas == null)
-            {
-                Debug.LogError($"[AssetManager] '{path}' 경로에서 찾을 수 없습니다.");
-                return;
-            }
-        
-            Debug.Log($"[AssetManager] path - 로드 완료");
+            LoadItemAtlas();
         }
-        catch (System.Exception e)
+
+        public void Dispose()
         {
-            Debug.LogError($"[AssetManager] path 로드 실패: {e.Message}");
+        }
+
+        public void OnUpdate()
+        {
+        }
+
+        public void OnFixedUpdate()
+        {
+        }
+
+        public void OnLateUpdate()
+        {
+        }
+
+        public Sprite GetAtlas(string key)
+        {
+            return _itemAtlas.GetSprite(key);
+        }
+
+        private async void LoadItemAtlas()
+        {
+            const string path = "ItemAtlas";
+
+            var handle = Addressables.LoadAssetAsync<SpriteAtlas>(path);
+            try
+            {
+                _itemAtlas = await handle.Task;
+
+                if (_itemAtlas == null)
+                {
+                    Debug.LogError($"[AssetManager] '{path}' 경로에서 찾을 수 없습니다.");
+                    return;
+                }
+
+                Debug.Log($"[AssetManager] path - 로드 완료");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[AssetManager] path 로드 실패: {e.Message}");
+            }
         }
     }
 }

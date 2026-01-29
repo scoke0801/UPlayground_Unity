@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Manager;
 
 /// <summary>
 /// 일시정지 메뉴 UI

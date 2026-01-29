@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a06f79b0b62433e920de336b94d98b2, type: 3}
-  m_Name: PlayerAnimationSet
+  m_Name: CommonAnimationSet
   m_EditorClassIdentifier: 
   _animationList:
   - key: 1
@@ -67,39 +67,6 @@ MonoBehaviour:
         _Callbacks: []
         _Names: []
       _Clip: {fileID: 3908558859111342281, guid: f3993738d45f04a4a979f0a5cd582298, type: 3}
-      _NormalizedStartTime: NaN
-  - key: 100
-    animLayer: 0
-    Transition:
-      _FadeDuration: 0.25
-      _Speed: 1
-      _Events:
-        _NormalizedTimes: []
-        _Callbacks: []
-        _Names: []
-      _Clip: {fileID: -7827197647212710141, guid: 582f79a05bb86a34db56c59e7991d8e3, type: 3}
-      _NormalizedStartTime: NaN
-  - key: 101
-    animLayer: 0
-    Transition:
-      _FadeDuration: 0.25
-      _Speed: 1
-      _Events:
-        _NormalizedTimes: []
-        _Callbacks: []
-        _Names: []
-      _Clip: {fileID: -464222362278845334, guid: 29d698e35b3fd854ebc8256ab8f45a5e, type: 3}
-      _NormalizedStartTime: NaN
-  - key: 102
-    animLayer: 0
-    Transition:
-      _FadeDuration: 0.25
-      _Speed: 1
-      _Events:
-        _NormalizedTimes: []
-        _Callbacks: []
-        _Names: []
-      _Clip: {fileID: -3509401035045466793, guid: 0926d52c0815eaf4ea052ed87f590e85, type: 3}
       _NormalizedStartTime: NaN
   - key: 103
     animLayer: 0

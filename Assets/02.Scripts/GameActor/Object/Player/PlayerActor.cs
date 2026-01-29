@@ -8,6 +8,7 @@ using UPlayGround.GameActor.Component;
 using UPlayGround.GameActor.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.GameActor
 {

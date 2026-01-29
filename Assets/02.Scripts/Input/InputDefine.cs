@@ -40,6 +40,7 @@
     public static class UIAction
     {   
         public const string Inventory = "Inventory";
+        public const string EquipInventory = "EquipInventory";
         
         public const string Submit = "Submit";
         public const string Cancel = "Cancel";

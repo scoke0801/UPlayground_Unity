@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Manager;
 
 /// <summary>
 /// 모든 UI의 기본 클래스
@@ -103,6 +104,8 @@ public abstract class UI_Base : MonoBehaviour
         gameObject.SetActive(true);
         IsVisible = true;
 
+        RegisterInputEvents();
+        
         OnShow();
     }
 
@@ -112,6 +115,9 @@ public abstract class UI_Base : MonoBehaviour
     public void Hide()
     {
         IsVisible = false;
+        
+        UnRegisterInputEvents();
+        
         OnHide();
         if(this.gameObject != null)
         {
@@ -134,6 +140,15 @@ public abstract class UI_Base : MonoBehaviour
 
     #region 추상/가상 메서드 (상속 클래스에서 구현)
 
+    protected virtual void RegisterInputEvents()
+    {
+        
+    }
+
+    protected virtual void UnRegisterInputEvents()
+    {
+        
+    }
     /// <summary>
     /// 초기화 로직 구현
     /// </summary>

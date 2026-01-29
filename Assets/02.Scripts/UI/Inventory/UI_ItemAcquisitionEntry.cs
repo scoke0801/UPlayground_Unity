@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UPlayGround.Manager;
 
 public class UI_ItemAcquisitionEntry : UI_Base
 {

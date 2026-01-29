@@ -1,38 +1,42 @@
 ﻿using UnityEngine;
 
-public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
+namespace UPlayGround.Manager
 {
-    private GameObject _player;
-    
-    public GameObject Player => _player;
-    
-    public delegate void Interaction();
-    public event Interaction OnInteractionOn;
-    public event Interaction OnInteractionOut;
-    public void OnStartInteraction() => OnInteractionOn?.Invoke();
-    public void OnEndInteraction() => OnInteractionOut?.Invoke();
-
-    public void Init()
+    public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
     {
-        _player = GameObject.FindWithTag("Player");
+        private GameObject _player;
 
-        LoadFXPrefabDatabase();
-        LoadWeaponPrefabDatabase();
-    }
+        public GameObject Player => _player;
 
-    public void Dispose()
-    {
-    }
+        public delegate void Interaction();
 
-    public void OnUpdate()
-    {
-    }
+        public event Interaction OnInteractionOn;
+        public event Interaction OnInteractionOut;
+        public void OnStartInteraction() => OnInteractionOn?.Invoke();
+        public void OnEndInteraction() => OnInteractionOut?.Invoke();
 
-    public void OnFixedUpdate()
-    {
-    }
+        public void Init()
+        {
+            _player = GameObject.FindWithTag("Player");
 
-    public void OnLateUpdate()
-    {
+            LoadFXPrefabDatabase();
+            LoadWeaponPrefabDatabase();
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void OnUpdate()
+        {
+        }
+
+        public void OnFixedUpdate()
+        {
+        }
+
+        public void OnLateUpdate()
+        {
+        }
     }
 }

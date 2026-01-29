@@ -41,7 +41,8 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "Arrow_1",
-            weaponType = WeaponType.Arrow
+            weaponType = WeaponType.Arrow,
+            equipPosition = EquipPosition.LeftHand,
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
@@ -52,7 +53,9 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "Staff_1",
-            weaponType = WeaponType.Staff
+            weaponType = WeaponType.Staff,
+            equipPosition = EquipPosition.RightHand,
+            
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
@@ -63,7 +66,8 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "Bow_1",
-            weaponType = WeaponType.Bow
+            weaponType = WeaponType.Bow,
+            equipPosition = EquipPosition.RightHand,
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
@@ -74,7 +78,8 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "GreatSword_1",
-            weaponType = WeaponType.GreatSword
+            weaponType = WeaponType.GreatSword,
+            equipPosition = EquipPosition.RightHand,
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
@@ -85,7 +90,8 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "Shield_1",
-            weaponType = WeaponType.Shield
+            weaponType = WeaponType.Shield,
+            equipPosition = EquipPosition.LeftHand,
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
@@ -96,7 +102,8 @@ public class UI_EquipInventory : UI_Base
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
             weaponKey =  "Sword_1",
-            weaponType = WeaponType.Sword
+            weaponType = WeaponType.Sword,
+            equipPosition = EquipPosition.RightHand,
         };
         
         EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);

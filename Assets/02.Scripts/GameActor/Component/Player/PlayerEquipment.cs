@@ -71,21 +71,37 @@ namespace UPlayGround.GameActor.Component
             {
                 return;
             }
-            
-            EquipWeapon(data.weaponKey);
+
+            if (data.equipPosition == EquipPosition.LeftHand)
+            {
+                SetLeftWeaponType(data.weaponType);
+            }
+            else if (data.equipPosition == EquipPosition.RightHand)
+            {
+                SetRightWeaponType(data.weaponType);
+            }
+            EquipWeapon(data.weaponKey, data.equipPosition);
         }
 
         /// <summary>
         /// 특정 무기 장착 (아이템 시스템 연동)
         /// </summary>
-        public void EquipWeapon(string itemKey)
+        public void EquipWeapon(string itemKey, EquipPosition equipPosition)
         {
             GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
 
+            ParentConstraint constraint = null;
+            switch (equipPosition)
+            {
+                case EquipPosition.LeftHand: constraint = _leftConstraint; break;
+                case EquipPosition.RightHand: constraint = _rightConstraint; break;
+                default: return;
+            }
+            
             if (newWeapon != null)
             {
                 // 1. 부모 설정: swordConstraint가 붙은 오브젝트의 자식으로 설정
-                newWeapon.transform.SetParent(greatSwordRightConstraint.transform, false);
+                newWeapon.transform.SetParent(constraint.transform, false);
 
                 // 2. 위치 및 회전 초기화: 부모 오브젝트(Sword)의 위치에 딱 맞게 정렬
                 newWeapon.transform.localPosition = Vector3.zero;

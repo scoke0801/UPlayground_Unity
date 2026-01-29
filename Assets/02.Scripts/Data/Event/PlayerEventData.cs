@@ -7,5 +7,7 @@ namespace UPlayGround.Data.Event
         public WeaponType weaponType;
         public string weaponKey;
         public bool isEquip;
+        
+        public EquipPosition equipPosition;
     }
 }

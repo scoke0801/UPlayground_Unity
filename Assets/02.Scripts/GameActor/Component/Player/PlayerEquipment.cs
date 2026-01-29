@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enum;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 
 namespace UPlayGround.GameActor.Component
@@ -46,6 +48,32 @@ namespace UPlayGround.GameActor.Component
         
         private ParentConstraint _leftConstraint;
         private ParentConstraint _rightConstraint;
+
+        private void Start()
+        {
+            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
+                PlayerEvent.ChangeWeapon, 
+                OnWeaponChanged
+            );
+        }
+
+        private void OnDestroy()
+        {        
+            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
+                PlayerEvent.ChangeWeapon, 
+                OnWeaponChanged
+            );
+        }
+
+        private void OnWeaponChanged(PlayerEquipChangeEvent data)
+        {
+            if (data == null)
+            {
+                return;
+            }
+            
+            EquipWeapon(data.weaponKey);
+        }
 
         /// <summary>
         /// 특정 무기 장착 (아이템 시스템 연동)

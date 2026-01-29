@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Data.Enum;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -36,26 +38,68 @@ public class UI_EquipInventory : UI_Base
     #region ButtonCallback
     private void OnClickedEquipArrow()
     {
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "Arrow_1",
+            weaponType = WeaponType.Arrow
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
 
     private void OnClickedEquipStaff()
-    {
+    {        
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "Staff_1",
+            weaponType = WeaponType.Staff
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
 
     private void OnClickedEquipBow()
     {
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "Bow_1",
+            weaponType = WeaponType.Bow
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
 
     private void OnClickedEquipGreatSword()
     {
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "GreatSword_1",
+            weaponType = WeaponType.GreatSword
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
 
     private void OnClickedEquipShield()
     {
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "Shield_1",
+            weaponType = WeaponType.Shield
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
 
     private void OnClickedEquipSword()
     {
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            weaponKey =  "Sword_1",
+            weaponType = WeaponType.Sword
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.ChangeWeapon, eventData);
     }
     #endregion
 }

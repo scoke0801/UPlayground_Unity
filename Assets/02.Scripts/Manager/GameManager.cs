@@ -49,6 +49,7 @@ namespace UPlayGround.Manager
             RegisterManager(GameObjectManager.Instance);
             RegisterManager(ItemManager.Instance);
             RegisterManager(InventoryManager.Instance);
+            RegisterManager(EventManager.Instance);
             
             RegisterManager(SceneManager.Instance);
             

@@ -51,6 +51,10 @@ namespace UPlayGround.GameActor.State
             {
                 animState.OwnedEvents.OnEnd = ChangeToNextState;
             }
+            else
+            {
+                ChangeToNextState();
+            }
         }
 
         public override void OnExit(GameActorState toState)
@@ -122,7 +126,7 @@ namespace UPlayGround.GameActor.State
 
             _currentAttack = (_isHeavyAttack) ? _combat.ExecuteHeavyAttack() : _combat.ExecuteAttack();
 
-            return _currentAttack.animKey;
+            return _currentAttack?.animKey ?? AnimKey.None;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

@@ -41,6 +41,10 @@ namespace UPlayGround.Manager
         {
             Debug.Log("[InputManager] 정리 시작");
 
+            startCallbackDict.Clear();
+            performCallbackDict.Clear();
+            cancelCallbackDict.Clear();
+            
             Debug.Log("[InputManager] 정리 완료");
         }
 

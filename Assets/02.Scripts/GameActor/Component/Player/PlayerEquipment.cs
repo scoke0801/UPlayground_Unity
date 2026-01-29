@@ -35,20 +35,27 @@ namespace UPlayGround.GameActor.Component
         
         [Header("Arrow")]
         [SerializeField]  private ParentConstraint arrowLeftConstraint;
-
         
+        private WeaponType _leftWeaponType = WeaponType.NoWeapon;
+
+        private WeaponType _rightWeaponType = WeaponType.NoWeapon;
+        
+        private ParentConstraint _leftConstraint = null;
+        private ParentConstraint _rightConstraint = null;
+
+        // 가지고 있는 무기
+        private GameObject _currentRightWeaponObj = null;
+        private GameObject _currentLeftWeaponObj = null;
+
         // 현재 장착 상태
         public bool IsRightWeaponEquipped { get; private set; }
         public bool IsLeftWeaponEquipped { get; private set; }
+        
+        // [TODO] 실제 Data로 가져올 수 있어야 하겠지만 우선은 단독 데이터로 관리하는 상태
         public WeaponData CurrentWeapon { get; private set; }
 
-        private WeaponType _leftWeaponType = WeaponType.Shield;
-
-        private WeaponType _rightWeaponType = WeaponType.Sword;
-        
-        private ParentConstraint _leftConstraint;
-        private ParentConstraint _rightConstraint;
-
+        public WeaponType GetLeftWeaponType() => _leftWeaponType;
+        public WeaponType GetRightWeaponType() => _rightWeaponType;
         private void Start()
         {
             EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
@@ -58,7 +65,10 @@ namespace UPlayGround.GameActor.Component
         }
 
         private void OnDestroy()
-        {        
+        {
+            if (EventManager.Instance == null)
+                return;
+            
             EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
                 PlayerEvent.ChangeWeapon, 
                 OnWeaponChanged
@@ -88,13 +98,21 @@ namespace UPlayGround.GameActor.Component
         /// </summary>
         public void EquipWeapon(string itemKey, EquipPosition equipPosition)
         {
+            DestroyEquippedWeapon(equipPosition);
+            
             GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
 
             ParentConstraint constraint = null;
             switch (equipPosition)
             {
-                case EquipPosition.LeftHand: constraint = _leftConstraint; break;
-                case EquipPosition.RightHand: constraint = _rightConstraint; break;
+                case EquipPosition.LeftHand: 
+                    constraint = _leftConstraint;
+                    _currentLeftWeaponObj = newWeapon;
+                    break;
+                case EquipPosition.RightHand: 
+                    constraint = _rightConstraint;
+                    _currentRightWeaponObj = newWeapon;
+                    break;
                 default: return;
             }
             
@@ -196,7 +214,26 @@ namespace UPlayGround.GameActor.Component
             _leftConstraint.SetSource(0, rightHand);
             _leftConstraint.SetSource(1, back);
         }
-        
+
+        private void DestroyEquippedWeapon(EquipPosition equipPosition)
+        {
+            if (equipPosition == EquipPosition.LeftHand)
+            {
+                if (_currentLeftWeaponObj != null)
+                {
+                    Destroy(_currentLeftWeaponObj);
+                    _currentLeftWeaponObj = null;
+                }
+            }
+            else if (equipPosition == EquipPosition.RightHand)
+            {
+                if (_currentRightWeaponObj != null)
+                {
+                    Destroy(_currentRightWeaponObj);
+                    _currentRightWeaponObj = null;
+                }
+            }
+        }
     }
 
 }

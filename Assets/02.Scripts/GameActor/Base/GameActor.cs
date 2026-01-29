@@ -12,14 +12,13 @@ namespace UPlayGround.GameActor.Base
         protected ActorMovementController MovementController;
         protected ActorAnimator _animator;
         
-        public ActorAnimator Animator => _animator;
+        public virtual ActorAnimator Animator => _animator;
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
 
         protected virtual void Awake()
         {
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponent<ActorAnimator>();
-            
             if (_animator != null)
             {
                 _animator.Init(this);

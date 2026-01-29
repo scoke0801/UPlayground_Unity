@@ -9,14 +9,14 @@ namespace UPlayGround.GameActor.Animation
     {
         [SerializeField] private ActorAnimationSet _animationSet;
         
-        private AnimancerComponent _animator;
+        protected AnimancerComponent _animator;
 
-        private Base.GameActor _actor;
+        protected Base.GameActor _actor;
         
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
         
-        public void Init(Base.GameActor actor)
+        public virtual void Init(Base.GameActor actor)
         {
             _animator = GetComponent<AnimancerComponent>();
             _actor = actor;
@@ -25,7 +25,7 @@ namespace UPlayGround.GameActor.Animation
             _animator.Layers[0].ApplyAnimatorIK = true;
         }
 
-        public AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0.0f)
+        public virtual AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0.0f)
         {
             ClipTransition transition = _animationSet.GetClipTransition(key);
             if (transition == null)
@@ -39,7 +39,7 @@ namespace UPlayGround.GameActor.Animation
         /// <summary>
         /// 특정 AnimKey의 AnimationClip duration 가져오기
         /// </summary>
-        public float GetAnimationDuration(AnimKey key)
+        public virtual float GetAnimationDuration(AnimKey key)
         {
             var clip = _animationSet.GetAnimationClip(key);
             

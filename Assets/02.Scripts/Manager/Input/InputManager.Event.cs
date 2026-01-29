@@ -10,7 +10,7 @@ namespace UPlayGround.Manager
     /// </summary>
     public partial class InputManager : BaseManager<InputManager>, IManager
     {
-// InputCallbackKey를 값 비교가 가능하도록 readonly struct로 변경 (권장)
+        
         private readonly struct InputCallbackKey : IEquatable<InputCallbackKey>
         {
             public readonly string ActionMapName;

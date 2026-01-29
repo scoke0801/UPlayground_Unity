@@ -109,37 +109,37 @@ MonoBehaviour:
     weaponType: 4
     equipPosition: 2
   - key: Bow_1
-    prefab: {fileID: 7391259195251517037, guid: d70d5885dc167c944a04bcd51ef0192b, type: 3}
+    prefab: {fileID: 1946058857605698109, guid: fa0b3b1344cabd3449b30450fa2274d5, type: 3}
     description: 
     weaponType: 5
     equipPosition: 2
   - key: Bow_2
-    prefab: {fileID: 2440309838855612882, guid: 781681ce461e8934ebd2df6d19af6eda, type: 3}
+    prefab: {fileID: 1946058857605698109, guid: 4cdc32768aed9cf4cb49e2892e33a208, type: 3}
     description: 
     weaponType: 5
     equipPosition: 2
   - key: Bow_3
-    prefab: {fileID: 5084944294077558170, guid: a04e1db6e1e93974bbc561cc968d74ea, type: 3}
+    prefab: {fileID: 1946058857605698109, guid: a339850706e555b40b69c04718aeef05, type: 3}
     description: 
     weaponType: 0
     equipPosition: 2
   - key: Bow_4
-    prefab: {fileID: 7354970500527499257, guid: 78d6c9bd2a4e41b47b91fa12e84ba908, type: 3}
+    prefab: {fileID: 1946058857605698109, guid: a12cb0dbfc5fd7546856b25689e8d74f, type: 3}
     description: 
     weaponType: 5
     equipPosition: 2
   - key: Arrow_1
-    prefab: {fileID: 1440157380156977189, guid: 66559cb0440315545a0b7791d12467dc, type: 3}
+    prefab: {fileID: 4062278187227898049, guid: bb73d69521da7c94381a1df738e6481b, type: 3}
     description: 
     weaponType: 6
     equipPosition: 1
   - key: Arrow_2
-    prefab: {fileID: 7561779493595026610, guid: 8d21c82dc02bf284198057fcb7254998, type: 3}
+    prefab: {fileID: 4062278187227898049, guid: 2744f555ef6099f428e0c981a3d84c67, type: 3}
     description: 
     weaponType: 6
     equipPosition: 1
   - key: Arrow_3
-    prefab: {fileID: 5121073887911271839, guid: 892cda470aa0f93488381619adb48fbb, type: 3}
+    prefab: {fileID: 4062278187227898049, guid: 4f6557932fabfce41afc54c5e0435a66, type: 3}
     description: 
     weaponType: 6
     equipPosition: 1

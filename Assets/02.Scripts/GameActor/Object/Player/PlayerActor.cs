@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
+using UPlayGround.GameActor.Animation;
 using UPlayGround.GameActor.Component;
 using UPlayGround.GameActor.MovementController;
 using UPlayGround.Input;
@@ -19,7 +20,9 @@ namespace UPlayGround.GameActor
     {
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
-
+        private PlayerActorAnimator _playerActorAnimator;
+        
+        public override ActorAnimator Animator => _playerActorAnimator;
         #region Mono
         protected override void Awake()
         {
@@ -28,6 +31,8 @@ namespace UPlayGround.GameActor
             _camera = Camera.main;
             PlayerMovementController = MovementController as PlayerMovementController;
 
+            _playerActorAnimator = _animator as PlayerActorAnimator;
+            
             InitComponents();
             
             RegisterInputEvents();
@@ -291,8 +296,8 @@ namespace UPlayGround.GameActor
     public partial class PlayerActor : Base.GameActor
     {
         // 추가 컴포넌트
-        private PlayerEquipment _equipment;
-        private PlayerCombat _combat;
+        [SerializeField] private PlayerEquipment _equipment;
+        [SerializeField] private PlayerCombat _combat;
         
         public PlayerEquipment GetPlayerEquipment() { return _equipment; }
         public PlayerCombat GetCombat() { return _combat; }
@@ -302,13 +307,10 @@ namespace UPlayGround.GameActor
 
         private void InitComponents()
         {
-            _equipment = GetComponent<PlayerEquipment>();
-            _combat = GetComponent<PlayerCombat>();
-            
-            _equipment.SetLeftWeaponType(WeaponType.Shield);
-            _equipment.SetRightWeaponType(WeaponType.Sword);
-
-            StartCoroutine(EquipWeapon());
+            // _equipment.SetLeftWeaponType(WeaponType.Shield);
+            // _equipment.SetRightWeaponType(WeaponType.Sword);
+            //
+            // StartCoroutine(EquipWeapon());
         }
 
         private IEnumerator EquipWeapon()

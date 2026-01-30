@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f81c7e57b0cef4297c08f093b9ee22, type: 3}
+  m_Name: GreatSword_005
+  m_EditorClassIdentifier: 
+  itemId: 4005
+  itemName: "\uB300\uAC80_5"
+  itemDescription: 
+  weight: 0
+  itemType: 1
+  itemRarity: 1
+  icon: {fileID: 21300000, guid: aa541c546ddade546b6751fce1d42825, type: 3}
+  equipSlot: 2
+  equipmentPrefab: {fileID: 452046738407645699, guid: bf824834a88854d4399012a642287b51, type: 3}
+  weaponType: 3

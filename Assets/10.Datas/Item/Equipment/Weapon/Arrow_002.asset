@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f81c7e57b0cef4297c08f093b9ee22, type: 3}
+  m_Name: Arrow_002
+  m_EditorClassIdentifier: 
+  itemId: 6002
+  itemName: "\uD654\uC0B4_2"
+  itemDescription: 
+  weight: 0
+  itemType: 1
+  itemRarity: 1
+  icon: {fileID: 21300000, guid: 11d4a82cca1e0934492797521e494925, type: 3}
+  equipSlot: 2
+  equipmentPrefab: {fileID: 4062278187227898049, guid: 2744f555ef6099f428e0c981a3d84c67, type: 3}
+  weaponType: 6

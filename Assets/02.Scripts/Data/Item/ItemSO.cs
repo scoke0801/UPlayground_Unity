@@ -1,16 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Enum;
 
 [CreateAssetMenu(fileName = "ItemSO", menuName = "UP/SO/ItemSO")]
 public class ItemSO : ScriptableObject
 {
+    [Header("Base Data")]
     public int itemId;
     public string itemName;
     public string itemDescription;
     public float weight;
     public ItemType itemType;
     public ItemRarity itemRarity;
+    public Sprite icon;
 }
+
 
 // 아이템 
 [System.Serializable]

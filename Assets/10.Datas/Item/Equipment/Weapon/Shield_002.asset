@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f81c7e57b0cef4297c08f093b9ee22, type: 3}
+  m_Name: Shield_002
+  m_EditorClassIdentifier: 
+  itemId: 2002
+  itemName: "\uBC29\uD328_2"
+  itemDescription: 
+  weight: 0
+  itemType: 1
+  itemRarity: 1
+  icon: {fileID: 21300000, guid: a68ff2f90d5b4334dae5de41eb32b7fc, type: 3}
+  equipSlot: 1
+  equipmentPrefab: {fileID: 3762241545012656992, guid: 68601bb6ae62b2d4cba112a05ff34121, type: 3}
+  weaponType: 2

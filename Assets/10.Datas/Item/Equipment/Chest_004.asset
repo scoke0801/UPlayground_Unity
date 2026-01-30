@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f81c7e57b0cef4297c08f093b9ee22, type: 3}
+  m_Name: Chest_004
+  m_EditorClassIdentifier: 
+  itemId: 204
+  itemName: "\uC0C1\uC758_4"
+  itemDescription: 
+  weight: 0
+  itemType: 1
+  itemRarity: 1
+  icon: {fileID: 21300000, guid: 125bbc88ea24a594c980c843bfbb1bfd, type: 3}
+  equipSlot: 4
+  equipmentPrefab: {fileID: 0}

@@ -132,9 +132,9 @@ public class ActorScreenshotTool : EditorWindow
         if (EditorGUI.EndChangeCheck())
         {
             if (sourceActor != null)
-            {
+            {   
                 CreatePreviewInstance();
-                //ResetTransform();
+                ResetTransform();
                 UpdatePreview();
             }
             else
@@ -360,6 +360,10 @@ public class ActorScreenshotTool : EditorWindow
     private void UpdatePreview()
     {
         if (previewInstance == null || renderCamera == null) return;
+        
+        // 기존 인스턴스 삭제하고 새로 생성
+        CreatePreviewInstance();
+        ApplyActorTransform();
         
         RenderToTexture(imageWidth, imageHeight, ref previewTexture);
         Repaint();

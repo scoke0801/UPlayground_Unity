@@ -57,7 +57,7 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
             _rootContent.SetActive(true);
             _rootEmptySlot.SetActive(false);
             _imgRarity.sprite = AssetManager.Instance.GetAtlas(_itemInstance.data.itemRarity.ToString());
-            _imgItem.sprite = AssetManager.Instance.GetAtlas(_itemInstance.data.itemId.ToString());
+            _imgItem.sprite = _itemInstance.data.icon;
             _txtCount.text = _itemInstance.count.ToString();
             _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemInstance.data.itemId):0.0}";
         }

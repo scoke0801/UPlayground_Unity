@@ -22,7 +22,7 @@ public class UI_Inventory : UI_Base
     [SerializeField] private CharacterPreviewRenderer _previewRenderer;
 
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
-    private int itemMaximumValue = 50;
+    private int itemMaximumValue = 250;
 
     public GameObject _itemClickTap;
     

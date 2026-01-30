@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UPlayGround.Data.Path;
 
 namespace UPlayGround.Manager
 {
@@ -87,6 +89,24 @@ namespace UPlayGround.Manager
             }
 
             return weight;
+        }
+
+        public void MakeTestItems()
+        {
+            ItemDatabase itemDB = ItemManager.Instance.GetItemDB();
+            if (itemDB == null)
+            {
+                return;
+            }
+
+            foreach (var itemSO in itemDB.AllItems)
+            {
+                AddItem(itemSO.itemId, new ItemInstance()
+                {
+                    count = 1,
+                    data = itemSO
+                });
+            }
         }
     }
 }

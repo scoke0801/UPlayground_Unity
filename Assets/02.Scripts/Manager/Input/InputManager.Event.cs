@@ -131,7 +131,7 @@ namespace UPlayGround.Manager
                 var data = callbackList[i];
 
                 // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
-                if (data.Layer < CurrentLayer)
+                if (data.Layer != InputLayer.None && data.Layer < CurrentLayer)
                 {
                     continue;
                 }
@@ -194,8 +194,9 @@ namespace UPlayGround.Manager
                     for (int i = 0; i < list.Count; i++)
                     {
                         var data = list[i];
+                        bool layerCondition = data.Layer != InputLayer.None && data.Layer < CurrentLayer;
                         // 현재 레이어보다 낮은 레이어이면서, 아직 이번 턴에 실행되지 않은 CancelCallback만 실행
-                        if (data.Layer < CurrentLayer && data.CancelCallback != null)
+                        if (layerCondition && data.CancelCallback != null)
                         {
                             if (executedCancels.Add(data.CancelCallback))
                             {

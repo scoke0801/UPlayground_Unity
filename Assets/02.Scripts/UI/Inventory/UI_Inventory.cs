@@ -16,19 +16,42 @@ public class UI_Inventory : UI_Base
     [SerializeField] private Transform _content;
     [SerializeField] private Image _imgWeightFill;
     [SerializeField] private TextMeshProUGUI _txtWeight;
-   
+
+    [Header("Slot Setting")]
+    [SerializeField] private int _slotCountPerRow = 5;
+    [SerializeField] private int _startRowCount = 10;
+    
     [Header("Character Preview")]
     [SerializeField] private RawImage _characterPreview;
-    [SerializeField] private CharacterPreviewRenderer _previewRenderer;
+    [SerializeField] private UICharacterPreviewRenderer _previewRenderer;
 
+    [Header("Equipment Slot")] 
+    [SerializeField] private UI_InventorySlot _headSlot;
+    [SerializeField] private UI_InventorySlot _chestSlot;
+    [SerializeField] private UI_InventorySlot _pantSlot;
+    [SerializeField] private UI_InventorySlot _shoesSlot;
+    [SerializeField] private UI_InventorySlot _glovesSlot;
+    
+    [SerializeField] private UI_InventorySlot _leftHandSlot;
+    [SerializeField] private UI_InventorySlot _rightHandSlot;
+    
+    
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
-    private int itemMaximumValue = 250;
+    private int itemMaximumValue = 50;
 
     public GameObject _itemClickTap;
     
     private void Awake()
     {
         Init();
+        
+        _headSlot.SetParent(this);
+        _chestSlot.SetParent(this);
+        _pantSlot.SetParent(this);
+        _shoesSlot.SetParent(this);
+        _glovesSlot.SetParent(this);
+        _leftHandSlot.SetParent(this);
+        _rightHandSlot.SetParent(this);
         
         // RenderTexture 연결
         if (_previewRenderer != null && _characterPreview != null)
@@ -47,6 +70,13 @@ public class UI_Inventory : UI_Base
         {
             _previewRenderer.ShowPreview();
         }
+    }
+
+    public override bool PerformBackFunction()
+    {
+        // ESC 키 입력 시 닫는다.
+        Hide();
+        return false;
     }
 
     protected override void OnHide()
@@ -86,12 +116,7 @@ public class UI_Inventory : UI_Base
     
     private void Init()
     {
-        for (int i = 0; i < itemMaximumValue; ++i)
-        {
-            var go = Instantiate(_itemPanelPrefab, _content);
-            _uiSlots.Add(go);
-            _uiSlots[i].SetParent(this);
-        }
+        AddSlot(_startRowCount);
     }
 
     private void RefreshDictItem()
@@ -99,7 +124,24 @@ public class UI_Inventory : UI_Base
         int value = 0;
         foreach (var item in InventoryManager.Instance.ItemDict)
         {
-            _uiSlots[value++].Init(item.Value);
+            if (_uiSlots.Count <= value + 1)
+            {
+                AddSlot(1);
+            }
+            _uiSlots[value++].Init(item.Value.data, item.Value.count);
+        }
+    }
+
+    private void AddSlot(int count)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            for (int j = 0; j < _slotCountPerRow; ++j)
+            {
+                var go = Instantiate(_itemPanelPrefab, _content);
+                _uiSlots.Add(go);
+                go.SetParent(this);
+            }
         }
     }
 }

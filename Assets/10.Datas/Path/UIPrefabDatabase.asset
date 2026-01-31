@@ -45,3 +45,7 @@ MonoBehaviour:
     prefab: {fileID: 7536968844855242414, guid: fdd59260e9ce7064abb6f094b7896995, type: 3}
     defaultLayer: 1000
     description: 
+  - key: ItemPopup
+    prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
+    defaultLayer: 2000
+    description: 

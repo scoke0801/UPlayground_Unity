@@ -35,6 +35,12 @@ public class UI_EquipInventory : UI_Base
     {
     }
 
+    public override bool PerformBackFunction()
+    {
+        // ESC 키 입력 시 닫는다.
+        Hide();
+        return false;
+    }
     #region ButtonCallback
     private void OnClickedEquipArrow()
     {

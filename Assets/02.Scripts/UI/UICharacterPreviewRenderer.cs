@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 인벤토리 UI용 캐릭터 프리뷰 렌더러
 /// </summary>
-public class CharacterPreviewRenderer : MonoBehaviour
+public class UICharacterPreviewRenderer : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera _previewCamera;

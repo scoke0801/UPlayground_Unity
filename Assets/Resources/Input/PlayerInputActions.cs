@@ -465,7 +465,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             ""id"": ""ba9bdc69-e961-4a86-9627-eb5c1131cee3"",
             ""actions"": [
                 {
-                    ""name"": ""Pause"",
+                    ""name"": ""Back"",
                     ""type"": ""Button"",
                     ""id"": ""c62fef29-6c47-4843-b078-733880ee4629"",
                     ""expectedControlType"": """",
@@ -509,7 +509,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Pause"",
+                    ""action"": ""Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -800,7 +800,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
-        m_System_Pause = m_System.FindAction("Pause", throwIfNotFound: true);
+        m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
         m_System_ShowCursor = m_System.FindAction("ShowCursor", throwIfNotFound: true);
         m_System_Submit = m_System.FindAction("Submit", throwIfNotFound: true);
         m_System_Cancel = m_System.FindAction("Cancel", throwIfNotFound: true);
@@ -1157,7 +1157,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     // System
     private readonly InputActionMap m_System;
     private List<ISystemActions> m_SystemActionsCallbackInterfaces = new List<ISystemActions>();
-    private readonly InputAction m_System_Pause;
+    private readonly InputAction m_System_Back;
     private readonly InputAction m_System_ShowCursor;
     private readonly InputAction m_System_Submit;
     private readonly InputAction m_System_Cancel;
@@ -1173,9 +1173,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public SystemActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "System/Pause".
+        /// Provides access to the underlying input action "System/Back".
         /// </summary>
-        public InputAction @Pause => m_Wrapper.m_System_Pause;
+        public InputAction @Back => m_Wrapper.m_System_Back;
         /// <summary>
         /// Provides access to the underlying input action "System/ShowCursor".
         /// </summary>
@@ -1214,9 +1214,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_SystemActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_SystemActionsCallbackInterfaces.Add(instance);
-            @Pause.started += instance.OnPause;
-            @Pause.performed += instance.OnPause;
-            @Pause.canceled += instance.OnPause;
+            @Back.started += instance.OnBack;
+            @Back.performed += instance.OnBack;
+            @Back.canceled += instance.OnBack;
             @ShowCursor.started += instance.OnShowCursor;
             @ShowCursor.performed += instance.OnShowCursor;
             @ShowCursor.canceled += instance.OnShowCursor;
@@ -1237,9 +1237,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="SystemActions" />
         private void UnregisterCallbacks(ISystemActions instance)
         {
-            @Pause.started -= instance.OnPause;
-            @Pause.performed -= instance.OnPause;
-            @Pause.canceled -= instance.OnPause;
+            @Back.started -= instance.OnBack;
+            @Back.performed -= instance.OnBack;
+            @Back.canceled -= instance.OnBack;
             @ShowCursor.started -= instance.OnShowCursor;
             @ShowCursor.performed -= instance.OnShowCursor;
             @ShowCursor.canceled -= instance.OnShowCursor;
@@ -1596,12 +1596,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     public interface ISystemActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPause(InputAction.CallbackContext context);
+        void OnBack(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "ShowCursor" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

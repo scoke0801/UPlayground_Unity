@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
@@ -60,12 +61,16 @@ namespace UPlayGround.Manager
             CreateCanvasLayers();
             LoadUIPrefabDatabase();
 
+            RegisterInputEvents();
+            
             Debug.Log("[UIManager] 초기화 완료");
         }
 
         public void Dispose()
         {
             Debug.Log("[UIManager] 정리 시작");
+
+            UnRegisterInputEvents();
 
             // 모든 활성 UI 제거 (UI_Base 먼저 정리)
             foreach (var ui in _activeUIComponents.Values)
@@ -91,7 +96,6 @@ namespace UPlayGround.Manager
 
             Debug.Log("[UIManager] 정리 완료");
         }
-
         public void OnUpdate()
         {
         }
@@ -574,5 +578,59 @@ namespace UPlayGround.Manager
         }
 
         #endregion
+        private void RegisterInputEvents()
+        {
+            InputManager.Instance.RegisterInputEvent(InputMapNames.System, SystemAction.Back,
+                null, OnPerformedBack, null, null, null, InputLayer.None);
+        }
+
+        private void UnRegisterInputEvents()
+        {
+            if (InputManager.Instance == null)
+            {
+                return;
+            }
+            
+            InputManager.Instance.UnRegisterInputEvent(InputMapNames.System, SystemAction.Back,
+                null, OnPerformedBack, null);
+
+        }
+
+        private void OnPerformedBack(InputAction.CallbackContext obj)
+        {
+            Debug.Log("OnPerformedBack");
+            // 열린 UI 중 상위 UI 처리
+            var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
+            for (int i = layers.Length - 1; i >= 0; i--)
+            {
+                var layer = layers[i];
+
+                if (_canvasDictionary.TryGetValue(layer, out Canvas canvas) == false)
+                {
+                    continue;
+                }
+                for (int childIndex = canvas.transform.childCount - 1; childIndex >= 0; childIndex--)
+                {
+                    Transform child = canvas.transform.GetChild(childIndex);
+                    UI_Base uiBase = child.GetComponentInChildren<UI_Base>();
+            
+                    if (uiBase != null && uiBase.IsVisible)
+                    {
+                        if (uiBase.IsCanCloseWithEsc == false)
+                        {
+                            continue;
+                        }
+                        
+                        bool shouldContinue = uiBase.PerformBackFunction();
+                        if (!shouldContinue)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            
+        }
+
     }
 }

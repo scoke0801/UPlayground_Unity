@@ -5,7 +5,7 @@ using TMPro;
 /// <summary>
 /// 간단한 팝업 UI 예시
 /// </summary>
-public class UI_Popup : UI_Base
+public class UI_CommonPopup : UI_Base
 {
     [Header("UI 컴포넌트")]
     [SerializeField] private TextMeshProUGUI _titleText;

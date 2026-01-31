@@ -34,7 +34,7 @@
     public static class SystemAction
     {   
         public const string ShowCursor = "ShowCursor";
-        public const string Pause = "Pause";
+        public const string Back = "Back";
     }
     
     public static class UIAction

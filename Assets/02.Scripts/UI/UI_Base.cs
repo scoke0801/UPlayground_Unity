@@ -43,6 +43,7 @@ public abstract class UI_Base : MonoBehaviour
     /// </summary>
     [SerializeField] protected bool _canCloseWithEsc = true;
 
+    public bool IsCanCloseWithEsc => _canCloseWithEsc;
     #endregion
 
     #region Unity 생명주기
@@ -148,6 +149,12 @@ public abstract class UI_Base : MonoBehaviour
     protected virtual void UnRegisterInputEvents()
     {
         
+    }
+
+    public virtual bool PerformBackFunction()
+    {
+        Hide();
+        return true;
     }
     /// <summary>
     /// 초기화 로직 구현

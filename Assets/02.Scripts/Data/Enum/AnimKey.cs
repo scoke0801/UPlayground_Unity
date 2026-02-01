@@ -48,9 +48,17 @@ namespace UPlayGround.Data.Enum
         HeavyAttack_9,
         HeavyAttack_10,
         
-        DashAttack = 300,
+        DashAttack_1 = 300,
+        DashAttack_2,
+        DashAttack_3,
+        DashAttack_4,
+        DashAttack_5,
         
-        JumpAttack = 400,
+        JumpAttack_1 = 400,
+        JumpAttack_2,
+        JumpAttack_3,
+        JumpAttack_4,
+        JumpAttack_5,
         
         Skill_1 = 500,
         Skill_2,

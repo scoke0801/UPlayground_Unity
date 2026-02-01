@@ -60,7 +60,24 @@ namespace UPlayGround.GameActor.State
                 playerController.TransitionToState(new PlayerIdleState(controller));
                 return;
             }
+            
+            if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
+            {
+                if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
+                {
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    return;
+                }
 
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (!playerController.HasSkillInput(i)) continue;
+
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    return;
+                }
+            }
+            
             if (_cachedAnimType != gameActor.MoveAnimType)
             {
                 _cachedAnimType = gameActor.MoveAnimType;

@@ -176,7 +176,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 5051555495588477258, guid: ee4517fc259769b49bd7377a6f58df2f, type: 3}
+      _Clip: {fileID: -6587563727689481051, guid: 45dd449657f728642b02801d8c81235e, type: 3}
       _NormalizedStartTime: NaN
   - key: 201
     animLayer: 0

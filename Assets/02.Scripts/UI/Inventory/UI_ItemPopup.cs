@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 public class UI_ItemPopup : UI_Base
@@ -35,12 +36,15 @@ public class UI_ItemPopup : UI_Base
     protected override void OnShow()
     {
         base.OnShow();
+        
+        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
     }
 
     protected override void OnHide()
     {
         _cachedItemSo = null;
         
+        InputManager.Instance.SetInputLayer(InputLayer.None);
         base.OnHide();
     }
 

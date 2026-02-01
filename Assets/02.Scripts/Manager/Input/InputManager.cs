@@ -131,6 +131,10 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            if (layer == InputLayer.None)
+            {
+                layer = UIManager.Instance.GetTopCanvasLayer().ToInputLayer();
+            }
             CurrentLayer = layer;
 
             InvokeCancelEvents(layer);

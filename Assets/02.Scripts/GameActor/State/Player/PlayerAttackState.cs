@@ -132,8 +132,16 @@ namespace UPlayGround.GameActor.State
                 }
             }
 
+            if (_isHeavyAttack != null &&
+                playerController.HasMoveInput() 
+                && gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
+            {
+                return AnimKey.DashAttack_1;
+            }
+            
             _currentAttack = (_isHeavyAttack) ? _combat.ExecuteHeavyAttack() : _combat.ExecuteAttack();
 
+            
             return _currentAttack?.animKey ?? AnimKey.None;
         }
 
@@ -142,6 +150,8 @@ namespace UPlayGround.GameActor.State
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
             currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            
+            Debug.Log($"CurrentVelocity: {currentVelocity}");
         }
     }
 }

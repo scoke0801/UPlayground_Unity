@@ -578,6 +578,35 @@ namespace UPlayGround.Manager
         }
 
         #endregion
+
+        public CanvasLayer GetTopCanvasLayer()
+        {
+            
+            // 열린 UI 중 상위 UI 처리
+            var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
+            for (int i = layers.Length - 1; i >= 0; i--)
+            {
+                var layer = layers[i];
+
+                if (_canvasDictionary.TryGetValue(layer, out Canvas canvas) == false)
+                {
+                    continue;
+                }
+                for (int childIndex = canvas.transform.childCount - 1; childIndex >= 0; childIndex--)
+                {
+                    Transform child = canvas.transform.GetChild(childIndex);
+                    UI_Base uiBase = child.GetComponentInChildren<UI_Base>();
+            
+                    if (uiBase != null && uiBase.IsVisible)
+                    {
+                        return uiBase.Layer;
+                    }
+                }
+            }
+
+            return CanvasLayer.HUD;
+        }
+        
         private void RegisterInputEvents()
         {
             InputManager.Instance.RegisterInputEvent(InputMapNames.System, SystemAction.Back,
@@ -598,7 +627,6 @@ namespace UPlayGround.Manager
 
         private void OnPerformedBack(InputAction.CallbackContext obj)
         {
-            Debug.Log("OnPerformedBack");
             // 열린 UI 중 상위 UI 처리
             var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
             for (int i = layers.Length - 1; i >= 0; i--)

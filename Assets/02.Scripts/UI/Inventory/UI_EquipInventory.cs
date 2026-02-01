@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -33,6 +34,12 @@ public class UI_EquipInventory : UI_Base
 
     protected override void OnShow()
     {
+        InputManager.Instance.SetInputLayer(InputLayer.Level_1);
+    }
+
+    protected override void OnHide()
+    {
+        InputManager.Instance.SetInputLayer(InputLayer.None);
     }
 
     public override bool PerformBackFunction()

@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -64,6 +65,8 @@ public class UI_Inventory : UI_Base
 
     protected override void OnShow()
     {
+        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
+        
         RefreshDictItem();
         SetInventory();
         
@@ -87,6 +90,8 @@ public class UI_Inventory : UI_Base
 
     protected override void OnHide()
     {
+        InputManager.Instance.SetInputLayer(InputLayer.None);
+
         // EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
         //     PlayerEvent.EquipItem, 
         //     OnEquipItem

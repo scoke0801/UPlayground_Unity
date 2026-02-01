@@ -23,4 +23,15 @@
         Shoes,
         Gloves
     }
+
+    public enum EquipArmorType
+    {
+        None = 0,
+        
+        Head,
+        Chest,
+        Arm,
+        Waist,
+        Leg
+    }
 }

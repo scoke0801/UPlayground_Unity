@@ -20,7 +20,6 @@ namespace UPlayGround.Manager
             _player = GameObject.FindWithTag("Player");
 
             LoadFXPrefabDatabase();
-            LoadWeaponPrefabDatabase();
         }
 
         public void Dispose()

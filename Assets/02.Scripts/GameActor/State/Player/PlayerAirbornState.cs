@@ -54,8 +54,6 @@ namespace UPlayGround.GameActor.State
                 return;
             }
 
-            Debug.Log($"UpdateState - {playerController.HasJumpInput()}");
-
             if (playerController.HasJumpInput() == false
                 && (motor.GroundingStatus.IsStableOnGround && _landStarted == false))
             {

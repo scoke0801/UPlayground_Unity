@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Serialization;
@@ -45,13 +47,21 @@ namespace UPlayGround.GameActor.Component
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
         private GameObject _currentSubWeaponObj = null;
+        
 
         // 현재 장착 상태
         public bool IsMainWeaponEquipped { get; private set; }
         public bool IsSubWeaponEquipped { get; private set; }
+
+        public int MainWeaponKey { get; private set; } = -1;
+        public int SubWeaponKey { get; private set; } = -1;
         
         // [TODO] 실제 Data로 가져올 수 있어야 하겠지만 우선은 단독 데이터로 관리하는 상태
         public WeaponData CurrentWeapon { get; private set; }
+        
+        // [부위, [아머인덱스, 게임오브젝트]]
+        private Dictionary<EquipArmorType, Dictionary<int, GameObject>> partLibrary = 
+            new Dictionary<EquipArmorType, Dictionary<int, GameObject>>();
 
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
@@ -61,8 +71,12 @@ namespace UPlayGround.GameActor.Component
                 PlayerEvent.ChangeWeapon, 
                 OnWeaponChanged
             );
+            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
+                PlayerEvent.EquipItem, 
+                OnEquipItem
+            );
+            InitPartLibrary();
         }
-
         private void OnDestroy()
         {
             if (EventManager.Instance == null)
@@ -72,8 +86,23 @@ namespace UPlayGround.GameActor.Component
                 PlayerEvent.ChangeWeapon, 
                 OnWeaponChanged
             );
+            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
+                PlayerEvent.EquipItem, 
+                OnEquipItem
+            );
         }
 
+        public int GetActiveEquipment(EquipArmorType type)
+        {
+            // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
+            foreach (var pair in partLibrary[type])
+            {
+                if (pair.Value.activeSelf)
+                    return pair.Key;
+            }
+            return -1;
+        }
+        
         private void OnWeaponChanged(PlayerEquipChangeEvent data)
         {
             if (data == null)
@@ -81,21 +110,61 @@ namespace UPlayGround.GameActor.Component
                 return;
             }
 
-            if (data.equipPosition == EquipPosition.LeftHand)
+            EquipWeapon(data.itemKey, data.equipPosition,data.weaponType);
+        }
+
+        // 특정 부위의 특정 번호를 활성화 (예: Chest 부위의 3번 장비)
+        public void EquipPart(EquipArmorType part, int armorIndex)
+        {
+            if (!partLibrary.ContainsKey(part)) return;
+
+            // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
+            foreach (var pair in partLibrary[part])
             {
-                SetLeftWeaponType(data.weaponType);
+                pair.Value.SetActive(pair.Key == armorIndex);
             }
-            else if (data.equipPosition == EquipPosition.RightHand)
+        }
+        
+        private void OnEquipItem(PlayerEquipChangeEvent eventData)
+        {
+            EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
+            if (itemData == null)
             {
-                SetRightWeaponType(data.weaponType);
+                return;
             }
-            EquipWeapon(data.weaponKey, data.equipPosition);
+            
+            if (eventData.equipPosition == EquipPosition.LeftHand)
+            {
+                SetLeftWeaponType(eventData.weaponType);
+                EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                return;
+            }
+            else if (eventData.equipPosition == EquipPosition.RightHand)
+            {
+                SetRightWeaponType(eventData.weaponType);
+                EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                return;
+            }
+            
+            EquipArmorType armorType = EquipArmorType.None;
+            switch (itemData.equipSlot)
+            {
+                case EquipPosition.Chest: armorType = EquipArmorType.Chest; break;
+                case EquipPosition.Head: armorType = EquipArmorType.Head; break;
+                case EquipPosition.Gloves: armorType = EquipArmorType.Arm; break;
+                case EquipPosition.Pants: armorType = EquipArmorType.Waist; break;
+                case EquipPosition.Shoes: armorType = EquipArmorType.Leg; break;
+                default: return;
+            }
+
+            int armorIndex = itemData.itemId % 100;
+            EquipPart(armorType, armorIndex);
         }
 
         /// <summary>
         /// 특정 무기 장착 (아이템 시스템 연동)
         /// </summary>
-        public void EquipWeapon(string itemKey, EquipPosition equipPosition)
+        public void EquipWeapon(int itemKey, EquipPosition equipPosition, WeaponType weaponType)
         {
             DestroyEquippedWeapon(equipPosition);
             
@@ -105,12 +174,16 @@ namespace UPlayGround.GameActor.Component
             switch (equipPosition)
             {
                 case EquipPosition.LeftHand: 
+                    SetLeftWeaponType(weaponType);
                     constraint = _subWeaponConstraint;
                     _currentSubWeaponObj = newWeapon;
+                    SubWeaponKey = itemKey;
                     break;
                 case EquipPosition.RightHand: 
+                    SetRightWeaponType(weaponType);
                     constraint = _mainWeaponConstraint;
                     _currentMainWeaponObj = newWeapon;
+                    MainWeaponKey = itemKey;
                     break;
                 default: return;
             }
@@ -222,6 +295,7 @@ namespace UPlayGround.GameActor.Component
                 {
                     Destroy(_currentSubWeaponObj);
                     _currentSubWeaponObj = null;
+                    SubWeaponKey = -1;
                 }
             }
             else if (equipPosition == EquipPosition.RightHand)
@@ -230,7 +304,59 @@ namespace UPlayGround.GameActor.Component
                 {
                     Destroy(_currentMainWeaponObj);
                     _currentMainWeaponObj = null;
+                    MainWeaponKey = -1;
                 }
+            }
+        }
+        
+        private void InitPartLibrary()
+        {
+            // "Female" 하위의 모든 Armor_XXX를 탐색하며 부위별로 분류
+            Transform meshRoot = transform.Find("Mesh/Female");
+            
+            // Enum 순회하며 딕셔너리 초기화
+            foreach (EquipArmorType type in System.Enum.GetValues(typeof(EquipArmorType)))
+            {
+                if (type == EquipArmorType.None) continue;
+                partLibrary[type] = new Dictionary<int, GameObject>();
+            }
+            
+            // 모든 Armor_XXX 자식 순회
+            foreach (Transform armorSet in meshRoot)
+            {
+                if (!armorSet.name.StartsWith("Armor_")) continue;
+
+                // 이름에서 숫자만 추출 (예: "Armor_001" -> 1)
+                int armorIndex = ExtractIndexFromName(armorSet.name);
+
+                foreach (Transform piece in armorSet)
+                {
+                    EquipArmorType pieceType = DeterminePartType(piece.name);
+                
+                    if (pieceType != EquipArmorType.None)
+                    {
+                        // 부위별 딕셔너리에 인덱스를 키값으로 등록
+                        partLibrary[pieceType][armorIndex] = piece.gameObject;
+                        piece.gameObject.SetActive(false); // 초기 비활성화
+                    }
+                }
+            }
+            //"Armor_001" 등의 문자열에서 숫자 '1'을 추출하는 헬퍼 함수
+            int ExtractIndexFromName(string name)
+            {
+                string resultString = Regex.Match(name, @"\d+").Value;
+                return int.TryParse(resultString, out int result) ? result : -1;
+            }
+
+            // 이름의 끝부분을 확인하여 부위(Type) 결정 (중복 매칭 방지)
+            EquipArmorType DeterminePartType(string name)
+            {
+                if (name.EndsWith("_Head")) return EquipArmorType.Head;
+                if (name.EndsWith("_Chest")) return EquipArmorType.Chest;
+                if (name.EndsWith("_Arm")) return EquipArmorType.Arm;
+                if (name.EndsWith("_Waist")) return EquipArmorType.Waist;
+                if (name.EndsWith("_Leg")) return EquipArmorType.Leg;
+                return EquipArmorType.None;
             }
         }
     }

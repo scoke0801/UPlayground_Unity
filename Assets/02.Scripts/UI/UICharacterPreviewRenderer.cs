@@ -44,7 +44,7 @@ public class UICharacterPreviewRenderer : MonoBehaviour
         SetLayerRecursively(_currentPreviewCharacter, "CharacterPreview");
         
         // KCC와 플레이어 스크립트 비활성화
-        DisablePlayerComponents(_currentPreviewCharacter);
+        //DisablePlayerComponents(_currentPreviewCharacter);
         
         _previewCamera.enabled = true;
     }

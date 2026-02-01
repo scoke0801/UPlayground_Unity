@@ -70,10 +70,10 @@ public class UI_Inventory : UI_Base
         RefreshDictItem();
         SetInventory();
         
-        // EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
-        //     PlayerEvent.EquipItem, 
-        //     OnEquipItem
-        // );
+        EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
+            PlayerEvent.EquipItem, 
+            OnEquipItem
+        );
         // 캐릭터 프리뷰 활성화
         if (_previewRenderer != null)
         {
@@ -92,10 +92,11 @@ public class UI_Inventory : UI_Base
     {
         InputManager.Instance.SetInputLayer(InputLayer.None);
 
-        // EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
-        //     PlayerEvent.EquipItem, 
-        //     OnEquipItem
-        // );
+        EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
+            PlayerEvent.EquipItem, 
+            OnEquipItem
+        );
+        
         // 캐릭터 프리뷰 비활성화
         if (_previewRenderer != null)
         {

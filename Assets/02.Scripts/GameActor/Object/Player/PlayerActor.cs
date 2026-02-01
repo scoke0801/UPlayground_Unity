@@ -312,18 +312,6 @@ namespace UPlayGround.GameActor
             //
             // StartCoroutine(EquipWeapon());
         }
-
-        private IEnumerator EquipWeapon()
-        {
-            while (true)
-            {
-                if(GameObjectManager.Instance.IsWeaponDBLoaded == false)
-                    yield return new WaitForSeconds(0.1f);
-                    
-                //_equipment.EquipWeapon("GreatSword_1");
-                break;
-            }
-        }
     }
     
 }

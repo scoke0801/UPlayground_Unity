@@ -29002,6 +29002,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1346479105}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1348250316 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8302815856011406782, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+  m_PrefabInstance: {fileID: 1452459072}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1350603590
 GameObject:
   m_ObjectHideFlags: 0
@@ -31251,6 +31256,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7684899206961689257, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: _underwear_chest
+      value: 
+      objectReference: {fileID: 1348250316}
+    - target: {fileID: 7684899206961689257, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: _underwear_pants
+      value: 
+      objectReference: {fileID: 2046594339}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -43838,6 +43851,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2041109401}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2046594339 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6007266617417392041, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+  m_PrefabInstance: {fileID: 1452459072}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2047958909
 GameObject:
   m_ObjectHideFlags: 0

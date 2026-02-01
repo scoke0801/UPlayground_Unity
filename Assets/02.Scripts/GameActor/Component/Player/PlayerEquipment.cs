@@ -38,6 +38,9 @@ namespace UPlayGround.GameActor.Component
         [Header("Arrow")]
         [SerializeField]  private ParentConstraint arrowLeftConstraint;
         
+        [Header("underwear")]
+        [SerializeField] private GameObject _underwear_chest;
+
         private WeaponType _subWeaponType = WeaponType.NoWeapon;
         private WeaponType _mainWeaponType = WeaponType.NoWeapon;
         
@@ -118,10 +121,22 @@ namespace UPlayGround.GameActor.Component
         {
             if (!partLibrary.ContainsKey(part)) return;
 
+            bool isAnyPantsActive = false;
+            bool isAnyChestActive = false;
+
             // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
             foreach (var pair in partLibrary[part])
             {
-                pair.Value.SetActive(pair.Key == armorIndex);
+                bool isActive = pair.Key == armorIndex;
+
+                if (part == EquipArmorType.Chest && isActive)
+                    isAnyChestActive = true;
+                pair.Value.SetActive(isActive);
+            }
+
+            if (part == EquipArmorType.Chest)
+            {
+                _underwear_chest.SetActive(!isAnyChestActive);
             }
         }
         

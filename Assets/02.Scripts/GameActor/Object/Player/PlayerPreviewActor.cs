@@ -30,13 +30,18 @@ namespace UPlayGround.GameActor
         
         [Header("Arrow")]
         [SerializeField]  private ParentConstraint arrowLeftConstraint;
-        
-        private AnimancerComponent _animator;
+
+        [Header("underwear")]
+        [SerializeField] private GameObject _underwear_chest;
+
+        [Space(5)]
         [SerializeField] ClipTransition _idleTransition;
         
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
         private GameObject _currentSubWeaponObj = null;
+        
+        private AnimancerComponent _animator;
         
         private WeaponType _subWeaponType = WeaponType.NoWeapon;
         private WeaponType _mainWeaponType = WeaponType.NoWeapon;
@@ -121,7 +126,7 @@ namespace UPlayGround.GameActor
                 if (type == EquipArmorType.None) continue;
                 partLibrary[type] = new Dictionary<int, GameObject>();
             }
-            
+
             // 모든 Armor_XXX 자식 순회
             foreach (Transform armorSet in meshRoot)
             {
@@ -165,10 +170,22 @@ namespace UPlayGround.GameActor
         {
             if (!partLibrary.ContainsKey(part)) return;
 
+            bool isAnyPantsActive = false;
+            bool isAnyChestActive = false;
+
             // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
             foreach (var pair in partLibrary[part])
             {
-                pair.Value.SetActive(pair.Key == armorIndex);
+                bool isActive = pair.Key == armorIndex;
+
+                if (part == EquipArmorType.Chest && isActive)
+                    isAnyChestActive = true;
+                pair.Value.SetActive(isActive);
+            }
+
+            if (part == EquipArmorType.Chest)
+            {
+                _underwear_chest.SetActive(!isAnyChestActive);
             }
         }
         public void SetRightWeaponType(WeaponType type)
@@ -211,6 +228,8 @@ namespace UPlayGround.GameActor
 
             GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
 
+            SetLayerRecursively(newWeapon, "CharacterPreview");
+            
             ParentConstraint constraint = null;
             switch (equipPosition)
             {
@@ -236,11 +255,6 @@ namespace UPlayGround.GameActor
                 newWeapon.transform.localPosition = Vector3.zero;
                 //newWeapon.transform.localRotation = Quaternion.identity;
                 //newWeapon.transform.localScale = Vector3.one; // 크기도 1,1,1로 초기화 (필요시)
-            }
-
-            if (constraint != null)
-            {
-                constraint.weight = 1;
             }
         }
         
@@ -301,5 +315,15 @@ namespace UPlayGround.GameActor
             EquipPart(armorType, armorIndex);
         }
 
+        private void SetLayerRecursively(GameObject obj, string layerName)
+        {
+            int layer = LayerMask.NameToLayer(layerName);
+            obj.layer = layer;
+        
+            foreach (Transform child in obj.transform)
+            {
+                SetLayerRecursively(child.gameObject, layerName);
+            }
+        }
     }
 }

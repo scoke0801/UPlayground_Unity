@@ -302,8 +302,8 @@ namespace UPlayGround.GameActor
         public PlayerEquipment GetPlayerEquipment() { return _equipment; }
         public PlayerCombat GetCombat() { return _combat; }
 
-        public bool IsEquippedRightWeapon => _equipment.IsRightWeaponEquipped;
-        public bool IsEquippedLeftWeapon => _equipment.IsLeftWeaponEquipped;
+        public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
+        public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
 
         private void InitComponents()
         {
@@ -325,4 +325,5 @@ namespace UPlayGround.GameActor
             }
         }
     }
+    
 }

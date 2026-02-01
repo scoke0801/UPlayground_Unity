@@ -169,7 +169,7 @@ namespace UPlayGround.Manager
             // Canvas 컴포넌트 추가 및 설정
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = (int)layer * SORTING_ORDER_GAP;
+            canvas.sortingOrder = (int)layer;
 
 
             // CanvasScaler 추가 (해상도 대응)

@@ -6,13 +6,15 @@ using UPlayGround.GameActor.Component;
 
 namespace UPlayGround.GameActor.Animation
 {
-    public class PlayerActorAnimator : ActorAnimator
+    public partial class PlayerActorAnimator : ActorAnimator
     {
         // 무기는 오른손에 장착된 무기를 기준으로 한다?
         [SerializeField] private PlayerActorAnimationSet _playerActorAnimationSet;
 
         private PlayerActor _playerActor;
         private PlayerEquipment _playerEquipment;
+
+        public bool IsOpenedComboWindow { get; set; } = false;
         
         public override void Init(Base.GameActor actor)
         {
@@ -25,7 +27,7 @@ namespace UPlayGround.GameActor.Animation
 
         public override AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0)
         {
-            ClipTransition transition = _playerActorAnimationSet.GetClipTransition(_playerEquipment.GetRightWeaponType(), key);
+            ClipTransition transition = _playerActorAnimationSet.GetClipTransition(_playerEquipment.GetMainWeaponType(), key);
             if (transition == null)
             {
                 return null;
@@ -36,7 +38,7 @@ namespace UPlayGround.GameActor.Animation
 
         public override float GetAnimationDuration(AnimKey key)
         {
-            var clip = _playerActorAnimationSet.GetAnimationClip(_playerEquipment.GetRightWeaponType(), key);
+            var clip = _playerActorAnimationSet.GetAnimationClip(_playerEquipment.GetMainWeaponType(), key);
             
             if (clip == null)
             {
@@ -45,6 +47,14 @@ namespace UPlayGround.GameActor.Animation
             }
             
             return clip.length;
+        }
+    }
+
+    public partial class PlayerActorAnimator : ActorAnimator
+    {
+        private void OnAnimationEvent_OpenComboWindow()
+        {
+            IsOpenedComboWindow = true;
         }
     }
 }

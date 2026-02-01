@@ -4,5 +4,8 @@
     {
         None = 0,
         ChangeWeapon = 1,
+        
+        EquipItem,
+        UnEquipItem,
     }
 }

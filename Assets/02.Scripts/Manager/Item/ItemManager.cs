@@ -62,7 +62,16 @@ namespace UPlayGround.Manager
 
             return itemInstance;
         }
-        
+
+        public ItemSO GetItemData(int itemKey)
+        {
+            if (_itemDatabase == null)
+            {
+                return null;
+            }
+
+            return _itemDatabase.GetItemById(itemKey);
+        }
         
         private async void LoadItemDatabase()
         {

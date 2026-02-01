@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Data.Enum;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -65,6 +67,10 @@ public class UI_Inventory : UI_Base
         RefreshDictItem();
         SetInventory();
         
+        // EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
+        //     PlayerEvent.EquipItem, 
+        //     OnEquipItem
+        // );
         // 캐릭터 프리뷰 활성화
         if (_previewRenderer != null)
         {
@@ -81,6 +87,10 @@ public class UI_Inventory : UI_Base
 
     protected override void OnHide()
     {
+        // EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
+        //     PlayerEvent.EquipItem, 
+        //     OnEquipItem
+        // );
         // 캐릭터 프리뷰 비활성화
         if (_previewRenderer != null)
         {
@@ -142,6 +152,42 @@ public class UI_Inventory : UI_Base
                 _uiSlots.Add(go);
                 go.SetParent(this);
             }
+        }
+    }
+
+    private void OnEquipItem(PlayerEquipChangeEvent eventData)
+    {
+        UI_InventorySlot targetSlot = null;
+        switch (eventData.equipPosition)
+        {
+            case EquipPosition.LeftHand: targetSlot = _leftHandSlot; break;
+            case EquipPosition.RightHand: targetSlot = _rightHandSlot; break;
+            case EquipPosition.Head: targetSlot = _headSlot; break;
+            case EquipPosition.Chest: targetSlot = _chestSlot; break;
+            case EquipPosition.Pants: targetSlot = _pantSlot; break;
+            case EquipPosition.Gloves: targetSlot = _glovesSlot; break;
+            case EquipPosition.Shoes: targetSlot = _shoesSlot; break;
+        }
+
+        if (targetSlot == null)
+        {
+            return;
+        }
+
+        ItemSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey);
+        if (itemData == null)
+        {
+            return;
+        }
+        targetSlot.Init(itemData, 1);
+        targetSlot.RefreshUI();
+    }
+
+    public void RefreshPreviewModel()
+    {
+        if (_previewRenderer != null)
+        {
+            _previewRenderer.ShowPreview();
         }
     }
 }

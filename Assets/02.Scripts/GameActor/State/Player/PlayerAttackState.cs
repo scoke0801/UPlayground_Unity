@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
+using UPlayGround.GameActor.Animation;
 using UPlayGround.GameActor.Component;
 using UPlayGround.GameActor.MovementController;
 
@@ -23,6 +24,8 @@ namespace UPlayGround.GameActor.State
         
         private Vector3 rootMotionVelocity;
         
+        private PlayerActorAnimator _playerActorAnimator;
+        
         private readonly AnimKey[] skillAnimKeys = 
         { 
             AnimKey.Skill_1, 
@@ -40,6 +43,7 @@ namespace UPlayGround.GameActor.State
             base.OnEnter(fromState);
 
             playerActor.Animator.ApplyRootMotion(true);
+            _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
             
             _combat = playerActor.GetCombat();
             _equipment = playerActor.GetPlayerEquipment();
@@ -61,14 +65,14 @@ namespace UPlayGround.GameActor.State
         {
             base.OnExit(toState);
             
+            _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
-
         }
 
         public override void UpdateState(float deltaTime)
         {
             _attackTimer += deltaTime;
-        
+
             // 콤보 입력 체크 (Component가 타이밍 관리)
             if (_combat.CanCombo)
             {
@@ -82,9 +86,12 @@ namespace UPlayGround.GameActor.State
                     _comboInputted = true;
                     _isHeavyAttack = true;
                 }
-                return;
             }
-            
+
+            if (_playerActorAnimator.IsOpenedComboWindow && _comboInputted)
+            {
+                ChangeToNextState();
+            }
         }
         
         private void ChangeToNextState()
@@ -92,6 +99,7 @@ namespace UPlayGround.GameActor.State
             if (_comboInputted)
             {
                 _comboInputted = false;
+                _playerActorAnimator.IsOpenedComboWindow = false;
 
                 var animState = gameActor.Animator.PlayAnimation(GetAnimKey(), 0.25f);
                 if (animState != null)

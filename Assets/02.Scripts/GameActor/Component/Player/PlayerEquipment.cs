@@ -36,26 +36,25 @@ namespace UPlayGround.GameActor.Component
         [Header("Arrow")]
         [SerializeField]  private ParentConstraint arrowLeftConstraint;
         
-        private WeaponType _leftWeaponType = WeaponType.NoWeapon;
-
-        private WeaponType _rightWeaponType = WeaponType.NoWeapon;
+        private WeaponType _subWeaponType = WeaponType.NoWeapon;
+        private WeaponType _mainWeaponType = WeaponType.NoWeapon;
         
-        private ParentConstraint _leftConstraint = null;
-        private ParentConstraint _rightConstraint = null;
+        private ParentConstraint _subWeaponConstraint = null;
+        private ParentConstraint _mainWeaponConstraint = null;
 
         // 가지고 있는 무기
-        private GameObject _currentRightWeaponObj = null;
-        private GameObject _currentLeftWeaponObj = null;
+        private GameObject _currentMainWeaponObj = null;
+        private GameObject _currentSubWeaponObj = null;
 
         // 현재 장착 상태
-        public bool IsRightWeaponEquipped { get; private set; }
-        public bool IsLeftWeaponEquipped { get; private set; }
+        public bool IsMainWeaponEquipped { get; private set; }
+        public bool IsSubWeaponEquipped { get; private set; }
         
         // [TODO] 실제 Data로 가져올 수 있어야 하겠지만 우선은 단독 데이터로 관리하는 상태
         public WeaponData CurrentWeapon { get; private set; }
 
-        public WeaponType GetLeftWeaponType() => _leftWeaponType;
-        public WeaponType GetRightWeaponType() => _rightWeaponType;
+        public WeaponType GetSubWeaponType() => _subWeaponType;
+        public WeaponType GetMainWeaponType() => _mainWeaponType;
         private void Start()
         {
             EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
@@ -106,12 +105,12 @@ namespace UPlayGround.GameActor.Component
             switch (equipPosition)
             {
                 case EquipPosition.LeftHand: 
-                    constraint = _leftConstraint;
-                    _currentLeftWeaponObj = newWeapon;
+                    constraint = _subWeaponConstraint;
+                    _currentSubWeaponObj = newWeapon;
                     break;
                 case EquipPosition.RightHand: 
-                    constraint = _rightConstraint;
-                    _currentRightWeaponObj = newWeapon;
+                    constraint = _mainWeaponConstraint;
+                    _currentMainWeaponObj = newWeapon;
                     break;
                 default: return;
             }
@@ -129,13 +128,13 @@ namespace UPlayGround.GameActor.Component
         }
         public void SetRightWeaponType(WeaponType type)
         {
-            _rightWeaponType = type;
+            _mainWeaponType = type;
             switch (type)
             {
-                case WeaponType.Sword: _rightConstraint = swordConstraint; break;
-                case WeaponType.GreatSword: _rightConstraint = greatSwordRightConstraint; break;
-                case WeaponType.Staff: _rightConstraint = staffRightConstraint; break;
-                case WeaponType.Bow: _rightConstraint = bowRightConstraint; break;
+                case WeaponType.Sword: _mainWeaponConstraint = swordConstraint; break;
+                case WeaponType.GreatSword: _mainWeaponConstraint = greatSwordRightConstraint; break;
+                case WeaponType.Staff: _mainWeaponConstraint = staffRightConstraint; break;
+                case WeaponType.Bow: _mainWeaponConstraint = bowRightConstraint; break;
             }
         }
 
@@ -143,32 +142,32 @@ namespace UPlayGround.GameActor.Component
         {
             switch (type)
             {
-                case WeaponType.Shield: _leftConstraint = shieldLeftConstraint; break;
-                case WeaponType.Arrow: _leftConstraint = arrowLeftConstraint; break;
+                case WeaponType.Shield: _subWeaponConstraint = shieldLeftConstraint; break;
+                case WeaponType.Arrow: _subWeaponConstraint = arrowLeftConstraint; break;
                 default:
-                    _leftWeaponType = WeaponType.NoWeapon;
+                    _subWeaponType = WeaponType.NoWeapon;
                     return;
             }
 
-            _leftWeaponType = type;
+            _subWeaponType = type;
         }
         // 애니메이션 이벤트 콜백
         private void OnEquipRightWeapon()
         {
-            if (_rightConstraint == null)
+            if (_mainWeaponConstraint == null)
             {
                 return;
             }
-            var rightHand = _rightConstraint.GetSource(0);
-            var back = _rightConstraint.GetSource(1);
+            var rightHand = _mainWeaponConstraint.GetSource(0);
+            var back = _mainWeaponConstraint.GetSource(1);
     
-            if (IsRightWeaponEquipped)
+            if (IsMainWeaponEquipped)
             {
                 // UnEquip - 등으로
                 rightHand.weight = 0;
                 back.weight = 1;
                 
-                IsRightWeaponEquipped = false;
+                IsMainWeaponEquipped = false;
             }
             else
             {
@@ -176,30 +175,30 @@ namespace UPlayGround.GameActor.Component
                 rightHand.weight = 1;
                 back.weight = 0;
 
-                IsRightWeaponEquipped = true;
+                IsMainWeaponEquipped = true;
             }
     
             // weight 수정 후 다시 설정
-            _rightConstraint.SetSource(0, rightHand);
-            _rightConstraint.SetSource(1, back);
+            _mainWeaponConstraint.SetSource(0, rightHand);
+            _mainWeaponConstraint.SetSource(1, back);
         }
         // 애니메이션 이벤트 콜백
         private void OnEquipLeftWeapon()
         {           
-            if (_leftConstraint == null)
+            if (_subWeaponConstraint == null)
             {
                 return;
             }
-            var rightHand = _leftConstraint.GetSource(0);
-            var back = _leftConstraint.GetSource(1);
+            var rightHand = _subWeaponConstraint.GetSource(0);
+            var back = _subWeaponConstraint.GetSource(1);
     
-            if (IsLeftWeaponEquipped)
+            if (IsSubWeaponEquipped)
             {
                 // UnEquip - 등으로
                 rightHand.weight = 0;
                 back.weight = 1;
                 
-                IsLeftWeaponEquipped = false;
+                IsSubWeaponEquipped = false;
             }
             else
             {
@@ -207,30 +206,30 @@ namespace UPlayGround.GameActor.Component
                 rightHand.weight = 1;
                 back.weight = 0;
 
-                IsLeftWeaponEquipped = true;
+                IsSubWeaponEquipped = true;
             }
     
             // weight 수정 후 다시 설정
-            _leftConstraint.SetSource(0, rightHand);
-            _leftConstraint.SetSource(1, back);
+            _subWeaponConstraint.SetSource(0, rightHand);
+            _subWeaponConstraint.SetSource(1, back);
         }
 
         private void DestroyEquippedWeapon(EquipPosition equipPosition)
         {
             if (equipPosition == EquipPosition.LeftHand)
             {
-                if (_currentLeftWeaponObj != null)
+                if (_currentSubWeaponObj != null)
                 {
-                    Destroy(_currentLeftWeaponObj);
-                    _currentLeftWeaponObj = null;
+                    Destroy(_currentSubWeaponObj);
+                    _currentSubWeaponObj = null;
                 }
             }
             else if (equipPosition == EquipPosition.RightHand)
             {
-                if (_currentRightWeaponObj != null)
+                if (_currentMainWeaponObj != null)
                 {
-                    Destroy(_currentRightWeaponObj);
-                    _currentRightWeaponObj = null;
+                    Destroy(_currentMainWeaponObj);
+                    _currentMainWeaponObj = null;
                 }
             }
         }

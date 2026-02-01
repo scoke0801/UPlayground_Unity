@@ -3,10 +3,19 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Data.Enum;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 
 public class UI_ItemPopup : UI_Base
 {
+    private enum BottomButtonType
+    {
+        None = 0,
+        Equip,
+        UnEquip,
+        Use
+    }
     [SerializeField] private UIItemSlot _itemSlot;
     [SerializeField] private TextMeshProUGUI _itemNameText;
     [SerializeField] private TextMeshProUGUI _itemWeightText;
@@ -15,10 +24,12 @@ public class UI_ItemPopup : UI_Base
     [SerializeField] private Button _closeButton;
     
     private ItemSO _cachedItemSo = null;
+    private BottomButtonType _bottomButtonType = BottomButtonType.Equip;
 
     private void Awake()
     {
         _closeButton.onClick.AddListener(OnClickClose);
+        _bottomButton.Button.onClick.AddListener(OnBottomButtonClick);
     }
 
     protected override void OnShow()
@@ -42,6 +53,7 @@ public class UI_ItemPopup : UI_Base
     
     public void Init(ItemSO itemData, int count)
     {
+        _cachedItemSo = itemData;
         _itemSlot.Init(itemData, count);
         
         _itemNameText.text = itemData.name;
@@ -56,11 +68,59 @@ public class UI_ItemPopup : UI_Base
     {
         // [TODO]버튼은 상황에 따라 다르게 하자
         // 1. 장착 2. 해제 3. 사용
-        _bottomButton.Text.text = "장착";
+
+        if (itemData.itemType == ItemType.NONE)
+        {
+            _bottomButtonType = BottomButtonType.None;
+            _bottomButton.gameObject.SetActive(false);
+        }
+        else if (itemData.itemType == ItemType.CONSUMABLE)
+        {
+            _bottomButtonType = BottomButtonType.Use;
+            
+            _bottomButton.gameObject.SetActive(true);
+            _bottomButton.Text.text = "사용";
+        }
+        else if (itemData.itemType == ItemType.EQUIPMENT)
+        {
+            _bottomButtonType = BottomButtonType.Equip;
+            
+            _bottomButton.gameObject.SetActive(true);
+            _bottomButton.Text.text = "장착";
+        }
+        
     }
     
     private void OnClickClose()
     {
         Hide();
+    }
+    
+    private void OnBottomButtonClick()
+    {
+        // 버튼 유형에 따라서 처리
+        if (_bottomButtonType == BottomButtonType.Equip)
+        {
+            HandleEquip(); 
+        }
+        
+        Hide();
+    }
+
+    private void HandleEquip()
+    {
+        EquipmentSO equipData = _cachedItemSo as EquipmentSO;
+        if (equipData == null)
+        {
+            return;
+        }
+        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+        {
+            itemKey = equipData.itemId,
+            weaponType = equipData.weaponType,
+            equipPosition = equipData.equipSlot
+        };
+        
+        EventManager.Instance.Send(PlayerEvent.EquipItem, eventData);  
     }
 }

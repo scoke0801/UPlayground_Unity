@@ -88,7 +88,7 @@ namespace UPlayGround.GameActor.Component
         /// </summary>
         public AttackData ExecuteAttack()
         {
-            if (!_equipment.IsRightWeaponEquipped)
+            if (!_equipment.IsMainWeaponEquipped)
             {
                 return null;
             }
@@ -126,7 +126,7 @@ namespace UPlayGround.GameActor.Component
         /// </summary>
         public AttackData ExecuteHeavyAttack()
         {
-            if (!_equipment.IsLeftWeaponEquipped)
+            if (!_equipment.IsSubWeaponEquipped)
             {
                 return null;
             }
@@ -240,7 +240,7 @@ namespace UPlayGround.GameActor.Component
         
         public bool CanAttack()
         {
-            return !_equipment.IsRightWeaponEquipped;
+            return !_equipment.IsMainWeaponEquipped;
         }
         /// <summary>
         /// 현재 콤보의 애니메이션 키 가져오기

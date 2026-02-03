@@ -30,7 +30,7 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
 
     private void OnEnable()
     {
-        
+        RefreshUI();
     }
     
     private void OnDisable()

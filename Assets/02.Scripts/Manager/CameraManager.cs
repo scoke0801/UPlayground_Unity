@@ -32,7 +32,7 @@ namespace UPlayGround.Manager
         [SerializeField] private float maxVerticalAngle = 70f; // 최대 수직 각도
 
         [Header("Zoom Settings")] [SerializeField]
-        private float zoomSpeed = 2f; // 줌 속도
+        private float zoomSpeed = 0.5f; // 줌 속도
 
         [SerializeField] private float zoomSmoothTime = 0.1f; // 줌 부드러움
 

@@ -311,6 +311,7 @@ namespace UPlayGround.GameActor.Component
                     Destroy(_currentSubWeaponObj);
                     _currentSubWeaponObj = null;
                     SubWeaponKey = -1;
+                    IsSubWeaponEquipped = false;
                 }
             }
             else if (equipPosition == EquipPosition.RightHand)
@@ -320,6 +321,7 @@ namespace UPlayGround.GameActor.Component
                     Destroy(_currentMainWeaponObj);
                     _currentMainWeaponObj = null;
                     MainWeaponKey = -1;
+                    IsMainWeaponEquipped = false;
                 }
             }
         }

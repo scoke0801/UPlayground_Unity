@@ -4,19 +4,19 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Animation;
-using UPlayGround.GameActor.Component;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.Animation;
+using UPlayGround.Component;
+using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
-namespace UPlayGround.GameActor
+namespace UPlayGround
 {
     /// <summary>
     /// 
     /// </summary>
-    public partial class PlayerActor : Base.GameActor
+    public partial class PlayerActor : GameActor
     {
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
@@ -98,7 +98,7 @@ namespace UPlayGround.GameActor
     }
 
     // Input 처리
-    public partial class PlayerActor : Base.GameActor
+    public partial class PlayerActor : GameActor
     {
         private Vector2 _currentMoveInput;
         private InputCondition _jumpInputCondition;
@@ -293,7 +293,7 @@ namespace UPlayGround.GameActor
     }
 
     // Component
-    public partial class PlayerActor : Base.GameActor
+    public partial class PlayerActor : GameActor
     {
         // 추가 컴포넌트
         [SerializeField] private PlayerEquipment _equipment;

@@ -6,10 +6,10 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
-using UPlayGround.GameActor.Component;
+using UPlayGround.Component;
 using UPlayGround.Manager;
 
-namespace UPlayGround.GameActor
+namespace UPlayGround
 {
     public class PlayerPreviewActor : MonoBehaviour
     {

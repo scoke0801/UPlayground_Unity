@@ -10,7 +10,7 @@ using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 
-namespace UPlayGround.GameActor.Component
+namespace UPlayGround.Component
 {
 
     /// <summary>

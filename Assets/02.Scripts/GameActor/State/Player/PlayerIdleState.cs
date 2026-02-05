@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Component;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.Component;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.State
+namespace UPlayGround.State
 {
     /// <summary>
     /// 대기 상태 - 지면에 서있고 움직이지 않는 상태

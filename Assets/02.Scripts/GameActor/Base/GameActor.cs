@@ -2,10 +2,10 @@
 using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Animation;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.Animation;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.Base
+namespace UPlayGround
 {
     public abstract class GameActor : MonoBehaviour
     {

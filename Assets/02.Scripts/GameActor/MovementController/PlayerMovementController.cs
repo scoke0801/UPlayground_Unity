@@ -2,10 +2,10 @@
 using JetBrains.Annotations;
 using KinematicCharacterController;
 using UnityEngine;
-using UPlayGround.GameActor.State;
+using UPlayGround.State;
 using UPlayGround.Input;
 
-namespace UPlayGround.GameActor.MovementController
+namespace UPlayGround.MovementController
 {
     public struct PlayerCharacterInputs
     {

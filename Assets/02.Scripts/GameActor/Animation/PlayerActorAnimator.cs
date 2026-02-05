@@ -2,9 +2,9 @@
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Component;
+using UPlayGround.Component;
 
-namespace UPlayGround.GameActor.Animation
+namespace UPlayGround.Animation
 {
     public partial class PlayerActorAnimator : ActorAnimator
     {
@@ -16,7 +16,7 @@ namespace UPlayGround.GameActor.Animation
 
         public bool IsOpenedComboWindow { get; set; } = false;
         
-        public override void Init(Base.GameActor actor)
+        public override void Init(GameActor actor)
         {
             base.Init(actor);
             

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.State
+namespace UPlayGround.State
 {
     /// <summary>
     /// 구르기 상태

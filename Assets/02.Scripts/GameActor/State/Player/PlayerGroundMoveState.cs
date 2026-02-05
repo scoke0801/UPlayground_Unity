@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.State
+namespace UPlayGround.State
 {
     /// <summary>
     /// 지면 이동 상태 - 걷기/달리기

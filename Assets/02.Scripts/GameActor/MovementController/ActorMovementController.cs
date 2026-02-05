@@ -2,9 +2,9 @@
 using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UPlayGround.GameActor.State;
+using UPlayGround.State;
 
-namespace UPlayGround.GameActor.MovementController
+namespace UPlayGround.MovementController
 {
     public partial class ActorMovementController : MonoBehaviour, ICharacterController
     {
@@ -41,13 +41,13 @@ namespace UPlayGround.GameActor.MovementController
         protected Vector3 _internalVelocityAdd = Vector3.zero;
 
         public KinematicCharacterMotor Motor { get; private set; }
-        public Base.GameActor Actor { get; private set; }
+        public GameActor Actor { get; private set; }
 
 
         protected virtual void Start()
         {
             Motor = GetComponent<KinematicCharacterMotor>();
-            Actor = GetComponent<Base.GameActor>();
+            Actor = GetComponent<GameActor>();
             
             // Assign to motor
             Motor.CharacterController = this;

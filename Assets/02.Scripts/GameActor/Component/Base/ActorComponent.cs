@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UPlayGround.GameActor.Component
+namespace UPlayGround.Component
 {
     public abstract class ActorComponent : MonoBehaviour
     {

@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Animation;
-using UPlayGround.GameActor.Component;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.Animation;
+using UPlayGround.Component;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.State
+namespace UPlayGround.State
 {
     /// <summary>
     /// 구르기 상태

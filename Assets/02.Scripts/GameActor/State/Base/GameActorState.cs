@@ -1,15 +1,15 @@
 ﻿using KinematicCharacterController;
 using UnityEngine;
-using UPlayGround.GameActor.MovementController;
+using UPlayGround.MovementController;
 
-namespace UPlayGround.GameActor.State
+namespace UPlayGround.State
 {
     /// <summary>
     /// 모든 Actor 이동 상태의 베이스 클래스
     /// </summary>
     public abstract class GameActorState
     {
-        protected Base.GameActor gameActor;
+        protected GameActor gameActor;
         protected ActorMovementController controller;
         protected KinematicCharacterMotor motor;
         

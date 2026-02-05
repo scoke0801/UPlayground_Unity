@@ -3,7 +3,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Enum;
 
-namespace UPlayGround.GameActor.Animation
+namespace UPlayGround.Animation
 {
     public class ActorAnimator : MonoBehaviour
     {
@@ -11,12 +11,12 @@ namespace UPlayGround.GameActor.Animation
         
         protected AnimancerComponent _animator;
 
-        protected Base.GameActor _actor;
+        protected GameActor _actor;
         
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
         
-        public virtual void Init(Base.GameActor actor)
+        public virtual void Init(GameActor actor)
         {
             _animator = GetComponent<AnimancerComponent>();
             _actor = actor;

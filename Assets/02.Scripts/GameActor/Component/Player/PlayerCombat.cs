@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
-using UPlayGround.GameActor.Animation;
+using UPlayGround.Animation;
 
-namespace UPlayGround.GameActor.Component
+namespace UPlayGround.Component
 {
     [System.Serializable]
     public class CombatStats

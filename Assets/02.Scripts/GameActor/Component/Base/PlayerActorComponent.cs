@@ -1,4 +1,4 @@
-﻿namespace UPlayGround.GameActor.Component
+﻿namespace UPlayGround.Component
 {
     public abstract class PlayerActorComponent : ActorComponent
     {

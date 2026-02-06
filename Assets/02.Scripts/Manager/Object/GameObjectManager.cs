@@ -8,6 +8,7 @@ namespace UPlayGround.Manager
 
         public GameObject Player => _player;
 
+        private GameInteractionHandler _interactionHandler;
         public delegate void Interaction();
 
         public event Interaction OnInteractionOn;
@@ -28,6 +29,7 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            _interactionHandler.Update();
         }
 
         public void OnFixedUpdate()

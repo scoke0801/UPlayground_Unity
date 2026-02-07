@@ -4,6 +4,7 @@ using Interaction.Enum;
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
@@ -29,20 +30,21 @@ namespace UPlayGround.State
         {
             
         }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
+
             _cachedData = null;
             _animPlayState = AnimPlayState.None;
-            
+
             GameInteractionHandler handler = GameObjectManager.Instance.InteractionHandler;
             if (handler == null)
             {
                 ForceChangeToNextState();
                 return;
             }
-            
+
             _cachedData = handler.CurrentClosestInteractable.GetData();
             if (_cachedData == null)
             {
@@ -52,14 +54,28 @@ namespace UPlayGround.State
 
             // 플레이어에 대한 처리
             PlayAnimation();
-            
+
             handler.StartInteraction();
+
+            if (EventManager.Instance != null)
+            {
+                EventManager.Instance.Subscribe<PlayerEvent, EmptyEventData>(
+                    PlayerEvent.InteractionTargetDestroy,
+                    OnInteractionTargetDestroy);
+            }
         }
 
         public override void OnExit(GameActorState toState)
         {
             GameObjectManager.Instance?.InteractionHandler?.StopInteraction();
-            
+
+            if (EventManager.Instance != null)
+            {
+                EventManager.Instance.Unsubscribe<PlayerEvent, EmptyEventData>(
+                    PlayerEvent.InteractionTargetDestroy,
+                    OnInteractionTargetDestroy);
+            }
+
             base.OnExit(toState);
         }
         public override void UpdateState(float deltaTime)
@@ -102,6 +118,8 @@ namespace UPlayGround.State
                 case AnimPlayState.Start:
                     state = gameActor.Animator.PlayAnimation(AnimKey.Fishing_Idle);
                     _animPlayState = AnimPlayState.Idle;
+                    
+                    GameObjectManager.Instance.InteractionHandler?.SetWaitEvent(OnFishCatch);
                     return;
                 default: break;    
             }
@@ -109,6 +127,19 @@ namespace UPlayGround.State
             if (state == null)
                 return;
             state.OwnedEvents.OnEnd = PlayAnimation;
+        }
+
+        private void OnFishCatch()
+        {
+            var state = gameActor.Animator.PlayAnimation(AnimKey.Fishing_Catch);
+            if (state != null)
+            {
+                state.OwnedEvents.OnEnd = () =>
+                {
+                    _animPlayState = AnimPlayState.None;
+                    PlayFishingAnimation();
+                };
+            }
         }
 
         private void PlayMiningAnimation()
@@ -158,6 +189,11 @@ namespace UPlayGround.State
                     break;
                 default: break;    
             }
+        }
+        
+        private void OnInteractionTargetDestroy(EmptyEventData obj)
+        {
+            ForceChangeToNextState();
         }
         
         private void ForceChangeToNextState()

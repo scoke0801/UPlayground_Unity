@@ -7,5 +7,7 @@
         
         EquipItem,
         UnEquipItem,
+        
+        InteractionTargetDestroy,
     }
 }

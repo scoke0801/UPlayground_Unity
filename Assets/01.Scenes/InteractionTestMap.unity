@@ -201,6 +201,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1 &65381848
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,6 +356,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: f05c6139e9070454291cd3dfd2e65142, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!136 &368141826
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -580,6 +584,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &786269367
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -750,6 +756,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 5978ad34091316944a0d9d12694c1acc, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!136 &813081351
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -855,6 +863,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &911595846
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -937,6 +947,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &972138004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1019,6 +1031,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &1006718042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1101,6 +1115,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!850595691 &1120297750
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1289,6 +1305,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &1337455048
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1371,6 +1389,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1 &1348250316 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8302815856011406782, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
@@ -1458,6 +1478,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
+  _shakeAmount: 5
+  _shakeDuration: 0.5
 --- !u!1001 &1452459072
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1770,6 +1792,18 @@ PrefabInstance:
       propertyPath: _underwear_pants
       value: 
       objectReference: {fileID: 2046594339}
+    - target: {fileID: 7684899206961689257, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: _startEquipItemList.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7684899206961689257, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: '_startEquipItemList.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d8073b79427b5884c9ea14e2686a9b57, type: 2}
+    - target: {fileID: 7684899206961689257, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: '_startEquipItemList.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 888c7b14db49dfd4e94f38becddae459, type: 2}
     - target: {fileID: 8957934561140312621, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_RotationOffset.x
       value: -0.004002688

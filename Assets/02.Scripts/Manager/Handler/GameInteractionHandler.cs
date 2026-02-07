@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace UPlayGround.Manager.Handler
 {
@@ -15,8 +18,9 @@ namespace UPlayGround.Manager.Handler
         private bool _isInitialized = false;
         private Camera _camera;
         
+        private Coroutine _waitEventCoroutine;
+        
         public IInteractable CurrentClosestInteractable => _currentClosestInteractable;
-
         
         public async void Init()
         {
@@ -39,7 +43,6 @@ namespace UPlayGround.Manager.Handler
         public override void Update()
         {
             float delta = Time.deltaTime;
-            
             _player = GameObjectManager.Instance.Player;
             if(_player == null){return;}
             
@@ -68,6 +71,11 @@ namespace UPlayGround.Manager.Handler
 
         public void StopInteraction()
         {
+            if (_waitEventCoroutine != null)
+            {
+                GameObjectManager.Instance.StopCoroutine(_waitEventCoroutine);
+            }
+            
             if (_currentClosestInteractable == null)
             {
                 return;
@@ -161,6 +169,25 @@ namespace UPlayGround.Manager.Handler
         
             _activeIconRect.position = screenPositon;
             _activeIconRect.localScale = Vector3.one;
+        }
+
+        public void SetWaitEvent(Action callback)
+        {
+            _waitEventCoroutine = GameObjectManager.Instance.StartCoroutine(ExecuteAfterRandomTime(callback));
+        }
+        
+        private IEnumerator ExecuteAfterRandomTime(Action action)
+        {
+            // 1. 랜덤한 시간 계산
+            float waitTime = Random.Range(3, 7);
+            Debug.Log($"{waitTime}초 뒤에 이벤트가 발생합니다.");
+
+            // 2. 설정된 시간만큼 대기
+            yield return new WaitForSeconds(waitTime);
+
+            // 3. 이벤트 실행
+            action?.Invoke();
+            Debug.Log("이벤트가 발생했습니다!");
         }
     }
 }

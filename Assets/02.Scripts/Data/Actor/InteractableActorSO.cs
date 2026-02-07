@@ -13,4 +13,7 @@ public class InteractableActorSO : ScriptableObject
     public int hp;
     
     public List<ItemDropList> dropItems = new List<ItemDropList>();
+
+    public bool showInfoUI = true;
+    public bool showShakeEffect = true;
 }

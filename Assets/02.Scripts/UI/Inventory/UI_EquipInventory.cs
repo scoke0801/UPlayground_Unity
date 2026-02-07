@@ -53,7 +53,6 @@ public class UI_EquipInventory : UI_Base
     {
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "Arrow_1",
             weaponType = WeaponType.Arrow,
             equipPosition = EquipPosition.LeftHand,
         };
@@ -65,7 +64,6 @@ public class UI_EquipInventory : UI_Base
     {        
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "Staff_1",
             weaponType = WeaponType.Staff,
             equipPosition = EquipPosition.RightHand,
             
@@ -78,7 +76,6 @@ public class UI_EquipInventory : UI_Base
     {
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "Bow_1",
             weaponType = WeaponType.Bow,
             equipPosition = EquipPosition.RightHand,
         };
@@ -90,7 +87,6 @@ public class UI_EquipInventory : UI_Base
     {
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "GreatSword_1",
             weaponType = WeaponType.GreatSword,
             equipPosition = EquipPosition.RightHand,
         };
@@ -102,7 +98,6 @@ public class UI_EquipInventory : UI_Base
     {
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "Shield_1",
             weaponType = WeaponType.Shield,
             equipPosition = EquipPosition.LeftHand,
         };
@@ -114,7 +109,6 @@ public class UI_EquipInventory : UI_Base
     {
         PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
         {
-            weaponKey =  "Sword_1",
             weaponType = WeaponType.Sword,
             equipPosition = EquipPosition.RightHand,
         };

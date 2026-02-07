@@ -18,3 +18,5 @@ MonoBehaviour:
   interactionObjectType: 3
   hp: 100
   dropItems: []
+  showInfoUI: 0
+  showShakeEffect: 0

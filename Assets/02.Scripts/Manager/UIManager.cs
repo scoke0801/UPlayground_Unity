@@ -586,7 +586,6 @@ namespace UPlayGround.Manager
 
         public CanvasLayer GetTopCanvasLayer()
         {
-            
             // 열린 UI 중 상위 UI 처리
             var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
             for (int i = layers.Length - 1; i >= 0; i--)

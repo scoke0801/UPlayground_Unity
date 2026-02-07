@@ -358,7 +358,7 @@ namespace UPlayGround
             {
                 target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent()
                 {
-                    value = 30
+                    value = Random.Range(10,50)
                 });
 
                 GameActor actor = target.GetActor();
@@ -374,6 +374,26 @@ namespace UPlayGround
                     targetPosition.y += targetCollider.bounds.extents.y * 0.5f;
                 }
                 
+                GameObjectManager.Instance.ShowFX("InteractionObjectHitFX", targetPosition);
+            }
+        }
+        public void CatchFish()
+        {
+            IInteractable target = GameObjectManager.Instance?.InteractionHandler?.CurrentClosestInteractable;
+            if (target != null)
+            {
+                target.OnAnimationEvent(InteractionAnimEvent.CatchFish, new PlayerInteractionEvent()
+                {
+                    value = 0
+                });
+
+                GameActor actor = target.GetActor();
+                if (actor == null)
+                {
+                    return;
+                }
+                
+                Vector3 targetPosition = actor.transform.position;
                 GameObjectManager.Instance.ShowFX("InteractionObjectHitFX", targetPosition);
             }
         }

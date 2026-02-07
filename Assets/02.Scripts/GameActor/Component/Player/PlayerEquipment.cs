@@ -41,6 +41,9 @@ namespace UPlayGround.Component
         [Header("underwear")]
         [SerializeField] private GameObject _underwear_chest;
 
+        [Header("StartItem")]
+        [SerializeField] private List<EquipmentSO> _startEquipItemList;
+        
         private WeaponType _subWeaponType = WeaponType.NoWeapon;
         private WeaponType _mainWeaponType = WeaponType.NoWeapon;
         
@@ -66,6 +69,8 @@ namespace UPlayGround.Component
         private Dictionary<EquipArmorType, Dictionary<int, GameObject>> partLibrary = 
             new Dictionary<EquipArmorType, Dictionary<int, GameObject>>();
 
+        private Dictionary<EquipArmorType, int> _equipedItemKeyDict = new Dictionary<EquipArmorType, int>();
+        
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
         private void Start()
@@ -79,6 +84,8 @@ namespace UPlayGround.Component
                 OnEquipItem
             );
             InitPartLibrary();
+
+            StartCoroutine(CoEquipStartItem());
         }
         private void OnDestroy()
         {
@@ -103,6 +110,16 @@ namespace UPlayGround.Component
                 if (pair.Value.activeSelf)
                     return pair.Key;
             }
+            return -1;
+        }
+
+        public int GetActiveEquipmentKey(EquipArmorType type)
+        {
+            if (_equipedItemKeyDict.TryGetValue(type, out var key))
+            {
+                return key;
+            }
+            
             return -1;
         }
         
@@ -139,7 +156,28 @@ namespace UPlayGround.Component
                 _underwear_chest.SetActive(!isAnyChestActive);
             }
         }
+        private IEnumerator CoEquipStartItem()
+        {
+            yield return new WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded);
+
+            if (_startEquipItemList == null || _startEquipItemList.Count == 0)
+            {
+                yield break;
+            }
+
+            for (int i = 0; i < _startEquipItemList.Count; i++)
+            {
+                var itemData = _startEquipItemList[i];
         
+                OnEquipItem(new PlayerEquipChangeEvent()
+                {
+                    equipPosition = itemData.equipSlot,
+                    isEquip = true,
+                    itemKey = itemData.itemId,
+                    weaponType = itemData.weaponType
+                });
+            }
+        }
         private void OnEquipItem(PlayerEquipChangeEvent eventData)
         {
             EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
@@ -174,6 +212,7 @@ namespace UPlayGround.Component
 
             int armorIndex = itemData.itemId % 100;
             EquipPart(armorType, armorIndex);
+            _equipedItemKeyDict[armorType] = itemData.itemId;
         }
 
         /// <summary>
@@ -349,7 +388,7 @@ namespace UPlayGround.Component
                 foreach (Transform piece in armorSet)
                 {
                     EquipArmorType pieceType = DeterminePartType(piece.name);
-                
+
                     if (pieceType != EquipArmorType.None)
                     {
                         // 부위별 딕셔너리에 인덱스를 키값으로 등록

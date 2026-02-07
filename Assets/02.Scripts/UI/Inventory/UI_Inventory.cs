@@ -5,8 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Component;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -38,6 +40,7 @@ public class UI_Inventory : UI_Base
     [SerializeField] private UI_InventorySlot _leftHandSlot;
     [SerializeField] private UI_InventorySlot _rightHandSlot;
     
+    private Dictionary<EquipArmorType, UI_InventorySlot> _armorSlotMap; // SlotClass는 실제 슬롯 타입으로 변경하세요
     
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
     private int itemMaximumValue = 50;
@@ -47,6 +50,15 @@ public class UI_Inventory : UI_Base
     private void Awake()
     {
         Init();
+        
+        _armorSlotMap = new Dictionary<EquipArmorType, UI_InventorySlot>
+        {
+            { EquipArmorType.Head, _headSlot },
+            { EquipArmorType.Chest, _chestSlot },
+            { EquipArmorType.Arm, _glovesSlot },
+            { EquipArmorType.Waist, _pantSlot },
+            { EquipArmorType.Leg, _shoesSlot }
+        };
         
         _headSlot.SetParent(this);
         _chestSlot.SetParent(this);
@@ -69,11 +81,13 @@ public class UI_Inventory : UI_Base
         
         RefreshDictItem();
         SetInventory();
+        InitPlayerEquipmentSlot();
         
         EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
             PlayerEvent.EquipItem, 
             OnEquipItem
         );
+        
         // 캐릭터 프리뷰 활성화
         if (_previewRenderer != null)
         {
@@ -111,11 +125,48 @@ public class UI_Inventory : UI_Base
             t.RefreshUI();
         }
 
+        _glovesSlot.RefreshUI();
+        
         _imgWeightFill.fillAmount = InventoryManager.Instance.GetTotalWeight() / InventoryManager.Instance.MaxWeight;
         _txtWeight.text =
             $"({InventoryManager.Instance.GetTotalWeight():0.0}/{InventoryManager.Instance.MaxWeight:0.0})";
     }
 
+    private void InitPlayerEquipmentSlot()
+    {
+        PlayerEquipment playerEquipment = GameObjectManager.Instance?.Player?.GetPlayerEquipment();
+        if (playerEquipment == null)
+        {
+            return;
+        }
+
+        ItemManager manager = ItemManager.Instance;
+        if (manager == null)
+        {
+            return;
+        }
+
+        foreach (EquipArmorType type in Enum.GetValues(typeof(EquipArmorType)))
+        {
+            // None은 제외
+            if (type == EquipArmorType.None) continue;
+
+            // 해당 부위의 아이템 데이터 가져오기
+            var itemKey = playerEquipment.GetActiveEquipmentKey(type);
+            EquipmentSO itemData = manager.GetItemData(itemKey) as EquipmentSO;
+
+            if (itemData != null)
+            {
+                // 매핑된 딕셔너리에서 슬롯을 찾아 Init
+                if (_armorSlotMap.TryGetValue(type, out var slot))
+                {
+                    slot.Init(itemData, 1);
+                    slot.RefreshUI();
+                }
+            }
+        }
+    }
+    
     public void SetItemClickAnimation(UI_InventorySlot slot)
     {
         _itemClickTap.gameObject.SetActive(true);

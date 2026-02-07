@@ -7,9 +7,6 @@ namespace UPlayGround.Data.Event
         // 아이템 키
         public int itemKey;
         
-        // 무기 라면 사용할 용도로 무기 키
-        public string weaponKey;
-        
         // 장착인가 or 해제인가
         public bool isEquip;
 
@@ -22,7 +19,6 @@ namespace UPlayGround.Data.Event
 
     public class PlayerInteractionEvent : IEventData
     {
-        
         public int value;
     }
 }

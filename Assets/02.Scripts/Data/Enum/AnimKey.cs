@@ -82,6 +82,7 @@ namespace UPlayGround.Data.Enum
         Fishing_CatchStart,
         Fishing_CatchLoop,
         Fishing_CatchEnd,
+        Fishing_Catch,
 
         Equip_LeftWeapon = 2000,
         Equip_RightWeapon,
@@ -144,6 +145,7 @@ namespace UPlayGround.Data.Enum
     public enum InteractionAnimEvent
     {
         OnHit,
+        CatchFish
     }
     /// <summary>
     /// 이동 애니메이션 재생 시, 어떤 유형의 애니메이션을 재생할 지

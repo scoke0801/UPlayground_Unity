@@ -15,11 +15,11 @@ MonoBehaviour:
   prefabs:
   - key: InteractionKeyUI
     prefab: {fileID: 3283549912916363737, guid: 938097543b101ed4493ab914714a1d17, type: 3}
-    defaultLayer: 1000
+    defaultLayer: 0
     description: 
   - key: InteractionHPBoard
     prefab: {fileID: 5062329131650619429, guid: 3016e725bfc68c64c8211c7a7880f741, type: 3}
-    defaultLayer: 1000
+    defaultLayer: 0
     description: 
   - key: PauseMenu
     prefab: {fileID: 6818300253272613254, guid: 929e4968274ad9c4a80a55d3420f2479, type: 3}
@@ -31,7 +31,7 @@ MonoBehaviour:
     description: 
   - key: Cursor
     prefab: {fileID: 5133507297570702922, guid: 38675aff5481a7341bf5d89ae186fef9, type: 3}
-    defaultLayer: 4
+    defaultLayer: 3000
     description: 
   - key: ItemAcquisitionList
     prefab: {fileID: 1174032328161560428, guid: c181b2e0ae739e5469aaaf3234f48d51, type: 3}

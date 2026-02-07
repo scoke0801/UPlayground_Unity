@@ -10,13 +10,8 @@ namespace UPlayGround.Manager
         public PlayerActor Player => _player;
 
         private GameInteractionHandler _interactionHandler;
-        public delegate void Interaction();
-
-        public event Interaction OnInteractionOn;
-        public event Interaction OnInteractionOut;
-        public void OnStartInteraction() => OnInteractionOn?.Invoke();
-        public void OnEndInteraction() => OnInteractionOut?.Invoke();
-
+        public GameInteractionHandler InteractionHandler => _interactionHandler;
+        
         public void Init()
         {
             _player = GameObject.FindWithTag("Player")?.GetComponent<PlayerActor>();
@@ -48,6 +43,14 @@ namespace UPlayGround.Manager
 
         public void OnLateUpdate()
         {
+        }
+    }
+
+    public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
+    {
+        public bool CanInteract()
+        {
+            return _interactionHandler.CurrentClosestInteractable != null;
         }
     }
 }

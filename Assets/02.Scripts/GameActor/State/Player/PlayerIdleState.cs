@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -31,6 +32,13 @@ namespace UPlayGround.State
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 playerController.TransitionToState(new PlayerAirborneState(playerController));
+                return;
+            }
+
+            // 인터렉션 상태로 전환
+            if (playerController.HasInteractInput())
+            {
+                playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }
             

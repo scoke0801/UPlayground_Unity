@@ -28,6 +28,11 @@ namespace UPlayGround
             return this.gameObject;
         }
 
+        public InteractableActorSO GetData()
+        {
+            return _interactableData;
+        }
+
         private void OnGatheringComplete()
         {
             // 채집 완료 로직 (아이템 드랍, 오브젝트 파괴 등)

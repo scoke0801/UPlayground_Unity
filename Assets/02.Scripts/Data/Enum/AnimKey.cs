@@ -65,9 +65,23 @@ namespace UPlayGround.Data.Enum
         Skill_3,
         Skill_4,
         
-        Mining = 1000,
-        Fishing,
-        WoodCut,
+        HandGathering = 1000,
+        
+        Woodcutting = 1500,
+        
+        Mining_Ground = 1600,
+        Mining_Wall,
+        
+        GroundWork_Start = 1800,
+        GroundWork_Loop,
+        GroundWork_End,
+        
+        Fishing_Throw = 1900,
+        Fishing_Idle,
+        Fishing_End,
+        Fishing_CatchStart,
+        Fishing_CatchLoop,
+        Fishing_CatchEnd,
 
         Equip_LeftWeapon = 2000,
         Equip_RightWeapon,

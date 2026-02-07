@@ -10,5 +10,7 @@ namespace UPlayGround
          bool CanInteract();
 
          GameObject GetActor();
+
+         InteractableActorSO GetData();
     }
 }

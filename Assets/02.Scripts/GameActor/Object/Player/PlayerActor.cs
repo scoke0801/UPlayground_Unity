@@ -77,6 +77,7 @@ namespace UPlayGround
                 HeavyAttackInput =  _heavyInputCondition,
                 
                 EquipInput = _equipInputCondition,
+                InteractInput = _interactionInputCondition,
                 
                 SkillInput =  new List<InputCondition>()
                 {
@@ -97,6 +98,7 @@ namespace UPlayGround
             _attackInputCondition = InputCondition.None;
             _heavyInputCondition = InputCondition.None;
             _equipInputCondition = InputCondition.None;
+            _interactionInputCondition = InputCondition.None;
 
             for (int i = 0; i < _skillInputCondition.Count; ++i)
             {
@@ -118,6 +120,9 @@ namespace UPlayGround
         private InputCondition _heavyInputCondition;
         
         private InputCondition _equipInputCondition;
+        
+        private InputCondition _interactionInputCondition;
+        
         private List<InputCondition> _skillInputCondition = new List<InputCondition> 
         { 
             InputCondition.None,
@@ -169,6 +174,9 @@ namespace UPlayGround
 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null, null, null, layer);
+                
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,
+                    null, OnInputPerformedInteraction, null, CanInputInteract, null, layer);
             }
         }
 
@@ -214,6 +222,9 @@ namespace UPlayGround
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,
+                    null, OnInputPerformedInteraction, null);
             }
         }
         
@@ -286,6 +297,10 @@ namespace UPlayGround
         {
             _skillInputCondition[3] = InputCondition.Pressed;
         }
+        private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
+        {
+            _interactionInputCondition = InputCondition.Pressed;
+        }
         #endregion
 
         public void ClearCrouchInput()
@@ -298,6 +313,15 @@ namespace UPlayGround
         {
             _jumpInputCondition = InputCondition.None;
             PlayerMovementController.ClearJumpInput();
+        }
+        
+        /// <summary>
+        /// Player가 인터렉션 할 수 있는 상태인가?
+        /// </summary>
+        /// <returns></returns>
+        private bool CanInputInteract()
+        {
+            return GameObjectManager.Instance.CanInteract();
         }
     }
 

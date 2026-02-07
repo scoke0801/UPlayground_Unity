@@ -17,6 +17,12 @@ MonoBehaviour:
     \uC791\uC740 \uD638\uC218"
   interactionObjectType: 3
   hp: 100
-  dropItems: []
+  dropItems:
+  - itemData: {fileID: 11400000, guid: c70b103ae91d52841b8fa9c993178116, type: 2}
+    rate: 100
+    maximumDropCount: 5
+  - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
+    rate: 100
+    maximumDropCount: 5
   showInfoUI: 0
   showShakeEffect: 0

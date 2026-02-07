@@ -90,7 +90,7 @@ namespace UPlayGround.Manager
             float weight = 0;
             foreach (ItemInstance item in _itemPair.Values)
             {
-                weight += item.data.weight;
+                weight += item.data.weight * item.count;
             }
 
             return weight;

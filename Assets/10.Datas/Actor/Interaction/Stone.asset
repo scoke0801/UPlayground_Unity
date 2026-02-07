@@ -16,4 +16,9 @@ MonoBehaviour:
   description: 
   interactionObjectType: 2
   hp: 100
-  dropItems: []
+  dropItems:
+  - itemData: {fileID: 11400000, guid: 426dbc436f8596a4084fb158ff11a548, type: 2}
+    rate: 100
+    maximumDropCount: 5
+  showInfoUI: 1
+  showShakeEffect: 1

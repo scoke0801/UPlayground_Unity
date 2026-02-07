@@ -203,6 +203,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &65381848
 GameObject:
   m_ObjectHideFlags: 0
@@ -214,7 +215,7 @@ GameObject:
   - component: {fileID: 65381850}
   - component: {fileID: 65381849}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: HapticTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -358,6 +359,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: f05c6139e9070454291cd3dfd2e65142, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!136 &368141826
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -586,6 +588,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &786269367
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -758,6 +761,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 5978ad34091316944a0d9d12694c1acc, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!136 &813081351
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -865,6 +869,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &911595846
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -949,6 +954,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &972138004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1033,6 +1039,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &1006718042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1117,6 +1124,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!850595691 &1120297750
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1307,6 +1315,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &1337455048
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1391,6 +1400,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1348250316 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8302815856011406782, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
@@ -1480,6 +1490,7 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
+  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1001 &1452459072
 PrefabInstance:
   m_ObjectHideFlags: 0

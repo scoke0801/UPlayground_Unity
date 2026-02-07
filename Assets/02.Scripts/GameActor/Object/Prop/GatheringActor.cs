@@ -13,6 +13,7 @@ namespace UPlayGround
         [SerializeField] private InteractableActorSO _interactableData;
         [SerializeField] private float _shakeAmount = 5.0f;
         [SerializeField] private float _shakeDuration = 0.5f;
+        [SerializeField] private ItemActor _itemActorPrefab;
         
         private Quaternion _originalRotation = Quaternion.identity;
         
@@ -83,13 +84,14 @@ namespace UPlayGround
                 {
                     EventManager.Instance.Send(PlayerEvent.InteractionTargetDestroy, new EmptyEventData());
                 }
-                // var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
-                // for (int i = 0; i <items.Count; ++i)
-                // {
-                //     var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                //
-                //     go.Init(itemInstance: items[i]);
-                // }
+                
+                var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
+                for (int i = 0; i <items.Count; ++i)
+                {
+                    var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                
+                    go.Init(itemInstance: items[i]);
+                }
             
                 GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
             
@@ -99,30 +101,15 @@ namespace UPlayGround
 
         private void OnCatchFishEvent(PlayerInteractionEvent eventData)
         {
-            UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
-            if (ui == null)
+            var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
+            for (int i = 0; i <items.Count; ++i)
             {
-                return;
+                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                
+                go.Init(itemInstance: items[i]);
             }
             
-            if (_currentHp == 0)
-            {
-                if (EventManager.Instance != null)
-                {
-                    EventManager.Instance.Send(PlayerEvent.InteractionTargetDestroy, new EmptyEventData());
-                }
-                // var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
-                // for (int i = 0; i <items.Count; ++i)
-                // {
-                //     var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                //
-                //     go.Init(itemInstance: items[i]);
-                // }
-            
-                GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
-            
-                Destroy(gameObject);
-            }
+            GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
         }
         
         public bool CanInteract()

@@ -16,4 +16,9 @@ MonoBehaviour:
   description: "\uBAA9\uC7AC\uB97C \uC218\uAE09\uD560 \uC218 \uC788\uB294 \uB098\uBB34"
   interactionObjectType: 1
   hp: 100
-  dropItems: []
+  dropItems:
+  - itemData: {fileID: 11400000, guid: f50d1b71fd51f0f42897f98f6289d48d, type: 2}
+    rate: 100
+    maximumDropCount: 5
+  showInfoUI: 1
+  showShakeEffect: 1

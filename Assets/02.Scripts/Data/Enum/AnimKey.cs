@@ -141,6 +141,10 @@ namespace UPlayGround.Data.Enum
         RightFoot = 21,
     }
 
+    public enum InteractionAnimEvent
+    {
+        OnHit,
+    }
     /// <summary>
     /// 이동 애니메이션 재생 시, 어떤 유형의 애니메이션을 재생할 지
     /// </summary>

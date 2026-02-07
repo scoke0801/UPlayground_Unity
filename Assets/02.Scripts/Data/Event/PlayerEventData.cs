@@ -19,5 +19,10 @@ namespace UPlayGround.Data.Event
         // 무기라면 무기 타입은
         public WeaponType weaponType;
     }
-    
+
+    public class PlayerInteractionEvent : IEventData
+    {
+        
+        public int value;
+    }
 }

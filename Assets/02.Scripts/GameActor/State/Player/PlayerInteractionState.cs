@@ -50,12 +50,25 @@ namespace UPlayGround.State
                 return;
             }
 
+            // 플레이어에 대한 처리
             PlayAnimation();
+            
+            handler.StartInteraction();
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            GameObjectManager.Instance?.InteractionHandler?.StopInteraction();
+            
+            base.OnExit(toState);
+        }
         public override void UpdateState(float deltaTime)
         {
-            
+            if (playerController.HasInteractInput())
+            {
+                ForceChangeToNextState();
+                return;
+            }
         }
 
         private void PlayAnimation()
@@ -149,6 +162,13 @@ namespace UPlayGround.State
         
         private void ForceChangeToNextState()
         {
+            // 지면에서 떨어지면 Airborne 상태로 전환
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                playerController.TransitionToState(new PlayerAirborneState(controller));
+                return;
+            }
+
             // 이동 입력이 있으면 GroundMove 상태로 전환
             if (playerController.HasMoveInput())
             {
@@ -163,7 +183,7 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
            // [TODO] 인터렉션 타겟 대상을 바라보도록 수정필요
-           GameObject target = GameObjectManager.Instance.InteractionHandler.CurrentClosestInteractable.GetActor();
+           GameActor target = GameObjectManager.Instance.InteractionHandler.CurrentClosestInteractable.GetActor();
 
            Vector3 lookDirection = target.transform.position - playerActor.transform.position;
            lookDirection.y = 0f;
@@ -185,13 +205,14 @@ namespace UPlayGround.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            currentVelocity.z = 0;
+            currentVelocity.x = 0;
+            
             if (motor.GroundingStatus.IsStableOnGround == false)
             {
                 // Gravity
                 currentVelocity += controller.Gravity * deltaTime;
             }
-            // Drag
-            currentVelocity *= (1f / (1f + (controller.Drag * deltaTime)));
         }
     }
 }

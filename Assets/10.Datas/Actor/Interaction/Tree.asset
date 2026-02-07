@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Tree
   m_EditorClassIdentifier: 
   actorName: "\uB098\uBB34"
-  description: 
+  description: "\uBAA9\uC7AC\uB97C \uC218\uAE09\uD560 \uC218 \uC788\uB294 \uB098\uBB34"
   interactionObjectType: 1
   hp: 100
   dropItems: []

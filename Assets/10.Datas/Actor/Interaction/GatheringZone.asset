@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa02a0a6ec976447b7baef83e5c1fcb, type: 3}
   m_Name: GatheringZone
   m_EditorClassIdentifier: 
-  actorName: "\uD638\uC218"
-  description: 
+  actorName: "\uC57D\uCD08"
+  description: "\uC18C\uD615 \uBB3C\uC57D\uC758 \uC7AC\uB8CC\uB85C \uC0AC\uC6A9\uB418\uB294
+    \uC57D\uCD08 \uB354\uBBF8"
   interactionObjectType: 4
   hp: 100
   dropItems: []

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa02a0a6ec976447b7baef83e5c1fcb, type: 3}
   m_Name: Stone
   m_EditorClassIdentifier: 
-  actorName: "\uB098\uBB34"
+  actorName: "\uC554\uC11D\uB354\uBBF8"
   description: 
   interactionObjectType: 2
   hp: 100

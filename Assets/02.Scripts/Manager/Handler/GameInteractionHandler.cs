@@ -45,8 +45,8 @@ namespace UPlayGround.Manager.Handler
             
             // Player 주변에 인터렉션 가능한 대상 조회
             FindClosestInteractable(_player.transform.position);
-            
-            if (_currentClosestInteractable != null)
+           
+            if (_currentClosestInteractable != null && _currentClosestInteractable.IsInteracting() == false)
             {
                 ShowIcon(_currentClosestInteractable.GetActor().transform);
             }
@@ -55,10 +55,41 @@ namespace UPlayGround.Manager.Handler
                 RemoveIcon();
             }
         }
+
+        public void StartInteraction()
+        {
+            if (_currentClosestInteractable == null)
+            {
+                return;
+            }
+
+            _currentClosestInteractable.Interact(_player);
+        }
+
+        public void StopInteraction()
+        {
+            if (_currentClosestInteractable == null)
+            {
+                return;
+            }
+            
+            _currentClosestInteractable.StopInteract();
+            
+            UIManager.Instance.HideUI("InteractionHPBoard");
+        }
         
         private void FindClosestInteractable(Vector3 playerPosition)
         {
-            if(_player == null){return;}
+            if (_player == null)
+            {
+                return;
+            }
+
+            if (_currentClosestInteractable != null
+                && _currentClosestInteractable.IsInteracting() == true)
+            {
+                return;
+            }
             
             // Player 주변의 콜라이더들 조회
             Collider[] colliders = Physics.OverlapSphere(playerPosition, 

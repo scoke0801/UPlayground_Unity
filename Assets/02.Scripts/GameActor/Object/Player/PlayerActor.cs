@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Component;
+using UPlayGround.Data.Event;
 using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
@@ -347,4 +348,34 @@ namespace UPlayGround
         }
     }
     
+    // 애니메이션 이벤트 리시버
+    public partial class PlayerActor : GameActor
+    {
+        public void Hit()
+        {
+            IInteractable target = GameObjectManager.Instance?.InteractionHandler?.CurrentClosestInteractable;
+            if (target != null)
+            {
+                target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent()
+                {
+                    value = 30
+                });
+
+                GameActor actor = target.GetActor();
+                if (actor == null)
+                {
+                    return;
+                }
+                
+                Vector3 targetPosition = actor.transform.position;
+                var targetCollider = actor.GetComponent<Collider>();
+                if (targetCollider != null)
+                {
+                    targetPosition.y += targetCollider.bounds.extents.y * 0.5f;
+                }
+                
+                GameObjectManager.Instance.ShowFX("InteractionObjectHitFX", targetPosition);
+            }
+        }
+    }
 }

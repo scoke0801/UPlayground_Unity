@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: FishingZone
   m_EditorClassIdentifier: 
   actorName: "\uD638\uC218"
-  description: 
+  description: "\uC791\uC740 \uBB3C\uACE0\uAE30\uB4E4\uC774 \uC0B4\uACE0 \uC788\uB294
+    \uC791\uC740 \uD638\uC218"
   interactionObjectType: 3
   hp: 100
   dropItems: []

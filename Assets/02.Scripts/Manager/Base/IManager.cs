@@ -9,6 +9,11 @@ namespace UPlayGround.Manager
         /// 매니저 초기화 (최초 1회 실행)
         /// </summary>
         void Init();
+        
+        /// <summary>
+        /// 매니저 초기화 후 처리, 모든 매니저의 Init이 호출된 이후 호출
+        /// </summary>
+        void AfterInit();
 
         /// <summary>
         /// 매니저 정리 (씬 전환 또는 종료 시 실행)

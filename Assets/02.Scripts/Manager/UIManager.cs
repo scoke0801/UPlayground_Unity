@@ -66,6 +66,11 @@ namespace UPlayGround.Manager
             Debug.Log("[UIManager] 초기화 완료");
         }
 
+        public void AfterInit()
+        {
+            
+        }
+
         public void Dispose()
         {
             Debug.Log("[UIManager] 정리 시작");

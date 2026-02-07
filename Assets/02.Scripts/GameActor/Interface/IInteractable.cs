@@ -1,4 +1,6 @@
-﻿namespace UPlayGround
+﻿using UnityEngine;
+
+namespace UPlayGround
 {
     public interface IInteractable
     {
@@ -6,5 +8,7 @@
          
          // (선택) 현재 상호작용이 가능한 상태인지 체크
          bool CanInteract();
+
+         GameObject GetActor();
     }
 }

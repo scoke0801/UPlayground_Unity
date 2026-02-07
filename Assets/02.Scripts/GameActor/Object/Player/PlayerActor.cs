@@ -13,6 +13,15 @@ using UPlayGround.Manager;
 
 namespace UPlayGround
 {
+    public partial class PlayerActor : GameActor
+    {
+        [SerializeField] private float _interactionRadius;
+        [SerializeField] private LayerMask _interactionLayer;
+        
+        public float InteractionRadius => _interactionRadius;
+        public LayerMask InteractionLayer => _interactionLayer;
+        
+    }
     /// <summary>
     /// 
     /// </summary>

@@ -114,6 +114,10 @@ namespace UPlayGround.Manager
             Debug.Log("[CameraManager] 초기화 완료");
         }
 
+        public void AfterInit()
+        {
+            
+        }
         /// <summary>
         /// 카메라 초기 위치 설정
         /// </summary>

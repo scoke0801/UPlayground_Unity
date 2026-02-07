@@ -19,6 +19,11 @@ namespace UPlayGround.Manager
             LoadItemDatabase();
         }
 
+        public void AfterInit()
+        {
+            
+        }
+
         public void Dispose()
         {
         }

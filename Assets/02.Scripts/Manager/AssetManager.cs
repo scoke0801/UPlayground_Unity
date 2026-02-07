@@ -13,6 +13,11 @@ namespace UPlayGround.Manager
             LoadItemAtlas();
         }
 
+        public void AfterInit()
+        {
+            
+        }
+        
         public void Dispose()
         {
         }

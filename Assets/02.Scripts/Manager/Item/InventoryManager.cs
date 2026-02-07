@@ -18,6 +18,11 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void AfterInit()
+        {
+            
+        }
+
         public void Dispose()
         {
         }

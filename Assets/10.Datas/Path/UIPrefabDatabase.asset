@@ -15,11 +15,11 @@ MonoBehaviour:
   prefabs:
   - key: InteractionKeyUI
     prefab: {fileID: 3283549912916363737, guid: 938097543b101ed4493ab914714a1d17, type: 3}
-    defaultLayer: 2
+    defaultLayer: 1000
     description: 
   - key: InteractionHPBoard
     prefab: {fileID: 5062329131650619429, guid: 3016e725bfc68c64c8211c7a7880f741, type: 3}
-    defaultLayer: 2
+    defaultLayer: 1000
     description: 
   - key: PauseMenu
     prefab: {fileID: 6818300253272613254, guid: 929e4968274ad9c4a80a55d3420f2479, type: 3}

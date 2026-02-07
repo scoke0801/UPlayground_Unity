@@ -12,6 +12,11 @@ namespace UPlayGround.Manager
             ChangeSceneType(SceneType.GamePlay);
         }
 
+        public void AfterInit()
+        {
+            
+        }
+        
         public void Dispose()
         {
         }

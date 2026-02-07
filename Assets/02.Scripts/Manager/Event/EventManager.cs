@@ -11,6 +11,11 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void AfterInit()
+        {
+            
+        }
+
         public void Dispose()
         {
             _eventTable.Clear();

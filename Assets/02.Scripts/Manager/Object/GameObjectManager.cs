@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
+using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager
 {
     public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
     {
-        private GameObject _player;
+        private PlayerActor _player;
 
-        public GameObject Player => _player;
+        public PlayerActor Player => _player;
 
         private GameInteractionHandler _interactionHandler;
         public delegate void Interaction();
@@ -18,13 +19,22 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
-            _player = GameObject.FindWithTag("Player");
+            _player = GameObject.FindWithTag("Player")?.GetComponent<PlayerActor>();
 
+            _interactionHandler = new GameInteractionHandler();
+            _interactionHandler.Init();
+            
             LoadFXPrefabDatabase();
+        }
+
+        public void AfterInit()
+        {
+            
         }
 
         public void Dispose()
         {
+            _interactionHandler.Dispose();
         }
 
         public void OnUpdate()

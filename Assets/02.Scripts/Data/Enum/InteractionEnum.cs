@@ -2,7 +2,6 @@
 {
     public enum LifeInteractionType
     {
-        
         NONE = 0,
         WOODCUTTING,    // 벌목
         MINING,         // 채광

@@ -53,11 +53,15 @@ namespace UPlayGround.Manager
             RegisterManager(EventManager.Instance);
             
             RegisterManager(SceneManager.Instance);
+
+            // Init이후에 후처리 필요한 경우 
+            AfterInit();
             
             _isInitialized = true;
 
             Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");
         }
+
 
         /// <summary>
         /// 매니저 등록 및 초기화
@@ -113,6 +117,14 @@ namespace UPlayGround.Manager
             return null;
         }
 
+        private void AfterInit()
+        {
+            // 모든 매니저의 OnUpdate 호출
+            foreach (var manager in _registeredManagers)
+            {
+                manager?.AfterInit();
+            }
+        }
         private void Update()
         {
             if (!_isInitialized) return;

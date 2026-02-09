@@ -35,7 +35,6 @@ namespace UPlayGround.MovementController
         [Header("Misc")]
         public bool RotationObstruction;
         public Vector3 Gravity = new Vector3(0, -30f, 0);
-        public Transform MeshRoot;
 
         protected List<Collider> IgnoredColliders = new List<Collider>();
         protected Vector3 _internalVelocityAdd = Vector3.zero;

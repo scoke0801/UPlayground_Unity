@@ -24,7 +24,7 @@ namespace UPlayGround.Manager.Handler
         
         public async void Init()
         {
-            _config = await GameManager.LoadAddressableAsync<InteractionConfig>("InteractionConfig");
+            //_config = await GameManager.LoadAddressableAsync<InteractionConfig>("InteractionConfig");
             _isInitialized = true;
         
             _camera = Camera.main;

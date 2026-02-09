@@ -37,27 +37,28 @@ namespace UPlayGround
 
         IEnumerator SpreadAndMoveToPlayer()
         {
-            Vector3 spreadDirection = Random.insideUnitSphere * _spreadRadius;
+            // 1. 확산 범위 조절 (너무 크면 멀리 튐)
+            Vector3 spreadDirection = Random.insideUnitSphere * 2.0f; 
             Vector3 spreadPosition = transform.position + spreadDirection;
 
-            spreadPosition.y = Mathf.Max(spreadPosition.y, 5.0f);
-            
+            // 2. Y값 고정 대신 상대적 높이 부여
+            spreadPosition.y = transform.position.y + 1.5f; 
+    
             float spreadTime = 0.3f;
             float elapsedTime = 0.0f;
-
             Vector3 startPosition = transform.position;
-            
+    
             while (elapsedTime < spreadTime)
             {
                 elapsedTime += Time.deltaTime;
                 float t = elapsedTime / spreadTime;
-                
-                transform.position = Vector3.Lerp(startPosition, spreadDirection, t);
-
+        
+                // 3. spreadPosition으로 수정!!
+                transform.position = Vector3.Lerp(startPosition, spreadPosition, t);
                 yield return null;
             }
 
-            StartCoroutine(MoveToPlayer(spreadPosition));
+            StartCoroutine(MoveToPlayer(transform.position)); // 현재 위치에서 시작
         }
 
         IEnumerator MoveToPlayer(Vector3 startPosition)

@@ -3227,7 +3227,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3237061308288704809, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.3616133
+      value: 1.361613
       objectReference: {fileID: 0}
     - target: {fileID: 3237061308288704809, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3237,13 +3237,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_Actor (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4337877160764649497, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
+      propertyPath: _interactionLayer.m_Bits
+      value: 512
+      objectReference: {fileID: 0}
     - target: {fileID: 7015050889571155708, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.125
       objectReference: {fileID: 0}
     - target: {fileID: 7015050889571155708, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.955
+      value: 1.289
       objectReference: {fileID: 0}
     - target: {fileID: 7015050889571155708, guid: c6b362a047c36b44ca52db8cd0f086cd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4262,8 +4266,8 @@ SceneRoots:
   - {fileID: 974487082}
   - {fileID: 751654534}
   - {fileID: 135162693149594074}
+  - {fileID: 635548530}
   - {fileID: 44225614}
   - {fileID: 1169229978}
   - {fileID: 776313850}
   - {fileID: 65381850}
-  - {fileID: 635548530}

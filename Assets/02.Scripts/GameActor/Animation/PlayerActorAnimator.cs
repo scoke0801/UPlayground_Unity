@@ -13,16 +13,20 @@ namespace UPlayGround.Animation
 
         private PlayerActor _playerActor;
         private PlayerEquipment _playerEquipment;
+        private PlayerCombat _playerCombat;
 
         public bool IsOpenedComboWindow { get; set; } = false;
-        
+
         public override void Init(GameActor actor)
         {
             base.Init(actor);
-            
+
             _playerActor = actor as PlayerActor;
             if (_playerActor != null)
+            {
                 _playerEquipment = _playerActor.GetPlayerEquipment();
+                _playerCombat = _playerActor.GetCombat();
+            }
         }
 
         public override AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0)
@@ -55,6 +59,23 @@ namespace UPlayGround.Animation
         private void OnAnimationEvent_OpenComboWindow()
         {
             IsOpenedComboWindow = true;
+        }
+        
+        /// <summary>
+        /// 애니메이션 이벤트: 히트 판정 실행
+        /// 각 공격 애니메이션의 무기가 적에게 닿는 프레임에 호출됨
+        /// </summary>
+        private void OnAnimationEvent_HitCheck()
+        {
+            if (_playerCombat == null)
+            {
+                Debug.LogWarning("[PlayerActorAnimator] PlayerCombat이 없습니다!");
+                return;
+            }
+            
+            _playerCombat.PerformHitDetection();
+            
+            Debug.Log($"[PlayerActorAnimator] 히트 판정 실행: {Time.frameCount} 프레임");
         }
     }
 }

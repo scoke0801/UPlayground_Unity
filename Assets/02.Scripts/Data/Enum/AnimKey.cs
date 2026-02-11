@@ -25,7 +25,6 @@ namespace UPlayGround.Data.Enum
         Idle_To_Crouch,
         Crouch_To_Idle,
         
-
         Attack_1 = 100,
         Attack_2,
         Attack_3,
@@ -64,6 +63,11 @@ namespace UPlayGround.Data.Enum
         Skill_2,
         Skill_3,
         Skill_4,
+        
+        Hit = 700,
+        Die = 800,
+        
+        Knockback = 900,
         
         HandGathering = 1000,
         

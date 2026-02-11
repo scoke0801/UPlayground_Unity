@@ -69,7 +69,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
+            //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
                 if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
                 {

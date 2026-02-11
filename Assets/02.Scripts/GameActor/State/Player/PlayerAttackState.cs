@@ -144,14 +144,14 @@ namespace UPlayGround.State
             
             return _currentAttack?.animKey ?? AnimKey.None;
         }
-
+    
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
             currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             
-            Debug.Log($"CurrentVelocity: {currentVelocity}");
+            //Debug.Log($"CurrentVelocity: {currentVelocity}");
         }
     }
 }

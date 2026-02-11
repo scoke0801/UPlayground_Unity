@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
@@ -23,6 +24,16 @@ namespace UPlayGround.Component
         
         [Tooltip("공격 중 끊을 수 있는지 여부")]
         public bool canBeInterrupted;
+        
+        [Header("Hit Detection")]
+        [Tooltip("히트 판정 범위 (반지름)")]
+        public float hitRange = 2.0f;
+        
+        [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
+        public float hitAngle = 60f;
+        
+        [Tooltip("히트 판정 높이 오프셋")]
+        public float hitHeightOffset = 1.0f;
     }
     
     public class AttackData
@@ -31,6 +42,11 @@ namespace UPlayGround.Component
         public float damage;
         public float duration;
         public bool canBeInterrupted;
+        
+        // Hit Detection Data
+        public float hitRange;
+        public float hitAngle;
+        public float hitHeightOffset;
         
         public Vector3 hitPoint;        // 공격 적중 위치
         public GameObject hitTarget;     // 피격 대상
@@ -61,11 +77,19 @@ namespace UPlayGround.Component
         [SerializeField] private ComboData[] _comboChain;
         [SerializeField] private ComboData[] _heavyComoboChain;
         
+        [Header("Hit Detection Settings")]
+        [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
+        [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
+
         // 현재 전투 상태
         public int CurrentComboIndex { get; private set; }
         public float LastAttackTime { get; private set; }
         public bool CanCombo { get; private set; }
 
+        // 현재 공격 정보 (히트 판정용)
+        private AttackData _currentAttackData;
+        public AttackData CurrentAttackData => _currentAttackData;
+        
         private AttackState _attackState = AttackState.NormalAttack;
         
         // 이벤트
@@ -88,10 +112,10 @@ namespace UPlayGround.Component
         /// </summary>
         public AttackData ExecuteAttack()
         {
-            if (!_equipment.IsMainWeaponEquipped)
-            {
-                return null;
-            }
+            // if (!_equipment.IsMainWeaponEquipped)
+            // {
+            //     return null;
+            // }
 
             if (_attackState == AttackState.HeavyAttack)
             {
@@ -111,14 +135,14 @@ namespace UPlayGround.Component
             
             // ComboData를 AttackData로 변환
             var comboData = _comboChain[CurrentComboIndex];
-            var attackData = ConvertToAttackData(comboData);
+            _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
             CanCombo = true;
             
-            OnAttackStarted?.Invoke(attackData);
+            OnAttackStarted?.Invoke(_currentAttackData );
             
-            return attackData;
+            return _currentAttackData ;
         }
         
         /// <summary>
@@ -126,11 +150,11 @@ namespace UPlayGround.Component
         /// </summary>
         public AttackData ExecuteHeavyAttack()
         {
-            if (!_equipment.IsSubWeaponEquipped)
-            {
-                return null;
-            }
-            
+            // if (!_equipment.IsSubWeaponEquipped)
+            // {
+            //     return null;
+            // }
+            //
             if (_attackState == AttackState.NormalAttack)
             {
                 ResetCombo();
@@ -149,14 +173,77 @@ namespace UPlayGround.Component
             
             // ComboData를 AttackData로 변환
             var comboData = _heavyComoboChain[CurrentComboIndex];
-            var attackData = ConvertToAttackData(comboData);
+            _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
             CanCombo = true;
             
-            OnAttackStarted?.Invoke(attackData);
+            OnAttackStarted?.Invoke(_currentAttackData );
             
-            return attackData;
+            return _currentAttackData ;
+        }
+        
+        /// <summary>
+        /// 히트 판정 실행 (애니메이션 이벤트에서 호출)
+        /// </summary>
+        public void PerformHitDetection()
+        {
+            if (_currentAttackData == null)
+            {
+                Debug.LogWarning("[PlayerCombat] 현재 공격 정보가 없습니다.");
+                return;
+            }
+
+            // 플레이어 위치와 방향
+            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            Vector3 forward = transform.forward;
+            
+            // 범위 내 모든 Collider 검출
+            Collider[] hits = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
+            
+            List<IDamageable> hitTargets = new List<IDamageable>();
+            
+            foreach (var hit in hits)
+            {
+                // 자기 자신은 제외
+                if (hit.transform == transform || hit.transform.IsChildOf(transform))
+                    continue;
+                
+                // 각도 체크
+                Vector3 directionToTarget = (hit.transform.position - transform.position).normalized;
+                float angle = Vector3.Angle(forward, directionToTarget);
+                
+                if (angle > _currentAttackData.hitAngle)
+                    continue;
+                
+                // IDamageable 컴포넌트 확인
+                IDamageable damageable = hit.GetComponent<IDamageable>();
+                if (damageable == null)
+                    damageable = hit.GetComponentInParent<IDamageable>();
+                
+                //Physics.ComputePenetration()
+                if (damageable != null && damageable.CanTakeDamage() && !hitTargets.Contains(damageable))
+                {
+                    hitTargets.Add(damageable);
+                    
+                    // AttackData에 히트 정보 채우기
+                    _currentAttackData.hitTarget = hit.gameObject;
+                    _currentAttackData.hitPoint = hit.ClosestPoint(origin);
+                    
+                    // 데미지 적용
+                    damageable.TakeDamage(_currentAttackData);
+                    
+                    // 히트 이벤트 발생
+                    OnAttackHit?.Invoke(_currentAttackData);
+                    
+                    Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
+                }
+            }
+            
+            if (_showHitDebug)
+            {
+                Debug.Log($"[PlayerCombat] 히트 판정: {hitTargets.Count}개 타겟 적중");
+            }
         }
         
         /// <summary>
@@ -171,7 +258,10 @@ namespace UPlayGround.Component
                 animKey = comboData.animKey,
                 damage = comboData.damage,
                 duration = duration,
-                canBeInterrupted = comboData.canBeInterrupted
+                canBeInterrupted = comboData.canBeInterrupted,
+                hitRange = comboData.hitRange,
+                hitAngle = comboData.hitAngle,
+                hitHeightOffset = comboData.hitHeightOffset
             };
         }
         
@@ -202,6 +292,7 @@ namespace UPlayGround.Component
         /// </summary>
         private bool CanContinueCombo()
         {
+            return false;
             int length = (_attackState == AttackState.NormalAttack) ? _comboChain.Length : _heavyComoboChain.Length;
             
             float timeSinceLastAttack = Time.time - LastAttackTime;
@@ -248,6 +339,29 @@ namespace UPlayGround.Component
         public AnimKey GetCurrentAttackAnimKey()
         {
             return _comboChain[CurrentComboIndex].animKey;
+        }
+        
+        // 디버그 시각화
+        private void OnDrawGizmosSelected()
+        {
+            if (!_showHitDebug || _currentAttackData == null)
+                return;
+            
+            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            Vector3 forward = transform.forward;
+            
+            // 히트 범위 구체
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(origin, _currentAttackData.hitRange);
+            
+            // 히트 각도 시각화
+            Gizmos.color = Color.yellow;
+            Vector3 rightBoundary = Quaternion.Euler(0, _currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange;
+            Vector3 leftBoundary = Quaternion.Euler(0, -_currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange;
+            
+            Gizmos.DrawLine(origin, origin + rightBoundary);
+            Gizmos.DrawLine(origin, origin + leftBoundary);
+            Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
         }
     }
 }

@@ -678,6 +678,7 @@ namespace UPlayGround.Manager
             if (IsValidTarget(lockOnTarget) == false)
             {
                 ReleaseLockOn();
+                return;
             }
             
             // 대상이 너무 멀어지면 LockOn 해제
@@ -699,6 +700,11 @@ namespace UPlayGround.Manager
             // Yaw, Pitch 계산
             float targetYaw = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
             float targetPitch = Mathf.Asin(-directionToTarget.y) * Mathf.Rad2Deg;
+
+            // 거리에 따른 Pitch 제한 (가까울수록 제한)
+            float pitchLimitByDistance = Mathf.Lerp(maxVerticalAngle * 0.5f, maxVerticalAngle, 
+                Mathf.Clamp01((distance - 3f) / 7f)); // 3m 이하에서는 제한, 10m 이상에서는 풀 각도
+            targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, pitchLimitByDistance);
 
             // 부드럽게 회전
             currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSpeed);

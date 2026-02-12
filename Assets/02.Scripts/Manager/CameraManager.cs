@@ -55,11 +55,8 @@ namespace UPlayGround.Manager
         private float cameraRadius = 0.3f; // 카메라 반지름 (SphereCast용)
         
         //LockOn Settings
-        private bool enableLockOn = true; // LockOn 활성화
-
         private LayerMask lockOnLayerMask; // LockOn 대상 레이어
         private float lockOnRange = 15f; // LockOn 최대 거리
-        private float lockOnAngle = 60f; // LockOn 시야각 (전방 기준)
         private float lockOnSwitchDistance = 2f; // 대상 전환 최소 거리
 
         private float targetSwitchCooldown = 0.2f; // 전환 쿨다운 (연타 방지)
@@ -86,6 +83,7 @@ namespace UPlayGround.Manager
         private float lastSwitchTime; // 마지막 전환 시간
 
         private Transform lockOnTarget; // 현재 LockOn 대상
+        private CapsuleCollider lockOnTargetCollider; // LockOn 대상 Collider
         private bool isLockOnActive; // LockOn 활성화 상태
 
         private bool isCameraAligning; // 카메라 보정 중인지
@@ -235,10 +233,6 @@ namespace UPlayGround.Manager
         /// </summary>
         private void HandleInput()
         {
-            // LockOn이나 카메라 정렬 중일 때는 마우스 입력 무시
-            if (isLockOnActive || isCameraAligning)
-                return;
-            
             if (Cursor.visible)
                 return;
 
@@ -458,18 +452,15 @@ namespace UPlayGround.Manager
             }
 
             // LockOn 범위 표시
-            if (enableLockOn)
-            {
-                Gizmos.color = isLockOnActive ? Color.red : Color.green;
-                Gizmos.DrawWireSphere(target.position, lockOnRange);
+            Gizmos.color = isLockOnActive ? Color.red : Color.green;
+            Gizmos.DrawWireSphere(target.position, lockOnRange);
 
-                // LockOn 대상 표시
-                if (isLockOnActive && lockOnTarget != null)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawLine(target.position, lockOnTarget.position);
-                    Gizmos.DrawWireSphere(lockOnTarget.position, 0.5f);
-                }
+            // LockOn 대상 표시
+            if (isLockOnActive && lockOnTarget != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(target.position, lockOnTarget.position);
+                Gizmos.DrawWireSphere(lockOnTarget.position, 0.5f);
             }
         }
 
@@ -496,7 +487,7 @@ namespace UPlayGround.Manager
 
         private void OnInputPerformedLockOn(InputAction.CallbackContext obj)
         {
-            if (enableLockOn == false || target == null)
+            if (target == null)
                 return;
 
             if (isLockOnActive)
@@ -523,6 +514,8 @@ namespace UPlayGround.Manager
             if (Time.time - lastSwitchTime < targetSwitchCooldown)
                 return;
 
+            CollectLockOnTarget();
+            
             SwitchTarget(1); // 오른쪽 = 인덱스 증가
         }
 
@@ -535,6 +528,8 @@ namespace UPlayGround.Manager
             if (Time.time - lastSwitchTime < targetSwitchCooldown)
                 return;
 
+            CollectLockOnTarget();
+
             SwitchTarget(-1); // 왼쪽 = 인덱스 감소
         }
 
@@ -544,6 +539,25 @@ namespace UPlayGround.Manager
         /// LockOn 시도 - IDamageable을 가진 대상 검색
         /// </summary>
         private bool TryLockOn()
+        {
+            CollectLockOnTarget();
+            
+            if (availableTargets.Count > 0)
+            {
+                currentTargetIndex = 0;
+                lockOnTarget = availableTargets[currentTargetIndex];
+                isLockOnActive = true;
+
+                lockOnTarget.GetComponent<IDamageable>()?.LockOn();
+                lockOnTargetCollider = lockOnTarget.GetComponent<CapsuleCollider>();
+                
+                return true;
+            }
+
+            return false;
+        }
+
+        private void CollectLockOnTarget()
         {
             Vector3 origin = target.position;
             Vector3 forward = mainCamera.transform.forward;
@@ -573,15 +587,12 @@ namespace UPlayGround.Manager
                 Vector3 directionToTarget = (hit.transform.position - origin).normalized;
                 float angle = Vector3.Angle(forward, directionToTarget);
 
-                if (angle <= lockOnAngle)
+                targetInfos.Add(new TargetInfo
                 {
-                    targetInfos.Add(new TargetInfo
-                    {
-                        transform = hit.transform,
-                        angle = angle,
-                        direction = directionToTarget
-                    });
-                }
+                    transform = hit.transform,
+                    angle = angle,
+                    direction = directionToTarget
+                });
             }
 
             // 각도 순으로 정렬
@@ -592,18 +603,7 @@ namespace UPlayGround.Manager
             {
                 availableTargets.Add(info.transform);
             }
-
-            if (availableTargets.Count > 0)
-            {
-                currentTargetIndex = 0;
-                lockOnTarget = availableTargets[currentTargetIndex];
-                isLockOnActive = true;
-                return true;
-            }
-
-            return false;
         }
-
         /// <summary>
         /// 캐릭터 뒷통수 방향으로 카메라 보정 시작
         /// </summary>
@@ -632,7 +632,7 @@ namespace UPlayGround.Manager
 
             // 캐릭터의 forward 방향 (뒷통수 방향)
             Vector3 targetForward = target.forward;
-            float targetPitch = 0f;
+            float targetPitch = 25f;
             
             // 목표 Yaw 계산 (캐릭터가 바라보는 방향)
             float targetYaw = Mathf.Atan2(targetForward.x, targetForward.z) * Mathf.Rad2Deg;
@@ -650,7 +650,17 @@ namespace UPlayGround.Manager
         /// </summary>
         private void ReleaseLockOn()
         {
+            if (lockOnTarget != null)
+            {
+                IDamageable target = lockOnTarget.GetComponent<IDamageable>();
+                if (target != null)
+                {
+                    target.UnLockOn();
+                }
+            }
+            
             lockOnTarget = null;
+            lockOnTargetCollider = null;
             isLockOnActive = false;
             availableTargets.Clear();
             currentTargetIndex = -1;
@@ -667,21 +677,7 @@ namespace UPlayGround.Manager
             // 대상 유효성 체크
             if (IsValidTarget(lockOnTarget) == false)
             {
-                // 다른 대상이 있으면 자동 전환 
-                // [TODO] 자동 락온 해제하는 게 더 자연스러울 수 있다...
-                availableTargets.Remove(lockOnTarget);
-        
-                if (availableTargets.Count > 0)
-                {
-                    currentTargetIndex = Mathf.Clamp(currentTargetIndex, 0, availableTargets.Count - 1);
-                    lockOnTarget = availableTargets[currentTargetIndex];
-                }
-                else
-                {
-                    // 대상이 없으면 LockOn 해제
-                    ReleaseLockOn();
-                    return;
-                }
+                ReleaseLockOn();
             }
             
             // 대상이 너무 멀어지면 LockOn 해제
@@ -692,8 +688,13 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            // [TODO] 옵션으로 빼고 싶다
+            float lockOnHeightOffset = (lockOnTargetCollider != null) 
+                ? lockOnTargetCollider.height * 0.75f : 1f;
+            
             // 대상을 향한 방향 계산
-            Vector3 directionToTarget = (lockOnTarget.position - target.position).normalized;
+            Vector3 targetLockOnPosition = lockOnTarget.position - Vector3.up * lockOnHeightOffset;
+            Vector3 directionToTarget = (targetLockOnPosition - target.position).normalized;;
 
             // Yaw, Pitch 계산
             float targetYaw = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
@@ -735,9 +736,17 @@ namespace UPlayGround.Manager
 
             currentTargetIndex = Mathf.Clamp(currentTargetIndex + direction, 0, availableTargets.Count - 1);
 
+            if (lockOnTarget != null)
+            {
+                lockOnTarget.GetComponent<IDamageable>()?.UnLockOn();
+            }
             // 대상 전환
             lockOnTarget = availableTargets[currentTargetIndex];
+            lockOnTargetCollider = lockOnTarget.GetComponent<CapsuleCollider>();
+            
             lastSwitchTime = Time.time; 
+            
+            lockOnTarget.GetComponent<IDamageable>()?.LockOn();
         }
 
         /// <summary>
@@ -774,6 +783,7 @@ namespace UPlayGround.Manager
             {
                 currentTargetIndex = 0;
                 lockOnTarget = availableTargets[0];
+                lockOnTargetCollider = lockOnTarget.GetComponent<CapsuleCollider>();
             }
         }
 

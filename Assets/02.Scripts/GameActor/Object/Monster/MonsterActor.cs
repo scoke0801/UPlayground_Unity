@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UPlayGround.Component;
+using UPlayGround.Data.Config;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -10,6 +11,7 @@ namespace UPlayGround
         [SerializeField] private float _maxHealth = 100f;
         [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool _isInvincible = false;
+        [SerializeField] private GameObject _lockOnDecal = null;
         
         protected override void Awake()
         {
@@ -63,7 +65,17 @@ namespace UPlayGround
         {
             return transform;
         }
-        
+
+        public void LockOn()
+        {
+            _lockOnDecal?.SetActive(true);
+        }
+
+        public void UnLockOn()
+        {
+            _lockOnDecal?.SetActive(false);
+        }
+
         #endregion
         
         /// <summary>

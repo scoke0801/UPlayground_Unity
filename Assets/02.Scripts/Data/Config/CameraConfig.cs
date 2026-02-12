@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 
 namespace UPlayGround.Data.Config
 {
@@ -13,7 +14,9 @@ namespace UPlayGround.Data.Config
             "Player",
             "Enemy",
         };
-        
+
+        public static readonly LayerMask LockOnOutlineLayerMask = LayerMask.NameToLayer("LockOnOutline");
+
         public static LayerMask GetLockOnLayerMask()
         {
             LayerMask mask = 0;

@@ -27,5 +27,15 @@ namespace UPlayGround
         /// 액터의 Transform 반환 (히트 포인트 계산용)
         /// </summary>
         Transform GetTransform();
+
+        /// <summary>
+        /// 락온
+        /// </summary>
+        void LockOn();
+        
+        /// <summary>
+        /// 락온해제
+        /// </summary>
+        void UnLockOn();
     }
 }

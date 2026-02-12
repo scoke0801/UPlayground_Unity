@@ -244,6 +244,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockOnSwitchLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""7630cf83-1181-4a33-916d-508009be2096"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockOnSwitchRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""30369c77-49cc-4be2-bc78-cee46ba9f532"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -459,7 +477,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""2ca92e52-f38b-49c8-8403-e4d08c5987f5"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -475,6 +493,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""LockOn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3f821e27-d095-40ec-b0b2-93bef28630c2"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOnSwitchLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6fb26c1b-995a-4982-becb-336c9b919a50"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOnSwitchRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1047,6 +1087,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Skill_4 = m_PlayerAction.FindAction("Skill_4", throwIfNotFound: true);
         m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         m_PlayerAction_LockOn = m_PlayerAction.FindAction("LockOn", throwIfNotFound: true);
+        m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
+        m_PlayerAction_LockOnSwitchRight = m_PlayerAction.FindAction("LockOnSwitchRight", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1176,6 +1218,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Skill_4;
     private readonly InputAction m_PlayerAction_Equip;
     private readonly InputAction m_PlayerAction_LockOn;
+    private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
+    private readonly InputAction m_PlayerAction_LockOnSwitchRight;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1256,6 +1300,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @LockOn => m_Wrapper.m_PlayerAction_LockOn;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchLeft".
+        /// </summary>
+        public InputAction @LockOnSwitchLeft => m_Wrapper.m_PlayerAction_LockOnSwitchLeft;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchRight".
+        /// </summary>
+        public InputAction @LockOnSwitchRight => m_Wrapper.m_PlayerAction_LockOnSwitchRight;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -1332,6 +1384,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOn.started += instance.OnLockOn;
             @LockOn.performed += instance.OnLockOn;
             @LockOn.canceled += instance.OnLockOn;
+            @LockOnSwitchLeft.started += instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.performed += instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.canceled += instance.OnLockOnSwitchLeft;
+            @LockOnSwitchRight.started += instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.performed += instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.canceled += instance.OnLockOnSwitchRight;
         }
 
         /// <summary>
@@ -1394,6 +1452,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOn.started -= instance.OnLockOn;
             @LockOn.performed -= instance.OnLockOn;
             @LockOn.canceled -= instance.OnLockOn;
+            @LockOnSwitchLeft.started -= instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.performed -= instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.canceled -= instance.OnLockOnSwitchLeft;
+            @LockOnSwitchRight.started -= instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.performed -= instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.canceled -= instance.OnLockOnSwitchRight;
         }
 
         /// <summary>
@@ -2074,6 +2138,20 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLockOn(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LockOnSwitchLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLockOnSwitchLeft(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LockOnSwitchRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLockOnSwitchRight(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

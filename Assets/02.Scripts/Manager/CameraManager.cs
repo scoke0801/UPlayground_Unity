@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Config;
@@ -17,47 +18,58 @@ namespace UPlayGround.Manager
     /// </summary>
     public class CameraManager : BaseManager<CameraManager>, IManager
     {
-        [Header("Target")]
-        [SerializeField] private Transform target; // 추적할 타겟 (플레이어)
+        // 대상 정보를 담는 헬퍼 클래스
+        private class TargetInfo
+        {
+            public Transform transform;
+            public float angle;
+            public Vector3 direction;
+        }
 
-        [Header("Camera Settings")] 
-        [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
+        //Target
+        private Transform target; // 추적할 타겟 (플레이어)
 
-        [SerializeField] private float defaultDistance = 5f; // 기본 거리
-        [SerializeField] private float minDistance = 2f; // 최소 거리
-        [SerializeField] private float maxDistance = 10f; // 최대 거리
+        //Camera Settings
+        private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
 
-        [Header("Rotation Settings")] 
-        [SerializeField] private float rotationSpeed = 20f; // 카메라 회전 속도
+        private float defaultDistance = 5f; // 기본 거리
+        private float minDistance = 2f; // 최소 거리
+        private float maxDistance = 10f; // 최대 거리
 
-        [SerializeField] private float minVerticalAngle = -30f; // 최소 수직 각도
-        [SerializeField] private float maxVerticalAngle = 70f; // 최대 수직 각도
+        //Rotation Settings
+        private float rotationSpeed = 20f; // 카메라 회전 속도
+        private float minVerticalAngle = -30f; // 최소 수직 각도
+        private float maxVerticalAngle = 70f; // 최대 수직 각도
 
-        [Header("Zoom Settings")] 
-        [SerializeField] private float zoomSpeed = 0.5f; // 줌 속도
-        [SerializeField] private float zoomSmoothTime = 0.1f; // 줌 부드러움
+        //Zoom Settings
+        private float zoomSpeed = 0.5f; // 줌 속도
+        private float zoomSmoothTime = 0.1f; // 줌 부드러움
 
-        [Header("Smooth Settings")] 
-        [SerializeField] private float positionSmoothTime = 0.1f; // 위치 부드러움
-        [SerializeField] private float rotationSmoothTime = 0.1f; // 회전 부드러움
+        //Smooth Settings
+        private float positionSmoothTime = 0.1f; // 위치 부드러움
+        private float rotationSmoothTime = 0.1f; // 회전 부드러움
 
-        [Header("Collision Settings")] 
-        [SerializeField] private bool enableCollision = true; // 충돌 감지 활성화
-        [SerializeField] private LayerMask collisionLayers = -1; // 충돌 레이어
-        [SerializeField] private float collisionOffset = 0.2f; // 충돌 오프셋
+        //Collision Settings
+        private LayerMask collisionLayers = -1; // 충돌 레이어
+        private float collisionOffset = 0.2f; // 충돌 오프셋
+        private float cameraRadius = 0.3f; // 카메라 반지름 (SphereCast용)
+        
+        //LockOn Settings
+        private bool enableLockOn = true; // LockOn 활성화
 
-        [Header("LockOn Settings")] 
-        [SerializeField] private bool enableLockOn = true; // LockOn 활성화
-        [SerializeField] private LayerMask lockOnLayerMask; // LockOn 대상 레이어
-        [SerializeField] private float lockOnRange = 15f; // LockOn 최대 거리
-        [SerializeField] private float lockOnAngle = 60f; // LockOn 시야각 (전방 기준)
-        [SerializeField] private float lockOnSwitchDistance = 2f; // 대상 전환 최소 거리
+        private LayerMask lockOnLayerMask; // LockOn 대상 레이어
+        private float lockOnRange = 15f; // LockOn 최대 거리
+        private float lockOnAngle = 60f; // LockOn 시야각 (전방 기준)
+        private float lockOnSwitchDistance = 2f; // 대상 전환 최소 거리
 
-        [SerializeField] private bool enableCameraAlign = true; // 캐릭터 방향 보정 활성화
-        [SerializeField] private float cameraAlignSpeed = 5f; // 보정 속도
-        [SerializeField] private float cameraAlignDuration = 0.5f; // 보정 지속 시간
+        private float targetSwitchCooldown = 0.2f; // 전환 쿨다운 (연타 방지)
 
-        // 내부 변수
+        // Camera Align
+        private bool enableCameraAlign = true; // 캐릭터 방향 보정 활성화
+        private float cameraAlignSpeed = 5f; // 보정 속도
+        private float cameraAlignDuration = 0.5f; // 보정 지속 시간
+
+        // 내부 캐싱 & 계산
         private Camera mainCamera;
         private Transform cameraPivot; // 카메라가 회전할 피벗 포인트
 
@@ -67,14 +79,18 @@ namespace UPlayGround.Manager
 
         private float currentYaw; // 좌우 회전 (Y축)
         private float currentPitch; // 상하 회전 (X축)
-        
+
         // LockOn 관련
+        private List<Transform> availableTargets = new List<Transform>(); // 사용 가능한 대상 리스트
+        private int currentTargetIndex = -1; // 현재 선택된 대상 인덱스
+        private float lastSwitchTime; // 마지막 전환 시간
+
         private Transform lockOnTarget; // 현재 LockOn 대상
         private bool isLockOnActive; // LockOn 활성화 상태
 
         private bool isCameraAligning; // 카메라 보정 중인지
         private float cameraAlignTimer; // 보정 타이머
-        
+
         private Vector3 positionVelocity;
         private Vector3 smoothPosition;
 
@@ -105,7 +121,7 @@ namespace UPlayGround.Manager
             currentYaw = 0f;
             currentPitch = 20f; // 기본 각도
 
-            collisionLayers &= ~(1 << LayerMask.NameToLayer("Player"));
+            collisionLayers = CameraConfig.GetCollisionLayerMask();
 
             if (target != null)
             {
@@ -140,6 +156,12 @@ namespace UPlayGround.Manager
         {
             InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
                 null, OnInputPerformedLockOn, null, null, null, InputLayer.Level_1);
+
+            InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
+                null, OnInputPerformedLockOnSwitchLeft, null, null, null, InputLayer.Level_1);
+
+            InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
+                null, OnInputPerformedLockOnRight, null, null, null, InputLayer.Level_1);
         }
 
         /// <summary>
@@ -169,8 +191,14 @@ namespace UPlayGround.Manager
             {
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
                     null, OnInputPerformedLockOn, null);
+
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
+                    null, OnInputPerformedLockOnSwitchLeft, null);
+
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
+                    null, OnInputPerformedLockOnRight, null);
             }
-            
+
             Debug.Log("[CameraManager] 정리 완료");
         }
 
@@ -191,10 +219,11 @@ namespace UPlayGround.Manager
             if (target == null || mainCamera == null || cameraPivot == null)
                 return;
 
+            UpdateLockOnRotation();
+            UpdateCameraAlign();
+            
             UpdateCameraPosition();
             UpdateCameraRotation();
-            UpdateLockOnRotation();
-            UpdateCameraAlign(); // 추가
         }
 
         #endregion
@@ -206,6 +235,10 @@ namespace UPlayGround.Manager
         /// </summary>
         private void HandleInput()
         {
+            // LockOn이나 카메라 정렬 중일 때는 마우스 입력 무시
+            if (isLockOnActive || isCameraAligning)
+                return;
+            
             if (Cursor.visible)
                 return;
 
@@ -276,10 +309,7 @@ namespace UPlayGround.Manager
             Vector3 desiredPosition = cameraPivot.position + rotation * new Vector3(0f, 0f, -currentDistance);
 
             // 충돌 감지
-            if (enableCollision)
-            {
-                desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
-            }
+            desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
 
             // 카메라 위치 적용
             mainCamera.transform.position = desiredPosition;
@@ -298,7 +328,7 @@ namespace UPlayGround.Manager
                 mainCamera.transform.rotation = Quaternion.Slerp(
                     mainCamera.transform.rotation,
                     targetRotation,
-                    1f - Mathf.Exp(-10f * Time.deltaTime / rotationSmoothTime)
+                    1f - Mathf.Exp(-10f / rotationSmoothTime)
                 );
             }
             else
@@ -314,12 +344,34 @@ namespace UPlayGround.Manager
         {
             Vector3 direction = desiredPosition - origin;
             float distance = direction.magnitude;
+            
+            // 안전 거리 = 충돌 오프셋 + 카메라 반지름
+            float safetyMargin = collisionOffset + cameraRadius;
 
-            // 충돌 체크
-            if (Physics.Raycast(origin, direction.normalized, out RaycastHit hit, distance, collisionLayers))
+            // SphereCast로 충돌 체크 (캐릭터 자신과 자식 오브젝트는 무시)
+            RaycastHit[] hits = Physics.SphereCastAll(origin, cameraRadius, direction.normalized, distance, collisionLayers);
+            
+            float closestDistance = distance;
+            Vector3 closestHitPoint = desiredPosition;
+            Vector3 closestHitNormal = -direction.normalized;
+            
+            foreach (RaycastHit hit in hits)
             {
-                // 충돌 지점으로 카메라 당기기
-                return hit.point + hit.normal * collisionOffset;
+                // 가장 가까운 충돌 지점 찾기
+                if (hit.distance < closestDistance)
+                {
+                    closestDistance = hit.distance;
+                    closestHitPoint = hit.point;
+                    closestHitNormal = hit.normal;
+                }
+            }
+
+            // 충돌이 발생했다면 안전 거리만큼 카메라를 뒤로 당김
+            if (closestDistance < distance)
+            {
+                // 충돌 지점에서 안전 거리만큼 뒤로 당김 (origin 방향 유지)
+                float safeDistance = Mathf.Max(closestDistance - safetyMargin, minDistance);
+                return origin + direction.normalized * safeDistance;
             }
 
             return desiredPosition;
@@ -328,6 +380,7 @@ namespace UPlayGround.Manager
         #endregion
 
         #region Public API
+
         /// <summary>
         /// 타겟 설정
         /// </summary>
@@ -348,8 +401,6 @@ namespace UPlayGround.Manager
                     mainCamera.transform.position = cameraPivot.position + offset;
                     mainCamera.transform.rotation = rotation;
                 }
-
-                Debug.Log($"[CameraManager] 타겟 설정: {target.name}");
             }
         }
 
@@ -405,7 +456,7 @@ namespace UPlayGround.Manager
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawLine(target.position + cameraOffset, mainCamera.transform.position);
             }
-            
+
             // LockOn 범위 표시
             if (enableLockOn)
             {
@@ -434,21 +485,15 @@ namespace UPlayGround.Manager
             if (player != null)
             {
                 playerTarget = player.transform;
-                Debug.Log($"[CameraInitializer] '{playerTag}' 태그로 플레이어를 찾았습니다: {player.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[CameraInitializer] '{playerTag}' 태그를 가진 오브젝트를 찾을 수 없습니다!");
             }
 
             // 타겟 설정 (마지막에 설정하여 위치가 즉시 업데이트되도록)
             if (playerTarget != null)
             {
                 CameraManager.Instance.SetTarget(playerTarget);
-                Debug.Log("[CameraInitializer] 카메라 타겟 설정 완료");
             }
         }
-        
+
         private void OnInputPerformedLockOn(InputAction.CallbackContext obj)
         {
             if (enableLockOn == false || target == null)
@@ -468,7 +513,31 @@ namespace UPlayGround.Manager
                 }
             }
         }
-        
+
+        private void OnInputPerformedLockOnRight(InputAction.CallbackContext obj)
+        {
+            if (!isLockOnActive || availableTargets.Count <= 1)
+                return;
+
+            // 쿨다운 체크
+            if (Time.time - lastSwitchTime < targetSwitchCooldown)
+                return;
+
+            SwitchTarget(1); // 오른쪽 = 인덱스 증가
+        }
+
+        private void OnInputPerformedLockOnSwitchLeft(InputAction.CallbackContext obj)
+        { 
+            if (isLockOnActive == false || availableTargets.Count <= 1)
+                return;
+
+            // 쿨다운 체크
+            if (Time.time - lastSwitchTime < targetSwitchCooldown)
+                return;
+
+            SwitchTarget(-1); // 왼쪽 = 인덱스 감소
+        }
+
         #region LockOn 시스템
 
         /// <summary>
@@ -482,8 +551,9 @@ namespace UPlayGround.Manager
             // 범위 내 모든 Collider 검출
             Collider[] hits = Physics.OverlapSphere(origin, lockOnRange, lockOnLayerMask);
 
-            Transform bestTarget = null;
-            float closestAngle = lockOnAngle;
+            availableTargets.Clear();
+
+            List<TargetInfo> targetInfos = new List<TargetInfo>();
 
             foreach (var hit in hits)
             {
@@ -503,23 +573,37 @@ namespace UPlayGround.Manager
                 Vector3 directionToTarget = (hit.transform.position - origin).normalized;
                 float angle = Vector3.Angle(forward, directionToTarget);
 
-                if (angle < closestAngle)
+                if (angle <= lockOnAngle)
                 {
-                    closestAngle = angle;
-                    bestTarget = hit.transform;
+                    targetInfos.Add(new TargetInfo
+                    {
+                        transform = hit.transform,
+                        angle = angle,
+                        direction = directionToTarget
+                    });
                 }
             }
 
-            if (bestTarget != null)
+            // 각도 순으로 정렬
+            targetInfos.Sort((a, b) => a.angle.CompareTo(b.angle));
+
+            // Transform 리스트로 변환
+            foreach (var info in targetInfos)
             {
-                lockOnTarget = bestTarget;
+                availableTargets.Add(info.transform);
+            }
+
+            if (availableTargets.Count > 0)
+            {
+                currentTargetIndex = 0;
+                lockOnTarget = availableTargets[currentTargetIndex];
                 isLockOnActive = true;
-                Debug.Log($"[CameraManager] LockOn 활성화: {bestTarget.name}");
                 return true;
             }
 
             return false;
         }
+
         /// <summary>
         /// 캐릭터 뒷통수 방향으로 카메라 보정 시작
         /// </summary>
@@ -527,8 +611,8 @@ namespace UPlayGround.Manager
         {
             isCameraAligning = true;
             cameraAlignTimer = cameraAlignDuration;
-            Debug.Log("[CameraManager] 캐릭터 방향으로 카메라 보정 시작");
         }
+
         /// <summary>
         /// 카메라 보정 업데이트 (OnLateUpdate에서 호출)
         /// </summary>
@@ -548,14 +632,19 @@ namespace UPlayGround.Manager
 
             // 캐릭터의 forward 방향 (뒷통수 방향)
             Vector3 targetForward = target.forward;
-    
+            float targetPitch = 0f;
+            
             // 목표 Yaw 계산 (캐릭터가 바라보는 방향)
             float targetYaw = Mathf.Atan2(targetForward.x, targetForward.z) * Mathf.Rad2Deg;
 
             // 부드럽게 회전
             currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * cameraAlignSpeed);
+            currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * cameraAlignSpeed);
+    
+            // Pitch 각도 제한
+            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
         }
-        
+
         /// <summary>
         /// LockOn 해제
         /// </summary>
@@ -563,7 +652,8 @@ namespace UPlayGround.Manager
         {
             lockOnTarget = null;
             isLockOnActive = false;
-            Debug.Log("[CameraManager] LockOn 해제");
+            availableTargets.Clear();
+            currentTargetIndex = -1;
         }
 
         /// <summary>
@@ -573,7 +663,27 @@ namespace UPlayGround.Manager
         {
             if (isLockOnActive == false || lockOnTarget == null)
                 return;
-
+            
+            // 대상 유효성 체크
+            if (IsValidTarget(lockOnTarget) == false)
+            {
+                // 다른 대상이 있으면 자동 전환 
+                // [TODO] 자동 락온 해제하는 게 더 자연스러울 수 있다...
+                availableTargets.Remove(lockOnTarget);
+        
+                if (availableTargets.Count > 0)
+                {
+                    currentTargetIndex = Mathf.Clamp(currentTargetIndex, 0, availableTargets.Count - 1);
+                    lockOnTarget = availableTargets[currentTargetIndex];
+                }
+                else
+                {
+                    // 대상이 없으면 LockOn 해제
+                    ReleaseLockOn();
+                    return;
+                }
+            }
+            
             // 대상이 너무 멀어지면 LockOn 해제
             float distance = Vector3.Distance(target.position, lockOnTarget.position);
             if (distance > lockOnRange)
@@ -584,7 +694,7 @@ namespace UPlayGround.Manager
 
             // 대상을 향한 방향 계산
             Vector3 directionToTarget = (lockOnTarget.position - target.position).normalized;
-            
+
             // Yaw, Pitch 계산
             float targetYaw = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
             float targetPitch = Mathf.Asin(-directionToTarget.y) * Mathf.Rad2Deg;
@@ -610,6 +720,84 @@ namespace UPlayGround.Manager
         {
             return lockOnTarget;
         }
+
+        /// <summary>
+        /// LockOn 대상 전환
+        /// </summary>
+        /// <param name="direction">1: 오른쪽, -1: 왼쪽</param>
+        private void SwitchTarget(int direction)
+        {
+            if (availableTargets.Count == 0)
+                return;
+
+            // 카메라 기준 좌우로 대상 정렬
+            SortTargetsByScreenPosition();
+
+            currentTargetIndex = Mathf.Clamp(currentTargetIndex + direction, 0, availableTargets.Count - 1);
+
+            // 대상 전환
+            lockOnTarget = availableTargets[currentTargetIndex];
+            lastSwitchTime = Time.time; 
+        }
+
+        /// <summary>
+        /// 카메라 화면 좌우 기준으로 대상 정렬
+        /// </summary>
+        private void SortTargetsByScreenPosition()
+        {
+            if (mainCamera == null || target == null)
+                return;
+
+            // 유효하지 않은 대상 제거
+            availableTargets.RemoveAll(t => t == null || !IsValidTarget(t));
+
+            if (availableTargets.Count == 0)
+            {
+                ReleaseLockOn();
+                return;
+            }
+
+            // 현재 대상 저장
+            Transform currentTarget = lockOnTarget;
+
+            // 카메라 기준 화면 X 좌표로 정렬 (왼쪽 → 오른쪽)
+            availableTargets.Sort((a, b) =>
+            {
+                Vector3 screenPosA = mainCamera.WorldToScreenPoint(a.position);
+                Vector3 screenPosB = mainCamera.WorldToScreenPoint(b.position);
+                return screenPosA.x.CompareTo(screenPosB.x);
+            });
+
+            // 현재 대상의 새 인덱스 찾기
+            currentTargetIndex = availableTargets.IndexOf(currentTarget);
+            if (currentTargetIndex == -1 && availableTargets.Count > 0)
+            {
+                currentTargetIndex = 0;
+                lockOnTarget = availableTargets[0];
+            }
+        }
+
+        /// <summary>
+        /// 대상이 여전히 유효한지 확인
+        /// </summary>
+        private bool IsValidTarget(Transform targetTransform)
+        {
+            if (targetTransform == null)
+                return false;
+
+            // 거리 체크
+            float distance = Vector3.Distance(target.position, targetTransform.position);
+            if (distance > lockOnRange)
+                return false;
+
+            // IDamageable 확인
+            var damageable = targetTransform.GetComponent<IDamageable>();
+            if (damageable == null)
+                damageable = targetTransform.GetComponentInParent<IDamageable>();
+
+            return damageable != null && damageable.CanTakeDamage();
+        }
+
         #endregion
     }
 }

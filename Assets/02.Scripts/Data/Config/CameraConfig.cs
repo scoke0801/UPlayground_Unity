@@ -8,6 +8,11 @@ namespace UPlayGround.Data.Config
         {
             "Enemy",
         };
+        public static readonly string[] CollisionExcludeLayer = new string[]
+        {
+            "Player",
+            "Enemy",
+        };
         
         public static LayerMask GetLockOnLayerMask()
         {
@@ -19,6 +24,22 @@ namespace UPlayGround.Data.Config
                 if (layer != -1)
                 {
                     mask |= (1 << layer);  // 비트 OR로 레이어 추가
+                }
+            }
+    
+            return mask;
+        }
+
+        public static LayerMask GetCollisionLayerMask()
+        {
+            LayerMask mask = ~0; // 모든 레이어를 포함 (비트 전체를 1로)
+
+            foreach (string layerName in CollisionExcludeLayer)
+            {
+                int layer = LayerMask.NameToLayer(layerName);
+                if (layer != -1) // 유효한 레이어인 경우
+                {
+                    mask &= ~(1 << layer); // 해당 레이어 비트를 0으로 만들어 제외
                 }
             }
     

@@ -32,6 +32,8 @@
         public const string Equip = "Equip";
         
         public const string LockOn = "LockOn";
+        public const string LockOnSwitchLeft = "LockOnSwitchLeft";
+        public const string LockOnSwitchRight = "LockOnSwitchRight";
     }
 
     public static class SystemAction

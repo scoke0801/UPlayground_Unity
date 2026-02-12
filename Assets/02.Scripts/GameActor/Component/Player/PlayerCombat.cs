@@ -203,6 +203,7 @@ namespace UPlayGround.Component
             
             List<IDamageable> hitTargets = new List<IDamageable>();
             
+            //Physics.ComputePenetration()
             foreach (var hit in hits)
             {
                 // 자기 자신은 제외

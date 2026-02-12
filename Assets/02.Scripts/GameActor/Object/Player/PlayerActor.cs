@@ -178,6 +178,7 @@ namespace UPlayGround
                 
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,
                     null, OnInputPerformedInteraction, null, CanInputInteract, null, layer);
+                
             }
         }
 

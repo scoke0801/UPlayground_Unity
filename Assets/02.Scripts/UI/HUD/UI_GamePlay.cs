@@ -15,8 +15,7 @@ class UI_GamePlay : UI_Base
             null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
        
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.EquipInventory,
-            null, OnPerformedEquipInventory, null, null, null, InputLayer.Level_0);
-
+            null, OnPerformedEquipInventory, null, null, null, InputLayer.Level_0); 
         
     }
 

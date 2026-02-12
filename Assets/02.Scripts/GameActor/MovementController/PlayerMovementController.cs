@@ -61,7 +61,7 @@ namespace UPlayGround.MovementController
         public Vector3 LookInputVector => _lookInputVector;
         public Vector3 MoveInputVector => _moveInputVector;
         
-        protected override void Start()
+        protected override void Start() 
         {
             base.Start();
             

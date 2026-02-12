@@ -30,6 +30,8 @@
         public const string Interact = "Interact";
         
         public const string Equip = "Equip";
+        
+        public const string LockOn = "LockOn";
     }
 
     public static class SystemAction

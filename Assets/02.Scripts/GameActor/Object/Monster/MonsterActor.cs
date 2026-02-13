@@ -12,11 +12,25 @@ namespace UPlayGround
         [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
+  
+        [Header("AI Components")]
+        [SerializeField] private EnemyDetection _detection;
+        [SerializeField] private EnemyBrain _brain;
+        
+        public EnemyDetection Detection => _detection;
+        public EnemyBrain Brain => _brain;
         
         protected override void Awake()
         {
             base.Awake();
             _currentHealth = _maxHealth;
+            
+            // AI 컴포넌트 자동 할당
+            if (_detection == null)
+                _detection = GetComponent<EnemyDetection>();
+            
+            if (_brain == null)
+                _brain = GetComponent<EnemyBrain>();
         }
         #region IDamageable Implementation
         

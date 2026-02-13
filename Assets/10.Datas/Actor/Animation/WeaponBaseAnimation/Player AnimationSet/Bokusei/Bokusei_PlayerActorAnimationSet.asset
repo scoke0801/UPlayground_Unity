@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 283c711546a84c50b2010d67ea75508e, type: 3}
-  m_Name: PlayerActorAnimationSet___
+  m_Name: Bokusei_PlayerActorAnimationSet
   m_EditorClassIdentifier: 
   _swordAnimationSet: {fileID: 11400000, guid: 9bc07cafee87b7d4583a0c23203bbc59, type: 2}
   _greatSwordAnimationSet: {fileID: 11400000, guid: 5e699da935b06f54abe71a5ff0d23797, type: 2}

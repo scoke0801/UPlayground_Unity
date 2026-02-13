@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a06f79b0b62433e920de336b94d98b2, type: 3}
-  m_Name: CommonAnimationSet____
+  m_Name: Bokusei_CommonAnimationSet
   m_EditorClassIdentifier: 
   _animationList:
   - key: 1
@@ -154,7 +154,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -8396770448412342643, guid: f4942b50d5f14e840986267163f626a6, type: 3}
+      _Clip: {fileID: 7400000, guid: e456dc6a4cd4cfc4d85d47f9c6b83a2a, type: 3}
       _NormalizedStartTime: NaN
   - key: 2001
     animLayer: 0
@@ -165,7 +165,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -2919265213301922866, guid: d8e1bdc862be7a14f98fbe358fc63cb1, type: 3}
+      _Clip: {fileID: 7400000, guid: 5faadd3cb37c80746aa5d9d419d59c53, type: 3}
       _NormalizedStartTime: NaN
   - key: 1500
     animLayer: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -456004393389250719, guid: d58eff31f25378844b2a4dda89c0d46e, type: 3}
+      _Clip: {fileID: 7400000, guid: 355054afe4dd4a748a5bf102963823a8, type: 3}
       _NormalizedStartTime: NaN
   - key: 101
     animLayer: 0

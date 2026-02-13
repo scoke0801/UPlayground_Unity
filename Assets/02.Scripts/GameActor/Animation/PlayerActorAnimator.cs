@@ -20,7 +20,18 @@ namespace UPlayGround.Animation
         public override void Init(GameActor actor)
         {
             base.Init(actor);
-
+            
+            // Head 본 찾기
+            Transform headBone = _animator.Animator.GetBoneTransform(HumanBodyBones.Neck);
+        
+            if (headBone != null)
+            {
+                // 본 비활성화
+                headBone.gameObject.SetActive(false);
+            
+                // 또는 스케일 0으로
+                // headBone.localScale = Vector3.zero;
+            }
             _playerActor = actor as PlayerActor;
             if (_playerActor != null)
             {

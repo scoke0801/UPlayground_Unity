@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
+using UPlayGround.Data;
 using UPlayGround.Data.Config;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 
 namespace UPlayGround.Manager
@@ -92,6 +95,11 @@ namespace UPlayGround.Manager
         private Vector3 positionVelocity;
         private Vector3 smoothPosition;
 
+        private CameraShaker _shaker;
+        
+        private const string CAMERA_SHAKE_DATABASE_PATH = "CameraShakeDatabase";
+        private CameraShakeDatabase _cameraShakeDatabase;
+
         #region IManager 구현
 
         public void Init()
@@ -99,7 +107,8 @@ namespace UPlayGround.Manager
             Debug.Log("[CameraManager] 초기화 시작");
 
             InitializeCamera();
-
+            LoadCameraShakeDatabase();
+            
             // 메인 카메라 찾기
             mainCamera = Camera.main;
             if (mainCamera == null)
@@ -146,7 +155,13 @@ namespace UPlayGround.Manager
             {
                 lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             }
-
+            
+            GameObject shakerGO = new GameObject("CameraShaker");
+            shakerGO.hideFlags = HideFlags.HideAndDontSave;
+            
+            _shaker = shakerGO.AddComponent<CameraShaker>();
+            _shaker.hideFlags = HideFlags.HideAndDontSave;
+            
             Debug.Log("[CameraManager] 초기화 완료");
         }
 
@@ -431,6 +446,30 @@ namespace UPlayGround.Manager
             cameraOffset = offset;
         }
 
+        public void StartShake(CameraShakeData cameraShakeData)
+        {
+            if (cameraShakeData == null)
+            {
+                return;
+            }
+            _shaker.SetShakeData(cameraShakeData);
+            _shaker.StartShake();
+        }
+
+        public void StartShake(string shakeDataKey)
+        {
+            if (_cameraShakeDatabase == null)
+            {
+                return;
+            }
+
+            StartShake(_cameraShakeDatabase.GetShakeData(shakeDataKey));
+        }
+
+        public void StopShake()
+        {
+            _shaker.StopShake();
+        }
         #endregion
 
         #region Gizmos
@@ -466,6 +505,28 @@ namespace UPlayGround.Manager
 
         #endregion
 
+        private async void LoadCameraShakeDatabase()
+        {
+            var handle = Addressables.LoadAssetAsync<CameraShakeDatabase>(CAMERA_SHAKE_DATABASE_PATH);
+
+            try
+            {
+                _cameraShakeDatabase = await handle.Task;
+
+                if (_cameraShakeDatabase == null)
+                {
+                    Debug.LogError($"[CameraManager] CameraShakeDatabase '{CAMERA_SHAKE_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
+                    return;
+                }
+
+                _cameraShakeDatabase.Initialize();
+                Debug.Log($"[CameraManager] CameraShakeDatabase 로드 완료");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[CameraManager] CameraShakeDatabase 로드 실패: {e.Message}");
+            }
+        }
         private void InitializeCamera()
         {
             string playerTag = "Player";

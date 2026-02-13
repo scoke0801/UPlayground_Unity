@@ -153,5 +153,13 @@ namespace UPlayGround.State
             
             //Debug.Log($"CurrentVelocity: {currentVelocity}");
         }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            currentRotation *= gameActor.Animator.DeltaRotation;
+            
+            currentRotation = currentRotation.normalized;
+            
+        }
     }
 }

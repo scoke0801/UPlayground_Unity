@@ -321,6 +321,17 @@ MonoBehaviour:
         _Names: []
       _Clip: {fileID: 3094330708855449807, guid: f8a907d8efae3cd469de4921a3b4fcd4, type: 3}
       _NormalizedStartTime: NaN
+  - key: 100
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 1827226128182048838, guid: 42ebfa6c9a5a19442a7f9ee7d011d82a, type: 3}
+      _NormalizedStartTime: NaN
   references:
     version: 2
     RefIds: []

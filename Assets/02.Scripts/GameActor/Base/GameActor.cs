@@ -27,6 +27,7 @@ namespace UPlayGround
         
         protected virtual void Start()
         {
+            
         }
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Component
 {
@@ -204,6 +205,7 @@ namespace UPlayGround.Component
             List<IDamageable> hitTargets = new List<IDamageable>();
             
             //Physics.ComputePenetration()
+            bool isDamageExecuted = false;
             foreach (var hit in hits)
             {
                 // 자기 자신은 제외
@@ -236,9 +238,15 @@ namespace UPlayGround.Component
                     
                     // 히트 이벤트 발생
                     OnAttackHit?.Invoke(_currentAttackData);
-                    
+
+                    isDamageExecuted = true;
                     Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
                 }
+            }
+
+            if (isDamageExecuted)
+            {
+                CameraManager.Instance.StartShake("LiteHit");
             }
             
             if (_showHitDebug)

@@ -190,7 +190,7 @@ namespace UPlayGround.Animation.Editor
                 set.motions.Add(new Motion
                 {
                     motionName = $"Motion_{set.motions.Count}",
-                    eventList  = new List<MotionEvent>()
+                    events  = new List<MotionEventBase>()
                 });
                 MarkDirty();
             }
@@ -202,48 +202,177 @@ namespace UPlayGround.Animation.Editor
         // ====================================================================
         void DrawMotionEvents(Motion motion)
         {
-            motion.eventList ??= new List<MotionEvent>();
+            motion.events ??= new List<MotionEventBase>();
 
             EditorGUI.indentLevel++;
             EditorGUILayout.LabelField("이벤트", EditorStyles.miniBoldLabel);
 
-            for (int i = 0; i < motion.eventList.Count; i++)
+            for (int i = 0; i < motion.events.Count; i++)
             {
-                var evt = motion.eventList[i];
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(60));
-                    EditorGUILayout.LabelField("시작", GUILayout.Width(60));
-                    evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(100));
-                    EditorGUILayout.LabelField("종료", GUILayout.Width(60));
-                    evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(100));
-                    EditorGUILayout.LabelField("파라미터", GUILayout.Width(100));
-                    evt.param = EditorGUILayout.TextField(evt.param);
+                var evt = motion.events[i];
+                if (evt == null) continue;
 
-                    if (GUILayout.Button("×", GUILayout.Width(22)))
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                {
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        RecordUndo("Remove Motion Event");
-                        motion.eventList.RemoveAt(i);
-                        MarkDirty();
-                        break;
+                        EditorGUILayout.LabelField(evt.GetDisplayName(), EditorStyles.boldLabel, GUILayout.Width(100));
+                        GUILayout.FlexibleSpace();
+                        
+                        // 레이블 없이 FloatField 사용
+                        GUILayout.Label("Start", GUILayout.Width(40));
+                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(100));
+
+                        GUILayout.Space(10);
+                        
+                        GUILayout.Label("End", GUILayout.Width(40));
+                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(100));
+
+                        if (GUILayout.Button("×", GUILayout.Width(22)))
+                        {
+                            RecordUndo("Remove Motion Event");
+                            motion.events.RemoveAt(i);
+                            MarkDirty();
+                            break;
+                        }
                     }
+                    EditorGUILayout.EndHorizontal();
+
+                    // 이벤트별 세부 프로퍼티
+                    EditorGUI.indentLevel++;
+                    DrawEventProperties(evt);
+                    EditorGUI.indentLevel--;
                 }
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+ 이벤트", GUILayout.Width(80)))
             {
-                RecordUndo("Add Motion Event");
-                motion.eventList.Add(new MotionEvent
+                MotionEventMenuHelper.ShowAddEventMenu(motion.events, 0f, () =>
                 {
-                    startTime = 0, endTime = motion.Duration, param = ""
+                    RecordUndo("Add Motion Event");
+                    MarkDirty();
+                    Repaint();
                 });
-                MarkDirty();
             }
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
+        }
+
+        void DrawEventProperties(MotionEventBase evt)
+        {
+            // 리플렉션으로 각 이벤트의 public 필드/프로퍼티 그리기
+            var type = evt.GetType();
+            var fields = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                if (field.Name == "startTime" || field.Name == "endTime") continue;
+
+                var value = field.GetValue(evt);
+                var fieldType = field.FieldType;
+
+                EditorGUILayout.BeginHorizontal();
+                {
+                    if (fieldType == typeof(float))
+                    {
+                        var newValue = EditorGUILayout.FloatField(field.Name, (float)value);
+                        if (!newValue.Equals(value))
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(int))
+                    {
+                        var newValue = EditorGUILayout.IntField(field.Name, (int)value);
+                        if (newValue != (int)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(string))
+                    {
+                        var newValue = EditorGUILayout.TextField(field.Name, (string)value);
+                        if (newValue != (string)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(bool))
+                    {
+                        var newValue = EditorGUILayout.Toggle(field.Name, (bool)value);
+                        if (newValue != (bool)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(Vector3))
+                    {
+                        var newValue = EditorGUILayout.Vector3Field(field.Name, (Vector3)value);
+                        if (newValue != (Vector3)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(AnimationCurve))
+                    {
+                        var newValue = EditorGUILayout.CurveField(field.Name, (AnimationCurve)value);
+                        if (newValue != (AnimationCurve)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType == typeof(LayerMask))
+                    {
+                        // LayerMask를 처리하려면 MaskField를 사용해야 함
+                        var layerMask = (LayerMask)value;
+                        var newValue = EditorGUILayout.MaskField(field.Name, layerMask.value, 
+                            UnityEditorInternal.InternalEditorUtility.layers);
+    
+                        if (newValue != layerMask.value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, (LayerMask)newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))
+                    {
+                        var newValue = EditorGUILayout.ObjectField(field.Name, (UnityEngine.Object)value, fieldType, false);
+                        if (newValue != (UnityEngine.Object)value)
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                    else if (fieldType.IsEnum)
+                    {
+                        var newValue = EditorGUILayout.EnumPopup(field.Name, (System.Enum)value);
+                        if (!newValue.Equals(value))
+                        {
+                            RecordUndo($"Change {field.Name}");
+                            field.SetValue(evt, newValue);
+                            MarkDirty();
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         // ====================================================================
@@ -251,43 +380,58 @@ namespace UPlayGround.Animation.Editor
         // ====================================================================
         void DrawMotionSetEvents(MotionSet set)
         {
-            set.eventList ??= new List<MotionEvent>();
+            set.globalEvents ??= new List<MotionEventBase>();
 
             EditorGUI.indentLevel++;
-            for (int i = 0; i < set.eventList.Count; i++)
+            for (int i = 0; i < set.globalEvents.Count; i++)
             {
-                var evt = set.eventList[i];
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(60));
-                    EditorGUILayout.LabelField("시작", GUILayout.Width(60));
-                    evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(100));
-                    EditorGUILayout.LabelField("종료", GUILayout.Width(60));
-                    evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(100));
-                    EditorGUILayout.LabelField("파라미터", GUILayout.Width(60));
-                    evt.param = EditorGUILayout.TextField(evt.param);
+                var evt = set.globalEvents[i];
+                if (evt == null) continue;
 
-                    if (GUILayout.Button("×", GUILayout.Width(22)))
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+                {
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        RecordUndo("Remove MotionSet Event");
-                        set.eventList.RemoveAt(i);
-                        MarkDirty();
-                        break;
+                        EditorGUILayout.LabelField(evt.GetDisplayName(), EditorStyles.boldLabel, GUILayout.Width(100));
+                        GUILayout.FlexibleSpace();
+                            
+                        // 레이블 없이 FloatField 사용
+                        GUILayout.Label("Start", GUILayout.Width(40));
+                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(60));
+        
+                        GUILayout.Space(10);
+        
+                        GUILayout.Label("End", GUILayout.Width(40));
+                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(60));
+
+                        if (GUILayout.Button("×", GUILayout.Width(22)))
+                        {
+                            RecordUndo("Remove MotionSet Event");
+                            set.globalEvents.RemoveAt(i);
+                            MarkDirty();
+                            break;
+                        }
                     }
+                    EditorGUILayout.EndHorizontal();
+
+                    // 이벤트별 세부 프로퍼티
+                    EditorGUI.indentLevel++;
+                    DrawEventProperties(evt);
+                    EditorGUI.indentLevel--;
                 }
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+ 이벤트", GUILayout.Width(80)))
             {
-                RecordUndo("Add MotionSet Event");
-                set.eventList.Add(new MotionEvent
+                MotionEventMenuHelper.ShowAddEventMenu(set.globalEvents, 0f, () =>
                 {
-                    startTime = 0, endTime = set.TotalDuration, param = ""
+                    RecordUndo("Add MotionSet Event");
+                    MarkDirty();
+                    Repaint();
                 });
-                MarkDirty();
             }
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
@@ -528,10 +672,15 @@ namespace UPlayGround.Animation.Editor
         // ====================================================================
         int CountEventTracks(MotionSet set)
         {
-            int c = set.eventList?.Count ?? 0;
+            int c = set.globalEvents?.Count ?? 0;
             if (set.motions != null)
+            {
                 foreach (var m in set.motions)
-                    c += m.eventList?.Count ?? 0;
+                {
+                    c += m.events?.Count ?? 0;
+                }
+            }
+
             return Mathf.Max(c, 1);
         }
 
@@ -540,15 +689,18 @@ namespace UPlayGround.Animation.Editor
         {
             int idx = 0;
 
-            // MotionSet 이벤트
-            if (set.eventList != null)
+            // MotionSet 글로벌 이벤트
+            if (set.globalEvents != null)
             {
-                for (int i = 0; i < set.eventList.Count; i++)
+                for (int i = 0; i < set.globalEvents.Count; i++)
                 {
+                    var evt = set.globalEvents[i];
+                    if (evt == null) continue;
+                    
                     float y = yPos + idx * (EVENT_HEIGHT + TRACK_GAP);
-                    DrawTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT), $"Set [{i}]");
+                    DrawTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT), $"Set: {evt.GetDisplayName()}");
                     DrawEventBarWithOffset(new Rect(trackX, y, trackW, EVENT_HEIGHT),
-                        set.eventList[i], 0f, pps, -1, i, true);
+                        evt, 0f, pps, -1, i, true);
                     idx++;
                 }
             }
@@ -560,18 +712,20 @@ namespace UPlayGround.Animation.Editor
                 for (int mi = 0; mi < set.motions.Count; mi++)
                 {
                     var motion = set.motions[mi];
-                    if (motion.eventList != null)
+                    if (motion.events != null)
                     {
-                        for (int ei = 0; ei < motion.eventList.Count; ei++)
+                        for (int ei = 0; ei < motion.events.Count; ei++)
                         {
+                            var evt = motion.events[ei];
+                            if (evt == null) continue;
+                            
                             float y = yPos + idx * (EVENT_HEIGHT + TRACK_GAP);
-                            string label = motion.eventList[ei].param;
+                            string label = evt.GetShortLabel();
                             if (string.IsNullOrEmpty(label)) label = $"M{mi}[{ei}]";
-                            else label = label.Split(';')[0];
 
                             DrawTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT), label);
                             DrawEventBarWithOffset(new Rect(trackX, y, trackW, EVENT_HEIGHT),
-                                motion.eventList[ei], tOff, pps, mi, ei, false);
+                                evt, tOff, pps, mi, ei, false);
                             idx++;
                         }
                     }
@@ -586,7 +740,7 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        void DrawEventBarWithOffset(Rect trackRect, MotionEvent evt, float tOff, float pps, 
+        void DrawEventBarWithOffset(Rect trackRect, MotionEventBase evt, float tOff, float pps, 
             int motionIndex, int eventIndex, bool isSetEvent)
         {
             EditorGUI.DrawRect(trackRect, COL_TRACK_BG);
@@ -614,7 +768,9 @@ namespace UPlayGround.Animation.Editor
                 HandleEventDrag(bar, startDiamond, endDiamond, trackRect, evt, tOff, pps, 
                     motionIndex, eventIndex, isSetEvent);
 
-                if (!string.IsNullOrEmpty(evt.param))
+                // 이벤트 라벨 표시
+                string label = evt.GetShortLabel();
+                if (!string.IsNullOrEmpty(label))
                 {
                     var style = new GUIStyle(EditorStyles.miniLabel)
                     {
@@ -623,14 +779,14 @@ namespace UPlayGround.Animation.Editor
                         fontSize  = 9,
                         clipping  = TextClipping.Clip
                     };
-                    GUI.Label(bar, evt.param.Split(';')[0], style);
+                    GUI.Label(bar, label, style);
                 }
             }
 
             GUI.EndClip();
         }
 
-        void HandleEventDrag(Rect barRect, Rect startRect, Rect endRect, Rect trackRect, MotionEvent evt, 
+        void HandleEventDrag(Rect barRect, Rect startRect, Rect endRect, Rect trackRect, MotionEventBase evt, 
             float tOff, float pps, int motionIndex, int eventIndex, bool isSetEvent)
         {
             Event e = Event.current;

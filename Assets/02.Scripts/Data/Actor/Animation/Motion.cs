@@ -1,60 +1,156 @@
-﻿    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-    namespace UPlayGround.Animation
-    {    
-        [Serializable]
-        public class Motion
-        {
-            public string motionName;
-            public AnimationClip motionClip;
-            public List<MotionEvent> eventList;
-            
-            // 유효성 검사
-            public bool IsValid() => motionClip != null;
-            public float Duration => motionClip != null ? motionClip.length : 0f;
-
-        }
+namespace UPlayGround.Animation
+{
+    [Serializable]
+    public class Motion
+    {
+        public string motionName;
+        public AnimationClip motionClip;
         
-        [Serializable]
-        public class MotionEvent
-        {
-            public float startTime;
-            public float endTime;
-            
-            public string param;    // ;단위로 끊어서 입력
-            
-            // 파라미터 파싱
-            public string[] GetParseParams() => param?.Split(';') ?? new string[0];
-            
-            // 이벤트가 특정 시간에 활성화되는지 확인
-            public bool IsActiveAt(float time) => time >= startTime && time <= endTime;
-        }
+        // 타입 안전한 이벤트 리스트
+        [SerializeReference]
+        public List<MotionEventBase> events = new List<MotionEventBase>();
         
-        [Serializable]
-        public class MotionSet
+        // 유효성 검사
+        public bool IsValid() => motionClip != null;
+        public float Duration => motionClip != null ? motionClip.length : 0f;
+        
+        /// <summary>
+        /// 특정 시간에 활성화된 이벤트들 반환
+        /// </summary>
+        public List<MotionEventBase> GetActiveEventsAt(float time)
         {
-            public string motionSetName;
-            public List<Motion> motions;
+            var activeEvents = new List<MotionEventBase>();
+            if (events == null) return activeEvents;
             
-            public List<MotionEvent> eventList;
-            
-            // 전체 재생 시간
-            public float TotalDuration
+            foreach (var evt in events)
             {
-                get
-                {
-                    float total = 0f;
-                    foreach (var motion in motions)
-                    {
-                        total += motion.Duration;
-                    }
-                    return total;
-                }
+                if (evt != null && evt.IsActiveAt(time))
+                    activeEvents.Add(evt);
             }
+            
+            return activeEvents;
+        }
         
-            // 유효성 검사
-            public bool IsValid() => motions != null && motions.Count > 0;
+        /// <summary>
+        /// 특정 타입의 이벤트만 필터링
+        /// </summary>
+        public List<T> GetEventsByType<T>() where T : MotionEventBase
+        {
+            var result = new List<T>();
+            if (events == null) return result;
+            
+            foreach (var evt in events)
+            {
+                if (evt is T typedEvent)
+                    result.Add(typedEvent);
+            }
+            
+            return result;
         }
     }
+    
+    [Serializable]
+    public class MotionSet
+    {
+        public string motionSetName;
+        public List<Motion> motions = new List<Motion>();
+        
+        // 모션 셋 전체 이벤트 (모든 모션에 걸쳐 적용되는 이벤트)
+        [SerializeReference]
+        public List<MotionEventBase> globalEvents = new List<MotionEventBase>();
+        
+        // 전체 재생 시간
+        public float TotalDuration
+        {
+            get
+            {
+                float total = 0f;
+                if (motions == null) return total;
+                
+                foreach (var motion in motions)
+                {
+                    if (motion != null)
+                        total += motion.Duration;
+                }
+                return total;
+            }
+        }
+        
+        // 유효성 검사
+        public bool IsValid() => motions != null && motions.Count > 0;
+        
+        /// <summary>
+        /// 전체 타임라인에서 특정 시간에 활성화된 이벤트 반환
+        /// </summary>
+        public List<MotionEventBase> GetActiveEventsAt(float globalTime)
+        {
+            var activeEvents = new List<MotionEventBase>();
+            
+            // 글로벌 이벤트 체크
+            if (globalEvents != null)
+            {
+                foreach (var evt in globalEvents)
+                {
+                    if (evt != null && evt.IsActiveAt(globalTime))
+                        activeEvents.Add(evt);
+                }
+            }
+            
+            // 각 모션의 이벤트 체크
+            float currentTime = 0f;
+            if (motions != null)
+            {
+                foreach (var motion in motions)
+                {
+                    if (motion == null) continue;
+                    
+                    float motionEnd = currentTime + motion.Duration;
+                    if (globalTime >= currentTime && globalTime <= motionEnd)
+                    {
+                        float localTime = globalTime - currentTime;
+                        activeEvents.AddRange(motion.GetActiveEventsAt(localTime));
+                    }
+                    
+                    currentTime = motionEnd;
+                    if (globalTime < currentTime) break;
+                }
+            }
+            
+            return activeEvents;
+        }
+        
+        /// <summary>
+        /// 특정 모션의 인덱스와 로컬 타임 계산
+        /// </summary>
+        public bool GetMotionAtTime(float globalTime, out int motionIndex, out float localTime)
+        {
+            motionIndex = -1;
+            localTime = 0f;
+            
+            if (motions == null) return false;
+            
+            float currentTime = 0f;
+            for (int i = 0; i < motions.Count; i++)
+            {
+                var motion = motions[i];
+                if (motion == null) continue;
+                
+                float motionEnd = currentTime + motion.Duration;
+                if (globalTime >= currentTime && globalTime <= motionEnd)
+                {
+                    motionIndex = i;
+                    localTime = globalTime - currentTime;
+                    return true;
+                }
+                
+                currentTime = motionEnd;
+            }
+            
+            return false;
+        }
+    }
+}

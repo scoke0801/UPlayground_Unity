@@ -17,17 +17,62 @@ MonoBehaviour:
     motions:
     - motionName: Motion_0
       motionClip: {fileID: -6755464628390227905, guid: 3fcf9ce50efda6247bdbaec633cd660b, type: 3}
-      eventList:
-      - startTime: 0
-        endTime: 1
-        param: 
+      events:
+      - rid: 7399916970746052710
+      - rid: 7399916970746052716
     - motionName: Motion_1
       motionClip: {fileID: 474731757414567770, guid: 8a1077455951bdf4b9c0acdc8b9250fd, type: 3}
-      eventList: []
-    eventList:
-    - startTime: 2.0376592
-      endTime: 3.075159
-      param: test parameter
-    - startTime: 0
-      endTime: 2.374998
-      param: test parameter
+      events: []
+    globalEvents:
+    - rid: 7399916970746052718
+  references:
+    version: 2
+    RefIds:
+    - rid: 7399916970746052710
+      type: {class: BeginParticleEvent, ns: UPlayGround.Animation, asm: Assembly-CSharp}
+      data:
+        startTime: 0.43592
+        endTime: 1.699723
+        particlePrefab: {fileID: 0}
+        offset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+    - rid: 7399916970746052716
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Animation, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.5
+        colliderName: 
+        damage: 10
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 4294967295
+    - rid: 7399916970746052718
+      type: {class: AnimationSpeedEvent, ns: UPlayGround.Animation, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.5
+        speedMultiplier: 1
+        speedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

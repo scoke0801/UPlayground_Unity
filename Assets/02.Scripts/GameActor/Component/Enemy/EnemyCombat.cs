@@ -85,7 +85,6 @@ namespace UPlayGround.Component
         public void OpenComboWindow()
         {
             _canCombo = true;
-            Debug.Log("[EnemyCombat] 콤보 윈도우 열림");
         }
 
         /// <summary>
@@ -94,25 +93,14 @@ namespace UPlayGround.Component
         public void CloseComboWindow()
         {
             _canCombo = false;
-            Debug.Log("[EnemyCombat] 콤보 윈도우 닫힘");
         }
 
         /// <summary>
-        /// 공격 판정 시작 (애니메이션 이벤트에서 호출)
+        /// 맞은 대상 초기화
         /// </summary>
-        public void StartAttackHitbox()
+        public void ClearHitTargets()
         {
             _hitTargets.Clear();
-            Debug.Log("[EnemyCombat] 공격 판정 시작");
-        }
-
-        /// <summary>
-        /// 공격 판정 종료 (애니메이션 이벤트에서 호출)
-        /// </summary>
-        public void EndAttackHitbox()
-        {
-            _hitTargets.Clear();
-            Debug.Log("[EnemyCombat] 공격 판정 종료");
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
@@ -8,37 +9,31 @@ using UPlayGround.MovementController;
 namespace UPlayGround.State
 {
     /// <summary>
-    /// 몬스터 피격 상태
+    /// 몬스터 사망 상태
     /// </summary>
-    public class EnemyHitState : GameActorState
+    public class PlayerDeathState : PlayerActorState
     {
-        public override string StateName => "Hit";
+        public override string StateName => "Death";
         
-        private PlayerEquipment _equipment;
-        public EnemyHitState(ActorMovementController controller) : base(controller)
+        public PlayerDeathState(ActorMovementController controller) : base(controller)
         {
         }
 
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Hit, 0.25f);
-
+            var state = gameActor.Animator.PlayAnimation(AnimKey.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () => { controller.TransitionToState(new EnemyIdleState(controller)); };
+                state.OwnedEvents.OnEnd = () =>
+                {
+                    
+                };
             }
-            // [TODO] 파티클 출력
         }
 
         public override void UpdateState(float deltaTime)
         {
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
-            {
-                controller.TransitionToState(new EnemyAirborneState(controller));
-                return;
-            }
         }
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

@@ -10,12 +10,11 @@ namespace UPlayGround.State
     /// <summary>
     /// 몬스터 피격 상태
     /// </summary>
-    public class EnemyHitState : GameActorState
+    public class PlayerHitState : PlayerActorState
     {
         public override string StateName => "Hit";
         
-        private PlayerEquipment _equipment;
-        public EnemyHitState(ActorMovementController controller) : base(controller)
+        public PlayerHitState(ActorMovementController controller) : base(controller)
         {
         }
 
@@ -26,7 +25,7 @@ namespace UPlayGround.State
 
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () => { controller.TransitionToState(new EnemyIdleState(controller)); };
+                state.OwnedEvents.OnEnd = () => { controller.TransitionToState(new PlayerIdleState(controller)); };
             }
             // [TODO] 파티클 출력
         }
@@ -36,7 +35,7 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(new PlayerAirborneState(controller));
                 return;
             }
         }

@@ -113,6 +113,8 @@ namespace UPlayGround.State
             if (!_isAttackActive)
                 return;
             
+            _combat.ClearHitTargets();
+            
             if (_hasRequestedCombo && _combat.CurrentComboIndex < _combat.AttackData.AttackList.Count - 1)
             {
                 // 다음 콤보로 진행

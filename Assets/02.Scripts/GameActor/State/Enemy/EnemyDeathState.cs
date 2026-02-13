@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyDeathState : GameActorState
     {
-        public override string StateName => "Idle";
+        public override string StateName => "Death";
         
         private PlayerEquipment _equipment;
         public EnemyDeathState(ActorMovementController controller) : base(controller)
@@ -35,12 +35,6 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
-            {
-                controller.TransitionToState(new EnemyAirborneState(controller));
-                return;
-            }
         }
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

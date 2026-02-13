@@ -11,28 +11,61 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.State;
 
 namespace UPlayGround
 {
-    public partial class PlayerActor : GameActor
+    public partial class PlayerActor : GameActor, IDamageable
     {
         [SerializeField] private float _interactionRadius;
         [SerializeField] private LayerMask _interactionLayer;
         
-        public float InteractionRadius => _interactionRadius;
-        public LayerMask InteractionLayer => _interactionLayer;
-        
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public partial class PlayerActor : GameActor
-    {
+        [SerializeField] private float _maxHealth = 100f;
+        [SerializeField] private float _currentHealth = 100f;
+        [SerializeField] private bool _isInvincible = false;
+
+        // 추가 컴포넌트
+        [SerializeField] private PlayerEquipment _equipment;
+        [SerializeField] private PlayerCombat _combat;
+
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
         private PlayerActorAnimator _playerActorAnimator;
         
+        private Vector2 _currentMoveInput;
+        private InputCondition _jumpInputCondition;
+        private InputCondition _crouchInputCondition;
+        private InputCondition _dodgeInputCondition;
+        
+        private InputCondition _attackInputCondition;
+        private InputCondition _heavyInputCondition;
+        
+        private InputCondition _equipInputCondition;
+        
+        private InputCondition _interactionInputCondition;
+        
+        private List<InputCondition> _skillInputCondition = new List<InputCondition> 
+        { 
+            InputCondition.None,
+            InputCondition.None,
+            InputCondition.None,
+            InputCondition.None 
+        };
+        
         public override ActorAnimator Animator => _playerActorAnimator;
+
+        public float InteractionRadius => _interactionRadius;
+        public LayerMask InteractionLayer => _interactionLayer;
+
+        public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
+        public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
+
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public partial class PlayerActor : GameActor, IDamageable
+    {
         #region Mono
         protected override void Awake()
         {
@@ -110,28 +143,8 @@ namespace UPlayGround
     }
 
     // Input 처리
-    public partial class PlayerActor : GameActor
+    public partial class PlayerActor : GameActor, IDamageable
     {
-        private Vector2 _currentMoveInput;
-        private InputCondition _jumpInputCondition;
-        private InputCondition _crouchInputCondition;
-        private InputCondition _dodgeInputCondition;
-        
-        private InputCondition _attackInputCondition;
-        private InputCondition _heavyInputCondition;
-        
-        private InputCondition _equipInputCondition;
-        
-        private InputCondition _interactionInputCondition;
-        
-        private List<InputCondition> _skillInputCondition = new List<InputCondition> 
-        { 
-            InputCondition.None,
-            InputCondition.None,
-            InputCondition.None,
-            InputCondition.None 
-        };
-        
         private void RegisterInputEvents()
         {
             if (InputManager.Instance)
@@ -328,17 +341,10 @@ namespace UPlayGround
     }
 
     // Component
-    public partial class PlayerActor : GameActor
+    public partial class PlayerActor : GameActor, IDamageable
     {
-        // 추가 컴포넌트
-        [SerializeField] private PlayerEquipment _equipment;
-        [SerializeField] private PlayerCombat _combat;
-        
         public PlayerEquipment GetPlayerEquipment() { return _equipment; }
         public PlayerCombat GetCombat() { return _combat; }
-
-        public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
-        public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
 
         private void InitComponents()
         {
@@ -348,9 +354,89 @@ namespace UPlayGround
             // StartCoroutine(EquipWeapon());
         }
     }
-    
+
+    // IDamageable
+    public partial class PlayerActor : GameActor, IDamageable
+    {
+        public void TakeDamage(AttackData attackData)
+        {
+            if (!CanTakeDamage())
+            {
+                Debug.Log($"[PlayerActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
+                return;
+            }
+            
+            float finalDamage = attackData.damage;
+            
+            // 크리티컬 처리
+            if (attackData.criticalMultiplier > 1.0f)
+            {
+                finalDamage *= attackData.criticalMultiplier;
+                Debug.Log($"[PlayerActor] 크리티컬 히트! 데미지: {finalDamage}");
+            }
+            
+            _currentHealth -= finalDamage;
+            
+            Debug.Log($"[PlayerActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
+            
+            // 피격 이펙트, 사운드, 넉백 등 추가 가능
+            OnDamaged(attackData);
+            
+            // 사망 처리
+            if (_currentHealth <= 0)
+            {
+                OnDeath(attackData);
+            }
+        }
+
+        public bool IsAlive()
+        { 
+            return _currentHealth > 0;
+        }
+
+        public bool CanTakeDamage()
+        {
+            return IsAlive() && !_isInvincible;
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public void LockOn()
+        {
+        }
+
+        public void UnLockOn()
+        {
+        }
+        
+        /// <summary>
+        /// 피격 시 호출 (이펙트, 사운드 등)
+        /// </summary>
+        protected virtual void OnDamaged(AttackData attackData)
+        {
+            // 피격 이펙트 재생
+            // 피격 사운드 재생
+            // 넉백 처리
+            // 피격 애니메이션 재생
+            MovementController.TransitionToState(new PlayerHitState(MovementController));
+            Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData.hitPoint}");
+        }
+        
+        /// <summary>
+        /// 사망 시 호출
+        /// </summary>
+        protected virtual void OnDeath(AttackData attackData)
+        {
+            Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
+            
+            MovementController.TransitionToState(new PlayerDeathState(MovementController));
+        }
+    }
     // 애니메이션 이벤트 리시버
-    public partial class PlayerActor : GameActor
+    public partial class PlayerActor : GameActor, IDamageable
     {
         public void Hit()
         {

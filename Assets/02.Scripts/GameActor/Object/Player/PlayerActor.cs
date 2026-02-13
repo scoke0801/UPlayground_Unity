@@ -421,7 +421,13 @@ namespace UPlayGround
             // 피격 사운드 재생
             // 넉백 처리
             // 피격 애니메이션 재생
-            MovementController.TransitionToState(new PlayerHitState(MovementController));
+            if (MovementController.CurrentState.StateName != "Hit")
+            {
+                MovementController.TransitionToState(new PlayerHitState(MovementController));
+
+                CameraManager.Instance.StartShake("LiteHit");
+            }
+
             Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData.hitPoint}");
         }
         
@@ -432,6 +438,7 @@ namespace UPlayGround
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
             
+            CameraManager.Instance.StartShake("LiteHit");
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }
     }

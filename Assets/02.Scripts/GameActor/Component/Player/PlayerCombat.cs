@@ -302,7 +302,6 @@ namespace UPlayGround.Component
         /// </summary>
         private bool CanContinueCombo()
         {
-            return false;
             int length = (_attackState == AttackState.NormalAttack) ? _comboChain.Length : _heavyComoboChain.Length;
             
             float timeSinceLastAttack = Time.time - LastAttackTime;

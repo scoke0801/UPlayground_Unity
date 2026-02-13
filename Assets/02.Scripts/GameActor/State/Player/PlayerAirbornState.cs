@@ -32,7 +32,7 @@ namespace UPlayGround.State
             
             if (playerController.HasJumpInput() == false)
             {
-                gameActor.Animator.PlayAnimation(AnimKey.Fall);
+                gameActor.Animator.PlayMotion(AnimKey.Fall);
             }
         }
 
@@ -180,7 +180,7 @@ namespace UPlayGround.State
             _hasJumped = false;
             _timeSinceLastAbleToJump = 0f;
             
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Land, 0.2f);
+            var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
             if (state != null)
             {
                 _landStarted = true;
@@ -195,12 +195,12 @@ namespace UPlayGround.State
 
         private void PlayJumpAnimation()
         {
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Jump, 0.2f);
+            var state = gameActor.Animator.PlayMotion(AnimKey.Jump, 0.2f);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd += () =>
                 {
-                    gameActor.Animator.PlayAnimation(AnimKey.Fall, 0.2f);
+                    gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
                 };
             }
         }

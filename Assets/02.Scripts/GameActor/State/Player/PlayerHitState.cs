@@ -21,7 +21,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Hit, 0.25f);
+            var state = gameActor.Animator.PlayMotion(AnimKey.Hit, 0.25f);
 
             if (state != null)
             {

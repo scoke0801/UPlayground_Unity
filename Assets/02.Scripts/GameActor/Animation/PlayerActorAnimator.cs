@@ -9,7 +9,9 @@ namespace UPlayGround.Animation
     public partial class PlayerActorAnimator : ActorAnimator
     {
         // 무기는 오른손에 장착된 무기를 기준으로 한다?
+        [Header("PlayerActor Only")]
         [SerializeField] private PlayerActorAnimationSet _playerActorAnimationSet;
+        [SerializeField] private PlayerActorAnimationMotionSet _playerActorAnimationMotionSet;
 
         private PlayerActor _playerActor;
         private PlayerEquipment _playerEquipment;
@@ -21,17 +23,6 @@ namespace UPlayGround.Animation
         {
             base.Init(actor);
             
-            // Head 본 찾기
-            Transform headBone = _animator.Animator.GetBoneTransform(HumanBodyBones.Neck);
-        
-            if (headBone != null)
-            {
-                // 본 비활성화
-                headBone.gameObject.SetActive(false);
-            
-                // 또는 스케일 0으로
-                // headBone.localScale = Vector3.zero;
-            }
             _playerActor = actor as PlayerActor;
             if (_playerActor != null)
             {
@@ -49,6 +40,26 @@ namespace UPlayGround.Animation
             }
             
             return _animator.Play(transition, fadeDuration);
+        }
+
+        public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
+        {
+            _currentMotionSet = _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key);
+            if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
+            {
+                return null;
+            }
+            
+            _currentMotionIndex = 0;
+            _globalTime = 0f;
+            
+            // 이벤트 실행기 초기화
+            _eventExecutor?.PlayMotionSet(_currentMotionSet);
+            
+            // 첫 번째 모션 재생
+            PlayMotionAtIndex(0, fadeDuration);
+
+            return _currentState;
         }
 
         public override float GetAnimationDuration(AnimKey key)

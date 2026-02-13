@@ -9,6 +9,8 @@
         Staff = 4,
         Bow = 5,
         Arrow = 6,
+        
+        Katana = 10,
     }
 
     public enum EquipPosition

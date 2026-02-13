@@ -67,6 +67,11 @@ namespace UPlayGround.Data.Enum
         Hit = 700,
         Die = 800,
         
+        Getup = 820,
+        
+        Guard = 840,
+        Block = 860,
+        
         Knockback = 900,
         
         HandGathering = 1000,
@@ -96,9 +101,11 @@ namespace UPlayGround.Data.Enum
         Equip_Staff,
         Equip_Bow,
         Equip_Arrow,
+        Equip_Katana = 2100,
+        UnEquip_Katana,
         
         // 정지 (Stop)
-        Move_Stop_Walking,
+        Move_Stop_Walking = 5000,
         Move_Stop_Running,
         Move_Stop_Sprinting,
 

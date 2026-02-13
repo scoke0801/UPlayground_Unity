@@ -28,7 +28,7 @@ namespace UPlayGround.State
             
             // 캡슐 크기 축소
             motor.SetCapsuleDimensions(0.5f, 1f, 0.5f);
-            var animState = gameActor.Animator.PlayAnimation(AnimKey.Idle_To_Crouch, 0.25f);
+            var animState = gameActor.Animator.PlayMotion(AnimKey.Idle_To_Crouch, 0.25f);
             if (animState != null)
             {
                 _isPlayedCrouching = true;
@@ -41,12 +41,12 @@ namespace UPlayGround.State
             if (playerController.HasMoveInput())
             {
                 _isIdleAnim = false;
-                gameActor.Animator.PlayAnimation(AnimKey.Crouch_Walk, 0.25f);
+                gameActor.Animator.PlayMotion(AnimKey.Crouch_Walk, 0.25f);
             }
             else if(_isIdleAnim == false)
             {
                 _isIdleAnim = true; 
-                gameActor.Animator.PlayAnimation(AnimKey.Crouch_Idle, 0.25f);
+                gameActor.Animator.PlayMotion(AnimKey.Crouch_Idle, 0.25f);
             }
         }
 
@@ -67,7 +67,7 @@ namespace UPlayGround.State
             {
                 if (CanStandUp())
                 {
-                    var animState = gameActor.Animator.PlayAnimation(AnimKey.Crouch_To_Idle, 0.25f);
+                    var animState = gameActor.Animator.PlayMotion(AnimKey.Crouch_To_Idle, 0.25f);
                     if (animState != null)
                     {
                         animState.OwnedEvents.OnEnd = () =>

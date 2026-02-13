@@ -1658,6 +1658,9 @@ MonoBehaviour:
   _interactionLayer:
     serializedVersion: 2
     m_Bits: 512
+  _maxHealth: 100
+  _currentHealth: 100
+  _isInvincible: 0
   _equipment: {fileID: 128408075}
   _combat: {fileID: 128408074}
 --- !u!114 &128408077

@@ -85,6 +85,10 @@ namespace UPlayGround.State
                     
                     gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.25f);
                 }
+                else
+                {
+                    gameActor.Animator.PlayAnimation(AnimKey.Walk, 0.25f);
+                }
             }
         }
 
@@ -116,14 +120,7 @@ namespace UPlayGround.State
                 // 대기 중에는 정지
                 if (motor.GroundingStatus.IsStableOnGround)
                 {
-                    currentVelocity = motor.GetDirectionTangentToSurface(
-                        currentVelocity,
-                        motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-                    
-                    currentVelocity = Vector3.Lerp(
-                        currentVelocity,
-                        Vector3.zero,
-                        1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                    currentVelocity = Vector3.zero; 
                 }
             }
             else

@@ -119,6 +119,11 @@ namespace UPlayGround.Component
 
         private void AcquireTarget(Transform target)
         {
+            if (target.GetComponent<IDamageable>()?.IsAlive() == false)
+            {
+                return;
+            }
+            
             _currentTarget = target;
             Debug.Log($"[EnemyDetection] 타겟 획득: {target.name}");
         }

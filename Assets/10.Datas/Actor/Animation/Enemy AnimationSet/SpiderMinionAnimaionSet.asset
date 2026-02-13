@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a06f79b0b62433e920de336b94d98b2, type: 3}
-  m_Name: SpiderQueenAnimaionSet
+  m_Name: SpiderMinionAnimaionSet
   m_EditorClassIdentifier: 
   _animationList:
   - key: 1
@@ -22,7 +22,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -3100369314251171874, guid: ccdaea4bc3ae1584e804d6796039fe00, type: 3}
+      _Clip: {fileID: -3100369314251171874, guid: 90466b7de9541b84597aeb3255c7d2ee, type: 3}
       _NormalizedStartTime: NaN
   - key: 2
     animLayer: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 2667949614841947897, guid: 3fe6a44f661f21d42b1236ae3fd5e5f4, type: 3}
+      _Clip: {fileID: 2667949614841947897, guid: 3715cc768253471448c35495796eed13, type: 3}
       _NormalizedStartTime: NaN
   - key: 3
     animLayer: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 2667949614841947897, guid: 3fe6a44f661f21d42b1236ae3fd5e5f4, type: 3}
+      _Clip: {fileID: 2667949614841947897, guid: 3715cc768253471448c35495796eed13, type: 3}
       _NormalizedStartTime: NaN
   - key: 4
     animLayer: 0
@@ -55,7 +55,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 2667949614841947897, guid: 3fe6a44f661f21d42b1236ae3fd5e5f4, type: 3}
+      _Clip: {fileID: 2667949614841947897, guid: 3715cc768253471448c35495796eed13, type: 3}
       _NormalizedStartTime: NaN
   - key: 700
     animLayer: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -1304387373167265313, guid: 3808545a3c7e9c54e853b2049cb38545, type: 3}
+      _Clip: {fileID: -1304387373167265313, guid: 5d02d59a25262554c845e7474a3f1e44, type: 3}
       _NormalizedStartTime: NaN
   - key: 800
     animLayer: 0
@@ -77,7 +77,18 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 4348485665485846014, guid: c555eb489364d444f8f9954dd308b543, type: 3}
+      _Clip: {fileID: 5628996103003489149, guid: 6899e714ba883104d8fe433c92d6c26d, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 100
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 6720303635017113406, guid: d4b8529bfd68c8e44b22f44051dc61b2, type: 3}
       _NormalizedStartTime: NaN
   references:
     version: 2

@@ -4,7 +4,7 @@ using UPlayGround.Data.Enum;
 
 namespace UPlayGround.Data.Actor.Animation
 {
-    [CreateAssetMenu(fileName = "PlayerActorAnimationSet", menuName = "UP/ActorData/PlayerActorAnimationSet")]
+    [CreateAssetMenu(fileName = "PlayerActorAnimationSet", menuName = "UPlayGround/ActorData/PlayerActorAnimationSet")]
     public class PlayerActorAnimationSet : ScriptableObject
     {
         [Header("무기")]

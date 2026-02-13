@@ -53,6 +53,7 @@ namespace UPlayGround.Component
         public GameObject hitTarget;     // 피격 대상
         public float criticalMultiplier; // 크리티컬 배율
         public bool isCounterAttack;     // 카운터 공격 여부
+        public Vector3 attackDirection;
     }
     
     /// <summary>

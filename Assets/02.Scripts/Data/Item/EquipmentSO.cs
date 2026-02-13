@@ -3,7 +3,7 @@ using UnityEngine;
 using UPlayGround.Data.Enum;
 
 // 장비 전용 SO
-[CreateAssetMenu(fileName = "EquipmentSO", menuName = "UP/SO/EquipmentSO")]
+[CreateAssetMenu(fileName = "EquipmentSO", menuName = "UPlayGround/SO/EquipmentSO")]
 public class EquipmentSO : ItemSO
 {
     [Header("Equipment Data")]

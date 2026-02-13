@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Path
     /// ItemSO 데이터베이스
     /// 
     /// </summary>
-    [CreateAssetMenu(fileName = "CameraShakeDatabase", menuName = "UP/PathDatabase/CameraShake")]
+    [CreateAssetMenu(fileName = "CameraShakeDatabase", menuName = "UPlayGround/PathDatabase/CameraShake")]
     public class CameraShakeDatabase : ScriptableObject
     {
         [SerializeField] private List<CameraShakeData> allItems = new List<CameraShakeData>();

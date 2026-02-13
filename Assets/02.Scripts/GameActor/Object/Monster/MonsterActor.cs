@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.Config;
+using UPlayGround.Data.Enemy;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -8,6 +9,7 @@ namespace UPlayGround
     public partial class MonsterActor : GameActor, IDamageable
     {  
         [Header("Monster Stats")]
+        [SerializeField] private EnemyStatsSO _stats;
         [SerializeField] private float _maxHealth = 100f;
         [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool _isInvincible = false;
@@ -16,9 +18,11 @@ namespace UPlayGround
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyBrain _brain;
+        [SerializeField] private EnemyCombat _combat;
         
         public EnemyDetection Detection => _detection;
         public EnemyBrain Brain => _brain;
+        public EnemyCombat Combat => _combat;
         
         protected override void Awake()
         {
@@ -31,6 +35,9 @@ namespace UPlayGround
             
             if (_brain == null)
                 _brain = GetComponent<EnemyBrain>();
+            
+            if (_combat == null)
+                _combat = GetComponent<EnemyCombat>();
         }
         #region IDamageable Implementation
         

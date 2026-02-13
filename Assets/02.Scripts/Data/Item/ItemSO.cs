@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Enum;
 
-[CreateAssetMenu(fileName = "ItemSO", menuName = "UP/SO/ItemSO")]
+[CreateAssetMenu(fileName = "ItemSO", menuName = "UPlayGround/SO/ItemSO")]
 public class ItemSO : ScriptableObject
 {
     [Header("Base Data")]

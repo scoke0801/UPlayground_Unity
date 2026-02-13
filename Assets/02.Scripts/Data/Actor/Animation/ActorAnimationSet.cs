@@ -20,7 +20,7 @@ namespace UPlayGround.Data.Actor.Animation
         // [TODO] AnimCurve: 우선은 복잡하게 구현은 하지 않고 추후 적용이 필요할지만 고민해보자
     }
     
-    [CreateAssetMenu(fileName = "ActorAnimationSet", menuName = "UP/ActorData/ActorAnimationSet")]
+    [CreateAssetMenu(fileName = "ActorAnimationSet", menuName = "UPlayGround/ActorData/ActorAnimationSet")]
     public class ActorAnimationSet : ScriptableObject
     {
         [SerializeField] private List<AnimationData> _animationList;

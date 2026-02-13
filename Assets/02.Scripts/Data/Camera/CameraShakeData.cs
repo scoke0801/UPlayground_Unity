@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "CameraShakeData", menuName = "UP/SO/CameraShakeData")]
+    [CreateAssetMenu(fileName = "CameraShakeData", menuName = "UPlayGround/SO/CameraShakeData")]
     public class CameraShakeData : ScriptableObject
     {
         public string key;

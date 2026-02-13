@@ -66,7 +66,7 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: -1304387373167265313, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      _Clip: {fileID: -1304387373167265313, guid: b16e46d3e25d97d4892decfdd731895d, type: 3}
       _NormalizedStartTime: NaN
   - key: 800
     animLayer: 0
@@ -77,7 +77,29 @@ MonoBehaviour:
         _NormalizedTimes: []
         _Callbacks: []
         _Names: []
-      _Clip: {fileID: 4348485665485846014, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      _Clip: {fileID: 4348485665485846014, guid: aa7506ba9d48808409747b7b44368777, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 100
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: -3568207325639417703, guid: 6e113650c7206564eb895a6234eb377e, type: 3}
+      _NormalizedStartTime: NaN
+  - key: 101
+    animLayer: 0
+    Transition:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 8970874683280315550, guid: 09386e8c7eeb3cc44873949f3cf1c728, type: 3}
       _NormalizedStartTime: NaN
   references:
     version: 2

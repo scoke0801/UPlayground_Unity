@@ -12,6 +12,7 @@ namespace UPlayGround.Component
         [Header("References")]
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private ActorMovementController _movementController;
+        [SerializeField] private EnemyCombat _combat;
         
         [Header("Behavior Settings")]
         [SerializeField] private float _attackRange = 2.5f;
@@ -23,7 +24,11 @@ namespace UPlayGround.Component
         [SerializeField] private float _patrolRadius = 5f;
         [SerializeField] private float _patrolWaitTime = 2f;
         
+        [Header("Attack Settings")]
+        [SerializeField] private float _attackCooldown = 1.5f;
+        
         private float _decisionTimer;
+        private float _lastAttackTime;
         private Vector3 _spawnPosition;
         
         public float AttackRange => _attackRange;
@@ -41,7 +46,11 @@ namespace UPlayGround.Component
             if (_movementController == null)
                 _movementController = GetComponent<ActorMovementController>();
             
+            if (_combat == null)
+                _combat = GetComponent<EnemyCombat>();
+
             _spawnPosition = transform.position;
+            _lastAttackTime = -_attackCooldown; // 시작 시 바로 공격 가능
         }
 
         private void Update()
@@ -70,6 +79,10 @@ namespace UPlayGround.Component
             if (currentStateName == "Hit")
                 return;
             
+            // Attack 상태면 공격 중이므로 의사결정 건너뜀
+            if (currentStateName == "Attack")
+                return;
+            
             // 타겟이 있는 경우
             if (_detection.HasTarget)
             {
@@ -89,16 +102,26 @@ namespace UPlayGround.Component
             // 공격 범위 내
             if (distanceToTarget <= _attackRange)
             {
-                // TODO: Phase 2에서 Attack 상태 추가 시 활성화
-                // if (currentStateName != "Attack")
-                // {
-                //     _movementController.TransitionToState(new EnemyAttackState(_movementController));
-                // }
-                
-                // 현재는 Chase 상태 유지
-                if (currentStateName != "Chase")
+                // 공격 쿨다운 체크
+                if (CanAttack())
                 {
-                    _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
+                    if (_combat != null)
+                    {
+                        _lastAttackTime = Time.time;
+                        _movementController.TransitionToState(new EnemyAttackState(_movementController, _combat, this, _detection));
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[EnemyBrain] EnemyCombat 컴포넌트가 없습니다!");
+                    }
+                }
+                else
+                {
+                    // 쿨다운 중에는 Chase 상태 유지
+                    if (currentStateName != "Chase")
+                    {
+                        _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
+                    }
                 }
             }
             // 추적 범위
@@ -115,7 +138,7 @@ namespace UPlayGround.Component
         {
             if (_enablePatrol)
             {
-                if (currentStateName != "Patrol" && currentStateName != "Idle")
+                if (currentStateName != "Patrol")
                 {
                     _movementController.TransitionToState(new EnemyPatrolState(_movementController, this));
                 }
@@ -128,7 +151,15 @@ namespace UPlayGround.Component
                 }
             }
         }
-
+        
+        /// <summary>
+        /// 공격 가능 여부 체크
+        /// </summary>
+        private bool CanAttack()
+        {
+            return Time.time - _lastAttackTime >= _attackCooldown;
+        }
+        
         /// <summary>
         /// 순찰 포인트 생성 (스폰 위치 기준 랜덤)
         /// </summary>

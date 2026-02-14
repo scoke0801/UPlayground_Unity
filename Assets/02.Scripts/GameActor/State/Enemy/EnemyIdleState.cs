@@ -22,7 +22,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)

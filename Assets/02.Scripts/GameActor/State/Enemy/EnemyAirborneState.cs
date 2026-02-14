@@ -26,7 +26,7 @@ namespace UPlayGround.State
 
             _dragSpeed = controller.Drag;
             
-            gameActor.Animator.PlayAnimation(AnimKey.Fall);
+            gameActor.Animator.PlayMotion(AnimKey.Fall);
         }
 
         public override void OnExit(GameActorState state)
@@ -84,7 +84,7 @@ namespace UPlayGround.State
             Debug.Log("Landed on ground");
             _hasJumped = false;
             
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Land, 0.2f);
+            var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
             if (state != null)
             {
                 _landStarted = true;

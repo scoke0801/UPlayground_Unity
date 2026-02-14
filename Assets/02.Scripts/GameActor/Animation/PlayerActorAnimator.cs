@@ -10,7 +10,6 @@ namespace UPlayGround.Animation
     {
         // 무기는 오른손에 장착된 무기를 기준으로 한다?
         [Header("PlayerActor Only")]
-        [SerializeField] private PlayerActorAnimationSet _playerActorAnimationSet;
         [SerializeField] private PlayerActorAnimationMotionSet _playerActorAnimationMotionSet;
 
         private PlayerActor _playerActor;
@@ -29,17 +28,6 @@ namespace UPlayGround.Animation
                 _playerEquipment = _playerActor.GetPlayerEquipment();
                 _playerCombat = _playerActor.GetCombat();
             }
-        }
-
-        public override AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0)
-        {
-            ClipTransition transition = _playerActorAnimationSet.GetClipTransition(_playerEquipment.GetMainWeaponType(), key);
-            if (transition == null)
-            {
-                return null;
-            }
-            
-            return _animator.Play(transition, fadeDuration);
         }
 
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
@@ -61,18 +49,14 @@ namespace UPlayGround.Animation
 
             return _currentState;
         }
-
-        public override float GetAnimationDuration(AnimKey key)
+        
+        /// <summary>
+        /// MotionSet의 총 재생 시간 가져오기
+        /// </summary>
+        public override float GetMotionSetDuration(AnimKey key)
         {
-            var clip = _playerActorAnimationSet.GetAnimationClip(_playerEquipment.GetMainWeaponType(), key);
-            
-            if (clip == null)
-            {
-                Debug.LogWarning($"[ActorAnimator] AnimKey '{key}'에 해당하는 클립을 찾을 수 없습니다.");
-                return 0f;
-            }
-            
-            return clip.length;
+            var motionSet = _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key);
+            return motionSet?.TotalDuration ?? 0f;
         }
     }
 

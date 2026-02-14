@@ -10,7 +10,6 @@ namespace UPlayGround.Animation
     public class ActorAnimator : MonoBehaviour
     {
         [Header("Actor Setting")]
-        [SerializeField] private ActorAnimationSet _animationSet;
         [SerializeField] private ActorAnimationMotionSet _motionSet;
         
         [Header("Event Executor")]
@@ -19,47 +18,42 @@ namespace UPlayGround.Animation
         [Space]
         
         protected AnimancerComponent _animator;
-
         protected GameActor _actor;
         
         protected int _currentMotionIndex;
         protected float _globalTime;
         protected MotionSet _currentMotionSet;
-
         protected AnimancerState _currentState;
 
+        // 애니메이션 전환 추적
+        private AnimKey _lastPlayedKey;
+        private bool _isPlayingMotionSet;
         
         public AnimancerComponent GetAnimancerComponent() => _animator;
         
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
-        
-        public virtual void Init(GameActor actor)
+
+        private void Awake()
         {
             _animator = GetComponent<AnimancerComponent>();
             _eventExecutor = GetComponent<MotionEventExecutor>();
-            
-            _actor = actor;
 
             _animator.Layers[0].ApplyFootIK = true;
             _animator.Layers[0].ApplyAnimatorIK = true;
         }
+        public virtual void Init(GameActor actor)
+        {
+            _actor = actor;
+        }
 
         private void Update()
         {
-            // 타임라인 업데이트
-            UpdateTimeline();
-        }
-
-        public virtual AnimancerState PlayAnimation(AnimKey key, float fadeDuration = 0.0f)
-        {
-            ClipTransition transition = _animationSet.GetClipTransition(key);
-            if (transition == null)
+            // 타임라인 업데이트 (MotionSet 재생 중일 때만)
+            if (_isPlayingMotionSet)
             {
-                return null;
+                UpdateTimeline();
             }
-            
-            return _animator.Play(transition, fadeDuration);
         }
 
         // [TODO] 스트링 기반으로 바꿔볼까
@@ -70,6 +64,12 @@ namespace UPlayGround.Animation
 
         public virtual AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
         {
+            // 기존 MotionSet이 재생 중이었다면 안전하게 정리
+            if (_isPlayingMotionSet && _currentMotionSet != null)
+            {
+                StopMotionSet();
+            }
+            
             _currentMotionSet = _motionSet.GetMotionSet(key);
             if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
             {
@@ -78,10 +78,12 @@ namespace UPlayGround.Animation
             
             _currentMotionIndex = 0;
             _globalTime = 0f;
-            
+            _isPlayingMotionSet = true;
+            _lastPlayedKey = key;
+
             // 이벤트 실행기 초기화
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
-            
+
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration);
 
@@ -89,19 +91,44 @@ namespace UPlayGround.Animation
         }
         
         /// <summary>
-        /// 특정 AnimKey의 AnimationClip duration 가져오기
+        /// MotionSet 안전하게 정지
         /// </summary>
-        public virtual float GetAnimationDuration(AnimKey key)
+        public void StopMotionSet()
         {
-            var clip = _animationSet.GetAnimationClip(key);
-            
-            if (clip == null)
+            if (!_isPlayingMotionSet) return;
+
+            // 이벤트 강제 종료
+            _eventExecutor?.Stop();
+
+            _isPlayingMotionSet = false;
+            _currentMotionSet = null;
+            _currentState = null;
+            _globalTime = 0f;
+            _currentMotionIndex = 0;
+        }
+        /// <summary>
+        /// 현재 재생 중인 애니메이션 강제 정지 (안전장치)
+        /// </summary>
+        public void StopCurrentAnimation()
+        {
+            if (_isPlayingMotionSet)
             {
-                Debug.LogWarning($"[ActorAnimator] AnimKey '{key}'에 해당하는 클립을 찾을 수 없습니다.");
-                return 0f;
+                StopMotionSet();
             }
-            
-            return clip.length;
+
+            if (_animator != null && _animator.IsPlaying())
+            {
+                _animator.Stop();
+            }
+        }
+        
+        /// <summary>
+        /// MotionSet의 총 재생 시간 가져오기
+        /// </summary>
+        public virtual float GetMotionSetDuration(AnimKey key)
+        {
+            var motionSet = _motionSet.GetMotionSet(key);
+            return motionSet?.TotalDuration ?? 0f;
         }
         
         /// <summary>
@@ -129,6 +156,18 @@ namespace UPlayGround.Animation
             return state.NormalizedTime;
         }
         
+        // <summary>
+        /// MotionSet의 정규화된 시간 (0~1)
+        /// </summary>
+        public float GetMotionSetNormalizedTime()
+        {
+            if (!_isPlayingMotionSet || _currentMotionSet == null)
+                return 0f;
+
+            float totalDuration = _currentMotionSet.TotalDuration;
+            return totalDuration > 0 ? _globalTime / totalDuration : 0f;
+        }
+
         /// <summary>
         /// 애니메이션이 거의 끝났는지 체크
         /// </summary>
@@ -144,13 +183,27 @@ namespace UPlayGround.Animation
 
         public void ApplyRootMotion(bool enable)
         {
-            _animator.Animator.applyRootMotion = enable;
+            if (_animator?.Animator != null)
+            {
+                _animator.Animator.applyRootMotion = enable;
+            }
         }
 
         private void UpdateTimeline()
         {
+            if (!_isPlayingMotionSet || _currentMotionSet == null) return;
+
             _globalTime += Time.deltaTime;
-            _eventExecutor.UpdateTime(_globalTime);
+
+            // MotionSet 종료 체크
+            if (_globalTime >= _currentMotionSet.TotalDuration)
+            {
+                StopMotionSet();
+                return;
+            }
+
+            // 이벤트 실행기 업데이트
+            _eventExecutor?.UpdateTime(_globalTime);
         }
         
         private void OnAnimatorMove()
@@ -211,9 +264,25 @@ namespace UPlayGround.Animation
             }
             else
             {
-                _currentState = null;
+                StopMotionSet();
             }
         }
-
+        void OnDestroy()
+        {
+            if (_isPlayingMotionSet)
+            {
+                StopMotionSet();
+            }
+        }
+        /// <summary>
+        /// 비활성화 시 안전하게 정리
+        /// </summary>
+        void OnDisable()
+        {
+            if (_isPlayingMotionSet)
+            {
+                StopMotionSet();
+            }
+        }
     }
 }

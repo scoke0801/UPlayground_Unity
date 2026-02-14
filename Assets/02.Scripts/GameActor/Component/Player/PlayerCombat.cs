@@ -286,7 +286,7 @@ namespace UPlayGround.Component
                 return 1.0f;
             }
             
-            float duration = _actorAnimator.GetAnimationDuration(animKey);
+            float duration = _actorAnimator.GetMotionSetDuration(animKey);
             
             if (duration <= 0)
             {

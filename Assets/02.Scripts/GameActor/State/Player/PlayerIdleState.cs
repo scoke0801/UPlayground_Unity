@@ -118,15 +118,16 @@ namespace UPlayGround.State
 
         private void PlayEquipItem()
         {
-            if (playerActor.IsEquippedRightWeapon == false)
+            if(playerActor.GetPlayerEquipment().GetMainWeaponType() == WeaponType.NoWeapon)
             {
                 var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Katana, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
-                    {
-                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+                    {    
                         playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.Katana);
+
+                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
             }

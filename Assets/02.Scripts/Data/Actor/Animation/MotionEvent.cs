@@ -32,6 +32,7 @@ namespace UPlayGround.Animation
         /// 이벤트 실행 (런타임)
         /// </summary>
         public abstract void Execute(GameObject target);
+        public abstract void OnCompleteEvent(GameObject target);
     }
 
     // ====================================================================
@@ -48,6 +49,7 @@ namespace UPlayGround.Animation
         public Vector3 offset;
         public bool attachToTarget = true;
 
+        private GameObject _instance;
         public override string GetDisplayName() => "Particle";
 
         public override string GetShortLabel()
@@ -63,13 +65,22 @@ namespace UPlayGround.Animation
 
             if (attachToTarget)
             {
-                var instance = GameObject.Instantiate(particlePrefab, target.transform);
-                instance.transform.localPosition = offset;
+                _instance = GameObject.Instantiate(particlePrefab, target.transform);
+                _instance.transform.localPosition = offset;
             }
             else
             {
-                var instance = GameObject.Instantiate(particlePrefab);
-                instance.transform.position = target.transform.position + offset;
+                _instance = GameObject.Instantiate(particlePrefab);
+                _instance.transform.position = target.transform.position + offset;
+            }
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
+            if (_instance != null)
+            {
+                GameObject.Destroy(_instance);
+                _instance = null;
             }
         }
     }
@@ -92,6 +103,10 @@ namespace UPlayGround.Animation
         {
             // 실제 구현은 카메라 매니저 연동 필요
             Debug.Log($"Camera Shake: Intensity={intensity}, Frequency={frequency}");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 
@@ -118,6 +133,10 @@ namespace UPlayGround.Animation
         {
             // 충돌 판정 로직 구현
             Debug.Log($"Collision Active: {colliderName}, Damage={damage}");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 
@@ -149,6 +168,10 @@ namespace UPlayGround.Animation
             else
                 Debug.Log($"Play 2D Sound: {audioClip.name}");
         }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
+        }
     }
 
     /// <summary>
@@ -168,6 +191,10 @@ namespace UPlayGround.Animation
         {
             Debug.Log($"Animation Speed: {speedMultiplier}x");
         }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
+        }
     }
 
     /// <summary>
@@ -185,6 +212,10 @@ namespace UPlayGround.Animation
         public override void Execute(GameObject target)
         {
             Debug.Log("Invincibility Active");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 
@@ -205,6 +236,10 @@ namespace UPlayGround.Animation
         public override void Execute(GameObject target)
         {
             Debug.Log($"Footstep: {foot}");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 
@@ -240,6 +275,10 @@ namespace UPlayGround.Animation
             if (rb != null)
                 rb.linearVelocity = target.transform.TransformDirection(direction) * speed;
         }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
+        }
     }
 
     /// <summary>
@@ -258,6 +297,10 @@ namespace UPlayGround.Animation
         public override void Execute(GameObject target)
         {
             Debug.Log($"Time Scale: {timeScale}");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 
@@ -282,6 +325,10 @@ namespace UPlayGround.Animation
         public override void Execute(GameObject target)
         {
             Debug.Log($"Callback: {callbackName}");
+        }
+
+        public override void OnCompleteEvent(GameObject target)
+        {
         }
     }
 }

@@ -131,7 +131,7 @@ namespace UPlayGround.State
 
         private void OnFishCatch()
         {
-            var state = gameActor.Animator.PlayAnimation(AnimKey.Fishing_Catch);
+            var state = gameActor.Animator.PlayMotion(AnimKey.Fishing_Catch);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () =>

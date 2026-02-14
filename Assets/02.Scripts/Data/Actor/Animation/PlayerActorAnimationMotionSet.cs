@@ -22,7 +22,11 @@ namespace UPlayGround.Data.Actor.Animation
             ActorAnimationMotionSet motionSet = GetActorAnimationMotionSet(weaponType);
             if (motionSet != null)
             {
-                return motionSet.GetMotionSet(key);
+                var motion = motionSet.GetMotionSet(key);
+                if (motion != null)
+                {
+                    return motion;
+                }
             }
 
             if (weaponType != WeaponType.NoWeapon)

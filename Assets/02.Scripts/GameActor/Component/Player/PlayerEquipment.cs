@@ -73,6 +73,13 @@ namespace UPlayGround.Component
         
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
+        
+        // [TODO] 테스트 기능
+        public void TEST_SetWeaponType(WeaponType type)
+        {
+            _mainWeaponType = type;
+        }
+        
         private void Start()
         {
             EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(

@@ -50,7 +50,7 @@ namespace UPlayGround.State
 
             _isHeavyAttack = playerController.HasHeavyAttackInput();
             
-            var animState = gameActor.Animator.PlayAnimation(GetAnimKey(), 0.25f);
+            var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
             if (animState != null)
             {
                 animState.OwnedEvents.OnEnd = ChangeToNextState;
@@ -101,7 +101,7 @@ namespace UPlayGround.State
                 _comboInputted = false;
                 _playerActorAnimator.IsOpenedComboWindow = false;
 
-                var animState = gameActor.Animator.PlayAnimation(GetAnimKey(), 0.25f);
+                var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd = ChangeToNextState;

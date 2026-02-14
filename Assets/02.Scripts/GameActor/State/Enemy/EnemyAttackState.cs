@@ -43,7 +43,7 @@ namespace UPlayGround.State
             if (_currentAttack != null)
             {
                 // 공격 애니메이션 재생
-                var animState = gameActor.Animator.PlayAnimation(_currentAttack.animKey, 0.1f);
+                var animState = gameActor.Animator.PlayMotion(_currentAttack.animKey, 0.1f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd = OnAttackAnimationEnd;

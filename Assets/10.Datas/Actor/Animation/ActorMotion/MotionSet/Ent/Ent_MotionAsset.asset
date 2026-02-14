@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Ent_MotionAsset
+  m_EditorClassIdentifier: 
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 03ae2e2a76524724f9f3120603058fc6, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: 9b5e5b4936f85ce48b2095b940a5e160, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: bc508894dfa179147bfebe6cba3ac8f6, type: 2}
+    - Key: 4
+      Value: {fileID: 11400000, guid: bc508894dfa179147bfebe6cba3ac8f6, type: 2}
+    - Key: 20
+      Value: {fileID: 11400000, guid: dfa1df14a8a7e6b4b974addfc3c314f0, type: 2}
+    - Key: 21
+      Value: {fileID: 11400000, guid: 00c02f589530e764cb5044ed7a3e4153, type: 2}
+    - Key: 22
+      Value: {fileID: 11400000, guid: a4cdf9de3e6f3e24a99cc7339e39dab6, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: 1079c51d827c1eb40bcb3f2e67feb035, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 46d13093ebc05db438771ec027a5df49, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: 06481bd8d112ad64fadaed8cd881247b, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: af397f919f5d6d84cb0a99d234ac73c4, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: da283f59ffe0ba04a848007e6e837f96, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: dc05b4a42df05114085b1363d400097b, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: 4e422869950556c4b97bd155b7da15b7, type: 2}

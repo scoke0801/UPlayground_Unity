@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Skeleton_Common_MotionAsset
+  m_EditorClassIdentifier: 
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 0447e1782a771bf4abd124b4b2798651, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: ef7436feaf7232e4aa23777ce824e257, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: f011cbd1061f2b24f8e4d1ef9faea009, type: 2}
+    - Key: 4
+      Value: {fileID: 11400000, guid: f011cbd1061f2b24f8e4d1ef9faea009, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: f2af075a0d5c5094c8f2180e5239dee4, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 034c066f0d3053746a54d1ab40fe36b2, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: c4ea4e5292d22534ba99f51462c73bb5, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: 3bce923447d92694daead90519323e03, type: 2}

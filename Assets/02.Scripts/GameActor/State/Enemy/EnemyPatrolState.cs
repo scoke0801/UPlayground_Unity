@@ -67,7 +67,7 @@ namespace UPlayGround.State
                     _isWaiting = false;
                     _waitTimer = 0f;
                     
-                    gameActor.Animator.PlayAnimation(AnimKey.Walk, 0.25f);
+                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
                 }
             }
             else
@@ -83,11 +83,11 @@ namespace UPlayGround.State
                     _isWaiting = true;
                     _waitTimer = 0f;
                     
-                    gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.25f);
+                    gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
                 }
                 else
                 {
-                    gameActor.Animator.PlayAnimation(AnimKey.Walk, 0.25f);
+                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
                 }
             }
         }

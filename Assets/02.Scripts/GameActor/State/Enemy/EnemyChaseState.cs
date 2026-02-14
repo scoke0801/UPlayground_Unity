@@ -30,7 +30,7 @@ namespace UPlayGround.State
             // 추적 속도 설정
             _chaseSpeed = controller.MaxRunMoveSpeed * _brain.ChaseSpeedMultiplier;
             
-            gameActor.Animator.PlayAnimation(AnimKey.Run, 0.25f);
+            gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
             
             Debug.Log("[EnemyChaseState] 추적 시작");
         }

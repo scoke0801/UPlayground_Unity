@@ -22,7 +22,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _cachedAnimType = gameActor.MoveAnimType;
-            gameActor.Animator.PlayAnimation(GetMoveAnimKey(), 0.25f);            
+            gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);            
         }
 
         public override void UpdateState(float deltaTime)
@@ -81,7 +81,7 @@ namespace UPlayGround.State
             if (_cachedAnimType != gameActor.MoveAnimType)
             {
                 _cachedAnimType = gameActor.MoveAnimType;
-                gameActor.Animator.PlayAnimation(GetMoveAnimKey(), 0.25f);         
+                gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);         
             }
         }
         

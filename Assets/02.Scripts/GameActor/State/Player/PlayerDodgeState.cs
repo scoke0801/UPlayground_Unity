@@ -22,7 +22,7 @@ namespace UPlayGround.State
             gameActor.Animator.ApplyRootMotion(true);
             //controller.AddVelocity(motor.CharacterForward * controller.DodgePower);
             
-            var animState = gameActor.Animator.PlayAnimation(AnimKey.Dodge, 0.25f);
+            var animState = gameActor.Animator.PlayMotion(AnimKey.Dodge, 0.25f);
             if (animState != null)
             {
                 animState.OwnedEvents.OnEnd = ChangeToNextState;

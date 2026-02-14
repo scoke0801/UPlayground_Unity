@@ -286,7 +286,7 @@ namespace UPlayGround.Component
                 return 1.0f;
             }
             
-            float duration = _actorAnimator.GetAnimationDuration(animKey);
+            float duration = _actorAnimator.GetMotionSetDuration(animKey);
             
             if (duration <= 0)
             {
@@ -302,7 +302,6 @@ namespace UPlayGround.Component
         /// </summary>
         private bool CanContinueCombo()
         {
-            return false;
             int length = (_attackState == AttackState.NormalAttack) ? _comboChain.Length : _heavyComoboChain.Length;
             
             float timeSinceLastAttack = Time.time - LastAttackTime;

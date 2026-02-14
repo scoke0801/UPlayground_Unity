@@ -23,7 +23,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             _equipment = playerActor.GetPlayerEquipment();
-            gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -118,27 +118,28 @@ namespace UPlayGround.State
 
         private void PlayEquipItem()
         {
-            if (playerActor.IsEquippedRightWeapon == false)
+            if(playerActor.GetPlayerEquipment().GetMainWeaponType() == WeaponType.NoWeapon)
             {
-                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_RightWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Katana, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
-                    {
-                        PlayEquip_Left();
-                        //gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                    {    
+                        playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.Katana);
+
+                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
             }
             else
             {
-                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_RightWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.UnEquip_Katana, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        PlayEquip_Left();
-                        //gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                        playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.NoWeapon);
+                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
             }
@@ -148,23 +149,23 @@ namespace UPlayGround.State
         {
             if (playerActor.IsEquippedLeftWeapon == false)
             {
-                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_LeftWeapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
             }
             else
             {
-                var animState = gameActor.Animator.PlayAnimation(AnimKey.Equip_LeftWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_LeftWeapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        gameActor.Animator.PlayAnimation(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
             }

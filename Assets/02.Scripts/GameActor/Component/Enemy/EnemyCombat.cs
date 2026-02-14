@@ -134,7 +134,8 @@ namespace UPlayGround.Component
                         damage = currentAttack.damage,
                         criticalMultiplier = 1.0f,
                         hitPoint = attackPosition,
-                        attackDirection = _attackOrigin.forward
+                        attackDirection = _attackOrigin.forward,
+                        reactionType = currentAttack.reactionType
                     };
                     
                     damageable.TakeDamage(attackData);

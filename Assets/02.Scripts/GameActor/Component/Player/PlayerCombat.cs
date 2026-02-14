@@ -44,6 +44,8 @@ namespace UPlayGround.Component
         public float duration;
         public bool canBeInterrupted;
         
+        public AttackReactionType reactionType = AttackReactionType.Hit;
+        
         // Hit Detection Data
         public float hitRange;
         public float hitAngle;

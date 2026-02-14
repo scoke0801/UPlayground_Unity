@@ -64,7 +64,11 @@ namespace UPlayGround.Data.Enum
         Skill_3,
         Skill_4,
         
-        Hit = 700,
+        Hit_F = 700,
+        Hit_B,
+        Hit_L,
+        Hit_R,
+        
         Die = 800,
         
         Getup = 820,

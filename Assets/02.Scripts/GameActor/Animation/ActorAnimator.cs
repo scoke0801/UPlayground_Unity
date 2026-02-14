@@ -62,6 +62,15 @@ namespace UPlayGround.Animation
             return null;
         }
 
+        public virtual bool HasMotion(AnimKey key, bool checkWeapon = false)
+        {
+            if ( _motionSet == null)
+            {
+                return false;
+            }
+            
+            return (_motionSet.GetMotionSet(key) != null);
+        }
         public virtual AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
         {
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리

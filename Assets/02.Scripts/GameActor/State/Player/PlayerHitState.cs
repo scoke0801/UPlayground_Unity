@@ -13,21 +13,24 @@ namespace UPlayGround.State
     public class PlayerHitState : PlayerActorState
     {
         public override string StateName => "Hit";
+
+        private AttackData _attackData;
         
-        public PlayerHitState(ActorMovementController controller) : base(controller)
+        public PlayerHitState(ActorMovementController controller, AttackData attackData) 
+            : base(controller)
         {
+            _attackData = attackData;
         }
 
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            var state = gameActor.Animator.PlayMotion(AnimKey.Hit, 0.25f);
+            var state = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
 
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () => { controller.TransitionToState(new PlayerIdleState(controller)); };
             }
-            // [TODO] 파티클 출력
         }
 
         public override void UpdateState(float deltaTime)
@@ -61,6 +64,37 @@ namespace UPlayGround.State
                     currentVelocity,
                     targetVelocity,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            }
+        }
+
+        private AnimKey GetAnimKey()
+        {
+            if (_attackData.reactionType == AttackReactionType.KnockBack)
+            {
+                if (playerActor.Animator.HasMotion(AnimKey.Knockback, true))
+                {
+                    return AnimKey.Knockback;
+                }
+            }
+            
+            // 1. 플레이어에서 공격 지점을 바라보는 월드 방향 벡터 계산
+            // (공격 위치 - 플레이어 위치)
+            Vector3 dirToAttack = (_attackData.attackDirection - playerActor.transform.position).normalized;
+           
+            // 2. 월드 방향 벡터를 플레이어의 로컬 좌표계로 변환
+            // 이렇게 하면 플레이어의 정면이 (0, 0, 1), 오른쪽이 (1, 0, 0)이 됩니다.
+            Vector3 localDir = playerActor.transform.InverseTransformDirection(dirToAttack);
+          
+            // 3. 로컬 Z(앞/뒤)와 X(좌/우) 값을 비교하여 가장 큰 성분 방향을 선택
+            if (Mathf.Abs(localDir.x) > Mathf.Abs(localDir.z))
+            {
+                // 좌우 판정
+                return localDir.x > 0 ? AnimKey.Hit_R : AnimKey.Hit_L;
+            }
+            else
+            {
+                // 전후 판정
+                return localDir.z > 0 ? AnimKey.Hit_F : AnimKey.Hit_B;
             }
         }
     }

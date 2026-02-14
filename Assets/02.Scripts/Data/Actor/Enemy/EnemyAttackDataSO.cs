@@ -13,6 +13,8 @@ namespace UPlayGround.Data.Enemy
     {
         [Header("Basic Info")]
         public AnimKey animKey = AnimKey.Attack_1;
+
+        public AttackReactionType reactionType = AttackReactionType.Hit;
         
         [Header("Damage")]
         public float damage = 10f;

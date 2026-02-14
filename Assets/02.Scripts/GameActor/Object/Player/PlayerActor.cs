@@ -425,7 +425,7 @@ namespace UPlayGround
             // 피격 애니메이션 재생
             if (MovementController.CurrentState.StateName != "Hit")
             {
-                MovementController.TransitionToState(new PlayerHitState(MovementController));
+                MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
 
                 CameraManager.Instance.StartShake("LiteHit");
             }

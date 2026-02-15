@@ -25,3 +25,6 @@ MonoBehaviour:
   - key: DefaultCombatHit
     prefab: {fileID: 1429954232896169633, guid: 9829ff79406d13c429a7303073690be6, type: 3}
     description: 
+  - key: EnemyLightAttackHit
+    prefab: {fileID: 3630950076977652491, guid: a9aa28f8be4ad0d459e5c7c4d1d5699b, type: 3}
+    description: 

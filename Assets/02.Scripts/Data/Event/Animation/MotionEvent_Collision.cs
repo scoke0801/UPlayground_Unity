@@ -35,8 +35,6 @@ namespace UPlayGround.Data.Event
                         break;
                 }
             }
-            // 충돌 판정 로직 구현
-            Debug.Log($"Collision Active: {targetLayers}");
         }
 
         public override void OnCompleteEvent(GameObject target)

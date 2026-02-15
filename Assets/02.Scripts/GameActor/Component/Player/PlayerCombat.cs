@@ -124,7 +124,7 @@ namespace UPlayGround.Component
         /// 일반 공격 실행
         /// State에서 호출: playerCombat.ExecuteAttack()
         /// </summary>
-        public AttackData ExecuteAttack()
+        public AttackData ExecuteAttack(bool isCombo)
         {
             // if (!_equipment.IsMainWeaponEquipped)
             // {
@@ -138,13 +138,17 @@ namespace UPlayGround.Component
     
             _attackState = AttackState.NormalAttack;
             // 콤보 체인 체크
-            if (CanContinueCombo() == false)
+            if (isCombo && CanContinueCombo())
+            {
+                CurrentComboIndex++;
+            }
+            else
             {
                 CurrentComboIndex = 0;
             }
             
             // ComboData를 AttackData로 변환
-            var comboData = _comboChain[CurrentComboIndex++];
+            var comboData = _comboChain[CurrentComboIndex];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
@@ -157,7 +161,7 @@ namespace UPlayGround.Component
         /// <summary>
         /// 강공격 실행
         /// </summary>
-        public AttackData ExecuteHeavyAttack()
+        public AttackData ExecuteHeavyAttack(bool isCombo)
         {
             // if (!_equipment.IsSubWeaponEquipped)
             // {
@@ -171,12 +175,16 @@ namespace UPlayGround.Component
             _attackState = AttackState.HeavyAttack;
             
             // 콤보 체인 체크
-            if (CanContinueCombo() == false)
+            if (isCombo && CanContinueCombo())
+            {
+                CurrentComboIndex++;
+            }
+            else
             {
                 CurrentComboIndex = 0;
             }
             // ComboData를 AttackData로 변환
-            var comboData = _heavyComoboChain[CurrentComboIndex++];
+            var comboData = _heavyComoboChain[CurrentComboIndex];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
@@ -325,11 +333,13 @@ namespace UPlayGround.Component
         /// </summary>
         public void OpenComboWindow()
         {
+            Debug.Log("OpenComboWindow");
             CanCombo = true;
         }
 
         public void CloseComboWindow()
         {
+            Debug.Log("CloseComboWindow");
             CanCombo = false;
         }
         

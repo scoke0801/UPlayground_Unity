@@ -29,6 +29,13 @@ namespace UPlayGround.State
             _detection = detection;
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            if (stateName == "Hit")
+                return false;
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -167,29 +174,14 @@ namespace UPlayGround.State
             
             currentRotation = currentRotation.normalized;
         }
-
+        
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            if (_currentAttack == null)
-                return;
+            base.UpdateVelocity(ref currentVelocity, deltaTime);
             
-            // 공격 중 이동 속도 제한
-            float moveSpeed = controller.MaxRunMoveSpeed * _currentAttack.moveSpeedMultiplier;
+            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             
-            if (motor.GroundingStatus.IsStableOnGround)
-            {
-                // 경사면 고려하여 감속
-                currentVelocity = motor.GetDirectionTangentToSurface(
-                    currentVelocity,
-                    motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-                
-                // 목표 속도로 감속 (대부분 정지 상태)
-                Vector3 targetVelocity = currentVelocity.normalized * moveSpeed;
-                currentVelocity = Vector3.Lerp(
-                    currentVelocity,
-                    targetVelocity,
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
-            }
+            //Debug.Log($"CurrentVelocity: {currentVelocity}");
         }
     }
 }

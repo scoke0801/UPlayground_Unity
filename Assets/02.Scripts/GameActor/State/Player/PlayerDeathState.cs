@@ -19,6 +19,11 @@ namespace UPlayGround.State
         {
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -44,19 +49,11 @@ namespace UPlayGround.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            currentVelocity = Vector3.zero;
             if (motor.GroundingStatus.IsStableOnGround)
             {
-                // 지면에 있으므로 경사면에 맞춰 속도 조정
-                currentVelocity = motor.GetDirectionTangentToSurface(
-                    currentVelocity,
-                    motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-
-                // 정지 상태로 부드럽게 감속
-                Vector3 targetVelocity = Vector3.zero;
-                currentVelocity = Vector3.Lerp(
-                    currentVelocity,
-                    targetVelocity,
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                // Gravity
+                currentVelocity += controller.Gravity * deltaTime;
             }
         }
     }

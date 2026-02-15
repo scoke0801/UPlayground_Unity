@@ -148,7 +148,7 @@ namespace UPlayGround.Component
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
                     
-                    GameObjectManager.Instance.ShowFX("DefaultCombatHit", attackPosition);
+                    GameObjectManager.Instance.ShowFX("EnemyLightAttackHit", attackPosition);
                     
                     Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {currentAttack.damage} 데미지!");
                 }

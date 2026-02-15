@@ -21,7 +21,12 @@ namespace UPlayGround.State
         public PlayerCrouchingState(ActorMovementController controller) : base(controller)
         {
         }
-        
+
+        public override bool CanTransitionToState(string stateName)
+        {
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);

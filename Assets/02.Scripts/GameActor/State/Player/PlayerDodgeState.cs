@@ -15,6 +15,13 @@ namespace UPlayGround.State
         {
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            if (stateName == "Hit")
+                return false;
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);

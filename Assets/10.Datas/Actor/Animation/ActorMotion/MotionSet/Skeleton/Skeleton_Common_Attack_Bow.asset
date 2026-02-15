@@ -17,8 +17,18 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 6720303635017113406, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
-      events: []
+      events:
+      - rid: 7399917010493636616
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917010493636616
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5875
+        endTime: 1.275
+        projectilePrefab: {fileID: 0}
+        spawnPoint: {fileID: 0}
+        direction: {x: 0, y: 0, z: 1}
+        speed: 10

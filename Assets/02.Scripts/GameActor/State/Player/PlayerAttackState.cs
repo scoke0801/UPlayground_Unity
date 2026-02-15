@@ -40,6 +40,13 @@ namespace UPlayGround.State
         {
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            if (stateName == "Hit")
+                return false;
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -48,6 +55,8 @@ namespace UPlayGround.State
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
             
             _combat = playerActor.GetCombat();
+            _combat.ResetCombo();
+            
             _equipment = playerActor.GetPlayerEquipment();
 
             _isHeavyAttack = playerController.HasHeavyAttackInput();
@@ -55,7 +64,11 @@ namespace UPlayGround.State
             var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
             if (animState != null)
             {
-                animState.OwnedEvents.OnEnd = ChangeToNextState;
+                animState.OwnedEvents.OnEnd = ()=>
+                {
+                    Debug.Log("Call By Anim End1");
+                    ChangeToNextState();
+                };
             }
             else
             {
@@ -82,6 +95,8 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
+                    Debug.Log($"CanCombo AnimKey - {_currentAttack.animKey}");
+
                     _comboInputted = true;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
@@ -106,16 +121,22 @@ namespace UPlayGround.State
             
             if (_comboInputted)
             {
-                _comboInputted = false;
+                var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
+                if (animState != null)
+                {
+                    animState.OwnedEvents.OnEnd = ()=>
+                    {
+                        Debug.Log("Call By Anim End2");
+                        ChangeToNextState();
+                    };;
+                    
+                }
+                
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 
                 _combat.CloseComboWindow();
 
-                var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
-                if (animState != null)
-                {
-                    animState.OwnedEvents.OnEnd = ChangeToNextState;
-                }
+                _comboInputted = false;
             }
             else
             {
@@ -149,7 +170,9 @@ namespace UPlayGround.State
                 return AnimKey.DashAttack_1;
             }
             
-            _currentAttack = (_isHeavyAttack) ? _combat.ExecuteHeavyAttack() : _combat.ExecuteAttack();
+            _currentAttack = (_isHeavyAttack) 
+                ? _combat.ExecuteHeavyAttack(_comboInputted) 
+                : _combat.ExecuteAttack(_comboInputted);
 
             Debug.Log($"Attack State AnimKey - {_currentAttack.animKey}");
             return _currentAttack?.animKey ?? AnimKey.None;
@@ -166,10 +189,26 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            currentRotation *= gameActor.Animator.DeltaRotation;
+            // Lock-On 타겟이 있으면 타겟 방향으로 회전
+            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+            if (lockOnTarget != null)
+            {
+                Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
+                directionToTarget.y = 0f; // Y축 제거 (수평 회전만)
+                
+                if (directionToTarget.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+                    currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
+                }
+            }
+            else
+            {
+                // Lock-On이 없으면 Root Motion 회전 적용
+                currentRotation *= gameActor.Animator.DeltaRotation;
+            }
             
             currentRotation = currentRotation.normalized;
-            
         }
     }
 }

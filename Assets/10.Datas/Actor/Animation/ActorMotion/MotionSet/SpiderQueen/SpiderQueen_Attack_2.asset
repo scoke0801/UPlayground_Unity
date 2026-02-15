@@ -17,8 +17,17 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 8457827382905983551, guid: f45f7e9072d43c04e84dfe769887ae47, type: 3}
-      events: []
+      events:
+      - rid: 7399917010493636619
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917010493636619
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5671296
+        endTime: 0.9201389
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64

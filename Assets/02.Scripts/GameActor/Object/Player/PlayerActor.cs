@@ -11,6 +11,7 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.Manager.Handler;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -424,9 +425,14 @@ namespace UPlayGround
             // 피격 사운드 재생
             // 넉백 처리
             // 피격 애니메이션 재생
-            if (MovementController.CurrentState.StateName != "Hit")
+            string stateName = MovementController.CurrentState.StateName;
+            if (stateName != "Hit")
             {
-                MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
+                var newState = new PlayerHitState(MovementController, attackData);
+                if(newState.CanTransitionToState(stateName))
+                {
+                    MovementController.TransitionToState(newState);
+                }
 
                 CameraManager.Instance.StartShake("LiteHit");
             }
@@ -441,6 +447,8 @@ namespace UPlayGround
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
             
+            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerDie);
+
             CameraManager.Instance.StartShake("LiteHit");
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }

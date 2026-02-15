@@ -25,6 +25,8 @@ namespace UPlayGround.State
         /// </summary>
         public abstract string StateName { get; }
         
+        public abstract bool CanTransitionToState(string stateName);
+        
         /// <summary>
         /// 상태 진입 시 호출
         /// </summary>

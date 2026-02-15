@@ -19,6 +19,11 @@ namespace UPlayGround.State
         {
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);

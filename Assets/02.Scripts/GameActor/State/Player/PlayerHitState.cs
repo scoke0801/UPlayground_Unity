@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -22,6 +23,11 @@ namespace UPlayGround.State
             _attackData = attackData;
         }
 
+        public override bool CanTransitionToState(string stateName)
+        {
+            return true;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -39,6 +45,25 @@ namespace UPlayGround.State
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 controller.TransitionToState(new PlayerAirborneState(controller));
+                return;
+            }
+            
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            {
+                playerController.TransitionToState(new PlayerAttackState(playerController));
+                return;
+            }
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            {
+                playerController.TransitionToState(new PlayerAttackState(playerController));
+                return;
+            }
+
+            for (int i = 0; i < 4; ++i)
+            {
+                if (!playerController.HasSkillInput(i)) continue;
+
+                playerController.TransitionToState(new PlayerAttackState(playerController));
                 return;
             }
         }

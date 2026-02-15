@@ -17,8 +17,62 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 7400000, guid: d984d5eb2d0b5e44da8f3f7eccb50763, type: 3}
-      events: []
+      events:
+      - rid: 7399917011524124813
+      - rid: 7399917011524124824
+      - rid: 7399917011524124825
+      - rid: 7399917011524124826
+      - rid: 7399917011524124827
+      - rid: 7399917011524124828
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917011524124813
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.64592326
+        endTime: 0.7127429
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917011524124824
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.9592332
+        endTime: 1.048326
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917011524124825
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3542116
+        endTime: 1.4551835
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917011524124826
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.7551293
+        endTime: 1.8501619
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917011524124827
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.1768355
+        endTime: 2.2510798
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917011524124828
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.6549673
+        endTime: 2.7767277
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128

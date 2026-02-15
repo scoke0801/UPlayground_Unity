@@ -65,10 +65,12 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            base.OnExit(toState);
+            _combat.ClearHitTargets();
             
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
+            
+            base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
@@ -82,15 +84,17 @@ namespace UPlayGround.State
                 {
                     _comboInputted = true;
                     _isHeavyAttack = false;
+                    _combat.CloseComboWindow();
                 }
                 else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     _comboInputted = true;
                     _isHeavyAttack = true;
+                    _combat.CloseComboWindow();
                 }
             }
 
-            if (_playerActorAnimator.IsOpenedComboWindow && _comboInputted)
+            if (_combat.IsPossibleCollide == false && _comboInputted)
             {
                 ChangeToNextState();
             }
@@ -98,10 +102,14 @@ namespace UPlayGround.State
         
         private void ChangeToNextState()
         {
+            _combat.ClearHitTargets();
+            
             if (_comboInputted)
             {
                 _comboInputted = false;
                 _playerActorAnimator.IsOpenedComboWindow = false;
+                
+                _combat.CloseComboWindow();
 
                 var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 if (animState != null)
@@ -143,7 +151,7 @@ namespace UPlayGround.State
             
             _currentAttack = (_isHeavyAttack) ? _combat.ExecuteHeavyAttack() : _combat.ExecuteAttack();
 
-            
+            Debug.Log($"Attack State AnimKey - {_currentAttack.animKey}");
             return _currentAttack?.animKey ?? AnimKey.None;
         }
     

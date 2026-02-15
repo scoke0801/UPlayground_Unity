@@ -25,6 +25,7 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
+            _actorType = ActorType.Obstacle;
             _this = GetComponent<GameActor>();
             _currentHp = _interactableData.hp;
         }

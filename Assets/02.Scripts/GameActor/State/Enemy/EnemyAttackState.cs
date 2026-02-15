@@ -67,6 +67,8 @@ namespace UPlayGround.State
         {
             base.OnExit(toState);
             _isAttackActive = false;
+            _combat.ClearHitTargets();
+
             Debug.Log("[EnemyAttackState] 공격 종료");
         }
 
@@ -77,8 +79,7 @@ namespace UPlayGround.State
             
             _attackTimer += deltaTime;
             
-            // 공격 히트 판정 (타이밍 체크)
-            if (_attackTimer >= _currentAttack.hitStartTime && _attackTimer <= _currentAttack.hitEndTime)
+            if(_combat.IsPossibleCollide)
             {
                 _combat.CheckAttackHit();
             }

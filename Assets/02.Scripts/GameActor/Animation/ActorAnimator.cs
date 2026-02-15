@@ -26,8 +26,8 @@ namespace UPlayGround.Animation
         protected AnimancerState _currentState;
 
         // 애니메이션 전환 추적
-        private AnimKey _lastPlayedKey;
-        private bool _isPlayingMotionSet;
+        protected AnimKey _lastPlayedKey;
+        protected bool _isPlayingMotionSet;
         
         public AnimancerComponent GetAnimancerComponent() => _animator;
         

@@ -1,19 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Manager;
+using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Component
 {
-    [System.Serializable]
-    public class CombatStats
-    {
-        public float heavyAttackDamage = 30f;
-        public float comboWindow = 0.8f; // 콤보 입력 가능 시간
-    }
-    
     [System.Serializable]
     public class ComboData
     {
@@ -77,7 +72,6 @@ namespace UPlayGround.Component
         
         [FormerlySerializedAs("stats")]
         [Header("Combat Data")]
-        [SerializeField] private CombatStats _stats;
         [SerializeField] private ComboData[] _comboChain;
         [SerializeField] private ComboData[] _heavyComoboChain;
         
@@ -85,16 +79,24 @@ namespace UPlayGround.Component
         [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
         [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
 
-        // 현재 전투 상태
-        public int CurrentComboIndex { get; private set; }
-        public float LastAttackTime { get; private set; }
-        public bool CanCombo { get; private set; }
-
         // 현재 공격 정보 (히트 판정용)
         private AttackData _currentAttackData;
         public AttackData CurrentAttackData => _currentAttackData;
         
         private AttackState _attackState = AttackState.NormalAttack;
+        
+        // 공격 충돌 감지가 가능한 상태인가?
+        // - 애니메이션 이벤트로 적절한 상태에 설정
+        private bool _isCollideCollisioEnable;
+        
+        private List<IDamageable> _hitTargets = new List<IDamageable>();
+        
+        // 현재 전투 상태
+        public int CurrentComboIndex { get; private set; }
+        public float LastAttackTime { get; private set; }
+        public bool CanCombo { get; private set; }
+
+        public bool IsPossibleCollide => _isCollideCollisioEnable;
         
         // 이벤트
         public event System.Action<AttackData> OnAttackStarted;
@@ -109,7 +111,15 @@ namespace UPlayGround.Component
             if(_actorAnimator == null)
                 _actorAnimator = GetComponent<ActorAnimator>();
         }
-        
+
+        private void Update()
+        {
+            if (IsPossibleCollide)
+            {
+                PerformHitDetection();
+            }
+        }
+
         /// <summary>
         /// 일반 공격 실행
         /// State에서 호출: playerCombat.ExecuteAttack()
@@ -128,21 +138,16 @@ namespace UPlayGround.Component
     
             _attackState = AttackState.NormalAttack;
             // 콤보 체인 체크
-            if (CanContinueCombo())
-            {
-                CurrentComboIndex++;
-            }
-            else
+            if (CanContinueCombo() == false)
             {
                 CurrentComboIndex = 0;
             }
             
             // ComboData를 AttackData로 변환
-            var comboData = _comboChain[CurrentComboIndex];
+            var comboData = _comboChain[CurrentComboIndex++];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
-            CanCombo = true;
             
             OnAttackStarted?.Invoke(_currentAttackData );
             
@@ -166,21 +171,15 @@ namespace UPlayGround.Component
             _attackState = AttackState.HeavyAttack;
             
             // 콤보 체인 체크
-            if (CanContinueCombo())
-            {
-                CurrentComboIndex++;
-            }
-            else
+            if (CanContinueCombo() == false)
             {
                 CurrentComboIndex = 0;
             }
-            
             // ComboData를 AttackData로 변환
-            var comboData = _heavyComoboChain[CurrentComboIndex];
+            var comboData = _heavyComoboChain[CurrentComboIndex++];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
-            CanCombo = true;
             
             OnAttackStarted?.Invoke(_currentAttackData );
             
@@ -188,7 +187,15 @@ namespace UPlayGround.Component
         }
         
         /// <summary>
-        /// 히트 판정 실행 (애니메이션 이벤트에서 호출)
+        /// 맞은 대상 초기화
+        /// </summary>
+        public void ClearHitTargets()
+        {
+            _hitTargets.Clear();
+        }
+
+        /// <summary>
+        /// 히트 판정 실행
         /// </summary>
         public void PerformHitDetection()
         {
@@ -204,8 +211,6 @@ namespace UPlayGround.Component
             
             // 범위 내 모든 Collider 검출
             Collider[] hits = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
-            
-            List<IDamageable> hitTargets = new List<IDamageable>();
             
             //Physics.ComputePenetration()
             bool isDamageExecuted = false;
@@ -228,9 +233,9 @@ namespace UPlayGround.Component
                     damageable = hit.GetComponentInParent<IDamageable>();
                 
                 //Physics.ComputePenetration()
-                if (damageable != null && damageable.CanTakeDamage() && !hitTargets.Contains(damageable))
+                if (damageable != null && damageable.CanTakeDamage() && !_hitTargets.Contains(damageable))
                 {
-                    hitTargets.Add(damageable);
+                    _hitTargets.Add(damageable);
                     
                     // AttackData에 히트 정보 채우기
                     _currentAttackData.hitTarget = hit.gameObject;
@@ -250,11 +255,8 @@ namespace UPlayGround.Component
             if (isDamageExecuted)
             {
                 CameraManager.Instance.StartShake("LiteHit");
-            }
-            
-            if (_showHitDebug)
-            {
-                Debug.Log($"[PlayerCombat] 히트 판정: {hitTargets.Count}개 타겟 적중");
+                
+                GameObjectManager.Instance.HitStopHandler.Execute(GameHitStopHandler.HitStopIntensity.Medium);
             }
         }
         
@@ -277,6 +279,10 @@ namespace UPlayGround.Component
             };
         }
         
+        public void SetEnableCollision(bool isCollisionEnable)
+        {
+            _isCollideCollisioEnable = isCollisionEnable;
+        }
         /// <summary>
         /// AnimKey에 해당하는 AnimationClip의 duration 가져오기
         /// </summary>
@@ -305,10 +311,8 @@ namespace UPlayGround.Component
         private bool CanContinueCombo()
         {
             int length = (_attackState == AttackState.NormalAttack) ? _comboChain.Length : _heavyComoboChain.Length;
-            
-            float timeSinceLastAttack = Time.time - LastAttackTime;
-            return timeSinceLastAttack < _stats.comboWindow 
-                   && CurrentComboIndex < length - 1;
+         
+            return CurrentComboIndex < length - 1;
         }
         /// <summary>
         /// 콤보 윈도우 열기 (애니메이션 이벤트에서 호출)
@@ -316,6 +320,11 @@ namespace UPlayGround.Component
         public void OpenComboWindow()
         {
             CanCombo = true;
+        }
+
+        public void CloseComboWindow()
+        {
+            CanCombo = false;
         }
         
         /// <summary>
@@ -375,5 +384,6 @@ namespace UPlayGround.Component
             Gizmos.DrawLine(origin, origin + leftBoundary);
             Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
         }
+
     }
 }

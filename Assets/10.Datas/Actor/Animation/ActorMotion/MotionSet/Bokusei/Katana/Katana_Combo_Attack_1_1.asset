@@ -13,12 +13,27 @@ MonoBehaviour:
   m_Name: Katana_Combo_Attack_1_1
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: 
+    motionSetName: Katana_combo_Attack_1_1
     motions:
-    - motionName: 
+    - motionName: Katana_combo_Attack_1_1
       motionClip: {fileID: 7400000, guid: 9cdbfd5fbd2ccf24897ec6c2d0cd4ae9, type: 3}
-      events: []
+      events:
+      - rid: 7399917007448309760
+      - rid: 7399917007448310083
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917007448309760
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.32667384
+        endTime: 0.42170623
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+    - rid: 7399917007448310083
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.3232211
+        endTime: 0.66172963

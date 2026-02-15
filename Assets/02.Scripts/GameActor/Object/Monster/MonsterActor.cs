@@ -2,6 +2,7 @@
 using UPlayGround.Component;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Enum;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -27,6 +28,7 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
+            _actorType = ActorType.Monster;
             _currentHealth = _maxHealth;
             
             // AI 컴포넌트 자동 할당

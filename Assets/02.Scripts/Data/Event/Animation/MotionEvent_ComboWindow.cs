@@ -9,15 +9,14 @@ namespace UPlayGround.Data.Event
     /// 충돌 판정 활성화 이벤트
     /// </summary>
     [Serializable]
-    public class BeginCollisionEvent : MotionEventBase
+    public class ComboWindowEvent : MotionEventBase
     {
-        public LayerMask targetLayers = -1;
 
-        public override string GetDisplayName() => "Collision";
+        public override string GetDisplayName() => "ComboWindow";
 
         public override string GetShortLabel()
         {
-            return "Collision";
+            return "ComboWindow";
         }
 
         public override void Execute(GameObject target)
@@ -35,8 +34,6 @@ namespace UPlayGround.Data.Event
                         break;
                 }
             }
-            // 충돌 판정 로직 구현
-            Debug.Log($"Collision Active: {targetLayers}");
         }
 
         public override void OnCompleteEvent(GameObject target)
@@ -56,7 +53,7 @@ namespace UPlayGround.Data.Event
             }
         }
 
-        private void HandlePlayerCombat(PlayerActor playerActor, bool isCollisionEnable)
+        private void HandlePlayerCombat(PlayerActor playerActor, bool isOpenComboWindow)
         {
             if (playerActor == null)
             {
@@ -69,10 +66,17 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            playerCombat.SetEnableCollision(isCollisionEnable);
+            if (isOpenComboWindow)
+            {
+                playerCombat.OpenComboWindow();
+            }
+            else
+            {
+                playerCombat.CloseComboWindow();
+            }
         }
 
-        private void HandleMonsterCombat(MonsterActor monsterActor, bool isCollisionEnable)
+        private void HandleMonsterCombat(MonsterActor monsterActor, bool isOpenComboWindow)
         {
             if (monsterActor == null)
             {
@@ -84,8 +88,14 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-            
-            enemyCombat.SetEnableCollision(isCollisionEnable);
+            if (isOpenComboWindow)
+            {
+                enemyCombat.OpenComboWindow();
+            }
+            else
+            {
+                enemyCombat.CloseComboWindow();
+            }
         }
     }
 }

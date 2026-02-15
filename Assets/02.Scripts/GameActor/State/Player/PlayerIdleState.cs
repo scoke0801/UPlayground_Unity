@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -71,7 +72,12 @@ namespace UPlayGround.State
 
             //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
-                if (playerController.HasAttackInput() || playerController.HasHeavyAttackInput())
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                {
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    return;
+                }
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     playerController.TransitionToState(new PlayerAttackState(playerController));
                     return;

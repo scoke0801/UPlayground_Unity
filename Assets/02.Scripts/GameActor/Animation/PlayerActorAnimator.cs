@@ -46,6 +46,12 @@ namespace UPlayGround.Animation
         }
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
         {
+            // 기존 MotionSet이 재생 중이었다면 안전하게 정리
+            if (_isPlayingMotionSet && _currentMotionSet != null)
+            {
+                StopMotionSet();
+            }
+            
             _currentMotionSet = _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key);
             if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
             {
@@ -54,6 +60,8 @@ namespace UPlayGround.Animation
             
             _currentMotionIndex = 0;
             _globalTime = 0f;
+            _isPlayingMotionSet = true;
+            _lastPlayedKey = key;
             
             // 이벤트 실행기 초기화
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
@@ -76,11 +84,6 @@ namespace UPlayGround.Animation
 
     public partial class PlayerActorAnimator : ActorAnimator
     {
-        private void OnAnimationEvent_OpenComboWindow()
-        {
-            IsOpenedComboWindow = true;
-        }
-        
         /// <summary>
         /// 애니메이션 이벤트: 히트 판정 실행
         /// 각 공격 애니메이션의 무기가 적에게 닿는 프레임에 호출됨

@@ -161,7 +161,11 @@ namespace UPlayGround.Manager.Handler
             {
                 return;
             }
-        
+
+            if (_camera == null)
+            {
+                return;
+            }
             Vector3 screenPositon = _camera.WorldToScreenPoint(new Vector3(
                 targetTransform.position.x,
                 targetTransform.position.y + 1.5f,

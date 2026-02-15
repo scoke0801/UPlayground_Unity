@@ -153,7 +153,7 @@ namespace UPlayGround.State
             // Y값은 현재 위치 기준 (지형 높이는 고려하지 않음)
             _targetPosition.y = motor.TransientPosition.y;
             
-            Debug.Log($"[EnemyPatrolState] 새로운 순찰 지점: {_targetPosition}");
+            //Debug.Log($"[EnemyPatrolState] 새로운 순찰 지점: {_targetPosition}");
         }
     }
 }

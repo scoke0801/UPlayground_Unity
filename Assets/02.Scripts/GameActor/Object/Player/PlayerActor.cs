@@ -70,7 +70,8 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
-            
+
+            _actorType = ActorType.Player;
             _camera = Camera.main;
             PlayerMovementController = MovementController as PlayerMovementController;
 

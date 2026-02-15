@@ -21,9 +21,15 @@ namespace UPlayGround.Component
         private bool _canCombo = false;
         private List<Collider> _hitTargets = new List<Collider>();
         
+        // 공격 충돌 감지가 가능한 상태인가?
+        // - 애니메이션 이벤트로 적절한 상태에 설정
+        private bool _isCollideCollisioEnable;
+
         public bool CanCombo => _canCombo;
         public EnemyAttackDataSO AttackData => _attackData;
         public int CurrentComboIndex => _currentComboIndex;
+        
+        public bool IsPossibleCollide => _isCollideCollisioEnable;
         
         private void Awake()
         {
@@ -172,6 +178,11 @@ namespace UPlayGround.Component
             return _attackData.AttackList[_currentComboIndex].attackRadius;
         }
 
+        public void SetEnableCollision(bool isCollisionEnable)
+        {
+            _isCollideCollisioEnable = isCollisionEnable;
+        }
+        
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {

@@ -16,8 +16,9 @@ public class UI_PauseMenu : UI_Base
     
     private InputManager inputManager;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         inputManager = InputManager.Instance;
         
         // 버튼 이벤트 연결

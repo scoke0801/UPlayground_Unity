@@ -66,7 +66,6 @@ namespace UPlayGround.State
             {
                 animState.OwnedEvents.OnEnd = ()=>
                 {
-                    Debug.Log("Call By Anim End1");
                     ChangeToNextState();
                 };
             }
@@ -95,8 +94,6 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
-                    Debug.Log($"CanCombo AnimKey - {_currentAttack.animKey}");
-
                     _comboInputted = true;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
@@ -126,10 +123,8 @@ namespace UPlayGround.State
                 {
                     animState.OwnedEvents.OnEnd = ()=>
                     {
-                        Debug.Log("Call By Anim End2");
                         ChangeToNextState();
-                    };;
-                    
+                    };
                 }
                 
                 _playerActorAnimator.IsOpenedComboWindow = false;
@@ -163,7 +158,7 @@ namespace UPlayGround.State
                 }
             }
 
-            if (_isHeavyAttack != null &&
+            if (_isHeavyAttack == false &&
                 playerController.HasMoveInput() 
                 && gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
             {
@@ -174,7 +169,6 @@ namespace UPlayGround.State
                 ? _combat.ExecuteHeavyAttack(_comboInputted) 
                 : _combat.ExecuteAttack(_comboInputted);
 
-            Debug.Log($"Attack State AnimKey - {_currentAttack.animKey}");
             return _currentAttack?.animKey ?? AnimKey.None;
         }
     

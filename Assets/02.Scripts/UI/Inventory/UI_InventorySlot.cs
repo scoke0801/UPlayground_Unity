@@ -18,15 +18,10 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private Image _imgItem;
     [SerializeField] private Image _imgRarity;
     
-    private int _slotIndex = 0;
     private ItemSO _itemData = null;
     private int _itemCount = 0;
 
     private UI_Inventory _parent;
-    
-    private void Awake()
-    {
-    }
 
     private void OnEnable()
     {

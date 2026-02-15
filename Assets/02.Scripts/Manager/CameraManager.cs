@@ -60,12 +60,10 @@ namespace UPlayGround.Manager
         //LockOn Settings
         private LayerMask lockOnLayerMask; // LockOn 대상 레이어
         private float lockOnRange = 15f; // LockOn 최대 거리
-        private float lockOnSwitchDistance = 2f; // 대상 전환 최소 거리
 
         private float targetSwitchCooldown = 0.2f; // 전환 쿨다운 (연타 방지)
 
         // Camera Align
-        private bool enableCameraAlign = true; // 캐릭터 방향 보정 활성화
         private float cameraAlignSpeed = 5f; // 보정 속도
         private float cameraAlignDuration = 0.5f; // 보정 지속 시간
 

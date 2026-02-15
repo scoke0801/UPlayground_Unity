@@ -333,13 +333,11 @@ namespace UPlayGround.Component
         /// </summary>
         public void OpenComboWindow()
         {
-            Debug.Log("OpenComboWindow");
             CanCombo = true;
         }
 
         public void CloseComboWindow()
         {
-            Debug.Log("CloseComboWindow");
             CanCombo = false;
         }
         

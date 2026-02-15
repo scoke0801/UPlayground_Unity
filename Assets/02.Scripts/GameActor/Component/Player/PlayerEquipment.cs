@@ -145,7 +145,6 @@ namespace UPlayGround.Component
         {
             if (!partLibrary.ContainsKey(part)) return;
 
-            bool isAnyPantsActive = false;
             bool isAnyChestActive = false;
 
             // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화

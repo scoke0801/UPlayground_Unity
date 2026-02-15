@@ -27,8 +27,9 @@ public class UI_ItemPopup : UI_Base
     private ItemSO _cachedItemSo = null;
     private BottomButtonType _bottomButtonType = BottomButtonType.Equip;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _closeButton.onClick.AddListener(OnClickClose);
         _bottomButton.Button.onClick.AddListener(OnBottomButtonClick);
     }

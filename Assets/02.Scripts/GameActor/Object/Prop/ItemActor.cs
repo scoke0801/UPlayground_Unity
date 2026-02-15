@@ -8,7 +8,6 @@ namespace UPlayGround
 {
     public class ItemActor : GameActor
     {
-        [SerializeField] private float _spreadRadius = 10.0f;
         [SerializeField] private float _arcHeight = 5.0f;
         [SerializeField] private float _moveSpeed = 5.0f;
         
@@ -19,8 +18,10 @@ namespace UPlayGround
 
         private ItemInstance _itemInstance;
         
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
+            
             _player = GameObjectManager.Instance.Player.transform;
             Collider playerCollider = _player.gameObject.GetComponent<Collider>();
             if (playerCollider != null)

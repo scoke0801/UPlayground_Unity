@@ -22,8 +22,10 @@ public class UI_EquipInventory : UI_Base
     [SerializeField] private Button _EquipBow;
     [SerializeField] private Button _EquipArrow;
      
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         _EquipSword.onClick.AddListener(OnClickedEquipSword);
         _EquipShield.onClick.AddListener(OnClickedEquipShield);
         _EquipGreatSword.onClick.AddListener(OnClickedEquipGreatSword);

@@ -17,7 +17,6 @@ namespace UPlayGround
         
         private Quaternion _originalRotation = Quaternion.identity;
         
-        private int _currentHits = 0;
         private bool _isGathering = false;
         private GameActor _this;
         private int _currentHp = 0;

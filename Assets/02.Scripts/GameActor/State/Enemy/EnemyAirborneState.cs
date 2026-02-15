@@ -11,7 +11,6 @@ namespace UPlayGround.State
     {
         public override string StateName => "Airborne";
         
-        private bool _hasJumped = false;
         private bool _hasLanded = false;
         private bool _landStarted = false;
         private float _dragSpeed = 0.1f;
@@ -87,7 +86,6 @@ namespace UPlayGround.State
         private void OnLanded()
         {
             Debug.Log("Landed on ground");
-            _hasJumped = false;
             
             var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
             if (state != null)

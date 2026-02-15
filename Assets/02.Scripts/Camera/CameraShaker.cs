@@ -17,8 +17,6 @@ namespace UPlayGround
 
         static public bool EditorPreview = true;
         
-        [SerializeField] private bool _enabled = false;
-
         [Space]
         [SerializeField] private CameraShakeData _shakeData;
         

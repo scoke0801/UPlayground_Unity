@@ -43,12 +43,13 @@ public class UI_Inventory : UI_Base
     private Dictionary<EquipArmorType, UI_InventorySlot> _armorSlotMap; // SlotClass는 실제 슬롯 타입으로 변경하세요
     
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
-    private int itemMaximumValue = 50;
 
     public GameObject _itemClickTap;
     
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         Init();
         
         _armorSlotMap = new Dictionary<EquipArmorType, UI_InventorySlot>

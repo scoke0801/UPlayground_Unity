@@ -15,18 +15,14 @@ namespace UPlayGround.Manager.Handler
         private RectTransform _activeIconRect;
         
         private InteractionConfig _config;
-        private bool _isInitialized = false;
         private Camera _camera;
         
         private Coroutine _waitEventCoroutine;
         
         public IInteractable CurrentClosestInteractable => _currentClosestInteractable;
         
-        public async void Init()
+        public override void Init()
         {
-            //_config = await GameManager.LoadAddressableAsync<InteractionConfig>("InteractionConfig");
-            _isInitialized = true;
-        
             _camera = Camera.main;
             _currentClosestInteractable = null;
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Component
 {
@@ -146,6 +147,8 @@ namespace UPlayGround.Component
                     
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
+                    
+                    GameObjectManager.Instance.ShowFX("DefaultCombatHit", attackPosition);
                     
                     Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {currentAttack.damage} 데미지!");
                 }

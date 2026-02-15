@@ -244,6 +244,9 @@ namespace UPlayGround.Component
                     // 데미지 적용
                     damageable.TakeDamage(_currentAttackData);
                     
+                    GameObjectManager.Instance.ShowFX("DefaultCombatHit",
+                        _currentAttackData.hitPoint);
+
                     // 히트 이벤트 발생
                     OnAttackHit?.Invoke(_currentAttackData);
 
@@ -254,9 +257,12 @@ namespace UPlayGround.Component
 
             if (isDamageExecuted)
             {
+                // 카메라 쉐이크
                 CameraManager.Instance.StartShake("LiteHit");
                 
-                GameObjectManager.Instance.HitStopHandler.Execute(GameHitStopHandler.HitStopIntensity.Medium);
+                // 히트 스탑
+                GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
+                 
             }
         }
         

@@ -11,10 +11,8 @@ namespace UPlayGround.Manager
         public PlayerActor Player => _player;
 
         private GameInteractionHandler _interactionHandler;
-        private GameHitStopHandler _hitStopHandler;
         
         public GameInteractionHandler InteractionHandler => _interactionHandler;
-        public GameHitStopHandler HitStopHandler => _hitStopHandler;
 
         private List<GameHandlerBase> _handlerList;
         public void Init()
@@ -22,11 +20,9 @@ namespace UPlayGround.Manager
             _player = GameObject.FindWithTag("Player")?.GetComponent<PlayerActor>();
 
             _interactionHandler = new GameInteractionHandler();
-            _hitStopHandler = new GameHitStopHandler();
             
             _handlerList = new List<GameHandlerBase>();
             _handlerList.Add(_interactionHandler);
-            _handlerList.Add(_hitStopHandler);
             
             for (int i = 0; i < _handlerList.Count; ++i)
             {

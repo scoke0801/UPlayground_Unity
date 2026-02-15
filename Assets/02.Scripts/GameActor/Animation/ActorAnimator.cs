@@ -30,6 +30,7 @@ namespace UPlayGround.Animation
         protected bool _isPlayingMotionSet;
         
         public AnimancerComponent GetAnimancerComponent() => _animator;
+        public Animator GetAnimator => _animator.Animator;
         
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }

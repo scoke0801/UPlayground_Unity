@@ -1328,9 +1328,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _equipment: {fileID: 128408075}
   _actorAnimator: {fileID: 128408081}
-  _stats:
-    heavyAttackDamage: 30
-    comboWindow: 0.8
   _comboChain:
   - animKey: 100
     damage: 30

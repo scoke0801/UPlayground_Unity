@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Enemy;

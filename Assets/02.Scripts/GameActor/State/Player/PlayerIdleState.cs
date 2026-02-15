@@ -129,10 +129,10 @@ namespace UPlayGround.State
                 var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Katana, 0.25f);
                 if (animState != null)
                 {
+                    playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.Katana);
+
                     animState.OwnedEvents.OnEnd += () =>
                     {    
-                        playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.Katana);
-
                         gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }

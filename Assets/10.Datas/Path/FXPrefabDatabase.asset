@@ -22,3 +22,6 @@ MonoBehaviour:
   - key: ItemArrivedToPlayerPos
     prefab: {fileID: 3504098649498813294, guid: 03394e37a42ad914996e3b98cd4ea1db, type: 3}
     description: 
+  - key: DefaultCombatHit
+    prefab: {fileID: 1429954232896169633, guid: 9829ff79406d13c429a7303073690be6, type: 3}
+    description: 

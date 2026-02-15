@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using Animancer;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Animation.Editor
 {

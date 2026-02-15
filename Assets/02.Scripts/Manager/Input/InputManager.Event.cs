@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Game.Input;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
 
@@ -108,6 +109,21 @@ namespace UPlayGround.Manager
 
         private void OnInputEventPerformed(InputAction.CallbackContext context)
         {
+            // 전투 관련 입력은 버퍼에 추가
+            string actionName = context.action.name;
+            switch (actionName)
+            {
+                case InputDefine.PlayerAction.Attack:
+                case InputDefine.PlayerAction.HeavyAttack:
+                case InputDefine.PlayerAction.Dodge:
+                case InputDefine.PlayerAction.Skill_1:
+                case InputDefine.PlayerAction.Skill_2:
+                case InputDefine.PlayerAction.Skill_3:
+                case InputDefine.PlayerAction.Skill_4:
+                    _inputBuffer.AddInput(actionName);
+                    break;
+            }
+            
             ExecuteCallbacks(context, performCallbackDict);
         }
 
@@ -115,6 +131,9 @@ namespace UPlayGround.Manager
         {
             ExecuteCallbacks(context, cancelCallbackDict);
         }
+
+        // 다른 시스템에서 InputBuffer에 접근할 수 있도록 하는 프로퍼티
+        public InputBuffer InputBuffer => _inputBuffer;
 
         // 공통 실행 로직
         private void ExecuteCallbacks(InputAction.CallbackContext context,

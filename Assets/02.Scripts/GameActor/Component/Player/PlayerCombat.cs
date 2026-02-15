@@ -327,6 +327,7 @@ namespace UPlayGround.Component
             CurrentComboIndex = 0;
             CanCombo = false;
             OnComboReset?.Invoke();
+            InputManager.Instance.InputBuffer.Clear(); // 콤보 리셋 시 입력 버퍼 비우기
         }
         
         /// <summary>

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
+  m_Name: KnocBackAttackData
+  m_EditorClassIdentifier: 
+  AttackList:
+  - animKey: 100
+    reactionType: 1
+    damage: 10
+    attackOffset: {x: 0, y: 1, z: 1.5}
+    attackRadius: 1.5
+    hitStartTime: 0.3
+    hitEndTime: 0.6
+    moveSpeedMultiplier: 0.2
+    comboWindowStart: 0.5
+    comboWindowEnd: 1
+  attackCooldown: 1.5
+  attackProbability: 0.7

@@ -1,3 +1,4 @@
+using Game.Input;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,7 +12,7 @@ namespace UPlayGround.Manager
     public partial class InputManager : BaseManager<InputManager>, IManager
     {
         private int _cursorVisibleStack = 0;
-
+        private InputBuffer _inputBuffer; // InputBuffer 선언
         private bool _isGamepadActive = false;
 
         public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
@@ -21,6 +22,9 @@ namespace UPlayGround.Manager
         public void Init()
         {
             Debug.Log("[InputManager] 초기화 시작");
+
+            _inputBuffer = new InputBuffer(); // InputBuffer 초기화
+            Debug.Log("[InputManager] InputBuffer 초기화 완료");
 
             Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");
             ;

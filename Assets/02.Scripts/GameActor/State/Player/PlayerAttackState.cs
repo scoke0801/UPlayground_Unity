@@ -3,6 +3,8 @@ using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.MovementController;
+using UPlayGround.Manager; // InputManager를 사용하기 위해 추가
+using UPlayGround.InputDefine; // PlayerAction 상수를 사용하기 위해 추가
 
 namespace UPlayGround.State
 {
@@ -76,12 +78,12 @@ namespace UPlayGround.State
             // 콤보 입력 체크 (Component가 타이밍 관리)
             if (_combat.CanCombo)
             {
-                if (playerController.HasAttackInput())
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
                     _comboInputted = true;
                     _isHeavyAttack = false;
                 }
-                else if (playerController.HasHeavyAttackInput())
+                else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     _comboInputted = true;
                     _isHeavyAttack = true;

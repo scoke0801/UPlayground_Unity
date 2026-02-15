@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Animation
 {

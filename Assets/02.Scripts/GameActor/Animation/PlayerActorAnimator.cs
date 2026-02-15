@@ -39,9 +39,10 @@ namespace UPlayGround.Animation
 
             if (checkWeapon == true)
             {
-                return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);
+                return _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key) != null;
             }
-            return _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key) != null;
+            
+            return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);        
         }
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
         {

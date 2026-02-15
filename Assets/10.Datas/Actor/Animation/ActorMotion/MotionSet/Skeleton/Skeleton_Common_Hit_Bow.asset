@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: -7176515279283750332, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      motionClip: {fileID: -7534579123387278899, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
       events: []
     globalEvents: []
   references:

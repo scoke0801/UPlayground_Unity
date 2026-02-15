@@ -81,8 +81,8 @@ namespace UPlayGround
         
         public bool CanTakeDamage()
         {
-            if (MovementController.CurrentState.StateName == "Hit")
-                return false;
+            // if (MovementController.CurrentState.StateName == "Hit")
+            //     return false;
             return IsAlive() && !_isInvincible;
         }
         

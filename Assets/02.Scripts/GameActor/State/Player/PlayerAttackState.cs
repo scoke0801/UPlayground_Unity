@@ -196,11 +196,11 @@ namespace UPlayGround.State
                     currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
                 }
             }
-            else
-            {
-                // Lock-On이 없으면 Root Motion 회전 적용
-                currentRotation *= gameActor.Animator.DeltaRotation;
-            }
+            // else
+            // {
+            //     // Lock-On이 없으면 Root Motion 회전 적용
+            //     currentRotation *= gameActor.Animator.DeltaRotation;
+            // }
             
             currentRotation = currentRotation.normalized;
         }

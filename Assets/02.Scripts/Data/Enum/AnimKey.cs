@@ -108,6 +108,11 @@ namespace UPlayGround.Data.Enum
         Equip_Katana = 2100,
         UnEquip_Katana,
         
+        Equip_Weapon = 2110,
+        Equip_SubWeapon,
+        UnEquip_Weapon,
+        UnEquip_SubWeapon,
+        
         // 정지 (Stop)
         Move_Stop_Walking = 5000,
         Move_Stop_Running,

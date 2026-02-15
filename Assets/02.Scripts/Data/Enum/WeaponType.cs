@@ -11,6 +11,9 @@
         Arrow = 6,
         
         Katana = 10,
+        DoubleAxe = 11,
+        Whip = 12,
+        
     }
 
     public enum EquipPosition

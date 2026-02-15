@@ -131,10 +131,17 @@ namespace UPlayGround.State
         {
             if(playerActor.GetPlayerEquipment().GetMainWeaponType() == WeaponType.NoWeapon)
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Katana, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Weapon, 0.25f);
                 if (animState != null)
                 {
-                    playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.Katana);
+                    if (playerActor.CharacterType == CharacterActorType.Bokusei)
+                    {
+                        playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.Katana);
+                    }
+                    else if (playerActor.CharacterType == CharacterActorType.Honoka)
+                    {
+                        playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.DoubleAxe);
+                    }
 
                     animState.OwnedEvents.OnEnd += () =>
                     {    
@@ -144,12 +151,12 @@ namespace UPlayGround.State
             }
             else
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.UnEquip_Katana, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(AnimKey.UnEquip_Weapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        playerActor.GetPlayerEquipment().TEST_SetWeaponType(WeaponType.NoWeapon);
+                        playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.NoWeapon);
                         gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }

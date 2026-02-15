@@ -75,7 +75,7 @@ namespace UPlayGround.Component
         public WeaponType GetMainWeaponType() => _mainWeaponType;
         
         // [TODO] 테스트 기능
-        public void TEST_SetWeaponType(WeaponType type)
+        public void SetWeaponType(WeaponType type)
         {
             _mainWeaponType = type;
         }

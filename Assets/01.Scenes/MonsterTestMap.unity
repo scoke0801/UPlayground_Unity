@@ -1432,7 +1432,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9169078833fe406d98abcf842fd0b139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _actorType: 0
+  _actorType: 1
+  _characterActorType: 1
   _interactionRadius: 3
   _interactionLayer:
     serializedVersion: 2

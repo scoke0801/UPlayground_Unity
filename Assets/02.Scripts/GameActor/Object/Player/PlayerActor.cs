@@ -60,7 +60,6 @@ namespace UPlayGround
 
         public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
         public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
-
     }
     /// <summary>
     /// 

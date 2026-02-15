@@ -11,6 +11,7 @@ namespace UPlayGround
     public abstract class GameActor : MonoBehaviour
     {
         [SerializeField] protected ActorType _actorType = ActorType.None;
+        [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
         
         protected ActorMovementController MovementController;
         protected ActorAnimator _animator;
@@ -19,6 +20,7 @@ namespace UPlayGround
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
 
         public ActorType ActorType => _actorType;
+        public CharacterActorType CharacterType => _characterActorType;
         protected virtual void Awake()
         {
             MovementController = GetComponent<ActorMovementController>();

@@ -36,7 +36,7 @@ namespace UPlayGround.Manager
         private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
 
         private float defaultDistance = 5f; // 기본 거리
-        private float minDistance = 2f; // 최소 거리
+        private float minDistance = 1.5f; // 최소 거리
         private float maxDistance = 10f; // 최대 거리
 
         //Rotation Settings

@@ -10,30 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: DoubleAxe_Attack_1_1
+  m_Name: Katana_Skill_Special
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: 7400000, guid: e79bd062a0e4cad43be16b7cf32da2c8, type: 3}
+      motionClip: {fileID: 1827226128182048838, guid: 4a5b2ab7591526144b6b32c41155fd2a, type: 3}
       events:
-      - rid: 7399917016132091904
-      - rid: 7399917016132091905
+      - rid: 7399917011524124814
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7399917016132091904
+    - rid: 7399917011524124814
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.5026401
-        endTime: 0.7790922
+        startTime: 1.2278562
+        endTime: 1.6951374
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
-    - rid: 7399917016132091905
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
-      data:
-        startTime: 0.5026401
-        endTime: 0.8516958

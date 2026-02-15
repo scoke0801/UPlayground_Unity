@@ -428,10 +428,10 @@ namespace UPlayGround
             string stateName = MovementController.CurrentState.StateName;
             if (stateName != "Hit")
             {
-                var newState = new PlayerHitState(MovementController, attackData);
-                if(newState.CanTransitionToState(stateName))
+                // [TOOD] 상태를 조금 더 정리해서 할 필요가 있겠다...
+                if(MovementController.CurrentState.CanTransitionToState("Hit"))
                 {
-                    MovementController.TransitionToState(newState);
+                    MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }
 
                 CameraManager.Instance.StartShake("LiteHit");

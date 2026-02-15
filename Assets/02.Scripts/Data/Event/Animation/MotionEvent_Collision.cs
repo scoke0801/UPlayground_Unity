@@ -66,7 +66,8 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-
+        
+            playerCombat.ClearHitTargets();
             playerCombat.SetEnableCollision(isCollisionEnable);
         }
 

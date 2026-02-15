@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Component;
+using UPlayGround.Data;
 using UPlayGround.MovementController;
 using UPlayGround.Data.Enemy;
 
@@ -17,7 +18,7 @@ namespace UPlayGround.State
         private EnemyBrain _brain;
         private EnemyDetection _detection;
         
-        private EnemyAttackInfo _currentAttack;
+        private ComboData _currentAttack;
         private float _attackTimer;
         private bool _isAttackActive;
         private bool _hasRequestedCombo;
@@ -89,30 +90,6 @@ namespace UPlayGround.State
             if(_combat.IsPossibleCollide)
             {
                 _combat.CheckAttackHit();
-            }
-            
-            // 콤보 윈도우 체크
-            if (!_hasRequestedCombo && _attackTimer >= _currentAttack.comboWindowStart && _attackTimer <= _currentAttack.comboWindowEnd)
-            {
-                CheckComboCondition();
-            }
-        }
-
-        private void CheckComboCondition()
-        {
-            // 타겟이 여전히 공격 범위 내에 있고 살아있으면 콤보 진행
-            if (_detection.HasTarget && _detection.DistanceToTarget <= _brain.AttackRange * 1.2f)
-            {
-                // 확률 기반 콤보 진행 (또는 항상 진행)
-                if (_combat.AttackData != null)
-                {
-                    float comboChance = _combat.AttackData.attackProbability;
-                    if (Random.value <= comboChance)
-                    {
-                        _hasRequestedCombo = true;
-                        Debug.Log("[EnemyAttackState] 콤보 진행 요청");
-                    }
-                }
             }
         }
 

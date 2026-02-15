@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Component;
-using UPlayGround.Data.Config;
+using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Enum;
 using UPlayGround.State;

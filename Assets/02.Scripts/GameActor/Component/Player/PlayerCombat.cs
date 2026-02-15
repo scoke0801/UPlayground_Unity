@@ -1,58 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
+using UPlayGround.Data;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Component
 {
-    [System.Serializable]
-    public class ComboData
-    {
-        [Tooltip("공격 애니메이션 키")]
-        public AnimKey animKey;
-        
-        [Tooltip("공격 데미지")]
-        public float damage;
-        
-        [Tooltip("공격 중 끊을 수 있는지 여부")]
-        public bool canBeInterrupted;
-        
-        [Header("Hit Detection")]
-        [Tooltip("히트 판정 범위 (반지름)")]
-        public float hitRange = 2.0f;
-        
-        [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
-        public float hitAngle = 60f;
-        
-        [Tooltip("히트 판정 높이 오프셋")]
-        public float hitHeightOffset = 1.0f;
-    }
-    
-    public class AttackData
-    {
-        public AnimKey animKey;
-        public float damage;
-        public float duration;
-        public bool canBeInterrupted;
-        
-        public AttackReactionType reactionType = AttackReactionType.Hit;
-        
-        // Hit Detection Data
-        public float hitRange;
-        public float hitAngle;
-        public float hitHeightOffset;
-        
-        public Vector3 hitPoint;        // 공격 적중 위치
-        public GameObject hitTarget;     // 피격 대상
-        public float criticalMultiplier; // 크리티컬 배율
-        public bool isCounterAttack;     // 카운터 공격 여부
-        public Vector3 attackDirection;
-    }
-    
     /// <summary>
     /// 플레이어의 전투 관련 데이터와 로직
     /// State는 "언제" 공격할지 결정하고
@@ -87,7 +43,7 @@ namespace UPlayGround.Component
         
         // 공격 충돌 감지가 가능한 상태인가?
         // - 애니메이션 이벤트로 적절한 상태에 설정
-        private bool _isCollideCollisioEnable;
+        private bool _isCollideCollisionEnable;
         
         private List<IDamageable> _hitTargets = new List<IDamageable>();
         
@@ -96,7 +52,7 @@ namespace UPlayGround.Component
         public float LastAttackTime { get; private set; }
         public bool CanCombo { get; private set; }
 
-        public bool IsPossibleCollide => _isCollideCollisioEnable;
+        public bool IsPossibleCollide => _isCollideCollisionEnable;
         
         // 이벤트
         public event System.Action<AttackData> OnAttackStarted;
@@ -119,7 +75,7 @@ namespace UPlayGround.Component
                 PerformHitDetection();
             }
         }
-
+        
         /// <summary>
         /// 일반 공격 실행
         /// State에서 호출: playerCombat.ExecuteAttack()
@@ -287,15 +243,15 @@ namespace UPlayGround.Component
                 damage = comboData.damage,
                 duration = duration,
                 canBeInterrupted = comboData.canBeInterrupted,
-                hitRange = comboData.hitRange,
+                hitRange = comboData.hitRadius,
                 hitAngle = comboData.hitAngle,
-                hitHeightOffset = comboData.hitHeightOffset
+                hitHeightOffset = comboData.attackOffset.y
             };
         }
         
         public void SetEnableCollision(bool isCollisionEnable)
         {
-            _isCollideCollisioEnable = isCollisionEnable;
+            _isCollideCollisionEnable = isCollisionEnable;
         }
         /// <summary>
         /// AnimKey에 해당하는 AnimationClip의 duration 가져오기

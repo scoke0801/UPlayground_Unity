@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Component;
+using UPlayGround.Data;
 using UPlayGround.Data.Event;
 using UPlayGround.MovementController;
 using UPlayGround.Input;
@@ -339,6 +338,7 @@ namespace UPlayGround
         {
             return GameObjectManager.Instance.CanInteract();
         }
+
     }
 
     // Component

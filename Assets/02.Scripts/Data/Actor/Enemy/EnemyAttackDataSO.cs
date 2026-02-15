@@ -23,18 +23,6 @@ namespace UPlayGround.Data.Enemy
         public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
         public float attackRadius = 1.5f;
         
-        [Header("Timing")]
-        [Tooltip("공격 애니메이션 시작 후 히트 판정 시작 시간")]
-        public float hitStartTime = 0.3f;
-        
-        [Tooltip("공격 애니메이션 시작 후 히트 판정 종료 시간")]
-        public float hitEndTime = 0.6f;
-        
-        [Header("Movement")]
-        [Tooltip("공격 중 이동 속도 배율 (0 = 정지, 1 = 일반 속도)")]
-        [Range(0f, 1f)]
-        public float moveSpeedMultiplier = 0.2f;
-        
         [Header("Combo")]
         [Tooltip("다음 콤보 입력 가능 시작 시간")]
         public float comboWindowStart = 0.5f;
@@ -51,7 +39,7 @@ namespace UPlayGround.Data.Enemy
     {
         [Header("Attack Chain")]
         [Tooltip("공격 콤보 리스트 (순서대로 실행)")]
-        public List<EnemyAttackInfo> AttackList = new List<EnemyAttackInfo>();
+        public List<ComboData> AttackList = new List<ComboData>();
         
         [Header("Cooldown")]
         [Tooltip("공격 후 대기 시간 (초)")]

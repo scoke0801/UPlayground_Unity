@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Manager;
 
@@ -41,7 +42,7 @@ namespace UPlayGround.Component
         /// <summary>
         /// 일반 공격 실행
         /// </summary>
-        public EnemyAttackInfo ExecuteAttack()
+        public ComboData ExecuteAttack()
         {
             if (_attackData == null || _attackData.AttackList.Count == 0)
             {
@@ -50,7 +51,7 @@ namespace UPlayGround.Component
             }
             
             // 현재 콤보 인덱스의 공격 가져오기
-            EnemyAttackInfo attackInfo = _attackData.AttackList[_currentComboIndex];
+            ComboData attackInfo = _attackData.AttackList[_currentComboIndex];
             
             Debug.Log($"[EnemyCombat] 공격 실행: {attackInfo.animKey} (Combo {_currentComboIndex + 1}/{_attackData.AttackList.Count})");
             
@@ -118,13 +119,13 @@ namespace UPlayGround.Component
             if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
                 return;
             
-            EnemyAttackInfo currentAttack = _attackData.AttackList[_currentComboIndex];
+            ComboData currentAttack = _attackData.AttackList[_currentComboIndex];
             
             Vector3 attackPosition = _attackOrigin.position + _attackOrigin.forward * currentAttack.attackOffset.z 
                                                             + _attackOrigin.right * currentAttack.attackOffset.x 
                                                             + _attackOrigin.up * currentAttack.attackOffset.y;
             
-            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, currentAttack.attackRadius, _targetLayer);
+            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, currentAttack.hitRadius, _targetLayer);
             
             foreach (var hitCollider in hitColliders)
             {
@@ -163,7 +164,7 @@ namespace UPlayGround.Component
             if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
                 return _attackOrigin.position;
             
-            EnemyAttackInfo currentAttack = _attackData.AttackList[_currentComboIndex];
+            ComboData currentAttack = _attackData.AttackList[_currentComboIndex];
             
             return _attackOrigin.position + _attackOrigin.forward * currentAttack.attackOffset.z 
                                           + _attackOrigin.right * currentAttack.attackOffset.x 
@@ -178,7 +179,7 @@ namespace UPlayGround.Component
             if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
                 return 0f;
             
-            return _attackData.AttackList[_currentComboIndex].attackRadius;
+            return _attackData.AttackList[_currentComboIndex].hitRadius;
         }
 
         public void SetEnableCollision(bool isCollisionEnable)
@@ -197,14 +198,14 @@ namespace UPlayGround.Component
             // 현재 콤보의 공격 범위 표시
             if (_currentComboIndex < _attackData.AttackList.Count)
             {
-                EnemyAttackInfo attack = _attackData.AttackList[_currentComboIndex];
+                ComboData attack = _attackData.AttackList[_currentComboIndex];
                 
                 Vector3 attackPos = origin.position + origin.forward * attack.attackOffset.z 
                                                      + origin.right * attack.attackOffset.x 
                                                      + origin.up * attack.attackOffset.y;
                 
                 Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(attackPos, attack.attackRadius);
+                Gizmos.DrawWireSphere(attackPos, attack.hitRadius);
                 
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(origin.position, attackPos);

@@ -2,6 +2,7 @@
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Component;
+using UPlayGround.Data;
 using UPlayGround.MovementController;
 using UPlayGround.Manager; // InputManager를 사용하기 위해 추가
 using UPlayGround.InputDefine; // PlayerAction 상수를 사용하기 위해 추가

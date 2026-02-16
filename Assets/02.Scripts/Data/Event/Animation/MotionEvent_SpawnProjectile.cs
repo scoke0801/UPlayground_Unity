@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Numerics;
 using UnityEngine;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 namespace UPlayGround.Data.Event
 {
@@ -10,10 +13,10 @@ namespace UPlayGround.Data.Event
     public class SpawnProjectileEvent : MotionEventBase
     {
         public GameObject projectilePrefab;
-        public Transform spawnPoint;
-        public Vector3 direction = Vector3.forward;
+        public Vector3 spawnOffset;
         public float speed = 10f;
-
+        public float duration = 3f;
+        
         public override string GetDisplayName() => "Projectile";
 
         public override string GetShortLabel()
@@ -27,13 +30,23 @@ namespace UPlayGround.Data.Event
         {
             if (projectilePrefab == null) return;
 
-            var pos = spawnPoint != null ? spawnPoint.position : target.transform.position;
-            var rot = target.transform.rotation;
+            var pos = target.transform.position + spawnOffset;
+            
+            // target의 forward 방향 (이미 월드 좌표계)
+            Vector3 worldDirection = target.transform.forward;
+            worldDirection.y = 0; // y축 방향 제거
+            worldDirection.Normalize();
+    
+            Quaternion rot = Quaternion.LookRotation(-worldDirection);
+
             var instance = GameObject.Instantiate(projectilePrefab, pos, rot);
 
-            var rb = instance.GetComponent<Rigidbody>();
-            if (rb != null)
-                rb.linearVelocity = target.transform.TransformDirection(direction) * speed;
+            // BaseProjectile 컴포넌트 확인 및 초기화
+            var projectile = instance.GetComponent<BaseProjectile>();
+            if (projectile != null)
+            {
+                projectile.Initialize(pos, worldDirection, 10f, target, duration);
+            }
         }
 
         public override void OnCompleteEvent(GameObject target)

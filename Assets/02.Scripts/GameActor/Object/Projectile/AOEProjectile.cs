@@ -20,9 +20,9 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject);
+            base.Initialize(startPos, dir, dmg, ownerObject, duration);
             
             currentRadius = 0f;
             hasTriggered = false;
@@ -108,9 +108,9 @@ namespace UPlayGround
                 if (damageable == null)
                     damageable = hit.GetComponentInParent<IDamageable>();
 
-                if (damageable != null && !hitTargets.Contains(damageable) && damageable.CanTakeDamage())
+                if (damageable != null && !_hitTargets.Contains(damageable) && damageable.CanTakeDamage())
                 {
-                    hitTargets.Add(damageable);
+                    _hitTargets.Add(damageable);
 
                     // 거리 기반 데미지 감쇠
                     float distance = Vector3.Distance(transform.position, hit.transform.position);

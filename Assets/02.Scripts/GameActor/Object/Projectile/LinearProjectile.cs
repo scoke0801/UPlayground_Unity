@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Data.Enum;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -10,53 +11,37 @@ namespace UPlayGround
     {
         [Header("Linear Movement")]
         [SerializeField] private float speed = 20f;
-        [SerializeField] private bool useContinuousCollision = true;
         [SerializeField] private float collisionRadius = 0.5f;
 
         private Vector3 previousPosition;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject);
+            base.Initialize(startPos, dir, dmg, ownerObject, duration);
             previousPosition = startPos;
         }
 
         protected override void UpdateMovement()
         {
-            GameActor actor = GameObjectManager.Instance?.Player;
-            if (actor != null)
-            {
-                direction = actor.transform.forward;
-                previousPosition = transform.position;
-                Vector3 movement = direction * speed * Time.deltaTime;
-                transform.position += movement;
-            }
+            previousPosition = transform.position;
+    
+            // 발사된 방향으로 계속 이동
+            transform.position += speed * Time.deltaTime * direction;
 
             CheckCollision();
         }
 
         private void CheckCollision()
         {
-            if (!useContinuousCollision)
-            {
-                // Sphere Overlap 체크
-                Collider[] hits = Physics.OverlapSphere(transform.position, collisionRadius, hitLayers);
-                if (hits.Length > 0)
-                {
-                    OnHit(hits[0]);
-                }
-            }
-            else
-            {
-                // 연속 충돌 감지 (빠른 발사체용)
-                Vector3 moveDirection = transform.position - previousPosition;
-                float moveDistance = moveDirection.magnitude;
 
-                if (Physics.SphereCast(previousPosition, collisionRadius, moveDirection.normalized, 
+            // 연속 충돌 감지 (빠른 발사체용)
+            Vector3 moveDirection = transform.position - previousPosition;
+            float moveDistance = moveDirection.magnitude;
+
+            if (Physics.SphereCast(previousPosition, collisionRadius, moveDirection.normalized,
                     out RaycastHit hit, moveDistance, hitLayers))
-                {
-                    OnHit(hit.collider);
-                }
+            {
+                OnHit(hit.collider);
             }
         }
 

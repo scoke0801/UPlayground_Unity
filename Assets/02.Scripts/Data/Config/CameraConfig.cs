@@ -13,6 +13,7 @@ namespace UPlayGround.Data.Config
         {
             "Player",
             "Enemy",
+            "Projectile"
         };
 
         public static readonly LayerMask LockOnOutlineLayerMask = LayerMask.NameToLayer("LockOnOutline");

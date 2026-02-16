@@ -22,16 +22,17 @@ namespace UPlayGround
         [SerializeField] protected string hitEffectKey = "DefaultCombatHit";
         [SerializeField] protected GameObject projectileModel;
 
+        protected List<IDamageable> _hitTargets = new List<IDamageable>();
+
         protected bool isActive = true;
         protected float currentLifeTime;
         protected Vector3 direction;
         protected AttackData attackData;
         protected GameObject owner;
-        protected HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
-
+        
         public bool IsActive => isActive;
 
-        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject)
+        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration)
         {
             transform.position = startPos;
             direction = dir.normalized;
@@ -46,8 +47,9 @@ namespace UPlayGround
             };
             
             currentLifeTime = 0f;
+            lifeTime = duration;
             isActive = true;
-            hitTargets.Clear();
+            _hitTargets.Clear();
 
             if (trailEffect != null)
                 trailEffect.Play();
@@ -55,10 +57,8 @@ namespace UPlayGround
             if (projectileModel != null)
                 projectileModel.SetActive(true);
                 
-            // 발사 방향으로 회전
-            transform.forward = direction;
         }
-
+  
         protected virtual void Update()
         {
             if (!isActive)
@@ -100,12 +100,12 @@ namespace UPlayGround
                 damageable = hitCollider.GetComponentInParent<IDamageable>();
             
             // 이미 맞춘 대상은 스킵
-            if (damageable != null && hitTargets.Contains(damageable))
+            if (damageable != null && _hitTargets.Contains(damageable))
                 return;
             
             if (damageable != null && damageable.CanTakeDamage())
             {
-                hitTargets.Add(damageable);
+                _hitTargets.Add(damageable);
                 
                 // AttackData 업데이트
                 attackData.hitTarget = hitObject;
@@ -144,8 +144,8 @@ namespace UPlayGround
             if (trailEffect != null)
                 trailEffect.Stop();
             
-            if (projectileModel != null)
-                projectileModel.SetActive(false);
+            //if (projectileModel != null)
+            //    projectileModel.SetActive(false);
                 
             Destroy(gameObject, 2f);
         }

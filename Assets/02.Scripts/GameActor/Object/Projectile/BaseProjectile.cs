@@ -22,7 +22,7 @@ namespace UPlayGround
         [SerializeField] protected string hitEffectKey = "DefaultCombatHit";
         [SerializeField] protected GameObject projectileModel;
 
-        protected bool isActive;
+        protected bool isActive = true;
         protected float currentLifeTime;
         protected Vector3 direction;
         protected AttackData attackData;
@@ -85,7 +85,7 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnHit(Collider hitCollider)
         {
-            if (!isActive)
+            if (!isActive || owner == null)
                 return;
 
             GameObject hitObject = hitCollider.gameObject;

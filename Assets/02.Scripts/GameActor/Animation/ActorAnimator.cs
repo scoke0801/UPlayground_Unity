@@ -11,6 +11,8 @@ namespace UPlayGround.Animation
     {
         [Header("Actor Setting")]
         [SerializeField] private ActorAnimationMotionSet _motionSet;
+
+        [SerializeField] private AvatarMask _upperBodyMask;
         
         [Header("Event Executor")]
         [SerializeField] protected MotionEventExecutor _eventExecutor;
@@ -21,6 +23,7 @@ namespace UPlayGround.Animation
         protected GameActor _actor;
         
         protected int _currentMotionIndex;
+        protected int _currentMotionLayerIndex;
         protected float _globalTime;
         protected MotionSet _currentMotionSet;
         protected AnimancerState _currentState;
@@ -42,7 +45,13 @@ namespace UPlayGround.Animation
 
             _animator.Layers[0].ApplyFootIK = true;
             _animator.Layers[0].ApplyAnimatorIK = true;
+
+            if (_upperBodyMask != null)
+            {
+                _animator.Layers.SetMask(1, _upperBodyMask);
+            }
         }
+
         public virtual void Init(GameActor actor)
         {
             _actor = actor;
@@ -54,6 +63,14 @@ namespace UPlayGround.Animation
             if (_isPlayingMotionSet)
             {
                 UpdateTimeline();
+            }
+        }
+
+        public void SetLayerWeight(int layerIndex, float weight)
+        {
+            if (_animator.Layers.Count > layerIndex)
+            {
+                _animator.Layers[layerIndex].Weight = weight;
             }
         }
 
@@ -72,7 +89,7 @@ namespace UPlayGround.Animation
             
             return (_motionSet.GetMotionSet(key) != null);
         }
-        public virtual AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
+        public virtual AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
         {
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
             if (_isPlayingMotionSet && _currentMotionSet != null)
@@ -95,7 +112,7 @@ namespace UPlayGround.Animation
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
 
             // 첫 번째 모션 재생
-            PlayMotionAtIndex(0, fadeDuration);
+            PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
             return _currentState;
         }
@@ -116,19 +133,20 @@ namespace UPlayGround.Animation
             _globalTime = 0f;
             _currentMotionIndex = 0;
         }
+        
         /// <summary>
         /// 현재 재생 중인 애니메이션 강제 정지 (안전장치)
         /// </summary>
-        public void StopCurrentAnimation()
+        public void StopCurrentAnimation(int layerIndex = 0)
         {
-            if (_isPlayingMotionSet)
+            if (_isPlayingMotionSet && layerIndex == 0)
             {
                 StopMotionSet();
             }
 
             if (_animator != null && _animator.IsPlaying())
             {
-                _animator.Stop();
+                _animator.Layers[layerIndex].Stop();
             }
         }
         
@@ -226,7 +244,7 @@ namespace UPlayGround.Animation
         /// <summary>
         /// 특정 인덱스의 모션 재생
         /// </summary>
-        protected void PlayMotionAtIndex(int index, float fadeDuration)
+        protected void PlayMotionAtIndex(int index, float fadeDuration, int layerIndex = 0)
         {
             if (_currentMotionSet.motions == null || 
                 index < 0 || 
@@ -239,15 +257,21 @@ namespace UPlayGround.Animation
             if (motion == null || !motion.IsValid())
             {
                 _currentMotionIndex++;
-                PlayMotionAtIndex(_currentMotionIndex, fadeDuration);
+                PlayMotionAtIndex(_currentMotionIndex, fadeDuration, layerIndex);
                 return;
             }
 
             _currentMotionIndex = index;
+            var layer = _animator.Layers[layerIndex];
+            if (_currentMotionLayerIndex != layerIndex)
+            {
+                layer.StartFade(1.0f, fadeDuration);
+            }
+            _currentMotionLayerIndex = layerIndex;
             
-            // Animancer로 애니메이션 재생
-            _currentState = _animator.Play(motion.motionClip, fadeDuration);
-            
+            // Animancer로 애니메이션 재생, 특정 레이어를 가져와서 애니메이션 재생
+            _currentState = layer.Play(motion.motionClip, fadeDuration);
+
             // 모션 종료 시 다음 모션으로 전환
             var endAction = _currentState.Events(this).OnEnd;
             if (endAction != null)
@@ -270,7 +294,7 @@ namespace UPlayGround.Animation
             // 다음 모션이 있으면 재생, 없으면 종료
             if (_currentMotionIndex < _currentMotionSet.motions.Count)
             {
-                PlayMotionAtIndex(_currentMotionIndex, 0.0f);
+                PlayMotionAtIndex(_currentMotionIndex, 0.0f, _currentMotionLayerIndex);
             }
             else
             {

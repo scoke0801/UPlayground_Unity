@@ -44,7 +44,7 @@ namespace UPlayGround.Animation
             
             return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);        
         }
-        public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f)
+        public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
         {
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
             if (_isPlayingMotionSet && _currentMotionSet != null)
@@ -67,7 +67,7 @@ namespace UPlayGround.Animation
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
             
             // 첫 번째 모션 재생
-            PlayMotionAtIndex(0, fadeDuration);
+            PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
             return _currentState;
         }

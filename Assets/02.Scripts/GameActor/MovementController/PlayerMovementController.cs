@@ -29,6 +29,8 @@ namespace UPlayGround.MovementController
         public InputCondition InteractInput;
         
         public List<InputCondition> SkillInput;
+        
+        public InputCondition GuardInput;
 
         public void ClearAll()
         {
@@ -169,6 +171,11 @@ namespace UPlayGround.MovementController
             return _inputState.EquipInput == InputCondition.Pressed;
         }
 
+        public bool HasGuardInput()
+        {
+            return _inputState.GuardInput == InputCondition.Pressed;
+        }
+        
         public bool HasInteractInput()
         {
             return _inputState.InteractInput == InputCondition.Pressed;

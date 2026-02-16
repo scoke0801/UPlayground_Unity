@@ -3405,75 +3405,109 @@ MonoBehaviour:
   _comboChain:
   - animKey: 100
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 101
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 102
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 103
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 104
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 105
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 106
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 107
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   _heavyComoboChain:
   - animKey: 200
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 201
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   - animKey: 202
     damage: 0
+    reactionType: 0
     canBeInterrupted: 0
-    hitRange: 2
+    hitRadius: 2
     hitAngle: 60
-    hitHeightOffset: 1
+    attackOffset: {x: 0, y: 0, z: 0}
+    projectilePrefab: {fileID: 0}
+    projectileSpawnDelay: 0.3
   _targetLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   _showHitDebug: 1
+  IsGuarding: 0
 --- !u!114 &128408075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3638,6 +3672,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _motionSet: {fileID: 0}
+  _upperBodyMask: {fileID: 31900000, guid: 95a168ddd93587a4fb54d4ca44916734, type: 2}
   _eventExecutor: {fileID: 0}
   _playerActorAnimationMotionSet: {fileID: 11400000, guid: 0f326cf95b410f341b52be702ee2821f, type: 2}
 --- !u!1 &130325841

@@ -34,6 +34,8 @@
         public const string LockOn = "LockOn";
         public const string LockOnSwitchLeft = "LockOnSwitchLeft";
         public const string LockOnSwitchRight = "LockOnSwitchRight";
+        
+        public const string Guard = "Guard";
     }
 
     public static class SystemAction

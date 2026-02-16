@@ -20,6 +20,7 @@ MonoBehaviour:
       events:
       - rid: 7399917007448309760
       - rid: 7399917007448310083
+      - rid: 7399917033536356458
     globalEvents: []
   references:
     version: 2
@@ -37,3 +38,13 @@ MonoBehaviour:
       data:
         startTime: 0.3232211
         endTime: 0.66172963
+    - rid: 7399917033536356458
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.425
+        endTime: 0.9862199
+        particlePrefab: {fileID: 5484218944294176571, guid: 7c0fb2aa8f9abf548b1ff3ca33c043e7, type: 3}
+        spawnPointName: Weapon_Katana_01_Blade
+        offset: {x: 0.5, y: 0, z: 0}
+        attachToTarget: 0
+        useSpawnRotation: 0

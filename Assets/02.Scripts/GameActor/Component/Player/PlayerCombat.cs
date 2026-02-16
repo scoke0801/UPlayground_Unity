@@ -47,6 +47,9 @@ namespace UPlayGround.Component
         
         private List<IDamageable> _hitTargets = new List<IDamageable>();
         
+        // 가드 상태인가?
+        public bool IsGuarding = false;
+
         // 현재 전투 상태
         public int CurrentComboIndex { get; private set; }
         public float LastAttackTime { get; private set; }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround
 {
@@ -22,9 +23,14 @@ namespace UPlayGround
 
         protected override void UpdateMovement()
         {
-            previousPosition = transform.position;
-            Vector3 movement = direction * speed * Time.deltaTime;
-            transform.position += movement;
+            GameActor actor = GameObjectManager.Instance?.Player;
+            if (actor != null)
+            {
+                direction = actor.transform.forward;
+                previousPosition = transform.position;
+                Vector3 movement = direction * speed * Time.deltaTime;
+                transform.position += movement;
+            }
 
             CheckCollision();
         }

@@ -44,6 +44,8 @@ namespace UPlayGround
         
         private InputCondition _interactionInputCondition;
         
+        private InputCondition _guardInputCondition;
+        
         private List<InputCondition> _skillInputCondition = new List<InputCondition> 
         { 
             InputCondition.None,
@@ -112,6 +114,7 @@ namespace UPlayGround
                 
                 EquipInput = _equipInputCondition,
                 InteractInput = _interactionInputCondition,
+                GuardInput = _guardInputCondition,
                 
                 SkillInput =  new List<InputCondition>()
                 {
@@ -192,6 +195,8 @@ namespace UPlayGround
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,
                     null, OnInputPerformedInteraction, null, CanInputInteract, null, layer);
                 
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,
+                    OnInputStartedGuard, null, OnInputFinishedGuard, null, null, layer);
             }
         }
 
@@ -315,6 +320,16 @@ namespace UPlayGround
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {
             _interactionInputCondition = InputCondition.Pressed;
+        }
+        
+        private void OnInputStartedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.Pressed;
+        }
+
+        private void OnInputFinishedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.None;
         }
         #endregion
 

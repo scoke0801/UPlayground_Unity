@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
-  m_Name: KnocBackAttackData
+  m_Name: Spider_Minion
   m_EditorClassIdentifier: 
-  AttackList:
+  skills:
   - animKey: 100
-    reactionType: 1
+    attackType: 0
+    reactionType: 0
     damage: 10
+    selectionWeight: 100
     attackOffset: {x: 0, y: 1, z: 1.5}
     attackRadius: 1.5
-    hitStartTime: 0.3
-    hitEndTime: 0.6
-    moveSpeedMultiplier: 0.2
-    comboWindowStart: 0.5
-    comboWindowEnd: 1
-  attackCooldown: 1.5
-  attackProbability: 0.7
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+  globalCooldown: 1

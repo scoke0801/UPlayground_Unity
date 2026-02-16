@@ -29,9 +29,6 @@ namespace UPlayGround.Data.Event
                     case ActorType.Player:
                         HandlePlayerCombat(actor as PlayerActor, true);
                         break;
-                    case ActorType.Monster:
-                        HandleMonsterCombat(actor as MonsterActor, true);
-                        break;
                 }
             }
         }
@@ -45,9 +42,6 @@ namespace UPlayGround.Data.Event
                 {
                     case ActorType.Player:
                         HandlePlayerCombat(actor as PlayerActor, false);
-                        break;
-                    case ActorType.Monster:
-                        HandleMonsterCombat(actor as MonsterActor, false);
                         break;
                 }
             }
@@ -73,28 +67,6 @@ namespace UPlayGround.Data.Event
             else
             {
                 playerCombat.CloseComboWindow();
-            }
-        }
-
-        private void HandleMonsterCombat(MonsterActor monsterActor, bool isOpenComboWindow)
-        {
-            if (monsterActor == null)
-            {
-                return;
-            }
-
-            EnemyCombat enemyCombat = monsterActor.Combat;
-            if (enemyCombat == null)
-            {
-                return;
-            }
-            if (isOpenComboWindow)
-            {
-                enemyCombat.OpenComboWindow();
-            }
-            else
-            {
-                enemyCombat.CloseComboWindow();
             }
         }
     }

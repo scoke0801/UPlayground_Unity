@@ -29,7 +29,7 @@ namespace UPlayGround.Data
         [Header("Hit Detection")]
         [Tooltip("히트 판정 범위 (반지름)")]
         public float hitRadius = 2.0f;
-        
+            
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
 

@@ -40,7 +40,7 @@ namespace UPlayGround
 
             if (Physics.SphereCast(previousPosition, collisionRadius, moveDirection.normalized,
                     out RaycastHit hit, moveDistance, hitLayers))
-            {
+            {   
                 OnHit(hit.collider);
             }
         }

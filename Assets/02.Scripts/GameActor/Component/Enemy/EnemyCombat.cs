@@ -6,9 +6,6 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Component
 {
-    /// <summary>
-    /// 적 전투 시스템 - 공격 실행 및 콤보 관리
-    /// </summary>
     public class EnemyCombat : MonoBehaviour
     {
         [Header("Combat Settings")]
@@ -19,19 +16,15 @@ namespace UPlayGround.Component
         [Header("Debug")]
         [SerializeField] private bool _showDebugGizmos = true;
         
-        private int _currentComboIndex = 0;
-        private bool _canCombo = false;
+        private EnemyAttackInfo _currentSkill;
         private List<Collider> _hitTargets = new List<Collider>();
+        private Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
         
-        // 공격 충돌 감지가 가능한 상태인가?
-        // - 애니메이션 이벤트로 적절한 상태에 설정
-        private bool _isCollideCollisioEnable;
+        private bool _isCollisionEnabled;
 
-        public bool CanCombo => _canCombo;
         public EnemyAttackDataSO AttackData => _attackData;
-        public int CurrentComboIndex => _currentComboIndex;
-        
-        public bool IsPossibleCollide => _isCollideCollisioEnable;
+        public EnemyAttackInfo CurrentSkill => _currentSkill;
+        public bool IsPossibleCollide => _isCollisionEnabled;
         
         private void Awake()
         {
@@ -39,111 +32,91 @@ namespace UPlayGround.Component
                 _attackOrigin = transform;
         }
 
-        /// <summary>
-        /// 일반 공격 실행
-        /// </summary>
-        public ComboData ExecuteAttack()
+        private void Update()
         {
-            if (_attackData == null || _attackData.AttackList.Count == 0)
+            UpdateCooldowns();
+        }
+
+        private void UpdateCooldowns()
+        {
+            List<EnemyAttackInfo> keysToUpdate = new List<EnemyAttackInfo>(_skillCooldowns.Keys);
+            
+            foreach (var skill in keysToUpdate)
+            {
+                _skillCooldowns[skill] -= Time.deltaTime;
+                if (_skillCooldowns[skill] <= 0)
+                {
+                    _skillCooldowns.Remove(skill);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 현재 거리에서 사용 가능한 스킬 선택 및 실행
+        /// </summary>
+        public EnemyAttackInfo SelectAndExecuteAttack(float distanceToTarget)
+        {
+            if (_attackData == null || _attackData.skills.Count == 0)
             {
                 Debug.LogWarning("[EnemyCombat] 공격 데이터가 없습니다!");
                 return null;
             }
             
-            // 현재 콤보 인덱스의 공격 가져오기
-            ComboData attackInfo = _attackData.AttackList[_currentComboIndex];
+            // 거리 기반 사용 가능한 스킬 필터링
+            List<EnemyAttackInfo> availableSkills = _attackData.GetAvailableSkillsAtRange(distanceToTarget);
             
-            Debug.Log($"[EnemyCombat] 공격 실행: {attackInfo.animKey} (Combo {_currentComboIndex + 1}/{_attackData.AttackList.Count})");
+            // 쿨다운 중인 스킬 제외
+            availableSkills.RemoveAll(skill => _skillCooldowns.ContainsKey(skill));
             
-            return attackInfo;
-        }
-
-        /// <summary>
-        /// 다음 콤보로 진행
-        /// </summary>
-        public void AdvanceCombo()
-        {
-            if (_attackData == null || _attackData.AttackList.Count == 0)
-                return;
-            
-            _currentComboIndex++;
-            
-            // 콤보 끝에 도달하면 리셋
-            if (_currentComboIndex >= _attackData.AttackList.Count)
+            if (availableSkills.Count == 0)
             {
-                ResetCombo();
+                Debug.LogWarning($"[EnemyCombat] 거리 {distanceToTarget:F1}m에서 사용 가능한 스킬이 없습니다!");
+                return null;
             }
             
-            Debug.Log($"[EnemyCombat] 콤보 진행: {_currentComboIndex + 1}/{_attackData.AttackList.Count}");
+            // 가중치 기반 스킬 선택
+            _currentSkill = _attackData.SelectRandomSkill(availableSkills);
+
+            if (_currentSkill != null)
+            {
+                // 스킬 쿨다운 시작
+                _skillCooldowns[_currentSkill] = _currentSkill.cooldown;
+
+            }
+
+            return _currentSkill;
         }
 
         /// <summary>
-        /// 콤보 리셋
+        /// 근접 공격 히트 체크
         /// </summary>
-        public void ResetCombo()
+        public void CheckMeleeAttackHit()
         {
-            _currentComboIndex = 0;
-            _canCombo = false;
-            Debug.Log("[EnemyCombat] 콤보 리셋");
-        }
-
-        /// <summary>
-        /// 콤보 윈도우 열기 (애니메이션 이벤트에서 호출)
-        /// </summary>
-        public void OpenComboWindow()
-        {
-            _canCombo = true;
-        }
-
-        /// <summary>
-        /// 콤보 윈도우 닫기 (애니메이션 이벤트에서 호출)
-        /// </summary>
-        public void CloseComboWindow()
-        {
-            _canCombo = false;
-        }
-
-        /// <summary>
-        /// 맞은 대상 초기화
-        /// </summary>
-        public void ClearHitTargets()
-        {
-            _hitTargets.Clear();
-        }
-
-        /// <summary>
-        /// 공격 히트 체크 (애니메이션 이벤트에서 프레임마다 호출 또는 Update에서 체크)
-        /// </summary>
-        public void CheckAttackHit()
-        {
-            if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
+            if (_currentSkill == null || _currentSkill.attackType != EnemyAttackType.Melee)
                 return;
             
-            ComboData currentAttack = _attackData.AttackList[_currentComboIndex];
+            Vector3 attackPosition = _attackOrigin.position + 
+                                    _attackOrigin.forward * _currentSkill.attackOffset.z + 
+                                    _attackOrigin.right * _currentSkill.attackOffset.x + 
+                                    _attackOrigin.up * _currentSkill.attackOffset.y;
             
-            Vector3 attackPosition = _attackOrigin.position + _attackOrigin.forward * currentAttack.attackOffset.z 
-                                                            + _attackOrigin.right * currentAttack.attackOffset.x 
-                                                            + _attackOrigin.up * currentAttack.attackOffset.y;
-            
-            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, currentAttack.hitRadius, _targetLayer);
+            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, _currentSkill.attackRadius, _targetLayer);
             
             foreach (var hitCollider in hitColliders)
             {
-                // 이미 맞은 타겟은 제외
                 if (_hitTargets.Contains(hitCollider))
                     continue;
                 
                 IDamageable damageable = hitCollider.GetComponent<IDamageable>();
                 if (damageable != null && damageable.CanTakeDamage())
                 {
-                    // 데미지 적용
                     AttackData attackData = new AttackData
                     {
-                        damage = currentAttack.damage,
+                        damage = _currentSkill.damage,
                         criticalMultiplier = 1.0f,
                         hitPoint = attackPosition,
                         attackDirection = _attackOrigin.forward,
-                        reactionType = currentAttack.reactionType
+                        reactionType = _currentSkill.reactionType
                     };
                     
                     damageable.TakeDamage(attackData);
@@ -151,66 +124,38 @@ namespace UPlayGround.Component
                     
                     GameObjectManager.Instance.ShowFX("EnemyLightAttackHit", attackPosition);
                     
-                    Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {currentAttack.damage} 데미지!");
+                    Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {_currentSkill.damage} 데미지!");
                 }
             }
         }
 
-        /// <summary>
-        /// 현재 공격의 히트박스 위치 가져오기
-        /// </summary>
-        public Vector3 GetCurrentAttackPosition()
+        public void ClearHitTargets()
         {
-            if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
-                return _attackOrigin.position;
-            
-            ComboData currentAttack = _attackData.AttackList[_currentComboIndex];
-            
-            return _attackOrigin.position + _attackOrigin.forward * currentAttack.attackOffset.z 
-                                          + _attackOrigin.right * currentAttack.attackOffset.x 
-                                          + _attackOrigin.up * currentAttack.attackOffset.y;
-        }
-
-        /// <summary>
-        /// 현재 공격의 히트박스 반경 가져오기
-        /// </summary>
-        public float GetCurrentAttackRadius()
-        {
-            if (_attackData == null || _currentComboIndex >= _attackData.AttackList.Count)
-                return 0f;
-            
-            return _attackData.AttackList[_currentComboIndex].hitRadius;
+            _hitTargets.Clear();
         }
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
-            _isCollideCollisioEnable = isCollisionEnable;
+            _isCollisionEnabled = isCollisionEnable;
         }
         
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        public Vector3 GetCurrentAttackPosition()
         {
-            if (!_showDebugGizmos || _attackData == null || _attackData.AttackList.Count == 0)
-                return;
+            if (_currentSkill == null)
+                return _attackOrigin.position;
             
-            Transform origin = _attackOrigin != null ? _attackOrigin : transform;
-            
-            // 현재 콤보의 공격 범위 표시
-            if (_currentComboIndex < _attackData.AttackList.Count)
-            {
-                ComboData attack = _attackData.AttackList[_currentComboIndex];
-                
-                Vector3 attackPos = origin.position + origin.forward * attack.attackOffset.z 
-                                                     + origin.right * attack.attackOffset.x 
-                                                     + origin.up * attack.attackOffset.y;
-                
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(attackPos, attack.hitRadius);
-                
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(origin.position, attackPos);
-            }
+            return _attackOrigin.position + 
+                   _attackOrigin.forward * _currentSkill.attackOffset.z + 
+                   _attackOrigin.right * _currentSkill.attackOffset.x + 
+                   _attackOrigin.up * _currentSkill.attackOffset.y;
         }
-#endif
+
+        public float GetCurrentAttackRadius()
+        {
+            if (_currentSkill == null)
+                return 0f;
+            
+            return _currentSkill.attackRadius;
+        }
     }
 }

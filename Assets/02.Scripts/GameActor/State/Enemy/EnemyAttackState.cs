@@ -7,9 +7,6 @@ using UPlayGround.Data.Enemy;
 
 namespace UPlayGround.State
 {
-    /// <summary>
-    /// 공격 상태 - 타겟에게 공격 실행
-    /// </summary>
     public class EnemyAttackState : GameActorState
     {
         public override string StateName => "Attack";
@@ -18,10 +15,10 @@ namespace UPlayGround.State
         private EnemyBrain _brain;
         private EnemyDetection _detection;
         
-        private ComboData _currentAttack;
+        private EnemyAttackInfo _currentSkill;
         private float _attackTimer;
         private bool _isAttackActive;
-        private bool _hasRequestedCombo;
+        private bool _hasLaunchedProjectile; // 원거리 투사체 발사 여부
         
         public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyBrain brain, EnemyDetection detection) : base(controller)
         {
@@ -43,30 +40,29 @@ namespace UPlayGround.State
             
             _attackTimer = 0f;
             _isAttackActive = true;
-            _hasRequestedCombo = false;
+            _hasLaunchedProjectile = false;
             
-            // 공격 실행
-            _currentAttack = _combat.ExecuteAttack();
+            // 거리 기반 스킬 선택
+            float distanceToTarget = _detection.DistanceToTarget;
+            _currentSkill = _combat.SelectAndExecuteAttack(distanceToTarget);
             
-            if (_currentAttack != null)
+            if (_currentSkill != null)
             {
                 // 공격 애니메이션 재생
-                var animState = gameActor.Animator.PlayMotion(_currentAttack.animKey, 0.1f);
+                var animState = gameActor.Animator.PlayMotion(_currentSkill.animKey, 0.1f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd = OnAttackAnimationEnd;
                 }
                 else
                 {
-                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_currentAttack.animKey}");
+                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_currentSkill.animKey}");
                     OnAttackAnimationEnd();
                 }
-                
-                Debug.Log($"[EnemyAttackState] 공격 시작: {_currentAttack.animKey}");
             }
             else
             {
-                Debug.LogWarning("[EnemyAttackState] 공격 정보가 없습니다!");
+                Debug.LogWarning("[EnemyAttackState] 사용 가능한 스킬이 없습니다!");
                 TransitionToNextState();
             }
         }
@@ -82,14 +78,15 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!_isAttackActive || _currentAttack == null)
+            if (!_isAttackActive || _currentSkill == null)
                 return;
             
             _attackTimer += deltaTime;
             
-            if(_combat.IsPossibleCollide)
+            // 근접 공격 히트 체크
+            if (_currentSkill.attackType == EnemyAttackType.Melee && _combat.IsPossibleCollide)
             {
-                _combat.CheckAttackHit();
+                _combat.CheckMeleeAttackHit();
             }
         }
 
@@ -99,25 +96,12 @@ namespace UPlayGround.State
                 return;
             
             _combat.ClearHitTargets();
-            
-            if (_hasRequestedCombo && _combat.CurrentComboIndex < _combat.AttackData.AttackList.Count - 1)
-            {
-                // 다음 콤보로 진행
-                _combat.AdvanceCombo();
-                controller.TransitionToState(new EnemyAttackState(controller, _combat, _brain, _detection));
-            }
-            else
-            {
-                // 공격 종료
-                _combat.ResetCombo();
-                TransitionToNextState();
-            }
+            TransitionToNextState();
         }
 
         private void TransitionToNextState()
         {
-            // 타겟이 여전히 범위 내에 있으면 Chase, 없으면 Idle/Patrol
-            if (_detection.HasTarget && _detection.DistanceToTarget <= _brain.AttackRange * 2f)
+            if (_detection.HasTarget && _detection.DistanceToTarget <= _brain.GetMaxAttackRange() * 1.5f)
             {
                 controller.TransitionToState(new EnemyChaseState(controller, _brain, _detection));
             }
@@ -135,7 +119,6 @@ namespace UPlayGround.State
         {
             if (_detection.HasTarget && _attackTimer < 0.3f)
             {
-                // 공격 초반에는 타겟을 향해 회전
                 Vector3 directionToTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
                 directionToTarget.y = 0;
                 
@@ -156,9 +139,15 @@ namespace UPlayGround.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
-            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
-            
-            //Debug.Log($"CurrentVelocity: {currentVelocity}");
+            // 원거리 공격은 제자리에, 근접 공격은 루트 모션 사용
+            if (_currentSkill != null && _currentSkill.attackType == EnemyAttackType.Ranged)
+            {
+                currentVelocity = Vector3.zero;
+            }
+            else
+            {
+                currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            }
         }
     }
 }

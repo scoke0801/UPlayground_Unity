@@ -20,9 +20,9 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject, duration);
+            base.Initialize(startPos, dir, dmg, ownerObject, duration, layer);
             
             currentRadius = 0f;
             hasTriggered = false;

@@ -32,7 +32,7 @@ namespace UPlayGround
         
         public bool IsActive => isActive;
 
-        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration)
+        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer)
         {
             transform.position = startPos;
             direction = dir.normalized;
@@ -46,6 +46,7 @@ namespace UPlayGround
                 reactionType = AttackReactionType.Hit
             };
             
+            hitLayers = layer;
             currentLifeTime = 0f;
             lifeTime = duration;
             isActive = true;
@@ -56,7 +57,6 @@ namespace UPlayGround
                 
             if (projectileModel != null)
                 projectileModel.SetActive(true);
-                
         }
   
         protected virtual void Update()

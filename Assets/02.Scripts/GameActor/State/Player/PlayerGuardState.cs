@@ -34,6 +34,12 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+
+            if (playerActor.Animator.HasMotion(AnimKey.Guard, true) == false)
+            {
+                TransitionToIdleOrMove();
+                return;
+            }
             
             _combat = playerActor.GetCombat();
             _combat.IsGuarding = true;
@@ -48,7 +54,6 @@ namespace UPlayGround.State
             
             base.OnExit(toState);
         }
-        
         
         public override void UpdateState(float deltaTime)
         {
@@ -66,6 +71,7 @@ namespace UPlayGround.State
                 return;
             }
         }
+        
          public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // Guard 중에는 Look 방향으로 회전 (적을 바라보도록)

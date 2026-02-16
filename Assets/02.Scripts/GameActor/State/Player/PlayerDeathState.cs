@@ -49,7 +49,8 @@ namespace UPlayGround.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            currentVelocity = Vector3.zero;
+            currentVelocity.x = 0;
+            currentVelocity.z = 0;
             if (motor.GroundingStatus.IsStableOnGround)
             {
                 // Gravity

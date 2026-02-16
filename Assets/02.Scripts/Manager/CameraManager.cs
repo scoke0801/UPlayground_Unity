@@ -751,7 +751,7 @@ namespace UPlayGround.Manager
 
             // [TODO] 옵션으로 빼고 싶다
             float lockOnHeightOffset = (lockOnTargetCollider != null) 
-                ? lockOnTargetCollider.height * 0.75f : 1f;
+                ? lockOnTargetCollider.height * 0.85f : 1f;
             
             // 대상을 향한 방향 계산
             Vector3 targetLockOnPosition = lockOnTarget.position - Vector3.up * lockOnHeightOffset;

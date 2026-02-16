@@ -28601,6 +28601,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6020554158979748441, guid: a6f27d23948fe174892787580a0480b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 13.27
@@ -28749,6 +28753,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 8191382552135447617, guid: d60784756818282429785b8bc9a44d28, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28818,6 +28826,10 @@ PrefabInstance:
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8905796124108785073, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: MaxRunMoveSpeed
@@ -28961,6 +28973,10 @@ PrefabInstance:
     - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4362734558989205878, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: MaxRunMoveSpeed
@@ -29448,6 +29464,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V1
       objectReference: {fileID: 0}
+    - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3918777833950893811, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 10.87
@@ -29631,6 +29651,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V2
       objectReference: {fileID: 0}
+    - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6888840121138610258, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: MaxRunMoveSpeed
       value: 4
@@ -29748,9 +29772,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
-  field of view: 75
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -29826,8 +29850,8 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0

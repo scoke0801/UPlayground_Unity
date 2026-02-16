@@ -30,7 +30,7 @@ MonoBehaviour:
         endTime: 3.15
         particlePrefab: {fileID: 4994997792314849709, guid: 3dd50886582244645be87adb42aa8528, type: 3}
         spawnPointName: 
-        offset: {x: 0, y: 0, z: 0}
+        offset: {x: 0, y: 0.3, z: 0}
         attachToTarget: 0
         useSpawnRotation: 1
         destroyOnFinish: 0

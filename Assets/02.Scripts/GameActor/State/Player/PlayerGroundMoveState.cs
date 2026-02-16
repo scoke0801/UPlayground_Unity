@@ -35,8 +35,6 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            HandleGuardInput();
-            
             // 점프 입력이 있으면 Airborne 상태로 전환
             if (playerController.HasJumpInput())
             {
@@ -71,6 +69,11 @@ namespace UPlayGround.State
                 return;
             }
             
+            if (playerController.HasGuardInput())
+            {
+                playerController.TransitionToState(new PlayerGuardState(playerController));
+                return;
+            }
             //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
@@ -170,33 +173,5 @@ namespace UPlayGround.State
             // 기본은 달리기
             return AnimKey.Run;
         }
-        
-        private void HandleGuardInput()
-        {
-            PlayerCombat combat = playerActor.GetCombat();
-
-            if (combat == null)
-            {
-                return;
-            }
-
-            if (playerController.HasGuardInput() == false && combat.IsGuarding == true)
-            { 
-                combat.IsGuarding = false;           
-                
-                playerActor.Animator.StopCurrentAnimation(1);
-                playerActor.Animator.SetLayerWeight(0, 1.0f);
-                playerActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
-
-            }
-            else if (playerController.HasGuardInput() == true && combat.IsGuarding == false)
-            {
-                combat.IsGuarding = true;
-                playerActor.Animator.SetLayerWeight(1, 1.0f);
-                playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
-              
-            }
-        }
-
     }
 }

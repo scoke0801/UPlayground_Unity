@@ -80,6 +80,15 @@ namespace UPlayGround.Component
         }
         
         /// <summary>
+        /// Guard Break 공격인지 판정
+        /// </summary>
+        public bool IsGuardBreak(AttackData incomingAttack)
+        {
+            // [TODO] 여러 번 방어하면 깨진다거나 조치를 해볼까?
+            return false;
+        }
+
+        /// <summary>
         /// 일반 공격 실행
         /// State에서 호출: playerCombat.ExecuteAttack()
         /// </summary>

@@ -376,6 +376,16 @@ namespace UPlayGround
     {
         public void TakeDamage(AttackData attackData)
         {
+            if (_combat.IsGuarding)
+            {
+                // Guard State가 처리하도록 위임
+                if (MovementController.CurrentState is PlayerGuardState guardState)
+                {
+                    guardState.OnAttackBlocked(attackData);
+                    return; // 데미지 처리 중단
+                }
+            }
+            
             if (!CanTakeDamage())
             {
                 Debug.Log($"[PlayerActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");

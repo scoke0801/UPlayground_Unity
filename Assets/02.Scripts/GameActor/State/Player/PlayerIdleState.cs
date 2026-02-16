@@ -34,8 +34,6 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            HandleGuardInput();
-            
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
@@ -74,6 +72,12 @@ namespace UPlayGround.State
             if (playerController.HasCrouchInput())
             {
                 playerController.TransitionToState(new PlayerCrouchingState(playerController));
+                return;
+            }
+
+            if (playerController.HasGuardInput())
+            {
+                playerController.TransitionToState(new PlayerGuardState(playerController));
                 return;
             }
 
@@ -188,30 +192,6 @@ namespace UPlayGround.State
                         gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
                     };
                 }
-            }
-        }
-        
-        private void HandleGuardInput()
-        {
-            PlayerCombat combat = playerActor.GetCombat();
-
-            if (combat == null)
-            {
-                return;
-            }
-
-            if (playerController.HasGuardInput() == false && combat.IsGuarding == true)
-            { 
-                combat.IsGuarding = false;
-                playerActor.Animator.StopCurrentAnimation(1);
-                playerActor.Animator.PlayMotion(AnimKey.Idle, 0.1f, 0);
-                playerActor.Animator.SetLayerWeight(0, 1.0f);
-            }
-            else if (playerController.HasGuardInput() == true && combat.IsGuarding == false)
-            {
-                combat.IsGuarding = true;
-                playerActor.Animator.PlayMotion(AnimKey.Guard, 0.25f, 1);
-                playerActor.Animator.SetLayerWeight(1, 1.0f);
             }
         }
     }

@@ -25,7 +25,7 @@ namespace UPlayGround.Manager
         private class TargetInfo
         {
             public Transform transform;
-            public float angle;
+            public float distance;
             public Vector3 direction;
         }
 
@@ -619,7 +619,7 @@ namespace UPlayGround.Manager
         private void CollectLockOnTarget()
         {
             Vector3 origin = target.position;
-            Vector3 forward = mainCamera.transform.forward;
+            Vector3 originPlanar = new Vector3(origin.x, 0, origin.z);
 
             // 범위 내 모든 Collider 검출
             Collider[] hits = Physics.OverlapSphere(origin, lockOnRange, lockOnLayerMask);
@@ -643,20 +643,21 @@ namespace UPlayGround.Manager
                     continue;
 
                 // 각도 체크
-                Vector3 directionToTarget = (hit.transform.position - origin).normalized;
-                float angle = Vector3.Angle(forward, directionToTarget);
-
+                Vector3 targetPos = hit.transform.position;
+                Vector3 targetPosPlanar = new Vector3(targetPos.x, 0, targetPos.z);
+        
+                float distanceSq = (targetPosPlanar - originPlanar).sqrMagnitude;
+                
                 targetInfos.Add(new TargetInfo
                 {
                     transform = hit.transform,
-                    angle = angle,
-                    direction = directionToTarget
+                    distance = distanceSq // TargetInfo에 distance 필드 추가 필요
                 });
             }
-
-            // 각도 순으로 정렬
-            targetInfos.Sort((a, b) => a.angle.CompareTo(b.angle));
-
+            
+            // 거리 순(오름차순)으로 정렬
+            targetInfos.Sort((a, b) => a.distance.CompareTo(b.distance));
+            
             // Transform 리스트로 변환
             foreach (var info in targetInfos)
             {

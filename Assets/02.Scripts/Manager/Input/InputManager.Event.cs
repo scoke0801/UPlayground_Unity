@@ -119,7 +119,8 @@ namespace UPlayGround.Manager
                 case InputDefine.PlayerAction.Skill_1:
                 case InputDefine.PlayerAction.Skill_2:
                 case InputDefine.PlayerAction.Skill_3:
-                case InputDefine.PlayerAction.Skill_4:
+                case InputDefine.PlayerAction.Skill_4: 
+                case InputDefine.PlayerAction.Jump:
                     _inputBuffer.AddInput(actionName);
                     break;
             }

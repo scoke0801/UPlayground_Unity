@@ -16,6 +16,7 @@ MonoBehaviour:
   - animKey: 100
     attackType: 1
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 100
     attackOffset: {x: 0, y: 1, z: 1.5}

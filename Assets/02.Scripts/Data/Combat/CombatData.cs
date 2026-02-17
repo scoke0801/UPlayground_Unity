@@ -35,13 +35,9 @@ namespace UPlayGround.Data
 
         [Tooltip("히트 판정 오프셋")] 
         public Vector3 attackOffset = Vector3.zero;
-        
-        [Header("Projectile Settings (발사체 공격일 때만)")]
-        [Tooltip("생성할 발사체 프리팹")]
-        public BaseProjectile projectilePrefab;
-    
-        [Tooltip("발사체 생성 딜레이 (초)")]
-        public float projectileSpawnDelay = 0.3f;
+
+        [Tooltip("Hit Particle")]
+        public string hitParticleName;
     }
     
     // 런타임에 결정되는 공격 정보
@@ -64,6 +60,7 @@ namespace UPlayGround.Data
         public float criticalMultiplier; // 크리티컬 배율
         public bool isCounterAttack;     // 카운터 공격 여부
         public Vector3 attackDirection;
+        public string hitParticleName = "LiteHit";
     }
 
 }

@@ -15,9 +15,9 @@ namespace UPlayGround
 
         private Vector3 previousPosition;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject, duration, layer);
+            base.Initialize(startPos, dir, dmg, ownerObject, duration, layer, hitParticleName);
             previousPosition = startPos;
         }
 

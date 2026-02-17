@@ -116,13 +116,14 @@ namespace UPlayGround.Component
                         criticalMultiplier = 1.0f,
                         hitPoint = attackPosition,
                         attackDirection = _attackOrigin.forward,
-                        reactionType = _currentSkill.reactionType
+                        reactionType = _currentSkill.reactionType,
+                        hitParticleName =  _currentSkill.hitParticleName
                     };
                     
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
                     
-                    GameObjectManager.Instance.ShowFX("EnemyLightAttackHit", attackPosition);
+                    GameObjectManager.Instance.ShowFX(_currentSkill.hitParticleName, attackPosition);
                     
                     Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {_currentSkill.damage} 데미지!");
                 }

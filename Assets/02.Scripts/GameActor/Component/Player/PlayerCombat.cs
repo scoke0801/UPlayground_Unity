@@ -220,7 +220,7 @@ namespace UPlayGround.Component
                     // 데미지 적용
                     damageable.TakeDamage(_currentAttackData);
                     
-                    GameObjectManager.Instance.ShowFX("DefaultCombatHit",
+                    GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName,
                         _currentAttackData.hitPoint);
 
                     // 히트 이벤트 발생
@@ -257,7 +257,8 @@ namespace UPlayGround.Component
                 canBeInterrupted = comboData.canBeInterrupted,
                 hitRange = comboData.hitRadius,
                 hitAngle = comboData.hitAngle,
-                hitHeightOffset = comboData.attackOffset.y
+                hitHeightOffset = comboData.attackOffset.y,
+                hitParticleName = comboData.hitParticleName,
             };
         }
         

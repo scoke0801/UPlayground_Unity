@@ -17,6 +17,7 @@ namespace UPlayGround.Data.Event
         public float speed = 10f;
         public float duration = 3f;
         public LayerMask targetHitLayer;
+        public string hitParticleName;
         
         public override string GetDisplayName() => "Projectile";
 
@@ -46,7 +47,7 @@ namespace UPlayGround.Data.Event
             var projectile = instance.GetComponent<BaseProjectile>();
             if (projectile != null)
             {
-                projectile.Initialize(pos, worldDirection, 10f, target, duration, targetHitLayer);
+                projectile.Initialize(pos, worldDirection, 10f, target, duration, targetHitLayer, hitParticleName);
             }
         }
 

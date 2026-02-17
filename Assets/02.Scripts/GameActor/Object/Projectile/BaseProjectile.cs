@@ -19,7 +19,6 @@ namespace UPlayGround
         
         [Header("VFX")]
         [SerializeField] protected ParticleSystem trailEffect;
-        [SerializeField] protected string hitEffectKey = "DefaultCombatHit";
         [SerializeField] protected GameObject projectileModel;
 
         protected List<IDamageable> _hitTargets = new List<IDamageable>();
@@ -29,10 +28,12 @@ namespace UPlayGround
         protected Vector3 direction;
         protected AttackData attackData;
         protected GameObject owner;
+        protected string hitEffectKey;
         
         public bool IsActive => isActive;
 
-        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer)
+        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg,
+            GameObject ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             transform.position = startPos;
             direction = dir.normalized;
@@ -51,7 +52,8 @@ namespace UPlayGround
             lifeTime = duration;
             isActive = true;
             _hitTargets.Clear();
-
+            hitEffectKey = hitParticleName;
+            
             if (trailEffect != null)
                 trailEffect.Play();
                 

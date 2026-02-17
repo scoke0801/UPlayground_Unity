@@ -16,6 +16,8 @@ namespace UPlayGround.Data.Enemy
         public AnimKey animKey = AnimKey.Attack_1;
         public EnemyAttackType attackType = EnemyAttackType.Melee;
         public AttackReactionType reactionType = AttackReactionType.Hit;
+
+        public string hitParticleName;
         
         [Header("Damage & Selection")]
         public float damage = 10f;

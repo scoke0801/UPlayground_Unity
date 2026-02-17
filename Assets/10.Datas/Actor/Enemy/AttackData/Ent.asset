@@ -16,6 +16,7 @@ MonoBehaviour:
   - animKey: 100
     attackType: 0
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 21
     attackOffset: {x: 0, y: 1, z: 1.5}
@@ -26,6 +27,7 @@ MonoBehaviour:
   - animKey: 101
     attackType: 0
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 21
     attackOffset: {x: 0, y: 1, z: 1.5}
@@ -36,6 +38,7 @@ MonoBehaviour:
   - animKey: 102
     attackType: 0
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 21
     attackOffset: {x: 0, y: 1, z: 1.5}
@@ -46,6 +49,7 @@ MonoBehaviour:
   - animKey: 103
     attackType: 0
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 21
     attackOffset: {x: 0, y: 1, z: 1.5}
@@ -56,6 +60,7 @@ MonoBehaviour:
   - animKey: 103
     attackType: 0
     reactionType: 0
+    hitParticleName: EnemyLightAttackHit
     damage: 10
     selectionWeight: 16
     attackOffset: {x: 0, y: 1, z: 1.5}

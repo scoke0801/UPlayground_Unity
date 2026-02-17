@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State

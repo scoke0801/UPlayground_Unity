@@ -32,6 +32,11 @@ namespace UPlayGround.MovementController
         [Header("Dodge")] 
         public float DodgePower = 7.5f;
         
+        [Header("Dash")]
+        public float DashSpeed = 18f;
+        public float DashDuration = 0.3f;
+        public float DashCollisionSearchRadius = 5f; // 대시 시작 시 주변 몬스터 탐색 반경
+        
         [Header("Misc")]
         public bool RotationObstruction;
         public Vector3 Gravity = new Vector3(0, -30f, 0);

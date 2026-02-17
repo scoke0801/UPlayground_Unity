@@ -117,7 +117,7 @@ MonoBehaviour:
   - baseInfo:
       animKey: 200
       attackType: 0
-      reactionType: 0
+      reactionType: 1
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
@@ -127,7 +127,7 @@ MonoBehaviour:
   - baseInfo:
       animKey: 201
       attackType: 0
-      reactionType: 0
+      reactionType: 1
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
@@ -137,7 +137,7 @@ MonoBehaviour:
   - baseInfo:
       animKey: 202
       attackType: 0
-      reactionType: 0
+      reactionType: 1
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5

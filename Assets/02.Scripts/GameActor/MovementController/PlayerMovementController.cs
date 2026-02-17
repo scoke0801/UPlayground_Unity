@@ -18,6 +18,7 @@ namespace UPlayGround.MovementController
         
         // 일회성 상태 변경 - 이동
         public InputCondition DodgeInput;
+        public InputCondition DashInput;
         public InputCondition JumpInput; 
         
         // 일회성 상태 변경 - 공격
@@ -45,6 +46,7 @@ namespace UPlayGround.MovementController
             CrouchInput = InputCondition.None;
             
             DodgeInput = InputCondition.None;
+            DashInput  = InputCondition.None;
             JumpInput  = InputCondition.None;
             
             AttackInput      = InputCondition.None;
@@ -133,8 +135,13 @@ namespace UPlayGround.MovementController
         }
 
         public bool HasDodgeInput()
-        {
+        {   
             return _inputState.DodgeInput == InputCondition.Pressed;
+        }
+        
+        public bool HasDashInput()
+        {
+            return _inputState.DashInput == InputCondition.Pressed;
         }
         public bool HasJumpInput()
         {

@@ -36,6 +36,7 @@ namespace UPlayGround
         private InputCondition _jumpInputCondition;
         private InputCondition _crouchInputCondition;
         private InputCondition _dodgeInputCondition;
+        private InputCondition _dashInputCondition;
         
         private InputCondition _attackInputCondition;
         private InputCondition _heavyInputCondition;
@@ -116,6 +117,7 @@ namespace UPlayGround
                 EquipInput = _equipInputCondition,
                 InteractInput = _interactionInputCondition,
                 GuardInput = _guardInputCondition,
+                DashInput =  _dashInputCondition,
                 
                 SkillInput =  new List<InputCondition>()
                 {
@@ -133,6 +135,7 @@ namespace UPlayGround
             // [TODO] 어느정도 입력 버퍼 시간이 필요하다면... 바로 초기화를 하지 않아야한다.
             //_jumpInputCondition = InputCondition.None;
             _dodgeInputCondition = InputCondition.None;
+            _dashInputCondition = InputCondition.None;
             _attackInputCondition = InputCondition.None;
             _heavyInputCondition = InputCondition.None;
             _equipInputCondition = InputCondition.None;
@@ -172,6 +175,9 @@ namespace UPlayGround
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,
                     null, OnInputPerformedDodge, null, null, null, layer);
                 
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,
+                    null, OnInputPerformedDash, null, null, null, layer);
+
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,
                     null, OnInputPerformedAttack, null, null, null, layer);
                                 
@@ -222,6 +228,9 @@ namespace UPlayGround
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,
                     null, OnInputPerformedDodge, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,
+                    null, OnInputPerformedDash, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,
                     null, OnInputPerformedAttack, null);
@@ -275,6 +284,10 @@ namespace UPlayGround
         private void OnInputPerformedDodge(InputAction.CallbackContext obj)
         {
             _dodgeInputCondition = InputCondition.Pressed;
+        }
+        private void OnInputPerformedDash(InputAction.CallbackContext obj)
+        {
+            _dashInputCondition = InputCondition.Pressed;
         }
         
         private void OnInputPerformedWalk(InputAction.CallbackContext obj)

@@ -56,15 +56,21 @@ namespace UPlayGround.State
             }
             
             // 점프 입력이 있으면 Airborne 상태로 전환
-            if (playerController.HasJumpInput())
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Jump))
             {
                 playerController.TransitionToState(new PlayerAirborneState(playerController));
                 return;
             }
 
-            if (playerController.HasDodgeInput())
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dodge))
             {
                 playerController.TransitionToState(new PlayerDodgeState(playerController));
+                return;
+            }
+            
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
+            {
+                playerController.TransitionToState(new PlayerDashState(playerController));
                 return;
             }
             
@@ -83,12 +89,12 @@ namespace UPlayGround.State
 
             //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
                 {
                     playerController.TransitionToState(new PlayerAttackState(playerController));
                     return;
                 }
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
                 {
                     playerController.TransitionToState(new PlayerAttackState(playerController));
                     return;

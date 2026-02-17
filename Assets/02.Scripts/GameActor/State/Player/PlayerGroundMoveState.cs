@@ -48,6 +48,12 @@ namespace UPlayGround.State
                 return;
             }
             
+            if (playerController.HasDashInput())
+            {
+                playerController.TransitionToState(new PlayerDashState(playerController));
+                return;
+            }
+            
             // 웅크리기 입력이 있으면 Crouching 상태로 전환
             if (playerController.HasCrouchInput())
             {

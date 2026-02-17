@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Enum
         Sprint,
         
         Dodge = 10,
+        Dash = 11,
         
         Jump = 20,
         Fall,

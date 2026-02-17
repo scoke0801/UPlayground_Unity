@@ -18,6 +18,7 @@
         public const string Walk = "Walk";
         public const string Sprint = "Sprint";
         public const string Dodge = "Dodge";
+        public const string Dash = "Dash";
         
         public const string Attack = "Attack";
         public const string HeavyAttack = "HeavyAttack";

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enum;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -35,7 +37,7 @@ namespace UPlayGround.State
 
             _dragSpeed = controller.Drag;
             
-            if (playerController.HasJumpInput() == false)
+            if(InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
                 gameActor.Animator.PlayMotion(AnimKey.Fall);
             }
@@ -53,6 +55,12 @@ namespace UPlayGround.State
             _timeSinceLastAbleToJump += deltaTime;
             _timeSinceJumpRequested += deltaTime;
 
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+            {
+                controller.TransitionToState(new PlayerDashState(controller));
+                return;
+            }
+            
             if (_hasLanded)
             {
                 ChangeToNextState();

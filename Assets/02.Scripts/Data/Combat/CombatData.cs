@@ -1,43 +1,71 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 
 namespace UPlayGround.Data
 {
-    public enum AttackType
+    /// <summary>
+    /// 기본 공격 정보
+    /// </summary>
+    [Serializable]
+    public class AttackInfoBase
     {
-        Melee,      // 근접 공격
-        Projectile,  // 발사체 공격
-    }
-
-    // 에디터 타임에 결정되는 공격 정보
-    [System.Serializable]
-    public class ComboData
-    {
-        [Tooltip("공격 애니메이션 키")]
-        public AnimKey animKey;
-        
-        [Tooltip("공격 데미지")]
-        public float damage;
-        
-        [Tooltip("피격 반응")]
+        [Header("Basic Info")]
+        public AnimKey animKey = AnimKey.Attack_1;
+        public AttackType attackType = AttackType.Melee;
         public AttackReactionType reactionType = AttackReactionType.Hit;
 
+        public string hitParticleName;
+        
+        [Header("Hitbox")]
+        public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
+        public float attackRadius = 1.5f;
+        
+        [Header("Damage & Selection")]
+        public float damage = 10f;
+
+    }
+    
+    /// <summary>
+    /// 적 공격 정보, 에디터 타임 사전 설정
+    /// </summary>
+    [Serializable]
+    public class EnemyAttackInfo
+    {
+        public AttackInfoBase baseInfo;
+        
+        [Header("Selection Weight")]
+        [Range(0f, 100f)]
+        public float selectionWeight = 10f;
+        
+        [Header("Range")]
+        public float minRange = 0f;    // 이 거리보다 멀어야 함
+        public float maxRange = 2.5f; // 이 거리보다 가까워야 함
+        
+        [Header("Cooldown")]
+        public float cooldown = 2f;
+        
+        public bool IsInRange(float distance)
+        {
+            return distance >= minRange && distance <= maxRange;
+        }
+    }
+    
+    /// <summary>
+    /// 캐릭터 공격 정보, 에디터 타임 사전 설정
+    /// </summary>
+    [Serializable]
+    public class PlayerAttackInfo
+    {
+        public AttackInfoBase baseInfo;
+        
         [Tooltip("공격 중 끊을 수 있는지 여부")]
         public bool canBeInterrupted;
         
-        [Header("Hit Detection")]
-        [Tooltip("히트 판정 범위 (반지름)")]
-        public float hitRadius = 2.0f;
             
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
-
-        [Tooltip("히트 판정 오프셋")] 
-        public Vector3 attackOffset = Vector3.zero;
-
-        [Tooltip("Hit Particle")]
-        public string hitParticleName;
     }
     
     // 런타임에 결정되는 공격 정보
@@ -45,7 +73,6 @@ namespace UPlayGround.Data
     {
         public AnimKey animKey;
         public float damage;
-        public float duration;
         public bool canBeInterrupted;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;

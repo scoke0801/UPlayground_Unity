@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Drakkar.GameUtils;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Serialization;
@@ -64,7 +65,7 @@ namespace UPlayGround.Component
         
         // [TODO] 실제 Data로 가져올 수 있어야 하겠지만 우선은 단독 데이터로 관리하는 상태
         public WeaponData CurrentWeapon { get; private set; }
-        
+
         // [부위, [아머인덱스, 게임오브젝트]]
         private Dictionary<EquipArmorType, Dictionary<int, GameObject>> partLibrary = 
             new Dictionary<EquipArmorType, Dictionary<int, GameObject>>();

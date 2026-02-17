@@ -1,48 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Enum;
 
-namespace UPlayGround.Data.Enemy
+namespace UPlayGround.Data.Combat
 {
-    public enum EnemyAttackType { Melee, Ranged } // 공격 유형 정의
-    /// <summary>
-    /// 적 공격 정보
-    /// </summary>
-    [Serializable]
-    public class EnemyAttackInfo
-    {
-        [Header("Basic Info")]
-        public AnimKey animKey = AnimKey.Attack_1;
-        public EnemyAttackType attackType = EnemyAttackType.Melee;
-        public AttackReactionType reactionType = AttackReactionType.Hit;
-
-        public string hitParticleName;
-        
-        [Header("Damage & Selection")]
-        public float damage = 10f;
-        
-        [Header("Selection Weight")]
-        [Range(0f, 100f)]
-        
-        public float selectionWeight = 10f;
-        [Header("Hitbox")]
-        public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
-        public float attackRadius = 1.5f;
-        
-        [Header("Range")]
-        public float minRange = 0f;    // 이 거리보다 멀어야 함
-        public float maxRange = 2.5f; // 이 거리보다 가까워야 함
-        
-        [Header("Cooldown")]
-        public float cooldown = 2f;
-        
-        public bool IsInRange(float distance)
-        {
-            return distance >= minRange && distance <= maxRange;
-        }
-    }
-
     /// <summary>
     /// 적 공격 데이터 ScriptableObject
     /// </summary>
@@ -114,7 +75,7 @@ namespace UPlayGround.Data.Enemy
         {
             foreach (var skill in skills)
             {
-                if (skill.attackType == EnemyAttackType.Ranged)
+                if (skill.baseInfo.attackType == AttackType.Ranged)
                     return true;
             }
             return false;

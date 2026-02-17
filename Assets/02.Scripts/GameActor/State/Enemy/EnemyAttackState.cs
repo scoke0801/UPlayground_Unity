@@ -49,14 +49,14 @@ namespace UPlayGround.State
             if (_currentSkill != null)
             {
                 // 공격 애니메이션 재생
-                var animState = gameActor.Animator.PlayMotion(_currentSkill.animKey, 0.1f);
+                var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd = OnAttackAnimationEnd;
                 }
                 else
                 {
-                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_currentSkill.animKey}");
+                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_currentSkill.baseInfo.animKey}");
                     OnAttackAnimationEnd();
                 }
             }
@@ -84,7 +84,7 @@ namespace UPlayGround.State
             _attackTimer += deltaTime;
             
             // 근접 공격 히트 체크
-            if (_currentSkill.attackType == EnemyAttackType.Melee && _combat.IsPossibleCollide)
+            if (_currentSkill.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
             {
                 _combat.CheckMeleeAttackHit();
             }
@@ -140,7 +140,7 @@ namespace UPlayGround.State
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
             // 원거리 공격은 제자리에, 근접 공격은 루트 모션 사용
-            if (_currentSkill != null && _currentSkill.attackType == EnemyAttackType.Ranged)
+            if (_currentSkill != null && _currentSkill.baseInfo.attackType == AttackType.Ranged)
             {
                 currentVelocity = Vector3.zero;
             }

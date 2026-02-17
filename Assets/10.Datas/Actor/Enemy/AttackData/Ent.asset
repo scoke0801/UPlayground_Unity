@@ -13,59 +13,64 @@ MonoBehaviour:
   m_Name: Ent
   m_EditorClassIdentifier: 
   skills:
-  - animKey: 100
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 21
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 101
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 21
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 102
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 21
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 103
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 103
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 21
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 103
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 500
+      attackType: 1
+      reactionType: 0
+      hitParticleName: 
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 16
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
-    minRange: 0
-    maxRange: 2.5
+    minRange: 1
+    maxRange: 20
     cooldown: 2
   globalCooldown: 1

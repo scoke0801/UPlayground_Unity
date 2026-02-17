@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: Spider_Minion
   m_EditorClassIdentifier: 
   skills:
-  - animKey: 100
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 100
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2

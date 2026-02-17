@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
-using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Combat;
+using UPlayGround.Data.Enum;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Component
@@ -92,15 +93,15 @@ namespace UPlayGround.Component
         /// </summary>
         public void CheckMeleeAttackHit()
         {
-            if (_currentSkill == null || _currentSkill.attackType != EnemyAttackType.Melee)
+            if (_currentSkill == null || _currentSkill.baseInfo.attackType != AttackType.Melee)
                 return;
             
             Vector3 attackPosition = _attackOrigin.position + 
-                                    _attackOrigin.forward * _currentSkill.attackOffset.z + 
-                                    _attackOrigin.right * _currentSkill.attackOffset.x + 
-                                    _attackOrigin.up * _currentSkill.attackOffset.y;
+                                    _attackOrigin.forward * _currentSkill.baseInfo.attackOffset.z + 
+                                    _attackOrigin.right * _currentSkill.baseInfo.attackOffset.x + 
+                                    _attackOrigin.up * _currentSkill.baseInfo.attackOffset.y;
             
-            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, _currentSkill.attackRadius, _targetLayer);
+            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, _currentSkill.baseInfo.attackRadius, _targetLayer);
             
             foreach (var hitCollider in hitColliders)
             {
@@ -112,20 +113,18 @@ namespace UPlayGround.Component
                 {
                     AttackData attackData = new AttackData
                     {
-                        damage = _currentSkill.damage,
+                        damage = _currentSkill.baseInfo.damage,
                         criticalMultiplier = 1.0f,
                         hitPoint = attackPosition,
                         attackDirection = _attackOrigin.forward,
-                        reactionType = _currentSkill.reactionType,
-                        hitParticleName =  _currentSkill.hitParticleName
+                        reactionType = _currentSkill.baseInfo.reactionType,
+                        hitParticleName =  _currentSkill.baseInfo.hitParticleName
                     };
                     
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
                     
-                    GameObjectManager.Instance.ShowFX(_currentSkill.hitParticleName, attackPosition);
-                    
-                    Debug.Log($"[EnemyCombat] {hitCollider.name}에게 {_currentSkill.damage} 데미지!");
+                    GameObjectManager.Instance.ShowFX(_currentSkill.baseInfo.hitParticleName, attackPosition);
                 }
             }
         }
@@ -146,9 +145,9 @@ namespace UPlayGround.Component
                 return _attackOrigin.position;
             
             return _attackOrigin.position + 
-                   _attackOrigin.forward * _currentSkill.attackOffset.z + 
-                   _attackOrigin.right * _currentSkill.attackOffset.x + 
-                   _attackOrigin.up * _currentSkill.attackOffset.y;
+                   _attackOrigin.forward * _currentSkill.baseInfo.attackOffset.z + 
+                   _attackOrigin.right * _currentSkill.baseInfo.attackOffset.x + 
+                   _attackOrigin.up * _currentSkill.baseInfo.attackOffset.y;
         }
 
         public float GetCurrentAttackRadius()
@@ -156,7 +155,7 @@ namespace UPlayGround.Component
             if (_currentSkill == null)
                 return 0f;
             
-            return _currentSkill.attackRadius;
+            return _currentSkill.baseInfo.attackRadius;
         }
     }
 }

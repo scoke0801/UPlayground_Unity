@@ -13,47 +13,51 @@ MonoBehaviour:
   m_Name: Lich
   m_EditorClassIdentifier: 
   skills:
-  - animKey: 100
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 40
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 101
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 40
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-  - animKey: 500
-    attackType: 1
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 500
+      attackType: 1
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 20
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 20
     cooldown: 2
-  - animKey: 501
-    attackType: 1
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
+  - baseInfo:
+      animKey: 501
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
     selectionWeight: 20
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
     minRange: 0
     maxRange: 20
     cooldown: 2

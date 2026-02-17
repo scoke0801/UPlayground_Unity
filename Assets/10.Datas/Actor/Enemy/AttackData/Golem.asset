@@ -13,14 +13,51 @@ MonoBehaviour:
   m_Name: Golem
   m_EditorClassIdentifier: 
   skills:
-  - animKey: 100
-    attackType: 0
-    reactionType: 0
-    hitParticleName: EnemyLightAttackHit
-    damage: 10
-    selectionWeight: 100
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
+    selectionWeight: 25
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
+    selectionWeight: 25
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
+    selectionWeight: 25
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+  - baseInfo:
+      animKey: 103
+      attackType: 0
+      reactionType: 0
+      hitParticleName: EnemyLightAttackHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
+    selectionWeight: 25
     minRange: 0
     maxRange: 2.5
     cooldown: 2

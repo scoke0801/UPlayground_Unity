@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ca6adfe2df4528878db6179dfbad52, type: 3}
+  m_Name: PlayerDefaultAttackData
+  m_EditorClassIdentifier: 
+  liteComboAttackList:
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 10
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 15
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 15
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 103
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 20
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 104
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 20
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 105
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 25
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 106
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 25
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 107
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 30
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 108
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 30
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 109
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 35
+    canBeInterrupted: 1
+    hitAngle: 60
+  heavyComboAttackList:
+  - baseInfo:
+      animKey: 200
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 30
+    canBeInterrupted: 0
+    hitAngle: 60
+  - baseInfo:
+      animKey: 201
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 35
+    canBeInterrupted: 0
+    hitAngle: 60
+  - baseInfo:
+      animKey: 202
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 35
+    canBeInterrupted: 1
+    hitAngle: 60
+  jumpAttackList: []
+  dashAttackList: []
+  skillAttackList:
+  - baseInfo:
+      animKey: 500
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 50
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 501
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 35
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 501
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 25
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 502
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 15
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 503
+      attackType: 0
+      reactionType: 0
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 40
+    canBeInterrupted: 1
+    hitAngle: 60

@@ -29,14 +29,6 @@ namespace UPlayGround.State
         
         private PlayerActorAnimator _playerActorAnimator;
         
-        private readonly AnimKey[] skillAnimKeys = 
-        { 
-            AnimKey.Skill_1, 
-            AnimKey.Skill_2, 
-            AnimKey.Skill_3, 
-            AnimKey.Skill_4 
-        };
-        
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -90,6 +82,21 @@ namespace UPlayGround.State
         {
             _attackTimer += deltaTime;
 
+            if (_currentAttack.canBeInterrupted)
+            {
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
+                {
+                    controller.TransitionToState(new PlayerDodgeState(controller));
+                    return;
+                }
+                
+                if(InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) != null)
+                {    
+                    controller.TransitionToState(new PlayerAirborneState(controller));
+
+                    return;
+                }
+            }
             // 콤보 입력 체크 (Component가 타이밍 관리)
             if (_combat.CanCombo)
             {
@@ -122,10 +129,7 @@ namespace UPlayGround.State
                 var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 if (animState != null)
                 {
-                    animState.OwnedEvents.OnEnd = ()=>
-                    {
-                        ChangeToNextState();
-                    };
+                    animState.OwnedEvents.OnEnd = ChangeToNextState;
                 }
                 
                 _playerActorAnimator.IsOpenedComboWindow = false;
@@ -151,11 +155,13 @@ namespace UPlayGround.State
 
         private AnimKey GetAnimKey()
         {
-            for (int i = 0; i < skillAnimKeys.Length; i++)
+            int skillCount = 4;
+            for (int i = 0; i < skillCount; i++)
             {
                 if (playerController.HasSkillInput(i))
                 {
-                    return skillAnimKeys[i];
+                    _currentAttack = _combat.ExecuteSkillAttack(i);
+                    return _currentAttack?.animKey ?? AnimKey.None;
                 }
             }
 

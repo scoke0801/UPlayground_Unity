@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 
@@ -20,6 +22,9 @@ namespace UPlayGround.Component
         {
             NormalAttack = 0,
             HeavyAttack = 1,
+            JumpAttack,
+            DashAttack,
+            SkillAttack,
         }
         [FormerlySerializedAs("equipment")]
         [Header("References")]
@@ -28,13 +33,12 @@ namespace UPlayGround.Component
         
         [FormerlySerializedAs("stats")]
         [Header("Combat Data")]
-        [SerializeField] private ComboData[] _comboChain;
-        [SerializeField] private ComboData[] _heavyComoboChain;
-        
+        [SerializeField] private PlayerAttackDataSO _attackData;
+
         [Header("Hit Detection Settings")]
         [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
         [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
-
+        
         // 현재 공격 정보 (히트 판정용)
         private AttackData _currentAttackData;
         public AttackData CurrentAttackData => _currentAttackData;
@@ -54,7 +58,7 @@ namespace UPlayGround.Component
         public int CurrentComboIndex { get; private set; }
         public float LastAttackTime { get; private set; }
         public bool CanCombo { get; private set; }
-
+        
         public bool IsPossibleCollide => _isCollideCollisionEnable;
         
         // 이벤트
@@ -94,11 +98,6 @@ namespace UPlayGround.Component
         /// </summary>
         public AttackData ExecuteAttack(bool isCombo)
         {
-            // if (!_equipment.IsMainWeaponEquipped)
-            // {
-            //     return null;
-            // }
-
             if (_attackState == AttackState.HeavyAttack)
             {
                 ResetCombo();
@@ -116,7 +115,7 @@ namespace UPlayGround.Component
             }
             
             // ComboData를 AttackData로 변환
-            var comboData = _comboChain[CurrentComboIndex];
+            var comboData = _attackData.liteComboAttackList[CurrentComboIndex];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
@@ -152,7 +151,7 @@ namespace UPlayGround.Component
                 CurrentComboIndex = 0;
             }
             // ComboData를 AttackData로 변환
-            var comboData = _heavyComoboChain[CurrentComboIndex];
+            var comboData = _attackData.heavyComboAttackList[CurrentComboIndex];
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
@@ -162,6 +161,45 @@ namespace UPlayGround.Component
             return _currentAttackData ;
         }
         
+        public AttackData ExecuteSkillAttack(int skillIndex)
+        {
+            if (_attackData.skillAttackList.Count <= skillIndex)
+            {
+                return null;
+            }
+
+            var attackData = _attackData.skillAttackList[CurrentComboIndex];
+            _currentAttackData = ConvertToAttackData(attackData);
+            
+            LastAttackTime = Time.time;
+            
+            OnAttackStarted?.Invoke(_currentAttackData);
+            
+            return _currentAttackData ;
+        }
+        
+        /// <summary>
+        /// ComboData를 AttackData로 변환
+        /// </summary>
+        private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo)
+        {
+            float duration = GetAnimationDuration(attackInfo.baseInfo.animKey);
+            
+            return new AttackData
+            {
+                animKey = attackInfo.baseInfo.animKey,
+                damage = attackInfo.baseInfo.damage,
+                canBeInterrupted = attackInfo.canBeInterrupted,
+                
+                reactionType =  attackInfo.baseInfo.reactionType,
+                
+                hitRange = attackInfo.baseInfo.attackRadius,
+                hitAngle = attackInfo.hitAngle,
+                hitHeightOffset = attackInfo.baseInfo.attackOffset.y,
+                
+                hitParticleName = attackInfo.baseInfo.hitParticleName,
+            };
+        }
         /// <summary>
         /// 맞은 대상 초기화
         /// </summary>
@@ -216,6 +254,7 @@ namespace UPlayGround.Component
                     // AttackData에 히트 정보 채우기
                     _currentAttackData.hitTarget = hit.gameObject;
                     _currentAttackData.hitPoint = hit.ClosestPoint(origin);
+                    _currentAttackData.attackDirection = directionToTarget;
                     
                     // 데미지 적용
                     damageable.TakeDamage(_currentAttackData);
@@ -240,26 +279,6 @@ namespace UPlayGround.Component
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
                  
             }
-        }
-        
-        /// <summary>
-        /// ComboData를 AttackData로 변환
-        /// </summary>
-        private AttackData ConvertToAttackData(ComboData comboData)
-        {
-            float duration = GetAnimationDuration(comboData.animKey);
-            
-            return new AttackData
-            {
-                animKey = comboData.animKey,
-                damage = comboData.damage,
-                duration = duration,
-                canBeInterrupted = comboData.canBeInterrupted,
-                hitRange = comboData.hitRadius,
-                hitAngle = comboData.hitAngle,
-                hitHeightOffset = comboData.attackOffset.y,
-                hitParticleName = comboData.hitParticleName,
-            };
         }
         
         public void SetEnableCollision(bool isCollisionEnable)
@@ -293,8 +312,28 @@ namespace UPlayGround.Component
         /// </summary>
         private bool CanContinueCombo()
         {
-            int length = (_attackState == AttackState.NormalAttack) ? _comboChain.Length : _heavyComoboChain.Length;
-         
+            int length = Int32.MaxValue;
+            switch (_attackState)
+            {
+                case AttackState.NormalAttack:
+                    length = _attackData.liteComboAttackList.Count;
+                    break;
+                case AttackState.HeavyAttack:
+                    length = _attackData.heavyComboAttackList.Count;
+                    break;
+                case AttackState.JumpAttack:
+                    length = _attackData.jumpAttackList.Count;
+                    break;
+                case AttackState.DashAttack:
+                    length = _attackData.dashAttackList.Count;
+                    break;
+                case AttackState.SkillAttack:
+                    length = _attackData.skillAttackList.Count;
+                    break;
+                default:
+                    return false;
+            }
+            
             return CurrentComboIndex < length - 1;
         }
         /// <summary>
@@ -322,29 +361,6 @@ namespace UPlayGround.Component
             InputManager.Instance.InputBuffer.Clear(); // 콤보 리셋 시 입력 버퍼 비우기
         }
         
-        /// <summary>
-        /// State에서 호출할 조건 체크 메서드들
-        /// </summary>
-        public bool IsAttacking()
-        {
-            float timeSinceLastAttack = Time.time - LastAttackTime;
-            var currentCombo = _comboChain[CurrentComboIndex];
-            float duration = GetAnimationDuration(currentCombo.animKey);
-            return timeSinceLastAttack < duration;
-        }
-        
-        public bool CanAttack()
-        {
-            return !_equipment.IsMainWeaponEquipped;
-        }
-        /// <summary>
-        /// 현재 콤보의 애니메이션 키 가져오기
-        /// </summary>
-        public AnimKey GetCurrentAttackAnimKey()
-        {
-            return _comboChain[CurrentComboIndex].animKey;
-        }
-        
         // 디버그 시각화
         private void OnDrawGizmosSelected()
         {
@@ -367,6 +383,5 @@ namespace UPlayGround.Component
             Gizmos.DrawLine(origin, origin + leftBoundary);
             Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
         }
-
     }
 }

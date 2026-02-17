@@ -108,6 +108,10 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
+            if (attackData != null && attackData.reactionType == AttackReactionType.KnockBack)
+            {
+                MovementController.AddVelocity(attackData.attackDirection.normalized * 15.0f);
+            }
             // 피격 이펙트 재생
             // 피격 사운드 재생
             // 넉백 처리
@@ -140,5 +144,6 @@ namespace UPlayGround
         {
             _isInvincible = invincible;
         }
+
     }
 }

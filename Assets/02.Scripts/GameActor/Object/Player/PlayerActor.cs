@@ -61,6 +61,7 @@ namespace UPlayGround
 
         public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
         public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
+
     }
     /// <summary>
     /// 
@@ -364,6 +365,15 @@ namespace UPlayGround
 
         private void InitComponents()
         {
+            if (_combat == null)
+            {
+                _combat = GetComponent<PlayerCombat>();
+            }
+
+            if (_equipment == null)
+            {
+                _equipment = GetComponent<PlayerEquipment>();
+            }
             // _equipment.SetLeftWeaponType(WeaponType.Shield);
             // _equipment.SetRightWeaponType(WeaponType.Sword);
             //
@@ -445,6 +455,11 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
+            if (attackData != null && attackData.reactionType == AttackReactionType.KnockBack)
+            {
+                MovementController.AddVelocity(attackData.attackDirection.normalized * 5.0f);
+            }
+            
             // 피격 이펙트 재생
             // 피격 사운드 재생
             // 넉백 처리

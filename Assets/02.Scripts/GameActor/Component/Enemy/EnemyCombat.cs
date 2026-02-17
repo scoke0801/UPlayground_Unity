@@ -115,7 +115,7 @@ namespace UPlayGround.Component
                     {
                         damage = _currentSkill.baseInfo.damage,
                         criticalMultiplier = 1.0f,
-                        hitPoint = attackPosition,
+                        hitPoint = hitCollider.ClosestPoint(attackPosition),
                         attackDirection = _attackOrigin.forward,
                         reactionType = _currentSkill.baseInfo.reactionType,
                         hitParticleName =  _currentSkill.baseInfo.hitParticleName
@@ -124,7 +124,9 @@ namespace UPlayGround.Component
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
                     
-                    GameObjectManager.Instance.ShowFX(_currentSkill.baseInfo.hitParticleName, attackPosition);
+                    GameObjectManager.Instance.ShowFX(
+                        _currentSkill.baseInfo.hitParticleName,
+                        attackData.hitPoint);
                 }
             }
         }

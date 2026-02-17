@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Drakkar.GameUtils;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Serialization;

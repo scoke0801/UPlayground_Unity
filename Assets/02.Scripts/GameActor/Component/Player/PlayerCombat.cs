@@ -168,7 +168,7 @@ namespace UPlayGround.Component
                 return null;
             }
 
-            var attackData = _attackData.skillAttackList[CurrentComboIndex];
+            var attackData = _attackData.skillAttackList[skillIndex];
             _currentAttackData = ConvertToAttackData(attackData);
             
             LastAttackTime = Time.time;

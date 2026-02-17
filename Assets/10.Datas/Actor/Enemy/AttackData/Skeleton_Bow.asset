@@ -22,7 +22,7 @@ MonoBehaviour:
       attackRadius: 1.5
       damage: 15
     selectionWeight: 100
-    minRange: 2
+    minRange: 0
     maxRange: 20
     cooldown: 2
   globalCooldown: 1

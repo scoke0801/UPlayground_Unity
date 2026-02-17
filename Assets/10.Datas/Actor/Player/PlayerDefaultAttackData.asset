@@ -168,7 +168,7 @@ MonoBehaviour:
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
-      animKey: 501
+      animKey: 502
       attackType: 0
       reactionType: 0
       hitParticleName: DefaultCombatHit

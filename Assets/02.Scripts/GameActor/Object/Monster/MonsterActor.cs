@@ -11,8 +11,6 @@ namespace UPlayGround
     {  
         [Header("Monster Stats")]
         [SerializeField] private EnemyStatsSO _stats;
-        [SerializeField] private float _maxHealth = 100f;
-        [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
   
@@ -20,6 +18,9 @@ namespace UPlayGround
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyBrain _brain;
         [SerializeField] private EnemyCombat _combat;
+
+        protected float _maxHealth = 0.0f;
+        protected float _currentHealth = 0.0f;
         
         public EnemyDetection Detection => _detection;
         public EnemyBrain Brain => _brain;
@@ -29,6 +30,8 @@ namespace UPlayGround
         {
             base.Awake();
             _actorType = ActorType.Monster;
+
+            _maxHealth = _stats.maxHealth;
             _currentHealth = _maxHealth;
             
             // AI 컴포넌트 자동 할당

@@ -692,7 +692,7 @@ namespace UPlayGround.Manager
 
             // 캐릭터의 forward 방향 (뒷통수 방향)
             Vector3 targetForward = target.forward;
-            float targetPitch = 25f;
+            float targetPitch = 15f;
             
             // 목표 Yaw 계산 (캐릭터가 바라보는 방향)
             float targetYaw = Mathf.Atan2(targetForward.x, targetForward.z) * Mathf.Rad2Deg;
@@ -751,7 +751,7 @@ namespace UPlayGround.Manager
 
             // [TODO] 옵션으로 빼고 싶다
             float lockOnHeightOffset = (lockOnTargetCollider != null) 
-                ? lockOnTargetCollider.height * 0.85f : 1f;
+                ? lockOnTargetCollider.height * 0.25f : 1f;
             
             // 대상을 향한 방향 계산
             Vector3 targetLockOnPosition = lockOnTarget.position - Vector3.up * lockOnHeightOffset;

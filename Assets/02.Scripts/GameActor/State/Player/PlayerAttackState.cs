@@ -96,6 +96,15 @@ namespace UPlayGround.State
 
                     return;
                 }
+
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+                {
+                    if (playerController.TryTransitionToState(new PlayerDashState(controller)))
+                    {
+                        return;
+                    }
+                }
+
             }
             // 콤보 입력 체크 (Component가 타이밍 관리)
             if (_combat.CanCombo)

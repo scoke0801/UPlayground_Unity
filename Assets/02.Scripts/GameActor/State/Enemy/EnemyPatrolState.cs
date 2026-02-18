@@ -26,7 +26,7 @@ namespace UPlayGround.State
             _brain = brain;
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             return true;
         }

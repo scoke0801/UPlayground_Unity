@@ -23,7 +23,7 @@ namespace UPlayGround.State
             _detection = detection;
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             return true;
         }

@@ -86,6 +86,21 @@ namespace UPlayGround.MovementController
         // 상태 관리
         private GameActorState _currentState;
         public GameActorState CurrentState => _currentState;
+
+        /// <summary>
+        /// 상태 전환
+        /// </summary>
+        public bool TryTransitionToState(GameActorState newState)
+        {
+            if (newState.CanTransitionState(CurrentState.StateName) == false)
+            {
+                return false;
+            }
+
+            TransitionToState(newState);
+            return true;
+        }
+        
         /// <summary>
         /// 상태 전환
         /// </summary>

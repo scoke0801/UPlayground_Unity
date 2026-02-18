@@ -31,7 +31,7 @@ namespace UPlayGround.State
             
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             return true;
         }

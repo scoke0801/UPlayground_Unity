@@ -22,7 +22,7 @@ namespace UPlayGround.State
             _attackData = attackData;
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             return true;
         }

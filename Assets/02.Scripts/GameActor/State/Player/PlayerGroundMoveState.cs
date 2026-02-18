@@ -20,7 +20,7 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             return true;
         }
@@ -50,8 +50,10 @@ namespace UPlayGround.State
             
             if (playerController.HasDashInput())
             {
-                playerController.TransitionToState(new PlayerDashState(playerController));
-                return;
+                if (controller.TryTransitionToState(new PlayerDashState(controller)))
+                {
+                    return;
+                }
             }
             
             // 웅크리기 입력이 있으면 Crouching 상태로 전환

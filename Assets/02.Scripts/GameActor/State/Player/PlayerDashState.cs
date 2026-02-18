@@ -23,8 +23,10 @@ namespace UPlayGround.State
         public PlayerDashState(ActorMovementController controller) : base(controller) { }
 
         // ─── 상태 전환 제한 ────────────────────────────────────────────
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
+            if (playerController != null && playerController.IsDashReady == false)
+                return false;
             return true;
         }
 
@@ -50,6 +52,8 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             RestoreAndResolvePenetration();
+            
+            playerController.StartDashCooldown();
             
             base.OnExit(toState);
         }

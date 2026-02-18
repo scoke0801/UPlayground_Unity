@@ -23,7 +23,7 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionToState(string stateName)
+        public override bool CanTransitionState(string stateName)
         {
             // Guard 중에는 Hit 상태로 전환 불가 (Guard가 막아줌)
             if (stateName == "Hit")

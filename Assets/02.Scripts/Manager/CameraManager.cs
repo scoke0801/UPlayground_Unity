@@ -706,6 +706,35 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 다음 락온 가능한 대상 탐색
+        /// </summary>
+        /// <returns>새로운 대상을 찾으면 true</returns>
+        private bool TryFindNextLockOnTarget()
+        {
+            // 현재 대상 해제
+            if (lockOnTarget != null)
+            {
+                lockOnTarget.GetComponent<IDamageable>()?.UnLockOn();
+            }
+            
+            // 대상 리스트 갱신
+            CollectLockOnTarget();
+            
+            // 유효한 대상이 없으면 실패
+            if (availableTargets.Count == 0)
+                return false;
+            
+            // 가장 가까운 대상(리스트 첫 번째)으로 락온
+            lockOnTarget = availableTargets[0];
+            lockOnTargetCollider = lockOnTarget.GetComponent<CapsuleCollider>();
+            currentTargetIndex = 0;
+            
+            lockOnTarget.GetComponent<IDamageable>()?.LockOn();
+            
+            return true;
+        }
+
+        /// <summary>
         /// LockOn 해제
         /// </summary>
         private void ReleaseLockOn()
@@ -734,14 +763,17 @@ namespace UPlayGround.Manager
             if (isLockOnActive == false || lockOnTarget == null)
                 return;
             
-            // 대상 유효성 체크
+            // 대상 유효성 체크 실패 시, 다른 대상 탐색
             if (IsValidTarget(lockOnTarget) == false)
             {
-                ReleaseLockOn();
-                return;
+                if (TryFindNextLockOnTarget() == false)
+                {
+                    ReleaseLockOn();
+                    return;
+                }
             }
             
-            // 대상이 너무 멀어지면 LockOn 해제
+            // 대상이 너무 멀어지면 다른 대상 탐색
             float distance = Vector3.Distance(target.position, lockOnTarget.position);
             if (distance > lockOnRange)
             {

@@ -57,19 +57,37 @@ namespace UPlayGround.MovementController
     // BeforeCharacterUpdate -> UpdateRotation / UpdateVelocity -> KCC Motor -> AfterCharacterUpdate
     public partial class PlayerMovementController : ActorMovementController
     {
+        [Header("Dash Cooldown")]
+        [SerializeField] private float _dashCooldown = 1.5f;
+        
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
         
         private PlayerCharacterInputs _inputState;
         
+    
+        private float _dashCooldownTimer;
+    
         public Vector3 LookInputVector => _lookInputVector;
         public Vector3 MoveInputVector => _moveInputVector;
+        
+        public bool IsDashReady => _dashCooldownTimer <= 0f;
+
+        public void StartDashCooldown() => _dashCooldownTimer = _dashCooldown;
         
         protected override void Start() 
         {
             base.Start();
             
             TransitionToState(new PlayerIdleState(this));
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            
+            if (_dashCooldownTimer > 0f)
+                _dashCooldownTimer -= Time.deltaTime;
         }
 
         public void ClearInputAll()

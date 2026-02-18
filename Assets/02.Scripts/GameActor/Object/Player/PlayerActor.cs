@@ -483,7 +483,7 @@ namespace UPlayGround
             if (stateName != "Hit")
             {
                 // [TOOD] 상태를 조금 더 정리해서 할 필요가 있겠다...
-                if(MovementController.CurrentState.CanTransitionToState("Hit"))
+                if(MovementController.CurrentState.CanTransitionState("Hit"))
                 {
                     MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }

@@ -17,8 +17,35 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 1827226128182048838, guid: 8e886e4a64f0b8b4ca6676f977d39253, type: 3}
-      events: []
+      events:
+      - rid: 7399917076840972460
+      - rid: 7399917076840972461
+      - rid: 7399917076840972462
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917076840972460
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.4749999
+        endTime: 1.8875
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972461
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.275
+        endTime: 2.575
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972462
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 3.4875
+        endTime: 3.9875
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192

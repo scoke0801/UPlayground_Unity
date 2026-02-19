@@ -19,6 +19,11 @@ MonoBehaviour:
       motionClip: {fileID: 7400000, guid: 1259f38fe034e564bbee9d090e02715f, type: 3}
       events:
       - rid: 7399917033536356464
+      - rid: 7399917076840972454
+      - rid: 7399917076840972455
+      - rid: 7399917076840972456
+      - rid: 7399917076840972458
+      - rid: 7399917076840972459
     globalEvents: []
   references:
     version: 2
@@ -34,3 +39,43 @@ MonoBehaviour:
         attachToTarget: 0
         useSpawnRotation: 1
         destroyOnFinish: 0
+    - rid: 7399917076840972454
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.9753183
+        endTime: 1.0310509
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972455
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0828025
+        endTime: 1.1584394
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972456
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.25
+        endTime: 1.2977706
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972458
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.393312
+        endTime: 1.468949
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917076840972459
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.5366242
+        endTime: 1.5804139
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192

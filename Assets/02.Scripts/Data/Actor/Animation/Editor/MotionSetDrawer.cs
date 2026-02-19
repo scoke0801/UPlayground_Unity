@@ -104,7 +104,7 @@ namespace UPlayGround.Animation.Editor
             DrawHeader(set);
             EditorGUILayout.Space(4);
 
-            foldMotions = EditorGUILayout.Foldout(foldMotions, "모션 리스트", true, EditorStyles.foldoutHeader);
+            foldMotions = EditorGUILayout.Foldout(foldMotions, "애니메이션 리스트", true, EditorStyles.foldoutHeader);
             if (foldMotions) DrawMotionList(set);
 
             EditorGUILayout.Space(4);
@@ -114,7 +114,7 @@ namespace UPlayGround.Animation.Editor
 
             EditorGUILayout.Space(4);
 
-            foldEvents = EditorGUILayout.Foldout(foldEvents, "모션 셋 이벤트", true, EditorStyles.foldoutHeader);
+            foldEvents = EditorGUILayout.Foldout(foldEvents, "애니메이션 이벤트", true, EditorStyles.foldoutHeader);
             if (foldEvents) DrawMotionSetEvents(set);
 
             if (isDraggingCursor || _isDraggingStart || _isDraggingEnd || _isDraggingBody) Repaint();
@@ -127,7 +127,7 @@ namespace UPlayGround.Animation.Editor
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             {
-                EditorGUILayout.LabelField("모션 셋", EditorStyles.boldLabel, GUILayout.Width(60));
+                EditorGUILayout.LabelField("애니메이션 셋", EditorStyles.boldLabel, GUILayout.Width(60));
                 set.motionSetName = EditorGUILayout.TextField(set.motionSetName);
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField($"{set.TotalDuration:F2}s", EditorStyles.miniLabel, GUILayout.Width(50));
@@ -185,7 +185,7 @@ namespace UPlayGround.Animation.Editor
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("+ 모션 추가", GUILayout.Width(120)))
+            if (GUILayout.Button("+ 클립 추가", GUILayout.Width(120)))
             {
                 RecordUndo("Add Motion");
                 set.motions.Add(new Motion

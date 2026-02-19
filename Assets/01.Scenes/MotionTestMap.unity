@@ -31311,12 +31311,12 @@ GameObject:
   - component: {fileID: 763013491}
   - component: {fileID: 763013492}
   m_Layer: 6
-  m_Name: TestPlayer_
+  m_Name: TestPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &763013485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58651,12 +58651,12 @@ GameObject:
   - component: {fileID: 1382438399}
   - component: {fileID: 1382438398}
   m_Layer: 6
-  m_Name: TestPlayer
+  m_Name: TestPlayer___
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1382438398
 MonoBehaviour:
   m_ObjectHideFlags: 0

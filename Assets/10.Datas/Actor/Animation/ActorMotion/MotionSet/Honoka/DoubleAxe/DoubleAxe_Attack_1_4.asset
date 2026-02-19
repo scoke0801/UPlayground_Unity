@@ -30,4 +30,4 @@ MonoBehaviour:
         endTime: 0.883454
         targetLayers:
           serializedVersion: 2
-          m_Bits: 128
+          m_Bits: 192

@@ -33,11 +33,11 @@ namespace UPlayGround.Animation.Editor
         bool            _useTemporarySet;
         MotionSet       _temporarySet;
 
-        [MenuItem("UPlayGround/모션 셋 에디터")]
+        [MenuItem("UPlayGround/애니메이션 에디터")]
         static void Open()
         {
             var window = GetWindow<MotionSetEditorWindow>();
-            window.titleContent = new GUIContent("모션 셋 에디터");
+            window.titleContent = new GUIContent("애니메이션 에디터");
             window.minSize      = new Vector2(600, 400);
             window.Show();
         }

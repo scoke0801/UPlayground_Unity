@@ -18,19 +18,21 @@ MonoBehaviour:
     - motionName: 
       motionClip: {fileID: -2555803891471906358, guid: 1fb169e5105e9ef4eb54642291e07d80, type: 3}
       events:
-      - rid: 7399917057152909312
+      - rid: 7399917106611879936
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7399917057152909312
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 7399917106611879936
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.76250005
-        endTime: 2.0125
-        particlePrefab: {fileID: 4361882223371549367, guid: 45a162a9b9a681843bc5bc016ab0614a, type: 3}
-        spawnPointName: 
-        offset: {x: 0, y: 0, z: 0}
-        attachToTarget: 0
-        useSpawnRotation: 0
-        destroyOnFinish: 0
+        startTime: 0.7625
+        endTime: 2.175
+        projectilePrefab: {fileID: 4361882223371549367, guid: 45a162a9b9a681843bc5bc016ab0614a, type: 3}
+        spawnOffset: {x: 0, y: 0, z: 0}
+        speed: 10
+        duration: 3
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 64
+        hitParticleName: 

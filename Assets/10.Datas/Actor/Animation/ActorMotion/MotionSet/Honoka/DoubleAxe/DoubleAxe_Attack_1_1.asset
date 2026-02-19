@@ -31,7 +31,7 @@ MonoBehaviour:
         endTime: 0.7790922
         targetLayers:
           serializedVersion: 2
-          m_Bits: 128
+          m_Bits: 192
     - rid: 7399917016132091905
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

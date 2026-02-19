@@ -10,14 +10,43 @@ namespace UPlayGround.Animation
     {
         public string motionName;
         public AnimationClip motionClip;
-        
+
+        // ── 재생 구간 (클립 로컬 시간 기준) ──
+        // -1이면 클립 전체 시작/끝을 사용
+        public float clipStartTime = -1f;
+        public float clipEndTime   = -1f;
+
+        // ── 개별 재생 속도 배율 ──
+        public float playbackSpeed = 1f;
+
         // 타입 안전한 이벤트 리스트
         [SerializeReference]
         public List<MotionEventBase> events = new List<MotionEventBase>();
-        
-        // 유효성 검사
+
+        // ── 유효성 검사 ──
         public bool IsValid() => motionClip != null;
-        public float Duration => motionClip != null ? motionClip.length : 0f;
+
+        /// <summary>클립 내 실제 재생 시작 시간</summary>
+        public float ClipStartTime => (clipStartTime >= 0f && motionClip != null)
+            ? Mathf.Clamp(clipStartTime, 0f, motionClip.length)
+            : 0f;
+
+        /// <summary>클립 내 실제 재생 종료 시간</summary>
+        public float ClipEndTime => (clipEndTime >= 0f && motionClip != null)
+            ? Mathf.Clamp(clipEndTime, ClipStartTime, motionClip.length)
+            : (motionClip != null ? motionClip.length : 0f);
+
+        /// <summary>타임라인 상 이 모션이 차지하는 시간 (재생 구간 / 재생 속도)</summary>
+        public float Duration
+        {
+            get
+            {
+                if (motionClip == null) return 0f;
+                float clipDur = ClipEndTime - ClipStartTime;
+                float spd     = playbackSpeed > 0f ? playbackSpeed : 1f;
+                return clipDur / spd;
+            }
+        }
         
         /// <summary>
         /// 특정 시간에 활성화된 이벤트들 반환

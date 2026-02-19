@@ -160,28 +160,50 @@ namespace UPlayGround.Animation
         }
         
         /// <summary>
-        /// 현재 재생 중인 애니메이션의 남은 시간
+        /// 현재 재생 중인 MotionSet 의 남은 시간.
+        /// MotionSet 재생 중이 아닐 경우 현재 클립의 남은 시간을 반환한다.
         /// </summary>
         public float GetRemainingTime()
         {
-            if (_animator.States.Current == null)
-                return 0f;
-                
+            if (_isPlayingMotionSet && _currentMotionSet != null)
+            {
+                float remaining = _currentMotionSet.TotalDuration - _globalTime;
+                return Mathf.Max(0f, remaining);
+            }
+
+            if (_animator.States.Current == null) return 0f;
+
             var state = _animator.States.Current;
-            float remaining = state.Length - state.Time;
-            return Mathf.Max(0f, remaining);
+            // clipEndTime 이 설정된 모션이 있을 경우를 대비해 현재 모션 기준으로 계산
+            if (_currentMotionSet != null &&
+                _currentMotionIndex >= 0 &&
+                _currentMotionIndex < _currentMotionSet.motions.Count)
+            {
+                var motion = _currentMotionSet.motions[_currentMotionIndex];
+                if (motion != null && motion.IsValid())
+                {
+                    float clipRemaining = motion.ClipEndTime - state.Time;
+                    return Mathf.Max(0f, clipRemaining);
+                }
+            }
+
+            return Mathf.Max(0f, state.Length - state.Time);
         }
-        
+
         /// <summary>
-        /// 현재 애니메이션의 정규화된 시간 (0~1)
+        /// 현재 애니메이션의 정규화된 시간 (0~1).
+        /// MotionSet 재생 중이면 MotionSet 전체 기준으로 반환한다.
         /// </summary>
         public float GetNormalizedTime()
         {
-            if (_animator.States.Current == null)
-                return 0f;
-                
-            var state = _animator.States.Current;
-            return state.NormalizedTime;
+            if (_isPlayingMotionSet && _currentMotionSet != null)
+            {
+                float total = _currentMotionSet.TotalDuration;
+                return total > 0f ? Mathf.Clamp01(_globalTime / total) : 0f;
+            }
+
+            if (_animator.States.Current == null) return 0f;
+            return _animator.States.Current.NormalizedTime;
         }
         
         // <summary>
@@ -230,6 +252,17 @@ namespace UPlayGround.Animation
                 return;
             }
 
+            // 현재 globalTime에 해당하는 모션 인덱스 계산
+            if (_currentMotionSet.GetMotionAtTime(_globalTime, out int newIndex, out float localTime))
+            {
+                // 모션 인덱스가 바뀐 경우 → 다음 모션으로 전환
+                if (newIndex != _currentMotionIndex)
+                {
+                    _currentMotionIndex = newIndex;
+                    PlayMotionAtIndex(_currentMotionIndex, 0f, _currentMotionLayerIndex);
+                }
+            }
+
             // 이벤트 실행기 업데이트
             _eventExecutor?.UpdateTime(_globalTime);
         }
@@ -242,12 +275,14 @@ namespace UPlayGround.Animation
         }
         
         /// <summary>
-        /// 특정 인덱스의 모션 재생
+        /// 특정 인덱스의 모션 재생.
+        /// clipStartTime / clipEndTime / playbackSpeed 를 반영한다.
+        /// 모션 전환은 UpdateTimeline 이 globalTime 기반으로 처리하므로 OnEnd 콜백을 사용하지 않는다.
         /// </summary>
         protected void PlayMotionAtIndex(int index, float fadeDuration, int layerIndex = 0)
         {
-            if (_currentMotionSet.motions == null || 
-                index < 0 || 
+            if (_currentMotionSet.motions == null ||
+                index < 0 ||
                 index >= _currentMotionSet.motions.Count)
             {
                 return;
@@ -256,50 +291,26 @@ namespace UPlayGround.Animation
             var motion = _currentMotionSet.motions[index];
             if (motion == null || !motion.IsValid())
             {
-                _currentMotionIndex++;
-                PlayMotionAtIndex(_currentMotionIndex, fadeDuration, layerIndex);
+                // 유효하지 않은 모션은 건너뜀 (globalTime 기반 전환이 다음 인덱스를 처리)
                 return;
             }
 
             _currentMotionIndex = index;
+
             var layer = _animator.Layers[layerIndex];
             if (_currentMotionLayerIndex != layerIndex)
             {
                 layer.StartFade(1.0f, fadeDuration);
             }
             _currentMotionLayerIndex = layerIndex;
-            
-            // Animancer로 애니메이션 재생, 특정 레이어를 가져와서 애니메이션 재생
+
+            // 클립 재생 — clipStartTime 부터 시작
             _currentState = layer.Play(motion.motionClip, fadeDuration);
+            _currentState.Time  = motion.ClipStartTime;
+            _currentState.Speed = motion.playbackSpeed;
 
-            // 모션 종료 시 다음 모션으로 전환
-            var endAction = _currentState.Events(this).OnEnd;
-            if (endAction != null)
-            {
-                endAction += () =>
-                {
-                    OnMotionEnd(fadeDuration);
-                };
-            }
-           
-        }
-
-        /// <summary>
-        /// 모션 종료 콜백
-        /// </summary>
-        void OnMotionEnd(float fadeDuration)
-        {
-            _currentMotionIndex++;
-            
-            // 다음 모션이 있으면 재생, 없으면 종료
-            if (_currentMotionIndex < _currentMotionSet.motions.Count)
-            {
-                PlayMotionAtIndex(_currentMotionIndex, 0.0f, _currentMotionLayerIndex);
-            }
-            else
-            {
-                StopMotionSet();
-            }
+            // OnEnd 콜백 제거 — 종료/전환은 UpdateTimeline 이 globalTime 으로 판단
+            _currentState.Events(this).OnEnd = null;
         }
         void OnDestroy()
         {

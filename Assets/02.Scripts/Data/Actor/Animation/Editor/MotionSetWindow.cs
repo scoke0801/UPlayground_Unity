@@ -21,9 +21,13 @@ namespace UPlayGround.Animation.Editor
         AnimancerComponent _animancer;
         bool            _isPlaying;
         bool            _isPaused;
+        bool            _isLooping;
         float           _playbackTime;
         float           _previousTime;
-        float           _playbackSpeed = 1f; 
+        float           _playbackSpeed = 1f;
+        float           _startTime     = 0f;
+        float           _endTime       = -1f; // -1 = 전체 길이 사용
+        int             _currentMotionIndex = -1; // 현재 재생 중인 모션 인덱스 (전환 감지용)
         
         // 이벤트 재생 관리
         System.Collections.Generic.HashSet<MotionEventBase> _executedEvents;   
@@ -42,25 +46,73 @@ namespace UPlayGround.Animation.Editor
             window.Show();
         }
 
+        // ⑤ EditorPrefs 키
+        const string PREFS_ZOOM        = "MotionSetWindow_Zoom";
+        const string PREFS_SCROLL      = "MotionSetWindow_ScrollX";
+        const string PREFS_SCENE_PATH  = "MotionSetWindow_ScenePath";
+        const string PREFS_ACTOR_NAME  = "MotionSetWindow_ActorName";
+        const string PREFS_SHOW_FRAMES = "MotionSetWindow_ShowFrames";
+        const string PREFS_FPS         = "MotionSetWindow_Fps";
+        const string PREFS_SPEED       = "MotionSetWindow_Speed";
+        const string PREFS_LOOP        = "MotionSetWindow_Loop";
+
         void OnEnable()
         {
             _drawer = new MotionSetDrawer(() => _asset, Repaint);
 
+            // ⑤ EditorPrefs 복원
+            LoadEditorPrefs();
+
             // Selection이 MotionSetAsset이면 자동 바인딩
             TryBindFromSelection();
-            
+
             // 플레이 업데이트 등록
             EditorApplication.update += OnEditorUpdate;
-            
+
             // 플레이 모드 변경 감지
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
-        
+
         void OnDisable()
         {
+            // ⑤ EditorPrefs 저장
+            SaveEditorPrefs();
+
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             StopPlayback();
+        }
+
+        // ⑤ 상태 저장
+        void SaveEditorPrefs()
+        {
+            if (_drawer != null)
+            {
+                EditorPrefs.SetFloat(PREFS_ZOOM,        _drawer.zoom);
+                EditorPrefs.SetFloat(PREFS_SCROLL,      _drawer.scrollX);
+                EditorPrefs.SetBool (PREFS_SHOW_FRAMES, _drawer.showFrames);
+                EditorPrefs.SetInt  (PREFS_FPS,         _drawer.fps);
+            }
+            EditorPrefs.SetString(PREFS_SCENE_PATH, _testScenePath);
+            EditorPrefs.SetString(PREFS_ACTOR_NAME, _testActorName);
+            EditorPrefs.SetFloat (PREFS_SPEED,      _playbackSpeed);
+            EditorPrefs.SetBool  (PREFS_LOOP,       _isLooping);
+        }
+
+        // ⑤ 상태 복원
+        void LoadEditorPrefs()
+        {
+            if (_drawer != null)
+            {
+                _drawer.zoom        = EditorPrefs.GetFloat(PREFS_ZOOM,        1f);
+                _drawer.scrollX     = EditorPrefs.GetFloat(PREFS_SCROLL,      0f);
+                _drawer.showFrames  = EditorPrefs.GetBool (PREFS_SHOW_FRAMES, false);
+                _drawer.fps         = EditorPrefs.GetInt  (PREFS_FPS,         30);
+            }
+            _testScenePath = EditorPrefs.GetString(PREFS_SCENE_PATH, _testScenePath);
+            _testActorName = EditorPrefs.GetString(PREFS_ACTOR_NAME, _testActorName);
+            _playbackSpeed = EditorPrefs.GetFloat (PREFS_SPEED,      1f);
+            _isLooping     = EditorPrefs.GetBool  (PREFS_LOOP,       false);
         }
         
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -120,27 +172,92 @@ namespace UPlayGround.Animation.Editor
         {
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
+                var currentSet = GetCurrentMotionSet();
+                if (currentSet == null) return;
+
+                // _playbackTime은 타임라인 시간 (Motion.Duration = clipDur/motionSpeed 이므로 이미 정규화됨)
+                // 글로벌 재생 속도만 적용
                 float deltaTime = Time.deltaTime * _playbackSpeed;
                 _playbackTime += deltaTime;
-                
-                var currentSet = GetCurrentMotionSet();
-                if (currentSet != null)
+
+                float effectiveEnd = GetEffectiveEndTime(currentSet);
+
+                if (_playbackTime >= effectiveEnd)
                 {
-                    float totalDuration = currentSet.TotalDuration;
-                    if (_playbackTime >= totalDuration)
+                    // 마지막 이벤트를 종료 시점까지 먼저 처리
+                    float savedPrev   = _previousTime;
+                    _playbackTime     = effectiveEnd;
+                    _previousTime     = savedPrev;
+                    ExecuteActiveEvents(currentSet);
+
+                    if (_isLooping)
                     {
-                        _playbackTime = totalDuration;
+                        LoopPlayback();
+                    }
+                    else
+                    {
+                        _drawer.cursorTime = effectiveEnd;
+                        Repaint();
                         StopPlayback();
                     }
-                    
-                    // 이벤트 실행
-                    ExecuteActiveEvents(currentSet);
-                    
-                    _drawer.cursorTime = _playbackTime;
-                    _previousTime = _playbackTime;
-                    Repaint();
+                    return;
                 }
+
+                // 모션 인덱스가 바뀌었으면 Animancer 클립 전환
+                if (currentSet.GetMotionAtTime(_playbackTime, out int newIdx, out _))
+                {
+                    if (newIdx != _currentMotionIndex)
+                    {
+                        _currentMotionIndex = newIdx;
+                        if (newIdx >= 0 && newIdx < currentSet.motions.Count)
+                            PlayMotionClip(currentSet.motions[newIdx]);
+                    }
+                }
+
+                // 이벤트 실행
+                ExecuteActiveEvents(currentSet);
+
+                _drawer.cursorTime = _playbackTime;
+                _previousTime      = _playbackTime;
+                Repaint();
             }
+        }
+
+        float GetEffectiveEndTime(MotionSet motionSet)
+        {
+            float totalDuration = motionSet.TotalDuration;
+            if (_endTime > 0f && _endTime <= totalDuration)
+                return _endTime;
+            return totalDuration;
+        }
+
+        void LoopPlayback()
+        {
+            var motionSet = GetCurrentMotionSet();
+            if (motionSet == null) return;
+
+            // 이벤트 상태 리셋
+            if (_activeEvents != null && _targetActor != null)
+            {
+                foreach (var evt in _activeEvents)
+                    evt.OnCompleteEvent(_targetActor);
+                _activeEvents.Clear();
+            }
+            _executedEvents?.Clear();
+
+            float loopStart = Mathf.Max(0f, _startTime);
+            _currentMotionIndex = -1;
+            _playbackTime  = loopStart;
+            _previousTime  = loopStart - 0.001f;
+            _drawer.cursorTime = _playbackTime;
+
+            UpdateAnimancerPlayback();
+
+            // 루프 시작 시 모션 인덱스 재기록
+            if (motionSet.GetMotionAtTime(_playbackTime, out int startIdx, out _))
+                _currentMotionIndex = startIdx;
+
+            Repaint();
         }
 
         void OnSelectionChange()
@@ -357,15 +474,14 @@ namespace UPlayGround.Animation.Editor
                         StopPlayback();
                     GUI.backgroundColor = Color.white;
                 }
-                
-                EditorGUI.EndDisabledGroup();
-                
+
                 EditorGUI.BeginDisabledGroup(!_isPlaying);
                 if (GUILayout.Button("리셋", GUILayout.Width(50)))
                 {
-                    _playbackTime = 0f;
-                    _previousTime = 0f;
-                    _drawer.cursorTime = 0f;
+                    float loopStart = Mathf.Max(0f, _startTime);
+                    _playbackTime = loopStart;
+                    _previousTime = loopStart - 0.001f;
+                    _drawer.cursorTime = loopStart;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
                 }
@@ -379,39 +495,152 @@ namespace UPlayGround.Animation.Editor
             }
             EditorGUILayout.EndHorizontal();
             
-            // 재생 속도 컨트롤
+            // 재생 속도 + 루프 컨트롤
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             {
                 EditorGUILayout.LabelField("재생 속도", GUILayout.Width(70));
-                
+
                 float newSpeed = EditorGUILayout.Slider(_playbackSpeed, 0.1f, 3f);
                 if (!Mathf.Approximately(newSpeed, _playbackSpeed))
                 {
                     _playbackSpeed = newSpeed;
                     UpdateAnimancerPlaybackSpeed();
                 }
-                
+
                 EditorGUILayout.LabelField($"×{_playbackSpeed:F2}", GUILayout.Width(50));
-                
+
                 if (GUILayout.Button("1×", GUILayout.Width(40)))
                 {
                     _playbackSpeed = 1f;
                     UpdateAnimancerPlaybackSpeed();
                 }
-                
+
                 if (GUILayout.Button("0.5×", GUILayout.Width(50)))
                 {
                     _playbackSpeed = 0.5f;
                     UpdateAnimancerPlaybackSpeed();
                 }
-                
+
                 if (GUILayout.Button("2×", GUILayout.Width(40)))
                 {
                     _playbackSpeed = 2f;
                     UpdateAnimancerPlaybackSpeed();
                 }
+
+                GUILayout.Space(10);
+
+                bool newLoop = EditorGUILayout.ToggleLeft("루프", _isLooping, GUILayout.Width(55));
+                if (newLoop != _isLooping)
+                    _isLooping = newLoop;
+
+                GUILayout.Space(10);
+
+                // ③ 프레임 스텝 버튼
+                float frameStep = _drawer.fps > 0 ? 1f / _drawer.fps : 1f / 30f;
+                var motionSetForStep = GetCurrentMotionSet();
+                float totalDurForStep = motionSetForStep?.TotalDuration ?? 1f;
+
+                EditorGUI.BeginDisabledGroup(motionSetForStep == null);
+
+                // |◀ 처음으로
+                if (GUILayout.Button("|◀", GUILayout.Width(30)))
+                {
+                    _playbackTime  = _startTime;
+                    _previousTime  = _startTime - 0.001f;
+                    _drawer.cursorTime = _playbackTime;
+                    _executedEvents?.Clear();
+                    UpdateAnimancerPlayback();
+                    Repaint();
+                }
+                // ◀ 한 프레임 뒤로
+                if (GUILayout.Button("◀", GUILayout.Width(26)))
+                {
+                    _playbackTime  = Mathf.Max(0f, _playbackTime - frameStep);
+                    _previousTime  = _playbackTime - 0.001f;
+                    _drawer.cursorTime = _playbackTime;
+                    _executedEvents?.Clear();
+                    UpdateAnimancerPlayback();
+                    Repaint();
+                }
+                // ▶ 한 프레임 앞으로
+                if (GUILayout.Button("▶", GUILayout.Width(26)))
+                {
+                    _playbackTime  = Mathf.Min(totalDurForStep, _playbackTime + frameStep);
+                    _previousTime  = _playbackTime - 0.001f;
+                    _drawer.cursorTime = _playbackTime;
+                    _executedEvents?.Clear();
+                    UpdateAnimancerPlayback();
+                    Repaint();
+                }
+                // ▶| 끝으로
+                if (GUILayout.Button("▶|", GUILayout.Width(30)))
+                {
+                    float endPos   = GetEffectiveEndTime(motionSetForStep);
+                    _playbackTime  = endPos;
+                    _previousTime  = endPos - 0.001f;
+                    _drawer.cursorTime = _playbackTime;
+                    _executedEvents?.Clear();
+                    UpdateAnimancerPlayback();
+                    Repaint();
+                }
+
+                EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.EndHorizontal();
+
+            // 시작/종료 지점 컨트롤
+            {
+                var motionSet = GetCurrentMotionSet();
+                float totalDuration = motionSet != null ? motionSet.TotalDuration : 1f;
+                float maxEnd = totalDuration;
+
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                {
+                    EditorGUILayout.LabelField("구간", GUILayout.Width(35));
+
+                    EditorGUILayout.LabelField("시작", GUILayout.Width(30));
+                    float newStart = EditorGUILayout.Slider(_startTime, 0f, maxEnd, GUILayout.MinWidth(80));
+                    float effectiveEnd = motionSet != null ? GetEffectiveEndTime(motionSet) : totalDuration;
+                    newStart = Mathf.Min(newStart, effectiveEnd - 0.01f);
+
+                    GUILayout.Space(8);
+
+                    // 종료 지점 (-1 = 끝까지)
+                    float displayEnd = _endTime > 0f ? _endTime : totalDuration;
+                    EditorGUILayout.LabelField("종료", GUILayout.Width(30));
+                    float newEnd = EditorGUILayout.Slider(displayEnd, 0f, maxEnd, GUILayout.MinWidth(80));
+                    newEnd = Mathf.Max(newEnd, _startTime + 0.01f);
+                    // totalDuration에 매우 가까우면 -1 (끝까지)로 처리
+                    float rawEnd = Mathf.Approximately(newEnd, totalDuration) ? -1f : newEnd;
+
+                    if (!Mathf.Approximately(newStart, _startTime) || rawEnd != _endTime)
+                    {
+                        _startTime = newStart;
+                        _endTime   = rawEnd;
+                        // ④ Drawer에 재생 구간 동기화
+                        _drawer.playRangeStart = _startTime;
+                        _drawer.playRangeEnd   = _endTime;
+                    }
+
+                    GUILayout.Space(8);
+
+                    if (GUILayout.Button("초기화", GUILayout.Width(55)))
+                    {
+                        _startTime = 0f;
+                        _endTime   = -1f;
+                        // ④ Drawer에 재생 구간 동기화
+                        _drawer.playRangeStart = 0f;
+                        _drawer.playRangeEnd   = -1f;
+                    }
+
+                    // 현재 구간 표시
+                    float shownEnd = _endTime > 0f ? _endTime : totalDuration;
+                    EditorGUILayout.LabelField(
+                        $"{_startTime:F2}s ~ {shownEnd:F2}s",
+                        GUILayout.Width(120));
+                }
+                EditorGUILayout.EndHorizontal();
+            }
             
             // Idle 애니메이션 설정
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
@@ -445,23 +674,39 @@ namespace UPlayGround.Animation.Editor
         void StartPlayback()
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
-            
+
+            var motionSet = GetCurrentMotionSet();
+
+            // ④ 재생 구간을 Drawer에 동기화
+            _drawer.playRangeStart = _startTime;
+            _drawer.playRangeEnd   = _endTime;
+
+            // 시작 지점을 유효 범위로 클램프
+            float totalDuration = motionSet.TotalDuration;
+            float loopStart = Mathf.Clamp(_startTime, 0f, totalDuration);
+
             _isPlaying = true;
-            _isPaused = false;
-            _playbackTime = 0f;
-            _previousTime = -0.001f;
-            _drawer.cursorTime = 0f;
-            
+            _isPaused  = false;
+            _currentMotionIndex = -1;
+            _playbackTime = loopStart;
+            _previousTime = loopStart - 0.001f;
+            _drawer.cursorTime = loopStart;
+
             // 이벤트 실행 기록 초기화
             _executedEvents = new System.Collections.Generic.HashSet<MotionEventBase>();
-            _activeEvents = new System.Collections.Generic.HashSet<MotionEventBase>();
-            
-            var motionSet = GetCurrentMotionSet();
-            
+            _activeEvents   = new System.Collections.Generic.HashSet<MotionEventBase>();
+
             // Animancer로 모션 셋 재생 시작
             if (motionSet.motions != null && motionSet.motions.Count > 0)
             {
-                PlayMotionSet(motionSet);
+                if (loopStart > 0f)
+                    UpdateAnimancerPlayback();
+                else
+                    PlayMotionSet(motionSet);
+
+                // 초기 모션 인덱스 기록
+                if (motionSet.GetMotionAtTime(_playbackTime, out int startIdx, out _))
+                    _currentMotionIndex = startIdx;
             }
         }
         void PausePlayback()
@@ -506,46 +751,55 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || motionSet.motions == null || motionSet.motions.Count == 0)
                 return;
-                
-            // 첫 번째 모션부터 순차 재생
-            PlayMotionAtIndex(motionSet, 0);
-        }
-        
-        void PlayMotionAtIndex(MotionSet motionSet, int index)
-        {
-            if (index >= motionSet.motions.Count)
-            {
-                StopPlayback();
-                return;
-            }
-            
-            var motion = motionSet.motions[index];
-            if (motion == null || !motion.IsValid())
-            {
-                PlayMotionAtIndex(motionSet, index + 1);
-                return;
-            }
-            
-            var state = _animancer.Play(motion.motionClip);
-            state.Speed = _playbackSpeed;  // 재생 속도 적용
 
-            // 다음 모션으로 자동 전환
-            if (index + 1 < motionSet.motions.Count)
+            // 첫 번째 유효한 모션을 찾아 재생 시작 (전환은 OnEditorUpdate가 전담)
+            for (int i = 0; i < motionSet.motions.Count; i++)
             {
-                state.Events(this).OnEnd = () => PlayMotionAtIndex(motionSet, index + 1);
-            }
-            else
-            {
-                state.Events(this).OnEnd = () => StopPlayback();
+                var m = motionSet.motions[i];
+                if (m == null || !m.IsValid()) continue;
+                PlayMotionClip(m);
+                break;
             }
         }
-        // 재생 속도 업데이트
+
+        /// <summary>
+        /// 특정 Motion 클립을 ClipStartTime부터 재생.
+        /// Animancer OnEnd는 등록하지 않음 — 모션 전환/종료는 OnEditorUpdate가 전담.
+        /// </summary>
+        void PlayMotionClip(Motion motion)
+        {
+            if (_animancer == null || motion == null || !motion.IsValid()) return;
+
+            var state = _animancer.Play(motion.motionClip);
+            state.Time  = motion.ClipStartTime;
+            state.Speed = motion.playbackSpeed * _playbackSpeed;
+
+            // Animancer 자체 OnEnd 완전 제거 — 에디터 타임라인이 종료를 관리
+            state.Events(this).OnEnd = null;
+        }
+        // 재생 속도 업데이트 (글로벌 슬라이더 변경 시)
         void UpdateAnimancerPlaybackSpeed()
         {
-            if (_animancer != null && _animancer.States.Current != null && !_isPaused)
+            if (_animancer == null || _animancer.States.Current == null) return;
+
+            if (_isPaused)
             {
-                _animancer.States.Current.Speed = _playbackSpeed;
+                _animancer.States.Current.Speed = 0f;
+                return;
             }
+
+            // 현재 모션의 개별 속도 반영
+            var motionSet = GetCurrentMotionSet();
+            float motionSpd = 1f;
+            if (motionSet != null &&
+                motionSet.GetMotionAtTime(_playbackTime, out int idx, out _) &&
+                idx >= 0 && idx < motionSet.motions.Count)
+            {
+                var m = motionSet.motions[idx];
+                if (m != null) motionSpd = m.playbackSpeed;
+            }
+
+            _animancer.States.Current.Speed = motionSpd * _playbackSpeed;
         }
             
         // 특정 시간으로 재생 위치 이동
@@ -580,14 +834,13 @@ namespace UPlayGround.Animation.Editor
             Repaint();
         }
         
-        // Animancer 재생 위치 업데이트
+        // Animancer 재생 위치 업데이트 (Seek / 초기 배치용)
         void UpdateAnimancerPlayback()
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
-            
+
             var motionSet = GetCurrentMotionSet();
-            
-            // 현재 시간에 해당하는 모션 찾기
+
             if (motionSet.GetMotionAtTime(_playbackTime, out int motionIndex, out float localTime))
             {
                 if (motionIndex >= 0 && motionIndex < motionSet.motions.Count)
@@ -596,8 +849,12 @@ namespace UPlayGround.Animation.Editor
                     if (motion != null && motion.IsValid())
                     {
                         var state = _animancer.Play(motion.motionClip);
-                        state.Time = localTime;
-                        state.Speed = _isPaused ? 0f : _playbackSpeed;
+                        // localTime은 타임라인 상 이 모션 내 오프셋.
+                        // 실제 클립 시간 = ClipStartTime + localTime * playbackSpeed
+                        float spd      = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+                        state.Time     = motion.ClipStartTime + localTime * spd;
+                        state.Speed    = _isPaused ? 0f : motion.playbackSpeed * _playbackSpeed;
+                        state.Events(this).OnEnd = null;
                     }
                 }
             }

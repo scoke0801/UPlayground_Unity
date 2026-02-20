@@ -1,0 +1,94 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using UnityEngine;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
+
+namespace UPlayGround.Data.Event
+{
+    [Serializable]
+    public class SpawnTargetData
+    {
+        public GameObject targetPrefab;
+        public int spawnCount;
+        public float spawnRadius;
+        public float avoidanceRadius = 0.5f;
+    }
+    /// <summary>
+    /// 투사체 발사 이벤트
+    /// </summary>
+    [Serializable]
+    public class SpawnSkillEvent : MotionEventBase
+    {
+        public List<SpawnTargetData> spawnTargetList;
+        public int resolveIterations = 3; // 겹침을 해결하기 위한 반복 횟수
+        
+        public override string GetDisplayName() => "SpawnSkill";
+
+        public override string GetShortLabel()
+        {
+            return "HealSKill";
+        }
+
+        public override void Execute(GameObject target)
+        {
+            List<Collider> spawnedColliders = new List<Collider>();
+
+            // 1. 일단 모두 생성 (랜덤 반경 내)
+            foreach (var data in spawnTargetList)
+            {
+                for (int i = 0; i < data.spawnCount; ++i)
+                {
+                    Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * data.spawnRadius;
+                    Vector3 spawnPos = target.transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
+                    
+                    GameObject spawned = GameObject.Instantiate(data.targetPrefab, spawnPos, Quaternion.identity);
+                    if (spawned.TryGetComponent<Collider>(out var col))
+                    {
+                        spawnedColliders.Add(col);
+                    }
+                }
+            }
+            
+            // 생성된 항목들에 대해 밀어내기( 겹치지 않도록 )
+            for (int iter = 0; iter < resolveIterations; iter++)
+            {
+                foreach (var col in spawnedColliders)
+                {
+                    ResolveOverlap(col);
+                }
+            }
+        }
+        
+        private void ResolveOverlap(Collider targetCol)
+        {
+            // 주변의 다른 콜라이더 탐색 (자신 제외)
+            Collider[] overlaps = Physics.OverlapSphere(targetCol.bounds.center, 2.0f); // 탐색 반경은 적절히 조절
+
+            foreach (var otherCol in overlaps)
+            {
+                if (targetCol == otherCol) continue;
+
+                // 두 콜라이더 간의 겹침 정보 계산
+                if (Physics.ComputePenetration(
+                        targetCol, targetCol.transform.position, targetCol.transform.rotation,
+                        otherCol, otherCol.transform.position, otherCol.transform.rotation,
+                        out Vector3 direction, out float distance))
+                {
+                    // 겹친 만큼 방향으로 밀어내기 (Y축은 고정하고 싶다면 0으로 설정 가능)
+                    Vector3 separation = direction * distance;
+                    separation.y = 0; // 지면 아래로 박히거나 뜨는 것 방지
+                    
+                    targetCol.transform.position += separation;
+                }
+            }
+        }
+        
+        public override void OnCompleteEvent(GameObject target)
+        {
+        }
+    }
+
+}

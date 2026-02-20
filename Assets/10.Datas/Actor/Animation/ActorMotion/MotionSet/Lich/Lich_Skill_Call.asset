@@ -17,8 +17,43 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: -8016413944110134382, guid: 7abaf62e25c828749b3269151ce912bf, type: 3}
-      events: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917123152117760
+      - rid: 7399917123152117761
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917123152117760
+      type: {class: SpawnSkillEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0125
+        endTime: 1.5125002
+        spawnTargetList:
+        - targetPrefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        - targetPrefab: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        - targetPrefab: {fileID: 1101629108985534757, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        resolveIterations: 3
+    - rid: 7399917123152117761
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 2.3125
+        particlePrefab: {fileID: 6063518424537689786, guid: bad5794a53f5c3645bb444b3a040ba01, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 1, z: 0}
+        attachToTarget: 1
+        useSpawnRotation: 0
+        destroyOnFinish: 1

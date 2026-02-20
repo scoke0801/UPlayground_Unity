@@ -10,5 +10,11 @@
         
         Stun,
     }
+
+    public enum CombatSkillType
+    {
+        None = 0,
+     
+    }
     
 }

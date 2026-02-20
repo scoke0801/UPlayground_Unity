@@ -470,6 +470,10 @@ namespace UPlayGround
             return _currentHealth / _maxHealth;
         }
 
+        public void Heal(float healAmount)
+        {
+        }
+
         /// <summary>
         /// 피격 시 호출 (이펙트, 사운드 등)
         /// </summary>

@@ -40,5 +40,7 @@ namespace UPlayGround
         void UnLockOn();
 
         float GetHealthPercent();
+        
+        void Heal(float healAmount);
     }
 }

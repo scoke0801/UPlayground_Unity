@@ -1,9 +1,7 @@
-﻿using System;
-using Animancer;
+﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
-using UPlayGround.Component;
 using UPlayGround.MovementController;
 
 namespace UPlayGround
@@ -12,9 +10,12 @@ namespace UPlayGround
     {
         [SerializeField] protected ActorType _actorType = ActorType.None;
         [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
+
+        [SerializeField] protected SerializedDictionary<ActorSocketType, Transform> _socketDict;
         
         protected ActorMovementController MovementController;
         protected ActorAnimator _animator;
+        
         
         public virtual ActorAnimator Animator => _animator;
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
@@ -34,6 +35,16 @@ namespace UPlayGround
         protected virtual void Start()
         {
             
+        }
+        
+        public Transform GetSocket(ActorSocketType socketType)
+        {
+            if (_socketDict.TryGetValue(socketType, out var result))
+            {
+                return result;
+            }
+
+            return transform;
         }
     }
 }

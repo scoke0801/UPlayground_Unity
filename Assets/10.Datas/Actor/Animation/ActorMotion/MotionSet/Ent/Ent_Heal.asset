@@ -29,6 +29,6 @@ MonoBehaviour:
     - rid: 7399917123152117880
       type: {class: HealSkillEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.48749998
-        endTime: 0.98749995
+        startTime: 0.6875
+        endTime: 1.7625
         vfxPrefabKey: Heal

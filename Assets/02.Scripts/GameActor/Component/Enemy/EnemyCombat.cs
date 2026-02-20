@@ -18,18 +18,19 @@ namespace UPlayGround.Component
         private EnemyDetection _detection;
         
         private EnemyAttackInfo _currentSkill;
-        private List<Collider> _hitTargets = new List<Collider>();
-        private Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
+        private readonly List<Collider> _hitTargets = new List<Collider>();
+        private readonly Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
 
         private SkillType _reservedSkillType = SkillType.None;
         private bool _isCollisionEnabled;
         
-        private List<IDamageable> _skillTargets = new List<IDamageable>();
+        private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         
         public EnemyAttackDataSO AttackData => _attackData;
         public EnemyAttackInfo CurrentSkill => _currentSkill;
         public bool IsPossibleCollide => _isCollisionEnabled;
         public SkillType ReservedSkillType => _reservedSkillType;
+        public List<IDamageable> SkillTargetList => _skillTargets;
         
         private void Awake()
         {
@@ -171,26 +172,67 @@ namespace UPlayGround.Component
         private void ExecuteSkill(EnemyAttackInfo skill)
         {
             _skillTargets.Clear();
-            switch (skill.skillType)
+            
+            var conditions = skill.conditionGroup?.conditions;
+            if (conditions == null || conditions.Count == 0)
             {
-                case SkillType.Attack:
-                    // 일반 공격은 애니메이션에서 처리
-                    break;
+                // 조건 없으면 자기 자신
+                if (_ownerDamageable != null)
+                {
+                    _skillTargets.Add(_ownerDamageable);
+                }
+
+                return;
+            }
+
+            for (int i = 0; i < conditions.Count; ++i)
+            {
+                switch (conditions[i].type)
+                {
+                    case ConditionType.SelfHealthBased:
+                        if (_ownerDamageable != null)
+                        {
+                            _skillTargets.Add(_ownerDamageable);
+                        }
+
+                        break;
                     
-                case SkillType.Heal:
-                    ExecuteHealSkill(skill);
-                    break;
+                    case ConditionType.InjuredAllyNearby:
+                        CacheInjuredAllies(conditions[i]);
+                        break;
                     
-                case SkillType.Spawn:
-                    // 애니메이션 이벤트에서 처리
-                    break;
-                    
-                case SkillType.Buff:
-                    ExecuteBuffSkill(skill);
-                    break;
+                    default: break;
+                }
+            }
+
+            // 아무런 대상을 찾지 못했다면 자신을 대상으로 하도록 지정
+            if (_skillTargets.Count == 0 && _ownerDamageable != null)
+            {
+                _skillTargets.Add(_ownerDamageable);
             }
         }
         
+        private void CacheInjuredAllies(SkillCondition condition)
+        {
+            if (_detection == null) return;
+
+            float radius = condition.maxRange > 0f ? condition.maxRange : _detection.AllyDetectionRadius;
+            Collider[] allies = Physics.OverlapSphere(transform.position, radius, _detection.AllyLayer);
+
+            foreach (var ally in allies)
+            {
+                if (ally.transform == transform) continue;
+
+                var damageable = ally.GetComponent<IDamageable>();
+                if (damageable == null || !damageable.IsAlive()) continue;
+
+                float hp = damageable.GetHealthPercent();
+                if (hp >= condition.minHealthPercent && hp <= condition.maxHealthPercent)
+                {
+                    _skillTargets.Add(damageable);
+                }
+            }
+        }
         /// <summary>
         /// 힐 스킬 실행
         /// </summary>

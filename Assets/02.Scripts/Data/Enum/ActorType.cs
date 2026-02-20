@@ -24,4 +24,17 @@
         H09,
     }
 
+    public enum ActorSocketType
+    {
+        None = 0,
+        
+        LeftHand,
+        RightHand,
+        
+        Center,
+        
+        Head,
+        
+        Weapon,
+    }
 }

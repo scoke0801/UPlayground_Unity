@@ -32,6 +32,8 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             var state = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
 
+            playerActor.GetCombat()?.RefreshCombatState();
+            
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () => { controller.TransitionToState(new PlayerIdleState(controller)); };

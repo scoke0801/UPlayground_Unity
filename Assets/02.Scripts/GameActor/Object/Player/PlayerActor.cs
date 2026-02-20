@@ -63,6 +63,7 @@ namespace UPlayGround
         public bool IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
         public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
 
+        public bool IsInCombat => _combat?.IsInCombat ?? false;
     }
     /// <summary>
     /// 
@@ -83,6 +84,20 @@ namespace UPlayGround
             InitComponents();
             
             RegisterInputEvents();
+
+            switch (_characterActorType)
+            {
+                case CharacterActorType.Bokusei:
+                    _equipment?.SetWeaponType(WeaponType.Katana);
+                    break;
+                
+                case CharacterActorType.Honoka:
+                    _equipment?.SetWeaponType(WeaponType.DoubleAxe);
+                    break;
+                
+                default:
+                    break;
+            }
         }
 
         private void OnDestroy()

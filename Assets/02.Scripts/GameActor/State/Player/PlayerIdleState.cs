@@ -111,10 +111,10 @@ namespace UPlayGround.State
                 }
             }
 
-            if (playerController.HasEquipInput() )
-            {
-                PlayEquipItem();
-            }
+            // if (playerController.HasEquipInput() )
+            // {
+            //     PlayEquipItem();
+            // }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

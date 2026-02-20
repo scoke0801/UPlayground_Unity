@@ -34,6 +34,9 @@ namespace UPlayGround.Component
         [FormerlySerializedAs("stats")]
         [Header("Combat Data")]
         [SerializeField] private PlayerAttackDataSO _attackData;
+      
+        [Header("Combat State")]
+        [SerializeField] private float _combatStateDuration = 5f; // 전투 상태 유지 시간
 
         [Header("Hit Detection Settings")]
         [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
@@ -41,9 +44,9 @@ namespace UPlayGround.Component
         
         // 현재 공격 정보 (히트 판정용)
         private AttackData _currentAttackData;
-        public AttackData CurrentAttackData => _currentAttackData;
         
         private AttackState _attackState = AttackState.NormalAttack;
+        private float _lastCombatEventTime = -999f;
         
         // 공격 충돌 감지가 가능한 상태인가?
         // - 애니메이션 이벤트로 적절한 상태에 설정
@@ -53,7 +56,13 @@ namespace UPlayGround.Component
         
         // 가드 상태인가?
         public bool IsGuarding = false;
+        
+        /// <summary>
+        /// 현재 전투 상태인지 여부
+        /// </summary>
+        public bool IsInCombat => Time.time - _lastCombatEventTime < _combatStateDuration;
 
+        public AttackData CurrentAttackData => _currentAttackData;
         // 현재 전투 상태
         public int CurrentComboIndex { get; private set; }
         public float LastAttackTime { get; private set; }
@@ -91,7 +100,15 @@ namespace UPlayGround.Component
             // [TODO] 여러 번 방어하면 깨진다거나 조치를 해볼까?
             return false;
         }
-
+        
+        /// <summary>
+        /// 전투 상태 갱신 (공격/피격 시 등 전투 상태로 전환이 필요할 때 호출)
+        /// </summary>
+        public void RefreshCombatState()
+        {
+            _lastCombatEventTime = Time.time;
+        }
+        
         /// <summary>
         /// 일반 공격 실행
         /// State에서 호출: playerCombat.ExecuteAttack()
@@ -119,7 +136,8 @@ namespace UPlayGround.Component
             _currentAttackData = ConvertToAttackData(comboData);
             
             LastAttackTime = Time.time;
-            
+
+            RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData );
             
             return _currentAttackData ;
@@ -156,6 +174,7 @@ namespace UPlayGround.Component
             
             LastAttackTime = Time.time;
             
+            RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData );
             
             return _currentAttackData ;
@@ -173,6 +192,7 @@ namespace UPlayGround.Component
             
             LastAttackTime = Time.time;
             
+            RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             
             return _currentAttackData ;

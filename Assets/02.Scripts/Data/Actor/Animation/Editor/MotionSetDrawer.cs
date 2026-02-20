@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -13,13 +14,13 @@ namespace UPlayGround.Animation.Editor
     public class MotionSetDrawer
     {
         // ── 색상 팔레트 ──
-        static readonly Color COL_BG           = new Color(0.18f, 0.18f, 0.18f);
-        static readonly Color COL_TRACK_BG     = new Color(0.22f, 0.22f, 0.22f);
-        static readonly Color COL_RULER        = new Color(0.15f, 0.15f, 0.15f);
-        static readonly Color COL_RULER_LINE   = new Color(0.4f, 0.4f, 0.4f);
-        static readonly Color COL_RULER_TEXT   = new Color(0.7f, 0.7f, 0.7f);
-        static readonly Color COL_CURSOR       = new Color(0.9f, 0.2f, 0.2f);
-        static readonly Color COL_LABEL_BG     = new Color(0.14f, 0.14f, 0.14f);
+        static readonly Color COL_BG = new Color(0.18f, 0.18f, 0.18f);
+        static readonly Color COL_TRACK_BG = new Color(0.22f, 0.22f, 0.22f);
+        static readonly Color COL_RULER = new Color(0.15f, 0.15f, 0.15f);
+        static readonly Color COL_RULER_LINE = new Color(0.4f, 0.4f, 0.4f);
+        static readonly Color COL_RULER_TEXT = new Color(0.7f, 0.7f, 0.7f);
+        static readonly Color COL_CURSOR = new Color(0.9f, 0.2f, 0.2f);
+        static readonly Color COL_LABEL_BG = new Color(0.14f, 0.14f, 0.14f);
         static readonly Color COL_LABEL_BORDER = new Color(0.3f, 0.3f, 0.3f);
 
         static readonly Color[] COL_MOTION_CLIPS =
@@ -30,69 +31,69 @@ namespace UPlayGround.Animation.Editor
             new Color(0.50f, 0.40f, 0.55f),
         };
 
-        static readonly Color COL_EVENT_BAR      = new Color(0.45f, 0.45f, 0.55f, 0.85f);
-        static readonly Color COL_EVENT_SELECTED  = new Color(0.7f, 0.6f, 0.2f, 0.95f);  // ⑦ 선택된 이벤트 강조색
-        static readonly Color COL_EVENT_DIAMOND   = new Color(0.6f, 0.6f, 0.7f);
-        static readonly Color COL_MARKER          = new Color(0.85f, 0.25f, 0.25f);
-        static readonly Color COL_MARKER_TEXT     = Color.white;
-        static readonly Color COL_RANGE_OVERLAY   = new Color(0.3f, 1f, 0.3f, 0.12f);   // ④ 재생 구간 오버레이
-        static readonly Color COL_RANGE_BORDER    = new Color(0.3f, 1f, 0.3f, 0.5f);    // ④ 재생 구간 경계선
-        static readonly Color COL_CLIP_HANDLE     = new Color(1f, 0.85f, 0.2f, 0.9f);   // ⑥ 클립 핸들 색상
+        static readonly Color COL_EVENT_BAR = new Color(0.45f, 0.45f, 0.55f, 0.85f);
+        static readonly Color COL_EVENT_SELECTED = new Color(0.7f, 0.6f, 0.2f, 0.95f); // ⑦ 선택된 이벤트 강조색
+        static readonly Color COL_EVENT_DIAMOND = new Color(0.6f, 0.6f, 0.7f);
+        static readonly Color COL_MARKER = new Color(0.85f, 0.25f, 0.25f);
+        static readonly Color COL_MARKER_TEXT = Color.white;
+        static readonly Color COL_RANGE_OVERLAY = new Color(0.3f, 1f, 0.3f, 0.12f); // ④ 재생 구간 오버레이
+        static readonly Color COL_RANGE_BORDER = new Color(0.3f, 1f, 0.3f, 0.5f); // ④ 재생 구간 경계선
+        static readonly Color COL_CLIP_HANDLE = new Color(1f, 0.85f, 0.2f, 0.9f); // ⑥ 클립 핸들 색상
 
         // ── 레이아웃 상수 ──
-        const float LABEL_WIDTH   = 140f;
-        const float RULER_HEIGHT  = 24f;
-        const float TRACK_HEIGHT  = 28f;
-        const float EVENT_HEIGHT  = 22f;
+        const float LABEL_WIDTH = 140f;
+        const float RULER_HEIGHT = 24f;
+        const float TRACK_HEIGHT = 28f;
+        const float EVENT_HEIGHT = 22f;
         const float MARKER_HEIGHT = 20f;
-        const float TRACK_GAP     = 2f;
-        const float SECTION_GAP   = 6f;
-        const float BASE_PPS      = 80f;
-        const float CLIP_HANDLE_W = 6f;  // ⑥ 클립 핸들 너비
+        const float TRACK_GAP = 2f;
+        const float SECTION_GAP = 6f;
+        const float BASE_PPS = 80f;
+        const float CLIP_HANDLE_W = 6f; // ⑥ 클립 핸들 너비
 
         // ── 상태 ──
         public float cursorTime;
         public float scrollX;
         public float zoom = 1f;
-        public bool  isDraggingCursor;
-        public int   selectedMotionIndex = -1;
+        public bool isDraggingCursor;
+        public int selectedMotionIndex = -1;
 
         // ① fps 표시 관련
-        public bool  showFrames = false;       // true = 프레임 단위, false = 초 단위
-        public int   fps = 30;                 // 기준 fps
+        public bool showFrames = false; // true = 프레임 단위, false = 초 단위
+        public int fps = 30; // 기준 fps
 
         // ④ 재생 구간 오버레이용 (Window에서 설정)
         public float playRangeStart = 0f;
-        public float playRangeEnd   = -1f;     // -1 = 전체
+        public float playRangeEnd = -1f; // -1 = 전체
 
         // ⑦ 이벤트 선택 연동
         public int selectedEventMotionIndex = -1;
-        public int selectedEventIndex       = -1;
+        public int selectedEventIndex = -1;
         public bool selectedEventIsSetEvent = false;
 
         // 드래그 상태
-        int   _dragEventMotionIndex = -1;
-        int   _dragEventIndex = -1;
-        bool  _dragSetEvent;
-        bool  _isDraggingStart;
-        bool  _isDraggingEnd;
-        bool  _isDraggingBody;
+        int _dragEventMotionIndex = -1;
+        int _dragEventIndex = -1;
+        bool _dragSetEvent;
+        bool _isDraggingStart;
+        bool _isDraggingEnd;
+        bool _isDraggingBody;
         float _dragStartOffset;
         float _dragBodyStartTime;
 
         // ⑥ 클립 핸들 드래그 상태
-        int   _clipHandleMotionIndex = -1;
-        bool  _clipHandleDraggingStart = false;
-        bool  _clipHandleDraggingEnd   = false;
-        float _clipHandleDragOffset    = 0f;   // 핸들 기준 마우스 오프셋
+        int _clipHandleMotionIndex = -1;
+        bool _clipHandleDraggingStart = false;
+        bool _clipHandleDraggingEnd = false;
+        float _clipHandleDragOffset = 0f; // 핸들 기준 마우스 오프셋
 
         // ⑧ 이벤트 복사 버퍼
         MotionEventBase _copiedEvent = null;
 
         // 접힘 상태
-        public bool foldMotions  = true;
+        public bool foldMotions = true;
         public bool foldTimeline = true;
-        public bool foldEvents   = true;
+        public bool foldEvents = true;
 
         // Undo/Dirty 처리용 콜백
         readonly Func<UnityEngine.Object> _getTarget;
@@ -103,7 +104,7 @@ namespace UPlayGround.Animation.Editor
         public MotionSetDrawer(Func<UnityEngine.Object> getTarget, Action repaint)
         {
             _getTarget = getTarget;
-            _repaint   = repaint;
+            _repaint = repaint;
         }
 
         void RecordUndo(string name)
@@ -200,13 +201,14 @@ namespace UPlayGround.Animation.Editor
                         {
                             RecordUndo("Reorder Motion Up");
                             var tmp = set.motions[i];
-                            set.motions[i]     = set.motions[i - 1];
+                            set.motions[i] = set.motions[i - 1];
                             set.motions[i - 1] = tmp;
-                            if (selectedMotionIndex == i)       selectedMotionIndex = i - 1;
-                            else if (selectedMotionIndex == i-1) selectedMotionIndex = i;
+                            if (selectedMotionIndex == i) selectedMotionIndex = i - 1;
+                            else if (selectedMotionIndex == i - 1) selectedMotionIndex = i;
                             MarkDirty();
                             break;
                         }
+
                         EditorGUI.EndDisabledGroup();
 
                         EditorGUI.BeginDisabledGroup(i == set.motions.Count - 1);
@@ -214,13 +216,14 @@ namespace UPlayGround.Animation.Editor
                         {
                             RecordUndo("Reorder Motion Down");
                             var tmp = set.motions[i];
-                            set.motions[i]     = set.motions[i + 1];
+                            set.motions[i] = set.motions[i + 1];
                             set.motions[i + 1] = tmp;
-                            if (selectedMotionIndex == i)       selectedMotionIndex = i + 1;
-                            else if (selectedMotionIndex == i+1) selectedMotionIndex = i;
+                            if (selectedMotionIndex == i) selectedMotionIndex = i + 1;
+                            else if (selectedMotionIndex == i + 1) selectedMotionIndex = i;
                             MarkDirty();
                             break;
                         }
+
                         EditorGUI.EndDisabledGroup();
 
                         if (GUILayout.Button("×", GUILayout.Width(22)))
@@ -250,16 +253,16 @@ namespace UPlayGround.Animation.Editor
 
                         // ── 종료 시간 ──
                         EditorGUILayout.LabelField("종료", GUILayout.Width(50));
-                        float rawEnd   = motion.clipEndTime >= 0f ? motion.clipEndTime : clipLen;
-                        float newEnd   = EditorGUILayout.FloatField(rawEnd, GUILayout.Width(55));
-                        newEnd   = Mathf.Clamp(newEnd, newStart + 0.001f, clipLen);
+                        float rawEnd = motion.clipEndTime >= 0f ? motion.clipEndTime : clipLen;
+                        float newEnd = EditorGUILayout.FloatField(rawEnd, GUILayout.Width(55));
+                        newEnd = Mathf.Clamp(newEnd, newStart + 0.001f, clipLen);
 
                         if (!Mathf.Approximately(newStart, rawStart) || !Mathf.Approximately(newEnd, rawEnd))
                         {
                             RecordUndo("Change Motion Clip Range");
                             // 전체 범위면 -1로 저장해 기본값 취급
-                            motion.clipStartTime = Mathf.Approximately(newStart, 0f)     ? -1f : newStart;
-                            motion.clipEndTime   = Mathf.Approximately(newEnd,   clipLen) ? -1f : newEnd;
+                            motion.clipStartTime = Mathf.Approximately(newStart, 0f) ? -1f : newStart;
+                            motion.clipEndTime = Mathf.Approximately(newEnd, clipLen) ? -1f : newEnd;
                             MarkDirty();
                         }
 
@@ -268,7 +271,7 @@ namespace UPlayGround.Animation.Editor
                         {
                             RecordUndo("Reset Motion Clip Range");
                             motion.clipStartTime = -1f;
-                            motion.clipEndTime   = -1f;
+                            motion.clipEndTime = -1f;
                             MarkDirty();
                         }
 
@@ -289,7 +292,7 @@ namespace UPlayGround.Animation.Editor
                         if (clipLen > 0f)
                         {
                             float shownStart = motion.clipStartTime >= 0f ? motion.clipStartTime : 0f;
-                            float shownEnd   = motion.clipEndTime   >= 0f ? motion.clipEndTime   : clipLen;
+                            float shownEnd = motion.clipEndTime >= 0f ? motion.clipEndTime : clipLen;
                             EditorGUILayout.LabelField(
                                 $"[{shownStart:F2}~{shownEnd:F2}] / {clipLen:F2}s → {motion.Duration:F2}s",
                                 EditorStyles.miniLabel, GUILayout.MinWidth(50));
@@ -303,6 +306,7 @@ namespace UPlayGround.Animation.Editor
                 }
                 EditorGUILayout.EndVertical();
             }
+
             EditorGUI.indentLevel--;
 
             EditorGUILayout.BeginHorizontal();
@@ -313,10 +317,11 @@ namespace UPlayGround.Animation.Editor
                 set.motions.Add(new Motion
                 {
                     motionName = $"Motion_{set.motions.Count}",
-                    events  = new List<MotionEventBase>()
+                    events = new List<MotionEventBase>()
                 });
                 MarkDirty();
             }
+
             EditorGUILayout.EndHorizontal();
         }
 
@@ -395,6 +400,7 @@ namespace UPlayGround.Animation.Editor
                     Repaint();
                 });
             }
+
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
         }
@@ -408,10 +414,7 @@ namespace UPlayGround.Animation.Editor
             var evt = eventList[eventIdx];
 
             // 복사
-            menu.AddItem(new GUIContent("복사 (Copy)"), false, () =>
-            {
-                _copiedEvent = CloneEvent(evt);
-            });
+            menu.AddItem(new GUIContent("복사 (Copy)"), false, () => { _copiedEvent = CloneEvent(evt); });
 
             // 붙여넣기
             if (_copiedEvent != null)
@@ -421,7 +424,7 @@ namespace UPlayGround.Animation.Editor
                     RecordUndo("Paste Event");
                     var pasted = CloneEvent(_copiedEvent);
                     pasted.startTime = evt.startTime + 0.05f;
-                    pasted.endTime   = evt.endTime   + 0.05f;
+                    pasted.endTime = evt.endTime + 0.05f;
                     eventList.Insert(eventIdx + 1, pasted);
                     MarkDirty();
                     Repaint();
@@ -440,7 +443,7 @@ namespace UPlayGround.Animation.Editor
                 RecordUndo("Duplicate Event");
                 var dup = CloneEvent(evt);
                 dup.startTime = evt.startTime + 0.05f;
-                dup.endTime   = evt.endTime   + 0.05f;
+                dup.endTime = evt.endTime + 0.05f;
                 eventList.Insert(eventIdx + 1, dup);
                 MarkDirty();
                 Repaint();
@@ -474,121 +477,199 @@ namespace UPlayGround.Animation.Editor
         void ClearEventSelection()
         {
             selectedEventMotionIndex = -1;
-            selectedEventIndex       = -1;
-            selectedEventIsSetEvent  = false;
+            selectedEventIndex = -1;
+            selectedEventIsSetEvent = false;
         }
 
         void DrawEventProperties(MotionEventBase evt)
         {
-            var type = evt.GetType();
-            var fields = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            // 리플렉션을 통해 모든 필드를 가져와 순회하며 그립니다.
+            DrawObjectFields(evt);
+        }
+
+        /// <summary>
+        /// 객체의 필드를 분석하여 UI로 그리는 범용 메서드 (재귀 지원)
+        /// </summary>
+        void DrawObjectFields(object obj)
+        {
+            if (obj == null) return;
+
+            var type = obj.GetType();
+            var fields =
+                type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
             foreach (var field in fields)
             {
+                // 이벤트 공통 필드는 제외
                 if (field.Name == "startTime" || field.Name == "endTime") continue;
 
-                var value = field.GetValue(evt);
+                var value = field.GetValue(obj);
                 var fieldType = field.FieldType;
 
-                EditorGUILayout.BeginHorizontal();
+                // 1. 리스트 또는 배열인 경우 처리
+                if (typeof(IList).IsAssignableFrom(fieldType))
                 {
-                    if (fieldType == typeof(float))
-                    {
-                        var newValue = EditorGUILayout.FloatField(field.Name, (float)value);
-                        if (!newValue.Equals(value))
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(int))
-                    {
-                        var newValue = EditorGUILayout.IntField(field.Name, (int)value);
-                        if (newValue != (int)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(string))
-                    {
-                        var newValue = EditorGUILayout.TextField(field.Name, (string)value);
-                        if (newValue != (string)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(bool))
-                    {
-                        var newValue = EditorGUILayout.Toggle(field.Name, (bool)value);
-                        if (newValue != (bool)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(Vector3))
-                    {
-                        var newValue = EditorGUILayout.Vector3Field(field.Name, (Vector3)value);
-                        if (newValue != (Vector3)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(AnimationCurve))
-                    {
-                        var newValue = EditorGUILayout.CurveField(field.Name, (AnimationCurve)value);
-                        if (newValue != (AnimationCurve)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType == typeof(LayerMask))
-                    {
-                        var layerMask = (LayerMask)value;
-                        var newValue = EditorGUILayout.MaskField(field.Name, layerMask.value,
-                            UnityEditorInternal.InternalEditorUtility.layers);
-                        if (newValue != layerMask.value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, (LayerMask)newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))
-                    {
-                        var newValue = EditorGUILayout.ObjectField(field.Name, (UnityEngine.Object)value, fieldType, false);
-                        if (newValue != (UnityEngine.Object)value)
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
-                    else if (fieldType.IsEnum)
-                    {
-                        var newValue = EditorGUILayout.EnumPopup(field.Name, (System.Enum)value);
-                        if (!newValue.Equals(value))
-                        {
-                            RecordUndo($"Change {field.Name}");
-                            field.SetValue(evt, newValue);
-                            MarkDirty();
-                        }
-                    }
+                    DrawListProperty(field.Name, (IList)value, fieldType, obj, field);
                 }
-                EditorGUILayout.EndHorizontal();
+                // 2. 일반 단일 필드인 경우 처리
+                else
+                {
+                    DrawSingleField(field.Name, value, fieldType, (newValue) =>
+                    {
+                        RecordUndo($"Change {field.Name}");
+                        field.SetValue(obj, newValue);
+                        MarkDirty();
+                    });
+                }
             }
         }
 
+        /// <summary>
+        /// 리스트(IList)를 위한 UI를 그립니다 (추가/삭제 기능 포함)
+        /// </summary>
+        void DrawListProperty(string label, IList list, Type listType, object owner, System.Reflection.FieldInfo field)
+        {
+            if (list == null)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(label, "List is Null");
+                if (GUILayout.Button("Create List", GUILayout.Width(100)))
+                {
+                    RecordUndo($"Create {label} List");
+                    var newList = Activator.CreateInstance(listType);
+                    field.SetValue(owner, newList);
+                    MarkDirty();
+                }
+
+                EditorGUILayout.EndHorizontal();
+                return;
+            }
+
+            // 리스트 헤더와 추가 버튼
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField($"{label} (Count: {list.Count})", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("+", GUILayout.Width(30)))
+            {
+                RecordUndo($"Add element to {label}");
+                Type elementType = listType.IsArray ? listType.GetElementType() : listType.GetGenericArguments()[0];
+                object newItem = elementType == typeof(string) ? "" : Activator.CreateInstance(elementType);
+
+                if (listType.IsArray)
+                {
+                    Array newArray = Array.CreateInstance(elementType, list.Count + 1);
+                    list.CopyTo(newArray, 0);
+                    newArray.SetValue(newItem, list.Count);
+                    field.SetValue(owner, newArray);
+                }
+                else
+                {
+                    list.Add(newItem);
+                }
+
+                MarkDirty();
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < list.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+
+                // 요소 삭제 버튼
+                if (GUILayout.Button("x", GUILayout.Width(20)))
+                {
+                    RecordUndo($"Remove element from {label}");
+                    if (listType.IsArray)
+                    {
+                        Type elementType = listType.GetElementType();
+                        Array newArray = Array.CreateInstance(elementType, list.Count - 1);
+                        int destIdx = 0;
+                        for (int srcIdx = 0; srcIdx < list.Count; srcIdx++)
+                        {
+                            if (srcIdx == i) continue;
+                            newArray.SetValue(list[srcIdx], destIdx++);
+                        }
+
+                        field.SetValue(owner, newArray);
+                    }
+                    else
+                    {
+                        list.RemoveAt(i);
+                    }
+
+                    MarkDirty();
+                    break;
+                }
+
+                // 요소 내용 그리기
+                object item = list[i];
+                if (item != null)
+                {
+                    Type itemType = item.GetType();
+
+                    // 프리미티브 타입이면 바로 그리고, 복합 객체면 재귀적으로 필드를 그립니다.
+                    if (itemType.IsPrimitive || itemType == typeof(string) ||
+                        typeof(UnityEngine.Object).IsAssignableFrom(itemType))
+                    {
+                        DrawSingleField($"[{i}]", item, itemType, (newVal) =>
+                        {
+                            list[i] = newVal;
+                            MarkDirty();
+                        });
+                    }
+                    else
+                    {
+                        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                        DrawObjectFields(item); // [재귀 호출] SpawnTargetData 내부 필드들을 그립니다.
+                        EditorGUILayout.EndVertical();
+                    }
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// 단일 필드 드로잉 로직
+        /// </summary>
+        void DrawSingleField(string label, object value, Type fieldType, Action<object> onValueChanged)
+        {
+            EditorGUI.BeginChangeCheck();
+            object newValue = value;
+
+            if (fieldType == typeof(float)) newValue = EditorGUILayout.FloatField(label, (float)value);
+            else if (fieldType == typeof(int)) newValue = EditorGUILayout.IntField(label, (int)value);
+            else if (fieldType == typeof(string)) newValue = EditorGUILayout.TextField(label, (string)value);
+            else if (fieldType == typeof(bool)) newValue = EditorGUILayout.Toggle(label, (bool)value);
+            else if (fieldType == typeof(Vector3)) newValue = EditorGUILayout.Vector3Field(label, (Vector3)value);
+            else if (fieldType == typeof(AnimationCurve))
+                newValue = EditorGUILayout.CurveField(label, (AnimationCurve)value);
+            else if (fieldType == typeof(LayerMask))
+            {
+                newValue = (LayerMask)EditorGUILayout.MaskField(label, ((LayerMask)value).value,
+                    UnityEditorInternal.InternalEditorUtility.layers);
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))
+            {
+                newValue = EditorGUILayout.ObjectField(label, (UnityEngine.Object)value, fieldType, false);
+            }
+            else if (fieldType.IsEnum)
+            {
+                newValue = EditorGUILayout.EnumPopup(label, (System.Enum)value);
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                onValueChanged?.Invoke(newValue);
+            }
+        }
+        
         // ====================================================================
         //  MotionSet 이벤트
         // ====================================================================

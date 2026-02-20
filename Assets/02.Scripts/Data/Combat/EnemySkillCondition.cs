@@ -13,6 +13,7 @@ namespace UPlayGround.Data.Combat
         public float MaxHealth;
         public float DistanceToTarget;
         public int AllyCount;
+        public int SpawnedUnitCount;
         public bool HasTarget;
         public Transform CasterTransform;
         public LayerMask AllyLayer;
@@ -30,7 +31,8 @@ namespace UPlayGround.Data.Combat
         TargetHealthBased,      // 타겟의 HP 기반
         RangeBased,             // 거리 기반
         AllyCountBased,         // 아군 수 기반
-        InjuredAllyNearby       // 부상당한 아군이 주변에 있음
+        InjuredAllyNearby,      // 부상당한 아군이 주변에 있음
+        SpawnedUnitCount,       // 소환 유닛 수 기반
     }
     
     /// <summary>
@@ -65,6 +67,9 @@ namespace UPlayGround.Data.Combat
         [Header("Ally Count Condition (AllyCountBased)")]
         public int minAllyCount = 0;
         public int maxAllyCount = 99;
+
+        [Header("Spawned Unit Condition")]
+        public int checkSpawnCount = 0;
         
         /// <summary>
         /// 조건 체크
@@ -91,11 +96,19 @@ namespace UPlayGround.Data.Combat
                 case ConditionType.InjuredAllyNearby:
                     return CheckInjuredAllyNearby(context);
                     
+                case ConditionType.SpawnedUnitCount:
+                    return CheckSpawnedUnitCount(context);
+                
                 default:
                     return true;
             }
         }
-        
+
+        private bool CheckSpawnedUnitCount(SkillConditionContext context)
+        {
+            return context.SpawnedUnitCount < checkSpawnCount;
+        }
+
         private bool CheckSelfHealth(SkillConditionContext context)
         {
             float healthPercent = context.CurrentHealth / context.MaxHealth;

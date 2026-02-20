@@ -37471,6 +37471,34 @@ Transform:
   - {fileID: 826019278}
   m_Father: {fileID: 1130166770}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &882851846 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2539685902467338694, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+  m_PrefabInstance: {fileID: 4947998431354226455}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &882851849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882851846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &883027477
 GameObject:
   m_ObjectHideFlags: 0
@@ -90259,6 +90287,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7102653448950090306, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7752575833897547620, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Lich_V1
@@ -90609,6 +90645,10 @@ PrefabInstance:
       propertyPath: _allyLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
+    - target: {fileID: 5925381771756788454, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -90731,6 +90771,14 @@ PrefabInstance:
       propertyPath: _allyLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
+    - target: {fileID: 2485017943175629823, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2539685902467338694, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Lich_V2
@@ -90738,7 +90786,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2539685902467338694, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 882851849}
   m_SourcePrefab: {fileID: 100100000, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
 --- !u!1 &5367946233653330233
 GameObject:
@@ -91283,6 +91334,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4065138622120090583, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4866984783639818218, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}

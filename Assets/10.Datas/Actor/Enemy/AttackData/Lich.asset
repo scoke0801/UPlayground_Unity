@@ -21,10 +21,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 1
     selectionWeight: 40
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 101
       attackType: 0
@@ -33,10 +37,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 1
     selectionWeight: 40
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 500
       attackType: 1
@@ -45,20 +53,36 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 3
     selectionWeight: 20
     minRange: 0
     maxRange: 20
-    cooldown: 2
+    cooldown: 10
+    conditionGroup:
+      conditionOperator: 0
+      conditions:
+      - type: 6
+        minHealthPercent: 0
+        maxHealthPercent: 0
+        minRange: 0
+        maxRange: 0
+        minAllyCount: 0
+        maxAllyCount: 0
+        checkSpawnCount: 5
   - baseInfo:
       animKey: 501
-      attackType: 0
+      attackType: 1
       reactionType: 0
       hitParticleName: EnemyLightAttackHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 1
     selectionWeight: 20
     minRange: 0
     maxRange: 20
-    cooldown: 2
+    cooldown: 10
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   globalCooldown: 1

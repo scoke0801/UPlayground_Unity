@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
+using UPlayGround.Data.Enum;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -34,6 +35,12 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            GameActor actor = target.GetComponent<GameActor>();
+            if (actor == null)
+            {
+                return;
+            }
+            
             List<Collider> spawnedColliders = new List<Collider>();
 
             // 1. 일단 모두 생성 (랜덤 반경 내)
@@ -48,6 +55,11 @@ namespace UPlayGround.Data.Event
                     if (spawned.TryGetComponent<Collider>(out var col))
                     {
                         spawnedColliders.Add(col);
+
+                        if (actor.ActorType == ActorType.Monster)
+                        {
+                            HandleMonsterActor(actor as MonsterActor, spawned);
+                        }
                     }
                 }
             }
@@ -61,7 +73,16 @@ namespace UPlayGround.Data.Event
                 }
             }
         }
-        
+
+        private void HandleMonsterActor(MonsterActor actor, GameObject spawned)
+        {
+            if (actor == null || actor.Combat == null)
+            {
+                return;
+            }
+            actor.Combat.RegisterSpawnedUnit(spawned.transform);
+        }
+
         private void ResolveOverlap(Collider targetCol)
         {
             // 주변의 다른 콜라이더 탐색 (자신 제외)

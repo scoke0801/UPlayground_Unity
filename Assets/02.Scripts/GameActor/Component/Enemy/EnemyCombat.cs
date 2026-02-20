@@ -24,6 +24,8 @@ namespace UPlayGround.Component
         private SkillType _reservedSkillType = SkillType.None;
         private bool _isCollisionEnabled;
         
+        private readonly List<Transform> _spawnedUnits = new List<Transform>();
+
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         
         public EnemyAttackDataSO AttackData => _attackData;
@@ -80,11 +82,27 @@ namespace UPlayGround.Component
                 MaxHealth = maxHealth,
                 DistanceToTarget = distanceToTarget,
                 AllyCount = GetAllyCount(),
+                SpawnedUnitCount = GetActiveSpawnedCount(),
                 HasTarget = distanceToTarget < float.MaxValue,
                 CasterTransform = transform,
                 AllyLayer = _detection != null ? _detection.AllyLayer : default,
                 AllyDetectionRadius = _detection != null ? _detection.AllyDetectionRadius : 10f
             };
+        }
+        
+        public int GetActiveSpawnedCount()
+        {
+            // 죽거나 삭제된 유닛 제거
+            _spawnedUnits.RemoveAll(t => t == null || !t.GetComponent<IDamageable>()?.IsAlive() == true);
+            return _spawnedUnits.Count;
+        }
+
+        public void RegisterSpawnedUnit(Transform unit)
+        {
+            if (unit != null && !_spawnedUnits.Contains(unit))
+            {
+                _spawnedUnits.Add(unit);
+            }
         }
         
         /// <summary>
@@ -109,6 +127,9 @@ namespace UPlayGround.Component
                 return null;
             }
             
+            // 스폰한 대상 중, 제거된 액터를 목록에서 정리
+            _spawnedUnits.RemoveAll(unit => unit == null);
+
             // 사용 가능한 스킬 필터링
             List<EnemyAttackInfo> availableSkills = GetAvailableSkills(distanceToTarget);
             if (availableSkills == null || availableSkills.Count == 0)

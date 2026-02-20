@@ -84,12 +84,12 @@ MonoBehaviour:
       hitParticleName: 
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 10
+      damage: 30
     skillType: 2
-    selectionWeight: 100
+    selectionWeight: 10
     minRange: 1
     maxRange: 20
-    cooldown: 2
+    cooldown: 10
     conditionGroup:
       conditionOperator: 1
       conditions:

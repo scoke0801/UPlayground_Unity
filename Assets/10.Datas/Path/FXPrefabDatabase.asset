@@ -28,3 +28,6 @@ MonoBehaviour:
   - key: EnemyLightAttackHit
     prefab: {fileID: 3630950076977652491, guid: a9aa28f8be4ad0d459e5c7c4d1d5699b, type: 3}
     description: 
+  - key: Heal
+    prefab: {fileID: 8593464584776411535, guid: b21d155ec7ea5a349a0e36106f913148, type: 3}
+    description: 

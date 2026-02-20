@@ -17,8 +17,18 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 2918604158282704777, guid: c0290b57d082b3647999351851f24c60, type: 3}
-      events: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917123152117880
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917123152117880
+      type: {class: HealSkillEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.48749998
+        endTime: 0.98749995
+        vfxPrefabKey: Heal

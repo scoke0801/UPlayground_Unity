@@ -464,7 +464,12 @@ namespace UPlayGround
         public void UnLockOn()
         {
         }
-        
+
+        public float GetHealthPercent()
+        {
+            return _currentHealth / _maxHealth;
+        }
+
         /// <summary>
         /// 피격 시 호출 (이펙트, 사운드 등)
         /// </summary>

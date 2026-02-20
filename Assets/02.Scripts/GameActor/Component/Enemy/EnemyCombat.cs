@@ -14,23 +14,30 @@ namespace UPlayGround.Component
         [SerializeField] private Transform _attackOrigin;
         [SerializeField] private LayerMask _targetLayer;
         
-        [Header("Debug")]
-        [SerializeField] private bool _showDebugGizmos = true;
+        private IDamageable _ownerDamageable;
+        private EnemyDetection _detection;
         
         private EnemyAttackInfo _currentSkill;
         private List<Collider> _hitTargets = new List<Collider>();
         private Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
-        
-        private bool _isCollisionEnabled;
 
+        private SkillType _reservedSkillType = SkillType.None;
+        private bool _isCollisionEnabled;
+        
+        private List<IDamageable> _skillTargets = new List<IDamageable>();
+        
         public EnemyAttackDataSO AttackData => _attackData;
         public EnemyAttackInfo CurrentSkill => _currentSkill;
         public bool IsPossibleCollide => _isCollisionEnabled;
+        public SkillType ReservedSkillType => _reservedSkillType;
         
         private void Awake()
         {
             if (_attackOrigin == null)
                 _attackOrigin = transform;
+            
+            _ownerDamageable = GetComponent<IDamageable>();
+            _detection = GetComponent<EnemyDetection>();
         }
 
         private void Update()
@@ -51,30 +58,62 @@ namespace UPlayGround.Component
                 }
             }
         }
-
+        
+        /// <summary>
+        /// 컨텍스트 생성
+        /// </summary>
+        private SkillConditionContext CreateContext(float distanceToTarget)
+        {
+            float currentHealth = 100f;
+            float maxHealth = 100f;
+            
+            if (_ownerDamageable != null)
+            {
+                currentHealth = _ownerDamageable.GetHealthPercent() * 100f;
+                maxHealth = 100f;
+            }
+           
+            return new SkillConditionContext
+            {
+                CurrentHealth = currentHealth,
+                MaxHealth = maxHealth,
+                DistanceToTarget = distanceToTarget,
+                AllyCount = GetAllyCount(),
+                HasTarget = distanceToTarget < float.MaxValue,
+                CasterTransform = transform,
+                AllyLayer = _detection != null ? _detection.AllyLayer : default,
+                AllyDetectionRadius = _detection != null ? _detection.AllyDetectionRadius : 10f
+            };
+        }
+        
+        /// <summary>
+        /// 주변 아군 수 계산
+        /// </summary>
+        private int GetAllyCount()
+        {
+            if (_detection == null)
+                return 0;
+            
+            return _detection.GetAllyCount();
+        }
+        
         /// <summary>
         /// 현재 거리에서 사용 가능한 스킬 선택 및 실행
         /// </summary>
-        public EnemyAttackInfo SelectAndExecuteAttack(float distanceToTarget)
+        public EnemyAttackInfo SelectAndExecuteSkill(float distanceToTarget)
         {
             if (_attackData == null || _attackData.skills.Count == 0)
             {
-                Debug.LogWarning("[EnemyCombat] 공격 데이터가 없습니다!");
+                Debug.LogWarning("[EnemyCombat] 스킬 데이터가 없습니다!");
                 return null;
             }
             
-            // 거리 기반 사용 가능한 스킬 필터링
-            List<EnemyAttackInfo> availableSkills = _attackData.GetAvailableSkillsAtRange(distanceToTarget);
-            
-            // 쿨다운 중인 스킬 제외
-            availableSkills.RemoveAll(skill => _skillCooldowns.ContainsKey(skill));
-            
-            if (availableSkills.Count == 0)
+            // 사용 가능한 스킬 필터링
+            List<EnemyAttackInfo> availableSkills = GetAvailableSkills(distanceToTarget);
+            if (availableSkills == null || availableSkills.Count == 0)
             {
-                Debug.LogWarning($"[EnemyCombat] 거리 {distanceToTarget:F1}m에서 사용 가능한 스킬이 없습니다!");
                 return null;
             }
-            
             // 가중치 기반 스킬 선택
             _currentSkill = _attackData.SelectRandomSkill(availableSkills);
 
@@ -82,10 +121,95 @@ namespace UPlayGround.Component
             {
                 // 스킬 쿨다운 시작
                 _skillCooldowns[_currentSkill] = _currentSkill.cooldown;
-
+                
+                // 스킬 타입별 실행
+                ExecuteSkill(_currentSkill);
             }
 
             return _currentSkill;
+        }
+
+        private List<EnemyAttackInfo> GetAvailableSkills(float distanceToTarget)
+        {
+            if (_attackData == null || _attackData.skills.Count == 0)
+            {
+                return null;
+            }
+            
+            SkillConditionContext context = CreateContext(distanceToTarget);
+            
+            // 사용 가능한 스킬 필터링
+            List<EnemyAttackInfo> availableSkills = new List<EnemyAttackInfo>();
+            
+            foreach (var skill in _attackData.skills)
+            {
+                // 쿨다운 체크
+                if (_skillCooldowns.ContainsKey(skill))
+                    continue;
+                
+                // 거리 체크
+                if (!skill.IsInRange(distanceToTarget))
+                    continue;
+                
+                // 발동 조건 체크
+                if (!skill.CheckCondition(context))
+                    continue;
+                
+                availableSkills.Add(skill);
+            }
+
+            return availableSkills;
+        }
+        public bool HasAvailableSkillAtDistance(float distanceToTarget)
+        {
+            return GetAvailableSkills(distanceToTarget)?.Count > 0;
+        }
+        
+        /// <summary>
+        /// 스킬 타입별 실행 - 대상만 지정
+        /// </summary>
+        private void ExecuteSkill(EnemyAttackInfo skill)
+        {
+            _skillTargets.Clear();
+            switch (skill.skillType)
+            {
+                case SkillType.Attack:
+                    // 일반 공격은 애니메이션에서 처리
+                    break;
+                    
+                case SkillType.Heal:
+                    ExecuteHealSkill(skill);
+                    break;
+                    
+                case SkillType.Spawn:
+                    // 애니메이션 이벤트에서 처리
+                    break;
+                    
+                case SkillType.Buff:
+                    ExecuteBuffSkill(skill);
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// 힐 스킬 실행
+        /// </summary>
+        private void ExecuteHealSkill(EnemyAttackInfo skill)
+        {
+            // 힐 대상 캐싱
+            _skillTargets.Clear();
+            
+            // [TODO]임시로 지정...
+            _skillTargets.Add(_ownerDamageable);
+        }
+        
+        /// <summary>
+        /// [TODO]버프 스킬 실행 - 이펙트는 적당한게 있으니 이거 사용을 고려해볼까
+        /// </summary>
+        private void ExecuteBuffSkill(EnemyAttackInfo skill)
+        {
+            // TODO: 버프 시스템 구현 시 추가
+            _skillTargets.Clear();
         }
 
         /// <summary>
@@ -96,12 +220,12 @@ namespace UPlayGround.Component
             if (_currentSkill == null || _currentSkill.baseInfo.attackType != AttackType.Melee)
                 return;
             
-            Vector3 attackPosition = _attackOrigin.position + 
-                                    _attackOrigin.forward * _currentSkill.baseInfo.attackOffset.z + 
-                                    _attackOrigin.right * _currentSkill.baseInfo.attackOffset.x + 
-                                    _attackOrigin.up * _currentSkill.baseInfo.attackOffset.y;
+            Vector3 attackPosition = GetCurrentAttackPosition();
             
-            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, _currentSkill.baseInfo.attackRadius, _targetLayer);
+            Collider[] hitColliders = Physics.OverlapSphere(
+                attackPosition, 
+                _currentSkill.baseInfo.attackRadius, 
+                _targetLayer);
             
             foreach (var hitCollider in hitColliders)
             {
@@ -118,7 +242,7 @@ namespace UPlayGround.Component
                         hitPoint = hitCollider.ClosestPoint(attackPosition),
                         attackDirection = _attackOrigin.forward,
                         reactionType = _currentSkill.baseInfo.reactionType,
-                        hitParticleName =  _currentSkill.baseInfo.hitParticleName
+                        hitParticleName = _currentSkill.baseInfo.hitParticleName
                     };
                     
                     damageable.TakeDamage(attackData);

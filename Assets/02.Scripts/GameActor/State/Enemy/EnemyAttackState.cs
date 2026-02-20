@@ -18,7 +18,6 @@ namespace UPlayGround.State
         private EnemyAttackInfo _currentSkill;
         private float _attackTimer;
         private bool _isAttackActive;
-        private bool _hasLaunchedProjectile; // 원거리 투사체 발사 여부
         
         public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyBrain brain, EnemyDetection detection) : base(controller)
         {
@@ -40,12 +39,11 @@ namespace UPlayGround.State
             
             _attackTimer = 0f;
             _isAttackActive = true;
-            _hasLaunchedProjectile = false;
             
             // 거리 기반 스킬 선택
             float distanceToTarget = _detection.DistanceToTarget;
-            _currentSkill = _combat.SelectAndExecuteAttack(distanceToTarget);
-            
+            _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
+
             if (_currentSkill != null)
             {
                 // 공격 애니메이션 재생

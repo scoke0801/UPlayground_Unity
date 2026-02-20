@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace UPlayGround.Component
 {
@@ -14,16 +15,23 @@ namespace UPlayGround.Component
         [SerializeField] private LayerMask _targetLayer;
         [SerializeField] private LayerMask _obstacleLayer;
         
+        [Header("Ally Detection")]
+        [SerializeField] private float _allyDetectionRadius = 10f;
+        [SerializeField] private LayerMask _allyLayer;
+        
         [Header("Detection Optimization")]
         [SerializeField] private float _detectionInterval = 0.2f;
         
         private Transform _currentTarget;
         private float _detectionTimer;
+        private List<IDamageable> _cachedAllies = new List<IDamageable>();
         
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
         public float DistanceToTarget => HasTarget ? Vector3.Distance(transform.position, _currentTarget.position) : float.MaxValue;
-
+        public float AllyDetectionRadius => _allyDetectionRadius;
+        public LayerMask AllyLayer => _allyLayer;
+        
         private void Update()
         {
             _detectionTimer += Time.deltaTime;
@@ -138,7 +146,118 @@ namespace UPlayGround.Component
         {
             _currentTarget = null;
         }
-
+            
+        #region Ally Detection
+        /// <summary>
+        /// 주변 아군 수 계산
+        /// </summary>
+        public int GetAllyCount()
+        {
+            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
+            
+            int count = 0;
+            foreach (var ally in allies)
+            {
+                // 자기 자신 제외
+                if (ally.transform == transform)
+                    continue;
+                
+                // 살아있는 아군만 카운트
+                var damageable = ally.GetComponent<IDamageable>();
+                if (damageable != null && damageable.IsAlive())
+                {
+                    count++;
+                }
+            }
+            
+            return count;
+        }
+        
+        /// <summary>
+        /// 주변 아군 리스트 가져오기
+        /// </summary>
+        public List<IDamageable> GetNearbyAllies()
+        {
+            _cachedAllies.Clear();
+            
+            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
+            
+            foreach (var ally in allies)
+            {
+                // 자기 자신 제외
+                if (ally.transform == transform)
+                    continue;
+                
+                var damageable = ally.GetComponent<IDamageable>();
+                if (damageable != null && damageable.IsAlive())
+                {
+                    _cachedAllies.Add(damageable);
+                }
+            }
+            
+            return _cachedAllies;
+        }
+        
+        /// <summary>
+        /// 특정 HP 이하인 아군이 주변에 있는지 체크
+        /// </summary>
+        public bool HasInjuredAllyNearby(float maxHealthPercent, float searchRadius = -1f)
+        {
+            float radius = searchRadius > 0 ? searchRadius : _allyDetectionRadius;
+            Collider[] allies = Physics.OverlapSphere(transform.position, radius, _allyLayer);
+            
+            foreach (var ally in allies)
+            {
+                // 자기 자신 제외
+                if (ally.transform == transform)
+                    continue;
+                
+                var damageable = ally.GetComponent<IDamageable>();
+                if (damageable != null && damageable.IsAlive())
+                {
+                    float healthPercent = damageable.GetHealthPercent();
+                    if (healthPercent <= maxHealthPercent)
+                    {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 가장 체력이 낮은 아군 찾기
+        /// </summary>
+        public IDamageable GetMostInjuredAlly()
+        {
+            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
+            
+            IDamageable mostInjured = null;
+            float lowestHealthPercent = 1f;
+            
+            foreach (var ally in allies)
+            {
+                // 자기 자신 제외
+                if (ally.transform == transform)
+                    continue;
+                
+                var damageable = ally.GetComponent<IDamageable>();
+                if (damageable != null && damageable.IsAlive())
+                {
+                    float healthPercent = damageable.GetHealthPercent();
+                    if (healthPercent < lowestHealthPercent)
+                    {
+                        lowestHealthPercent = healthPercent;
+                        mostInjured = damageable;
+                    }
+                }
+            }
+            
+            return mostInjured;
+        }
+        #endregion
+        
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
@@ -149,7 +268,11 @@ namespace UPlayGround.Component
             // 추적 해제 범위
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, _lostTargetRadius);
-            
+              
+            // 아군 탐지 범위
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, _allyDetectionRadius);
+
             // 시야각
             Gizmos.color = Color.blue;
             Vector3 forward = transform.forward * _detectionRadius;

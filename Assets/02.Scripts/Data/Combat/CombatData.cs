@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enum;
 
 namespace UPlayGround.Data
@@ -32,9 +33,12 @@ namespace UPlayGround.Data
     /// </summary>
     [Serializable]
     public class EnemyAttackInfo
-    {
+    {  
         public AttackInfoBase baseInfo;
         
+        [Header("Skill Type")]
+        public SkillType skillType = SkillType.Attack;
+
         [Header("Selection Weight")]
         [Range(0f, 100f)]
         public float selectionWeight = 10f;
@@ -46,9 +50,24 @@ namespace UPlayGround.Data
         [Header("Cooldown")]
         public float cooldown = 2f;
         
+        [Header("Activation Conditions")]
+        [Tooltip("복합 조건 설정 (여러 조건을 AND/OR로 연결)")]
+        public SkillConditionGroup conditionGroup = new SkillConditionGroup();
+
+        /// <summary>
+        /// 거리 범위 체크
+        /// </summary>
         public bool IsInRange(float distance)
         {
             return distance >= minRange && distance <= maxRange;
+        }
+        
+        /// <summary>
+        /// 스킬 발동 조건 체크 (복합 조건 지원)
+        /// </summary>
+        public bool CheckCondition(SkillConditionContext context)
+        {
+            return conditionGroup.CheckAll(context);
         }
     }
     

@@ -38,5 +38,7 @@ namespace UPlayGround
         /// 락온해제
         /// </summary>
         void UnLockOn();
+
+        float GetHealthPercent();
     }
 }

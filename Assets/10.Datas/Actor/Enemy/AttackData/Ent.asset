@@ -21,10 +21,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 0
     selectionWeight: 21
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 101
       attackType: 0
@@ -33,10 +37,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 0
     selectionWeight: 21
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 102
       attackType: 0
@@ -45,10 +53,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 0
     selectionWeight: 21
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 103
       attackType: 0
@@ -57,10 +69,14 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+    skillType: 0
     selectionWeight: 21
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 500
       attackType: 1
@@ -69,8 +85,26 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
-    selectionWeight: 16
+    skillType: 2
+    selectionWeight: 100
     minRange: 1
     maxRange: 20
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 1
+      conditions:
+      - type: 1
+        minHealthPercent: 0
+        maxHealthPercent: 1
+        minRange: 0
+        maxRange: 10
+        minAllyCount: 0
+        maxAllyCount: 0
+      - type: 5
+        minHealthPercent: 0
+        maxHealthPercent: 1
+        minRange: 0
+        maxRange: 10
+        minAllyCount: 0
+        maxAllyCount: 0
   globalCooldown: 1

@@ -60441,6 +60441,10 @@ MonoBehaviour:
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 529
+  _allyDetectionRadius: 10
+  _allyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   _detectionInterval: 0.2
 --- !u!114 &1478419743
 MonoBehaviour:
@@ -90310,6 +90314,10 @@ MonoBehaviour:
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 529
+  _allyDetectionRadius: 10
+  _allyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   _detectionInterval: 0.2
 --- !u!1001 &1678898622672048746
 PrefabInstance:
@@ -90778,7 +90786,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1575261604019275437, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_LocalPosition.x

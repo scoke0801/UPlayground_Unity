@@ -25,6 +25,8 @@ namespace UPlayGround
         public EnemyDetection Detection => _detection;
         public EnemyBrain Brain => _brain;
         public EnemyCombat Combat => _combat;
+        public float MaxHealth => _maxHealth;
+        public float CurrentHealth => _currentHealth;
         
         protected override void Awake()
         {
@@ -104,8 +106,44 @@ namespace UPlayGround
             _lockOnDecal?.SetActive(false);
         }
 
+        public float GetHealthPercent()
+        {
+            return _currentHealth / _maxHealth;
+        }
+
         #endregion
         
+        #region Health Management
+        
+        /// <summary>
+        /// 체력 회복
+        /// </summary>
+        public void Heal(float amount)
+        {
+            if (!IsAlive())
+                return;
+            
+            float oldHealth = _currentHealth;
+            _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+            float actualHeal = _currentHealth - oldHealth;
+            
+            Debug.Log($"[MonsterActor] {gameObject.name} 체력 회복: +{actualHeal:F1} HP (현재: {_currentHealth:F1}/{_maxHealth})");
+        }
+        
+        /// <summary>
+        /// 체력 직접 설정
+        /// </summary>
+        public void SetHealth(float health)
+        {
+            _currentHealth = Mathf.Clamp(health, 0f, _maxHealth);
+            
+            if (_currentHealth <= 0 && IsAlive())
+            {
+                OnDeath(null);
+            }
+        }
+        
+        #endregion
         /// <summary>
         /// 피격 시 호출 (이펙트, 사운드 등)
         /// </summary>

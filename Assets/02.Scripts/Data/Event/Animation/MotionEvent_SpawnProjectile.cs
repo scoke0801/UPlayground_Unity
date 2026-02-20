@@ -32,6 +32,9 @@ namespace UPlayGround.Data.Event
         {
             if (projectilePrefab == null) return;
 
+            var actor = target.GetComponent<GameActor>();
+            if (actor == null) return;
+            
             var pos = target.transform.position + spawnOffset;
             
             // target의 forward 방향 (이미 월드 좌표계)
@@ -47,7 +50,7 @@ namespace UPlayGround.Data.Event
             var projectile = instance.GetComponent<BaseProjectile>();
             if (projectile != null)
             {
-                projectile.Initialize(pos, worldDirection, 10f, target, duration, targetHitLayer, hitParticleName);
+                projectile.Initialize(pos, worldDirection, 10f, actor, duration, targetHitLayer, hitParticleName);
             }
         }
 

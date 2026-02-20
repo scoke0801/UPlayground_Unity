@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UPlayGround.Component;
+using UPlayGround.Data.Enum;
+
 namespace UPlayGround
 {
     /// <summary>
@@ -11,16 +15,22 @@ namespace UPlayGround
         [SerializeField] private float expansionSpeed = 10f;
         [SerializeField] private bool expandOverTime = false;
         [SerializeField] private AnimationCurve damageFalloff = AnimationCurve.Linear(0, 1, 1, 0.3f);
+        [SerializeField] private LayerMask _groundLayerMask;
         
         [Header("Spawn Settings")]
         [SerializeField] private float spawnDelay = 0f;
         [SerializeField] private bool attachToGround = true;
 
+        [Header("Tick Settings")]
+        [SerializeField] private float damageCooldown = 1f; // 대상별 데미지 간격
+      
+        private readonly Dictionary<IDamageable, float> _damageCooldowns = new Dictionary<IDamageable, float>();
+
         private float currentRadius;
         private bool hasTriggered;
         private float spawnTimer;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameObject ownerObject, float duration, LayerMask layer, string hitParticleName)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             base.Initialize(startPos, dir, dmg, ownerObject, duration, layer, hitParticleName);
             
@@ -28,21 +38,59 @@ namespace UPlayGround
             hasTriggered = false;
             spawnTimer = 0f;
 
+            _damageCooldowns.Clear();
+            
             if (attachToGround)
             {
-                AttachToGround(startPos);
+                AttachToGround(transform.position);
             }
+        }
+
+        protected override void InitFromMonsterActor(MonsterActor ownerObject)
+        {
+            base.InitFromMonsterActor(ownerObject);
+
+            if (ownerObject == null || ownerObject.Combat == null)
+            {
+                return;
+            }
+
+            if (ownerObject.Combat.SkillTargetList.Count == 0)
+            {
+                return;
+            }
+
+            transform.position = ownerObject.Combat.SkillTargetList[0].GetTransform().position;
         }
 
         private void AttachToGround(Vector3 position)
         {
-            if (Physics.Raycast(position + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f, hitLayers))
+            if (Physics.Raycast(position + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f, _groundLayerMask))
             {
                 transform.position = hit.point;
                 transform.up = hit.normal;
             }
         }
 
+        protected override void Update()
+        {
+            UpdateDamageCooldowns();
+            base.Update();
+        }
+        
+        private void UpdateDamageCooldowns()
+        {
+            var keys = new List<IDamageable>(_damageCooldowns.Keys);
+            foreach (var key in keys)
+            {
+                _damageCooldowns[key] -= Time.deltaTime;
+                if (_damageCooldowns[key] <= 0f)
+                {
+                    _damageCooldowns.Remove(key);
+                }
+            }
+        }
+        
         protected override void UpdateMovement()
         {
             // 생성 딜레이
@@ -101,32 +149,31 @@ namespace UPlayGround
             {
                 GameObject target = hit.gameObject;
 
-                if (target == owner || target.transform.IsChildOf(owner.transform))
+                if (target.transform == owner.transform || target.transform.IsChildOf(owner.transform))
                     continue;
 
                 IDamageable damageable = hit.GetComponent<IDamageable>();
                 if (damageable == null)
                     damageable = hit.GetComponentInParent<IDamageable>();
 
-                if (damageable != null && !_hitTargets.Contains(damageable) && damageable.CanTakeDamage())
-                {
-                    _hitTargets.Add(damageable);
+                if (damageable == null || !damageable.CanTakeDamage())
+                    continue;
 
-                    // 거리 기반 데미지 감쇠
-                    float distance = Vector3.Distance(transform.position, hit.transform.position);
-                    float normalizedDistance = distance / aoeRadius;
-                    float damageMultiplier = damageFalloff.Evaluate(normalizedDistance);
-                    
-                    // AttackData 업데이트
-                    attackData.damage = attackData.damage * damageMultiplier;
-                    attackData.hitTarget = target;
-                    attackData.hitPoint = hit.ClosestPoint(transform.position);
-                    attackData.attackDirection = (target.transform.position - transform.position).normalized;
+                // 쿨타임 중인 대상 스킵
+                if (_damageCooldowns.ContainsKey(damageable))
+                    continue;
 
-                    damageable.TakeDamage(attackData);
-                    
-                    Debug.Log($"[AOEProjectile] 히트! Target: {target.name}, Distance: {distance:F1}, Damage: {attackData.damage:F1}");
-                }
+                // 거리 기반 데미지 감쇠
+                float distance = Vector3.Distance(transform.position, hit.transform.position);
+                float damageMultiplier = damageFalloff.Evaluate(distance / aoeRadius);
+
+                // AttackData 업데이트
+                attackData.damage = attackData.damage * damageMultiplier;
+                attackData.hitTarget = target;
+                attackData.hitPoint = hit.ClosestPoint(transform.position);
+                attackData.attackDirection = (target.transform.position - transform.position).normalized;
+
+                damageable.TakeDamage(attackData);
             }
         }
 

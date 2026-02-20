@@ -194,6 +194,16 @@ namespace UPlayGround.Component
         {
             _skillTargets.Clear();
             
+            // 공격 스킬이면 감지된 플레이어를 타겟으로
+            if (skill.skillType == SkillType.Attack)
+            {
+                var target = _detection?.CurrentTarget;
+                var damageable = target?.GetComponent<IDamageable>();
+                if (damageable != null)
+                    _skillTargets.Add(damageable);
+                return;
+            }
+            
             var conditions = skill.conditionGroup?.conditions;
             if (conditions == null || conditions.Count == 0)
             {

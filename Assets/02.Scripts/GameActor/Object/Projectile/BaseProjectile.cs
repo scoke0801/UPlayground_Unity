@@ -27,13 +27,13 @@ namespace UPlayGround
         protected float currentLifeTime;
         protected Vector3 direction;
         protected AttackData attackData;
-        protected GameObject owner;
+        protected GameActor owner;
         protected string hitEffectKey;
         
         public bool IsActive => isActive;
 
         public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg,
-            GameObject ownerObject, float duration, LayerMask layer, string hitParticleName)
+            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             transform.position = startPos;
             direction = dir.normalized;
@@ -59,8 +59,25 @@ namespace UPlayGround
                 
             if (projectileModel != null)
                 projectileModel.SetActive(true);
+            
+            if (ownerObject.ActorType == ActorType.Monster)
+            {
+                InitFromMonsterActor(ownerObject as MonsterActor);
+            }
+            else if (ownerObject.ActorType == ActorType.Player)
+            {
+                InitFromPlayer(ownerObject as PlayerActor);
+            }
         }
-  
+
+        protected virtual void InitFromPlayer(PlayerActor ownerObject)
+        {
+        }
+
+        protected virtual void InitFromMonsterActor(MonsterActor ownerObject)
+        {
+        }
+
         protected virtual void Update()
         {
             if (!isActive)

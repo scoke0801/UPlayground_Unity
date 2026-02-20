@@ -90,6 +90,10 @@ namespace UPlayGround.State
                     
                     gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
                 }
+                else
+                {
+                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+                }
             }
         }
 

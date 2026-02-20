@@ -46,6 +46,12 @@ namespace UPlayGround.Animation
         }
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
         {
+            if (_isPlayingMotionSet
+                && _lastPlayedKey == key)
+            {
+                return _currentState;
+            }
+            
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
             if (_isPlayingMotionSet && _currentMotionSet != null)
             {

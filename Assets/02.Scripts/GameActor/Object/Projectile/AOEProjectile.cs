@@ -68,7 +68,7 @@ namespace UPlayGround
             if (Physics.Raycast(position + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f, _groundLayerMask))
             {
                 transform.position = hit.point;
-                transform.up = hit.normal;
+                transform.up = Vector3.up;
             }
         }
 

@@ -22,6 +22,8 @@ namespace UPlayGround.Manager.Handler
             Heavy,      // 0.12초 - 강 공격
             Critical,   // 0.15초 - 크리티컬/피니셔
             PlayerDie,  // 1초   - 플레이어 사망
+            
+            PlayerGuard, // 1초
         }
         
         [Header("HitStop Settings")]
@@ -96,6 +98,9 @@ namespace UPlayGround.Manager.Handler
                     break;
                 case HitStopIntensity.PlayerDie:
                     Execute(1.0f, 0.02f);
+                    break;
+                case HitStopIntensity.PlayerGuard:
+                    Execute(1f, 0.05f);
                     break;
             }
         }

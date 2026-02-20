@@ -5,6 +5,7 @@ using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -17,7 +18,7 @@ namespace UPlayGround.State
         public override string StateName => "Guard";
         private PlayerCombat _combat;
         private float _guardStartTime;
-        private const float PERFECT_GUARD_WINDOW = 0.3f; // Just Guard 타이밍 (초)
+        private const float PERFECT_GUARD_WINDOW = 2.3f; // Just Guard 타이밍 (초)
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
         {
@@ -61,6 +62,14 @@ namespace UPlayGround.State
             if (!playerController.HasGuardInput())
             {
                 TransitionToIdleOrMove();
+                return;
+            }
+
+            if (GameHitStopManager.Instance.IsHitStopping &&
+                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            {
+                playerController.TransitionToState(new PlayerAttackState(playerController));
+                GameHitStopManager.Instance.Stop();
                 return;
             }
             
@@ -135,12 +144,10 @@ namespace UPlayGround.State
             {
                 playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f, 0);
             };
-            
-            // Guard 성공
-            if (isPerfectGuard && playerController.HasAttackInput())
+
+            if (isPerfectGuard)
             {
-                controller.TransitionToState(new PlayerAttackState(controller));
-                Debug.Log("[PlayerGuardState] Just Guard 성공! Counter Attack 가능!");
+                GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
             }
         }
         

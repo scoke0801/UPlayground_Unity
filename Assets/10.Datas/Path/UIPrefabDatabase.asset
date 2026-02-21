@@ -49,3 +49,11 @@ MonoBehaviour:
     prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
     defaultLayer: 2000
     description: 
+  - key: ItemPopup
+    prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
+    defaultLayer: 2000
+    description: 
+  - key: HudPlayerInfo
+    prefab: {fileID: 2061351792792607043, guid: 9452141b8d8e78a40aca39d02638a51f, type: 3}
+    defaultLayer: 0
+    description: 

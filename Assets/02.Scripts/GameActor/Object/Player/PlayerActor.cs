@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.Enum;
@@ -12,6 +13,7 @@ using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.State;
+using Random = UnityEngine.Random;
 
 namespace UPlayGround
 {
@@ -28,6 +30,8 @@ namespace UPlayGround
         [SerializeField] private PlayerEquipment _equipment;
         [SerializeField] private PlayerCombat _combat;
 
+        public event Action<float, float> OnHpChanged;
+        
         protected PlayerMovementController PlayerMovementController;
         private Camera _camera;
         private PlayerActorAnimator _playerActorAnimator;
@@ -64,6 +68,9 @@ namespace UPlayGround
         public bool IsEquippedLeftWeapon => _equipment.IsSubWeaponEquipped;
 
         public bool IsInCombat => _combat?.IsInCombat ?? false;
+        
+        public float MaxHealth => _maxHealth;
+        public float CurrentHealth => _currentHealth;
     }
     /// <summary>
     /// 
@@ -438,9 +445,10 @@ namespace UPlayGround
                 finalDamage *= attackData.criticalMultiplier;
                 Debug.Log($"[PlayerActor] 크리티컬 히트! 데미지: {finalDamage}");
             }
+
+            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             
-            _currentHealth -= finalDamage;
-            
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             Debug.Log($"[PlayerActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
             
             // 피격 이펙트, 사운드, 넉백 등 추가 가능

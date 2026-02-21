@@ -111,6 +111,9 @@ namespace UPlayGround.Component
 
         public int GetActiveEquipment(EquipArmorType type)
         {
+            if (partLibrary.ContainsKey(type) == false)
+                return -1;
+            
             // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
             foreach (var pair in partLibrary[type])
             {

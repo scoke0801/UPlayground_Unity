@@ -9,6 +9,11 @@ class UI_GamePlay : UI_Base
     
     #region UI_Base
 
+    protected override void OnShow()
+    {
+        UIManager.Instance.ShowUI("HudPlayerInfo");
+    }
+
     protected override void RegisterInputEvents()
     {
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,

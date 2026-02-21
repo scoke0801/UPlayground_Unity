@@ -1,33 +1,47 @@
 ﻿using System.Collections;
- using TMPro;
- using UnityEngine;
-using UnityEngine.Serialization;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround;
 using UPlayGround.Manager;
 
-public class UI_InteractionHPBoard : UI_Base
+public class UI_HudPlayerInfo : UI_Base
 {
     [SerializeField] private Image _boardHpFill;
     [SerializeField] private Image _boardHpWhiteFill;
-    [SerializeField] private TextMeshProUGUI _textName;
-    [SerializeField] private TextMeshProUGUI _textDesc;
+    [SerializeField] private Image _characterIcon;
+    [SerializeField] private Image _characterIconBG;
+    [SerializeField] private TextMeshProUGUI _hpText;
 
     [SerializeField] private float _fillTimeScale = 5.0f;
     
     private Coroutine _fillCoroutine;
+    private PlayerActor _playerActor;
     
     #region UI_Base
     protected override void OnShow()
     {
         _boardHpFill.fillAmount = 1.0f;
         _boardHpWhiteFill.fillAmount = 1.0f;
-        
-        AnimationChange("On");
+
+        if (GameObjectManager.Instance != null)
+        {
+            _playerActor = GameObjectManager.Instance.Player;
+
+            if (_playerActor != null)
+            {
+                _playerActor.OnHpChanged += SetHp;
+                SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
+            }
+        }
     }
 
     protected override void OnHide()
     {
-        AnimationChange("Out");
+        if (_playerActor != null)
+        {
+            _playerActor.OnHpChanged -= SetHp;
+        }
     }
 
     protected override void OnClose()
@@ -35,7 +49,7 @@ public class UI_InteractionHPBoard : UI_Base
     }
     #endregion
     
-    public void BoardFill(float hp, float maxHp)
+    public void SetHp(float hp, float maxHp)
     {
         _boardHpFill.fillAmount = hp / maxHp;
         if (_fillCoroutine != null)
@@ -44,12 +58,7 @@ public class UI_InteractionHPBoard : UI_Base
         }
         
         _fillCoroutine = StartCoroutine(FillCoroutine());
-    }
-
-    public void SetInteractionData(InteractableActorSO data)
-    {
-        _textName.text = data.actorName;
-        _textDesc.text = data.description;
+        _hpText.text = $"{(int)hp}/{(int)maxHp}";
     }
     
     private IEnumerator FillCoroutine()
@@ -61,10 +70,5 @@ public class UI_InteractionHPBoard : UI_Base
 
             yield return null;
         }
-    }
-    
-    private void OnInteractionOut()
-    {
-        AnimationChange("Out");
     }
 }

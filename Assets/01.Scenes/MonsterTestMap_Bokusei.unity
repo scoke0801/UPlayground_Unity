@@ -4770,7 +4770,7 @@ MonoBehaviour:
   _equipment: {fileID: 128408075}
   _actorAnimator: {fileID: 128408081}
   _attackData: {fileID: 11400000, guid: 17f08f7384b34f14a8c067e642d33cd9, type: 2}
-  _combatStateDuration: 5
+  _combatStateDuration: 30
   _targetLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295

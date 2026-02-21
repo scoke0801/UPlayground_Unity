@@ -1,17 +1,63 @@
 ﻿
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround;
+using UPlayGround.Component;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 class UI_GamePlay : UI_Base
 {
+    private PlayerActor _playerActor;
+
+    private PlayerCombat _playerCombat;
     
+    private UI_HudPlayerInfo _hudPlayerInfo;
+    
+    private bool _isPlayerInCombat = false;
     #region UI_Base
 
     protected override void OnShow()
     {
-        UIManager.Instance.ShowUI("HudPlayerInfo");
+        _hudPlayerInfo = UIManager.Instance.ShowUI("HudPlayerInfo")?.GetComponent<UI_HudPlayerInfo>();
+
+        if (GameObjectManager.Instance != null)
+        {
+            _playerActor = GameObjectManager.Instance.Player;
+            _playerCombat = _playerActor?.GetCombat();
+            if (_playerCombat != null)
+            {
+                _playerCombat.OnChangeCombatState += OnPlayerCombatStateChanged;
+            }
+        }
+    }
+
+    protected override void OnHide()
+    {
+        if (_playerCombat == null)
+        {
+            return;
+        }
+
+        _playerActor.GetCombat().OnChangeCombatState -= OnPlayerCombatStateChanged;
+    }
+
+    protected override void Update()
+    {
+        if (_isPlayerInCombat == false)
+        {
+            return;
+        }
+
+        if (_playerCombat == null)
+        {
+            return;
+        }
+
+        if (_playerCombat.IsInCombat == false)
+        {
+            OnPlayerCombatStateChanged(false);
+        }
     }
 
     protected override void RegisterInputEvents()
@@ -61,6 +107,20 @@ class UI_GamePlay : UI_Base
         {
             UIManager.Instance.HideUI("EquipInventory");
         }
+    }
+
+    #endregion
+
+    #region EventCallback
+
+    private void OnPlayerCombatStateChanged(bool isInCombat)
+    {
+        if (_hudPlayerInfo != null)
+        {
+            _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");    
+        }
+
+        _isPlayerInCombat = isInCombat;
     }
 
     #endregion

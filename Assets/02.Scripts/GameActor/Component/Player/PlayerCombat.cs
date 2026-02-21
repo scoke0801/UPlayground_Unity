@@ -36,11 +36,13 @@ namespace UPlayGround.Component
         [SerializeField] private PlayerAttackDataSO _attackData;
       
         [Header("Combat State")]
-        [SerializeField] private float _combatStateDuration = 5f; // 전투 상태 유지 시간
+        [SerializeField] private float _combatStateDuration = 30f; // 전투 상태 유지 시간
 
         [Header("Hit Detection Settings")]
         [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
         [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
+
+        public event Action<bool> OnChangeCombatState;
         
         // 현재 공격 정보 (히트 판정용)
         private AttackData _currentAttackData;
@@ -106,7 +108,12 @@ namespace UPlayGround.Component
         /// </summary>
         public void RefreshCombatState()
         {
+            bool prevState = IsInCombat;
             _lastCombatEventTime = Time.time;
+            if (prevState != IsInCombat)
+            {
+                OnChangeCombatState?.Invoke(IsInCombat);
+            }
         }
         
         /// <summary>

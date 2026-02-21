@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 7400000, guid: 1259f38fe034e564bbee9d090e02715f, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917033536356464
       - rid: 7399917076840972454
@@ -36,9 +39,12 @@ MonoBehaviour:
         particlePrefab: {fileID: 4994997792314849709, guid: 3dd50886582244645be87adb42aa8528, type: 3}
         spawnPointName: 
         offset: {x: 0, y: 0.3, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
         attachToTarget: 0
+        detachAfterSpawn: 0
         useSpawnRotation: 1
         destroyOnFinish: 0
+        particleLifeTime: 0
     - rid: 7399917076840972454
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

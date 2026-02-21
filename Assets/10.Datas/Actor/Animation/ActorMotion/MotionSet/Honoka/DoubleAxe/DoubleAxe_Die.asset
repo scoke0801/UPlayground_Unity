@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 7400000, guid: c214974c1df4adb408d4db99ed442c76, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events: []
     globalEvents: []
   references:

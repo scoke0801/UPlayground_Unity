@@ -32,7 +32,7 @@ namespace UPlayGround
         
         public bool IsActive => isActive;
 
-        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg,
+        public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed,
             GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             transform.position = startPos;
@@ -166,7 +166,7 @@ namespace UPlayGround
             //if (projectileModel != null)
             //    projectileModel.SetActive(false);
                 
-            Destroy(gameObject, 2f);
+            Destroy(gameObject);
         }
     }
 }

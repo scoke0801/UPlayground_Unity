@@ -50,7 +50,7 @@ namespace UPlayGround.Data.Event
             var projectile = instance.GetComponent<BaseProjectile>();
             if (projectile != null)
             {
-                projectile.Initialize(pos, worldDirection, 10f, actor, duration, targetHitLayer, hitParticleName);
+                projectile.Initialize(pos, worldDirection, 10f, speed, actor, duration, targetHitLayer, hitParticleName);
             }
         }
 

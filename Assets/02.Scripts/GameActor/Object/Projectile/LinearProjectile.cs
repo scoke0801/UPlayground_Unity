@@ -10,15 +10,16 @@ namespace UPlayGround
     public class LinearProjectile : BaseProjectile
     {
         [Header("Linear Movement")]
-        [SerializeField] private float speed = 20f;
+        [SerializeField] private float _speed = 20f;
         [SerializeField] private float collisionRadius = 0.5f;
 
         private Vector3 previousPosition;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject, duration, layer, hitParticleName);
+            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
             previousPosition = startPos;
+            _speed = speed;
         }
 
         protected override void UpdateMovement()
@@ -26,7 +27,7 @@ namespace UPlayGround
             previousPosition = transform.position;
     
             // 발사된 방향으로 계속 이동
-            transform.position += speed * Time.deltaTime * direction;
+            transform.position += _speed * Time.deltaTime * direction;
 
             CheckCollision();
         }

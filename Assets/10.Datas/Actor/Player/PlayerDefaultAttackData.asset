@@ -178,16 +178,6 @@ MonoBehaviour:
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
-      animKey: 502
-      attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 15
-    canBeInterrupted: 1
-    hitAngle: 60
-  - baseInfo:
       animKey: 503
       attackType: 0
       reactionType: 1

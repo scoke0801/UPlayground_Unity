@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 6720303635017113406, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636616
     globalEvents: []
@@ -30,7 +33,7 @@ MonoBehaviour:
         endTime: 1.275
         projectilePrefab: {fileID: 1082763761580483184, guid: a550920db554d3541a9da0cab0af6e9a, type: 3}
         spawnOffset: {x: 0, y: 1, z: 0}
-        speed: 25
+        speed: 20
         duration: 5
         targetHitLayer:
           serializedVersion: 2

@@ -30,9 +30,10 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
 
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg,float speed,
+            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
-            base.Initialize(startPos, dir, dmg, ownerObject, duration, layer, hitParticleName);
+            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
             
             currentRadius = 0f;
             hasTriggered = false;
@@ -173,6 +174,8 @@ namespace UPlayGround
                 attackData.hitPoint = hit.ClosestPoint(transform.position);
                 attackData.attackDirection = (target.transform.position - transform.position).normalized;
 
+                _damageCooldowns[damageable] = damageCooldown;
+                
                 damageable.TakeDamage(attackData);
             }
         }

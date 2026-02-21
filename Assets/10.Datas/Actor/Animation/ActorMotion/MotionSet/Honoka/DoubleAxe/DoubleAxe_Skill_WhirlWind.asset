@@ -17,8 +17,56 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 7400000, guid: 6109206d08b76db4cbc5b972d5cee47d, type: 3}
-      events: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917144103190528
+      - rid: 7399917144103190529
+      - rid: 7399917144103190530
+      - rid: 7399917144103190531
+      - rid: 7399917144103190532
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917144103190528
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.88260126
+        endTime: 1.0064751
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917144103190529
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0332489
+        endTime: 1.1768017
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917144103190530
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2077701
+        endTime: 1.3471283
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917144103190531
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3545465
+        endTime: 1.5251969
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192
+    - rid: 7399917144103190532
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.5400336
+        endTime: 1.710684
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 192

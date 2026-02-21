@@ -91004,6 +91004,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_Lich_V2
       objectReference: {fileID: 0}
+    - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -91038,7 +91042,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1001 &5494242832447673527
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91564,6 +91568,10 @@ PrefabInstance:
     - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Ent_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

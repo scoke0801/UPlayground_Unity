@@ -100,7 +100,7 @@ MonoBehaviour:
         maxRange: 0
         minAllyCount: 0
         maxAllyCount: 0
-        checkSpawnCount: 5
+        checkSpawnCount: 1
   - baseInfo:
       animKey: 501
       attackType: 1

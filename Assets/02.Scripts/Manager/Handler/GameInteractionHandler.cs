@@ -39,8 +39,16 @@ namespace UPlayGround.Manager.Handler
         public override void Update()
         {
             float delta = Time.deltaTime;
-            _player = GameObjectManager.Instance.Player;
-            if(_player == null){return;}
+            if (_player == null)
+            {
+                _player = GameObjectManager.Instance.Player;
+            }
+            
+            if (_player == null || _player.IsInCombat == true)
+            {
+                RemoveIcon();
+                return;
+            }
             
             // Player 주변에 인터렉션 가능한 대상 조회
             FindClosestInteractable(_player.transform.position);

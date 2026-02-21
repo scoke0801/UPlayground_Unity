@@ -57,7 +57,7 @@ MonoBehaviour:
     selectionWeight: 20
     minRange: 0
     maxRange: 20
-    cooldown: 10
+    cooldown: 30
     conditionGroup:
       conditionOperator: 0
       conditions:
@@ -68,7 +68,7 @@ MonoBehaviour:
         maxRange: 0
         minAllyCount: 0
         maxAllyCount: 0
-        checkSpawnCount: 5
+        checkSpawnCount: 1
   - baseInfo:
       animKey: 501
       attackType: 1

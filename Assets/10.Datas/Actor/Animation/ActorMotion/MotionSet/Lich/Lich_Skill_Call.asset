@@ -54,6 +54,9 @@ MonoBehaviour:
         particlePrefab: {fileID: 6063518424537689786, guid: bad5794a53f5c3645bb444b3a040ba01, type: 3}
         spawnPointName: 
         offset: {x: 0, y: 1, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
         attachToTarget: 1
+        detachAfterSpawn: 0
         useSpawnRotation: 0
         destroyOnFinish: 1
+        particleLifeTime: 0

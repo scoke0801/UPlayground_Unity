@@ -1,5 +1,9 @@
-﻿using KinematicCharacterController;
+﻿using AYellowpaper.SerializedCollections;
+using KinematicCharacterController;
 using UnityEngine;
+using UPlayGround;
+using UPlayGround.Data.Enum;
+using UPlayGround.Manager;
 
 /// <summary>
 /// 인벤토리 UI용 캐릭터 프리뷰 렌더러
@@ -15,7 +19,7 @@ public class UICharacterPreviewRenderer : MonoBehaviour
     [SerializeField] private Vector3 _cameraOffset = new Vector3(0, 1.5f, 2.5f);
     [SerializeField] private float _rotationSpeed = 100f;
 
-    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private SerializedDictionary<CharacterActorType, GameObject> _actorPrefabDict;
     
     private GameObject _currentPreviewCharacter;
     private float _currentRotation = 0f;
@@ -37,7 +41,27 @@ public class UICharacterPreviewRenderer : MonoBehaviour
         if (_currentPreviewCharacter != null)
             Destroy(_currentPreviewCharacter);
 
-        _currentPreviewCharacter = Instantiate(_playerPrefab, _previewCharacterRoot);
+        if(GameObjectManager.Instance == null)
+        {
+            return;
+        }
+
+        PlayerActor player = GameObjectManager.Instance.Player;
+        if (player == null)
+        {
+            return;
+        }
+
+        if (_actorPrefabDict.TryGetValue(player.CharacterType, out GameObject targetPrefab) == false)
+        {
+            return;
+        }
+        
+        _currentPreviewCharacter = Instantiate(targetPrefab, _previewCharacterRoot);
+        if (_currentPreviewCharacter == null)
+        {
+            return;
+        }
         _currentPreviewCharacter.transform.localPosition = Vector3.zero;
         _currentPreviewCharacter.transform.localRotation = Quaternion.identity;
         

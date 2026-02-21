@@ -17,8 +17,25 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 5385136767152346346, guid: acad9c63569c5d14a8c87d9cb2ffb9ec, type: 3}
-      events: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917153617182831
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917153617182831
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.2875001
+        endTime: 5.975
+        projectilePrefab: {fileID: 1082763761580483184, guid: 7c25bede9fc1884478447b1078111753, type: 3}
+        spawnOffset: {x: 0, y: 1, z: 0}
+        speed: 5
+        duration: 5
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 64
+        hitParticleName: EnemyLightAttackHit

@@ -73,8 +73,11 @@ namespace UPlayGround.Editor
                     return $"아군 {condition.minAllyCount}~{condition.maxAllyCount}마리";
                     
                 case ConditionType.InjuredAllyNearby:
-                    return $"부상 아군 {condition.maxRange:F0}m내 (HP {condition.maxHealthPercent*100:F0}%이하)";
-                    
+                    return $"부상 아군 {condition.maxRange:F0}m내 (HP {condition.maxHealthPercent*100:F0}%이하)"; 
+                
+                case ConditionType.SpawnedUnitCount:
+                    return $"기존 소환 대상 {condition.checkSpawnCount} 마리 이하";
+                
                 default:
                     return "알 수 없음";
             }

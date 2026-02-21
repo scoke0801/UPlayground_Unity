@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.Data.Enum;
 using UPlayGround.Data.Event;
@@ -30,6 +31,10 @@ public class UI_Inventory : UI_Base
     [SerializeField] private RawImage _characterPreview;
     [SerializeField] private UICharacterPreviewRenderer _previewRenderer;
 
+    [Header("Character HP")]
+    [SerializeField] private Image _boardHpFill;
+    [SerializeField] private TextMeshProUGUI _hpText;
+    
     [Header("Equipment Slot")] 
     [SerializeField] private UI_InventorySlot _headSlot;
     [SerializeField] private UI_InventorySlot _chestSlot;
@@ -94,8 +99,15 @@ public class UI_Inventory : UI_Base
         {
             _previewRenderer.ShowPreview();
         }
+        
+        PlayerActor playerActor = GameObjectManager.Instance?.Player;
+        if (playerActor != null)
+        {
+            RefreshPlayerHp(playerActor.CurrentHealth, playerActor.MaxHealth);
+            playerActor.OnHpChanged += RefreshPlayerHp;
+        }
     }
-
+    
     public override bool PerformBackFunction()
     {
         // ESC 키 입력 시 닫는다.
@@ -117,6 +129,11 @@ public class UI_Inventory : UI_Base
         {
             _previewRenderer.HidePreview();
         }
+        PlayerActor playerActor = GameObjectManager.Instance?.Player;
+        if (playerActor != null)
+        {
+            playerActor.OnHpChanged -= RefreshPlayerHp;
+        }
     }
     
     public void SetInventory()
@@ -133,6 +150,12 @@ public class UI_Inventory : UI_Base
             $"({InventoryManager.Instance.GetTotalWeight():0.0}/{InventoryManager.Instance.MaxWeight:0.0})";
     }
 
+    public void RefreshPlayerHp(float hp, float maxHp)
+    {
+        _boardHpFill.fillAmount = hp / maxHp;
+        _hpText.text = $"{(int)hp}/{(int)maxHp}";
+    }
+    
     private void InitPlayerEquipmentSlot()
     {
         PlayerEquipment playerEquipment = GameObjectManager.Instance?.Player?.GetPlayerEquipment();

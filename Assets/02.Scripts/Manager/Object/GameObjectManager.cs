@@ -55,6 +55,8 @@ namespace UPlayGround.Manager
             {
                 _handlerList[i].Update();
             }
+            
+            ProcessPendingDestroyFX();
         }
 
         public void OnFixedUpdate()

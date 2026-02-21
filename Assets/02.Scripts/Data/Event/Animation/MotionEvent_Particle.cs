@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
@@ -11,10 +12,13 @@ namespace UPlayGround.Data.Event
     {
         public GameObject particlePrefab;
         public string spawnPointName;
-        public Vector3 offset;
-        public bool attachToTarget = true;        
+        public Vector3 offset;                    // 위치 보정용
+        public Vector3 rotationOffset;            // 방향 보정용 오일러 각도
+        public bool attachToTarget = true;        // 대상에 붙여서 생성할 지
+        public bool detachAfterSpawn = false;     // 생성 이후, 끊어낼지
         public bool useSpawnRotation = true;
         public bool destroyOnFinish = true;
+        public float particleLifeTime = 0f;
         
         private GameObject _instance;
         public override string GetDisplayName() => "Particle";
@@ -29,35 +33,49 @@ namespace UPlayGround.Data.Event
         public override void Execute(GameObject target)
         {
             if (particlePrefab == null) return;
-            
+
+            if (destroyOnFinish == true)
+            {
+                particleLifeTime = 0f;
+            }
+
             Transform spawnPoint = target.transform;
             if (String.IsNullOrEmpty(spawnPointName) == false)
             {
                 //spawnPoint = target.transform.Find(spawnPointName);
-                spawnPoint    = FindTransformByName(target.transform, spawnPointName);
+                spawnPoint = FindTransformByName(target.transform, spawnPointName);
             }
+
             if (spawnPoint == null) spawnPoint = target.transform;
 
             if (attachToTarget)
             {
                 _instance = GameObject.Instantiate(particlePrefab, spawnPoint);
+
                 _instance.transform.localPosition = offset;
-                
-                if (useSpawnRotation)
-                {
-                    _instance.transform.localRotation = Quaternion.identity;
-                }
+//                _instance.transform.localRotation = Quaternion.Euler(rotationOffset);
+//                _instance.transform.localRotation = Quaternion.identity;
+                _instance.transform.localRotation = particlePrefab.transform.rotation;
+                    
+                // 생성 직후 부모 해제 → 월드 위치/회전은 유지된 채 독립
+                if (detachAfterSpawn)
+                    _instance.transform.SetParent(null);
             }
             else
             {
-                Vector3 worldOffset = spawnPoint.TransformDirection(offset);
-                Vector3 position = spawnPoint.position + worldOffset;
-                Quaternion rotation = useSpawnRotation ? spawnPoint.rotation : Quaternion.identity;
-                
-                _instance = GameObject.Instantiate(particlePrefab, position, rotation);
+                Vector3 worldPos = spawnPoint.position + spawnPoint.TransformDirection(offset);
+                Quaternion baseRot = useSpawnRotation ? spawnPoint.rotation : Quaternion.identity;
+                Quaternion finalRot = baseRot * Quaternion.Euler(rotationOffset);
+
+                _instance = GameObject.Instantiate(particlePrefab, worldPos, finalRot);
+            }
+
+            if (destroyOnFinish == false && particleLifeTime > 0f)
+            {
+                GameObjectManager.Instance.RegisterFXInstance(_instance, particleLifeTime);
             }
         }
-        
+
         private Transform FindTransformByName(Transform parent, string name)
         {
             if (string.IsNullOrEmpty(name)) return null;

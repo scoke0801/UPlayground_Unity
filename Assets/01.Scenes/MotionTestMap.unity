@@ -1584,6 +1584,37 @@ Transform:
   - {fileID: 204826012}
   m_Father: {fileID: 1272165747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &39136993
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 39136994}
+  m_Layer: 0
+  m_Name: VFX_Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &39136994
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 39136993}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.054546226, y: 0.6799467, z: 0.7310891, w: 0.0143556455}
+  m_LocalPosition: {x: -0.0289, y: 0.7121, z: -0.0077}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 857578140}
+  m_LocalEulerAnglesHint: {x: -95.272, y: 139.04199, z: -324.633}
 --- !u!1 &40130659
 GameObject:
   m_ObjectHideFlags: 0
@@ -25656,7 +25687,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2552079284668822560, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 39136994}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
 --- !u!4 &366795173 stripped
@@ -38182,6 +38216,7 @@ MonoBehaviour:
   _equipment: {fileID: 0}
   _actorAnimator: {fileID: 0}
   _attackData: {fileID: 0}
+  _combatStateDuration: 5
   _targetLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -38201,6 +38236,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _actorType: 1
   _characterActorType: 1
+  _socketDict:
+    _serializedList: []
   _interactionRadius: 0
   _interactionLayer:
     serializedVersion: 2
@@ -45116,6 +45153,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1741047642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &857578140 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2552079284668822560, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+  m_PrefabInstance: {fileID: 366795172}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &861043605
 GameObject:
   m_ObjectHideFlags: 0

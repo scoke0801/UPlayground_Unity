@@ -20,8 +20,6 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 4ce4fc9d3d76e824fbdd2ebaca274933, type: 2}
     - Key: 3
       Value: {fileID: 11400000, guid: 7af40ca5d18169b42a4712b007ac2837, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: 5195b78d34ad60144a58aaae58a27c62, type: 2}
     - Key: 700
       Value: {fileID: 11400000, guid: c2b0d702aeae0d643b45b2e20717bc43, type: 2}
     - Key: 900

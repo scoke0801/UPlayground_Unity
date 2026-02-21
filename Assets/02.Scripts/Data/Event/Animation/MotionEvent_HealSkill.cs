@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UPlayGround.Data.Enum;
 using UPlayGround.Manager;
 using Plane = System.Numerics.Plane;
@@ -16,6 +17,8 @@ namespace UPlayGround.Data.Event
     public class HealSkillEvent : MotionEventBase
     {
         public string vfxPrefabKey;
+        public string vfxAuraPrefabKey;
+        [FormerlySerializedAs("vfxPlayTime")] public float vfxLifeTime = 0f;
         
         public override string GetDisplayName() => "HealSKill";
 
@@ -70,7 +73,9 @@ namespace UPlayGround.Data.Event
                     ? targetActor.GetSocket(ActorSocketType.Center).position
                     : skillTarget.GetTransform().position;
 
-                GameObjectManager.Instance.ShowFX(vfxPrefabKey, vfxPosition);
+                GameObjectManager.Instance.ShowFX(vfxPrefabKey, vfxPosition, duration: vfxLifeTime);
+                GameObjectManager.Instance.ShowFX(vfxAuraPrefabKey, vfxPosition, duration: vfxLifeTime);
+
                 skillTarget.Heal(actor.Combat.CurrentSkill.baseInfo.damage);
             }
         }

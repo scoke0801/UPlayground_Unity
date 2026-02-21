@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
 
@@ -8,6 +9,8 @@ namespace UPlayGround.Manager
     {
         private const string FX_DATABASE_PATH = "FXPrefabDatabase";
         [SerializeField] private FXPrefabDatabase _fxPrefabDatabase;
+
+        private readonly List<(GameObject obj, float expireTime)> _pendingDestroyFXList = new();
 
         private async void LoadFXPrefabDatabase()
         {
@@ -32,7 +35,31 @@ namespace UPlayGround.Manager
             }
         }
 
-        public GameObject ShowFX(string key, Vector3 position, Quaternion rotation = default, Transform parent = null)
+        private void ProcessPendingDestroyFX()
+        {
+            if (_pendingDestroyFXList.Count == 0) return;
+
+            float now = Time.time;
+
+            for (int i = _pendingDestroyFXList.Count - 1; i >= 0; i--)
+            {
+                var (obj, expireTime) = _pendingDestroyFXList[i];
+
+                if (now < expireTime) continue;
+
+                if (obj != null)
+                    Destroy(obj);
+
+                _pendingDestroyFXList.RemoveAt(i);
+            }
+        }
+
+        public void RegisterFXInstance(GameObject instance, float lifeTime)
+        {
+            _pendingDestroyFXList.Add((instance, Time.time + lifeTime));
+        }
+        
+        public GameObject ShowFX(string key, Vector3 position, Quaternion rotation = default, Transform parent = null, float duration = 0f)
         {
             if (_fxPrefabDatabase == null)
             {
@@ -52,9 +79,13 @@ namespace UPlayGround.Manager
                 Debug.LogError($"[GameObjectManager] '{key}' FX의 프리팹이 null입니다.");
                 return null;
             }
+            
+            var instance = Instantiate(prefabEntry.prefab, position, rotation, parent);
 
-            // 인스턴스 생성
-            return Instantiate(prefabEntry.prefab, position, rotation, parent);
+            if (duration > 0f)
+                _pendingDestroyFXList.Add((instance, Time.time + duration));
+
+            return instance;
         }
     }
 }

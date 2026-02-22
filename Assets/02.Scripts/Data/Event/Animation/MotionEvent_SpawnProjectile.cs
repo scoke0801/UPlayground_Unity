@@ -12,10 +12,18 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class SpawnProjectileEvent : MotionEventBase
     {
+        [Header("Projectile Setting")]
         public BaseProjectile projectilePrefab;
-        public Vector3 spawnOffset;
+        public string spawnPointName;             // 스폰 기준 본/트랜스폼 이름
+        public Vector3 spawnOffset;               // 위치 보정 (로컬)
+        public Vector3 rotationOffset;            // 방향 보정 오일러 각도
+        public bool useSpawnRotation = true;      // 스폰 포인트 회전을 기준으로 할지
+        
+        [Header("Move Setting")]
         public float speed = 10f;
         public float duration = 3f;
+        
+        [Header("Hit Setting")]
         public LayerMask targetHitLayer;
         public string hitParticleName;
         
@@ -35,23 +43,38 @@ namespace UPlayGround.Data.Event
             var actor = target.GetComponent<GameActor>();
             if (actor == null) return;
             
-            var pos = target.transform.position + spawnOffset;
+            // 회전을 위한 스폰 포인트 결정
+            Transform rotationPoint = string.IsNullOrEmpty(spawnPointName)
+                ? target.transform
+                : FindTransformByName(target.transform, spawnPointName) ?? target.transform;
             
-            // target의 forward 방향 (이미 월드 좌표계)
+            Quaternion baseRot = useSpawnRotation
+                ? Quaternion.Euler(0f, rotationPoint.rotation.eulerAngles.y, -rotationPoint.rotation.eulerAngles.z)
+                : Quaternion.identity;
+            
+            Quaternion finalRot = baseRot * Quaternion.Euler(rotationOffset);
+            
             Vector3 worldDirection = target.transform.forward;
             worldDirection.y = 0; // y축 방향 제거
             worldDirection.Normalize();
-    
-            Quaternion rot = Quaternion.LookRotation(-worldDirection);
+            
+            var worldPos = target.transform.position + spawnOffset;
+            var instance = GameObject.Instantiate(projectilePrefab, worldPos, finalRot);
 
-            var instance = GameObject.Instantiate(projectilePrefab, pos, rot);
-
-            // BaseProjectile 컴포넌트 확인 및 초기화
             var projectile = instance.GetComponent<BaseProjectile>();
             if (projectile != null)
             {
-                projectile.Initialize(pos, worldDirection, 10f, speed, actor, duration, targetHitLayer, hitParticleName);
+                projectile.Initialize(worldPos, worldDirection, 10f, speed, actor, duration, targetHitLayer, hitParticleName);
             }
+        }
+
+        private Transform FindTransformByName(Transform parent, string name)
+        {
+            foreach (Transform child in parent.GetComponentsInChildren<Transform>())
+            {
+                if (child.name == name) return child;
+            }
+            return null;
         }
 
         public override void OnCompleteEvent(GameObject target)

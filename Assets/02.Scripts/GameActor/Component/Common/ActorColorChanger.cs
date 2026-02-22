@@ -44,6 +44,7 @@ namespace UPlayGround.Component
             foreach (var r in renderers)
             {
                 if (r.sharedMaterial == null) continue;
+                if (r.CompareTag("Weapon")) continue;  // 추가
 
                 string shaderName = r.sharedMaterial.shader.name;
                 int targetId = -1;

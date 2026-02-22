@@ -194,6 +194,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Weapon_Katana_01_Blade
       objectReference: {fileID: 0}
+    - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
+      objectReference: {fileID: 0}
     - target: {fileID: 8719863575694311676, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.0042
@@ -58678,6 +58682,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6020554158979748441, guid: a6f27d23948fe174892787580a0480b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 21.639399
@@ -58799,7 +58807,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1477439938586096490, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2175216458000076965, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -58926,7 +58938,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59063,6 +59075,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 5189093477667288178, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
+      objectReference: {fileID: 0}
     - target: {fileID: 7363359036555344191, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.3793359
@@ -59109,7 +59125,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59170,7 +59186,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59231,7 +59247,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1052589593905655432, guid: 77c0dff9728856147836c66e295754aa, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59313,7 +59329,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3918777833950893811, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59414,7 +59430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59717,7 +59733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1101629108985534757, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59758,6 +59774,10 @@ PrefabInstance:
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8792975555580781713, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59818,7 +59838,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

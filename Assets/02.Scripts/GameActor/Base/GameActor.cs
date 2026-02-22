@@ -13,12 +13,13 @@ namespace UPlayGround
         [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
 
         [SerializeField] protected SerializedDictionary<ActorSocketType, Transform> _socketDict;
-        
+
         protected ActorMovementController MovementController;
         protected ActorAnimator _animator;
         
         protected ActorColorChanger _colorChanger;
-        
+        protected DissolveController _dissolveController;
+
         public virtual ActorAnimator Animator => _animator;
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
 
@@ -34,6 +35,7 @@ namespace UPlayGround
             }
 
             _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
+            _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
         }
         
         protected virtual void Start()

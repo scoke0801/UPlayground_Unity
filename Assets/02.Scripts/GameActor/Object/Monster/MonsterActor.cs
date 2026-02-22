@@ -178,6 +178,7 @@ namespace UPlayGround
             // 사망 애니메이션
             // 아이템 드롭
             // 사망 처리
+            _dissolveController.StartDissolve(3f);
             
             // 임시: 3초 후 제거
             Destroy(gameObject, 3f);

@@ -3963,6 +3963,8 @@ MonoBehaviour:
   JumpPreGroundingGraceTime: 0.1
   JumpPostGroundingGraceTime: 0.15
   LandDrag: 1.5
+  FallGravityMultiplier: 1.5
+  RiseGravityMultiplier: 1.5
   DodgePower: 7.5
   DashSpeed: 10
   DashDuration: 0.5
@@ -3970,6 +3972,8 @@ MonoBehaviour:
   RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
   _dashCooldown: 1.5
+  MaxJumpCount: 2
+  DoubleJumpSpeed: 12
 --- !u!114 &128408081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27135,63 +27139,6 @@ Transform:
   - {fileID: 1274431576}
   m_Father: {fileID: 1884755198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &849833991
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 12.705776
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.2360597
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.4806824
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071067
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
-      propertyPath: m_Name
-      value: SlashMesh
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 328f2dd6fa670204bb923e7d0a5c7be2, type: 3}
 --- !u!1 &852654341
 GameObject:
   m_ObjectHideFlags: 0
@@ -45452,6 +45399,8 @@ MonoBehaviour:
   JumpPreGroundingGraceTime: 0.1
   JumpPostGroundingGraceTime: 0.15
   LandDrag: 1.5
+  FallGravityMultiplier: 2.5
+  RiseGravityMultiplier: 1.5
   DodgePower: 7.5
   DashSpeed: 18
   DashDuration: 0.3
@@ -53008,63 +52957,6 @@ Transform:
   - {fileID: 1422117732}
   m_Father: {fileID: 619540741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1825225975
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 12.419051
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.2360208
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.9093356
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023164, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942177893964023165, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
-      propertyPath: m_Name
-      value: fireslash
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 438c0b7b02dcafa4996592b62d22671f, type: 3}
 --- !u!1 &1831970539
 GameObject:
   m_ObjectHideFlags: 0
@@ -58623,6 +58515,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6020554158979748441, guid: a6f27d23948fe174892787580a0480b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 21.639399
@@ -58804,6 +58700,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 8191382552135447617, guid: d60784756818282429785b8bc9a44d28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58918,6 +58818,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_Lich_V1
       objectReference: {fileID: 0}
+    - target: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58934,6 +58838,10 @@ PrefabInstance:
     - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7570944248843120480, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59163,6 +59071,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_Ent_V1
       objectReference: {fileID: 0}
+    - target: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1575261604019275437, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_LocalPosition.x
       value: -23.7
@@ -59333,6 +59245,10 @@ PrefabInstance:
     - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7336911385355268137, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59731,5 +59647,3 @@ SceneRoots:
   - {fileID: 534169030}
   - {fileID: 309235016}
   - {fileID: 123782735}
-  - {fileID: 1825225975}
-  - {fileID: 849833991}

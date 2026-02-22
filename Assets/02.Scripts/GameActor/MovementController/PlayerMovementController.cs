@@ -59,7 +59,11 @@ namespace UPlayGround.MovementController
     {
         [Header("Dash Cooldown")]
         [SerializeField] private float _dashCooldown = 1.5f;
-        
+
+        [Header("Jump Additional")]
+        public int MaxJumpCount = 2;           // 최대 점프 횟수 (2 = 2단 점프)
+        public float DoubleJumpSpeed = 8f;     // 2단 점프 속도 (1단과 다르게 설정 가능)
+
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
         

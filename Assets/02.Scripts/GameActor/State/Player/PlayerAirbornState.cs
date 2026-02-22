@@ -13,7 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Airborne";
         
-        private bool _hasJumped = false;
+        private int _remainingJumps;     
         private bool _hasLanded = false;
         private bool _landStarted = false;
         
@@ -36,9 +36,11 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _dragSpeed = controller.Drag;
+            _remainingJumps = playerController.MaxJumpCount;
             
             if(InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
+                _remainingJumps -= 1;
                 gameActor.Animator.PlayMotion(AnimKey.Fall);
             }
         }
@@ -128,8 +130,14 @@ namespace UPlayGround.State
                     currentVelocity += inputDir * finalAccel;
                 }
                 
+                // 가변 중력 적용
+                float verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
+                float gravityMultiplier = verticalSpeed < 0f
+                    ? controller.FallGravityMultiplier   // 하강 중
+                    : controller.RiseGravityMultiplier;  // 상승 중
                 // Gravity
-                currentVelocity += controller.Gravity * deltaTime;
+                
+                currentVelocity += gravityMultiplier * deltaTime * controller.Gravity;
             }
                 
             // Drag
@@ -150,30 +158,35 @@ namespace UPlayGround.State
         
         private void HandleJump(ref Vector3 currentVelocity, float deltaTime)
         {
-            _timeSinceLastAbleToJump += deltaTime;
-
-            // 점프 실행 판정
-            if (playerController.HasJumpInput() && _hasJumped == false)
-            {
-                // 점프 예약 시간(Pre-buffer) 내에 있고, 점프 가능 시간(Coyote time) 내에 있는 경우
-                if (_timeSinceJumpRequested <= controller.JumpPreGroundingGraceTime 
-                    && _timeSinceLastAbleToJump <= controller.JumpPostGroundingGraceTime)
-                {
-                    playerActor.ClearJumpInput();
-                    
-                    // 수직 속도 초기화 후 점프 속도 적용
-                    currentVelocity = Vector3.ProjectOnPlane(currentVelocity, motor.CharacterUp);
-                    currentVelocity += motor.CharacterUp * controller.JumpSpeed;
-                    
-                    _hasJumped = true;
-                    _timeSinceJumpRequested = 0f;
-                    motor.ForceUnground(); // 모터를 강제로 공중 상태로 전환
-                    
-                    PlayJumpAnimation();
-                }
-            }
+            if (!playerController.HasJumpInput() || _remainingJumps <= 0)
+                return;
             
-            _timeSinceJumpRequested += deltaTime;
+            bool isFirstJump = _remainingJumps == playerController.MaxJumpCount;
+
+            // 1단 점프: 코요테 타임 체크
+            if (isFirstJump)
+            {
+                bool withinPreBuffer  = _timeSinceJumpRequested <= controller.JumpPreGroundingGraceTime;
+                bool withinCoyoteTime = _timeSinceLastAbleToJump <= controller.JumpPostGroundingGraceTime;
+
+                if (!withinPreBuffer || !withinCoyoteTime)
+                    return;
+            }
+
+            // 점프 실행
+            playerActor.ClearJumpInput();
+
+            float jumpSpeed = isFirstJump ? controller.JumpSpeed : playerController.DoubleJumpSpeed;
+
+            // 수직 속도 초기화 후 점프
+            currentVelocity = Vector3.ProjectOnPlane(currentVelocity, motor.CharacterUp);
+            currentVelocity += motor.CharacterUp * jumpSpeed;
+
+            _remainingJumps--;
+            _timeSinceJumpRequested = 0f;
+            motor.ForceUnground();
+
+            PlayJumpAnimation(isFirstJump);
         }
         
         private void ChangeToNextState()
@@ -191,8 +204,7 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
-            Debug.Log("Landed on ground");
-            _hasJumped = false;
+            _remainingJumps  = 0;
             _timeSinceLastAbleToJump = 0f;
             
             var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
@@ -208,9 +220,16 @@ namespace UPlayGround.State
             }
         }
 
-        private void PlayJumpAnimation()
+        private void PlayJumpAnimation(bool isFirstJump)
         {
-            var state = gameActor.Animator.PlayMotion(AnimKey.Jump, 0.2f);
+            AnimKey jumpKey = AnimKey.Jump;
+
+            if (gameActor.Animator.HasMotion(AnimKey.DoubleJump, true) == true
+                && isFirstJump == false)
+            {
+                jumpKey = AnimKey.DoubleJump;
+            } 
+            var state = gameActor.Animator.PlayMotion(jumpKey, 0.2f);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd += () =>

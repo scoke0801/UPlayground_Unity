@@ -11,9 +11,20 @@ namespace UPlayGround
     {
         [Header("Linear Movement")]
         [SerializeField] private float _speed = 20f;
+        [SerializeField] private float _acceleration = 5f; // 초당 추가될 속도
+        [SerializeField] private float _maxSpeed = 50f;
         [SerializeField] private float collisionRadius = 0.5f;
-
-        private Vector3 previousPosition;
+        
+        [Header("Juice Effects")]
+        [SerializeField] private AnimationCurve speedCurve = AnimationCurve.Linear(0, 1, 1, 1); // 속도 배율
+        [SerializeField] private bool useSizeCurve = true;
+        [SerializeField] private Vector3 _rotationSpeed = new Vector3(0, 0, 720f);
+        
+        private float _currentSpeed;
+        private float _elapsedTime;
+        private Vector3 _initialScale;
+        private Vector3 _previousPosition;
+        
         private void Awake()
         {
             _projectileType = ProjectileType.AOEProjectile;
@@ -22,8 +33,9 @@ namespace UPlayGround
         public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
-            previousPosition = startPos;
-            _speed = speed;
+            _previousPosition = startPos;
+            _currentSpeed = speed;
+            _elapsedTime = 0f;
         }
 
         public void InitLinearProjectile()
@@ -33,22 +45,31 @@ namespace UPlayGround
         
         protected override void UpdateMovement()
         {
-            previousPosition = transform.position;
-    
-            // 발사된 방향으로 계속 이동
-            transform.position += _speed * Time.deltaTime * direction;
+            _elapsedTime += Time.deltaTime;
+            _previousPosition = transform.position;
 
+            // 가속도 적용 (선형 가속 + 커브 배율)
+            _currentSpeed += _acceleration * Time.deltaTime;
+            _currentSpeed = Mathf.Min(_currentSpeed, _maxSpeed);
+            float finalSpeed = _currentSpeed * speedCurve.Evaluate(_elapsedTime / lifeTime);
+
+            // 위치 업데이트
+            transform.position += finalSpeed * Time.deltaTime * direction;
+            
+            // 회전 효과
+            transform.Rotate(_rotationSpeed * Time.deltaTime, Space.Self);
+            
             CheckCollision();
         }
 
         private void CheckCollision()
         {
-
-            // 연속 충돌 감지 (빠른 발사체용)
-            Vector3 moveDirection = transform.position - previousPosition;
+            Vector3 moveDirection = transform.position - _previousPosition;
             float moveDistance = moveDirection.magnitude;
+            
+            if (moveDistance <= 0) return;
 
-            if (Physics.SphereCast(previousPosition, collisionRadius, moveDirection.normalized,
+            if (Physics.SphereCast(_previousPosition, collisionRadius, moveDirection.normalized,
                     out RaycastHit hit, moveDistance, hitLayers))
             {   
                 OnHit(hit.collider);
@@ -64,7 +85,7 @@ namespace UPlayGround
             Gizmos.DrawWireSphere(transform.position, collisionRadius);
             
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(previousPosition, transform.position);
+            Gizmos.DrawLine(_previousPosition, transform.position);
         }
     }
 }

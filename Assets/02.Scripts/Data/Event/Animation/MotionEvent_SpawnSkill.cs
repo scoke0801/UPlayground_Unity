@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;

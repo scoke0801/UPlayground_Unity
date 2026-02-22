@@ -2,7 +2,7 @@
 using Interaction.Enum;
 using Mono.Cecil;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 

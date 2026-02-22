@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 // 장비 전용 SO
 [CreateAssetMenu(fileName = "EquipmentSO", menuName = "UPlayGround/SO/EquipmentSO")]

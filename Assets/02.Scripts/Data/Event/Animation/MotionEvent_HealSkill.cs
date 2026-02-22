@@ -2,7 +2,7 @@
 using System.Numerics;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using Plane = System.Numerics.Plane;
 using Quaternion = UnityEngine.Quaternion;

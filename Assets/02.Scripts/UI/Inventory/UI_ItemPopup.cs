@@ -3,7 +3,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;

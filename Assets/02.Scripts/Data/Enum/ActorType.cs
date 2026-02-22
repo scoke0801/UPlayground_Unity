@@ -1,4 +1,4 @@
-﻿namespace UPlayGround.Data.Enum
+﻿namespace UPlayGround.Data.EnumType
 {
     public enum ActorType
     {

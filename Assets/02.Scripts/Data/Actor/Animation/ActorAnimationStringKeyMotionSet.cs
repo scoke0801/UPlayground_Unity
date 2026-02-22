@@ -1,7 +1,7 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Animation;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Actor.Animation
 {

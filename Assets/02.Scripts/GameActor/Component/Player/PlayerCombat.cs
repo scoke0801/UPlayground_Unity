@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
@@ -53,6 +53,7 @@ namespace UPlayGround.Component
         // 공격 충돌 감지가 가능한 상태인가?
         // - 애니메이션 이벤트로 적절한 상태에 설정
         private bool _isCollideCollisionEnable;
+        private PlayerActor _playerActor;
         
         private List<IDamageable> _hitTargets = new List<IDamageable>();
         
@@ -84,6 +85,8 @@ namespace UPlayGround.Component
             
             if(_actorAnimator == null)
                 _actorAnimator = GetComponent<ActorAnimator>();
+            
+            _playerActor = GetComponent<PlayerActor>();
         }
 
         private void Update()
@@ -282,6 +285,7 @@ namespace UPlayGround.Component
                     _currentAttackData.hitTarget = hit.gameObject;
                     _currentAttackData.hitPoint = hit.ClosestPoint(origin);
                     _currentAttackData.attackDirection = directionToTarget;
+                    _currentAttackData.attacker = _playerActor;
                     
                     // 데미지 적용
                     damageable.TakeDamage(_currentAttackData);

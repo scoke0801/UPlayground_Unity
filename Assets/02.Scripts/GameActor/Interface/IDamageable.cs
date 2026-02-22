@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 
 namespace UPlayGround

@@ -2,7 +2,7 @@
 using Animancer;
 using Interaction.Enum;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;

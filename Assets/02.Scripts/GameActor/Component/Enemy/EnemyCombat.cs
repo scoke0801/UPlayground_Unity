@@ -2,7 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Component
@@ -14,6 +14,7 @@ namespace UPlayGround.Component
         [SerializeField] private Transform _attackOrigin;
         [SerializeField] private LayerMask _targetLayer;
         
+        private MonsterActor _ownerActor;
         private IDamageable _ownerDamageable;
         private EnemyDetection _detection;
         
@@ -41,6 +42,7 @@ namespace UPlayGround.Component
             
             _ownerDamageable = GetComponent<IDamageable>();
             _detection = GetComponent<EnemyDetection>();
+            _ownerActor = GetComponent<MonsterActor>();
         }
 
         private void Update()
@@ -315,7 +317,8 @@ namespace UPlayGround.Component
                         hitPoint = hitCollider.ClosestPoint(attackPosition),
                         attackDirection = _attackOrigin.forward,
                         reactionType = _currentSkill.baseInfo.reactionType,
-                        hitParticleName = _currentSkill.baseInfo.hitParticleName
+                        hitParticleName = _currentSkill.baseInfo.hitParticleName,
+                        attacker = _ownerActor
                     };
                     
                     damageable.TakeDamage(attackData);

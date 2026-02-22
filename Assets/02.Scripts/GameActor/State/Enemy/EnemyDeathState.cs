@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEditor;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;

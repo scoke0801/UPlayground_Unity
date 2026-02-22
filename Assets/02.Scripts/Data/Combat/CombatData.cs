@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Combat;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data
 {
@@ -97,6 +97,7 @@ namespace UPlayGround.Data
         public AttackReactionType reactionType = AttackReactionType.Hit;
         
         // Hit Detection Data
+        public GameActor attacker;
         public float hitRange;
         public float hitAngle;
         public float hitHeightOffset;

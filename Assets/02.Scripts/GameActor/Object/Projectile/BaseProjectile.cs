@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Manager;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround
 {
@@ -21,6 +21,8 @@ namespace UPlayGround
         [SerializeField] protected ParticleSystem trailEffect;
         [SerializeField] protected GameObject projectileModel;
 
+        protected ProjectileType _projectileType = ProjectileType.None;
+        
         protected List<IDamageable> _hitTargets = new List<IDamageable>();
 
         protected bool isActive = true;
@@ -31,7 +33,8 @@ namespace UPlayGround
         protected string hitEffectKey;
         
         public bool IsActive => isActive;
-
+        public ProjectileType ProjectileType => _projectileType;
+        
         public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed,
             GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
@@ -129,6 +132,7 @@ namespace UPlayGround
                 // AttackData 업데이트
                 attackData.hitTarget = hitObject;
                 attackData.hitPoint = hitCollider.ClosestPoint(transform.position);
+                attackData.attacker = owner;
                 
                 // 데미지 적용
                 damageable.TakeDamage(attackData);

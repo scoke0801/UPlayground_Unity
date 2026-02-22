@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround;
 using UPlayGround.Component;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;

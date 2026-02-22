@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -14,7 +14,11 @@ namespace UPlayGround
         [SerializeField] private float collisionRadius = 0.5f;
 
         private Vector3 previousPosition;
-
+        private void Awake()
+        {
+            _projectileType = ProjectileType.AOEProjectile;
+        }
+        
         public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
             base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
@@ -22,6 +26,11 @@ namespace UPlayGround
             _speed = speed;
         }
 
+        public void InitLinearProjectile()
+        {
+            
+        }
+        
         protected override void UpdateMovement()
         {
             previousPosition = transform.position;

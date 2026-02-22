@@ -2,7 +2,7 @@
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -68,6 +68,8 @@ namespace UPlayGround
             _currentHealth -= finalDamage;
             
             Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
+            
+            _detection.AcquireTarget(attackData.attacker?.transform);
             
             // 피격 이펙트, 사운드, 넉백 등 추가 가능
             OnDamaged(attackData);

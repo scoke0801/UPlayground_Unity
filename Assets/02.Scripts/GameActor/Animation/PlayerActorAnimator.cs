@@ -1,7 +1,7 @@
 ﻿using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 
 namespace UPlayGround.Animation

@@ -12,7 +12,7 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class SpawnProjectileEvent : MotionEventBase
     {
-        public GameObject projectilePrefab;
+        public BaseProjectile projectilePrefab;
         public Vector3 spawnOffset;
         public float speed = 10f;
         public float duration = 3f;

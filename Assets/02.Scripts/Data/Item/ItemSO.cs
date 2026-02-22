@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 [CreateAssetMenu(fileName = "ItemSO", menuName = "UPlayGround/SO/ItemSO")]
 public class ItemSO : ScriptableObject

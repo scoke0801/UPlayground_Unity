@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Component;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround
 {
@@ -30,6 +31,11 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
 
+        private void Awake()
+        {
+            _projectileType = ProjectileType.AOEProjectile;
+        }
+
         public override void Initialize(Vector3 startPos, Vector3 dir, float dmg,float speed,
             GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
         {
@@ -45,6 +51,11 @@ namespace UPlayGround
             {
                 AttachToGround(transform.position);
             }
+        }
+
+        public void InitAOEProjectile()
+        {
+            
         }
 
         protected override void InitFromMonsterActor(MonsterActor ownerObject)
@@ -173,7 +184,8 @@ namespace UPlayGround
                 attackData.hitTarget = target;
                 attackData.hitPoint = hit.ClosestPoint(transform.position);
                 attackData.attackDirection = (target.transform.position - transform.position).normalized;
-
+                attackData.attacker = owner;
+                
                 _damageCooldowns[damageable] = damageCooldown;
                 
                 damageable.TakeDamage(attackData);

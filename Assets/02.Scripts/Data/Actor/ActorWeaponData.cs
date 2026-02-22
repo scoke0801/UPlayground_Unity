@@ -2,7 +2,7 @@
 
 using UnityEngine;
 using UnityEngine.Serialization;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Actor
 {

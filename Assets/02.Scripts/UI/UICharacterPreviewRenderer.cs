@@ -2,7 +2,7 @@
 using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 /// <summary>

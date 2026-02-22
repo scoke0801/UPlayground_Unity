@@ -1,5 +1,5 @@
 ﻿
-namespace UPlayGround.Data.Enum
+namespace UPlayGround.Data.EnumType
 {
     /// <summary>
     /// 애니메이션 클립 구분하기 위한 기본 Key

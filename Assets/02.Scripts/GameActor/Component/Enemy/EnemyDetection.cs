@@ -43,6 +43,17 @@ namespace UPlayGround.Component
             }
         }
 
+        public void AcquireTarget(Transform target)
+        {
+            if (target.GetComponent<IDamageable>()?.IsAlive() == false)
+            {
+                return;
+            }
+            
+            _currentTarget = target;
+            Debug.Log($"[EnemyDetection] 타겟 획득: {target.name}");
+        }
+        
         private void UpdateDetection()
         {
             if (HasTarget)
@@ -123,17 +134,6 @@ namespace UPlayGround.Component
             }
             
             return false;
-        }
-
-        private void AcquireTarget(Transform target)
-        {
-            if (target.GetComponent<IDamageable>()?.IsAlive() == false)
-            {
-                return;
-            }
-            
-            _currentTarget = target;
-            Debug.Log($"[EnemyDetection] 타겟 획득: {target.name}");
         }
 
         private void LostTarget()

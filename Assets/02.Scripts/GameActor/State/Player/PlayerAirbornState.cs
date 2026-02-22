@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UPlayGround.Data.Enum;
+using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;

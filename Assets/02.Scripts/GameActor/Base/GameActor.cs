@@ -42,6 +42,11 @@ namespace UPlayGround
         {
             
         }
+
+        public bool HasSocket(ActorSocketType socketType)
+        {
+            return _socketDict.ContainsKey(socketType);
+        }
         
         public Transform GetSocket(ActorSocketType socketType)
         {
@@ -50,7 +55,7 @@ namespace UPlayGround
                 return result;
             }
 
-            return transform;
+            return null;
         }
     }
 }

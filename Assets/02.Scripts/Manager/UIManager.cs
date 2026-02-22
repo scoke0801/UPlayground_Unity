@@ -18,6 +18,8 @@ namespace UPlayGround.Manager
         Scene = 1000, // 씬
         Popup = 2000, // 팝업  
         System = 3000, // 시스템
+        
+        WorldSpace = 10000,
     }
 
     /// <summary>
@@ -43,10 +45,14 @@ namespace UPlayGround.Manager
 
         private const string DATABASE_PATH = "UIPrefabDatabase";
 
+        private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
+        
         // UI 프리팹 데이터베이스
         [SerializeField] private UIPrefabDatabase _uiPrefabDatabase;
 
         public bool IsInitialized { get; set; } = false;
+
+        public UI_WorldSpaceHudLayer WorldSpaceHudLayer => _worldSpaceHudLayer;
         #region IManager 구현
 
         public void Init()
@@ -134,6 +140,8 @@ namespace UPlayGround.Manager
 
                 _uiPrefabDatabase.Initialize();
                 IsInitialized = true;
+                
+                _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry("ActorHpBar"));
                 Debug.Log($"[UIManager] UIPrefabDatabase 로드 완료");
             }
             catch (System.Exception e)
@@ -159,9 +167,30 @@ namespace UPlayGround.Manager
                 {
                     _canvasDictionary.Add(layer, canvas);
                 }
+                
+                // HUD Canvas에 WorldSpaceHudLayer 추가
+                if (layer == CanvasLayer.HUD)
+                {
+                    _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
+                    _worldSpaceHudLayer.Init(canvas);
+                }
             }
         }
 
+        private UI_WorldSpaceHudLayer CreateWorldSpaceHudLayer(Canvas hudCanvas)
+        {
+            GameObject layerObj = new GameObject("WorldSpaceHudLayer");
+            layerObj.transform.SetParent(hudCanvas.transform, false);
+
+            var rectTransform = layerObj.AddComponent<RectTransform>();
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+
+            return layerObj.AddComponent<UI_WorldSpaceHudLayer>();
+        }
+        
         /// <summary>
         /// 개별 캔버스 생성
         /// </summary>
@@ -313,6 +342,24 @@ namespace UPlayGround.Manager
             return ShowUI(prefabEntry.prefab, targetLayer, uiKey);
         }
 
+        public GameObject GetUIPrefabEntry(string uiKey)
+        {
+            if (_uiPrefabDatabase == null)
+            {
+                Debug.LogError("[UIManager] UIPrefabDatabase가 로드되지 않았습니다.");
+                return null;
+            }
+
+            var prefabEntry = _uiPrefabDatabase.GetPrefabEntry(uiKey);
+            if (prefabEntry == null)
+            {
+                Debug.LogError($"[UIManager] '{uiKey}' UI를 찾을 수 없습니다.");
+                return null;
+            }
+
+            return prefabEntry.prefab;
+        }
+        
         /// <summary>
         /// UI를 이름으로 숨기기
         /// </summary>
@@ -393,6 +440,11 @@ namespace UPlayGround.Manager
             return null;
         }
 
+        public UI_ActorHpBar CreateHpBar(GameActor actor)
+        {
+            return _worldSpaceHudLayer?.CreateHpBar(actor);
+        }
+        
         /// <summary>
         /// 특정 레이어의 모든 UI 숨기기
         /// </summary>

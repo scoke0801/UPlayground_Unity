@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.State;
 
 namespace UPlayGround
@@ -22,6 +24,10 @@ namespace UPlayGround
         protected float _maxHealth = 0.0f;
         protected float _currentHealth = 0.0f;
         
+        protected UI_ActorHpBar _uiHpBar;
+        
+        public event Action<float, float> OnHealthChanged; // (current, max)
+
         public EnemyDetection Detection => _detection;
         public EnemyBrain Brain => _brain;
         public EnemyCombat Combat => _combat;
@@ -46,6 +52,28 @@ namespace UPlayGround
             if (_combat == null)
                 _combat = GetComponent<EnemyCombat>();
         }
+
+        protected override void Start()
+        {
+            base.Start();
+            
+            // AttachHpUI();
+        }
+
+        private void AttachHpUI()
+        {
+            if (_uiHpBar != null)
+            {
+                return;
+            }
+            
+            _uiHpBar = UIManager.Instance.CreateHpBar(this);
+            if (_uiHpBar != null)
+            {
+                OnHealthChanged += _uiHpBar.UpdateHealth;
+            }
+            _uiHpBar.UpdateHealth(_currentHealth, _maxHealth);
+        }
         #region IDamageable Implementation
         
         public void TakeDamage(AttackData attackData)
@@ -65,7 +93,14 @@ namespace UPlayGround
                 Debug.Log($"[MonsterActor] 크리티컬 히트! 데미지: {finalDamage}");
             }
             
-            _currentHealth -= finalDamage;
+            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
+
+            if (_uiHpBar == null)
+            {
+                AttachHpUI();
+            }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             
             Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
             
@@ -129,6 +164,11 @@ namespace UPlayGround
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             float actualHeal = _currentHealth - oldHealth;
             
+            if (_uiHpBar == null)
+            {
+                AttachHpUI();
+            }
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             Debug.Log($"[MonsterActor] {gameObject.name} 체력 회복: +{actualHeal:F1} HP (현재: {_currentHealth:F1}/{_maxHealth})");
         }
         
@@ -179,6 +219,12 @@ namespace UPlayGround
             // 아이템 드롭
             // 사망 처리
             _dissolveController.StartDissolve(3f);
+            
+            if (_uiHpBar != null)
+            {
+                OnHealthChanged -= _uiHpBar.UpdateHealth;
+                Destroy(_uiHpBar.gameObject);
+            }
             
             // 임시: 3초 후 제거
             Destroy(gameObject, 3f);

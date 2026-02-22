@@ -35,6 +35,8 @@
         
         Head,
         
+        UI_HpBar,
+        
         Weapon,
     }
 }

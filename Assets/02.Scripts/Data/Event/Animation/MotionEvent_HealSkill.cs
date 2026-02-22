@@ -69,10 +69,13 @@ namespace UPlayGround.Data.Event
                 }
 
                 var targetActor = skillTarget.GetTransform().GetComponent<GameActor>();
-                Vector3 vfxPosition = targetActor != null
-                    ? targetActor.GetSocket(ActorSocketType.Center).position
-                    : skillTarget.GetTransform().position;
+                Vector3 vfxPosition = skillTarget.GetTransform().position;
 
+                if (targetActor.HasSocket(ActorSocketType.Center))
+                {
+                    vfxPosition = targetActor.GetSocket(ActorSocketType.Center).position;
+                }
+                
                 GameObjectManager.Instance.ShowFX(vfxPrefabKey, vfxPosition, duration: vfxLifeTime);
                 GameObjectManager.Instance.ShowFX(vfxAuraPrefabKey, vfxPosition, duration: vfxLifeTime);
 

@@ -190,13 +190,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1642837150}
     m_Modifications:
+    - target: {fileID: 5921072647824751758, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
+      objectReference: {fileID: 0}
     - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_Name
       value: Weapon_Katana_01_Blade
       objectReference: {fileID: 0}
     - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_TagString
-      value: Weapon
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 8719863575694311676, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2080,6 +2084,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5520690572205527190, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473058755159534820, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8747370259794467746, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
@@ -13500,7 +13508,6 @@ Transform:
   - {fileID: 1672298539}
   - {fileID: 1758404517}
   - {fileID: 983225757}
-  - {fileID: 785411241}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &535276631
@@ -26087,11 +26094,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1753248558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &785411241 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-  m_PrefabInstance: {fileID: 1627805520}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &785470632
 GameObject:
   m_ObjectHideFlags: 0
@@ -47139,67 +47141,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1581987919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1627805520
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 534169030}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.9221687
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.454
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 23.92
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_Name
-      value: Slash
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ce274bd34d1b1d24f831cdd3e246a4e8, type: 3}
 --- !u!1 &1629906864
 GameObject:
   m_ObjectHideFlags: 0
@@ -58682,10 +58623,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V3
       objectReference: {fileID: 0}
-    - target: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6020554158979748441, guid: a6f27d23948fe174892787580a0480b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 21.639399
@@ -58805,14 +58742,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_Honoka
       objectReference: {fileID: 0}
-    - target: {fileID: 1477439938586096490, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2175216458000076965, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
-      propertyPath: m_TagString
-      value: Weapon
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58875,10 +58804,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V3
       objectReference: {fileID: 0}
-    - target: {fileID: 8191382552135447617, guid: d60784756818282429785b8bc9a44d28, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58936,10 +58861,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V1
       objectReference: {fileID: 0}
-    - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58955,7 +58876,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.93
+      value: 15.53
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -58963,11 +58884,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.1232285
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.95792603
+      value: 0.99995357
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalRotation.x
@@ -58975,7 +58896,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.28701538
+      value: -0.009639772
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalRotation.z
@@ -58987,7 +58908,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 33.359
+      value: -1.105
       objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -58996,10 +58917,6 @@ PrefabInstance:
     - target: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Lich_V1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59017,10 +58934,6 @@ PrefabInstance:
     - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7570944248843120480, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59075,10 +58988,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
-    - target: {fileID: 5189093477667288178, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
-      propertyPath: m_TagString
-      value: Weapon
-      objectReference: {fileID: 0}
     - target: {fileID: 7363359036555344191, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.3793359
@@ -59122,10 +59031,6 @@ PrefabInstance:
     - target: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
       propertyPath: m_Name
       value: Skeleton_Sword
-      objectReference: {fileID: 0}
-    - target: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59184,10 +59089,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Common
       objectReference: {fileID: 0}
-    - target: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59245,10 +59146,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Golem
       objectReference: {fileID: 0}
-    - target: {fileID: 1052589593905655432, guid: 77c0dff9728856147836c66e295754aa, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59265,10 +59162,6 @@ PrefabInstance:
     - target: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Ent_V1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1575261604019275437, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59327,10 +59220,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V1
       objectReference: {fileID: 0}
-    - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3918777833950893811, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.44
@@ -59386,7 +59275,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.354
+      value: 19.953999
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalPosition.y
@@ -59394,11 +59283,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.58
+      value: 0.5367713
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.94203067
+      value: 0.800352
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalRotation.x
@@ -59406,7 +59295,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.33552697
+      value: -0.59953046
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalRotation.z
@@ -59418,7 +59307,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -39.209
+      value: -73.673
       objectReference: {fileID: 0}
     - target: {fileID: 944037792688925781, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -59427,10 +59316,6 @@ PrefabInstance:
     - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Lich_V2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59448,10 +59333,6 @@ PrefabInstance:
     - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7336911385355268137, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59731,10 +59612,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Bow
       objectReference: {fileID: 0}
-    - target: {fileID: 1101629108985534757, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.2121135
@@ -59774,10 +59651,6 @@ PrefabInstance:
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8792975555580781713, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
-      propertyPath: m_TagString
-      value: Weapon
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59835,10 +59708,6 @@ PrefabInstance:
     - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Ent_V2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

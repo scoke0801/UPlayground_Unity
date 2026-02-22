@@ -523,6 +523,8 @@ namespace UPlayGround
                 CameraManager.Instance.StartShake("LiteHit");
             }
 
+            _colorChanger.OnHit();
+            
             Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData.hitPoint}");
         }
         

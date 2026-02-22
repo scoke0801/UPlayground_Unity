@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.Enum;
 using UPlayGround.Animation;
+using UPlayGround.Component;
 using UPlayGround.MovementController;
 
 namespace UPlayGround
@@ -16,6 +17,7 @@ namespace UPlayGround
         protected ActorMovementController MovementController;
         protected ActorAnimator _animator;
         
+        protected ActorColorChanger _colorChanger;
         
         public virtual ActorAnimator Animator => _animator;
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
@@ -30,6 +32,8 @@ namespace UPlayGround
             {
                 _animator.Init(this);
             }
+
+            _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
         }
         
         protected virtual void Start()

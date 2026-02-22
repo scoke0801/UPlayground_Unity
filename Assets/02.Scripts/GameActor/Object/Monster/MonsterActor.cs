@@ -158,6 +158,9 @@ namespace UPlayGround
             // 넉백 처리
             // 피격 애니메이션 재생
             MovementController.TransitionToState(new EnemyHitState(MovementController));
+            
+            _colorChanger.OnHit();
+            
             Debug.Log($"[MonsterActor] 피격! HitPoint: {attackData.hitPoint}");
         }
         

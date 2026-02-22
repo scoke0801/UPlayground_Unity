@@ -90416,12 +90416,12 @@ GameObject:
   - component: {fileID: 1860546738}
   - component: {fileID: 1860546737}
   m_Layer: 6
-  m_Name: TestPlayer
+  m_Name: TestPlayer_____SpiderQueen
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1860546737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99496,7 +99496,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9095356720821638556, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: _allyLayer.m_Bits
@@ -134334,12 +134334,12 @@ GameObject:
   - component: {fileID: 128408081}
   - component: {fileID: 8783240590404449170}
   m_Layer: 6
-  m_Name: TestPlayer_Bokusei
+  m_Name: TestPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &8783240590404449170
 MonoBehaviour:
   m_ObjectHideFlags: 0

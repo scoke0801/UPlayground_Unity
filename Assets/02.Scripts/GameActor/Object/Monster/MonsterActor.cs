@@ -193,7 +193,12 @@ namespace UPlayGround
         {
             if (attackData != null && attackData.reactionType == AttackReactionType.KnockBack)
             {
-                MovementController.AddVelocity(attackData.attackDirection.normalized * 15.0f);
+                //MovementController.AddVelocity(attackData.attackDirection.normalized * 15.0f);
+
+                // [TODO] 단순 위로 전환이 아니라 방향성 데이터 처리로 분리해야한다.
+                Vector3 direction = attackData.attackDirection + Vector3.up;
+                MovementController.AddVelocity(direction * 5.0f);
+
             }
             // 피격 이펙트 재생
             // 피격 사운드 재생

@@ -3763,7 +3763,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &123782735
 Transform:
   m_ObjectHideFlags: 0
@@ -3810,6 +3810,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _showHitDebug: 1
+  _snapSearchRange: 2
+  _snapSearchAngle: 60
+  _snapMoveSpeed: 6
+  _snapStopDistance: 1.2
   IsGuarding: 0
 --- !u!114 &128408075
 MonoBehaviour:
@@ -45361,6 +45365,12 @@ MonoBehaviour:
   _optimalCombatDistance: 2.5
   _minCombatDistance: 1.5
   _maintainDistance: 1
+  _continueAttackChance: 0.3
+  _guardChance: 0.25
+  _retreatChance: 0.2
+  _guardDuration: 1.5
+  _retreatDistance: 3
+  _circleDuration: 2.5
 --- !u!114 &1478419745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58594,6 +58604,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 1242462182835147140, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
+      propertyPath: _guardChance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1242462182835147140, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
+      propertyPath: _guardDuration
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1378325497934864947, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.15
@@ -58760,6 +58778,10 @@ PrefabInstance:
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -58940,6 +58962,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58997,6 +59023,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Common
       objectReference: {fileID: 0}
+    - target: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59053,6 +59083,10 @@ PrefabInstance:
     - target: {fileID: 1052589593905655432, guid: 77c0dff9728856147836c66e295754aa, type: 3}
       propertyPath: m_Name
       value: Golem
+      objectReference: {fileID: 0}
+    - target: {fileID: 1052589593905655432, guid: 77c0dff9728856147836c66e295754aa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59131,6 +59165,10 @@ PrefabInstance:
     - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3918777833950893811, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59228,6 +59266,10 @@ PrefabInstance:
     - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Lich_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59528,6 +59570,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Bow
       objectReference: {fileID: 0}
+    - target: {fileID: 1101629108985534757, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.2121135
@@ -59624,6 +59670,10 @@ PrefabInstance:
     - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Ent_V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

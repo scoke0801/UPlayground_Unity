@@ -70,8 +70,6 @@ namespace UPlayGround.State
             base.OnExit(toState);
             _isAttackActive = false;
             _combat.ClearHitTargets();
-
-            Debug.Log("[EnemyAttackState] 공격 종료");
         }
 
         public override void UpdateState(float deltaTime)
@@ -90,6 +88,13 @@ namespace UPlayGround.State
 
         private void OnAttackAnimationEnd()
         {
+            // 지면에서 떨어지면 Airborne 상태로 전환
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                controller.TransitionToState(new EnemyAirborneState(controller));
+                return;
+            }
+            
             if (!_isAttackActive)
                 return;
             
@@ -99,9 +104,42 @@ namespace UPlayGround.State
 
         private void TransitionToNextState()
         {
-            if (_detection.HasTarget && _detection.DistanceToTarget <= _brain.GetMaxAttackRange() * 1.5f)
+            // 타겟이 유효할 때 → 확률 기반 행동 분기
+            if (_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyChaseState(controller, _brain, _detection));
+                float distance = _detection.DistanceToTarget;
+                float roll = Random.value;
+                
+                // 1) 연속 공격 확률 체크 - 사거리 내일 때만
+                if (roll < _brain.ContinueAttackChance && distance <= _brain.GetMaxAttackRange() * 1.2f)
+                {
+                    controller.TransitionToState(
+                        new EnemyAttackState(controller, _combat, _brain, _detection));
+                    return;
+                }
+                
+                roll = Random.value;
+                
+                // 2) Guard 모션 보유 시 가드 확률 체크
+                if (_brain.HasGuardMotion && roll < _brain.GuardChance)
+                {
+                    controller.TransitionToState(
+                        new EnemyGuardState(controller, _brain, _detection, _brain.GuardDuration));
+                    return;
+                }
+                
+                // 3) 후퇴 확률 체크 - 가까이 붙어 있을 때
+                roll = Random.value;
+                if (roll < _brain.RetreatChance && distance < _brain.RetreatDistance)
+                {
+                    controller.TransitionToState(
+                        new EnemyRetreatState(controller, _brain, _detection, _brain.RetreatDistance));
+                    return;
+                }
+                
+                // 4) 기본 → 추적
+                controller.TransitionToState(
+                    new EnemyChaseState(controller, _brain, _detection));
             }
             else if (_brain.EnablePatrol)
             {
@@ -145,6 +183,12 @@ namespace UPlayGround.State
             else
             {
                 currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            }
+            
+            if (motor.GroundingStatus.IsStableOnGround == false)
+            {   
+                // Gravity
+                currentVelocity += controller.Gravity * deltaTime;
             }
         }
     }

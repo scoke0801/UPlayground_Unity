@@ -1,0 +1,155 @@
+using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Component;
+using UPlayGround.MovementController;
+
+namespace UPlayGround.State
+{
+    /// <summary>
+    /// 후퇴 상태 - 타겟 반대 방향으로 뒷걸음치며 거리 확보
+    /// 후퇴 완료 후 Circle 상태로 전환하여 대상 주변을 배회
+    /// </summary>
+    public class EnemyRetreatState : GameActorState
+    {
+        public override string StateName => "Retreat";
+
+        private EnemyBrain _brain;
+        private EnemyDetection _detection;
+
+        private float _retreatSpeed;
+        private float _targetDistance;
+        private float _retreatTimer;
+
+        private const float RETREAT_TIMEOUT = 2.0f;
+        private const float RETREAT_SPEED_RATIO = 0.65f;
+
+        public EnemyRetreatState(
+            ActorMovementController controller,
+            EnemyBrain brain,
+            EnemyDetection detection,
+            float targetDistance) : base(controller)
+        {
+            _brain = brain;
+            _detection = detection;
+            _targetDistance = targetDistance;
+        }
+
+        public override bool CanTransitionState(string stateName)
+        {
+            return true;
+        }
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+
+            _retreatTimer = 0f;
+            _retreatSpeed = controller.MaxRunMoveSpeed * RETREAT_SPEED_RATIO;
+
+            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                controller.TransitionToState(new EnemyAirborneState(controller));
+                return;
+            }
+
+            _retreatTimer += deltaTime;
+
+            bool reachedDistance = _detection.HasTarget &&
+                                  _detection.DistanceToTarget >= _targetDistance;
+            bool timedOut = _retreatTimer >= RETREAT_TIMEOUT;
+            bool lostTarget = !_detection.HasTarget;
+
+            if (lostTarget)
+            {
+                controller.TransitionToState(new EnemyIdleState(controller));
+                return;
+            }
+
+            if (reachedDistance || timedOut)
+            {
+                // 후퇴 완료 → 대상 주변 원형 배회로 전환
+                controller.TransitionToState(
+                    new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration));
+            }
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            if (_detection.HasTarget)
+            {
+                Vector3 dirToTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
+                dirToTarget.y = 0;
+
+                if (dirToTarget.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(dirToTarget);
+                    currentRotation = Quaternion.Slerp(
+                        currentRotation,
+                        targetRotation,
+                        1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime));
+                }
+            }
+
+            currentRotation = currentRotation.normalized;
+        }
+
+        public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            if (!_detection.HasTarget)
+            {
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity,
+                    Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
+
+            Vector3 dirAwayFromTarget = (motor.TransientPosition - _detection.CurrentTarget.position).normalized;
+            dirAwayFromTarget.y = 0;
+
+            if (motor.GroundingStatus.IsStableOnGround)
+            {
+                Vector3 targetVelocity = dirAwayFromTarget * _retreatSpeed;
+
+                targetVelocity = motor.GetDirectionTangentToSurface(
+                    targetVelocity,
+                    motor.GroundingStatus.GroundNormal) * targetVelocity.magnitude;
+
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity,
+                    targetVelocity,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            }
+        }
+
+        /// <summary>
+        /// 벽 충돌 시 후퇴 중단 → 바로 Circle로 전환
+        /// </summary>
+        public override void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (_detection.HasTarget)
+            {
+                Vector3 retreatDir = (motor.TransientPosition - _detection.CurrentTarget.position).normalized;
+                retreatDir.y = 0;
+                float dot = Vector3.Dot(retreatDir, hitNormal);
+
+                if (dot < -0.35f)
+                {
+                    controller.TransitionToState(
+                        new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration));
+                }
+            }
+        }
+    }
+}

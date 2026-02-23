@@ -1,0 +1,265 @@
+using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Component;
+using UPlayGround.MovementController;
+
+namespace UPlayGround.State
+{
+    /// <summary>
+    /// 배회 상태 - 타겟 주변을 자연스럽게 움직이며 거리를 유지
+    /// Perlin Noise 기반 방향/속도 변화 + 간헐적 정지/방향 전환
+    /// </summary>
+    public class EnemyCircleState : GameActorState
+    {
+        public override string StateName => "Circle";
+
+        private EnemyBrain _brain;
+        private EnemyDetection _detection;
+
+        private float _baseSpeed;
+        private float _circleTimer;
+        private float _circleDuration;
+        private float _circleDirection; // +1 or -1
+
+        // Perlin Noise 오프셋 (인스턴스별 고유)
+        private float _noiseOffsetAngle;
+        private float _noiseOffsetSpeed;
+        private float _noiseOffsetRadial;
+
+        // 간헐적 정지(일시 멈춤)
+        private float _pauseTimer;
+        private float _nextPauseTime;
+        private float _pauseDuration;
+        private bool _isPaused;
+
+        // 방향 전환
+        private float _directionChangeTimer;
+        private float _nextDirectionChangeTime;
+
+        private const float BASE_SPEED_RATIO = 0.5f;
+        private const float NOISE_SPEED = 0.8f;            // 노이즈 변화 속도
+        private const float ANGLE_NOISE_STRENGTH = 40f;     // 접선 각도 흔들림 (도)
+        private const float SPEED_NOISE_MIN = 0.4f;         // 최소 속도 배율
+        private const float SPEED_NOISE_MAX = 1.0f;         // 최대 속도 배율
+        private const float RADIAL_NOISE_STRENGTH = 0.4f;   // 거리 보정 흔들림
+
+        public EnemyCircleState(
+            ActorMovementController controller,
+            EnemyBrain brain,
+            EnemyDetection detection,
+            float duration) : base(controller)
+        {
+            _brain = brain;
+            _detection = detection;
+            _circleDuration = duration;
+        }
+
+        public override bool CanTransitionState(string stateName)
+        {
+            return true;
+        }
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+
+            _circleTimer = 0f;
+            _baseSpeed = controller.MaxRunMoveSpeed * BASE_SPEED_RATIO;
+            _circleDirection = Random.value > 0.5f ? 1f : -1f;
+
+            // 인스턴스별 고유 노이즈 시드
+            _noiseOffsetAngle = Random.Range(0f, 1000f);
+            _noiseOffsetSpeed = Random.Range(0f, 1000f);
+            _noiseOffsetRadial = Random.Range(0f, 1000f);
+
+            // 첫 정지 타이밍 예약
+            _pauseTimer = 0f;
+            _isPaused = false;
+            ScheduleNextPause();
+
+            // 첫 방향 전환 타이밍 예약
+            _directionChangeTimer = 0f;
+            ScheduleNextDirectionChange();
+
+            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                controller.TransitionToState(new EnemyAirborneState(controller));
+                return;
+            }
+
+            if (!_detection.HasTarget)
+            {
+                controller.TransitionToState(new EnemyIdleState(controller));
+                return;
+            }
+
+            _circleTimer += deltaTime;
+
+            if (_circleTimer >= _circleDuration)
+            {
+                controller.TransitionToState(
+                    new EnemyChaseState(controller, _brain, _detection));
+                return;
+            }
+
+            // 간헐적 정지 처리
+            UpdatePause(deltaTime);
+
+            // 간헐적 방향 전환 처리
+            UpdateDirectionChange(deltaTime);
+        }
+
+        private void UpdatePause(float deltaTime)
+        {
+            if (_isPaused)
+            {
+                _pauseTimer += deltaTime;
+                if (_pauseTimer >= _pauseDuration)
+                {
+                    _isPaused = false;
+                    _pauseTimer = 0f;
+                    ScheduleNextPause();
+                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);
+                }
+            }
+            else
+            {
+                _pauseTimer += deltaTime;
+                if (_pauseTimer >= _nextPauseTime)
+                {
+                    _isPaused = true;
+                    _pauseTimer = 0f;
+                    _pauseDuration = Random.Range(0.3f, 0.8f);
+                    gameActor.Animator.PlayMotion(AnimKey.Idle, 0.2f);
+                }
+            }
+        }
+
+        private void UpdateDirectionChange(float deltaTime)
+        {
+            _directionChangeTimer += deltaTime;
+            if (_directionChangeTimer >= _nextDirectionChangeTime)
+            {
+                _circleDirection *= -1f;
+                _directionChangeTimer = 0f;
+                ScheduleNextDirectionChange();
+            }
+        }
+
+        private void ScheduleNextPause()
+        {
+            _nextPauseTime = Random.Range(1.2f, 2.5f);
+            _pauseTimer = 0f;
+        }
+
+        private void ScheduleNextDirectionChange()
+        {
+            _nextDirectionChangeTime = Random.Range(1.5f, 3.5f);
+            _directionChangeTimer = 0f;
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            if (!_detection.HasTarget) return;
+
+            Vector3 dirToTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
+            dirToTarget.y = 0;
+
+            if (dirToTarget.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(dirToTarget);
+                currentRotation = Quaternion.Slerp(
+                    currentRotation,
+                    targetRotation,
+                    1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime));
+            }
+
+            currentRotation = currentRotation.normalized;
+        }
+
+        public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            if (!_detection.HasTarget || !motor.GroundingStatus.IsStableOnGround)
+            {
+                currentVelocity = Vector3.Lerp(currentVelocity, Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
+
+            // 정지 중이면 감속
+            if (_isPaused)
+            {
+                currentVelocity = Vector3.Lerp(currentVelocity, Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
+
+            Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+            toTarget.y = 0;
+            float currentDistance = toTarget.magnitude;
+
+            if (currentDistance < 0.1f) return;
+
+            Vector3 dirToTarget = toTarget / currentDistance;
+
+            float time = _circleTimer;
+
+            // --- Perlin Noise 기반 자연스러운 변화 ---
+
+            // 1) 접선 각도 흔들림: 순수 접선(90도)이 아니라 노이즈로 ±40도 변동
+            float angleNoise = (Mathf.PerlinNoise(time * NOISE_SPEED, _noiseOffsetAngle) - 0.5f) * 2f;
+            float strafeAngle = 90f * _circleDirection + angleNoise * ANGLE_NOISE_STRENGTH;
+            Vector3 moveDir = Quaternion.Euler(0, strafeAngle, 0) * dirToTarget;
+
+            // 2) 거리 보정 + 노이즈: 목표 거리 유지하되 흔들림 추가
+            float optimalDist = _brain.RetreatDistance;
+            float distanceDiff = currentDistance - optimalDist;
+            float radialNoise = (Mathf.PerlinNoise(time * NOISE_SPEED * 0.7f, _noiseOffsetRadial) - 0.5f) * 2f;
+            float radialCorrection = Mathf.Clamp(distanceDiff / optimalDist, -0.6f, 0.6f)
+                                     + radialNoise * RADIAL_NOISE_STRENGTH;
+
+            moveDir = (moveDir + dirToTarget * radialCorrection).normalized;
+
+            // 3) 속도 변화: 일정하지 않고 느려졌다 빨라졌다
+            float speedNoise = Mathf.PerlinNoise(time * NOISE_SPEED * 1.2f, _noiseOffsetSpeed);
+            float speedMultiplier = Mathf.Lerp(SPEED_NOISE_MIN, SPEED_NOISE_MAX, speedNoise);
+
+            Vector3 targetVelocity = moveDir * (_baseSpeed * speedMultiplier);
+
+            targetVelocity = motor.GetDirectionTangentToSurface(
+                targetVelocity,
+                motor.GroundingStatus.GroundNormal) * targetVelocity.magnitude;
+
+            currentVelocity = Vector3.Lerp(
+                currentVelocity,
+                targetVelocity,
+                1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+        }
+
+        public override void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (!_detection.HasTarget) return;
+
+            Vector3 toTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
+            toTarget.y = 0;
+            Vector3 tangent = Vector3.Cross(Vector3.up, toTarget) * _circleDirection;
+            float dot = Vector3.Dot(tangent, hitNormal);
+
+            if (dot < -0.3f)
+            {
+                _circleDirection *= -1f;
+            }
+        }
+    }
+}

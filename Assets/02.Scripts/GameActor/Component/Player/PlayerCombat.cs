@@ -41,7 +41,16 @@ namespace UPlayGround.Component
         [Header("Hit Detection Settings")]
         [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
         [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
+        
+        [Header("Attack Snap Settings")]
+        [SerializeField] private float _snapSearchRange = 2f;    // 자석 탐색 범위
+        [SerializeField] private float _snapSearchAngle = 60f;   // 정면 기준 탐색 각도
+        [SerializeField] private float _snapMoveSpeed = 6f;      // 스냅 보정 속도 (루트모션에 합산)
+        [SerializeField] private float _snapStopDistance = 1.2f;  // 이 거리 이내면 스냅 종료
 
+        public float SnapSearchRange => _snapSearchRange;
+        public float SnapMoveSpeed => _snapMoveSpeed;
+        public float SnapStopDistance => _snapStopDistance;
         public event Action<bool> OnChangeCombatState;
         
         // 현재 공격 정보 (히트 판정용)
@@ -391,6 +400,84 @@ namespace UPlayGround.Component
             OnComboReset?.Invoke();
             InputManager.Instance.InputBuffer.Clear(); // 콤보 리셋 시 입력 버퍼 비우기
         }
+        
+        #region Attack Snap (Target Magnetism)
+
+        /// <summary>
+        /// 공격 시 자석 보정 대상을 탐색한다.
+        /// 현재 히트 범위 내에 적이 있으면 null (보정 불필요).
+        /// 히트 범위 밖 ~ 자석 범위 내에 적이 있으면 가장 가까운 적의 Transform 반환.
+        /// </summary>
+        public Transform FindAttackSnapTarget(float hitRange, float hitAngle)
+        {
+            Vector3 origin = transform.position;
+            Vector3 forward = transform.forward;
+
+            // 1) 히트 범위 내 적이 있는지 체크 — 있으면 보정 불필요
+            if (HasTargetInRange(origin, forward, hitRange, hitAngle))
+                return null;
+
+            // 2) 자석 범위에서 탐색
+            Collider[] hits = Physics.OverlapSphere(origin, _snapSearchRange, _targetLayerMask);
+
+            Transform bestTarget = null;
+            float bestDistSq = float.MaxValue;
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform == transform || hit.transform.IsChildOf(transform))
+                    continue;
+
+                Vector3 dirToTarget = hit.transform.position - origin;
+                dirToTarget.y = 0f;
+
+                // 각도 필터
+                float angle = Vector3.Angle(forward, dirToTarget);
+                if (angle > _snapSearchAngle)
+                    continue;
+
+                // IDamageable 체크
+                IDamageable damageable = hit.GetComponent<IDamageable>() 
+                                         ?? hit.GetComponentInParent<IDamageable>();
+                if (damageable == null || !damageable.CanTakeDamage())
+                    continue;
+
+                float distSq = dirToTarget.sqrMagnitude;
+                if (distSq < bestDistSq)
+                {
+                    bestDistSq = distSq;
+                    bestTarget = hit.transform;
+                }
+            }
+
+            return bestTarget;
+        }
+
+        /// <summary>
+        /// 주어진 범위/각도 내에 히트 가능한 대상이 있는지 체크
+        /// </summary>
+        private bool HasTargetInRange(Vector3 origin, Vector3 forward, float range, float angle)
+        {
+            Collider[] hits = Physics.OverlapSphere(origin, range, _targetLayerMask);
+            foreach (var hit in hits)
+            {
+                if (hit.transform == transform || hit.transform.IsChildOf(transform))
+                    continue;
+
+                Vector3 dir = hit.transform.position - origin;
+                dir.y = 0f;
+                if (Vector3.Angle(forward, dir) > angle)
+                    continue;
+
+                IDamageable damageable = hit.GetComponent<IDamageable>() 
+                                         ?? hit.GetComponentInParent<IDamageable>();
+                if (damageable != null && damageable.CanTakeDamage())
+                    return true;
+            }
+            return false;
+        }
+
+        #endregion
         
         // 디버그 시각화
         private void OnDrawGizmosSelected()

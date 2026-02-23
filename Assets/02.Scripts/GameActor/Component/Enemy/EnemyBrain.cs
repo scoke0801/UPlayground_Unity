@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
+using Random = UnityEngine.Random;
 
 namespace UPlayGround.Component
 {
@@ -25,6 +27,14 @@ namespace UPlayGround.Component
         [SerializeField] private float _optimalCombatDistance = 2.5f;   // 선호하는 전투 거리
         [SerializeField] private float _minCombatDistance = 1.5f;       // 최소 전투 거리
         [SerializeField] private bool _maintainDistance = true;        // 거리 유지 여부
+        
+        [Header("Post-Attack Behavior")]
+        [SerializeField, Range(0f, 1f)] private float _continueAttackChance = 0.3f;  // 연속 공격 확률
+        [SerializeField, Range(0f, 1f)] private float _guardChance = 0.25f;          // 가드 전환 확률 (Guard 모션 보유 시)
+        [SerializeField, Range(0f, 1f)] private float _retreatChance = 0.2f;         // 공격 후 후퇴→배회 확률
+        [SerializeField] private float _guardDuration = 1.5f;                         // 가드 유지 시간
+        [SerializeField] private float _retreatDistance = 3f;                         // 후퇴 목표 거리
+        [SerializeField] private float _circleDuration = 2.5f;                        // 원형 배회 시간
 
         private float _decisionTimer;
         private float _lastAttackTime;
@@ -34,12 +44,22 @@ namespace UPlayGround.Component
         // AttackData에서 동적으로 가져오기
         private float _maxAttackRange;
         private float _skillCheckInterval = 0.5f; 
+
+        private bool _hasGuardMotion;
         
         public float ChaseSpeedMultiplier => _chaseSpeedMultiplier;
         public float PatrolRadius => _patrolRadius;
         public float PatrolWaitTime => _patrolWaitTime;
         public Vector3 SpawnPosition => _spawnPosition;
         public bool EnablePatrol => _enablePatrol;
+        public float ContinueAttackChance => _continueAttackChance;
+        public float GuardChance => _guardChance;
+        public float RetreatChance => _retreatChance;
+        public float GuardDuration => _guardDuration;
+        public float RetreatDistance => _retreatDistance;
+        public float CircleDuration => _circleDuration;
+        
+        public bool HasGuardMotion => _hasGuardMotion;
         
         private void Awake()
         {
@@ -72,6 +92,13 @@ namespace UPlayGround.Component
             
             _lastAttackTime = -(_combat?.AttackData?.globalCooldown ?? 1f);
             _lastSkillCheckTime = 0f;
+                 }
+
+        private void Start()
+        {
+            // Guard 모션 보유 여부 체크
+            var actor = GetComponent<GameActor>();
+            _hasGuardMotion = actor != null && actor.Animator != null && actor.Animator.HasMotion(Data.EnumType.AnimKey.Guard);
         }
 
         private void Update()
@@ -92,7 +119,7 @@ namespace UPlayGround.Component
             
             string currentStateName = _movementController.CurrentState.StateName;
             
-            if (currentStateName == "Death" || currentStateName == "Hit" || currentStateName == "Attack")
+            if (currentStateName == "Death" || currentStateName == "Hit" || currentStateName == "Attack" || currentStateName == "Guard" || currentStateName == "Retreat" || currentStateName == "Circle")
                 return;
             
             if (Time.time - _lastSkillCheckTime >= _skillCheckInterval)
@@ -148,7 +175,7 @@ namespace UPlayGround.Component
         private void HandleCombatBehavior(string currentStateName)
         {
             float distanceToTarget = _detection.DistanceToTarget;
-            
+
             if (CanUseSkill())
             {
                 // 현재 거리에서 사용 가능한 스킬이 있는지 미리 체크
@@ -161,7 +188,18 @@ namespace UPlayGround.Component
                     return;
                 }
             }
-            
+            else if (_maintainDistance && _hasGuardMotion &&
+                     distanceToTarget >= _minCombatDistance &&
+                     distanceToTarget <= _maxAttackRange &&
+                     currentStateName != "Guard" &&
+                     Random.value < _guardChance)
+            {
+                // 쿨다운 중 + 공격 범위 내 → Guard
+                _movementController.TransitionToState(
+                    new EnemyGuardState(_movementController, this, _detection, _guardDuration));
+                return;
+            }
+
             HandleDistanceBasedMovement(currentStateName, distanceToTarget);
         }
         
@@ -170,13 +208,14 @@ namespace UPlayGround.Component
         /// </summary>
         private void HandleDistanceBasedMovement(string currentStateName, float distanceToTarget)
         {
-            // 너무 가까움 - 후퇴
+            // 너무 가까움
             if (_maintainDistance && distanceToTarget < _minCombatDistance)
             {
+                // 후퇴
                 if (currentStateName != "Retreat")
                 {
-                    // TODO: EnemyRetreatState 구현 또는 Chase의 방향 반전
-                    Debug.Log("[EnemyBrain] 너무 가까움 - 후퇴");
+                    _movementController.TransitionToState(
+                        new EnemyRetreatState(_movementController, this, _detection, _optimalCombatDistance));
                 }
             }
             // 최적 거리보다 멀음 - 접근
@@ -188,10 +227,10 @@ namespace UPlayGround.Component
                         new EnemyChaseState(_movementController, this, _detection));
                 }
             }
-            // 최적 거리 - 대기 (원거리 공격 대기)
+            // 최적 거리 - Guard 또는 Idle 대기
             else if (_maintainDistance)
-            {
-                if (currentStateName != "Idle")
+            { 
+                if (currentStateName != "Idle" && currentStateName != "Guard")
                 {
                     _movementController.TransitionToState(new EnemyIdleState(_movementController));
                 }

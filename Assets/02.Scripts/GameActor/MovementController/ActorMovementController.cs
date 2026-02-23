@@ -148,9 +148,15 @@ namespace UPlayGround.MovementController
         {
             _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
             
-            // 외부에서 추가된 속도 적용
+            // 외부 충격량(AddVelocity) 반영
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {
+                // Y축 위로 솟구치는 경우, 즉시 지면 판정을 무시하도록 처리
+                if (_internalVelocityAdd.y > 0f)
+                {
+                    Motor.ForceUnground();
+                }
+
                 currentVelocity += _internalVelocityAdd;
                 _internalVelocityAdd = Vector3.zero;
             }

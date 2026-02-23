@@ -19,7 +19,7 @@ MonoBehaviour:
   detectionRadius: 10
   lostTargetRadius: 15
   fieldOfView: 120
-  attackRange: 2.5
+  attackRange: 7
   attackCooldown: 1.5
   enablePatrol: 1
   patrolRadius: 5

@@ -52,10 +52,11 @@ namespace UPlayGround.State
         {
             currentVelocity.x = 0;
             currentVelocity.z = 0;
-            if (motor.GroundingStatus.IsStableOnGround)
+            if (motor.GroundingStatus.IsStableOnGround == false)
             {
-                currentVelocity.y = controller.Gravity.y * deltaTime;
+                currentVelocity += controller.Gravity * deltaTime;
             }
+            
         }
     }
 }

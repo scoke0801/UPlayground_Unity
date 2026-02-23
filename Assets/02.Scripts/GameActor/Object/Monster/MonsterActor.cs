@@ -6,6 +6,7 @@ using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.State;
+using Random = System.Random;
 
 namespace UPlayGround
 {
@@ -78,6 +79,16 @@ namespace UPlayGround
         
         public void TakeDamage(AttackData attackData)
         {
+            if (_combat.IsGuarding)
+            {
+                // Guard State가 처리하도록 위임
+                if (MovementController.CurrentState is EnemyGuardState guardState)
+                {
+                    guardState.OnAttackBlocked(attackData);
+                    return; // 데미지 처리 중단
+                }
+            }
+
             if (!CanTakeDamage())
             {
                 Debug.Log($"[MonsterActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
@@ -197,7 +208,9 @@ namespace UPlayGround
 
                 // [TODO] 단순 위로 전환이 아니라 방향성 데이터 처리로 분리해야한다.
                 Vector3 direction = attackData.attackDirection + Vector3.up;
-                MovementController.AddVelocity(direction * 5.0f);
+                
+                float scale = 3f + UnityEngine.Random.Range(-2f, 2f);
+                MovementController.AddVelocity(direction * scale);
 
             }
             // 피격 이펙트 재생

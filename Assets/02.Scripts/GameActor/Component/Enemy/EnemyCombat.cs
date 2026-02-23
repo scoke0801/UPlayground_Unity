@@ -34,7 +34,8 @@ namespace UPlayGround.Component
         public bool IsPossibleCollide => _isCollisionEnabled;
         public SkillType ReservedSkillType => _reservedSkillType;
         public List<IDamageable> SkillTargetList => _skillTargets;
-        
+        public bool IsGuarding { get; set; } = false;
+
         private void Awake()
         {
             if (_attackOrigin == null)

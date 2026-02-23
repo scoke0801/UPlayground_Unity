@@ -83,17 +83,33 @@ namespace UPlayGround.State
         
          public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // Guard 중에는 Look 방향으로 회전 (적을 바라보도록)
-            Vector3 lookDirection = playerController.LookInputVector;
-            
-            if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)
+            // Lock-On 타겟이 있으면 타겟 방향으로 회전
+            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+            if (lockOnTarget != null)
             {
-                Vector3 smoothedLookInputDirection = Vector3.Slerp(
-                    motor.CharacterForward, 
-                    lookDirection, 
-                    1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
+                Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
+                directionToTarget.y = 0f;
                 
-                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+                if (directionToTarget.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+                    currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
+                }
+            }
+            else
+            {
+                // Guard 중에는 Look 방향으로 회전 (적을 바라보도록)
+                Vector3 lookDirection = playerController.LookInputVector;
+            
+                if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)
+                {
+                    Vector3 smoothedLookInputDirection = Vector3.Slerp(
+                        motor.CharacterForward, 
+                        lookDirection, 
+                        1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
+                
+                    currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+                }
             }
 
             currentRotation = currentRotation.normalized;

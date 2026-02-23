@@ -160,7 +160,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3026270}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbDistal_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -191,12 +191,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 1642837150}
     m_Modifications:
     - target: {fileID: 5921072647824751758, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5921072647824751758, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_TagString
       value: Weapon
       objectReference: {fileID: 0}
     - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_Name
       value: Weapon_Katana_01_Blade
+      objectReference: {fileID: 0}
+    - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8235110183094770246, guid: bfbc4d6f94eda38498c6f8109db5ae27, type: 3}
       propertyPath: m_TagString
@@ -391,7 +399,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 14749930}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_J_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -422,7 +430,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 15704072}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_G_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -454,7 +462,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 16717764}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_H_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -612,7 +620,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 36080933}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Cloth_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -675,7 +683,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 38402335}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeSode_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -875,7 +883,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 47926877}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AimTarget_R_Obi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -906,7 +914,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 50607078}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_I_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -971,7 +979,7 @@ GameObject:
   m_Component:
   - component: {fileID: 54961734}
   - component: {fileID: 54961735}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1126,7 +1134,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 61840424}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_I_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1370,7 +1378,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 66051351}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shoulder_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1519,7 +1527,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 73234794}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Jade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1581,7 +1589,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 76279292}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Shoes_Tassel_B_000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1644,7 +1652,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 82415448}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleIntermediate_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1677,7 +1685,7 @@ GameObject:
   m_Component:
   - component: {fileID: 84330341}
   - component: {fileID: 84330342}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1912,7 +1920,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 104698738}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Outside_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1943,7 +1951,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 107930540}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Robe_Tassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2006,6 +2014,54 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1087520037}
     m_Modifications:
+    - target: {fileID: 134361558118680533, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 150969773065589376, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 406956982542527959, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 684965044930418050, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 897571664527182205, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 924913914108079539, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 925665893312476127, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 945984551691061408, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 950747782372975525, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160760370402277944, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1268321792927707786, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1487723261454052725, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 1654103081745998922, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2042,9 +2098,129 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1681932988434911041, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1759088939192349893, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161045390144737474, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161178107263332951, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2252004940618776149, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2271298825173211263, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2501002420912938881, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2601643524420734095, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2618006828196026564, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2709957711775329013, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2977755436336562852, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3131802798292581365, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222884557333045402, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3237413009958841514, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3302507591411165200, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3365697984290353934, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559821731567466223, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3702382246382743685, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3876101850060592081, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074085534828456320, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284979584408098832, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4335189664838665367, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4356634627776399800, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4363939063950051495, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4489012627411431357, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4592724692115350436, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856117537992983971, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5161064065848931045, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5176534277828430380, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_Name
       value: School_Katana_Weapon
+      objectReference: {fileID: 0}
+    - target: {fileID: 5176534277828430380, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5198789954987334201, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5520690572205527190, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2086,9 +2262,113 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5531752740559029213, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5647152172386551879, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5676834344555772794, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688026353021076657, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5751761919046755226, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5821465913986889565, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6022642808683491581, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6399857216076844627, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6600111598469982023, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6782539115223623362, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192714581275864461, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7342414019723958274, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7360507129188117778, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7361943337030933435, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7473058755159534820, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7473058755159534820, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497859758684162807, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7540792662601225464, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7596948475670136398, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7672738348837152167, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7925557220998890760, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8085694410970966958, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8290465493090476692, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8328826043513444230, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8431188944737307103, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8456890695989478689, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473762558819512325, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8747370259794467746, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2125,6 +2405,14 @@ PrefabInstance:
     - target: {fileID: 8747370259794467746, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8803376164380526788, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9118823209602426632, guid: 3bc4fb8c64d3e7d45b0aeee7eefb3208, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3662,7 +3950,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 117957878}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_F_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3694,7 +3982,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 119139161}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Shoes_Tassel_A_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3763,7 +4051,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &123782735
 Transform:
   m_ObjectHideFlags: 0
@@ -3898,7 +4186,7 @@ MonoBehaviour:
   MaxStableSlopeAngle: 60
   StableGroundLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 521
   DiscreteCollisionEvents: 0
   StepHandling: 1
   MaxStepHeight: 0.5
@@ -4003,7 +4291,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 134132753}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom_Obi_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4066,7 +4354,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 140124728}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Tassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4195,7 +4483,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 147625276}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_ChestTassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4382,7 +4670,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 172987257}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_D_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4413,7 +4701,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 174934517}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_H_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4443,6 +4731,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 936662874}
     m_Modifications:
+    - target: {fileID: 8587560480181014313, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8587560480181014315, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
       propertyPath: looping
       value: 1
@@ -4451,9 +4743,17 @@ PrefabInstance:
       propertyPath: looping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8587560480965653321, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
       propertyPath: m_Name
       value: Slash_Ink
+      objectReference: {fileID: 0}
+    - target: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
       propertyPath: m_IsActive
@@ -4507,13 +4807,25 @@ PrefabInstance:
       propertyPath: looping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8587560481747350442, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8587560481963537800, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
       propertyPath: looping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8587560481963537805, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8587560482238305394, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
       propertyPath: looping
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8587560482238305399, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4534,7 +4846,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 188214818}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_K_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4565,7 +4877,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 193807728}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_D_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4597,7 +4909,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 197277443}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4628,7 +4940,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 199823226}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_G_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4660,7 +4972,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 200017749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4729,7 +5041,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 203785714}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_C_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4760,7 +5072,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 207875607}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_I_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4791,7 +5103,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 207978329}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_H_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4949,7 +5261,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 216973495}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Tassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5012,7 +5324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 219411095}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5138,7 +5450,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 227435953}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5202,7 +5514,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 232443715}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_A_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5266,7 +5578,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 235568949}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbIntermediate_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5372,7 +5684,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 238548597}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_B_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5403,7 +5715,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 239966455}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_M_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5435,7 +5747,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 246897907}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_O_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5497,7 +5809,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 260347372}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_F_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5529,7 +5841,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 261757549}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeSode_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5834,7 +6146,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 282393319}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_K_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5867,6 +6179,10 @@ PrefabInstance:
     - target: {fileID: 26357312483881777, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: looping
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 26357312483881788, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 26357312617216328, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5917,12 +6233,24 @@ PrefabInstance:
       value: Slash_Ink_vertical Variant
       objectReference: {fileID: 0}
     - target: {fileID: 26357312617216343, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 26357312617216343, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 26357313168822108, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 26357313168822110, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: looping
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 26357313594528770, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 26357313594528775, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: looping
@@ -5932,9 +6260,21 @@ PrefabInstance:
       propertyPath: looping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 26357313783575519, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 26357313869215224, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 26357313869215229, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: looping
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4271650296968674532, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7535071757938247549, guid: 43a6fff530ea41e47b72e332549cc9d2, type: 3}
       propertyPath: looping
@@ -5959,7 +6299,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 292099797}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingDistal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6055,7 +6395,7 @@ GameObject:
   m_Component:
   - component: {fileID: 298090237}
   - component: {fileID: 298090238}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlusHead
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6236,7 +6576,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 302209609}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9000,7 +9340,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 320952114}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Biwa_Back_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9064,7 +9404,7 @@ GameObject:
   m_Component:
   - component: {fileID: 330548928}
   - component: {fileID: 330548929}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Rofa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9290,7 +9630,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 344686359}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_LowerLeg_L_Robe_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9385,7 +9725,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 350262595}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9418,7 +9758,7 @@ GameObject:
   m_Component:
   - component: {fileID: 350569071}
   - component: {fileID: 350569070}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Hair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9690,7 +10030,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 351437169}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleDistal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9754,7 +10094,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 360481666}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeSode_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9785,7 +10125,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 361591615}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_A_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9946,7 +10286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 365651466}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexIntermediate_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10097,7 +10437,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 371300090}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_L_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10128,7 +10468,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 376847827}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Robe_Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10192,7 +10532,7 @@ GameObject:
   m_Component:
   - component: {fileID: 378572810}
   - component: {fileID: 378572811}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_NeckParts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10358,7 +10698,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 379248045}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bachi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10391,7 +10731,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 381424330}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Tassel_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10422,7 +10762,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 384981374}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Outside_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10454,7 +10794,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 389387322}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_L_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10486,7 +10826,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 393054846}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeSode_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10517,7 +10857,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 400333283}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_D_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10581,7 +10921,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 404213560}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_C_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11596,7 +11936,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 407752341}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_A_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11628,7 +11968,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 408253770}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11785,7 +12125,7 @@ GameObject:
   m_Component:
   - component: {fileID: 420806628}
   - component: {fileID: 420806627}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Robe_ShoulderParts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11947,7 +12287,7 @@ GameObject:
   m_Component:
   - component: {fileID: 421586887}
   - component: {fileID: 421586886}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_RobeBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12141,7 +12481,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 428098600}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbProximal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12173,7 +12513,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 430057666}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_S_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12242,7 +12582,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 440979449}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Earring_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12274,7 +12614,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 443719881}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_A_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12305,7 +12645,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 444004344}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_N_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12336,7 +12676,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 447821161}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom_Obi_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12368,7 +12708,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 450474224}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12399,7 +12739,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 451421773}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Robe_Tassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12430,7 +12770,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 452238927}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12582,7 +12922,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 455133088}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Tassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12614,7 +12954,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 459065214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Outside_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12646,7 +12986,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 460305451}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Shoes_Tassel_B_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12677,7 +13017,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 464170531}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12708,7 +13048,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 466099715}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_T_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12867,7 +13207,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485792383}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Outside_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12898,7 +13238,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 486893168}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_L_Obi_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12961,7 +13301,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 491510389}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_L_Obi_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12992,7 +13332,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 491801593}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_R_Obi_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13024,7 +13364,7 @@ GameObject:
   m_Component:
   - component: {fileID: 492092359}
   - component: {fileID: 492092360}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13087,7 +13427,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 493261757}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13119,7 +13459,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 494426288}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_C_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13156,7 +13496,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 508105833}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13379,7 +13719,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 523452506}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_P_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13416,7 +13756,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 527389157}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbDistal_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13447,7 +13787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 529967720}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingIntermediate_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13527,7 +13867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 535276632}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Tassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13559,7 +13899,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 539281455}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_B_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13591,7 +13931,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 541132314}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13655,7 +13995,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 547777884}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_K_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13751,7 +14091,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 554749422}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_L_Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13782,7 +14122,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 557304222}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AimTarget_L_Obi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13845,7 +14185,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 558971986}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_D_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13973,7 +14313,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 575117436}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_D_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14126,7 +14466,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 587721851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_L_Obi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14158,7 +14498,7 @@ GameObject:
   m_Component:
   - component: {fileID: 593648798}
   - component: {fileID: 593648799}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UpperLeg_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14282,7 +14622,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 600017155}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Outside_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14351,7 +14691,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 603413055}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_B_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14573,7 +14913,7 @@ GameObject:
   m_Component:
   - component: {fileID: 619540741}
   - component: {fileID: 619540742}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14626,7 +14966,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 619712764}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_D_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14658,7 +14998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 621671724}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_F_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14689,7 +15029,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 621981415}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_J_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14720,7 +15060,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 624207429}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_J_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14752,7 +15092,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 628132218}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_O_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14784,7 +15124,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 628514390}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleDistal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14849,7 +15189,7 @@ GameObject:
   m_Component:
   - component: {fileID: 634900190}
   - component: {fileID: 634900191}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_Constraint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14902,7 +15242,7 @@ GameObject:
   m_Component:
   - component: {fileID: 637309200}
   - component: {fileID: 637309201}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Shrit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15088,7 +15428,7 @@ GameObject:
   m_Component:
   - component: {fileID: 644906728}
   - component: {fileID: 644906729}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15140,7 +15480,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 646111056}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexProximal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15172,7 +15512,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 646160908}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_A_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15236,7 +15576,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 654633284}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_R_Obi_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15301,7 +15641,7 @@ GameObject:
   m_Component:
   - component: {fileID: 657507594}
   - component: {fileID: 657507595}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Magica Cloth_RobeBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19052,7 +19392,7 @@ GameObject:
   m_Component:
   - component: {fileID: 668741769}
   - component: {fileID: 668741768}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_RobeTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19247,7 +19587,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 670429421}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Magica cloth2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19281,7 +19621,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 674333595}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Shoes_Tassel_B_000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19345,7 +19685,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 676468981}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Outside_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19377,7 +19717,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 677646394}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_T_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19408,7 +19748,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 678536543}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Outside_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19440,7 +19780,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 679344300}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_N_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19472,7 +19812,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 684677578}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Bachi_Hand_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19503,7 +19843,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 686882392}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleProximal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19536,7 +19876,7 @@ GameObject:
   m_Component:
   - component: {fileID: 687287441}
   - component: {fileID: 687287442}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Gauntlet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19878,7 +20218,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 706834818}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_F_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19942,7 +20282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 708935649}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexDistal_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19973,7 +20313,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 710364542}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_A_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20162,7 +20502,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 718135403}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleDistal_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20193,7 +20533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 721223032}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Shoes_Tassel_A_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20224,7 +20564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 729763894}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20256,7 +20596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 731049075}
   - component: {fileID: 731049076}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Biwa_Neck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20484,7 +20824,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 741473522}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_J_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20515,7 +20855,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 742591186}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_B_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20674,7 +21014,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 758043192}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_C_RobeBottom_Back_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20852,7 +21192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 762897978}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Tassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20884,7 +21224,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 763139577}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_R_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25820,7 +26160,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 766591813}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hand_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25985,7 +26325,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 776505836}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbIntermediate_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26080,7 +26420,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 782163204}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_ChestTassel_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26465,7 +26805,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 787515335}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_Head_Earring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26496,7 +26836,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 789324189}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_B_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26560,7 +26900,7 @@ GameObject:
   m_Component:
   - component: {fileID: 799621416}
   - component: {fileID: 799621417}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UpperArm_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26616,7 +26956,7 @@ GameObject:
   m_Component:
   - component: {fileID: 803677955}
   - component: {fileID: 803677956}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Magica Capsule Collider (Head)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26668,7 +27008,7 @@ GameObject:
   m_Component:
   - component: {fileID: 805199439}
   - component: {fileID: 805199440}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_UnderWear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26819,7 +27159,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 809874669}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_ChestTassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26851,7 +27191,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 812275185}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_Hair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27120,7 +27460,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 849195138}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_N_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27152,7 +27492,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 852654342}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_C_RobeBottom_Back_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27215,7 +27555,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 855824601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_L_Robe_Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27316,7 +27656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 863897403}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexIntermediate_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27348,7 +27688,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 865962210}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Shoes_Tassel_A_000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27380,7 +27720,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 872304425}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleProximal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27412,7 +27752,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 875799962}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_L_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27444,7 +27784,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 877251926}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Shoes_Tassel_B_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27507,7 +27847,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 880131224}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_D_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27697,7 +28037,7 @@ GameObject:
   m_Component:
   - component: {fileID: 888251000}
   - component: {fileID: 888251001}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Biwa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27786,7 +28126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 895516338}
   - component: {fileID: 895516339}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Foot_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27840,7 +28180,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 896807717}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_B_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27872,7 +28212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 899867228}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexDistal_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27903,7 +28243,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 904261839}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_K_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27998,7 +28338,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 909258770}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_F_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28029,7 +28369,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 912945599}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Biwa_Hand_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28060,7 +28400,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 913307540}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_C_RobeBottom_Back_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28225,7 +28565,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 914328973}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Toes_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28293,7 +28633,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 919614928}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_D_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28355,7 +28695,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 936662874}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: VFX_Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28388,7 +28728,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 937940648}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom_Obi_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28420,7 +28760,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 940860620}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_M_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28451,7 +28791,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 949436570}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleDistal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28515,7 +28855,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 951679534}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_R_Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28835,7 +29175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 964908605}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_H_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28867,7 +29207,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 968615754}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_C_RobeBottom_Back_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28930,7 +29270,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 974053169}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_S_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28962,7 +29302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 981195676}
   - component: {fileID: 981195677}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_R_Obi_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29019,7 +29359,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 981457123}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_E_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29056,7 +29396,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 984699652}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29091,7 +29431,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 985975172}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_I_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29123,7 +29463,7 @@ GameObject:
   m_Component:
   - component: {fileID: 986131109}
   - component: {fileID: 986131110}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LowerLeg_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29209,7 +29549,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 993302970}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_F_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29272,7 +29612,7 @@ GameObject:
   m_Component:
   - component: {fileID: 994314128}
   - component: {fileID: 994314129}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Magica_Cloth_Hair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33768,7 +34108,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 999309279}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_ChestTassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33800,7 +34140,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1001471973}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33927,7 +34267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1010751956}
   - component: {fileID: 1010751957}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LowerArm_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33980,7 +34320,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1013941381}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_B_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34011,7 +34351,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1019508637}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_C_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34042,7 +34382,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1019585754}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shoulder_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34074,7 +34414,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1024460538}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Earring_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34106,7 +34446,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1024516640}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingDistal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34138,7 +34478,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1027965789}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Robe_Tassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34202,7 +34542,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1029823600}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_LowerLeg_R_Robe_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34233,7 +34573,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1032505111}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_A_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34296,7 +34636,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1041284859}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Outside_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34329,7 +34669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1049087354}
   - component: {fileID: 1049087353}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Hair_Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34706,7 +35046,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1056311997}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_U_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34738,7 +35078,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1060963279}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleDistal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34770,7 +35110,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1063429453}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_E_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34865,7 +35205,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1069617492}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35310,7 +35650,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1077692127}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_M_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35436,7 +35776,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1083568169}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35939,7 +36279,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1114605619}
   - component: {fileID: 1114605620}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Magica Cloth_RobeTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38894,7 +39234,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1114842094}
   - component: {fileID: 1114842095}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Earring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39110,7 +39450,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1127729643}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Earring_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39181,7 +39521,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1132079740}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_J_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39213,7 +39553,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1133175147}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Outside_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39332,7 +39672,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1146429191}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Biwa_Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39408,7 +39748,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1151572453}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_C_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39504,7 +39844,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1162911086}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39536,7 +39876,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1167074806}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_B_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39662,7 +40002,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1174476423}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingIntermediate_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39794,7 +40134,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1197200909}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39909,7 +40249,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1207665228}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Bachi_Hand_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40036,7 +40376,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1213771432}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_F_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40100,7 +40440,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1227273805}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_C_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40133,7 +40473,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1229692854}
   - component: {fileID: 1229692855}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UpperLeg_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40220,7 +40560,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1235281918}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_R_Obi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40317,7 +40657,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1244803917}
   - component: {fileID: 1244803918}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Bachi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40442,7 +40782,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1255888534}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40506,7 +40846,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1267072648}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Toes_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40537,7 +40877,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1272611970}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40568,7 +40908,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1273203458}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_L_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40599,7 +40939,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1274431576}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_N_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41039,7 +41379,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1287631271}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_O_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41263,7 +41603,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1316165751}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_C_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41327,7 +41667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1327058549}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_D_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41399,7 +41739,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1337536887}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Shoes_Tassel_A_000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41462,7 +41802,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1342319512}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeSode_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41493,7 +41833,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1348614117}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_ChestTassel_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41524,7 +41864,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1349968987}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41653,7 +41993,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1363956340}
   - component: {fileID: 1363956341}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Pants
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41868,7 +42208,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1375378128}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_P_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41899,7 +42239,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1384039961}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Biwa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41932,7 +42272,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1396335424}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41965,7 +42305,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1399920320}
   - component: {fileID: 1399920321}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Necklace
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42122,7 +42462,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1400624318}
   - component: {fileID: 1400624319}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LowerLeg_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42176,7 +42516,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1407399245}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_D_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42239,7 +42579,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1418013334}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_U_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42302,7 +42642,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1422117732}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Weapon_Sword_Dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42365,7 +42705,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1424755610}
   - component: {fileID: 1424755611}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42417,7 +42757,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1428634992}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_J_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42450,7 +42790,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1429582941}
   - component: {fileID: 1429582942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Foot_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42504,7 +42844,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1434744523}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_C_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42568,7 +42908,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1445469571}
   - component: {fileID: 1445469572}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Biwa_Neck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42638,7 +42978,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1451272328}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_L_Robe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42669,7 +43009,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1451412851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45185,7 +45525,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1473441678}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_A_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45249,7 +45589,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1474013725}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_E_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45453,7 +45793,7 @@ MonoBehaviour:
   MaxStableSlopeAngle: 60
   StableGroundLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 521
   DiscreteCollisionEvents: 0
   StepHandling: 1
   MaxStepHeight: 0.5
@@ -45628,7 +45968,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1484165480}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_E_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45714,6 +46054,10 @@ PrefabInstance:
       propertyPath: _allyLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
+    - target: {fileID: 4482067651849136133, guid: 77c0dff9728856147836c66e295754aa, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 6147562662712701646, guid: 77c0dff9728856147836c66e295754aa, type: 3}
       propertyPath: m_Name
       value: LockOn
@@ -45752,7 +46096,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1495694821}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_N_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45783,7 +46127,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1497285107}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_J_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45847,7 +46191,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1504624003}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_I_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45946,7 +46290,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1513614959}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_L_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45977,7 +46321,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1518862011}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbProximal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46040,7 +46384,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1546868428}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleProximal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46198,7 +46542,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1556908691}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_ChestTassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46261,7 +46605,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1568274800}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_HipCloth_Side_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46293,7 +46637,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1569356697}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_R_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46387,7 +46731,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1576230129}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Neck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46579,7 +46923,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1582494773}
   - component: {fileID: 1582494774}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Biwa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46699,7 +47043,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1584271967}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_G_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46795,7 +47139,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1588580432}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Robe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46826,7 +47170,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1590704539}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbDistal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46890,7 +47234,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1600668710}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_O_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46953,7 +47297,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1608334549}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47015,7 +47359,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1623913761}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipJade_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47172,7 +47516,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1634436128}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingProximal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47268,7 +47612,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1642578952}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_LowerLeg_R_Robe_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47395,7 +47739,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1650838229}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_B_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47427,7 +47771,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1651537766}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_G_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47490,7 +47834,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1657422749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hand_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47529,7 +47873,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1659645878}
   - component: {fileID: 1659645879}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UpperChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47625,7 +47969,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1661733211}
   - component: {fileID: 1661733212}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Cloth_01_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47677,7 +48021,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1664291131}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexDistal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47741,7 +48085,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1666049228}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipTassel_A_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47783,7 +48127,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1675108559}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_B_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47814,7 +48158,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1678795888}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom_Obi_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48036,7 +48380,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1686374927}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48100,7 +48444,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1692980285}
   - component: {fileID: 1692980286}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_Bachi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48221,7 +48565,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1696880774}
   - component: {fileID: 1696880775}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UpperArm_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48276,7 +48620,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1699156445}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_07
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48307,7 +48651,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1705749710}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleProximal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48339,7 +48683,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1713296889}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Toes_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48435,7 +48779,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1718011753}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_L_Cloth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48497,7 +48841,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1724121999}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_Robe_Tassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48528,7 +48872,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1724322205}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_HipCloth_Side_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49348,7 +49692,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1728148638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleDistal_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49558,7 +49902,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1737112719}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49622,7 +49966,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1743155457}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_K_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49718,7 +50062,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1748860883}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_L_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52091,7 +52435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1753248558}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_ChestTassel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52123,7 +52467,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1755222767}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_A_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52155,7 +52499,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1757778619}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_HipCloth_Front_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52229,7 +52573,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1766532537}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_M_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52323,7 +52667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1774973636}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_G_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52354,7 +52698,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1775483134}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Earring_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52386,7 +52730,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1777030016}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52418,7 +52762,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1779883764}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Biwa_Hand_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52449,7 +52793,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1790369170}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleDistal_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52511,7 +52855,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1792738439}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Biwa_Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52543,7 +52887,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1797595922}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52607,7 +52951,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1800478231}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_A_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52638,7 +52982,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1803554890}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_HipCloth_Front_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52703,7 +53047,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1807412825}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_Tassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52766,7 +53110,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1814714973}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ThumbDistal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52799,7 +53143,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1814944848}
   - component: {fileID: 1814944849}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Elbow_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52882,7 +53226,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1818047102}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_G_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52913,7 +53257,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1822725806}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleDistal_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52944,7 +53288,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1823918323}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sword_Case
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53007,7 +53351,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1837317125}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_L_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53039,7 +53383,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1837839364}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_C_RobeBottom_Back_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53257,7 +53601,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1853414738}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_C_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53288,7 +53632,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1857786549}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexProximal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53404,7 +53748,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1864953364}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Robe_Tassel_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53467,7 +53811,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1870815223}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_Biwa_Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53499,7 +53843,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1873858247}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingDistal_L_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53530,7 +53874,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1875113318}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleIntermediate_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53562,7 +53906,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1878737387}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_M_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53625,7 +53969,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1881070279}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_LowerLeg_L_Robe_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53656,7 +54000,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1884048750}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53687,7 +54031,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1884755198}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HairBone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53784,7 +54128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1886040552}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_D_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54096,7 +54440,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1899101645}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_RobeBottom_Obi_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54377,7 +54721,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1916678370}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: IndexDistal_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54442,7 +54786,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1921748979}
   - component: {fileID: 1921748980}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Biwa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54523,7 +54867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1931449292}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_I_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54587,7 +54931,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1934647264}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54618,7 +54962,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1935765291}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LittleIntermediate_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55991,7 +56335,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1947735348}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56023,7 +56367,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1947972656}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56085,7 +56429,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1950028501}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_K_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56118,7 +56462,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1960237483}
   - component: {fileID: 1960237484}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Elbow_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56169,7 +56513,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1961524707}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56201,7 +56545,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1963099188}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Toes_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56297,7 +56641,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1971502940}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_02_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56398,7 +56742,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1973813317}
   - component: {fileID: 1973813318}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: M_HipCloth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56646,7 +56990,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1982441273}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_Robe_Tassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57046,7 +57390,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2018139749}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MiddleIntermediate_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57078,7 +57422,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2018305843}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_H_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57141,7 +57485,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2032427954}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_RobeBottom_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57173,7 +57517,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2033563696}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeSode_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57269,7 +57613,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2035175939}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_R_ChestTassel_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57302,7 +57646,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2038989485}
   - component: {fileID: 2038989486}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LowerArm_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57355,7 +57699,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2041334502}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingDistal_R_END
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57387,7 +57731,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2043068760}
   - component: {fileID: 2043068761}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SK_L_Obi_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57444,7 +57788,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2047769966}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CON_Biwa_Back_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57506,7 +57850,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2050151401}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RingProximal_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57602,7 +57946,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2056471219}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57665,7 +58009,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2059347552}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_E_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57797,7 +58141,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2081663092}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Tassel_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57859,7 +58203,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2084389372}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: COL_UpperLeg_R_Cloth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57922,7 +58266,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2087271799}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Top_E_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57954,7 +58298,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2092891009}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_L_RobeBottom_Outside_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57986,7 +58330,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2092945491}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_C_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58018,7 +58362,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2094926405}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_M_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58082,7 +58426,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2101533365}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_Q_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58144,7 +58488,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2110610504}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_A_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58176,7 +58520,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2113421661}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_H_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58238,7 +58582,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2118809134}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_HipCloth_Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58270,7 +58614,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2119933284}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_Q_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58396,7 +58740,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2121374793}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Nape_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58459,7 +58803,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2138517716}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Front_N_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58491,7 +58835,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2144688097}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PB_Hair_Mid_B_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58521,6 +58865,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 81635036184896242, guid: a6f27d23948fe174892787580a0480b8, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V3
@@ -58656,6 +59004,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MonsterActor_Honoka
       objectReference: {fileID: 0}
+    - target: {fileID: 1911356209915110278, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58714,6 +59066,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5519839503537121271, guid: d60784756818282429785b8bc9a44d28, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 8191382552135447617, guid: d60784756818282429785b8bc9a44d28, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V3
@@ -58735,6 +59091,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 908181309792730421, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.3
@@ -58796,6 +59156,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 1019432191092975739, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 5764967952154935756, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.53
@@ -58905,6 +59269,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9196095950326579280, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58918,6 +59286,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 1248876517422324163, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 7363359036555344191, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.3793359
@@ -59088,6 +59460,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4482067651849136133, guid: 77c0dff9728856147836c66e295754aa, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59149,6 +59525,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6823019542550470215, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59162,6 +59542,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 1237780070879417887, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderMinion_V1
@@ -59271,6 +59655,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6658494751044167137, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59284,6 +59672,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 4889683624690261608, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
       propertyPath: m_Name
       value: MonsterActor_SpiderQueen_V2
@@ -59574,6 +59966,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5027127881184520813, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 6561756506934173353, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.2121135
@@ -59627,6 +60023,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534169030}
     m_Modifications:
+    - target: {fileID: 3526466993869837023, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
+      propertyPath: StableGroundLayers.m_Bits
+      value: 521
+      objectReference: {fileID: 0}
     - target: {fileID: 4065138622120090583, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24.979002

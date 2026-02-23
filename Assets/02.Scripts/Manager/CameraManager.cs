@@ -87,6 +87,11 @@ namespace UPlayGround.Manager
         private CapsuleCollider lockOnTargetCollider; // LockOn 대상 Collider
         private bool isLockOnActive; // LockOn 활성화 상태
 
+        // LockOn 대상 Y축 스무딩 (점프 등으로 인한 카메라 튀김 방지)
+        private float lockOnTargetSmoothY;
+        private float lockOnTargetYVelocity;
+        private float lockOnYSmoothTime = 0.3f; // Y축 추적 부드러움 (높을수록 느리게 따라감)
+
         private bool isCameraAligning; // 카메라 보정 중인지
         private float cameraAlignTimer; // 보정 타이머
 
@@ -610,6 +615,9 @@ namespace UPlayGround.Manager
                 lockOnTarget.GetComponent<IDamageable>()?.LockOn();
                 lockOnTargetCollider = lockOnTarget.GetComponent<CapsuleCollider>();
                 
+                // Y축 스무딩 즉시 초기화 (락온 시작 시 튀김 방지)
+                InitLockOnSmoothY();
+                
                 return true;
             }
 
@@ -731,6 +739,9 @@ namespace UPlayGround.Manager
             
             lockOnTarget.GetComponent<IDamageable>()?.LockOn();
             
+            // Y축 스무딩 즉시 초기화
+            InitLockOnSmoothY();
+            
             return true;
         }
 
@@ -753,6 +764,21 @@ namespace UPlayGround.Manager
             isLockOnActive = false;
             availableTargets.Clear();
             currentTargetIndex = -1;
+            lockOnTargetYVelocity = 0f;
+        }
+
+        /// <summary>
+        /// LockOn Y축 스무딩 초기화 (대상 전환/시작 시 즉시 현재 위치로 세팅)
+        /// </summary>
+        private void InitLockOnSmoothY()
+        {
+            if (lockOnTarget == null) return;
+            
+            float heightOffset = (lockOnTargetCollider != null) 
+                ? lockOnTargetCollider.height * 0.25f : 1f;
+            
+            lockOnTargetSmoothY = lockOnTarget.position.y - heightOffset;
+            lockOnTargetYVelocity = 0f;
         }
 
         /// <summary>
@@ -785,9 +811,17 @@ namespace UPlayGround.Manager
             float lockOnHeightOffset = (lockOnTargetCollider != null) 
                 ? lockOnTargetCollider.height * 0.25f : 1f;
             
-            // 대상을 향한 방향 계산
-            Vector3 targetLockOnPosition = lockOnTarget.position - Vector3.up * lockOnHeightOffset;
-            Vector3 directionToTarget = (targetLockOnPosition - target.position).normalized;;
+            // 대상의 실제 Y 위치
+            float rawTargetY = lockOnTarget.position.y - lockOnHeightOffset;
+            
+            // Y축만 부드럽게 추적 (점프/낙하 시 카메라 튀김 방지)
+            lockOnTargetSmoothY = Mathf.SmoothDamp(
+                lockOnTargetSmoothY, rawTargetY, ref lockOnTargetYVelocity, lockOnYSmoothTime);
+            
+            // XZ는 즉시 추적, Y만 스무딩 적용
+            Vector3 targetLockOnPosition = new Vector3(
+                lockOnTarget.position.x, lockOnTargetSmoothY, lockOnTarget.position.z);
+            Vector3 directionToTarget = (targetLockOnPosition - target.position).normalized;
 
             // Yaw, Pitch 계산
             float targetYaw = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
@@ -845,6 +879,9 @@ namespace UPlayGround.Manager
             lastSwitchTime = Time.time; 
             
             lockOnTarget.GetComponent<IDamageable>()?.LockOn();
+            
+            // Y축 스무딩 즉시 초기화
+            InitLockOnSmoothY();
         }
 
         /// <summary>

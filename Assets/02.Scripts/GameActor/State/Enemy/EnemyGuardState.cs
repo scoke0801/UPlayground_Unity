@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
+using UPlayGround.Data;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -15,6 +16,7 @@ namespace UPlayGround.State
         
         private EnemyBrain _brain;
         private EnemyDetection _detection;
+        private EnemyCombat _combat;
         
         private float _guardDuration;
         private float _guardTimer;
@@ -35,12 +37,26 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             
+            MonsterActor monsterActor = gameActor as MonsterActor;
+            if (monsterActor)
+            {
+                _combat = monsterActor.Combat;
+                if (_combat != null)
+                {
+                    _combat.IsGuarding = true;
+                }
+            }
+            
             _guardTimer = 0f;
             gameActor.Animator.PlayMotion(AnimKey.Guard, 0.2f);
         }
 
         public override void OnExit(GameActorState toState)
         {
+            if (_combat != null)
+            {
+                _combat.IsGuarding = false;
+            }
             base.OnExit(toState);
         }
 
@@ -89,6 +105,11 @@ namespace UPlayGround.State
                     Vector3.zero,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
             }
+        }
+
+        public void OnAttackBlocked(AttackData incomingAttack)
+        {   
+            controller.AddVelocity(incomingAttack.attackDirection.normalized * 2.0f);
         }
     }
 }

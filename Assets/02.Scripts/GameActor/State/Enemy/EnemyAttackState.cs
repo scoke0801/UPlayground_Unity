@@ -175,7 +175,10 @@ namespace UPlayGround.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
             
-            // 원거리 공격은 제자리에, 근접 공격은 루트 모션 사용
+            // 현재의 수직 속도(중력값)를 임시 저장
+            float lastVerticalVelocity = currentVelocity.y;
+
+            // 1. 스킬 로직에 따른 속도 재설정 (여기서 속도가 0이 되거나 초기화됨)
             if (_currentSkill != null && _currentSkill.baseInfo.attackType == AttackType.Ranged)
             {
                 currentVelocity = Vector3.zero;
@@ -184,10 +187,19 @@ namespace UPlayGround.State
             {
                 currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             }
-            
-            if (motor.GroundingStatus.IsStableOnGround == false)
-            {   
-                // Gravity
+
+            // 2. 이전 프레임의 수직 속도를 다시 복구
+            currentVelocity.y = lastVerticalVelocity;
+
+            // 3. 중력 누적 적용
+            if (motor.GroundingStatus.IsStableOnGround)
+            {
+                // 지면에 안정적일 때 수직 속도 억제
+                if (currentVelocity.y < 0) currentVelocity.y = -0.1f;
+            }
+            else
+            {
+                // 공중일 때 지속적으로 중력 가산
                 currentVelocity += controller.Gravity * deltaTime;
             }
         }

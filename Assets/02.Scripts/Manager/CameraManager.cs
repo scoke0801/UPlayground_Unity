@@ -95,6 +95,13 @@ namespace UPlayGround.Manager
         private bool isCameraAligning; // 카메라 보정 중인지
         private float cameraAlignTimer; // 보정 타이머
 
+        // LockOn 해제 전환 연출 (대상 사망/소실 시 부드러운 복귀)
+        private bool _isLockOnTransitioning;      // 전환 중인지
+        private float _lockOnTransitionTimer;      // 전환 남은 시간
+        private float _lockOnTransitionDuration = 0.3f; // 전환 지속 시간 (현재 방향 유지)
+        private float _lockOnTransitionYaw;        // 전환 시작 시점의 Yaw
+        private float _lockOnTransitionPitch;      // 전환 시작 시점의 Pitch
+
         private Vector3 positionVelocity;
         private Vector3 smoothPosition;
 
@@ -102,6 +109,20 @@ namespace UPlayGround.Manager
         
         private const string CAMERA_SHAKE_DATABASE_PATH = "CameraShakeDatabase";
         private CameraShakeDatabase _cameraShakeDatabase;
+
+        // 킬캠
+        private const string KILL_CAM_DATA_PATH = "KillCamData";
+        private KillCamController _killCamController;
+        
+        // 입력 잠금 (킬캠 등 연출 중 카메라 조작 차단)
+        private bool _isInputLocked;
+
+        // 컨텍스트 기반 카메라 오프셋 (전투/비전투 숄더 전환)
+        private Vector3 _defaultOffset = new Vector3(0f, 1f, 0f);       // 비전투 (센터)
+        private Vector3 _combatOffset = new Vector3(0.5f, 1.2f, 0f);   // 전투 (숄더 뷰)
+        private Vector3 _offsetVelocity;
+        private float _offsetSmoothTime = 0.35f;  // 오프셋 전환 부드러움
+        private System.Func<bool> _combatStateProvider;  // 전투 상태 조회 함수
 
         #region IManager 구현
 
@@ -165,6 +186,8 @@ namespace UPlayGround.Manager
             _shaker = shakerGO.AddComponent<CameraShaker>();
             _shaker.hideFlags = HideFlags.HideAndDontSave;
             
+            LoadKillCamData();
+            
             Debug.Log("[CameraManager] 초기화 완료");
         }
 
@@ -197,6 +220,8 @@ namespace UPlayGround.Manager
         public void Dispose()
         {
             Debug.Log("[CameraManager] 정리 시작");
+
+            _killCamController?.ForceStop();
 
             if (cameraPivot != null)
             {
@@ -235,8 +260,10 @@ namespace UPlayGround.Manager
             if (target == null || mainCamera == null || cameraPivot == null)
                 return;
 
+            UpdateLockOnTransition();
             UpdateLockOnRotation();
             UpdateCameraAlign();
+            UpdateContextOffset();
             
             UpdateCameraPosition();
             UpdateCameraRotation();
@@ -251,7 +278,7 @@ namespace UPlayGround.Manager
         /// </summary>
         private void HandleInput()
         {
-            if (Cursor.visible)
+            if (Cursor.visible || _isInputLocked)
                 return;
 
             // 입력 시스템 선택
@@ -347,6 +374,22 @@ namespace UPlayGround.Manager
             {
                 mainCamera.transform.rotation = targetRotation;
             }
+        }
+
+        /// <summary>
+        /// 컨텍스트 기반 카메라 오프셋 보간
+        /// 전투 시 숄더 뷰, 비전투 시 센터 뷰로 부드럽게 전환
+        /// 킬캠 등 연출 중에는 보간을 건너뛴다 (연출이 오프셋을 직접 제어하므로)
+        /// </summary>
+        private void UpdateContextOffset()
+        {
+            // 킬캠 등 연출이 오프셋을 직접 제어 중이면 보간 건너뜀
+            if (_isInputLocked)
+                return;
+
+            bool isCombat = _combatStateProvider?.Invoke() ?? false;
+            Vector3 targetOffset = isCombat ? _combatOffset : _defaultOffset;
+            cameraOffset = Vector3.SmoothDamp(cameraOffset, targetOffset, ref _offsetVelocity, _offsetSmoothTime);
         }
 
         /// <summary>
@@ -473,6 +516,82 @@ namespace UPlayGround.Manager
         {
             _shaker.StopShake();
         }
+
+        /// <summary>
+        /// 방향성 카메라 펀치 (타격 방향에 따라 카메라를 밀어내는 연출)
+        /// </summary>
+        /// <param name="direction">타격 방향 (월드 스페이스)</param>
+        /// <param name="strength">펀치 강도</param>
+        /// <param name="duration">펀치 지속 시간</param>
+        public void Punch(Vector3 direction, float strength, float duration = 0.15f)
+        {
+            _shaker.Punch(direction, strength, duration);
+        }
+
+        /// <summary>
+        /// 현재 카메라 거리 반환
+        /// </summary>
+        public float GetCurrentDistance()
+        {
+            return targetDistance;
+        }
+
+        /// <summary>
+        /// 현재 카메라 오프셋 반환
+        /// </summary>
+        public Vector3 GetCurrentOffset()
+        {
+            return cameraOffset;
+        }
+
+        /// <summary>
+        /// 카메라 입력 잠금/해제 (연출 중 조작 차단)
+        /// </summary>
+        public void SetInputLock(bool locked)
+        {
+            _isInputLocked = locked;
+        }
+
+        /// <summary>
+        /// 킬캠 연출 시도
+        /// </summary>
+        /// <param name="victim">사망한 적의 Transform</param>
+        /// <returns>연출이 실행됐으면 true</returns>
+        public bool TryKillCam(Transform victim)
+        {
+            return _killCamController != null && _killCamController.TryExecute(victim);
+        }
+
+        /// <summary>
+        /// 킬캠 연출 중인지 확인
+        /// </summary>
+        public bool IsKillCamPlaying => _killCamController?.IsPlaying ?? false;
+
+        /// <summary>
+        /// 전투 상태 조회 함수 등록
+        /// 매 프레임 이 함수를 호출하여 전투 여부를 판단한다.
+        /// </summary>
+        /// <param name="provider">전투 중이면 true를 반환하는 함수</param>
+        public void SetCombatStateProvider(System.Func<bool> provider)
+        {
+            _combatStateProvider = provider;
+        }
+
+        /// <summary>
+        /// 비전투 기본 오프셋 설정 (외부에서 튜닝 가능)
+        /// </summary>
+        public void SetDefaultOffset(Vector3 offset)
+        {
+            _defaultOffset = offset;
+        }
+
+        /// <summary>
+        /// 전투 시 숄더 오프셋 설정 (외부에서 튜닝 가능)
+        /// </summary>
+        public void SetCombatOffset(Vector3 offset)
+        {
+            _combatOffset = offset;
+        }
         #endregion
 
         #region Gizmos
@@ -528,6 +647,29 @@ namespace UPlayGround.Manager
             catch (System.Exception e)
             {
                 Debug.LogError($"[CameraManager] CameraShakeDatabase 로드 실패: {e.Message}");
+            }
+        }
+
+        private async void LoadKillCamData()
+        {
+            var handle = Addressables.LoadAssetAsync<KillCamData>(KILL_CAM_DATA_PATH);
+
+            try
+            {
+                var killCamData = await handle.Task;
+
+                if (killCamData == null)
+                {
+                    Debug.LogWarning($"[CameraManager] KillCamData '{KILL_CAM_DATA_PATH}' 경로에서 찾을 수 없습니다. 킬캠 비활성.");
+                    return;
+                }
+
+                _killCamController = new KillCamController(this, killCamData);
+                Debug.Log($"[CameraManager] KillCamData 로드 완료");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[CameraManager] KillCamData 로드 실패 (킬캠 비활성): {e.Message}");
             }
         }
         private void InitializeCamera()
@@ -765,6 +907,45 @@ namespace UPlayGround.Manager
             availableTargets.Clear();
             currentTargetIndex = -1;
             lockOnTargetYVelocity = 0f;
+            _isLockOnTransitioning = false;
+        }
+
+        /// <summary>
+        /// 락온 대상 소실 시 부드러운 전환 연출 시작
+        /// 현재 카메라 방향을 잠시 유지한 뒤, 캐릭터 후방으로 서서히 복귀
+        /// </summary>
+        private void StartLockOnTransition()
+        {
+            _isLockOnTransitioning = true;
+            _lockOnTransitionTimer = _lockOnTransitionDuration;
+            _lockOnTransitionYaw = currentYaw;
+            _lockOnTransitionPitch = currentPitch;
+        }
+
+        /// <summary>
+        /// 락온 해제 전환 연출 업데이트
+        /// Phase 1: 현재 방향 유지 (멈칫)
+        /// Phase 2: CameraAlign으로 캐릭터 후방으로 복귀
+        /// </summary>
+        private void UpdateLockOnTransition()
+        {
+            if (!_isLockOnTransitioning)
+                return;
+
+            _lockOnTransitionTimer -= Time.deltaTime;
+
+            // Phase 1: 현재 방향 유지 (타이머 동안 Yaw/Pitch 고정)
+            if (_lockOnTransitionTimer > 0f)
+            {
+                currentYaw = _lockOnTransitionYaw;
+                currentPitch = _lockOnTransitionPitch;
+                return;
+            }
+
+            // Phase 2: 전환 완료 → 락온 해제 + 캐릭터 후방으로 카메라 보정
+            _isLockOnTransitioning = false;
+            ReleaseLockOn();
+            StartCameraAlign();
         }
 
         /// <summary>
@@ -788,22 +969,30 @@ namespace UPlayGround.Manager
         {
             if (isLockOnActive == false || lockOnTarget == null)
                 return;
+
+            // 전환 연출 중이면 추적 회전 건너뜀
+            if (_isLockOnTransitioning)
+                return;
             
             // 대상 유효성 체크 실패 시, 다른 대상 탐색
             if (IsValidTarget(lockOnTarget) == false)
             {
                 if (TryFindNextLockOnTarget() == false)
                 {
-                    ReleaseLockOn();
+                    // 즉시 해제 대신 부드러운 전환 연출 시작
+                    StartLockOnTransition();
                     return;
                 }
             }
             
-            // 대상이 너무 멀어지면 다른 대상 탐색
+            // 대상이 너무 멀어지면 전환 연출 후 해제
             float distance = Vector3.Distance(target.position, lockOnTarget.position);
             if (distance > lockOnRange)
             {
-                ReleaseLockOn();
+                if (TryFindNextLockOnTarget() == false)
+                {
+                    StartLockOnTransition();
+                }
                 return;
             }
 

@@ -27,6 +27,14 @@ namespace UPlayGround
         private float _delaysTimer;
         private float _elapsedTime = 0.0f;
 
+        // --- 방향성 카메라 펀치 ---
+        private Vector3 _punchDirection;
+        private float _punchStrength;
+        private float _punchDuration;
+        private float _punchElapsed;
+        private bool _isPunching;
+        private AnimationCurve _punchDecayCurve;
+
         public void SetShakeData(CameraShakeData cameraShakeData)
         {
             if (_isShaking)
@@ -131,6 +139,8 @@ namespace UPlayGround
         
         public void Update()
         {
+            UpdatePunch();
+            
             if (_shakeData == null)
             {
                 return;
@@ -252,6 +262,78 @@ namespace UPlayGround
             _shakeVector = Vector3.zero;
             UnregisterStaticCallback(this);
         }
+
+        /// <summary>
+        /// 방향성 카메라 펀치 실행
+        /// 타격 방향으로 카메라를 밀어낸 뒤 감쇠 커브를 따라 원위치로 복귀
+        /// </summary>
+        /// <param name="direction">월드 스페이스 기준 펀치 방향 (정규화 불필요, 내부에서 처리)</param>
+        /// <param name="strength">펀치 강도 (카메라 이동량)</param>
+        /// <param name="duration">펀치 지속 시간</param>
+        /// <param name="decayCurve">감쇠 커브 (null이면 기본 EaseOut 사용)</param>
+        public void Punch(Vector3 direction, float strength, float duration = 0.15f, AnimationCurve decayCurve = null)
+        {
+            if (direction.sqrMagnitude < 0.001f || strength <= 0f)
+                return;
+
+            _punchDirection = direction.normalized;
+            _punchStrength = strength;
+            _punchDuration = duration;
+            _punchElapsed = 0f;
+            _punchDecayCurve = decayCurve;
+            _isPunching = true;
+
+            // 펀치 시작 시 카메라 콜백이 등록되어 있지 않으면 등록
+            if (!_isShaking)
+            {
+                FetchCameras();
+                RegisterStaticCallback(this);
+                _isShaking = true;
+            }
+        }
+
+        /// <summary>
+        /// 펀치 상태 업데이트
+        /// </summary>
+        private void UpdatePunch()
+        {
+            if (!_isPunching)
+                return;
+
+            _punchElapsed += Time.deltaTime;
+
+            if (_punchElapsed >= _punchDuration)
+            {
+                _isPunching = false;
+
+                // shake도 없고 punch도 끝났으면 콜백 해제
+                if (_shakeData == null || _elapsedTime >= _shakeData.Duration + _shakeData.Delay)
+                {
+                    if (_isShaking)
+                    {
+                        StopShake();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 현재 프레임의 펀치 오프셋 벡터 계산
+        /// </summary>
+        private Vector3 GetPunchOffset()
+        {
+            if (!_isPunching)
+                return Vector3.zero;
+
+            float t = Mathf.Clamp01(_punchElapsed / _punchDuration);
+            
+            // 감쇠: 커브가 있으면 사용, 없으면 기본 EaseOut (1 - t²)
+            float decay = _punchDecayCurve != null 
+                ? _punchDecayCurve.Evaluate(t) 
+                : 1f - (t * t);
+
+            return _punchDirection * (_punchStrength * decay);
+        }
         public void FetchCameras()
         {
 #if UNITY_EDITOR
@@ -307,10 +389,17 @@ namespace UPlayGround
 
                 if (Time.timeScale <= 0) return;
 
-                switch (_shakeData.ShakeSpace)
+                // 랜덤 쉐이크 + 방향성 펀치를 합산
+                Vector3 punchOffset = GetPunchOffset();
+
+                switch (_shakeData?.ShakeSpace ?? ShakeSpace.Screen)
                 {
-                    case ShakeSpace.Screen: cam.transform.localPosition += cam.transform.rotation * _shakeVector; break;
-                    case ShakeSpace.World: cam.transform.localPosition += _shakeVector; break;
+                    case ShakeSpace.Screen:
+                        cam.transform.localPosition += cam.transform.rotation * (_shakeVector + punchOffset);
+                        break;
+                    case ShakeSpace.World:
+                        cam.transform.localPosition += _shakeVector + punchOffset;
+                        break;
                 }
             }
         }

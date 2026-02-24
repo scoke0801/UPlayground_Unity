@@ -104,6 +104,7 @@ namespace UPlayGround.Component
             {
                 PerformHitDetection();
             }
+            
         }
         
         /// <summary>
@@ -312,12 +313,22 @@ namespace UPlayGround.Component
 
             if (isDamageExecuted)
             {
-                // 카메라 쉐이크
-                CameraManager.Instance.StartShake("LiteHit");
-                
-                // 히트 스탑
-                GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
-                 
+                // 킬 감지: 마지막 타격으로 적이 사망했는지 체크
+                bool isKillHit = _currentAttackData.hitTarget != null 
+                    && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
+
+                if (isKillHit)
+                {
+                    // 킬캠 시도 (확률/쿨다운 내부 체크)
+                    CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
+                }
+                else
+                {
+                    // 일반 히트: 방향성 카메라 펀치 + 쉐이크 + 히트 스탑
+                    CameraManager.Instance.Punch(_currentAttackData.attackDirection, 0.12f, 0.12f);
+                    CameraManager.Instance.StartShake("LiteHit");
+                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
+                }
             }
         }
         

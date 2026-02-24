@@ -110,6 +110,8 @@ namespace UPlayGround
         private void OnDestroy()
         {
             UnRegisterInputEvents();
+            
+            CameraManager.Instance?.SetCombatStateProvider(null);
         }
         
         private void Update()
@@ -409,10 +411,9 @@ namespace UPlayGround
             {
                 _equipment = GetComponent<PlayerEquipment>();
             }
-            // _equipment.SetLeftWeaponType(WeaponType.Shield);
-            // _equipment.SetRightWeaponType(WeaponType.Sword);
-            //
-            // StartCoroutine(EquipWeapon());
+
+            // 카메라에 전투 상태 조회 함수 등록 (매 프레임 폴링)
+            CameraManager.Instance?.SetCombatStateProvider(() => _combat != null && _combat.IsInCombat);
         }
     }
 

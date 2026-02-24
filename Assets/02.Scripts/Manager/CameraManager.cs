@@ -49,8 +49,19 @@ namespace UPlayGround.Manager
         private float zoomSmoothTime = 0.1f; // 줌 부드러움
 
         //Smooth Settings
-        private float positionSmoothTime = 0.1f; // 위치 부드러움
         private float rotationSmoothTime = 0.1f; // 회전 부드러움
+
+        // Spring Damping Settings
+        // 스프링 방정식: x'' = -k*(x - target) - c*x'
+        // c = 2 * dampingRatio * sqrt(stiffness)
+        // dampingRatio < 1.0  → 언더댐프 (탄성/오버슈트)
+        // dampingRatio = 1.0  → 임계감쇠 (최단 시간 수렴, 오버슈트 없음)
+        private float springStiffness = 80f;      // 스프링 강성 (50~200 권장)
+        private float springDampingRatio = 0.75f; // 감쇠비 (0.5~1.0)
+
+        // Deadzone Settings
+        private bool useDeadzone = true;          // 데드존 사용 여부
+        private float deadzoneRadius = 2.25f;     // 데드존 반경 (m 단위)
 
         //Collision Settings
         private LayerMask collisionLayers = -1; // 충돌 레이어
@@ -102,7 +113,8 @@ namespace UPlayGround.Manager
         private float _lockOnTransitionYaw;        // 전환 시작 시점의 Yaw
         private float _lockOnTransitionPitch;      // 전환 시작 시점의 Pitch
 
-        private Vector3 positionVelocity;
+        private Vector3 _springVelocity;      // 스프링 적분 속도
+        private Vector3 _springFollowPoint;   // 데드존 적용 후 실제 추적 포인트
         private Vector3 smoothPosition;
 
         private CameraShaker _shaker;
@@ -159,6 +171,8 @@ namespace UPlayGround.Manager
                 // 타겟이 있으면 타겟 위치로 초기화
                 cameraPivot.position = target.position + cameraOffset;
                 smoothPosition = cameraPivot.position;
+                _springFollowPoint = smoothPosition;
+                _springVelocity = Vector3.zero;
 
                 // 카메라 초기 위치 설정
                 SetInitialCameraPosition();
@@ -168,6 +182,8 @@ namespace UPlayGround.Manager
                 // 타겟이 없으면 원점 기준으로 설정
                 cameraPivot.position = cameraOffset;
                 smoothPosition = cameraPivot.position;
+                _springFollowPoint = smoothPosition;
+                _springVelocity = Vector3.zero;
 
                 Debug.LogWarning("[CameraManager] 타겟이 설정되지 않았습니다. CameraInitializer를 사용하여 타겟을 설정하세요.");
 
@@ -331,26 +347,66 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 카메라 위치 업데이트
+        ///
+        /// 1) 데드존: 타겟이 반경 밖으로 벗어난 초과분만큼 추적 포인트 이동
+        ///    → 미세한 움직임에 카메라가 반응하지 않아 안정적인 화면 유지
+        ///
+        /// 2) 스프링 댐프: 2차 미분 방정식으로 탄성 있는 추적
+        ///    x'' = -k*(x - target) - c*x'
+        ///    k = springStiffness,  c = 2 * dampingRatio * sqrt(k)
+        ///    dampingRatio < 1.0 → 언더댐프 (오버슈트/탄성)
+        ///    dampingRatio = 1.0 → 임계감쇠 (최단 수렴, 오버슈트 없음)
         /// </summary>
         private void UpdateCameraPosition()
         {
-            // 타겟 위치 + 오프셋으로 피벗 이동
-            Vector3 targetPivotPosition = target.position + cameraOffset;
-            smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition, ref positionVelocity,
-                positionSmoothTime);
+            float dt = Time.deltaTime;
+
+            // ── 1. 데드존 ──────────────────────────────────────────────────
+            Vector3 rawTarget = target.position + cameraOffset;
+
+            if (useDeadzone && deadzoneRadius > 0f)
+            {
+                Vector3 toTarget = rawTarget - _springFollowPoint;
+                float dist = toTarget.magnitude;
+                if (dist > deadzoneRadius)
+                {
+                    // 데드존 경계 밖으로 나간 초과분만큼만 추적 포인트 당김
+                    _springFollowPoint += toTarget.normalized * (dist - deadzoneRadius);
+                }
+            }
+            else
+            {
+                _springFollowPoint = rawTarget;
+            }
+
+            // ── 2. 스프링 댐프 ─────────────────────────────────────────────
+            // 반복 적분 안정성을 위해 서브스텝 적용 (큰 dt에서도 발산 방지)
+            const int subSteps = 4;
+            float subDt = dt / subSteps;
+            float omega = Mathf.Sqrt(springStiffness);
+            float c = 2f * springDampingRatio * omega; // 감쇠 계수
+
+            for (int i = 0; i < subSteps; i++)
+            {
+                // F = -k*(pos - target) - c*vel  (스프링 복원력 + 감쇠력)
+                Vector3 springForce = (_springFollowPoint - smoothPosition) * springStiffness
+                                      - _springVelocity * c;
+                _springVelocity += springForce * subDt;
+                smoothPosition  += _springVelocity * subDt;
+            }
+
             cameraPivot.position = smoothPosition;
 
-            // 거리 부드럽게 조정
+            // ── 3. 줌 거리 조정 ────────────────────────────────────────────
             currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance, ref distanceVelocity, zoomSmoothTime);
 
-            // 회전을 적용한 카메라 위치 계산
+            // ── 4. 카메라 최종 위치 계산 ────────────────────────────────────
             Quaternion rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
             Vector3 desiredPosition = cameraPivot.position + rotation * new Vector3(0f, 0f, -currentDistance);
 
-            // 충돌 감지
+            // ── 5. 충돌 감지 ────────────────────────────────────────────────
             desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
 
-            // 카메라 위치 적용
             mainCamera.transform.position = desiredPosition;
         }
 
@@ -447,6 +503,8 @@ namespace UPlayGround.Manager
             {
                 cameraPivot.position = target.position + cameraOffset;
                 smoothPosition = cameraPivot.position;
+                _springFollowPoint = smoothPosition;
+                _springVelocity = Vector3.zero;
 
                 // 카메라 위치 즉시 업데이트
                 if (mainCamera != null)
@@ -592,6 +650,29 @@ namespace UPlayGround.Manager
         {
             _combatOffset = offset;
         }
+
+        /// <summary>
+        /// 스프링 댐프 파라미터 설정
+        /// </summary>
+        /// <param name="stiffness">스프링 강성 (높을수록 빠르게 따라감, 권장 50~200)</param>
+        /// <param name="dampingRatio">감쇠비 (1.0=임계감쇠, 0.5~0.8=탄성, 범위 0.01~2.0)</param>
+        public void SetSpringSettings(float stiffness, float dampingRatio)
+        {
+            springStiffness = Mathf.Max(1f, stiffness);
+            springDampingRatio = Mathf.Clamp(dampingRatio, 0.01f, 2f);
+        }
+
+        /// <summary>
+        /// 데드존 설정
+        /// </summary>
+        /// <param name="enabled">데드존 활성화 여부</param>
+        /// <param name="radius">데드존 반경 (m 단위, 이 범위 내에서는 카메라 추적 정지)</param>
+        public void SetDeadzone(bool enabled, float radius = 0.25f)
+        {
+            useDeadzone = enabled;
+            deadzoneRadius = Mathf.Max(0f, radius);
+        }
+
         #endregion
 
         #region Gizmos

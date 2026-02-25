@@ -1,9 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
-using UPlayGround.CameraEffects;
 using UPlayGround.Data;
-using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -112,7 +110,6 @@ namespace UPlayGround.State
         public void OnAttackBlocked(AttackData incomingAttack)
         {   
             controller.AddVelocity(incomingAttack.attackDirection.normalized * 2.0f);
-            CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.GuardImpact, $"enemy_guard_{Time.frameCount}");
         }
     }
 }

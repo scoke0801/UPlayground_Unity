@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
-using UPlayGround.CameraEffects;
 using UPlayGround.Data;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Path;
@@ -110,9 +109,6 @@ namespace UPlayGround.Manager
         
         private const string CAMERA_SHAKE_DATABASE_PATH = "CameraShakeDatabase";
         private CameraShakeDatabase _cameraShakeDatabase;
-        
-        private const string CAMERA_IMPACT_PRESET_DATABASE_PATH = "CameraImpactPresetDatabase";
-        private CameraImpactPresetDatabase _impactPresetDatabase;
 
         // 킬캠
         private const string KILL_CAM_DATA_PATH = "KillCamData";
@@ -127,11 +123,6 @@ namespace UPlayGround.Manager
         private Vector3 _offsetVelocity;
         private float _offsetSmoothTime = 0.35f;  // 오프셋 전환 부드러움
         private System.Func<bool> _combatStateProvider;  // 전투 상태 조회 함수
-        
-        private readonly CameraEffectStack _effectStack = new CameraEffectStack();
-        private CameraEffectOutput _effectOutput;
-        private float _defaultFov = 60f;
-        private bool _isTimeScaleControlledByEffects;
 
         #region IManager 구현
 
@@ -141,7 +132,6 @@ namespace UPlayGround.Manager
 
             InitializeCamera();
             LoadCameraShakeDatabase();
-            LoadImpactPresetDatabase();
             
             // 메인 카메라 찾기
             mainCamera = Camera.main;
@@ -150,7 +140,6 @@ namespace UPlayGround.Manager
                 Debug.LogError("[CameraManager] 메인 카메라를 찾을 수 없습니다!");
                 return;
             }
-            _defaultFov = mainCamera.fieldOfView;
 
             // 카메라 피벗 생성 (타겟을 중심으로 회전)
             GameObject pivotObj = new GameObject("CameraPivot");
@@ -233,7 +222,6 @@ namespace UPlayGround.Manager
             Debug.Log("[CameraManager] 정리 시작");
 
             _killCamController?.ForceStop();
-            StopAllEffects();
 
             if (cameraPivot != null)
             {
@@ -269,16 +257,8 @@ namespace UPlayGround.Manager
 
         public void OnLateUpdate()
         {
-            if (mainCamera == null || cameraPivot == null)
+            if (target == null || mainCamera == null || cameraPivot == null)
                 return;
-
-            UpdateCameraEffects();
-            
-            if (target == null)
-            {
-                ApplyPostCameraEffects();
-                return;
-            }
 
             UpdateLockOnTransition();
             UpdateLockOnRotation();
@@ -287,7 +267,6 @@ namespace UPlayGround.Manager
             
             UpdateCameraPosition();
             UpdateCameraRotation();
-            ApplyPostCameraEffects();
         }
 
         #endregion
@@ -362,9 +341,7 @@ namespace UPlayGround.Manager
             cameraPivot.position = smoothPosition;
 
             // 거리 부드럽게 조정
-            float effectDistance = targetDistance + _effectOutput.DistanceOffset;
-            effectDistance = Mathf.Clamp(effectDistance, minDistance, maxDistance);
-            currentDistance = Mathf.SmoothDamp(currentDistance, effectDistance, ref distanceVelocity, zoomSmoothTime);
+            currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance, ref distanceVelocity, zoomSmoothTime);
 
             // 회전을 적용한 카메라 위치 계산
             Quaternion rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
@@ -372,7 +349,6 @@ namespace UPlayGround.Manager
 
             // 충돌 감지
             desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
-            desiredPosition += _effectOutput.WorldPositionOffset;
 
             // 카메라 위치 적용
             mainCamera.transform.position = desiredPosition;
@@ -398,33 +374,6 @@ namespace UPlayGround.Manager
             {
                 mainCamera.transform.rotation = targetRotation;
             }
-        }
-
-        private void UpdateCameraEffects()
-        {
-            _effectOutput.Reset();
-            CameraEffectContext context =
-                new CameraEffectContext(this, mainCamera, target, targetDistance, _defaultFov);
-
-            _effectStack.Evaluate(context, Time.unscaledDeltaTime, ref _effectOutput);
-
-            if (_effectOutput.HasTimeScale)
-            {
-                Time.timeScale = _effectOutput.TimeScale;
-                _isTimeScaleControlledByEffects = true;
-            }
-            else if (_isTimeScaleControlledByEffects)
-            {
-                Time.timeScale = 1f;
-                _isTimeScaleControlledByEffects = false;
-            }
-        }
-
-        private void ApplyPostCameraEffects()
-        {
-            mainCamera.transform.position += mainCamera.transform.TransformVector(_effectOutput.LocalPositionOffset);
-            mainCamera.transform.rotation *= Quaternion.Euler(_effectOutput.LocalEulerOffset);
-            mainCamera.fieldOfView = Mathf.Max(1f, _defaultFov + _effectOutput.FovOffset);
         }
 
         /// <summary>
@@ -568,97 +517,6 @@ namespace UPlayGround.Manager
             _shaker.StopShake();
         }
 
-        public void PlayEffect(ICameraEffect effect)
-        {
-            if (mainCamera == null)
-            {
-                return;
-            }
-
-            CameraEffectContext context =
-                new CameraEffectContext(this, mainCamera, target, targetDistance, _defaultFov);
-            _effectStack.Play(effect, context);
-        }
-
-        public void StopEffect(string effectId)
-        {
-            _effectStack.Stop(effectId);
-        }
-
-        public void StopAllEffects()
-        {
-            _effectStack.StopAll();
-            _effectOutput.Reset();
-            if (_isTimeScaleControlledByEffects)
-            {
-                Time.timeScale = 1f;
-                _isTimeScaleControlledByEffects = false;
-            }
-
-            if (mainCamera != null)
-            {
-                mainCamera.fieldOfView = _defaultFov;
-            }
-        }
-
-        public void PlayRotationEffect(string effectId, Vector3 rotationEuler, float holdDuration, float blendIn = 0.1f,
-            float blendOut = 0.12f)
-        {
-            PlayEffect(new RotationCameraEffect(effectId, rotationEuler, holdDuration, blendIn, blendOut));
-        }
-
-        public void PlaySmoothDampEffect(string effectId, Vector3 localOffset, float holdDuration, float smoothTime = 0.12f,
-            float blendIn = 0.1f, float blendOut = 0.12f)
-        {
-            PlayEffect(new SmoothDampCameraEffect(effectId, localOffset, holdDuration, smoothTime, blendIn, blendOut));
-        }
-
-        public void PlaySpringDampEffect(string effectId, Vector3 localOffset, float holdDuration, float stiffness = 90f,
-            float damping = 16f, float blendIn = 0.05f, float blendOut = 0.15f)
-        {
-            PlayEffect(new SpringDampCameraEffect(effectId, localOffset, holdDuration, stiffness, damping, blendIn,
-                blendOut));
-        }
-
-        public void PlayZoomEffect(string effectId, float distanceOffset, float holdDuration, float blendIn = 0.1f,
-            float blendOut = 0.12f)
-        {
-            PlayEffect(new ZoomCameraEffect(effectId, distanceOffset, holdDuration, blendIn, blendOut));
-        }
-
-        public void PlayFovEffect(string effectId, float fovOffset, float holdDuration, float blendIn = 0.1f,
-            float blendOut = 0.15f)
-        {
-            PlayEffect(new FovCameraEffect(effectId, fovOffset, holdDuration, blendIn, blendOut));
-        }
-
-        public void PlayTimeScaleEffect(string effectId, float timeScale, float holdDuration, float blendIn = 0.02f,
-            float blendOut = 0.08f)
-        {
-            PlayEffect(new TimeScaleCameraEffect(effectId, timeScale, holdDuration, blendIn, blendOut));
-        }
-
-        public void PlayProceduralShakeEffect(string effectId, Vector3 amplitude, float frequency, float holdDuration,
-            float blendIn = 0.02f, float blendOut = 0.15f)
-        {
-            PlayEffect(new ProceduralShakeCameraEffect(effectId, amplitude, frequency, holdDuration, blendIn, blendOut));
-        }
-
-        public void PlayLegacyShakeEffect(string effectId, string shakeKey, float holdDuration, float blendOut = 0.1f)
-        {
-            PlayEffect(new LegacyShakeCameraEffect(effectId, shakeKey, holdDuration, blendOut));
-        }
-
-        public void PlayImpactPreset(CameraImpactPreset preset, string effectGroupId = "impact")
-        {
-            CameraEffectPresetRunner.Play(this, preset, effectGroupId);
-        }
-
-        public void StopImpactPreset(string effectGroupId = "impact")
-        {
-            CameraEffectPresetRunner.Stop(this, effectGroupId);
-        }
-
         /// <summary>
         /// 방향성 카메라 펀치 (타격 방향에 따라 카메라를 밀어내는 연출)
         /// </summary>
@@ -790,26 +648,6 @@ namespace UPlayGround.Manager
             {
                 Debug.LogError($"[CameraManager] CameraShakeDatabase 로드 실패: {e.Message}");
             }
-        }
-
-        private async void LoadImpactPresetDatabase()
-        {
-            var handle = Addressables.LoadAssetAsync<CameraImpactPresetDatabase>(CAMERA_IMPACT_PRESET_DATABASE_PATH);
-
-            try
-            {
-                _impactPresetDatabase = await handle.Task;
-                _impactPresetDatabase?.Initialize();
-            }
-            catch
-            {
-                _impactPresetDatabase = null;
-            }
-        }
-
-        public CameraImpactPresetDatabase GetImpactPresetDatabase()
-        {
-            return _impactPresetDatabase;
         }
 
         private async void LoadKillCamData()

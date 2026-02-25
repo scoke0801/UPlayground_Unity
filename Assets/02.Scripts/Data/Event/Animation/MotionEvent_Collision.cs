@@ -83,7 +83,7 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-            enemyCombat.ClearHitTargets();
+            
             enemyCombat.SetEnableCollision(isCollisionEnable);
         }
     }

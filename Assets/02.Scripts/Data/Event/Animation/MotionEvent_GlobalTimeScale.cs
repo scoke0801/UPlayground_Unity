@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using UnityEngine;
-using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
@@ -13,35 +12,18 @@ namespace UPlayGround.Data.Event
         [Range(0.01f, 2f)] public float timeScale = 0.5f;
         public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-        [NonSerialized] private string _runtimeEffectId;
-
         public override string GetDisplayName() => "Time Scale";
 
         public override string GetShortLabel() => $"Time: {timeScale:F2}x";
 
         public override void Execute(GameObject target)
         {
-            CameraManager cameraManager = CameraManager.Instance;
-            if (cameraManager == null)
-            {
-                return;
-            }
-
-            float holdDuration = Mathf.Max(0.01f, endTime - startTime);
-            _runtimeEffectId = $"motion_time_scale_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
-
-            cameraManager.PlayTimeScaleEffect(_runtimeEffectId, timeScale, holdDuration, 0.02f, 0.08f);
+            Debug.Log($"Time Scale: {timeScale}");
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
-            if (string.IsNullOrEmpty(_runtimeEffectId))
-            {
-                return;
-            }
-
-            CameraManager.Instance?.StopEffect(_runtimeEffectId);
-            _runtimeEffectId = null;
         }
     }
+
 }

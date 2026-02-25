@@ -21,8 +21,6 @@ namespace UPlayGround
     /// </summary>
     public class KillCamController
     {
-        private const string KILL_CAM_SHAKE_EFFECT_ID = "kill_cam_shake";
-        
         private readonly MonoBehaviour _coroutineRunner;
         private readonly KillCamData _data;
 
@@ -112,8 +110,7 @@ namespace UPlayGround
             // 카메라 쉐이크
             if (!string.IsNullOrEmpty(_data.cameraShakeKey))
             {
-                float totalDuration = _data.zoomInDuration + _data.zoomHoldDuration + _data.zoomOutDuration;
-                cameraManager.PlayLegacyShakeEffect(KILL_CAM_SHAKE_EFFECT_ID, _data.cameraShakeKey, totalDuration, 0.12f);
+                cameraManager.StartShake(_data.cameraShakeKey);
             }
 
             // --- Phase 1: 줌인 ---
@@ -164,7 +161,6 @@ namespace UPlayGround
             var cameraManager = CameraManager.Instance;
             if (cameraManager != null)
             {
-                cameraManager.StopEffect(KILL_CAM_SHAKE_EFFECT_ID);
                 cameraManager.SetInputLock(false);
             }
 
@@ -179,7 +175,6 @@ namespace UPlayGround
             var cameraManager = CameraManager.Instance;
             if (cameraManager != null)
             {
-                cameraManager.StopEffect(KILL_CAM_SHAKE_EFFECT_ID);
                 cameraManager.SetDistance(originalDistance);
                 cameraManager.SetCameraOffset(originalOffset);
                 cameraManager.SetInputLock(false);

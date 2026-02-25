@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Component;
-using UPlayGround.CameraEffects;
 using UPlayGround.Data;
 using UPlayGround.Data.Event;
 using UPlayGround.MovementController;
@@ -522,7 +521,7 @@ namespace UPlayGround
                     MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }
 
-                CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.LightHit, $"player_damaged_{Time.frameCount}");
+                CameraManager.Instance.StartShake("LiteHit");
             }
 
             _colorChanger.OnHit();
@@ -539,7 +538,7 @@ namespace UPlayGround
             
             GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerDie);
 
-            CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.Finisher, $"player_death_{Time.frameCount}");
+            CameraManager.Instance.StartShake("LiteHit");
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }
     }

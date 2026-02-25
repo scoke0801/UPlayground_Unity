@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.CameraEffects;
 
 namespace UPlayGround.Manager.Handler
 {
@@ -10,7 +9,6 @@ namespace UPlayGround.Manager.Handler
     /// HitStop(타격 정지) 효과를 전역적으로 관리하는 매니저
     /// Time.timeScale을 조작
     /// 액터 단위 Animation 속도 제어
-    /// HitStop(타격 정지) 효과를 처리
     /// </summary>
     public class GameHitStopManager: BaseManager<GameHitStopManager>, IManager
     {
@@ -33,14 +31,12 @@ namespace UPlayGround.Manager.Handler
         [SerializeField] private float _defaultTimeScale = 0.1f;
         
         private Coroutine _currentHitStopCoroutine;
-        private Coroutine _hitStopFlagCoroutine;
         private bool _isHitStopping;
         
         // GameActor별 코루틴 캐싱
         private Dictionary<GameActor, Coroutine> _actorHitStopCoroutines = new Dictionary<GameActor, Coroutine>();
         
         private const float NORMAL_TIME_SCALE = 1.0f;
-        private const string HIT_STOP_EFFECT_ID = "hit_stop_global";
         
         public bool IsHitStopping => _isHitStopping;
 
@@ -81,7 +77,7 @@ namespace UPlayGround.Manager.Handler
         }
         
         /// <summary>
-        /// HitStop 실행 (커스텀 파라미터)
+        /// HitStop 실행 (강도 지정)
         /// </summary>
         /// <param name="intensity">강도 (Light=0.05s, Medium=0.08s, Heavy=0.12s)</param>
         public void Execute(HitStopIntensity intensity)
@@ -112,16 +108,11 @@ namespace UPlayGround.Manager.Handler
         /// <summary>
         /// HitStop 실행 (커스텀 파라미터)
         /// </summary>
-        /// <param name="duration">정지 시간 (초)</param>
+        /// <param name="duration">지속 시간 (초)</param>
         /// <param name="timeScale">시간 스케일 (0~1, 낮을수록 느림)</param>
         public void Execute(float duration, float timeScale = 0.1f)
         {
-            if (TryExecuteByCameraEffects(duration, timeScale))
-            {
-                return;
-            }
-
-            // 이미 HitStop 중이면 중단하고 새로 시작 (더 최근 타격이 우선됨)
+            // 이미 HitStop 중이면 중단하고 새로 시작 (더 강한 타격이 덮어씀)
             if (_currentHitStopCoroutine != null)
             {
                 StopCoroutine(_currentHitStopCoroutine);
@@ -131,7 +122,7 @@ namespace UPlayGround.Manager.Handler
         }
         
         /// <summary>
-        /// 현재 실행 중인 HitStop 효과 중지
+        /// 현재 전역 HitStop 강제 종료
         /// </summary>
         public void Stop()
         {
@@ -140,26 +131,19 @@ namespace UPlayGround.Manager.Handler
                 StopCoroutine(_currentHitStopCoroutine);
                 _currentHitStopCoroutine = null;
             }
-            
-            if (_hitStopFlagCoroutine != null)
-            {
-                StopCoroutine(_hitStopFlagCoroutine);
-                _hitStopFlagCoroutine = null;
-            }
 
-            CameraManager.Instance?.StopEffect(HIT_STOP_EFFECT_ID);
             Time.timeScale = NORMAL_TIME_SCALE;
             _isHitStopping = false;
         }
 
         /// <summary>
-        /// 특정 GameActor만 정지시키기 (Animator 속도 제어)
+        /// 특정 GameActor만 느려지도록 (Animator 속도 조작)
         /// </summary>
         public void ExecuteActorOnly(GameActor actor, float duration, float animSpeed = 0.1f)
         {
             if (actor == null) return;
             
-            // 이미 실행 중인 코루틴 중지
+            // 이미 실행 중인 코루틴 정리
             StopActor(actor);
             
             Coroutine coroutine = StartCoroutine(ActorOnlyHitStopCoroutine(actor, duration, animSpeed));
@@ -167,7 +151,7 @@ namespace UPlayGround.Manager.Handler
         }
         
         /// <summary>
-        /// 특정 GameActor의 HitStop 효과 중지
+        /// 특정 GameActor의 HitStop 강제 종료
         /// </summary>
         public void StopActor(GameActor actor)
         {
@@ -192,7 +176,7 @@ namespace UPlayGround.Manager.Handler
         }
         
         /// <summary>
-        /// 모든 GameActor의 HitStop 효과 중지
+        /// 모든 GameActor의 HitStop 강제 종료
         /// </summary>
         public void StopAllActors()
         {
@@ -218,7 +202,7 @@ namespace UPlayGround.Manager.Handler
         }
         
         /// <summary>
-        /// 특정 GameActor의 HitStop 여부 확인
+        /// 특정 GameActor가 HitStop 중인지 확인
         /// </summary>
         public bool IsActorHitStopping(GameActor actor)
         {
@@ -242,7 +226,7 @@ namespace UPlayGround.Manager.Handler
         
             yield return new WaitForSecondsRealtime(duration);
             
-            // 코루틴 종료 시 액터와 애니메이터가 여전히 유효한지 확인
+            // 코루틴 종료 전 액터와 애니메이터가 여전히 유효한지 확인
             if (actor != null && animator != null)
             {
                 animator.speed = originalSpeed;
@@ -259,43 +243,16 @@ namespace UPlayGround.Manager.Handler
         {
             _isHitStopping = true;
             
-            // HitStop 시작
+            // HitStop 적용
             Time.timeScale = timeScale;
             
-            // 설정 시간 동안 실시간 대기
+            // 실제 시간 기준으로 대기
             yield return new WaitForSecondsRealtime(duration);
             
             Time.timeScale = NORMAL_TIME_SCALE;
             
             _isHitStopping = false;
             _currentHitStopCoroutine = null;
-        }
-
-        private bool TryExecuteByCameraEffects(float duration, float timeScale)
-        {
-            CameraManager cameraManager = CameraManager.Instance;
-            if (cameraManager == null)
-            {
-                return false;
-            }
-
-            cameraManager.PlayEffect(new TimeScaleCameraEffect(HIT_STOP_EFFECT_ID, timeScale, duration, 0f, 0.08f));
-            _isHitStopping = true;
-
-            if (_hitStopFlagCoroutine != null)
-            {
-                StopCoroutine(_hitStopFlagCoroutine);
-            }
-
-            _hitStopFlagCoroutine = StartCoroutine(ClearHitStopFlagAfter(duration + 0.08f));
-            return true;
-        }
-
-        private IEnumerator ClearHitStopFlagAfter(float duration)
-        {
-            yield return new WaitForSecondsRealtime(duration);
-            _isHitStopping = false;
-            _hitStopFlagCoroutine = null;
         }
     }
 }

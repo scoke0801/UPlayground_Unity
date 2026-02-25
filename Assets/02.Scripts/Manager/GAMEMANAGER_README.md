@@ -22,7 +22,7 @@ UIManager, SoundManager...  # 실제 기능 매니저들
 ## 🔧 사용 방법
 
 ### 1. 새 매니저 만들기
-[CAMERA_EFFECTS_GUIDE.md](../Camera/Effects/CAMERA_EFFECTS_GUIDE.md)
+
 ```csharp
 public class MyCustomManager : BaseManager<MyCustomManager>, IManager
 {

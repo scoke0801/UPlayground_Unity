@@ -4,20 +4,17 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
-    /// <summary>
-    /// 타임스케일 조작 이벤트 (슬로우 모션 등)
-    /// </summary>
     [Serializable]
-    public class TimeScaleEvent : MotionEventBase
+    public class CameraZoomEffectEvent : MotionEventBase
     {
-        [Range(0.01f, 2f)] public float timeScale = 0.5f;
-        public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        public float distanceOffset = -1f;
+        public float blendIn = 0.08f;
+        public float blendOut = 0.12f;
 
         [NonSerialized] private string _runtimeEffectId;
 
-        public override string GetDisplayName() => "Time Scale";
-
-        public override string GetShortLabel() => $"Time: {timeScale:F2}x";
+        public override string GetDisplayName() => "Camera Zoom";
+        public override string GetShortLabel() => $"Zoom: {distanceOffset:F2}";
 
         public override void Execute(GameObject target)
         {
@@ -28,9 +25,8 @@ namespace UPlayGround.Data.Event
             }
 
             float holdDuration = Mathf.Max(0.01f, endTime - startTime);
-            _runtimeEffectId = $"motion_time_scale_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
-
-            cameraManager.PlayTimeScaleEffect(_runtimeEffectId, timeScale, holdDuration, 0.02f, 0.08f);
+            _runtimeEffectId = $"motion_zoom_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
+            cameraManager.PlayZoomEffect(_runtimeEffectId, distanceOffset, holdDuration, blendIn, blendOut);
         }
 
         public override void OnCompleteEvent(GameObject target)

@@ -4,20 +4,18 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
-    /// <summary>
-    /// 타임스케일 조작 이벤트 (슬로우 모션 등)
-    /// </summary>
     [Serializable]
-    public class TimeScaleEvent : MotionEventBase
+    public class CameraSmoothDampEffectEvent : MotionEventBase
     {
-        [Range(0.01f, 2f)] public float timeScale = 0.5f;
-        public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        public Vector3 localOffset = new Vector3(0f, 0.2f, 0f);
+        public float smoothTime = 0.12f;
+        public float blendIn = 0.08f;
+        public float blendOut = 0.12f;
 
         [NonSerialized] private string _runtimeEffectId;
 
-        public override string GetDisplayName() => "Time Scale";
-
-        public override string GetShortLabel() => $"Time: {timeScale:F2}x";
+        public override string GetDisplayName() => "Camera SmoothDamp";
+        public override string GetShortLabel() => $"Smooth: {localOffset}";
 
         public override void Execute(GameObject target)
         {
@@ -28,9 +26,8 @@ namespace UPlayGround.Data.Event
             }
 
             float holdDuration = Mathf.Max(0.01f, endTime - startTime);
-            _runtimeEffectId = $"motion_time_scale_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
-
-            cameraManager.PlayTimeScaleEffect(_runtimeEffectId, timeScale, holdDuration, 0.02f, 0.08f);
+            _runtimeEffectId = $"motion_smooth_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
+            cameraManager.PlaySmoothDampEffect(_runtimeEffectId, localOffset, holdDuration, smoothTime, blendIn, blendOut);
         }
 
         public override void OnCompleteEvent(GameObject target)

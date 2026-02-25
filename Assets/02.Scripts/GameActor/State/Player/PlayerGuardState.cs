@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
+using UPlayGround.CameraEffects;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
@@ -164,6 +165,11 @@ namespace UPlayGround.State
             if (isPerfectGuard)
             {
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+                CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.GuardImpact, $"player_perfect_guard_{Time.frameCount}");
+            }
+            else
+            {
+                CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.LightHit, $"player_guard_{Time.frameCount}");
             }
         }
         

@@ -6,6 +6,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.CameraEffects;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 
@@ -313,20 +314,22 @@ namespace UPlayGround.Component
 
             if (isDamageExecuted)
             {
+                string effectGroupId = $"player_attack_{_attackState}_{Time.frameCount}";
+
                 // 킬 감지: 마지막 타격으로 적이 사망했는지 체크
                 bool isKillHit = _currentAttackData.hitTarget != null 
                     && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
 
                 if (isKillHit)
                 {
+                    CameraManager.Instance.PlayImpactPreset(CameraImpactPreset.Finisher, effectGroupId);
                     // 킬캠 시도 (확률/쿨다운 내부 체크)
                     CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
                 }
                 else
                 {
-                    // 일반 히트: 방향성 카메라 펀치 + 쉐이크 + 히트 스탑
-                    CameraManager.Instance.Punch(_currentAttackData.attackDirection, 0.12f, 0.12f);
-                    CameraManager.Instance.StartShake("LiteHit");
+                    CameraImpactPreset preset = GetImpactPresetByAttackState();
+                    CameraManager.Instance.PlayImpactPreset(preset, effectGroupId);
                     GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
                 }
             }
@@ -489,6 +492,23 @@ namespace UPlayGround.Component
         }
 
         #endregion
+
+        private CameraImpactPreset GetImpactPresetByAttackState()
+        {
+            switch (_attackState)
+            {
+                case AttackState.HeavyAttack:
+                case AttackState.SkillAttack:
+                    return CameraImpactPreset.HeavyHit;
+                case AttackState.DashAttack:
+                    return CameraImpactPreset.DashStart;
+                case AttackState.JumpAttack:
+                    return CameraImpactPreset.MediumHit;
+                case AttackState.NormalAttack:
+                default:
+                    return CameraImpactPreset.LightHit;
+            }
+        }
         
         // 디버그 시각화
         private void OnDrawGizmosSelected()

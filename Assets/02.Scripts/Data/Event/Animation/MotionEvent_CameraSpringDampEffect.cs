@@ -4,20 +4,19 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
-    /// <summary>
-    /// 타임스케일 조작 이벤트 (슬로우 모션 등)
-    /// </summary>
     [Serializable]
-    public class TimeScaleEvent : MotionEventBase
+    public class CameraSpringDampEffectEvent : MotionEventBase
     {
-        [Range(0.01f, 2f)] public float timeScale = 0.5f;
-        public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        public Vector3 localOffset = new Vector3(0f, 0.35f, -0.1f);
+        public float stiffness = 90f;
+        public float damping = 16f;
+        public float blendIn = 0.05f;
+        public float blendOut = 0.15f;
 
         [NonSerialized] private string _runtimeEffectId;
 
-        public override string GetDisplayName() => "Time Scale";
-
-        public override string GetShortLabel() => $"Time: {timeScale:F2}x";
+        public override string GetDisplayName() => "Camera SpringDamp";
+        public override string GetShortLabel() => $"Spring: {localOffset}";
 
         public override void Execute(GameObject target)
         {
@@ -28,9 +27,9 @@ namespace UPlayGround.Data.Event
             }
 
             float holdDuration = Mathf.Max(0.01f, endTime - startTime);
-            _runtimeEffectId = $"motion_time_scale_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
-
-            cameraManager.PlayTimeScaleEffect(_runtimeEffectId, timeScale, holdDuration, 0.02f, 0.08f);
+            _runtimeEffectId = $"motion_spring_{GetHashCode()}_{(target != null ? target.GetInstanceID() : 0)}";
+            cameraManager.PlaySpringDampEffect(_runtimeEffectId, localOffset, holdDuration, stiffness, damping, blendIn,
+                blendOut);
         }
 
         public override void OnCompleteEvent(GameObject target)

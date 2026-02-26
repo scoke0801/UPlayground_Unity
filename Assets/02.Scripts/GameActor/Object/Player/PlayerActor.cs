@@ -494,6 +494,11 @@ namespace UPlayGround
             return _currentHealth / _maxHealth;
         }
 
+        public float GetCurrentHealth()
+        {
+            return _currentHealth;
+        }
+
         public void Heal(float healAmount)
         {
         }

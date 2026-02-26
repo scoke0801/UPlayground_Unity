@@ -290,6 +290,25 @@ namespace UPlayGround.Component
         {
             return _maxAttackRange;
         }
+
+        /// <summary>
+        /// AI 판단을 중단하고 현재 상태를 Idle로 전환한다.
+        /// PlayerFinishAttackState 진입 시 호출.
+        /// </summary>
+        public void Freeze()
+        {
+            enabled = false;
+            _movementController?.TransitionToState(new EnemyIdleState(_movementController));
+        }
+
+        /// <summary>
+        /// AI 판단을 재개한다.
+        /// PlayerFinishAttackState 종료 시 호출.
+        /// </summary>
+        public void Unfreeze()
+        {
+            enabled = true;
+        }
         
         public Vector3 GetRandomPatrolPoint()
         {

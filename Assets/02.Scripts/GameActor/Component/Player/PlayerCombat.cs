@@ -48,6 +48,11 @@ namespace UPlayGround.Component
         [SerializeField] private float _snapMoveSpeed = 6f;      // 스냅 보정 속도 (루트모션에 합산)
         [SerializeField] private float _snapStopDistance = 1.2f;  // 이 거리 이내면 스냅 종료
 
+        [Header("Finish Attack Settings")]
+        [SerializeField] private float _finishAttackSearchRange = 3f;
+        [SerializeField] private float _finishAttackSearchAngle = 90f;
+        [SerializeField] private float _finishAttackDamageThreshold = 50f; // 이 값 이하 HP면 처형 가능
+
         public float SnapSearchRange => _snapSearchRange;
         public float SnapMoveSpeed => _snapMoveSpeed;
         public float SnapStopDistance => _snapStopDistance;
@@ -412,6 +417,73 @@ namespace UPlayGround.Component
             InputManager.Instance.InputBuffer.Clear(); // 콤보 리셋 시 입력 버퍼 비우기
         }
         
+        #region Finish Attack
+
+        /// <summary>
+        /// 처형 가능한 타겟을 탐색한다.
+        /// 정면 기준 각도 내, 지정 범위 안에서 HP가 임계값 이하인 가장 가까운 IDamageable을 반환.
+        /// 없으면 null.
+        /// </summary>
+        public Transform FindFinishableTarget()
+        {
+            Vector3 origin = transform.position;
+            Vector3 forward = transform.forward;
+
+            Collider[] hits = Physics.OverlapSphere(origin, _finishAttackSearchRange, _targetLayerMask);
+
+            Transform bestTarget = null;
+            float bestDistSq = float.MaxValue;
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform == transform || hit.transform.IsChildOf(transform))
+                    continue;
+
+                Vector3 dir = hit.transform.position - origin;
+                dir.y = 0f;
+                if (Vector3.Angle(forward, dir) > _finishAttackSearchAngle)
+                    continue;
+
+                IDamageable damageable = hit.GetComponent<IDamageable>()
+                                         ?? hit.GetComponentInParent<IDamageable>();
+                if (damageable == null || !damageable.CanTakeDamage())
+                    continue;
+
+                if (damageable.GetCurrentHealth() > _finishAttackDamageThreshold)
+                    continue;
+
+                float distSq = dir.sqrMagnitude;
+                if (distSq < bestDistSq)
+                {
+                    bestDistSq = distSq;
+                    bestTarget = hit.transform;
+                }
+            }
+
+            return bestTarget;
+        }
+
+        /// <summary>
+        /// 반경 내의 모든 EnemyBrain 컴포넌트를 반환한다. (FinishAttackState의 freeze용)
+        /// </summary>
+        public List<EnemyBrain> GetEnemyBrainsInRadius(float radius)
+        {
+            var result = new List<EnemyBrain>();
+
+            Collider[] hits = Physics.OverlapSphere(transform.position, radius, _targetLayerMask);
+            foreach (var hit in hits)
+            {
+                EnemyBrain brain = hit.GetComponent<EnemyBrain>()
+                                    ?? hit.GetComponentInParent<EnemyBrain>();
+                if (brain != null && !result.Contains(brain))
+                    result.Add(brain);
+            }
+
+            return result;
+        }
+
+        #endregion
+
         #region Attack Snap (Target Magnetism)
 
         /// <summary>

@@ -159,6 +159,11 @@ namespace UPlayGround
             return _currentHealth / _maxHealth;
         }
 
+        public float GetCurrentHealth()
+        {
+            return _currentHealth;
+        }
+
         #endregion
         
         #region Health Management

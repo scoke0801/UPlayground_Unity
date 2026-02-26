@@ -59,7 +59,17 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
 
             _isHeavyAttack = playerController.HasHeavyAttackInput();
-            
+
+            if (_isHeavyAttack)
+            {
+                Transform finishTarget = _combat.FindFinishableTarget();
+                if (finishTarget != null)
+                {
+                    controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
+                    return;
+                }
+            }
+
             var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
             if (animState != null)
             {

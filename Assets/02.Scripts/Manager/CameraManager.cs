@@ -19,7 +19,7 @@ namespace UPlayGround.Manager
     /// - 충돌 감지: 벽에 막히면 자동으로 카메라 당김
     /// 
     /// </summary>
-    public class CameraManager : BaseManager<CameraManager>, IManager
+    public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor
     {
         // 대상 정보를 담는 헬퍼 클래스
         private class TargetInfo
@@ -124,6 +124,10 @@ namespace UPlayGround.Manager
         private float _offsetSmoothTime = 0.35f;  // 오프셋 전환 부드러움
         private System.Func<bool> _combatStateProvider;  // 전투 상태 조회 함수
 
+        // 카메라 이펙트 시스템
+        private CameraEffectManager _effectManager;
+        private float _baseFOV;
+
         #region IManager 구현
 
         public void Init()
@@ -187,7 +191,11 @@ namespace UPlayGround.Manager
             _shaker.hideFlags = HideFlags.HideAndDontSave;
             
             LoadKillCamData();
-            
+
+            // 카메라 이펙트 시스템 초기화
+            _baseFOV = mainCamera.fieldOfView;
+            _effectManager = new CameraEffectManager(this);
+
             Debug.Log("[CameraManager] 초기화 완료");
         }
 
@@ -221,6 +229,7 @@ namespace UPlayGround.Manager
         {
             Debug.Log("[CameraManager] 정리 시작");
 
+            _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
 
             if (cameraPivot != null)
@@ -264,9 +273,39 @@ namespace UPlayGround.Manager
             UpdateLockOnRotation();
             UpdateCameraAlign();
             UpdateContextOffset();
-            
-            UpdateCameraPosition();
-            UpdateCameraRotation();
+
+            // === 카메라 이펙트 시스템 ===
+            CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
+
+            // 이펙트 델타 적용
+            currentYaw += fx.yawDelta;
+            currentPitch += fx.pitchDelta;
+            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+
+            targetDistance += fx.distanceDelta;
+            targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
+
+            cameraOffset += fx.offsetDelta;
+
+            float effectivePosSmoothTime = fx.positionSmoothTimeOverride ?? positionSmoothTime;
+            float effectiveRotSmoothTime = fx.rotationSmoothTimeOverride ?? rotationSmoothTime;
+
+            UpdateCameraPosition(effectivePosSmoothTime);
+            UpdateCameraRotation(effectiveRotSmoothTime);
+
+            // 포지션 델타 (Shake, SpringDamp 등)
+            mainCamera.transform.position += fx.positionDelta;
+
+            // FOV 델타
+            if (Mathf.Abs(fx.fovDelta) > 0.001f)
+            {
+                mainCamera.fieldOfView = _baseFOV + fx.fovDelta;
+            }
+            else if (_effectManager.HasActiveEffects == false)
+            {
+                // 활성 이펙트가 없으면 기본 FOV 복원
+                mainCamera.fieldOfView = _baseFOV;
+            }
         }
 
         #endregion
@@ -332,12 +371,12 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 카메라 위치 업데이트
         /// </summary>
-        private void UpdateCameraPosition()
+        private void UpdateCameraPosition(float smoothTime)
         {
             // 타겟 위치 + 오프셋으로 피벗 이동
             Vector3 targetPivotPosition = target.position + cameraOffset;
             smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition, ref positionVelocity,
-                positionSmoothTime);
+                smoothTime);
             cameraPivot.position = smoothPosition;
 
             // 거리 부드럽게 조정
@@ -357,17 +396,17 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 카메라 회전 업데이트
         /// </summary>
-        private void UpdateCameraRotation()
+        private void UpdateCameraRotation(float smoothTime)
         {
             // 카메라가 피벗을 바라보도록 회전
             Quaternion targetRotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
 
-            if (rotationSmoothTime > 0f)
+            if (smoothTime > 0f)
             {
                 mainCamera.transform.rotation = Quaternion.Slerp(
                     mainCamera.transform.rotation,
                     targetRotation,
-                    1f - Mathf.Exp(-10f / rotationSmoothTime)
+                    1f - Mathf.Exp(-10f / smoothTime)
                 );
             }
             else
@@ -592,6 +631,62 @@ namespace UPlayGround.Manager
         {
             _combatOffset = offset;
         }
+
+        #endregion
+
+        #region Camera Effect API
+
+        /// <summary>
+        /// ScriptableObject 데이터로 카메라 이펙트를 재생한다.
+        /// 반환된 핸들로 수동 Stop이 가능하다.
+        /// </summary>
+        public ICameraEffect PlayEffect(Data.CameraEffectData data)
+        {
+            return _effectManager.PlayEffect(data);
+        }
+
+        /// <summary>
+        /// 특정 카메라 이펙트를 정지한다 (BlendOut 시작).
+        /// </summary>
+        public void StopEffect(ICameraEffect effect, bool immediate = false)
+        {
+            _effectManager.StopEffect(effect, immediate);
+        }
+
+        /// <summary>
+        /// effectId가 일치하는 모든 이펙트를 정지한다.
+        /// </summary>
+        public void StopEffect(string effectId, bool immediate = false)
+        {
+            _effectManager.StopEffectById(effectId, immediate);
+        }
+
+        /// <summary>
+        /// 모든 활성 카메라 이펙트를 정지한다.
+        /// </summary>
+        public void StopAllEffects(bool immediate = false)
+        {
+            _effectManager.StopAll(immediate);
+        }
+
+        /// <summary>
+        /// 활성 카메라 이펙트 존재 여부
+        /// </summary>
+        public bool HasActiveEffects => _effectManager?.HasActiveEffects ?? false;
+
+        #endregion
+
+        #region ICameraStateAccessor 구현
+
+        float ICameraStateAccessor.CurrentYaw => currentYaw;
+        float ICameraStateAccessor.CurrentPitch => currentPitch;
+        float ICameraStateAccessor.CurrentDistance => currentDistance;
+        float ICameraStateAccessor.TargetDistance => targetDistance;
+        Vector3 ICameraStateAccessor.CurrentOffset => cameraOffset;
+        float ICameraStateAccessor.CurrentFOV => mainCamera != null ? mainCamera.fieldOfView : 60f;
+        Camera ICameraStateAccessor.MainCamera => mainCamera;
+        Transform ICameraStateAccessor.Target => target;
+
         #endregion
 
         #region Gizmos

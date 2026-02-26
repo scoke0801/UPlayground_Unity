@@ -342,7 +342,10 @@ namespace UPlayGround
                 return;
             }
 #endif
-
+            if (_shakeData == null)
+            {
+                return;
+            }
             foreach (var cam in _shakeData.Cameras)
             {
                 if (cam == null) continue;

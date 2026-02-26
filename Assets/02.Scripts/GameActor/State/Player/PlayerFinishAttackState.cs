@@ -23,6 +23,9 @@ namespace UPlayGround.State
         private PlayerCombat _combat;
         private List<EnemyBrain> _frozenBrains = new List<EnemyBrain>();
 
+        /// <summary>FinishSideViewEvent 등 모션 이벤트에서 처형 타겟 참조용</summary>
+        public Transform FinishTarget => _finishTarget;
+
         public PlayerFinishAttackState(ActorMovementController controller, Transform finishTarget)
             : base(controller)
         {

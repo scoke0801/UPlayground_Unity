@@ -20,8 +20,19 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7399917265539825775
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7399917265539825775
+      type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8874999
+        endTime: 3.1375
+        sideAngleOffset: 0
+        pitchOverride: 90
+        restoreOnComplete: 1
+        lockCameraInput: 1
+        editorTestTarget: {fileID: 0}

@@ -41112,6 +41112,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _showHitDebug: 1
+  _snapSearchRange: 2
+  _snapSearchAngle: 60
+  _snapMoveSpeed: 6
+  _snapStopDistance: 1.2
+  _finishAttackSearchRange: 3
+  _finishAttackSearchAngle: 90
+  _finishAttackDamageThreshold: 50
   IsGuarding: 0
 --- !u!114 &763013492
 MonoBehaviour:
@@ -99452,19 +99459,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.3
+      value: -4.01
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.52
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -14.376531
+      value: 2.14
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.99893004
+      value: 0.7707639
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalRotation.x
@@ -99472,7 +99479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.046247125
+      value: 0.63712096
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalRotation.z
@@ -99484,7 +99491,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -5.301
+      value: 79.155
       objectReference: {fileID: 0}
     - target: {fileID: 1924078145196302878, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -99496,7 +99503,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9095356720821638556, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: _allyLayer.m_Bits

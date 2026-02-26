@@ -923,6 +923,10 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateCameraAlign()
         {
+            // 입력 잠금 중(연출 등)에는 자동 회전 건너뜀
+            if (_isInputLocked)
+                return;
+
             if (!isCameraAligning || target == null)
                 return;
 
@@ -1024,6 +1028,10 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateLockOnTransition()
         {
+            // 입력 잠금 중(연출 등)에는 자동 회전 건너뜀
+            if (_isInputLocked)
+                return;
+
             if (!_isLockOnTransitioning)
                 return;
 
@@ -1062,6 +1070,10 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateLockOnRotation()
         {
+            // 입력 잠금 중(연출 등)에는 자동 회전 건너뜀
+            if (_isInputLocked)
+                return;
+
             if (isLockOnActive == false || lockOnTarget == null)
                 return;
 

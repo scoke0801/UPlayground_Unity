@@ -4102,6 +4102,9 @@ MonoBehaviour:
   _snapSearchAngle: 60
   _snapMoveSpeed: 6
   _snapStopDistance: 1.2
+  _finishAttackSearchRange: 2
+  _finishAttackSearchAngle: 90
+  _finishAttackDamageThreshold: 50
   IsGuarding: 0
 --- !u!114 &128408075
 MonoBehaviour:
@@ -4145,8 +4148,8 @@ MonoBehaviour:
   _interactionLayer:
     serializedVersion: 2
     m_Bits: 512
-  _maxHealth: 300
-  _currentHealth: 300
+  _maxHealth: 1000
+  _currentHealth: 1000
   _isInvincible: 0
   _equipment: {fileID: 128408075}
   _combat: {fileID: 128408074}
@@ -58954,7 +58957,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1242462182835147140, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: _guardChance
-      value: 1
+      value: 0.302
       objectReference: {fileID: 0}
     - target: {fileID: 1242462182835147140, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: _guardDuration

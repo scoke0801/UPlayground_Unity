@@ -297,6 +297,8 @@ namespace UPlayGround.Component
         /// </summary>
         public void Freeze()
         {
+            if (_movementController.CurrentState.StateName == "Death")
+                return;
             enabled = false;
             _movementController?.TransitionToState(new EnemyIdleState(_movementController));
         }

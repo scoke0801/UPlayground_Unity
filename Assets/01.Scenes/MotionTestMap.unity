@@ -99509,7 +99509,14 @@ PrefabInstance:
       propertyPath: _allyLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 908181309792730421, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 3548565085514549583, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 8905796124108785073, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 8625519137725637760, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 5020732416255213881, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 2256412200918655943, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    - {fileID: 9095356720821638556, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

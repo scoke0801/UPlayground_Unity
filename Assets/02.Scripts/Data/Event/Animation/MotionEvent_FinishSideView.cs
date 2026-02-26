@@ -37,6 +37,9 @@ namespace UPlayGround.Data.Event
         [Tooltip("이벤트 재생 중 카메라 수동 조작 잠금")]
         public bool lockCameraInput = true;
 
+        [Tooltip("카메라 회전 전환 시간 (초).\n0이면 즉시 스냅, 값이 클수록 천천히 전환됨")]
+        public float transitionDuration = 0.25f;
+
 #if UNITY_EDITOR
         [Tooltip("에디터 테스트용 처형 타겟\n" +
                  "PlayMode + 모션 에디터에서 PlayerFinishAttackState 없이 테스트할 때 지정")]
@@ -85,8 +88,8 @@ namespace UPlayGround.Data.Event
             // 4. 측면 Yaw = 공격 축 ± sideAngleOffset
             float sideYaw = attackAxisYaw + sideAngleOffset;
 
-            // 5. 카메라 회전 적용
-            CameraManager.Instance.SetRotation(sideYaw, pitchOverride);
+            // 5. 카메라 회전 적용 (스무스 전환)
+            CameraManager.Instance.SetRotationSmooth(sideYaw, pitchOverride, transitionDuration);
 
             if (lockCameraInput)
                 CameraManager.Instance.SetInputLock(true);
@@ -98,10 +101,20 @@ namespace UPlayGround.Data.Event
             if (CameraManager.Instance == null) return;
 
             if (restoreOnComplete)
-                CameraManager.Instance.SetRotation(_savedYaw, _savedPitch);
-
-            if (lockCameraInput)
-                CameraManager.Instance.SetInputLock(false);
+            {
+                // 이전 Yaw/Pitch로 스무스 복원
+                // lockCameraInput == true이면 복원 전환 완료 후 입력 잠금 자동 해제
+                // lockCameraInput == false이면 즉시 해제하지 않아도 되므로 unlockOnComplete: false
+                CameraManager.Instance.SetRotationSmooth(
+                    _savedYaw, _savedPitch, transitionDuration,
+                    unlockOnComplete: lockCameraInput);
+            }
+            else
+            {
+                // 복원 없음 → 즉시 입력 잠금 해제
+                if (lockCameraInput)
+                    CameraManager.Instance.SetInputLock(false);
+            }
         }
 
         // ─────────────────────────────────────────────

@@ -22,6 +22,9 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917265539825775
+      - rid: 7399917265539825788
+      - rid: 7399917265539825789
+      - rid: 7399917266253643776
     globalEvents: []
   references:
     version: 2
@@ -29,10 +32,30 @@ MonoBehaviour:
     - rid: 7399917265539825775
       type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.8874999
+        startTime: 0.5
         endTime: 3.1375
-        sideAngleOffset: 0
-        pitchOverride: 90
+        sideAngleOffset: 90
+        pitchOverride: 10
         restoreOnComplete: 1
         lockCameraInput: 1
+        transitionDuration: 0.25
         editorTestTarget: {fileID: 0}
+    - rid: 7399917265539825788
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.9
+        endTime: 1.4499999
+        effectData: {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
+        lockCameraInput: 0
+    - rid: 7399917265539825789
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.4999998
+        endTime: 2.9999998
+        effectData: {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
+        lockCameraInput: 0
+    - rid: 7399917266253643776
+      type: {class: FinishAttackEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.5250003
+        endTime: 3.0250003

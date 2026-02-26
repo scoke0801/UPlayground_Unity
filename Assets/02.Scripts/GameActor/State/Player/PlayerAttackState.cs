@@ -12,8 +12,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 공격 상태
     /// - 콤보 입력, 히트 판정, 루트모션 이동 처리
-    /// - Attack Snap: 공격 모션(루트모션) 위에 스냅 보정 속도를 합산하여
-    ///   가까운 적에게 자연스럽게 접근하면서 공격
+    /// - Attack Snap: 적중하기 가장 좋은 '스윗 스팟(Sweet Spot)'으로 자연스럽게 접근 및 회전 보정
     /// </summary>
     public class PlayerAttackState : PlayerActorState
     {
@@ -33,8 +32,13 @@ namespace UPlayGround.State
         // --- Attack Snap ---
         private Transform _snapTarget;
         private bool _isSnapping;
-        private float _snapStartDistance; // 스냅 시작 시 타겟까지 거리 (EaseOut 비율 계산용)
         
+        // 스냅 시작 시 '스윗 스팟'까지 남은 거리 (감속 비율 계산용)
+        private float _snapStartTravelDistance; 
+        
+        // 타격하기 가장 좋은 이상적인 거리 비율 (사거리의 80% 지점)
+        private const float SweetSpotMultiplier = 0.8f;
+
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -59,6 +63,7 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
 
             _isHeavyAttack = playerController.HasHeavyAttackInput();
+            _attackTimer = 0f;
 
             if (_isHeavyAttack)
             {
@@ -156,6 +161,19 @@ namespace UPlayGround.State
         private void ChangeToNextState()
         {
             _combat.ClearHitTargets();
+            _attackTimer = 0f;
+            
+            _isHeavyAttack = playerController.HasHeavyAttackInput();
+            
+            if (_isHeavyAttack)
+            {
+                Transform finishTarget = _combat.FindFinishableTarget();
+                if (finishTarget != null)
+                {
+                    controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
+                    return;
+                }
+            }
             
             if (_comboInputted)
             {
@@ -170,7 +188,7 @@ namespace UPlayGround.State
                 _combat.CloseComboWindow();
                 _comboInputted = false;
                 
-                // 콤보 연결 시에도 스냅 재시도
+                // 콤보 연결 시 스냅 재시도
                 TryInitAttackSnap();
             }
             else
@@ -225,72 +243,79 @@ namespace UPlayGround.State
             if (_currentAttack == null)
                 return;
 
+            Transform targetToSnap = null;
+            float targetDistance = 0f;
+
             // 락온 대상 우선 체크
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
-                float dist = HorizontalDistance(
-                    gameActor.transform.position, lockOnTarget.position);
+                float dist = HorizontalDistance(gameActor.transform.position, lockOnTarget.position);
                 
-                // 히트 범위 안이면 스냅 불필요
-                if (dist <= _currentAttack.hitRange)
-                    return;
-
                 // 자석 탐색 범위 안이면 스냅 대상으로 설정
                 if (dist <= _combat.SnapSearchRange)
                 {
-                    BeginSnap(lockOnTarget, dist);
-                    return;
+                    targetToSnap = lockOnTarget;
+                    targetDistance = dist;
                 }
             }
 
             // 락온 대상이 없으면 자석 탐색
-            Transform snapCandidate = _combat.FindAttackSnapTarget(
-                _currentAttack.hitRange, _currentAttack.hitAngle);
-
-            if (snapCandidate != null)
+            if (targetToSnap == null)
             {
-                float dist = HorizontalDistance(
-                    gameActor.transform.position, snapCandidate.position);
-                BeginSnap(snapCandidate, dist);
+                Transform snapCandidate = _combat.FindAttackSnapTarget(
+                    _combat.SnapSearchRange, _currentAttack.hitAngle);
+
+                if (snapCandidate != null)
+                {
+                    targetToSnap = snapCandidate;
+                    targetDistance = HorizontalDistance(gameActor.transform.position, snapCandidate.position);
+                }
+            }
+
+            if (targetToSnap != null)
+            {
+                float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
+                
+                // 이미 스윗 스팟(이상적인 타격 거리) 안쪽에 있다면 스냅 불필요
+                if (targetDistance <= sweetSpotDist)
+                    return;
+
+                BeginSnap(targetToSnap, targetDistance, sweetSpotDist);
             }
         }
 
-        private void BeginSnap(Transform target, float initialDistance)
+        private void BeginSnap(Transform target, float currentDistance, float sweetSpotDist)
         {
             _snapTarget = target;
             _isSnapping = true;
-            _snapStartDistance = initialDistance;
+            
+            // 실제 이동해야 할 거리 (현재 거리 - 스윗 스팟 거리)
+            _snapStartTravelDistance = currentDistance - sweetSpotDist;
         }
 
         /// <summary>
         /// 스냅 종료 조건 체크
         /// - 타겟이 사라짐
         /// - 히트 판정 시작됨 (충분히 접근했으므로 루트모션에 맡김)
-        /// - 정지 거리 도달
+        /// - 스윗 스팟(정지 거리) 도달
         /// </summary>
         private void UpdateSnapState()
         {
             if (!_isSnapping)
                 return;
 
-            if (_snapTarget == null)
+            if (_snapTarget == null || _combat.IsPossibleCollide)
             {
                 ClearSnapState();
                 return;
             }
 
-            // 히트 판정이 시작되면 스냅 종료 → 이후 순수 루트모션
-            if (_combat.IsPossibleCollide)
-            {
-                ClearSnapState();
-                return;
-            }
+            float dist = HorizontalDistance(gameActor.transform.position, _snapTarget.position);
+            float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
 
-            float dist = HorizontalDistance(
-                gameActor.transform.position, _snapTarget.position);
-            
-            if (dist <= _combat.SnapStopDistance)
+            // 스윗 스팟에 도달했거나 넘어섰다면 스냅 종료
+            if (dist <= sweetSpotDist)
             {
                 ClearSnapState();
             }
@@ -300,7 +325,7 @@ namespace UPlayGround.State
         {
             _snapTarget = null;
             _isSnapping = false;
-            _snapStartDistance = 0f;
+            _snapStartTravelDistance = 0f;
         }
 
         private static float HorizontalDistance(Vector3 a, Vector3 b)
@@ -318,41 +343,59 @@ namespace UPlayGround.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
 
-            // 루트모션이 베이스
             Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
 
             if (_isSnapping && _snapTarget != null)
             {
                 Vector3 toTarget = _snapTarget.position - gameActor.transform.position;
                 toTarget.y = 0f;
+                float currentDist = toTarget.magnitude;
 
-                float distance = toTarget.magnitude;
-                if (distance > 0.01f)
+                float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
+                float distToTravel = currentDist - sweetSpotDist;
+
+                if (distToTravel > 0.01f)
                 {
-                    Vector3 snapDir = toTarget / distance;
+                    Vector3 snapDir = toTarget.normalized;
 
-                    // EaseOut: 시작 거리 대비 남은 거리 비율로 감속
-                    float progress = (_snapStartDistance > 0.01f)
-                        ? 1f - Mathf.Clamp01(distance / _snapStartDistance)
+                    // EaseOut: 출발할 땐 빠르게, 도착할 땐 부드럽게 감속
+                    float progress = (_snapStartTravelDistance > 0.01f) 
+                        ? 1f - Mathf.Clamp01(distToTravel / _snapStartTravelDistance) 
                         : 1f;
-                    float easeOut = 1f - (progress * progress); // 빠르게 출발, 도착에 감속
-
-                    float snapSpeed = _combat.SnapMoveSpeed * easeOut;
-
-                    // 루트모션 + 스냅 보정 합산
-                    Vector3 snapVel = snapDir * snapSpeed;
                     
-                    currentVelocity = rootMotionVel + new Vector3(snapVel.x, 0f, snapVel.z);
+                    float easeOutMultiplier = 1f - (progress * progress);
+                    
+                    // 남은 거리에 비례하여 필요한 속도를 구함 (거리가 멀수록 빠르게)
+                    float neededSpeed = (distToTravel * 5.0f) * easeOutMultiplier;
+                    float finalSpeed = Mathf.Min(neededSpeed, _combat.SnapMoveSpeed);
+
+                    // 루트모션 방향이 타겟 방향과 얼마나 일치하는지 내적(Dot)으로 확인
+                    float dot = Vector3.Dot(rootMotionVel.normalized, snapDir);
+                    Vector3 finalVel;
+
+                    if (dot > 0.5f && rootMotionVel.magnitude > 0.1f)
+                    {
+                        // 전진하는 공격 모션인 경우: 루트모션의 방향을 유지하면서 속도만 스케일 업(모션 워핑)
+                        // 타겟 방향 벡터와 부족한 스피드만큼 더해줌
+                        finalVel = rootMotionVel + (snapDir * Mathf.Max(0, finalSpeed - rootMotionVel.magnitude));
+                    }
+                    else
+                    {
+                        // 제자리 공격이거나 엉뚱한 방향인 경우: 강제로 타겟을 향해 끌어당김
+                        finalVel = snapDir * finalSpeed;
+                    }
+
+                    currentVelocity = new Vector3(finalVel.x, rootMotionVel.y, finalVel.z);
                     return;
                 }
             }
 
+            // 스냅을 하지 않거나 종료된 상태라면 순수 루트모션만 적용
             currentVelocity = rootMotionVel;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 스냅 중이면 타겟 방향으로 회전
             if (_isSnapping && _snapTarget != null)
             {
                 Vector3 dirToTarget = (_snapTarget.position - gameActor.transform.position);
@@ -361,13 +404,24 @@ namespace UPlayGround.State
                 if (dirToTarget.sqrMagnitude > 0.01f)
                 {
                     Quaternion targetRot = Quaternion.LookRotation(dirToTarget.normalized);
-                    currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 10f);
+
+                    // 공격 극초반(0.15초 이내)에는 즉시 타겟을 바라보게 하여 빗나가는 것을 방지
+                    if (_attackTimer < 0.15f)
+                    {
+                        currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 25f);
+                    }
+                    else
+                    {
+                        // 공격 중반 이후로는 회전 속도를 늦춰서 무게감을 줌
+                        currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 8f);
+                    }
+                    
                     currentRotation = currentRotation.normalized;
                     return;
                 }
             }
 
-            // Lock-On 타겟이 있으면 타겟 방향으로 회전
+            // Lock-On 타겟이 있으면 스냅과 무관하게 항상 타겟 쪽을 바라보도록 보정
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
@@ -382,6 +436,7 @@ namespace UPlayGround.State
             }
             else
             {
+                // 아무것도 없으면 루트모션 회전값 적용
                 currentRotation *= gameActor.Animator.DeltaRotation;
             }
             

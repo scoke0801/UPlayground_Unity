@@ -49,9 +49,9 @@ namespace UPlayGround.Component
         [SerializeField] private float _snapStopDistance = 1.2f;  // 이 거리 이내면 스냅 종료
 
         [Header("Finish Attack Settings")]
-        [SerializeField] private float _finishAttackSearchRange = 3f;
+        [SerializeField] private float _finishAttackSearchRange = 0.5f;
         [SerializeField] private float _finishAttackSearchAngle = 90f;
-        [SerializeField] private float _finishAttackDamageThreshold = 50f; // 이 값 이하 HP면 처형 가능
+        [SerializeField] private float _finishAttackDamageThreshold = 30f; // 이 값 이하 HP면 처형 가능
 
         public float SnapSearchRange => _snapSearchRange;
         public float SnapMoveSpeed => _snapMoveSpeed;

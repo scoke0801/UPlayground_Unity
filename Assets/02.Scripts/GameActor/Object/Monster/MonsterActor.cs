@@ -126,6 +126,19 @@ namespace UPlayGround
                 OnDeath(attackData);
             }
         }
+
+        public void OnTakeFinishAttack(Vector3 attackDirection)
+        {
+            _currentHealth = 0;
+
+            if (_uiHpBar == null)
+            {
+                AttachHpUI();
+            }
+            MovementController.AddVelocity(attackDirection.normalized * 15.0f);
+
+            OnDeath(null);
+        }
         
         public bool IsAlive()
         {

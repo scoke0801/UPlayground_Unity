@@ -117,6 +117,16 @@ namespace UPlayGround.Manager
         // 입력 잠금 (킬캠 등 연출 중 카메라 조작 차단)
         private bool _isInputLocked;
 
+        // 스무스 회전 전환 (연출용 절대 각도 전환)
+        private bool _rotTransitionActive;
+        private float _rotTransitionStartYaw;
+        private float _rotTransitionStartPitch;
+        private float _rotTransitionTargetYaw;
+        private float _rotTransitionTargetPitch;
+        private float _rotTransitionElapsed;
+        private float _rotTransitionDuration;
+        private bool _rotTransitionUnlockOnComplete;   // 전환 완료 시 입력 잠금 자동 해제
+
         // 컨텍스트 기반 카메라 오프셋 (전투/비전투 숄더 전환)
         private Vector3 _defaultOffset = new Vector3(0f, 1f, 0f);       // 비전투 (센터)
         private Vector3 _combatOffset = new Vector3(0.5f, 1.2f, 0f);   // 전투 (숄더 뷰)
@@ -273,6 +283,7 @@ namespace UPlayGround.Manager
             UpdateLockOnRotation();
             UpdateCameraAlign();
             UpdateContextOffset();
+            UpdateRotationTransition();
 
             // === 카메라 이펙트 시스템 ===
             CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
@@ -432,6 +443,38 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 스무스 회전 전환 업데이트 (SetRotationSmooth로 시작된 전환을 매 프레임 보간)
+        /// - _isInputLocked 상태와 무관하게 항상 실행 (내부 연출 전환이므로)
+        /// - SmoothStep 커브로 ease-in/out 적용
+        /// - 전환 완료 시 _rotTransitionUnlockOnComplete == true이면 입력 잠금 자동 해제
+        /// </summary>
+        private void UpdateRotationTransition()
+        {
+            if (!_rotTransitionActive)
+                return;
+
+            _rotTransitionElapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(_rotTransitionElapsed / _rotTransitionDuration);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);  // ease-in/out
+
+            currentYaw   = Mathf.LerpAngle(_rotTransitionStartYaw,   _rotTransitionTargetYaw,   smoothT);
+            currentPitch = Mathf.Lerp     (_rotTransitionStartPitch, _rotTransitionTargetPitch, smoothT);
+            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+
+            if (t >= 1f)
+            {
+                _rotTransitionActive = false;
+
+                // 복원 전환 완료 시 입력 잠금 자동 해제
+                if (_rotTransitionUnlockOnComplete)
+                {
+                    _isInputLocked = false;
+                    _rotTransitionUnlockOnComplete = false;
+                }
+            }
+        }
+
+        /// <summary>
         /// 충돌 처리
         /// </summary>
         private Vector3 HandleCollision(Vector3 origin, Vector3 desiredPosition)
@@ -515,12 +558,39 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 카메라 회전 설정
+        /// 카메라 회전 즉시 설정 (스냅)
+        /// 진행 중인 스무스 전환이 있으면 취소된다.
         /// </summary>
         public void SetRotation(float yaw, float pitch)
         {
-            currentYaw = yaw;
+            _rotTransitionActive = false;   // 진행 중 전환 취소
+            currentYaw   = yaw;
             currentPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+        }
+
+        /// <summary>
+        /// 카메라 회전을 duration 동안 부드럽게 전환한다 (SmoothStep 커브).
+        /// duration == 0 이면 즉시 SetRotation과 동일하게 동작한다.
+        /// unlockOnComplete == true 이면 전환 완료 시 입력 잠금(_isInputLocked)을 자동 해제한다.
+        /// </summary>
+        public void SetRotationSmooth(float yaw, float pitch, float duration, bool unlockOnComplete = false)
+        {
+            if (duration <= 0f)
+            {
+                SetRotation(yaw, pitch);
+                if (unlockOnComplete)
+                    _isInputLocked = false;
+                return;
+            }
+
+            _rotTransitionStartYaw   = currentYaw;
+            _rotTransitionStartPitch = currentPitch;
+            _rotTransitionTargetYaw   = yaw;
+            _rotTransitionTargetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+            _rotTransitionElapsed     = 0f;
+            _rotTransitionDuration    = duration;
+            _rotTransitionActive      = true;
+            _rotTransitionUnlockOnComplete = unlockOnComplete;
         }
 
         /// <summary>

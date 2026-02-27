@@ -47,6 +47,7 @@ namespace UPlayGround.Manager
             
             RegisterManager(AssetManager.Instance);
             RegisterManager(UIManager.Instance); // UI 관리
+            RegisterManager(TargetingManager.Instance); // 타겟팅 시스템
             RegisterManager(CameraManager.Instance); // 카메라 시스템
             RegisterManager(GameObjectManager.Instance);
             RegisterManager(ItemManager.Instance);

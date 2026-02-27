@@ -433,7 +433,9 @@ namespace UPlayGround.Component
 
             Transform bestTarget = null;
             float bestDistSq = float.MaxValue;
-
+            
+            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+            
             foreach (var hit in hits)
             {
                 if (hit.transform == transform || hit.transform.IsChildOf(transform))
@@ -457,6 +459,12 @@ namespace UPlayGround.Component
                 {
                     bestDistSq = distSq;
                     bestTarget = hit.transform;
+                }
+                
+                // 락온 대상이 가장 먼저.
+                if (lockOnTarget != null && hit.transform == lockOnTarget)
+                {
+                    return hit.transform;
                 }
             }
 

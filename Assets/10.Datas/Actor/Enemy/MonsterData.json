@@ -50,42 +50,24 @@
       },
 
       "attackData": {
-        "globalCooldown": 1.2,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "기본 공격",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 70,
-            "minRange": 0, "maxRange": 2.2,
-            "cooldown": 0,
+            "selectionWeight": 100,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 8,
-              "poiseDamage": 25,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
-              "attackRadius": 1.2,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "이단 베기",
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0, "maxRange": 2.2,
-            "cooldown": 4.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 6,
-              "poiseDamage": 20,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
-              "attackRadius": 1.2,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -145,60 +127,24 @@
       },
 
       "attackData": {
-        "globalCooldown": 1.3,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "검 베기",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 50,
-            "minRange": 0, "maxRange": 2.3,
-            "cooldown": 0,
+            "selectionWeight": 100,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 12,
+              "reactionType": 0,
+              "damage": 15,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
-              "attackRadius": 1.3,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "연속 베기",
-            "skillType": 1,
-            "selectionWeight": 35,
-            "minRange": 0, "maxRange": 2.3,
-            "cooldown": 5.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 9,
-              "poiseDamage": 25,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
-              "attackRadius": 1.3,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "강 내려치기",
-            "skillType": 1,
-            "selectionWeight": 15,
-            "minRange": 0, "maxRange": 2.3,
-            "cooldown": 7.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 200,
-              "attackType": 0,
-              "reactionType": 3,
-              "damage": 20,
-              "poiseDamage": 60,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -244,42 +190,24 @@
       },
 
       "attackData": {
-        "globalCooldown": 2.0,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "화살 발사",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 70,
-            "minRange": 4.0, "maxRange": 15.0,
-            "cooldown": 0,
+            "selectionWeight": 100,
+            "minRange": 0, "maxRange": 20,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 20,
-              "attackOffset": { "x": 0, "y": 1.3, "z": 0 },
-              "attackRadius": 0.3,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "연속 화살",
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 6.0, "maxRange": 15.0,
-            "cooldown": 8.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 7,
-              "poiseDamage": 15,
-              "attackOffset": { "x": 0, "y": 1.3, "z": 0 },
-              "attackRadius": 0.3,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -325,42 +253,24 @@
       },
 
       "attackData": {
-        "globalCooldown": 1.0,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "물기",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 60,
-            "minRange": 0, "maxRange": 1.6,
-            "cooldown": 0,
+            "selectionWeight": 100,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 1,
-              "damage": 5,
-              "poiseDamage": 15,
-              "attackOffset": { "x": 0, "y": 0.5, "z": 0.8 },
-              "attackRadius": 0.8,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "독 물기",
-            "skillType": 1,
-            "selectionWeight": 40,
-            "minRange": 0, "maxRange": 1.6,
-            "cooldown": 5.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 8,
-              "poiseDamage": 20,
-              "attackOffset": { "x": 0, "y": 0.5, "z": 0.8 },
-              "attackRadius": 0.8,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -420,90 +330,125 @@
       },
 
       "attackData": {
-        "globalCooldown": 1.8,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "발톱 공격",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 40,
-            "minRange": 0, "maxRange": 3.2,
-            "cooldown": 0,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 18,
-              "poiseDamage": 35,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.8 },
-              "attackRadius": 1.8,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "연속 발톱",
+            "_name": "Attack_2",
             "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 0, "maxRange": 3.2,
-            "cooldown": 6.0,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 101,
               "attackType": 0,
-              "reactionType": 3,
-              "damage": 14,
+              "reactionType": 0,
+              "damage": 10,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.8 },
-              "attackRadius": 1.8,
-              "hitParticleName": "LiteHit"
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "독 투사체",
+            "_name": "HeavyAttack_1",
             "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 3.0, "maxRange": 14.0,
-            "cooldown": 5.0,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
-              "animKey": 500,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 12,
-              "poiseDamage": 25,
-              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
-              "attackRadius": 0.4,
-              "hitParticleName": "LiteHit"
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
             }
           },
           {
-            "_name": "미니언 소환",
-            "_note": "소환 유닛이 3마리 미만일 때만 발동",
+            "_name": "HeavyAttack_2",
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 201,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
+            }
+          },
+          {
+            "_name": "Skill_1 (소환)",
             "skillType": 3,
-            "selectionWeight": 10,
-            "minRange": 0, "maxRange": 999,
-            "cooldown": 15.0,
+            "selectionWeight": 20,
+            "minRange": 2, "maxRange": 20,
+            "cooldown": 30,
             "conditionGroup": {
               "conditionOperator": 0,
               "conditions": [
                 {
                   "type": 6,
-                  "checkSpawnCount": 3,
-                  "minHealthPercent": 0, "maxHealthPercent": 1,
-                  "minRange": 0, "maxRange": 999,
-                  "minAllyCount": 0, "maxAllyCount": 99
+                  "checkSpawnCount": 1,
+                  "minHealthPercent": 0, "maxHealthPercent": 0,
+                  "minRange": 0, "maxRange": 0,
+                  "minAllyCount": 0, "maxAllyCount": 0
                 }
               ]
             },
             "baseInfo": {
-              "animKey": 501,
-              "attackType": 0,
+              "animKey": 500,
+              "attackType": 1,
               "reactionType": 0,
-              "damage": 0,
-              "poiseDamage": 0,
-              "attackOffset": { "x": 0, "y": 0, "z": 0 },
-              "attackRadius": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
               "hitParticleName": ""
+            }
+          },
+          {
+            "_name": "Skill_2 (투사체)",
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 2, "maxRange": 20,
+            "cooldown": 5,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -563,91 +508,89 @@
       },
 
       "attackData": {
-        "globalCooldown": 2.0,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "마법 투사체",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 45,
-            "minRange": 4.0, "maxRange": 18.0,
-            "cooldown": 0,
+            "selectionWeight": 40,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 20,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
-              "attackRadius": 0.4,
-              "hitParticleName": "LiteHit"
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "연속 마법탄",
+            "_name": "Attack_2",
             "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 6.0, "maxRange": 18.0,
-            "cooldown": 8.0,
+            "selectionWeight": 40,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 101,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 14,
-              "poiseDamage": 20,
-              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
-              "attackRadius": 0.4,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "지팡이 근접 타격",
-            "_note": "플레이어가 근접했을 때만 발동",
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0, "maxRange": 2.5,
-            "cooldown": 4.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 200,
               "attackType": 0,
-              "reactionType": 3,
-              "damage": 16,
-              "poiseDamage": 50,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
-              "attackRadius": 1.4,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "언데드 소환",
-            "_note": "소환 유닛 2마리 미만 + 플레이어가 멀 때",
+            "_name": "Skill_1 (소환)",
             "skillType": 3,
             "selectionWeight": 20,
-            "minRange": 0, "maxRange": 999,
-            "cooldown": 20.0,
+            "minRange": 0, "maxRange": 20,
+            "cooldown": 30,
             "conditionGroup": {
               "conditionOperator": 0,
               "conditions": [
                 {
                   "type": 6,
-                  "checkSpawnCount": 2,
-                  "minHealthPercent": 0, "maxHealthPercent": 1,
-                  "minRange": 0, "maxRange": 999,
-                  "minAllyCount": 0, "maxAllyCount": 99
+                  "checkSpawnCount": 1,
+                  "minHealthPercent": 0, "maxHealthPercent": 0,
+                  "minRange": 0, "maxRange": 0,
+                  "minAllyCount": 0, "maxAllyCount": 0
                 }
               ]
             },
             "baseInfo": {
               "animKey": 500,
-              "attackType": 0,
+              "attackType": 1,
               "reactionType": 0,
-              "damage": 0,
-              "poiseDamage": 0,
-              "attackOffset": { "x": 0, "y": 0, "z": 0 },
-              "attackRadius": 0,
-              "hitParticleName": ""
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Skill_2 (투사체)",
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 0, "maxRange": 20,
+            "cooldown": 10,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -707,61 +650,78 @@
       },
 
       "attackData": {
-        "globalCooldown": 2.5,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "주먹 내리치기",
+            "_name": "Attack_1",
             "skillType": 1,
-            "selectionWeight": 50,
-            "minRange": 0, "maxRange": 3.2,
-            "cooldown": 0,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 3,
-              "damage": 35,
-              "poiseDamage": 80,
-              "attackOffset": { "x": 0, "y": 0.5, "z": 2.0 },
-              "attackRadius": 2.0,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "양손 내리찍기",
+            "_name": "Attack_2",
             "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0, "maxRange": 3.5,
-            "cooldown": 8.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 200,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 55,
-              "poiseDamage": 120,
-              "attackOffset": { "x": 0, "y": 0.5, "z": 2.2 },
-              "attackRadius": 2.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "팔 휩쓸기",
-            "_note": "광역 범위 측면 공격",
-            "skillType": 1,
-            "selectionWeight": 20,
-            "minRange": 0, "maxRange": 3.5,
-            "cooldown": 10.0,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 101,
               "attackType": 0,
-              "reactionType": 4,
-              "damage": 40,
-              "poiseDamage": 100,
-              "attackOffset": { "x": 0, "y": 0.8, "z": 1.5 },
-              "attackRadius": 3.0,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_3",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_4",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]
@@ -821,90 +781,113 @@
       },
 
       "attackData": {
-        "globalCooldown": 2.0,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "가지 휘두르기",
-            "skillType": 1,
-            "selectionWeight": 45,
-            "minRange": 0, "maxRange": 3.7,
-            "cooldown": 0,
+            "_name": "Attack_1",
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 22,
-              "poiseDamage": 50,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 2.0 },
-              "attackRadius": 2.2,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "발구르기",
-            "skillType": 1,
-            "selectionWeight": 30,
+            "_name": "Attack_2",
+            "skillType": 0,
+            "selectionWeight": 21,
             "minRange": 0, "maxRange": 2.5,
-            "cooldown": 6.0,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 101,
               "attackType": 0,
-              "reactionType": 3,
-              "damage": 30,
-              "poiseDamage": 70,
-              "attackOffset": { "x": 0, "y": 0.3, "z": 1.5 },
-              "attackRadius": 2.5,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "강타 (넉백)",
-            "skillType": 1,
-            "selectionWeight": 15,
-            "minRange": 0, "maxRange": 3.7,
-            "cooldown": 10.0,
+            "_name": "Attack_3",
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
-              "animKey": 200,
+              "animKey": 102,
               "attackType": 0,
-              "reactionType": 4,
-              "damage": 40,
-              "poiseDamage": 100,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 2.0 },
-              "attackRadius": 2.5,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "자가 힐",
-            "_note": "HP 30% 이하 1회만. 쿨다운 999로 사실상 1회 제한.",
+            "_name": "Attack_4",
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Skill_1 (힐)",
             "skillType": 2,
             "selectionWeight": 10,
-            "minRange": 0, "maxRange": 999,
-            "cooldown": 999.0,
+            "minRange": 1, "maxRange": 20,
+            "cooldown": 10,
             "conditionGroup": {
-              "conditionOperator": 0,
+              "conditionOperator": 1,
               "conditions": [
                 {
                   "type": 1,
-                  "minHealthPercent": 0.0,
-                  "maxHealthPercent": 0.35,
-                  "minRange": 0, "maxRange": 999,
-                  "minAllyCount": 0, "maxAllyCount": 99,
+                  "minHealthPercent": 0.1, "maxHealthPercent": 0.7,
+                  "minRange": 0, "maxRange": 10,
+                  "minAllyCount": 0, "maxAllyCount": 0,
+                  "checkSpawnCount": 0
+                },
+                {
+                  "type": 5,
+                  "minHealthPercent": 0, "maxHealthPercent": 0.7,
+                  "minRange": 0, "maxRange": 10,
+                  "minAllyCount": 0, "maxAllyCount": 0,
                   "checkSpawnCount": 0
                 }
               ]
             },
             "baseInfo": {
               "animKey": 500,
-              "attackType": 0,
+              "attackType": 1,
               "reactionType": 0,
-              "damage": 0,
-              "poiseDamage": 0,
-              "attackOffset": { "x": 0, "y": 0, "z": 0 },
-              "attackRadius": 0,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
               "hitParticleName": ""
             }
           }
@@ -978,127 +961,222 @@
       },
 
       "attackData": {
-        "globalCooldown": 1.2,
+        "globalCooldown": 1,
         "skills": [
           {
-            "_name": "빠른 베기",
+            "_name": "Attack_1",
             "skillType": 1,
             "selectionWeight": 30,
             "minRange": 0, "maxRange": 2.5,
-            "cooldown": 0,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 1,
-              "damage": 12,
-              "poiseDamage": 25,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.4 },
-              "attackRadius": 1.4,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "연속 2타",
+            "_name": "Attack_2",
             "skillType": 1,
-            "selectionWeight": 25,
+            "selectionWeight": 30,
             "minRange": 0, "maxRange": 2.5,
-            "cooldown": 3.0,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 101,
               "attackType": 0,
-              "reactionType": 2,
+              "reactionType": 0,
               "damage": 10,
-              "poiseDamage": 22,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.4 },
-              "attackRadius": 1.4,
-              "hitParticleName": "LiteHit"
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "연속 3타 피니시",
+            "_name": "Attack_3",
             "skillType": 1,
-            "selectionWeight": 15,
+            "selectionWeight": 30,
             "minRange": 0, "maxRange": 2.5,
-            "cooldown": 6.0,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 102,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 18,
-              "poiseDamage": 35,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.5 },
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "강 내려치기",
+            "_name": "Attack_4",
             "skillType": 1,
-            "selectionWeight": 15,
-            "minRange": 0, "maxRange": 2.8,
-            "cooldown": 8.0,
-            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
-            "baseInfo": {
-              "animKey": 200,
-              "attackType": 0,
-              "reactionType": 3,
-              "damage": 28,
-              "poiseDamage": 65,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.5 },
-              "attackRadius": 1.6,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "_name": "회전 베기",
-            "skillType": 1,
-            "selectionWeight": 10,
+            "selectionWeight": 30,
             "minRange": 0, "maxRange": 2.5,
-            "cooldown": 10.0,
+            "cooldown": 2,
             "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
               "animKey": 103,
               "attackType": 0,
-              "reactionType": 3,
-              "damage": 22,
-              "poiseDamage": 50,
-              "attackOffset": { "x": 0, "y": 1.0, "z": 1.0 },
-              "attackRadius": 2.5,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           },
           {
-            "_name": "급강하 내려치기",
-            "_note": "HP 60% 이하 페이즈에서만 발동",
+            "_name": "Attack_5",
             "skillType": 1,
-            "selectionWeight": 5,
-            "minRange": 2.0, "maxRange": 5.0,
-            "cooldown": 12.0,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-                {
-                  "type": 1,
-                  "minHealthPercent": 0.0,
-                  "maxHealthPercent": 0.6,
-                  "minRange": 0, "maxRange": 999,
-                  "minAllyCount": 0, "maxAllyCount": 99,
-                  "checkSpawnCount": 0
-                }
-              ]
-            },
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
             "baseInfo": {
-              "animKey": 300,
+              "animKey": 104,
               "attackType": 0,
-              "reactionType": 4,
-              "damage": 40,
-              "poiseDamage": 100,
-              "attackOffset": { "x": 0, "y": 0.5, "z": 2.0 },
-              "attackRadius": 2.0,
-              "hitParticleName": "LiteHit"
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_6",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_7",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 106,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_8",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 107,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Attack_9",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 108,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Skill_1",
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Skill_2",
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "_name": "Skill_3",
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
             }
           }
         ]

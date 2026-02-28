@@ -34,10 +34,14 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void OnSceneChanged(string sceneType) { }
+
         public Sprite GetAtlas(string key)
         {
             return _itemAtlas.GetSprite(key);
         }
+
+        public bool IsLoaded { get; private set; } = false;
 
         private async void LoadItemAtlas()
         {
@@ -54,6 +58,7 @@ namespace UPlayGround.Manager
                     return;
                 }
 
+                IsLoaded = true;
                 Debug.Log($"[AssetManager] path - 로드 완료");
             }
             catch (System.Exception e)

@@ -70,6 +70,16 @@ namespace UPlayGround.Manager
         public void OnLateUpdate()
         {
         }
+
+        public void OnSceneChanged(string sceneType)
+        {
+            // 씬 전환 시 Player 레퍼런스 재수집
+            _player = GameObject.FindWithTag("Player")?.GetComponent<PlayerActor>();
+            
+            // Handler들도 씬 의존 상태 리셋
+            foreach (var handler in _handlerList)
+                handler.Init();
+        }
     }
 
     public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager

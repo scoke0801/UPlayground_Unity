@@ -90,9 +90,6 @@ public class UI_PauseMenu : UI_Base
     private void OnMainMenuClicked()
     {
         Debug.Log("[PauseMenu] 메인 메뉴로 이동");
-        
-        // TODO: 메인 메뉴 씬 로드
-        // SceneManager.LoadScene("MainMenu");
     }
     
     /// <summary>

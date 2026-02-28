@@ -69,6 +69,8 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void OnSceneChanged(string sceneType) { }
+
         #endregion
 
         #region 유틸리티

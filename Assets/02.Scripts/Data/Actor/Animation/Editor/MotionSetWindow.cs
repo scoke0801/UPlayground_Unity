@@ -12,7 +12,7 @@ namespace UPlayGround.Animation.Editor
         Vector2         _scrollPos;
         
         // 테스트 씬 설정
-        string          _testScenePath = "Assets/01.Scenes/MotionTestMap.unity"; // 기본 경로
+        string          _testScenePath = "Assets/01.Scenes/Test/MotionTestMap.unity"; // 기본 경로
         string          _testActorName = "TestPlayer"; // 기본 액터 이름
         public AnimationClip   _idleAnimation; // 기본 Idle 애니메이션
         

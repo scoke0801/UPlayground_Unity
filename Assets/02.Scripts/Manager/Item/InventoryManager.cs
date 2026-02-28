@@ -39,6 +39,8 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void OnSceneChanged(string sceneType) { }
+
         public void AddItem(int itemId, ItemInstance itemInstance)
         {
             if (_itemPair.ContainsKey(itemId) == false)

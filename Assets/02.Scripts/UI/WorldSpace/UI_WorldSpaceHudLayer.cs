@@ -30,6 +30,8 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
     {
         if (_hpBarPrefab == null) return null;
         
+        if(_mainCamera == null) 
+            _mainCamera = Camera.main;
         var hpBar = Instantiate(_hpBarPrefab, transform)?.GetComponent<UI_ActorHpBar>();
         hpBar?.Init(actor, _mainCamera, _parentCanvas);
         return hpBar;

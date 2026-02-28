@@ -119,6 +119,8 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void OnSceneChanged(string sceneType) { }
+
         #endregion
 
         /// <summary>

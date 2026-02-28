@@ -67,6 +67,12 @@ namespace UPlayGround.Manager.Handler
         public void OnLateUpdate()
         {
         }
+
+        public void OnSceneChanged(string sceneType)
+        {
+            Stop();
+            StopAllActors();
+        }
         
         /// <summary>
         /// HitStop 실행

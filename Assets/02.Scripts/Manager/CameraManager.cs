@@ -147,63 +147,13 @@ namespace UPlayGround.Manager
             InitializeCamera();
             LoadCameraShakeDatabase();
             
-            // 메인 카메라 찾기
-            mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                Debug.LogError("[CameraManager] 메인 카메라를 찾을 수 없습니다!");
-                return;
-            }
-
-            // 카메라 피벗 생성 (타겟을 중심으로 회전)
-            GameObject pivotObj = new GameObject("CameraPivot");
-            cameraPivot = pivotObj.transform;
-            cameraPivot.SetParent(transform);
-
-            // 초기값 설정
-            currentDistance = defaultDistance;
-            targetDistance = defaultDistance;
-            currentYaw = 0f;
-            currentPitch = 20f; // 기본 각도
-
-            collisionLayers = CameraConfig.GetCollisionLayerMask();
-
-            if (target != null)
-            {
-                // 타겟이 있으면 타겟 위치로 초기화
-                cameraPivot.position = target.position + cameraOffset;
-                smoothPosition = cameraPivot.position;
-
-                // 카메라 초기 위치 설정
-                SetInitialCameraPosition();
-            }
-            else
-            {
-                // 타겟이 없으면 원점 기준으로 설정
-                cameraPivot.position = cameraOffset;
-                smoothPosition = cameraPivot.position;
-
-                Debug.LogWarning("[CameraManager] 타겟이 설정되지 않았습니다. CameraInitializer를 사용하여 타겟을 설정하세요.");
-
-                // 카메라 초기 위치 설정
-                SetInitialCameraPosition();
-            }
-
             if (lockOnLayerMask == 0)
             {
                 lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             }
-            
-            GameObject shakerGO = new GameObject("CameraShaker");
-            shakerGO.hideFlags = HideFlags.HideAndDontSave;
-            
-            _shaker = shakerGO.AddComponent<CameraShaker>();
-            _shaker.hideFlags = HideFlags.HideAndDontSave;
-            
             LoadKillCamData();
 
             // 카메라 이펙트 시스템 초기화
-            _baseFOV = mainCamera.fieldOfView;
             _effectManager = new CameraEffectManager(this);
 
             Debug.Log("[CameraManager] 초기화 완료");
@@ -260,6 +210,20 @@ namespace UPlayGround.Manager
             }
 
             Debug.Log("[CameraManager] 정리 완료");
+        }
+
+        public void OnSceneChanged(string sceneType)
+        {
+            // LockOn 상태 초기화
+            ReleaseLockOn();
+
+            // 진행 중 이펙트 즉시 종료
+            _effectManager?.StopAll(immediate: true);
+            _killCamController?.ForceStop();
+            _isInputLocked = false;
+
+            // Player 레퍼런스 재수집
+            InitializeCamera();
         }
 
         public void OnUpdate()
@@ -854,6 +818,56 @@ namespace UPlayGround.Manager
             {
                 CameraManager.Instance.SetTarget(playerTarget);
             }
+            
+            // 메인 카메라 찾기
+            mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                Debug.LogError("[CameraManager] 메인 카메라를 찾을 수 없습니다!");
+                return;
+            }
+
+            // 카메라 피벗 생성 (타겟을 중심으로 회전)
+            GameObject pivotObj = new GameObject("CameraPivot");
+            cameraPivot = pivotObj.transform;
+            cameraPivot.SetParent(transform);
+
+            // 초기값 설정
+            currentDistance = defaultDistance;
+            targetDistance = defaultDistance;
+            currentYaw = 0f;
+            currentPitch = 20f; // 기본 각도
+
+            collisionLayers = CameraConfig.GetCollisionLayerMask();
+
+            if (target != null)
+            {
+                // 타겟이 있으면 타겟 위치로 초기화
+                cameraPivot.position = target.position + cameraOffset;
+                smoothPosition = cameraPivot.position;
+
+                // 카메라 초기 위치 설정
+                SetInitialCameraPosition();
+            }
+            else
+            {
+                // 타겟이 없으면 원점 기준으로 설정
+                cameraPivot.position = cameraOffset;
+                smoothPosition = cameraPivot.position;
+
+                Debug.LogWarning("[CameraManager] 타겟이 설정되지 않았습니다. CameraInitializer를 사용하여 타겟을 설정하세요.");
+
+                // 카메라 초기 위치 설정
+                SetInitialCameraPosition();
+            }
+            
+            GameObject shakerGO = new GameObject("CameraShaker");
+            shakerGO.hideFlags = HideFlags.HideAndDontSave;
+            
+            _shaker = shakerGO.AddComponent<CameraShaker>();
+            _shaker.hideFlags = HideFlags.HideAndDontSave;
+
+            _baseFOV = mainCamera.fieldOfView;
         }
 
         private void OnInputPerformedLockOn(InputAction.CallbackContext obj)

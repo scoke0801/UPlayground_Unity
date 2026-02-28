@@ -40,6 +40,8 @@ namespace UPlayGround.Manager
         {
         }
 
+        public void OnSceneChanged(string sceneType) { }
+
         public List<ItemInstance> GetDropItemList(List<ItemDropList> itemDropList)
         {
             List<ItemInstance> itemList = new List<ItemInstance>();

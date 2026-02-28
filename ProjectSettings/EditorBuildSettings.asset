@@ -5,9 +5,27 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/ExternalAssets/FX/Casual_Hit/DemosScene/Casual_Hit.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/Boot.unity
+    guid: 7ca8a75150222a949b43231e9cb603d2
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/Title.unity
+    guid: eda904662b230734f8fb14c097fe4c44
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/InGame.unity
+    guid: 06d14a94475869242a9ad3551cea971b
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/InteractionTest.unity
+    guid: 7a7c1bb260d49934db28bdc87f00d5f9
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/CombatTest.unity
+    guid: 4ad2abb8e997ed44eb6b6d53b9065d44
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/KccTest.unity
+    guid: 9a6db7a331152bc479307740e189d939
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 0884584a1216f47478d5eea17b69884e, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 4cc2b0777ec6a914f9294f929b183011, type: 3}

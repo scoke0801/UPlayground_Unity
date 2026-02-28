@@ -17,7 +17,7 @@ namespace UPlayGround.Manager
         private List<IManager> _registeredManagers = new List<IManager>();
 
         // 초기화 플래그
-        private bool _isInitialized = false;
+        public bool IsInitialized { get; private set; } = false;
 
         protected override void Awake()
         {
@@ -26,7 +26,7 @@ namespace UPlayGround.Manager
             Application.targetFrameRate = 60;
 
             // BaseManager의 Awake가 실행된 후, 이 인스턴스가 유효하면 초기화
-            if (this != null && !_isInitialized)
+            if (this != null && !IsInitialized)
             {
                 InitializeManagers();
             }
@@ -37,7 +37,7 @@ namespace UPlayGround.Manager
         /// </summary>
         private void InitializeManagers()
         {
-            if (_isInitialized)
+            if (IsInitialized)
                 return;
 
             Debug.Log("[GameManager] 매니저 초기화 시작");
@@ -59,7 +59,7 @@ namespace UPlayGround.Manager
             // Init이후에 후처리 필요한 경우 
             AfterInit();
             
-            _isInitialized = true;
+            IsInitialized = true;
 
             Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");
         }
@@ -121,43 +121,41 @@ namespace UPlayGround.Manager
 
         private void AfterInit()
         {
-            // 모든 매니저의 OnUpdate 호출
             foreach (var manager in _registeredManagers)
-            {
                 manager?.AfterInit();
-            }
+        }
+
+        /// <summary>
+        /// SceneManager가 씬 컨텍스트 확정 후 호출.
+        /// 모든 매니저에 씬 전환 사실을 전파한다.
+        /// </summary>
+        public void NotifySceneChanged(string sceneType)
+        {
+            foreach (var manager in _registeredManagers)
+                manager?.OnSceneChanged(sceneType);
         }
         private void Update()
         {
-            if (!_isInitialized) return;
+            if (!IsInitialized) return;
 
-            // 모든 매니저의 OnUpdate 호출
             foreach (var manager in _registeredManagers)
-            {
                 manager?.OnUpdate();
-            }
         }
 
         private void FixedUpdate()
         {
-            if (!_isInitialized) return;
+            if (!IsInitialized) return;
 
-            // 모든 매니저의 OnFixedUpdate 호출
             foreach (var manager in _registeredManagers)
-            {
                 manager?.OnFixedUpdate();
-            }
         }
 
         private void LateUpdate()
         {
-            if (!_isInitialized) return;
+            if (!IsInitialized) return;
 
-            // 모든 매니저의 OnLateUpdate 호출
             foreach (var manager in _registeredManagers)
-            {
                 manager?.OnLateUpdate();
-            }
         }
 
         protected override void OnDestroy()
@@ -169,7 +167,7 @@ namespace UPlayGround.Manager
             }
 
             _registeredManagers.Clear();
-            _isInitialized = false;
+            IsInitialized = false;
 
             Debug.Log("[GameManager] 정리 완료");
 

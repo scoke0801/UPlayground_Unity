@@ -5,34 +5,16 @@ namespace UPlayGround.Manager
     /// </summary>
     public interface IManager
     {
-        /// <summary>
-        /// 매니저 초기화 (최초 1회 실행)
-        /// </summary>
         void Init();
-        
-        /// <summary>
-        /// 매니저 초기화 후 처리, 모든 매니저의 Init이 호출된 이후 호출
-        /// </summary>
         void AfterInit();
-
-        /// <summary>
-        /// 매니저 정리 (씬 전환 또는 종료 시 실행)
-        /// </summary>
         void Dispose();
-
-        /// <summary>
-        /// 매 프레임 실행 (Update)
-        /// </summary>
         void OnUpdate();
-
-        /// <summary>
-        /// 고정 시간 간격 실행 (FixedUpdate)
-        /// </summary>
         void OnFixedUpdate();
+        void OnLateUpdate();
 
         /// <summary>
-        /// Update 이후 실행 (LateUpdate)
+        /// 씬 전환 완료 시 호출. 씬 의존 상태(오브젝트 레퍼런스 등)를 재초기화한다.
         /// </summary>
-        void OnLateUpdate();
+        void OnSceneChanged(string sceneType);
     }
 }

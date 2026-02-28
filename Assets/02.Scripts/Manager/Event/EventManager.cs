@@ -32,6 +32,13 @@ namespace UPlayGround.Manager
         public void OnLateUpdate()
         {
         }
+
+        public void OnSceneChanged(string sceneType)
+        {
+            // 씬이 바뀌면 구독자가 파괴된 오브젝트를 참조할 수 있으므로 전체 초기화
+            // DontDestroyOnLoad 오브젝트의 구독은 각자 OnDestroy에서 Unsubscribe 해야 함
+            _eventTable.Clear();
+        }
     }
 
     public partial class EventManager : BaseManager<EventManager>, IManager

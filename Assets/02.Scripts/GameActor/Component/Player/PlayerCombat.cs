@@ -234,6 +234,7 @@ namespace UPlayGround.Component
             {
                 animKey = attackInfo.baseInfo.animKey,
                 damage = attackInfo.baseInfo.damage,
+                poiseDamage = attackInfo.baseInfo.poiseDamage,
                 canBeInterrupted = attackInfo.canBeInterrupted,
                 
                 reactionType =  attackInfo.baseInfo.reactionType,

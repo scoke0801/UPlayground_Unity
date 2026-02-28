@@ -21,8 +21,13 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 15
+      poiseDamage: 30
+    skillType: 1
     selectionWeight: 100
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   globalCooldown: 1

@@ -36,7 +36,7 @@ MonoBehaviour:
         endTime: 3.1375
         sideAngleOffset: 90
         pitchOverride: 10
-        restoreOnComplete: 1
+        restoreOnComplete: 0
         lockCameraInput: 1
         transitionDuration: 0.25
         editorTestTarget: {fileID: 0}

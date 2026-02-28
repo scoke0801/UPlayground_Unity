@@ -40,6 +40,9 @@ namespace UPlayGround.State
             _attackTimer = 0f;
             _isAttackActive = true;
             
+            // 공격 모션 진입 → Hyper Armor 활성화
+            gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(true);
+            
             // 거리 기반 스킬 선택
             float distanceToTarget = _detection.DistanceToTarget;
             _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
@@ -70,6 +73,9 @@ namespace UPlayGround.State
             base.OnExit(toState);
             _isAttackActive = false;
             _combat.ClearHitTargets();
+            
+            // 공격 모션 종료 → Hyper Armor 해제
+            gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
         }
 
         public override void UpdateState(float deltaTime)
@@ -104,51 +110,9 @@ namespace UPlayGround.State
 
         private void TransitionToNextState()
         {
-            // 타겟이 유효할 때 → 확률 기반 행동 분기
-            if (_detection.HasTarget)
-            {
-                float distance = _detection.DistanceToTarget;
-                float roll = Random.value;
-                
-                // 1) 연속 공격 확률 체크 - 사거리 내일 때만
-                if (roll < _brain.ContinueAttackChance && distance <= _brain.GetMaxAttackRange() * 1.2f)
-                {
-                    controller.TransitionToState(
-                        new EnemyAttackState(controller, _combat, _brain, _detection));
-                    return;
-                }
-                
-                roll = Random.value;
-                
-                // 2) Guard 모션 보유 시 가드 확률 체크
-                if (_brain.HasGuardMotion && roll < _brain.GuardChance)
-                {
-                    controller.TransitionToState(
-                        new EnemyGuardState(controller, _brain, _detection, _brain.GuardDuration));
-                    return;
-                }
-                
-                // 3) 후퇴 확률 체크 - 가까이 붙어 있을 때
-                roll = Random.value;
-                if (roll < _brain.RetreatChance && distance < _brain.RetreatDistance)
-                {
-                    controller.TransitionToState(
-                        new EnemyRetreatState(controller, _brain, _detection, _brain.RetreatDistance));
-                    return;
-                }
-                
-                // 4) 기본 → 추적
-                controller.TransitionToState(
-                    new EnemyChaseState(controller, _brain, _detection));
-            }
-            else if (_brain.EnablePatrol)
-            {
-                controller.TransitionToState(new EnemyPatrolState(controller, _brain));
-            }
-            else
-            {
-                controller.TransitionToState(new EnemyIdleState(controller));
-            }
+            // 공격이 실제로 히트했는지 여부를 Brain에 알리고 다음 행동을 위임
+            bool didHit = _combat.LastHitCount > 0;
+            _brain.DecidePostAttack(didHit);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

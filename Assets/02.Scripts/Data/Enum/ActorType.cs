@@ -38,5 +38,7 @@
         UI_HpBar,
         
         Weapon,
+        
+        GuardPosition,
     }
 }

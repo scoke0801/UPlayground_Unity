@@ -1,0 +1,1095 @@
+﻿{
+  "_comment": "EnemyAttackDataSO + EnemyStatsSO + PoiseSO + EnemyBehaviorSO 역변환 파일",
+  "monsters": [
+    {
+      "_id": "DefaultEnemyAttackData",
+      "stats": {
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+        ]
+      }
+    }    ,
+    {
+      "_id": "DefaultStats",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+      }
+    }    ,
+    {
+      "_id": "Ent",
+      "stats": {
+        "maxHealth": 300,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 2,
+            "selectionWeight": 10,
+            "minRange": 1,
+            "maxRange": 20,
+            "cooldown": 10,
+            "conditionGroup": {
+              "conditionOperator": 1,
+              "conditions": [
+                { "type": 1, "minHealthPercent": 0.1, "maxHealthPercent": 0.7, "minRange": 0, "maxRange": 10, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 0 },
+                { "type": 5, "minHealthPercent": 0, "maxHealthPercent": 0.7, "minRange": 0, "maxRange": 10, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 0 }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Golem",
+      "stats": {
+        "maxHealth": 300,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Honoka",
+      "stats": {
+        "maxHealth": 500,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+      }
+    }    ,
+    {
+      "_id": "Lich",
+      "stats": {
+        "maxHealth": 500,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 3,
+            "selectionWeight": 20,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 30,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                { "type": 6, "minHealthPercent": 0, "maxHealthPercent": 0, "minRange": 0, "maxRange": 0, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 1 }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 10,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Monster_Honoka",
+      "stats": {
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 104,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 106,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 107,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 108,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Reien",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+      }
+    }    ,
+    {
+      "_id": "Skeleton",
+      "stats": {
+        "maxHealth": 120,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+      }
+    }    ,
+    {
+      "_id": "Skeleton_Bow",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 7,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Skeleton_Common",
+      "stats": {
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Skeleton_Sword",
+      "stats": {
+        "maxHealth": 150,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Spider_Minion",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }    ,
+    {
+      "_id": "Spider_Queen",
+      "stats": {
+        "maxHealth": 500,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+      },
+      "brain": {
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 201,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
+            }
+          },
+          {
+            "skillType": 3,
+            "selectionWeight": 20,
+            "minRange": 2,
+            "maxRange": 20,
+            "cooldown": 30,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                { "type": 6, "minHealthPercent": 0, "maxHealthPercent": 0, "minRange": 0, "maxRange": 0, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 1 }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": ""
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 2,
+            "maxRange": 20,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+              ]
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 0,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "EnemyLightAttackHit"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -29,11 +29,12 @@
 
     public enum AttackReactionType
     {
-        Hit = 0,
-        
-        KnockBack,
-        
-        Stun,
+        None = 0,       // 반응 없음 (Poise로 버팀)
+        Light,          // 가벼운 경직 (짧음, 캔슬 빠름)
+        Hit,            // 일반 경직
+        Heavy,          // 무거운 경직 (긴 경직, 후퇴)
+        KnockBack,      // 넉백
+        Stun,           // 스턴 (장시간)
     }
 
     public enum CombatSkillType

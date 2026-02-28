@@ -21,6 +21,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
     skillType: 0
     selectionWeight: 21
     minRange: 0
@@ -37,6 +38,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
     skillType: 0
     selectionWeight: 21
     minRange: 0
@@ -53,6 +55,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
     skillType: 0
     selectionWeight: 21
     minRange: 0
@@ -69,6 +72,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
     skillType: 0
     selectionWeight: 21
     minRange: 0
@@ -85,6 +89,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 30
+      poiseDamage: 30
     skillType: 2
     selectionWeight: 10
     minRange: 1
@@ -100,6 +105,7 @@ MonoBehaviour:
         maxRange: 10
         minAllyCount: 0
         maxAllyCount: 0
+        checkSpawnCount: 0
       - type: 5
         minHealthPercent: 0
         maxHealthPercent: 0.7
@@ -107,4 +113,5 @@ MonoBehaviour:
         maxRange: 10
         minAllyCount: 0
         maxAllyCount: 0
+        checkSpawnCount: 0
   globalCooldown: 1

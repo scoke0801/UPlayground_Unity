@@ -21,10 +21,15 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
+    skillType: 1
     selectionWeight: 25
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 101
       attackType: 0
@@ -33,10 +38,15 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
+    skillType: 1
     selectionWeight: 25
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 102
       attackType: 0
@@ -45,10 +55,15 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
+    skillType: 1
     selectionWeight: 25
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 103
       attackType: 0
@@ -57,8 +72,13 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 10
+      poiseDamage: 30
+    skillType: 1
     selectionWeight: 25
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   globalCooldown: 1

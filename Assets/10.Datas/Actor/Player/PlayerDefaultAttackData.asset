@@ -20,7 +20,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 10
+      damage: 30
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -30,7 +31,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 15
+      damage: 30
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -40,7 +42,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 15
+      damage: 40
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -51,6 +54,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 20
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -61,6 +65,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 20
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -71,6 +76,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 25
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -81,6 +87,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 25
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -91,6 +98,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 30
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -101,6 +109,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 30
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -111,6 +120,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 35
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   heavyComboAttackList:
@@ -121,7 +131,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 30
+      damage: 45
+      poiseDamage: 45
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
@@ -131,7 +142,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 35
+      damage: 50
+      poiseDamage: 50
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
@@ -141,7 +153,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 35
+      damage: 55
+      poiseDamage: 55
     canBeInterrupted: 1
     hitAngle: 60
   jumpAttackList: []
@@ -155,6 +168,7 @@ MonoBehaviour:
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       damage: 50
+      poiseDamage: 55
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -164,7 +178,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 35
+      damage: 45
+      poiseDamage: 35
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -174,7 +189,8 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 25
+      damage: 35
+      poiseDamage: 30
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -184,6 +200,7 @@ MonoBehaviour:
       hitParticleName: DefaultCombatHit
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
-      damage: 40
+      damage: 60
+      poiseDamage: 50
     canBeInterrupted: 1
     hitAngle: 60

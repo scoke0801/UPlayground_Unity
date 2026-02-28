@@ -17,6 +17,7 @@ namespace UPlayGround.State
         private EnemyBrain _brain;
         private EnemyDetection _detection;
         private EnemyCombat _combat;
+        private UPlayGround.Component.EnemyTacticalMemory _memory;
         
         private float _guardDuration;
         private float _guardTimer;
@@ -41,10 +42,9 @@ namespace UPlayGround.State
             if (monsterActor)
             {
                 _combat = monsterActor.Combat;
+                _memory = gameActor.GetComponent<UPlayGround.Component.EnemyTacticalMemory>();
                 if (_combat != null)
-                {
                     _combat.IsGuarding = true;
-                }
             }
             
             _guardTimer = 0f;
@@ -108,7 +108,18 @@ namespace UPlayGround.State
         }
 
         public void OnAttackBlocked(AttackData incomingAttack)
-        {   
+        {
+            _memory?.NotifyBlocked();
+
+            // 블록 성공 → 카운터 공격으로 즉시 전환
+            if (_combat != null && _brain != null && _detection != null)
+            {
+                controller.TransitionToState(
+                    new EnemyCounterState(controller, _combat, _brain, _detection, _memory));
+                return;
+            }
+
+            // 카운터 불가 시 밀려나기만
             controller.AddVelocity(incomingAttack.attackDirection.normalized * 2.0f);
         }
     }

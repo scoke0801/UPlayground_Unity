@@ -16,105 +16,77 @@ MonoBehaviour:
   - baseInfo:
       animKey: 100
       attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
+      reactionType: 2
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.8}
+      attackRadius: 1.8
+      damage: 18
+      poiseDamage: 35
     skillType: 1
-    selectionWeight: 15
+    selectionWeight: 40
     minRange: 0
-    maxRange: 2.5
-    cooldown: 2
+    maxRange: 3.2
+    cooldown: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []
   - baseInfo:
       animKey: 101
       attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
+      reactionType: 3
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.8}
+      attackRadius: 1.8
+      damage: 14
+      poiseDamage: 30
     skillType: 1
-    selectionWeight: 15
+    selectionWeight: 25
     minRange: 0
-    maxRange: 2.5
-    cooldown: 2
-    conditionGroup:
-      conditionOperator: 0
-      conditions: []
-  - baseInfo:
-      animKey: 200
-      attackType: 0
-      reactionType: 0
-      hitParticleName: 
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    skillType: 1
-    selectionWeight: 15
-    minRange: 0
-    maxRange: 2.5
-    cooldown: 2
-    conditionGroup:
-      conditionOperator: 0
-      conditions: []
-  - baseInfo:
-      animKey: 201
-      attackType: 0
-      reactionType: 0
-      hitParticleName: 
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    skillType: 1
-    selectionWeight: 15
-    minRange: 0
-    maxRange: 2.5
-    cooldown: 2
+    maxRange: 3.2
+    cooldown: 6
     conditionGroup:
       conditionOperator: 0
       conditions: []
   - baseInfo:
       animKey: 500
       attackType: 1
+      reactionType: 2
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1.5, z: 0}
+      attackRadius: 0.4
+      damage: 12
+      poiseDamage: 25
+    skillType: 1
+    selectionWeight: 25
+    minRange: 3
+    maxRange: 14
+    cooldown: 5
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 501
+      attackType: 0
       reactionType: 0
       hitParticleName: 
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
+      attackOffset: {x: 0, y: 0, z: 0}
+      attackRadius: 0
+      damage: 0
+      poiseDamage: 0
     skillType: 3
-    selectionWeight: 20
-    minRange: 2
-    maxRange: 20
-    cooldown: 30
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 999
+    cooldown: 15
     conditionGroup:
       conditionOperator: 0
       conditions:
       - type: 6
         minHealthPercent: 0
-        maxHealthPercent: 0
+        maxHealthPercent: 1
         minRange: 0
-        maxRange: 0
+        maxRange: 999
         minAllyCount: 0
-        maxAllyCount: 0
-        checkSpawnCount: 1
-  - baseInfo:
-      animKey: 501
-      attackType: 1
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    skillType: 1
-    selectionWeight: 20
-    minRange: 2
-    maxRange: 20
-    cooldown: 5
-    conditionGroup:
-      conditionOperator: 0
-      conditions: []
-  globalCooldown: 1
+        maxAllyCount: 99
+        checkSpawnCount: 3
+  globalCooldown: 1.8

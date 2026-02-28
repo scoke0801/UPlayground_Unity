@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_Spider_Queen
   m_EditorClassIdentifier: 
-  maxHealth: 500
+  maxHealth: 600
   walkSpeed: 2
-  runSpeed: 4
-  chaseSpeedMultiplier: 1.2
-  detectionRadius: 10
-  lostTargetRadius: 15
-  fieldOfView: 120
-  attackRange: 2.5
-  attackCooldown: 1.5
-  enablePatrol: 1
-  patrolRadius: 5
-  patrolWaitTime: 2
+  runSpeed: 4.5
+  chaseSpeedMultiplier: 1.1
+  detectionRadius: 18
+  lostTargetRadius: 25
+  fieldOfView: 160
+  attackRange: 3
+  attackCooldown: 1.8
+  enablePatrol: 0
+  patrolRadius: 0
+  patrolWaitTime: 0

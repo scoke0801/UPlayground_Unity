@@ -26,6 +26,9 @@ namespace UPlayGround.Data
         [Header("Damage & Selection")]
         public float damage = 10f;
 
+        [Tooltip("적중 시 대상의 Poise를 깎는 양. 0이면 Poise 무시(항상 경직)")]
+        public float poiseDamage = 30f;
+
     }
     
     /// <summary>
@@ -92,6 +95,7 @@ namespace UPlayGround.Data
     {
         public AnimKey animKey;
         public float damage;
+        public float poiseDamage = 30f;   // Poise 데미지
         public bool canBeInterrupted;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;

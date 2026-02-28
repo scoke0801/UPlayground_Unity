@@ -1,0 +1,1109 @@
+﻿{
+  "_comment": "EnemyAttackDataSO + EnemyStatsSO 설정 레퍼런스 문서",
+  "_enum_reference": {
+    "AnimKey":             { "Attack_1":100, "Attack_2":101, "Attack_3":102, "Attack_4":103, "Attack_5":104, "Attack_6":105, "HeavyAttack_1":200, "Skill_1":500, "Skill_2":501, "Hit_F":700, "Knockback":900 },
+    "AttackType":          { "Melee":0, "Ranged":1 },
+    "AttackReactionType":  { "None":0, "Light":1, "Hit":2, "Heavy":3, "KnockBack":4, "Stun":5 },
+    "SkillType":           { "None":0, "Attack":1, "Heal":2, "Spawn":3, "Buff":4, "Debuff":5 },
+    "ConditionType":       { "None":0, "SelfHealthBased":1, "TargetHealthBased":2, "RangeBased":3, "AllyCountBased":4, "InjuredAllyNearby":5, "SpawnedUnitCount":6 },
+    "ConditionOperator":   { "And":0, "Or":1 }
+  },
+
+  "monsters": [
+
+    {
+      "_id": "skeleton_common",
+      "_name": "스켈레톤 (기본)",
+      "_note": "일반 근접형. Poise 낮고 패턴 단순. 단독보다 무리로 위협적.",
+
+      "stats": {
+        "maxHealth": 80,
+        "walkSpeed": 2.0,
+        "runSpeed": 4.0,
+        "chaseSpeedMultiplier": 1.1,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.0,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.0
+      },
+
+      "poise": {
+        "maxPoise": 60,
+        "recoveryDelay": 2.0,
+        "recoveryRate": 30,
+        "hasHyperArmor": false
+      },
+
+      "brain": {
+        "optimalCombatDistance": 1.8,
+        "minCombatDistance": 0.8,
+        "maintainDistance": false,
+        "continueAttackChance": 0.4,
+        "guardChance": 0.0,
+        "retreatChance": 0.1,
+        "circleDuration": 1.5,
+        "phases": []
+      },
+
+      "attackData": {
+        "globalCooldown": 1.2,
+        "skills": [
+          {
+            "_name": "기본 공격",
+            "skillType": 1,
+            "selectionWeight": 70,
+            "minRange": 0, "maxRange": 2.2,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 8,
+              "poiseDamage": 25,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
+              "attackRadius": 1.2,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "이단 베기",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.2,
+            "cooldown": 4.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 6,
+              "poiseDamage": 20,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
+              "attackRadius": 1.2,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "skeleton_sword",
+      "_name": "스켈레톤 검병",
+      "_note": "Guard 모션 보유. 공격 후 Guard로 반격 유도. Poise 중간.",
+
+      "stats": {
+        "maxHealth": 120,
+        "walkSpeed": 2.2,
+        "runSpeed": 4.5,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 11,
+        "lostTargetRadius": 16,
+        "fieldOfView": 120,
+        "attackRange": 2.2,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.0
+      },
+
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2.0,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+
+      "brain": {
+        "optimalCombatDistance": 2.0,
+        "minCombatDistance": 1.0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.35,
+        "retreatChance": 0.15,
+        "circleDuration": 2.0,
+        "phases": [
+          {
+            "phaseName": "격노",
+            "hpThreshold": 0.5,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.2,
+            "retreatChance": 0.1,
+            "chargeChance": 0.0,
+            "flankChance": 0.0,
+            "chaseSpeedMultiplier": 1.4,
+            "allowCharge": false,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 4
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 1.3,
+        "skills": [
+          {
+            "_name": "검 베기",
+            "skillType": 1,
+            "selectionWeight": 50,
+            "minRange": 0, "maxRange": 2.3,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 12,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
+              "attackRadius": 1.3,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 베기",
+            "skillType": 1,
+            "selectionWeight": 35,
+            "minRange": 0, "maxRange": 2.3,
+            "cooldown": 5.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 9,
+              "poiseDamage": 25,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
+              "attackRadius": 1.3,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "강 내려치기",
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.3,
+            "cooldown": 7.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 20,
+              "poiseDamage": 60,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.3 },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "skeleton_bow",
+      "_name": "스켈레톤 활병",
+      "_note": "원거리 투사체. 거리 유지형. 근접 시 후퇴 우선.",
+
+      "stats": {
+        "maxHealth": 70,
+        "walkSpeed": 2.0,
+        "runSpeed": 4.0,
+        "chaseSpeedMultiplier": 1.0,
+        "detectionRadius": 16,
+        "lostTargetRadius": 22,
+        "fieldOfView": 130,
+        "attackRange": 14.0,
+        "attackCooldown": 2.0,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.5
+      },
+
+      "poise": {
+        "maxPoise": 50,
+        "recoveryDelay": 1.5,
+        "recoveryRate": 35,
+        "hasHyperArmor": false
+      },
+
+      "brain": {
+        "optimalCombatDistance": 10.0,
+        "minCombatDistance": 5.0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.25,
+        "guardChance": 0.0,
+        "retreatChance": 0.5,
+        "circleDuration": 2.5,
+        "phases": []
+      },
+
+      "attackData": {
+        "globalCooldown": 2.0,
+        "skills": [
+          {
+            "_name": "화살 발사",
+            "skillType": 1,
+            "selectionWeight": 70,
+            "minRange": 4.0, "maxRange": 15.0,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 20,
+              "attackOffset": { "x": 0, "y": 1.3, "z": 0 },
+              "attackRadius": 0.3,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 화살",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 6.0, "maxRange": 15.0,
+            "cooldown": 8.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 7,
+              "poiseDamage": 15,
+              "attackOffset": { "x": 0, "y": 1.3, "z": 0 },
+              "attackRadius": 0.3,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "spider_minion",
+      "_name": "거미 미니언",
+      "_note": "빠르고 약함. Poise 매우 낮아 쉽게 경직. 무리 압박이 위협 요소.",
+
+      "stats": {
+        "maxHealth": 40,
+        "walkSpeed": 3.0,
+        "runSpeed": 6.0,
+        "chaseSpeedMultiplier": 1.3,
+        "detectionRadius": 10,
+        "lostTargetRadius": 14,
+        "fieldOfView": 150,
+        "attackRange": 1.5,
+        "attackCooldown": 1.0,
+        "enablePatrol": false,
+        "patrolRadius": 3,
+        "patrolWaitTime": 1.0
+      },
+
+      "poise": {
+        "maxPoise": 30,
+        "recoveryDelay": 1.5,
+        "recoveryRate": 20,
+        "hasHyperArmor": false
+      },
+
+      "brain": {
+        "optimalCombatDistance": 1.2,
+        "minCombatDistance": 0.3,
+        "maintainDistance": false,
+        "continueAttackChance": 0.5,
+        "guardChance": 0.0,
+        "retreatChance": 0.05,
+        "circleDuration": 1.0,
+        "phases": []
+      },
+
+      "attackData": {
+        "globalCooldown": 1.0,
+        "skills": [
+          {
+            "_name": "물기",
+            "skillType": 1,
+            "selectionWeight": 60,
+            "minRange": 0, "maxRange": 1.6,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 1,
+              "damage": 5,
+              "poiseDamage": 15,
+              "attackOffset": { "x": 0, "y": 0.5, "z": 0.8 },
+              "attackRadius": 0.8,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "독 물기",
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0, "maxRange": 1.6,
+            "cooldown": 5.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 8,
+              "poiseDamage": 20,
+              "attackOffset": { "x": 0, "y": 0.5, "z": 0.8 },
+              "attackRadius": 0.8,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "spider_queen",
+      "_name": "거미 여왕",
+      "_note": "보스급. 근접+투사체+소환 패턴. HP 50% 이하 페이즈 전환. 소환 유닛 최대 3마리 제한.",
+
+      "stats": {
+        "maxHealth": 600,
+        "walkSpeed": 2.0,
+        "runSpeed": 4.5,
+        "chaseSpeedMultiplier": 1.1,
+        "detectionRadius": 18,
+        "lostTargetRadius": 25,
+        "fieldOfView": 160,
+        "attackRange": 3.0,
+        "attackCooldown": 1.8,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+
+      "poise": {
+        "maxPoise": 300,
+        "recoveryDelay": 3.0,
+        "recoveryRate": 60,
+        "hasHyperArmor": true
+      },
+
+      "brain": {
+        "optimalCombatDistance": 3.0,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.0,
+        "retreatChance": 0.2,
+        "circleDuration": 3.0,
+        "phases": [
+          {
+            "phaseName": "격노 (HP 50% 이하)",
+            "hpThreshold": 0.5,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.0,
+            "retreatChance": 0.1,
+            "chargeChance": 0.3,
+            "flankChance": 0.0,
+            "chaseSpeedMultiplier": 1.3,
+            "allowCharge": true,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 4
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 1.8,
+        "skills": [
+          {
+            "_name": "발톱 공격",
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0, "maxRange": 3.2,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 18,
+              "poiseDamage": 35,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.8 },
+              "attackRadius": 1.8,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 발톱",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 3.2,
+            "cooldown": 6.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 14,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.8 },
+              "attackRadius": 1.8,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "독 투사체",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 3.0, "maxRange": 14.0,
+            "cooldown": 5.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 12,
+              "poiseDamage": 25,
+              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
+              "attackRadius": 0.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "미니언 소환",
+            "_note": "소환 유닛이 3마리 미만일 때만 발동",
+            "skillType": 3,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 999,
+            "cooldown": 15.0,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 6,
+                  "checkSpawnCount": 3,
+                  "minHealthPercent": 0, "maxHealthPercent": 1,
+                  "minRange": 0, "maxRange": 999,
+                  "minAllyCount": 0, "maxAllyCount": 99
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 0,
+              "poiseDamage": 0,
+              "attackOffset": { "x": 0, "y": 0, "z": 0 },
+              "attackRadius": 0,
+              "hitParticleName": ""
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "lich",
+      "_name": "리치",
+      "_note": "보스급 마법사형. 원거리 위주, 근접은 비상용. 소환으로 방어선 구성. HP 40% 이하 절박 페이즈.",
+
+      "stats": {
+        "maxHealth": 500,
+        "walkSpeed": 1.8,
+        "runSpeed": 3.5,
+        "chaseSpeedMultiplier": 1.0,
+        "detectionRadius": 20,
+        "lostTargetRadius": 28,
+        "fieldOfView": 150,
+        "attackRange": 15.0,
+        "attackCooldown": 2.0,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+
+      "poise": {
+        "maxPoise": 200,
+        "recoveryDelay": 2.5,
+        "recoveryRate": 50,
+        "hasHyperArmor": true
+      },
+
+      "brain": {
+        "optimalCombatDistance": 10.0,
+        "minCombatDistance": 5.0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.0,
+        "retreatChance": 0.4,
+        "circleDuration": 3.0,
+        "phases": [
+          {
+            "phaseName": "절박 (HP 40% 이하)",
+            "hpThreshold": 0.4,
+            "continueAttackChance": 0.5,
+            "guardChance": 0.0,
+            "retreatChance": 0.3,
+            "chargeChance": 0.0,
+            "flankChance": 0.0,
+            "chaseSpeedMultiplier": 1.2,
+            "allowCharge": false,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 3
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 2.0,
+        "skills": [
+          {
+            "_name": "마법 투사체",
+            "skillType": 1,
+            "selectionWeight": 45,
+            "minRange": 4.0, "maxRange": 18.0,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
+              "attackRadius": 0.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 마법탄",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 6.0, "maxRange": 18.0,
+            "cooldown": 8.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 14,
+              "poiseDamage": 20,
+              "attackOffset": { "x": 0, "y": 1.5, "z": 0 },
+              "attackRadius": 0.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "지팡이 근접 타격",
+            "_note": "플레이어가 근접했을 때만 발동",
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 4.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 16,
+              "poiseDamage": 50,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.2 },
+              "attackRadius": 1.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "언데드 소환",
+            "_note": "소환 유닛 2마리 미만 + 플레이어가 멀 때",
+            "skillType": 3,
+            "selectionWeight": 20,
+            "minRange": 0, "maxRange": 999,
+            "cooldown": 20.0,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 6,
+                  "checkSpawnCount": 2,
+                  "minHealthPercent": 0, "maxHealthPercent": 1,
+                  "minRange": 0, "maxRange": 999,
+                  "minAllyCount": 0, "maxAllyCount": 99
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 0,
+              "poiseDamage": 0,
+              "attackOffset": { "x": 0, "y": 0, "z": 0 },
+              "attackRadius": 0,
+              "hitParticleName": ""
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "golem",
+      "_name": "골렘",
+      "_note": "고체력 탱커. Poise 매우 높고 Hyper Armor 보유. 느리지만 한 방이 강함. 경직 자체가 드뭄.",
+
+      "stats": {
+        "maxHealth": 800,
+        "walkSpeed": 1.5,
+        "runSpeed": 3.0,
+        "chaseSpeedMultiplier": 1.0,
+        "detectionRadius": 12,
+        "lostTargetRadius": 18,
+        "fieldOfView": 100,
+        "attackRange": 3.0,
+        "attackCooldown": 2.5,
+        "enablePatrol": true,
+        "patrolRadius": 4,
+        "patrolWaitTime": 3.0
+      },
+
+      "poise": {
+        "maxPoise": 500,
+        "recoveryDelay": 4.0,
+        "recoveryRate": 80,
+        "hasHyperArmor": true
+      },
+
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.0,
+        "maintainDistance": false,
+        "continueAttackChance": 0.25,
+        "guardChance": 0.0,
+        "retreatChance": 0.05,
+        "circleDuration": 2.0,
+        "phases": [
+          {
+            "phaseName": "분노 (HP 50% 이하)",
+            "hpThreshold": 0.5,
+            "continueAttackChance": 0.35,
+            "guardChance": 0.0,
+            "retreatChance": 0.0,
+            "chargeChance": 0.5,
+            "flankChance": 0.0,
+            "chaseSpeedMultiplier": 1.3,
+            "allowCharge": true,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 3
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 2.5,
+        "skills": [
+          {
+            "_name": "주먹 내리치기",
+            "skillType": 1,
+            "selectionWeight": 50,
+            "minRange": 0, "maxRange": 3.2,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 35,
+              "poiseDamage": 80,
+              "attackOffset": { "x": 0, "y": 0.5, "z": 2.0 },
+              "attackRadius": 2.0,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "양손 내리찍기",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 3.5,
+            "cooldown": 8.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 55,
+              "poiseDamage": 120,
+              "attackOffset": { "x": 0, "y": 0.5, "z": 2.2 },
+              "attackRadius": 2.5,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "팔 휩쓸기",
+            "_note": "광역 범위 측면 공격",
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 0, "maxRange": 3.5,
+            "cooldown": 10.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 100,
+              "attackOffset": { "x": 0, "y": 0.8, "z": 1.5 },
+              "attackRadius": 3.0,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "ent",
+      "_name": "엔트",
+      "_note": "중형 보스. 근접 공격 + 저체력 시 자가 힐. 단, 힐은 1회만 (HP 30% 이하 1회).",
+
+      "stats": {
+        "maxHealth": 450,
+        "walkSpeed": 1.8,
+        "runSpeed": 3.5,
+        "chaseSpeedMultiplier": 1.0,
+        "detectionRadius": 14,
+        "lostTargetRadius": 20,
+        "fieldOfView": 120,
+        "attackRange": 3.5,
+        "attackCooldown": 2.0,
+        "enablePatrol": true,
+        "patrolRadius": 6,
+        "patrolWaitTime": 3.0
+      },
+
+      "poise": {
+        "maxPoise": 250,
+        "recoveryDelay": 3.0,
+        "recoveryRate": 60,
+        "hasHyperArmor": true
+      },
+
+      "brain": {
+        "optimalCombatDistance": 3.0,
+        "minCombatDistance": 1.5,
+        "maintainDistance": false,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.0,
+        "retreatChance": 0.1,
+        "circleDuration": 2.5,
+        "phases": [
+          {
+            "phaseName": "분노 (HP 30% 이하)",
+            "hpThreshold": 0.3,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.0,
+            "retreatChance": 0.05,
+            "chargeChance": 0.35,
+            "flankChance": 0.0,
+            "chaseSpeedMultiplier": 1.25,
+            "allowCharge": true,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 4
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 2.0,
+        "skills": [
+          {
+            "_name": "가지 휘두르기",
+            "skillType": 1,
+            "selectionWeight": 45,
+            "minRange": 0, "maxRange": 3.7,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 22,
+              "poiseDamage": 50,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 2.0 },
+              "attackRadius": 2.2,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "발구르기",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 6.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 30,
+              "poiseDamage": 70,
+              "attackOffset": { "x": 0, "y": 0.3, "z": 1.5 },
+              "attackRadius": 2.5,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "강타 (넉백)",
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 3.7,
+            "cooldown": 10.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 100,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 2.0 },
+              "attackRadius": 2.5,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "자가 힐",
+            "_note": "HP 30% 이하 1회만. 쿨다운 999로 사실상 1회 제한.",
+            "skillType": 2,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 999,
+            "cooldown": 999.0,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 1,
+                  "minHealthPercent": 0.0,
+                  "maxHealthPercent": 0.35,
+                  "minRange": 0, "maxRange": 999,
+                  "minAllyCount": 0, "maxAllyCount": 99,
+                  "checkSpawnCount": 0
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 0,
+              "damage": 0,
+              "poiseDamage": 0,
+              "attackOffset": { "x": 0, "y": 0, "z": 0 },
+              "attackRadius": 0,
+              "hitParticleName": ""
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "_id": "humanoid",
+      "_name": "휴머노이드 (Monster_Honoka)",
+      "_note": "보스급 인간형. 다양한 근접 패턴. 플레이어와 유사한 행동 양식. 페이즈 2단계.",
+
+      "stats": {
+        "maxHealth": 700,
+        "walkSpeed": 2.5,
+        "runSpeed": 5.5,
+        "chaseSpeedMultiplier": 1.3,
+        "detectionRadius": 15,
+        "lostTargetRadius": 22,
+        "fieldOfView": 130,
+        "attackRange": 2.5,
+        "attackCooldown": 1.2,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.0
+      },
+
+      "poise": {
+        "maxPoise": 180,
+        "recoveryDelay": 2.0,
+        "recoveryRate": 50,
+        "hasHyperArmor": true
+      },
+
+      "brain": {
+        "optimalCombatDistance": 2.2,
+        "minCombatDistance": 1.0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.35,
+        "guardChance": 0.3,
+        "retreatChance": 0.2,
+        "circleDuration": 2.5,
+        "phases": [
+          {
+            "phaseName": "공세 (HP 60% 이하)",
+            "hpThreshold": 0.6,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.2,
+            "retreatChance": 0.1,
+            "chargeChance": 0.25,
+            "flankChance": 0.35,
+            "chaseSpeedMultiplier": 1.4,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 4
+          },
+          {
+            "phaseName": "광전사 (HP 30% 이하)",
+            "hpThreshold": 0.3,
+            "continueAttackChance": 0.6,
+            "guardChance": 0.1,
+            "retreatChance": 0.05,
+            "chargeChance": 0.45,
+            "flankChance": 0.45,
+            "chaseSpeedMultiplier": 1.6,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 5
+          }
+        ]
+      },
+
+      "attackData": {
+        "globalCooldown": 1.2,
+        "skills": [
+          {
+            "_name": "빠른 베기",
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 1,
+              "damage": 12,
+              "poiseDamage": 25,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.4 },
+              "attackRadius": 1.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 2타",
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 3.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 22,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.4 },
+              "attackRadius": 1.4,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "연속 3타 피니시",
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 6.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 18,
+              "poiseDamage": 35,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.5 },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "강 내려치기",
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0, "maxRange": 2.8,
+            "cooldown": 8.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 28,
+              "poiseDamage": 65,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.5 },
+              "attackRadius": 1.6,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "회전 베기",
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0, "maxRange": 2.5,
+            "cooldown": 10.0,
+            "conditionGroup": { "conditionOperator": 0, "conditions": [] },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 3,
+              "damage": 22,
+              "poiseDamage": 50,
+              "attackOffset": { "x": 0, "y": 1.0, "z": 1.0 },
+              "attackRadius": 2.5,
+              "hitParticleName": "LiteHit"
+            }
+          },
+          {
+            "_name": "급강하 내려치기",
+            "_note": "HP 60% 이하 페이즈에서만 발동",
+            "skillType": 1,
+            "selectionWeight": 5,
+            "minRange": 2.0, "maxRange": 5.0,
+            "cooldown": 12.0,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 1,
+                  "minHealthPercent": 0.0,
+                  "maxHealthPercent": 0.6,
+                  "minRange": 0, "maxRange": 999,
+                  "minAllyCount": 0, "maxAllyCount": 99,
+                  "checkSpawnCount": 0
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 300,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 100,
+              "attackOffset": { "x": 0, "y": 0.5, "z": 2.0 },
+              "attackRadius": 2.0,
+              "hitParticleName": "LiteHit"
+            }
+          }
+        ]
+      }
+    }
+
+  ]
+}

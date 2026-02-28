@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_Spider_Minion
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  walkSpeed: 2
-  runSpeed: 4
-  chaseSpeedMultiplier: 1.2
+  maxHealth: 40
+  walkSpeed: 3
+  runSpeed: 6
+  chaseSpeedMultiplier: 1.3
   detectionRadius: 10
-  lostTargetRadius: 15
-  fieldOfView: 120
-  attackRange: 2.5
-  attackCooldown: 1.5
-  enablePatrol: 1
-  patrolRadius: 5
-  patrolWaitTime: 2
+  lostTargetRadius: 14
+  fieldOfView: 150
+  attackRange: 1.5
+  attackCooldown: 1
+  enablePatrol: 0
+  patrolRadius: 3
+  patrolWaitTime: 1

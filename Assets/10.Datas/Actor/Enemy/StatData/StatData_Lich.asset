@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: StatData_Lich
   m_EditorClassIdentifier: 
   maxHealth: 500
-  walkSpeed: 2
-  runSpeed: 4
-  chaseSpeedMultiplier: 1.2
-  detectionRadius: 10
-  lostTargetRadius: 15
-  fieldOfView: 120
-  attackRange: 2.5
-  attackCooldown: 1.5
-  enablePatrol: 1
-  patrolRadius: 5
-  patrolWaitTime: 2
+  walkSpeed: 1.8
+  runSpeed: 3.5
+  chaseSpeedMultiplier: 1
+  detectionRadius: 20
+  lostTargetRadius: 28
+  fieldOfView: 150
+  attackRange: 15
+  attackCooldown: 2
+  enablePatrol: 0
+  patrolRadius: 0
+  patrolWaitTime: 0

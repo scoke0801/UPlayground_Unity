@@ -113,6 +113,9 @@ namespace UPlayGround
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             
+            // 페이즈 업데이트
+            _brain?.UpdatePhase(GetHealthPercent());
+            
             Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
             
             _detection.AcquireTarget(attackData.attacker?.transform);
@@ -224,15 +227,19 @@ namespace UPlayGround
             {
                 MovementController.AddVelocity(attackData.attackDirection.normalized * 15.0f);
             }
-            // 피격 이펙트 재생
-            // 피격 사운드 재생
-            // 넉백 처리
-            // 피격 애니메이션 재생
-            MovementController.TransitionToState(new EnemyHitState(MovementController));
-            
+
+            // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
+            var poise = GetComponent<PoiseStat>();
+            bool poiseBroken = poise == null || poise.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
+
+            if (poiseBroken)
+            {
+                MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
+            }
+
             _colorChanger.OnHit();
             
-            Debug.Log($"[MonsterActor] 피격! HitPoint: {attackData.hitPoint}");
+            Debug.Log($"[MonsterActor] 피격! PoiseBroken={poiseBroken}, HitPoint: {attackData?.hitPoint}");
         }
         
         /// <summary>

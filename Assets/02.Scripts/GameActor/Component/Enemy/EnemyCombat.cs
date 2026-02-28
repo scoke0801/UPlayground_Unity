@@ -35,6 +35,9 @@ namespace UPlayGround.Component
         public SkillType ReservedSkillType => _reservedSkillType;
         public List<IDamageable> SkillTargetList => _skillTargets;
         public bool IsGuarding { get; set; } = false;
+        
+        /// <summary> 현재 AttackState에서 히트한 대상 수 (AttackState가 hit 여부 판단에 사용) </summary>
+        public int LastHitCount => _hitTargets.Count;
 
         private void Awake()
         {

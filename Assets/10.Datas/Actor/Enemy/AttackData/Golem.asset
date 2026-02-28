@@ -16,49 +16,52 @@ MonoBehaviour:
   - baseInfo:
       animKey: 100
       attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    selectionWeight: 25
+      reactionType: 3
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 0.5, z: 2}
+      attackRadius: 2
+      damage: 35
+      poiseDamage: 80
+    skillType: 1
+    selectionWeight: 50
     minRange: 0
-    maxRange: 2.5
-    cooldown: 2
+    maxRange: 3.2
+    cooldown: 0
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 200
+      attackType: 0
+      reactionType: 4
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 0.5, z: 2.2}
+      attackRadius: 2.5
+      damage: 55
+      poiseDamage: 120
+    skillType: 1
+    selectionWeight: 30
+    minRange: 0
+    maxRange: 3.5
+    cooldown: 8
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   - baseInfo:
       animKey: 101
       attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    selectionWeight: 25
+      reactionType: 4
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 0.8, z: 1.5}
+      attackRadius: 3
+      damage: 40
+      poiseDamage: 100
+    skillType: 1
+    selectionWeight: 20
     minRange: 0
-    maxRange: 2.5
-    cooldown: 2
-  - baseInfo:
-      animKey: 102
-      attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    selectionWeight: 25
-    minRange: 0
-    maxRange: 2.5
-    cooldown: 2
-  - baseInfo:
-      animKey: 103
-      attackType: 0
-      reactionType: 0
-      hitParticleName: EnemyLightAttackHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 10
-    selectionWeight: 25
-    minRange: 0
-    maxRange: 2.5
-    cooldown: 2
-  globalCooldown: 1
+    maxRange: 3.5
+    cooldown: 10
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  globalCooldown: 2.5

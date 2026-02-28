@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
+  m_Name: humanoid
+  m_EditorClassIdentifier: 
+  skills:
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      reactionType: 1
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.4}
+      attackRadius: 1.4
+      damage: 12
+      poiseDamage: 25
+    skillType: 1
+    selectionWeight: 30
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 0
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      reactionType: 2
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.4}
+      attackRadius: 1.4
+      damage: 10
+      poiseDamage: 22
+    skillType: 1
+    selectionWeight: 25
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 3
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      reactionType: 2
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 18
+      poiseDamage: 35
+    skillType: 1
+    selectionWeight: 15
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 6
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 200
+      attackType: 0
+      reactionType: 3
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.6
+      damage: 28
+      poiseDamage: 65
+    skillType: 1
+    selectionWeight: 15
+    minRange: 0
+    maxRange: 2.8
+    cooldown: 8
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 103
+      attackType: 0
+      reactionType: 3
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 1, z: 1}
+      attackRadius: 2.5
+      damage: 22
+      poiseDamage: 50
+    skillType: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 10
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 300
+      attackType: 0
+      reactionType: 4
+      hitParticleName: LiteHit
+      attackOffset: {x: 0, y: 0.5, z: 2}
+      attackRadius: 2
+      damage: 40
+      poiseDamage: 100
+    skillType: 1
+    selectionWeight: 5
+    minRange: 2
+    maxRange: 5
+    cooldown: 12
+    conditionGroup:
+      conditionOperator: 0
+      conditions:
+      - type: 1
+        minHealthPercent: 0
+        maxHealthPercent: 0.6
+        minRange: 0
+        maxRange: 999
+        minAllyCount: 0
+        maxAllyCount: 99
+        checkSpawnCount: 0
+  globalCooldown: 1.2

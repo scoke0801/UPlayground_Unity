@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using NUnit.Framework.Constraints;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
@@ -15,6 +16,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Death";
         
+        private bool _isDestoryCalled = false;
         private PlayerEquipment _equipment;
         public EnemyDeathState(ActorMovementController controller) : base(controller)
         {
@@ -28,12 +30,23 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            
+            MonsterActor owner = gameActor as MonsterActor;
+
+            if (owner == null)
+            {
+                return;
+            }
             var state = gameActor.Animator.PlayMotion(AnimKey.Die, 0.25f);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () =>
                 {
-                    
+                    if (_isDestoryCalled == false)
+                    {
+                        _isDestoryCalled = true;
+                        owner.PlayDissolveAndDestroy(3f);
+                    }
                 };
             }
         }

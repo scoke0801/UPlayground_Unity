@@ -251,19 +251,26 @@ namespace UPlayGround
             
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
-            // 사망 애니메이션
-            // 아이템 드롭
-            // 사망 처리
-            _dissolveController.StartDissolve(3f);
-            
             if (_uiHpBar != null)
             {
                 OnHealthChanged -= _uiHpBar.UpdateHealth;
                 Destroy(_uiHpBar.gameObject);
             }
             
-            // 임시: 3초 후 제거
-            Destroy(gameObject, 3f);
+            //_dissolveController.StartDissolve(3f);
+            // KCC 캡슐 콜라이더 충돌 비활성화
+            MovementController.Motor.SetCapsuleCollisionsActivation(false);
+            MovementController.Motor.enabled = false;
+        }
+
+        public void PlayDissolveAndDestroy(float duration)
+        {
+            // 사망 애니메이션
+            // 아이템 드롭
+            // 사망 처리
+            _dissolveController.StartDissolve(duration);
+            
+            //Destroy(gameObject, duration);
         }
         
         /// <summary>

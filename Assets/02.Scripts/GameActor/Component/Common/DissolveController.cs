@@ -114,6 +114,8 @@ namespace UPlayGround.Component
                 SetDissolveAmount(Mathf.Clamp01(elapsed / _dissolveDuration));
                 yield return null;
             }
+            
+            Destroy(gameObject);
         }
 
         private void SwapToDissolveMaterials()

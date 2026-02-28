@@ -15,7 +15,8 @@ namespace UPlayGround.Component
         private float _recoveryTimer;
         private bool  _isBroken;
         private bool  _isHyperArmorActive;
-
+        private UI_ActorHpBar _actorUIBar;
+        
         public bool  IsHyperArmorActive => _isHyperArmorActive;
         public float PoisePercent       => _data != null ? _currentPoise / _data.maxPoise : 1f;
 
@@ -35,6 +36,11 @@ namespace UPlayGround.Component
             _recoveryTimer = 0f;
         }
 
+        public void ConnectUiBar(UI_ActorHpBar actorUIBar)
+        {
+            _actorUIBar = actorUIBar;
+        }
+        
         private void Update()
         {
             if (_data == null) return;
@@ -47,6 +53,10 @@ namespace UPlayGround.Component
                     _isBroken      = false;
                     _currentPoise  = _data.maxPoise;
                     _recoveryTimer = 0f;
+                    
+                    
+                    if(_actorUIBar != null)
+                        _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
                 }
                 return;
             }
@@ -55,7 +65,12 @@ namespace UPlayGround.Component
             {
                 _recoveryTimer += Time.deltaTime;
                 if (_recoveryTimer >= _data.recoveryDelay)
+                {
                     _currentPoise = Mathf.Min(_currentPoise + _data.recoveryRate * Time.deltaTime, _data.maxPoise);
+                    
+                    if(_actorUIBar != null)
+                        _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
+                }
             }
         }
 
@@ -73,7 +88,10 @@ namespace UPlayGround.Component
 
             _currentPoise -= poiseDamage;
             _recoveryTimer = 0f;
-
+            
+            if(_actorUIBar != null)
+                _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
+            
             if (_currentPoise <= 0f)
             {
                 _currentPoise  = 0f;
@@ -89,7 +107,7 @@ namespace UPlayGround.Component
             _isHyperArmorActive = (_data?.hasHyperArmor ?? false) && active;
         }
 
-        public void ForcePoisBreak()
+        public void ForcePoiseBreak()
         {
             _currentPoise  = 0f;
             _isBroken      = true;

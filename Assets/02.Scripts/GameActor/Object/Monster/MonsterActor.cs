@@ -16,7 +16,8 @@ namespace UPlayGround
         [SerializeField] private EnemyStatsSO _stats;
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
-  
+        [SerializeField] private PoiseStat _poiseStat = null;
+        
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyBrain _brain;
@@ -28,7 +29,6 @@ namespace UPlayGround
         protected UI_ActorHpBar _uiHpBar;
         
         public event Action<float, float> OnHealthChanged; // (current, max)
-
         public EnemyDetection Detection => _detection;
         public EnemyBrain Brain => _brain;
         public EnemyCombat Combat => _combat;
@@ -52,6 +52,9 @@ namespace UPlayGround
             
             if (_combat == null)
                 _combat = GetComponent<EnemyCombat>();
+            
+            if(_poiseStat == null)
+                _poiseStat = GetComponent<PoiseStat>();
         }
 
         protected override void Start()
@@ -72,6 +75,11 @@ namespace UPlayGround
             if (_uiHpBar != null)
             {
                 OnHealthChanged += _uiHpBar.UpdateHealth;
+
+                if (_poiseStat != null)
+                {
+                    _poiseStat.ConnectUiBar(_uiHpBar);
+                }
             }
             _uiHpBar.UpdateHealth(_currentHealth, _maxHealth);
         }
@@ -229,8 +237,7 @@ namespace UPlayGround
             }
 
             // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
-            var poise = GetComponent<PoiseStat>();
-            bool poiseBroken = poise == null || poise.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
+            bool poiseBroken = _poiseStat == null || _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
 
             if (poiseBroken)
             {

@@ -38,6 +38,7 @@ namespace UPlayGround.Manager
 
             RegisterInputEvent(InputMapNames.System, SystemAction.ShowCursor, OnStartedShowCursor, null,
                 OnCanceledShowCursor, null, null, InputLayer.Level_Top);
+            
             Debug.Log("[InputManager] 초기화 완료");
         }
 

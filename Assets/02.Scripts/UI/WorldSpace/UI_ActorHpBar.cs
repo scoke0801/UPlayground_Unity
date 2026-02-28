@@ -7,8 +7,12 @@ using UPlayGround.Data.EnumType;
 
 public class UI_ActorHpBar : MonoBehaviour
 {
-    [SerializeField] private Image _fillImage;
-    [SerializeField] private Image _fillDelayImage;
+    [SerializeField] private Image _fillHpImage;
+    [SerializeField] private Image _fillHpDelayImage;
+    
+    [SerializeField] private Image _fillPoiseImage;
+    [SerializeField] private Image _fillPoiseDelayImage;
+    
     [SerializeField] private float _delayFillSpeed = 3f;
     [SerializeField] private TextMeshProUGUI _textHp;
     [SerializeField] private Animator _animator;
@@ -25,7 +29,9 @@ public class UI_ActorHpBar : MonoBehaviour
     private RectTransform _parentCanvasRect;
     private float _lastDisplayedTime = 0.0f;
 
-    private float _targetFill;
+    private float _targetHpFill;
+    private float _targetPoiseFill;
+    
     private bool _isInitialized;
     private bool _isShowing = false;
 
@@ -48,9 +54,14 @@ public class UI_ActorHpBar : MonoBehaviour
         _mainCamera = targetCamera;
         _parentCanvasRect = parentCanvas.GetComponent<RectTransform>();
 
-        _fillImage.fillAmount = 1f;
-        _fillDelayImage.fillAmount = 1f;
-        _targetFill = 1f;
+        _fillHpImage.fillAmount = 1f;
+        _fillHpDelayImage.fillAmount = 1f;
+        
+        _fillPoiseDelayImage.fillAmount = 1f;
+        _fillPoiseImage.fillAmount = 1f;
+        
+        _targetHpFill = 1f;
+        _targetPoiseFill = 1f;
 
         _isInitialized = true;
     }
@@ -119,25 +130,43 @@ public class UI_ActorHpBar : MonoBehaviour
 
     private void UpdateDelayFill()
     {
-        if (_fillDelayImage.fillAmount > _targetFill)
+        if (_fillHpDelayImage.fillAmount > _targetHpFill)
         {
-            _fillDelayImage.fillAmount = Mathf.Lerp(
-                _fillDelayImage.fillAmount,
-                _targetFill,
+            _fillHpDelayImage.fillAmount = Mathf.Lerp(
+                _fillHpDelayImage.fillAmount,
+                _targetHpFill,
                 Time.deltaTime * _delayFillSpeed
             );
         }
+        
+        if (_fillPoiseDelayImage.fillAmount > _targetPoiseFill)
+        {
+            _fillPoiseDelayImage.fillAmount = Mathf.Lerp(
+                _fillPoiseDelayImage.fillAmount,
+                _targetPoiseFill,
+                Time.deltaTime * _delayFillSpeed
+            );
+        }
+    
     }
 
     public void UpdateHealth(float current, float max)
     {
         Show();
         
-        _targetFill = Mathf.Clamp01(current / max);
-        _fillImage.fillAmount = _targetFill;
+        _targetHpFill = Mathf.Clamp01(current / max);
+        _fillHpImage.fillAmount = _targetHpFill;
 
         _textHp.text = $"{(int)current}/{(int)max}";
         
         _lastDisplayedTime = Time.time;
+    }
+    
+    public void UpdatePoise(float current, float max)
+    {
+        Show();
+        
+        _targetPoiseFill = Mathf.Clamp01(current / max);
+        _fillPoiseImage.fillAmount = _targetPoiseFill;
     }
 }

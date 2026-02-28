@@ -99503,7 +99503,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9095356720821638556, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
       propertyPath: _allyLayer.m_Bits

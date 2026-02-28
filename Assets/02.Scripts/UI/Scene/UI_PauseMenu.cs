@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Enum;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -9,58 +10,31 @@ using UPlayGround.Manager;
 public class UI_PauseMenu : UI_Base
 {
     [Header("UI 버튼")]
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button gameExitButton;
+    [SerializeField] private Button gotoTitleButton;
     [SerializeField] private Button quitButton;
-    
-    private InputManager inputManager;
     
     protected override void Awake()
     {
         base.Awake();
-        inputManager = InputManager.Instance;
         
         // 버튼 이벤트 연결
-        if (resumeButton != null)
-            resumeButton.onClick.AddListener(OnResumeClicked);
+        if (gameExitButton != null)
+            gameExitButton.onClick.AddListener(OnGameExitClicked);
         
-        if (settingsButton != null)
-            settingsButton.onClick.AddListener(OnSettingsClicked);
-        
-        if (mainMenuButton != null)
-            mainMenuButton.onClick.AddListener(OnMainMenuClicked);
+        if (gotoTitleButton != null)
+            gotoTitleButton.onClick.AddListener(OnGoToTitleClicked);
         
         if (quitButton != null)
             quitButton.onClick.AddListener(OnQuitClicked);
     }
     
-    private void OnEnable()
-    {
-       
-    }
-    
-    private void OnDisable()
-    {
-    }
-    
-    private void OnCancelPerformed(InputAction.CallbackContext context)
-    {
-        OnResumeClicked();
-    }
-    
     /// <summary>
     /// 게임 재개 버튼
     /// </summary>
-    private void OnResumeClicked()
+    private void OnQuitClicked()
     {
         Debug.Log("[PauseMenu] 게임 재개");
-        
-        // 게임플레이 모드로 전환
-        if (inputManager != null)
-        {
-            //inputManager.SwitchToGameplay(false);
-        }
         
         // UI 닫기
         if (UIManager.Instance != null)
@@ -85,17 +59,19 @@ public class UI_PauseMenu : UI_Base
     }
     
     /// <summary>
-    /// 메인 메뉴로 버튼
+    /// 타이틀 이동 버튼
     /// </summary>
-    private void OnMainMenuClicked()
+    private void OnGoToTitleClicked()
     {
         Debug.Log("[PauseMenu] 메인 메뉴로 이동");
+        
+        SceneManager.Instance.LoadScene(SceneName.Title);
     }
     
     /// <summary>
     /// 게임 종료 버튼
     /// </summary>
-    private void OnQuitClicked()
+    private void OnGameExitClicked()
     {
         Debug.Log("[PauseMenu] 게임 종료");
         

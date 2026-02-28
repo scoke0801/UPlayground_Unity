@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using Interaction.Enum;
-using Mono.Cecil;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;

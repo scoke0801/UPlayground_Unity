@@ -4,6 +4,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.Path;
+using UPlayGround.Enum;
 using UPlayGround.InputDefine;
 
 namespace UPlayGround.Manager
@@ -385,7 +386,7 @@ namespace UPlayGround.Manager
                     // UI_Base가 아닌 경우 직접 숨김
                     uiObj.SetActive(false);
                 }
-
+                
                 Debug.Log($"[UIManager] '{uiName}' UI를 숨김처리 했습니다.");
             }
             else
@@ -715,7 +716,19 @@ namespace UPlayGround.Manager
                     }
                 }
             }
-            
+
+            if (SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
+            {
+                UI_Base ui = UIManager.Instance.GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
+                if (ui == null || ui.IsVisible == false)
+                {
+                    UIManager.Instance.ShowUI("PauseMenu");
+                }
+                else
+                {
+                    UIManager.Instance.HideUI("PauseMenu");
+                }
+            }
         }
 
     }

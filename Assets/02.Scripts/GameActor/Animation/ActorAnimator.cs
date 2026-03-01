@@ -36,6 +36,7 @@ namespace UPlayGround.Animation
         protected AnimKey _lastPlayedKey;
         protected bool _isPlayingMotionSet;
         
+        public event Action OnMotionSetCompleted;
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
         
@@ -268,6 +269,7 @@ namespace UPlayGround.Animation
             if (_globalTime >= _currentMotionSet.TotalDuration)
             {
                 StopMotionSet();
+                OnMotionSetCompleted?.Invoke();
                 return;
             }
 

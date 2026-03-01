@@ -34,7 +34,7 @@ namespace UPlayGround.Component
         [FormerlySerializedAs("stats")]
         [Header("Combat Data")]
         [SerializeField] private PlayerAttackDataSO _attackData;
-      
+        
         [Header("Combat State")]
         [SerializeField] private float _combatStateDuration = 30f; // 전투 상태 유지 시간
 

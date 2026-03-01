@@ -157,8 +157,41 @@ MonoBehaviour:
       poiseDamage: 55
     canBeInterrupted: 1
     hitAngle: 60
-  jumpAttackList: []
-  dashAttackList: []
+  jumpAttackList:
+  - baseInfo:
+      animKey: 400
+      attackType: 0
+      reactionType: 1
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 50
+      poiseDamage: 50
+    canBeInterrupted: 0
+    hitAngle: 60
+  dashAttackList:
+  - baseInfo:
+      animKey: 300
+      attackType: 0
+      reactionType: 1
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 50
+      poiseDamage: 50
+    canBeInterrupted: 0
+    hitAngle: 60
+  - baseInfo:
+      animKey: 301
+      attackType: 0
+      reactionType: 1
+      hitParticleName: DefaultCombatHit
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      damage: 50
+      poiseDamage: 50
+    canBeInterrupted: 0
+    hitAngle: 60
   skillAttackList:
   - baseInfo:
       animKey: 500

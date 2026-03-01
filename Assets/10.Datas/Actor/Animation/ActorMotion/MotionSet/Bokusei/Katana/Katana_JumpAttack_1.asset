@@ -10,18 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Katana_Dodge_F
+  m_Name: Katana_JumpAttack_1
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Dodge_F
+    motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: 7400000, guid: bb507e2a35ad106448957c6f9c22f452, type: 3}
-      clipStartTime: -1
+      motionClip: {fileID: 1827226128182048838, guid: 605c91d3a3f47b140acd608c8878b0b9, type: 3}
+      clipStartTime: 0.3
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 5792125029927616658
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5792125029927616658
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.4875
+        endTime: 1.025
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128

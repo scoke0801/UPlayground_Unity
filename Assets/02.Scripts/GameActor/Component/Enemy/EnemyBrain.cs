@@ -259,7 +259,8 @@ namespace UPlayGround.Component
 
             float dist = _detection.DistanceToTarget;
 
-            if (Random.value < ContinueAttackChance && dist <= _maxAttackRange * 1.2f)
+            if (Random.value < ContinueAttackChance && dist <= _maxAttackRange * 1.2f &&
+                _movementController.CurrentState.StateName != "Attack")
             {
                 _lastAttackTime = Time.time;
                 _movementController.TransitionToState(

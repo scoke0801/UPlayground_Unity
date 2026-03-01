@@ -53,7 +53,8 @@ namespace UPlayGround.State
                 var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
                 if (animState != null)
                 {
-                    animState.OwnedEvents.OnEnd = OnAttackAnimationEnd;
+                    gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
+//                    animState.OwnedEvents.OnEnd = OnAttackAnimationEnd;
                 }
                 else
                 {
@@ -73,6 +74,8 @@ namespace UPlayGround.State
             base.OnExit(toState);
             _isAttackActive = false;
             _combat.ClearHitTargets();
+            
+            gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             
             // 공격 모션 종료 → Hyper Armor 해제
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
@@ -94,6 +97,7 @@ namespace UPlayGround.State
 
         private void OnAttackAnimationEnd()
         {
+            Debug.Log("OnAttackAnimationEnd");
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {

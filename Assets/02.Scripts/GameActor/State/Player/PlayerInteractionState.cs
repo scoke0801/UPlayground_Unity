@@ -24,7 +24,7 @@ namespace UPlayGround.State
         private InteractableActorSO _cachedData = null;
         private AnimPlayState _animPlayState = AnimPlayState.None;
         
-        public override string StateName { get; }
+        public override string StateName => "Interaction";
 
         public PlayerInteractionState(ActorMovementController controller) : base(controller)
         {

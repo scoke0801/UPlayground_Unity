@@ -84,17 +84,36 @@ namespace UPlayGround.State
             }
             //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
+
+
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
-                    return;
-                }
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
-                {
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                    if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
+                    {
+                        playerController.TransitionToState(new PlayerDashAttackState(playerController));
+                    }
+                    else
+                    {
+                        playerController.TransitionToState(new PlayerAttackState(playerController));
+                    }
+
                     return;
                 }
 
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                {
+                    if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
+                    {
+                        playerController.TransitionToState(new PlayerDashAttackState(playerController));
+                    }
+                    else
+                    {
+                        playerController.TransitionToState(new PlayerAttackState(playerController));
+                    }
+
+                    return;
+                }
+                
                 for (int i = 0; i < 4; ++i)
                 {
                     if (!playerController.HasSkillInput(i)) continue;
@@ -103,7 +122,7 @@ namespace UPlayGround.State
                     return;
                 }
             }
-            
+
             if (_cachedAnimType != gameActor.MoveAnimType)
             {
                 _cachedAnimType = gameActor.MoveAnimType;

@@ -231,9 +231,32 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
-            if (attackData != null && attackData.reactionType == AttackReactionType.KnockBack)
+            if (attackData != null)
             {
-                MovementController.AddVelocity(attackData.attackDirection.normalized * 15.0f);
+                switch (attackData.reactionType)
+                {
+                    case AttackReactionType.KnockBack:
+                        MovementController.AddVelocity(attackData.attackDirection.normalized * attackData.knockbackForce);
+                        break;
+
+                    case AttackReactionType.Pull:
+                        if (attackData.attacker != null)
+                        {
+                            Vector3 pullDir = (attackData.attacker.transform.position - transform.position).normalized;
+                            pullDir.y = 0f;
+                            MovementController.AddVelocity(pullDir * attackData.pullForce);
+                        }
+                        break;
+
+                    case AttackReactionType.Airborne:
+                    {
+                        Vector3 launchDir = attackData.attackDirection.normalized;
+                        launchDir.y = 0f;
+                        MovementController.AddVelocity(launchDir * 5f + Vector3.up * attackData.airborneForce);
+                        MovementController.Motor.ForceUnground();
+                        break;
+                    }
+                }
             }
 
             // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
@@ -241,7 +264,11 @@ namespace UPlayGround
 
             if (poiseBroken)
             {
-                MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
+                // Airborne은 공중 상태로 직행
+                if (attackData?.reactionType == AttackReactionType.Airborne)
+                    MovementController.TransitionToState(new EnemyAirborneState(MovementController));
+                else
+                    MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
             }
 
             _colorChanger.OnHit();

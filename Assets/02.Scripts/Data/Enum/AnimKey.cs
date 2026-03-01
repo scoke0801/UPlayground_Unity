@@ -81,6 +81,8 @@ namespace UPlayGround.Data.EnumType
         Block = 860,
         
         Knockback = 900,
+        Knockdown,          // 넘어뜨리기
+        Knockdown_Getup,    // 넘어진 후 일어서기
         
         HandGathering = 1000,
         

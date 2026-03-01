@@ -16,224 +16,270 @@ MonoBehaviour:
   - baseInfo:
       animKey: 100
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 30
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 101
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 30
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 102
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 40
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 103
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 20
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 104
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 20
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 105
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 25
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 106
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 25
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 107
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 30
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 108
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 30
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 109
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 35
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   heavyComboAttackList:
   - baseInfo:
       animKey: 200
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 45
-      poiseDamage: 45
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
       animKey: 201
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 50
-      poiseDamage: 50
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
       animKey: 202
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 55
-      poiseDamage: 55
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   jumpAttackList:
   - baseInfo:
       animKey: 400
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 50
-      poiseDamage: 50
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 0
     hitAngle: 60
   dashAttackList:
   - baseInfo:
       animKey: 300
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 50
-      poiseDamage: 50
-    canBeInterrupted: 0
-    hitAngle: 60
-  - baseInfo:
-      animKey: 301
-      attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 50
-      poiseDamage: 50
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 0
     hitAngle: 60
   skillAttackList:
   - baseInfo:
       animKey: 500
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 50
-      poiseDamage: 55
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 501
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 45
-      poiseDamage: 35
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 502
       attackType: 0
-      reactionType: 0
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 35
-      poiseDamage: 30
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 503
       attackType: 0
-      reactionType: 1
-      hitParticleName: DefaultCombatHit
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      damage: 60
-      poiseDamage: 50
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
     canBeInterrupted: 1
     hitAngle: 60

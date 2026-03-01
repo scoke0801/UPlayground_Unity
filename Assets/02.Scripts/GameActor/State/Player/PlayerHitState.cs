@@ -80,14 +80,42 @@ namespace UPlayGround.State
 
                 case AttackReactionType.Heavy:
                     _cancelWindow = HEAVY_CANCEL_WINDOW;
-                    _heavyHit     = true;   // 회피 캔슬만
+                    _heavyHit     = true;
                     break;
 
                 case AttackReactionType.KnockBack:
-                    _cancelWindow = float.MaxValue;  // 캔슬 불가
+                    _cancelWindow = float.MaxValue;
                     _heavyHit     = true;
                     if (_attackData != null)
                         controller.AddVelocity(_attackData.attackDirection.normalized * 12f);
+                    break;
+
+                case AttackReactionType.Pull:
+                    _cancelWindow = HEAVY_CANCEL_WINDOW;
+                    _heavyHit     = true;
+                    if (_attackData?.attacker != null)
+                    {
+                        Vector3 pullDir = (_attackData.attacker.transform.position - motor.TransientPosition).normalized;
+                        pullDir.y = 0f;
+                        controller.AddVelocity(pullDir * _attackData.pullForce);
+                    }
+                    break;
+
+                case AttackReactionType.Airborne:
+                    _cancelWindow = float.MaxValue;
+                    _heavyHit     = true;
+                    // 수평 넉백 + 위로 띄움
+                    if (_attackData != null)
+                    {
+                        Vector3 launchDir = _attackData.attackDirection.normalized;
+                        launchDir.y = 0f;
+                        controller.AddVelocity(launchDir * 5f + Vector3.up * _attackData.airborneForce);
+                    }
+                    break;
+
+                case AttackReactionType.Knockdown:
+                    _cancelWindow = float.MaxValue;
+                    _heavyHit     = true;
                     break;
 
                 case AttackReactionType.Stun:
@@ -167,9 +195,23 @@ namespace UPlayGround.State
         {
             var reaction = _attackData?.reactionType ?? AttackReactionType.Hit;
 
-            if (reaction == AttackReactionType.KnockBack &&
-                playerActor.Animator.HasMotion(AnimKey.Knockback, true))
-                return AnimKey.Knockback;
+            switch (reaction)
+            {
+                case AttackReactionType.KnockBack:
+                    if (playerActor.Animator.HasMotion(AnimKey.Knockback, true))
+                        return AnimKey.Knockback;
+                    break;
+
+                case AttackReactionType.Knockdown:
+                    if (playerActor.Animator.HasMotion(AnimKey.Knockdown, true))
+                        return AnimKey.Knockdown;
+                    break;
+
+                case AttackReactionType.Airborne:
+                case AttackReactionType.Pull:
+                    // 방향 무관하게 앞 경직
+                    return AnimKey.Hit_F;
+            }
 
             if (_attackData == null) return AnimKey.Hit_F;
 

@@ -61,6 +61,9 @@ namespace UPlayGround.Component
         // 현재 공격 정보 (히트 판정용)
         private AttackData _currentAttackData;
         
+        // 현재 공격의 AttackInfoBase (멀티 히트 Phase 조회용)
+        private AttackInfoBase _currentAttackInfoBase;
+        
         private AttackState _attackState = AttackState.NormalAttack;
         private float _lastCombatEventTime = -999f;
         
@@ -224,26 +227,29 @@ namespace UPlayGround.Component
         }
         
         /// <summary>
-        /// ComboData를 AttackData로 변환
+        /// PlayerAttackInfo를 AttackData로 변환.
+        /// Phase[0] 데이터를 초기값으로 세팅하고, 런타임에 SetHitPhaseIndex()로 갱신된다.
         /// </summary>
         private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo)
         {
-            float duration = GetAnimationDuration(attackInfo.baseInfo.animKey);
-            
+            _currentAttackInfoBase = attackInfo.baseInfo;
+            var phase0 = attackInfo.baseInfo.GetHitPhase(0);
+
             return new AttackData
             {
-                animKey = attackInfo.baseInfo.animKey,
-                damage = attackInfo.baseInfo.damage,
-                poiseDamage = attackInfo.baseInfo.poiseDamage,
+                animKey          = attackInfo.baseInfo.animKey,
+                damage           = phase0.damage,
+                poiseDamage      = phase0.poiseDamage,
                 canBeInterrupted = attackInfo.canBeInterrupted,
-                
-                reactionType =  attackInfo.baseInfo.reactionType,
-                
-                hitRange = attackInfo.baseInfo.attackRadius,
-                hitAngle = attackInfo.hitAngle,
-                hitHeightOffset = attackInfo.baseInfo.attackOffset.y,
-                
-                hitParticleName = attackInfo.baseInfo.hitParticleName,
+                reactionType     = phase0.reactionType,
+                hitRange         = phase0.attackRadius,
+                hitAngle         = attackInfo.hitAngle,
+                hitHeightOffset  = phase0.attackOffset.y,
+                hitParticleName  = phase0.hitParticleName,
+                pullForce        = phase0.pullForce,
+                knockbackForce   = phase0.knockBackForce,
+                airborneForce    = phase0.airborneForce,
+                hitPhaseIndex    = 0,
             };
         }
         /// <summary>
@@ -342,6 +348,27 @@ namespace UPlayGround.Component
         {
             _isCollideCollisionEnable = isCollisionEnable;
         }
+
+        /// <summary>
+        /// BeginCollisionEvent에서 호출 — 현재 히트 Phase 인덱스를 AttackData에 반영한다.
+        /// </summary>
+        public void SetHitPhaseIndex(int index)
+        {
+            if (_currentAttackData == null || _currentAttackInfoBase == null) return;
+
+            var phase = _currentAttackInfoBase.GetHitPhase(index);
+            _currentAttackData.hitPhaseIndex    = index;
+            _currentAttackData.damage           = phase.damage;
+            _currentAttackData.poiseDamage      = phase.poiseDamage;
+            _currentAttackData.reactionType     = phase.reactionType;
+            _currentAttackData.hitRange         = phase.attackRadius;
+            _currentAttackData.hitHeightOffset  = phase.attackOffset.y;
+            _currentAttackData.hitParticleName  = phase.hitParticleName;
+            _currentAttackData.pullForce        = phase.pullForce;
+            _currentAttackData.airborneForce    = phase.airborneForce;
+            _currentAttackData.knockbackForce   = phase.knockBackForce;
+        }
+
         /// <summary>
         /// AnimKey에 해당하는 AnimationClip의 duration 가져오기
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.Combat;
@@ -7,7 +8,34 @@ using UPlayGround.Data.EnumType;
 namespace UPlayGround.Data
 {
     /// <summary>
-    /// 기본 공격 정보
+    /// 하나의 공격 애니메이션 안에서 발생하는 개별 히트 구간 데이터.
+    /// BeginCollisionEvent의 hitPhaseIndex와 1:1 매칭된다.
+    /// </summary>
+    [Serializable]
+    public class HitPhaseData
+    {
+        [Header("Damage")]
+        public float damage = 10f;
+        [Tooltip("적중 시 Poise를 깎는 양. 0이면 항상 경직")]
+        public float poiseDamage = 30f;
+        public AttackReactionType reactionType = AttackReactionType.Hit;
+
+        [Header("Hitbox")]
+        public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
+        public float attackRadius = 1.5f;
+
+        [Header("FX")]
+        public string hitParticleName = "LiteHit";
+
+        [Header("Reaction Forces")]
+        public float pullForce    = 10f;
+        public float airborneForce = 8f;
+        public float knockBackForce = 10f;
+    }
+
+    /// <summary>
+    /// 기본 공격 정보.
+    /// hitPhases[0]이 기본값이며, 멀티 히트 공격은 hitPhases를 추가한다.
     /// </summary>
     [Serializable]
     public class AttackInfoBase
@@ -15,20 +43,24 @@ namespace UPlayGround.Data
         [Header("Basic Info")]
         public AnimKey animKey = AnimKey.Attack_1;
         public AttackType attackType = AttackType.Melee;
-        public AttackReactionType reactionType = AttackReactionType.Hit;
 
-        public string hitParticleName;
-        
-        [Header("Hitbox")]
-        public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
-        public float attackRadius = 1.5f;
-        
-        [Header("Damage & Selection")]
-        public float damage = 10f;
+        [Header("Hit Phases")]
+        [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]
+        public List<HitPhaseData> hitPhases = new List<HitPhaseData> { new HitPhaseData() };
 
-        [Tooltip("적중 시 대상의 Poise를 깎는 양. 0이면 Poise 무시(항상 경직)")]
-        public float poiseDamage = 30f;
+        /// <summary> 인덱스가 범위를 벗어나면 마지막 Phase를 반환 (안전 폴백) </summary>
+        public HitPhaseData GetHitPhase(int index)
+        {
+            if (hitPhases == null || hitPhases.Count == 0) return new HitPhaseData();
+            return hitPhases[Mathf.Clamp(index, 0, hitPhases.Count - 1)];
+        }
 
+        public AttackReactionType reactionType => GetHitPhase(0).reactionType;
+        public string hitParticleName          => GetHitPhase(0).hitParticleName;
+        public Vector3 attackOffset            => GetHitPhase(0).attackOffset;
+        public float attackRadius              => GetHitPhase(0).attackRadius;
+        public float damage                    => GetHitPhase(0).damage;
+        public float poiseDamage               => GetHitPhase(0).poiseDamage;
     }
     
     /// <summary>
@@ -95,23 +127,32 @@ namespace UPlayGround.Data
     {
         public AnimKey animKey;
         public float damage;
-        public float poiseDamage = 30f;   // Poise 데미지
+        public float poiseDamage = 30f;
         public bool canBeInterrupted;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;
-        
+
         // Hit Detection Data
         public GameActor attacker;
         public float hitRange;
         public float hitAngle;
         public float hitHeightOffset;
-        
-        public Vector3 hitPoint;        // 공격 적중 위치
-        public GameObject hitTarget;     // 피격 대상
-        public float criticalMultiplier; // 크리티컬 배율
-        public bool isCounterAttack;     // 카운터 공격 여부
+
+        public Vector3 hitPoint;
+        public GameObject hitTarget;
+        public float criticalMultiplier;
+        public bool isCounterAttack;
         public Vector3 attackDirection;
         public string hitParticleName = "LiteHit";
+
+        // ── 반응 파라미터 ──────────────────────────
+        public float pullForce    = 10f;
+        public float airborneForce = 8f;
+        public float knockbackForce = 10f;
+
+        // ── 멀티 히트 ──────────────────────────────
+        /// <summary> 현재 몇 번째 히트 구간인지 (BeginCollisionEvent.hitPhaseIndex와 동기화) </summary>
+        public int hitPhaseIndex = 0;
     }
 
 }

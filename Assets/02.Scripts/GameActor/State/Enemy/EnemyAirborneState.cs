@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 공중 상태 - 점프/낙하
     /// </summary>
-    public class EnemyAirborneState : PlayerActorState
+    public class EnemyAirborneState : GameActorState
     {
         public override string StateName => "Airborne";
         

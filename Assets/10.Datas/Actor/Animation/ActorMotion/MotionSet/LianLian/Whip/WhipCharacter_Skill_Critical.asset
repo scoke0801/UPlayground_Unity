@@ -24,6 +24,7 @@ MonoBehaviour:
       - rid: 7399917016132091904
       - rid: 5792125030652444826
       - rid: 5792125030652444827
+      - rid: 5792125037979107328
       - rid: 5792125030652444828
     globalEvents: []
   references:
@@ -37,6 +38,7 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 1
     - rid: 5792125030652444827
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -45,6 +47,7 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 2
     - rid: 5792125030652444828
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -53,6 +56,16 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 4
+    - rid: 5792125037979107328
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.7
+        endTime: 1.9625
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 3
     - rid: 7399917016132091904
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -61,3 +74,4 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 0

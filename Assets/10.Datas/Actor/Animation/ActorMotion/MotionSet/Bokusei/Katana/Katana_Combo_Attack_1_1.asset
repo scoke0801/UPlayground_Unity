@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: Katana_combo_Attack_1_1
       motionClip: {fileID: 7400000, guid: 9cdbfd5fbd2ccf24897ec6c2d0cd4ae9, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917007448309760
       - rid: 7399917007448310083
@@ -32,6 +35,7 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
+        hitPhaseIndex: 0
     - rid: 7399917007448310083
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

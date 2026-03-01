@@ -510,22 +510,43 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
-            if (attackData != null && attackData.reactionType == AttackReactionType.KnockBack)
+            if (attackData != null)
             {
-                MovementController.AddVelocity(attackData.attackDirection.normalized * 5.0f);
+                switch (attackData.reactionType)
+                {
+                    case AttackReactionType.KnockBack:
+                        MovementController.AddVelocity(attackData.attackDirection.normalized * attackData.knockbackForce);
+                        break;
+
+                    case AttackReactionType.Pull:
+                        if (attackData.attacker != null)
+                        {
+                            Vector3 pullDir = (attackData.attacker.transform.position - transform.position).normalized;
+                            pullDir.y = 0f;
+                            MovementController.AddVelocity(pullDir * attackData.pullForce);
+                        }
+                        break;
+
+                    case AttackReactionType.Airborne:
+                    {
+                        Vector3 launchDir = attackData.attackDirection.normalized;
+                        launchDir.y = 0f;
+                        MovementController.AddVelocity(launchDir * 5f + Vector3.up * attackData.airborneForce);
+                        MovementController.Motor.ForceUnground();
+                        break;
+                    }
+                }
             }
-            
-            // 피격 이펙트 재생
-            // 피격 사운드 재생
-            // 넉백 처리
-            // 피격 애니메이션 재생
+
             string stateName = MovementController.CurrentState.StateName;
             if (stateName != "Hit")
             {
-                // [TOOD] 상태를 조금 더 정리해서 할 필요가 있겠다...
-                if(MovementController.CurrentState.CanTransitionState("Hit"))
+                if (MovementController.CurrentState.CanTransitionState("Hit"))
                 {
-                    MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
+                    if (attackData?.reactionType == AttackReactionType.Airborne)
+                        MovementController.TransitionToState(new PlayerAirborneState(MovementController));
+                    else
+                        MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }
 
                 CameraManager.Instance.StartShake("LiteHit");
@@ -533,7 +554,7 @@ namespace UPlayGround
 
             _colorChanger.OnHit();
             
-            Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData.hitPoint}");
+            Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData?.hitPoint}");
         }
         
         /// <summary>

@@ -79,9 +79,14 @@ namespace UPlayGround.State
 
             return _attackData.reactionType switch
             {
-                AttackReactionType.KnockBack => AnimKey.Knockback,
-                AttackReactionType.Heavy     => AnimKey.Hit_B,   // 뒤로 크게 밀리는 느낌
-                _                            => AnimKey.Hit_F,
+                AttackReactionType.KnockBack  => AnimKey.Knockback,
+                AttackReactionType.Pull       => AnimKey.Hit_F,   // 앞으로 끌려오므로 Hit_F
+                AttackReactionType.Airborne   => AnimKey.Hit_F,   // 공중 전환 전 짧은 경직
+                AttackReactionType.Knockdown  => gameActor.Animator.HasMotion(AnimKey.Knockback, true)
+                                                    ? AnimKey.Knockback
+                                                    : AnimKey.Hit_F,
+                AttackReactionType.Heavy      => AnimKey.Hit_B,
+                _                             => AnimKey.Hit_F,
             };
         }
     }

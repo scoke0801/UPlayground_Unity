@@ -308,19 +308,25 @@ namespace UPlayGround.Editor
         private AttackInfoBase ConvertBaseInfo(BaseInfoJson bj)
         {
             if (bj == null) return new AttackInfoBase();
-            return new AttackInfoBase
+
+            var info = new AttackInfoBase
             {
-                animKey         = (AnimKey)bj.animKey,
-                attackType      = (AttackType)bj.attackType,
-                reactionType    = (AttackReactionType)bj.reactionType,
-                damage          = bj.damage,
-                poiseDamage     = bj.poiseDamage,
-                attackOffset    = bj.attackOffset != null
-                                    ? new Vector3(bj.attackOffset.x, bj.attackOffset.y, bj.attackOffset.z)
-                                    : Vector3.zero,
-                attackRadius    = bj.attackRadius,
-                hitParticleName = bj.hitParticleName ?? "",
+                animKey    = (AnimKey)bj.animKey,
+                attackType = (AttackType)bj.attackType,
             };
+
+            // 하위 호환 프로퍼티는 getter-only → hitPhases[0]에 직접 기입
+            var phase = info.hitPhases[0];
+            phase.reactionType    = (AttackReactionType)bj.reactionType;
+            phase.damage          = bj.damage;
+            phase.poiseDamage     = bj.poiseDamage;
+            phase.attackOffset    = bj.attackOffset != null
+                                        ? new Vector3(bj.attackOffset.x, bj.attackOffset.y, bj.attackOffset.z)
+                                        : Vector3.zero;
+            phase.attackRadius    = bj.attackRadius;
+            phase.hitParticleName = bj.hitParticleName ?? "";
+
+            return info;
         }
 
         private SkillConditionGroup ConvertConditionGroup(ConditionGroupJson cg)

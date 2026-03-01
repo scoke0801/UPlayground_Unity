@@ -21,6 +21,7 @@ namespace UPlayGround.Component
         private EnemyAttackInfo _currentSkill;
         private readonly List<Collider> _hitTargets = new List<Collider>();
         private readonly Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
+        private int _currentHitPhaseIndex = 0;
 
         private SkillType _reservedSkillType = SkillType.None;
         private bool _isCollisionEnabled;
@@ -298,39 +299,43 @@ namespace UPlayGround.Component
         {
             if (_currentSkill == null || _currentSkill.baseInfo.attackType != AttackType.Melee)
                 return;
-            
-            Vector3 attackPosition = GetCurrentAttackPosition();
-            
-            Collider[] hitColliders = Physics.OverlapSphere(
-                attackPosition, 
-                _currentSkill.baseInfo.attackRadius, 
-                _targetLayer);
-            
+
+            var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
+            Vector3 attackPosition = _attackOrigin.position
+                + _attackOrigin.forward * phase.attackOffset.z
+                + _attackOrigin.right   * phase.attackOffset.x
+                + _attackOrigin.up      * phase.attackOffset.y;
+
+            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, phase.attackRadius, _targetLayer);
+
             foreach (var hitCollider in hitColliders)
             {
                 if (_hitTargets.Contains(hitCollider))
                     continue;
-                
+
                 IDamageable damageable = hitCollider.GetComponent<IDamageable>();
                 if (damageable != null && damageable.CanTakeDamage())
                 {
                     AttackData attackData = new AttackData
                     {
-                        damage = _currentSkill.baseInfo.damage,
+                        damage           = phase.damage,
+                        poiseDamage      = phase.poiseDamage,
                         criticalMultiplier = 1.0f,
-                        hitPoint = hitCollider.ClosestPoint(attackPosition),
-                        attackDirection = _attackOrigin.forward,
-                        reactionType = _currentSkill.baseInfo.reactionType,
-                        hitParticleName = _currentSkill.baseInfo.hitParticleName,
-                        attacker = _ownerActor
+                        hitPoint         = hitCollider.ClosestPoint(attackPosition),
+                        attackDirection  = _attackOrigin.forward,
+                        reactionType     = phase.reactionType,
+                        hitParticleName  = phase.hitParticleName,
+                        pullForce        = phase.pullForce,
+                        airborneForce    = phase.airborneForce,
+                        hitPhaseIndex    = _currentHitPhaseIndex,
+                        knockbackForce   = phase.knockBackForce,
+                        attacker         = _ownerActor,
                     };
-                    
+
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
-                    
-                    GameObjectManager.Instance.ShowFX(
-                        _currentSkill.baseInfo.hitParticleName,
-                        attackData.hitPoint);
+
+                    GameObjectManager.Instance.ShowFX(phase.hitParticleName, attackData.hitPoint);
                 }
             }
         }
@@ -344,24 +349,29 @@ namespace UPlayGround.Component
         {
             _isCollisionEnabled = isCollisionEnable;
         }
+
+        /// <summary>
+        /// BeginCollisionEvent에서 호출 — 현재 히트 Phase 인덱스를 저장한다.
+        /// </summary>
+        public void SetHitPhaseIndex(int index)
+        {
+            _currentHitPhaseIndex = index;
+        }
         
         public Vector3 GetCurrentAttackPosition()
         {
-            if (_currentSkill == null)
-                return _attackOrigin.position;
-            
-            return _attackOrigin.position + 
-                   _attackOrigin.forward * _currentSkill.baseInfo.attackOffset.z + 
-                   _attackOrigin.right * _currentSkill.baseInfo.attackOffset.x + 
-                   _attackOrigin.up * _currentSkill.baseInfo.attackOffset.y;
+            if (_currentSkill == null) return _attackOrigin.position;
+            var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
+            return _attackOrigin.position
+                + _attackOrigin.forward * phase.attackOffset.z
+                + _attackOrigin.right   * phase.attackOffset.x
+                + _attackOrigin.up      * phase.attackOffset.y;
         }
 
         public float GetCurrentAttackRadius()
         {
-            if (_currentSkill == null)
-                return 0f;
-            
-            return _currentSkill.baseInfo.attackRadius;
+            if (_currentSkill == null) return 0f;
+            return _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex).attackRadius;
         }
     }
 }

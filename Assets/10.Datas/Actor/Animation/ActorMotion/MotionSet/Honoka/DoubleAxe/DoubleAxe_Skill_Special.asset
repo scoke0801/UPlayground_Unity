@@ -36,6 +36,7 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 192
+        hitPhaseIndex: 0
     - rid: 7399917076840972461
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -44,6 +45,7 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 192
+        hitPhaseIndex: 1
     - rid: 7399917076840972462
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -52,3 +54,4 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 192
+        hitPhaseIndex: 2

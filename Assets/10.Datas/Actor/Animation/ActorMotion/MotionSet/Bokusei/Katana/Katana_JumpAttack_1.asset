@@ -30,7 +30,7 @@ MonoBehaviour:
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.4875
-        endTime: 0.825
+        endTime: 0.8875
         targetLayers:
           serializedVersion: 2
           m_Bits: 128

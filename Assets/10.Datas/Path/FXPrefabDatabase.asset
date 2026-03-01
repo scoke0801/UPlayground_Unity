@@ -34,3 +34,6 @@ MonoBehaviour:
   - key: HealAura
     prefab: {fileID: 9017484664307500583, guid: 1245b8d2997d5b34fb1637be70a7eb05, type: 3}
     description: 
+  - key: LiteHit
+    prefab: {fileID: 3630950076977652491, guid: a9aa28f8be4ad0d459e5c7c4d1d5699b, type: 3}
+    description: 

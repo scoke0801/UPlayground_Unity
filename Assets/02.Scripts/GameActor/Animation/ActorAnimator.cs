@@ -14,6 +14,10 @@ namespace UPlayGround.Animation
 
         [SerializeField] private AvatarMask _upperBodyMask;
         
+        [Header("SubAnimator Setting")]
+        [Tooltip("애니메이션에 종속적으로 실행되는 애니메이터, 무기 등")]
+        [SerializeField] private ActorAnimator _subAnimator;
+        
         [Header("Event Executor")]
         [SerializeField] protected MotionEventExecutor _eventExecutor;
 
@@ -120,6 +124,10 @@ namespace UPlayGround.Animation
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
+            if (_subAnimator != null)
+            {
+                _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
+            }
             return _currentState;
         }
         
@@ -138,6 +146,11 @@ namespace UPlayGround.Animation
             _currentState = null;
             _globalTime = 0f;
             _currentMotionIndex = 0;
+            
+            if (_subAnimator != null)
+            {
+                _subAnimator.StopMotionSet();
+            }
         }
         
         /// <summary>

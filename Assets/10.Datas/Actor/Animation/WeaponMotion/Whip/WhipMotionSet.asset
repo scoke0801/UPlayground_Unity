@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: WhipMotionSet
+  m_EditorClassIdentifier: 
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 5f51eec598005174d88c64d47c3e0f29, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 6c22ff96d16d5a441a07df59da762956, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: b004f65d1b4be1a47b6af17564bda8b4, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: d6867e78afde0c6459582f980cfc64df, type: 2}
+    - Key: 104
+      Value: {fileID: 11400000, guid: 683760097dd98a745b7417565811cc9b, type: 2}
+    - Key: 105
+      Value: {fileID: 11400000, guid: 0e9b256950b507b41a2475149e9f8feb, type: 2}
+    - Key: 200
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
+    - Key: 201
+      Value: {fileID: 11400000, guid: b92d86a29152e7b4192913e831d0a04b, type: 2}
+    - Key: 202
+      Value: {fileID: 11400000, guid: 893f96508b5ddaa49b1ffcec45989746, type: 2}
+    - Key: 203
+      Value: {fileID: 11400000, guid: a45f580d6a8f784408268b07c4769f93, type: 2}
+    - Key: 204
+      Value: {fileID: 11400000, guid: dd7ddfc4c0684dd48930bb34dfb75372, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: b6e80f498950b5449a28228d25e96271, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
+    - Key: 502
+      Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}

@@ -55,19 +55,13 @@ namespace UPlayGround.State
 
         public override bool CanTransitionState(string stateName)
         {
+            if (stateName == "Hit")
+                return false;
             return true;
         }
 
         public override void UpdateState(float deltaTime)
         {
-            _timer += deltaTime;
-
-            // 착지 시 또는 모션 종료 시 → 복귀
-            if (motor.GroundingStatus.IsStableOnGround)
-            {
-                //OnLanded();
-                return;
-            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -97,38 +91,19 @@ namespace UPlayGround.State
                 currentVelocity = motor.GetDirectionTangentToSurface(
                     currentVelocity,
                     motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-              
-                // 지면 노멀을 고려한 타겟 속도 계산
-                Vector3 moveInputVector = playerController.MoveInputVector;
-                Vector3 inputRight = Vector3.Cross(moveInputVector, motor.CharacterUp);
-                Vector3 reorientedInput = Vector3.Cross(
-                    motor.GroundingStatus.GroundNormal, 
-                    inputRight).normalized * moveInputVector.magnitude;
-            
-                Vector3 targetMovementVelocity = reorientedInput * controller.MaxSprintMoveSpeed;
 
+                currentVelocity.y = 0f;
+                
                 // 부드럽게 목표 속도로 이동
                 currentVelocity = Vector3.Lerp(
                     currentVelocity, 
-                    targetMovementVelocity, 
+                    Vector3.zero, 
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
-
             }
             
 
             Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
             currentVelocity += rootMotionVel;
-        }
-
-        private void OnLanded()
-        {
-            // 착지 시 충격파 히트박스 발동
-            // _combat.ExecuteHitbox(_attackData);
-
-            // 착지 모션이 있다면
-            // gameActor.Animator.PlayMotion(AnimKey.JumpAttackLand, 0.1f);
-
-            controller.TransitionToState(new PlayerIdleState(controller));
         }
     }
 }

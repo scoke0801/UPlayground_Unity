@@ -16,7 +16,7 @@ MonoBehaviour:
   minCombatDistance: 1
   maintainDistance: 1
   continueAttackChance: 0.35
-  guardChance: 0.3
+  guardChance: 0.1
   retreatChance: 0.2
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5

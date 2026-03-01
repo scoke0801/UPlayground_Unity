@@ -217,13 +217,6 @@ namespace UPlayGround.State
                 }
             }
 
-            if (_isHeavyAttack == false &&
-                playerController.HasMoveInput() 
-                && gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
-            {
-                return AnimKey.DashAttack_1;
-            }
-            
             _currentAttack = (_isHeavyAttack) 
                 ? _combat.ExecuteHeavyAttack(_comboInputted) 
                 : _combat.ExecuteAttack(_comboInputted);

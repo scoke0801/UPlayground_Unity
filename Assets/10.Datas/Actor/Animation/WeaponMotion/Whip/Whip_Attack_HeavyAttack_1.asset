@@ -16,19 +16,7 @@ MonoBehaviour:
     motionSetName: 
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: -4831978796307941836, guid: 8edf693a1cd367545bc1527ddfa62e26, type: 3}
-      clipStartTime: -1
-      clipEndTime: -1
-      playbackSpeed: 1
-      events: []
-    - motionName: Motion_1
-      motionClip: {fileID: 1152747858045777031, guid: 8edf693a1cd367545bc1527ddfa62e26, type: 3}
-      clipStartTime: -1
-      clipEndTime: -1
-      playbackSpeed: 1
-      events: []
-    - motionName: Motion_2
-      motionClip: {fileID: 7752082402420892204, guid: 8edf693a1cd367545bc1527ddfa62e26, type: 3}
+      motionClip: {fileID: -5405653242291790180, guid: 8edf693a1cd367545bc1527ddfa62e26, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

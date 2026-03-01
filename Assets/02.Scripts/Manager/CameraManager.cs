@@ -138,6 +138,42 @@ namespace UPlayGround.Manager
         private CameraEffectManager _effectManager;
         private float _baseFOV;
 
+        // FOV 시스템 (상태별 FOV 전환)
+        private float _fovExplore = 55f;        // 비전투 탐색
+        private float _fovCombat = 65f;         // 전투 진입 (시야 확보)
+        private float _fovLockOn = 50f;         // 락온 (타겟 집중)
+        private float _currentTargetFOV;        // 목표 FOV
+        private float _fovVelocity;             // SmoothDamp 속도
+        private float _fovSmoothTime = 0.25f;   // FOV 전환 부드러움
+
+        // 전투 상태 Pitch 보정
+        private float _explorePitch = 20f;       // 비전투 기본 Pitch (약간 내려다봄)
+        private float _combatPitch = 12f;        // 전투 기본 Pitch (수평에 가깝게)
+
+        // 락온 시 카메라 거리/오프셋
+        private float _lockOnDistance = 4.5f;    // 락온 시 카메라 거리
+        private Vector3 _lockOnOffset = new Vector3(0.6f, 1.0f, 0f); // 락온 숄더 오프셋
+
+        // 다수 적 자동 줌아웃
+        private float _crowdZoomOutDistance = 7f;     // 다수 적 감지 시 줌아웃 거리
+        private float _crowdDetectRadius = 10f;       // 적 감지 반경
+        private int _crowdEnemyThreshold = 3;         // 줌아웃 트리거 적 수
+        private float _crowdZoomSmoothTime = 0.4f;    // 줌아웃 전환 속도
+        private float _crowdZoomVelocity;
+        private float _crowdTargetDistance;            // 다수 적 보정 거리
+        private bool _isCrowdZoomActive;
+
+        // 락온 중점 피벗 (Mid-Point Camera)
+        private float _lockOnMidPointWeight = 0.35f;  // 중점 가중치 (0=플레이어, 1=적, 0.35=적 쪽으로 35%)
+        private float _lockOnPivotSmoothTime = 0.15f; // 피벗 전환 부드러움
+        private Vector3 _lockOnPivotVelocity;
+        
+        // 락온 고저차 감쇠
+        private float _lockOnHeightDampFactor = 0.4f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
+        private float _lockOnPitchMin = -15f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
+        private float _lockOnPitchMax = 25f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
+        private float _lockOnPitchSpeed = 8f;          // 락온 Pitch 전환 속도 (Yaw보다 느리게)
+
         #region IManager 구현
 
         public void Init()
@@ -248,6 +284,10 @@ namespace UPlayGround.Manager
             UpdateCameraAlign();
             UpdateContextOffset();
             UpdateRotationTransition();
+            
+            UpdateFOVSystem();
+            UpdateCrowdZoomOut();
+            UpdateCombatDistance();
 
             // === 카메라 이펙트 시스템 ===
             CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
@@ -390,10 +430,129 @@ namespace UPlayGround.Manager
             }
         }
 
+        #region
+
+        /// <summary>
+        /// 상태별 FOV 전환 (비전투/전투/락온)
+        /// 상황에 따라 시야각이 동적으로 변한다.
+        /// </summary>
+        private void UpdateFOVSystem()
+        {
+            if (_isInputLocked) return;
+
+            bool isCombat = _combatStateProvider?.Invoke() ?? false;
+
+            // 우선순위: 락온 > 전투 > 탐색
+            if (isLockOnActive)
+                _currentTargetFOV = _fovLockOn;
+            else if (isCombat)
+                _currentTargetFOV = _fovCombat;
+            else
+                _currentTargetFOV = _fovExplore;
+
+            // _baseFOV를 부드럽게 목표값으로 전환
+            // (CameraEffectManager의 fovDelta가 _baseFOV 기준으로 적용되므로 _baseFOV를 변경)
+            _baseFOV = Mathf.SmoothDamp(_baseFOV, _currentTargetFOV, ref _fovVelocity, _fovSmoothTime);
+        }
+
+        /// <summary>
+        /// 다수 적 자동 줌아웃
+        /// 주변에 적이 일정 수 이상이면 카메라를 자동으로 빼서 상황 파악을 돕는다.
+        /// </summary>
+        private void UpdateCrowdZoomOut()
+        {
+            if (_isInputLocked || target == null) return;
+
+            // 락온 중이면 줌아웃 비활성화 (락온 거리가 우선)
+            if (isLockOnActive)
+            {
+                _isCrowdZoomActive = false;
+                return;
+            }
+
+            bool isCombat = _combatStateProvider?.Invoke() ?? false;
+            if (!isCombat)
+            {
+                _isCrowdZoomActive = false;
+                return;
+            }
+
+            // 주변 적 수 카운트
+            int nearbyEnemyCount = CountNearbyEnemies();
+
+            if (nearbyEnemyCount >= _crowdEnemyThreshold)
+            {
+                _isCrowdZoomActive = true;
+                _crowdTargetDistance = Mathf.SmoothDamp(
+                    _crowdTargetDistance, _crowdZoomOutDistance, ref _crowdZoomVelocity, _crowdZoomSmoothTime);
+            }
+            else
+            {
+                _isCrowdZoomActive = false;
+                _crowdTargetDistance = Mathf.SmoothDamp(
+                    _crowdTargetDistance, defaultDistance, ref _crowdZoomVelocity, _crowdZoomSmoothTime);
+            }
+        }
+
+        /// <summary>
+        /// 전투/락온 상태에 따른 카메라 거리 보정
+        /// 락온 > 다수 적 줌아웃 > 전투 > 탐색 순으로 우선순위 적용
+        /// </summary>
+        private void UpdateCombatDistance()
+        {
+            if (_isInputLocked) return;
+
+            float desiredDistance;
+
+            if (isLockOnActive)
+            {
+                // 락온 시 가까이 당김
+                desiredDistance = _lockOnDistance;
+            }
+            else if (_isCrowdZoomActive)
+            {
+                // 다수 적 줌아웃
+                desiredDistance = _crowdTargetDistance;
+            }
+            else
+            {
+                // 기본 거리 (수동 줌은 유저 입력으로 targetDistance가 바뀜)
+                return; // 유저 줌을 존중
+            }
+
+            targetDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
+        }
+
+        /// <summary>
+        /// 주변 적 수 카운트 (다수 적 줌아웃용)
+        /// </summary>
+        private int CountNearbyEnemies()
+        {
+            Collider[] hits = Physics.OverlapSphere(target.position, _crowdDetectRadius, lockOnLayerMask);
+            int count = 0;
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform == target || hit.transform.IsChildOf(target))
+                    continue;
+
+                var damageable = hit.GetComponent<IDamageable>();
+                if (damageable == null)
+                    damageable = hit.GetComponentInParent<IDamageable>();
+
+                if (damageable != null && damageable.CanTakeDamage())
+                    count++;
+            }
+
+            return count;
+        }
+
+        #endregion
+
         /// <summary>
         /// 컨텍스트 기반 카메라 오프셋 보간
         /// 전투 시 숄더 뷰, 비전투 시 센터 뷰로 부드럽게 전환
-        /// 킬캠 등 연출 중에는 보간을 건너뛴다 (연출이 오프셋을 직접 제어하므로)
+        /// 락온 시에는 전용 오프셋을 사용
         /// </summary>
         private void UpdateContextOffset()
         {
@@ -402,7 +561,16 @@ namespace UPlayGround.Manager
                 return;
 
             bool isCombat = _combatStateProvider?.Invoke() ?? false;
-            Vector3 targetOffset = isCombat ? _combatOffset : _defaultOffset;
+            
+            // 우선순위: 락온 > 전투 > 탐색
+            Vector3 targetOffset;
+            if (isLockOnActive)
+                targetOffset = _lockOnOffset;
+            else if (isCombat)
+                targetOffset = _combatOffset;
+            else
+                targetOffset = _defaultOffset;
+            
             cameraOffset = Vector3.SmoothDamp(cameraOffset, targetOffset, ref _offsetVelocity, _offsetSmoothTime);
         }
 
@@ -666,6 +834,71 @@ namespace UPlayGround.Manager
             _combatOffset = offset;
         }
 
+        /// <summary>
+        /// 락온 시 카메라 오프셋 설정 (외부에서 튜닝 가능)
+        /// </summary>
+        public void SetLockOnOffset(Vector3 offset)
+        {
+            _lockOnOffset = offset;
+        }
+
+        /// <summary>
+        /// 상태별 FOV 설정 (외부에서 튜닝 가능)
+        /// </summary>
+        public void SetFOVSettings(float explore, float combat, float lockOn)
+        {
+            _fovExplore = explore;
+            _fovCombat = combat;
+            _fovLockOn = lockOn;
+        }
+
+        /// <summary>
+        /// 락온 시 카메라 거리 설정
+        /// </summary>
+        public void SetLockOnDistance(float distance)
+        {
+            _lockOnDistance = distance;
+        }
+
+        /// <summary>
+        /// 다수 적 줌아웃 설정
+        /// </summary>
+        public void SetCrowdZoomSettings(float zoomOutDistance, float detectRadius, int enemyThreshold)
+        {
+            _crowdZoomOutDistance = zoomOutDistance;
+            _crowdDetectRadius = detectRadius;
+            _crowdEnemyThreshold = enemyThreshold;
+        }
+
+        /// <summary>
+        /// 락온 고저차 감쇠 설정
+        /// </summary>
+        /// <param name="dampFactor">고저차 반영 비율 (0~1, 낮을수록 고저차 무시)</param>
+        /// <param name="pitchMin">락온 Pitch 하한 (기본 -15)</param>
+        /// <param name="pitchMax">락온 Pitch 상한 (기본 25)</param>
+        /// <param name="pitchSpeed">Pitch 전환 속도 (기본 8)</param>
+        public void SetLockOnHeightDampSettings(float dampFactor, float pitchMin, float pitchMax, float pitchSpeed)
+        {
+            _lockOnHeightDampFactor = Mathf.Clamp01(dampFactor);
+            _lockOnPitchMin = pitchMin;
+            _lockOnPitchMax = pitchMax;
+            _lockOnPitchSpeed = pitchSpeed;
+        }
+
+        /// <summary>
+        /// 현재 카메라 FOV 반환
+        /// </summary>
+        public float GetCurrentFOV()
+        {
+            return mainCamera != null ? mainCamera.fieldOfView : _baseFOV;
+        }
+
+        /// <summary>
+        /// 현재 FOV 상태 (디버그용)
+        /// </summary>
+        public float GetBaseFOV() => _baseFOV;
+        public float GetTargetFOV() => _currentTargetFOV;
+
         #endregion
 
         #region Camera Effect API
@@ -836,7 +1069,7 @@ namespace UPlayGround.Manager
             currentDistance = defaultDistance;
             targetDistance = defaultDistance;
             currentYaw = 0f;
-            currentPitch = 20f; // 기본 각도
+            currentPitch = _explorePitch;
 
             collisionLayers = CameraConfig.GetCollisionLayerMask();
 
@@ -868,6 +1101,12 @@ namespace UPlayGround.Manager
             _shaker.hideFlags = HideFlags.HideAndDontSave;
 
             _baseFOV = mainCamera.fieldOfView;
+            
+            // FOV 초기화
+            _currentTargetFOV = _fovExplore;
+            mainCamera.fieldOfView = _fovExplore;
+            _baseFOV = _fovExplore;
+            _crowdTargetDistance = defaultDistance;
         }
 
         private void OnInputPerformedLockOn(InputAction.CallbackContext obj)
@@ -1025,7 +1264,10 @@ namespace UPlayGround.Manager
 
             // 캐릭터의 forward 방향 (뒷통수 방향)
             Vector3 targetForward = target.forward;
-            float targetPitch = 15f;
+            
+            // 전투 상태에 따라 Pitch 변경 (전투 시 더 수평에 가깝게)
+            bool isCombat = _combatStateProvider?.Invoke() ?? false;
+            float targetPitch = isCombat ? _combatPitch : _explorePitch;
             
             // 목표 Yaw 계산 (캐릭터가 바라보는 방향)
             float targetYaw = Mathf.Atan2(targetForward.x, targetForward.z) * Mathf.Rad2Deg;
@@ -1091,6 +1333,9 @@ namespace UPlayGround.Manager
             currentTargetIndex = -1;
             lockOnTargetYVelocity = 0f;
             _isLockOnTransitioning = false;
+            
+            // 락온 해제 시 거리를 기본으로 복원
+            targetDistance = defaultDistance;
         }
 
         /// <summary>
@@ -1150,7 +1395,10 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// LockOn 대상 추적 회전
+        /// LockOn 대상 추적 회전 (Mid-Point Camera)
+        /// 단순히 적을 바라보는 대신, 플레이어-타겟 중간 지점을 기준으로
+        /// 카메라를 배치하여 양쪽 모두 화면에 잘 잡히도록 한다.
+        /// 고저차가 클 때도 Pitch가 극단적으로 변하지 않도록 감쇠 처리한다.
         /// </summary>
         private void UpdateLockOnRotation()
         {
@@ -1170,7 +1418,6 @@ namespace UPlayGround.Manager
             {
                 if (TryFindNextLockOnTarget() == false)
                 {
-                    // 즉시 해제 대신 부드러운 전환 연출 시작
                     StartLockOnTransition();
                     return;
                 }
@@ -1187,7 +1434,6 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            // [TODO] 옵션으로 빼고 싶다
             float lockOnHeightOffset = (lockOnTargetCollider != null) 
                 ? lockOnTargetCollider.height * 0.25f : 1f;
             
@@ -1201,20 +1447,50 @@ namespace UPlayGround.Manager
             // XZ는 즉시 추적, Y만 스무딩 적용
             Vector3 targetLockOnPosition = new Vector3(
                 lockOnTarget.position.x, lockOnTargetSmoothY, lockOnTarget.position.z);
-            Vector3 directionToTarget = (targetLockOnPosition - target.position).normalized;
 
-            // Yaw, Pitch 계산
-            float targetYaw = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
-            float targetPitch = Mathf.Asin(-directionToTarget.y) * Mathf.Rad2Deg;
+            // === Mid-Point Camera ===
+            Vector3 midPoint = Vector3.Lerp(target.position, targetLockOnPosition, _lockOnMidPointWeight);
+            
+            // === 고저차 감쇠 ===
+            // Yaw 계산은 XZ 평면에서만 (고저차 무관)
+            Vector3 dirToMidXZ = new Vector3(
+                midPoint.x - target.position.x, 0f, midPoint.z - target.position.z);
+            
+            float targetYaw;
+            if (dirToMidXZ.sqrMagnitude > 0.001f)
+            {
+                targetYaw = Mathf.Atan2(dirToMidXZ.x, dirToMidXZ.z) * Mathf.Rad2Deg;
+            }
+            else
+            {
+                targetYaw = currentYaw; // 너무 가까우면 현재 Yaw 유지
+            }
 
-            // 거리에 따른 Pitch 제한 (가까울수록 제한)
-            float pitchLimitByDistance = Mathf.Lerp(maxVerticalAngle * 0.5f, maxVerticalAngle, 
-                Mathf.Clamp01((distance - 3f) / 7f)); // 3m 이하에서는 제한, 10m 이상에서는 풀 각도
-            targetPitch = Mathf.Clamp(targetPitch, minVerticalAngle, pitchLimitByDistance);
+            // Pitch 계산: 고저차를 감쇠하여 극단적인 카메라 각도 변화를 방지
+            // heightDiff > 0이면 적이 위에 있음, < 0이면 아래에 있음
+            float heightDiff = midPoint.y - target.position.y;
+            float horizontalDist = dirToMidXZ.magnitude;
+            
+            // 수평 거리 대비 높이차의 비율로 각도 계산 (순수 방향 벡터 대신)
+            float rawPitchAngle = 0f;
+            if (horizontalDist > 0.5f)
+            {
+                // 높이차를 감쇠: 실제 높이차의 일부만 반영
+                float dampedHeight = heightDiff * _lockOnHeightDampFactor;
+                rawPitchAngle = Mathf.Atan2(-dampedHeight, horizontalDist) * Mathf.Rad2Deg;
+            }
+            
+            // Pitch 범위를 락온 전용으로 제한 (일반 Pitch 제한보다 좁게)
+            float targetPitch = Mathf.Clamp(rawPitchAngle, _lockOnPitchMin, _lockOnPitchMax);
+
+            // 거리에 따른 Pitch 추가 제한 (가까울수록 더 제한)
+            float pitchLimitByDistance = Mathf.Lerp(_lockOnPitchMax * 0.5f, _lockOnPitchMax, 
+                Mathf.Clamp01((distance - 3f) / 7f));
+            targetPitch = Mathf.Clamp(targetPitch, _lockOnPitchMin, pitchLimitByDistance);
 
             // 부드럽게 회전
             currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSpeed);
-            currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * rotationSpeed);
+            currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * _lockOnPitchSpeed);
             currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
         }
 

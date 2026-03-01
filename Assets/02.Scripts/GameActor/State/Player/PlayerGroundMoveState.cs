@@ -13,7 +13,11 @@ namespace UPlayGround.State
     public class PlayerGroundMoveState : PlayerActorState
     {
         public override string StateName => "GroundMove";
-
+        
+        
+        private float _runTimer;
+        private float _sprintAutoChangeDealy = 0f;
+        
         private BaseMoveAnimType _cachedAnimType = BaseMoveAnimType.Run;
         
         public PlayerGroundMoveState(ActorMovementController controller) : base(controller)
@@ -29,6 +33,10 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            _runTimer = Time.realtimeSinceStartup;
+
+            _sprintAutoChangeDealy = playerActor.Controller.SprintAutoStartDelay;
+
             _cachedAnimType = gameActor.MoveAnimType;
             gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);            
         }
@@ -41,13 +49,13 @@ namespace UPlayGround.State
                 playerController.TransitionToState(new PlayerAirborneState(controller));
                 return;
             }
-            
+
             if (playerController.HasDodgeInput())
             {
                 playerController.TransitionToState(new PlayerDodgeState(playerController));
                 return;
             }
-            
+
             if (playerController.HasDashInput())
             {
                 if (controller.TryTransitionToState(new PlayerDashState(controller)))
@@ -55,80 +63,80 @@ namespace UPlayGround.State
                     return;
                 }
             }
-            
+
             // 웅크리기 입력이 있으면 Crouching 상태로 전환
             if (playerController.HasCrouchInput())
             {
                 playerController.TransitionToState(new PlayerCrouchingState(controller));
                 return;
             }
-            
+
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 playerController.TransitionToState(new PlayerAirborneState(controller));
                 return;
             }
-            
+
             // 이동 입력이 없으면 Idle 상태로 전환
             if (!playerController.HasMoveInput())
             {
                 playerController.TransitionToState(new PlayerIdleState(controller));
                 return;
             }
-            
+
             if (playerController.HasGuardInput())
             {
                 playerController.TransitionToState(new PlayerGuardState(playerController));
                 return;
             }
-            //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
+
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
-
-
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
                 {
-                    if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
-                    {
-                        playerController.TransitionToState(new PlayerDashAttackState(playerController));
-                    }
-                    else
-                    {
-                        playerController.TransitionToState(new PlayerAttackState(playerController));
-                    }
-
-                    return;
+                    playerController.TransitionToState(new PlayerDashAttackState(playerController));
                 }
-
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                else
                 {
-                    if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
-                    {
-                        playerController.TransitionToState(new PlayerDashAttackState(playerController));
-                    }
-                    else
-                    {
-                        playerController.TransitionToState(new PlayerAttackState(playerController));
-                    }
-
-                    return;
-                }
-                
-                for (int i = 0; i < 4; ++i)
-                {
-                    if (!playerController.HasSkillInput(i)) continue;
-
                     playerController.TransitionToState(new PlayerAttackState(playerController));
-                    return;
                 }
+
+                return;
             }
 
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            {
+                if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
+                {
+                    playerController.TransitionToState(new PlayerDashAttackState(playerController));
+                }
+                else
+                {
+                    playerController.TransitionToState(new PlayerAttackState(playerController));
+                }
+
+                return;
+            }
+
+            for (int i = 0; i < 4; ++i)
+            {
+                if (!playerController.HasSkillInput(i)) continue;
+
+                playerController.TransitionToState(new PlayerAttackState(playerController));
+                return;
+            }
+            
             if (_cachedAnimType != gameActor.MoveAnimType)
             {
                 _cachedAnimType = gameActor.MoveAnimType;
-                gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);         
+                gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
             }
-            
+
+            if (_runTimer + _sprintAutoChangeDealy < Time.realtimeSinceStartup)
+            {
+                gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
+            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

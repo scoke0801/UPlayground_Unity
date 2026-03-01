@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -24,6 +25,9 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             //_attackData = _combat.GetJumpAttack();
+
+            gameActor.MoveAnimType = BaseMoveAnimType.Run;
+            
             _timer = 0f;
             _hasHit = false;
 
@@ -51,8 +55,7 @@ namespace UPlayGround.State
                 controller.TransitionToState(new PlayerIdleState(controller));
             }
         }
-
-
+        
         public override bool CanTransitionState(string stateName)
         {
             if (stateName == "Hit")
@@ -62,6 +65,13 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+            {
+                if (playerController.TryTransitionToState(new PlayerDashState(controller)))
+                {
+                    return;
+                }
+            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

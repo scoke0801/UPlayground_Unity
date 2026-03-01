@@ -33,6 +33,7 @@ namespace UPlayGround
         public event Action<float, float> OnHpChanged;
         
         protected PlayerMovementController PlayerMovementController;
+        
         private Camera _camera;
         private PlayerActorAnimator _playerActorAnimator;
         
@@ -60,7 +61,8 @@ namespace UPlayGround
         };
         
         public override ActorAnimator Animator => _playerActorAnimator;
-
+        public PlayerMovementController Controller => PlayerMovementController;
+        
         public float InteractionRadius => _interactionRadius;
         public LayerMask InteractionLayer => _interactionLayer;
 

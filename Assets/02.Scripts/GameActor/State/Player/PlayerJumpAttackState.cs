@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -14,6 +16,7 @@ namespace UPlayGround.State
         private float _timer;
         private bool _hasHit;
 
+        private bool _isLanded = false;
         public PlayerJumpAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -25,7 +28,8 @@ namespace UPlayGround.State
             //_attackData = _combat.GetJumpAttack();
             _timer = 0f;
             _hasHit = false;
-
+            _isLanded = false;
+            
             var state = gameActor.Animator.PlayMotion(AnimKey.JumpAttack_1, 0.1f);
             if (state != null)
             {
@@ -43,8 +47,7 @@ namespace UPlayGround.State
         {
             controller.TransitionToState(new PlayerIdleState(controller));
         }
-
-
+        
         public override bool CanTransitionState(string stateName)
         {
             if (stateName == "Hit")
@@ -59,6 +62,13 @@ namespace UPlayGround.State
             // 착지 시 또는 모션 종료 시 → 복귀
             if (motor.GroundingStatus.IsStableOnGround)
             {
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+                {
+                    if (playerController.TryTransitionToState(new PlayerDashState(controller)))
+                    {
+                        return;
+                    }
+                }
                 OnLanded();
                 return;
             }
@@ -80,6 +90,7 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
+            _isLanded = true;
             // 착지 시 충격파 히트박스 발동
             // _combat.ExecuteHitbox(_attackData);
 

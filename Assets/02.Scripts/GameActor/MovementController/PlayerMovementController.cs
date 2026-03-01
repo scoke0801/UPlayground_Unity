@@ -64,12 +64,14 @@ namespace UPlayGround.MovementController
         public int MaxJumpCount = 2;           // 최대 점프 횟수 (2 = 2단 점프)
         public float DoubleJumpSpeed = 8f;     // 2단 점프 속도 (1단과 다르게 설정 가능)
 
+        [Header("Move Setting")] 
+        public float SprintAutoStartDelay = 3f;
+        
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
         
         private PlayerCharacterInputs _inputState;
         
-    
         private float _dashCooldownTimer;
     
         public Vector3 LookInputVector => _lookInputVector;

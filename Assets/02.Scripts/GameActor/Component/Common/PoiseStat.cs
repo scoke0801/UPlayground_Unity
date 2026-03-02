@@ -13,7 +13,7 @@ namespace UPlayGround.Component
 
         private float _currentPoise;
         private float _recoveryTimer;
-        private bool  _isBroken;
+        private bool _isBroken = false;
         private bool  _isHyperArmorActive;
         private UI_ActorHpBar _actorUIBar;
         

@@ -17,7 +17,7 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 15
         poiseDamage: 30
         reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
@@ -27,7 +27,6 @@ MonoBehaviour:
         airborneForce: 8
         knockBackForce: 3
         grabDuration: 1.5
-        smashForce: 15
     skillType: 1
     selectionWeight: 100
     minRange: 0

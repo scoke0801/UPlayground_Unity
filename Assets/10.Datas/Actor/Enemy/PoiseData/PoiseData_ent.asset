@@ -15,4 +15,4 @@ MonoBehaviour:
   maxPoise: 250
   recoveryDelay: 3
   recoveryRate: 60
-  hasHyperArmor: 1
+  hasHyperArmor: 0

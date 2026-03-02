@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_Golem
   m_EditorClassIdentifier: 
-  maxHealth: 800
+  maxHealth: 250
   walkSpeed: 1.5
   runSpeed: 3
   chaseSpeedMultiplier: 1

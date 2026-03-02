@@ -231,7 +231,10 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
-            if (attackData != null)
+            // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
+            bool poiseBroken = _poiseStat == null || _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
+
+            if (attackData != null &&  poiseBroken == false)
             {
                 switch (attackData.reactionType)
                 {
@@ -262,9 +265,6 @@ namespace UPlayGround
                         break;
                 }
             }
-
-            // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
-            bool poiseBroken = _poiseStat == null || _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
 
             if (poiseBroken)
             {

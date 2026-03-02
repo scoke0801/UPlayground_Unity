@@ -17,170 +17,160 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 21
         poiseDamage: 30
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 101
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 24
+        poiseDamage: 0
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 102
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 30
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 3
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 24
         poiseDamage: 30
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 27
         poiseDamage: 30
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 39
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 5
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 30
         poiseDamage: 30
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 33
+        poiseDamage: 0
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 108
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 45
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
+        pullForce: 0
+        airborneForce: 0
         knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 85
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 15
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   heavyComboAttackList:
@@ -188,51 +178,48 @@ MonoBehaviour:
       animKey: 200
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 60
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
+        pullForce: 0
+        airborneForce: 0
         knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        grabDuration: 0
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
       animKey: 201
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 65
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
+        pullForce: 0
+        airborneForce: 0
         knockBackForce: 10
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 65
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
+        pullForce: 0
+        airborneForce: 0
         knockBackForce: 10
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   jumpAttackList:
@@ -240,17 +227,16 @@ MonoBehaviour:
       animKey: 400
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 54
         poiseDamage: 30
         reactionType: 4
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
+        pullForce: 0
+        airborneForce: 0
         knockBackForce: 10
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 360
   dashAttackList:
@@ -258,17 +244,16 @@ MonoBehaviour:
       animKey: 300
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 48
         poiseDamage: 30
         reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 5
         grabDuration: 1.5
-        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 60
   skillAttackList:
@@ -276,67 +261,113 @@ MonoBehaviour:
       animKey: 500
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 120
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 501
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 75
+        poiseDamage: 50
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
+      - damage: 90
+        poiseDamage: 60
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 2
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 502
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 30
         poiseDamage: 30
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
+      - damage: 30
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
+      - damage: 30
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
+      - damage: 50
+        poiseDamage: 50
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 0
+      - damage: 75
+        poiseDamage: 65
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 12
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 503
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
-        reactionType: 2
+      - damage: 60
+        poiseDamage: 60
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        grabDuration: 1.5
-        smashForce: 15
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 15
+        grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60

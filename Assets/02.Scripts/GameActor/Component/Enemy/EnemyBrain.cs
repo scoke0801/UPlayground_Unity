@@ -45,8 +45,8 @@ namespace UPlayGround.Component
         private int   _consecutiveDefensiveCount;
 
         private const float SKILL_CHECK_INTERVAL = 0.5f;
-        private const float MIN_ACTION_DELAY     = 0.3f;  // 최소 행동 간 대기
-        private const float MAX_ACTION_DELAY     = 1.2f;  // 최대 행동 간 대기 (페이즈에 따라 줄어듬)
+        private const float MIN_ACTION_DELAY     = 0.5f;  // 최소 행동 간 대기 (0.3 -> 0.5)
+        private const float MAX_ACTION_DELAY     = 1.5f;  // 최대 행동 간 대기 (1.2 -> 1.5)
         private const int   MAX_DEFENSIVE_STREAK = 2;     // 연속 방어 행동 제한
 
         // SO 값 접근
@@ -460,6 +460,15 @@ namespace UPlayGround.Component
 
             _actionCooldownTimer = 0f;
             RollNextActionDelay();
+
+            // 공격 실패 시 (빗나감 또는 퍼펙트 가드 당함) 대기 시간을 대폭 늘려 반격의 기회를 줌
+            if (!attackHit)
+            {
+                _nextActionDelay += Random.Range(0.6f, 1.2f);
+                
+                // 시각적으로 멍하게 만들기 위해 Idle 상태로 즉시 전환
+                _movementController.TransitionToState(new EnemyIdleState(_movementController));
+            }
 
             if (!_detection.HasTarget)
             {

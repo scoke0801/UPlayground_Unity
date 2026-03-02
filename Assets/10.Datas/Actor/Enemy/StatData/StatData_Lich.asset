@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_Lich
   m_EditorClassIdentifier: 
-  maxHealth: 200
+  maxHealth: 600
   walkSpeed: 1.8
   runSpeed: 3.5
   chaseSpeedMultiplier: 1

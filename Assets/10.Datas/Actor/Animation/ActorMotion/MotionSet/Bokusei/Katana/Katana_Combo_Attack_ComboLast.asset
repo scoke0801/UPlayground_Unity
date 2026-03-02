@@ -10,34 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Katana_Combo_Attack_1_2
+  m_Name: Katana_Combo_Attack_ComboLast
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: 7400000, guid: 77fedd3c301a8ce4d9bda07e9b055d81, type: 3}
+      motionClip: {fileID: 7400000, guid: 8eeb798232087094c9d5568dc8b794f5, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7399917007448309863
-      - rid: 7399917007448310084
+      - rid: 5792125035945394309
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7399917007448309863
+    - rid: 5792125035945394309
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.21588165
-        endTime: 0.28894928
+        startTime: 0.34890774
+        endTime: 0.5521844
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
         hitPhaseIndex: 0
-    - rid: 7399917007448310084
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
-      data:
-        startTime: 0.21677926
-        endTime: 0.55743235

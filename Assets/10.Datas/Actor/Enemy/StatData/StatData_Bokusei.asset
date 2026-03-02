@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_Bokusei
   m_EditorClassIdentifier: 
-  maxHealth: 500
+  maxHealth: 2200
   walkSpeed: 2
   runSpeed: 4
   chaseSpeedMultiplier: 1.2

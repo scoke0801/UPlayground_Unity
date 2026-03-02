@@ -164,6 +164,25 @@ namespace UPlayGround.State
             if (isPerfectGuard)
             {
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+
+                // 퍼펙트 가드 성공 시 공격자를 강제로 Hit 상태로 전환 (공격 끊기)
+                if (incomingAttack.attacker != null && incomingAttack.attacker.ActorType == ActorType.Monster)
+                {
+                    var attackerController = incomingAttack.attacker.ActorController;
+                    if (attackerController != null)
+                    {
+                        // 몬스터의 AttackState가 CanTransitionState("Hit")를 거부하더라도 
+                        // TransitionToState를 직접 호출하여 강제로 경직 상태로 진입시킵니다.
+                        attackerController.TransitionToState(new EnemyHitState(attackerController, new AttackData()
+                        {
+                            attacker = playerActor,
+                            reactionType = AttackReactionType.Hit,
+                            attackDirection = -incomingAttack.attackDirection // 공격 반대 방향으로 약간 밀려나도록 설정
+                        }));
+                        
+                        Debug.Log($"[PerfectGuard] {incomingAttack.attacker.name}의 공격을 끊었습니다!");
+                    }
+                }
             }
         }
         

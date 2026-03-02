@@ -22,10 +22,16 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917168494117017
+      - rid: 5792125052971909249
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 5792125052971909249
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6875
+        endTime: 1.1875
     - rid: 7399917168494117017
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

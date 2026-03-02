@@ -49,5 +49,5 @@ MonoBehaviour:
     - rid: 7399917168494117004
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.4614429
-        endTime: 0.69589037
+        startTime: 0.5134494
+        endTime: 1.0420518

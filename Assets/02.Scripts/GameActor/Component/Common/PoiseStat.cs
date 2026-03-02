@@ -20,6 +20,8 @@ namespace UPlayGround.Component
         public bool  IsHyperArmorActive => _isHyperArmorActive;
         public float PoisePercent       => _data != null ? _currentPoise / _data.maxPoise : 1f;
 
+        public bool IsPoiseBroken => _isBroken;
+        
         private void Awake() => InitFromData();
 
         /// <summary> MonsterActor.Init() 등에서 SO를 주입할 때 사용 </summary>

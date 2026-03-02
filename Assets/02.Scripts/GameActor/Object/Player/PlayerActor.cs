@@ -32,7 +32,7 @@ namespace UPlayGround
 
         public event Action<float, float> OnHpChanged;
         
-        protected PlayerMovementController PlayerMovementController;
+        protected PlayerMovementController PlayerMovementPlayerController;
         
         private Camera _camera;
         private PlayerActorAnimator _playerActorAnimator;
@@ -61,7 +61,7 @@ namespace UPlayGround
         };
         
         public override ActorAnimator Animator => _playerActorAnimator;
-        public PlayerMovementController Controller => PlayerMovementController;
+        public PlayerMovementController PlayerController => PlayerMovementPlayerController;
         
         public float InteractionRadius => _interactionRadius;
         public LayerMask InteractionLayer => _interactionLayer;
@@ -86,7 +86,7 @@ namespace UPlayGround
 
             _actorType = ActorType.Player;
             _camera = Camera.main;
-            PlayerMovementController = MovementController as PlayerMovementController;
+            PlayerMovementPlayerController = MovementController as PlayerMovementController;
 
             _playerActorAnimator = _animator as PlayerActorAnimator;
             
@@ -155,7 +155,7 @@ namespace UPlayGround
             };
 
             // 이동 입력과 카메라 회전값을 함께 전달
-            PlayerMovementController.SetInputs(characterInputs);
+            PlayerMovementPlayerController.SetInputs(characterInputs);
             
             // 전달 후 요청 초기화 (한 프레임만 유효)
             // [TODO] 어느정도 입력 버퍼 시간이 필요하다면... 바로 초기화를 하지 않아야한다.
@@ -293,7 +293,7 @@ namespace UPlayGround
         private void OnMoveCanceled()
         {
             _currentMoveInput = Vector2.zero;
-            PlayerMovementController.ClearInputAll();
+            PlayerMovementPlayerController.ClearInputAll();
         }
         
         private void OnInputPerformedJump(InputAction.CallbackContext obj)
@@ -322,8 +322,9 @@ namespace UPlayGround
         }
         
         private void OnInputPerformedSprint(InputAction.CallbackContext obj)
-        {
-            MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
+        {       
+            if(MovementController.CurrentState.StateName == "GroundMove")
+                MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
         }
         
         private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
@@ -376,13 +377,13 @@ namespace UPlayGround
         public void ClearCrouchInput()
         {
             _crouchInputCondition = InputCondition.None;
-            PlayerMovementController.ClearCrouchInput();
+            PlayerMovementPlayerController.ClearCrouchInput();
         }
 
         public void ClearJumpInput()
         {
             _jumpInputCondition = InputCondition.None;
-            PlayerMovementController.ClearJumpInput();
+            PlayerMovementPlayerController.ClearJumpInput();
         }
         
         /// <summary>

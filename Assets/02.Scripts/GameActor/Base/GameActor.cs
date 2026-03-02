@@ -25,6 +25,9 @@ namespace UPlayGround
 
         public ActorType ActorType => _actorType;
         public CharacterActorType CharacterType => _characterActorType;
+
+        public ActorMovementController ActorController => MovementController;
+        
         protected virtual void Awake()
         {
             MovementController = GetComponent<ActorMovementController>();

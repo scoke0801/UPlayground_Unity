@@ -95,7 +95,6 @@ namespace UPlayGround.Data.Event
                 CameraManager.Instance.SetInputLock(true);
         }
 
-        // ─────────────────────────────────────────────
         public override void OnCompleteEvent(GameObject target)
         {
             if (CameraManager.Instance == null) return;
@@ -117,7 +116,6 @@ namespace UPlayGround.Data.Event
             }
         }
 
-        // ─────────────────────────────────────────────
         /// <summary>
         /// 처형 타겟 결정 우선순위
         /// 1순위: PlayerFinishAttackState.FinishTarget (런타임 실전)

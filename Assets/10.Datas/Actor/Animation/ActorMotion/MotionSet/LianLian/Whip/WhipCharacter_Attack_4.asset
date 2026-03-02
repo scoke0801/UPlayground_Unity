@@ -34,3 +34,4 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 192
+        hitPhaseIndex: 0

@@ -146,7 +146,7 @@ namespace UPlayGround
             {
                 AttachHpUI();
             }
-            MovementController.AddVelocity(attackDirection.normalized * 15.0f);
+            MovementController.AddVelocity(attackDirection.normalized * 30.0f);
 
             OnDeath(null);
         }
@@ -299,7 +299,7 @@ namespace UPlayGround
             //_dissolveController.StartDissolve(3f);
             // KCC 캡슐 콜라이더 충돌 비활성화
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
-            MovementController.Motor.enabled = false;
+            //MovementController.Motor.enabled = false;
         }
 
         public void PlayDissolveAndDestroy(float duration)

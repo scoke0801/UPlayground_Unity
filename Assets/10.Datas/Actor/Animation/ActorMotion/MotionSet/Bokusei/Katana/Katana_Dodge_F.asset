@@ -20,8 +20,16 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 5792125049417236645
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5792125049417236645
+      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.13749999
+        endTime: 0.6374999
+        direction: {x: 0, y: 0, z: 1}
+        force: 30

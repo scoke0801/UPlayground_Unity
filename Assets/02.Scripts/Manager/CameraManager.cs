@@ -35,14 +35,14 @@ namespace UPlayGround.Manager
         //Camera Settings
         private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
 
-        private float defaultDistance = 5f; // 기본 거리
-        private float minDistance = 1.5f; // 최소 거리
-        private float maxDistance = 10f; // 최대 거리
+        private float _defaultDistance = 4f; // 기본 거리
+        private float _minDistance = 1.5f; // 최소 거리
+        private float _maxDistance = 10f; // 최대 거리
 
         //Rotation Settings
-        private float rotationSpeed = 20f; // 카메라 회전 속도
-        private float minVerticalAngle = -30f; // 최소 수직 각도
-        private float maxVerticalAngle = 70f; // 최대 수직 각도
+        private float _rotationSpeed = 20f; // 카메라 회전 속도
+        private float _minVerticalAngle = -30f; // 최소 수직 각도
+        private float _maxVerticalAngle = 70f; // 최대 수직 각도
 
         //Zoom Settings
         private float zoomSpeed = 0.5f; // 줌 속도
@@ -59,9 +59,9 @@ namespace UPlayGround.Manager
         
         //LockOn Settings
         private LayerMask lockOnLayerMask; // LockOn 대상 레이어
-        private float lockOnRange = 15f; // LockOn 최대 거리
+        private float lockOnRange = 10f; // LockOn 최대 거리
 
-        private float targetSwitchCooldown = 0.2f; // 전환 쿨다운 (연타 방지)
+        private float targetSwitchCooldown = 0.15f; // 전환 쿨다운 (연타 방지)
 
         // Camera Align
         private float cameraAlignSpeed = 5f; // 보정 속도
@@ -128,8 +128,8 @@ namespace UPlayGround.Manager
         private bool _rotTransitionUnlockOnComplete;   // 전환 완료 시 입력 잠금 자동 해제
 
         // 컨텍스트 기반 카메라 오프셋 (전투/비전투 숄더 전환)
-        private Vector3 _defaultOffset = new Vector3(0f, 1f, 0f);       // 비전투 (센터)
-        private Vector3 _combatOffset = new Vector3(0.5f, 1.2f, 0f);   // 전투 (숄더 뷰)
+        private Vector3 _defaultOffset = new Vector3(0.1f, 1.5f, 0f);       // 비전투 (센터)
+        private Vector3 _combatOffset = new Vector3(0.2f, 1.6f, 0f);   // 전투 (숄더 뷰)
         private Vector3 _offsetVelocity;
         private float _offsetSmoothTime = 0.35f;  // 오프셋 전환 부드러움
         private System.Func<bool> _combatStateProvider;  // 전투 상태 조회 함수
@@ -139,20 +139,20 @@ namespace UPlayGround.Manager
         private float _baseFOV;
 
         // FOV 시스템 (상태별 FOV 전환)
-        private float _fovExplore = 55f;        // 비전투 탐색
-        private float _fovCombat = 65f;         // 전투 진입 (시야 확보)
-        private float _fovLockOn = 50f;         // 락온 (타겟 집중)
+        private float _fovExplore = 60f;        // 비전투 탐색
+        private float _fovCombat = 63f;         // 전투 진입 (시야 확보)
+        private float _fovLockOn = 58f;         // 락온 (타겟 집중)
         private float _currentTargetFOV;        // 목표 FOV
         private float _fovVelocity;             // SmoothDamp 속도
         private float _fovSmoothTime = 0.25f;   // FOV 전환 부드러움
 
         // 전투 상태 Pitch 보정
-        private float _explorePitch = 20f;       // 비전투 기본 Pitch (약간 내려다봄)
-        private float _combatPitch = 12f;        // 전투 기본 Pitch (수평에 가깝게)
+        private float _explorePitch = 18f;       // 비전투 기본 Pitch (약간 내려다봄)
+        private float _combatPitch = 15f;        // 전투 기본 Pitch (수평에 가깝게)
 
         // 락온 시 카메라 거리/오프셋
-        private float _lockOnDistance = 4.5f;    // 락온 시 카메라 거리
-        private Vector3 _lockOnOffset = new Vector3(0.6f, 1.0f, 0f); // 락온 숄더 오프셋
+        private float _lockOnDistance = 3.8f;    // 락온 시 카메라 거리
+        private Vector3 _lockOnOffset = new Vector3(0.85f, 1.15f, 0f); // 락온 숄더 오프셋
 
         // 다수 적 자동 줌아웃
         private float _crowdZoomOutDistance = 7f;     // 다수 적 감지 시 줌아웃 거리
@@ -169,8 +169,8 @@ namespace UPlayGround.Manager
         
         // 락온 고저차 감쇠
         private float _lockOnHeightDampFactor = 0.4f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
-        private float _lockOnPitchMin = -15f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
-        private float _lockOnPitchMax = 25f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
+        private float _lockOnPitchMin = -10f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
+        private float _lockOnPitchMax = 18f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
         private float _lockOnPitchSpeed = 8f;          // 락온 Pitch 전환 속도 (Yaw보다 느리게)
 
         #region IManager 구현
@@ -294,10 +294,10 @@ namespace UPlayGround.Manager
             // 이펙트 델타 적용
             currentYaw += fx.yawDelta;
             currentPitch += fx.pitchDelta;
-            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+            currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
 
             targetDistance += fx.distanceDelta;
-            targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
+            targetDistance = Mathf.Clamp(targetDistance, _minDistance, _maxDistance);
 
             cameraOffset += fx.offsetDelta;
 
@@ -356,11 +356,11 @@ namespace UPlayGround.Manager
                 {
                     Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
-                    currentYaw += lookInput.x * rotationSpeed * 0.01f;
-                    currentPitch -= lookInput.y * rotationSpeed * 0.01f;
+                    currentYaw += lookInput.x * _rotationSpeed * 0.01f;
+                    currentPitch -= lookInput.y * _rotationSpeed * 0.01f;
 
                     // 상하 각도 제한
-                    currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+                    currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
                 }
             }
 
@@ -373,7 +373,7 @@ namespace UPlayGround.Manager
                 if (Mathf.Abs(scrollInput) > 0.01f)
                 {
                     targetDistance -= scrollInput * zoomSpeed;
-                    targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
+                    targetDistance = Mathf.Clamp(targetDistance, _minDistance, _maxDistance);
                 }
             }
         }
@@ -387,23 +387,26 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateCameraPosition(float smoothTime)
         {
-            // 타겟 위치 + 오프셋으로 피벗 이동
-            Vector3 targetPivotPosition = target.position + cameraOffset;
-            smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition, ref positionVelocity,
-                smoothTime);
+            Vector3 pivotBasePosition = target.position;
+
+            // 락온 시: 숄더 오프셋 적용 (플레이어를 화면 우측으로 밀기)
+            Vector3 activeOffset = (isLockOnActive && lockOnTarget != null)
+                ? _lockOnOffset      // (0.85f, 1.15f, 0f) — 우측 숄더
+                : cameraOffset;      // 기본 오프셋
+
+            Vector3 targetPivotPosition = pivotBasePosition + activeOffset;
+
+            smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition,
+                ref positionVelocity, smoothTime);
             cameraPivot.position = smoothPosition;
 
-            // 거리 부드럽게 조정
-            currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance, ref distanceVelocity, zoomSmoothTime);
+            currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance,
+                ref distanceVelocity, zoomSmoothTime);
 
-            // 회전을 적용한 카메라 위치 계산
             Quaternion rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
             Vector3 desiredPosition = cameraPivot.position + rotation * new Vector3(0f, 0f, -currentDistance);
 
-            // 충돌 감지
             desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
-
-            // 카메라 위치 적용
             mainCamera.transform.position = desiredPosition;
         }
 
@@ -489,7 +492,7 @@ namespace UPlayGround.Manager
             {
                 _isCrowdZoomActive = false;
                 _crowdTargetDistance = Mathf.SmoothDamp(
-                    _crowdTargetDistance, defaultDistance, ref _crowdZoomVelocity, _crowdZoomSmoothTime);
+                    _crowdTargetDistance, _defaultDistance, ref _crowdZoomVelocity, _crowdZoomSmoothTime);
             }
         }
 
@@ -519,7 +522,7 @@ namespace UPlayGround.Manager
                 return; // 유저 줌을 존중
             }
 
-            targetDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
+            targetDistance = Mathf.Clamp(desiredDistance, _minDistance, _maxDistance);
         }
 
         /// <summary>
@@ -590,7 +593,7 @@ namespace UPlayGround.Manager
 
             currentYaw   = Mathf.LerpAngle(_rotTransitionStartYaw,   _rotTransitionTargetYaw,   smoothT);
             currentPitch = Mathf.Lerp     (_rotTransitionStartPitch, _rotTransitionTargetPitch, smoothT);
-            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+            currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
 
             if (t >= 1f)
             {
@@ -638,7 +641,7 @@ namespace UPlayGround.Manager
             if (closestDistance < distance)
             {
                 // 충돌 지점에서 안전 거리만큼 뒤로 당김 (origin 방향 유지)
-                float safeDistance = Mathf.Max(closestDistance - safetyMargin, minDistance);
+                float safeDistance = Mathf.Max(closestDistance - safetyMargin, _minDistance);
                 return origin + direction.normalized * safeDistance;
             }
 
@@ -685,7 +688,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public void SetDistance(float distance)
         {
-            targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+            targetDistance = Mathf.Clamp(distance, _minDistance, _maxDistance);
         }
 
         /// <summary>
@@ -696,7 +699,7 @@ namespace UPlayGround.Manager
         {
             _rotTransitionActive = false;   // 진행 중 전환 취소
             currentYaw   = yaw;
-            currentPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+            currentPitch = Mathf.Clamp(pitch, _minVerticalAngle, _maxVerticalAngle);
         }
 
         /// <summary>
@@ -717,7 +720,7 @@ namespace UPlayGround.Manager
             _rotTransitionStartYaw   = currentYaw;
             _rotTransitionStartPitch = currentPitch;
             _rotTransitionTargetYaw   = yaw;
-            _rotTransitionTargetPitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+            _rotTransitionTargetPitch = Mathf.Clamp(pitch, _minVerticalAngle, _maxVerticalAngle);
             _rotTransitionElapsed     = 0f;
             _rotTransitionDuration    = duration;
             _rotTransitionActive      = true;
@@ -1065,8 +1068,8 @@ namespace UPlayGround.Manager
             cameraPivot.SetParent(transform);
 
             // 초기값 설정
-            currentDistance = defaultDistance;
-            targetDistance = defaultDistance;
+            currentDistance = _defaultDistance;
+            targetDistance = _defaultDistance;
             currentYaw = 0f;
             currentPitch = _explorePitch;
 
@@ -1105,7 +1108,7 @@ namespace UPlayGround.Manager
             _currentTargetFOV = _fovExplore;
             mainCamera.fieldOfView = _fovExplore;
             _baseFOV = _fovExplore;
-            _crowdTargetDistance = defaultDistance;
+            _crowdTargetDistance = _defaultDistance;
         }
 
         private void OnInputPerformedLockOn(InputAction.CallbackContext obj)
@@ -1276,7 +1279,7 @@ namespace UPlayGround.Manager
             currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * cameraAlignSpeed);
     
             // Pitch 각도 제한
-            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+            currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
         }
 
         /// <summary>
@@ -1334,7 +1337,7 @@ namespace UPlayGround.Manager
             _isLockOnTransitioning = false;
             
             // 락온 해제 시 거리를 기본으로 복원
-            targetDistance = defaultDistance;
+            targetDistance = _defaultDistance;
         }
 
         /// <summary>
@@ -1488,9 +1491,9 @@ namespace UPlayGround.Manager
             targetPitch = Mathf.Clamp(targetPitch, _lockOnPitchMin, pitchLimitByDistance);
 
             // 부드럽게 회전
-            currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * rotationSpeed);
+            currentYaw = Mathf.LerpAngle(currentYaw, targetYaw, Time.deltaTime * _rotationSpeed);
             currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * _lockOnPitchSpeed);
-            currentPitch = Mathf.Clamp(currentPitch, minVerticalAngle, maxVerticalAngle);
+            currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
         }
 
         /// <summary>

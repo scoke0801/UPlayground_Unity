@@ -42,7 +42,11 @@ namespace UPlayGround.State
 
             var animState = gameActor.Animator.PlayMotion(AnimKey.Dash, 0.1f);
             if (animState != null)
-                animState.OwnedEvents.OnEnd = OnAnimationEnd;
+            {
+                gameActor.Animator.OnMotionSetCompleted += OnAnimationEnd;
+
+                //animState.OwnedEvents.OnEnd = OnAnimationEnd;
+            }
             else
                 FinishDash();
         }
@@ -51,6 +55,7 @@ namespace UPlayGround.State
         {
             RestoreAndResolvePenetration();
             
+            gameActor.Animator.OnMotionSetCompleted -= OnAnimationEnd;
             playerController.StartDashCooldown();
             
             base.OnExit(toState);

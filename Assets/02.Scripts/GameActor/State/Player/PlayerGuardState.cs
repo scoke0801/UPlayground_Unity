@@ -18,7 +18,7 @@ namespace UPlayGround.State
         public override string StateName => "Guard";
         private PlayerCombat _combat;
         private float _guardStartTime;
-        private const float PERFECT_GUARD_WINDOW = 2.3f; // Just Guard 타이밍 (초)
+        private const float PERFECT_GUARD_WINDOW = 0.8f; // Just Guard 타이밍 (초)
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
         {

@@ -35,7 +35,7 @@ namespace UPlayGround.State
 
             _runTimer = Time.realtimeSinceStartup;
 
-            _sprintAutoChangeDealy = playerActor.Controller.SprintAutoStartDelay;
+            _sprintAutoChangeDealy = playerActor.PlayerController.SprintAutoStartDelay;
 
             _cachedAnimType = gameActor.MoveAnimType;
             gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);            

@@ -22,6 +22,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5792125029927616658
+      - rid: 5792125049417236646
     globalEvents: []
   references:
     version: 2
@@ -34,3 +35,11 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
+        hitPhaseIndex: 0
+    - rid: 5792125049417236646
+      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.18750001
+        endTime: 0.6875
+        direction: {x: 0, y: 1, z: 0}
+        force: 16

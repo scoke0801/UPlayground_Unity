@@ -38,7 +38,8 @@ namespace UPlayGround.State
             var animState = gameActor.Animator.PlayMotion(AnimKey.Dodge, 0.25f);
             if (animState != null)
             {
-                animState.OwnedEvents.OnEnd = ChangeToNextState;
+                gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
+                //animState.OwnedEvents.OnEnd = ChangeToNextState;
             }
         }
 
@@ -48,6 +49,8 @@ namespace UPlayGround.State
             
             gameActor.Animator.ApplyRootMotion(false);
             
+            gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
+
             base.OnExit(toState);
         }
         

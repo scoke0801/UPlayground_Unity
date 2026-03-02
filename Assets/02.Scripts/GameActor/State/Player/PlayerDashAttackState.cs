@@ -13,9 +13,7 @@ namespace UPlayGround.State
         public override string StateName => "JumpAttack";
 
         private AttackData _attackData;
-        private float _timer;
-        private bool _hasHit;
-
+        
         public PlayerDashAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -27,9 +25,8 @@ namespace UPlayGround.State
             //_attackData = _combat.GetJumpAttack();
 
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
-            
-            _timer = 0f;
-            _hasHit = false;
+
+            playerActor.GetCombat()?.ExecuteDashAttack();
 
             var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);
             if (state != null)

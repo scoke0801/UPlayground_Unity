@@ -72,6 +72,7 @@ namespace UPlayGround.State
             
             if (_guardTimer >= _guardDuration)
             {
+                // 가드 종료 → Brain 판단에 위임 (Idle로 가면 Brain이 즉시 결정)
                 controller.TransitionToState(new EnemyIdleState(controller));
             }
         }

@@ -87,7 +87,7 @@ namespace UPlayGround.State
                     _cancelWindow = float.MaxValue;
                     _heavyHit     = true;
                     if (_attackData != null)
-                        controller.AddVelocity(_attackData.attackDirection.normalized * 12f);
+                        controller.AddVelocity(_attackData.attackDirection.normalized * _attackData.knockbackForce);
                     break;
 
                 case AttackReactionType.Pull:
@@ -109,7 +109,8 @@ namespace UPlayGround.State
                     {
                         Vector3 launchDir = _attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        controller.AddVelocity(launchDir * 5f + Vector3.up * _attackData.airborneForce);
+                        controller.AddVelocity(launchDir * _attackData.knockbackForce 
+                                               + Vector3.up * _attackData.airborneForce);
                     }
                     break;
 
@@ -119,6 +120,12 @@ namespace UPlayGround.State
                     break;
 
                 case AttackReactionType.Stun:
+                    _cancelWindow = float.MaxValue;
+                    _heavyHit     = true;
+                    break;
+
+                // Grab과 LaunchSmash는 전용 State로 처리되므로 여기 오지 않지만 안전장치
+                case AttackReactionType.Grab:
                     _cancelWindow = float.MaxValue;
                     _heavyHit     = true;
                     break;

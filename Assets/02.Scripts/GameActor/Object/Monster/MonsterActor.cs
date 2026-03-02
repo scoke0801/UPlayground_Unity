@@ -252,10 +252,14 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddVelocity(launchDir * 5f + Vector3.up * attackData.airborneForce);
+                        MovementController.AddVelocity(launchDir * attackData.knockbackForce 
+                                                       + Vector3.up * attackData.airborneForce);
                         MovementController.Motor.ForceUnground();
                         break;
                     }
+
+                    case AttackReactionType.Grab:
+                        break;
                 }
             }
 
@@ -264,9 +268,10 @@ namespace UPlayGround
 
             if (poiseBroken)
             {
-                // Airborne은 공중 상태로 직행
                 if (attackData?.reactionType == AttackReactionType.Airborne)
                     MovementController.TransitionToState(new EnemyAirborneState(MovementController));
+                else if (attackData?.reactionType == AttackReactionType.Grab)
+                    MovementController.TransitionToState(new EnemyGrabbedState(MovementController, attackData));
                 else
                     MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
             }

@@ -80,12 +80,13 @@ namespace UPlayGround.State
             return _attackData.reactionType switch
             {
                 AttackReactionType.KnockBack  => AnimKey.Knockback,
-                AttackReactionType.Pull       => AnimKey.Hit_F,   // 앞으로 끌려오므로 Hit_F
-                AttackReactionType.Airborne   => AnimKey.Hit_F,   // 공중 전환 전 짧은 경직
+                AttackReactionType.Pull       => AnimKey.Hit_F,
+                AttackReactionType.Airborne   => AnimKey.Hit_F,
                 AttackReactionType.Knockdown  => gameActor.Animator.HasMotion(AnimKey.Knockback, true)
                                                     ? AnimKey.Knockback
                                                     : AnimKey.Hit_F,
-                AttackReactionType.Heavy      => AnimKey.Hit_B,
+                AttackReactionType.Grab       => AnimKey.Hit_F,        // 전용 State로 가지만 안전장치
+                AttackReactionType.Heavy      => AnimKey.Hit_F,
                 _                             => AnimKey.Hit_F,
             };
         }

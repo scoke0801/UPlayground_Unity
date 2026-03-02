@@ -13,7 +13,7 @@ namespace UPlayGround.Animation.Editor
     /// </summary>
     public class MotionSetDrawer
     {
-        // ── 색상 팔레트 ──
+        // 색상 팔레트
         static readonly Color COL_BG = new Color(0.18f, 0.18f, 0.18f);
         static readonly Color COL_TRACK_BG = new Color(0.22f, 0.22f, 0.22f);
         static readonly Color COL_RULER = new Color(0.15f, 0.15f, 0.15f);
@@ -40,7 +40,7 @@ namespace UPlayGround.Animation.Editor
         static readonly Color COL_RANGE_BORDER = new Color(0.3f, 1f, 0.3f, 0.5f); // ④ 재생 구간 경계선
         static readonly Color COL_CLIP_HANDLE = new Color(1f, 0.85f, 0.2f, 0.9f); // ⑥ 클립 핸들 색상
 
-        // ── 레이아웃 상수 ──
+        // 레이아웃 상수
         const float LABEL_WIDTH = 140f;
         const float RULER_HEIGHT = 24f;
         const float TRACK_HEIGHT = 28f;
@@ -51,22 +51,22 @@ namespace UPlayGround.Animation.Editor
         const float BASE_PPS = 80f;
         const float CLIP_HANDLE_W = 6f; // ⑥ 클립 핸들 너비
 
-        // ── 상태 ──
+        // 상태
         public float cursorTime;
         public float scrollX;
         public float zoom = 1f;
         public bool isDraggingCursor;
         public int selectedMotionIndex = -1;
 
-        // ① fps 표시 관련
+        // fps 표시 관련
         public bool showFrames = false; // true = 프레임 단위, false = 초 단위
         public int fps = 30; // 기준 fps
 
-        // ④ 재생 구간 오버레이용 (Window에서 설정)
+        // 재생 구간 오버레이용 (Window에서 설정)
         public float playRangeStart = 0f;
         public float playRangeEnd = -1f; // -1 = 전체
 
-        // ⑦ 이벤트 선택 연동
+        // 이벤트 선택 연동
         public int selectedEventMotionIndex = -1;
         public int selectedEventIndex = -1;
         public bool selectedEventIsSetEvent = false;
@@ -81,13 +81,12 @@ namespace UPlayGround.Animation.Editor
         float _dragStartOffset;
         float _dragBodyStartTime;
 
-        // ⑥ 클립 핸들 드래그 상태
+        // 클립 핸들 드래그 상태
         int _clipHandleMotionIndex = -1;
         bool _clipHandleDraggingStart = false;
         bool _clipHandleDraggingEnd = false;
-        float _clipHandleDragOffset = 0f; // 핸들 기준 마우스 오프셋
 
-        // ⑧ 이벤트 복사 버퍼
+        // 이벤트 복사 버퍼
         MotionEventBase _copiedEvent = null;
 
         // 접힘 상태
@@ -1061,7 +1060,6 @@ namespace UPlayGround.Animation.Editor
                     _clipHandleMotionIndex  = idx;
                     _clipHandleDraggingStart = true;
                     _clipHandleDraggingEnd   = false;
-                    _clipHandleDragOffset   = 0f;
                     RecordUndo("Drag Clip Start");
                     e.Use();
                 }
@@ -1070,7 +1068,6 @@ namespace UPlayGround.Animation.Editor
                     _clipHandleMotionIndex  = idx;
                     _clipHandleDraggingStart = false;
                     _clipHandleDraggingEnd   = true;
-                    _clipHandleDragOffset   = 0f;
                     RecordUndo("Drag Clip End");
                     e.Use();
                 }

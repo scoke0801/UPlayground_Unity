@@ -25,6 +25,9 @@ MonoBehaviour:
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 3
+        grabDuration: 1.5
+        smashForce: 15
     skillType: 1
     selectionWeight: 100
     minRange: 0

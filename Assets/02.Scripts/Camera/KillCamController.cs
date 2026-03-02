@@ -25,7 +25,6 @@ namespace UPlayGround
         private readonly KillCamData _data;
 
         private Coroutine _activeSequence;
-        private float _lastTriggerTime = -999f;
 
         // 연출 중 외부에서 체크용
         public bool IsPlaying => _activeSequence != null;

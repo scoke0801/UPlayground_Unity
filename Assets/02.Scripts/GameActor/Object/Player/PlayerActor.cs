@@ -475,6 +475,9 @@ namespace UPlayGround
             //     return false;
             if (MovementController.CurrentState.StateName == "Dodge")
                 return false;
+            if (MovementController.CurrentState.StateName == "Dash")
+                return false;
+            
             return IsAlive() && !_isInvincible;
         }
 
@@ -535,16 +538,22 @@ namespace UPlayGround
                         MovementController.Motor.ForceUnground();
                         break;
                     }
+
+                    case AttackReactionType.Grab:
+                        // Grab은 속도 적용 없이 State에서 행동 제한만 처리
+                        break;
                 }
             }
 
             string stateName = MovementController.CurrentState.StateName;
-            if (stateName != "Hit")
+            if (stateName != "Hit" && stateName != "Grabbed")
             {
                 if (MovementController.CurrentState.CanTransitionState("Hit"))
                 {
                     if (attackData?.reactionType == AttackReactionType.Airborne)
                         MovementController.TransitionToState(new PlayerAirborneState(MovementController));
+                    else if (attackData?.reactionType == AttackReactionType.Grab)
+                        MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
                     else
                         MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }

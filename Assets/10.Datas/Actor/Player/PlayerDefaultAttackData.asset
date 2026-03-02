@@ -25,6 +25,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -39,6 +42,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -53,6 +59,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -67,6 +76,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -81,6 +93,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -95,6 +110,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -109,6 +127,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -123,6 +144,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -137,6 +161,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -151,6 +178,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   heavyComboAttackList:
@@ -166,6 +196,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
@@ -180,6 +213,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 60
   - baseInfo:
@@ -194,6 +230,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   jumpAttackList:
@@ -203,14 +242,17 @@ MonoBehaviour:
       hitPhases:
       - damage: 10
         poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 0
-    hitAngle: 60
+    hitAngle: 360
   dashAttackList:
   - baseInfo:
       animKey: 300
@@ -218,12 +260,15 @@ MonoBehaviour:
       hitPhases:
       - damage: 10
         poiseDamage: 30
-        reactionType: 2
+        reactionType: 4
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 0
     hitAngle: 60
   skillAttackList:
@@ -239,6 +284,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -253,6 +301,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -267,6 +318,9 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
@@ -281,5 +335,8 @@ MonoBehaviour:
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+        smashForce: 15
     canBeInterrupted: 1
     hitAngle: 60

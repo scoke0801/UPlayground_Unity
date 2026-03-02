@@ -165,7 +165,6 @@ namespace UPlayGround.Manager
 
         // 락온 중점 피벗 (Mid-Point Camera)
         private float _lockOnMidPointWeight = 0.35f;  // 중점 가중치 (0=플레이어, 1=적, 0.35=적 쪽으로 35%)
-        private float _lockOnPivotSmoothTime = 0.15f; // 피벗 전환 부드러움
         private Vector3 _lockOnPivotVelocity;
         
         // 락온 고저차 감쇠

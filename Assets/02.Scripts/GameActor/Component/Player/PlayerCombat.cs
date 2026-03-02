@@ -208,6 +208,9 @@ namespace UPlayGround.Component
             return _currentAttackData ;
         }
         
+        /// <summary>
+        /// 스킬 공격 실행
+        /// </summary>
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             if (_attackData.skillAttackList.Count <= skillIndex)
@@ -223,9 +226,50 @@ namespace UPlayGround.Component
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             
-            return _currentAttackData ;
+            return _currentAttackData;
+        }
+
+        /// <summary>
+        /// 점프 공격 실행
+        /// </summary>
+        public AttackData ExecuteJumpAttack()
+        {
+            if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0)
+            {
+                return null;
+            }
+            
+            var attackData = _attackData.jumpAttackList[0];
+            _currentAttackData = ConvertToAttackData(attackData);
+            
+            ResetCombo();
+            LastAttackTime = Time.time;
+            
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+
+            return _currentAttackData;
         }
         
+        public AttackData ExecuteDashAttack()
+        {
+            if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0)
+            {
+                return null;
+            }
+            
+            var attackData = _attackData.dashAttackList[0];
+            _currentAttackData = ConvertToAttackData(attackData);
+            
+            ResetCombo();
+            LastAttackTime = Time.time;
+            
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+
+            return _currentAttackData;
+        }
+
         /// <summary>
         /// PlayerAttackInfo를 AttackData로 변환.
         /// Phase[0] 데이터를 초기값으로 세팅하고, 런타임에 SetHitPhaseIndex()로 갱신된다.

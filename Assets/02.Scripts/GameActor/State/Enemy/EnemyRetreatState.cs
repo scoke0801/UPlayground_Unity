@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.MovementController;
+using Random = UnityEngine.Random;
 
 namespace UPlayGround.State
 {
@@ -77,9 +78,25 @@ namespace UPlayGround.State
 
             if (reachedDistance || timedOut)
             {
-                // 후퇴 완료 → 대상 주변 원형 배회로 전환
-                controller.TransitionToState(
-                    new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration));
+                // 후퇴 완료 → Brain이 다음 행동 결정 (항상 Circle이 아님)
+                float roll = Random.value;
+                if (roll < 0.4f)
+                {
+                    // 후퇴 후 바로 Chase로 돌아가 압박 (닌자 가이덴 스타일)
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _brain, _detection));
+                }
+                else if (roll < 0.7f)
+                {
+                    // 짧은 Circle
+                    controller.TransitionToState(
+                        new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration * Random.Range(0.3f, 0.6f)));
+                }
+                else
+                {
+                    // 대기 후 Brain의 다음 판단에 맡김
+                    controller.TransitionToState(new EnemyIdleState(controller));
+                }
             }
         }
 

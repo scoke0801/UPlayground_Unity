@@ -84,6 +84,9 @@ namespace UPlayGround.Data.EnumType
         Knockdown,          // 넘어뜨리기
         Knockdown_Getup,    // 넘어진 후 일어서기
         
+        Grabbed = 920,      // 잡힘 — 행동 불능 루프
+        Grabbed_End,        // 잡힘 해제 (탈출 또는 시간 만료)
+        
         HandGathering = 1000,
         
         Woodcutting = 1500,

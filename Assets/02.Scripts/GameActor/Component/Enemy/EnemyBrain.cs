@@ -8,8 +8,9 @@ using Random = UnityEngine.Random;
 namespace UPlayGround.Component
 {
     /// <summary>
-    /// 적 행동 결정자.
-    /// 수치 설정은 EnemyBehaviorSO로 분리. Init()으로 주입받거나 Inspector에서 직접 할당 가능.
+    /// 적 행동 결정자
+    /// 플레이어 상태를 관찰하여 반응형으로 행동을 결정한다.
+    /// 공격적 접근 + 불확실한 전환 + 빠른 리듬이 핵심.
     /// </summary>
     public class EnemyBrain : MonoBehaviour
     {
@@ -25,34 +26,45 @@ namespace UPlayGround.Component
         [Header("Decision Interval")]
         [SerializeField] private float _decisionInterval = 0.1f;
 
-        // ── 런타임 ──────────────────────────────
         private float         _decisionTimer;
         private float         _lastAttackTime;
         private float         _lastSkillCheckTime;
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
         private bool          _hasGuardMotion;
-        private BehaviorPhase _currentPhase;   // null = SO 기본값
+        private BehaviorPhase _currentPhase;
+
+        // 전투 리듬 제어
+        /// <summary> 다음 공격까지 기다리는 '의도적 지연 시간'. 매번 랜덤으로 변한다. </summary>
+        private float _nextActionDelay;
+        /// <summary> 현재 전투 행동 후 경과 타이머 </summary>
+        private float _actionCooldownTimer;
+        /// <summary> Circle 도중 갑자기 공격으로 전환할 랜덤 타이밍 </summary>
+        private float _circleInterruptTime;
+        /// <summary> 연속 후퇴 방지 카운터 </summary>
+        private int   _consecutiveDefensiveCount;
 
         private const float SKILL_CHECK_INTERVAL = 0.5f;
+        private const float MIN_ACTION_DELAY     = 0.3f;  // 최소 행동 간 대기
+        private const float MAX_ACTION_DELAY     = 1.2f;  // 최대 행동 간 대기 (페이즈에 따라 줄어듬)
+        private const int   MAX_DEFENSIVE_STREAK = 2;     // 연속 방어 행동 제한
 
-        // ── SO 값 접근 (null 안전) ───────────────
-        private EnemyBehaviorSO D => _behaviorData;
+        // SO 값 접근
+        private EnemyBehaviorSO data => _behaviorData;
 
-        public float PatrolRadius    => D?.patrolRadius    ?? 5f;
-        public float PatrolWaitTime  => D?.patrolWaitTime  ?? 2f;
+        public float PatrolRadius    => data?.patrolRadius    ?? 5f;
+        public float PatrolWaitTime  => data?.patrolWaitTime  ?? 2f;
         public Vector3 SpawnPosition => _spawnPosition;
-        public bool EnablePatrol     => D?.enablePatrol    ?? true;
-        public float GuardDuration   => D?.guardDuration   ?? 1.5f;
-        public float RetreatDistance => D?.retreatDistance ?? 3f;
-        public float CircleDuration  => D?.circleDuration  ?? 2.5f;
+        public bool EnablePatrol     => data?.enablePatrol    ?? true;
+        public float GuardDuration   => data?.guardDuration   ?? 1.5f;
+        public float RetreatDistance => data?.retreatDistance  ?? 3f;
+        public float CircleDuration  => data?.circleDuration  ?? 2.5f;
         public bool HasGuardMotion   => _hasGuardMotion;
 
-        // 페이즈 오버라이드 우선, 없으면 SO 기본값
-        public float ContinueAttackChance => _currentPhase?.continueAttackChance ?? D?.continueAttackChance ?? 0.3f;
-        public float GuardChance          => _currentPhase?.guardChance          ?? D?.guardChance          ?? 0.25f;
-        public float RetreatChance        => _currentPhase?.retreatChance        ?? D?.retreatChance        ?? 0.2f;
-        public float ChaseSpeedMultiplier => _currentPhase?.chaseSpeedMultiplier ?? D?.chaseSpeedMultiplier ?? 1.2f;
+        public float ContinueAttackChance => _currentPhase?.continueAttackChance ?? data?.continueAttackChance ?? 0.3f;
+        public float GuardChance          => _currentPhase?.guardChance          ?? data?.guardChance          ?? 0.25f;
+        public float RetreatChance        => _currentPhase?.retreatChance        ?? data?.retreatChance        ?? 0.2f;
+        public float ChaseSpeedMultiplier => _currentPhase?.chaseSpeedMultiplier ?? data?.chaseSpeedMultiplier ?? 1.2f;
 
         private float ChargeChance          => _currentPhase?.chargeChance          ?? 0f;
         private float FlankChance           => _currentPhase?.flankChance           ?? 0f;
@@ -60,13 +72,29 @@ namespace UPlayGround.Component
         private bool  AllowFlank            => _currentPhase?.allowFlank            ?? false;
         private int   MaxConsecutiveAttacks => _currentPhase?.maxConsecutiveAttacks ?? 3;
 
-        private float OptimalCombatDistance => D?.optimalCombatDistance ?? 2.5f;
-        private float MinCombatDistance     => D?.minCombatDistance     ?? 1.5f;
-        private bool  MaintainDistance      => D?.maintainDistance      ?? true;
+        private float OptimalCombatDistance => data?.optimalCombatDistance ?? 2.5f;
+        private float MinCombatDistance     => data?.minCombatDistance     ?? 1.5f;
+        private bool  MaintainDistance      => data?.maintainDistance      ?? true;
 
-        // ── 초기화 ──────────────────────────────
+        // 공격 타이밍의 긴장감을 위한 가변 계수
+        /// <summary> 페이즈가 진행될수록 행동이 빨라지는 비율 (0~1, 낮을수록 빠름) </summary>
+        private float AggressionFactor
+        {
+            get
+            {
+                // 기본 0.7, 페이즈가 낮을수록 (HP가 낮을수록) 더 공격적
+                float baseAggression = 0.7f;
+                if (_currentPhase != null)
+                {
+                    // Charge/Flank 허용 페이즈는 더 공격적
+                    if (_currentPhase.allowCharge || _currentPhase.allowFlank)
+                        baseAggression = 0.4f;
+                }
+                return baseAggression;
+            }
+        }
 
-        /// <summary> MonsterActor.Init()에서 SO를 주입할 때 사용 </summary>
+        #region Mono & Init
         public void Init(EnemyBehaviorSO data)
         {
             _behaviorData = data;
@@ -83,13 +111,11 @@ namespace UPlayGround.Component
 
         private void Start()
         {
-            // AttackData는 MonsterActor.Init 이후 세팅되므로 Start에서 읽음
             if (_combat?.AttackData != null)
             {
                 _maxAttackRange = _combat.AttackData.GetMaxAttackRange();
-                // optimalCombatDistance가 maxRange보다 크면 조정
-                if (D != null && D.optimalCombatDistance > _maxAttackRange)
-                    D.optimalCombatDistance = _maxAttackRange * 0.8f;
+                if (data != null && data.optimalCombatDistance > _maxAttackRange)
+                    data.optimalCombatDistance = _maxAttackRange * 0.8f;
             }
             else
             {
@@ -100,26 +126,34 @@ namespace UPlayGround.Component
 
             var actor = GetComponent<GameActor>();
             _hasGuardMotion = actor?.Animator?.HasMotion(AnimKey.Guard) ?? false;
+
+            RollNextActionDelay();
         }
 
         private void Update()
         {
             _decisionTimer += Time.deltaTime;
+            _actionCooldownTimer += Time.deltaTime;
+
             if (_decisionTimer >= _decisionInterval)
             {
                 _decisionTimer = 0f;
                 MakeDecision();
             }
+
+            // 플레이어 타겟 추적 연동
+            if (_detection.HasTarget && _memory != null)
+                _memory.SetPlayerTarget(_detection.CurrentTarget);
         }
 
-        // ── 페이즈 ──────────────────────────────
+        #endregion
 
-        /// <summary> MonsterActor.TakeDamage에서 HP가 바뀔 때마다 호출 </summary>
+        #region 페이즈
         public void UpdatePhase(float hpPercent)
         {
-            if (D?.phases == null || D.phases.Length == 0) return;
+            if (data?.phases == null || data.phases.Length == 0) return;
 
-            foreach (var phase in D.phases)
+            foreach (var phase in data.phases)
             {
                 if (hpPercent <= phase.hpThreshold)
                 {
@@ -135,9 +169,13 @@ namespace UPlayGround.Component
         {
             Debug.Log($"[EnemyBrain] {gameObject.name} 페이즈 전환 → {phase.phaseName}");
             _memory?.ResetAttackCount();
+            _consecutiveDefensiveCount = 0;
+            RollNextActionDelay(); // 페이즈 전환 시 즉시 행동 템포 리셋
         }
 
-        // ── 의사 결정 ───────────────────────────
+        #endregion
+
+        #region 의사 결정
 
         private void MakeDecision()
         {
@@ -145,10 +183,11 @@ namespace UPlayGround.Component
 
             string state = _movementController.CurrentState.StateName;
 
-            if (state is "Death" or "Hit" or "Attack" or "Counter" or
-                "Guard" or "Retreat" or "Circle" or "Charge" or "Flank")
+            // 절대 개입하지 않는 State
+            if (state is "Death" or "Hit" or "Attack" or "Counter" or "Airborne" or "Grabbed" or "LaunchSmash")
                 return;
 
+            // 비전투 스킬 체크 (힐/버프)
             if (Time.time - _lastSkillCheckTime >= SKILL_CHECK_INTERVAL)
             {
                 _lastSkillCheckTime = Time.time;
@@ -174,13 +213,12 @@ namespace UPlayGround.Component
                     _movementController.TransitionToState(new EnemyIdleState(_movementController));
             }
         }
-
-        // ── 전투 행동 ───────────────────────────
-
+        
         private void HandleCombatBehavior(string state)
         {
             float dist = _detection.DistanceToTarget;
 
+            // 연속 공격 한계 초과 → 강제 후퇴
             if (_memory != null && _memory.IsOverAttacking(MaxConsecutiveAttacks))
             {
                 _memory.ResetAttackCount();
@@ -188,37 +226,204 @@ namespace UPlayGround.Component
                 return;
             }
 
-            if (CanUseSkill() && _combat.HasAvailableSkillAtDistance(dist))
+            // 플레이어 상태에 따른 반응형 판단
+            if (TryReactToPlayerState(state, dist))
+                return;
+
+            // Circle/Guard/Retreat 중에도 갑자기 공격 시도 - 불확실성 부여
+            if (TryInterruptCurrentState(state, dist))
+                return;
+
+            // 행동 쿨다운이 안 끝났으면 현재 State 유지
+            if (_actionCooldownTimer < _nextActionDelay)
             {
-                _lastAttackTime = Time.time;
-                _movementController.TransitionToState(
-                    new EnemyAttackState(_movementController, _combat, this, _detection));
+                // 단, Chase 중이고 사정거리 안이면 바로 공격
+                if (state == "Chase" && dist <= _maxAttackRange && CanUseSkill())
+                {
+                    ExecuteAttack();
+                    return;
+                }
                 return;
             }
 
+            // 사정거리 안이면 공격 우선
+            if (dist <= _maxAttackRange && CanUseSkill() && _combat.HasAvailableSkillAtDistance(dist))
+            {
+                ExecuteAttack();
+                return;
+            }
+
+            // 거리 기반 행동
             HandleDistanceBasedBehavior(state, dist);
+        }
+        
+        /// <summary>
+        /// 플레이어의 현재 상태를 보고 반응하는 로직.
+        /// 적이 '멍하니 기다리지 않고' 플레이어의 빈틈을 노린다.
+        /// </summary>
+        private bool TryReactToPlayerState(string myState, float dist)
+        {
+            if (_memory == null) return false;
+
+            //플레이어가 공격 중 -> 뒤를 잡거나 가드
+            if (_memory.IsPlayerAttacking())
+            {
+                // 근거리에 있으면 가드로 방어
+                if (dist <= OptimalCombatDistance && _hasGuardMotion && myState != "Guard")
+                {
+                    if (Random.value < 0.5f)
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyGuardState(_movementController, this, _detection, GuardDuration * 0.6f));
+                        OnDefensiveAction();
+                        return true;
+                    }
+                }
+                // 중거리면 Flank로 측면 돌파
+                if (AllowFlank && dist > MinCombatDistance && dist <= OptimalCombatDistance * 1.5f && myState != "Flank")
+                {
+                    if (Random.value < 0.4f)
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyFlankState(_movementController, _combat, this, _detection));
+                        _memory.NotifyCombatAction();
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // 플레이어가 가드 중 -> 거리 좁혀서 잡기 또는 돌진
+            if (_memory.IsPlayerGuarding())
+            {
+                // 가까우면 바로 공격 (가드 브레이크 기대)
+                if (dist <= _maxAttackRange && CanUseSkill())
+                {
+                    ExecuteAttack();
+                    return true;
+                }
+                
+                // 멀면 Charge로 급접근
+                if (AllowCharge && dist > OptimalCombatDistance && myState is not "Charge")
+                {
+                    _movementController.TransitionToState(
+                        new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
+                    _memory.NotifyCombatAction();
+                    return true;
+                }
+                return false;
+            }
+
+            // 플레이어가 피격 경직 중 -> 추가타
+            if (_memory.IsPlayerStaggered())
+            {
+                if (dist <= _maxAttackRange * 1.3f && CanUseSkill())
+                {
+                    ExecuteAttack();
+                    return true;
+                }
+                // 경직 중인데 멀면 빠르게 접근
+                if (myState is not "Chase" and not "Charge")
+                {
+                    _movementController.TransitionToState(
+                        new EnemyChaseState(_movementController, this, _detection));
+                    return true;
+                }
+            }
+
+            // 플레이어가 가만히 서 있음 -> 압박
+            if (_memory.IsPlayerRecovering() && dist > OptimalCombatDistance)
+            {
+                if (myState is not "Chase" and not "Charge" and not "Flank")
+                {
+                    // 접근하여 압박
+                    if (AllowCharge && Random.value < 0.3f)
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
+                    }
+                    else
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyChaseState(_movementController, this, _detection));
+                    }
+                    _memory.NotifyCombatAction();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Circle/Guard/Retreat 같은 비공격 State 도중,
+        /// 랜덤한 타이밍에 갑자기 공격으로 전환하여 예측 불가능성을 높인다.
+        /// </summary>
+        private bool TryInterruptCurrentState(string state, float dist)
+        {
+            if (!CanUseSkill()) return false;
+
+            // Circle 중 갑자기 공격
+            if (state == "Circle" && dist <= _maxAttackRange * 1.3f)
+            {
+                // Circle 진입 후 랜덤 시간이 지나면 갑자기 공격
+                float circleAggressionChance = 0.02f + (1f - AggressionFactor) * 0.05f;
+                if (Random.value < circleAggressionChance && _combat.HasAvailableSkillAtDistance(dist))
+                {
+                    ExecuteAttack();
+                    return true;
+                }
+            }
+
+            // Guard 중 카운터 기회 (플레이어가 공격 안 하면 가드 풀고 공격)
+            if (state == "Guard" && dist <= _maxAttackRange)
+            {
+                if (!_memory?.IsPlayerAttacking() == true && Random.value < 0.03f)
+                {
+                    ExecuteAttack();
+                    return true;
+                }
+            }
+
+            // Retreat 중이라도 플레이어가 경직이면 즉시 반격
+            if (state == "Retreat" && _memory?.IsPlayerStaggered() == true && dist <= _maxAttackRange * 1.5f)
+            {
+                if (Random.value < 0.4f)
+                {
+                    ExecuteAttack();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void HandleDistanceBasedBehavior(string state, float dist)
         {
-            if (MaintainDistance && dist < MinCombatDistance)
+            // 너무 가까우면 후퇴 (단, 연속 방어 제한)
+            if (MaintainDistance && dist < MinCombatDistance && _consecutiveDefensiveCount < MAX_DEFENSIVE_STREAK)
             {
-                if (state != "Retreat") TransitionRetreating();
-                return;
+                if (state != "Retreat")
+                {
+                    TransitionRetreating();
+                    return;
+                }
             }
 
+            // 사정거리 밖
             if (dist > OptimalCombatDistance)
             {
                 if (state is "Chase" or "Charge" or "Flank") return;
 
-                if (AllowCharge && Random.value < ChargeChance && _memory?.IsPlayerDodgingFrequently() == true)
+                // Charge 판단 — 단순 dodge 빈도 외에 '거리가 멀 때' 자체가 조건
+                if (AllowCharge && dist > OptimalCombatDistance * 1.5f && Random.value < ChargeChance)
                 {
                     _movementController.TransitionToState(
                         new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
                     return;
                 }
 
-                if (AllowFlank && Random.value < FlankChance && _memory?.IsPlayerDodgingFrequently() == true)
+                if (AllowFlank && Random.value < FlankChance)
                 {
                     _movementController.TransitionToState(
                         new EnemyFlankState(_movementController, _combat, this, _detection));
@@ -230,23 +435,31 @@ namespace UPlayGround.Component
                 return;
             }
 
-            if (MaintainDistance && _hasGuardMotion && state != "Guard" && Random.value < GuardChance)
+            // 적정 거리 안에서 행동 결정 (가드 or Circle or Idle)
+            float roll = Random.value;
+            if (_hasGuardMotion && roll < GuardChance && _consecutiveDefensiveCount < MAX_DEFENSIVE_STREAK)
             {
                 _movementController.TransitionToState(
                     new EnemyGuardState(_movementController, this, _detection, GuardDuration));
+                OnDefensiveAction();
                 return;
             }
 
-            if (state != "Idle")
-                _movementController.TransitionToState(new EnemyIdleState(_movementController));
+            // Circle로 돌되, 짧은 시간만
+            float shortCircle = CircleDuration * Random.Range(0.4f, 0.8f);
+            _movementController.TransitionToState(
+                new EnemyCircleState(_movementController, this, _detection, shortCircle));
         }
 
-        // ── 공격 후 다음 행동 ────────────────────
-
+        
+        //  공격 후 다음 행동 판단
         public void DecidePostAttack(bool attackHit)
         {
             if (attackHit) _memory?.NotifyAttackLanded();
             else           _memory?.NotifyAttackMissed();
+
+            _actionCooldownTimer = 0f;
+            RollNextActionDelay();
 
             if (!_detection.HasTarget)
             {
@@ -259,50 +472,127 @@ namespace UPlayGround.Component
 
             float dist = _detection.DistanceToTarget;
 
-            if (Random.value < ContinueAttackChance && dist <= _maxAttackRange * 1.2f &&
-                _movementController.CurrentState.StateName != "Attack")
+            // 적중 시: 공격적으로 연속 공격 확률 UP 
+            if (attackHit)
             {
-                _lastAttackTime = Time.time;
+                float continueChance = ContinueAttackChance;
+
+                // 플레이어가 경직 중이면 추가타 확률 대폭 상승
+                if (_memory?.IsPlayerStaggered() == true)
+                    continueChance = Mathf.Max(continueChance, 0.6f);
+
+                if (Random.value < continueChance && dist <= _maxAttackRange * 1.2f)
+                {
+                    ExecuteAttack();
+                    return;
+                }
+            }
+
+            // 빗나감 시: 플레이어 반응에 따라 분기
+            if (!attackHit)
+            {
+                // Dodge 많이 하는 플레이어 → Charge 또는 Flank
+                if (_memory?.IsPlayerDodgingFrequently() == true)
+                {
+                    if (AllowCharge && Random.value < ChargeChance * 1.5f)
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
+                        return;
+                    }
+                    if (AllowFlank && Random.value < FlankChance * 1.5f)
+                    {
+                        _movementController.TransitionToState(
+                            new EnemyFlankState(_movementController, _combat, this, _detection));
+                        return;
+                    }
+                }
+            }
+
+            // 기본 분기: 여러 행동 중 가중치 기반 선택
+            DecidePostAttackWeighted(dist);
+        }
+
+        /// <summary>
+        /// 공격 후 행동을 가중치 기반으로 선택한다.
+        /// 매번 같은 패턴이 나오지 않도록 상황에 따라 가중치가 동적으로 변한다.
+        /// </summary>
+        private void DecidePostAttackWeighted(float dist)
+        {
+            float wChase    = 0.3f;
+            float wCircle   = 0.25f;
+            float wGuard    = _hasGuardMotion ? GuardChance : 0f;
+            float wRetreat  = (dist < RetreatDistance) ? RetreatChance : 0f;
+            float wCharge   = AllowCharge ? ChargeChance : 0f;
+            float wFlank    = AllowFlank  ? FlankChance  : 0f;
+
+            // 연속 방어 했으면 공격적 행동 가중치 UP
+            if (_consecutiveDefensiveCount >= MAX_DEFENSIVE_STREAK)
+            {
+                wChase  += 0.3f;
+                wCharge += 0.2f;
+                wGuard   = 0f;
+                wRetreat = 0f;
+            }
+
+            // 최근 후퇴했으면 또 후퇴하지 않음
+            if (_memory != null && _memory.TimeSinceLastRetreat() < 3f)
+                wRetreat = 0f;
+
+            float total = wChase + wCircle + wGuard + wRetreat + wCharge + wFlank;
+            float roll  = Random.value * total;
+
+            float acc = 0f;
+
+            acc += wCharge;
+            if (roll < acc && dist > OptimalCombatDistance)
+            {
                 _movementController.TransitionToState(
-                    new EnemyAttackState(_movementController, _combat, this, _detection));
+                    new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
                 return;
             }
 
-            if (_memory != null && _memory.IsPlayerDodgingFrequently())
+            acc += wFlank;
+            if (roll < acc)
             {
-                if (AllowCharge && Random.value < ChargeChance)
-                {
-                    _movementController.TransitionToState(
-                        new EnemyChargeState(_movementController, _combat, this, _detection, _memory));
-                    return;
-                }
-                if (AllowFlank && Random.value < FlankChance)
-                {
-                    _movementController.TransitionToState(
-                        new EnemyFlankState(_movementController, _combat, this, _detection));
-                    return;
-                }
+                _movementController.TransitionToState(
+                    new EnemyFlankState(_movementController, _combat, this, _detection));
+                return;
             }
 
-            if (_hasGuardMotion && Random.value < GuardChance)
+            acc += wGuard;
+            if (roll < acc)
             {
                 _movementController.TransitionToState(
                     new EnemyGuardState(_movementController, this, _detection, GuardDuration));
+                OnDefensiveAction();
                 return;
             }
 
-            if (Random.value < RetreatChance && dist < RetreatDistance)
+            acc += wRetreat;
+            if (roll < acc)
             {
                 TransitionRetreating();
                 return;
             }
 
+            acc += wCircle;
+            if (roll < acc)
+            {
+                float shortCircle = CircleDuration * Random.Range(0.3f, 0.6f);
+                _movementController.TransitionToState(
+                    new EnemyCircleState(_movementController, this, _detection, shortCircle));
+                return;
+            }
+
+            // 기본: Chase
             _movementController.TransitionToState(
                 new EnemyChaseState(_movementController, this, _detection));
         }
 
-        // ── 비전투 스킬 ─────────────────────────
+        #endregion
 
+        #region 비전투 스킬 - 힐 / 버프
         private bool TryNonCombatSkill()
         {
             if (_combat?.AttackData == null) return false;
@@ -315,8 +605,20 @@ namespace UPlayGround.Component
                 new EnemyAttackState(_movementController, _combat, this, _detection));
             return true;
         }
+        #endregion
 
-        // ── 유틸 ────────────────────────────────
+        #region 기타
+        
+        private void ExecuteAttack()
+        {
+            _lastAttackTime = Time.time;
+            _actionCooldownTimer = 0f;
+            _consecutiveDefensiveCount = 0; // 공격하면 방어 카운터 리셋
+            _memory?.NotifyCombatAction();
+
+            _movementController.TransitionToState(
+                new EnemyAttackState(_movementController, _combat, this, _detection));
+        }
 
         private bool CanUseSkill()
         {
@@ -326,8 +628,23 @@ namespace UPlayGround.Component
 
         private void TransitionRetreating()
         {
+            _memory?.NotifyRetreated();
+            OnDefensiveAction();
             _movementController.TransitionToState(
                 new EnemyRetreatState(_movementController, this, _detection, RetreatDistance));
+        }
+
+        private void OnDefensiveAction()
+        {
+            _consecutiveDefensiveCount++;
+        }
+
+        /// <summary> 다음 행동까지의 대기 시간을 랜덤으로 결정 </summary>
+        private void RollNextActionDelay()
+        {
+            float max = Mathf.Lerp(MIN_ACTION_DELAY, MAX_ACTION_DELAY, AggressionFactor);
+            _nextActionDelay = Random.Range(MIN_ACTION_DELAY, max);
+            _actionCooldownTimer = 0f;
         }
 
         public float GetMaxAttackRange() => _maxAttackRange;
@@ -346,5 +663,6 @@ namespace UPlayGround.Component
         }
 
         public void Unfreeze() => enabled = true;
+        #endregion
     }
 }

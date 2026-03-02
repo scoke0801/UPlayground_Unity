@@ -107,8 +107,18 @@ namespace UPlayGround.State
 
             if (_circleTimer >= _circleDuration)
             {
-                controller.TransitionToState(
-                    new EnemyChaseState(controller, _brain, _detection));
+                // Circle 종료 → 다양한 행동으로 분기 (예측 불가능성)
+                float roll = Random.value;
+                if (roll < 0.5f)
+                {
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _brain, _detection));
+                }
+                else
+                {
+                    // Brain의 다음 판단에 맡김 (Idle로 돌아가면 Brain이 즉시 재판단)
+                    controller.TransitionToState(new EnemyIdleState(controller));
+                }
                 return;
             }
 

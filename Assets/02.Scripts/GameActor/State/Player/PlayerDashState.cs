@@ -22,7 +22,7 @@ namespace UPlayGround.State
         
         public PlayerDashState(ActorMovementController controller) : base(controller) { }
 
-        // ─── 상태 전환 제한 ────────────────────────────────────────────
+        // 상태 전환 제한
         public override bool CanTransitionState(string stateName)
         {
             if (playerController != null && playerController.IsDashReady == false)
@@ -30,7 +30,6 @@ namespace UPlayGround.State
             return true;
         }
 
-        // ─── Enter ─────────────────────────────────────────────────────
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -48,7 +47,6 @@ namespace UPlayGround.State
                 FinishDash();
         }
 
-        // ─── Exit ──────────────────────────────────────────────────────
         public override void OnExit(GameActorState toState)
         {
             RestoreAndResolvePenetration();
@@ -58,19 +56,16 @@ namespace UPlayGround.State
             base.OnExit(toState);
         }
 
-        // ─── Velocity ──────────────────────────────────────────────────
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             currentVelocity = _dashDirection * controller.DashSpeed;
             currentVelocity.y = 0f;
         }
 
-        // ─── State 업데이트 ─────────────────────────────────────────────
         public override void UpdateState(float deltaTime)
         {
         }
 
-        // ─── 내부 메서드 ───────────────────────────────────────────────
         private void IgnoreMonsterColliders()
         {
             _ignoredOnDodge.Clear();
@@ -87,10 +82,10 @@ namespace UPlayGround.State
             {
                 _ignoredOnDodge.Add(col);
 
-                // 1. 플레이어 컨트롤러에서 몬스터 콜라이더 무시
+                // 플레이어 컨트롤러에서 몬스터 콜라이더 무시
                 controller.AddIgnoreCollider(col);
 
-                // 2. 몬스터 컨트롤러에서 플레이어 캡슐 무시 (양방향)
+                // 몬스터 컨트롤러에서 플레이어 캡슐 무시 (양방향)
                 var enemyController = col.GetComponentInParent<EnemyMovementController>();
                 if (enemyController != null)
                 {

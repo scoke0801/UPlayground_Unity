@@ -329,6 +329,7 @@ namespace UPlayGround.Component
                         airborneForce    = phase.airborneForce,
                         hitPhaseIndex    = _currentHitPhaseIndex,
                         knockbackForce   = phase.knockBackForce,
+                        grabDuration     = phase.grabDuration,
                         attacker         = _ownerActor,
                     };
 

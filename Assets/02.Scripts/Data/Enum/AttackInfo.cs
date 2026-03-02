@@ -38,6 +38,7 @@
         Pull,           // 끌어당기기 (공격자 방향으로 당겨옴)
         Airborne,       // 공중으로 띄움
         Knockdown,      // 넘어뜨리기. Knockback 애니 있으면 재생, 없으면 Hit으로 폴백
+        Grab,           // (애니메이션이 없다)잡기 — 대상의 행동을 일정 시간 제한
     }
 
     public enum CombatSkillType

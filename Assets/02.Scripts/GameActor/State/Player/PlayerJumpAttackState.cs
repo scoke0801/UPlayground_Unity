@@ -14,9 +14,9 @@ namespace UPlayGround.State
 
         private AttackData _attackData;
         private float _timer;
-        private bool _hasHit;
 
         private bool _isLanded = false;
+        
         public PlayerJumpAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -25,10 +25,10 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            //_attackData = _combat.GetJumpAttack();
             _timer = 0f;
-            _hasHit = false;
             _isLanded = false;
+
+            playerActor.GetCombat()?.ExecuteJumpAttack();
             
             var state = gameActor.Animator.PlayMotion(AnimKey.JumpAttack_1, 0.1f);
             if (state != null)
@@ -90,9 +90,13 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
-            _isLanded = true;
-            // 착지 시 충격파 히트박스 발동
-            // _combat.ExecuteHitbox(_attackData);
+            if (_isLanded == false)
+            {
+                _isLanded = true;
+                
+                // 착지 시 FX
+                //GameObjectManager.Instance.ShowFX("");
+            }
 
             // 착지 모션이 있다면
             // gameActor.Animator.PlayMotion(AnimKey.JumpAttackLand, 0.1f);

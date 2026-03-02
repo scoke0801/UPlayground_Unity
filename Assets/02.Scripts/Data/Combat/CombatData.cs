@@ -31,6 +31,10 @@ namespace UPlayGround.Data
         public float pullForce    = 10f;
         public float airborneForce = 8f;
         public float knockBackForce = 10f;
+
+        [Header("Grab")]
+        [Tooltip("Grab 지속 시간 (초)")]
+        public float grabDuration = 1.5f;
     }
 
     /// <summary>
@@ -149,6 +153,10 @@ namespace UPlayGround.Data
         public float pullForce    = 10f;
         public float airborneForce = 8f;
         public float knockbackForce = 10f;
+
+        // ── Grab 파라미터 ──────────────────────────
+        /// <summary> Grab 지속 시간 (초). </summary>
+        public float grabDuration = 1.5f;
 
         // ── 멀티 히트 ──────────────────────────────
         /// <summary> 현재 몇 번째 히트 구간인지 (BeginCollisionEvent.hitPhaseIndex와 동기화) </summary>

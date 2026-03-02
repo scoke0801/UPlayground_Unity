@@ -64,6 +64,11 @@ namespace UPlayGround.Manager
             }
         }
 
+        public void ResetTimeScale()
+        {
+            SetGlobalTimeScaleExceptPlayer(1.0f);
+        }
+        
         private System.Collections.IEnumerator ResetTimeScaleCoroutine(float delay)
         {
             yield return new WaitForSecondsRealtime(delay);

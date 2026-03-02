@@ -139,9 +139,9 @@ namespace UPlayGround.Manager
         private float _baseFOV;
 
         // FOV 시스템 (상태별 FOV 전환)
-        private float _fovExplore = 50;        // 비전투 탐색
-        private float _fovCombat = 55;         // 전투 진입 (시야 확보)
-        private float _fovLockOn = 58;         // 락온 (타겟 집중)
+        private float _fovExplore = 45;        // 비전투 탐색
+        private float _fovCombat = 50;         // 전투 진입 (시야 확보)
+        private float _fovLockOn = 50;         // 락온 (타겟 집중)
         private float _currentTargetFOV;        // 목표 FOV
         private float _fovVelocity;             // SmoothDamp 속도
         private float _fovSmoothTime = 0.25f;   // FOV 전환 부드러움
@@ -168,8 +168,8 @@ namespace UPlayGround.Manager
         
         // 락온 고저차 감쇠
         private float _lockOnHeightDampFactor = 0.4f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
-        private float _lockOnPitchMin = 15f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
-        private float _lockOnPitchMax = 60f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
+        private float _lockOnPitchMin = 25f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
+        private float _lockOnPitchMax = 80f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
         private float _lockOnPitchSpeed = 8f;          // 락온 Pitch 전환 속도 (Yaw보다 느리게)
 
         #region IManager 구현

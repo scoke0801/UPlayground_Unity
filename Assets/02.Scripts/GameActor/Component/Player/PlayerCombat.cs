@@ -369,6 +369,8 @@ namespace UPlayGround.Component
 
             if (isDamageExecuted)
             {
+                GameHitStopManager.Instance.ResetActorTimeScale();
+                
                 // 킬 감지: 마지막 타격으로 적이 사망했는지 체크
                 bool isKillHit = _currentAttackData.hitTarget != null 
                     && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);

@@ -157,7 +157,16 @@ namespace UPlayGround.Manager.Handler
                     break;
             }
         }
-        
+
+        public void ResetActorTimeScale()
+        {
+            if (_currentWeight > 0)
+            {
+                _targetWeight = 0f;
+                _transitionTime = 0f;
+                GameObjectManager.Instance.ResetTimeScale();
+            }
+        }
         /// <summary>
         /// HitStop 실행 (커스텀 파라미터)
         /// </summary>

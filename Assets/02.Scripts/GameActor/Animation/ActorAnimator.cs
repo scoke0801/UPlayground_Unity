@@ -40,6 +40,22 @@ namespace UPlayGround.Animation
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
         
+        /// <summary>
+        /// 전체 애니메이터 재생 속도
+        /// </summary>
+        public float Speed
+        {
+            get => _animator != null ? _animator.Graph.Speed : 1.0f;
+            set
+            {
+                if (_animator != null)
+                    _animator.Graph.Speed = value;
+                
+                if (_subAnimator != null)
+                    _subAnimator.Speed = value;
+            }
+        }
+
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
 
@@ -263,7 +279,9 @@ namespace UPlayGround.Animation
         {
             if (!_isPlayingMotionSet || _currentMotionSet == null) return;
 
-            _globalTime += Time.deltaTime;
+            // 로컬 타임스케일이 적용된 시간을 사용
+            float deltaTime = _actor != null ? _actor.DeltaTime : Time.deltaTime;
+            _globalTime += deltaTime;
 
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)

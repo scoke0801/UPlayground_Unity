@@ -7,6 +7,7 @@ namespace UPlayGround.Manager
     public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
     {
         private PlayerActor _player;
+        private List<GameActor> _allActors = new List<GameActor>();
 
         public PlayerActor Player => _player;
 
@@ -29,6 +30,44 @@ namespace UPlayGround.Manager
                 _handlerList[i].Init();
             }
             LoadFXPrefabDatabase();
+        }
+
+        public void RegisterActor(GameActor actor)
+        {
+            if (!_allActors.Contains(actor))
+                _allActors.Add(actor);
+        }
+
+        public void UnregisterActor(GameActor actor)
+        {
+            _allActors.Remove(actor);
+        }
+
+        /// <summary>
+        /// 플레이어를 제외한 모든 액터의 타임스케일을 설정합니다.
+        /// </summary>
+        /// <param name="timeScale">설정할 타임스케일</param>
+        /// <param name="duration">지속 시간 (0이면 영구적)</param>
+        public void SetGlobalTimeScaleExceptPlayer(float timeScale, float duration = 0f)
+        {
+            foreach (var actor in _allActors)
+            {
+                if (actor is not PlayerActor)
+                {
+                    actor.LocalTimeScale = timeScale;
+                }
+            }
+
+            if (duration > 0f)
+            {
+                StartCoroutine(ResetTimeScaleCoroutine(duration));
+            }
+        }
+
+        private System.Collections.IEnumerator ResetTimeScaleCoroutine(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            SetGlobalTimeScaleExceptPlayer(1.0f);
         }
 
         public void AfterInit()

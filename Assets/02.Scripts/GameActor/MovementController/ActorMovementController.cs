@@ -65,7 +65,9 @@ namespace UPlayGround.MovementController
         {
             if (_currentState != null)
             {
-                _currentState.UpdateState(Time.deltaTime);
+                // 로컬 타임스케일이 적용된 시간을 사용
+                float deltaTime = Actor.DeltaTime;
+                _currentState.UpdateState(deltaTime);
             }
         }
 
@@ -139,14 +141,18 @@ namespace UPlayGround.MovementController
     {
         public virtual void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            _currentState?.UpdateRotation(ref currentRotation, deltaTime);
+            // 로컬 타임스케일 적용
+            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
+            _currentState?.UpdateRotation(ref currentRotation, localDeltaTime);
 
             currentRotation = currentRotation.normalized;
         }
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
+            // 로컬 타임스케일 적용
+            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
+            _currentState?.UpdateVelocity(ref currentVelocity, localDeltaTime);
             
             // 외부 충격량(AddVelocity) 반영
             if (_internalVelocityAdd.sqrMagnitude > 0f)
@@ -169,14 +175,16 @@ namespace UPlayGround.MovementController
         /// </summary>
         public virtual void BeforeCharacterUpdate(float deltaTime)
         {
-            _currentState?.BeforeCharacterUpdate(deltaTime);
+            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
+            _currentState?.BeforeCharacterUpdate(localDeltaTime);
         }
         /// <summary>
         /// Kinematic Character Motor가 모든 물리 계산과 위치 이동을 완료한 직후에 호출되는 콜백 메서드입니다.
         /// </summary>
         public virtual void AfterCharacterUpdate(float deltaTime)
         {
-            _currentState?.AfterCharacterUpdate(deltaTime);
+            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
+            _currentState?.AfterCharacterUpdate(localDeltaTime);
         }
         
         /// <summary>
@@ -185,7 +193,8 @@ namespace UPlayGround.MovementController
         /// </summary>
         public virtual void PostGroundingUpdate(float deltaTime)
         {
-            _currentState?.PostGroundingUpdate(deltaTime);
+            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
+            _currentState?.PostGroundingUpdate(localDeltaTime);
         }
 
         /// <summary>

@@ -2,6 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UPlayGround.Data.Path;
 
 namespace UPlayGround.Manager.Handler
 {
@@ -29,9 +33,19 @@ namespace UPlayGround.Manager.Handler
         [Header("HitStop Settings")]
         [SerializeField] private float _defaultHitStopDuration = 0.08f;
         [SerializeField] private float _defaultTimeScale = 0.1f;
+
+        private AsyncOperationHandle<GameObject> _volumeHandle;
+        private Volume _volume;
+        private GameObject _volumeInstance;
         
         private Coroutine _currentHitStopCoroutine;
         private bool _isHitStopping;
+        
+        private float _transitionTime = 0.05f; // 전환 속도
+        
+        private float _targetWeight = 0f;
+        private float _currentWeight = 0f;
+        private float _weightVelocity = 0f;
         
         // GameActor별 코루틴 캐싱
         private Dictionary<GameActor, Coroutine> _actorHitStopCoroutines = new Dictionary<GameActor, Coroutine>();
@@ -44,6 +58,8 @@ namespace UPlayGround.Manager.Handler
         {
             Time.timeScale = NORMAL_TIME_SCALE;
             _actorHitStopCoroutines.Clear();
+
+            LoadVolume();
         }
 
         public void AfterInit()
@@ -54,10 +70,37 @@ namespace UPlayGround.Manager.Handler
         {            
             Stop();
             StopAllActors();
+            
+            // 볼륨 인스턴스 파괴
+            if (_volumeInstance != null)
+            {
+                Destroy(_volumeInstance);
+                _volumeInstance = null;
+            }
+
+            // 어드레서블 메모리 해제
+            if (_volumeHandle.IsValid())
+            {
+                Addressables.Release(_volumeHandle);
+            }
         }
 
         public void OnUpdate()
         {
+            if (_volume == null) return;
+
+            // Time.unscaledDeltaTime을 사용하여 현실 시간 기준으로 보간
+            _currentWeight = Mathf.SmoothDamp(
+                _currentWeight, 
+                _targetWeight, 
+                ref _weightVelocity, 
+                _transitionTime, 
+                Mathf.Infinity, 
+                Time.unscaledDeltaTime
+            );
+
+            // Volume의 투명도(강도) 적용
+            _volume.weight = _currentWeight;
         }
 
         public void OnFixedUpdate()
@@ -106,7 +149,11 @@ namespace UPlayGround.Manager.Handler
                     Execute(1.0f, 0.02f);
                     break;
                 case HitStopIntensity.PlayerGuard:
-                    Execute(1f, 0.05f);
+                    _targetWeight = 0f;
+                    _currentWeight = 1f;
+                    _transitionTime = 3f;
+                    GameObjectManager.Instance?.SetGlobalTimeScaleExceptPlayer(0.05f, 3f);
+                    //Execute(1f, 0.05f);
                     break;
             }
         }
@@ -244,7 +291,49 @@ namespace UPlayGround.Manager.Handler
                 _actorHitStopCoroutines.Remove(actor);
             }
         }
+
+        private async void LoadVolume()
+        {
+            // 이미 로드 중이거나 로드된 상태라면 중복 실행 방지
+            if (_volumeHandle.IsValid() || _volume != null)
+            {
+                return;
+            }
+
+            _volumeHandle = Addressables.LoadAssetAsync<GameObject>("SlowMoveVolume");
+    
+            try
+            {
+                GameObject go = await _volumeHandle.Task;
+
+                if (go == null)
+                {
+                    Debug.LogError("[CameraManager] SlowMoveVolume 에셋이 Null입니다.");
+                    return;
+                }
+
+                _volumeInstance = Instantiate(go, transform.position, Quaternion.identity, transform);
+                _volumeInstance.name = "Action_SlowMo_Volume";
         
+                _volume = _volumeInstance.GetComponent<Volume>();
+        
+                if (_volume != null)
+                {
+                    _volume.weight = 0f;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[CameraManager] LoadVolume 로드 실패: {e.Message}");
+        
+                // 로드 실패 시 핸들 메모리 해제
+                if (_volumeHandle.IsValid())
+                {
+                    Addressables.Release(_volumeHandle);
+                }
+            }
+        }
+
         private IEnumerator HitStopCoroutine(float duration, float timeScale)
         {
             _isHitStopping = true;

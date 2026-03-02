@@ -35,14 +35,14 @@ namespace UPlayGround.Manager
         //Camera Settings
         private Vector3 cameraOffset = new Vector3(0f, 1f, 0f); // 타겟 기준 카메라 피벗 오프셋
 
-        private float _defaultDistance = 4f; // 기본 거리
-        private float _minDistance = 1.5f; // 최소 거리
-        private float _maxDistance = 10f; // 최대 거리
+        private float _defaultDistance = 4.2f; // 기본 거리
+        private float _minDistance = 3.7f; // 최소 거리
+        private float _maxDistance = 4.5f; // 최대 거리
 
         //Rotation Settings
         private float _rotationSpeed = 20f; // 카메라 회전 속도
-        private float _minVerticalAngle = -30f; // 최소 수직 각도
-        private float _maxVerticalAngle = 70f; // 최대 수직 각도
+        private float _minVerticalAngle = 0f; // 최소 수직 각도
+        private float _maxVerticalAngle = 50f; // 최대 수직 각도
 
         //Zoom Settings
         private float zoomSpeed = 0.5f; // 줌 속도
@@ -59,12 +59,12 @@ namespace UPlayGround.Manager
         
         //LockOn Settings
         private LayerMask lockOnLayerMask; // LockOn 대상 레이어
-        private float lockOnRange = 10f; // LockOn 최대 거리
+        private float lockOnRange = 13f; // LockOn 최대 거리
 
         private float targetSwitchCooldown = 0.15f; // 전환 쿨다운 (연타 방지)
 
         // Camera Align
-        private float cameraAlignSpeed = 5f; // 보정 속도
+        private float cameraAlignSpeed = 3f; // 보정 속도
         private float cameraAlignDuration = 0.5f; // 보정 지속 시간
 
         // 내부 캐싱 & 계산
@@ -128,8 +128,8 @@ namespace UPlayGround.Manager
         private bool _rotTransitionUnlockOnComplete;   // 전환 완료 시 입력 잠금 자동 해제
 
         // 컨텍스트 기반 카메라 오프셋 (전투/비전투 숄더 전환)
-        private Vector3 _defaultOffset = new Vector3(0.1f, 1.5f, 0f);       // 비전투 (센터)
-        private Vector3 _combatOffset = new Vector3(0.2f, 1.6f, 0f);   // 전투 (숄더 뷰)
+        private Vector3 _defaultOffset = new Vector3(0.0f, 1.0f, 0f);     
+        private Vector3 _combatOffset = new Vector3(0.05f, 1.0f, 0f);
         private Vector3 _offsetVelocity;
         private float _offsetSmoothTime = 0.35f;  // 오프셋 전환 부드러움
         private System.Func<bool> _combatStateProvider;  // 전투 상태 조회 함수
@@ -139,20 +139,19 @@ namespace UPlayGround.Manager
         private float _baseFOV;
 
         // FOV 시스템 (상태별 FOV 전환)
-        private float _fovExplore = 60f;        // 비전투 탐색
-        private float _fovCombat = 63f;         // 전투 진입 (시야 확보)
-        private float _fovLockOn = 58f;         // 락온 (타겟 집중)
+        private float _fovExplore = 50;        // 비전투 탐색
+        private float _fovCombat = 55;         // 전투 진입 (시야 확보)
+        private float _fovLockOn = 58;         // 락온 (타겟 집중)
         private float _currentTargetFOV;        // 목표 FOV
         private float _fovVelocity;             // SmoothDamp 속도
         private float _fovSmoothTime = 0.25f;   // FOV 전환 부드러움
 
         // 전투 상태 Pitch 보정
-        private float _explorePitch = 18f;       // 비전투 기본 Pitch (약간 내려다봄)
-        private float _combatPitch = 15f;        // 전투 기본 Pitch (수평에 가깝게)
+        private float _explorePitch = 25f;       // 비전투 기본 Pitch (약간 내려다봄)
+        private float _combatPitch = 25f;        // 전투 기본 Pitch (수평에 가깝게)
 
         // 락온 시 카메라 거리/오프셋
-        private float _lockOnDistance = 3.8f;    // 락온 시 카메라 거리
-        private Vector3 _lockOnOffset = new Vector3(0.85f, 1.15f, 0f); // 락온 숄더 오프셋
+        private float _lockOnDistance = 4.2f;    // 락온 시 카메라 거리
 
         // 다수 적 자동 줌아웃
         private float _crowdZoomOutDistance = 7f;     // 다수 적 감지 시 줌아웃 거리
@@ -169,8 +168,8 @@ namespace UPlayGround.Manager
         
         // 락온 고저차 감쇠
         private float _lockOnHeightDampFactor = 0.4f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
-        private float _lockOnPitchMin = -10f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
-        private float _lockOnPitchMax = 18f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
+        private float _lockOnPitchMin = 15f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
+        private float _lockOnPitchMax = 60f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
         private float _lockOnPitchSpeed = 8f;          // 락온 Pitch 전환 속도 (Yaw보다 느리게)
 
         #region IManager 구현
@@ -389,10 +388,7 @@ namespace UPlayGround.Manager
         {
             Vector3 pivotBasePosition = target.position;
 
-            // 락온 시: 숄더 오프셋 적용 (플레이어를 화면 우측으로 밀기)
-            Vector3 activeOffset = (isLockOnActive && lockOnTarget != null)
-                ? _lockOnOffset      // (0.85f, 1.15f, 0f) — 우측 숄더
-                : cameraOffset;      // 기본 오프셋
+            Vector3 activeOffset = cameraOffset;
 
             Vector3 targetPivotPosition = pivotBasePosition + activeOffset;
 
@@ -566,9 +562,7 @@ namespace UPlayGround.Manager
             
             // 우선순위: 락온 > 전투 > 탐색
             Vector3 targetOffset;
-            if (isLockOnActive)
-                targetOffset = _lockOnOffset;
-            else if (isCombat)
+            if (isCombat)
                 targetOffset = _combatOffset;
             else
                 targetOffset = _defaultOffset;
@@ -834,14 +828,6 @@ namespace UPlayGround.Manager
         public void SetCombatOffset(Vector3 offset)
         {
             _combatOffset = offset;
-        }
-
-        /// <summary>
-        /// 락온 시 카메라 오프셋 설정 (외부에서 튜닝 가능)
-        /// </summary>
-        public void SetLockOnOffset(Vector3 offset)
-        {
-            _lockOnOffset = offset;
         }
 
         /// <summary>

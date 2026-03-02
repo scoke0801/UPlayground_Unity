@@ -173,12 +173,12 @@ namespace UPlayGround.State
                     {
                         // 몬스터의 AttackState가 CanTransitionState("Hit")를 거부하더라도 
                         // TransitionToState를 직접 호출하여 강제로 경직 상태로 진입시킵니다.
-                        attackerController.TransitionToState(new EnemyHitState(attackerController, new AttackData()
-                        {
-                            attacker = playerActor,
-                            reactionType = AttackReactionType.Hit,
-                            attackDirection = -incomingAttack.attackDirection // 공격 반대 방향으로 약간 밀려나도록 설정
-                        }));
+                        // attackerController.TransitionToState(new EnemyHitState(attackerController, new AttackData()
+                        // {
+                        //     attacker = playerActor,
+                        //     reactionType = AttackReactionType.Hit,
+                        //     attackDirection = -incomingAttack.attackDirection // 공격 반대 방향으로 약간 밀려나도록 설정
+                        // }));
                         
                         Debug.Log($"[PerfectGuard] {incomingAttack.attacker.name}의 공격을 끊었습니다!");
                     }

@@ -44,9 +44,10 @@ MonoBehaviour:
         endTime: 2.0724785
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
         spawnPointName: VFX_Pivot
-        spawnOffset: {x: 0, y: 1, z: 0}
+        spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        damage: 10
         speed: 15
         duration: 1
         targetHitLayer:

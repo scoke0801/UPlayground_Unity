@@ -228,6 +228,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Skill_5"",
+                    ""type"": ""Button"",
+                    ""id"": ""4c83a734-e804-4ba2-a63d-1487c5afca71"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Equip"",
                     ""type"": ""Button"",
                     ""id"": ""5b1fc20b-22f5-4a76-892c-be1896a3d7d3"",
@@ -577,6 +586,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""08561d15-7e45-45a3-b5d0-12ad409c8e75"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_5"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1147,6 +1167,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Skill_2 = m_PlayerAction.FindAction("Skill_2", throwIfNotFound: true);
         m_PlayerAction_Skill_3 = m_PlayerAction.FindAction("Skill_3", throwIfNotFound: true);
         m_PlayerAction_Skill_4 = m_PlayerAction.FindAction("Skill_4", throwIfNotFound: true);
+        m_PlayerAction_Skill_5 = m_PlayerAction.FindAction("Skill_5", throwIfNotFound: true);
         m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         m_PlayerAction_LockOn = m_PlayerAction.FindAction("LockOn", throwIfNotFound: true);
         m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
@@ -1280,6 +1301,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Skill_2;
     private readonly InputAction m_PlayerAction_Skill_3;
     private readonly InputAction m_PlayerAction_Skill_4;
+    private readonly InputAction m_PlayerAction_Skill_5;
     private readonly InputAction m_PlayerAction_Equip;
     private readonly InputAction m_PlayerAction_LockOn;
     private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
@@ -1357,6 +1379,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerAction/Skill_4".
         /// </summary>
         public InputAction @Skill_4 => m_Wrapper.m_PlayerAction_Skill_4;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/Skill_5".
+        /// </summary>
+        public InputAction @Skill_5 => m_Wrapper.m_PlayerAction_Skill_5;
         /// <summary>
         /// Provides access to the underlying input action "PlayerAction/Equip".
         /// </summary>
@@ -1452,6 +1478,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_4.started += instance.OnSkill_4;
             @Skill_4.performed += instance.OnSkill_4;
             @Skill_4.canceled += instance.OnSkill_4;
+            @Skill_5.started += instance.OnSkill_5;
+            @Skill_5.performed += instance.OnSkill_5;
+            @Skill_5.canceled += instance.OnSkill_5;
             @Equip.started += instance.OnEquip;
             @Equip.performed += instance.OnEquip;
             @Equip.canceled += instance.OnEquip;
@@ -1526,6 +1555,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_4.started -= instance.OnSkill_4;
             @Skill_4.performed -= instance.OnSkill_4;
             @Skill_4.canceled -= instance.OnSkill_4;
+            @Skill_5.started -= instance.OnSkill_5;
+            @Skill_5.performed -= instance.OnSkill_5;
+            @Skill_5.canceled -= instance.OnSkill_5;
             @Equip.started -= instance.OnEquip;
             @Equip.performed -= instance.OnEquip;
             @Equip.canceled -= instance.OnEquip;
@@ -2210,6 +2242,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill_4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skill_5" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkill_5(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Equip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

@@ -12,6 +12,8 @@ namespace UPlayGround.State
         
         public override string StateName => "JumpAttack";
 
+        public override bool AdjustGravity => false;
+
         private AttackData _attackData;
         private float _timer;
 

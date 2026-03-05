@@ -75,12 +75,32 @@ MonoBehaviour:
         airborneForce: 0
         knockBackForce: 0
         grabDuration: 1.5
+      - damage: 24
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 104
       attackType: 0
       hitPhases:
+      - damage: 27
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
       - damage: 27
         poiseDamage: 30
         reactionType: 2
@@ -123,13 +143,43 @@ MonoBehaviour:
         airborneForce: 0
         knockBackForce: 0
         grabDuration: 1.5
+      - damage: 30
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
     canBeInterrupted: 1
     hitAngle: 60
   - baseInfo:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 33
+      - damage: 11
+        poiseDamage: 0
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
+      - damage: 11
+        poiseDamage: 0
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
+      - damage: 11
         poiseDamage: 0
         reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
@@ -362,6 +412,22 @@ MonoBehaviour:
       - damage: 60
         poiseDamage: 60
         reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 15
+        grabDuration: 0
+    canBeInterrupted: 1
+    hitAngle: 60
+  - baseInfo:
+      animKey: 504
+      attackType: 0
+      hitPhases:
+      - damage: 20
+        poiseDamage: 60
+        reactionType: 2
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitParticleName: DefaultCombatHit

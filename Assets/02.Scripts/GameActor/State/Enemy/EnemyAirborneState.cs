@@ -12,7 +12,7 @@ namespace UPlayGround.State
     public class EnemyAirborneState : GameActorState
     {
         public override string StateName => "Airborne";
-        
+        public override bool AdjustGravity => false;        
         private bool _hasLanded = false;
         private bool _landStarted = false;
         private float _dragSpeed = 0.1f;

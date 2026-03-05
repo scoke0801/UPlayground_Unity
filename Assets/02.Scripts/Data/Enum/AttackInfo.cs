@@ -27,6 +27,19 @@
     
     public enum AttackType { Melee, Ranged } // 공격 유형 정의
 
+    /// <summary>
+    /// 공격 종류 — 스킬 게이지 충전량 구분용
+    /// </summary>
+    public enum AttackKind
+    {
+        NormalAttack  = 0,  // 약 공격 콤보
+        HeavyAttack   = 1,  // 강 공격 콤보
+        JumpAttack    = 2,  // 점프 공격
+        DashAttack    = 3,  // 대시 공격
+        FinishAttack  = 4,  // 마무리(처형) 공격
+        SkillAttack   = 5,  // 스킬 (게이지 충전 없음)
+    }
+
     public enum AttackReactionType
     {
         None = 0,       // 반응 없음 (Poise로 버팀)

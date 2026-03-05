@@ -244,7 +244,7 @@ namespace UPlayGround
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddVelocity(attackData.attackDirection.normalized * attackData.knockbackForce);
+                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce);
                         break;
 
                     case AttackReactionType.Pull:
@@ -260,8 +260,8 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddVelocity(launchDir * attackData.knockbackForce 
-                                                       + Vector3.up * attackData.airborneForce);
+                        MovementController.AddImpulse(launchDir * attackData.knockbackForce 
+                                                      + Vector3.up * attackData.airborneForce);
                         MovementController.Motor.ForceUnground();
                         break;
                     }

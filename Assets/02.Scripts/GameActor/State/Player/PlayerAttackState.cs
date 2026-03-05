@@ -78,10 +78,7 @@ namespace UPlayGround.State
             var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
             if (animState != null)
             {
-                animState.OwnedEvents.OnEnd = ()=>
-                {
-                    ChangeToNextState();
-                };
+                gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
             }
             else
             {
@@ -96,6 +93,8 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             _combat.ClearHitTargets();
+            
+            gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
@@ -180,7 +179,7 @@ namespace UPlayGround.State
                 var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 if (animState != null)
                 {
-                    animState.OwnedEvents.OnEnd = ChangeToNextState;
+                    // animState.OwnedEvents.OnEnd = ChangeToNextState;
                 }
                 
                 _playerActorAnimator.IsOpenedComboWindow = false;
@@ -207,18 +206,25 @@ namespace UPlayGround.State
 
         private AnimKey GetAnimKey()
         {
-            int skillCount = 4;
-            for (int i = 0; i < skillCount; i++)
+            var skillGauge = playerActor.SkillGauge;
+
+            // 스킬 1~5
+            for (int i = 0; i < 5; i++)
             {
-                if (playerController.HasSkillInput(i))
+                if (!playerController.HasSkillInput(i)) continue;
+
+                if (skillGauge != null && !skillGauge.ConsumeSkill(i))
                 {
-                    _currentAttack = _combat.ExecuteSkillAttack(i);
-                    return _currentAttack?.animKey ?? AnimKey.None;
+                    Debug.Log($"[PlayerAttackState] Skill {i + 1} 게이지 부족");
+                    continue;
                 }
+
+                _currentAttack = _combat.ExecuteSkillAttack(i);
+                return _currentAttack?.animKey ?? AnimKey.None;
             }
 
-            _currentAttack = (_isHeavyAttack) 
-                ? _combat.ExecuteHeavyAttack(_comboInputted) 
+            _currentAttack = _isHeavyAttack
+                ? _combat.ExecuteHeavyAttack(_comboInputted)
                 : _combat.ExecuteAttack(_comboInputted);
 
             return _currentAttack?.animKey ?? AnimKey.None;

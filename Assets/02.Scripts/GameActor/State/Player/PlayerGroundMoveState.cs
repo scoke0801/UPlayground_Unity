@@ -119,9 +119,13 @@ namespace UPlayGround.State
                 return;
             }
 
-            for (int i = 0; i < 4; ++i)
+           
+            var skillGauge = playerActor.SkillGauge;
+            for (int i = 0; i < 5; i++)
             {
+                if (skillGauge == null) break;
                 if (!playerController.HasSkillInput(i)) continue;
+                if (skillGauge.CanUseSkill(i) == false) continue; 
 
                 playerController.TransitionToState(new PlayerAttackState(playerController));
                 return;

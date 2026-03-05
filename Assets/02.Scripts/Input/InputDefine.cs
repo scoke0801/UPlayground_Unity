@@ -27,6 +27,7 @@
         public const string Skill_2 = "Skill_2";
         public const string Skill_3 = "Skill_3";
         public const string Skill_4 = "Skill_4";
+        public const string Skill_5 = "Skill_5";
         
         public const string Interact = "Interact";
         

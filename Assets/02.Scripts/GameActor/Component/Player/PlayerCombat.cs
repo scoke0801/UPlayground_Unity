@@ -139,36 +139,22 @@ namespace UPlayGround.Component
         
         /// <summary>
         /// 일반 공격 실행
-        /// State에서 호출: playerCombat.ExecuteAttack()
         /// </summary>
         public AttackData ExecuteAttack(bool isCombo)
         {
             if (_attackState == AttackState.HeavyAttack)
-            {
                 ResetCombo();
-            }
     
             _attackState = AttackState.NormalAttack;
-            // 콤보 체인 체크
-            if (isCombo && CanContinueCombo())
-            {
-                CurrentComboIndex++;
-            }
-            else
-            {
-                CurrentComboIndex = 0;
-            }
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             
-            // ComboData를 AttackData로 변환
             var comboData = _attackData.liteComboAttackList[CurrentComboIndex];
-            _currentAttackData = ConvertToAttackData(comboData);
+            _currentAttackData = ConvertToAttackData(comboData, AttackKind.NormalAttack);
             
             LastAttackTime = Time.time;
-
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData );
-            
-            return _currentAttackData ;
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
         }
         
         /// <summary>
@@ -176,36 +162,19 @@ namespace UPlayGround.Component
         /// </summary>
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
-            // if (!_equipment.IsSubWeaponEquipped)
-            // {
-            //     return null;
-            // }
-            //
             if (_attackState == AttackState.NormalAttack)
-            {
                 ResetCombo();
-            }
+
             _attackState = AttackState.HeavyAttack;
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             
-            // 콤보 체인 체크
-            if (isCombo && CanContinueCombo())
-            {
-                CurrentComboIndex++;
-            }
-            else
-            {
-                CurrentComboIndex = 0;
-            }
-            // ComboData를 AttackData로 변환
             var comboData = _attackData.heavyComboAttackList[CurrentComboIndex];
-            _currentAttackData = ConvertToAttackData(comboData);
+            _currentAttackData = ConvertToAttackData(comboData, AttackKind.HeavyAttack);
             
             LastAttackTime = Time.time;
-            
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData );
-            
-            return _currentAttackData ;
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
         }
         
         /// <summary>
@@ -214,18 +183,12 @@ namespace UPlayGround.Component
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             if (_attackData.skillAttackList.Count <= skillIndex)
-            {
                 return null;
-            }
 
-            var attackData = _attackData.skillAttackList[skillIndex];
-            _currentAttackData = ConvertToAttackData(attackData);
-            
+            _currentAttackData = ConvertToAttackData(_attackData.skillAttackList[skillIndex], AttackKind.SkillAttack);
             LastAttackTime = Time.time;
-            
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
-            
             return _currentAttackData;
         }
 
@@ -235,46 +198,62 @@ namespace UPlayGround.Component
         public AttackData ExecuteJumpAttack()
         {
             if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0)
-            {
                 return null;
-            }
             
-            var attackData = _attackData.jumpAttackList[0];
-            _currentAttackData = ConvertToAttackData(attackData);
-            
+            _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[0], AttackKind.JumpAttack);
             ResetCombo();
             LastAttackTime = Time.time;
-            
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
-
             return _currentAttackData;
         }
         
+        /// <summary>
+        /// 대시 공격 실행
+        /// </summary>
         public AttackData ExecuteDashAttack()
         {
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0)
-            {
                 return null;
-            }
             
-            var attackData = _attackData.dashAttackList[0];
-            _currentAttackData = ConvertToAttackData(attackData);
-            
+            _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
             ResetCombo();
             LastAttackTime = Time.time;
-            
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
-
             return _currentAttackData;
+        }
+
+        /// <summary>
+        /// 마무리(처형) 공격 히트 판정용 AttackData 세팅
+        /// FinishAttackState.OnEnter()에서 호출
+        /// </summary>
+        public void SetupFinishAttackData()
+        {
+            _currentAttackInfoBase = null;
+            _currentAttackData = new AttackData
+            {
+                animKey          = AnimKey.FinishAttack,
+                damage           = 9999f,
+                poiseDamage      = 9999f,
+                canBeInterrupted = false,
+                reactionType     = AttackReactionType.Knockdown,
+                hitRange         = 1.5f,
+                hitAngle         = 90f,
+                hitHeightOffset  = 1.0f,
+                hitParticleName  = "HeavyHit",
+                knockbackForce   = 0f,
+                attackKind       = AttackKind.FinishAttack,
+            };
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
         }
 
         /// <summary>
         /// PlayerAttackInfo를 AttackData로 변환.
         /// Phase[0] 데이터를 초기값으로 세팅하고, 런타임에 SetHitPhaseIndex()로 갱신된다.
         /// </summary>
-        private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo)
+        private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo, AttackKind attackKind)
         {
             _currentAttackInfoBase = attackInfo.baseInfo;
             var phase0 = attackInfo.baseInfo.GetHitPhase(0);
@@ -294,6 +273,7 @@ namespace UPlayGround.Component
                 knockbackForce   = phase0.knockBackForce,
                 airborneForce    = phase0.airborneForce,
                 hitPhaseIndex    = 0,
+                attackKind       = attackKind,
             };
         }
         /// <summary>

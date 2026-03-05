@@ -142,6 +142,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Skill_5",
+                    "type": "Button",
+                    "id": "4c83a734-e804-4ba2-a63d-1487c5afca71",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Equip",
                     "type": "Button",
                     "id": "5b1fc20b-22f5-4a76-892c-be1896a3d7d3",
@@ -491,6 +500,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08561d15-7e45-45a3-b5d0-12ad409c8e75",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill_5",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

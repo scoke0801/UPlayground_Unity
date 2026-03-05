@@ -48,6 +48,36 @@ namespace UPlayGround.MovementController
         protected List<Collider> IgnoredColliders = new List<Collider>();
         protected Vector3 _internalVelocityAdd = Vector3.zero;
 
+        // Impulse (넉백/Launch 전용)
+        // _internalVelocityAdd 와 분리: Impulse는 매 프레임 drag로 감속
+        private Vector3 _impulseVelocity  = Vector3.zero;
+        private float   _impulseDrag      = 10f;   // 감속 강도 (높을수록 빨리 멈춤)
+        private bool    _hasImpulse       = false;
+
+        /// <summary>
+        /// 물리 충격량 부여. 넉백/Launch 등 감속이 필요한 외부 힘에 사용.
+        /// drag: 높을수록 빨리 감속 (권장: 넉백 6~10, Launch 3~5)
+        /// </summary>
+        public void AddImpulse(Vector3 velocity, float drag = 8f)
+        {
+            _impulseVelocity += velocity;
+            _impulseDrag      = drag;
+            _hasImpulse       = true;
+
+            // 위쪽 성분이 있으면 KCC 지면 판정 강제 해제 (Launch 필수)
+            if (velocity.y > 0f)
+                Motor.ForceUnground();
+        }
+
+        public void ClearImpulse()
+        {
+            _impulseVelocity = Vector3.zero;
+            _hasImpulse      = false;
+        }
+
+        /// <summary> 현재 Impulse가 활성화 중인지 (EnemyAirborneState tumble 판정용) </summary>
+        public bool HasImpulse => _hasImpulse;
+
         public KinematicCharacterMotor Motor { get; private set; }
         public GameActor Actor { get; private set; }
 
@@ -150,22 +180,52 @@ namespace UPlayGround.MovementController
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // 로컬 타임스케일 적용
             float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-            _currentState?.UpdateVelocity(ref currentVelocity, localDeltaTime);
-            
-            // 외부 충격량(AddVelocity) 반영
+
+            // State 이동 velocity 계산
+            // Impulse가 활성화된 동안에는 State의 이동 입력을 차단
+            // (넉백 중 플레이어가 이동으로 거리를 상쇄하는 것을 방지)
+            Vector3 stateVelocity = currentVelocity;
+            _currentState?.UpdateVelocity(ref stateVelocity, localDeltaTime);
+
+            // 중력
+            if (!Motor.GroundingStatus.IsStableOnGround)
+            {
+                if (_currentState is { AdjustGravity: true })
+                {
+                    float verticalSpeed     = Vector3.Dot(stateVelocity, Motor.CharacterUp);
+                    float gravityMultiplier = verticalSpeed < 0f ? FallGravityMultiplier : RiseGravityMultiplier;
+                    // localDeltaTime 사용 — 히트스톱(LocalTimeScale=0) 중 중력 정지
+                    stateVelocity += gravityMultiplier * localDeltaTime * Gravity;
+                }
+            }
+
+            // AddVelocity — 즉발성 1회 힘 (점프 등)
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {
-                // Y축 위로 솟구치는 경우, 즉시 지면 판정을 무시하도록 처리
                 if (_internalVelocityAdd.y > 0f)
-                {
                     Motor.ForceUnground();
-                }
 
-                currentVelocity += _internalVelocityAdd;
-                _internalVelocityAdd = Vector3.zero;
+                stateVelocity       += _internalVelocityAdd;
+                _internalVelocityAdd  = Vector3.zero;
             }
+
+            // Impulse — 넉백/Launch 감속 레이어
+            // stateVelocity와 분리 합산 → 이동거리 = impulse / drag (예측 가능)
+            if (_hasImpulse)
+            {
+                // Exp 감속: 프레임레이트 독립적
+                _impulseVelocity = Vector3.Lerp(
+                    _impulseVelocity,
+                    Vector3.zero,
+                    1f - Mathf.Exp(-_impulseDrag * localDeltaTime));
+
+                if (_impulseVelocity.sqrMagnitude < 0.01f)
+                    ClearImpulse();
+            }
+
+            // 최종 합산
+            currentVelocity = stateVelocity + _impulseVelocity;
         }
         
         /// <summary>

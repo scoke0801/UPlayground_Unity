@@ -18,6 +18,7 @@ namespace UPlayGround.Data.Event
         public Vector3 spawnOffset;               // 위치 보정 (로컬)
         public Vector3 rotationOffset;            // 방향 보정 오일러 각도
         public bool useSpawnRotation = true;      // 스폰 포인트 회전을 기준으로 할지
+        public float damage = 10f;
         
         [Header("Move Setting")]
         public float speed = 10f;
@@ -42,29 +43,39 @@ namespace UPlayGround.Data.Event
 
             var actor = target.GetComponent<GameActor>();
             if (actor == null) return;
-            
-            // 회전을 위한 스폰 포인트 결정
-            Transform rotationPoint = string.IsNullOrEmpty(spawnPointName)
+    
+            // 스폰 기준점 (무기 본/트랜스폼)
+            Transform spawnPoint = string.IsNullOrEmpty(spawnPointName)
                 ? target.transform
                 : FindTransformByName(target.transform, spawnPointName) ?? target.transform;
-            
-            Quaternion baseRot = useSpawnRotation
-                ? Quaternion.Euler(0f, rotationPoint.rotation.eulerAngles.y, -rotationPoint.rotation.eulerAngles.z)
-                : Quaternion.identity;
-            
-            Quaternion finalRot = baseRot * Quaternion.Euler(rotationOffset);
-            
-            Vector3 worldDirection = target.transform.forward;
-            worldDirection.y = 0; // y축 방향 제거
-            worldDirection.Normalize();
-            
-            var worldPos = target.transform.position + spawnOffset;
-            var instance = GameObject.Instantiate(projectilePrefab, worldPos, finalRot);
+    
+            // 물리적 이동 궤적 (캐릭터 정면 수평)
+            Vector3 flyDirection = target.transform.forward;
+            flyDirection.y = 0f;
+            if (flyDirection == Vector3.zero) flyDirection = target.transform.forward;
+            flyDirection.Normalize();
 
+            // 무기의 현재 회전값 및 축 보정
+            Quaternion weaponRot = useSpawnRotation ? spawnPoint.rotation : target.transform.rotation;
+            weaponRot *= Quaternion.Euler(rotationOffset); 
+
+            Vector3 weaponUp = weaponRot * Vector3.up; 
+            Vector3 projectedUp = Vector3.ProjectOnPlane(weaponUp, flyDirection).normalized;
+
+            if (projectedUp == Vector3.zero) 
+            {
+                projectedUp = Vector3.up; 
+            }
+            Quaternion finalRot = Quaternion.LookRotation(flyDirection, projectedUp);
+
+            Vector3 worldPos = spawnPoint.TransformPoint(spawnOffset);
+    
+            var instance = GameObject.Instantiate(projectilePrefab, worldPos, finalRot);
             var projectile = instance.GetComponent<BaseProjectile>();
+    
             if (projectile != null)
             {
-                projectile.Initialize(worldPos, worldDirection, 10f, speed, actor, duration, targetHitLayer, hitParticleName);
+                projectile.Initialize(worldPos, flyDirection, damage, speed, actor, duration, targetHitLayer, hitParticleName);
             }
         }
 

@@ -12,6 +12,8 @@ namespace UPlayGround.State
         protected GameActor gameActor;
         protected ActorMovementController controller;
         protected KinematicCharacterMotor motor;
+
+        public virtual bool AdjustGravity { get; protected set; } = true;
         
         public GameActorState(ActorMovementController controller)
         {

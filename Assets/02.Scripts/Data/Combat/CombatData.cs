@@ -133,6 +133,7 @@ namespace UPlayGround.Data
         public float damage;
         public float poiseDamage = 30f;
         public bool canBeInterrupted;
+        public AttackKind attackKind = AttackKind.NormalAttack;  // 게이지 충전 구분용
 
         public AttackReactionType reactionType = AttackReactionType.Hit;
 

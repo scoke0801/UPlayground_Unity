@@ -29,8 +29,10 @@ namespace UPlayGround
         // 추가 컴포넌트
         [SerializeField] private PlayerEquipment _equipment;
         [SerializeField] private PlayerCombat _combat;
+        [SerializeField] private PlayerSkillGauge _skillGauge;
 
         public event Action<float, float> OnHpChanged;
+        public event Action<float, float> OnSkillGaugeChanged;
         
         protected PlayerMovementController PlayerMovementPlayerController;
         
@@ -57,7 +59,8 @@ namespace UPlayGround
             InputCondition.None,
             InputCondition.None,
             InputCondition.None,
-            InputCondition.None 
+            InputCondition.None,
+            InputCondition.None,
         };
         
         public override ActorAnimator Animator => _playerActorAnimator;
@@ -73,6 +76,8 @@ namespace UPlayGround
         
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
+        
+        public PlayerSkillGauge SkillGauge => _skillGauge;
     }
     /// <summary>
     /// 
@@ -151,6 +156,7 @@ namespace UPlayGround
                     _skillInputCondition[1],
                     _skillInputCondition[2],
                     _skillInputCondition[3],
+                    _skillInputCondition[4],
                 },
             };
 
@@ -222,6 +228,9 @@ namespace UPlayGround
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,
                     null, OnInputPerformedSkill_4, null, null, null, layer);
 
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,
+                    null, OnInputPerformedSkill_5, null, null, null, layer);
+
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null, null, null, layer);
                 
@@ -275,6 +284,9 @@ namespace UPlayGround
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,
                     null, OnInputPerformedSkill_4, null);
+                
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,
+                    null, OnInputPerformedSkill_5, null);
                 
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null);
@@ -358,6 +370,10 @@ namespace UPlayGround
         {
             _skillInputCondition[3] = InputCondition.Pressed;
         }
+        private void OnInputPerformedSkill_5(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[4] = InputCondition.Pressed;
+        }
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {
             _interactionInputCondition = InputCondition.Pressed;
@@ -406,14 +422,16 @@ namespace UPlayGround
         private void InitComponents()
         {
             if (_combat == null)
-            {
                 _combat = GetComponent<PlayerCombat>();
-            }
 
             if (_equipment == null)
-            {
                 _equipment = GetComponent<PlayerEquipment>();
-            }
+
+            if (_skillGauge == null)
+                _skillGauge = GetComponent<PlayerSkillGauge>();
+
+            if (_skillGauge != null)
+                _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
 
             // 카메라에 전투 상태 조회 함수 등록 (매 프레임 폴링)
             CameraManager.Instance?.SetCombatStateProvider(() => _combat != null && _combat.IsInCombat);
@@ -519,7 +537,7 @@ namespace UPlayGround
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddVelocity(attackData.attackDirection.normalized * attackData.knockbackForce);
+                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce);
                         break;
 
                     case AttackReactionType.Pull:
@@ -535,7 +553,7 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddVelocity(launchDir * 5f + Vector3.up * attackData.airborneForce);
+                        MovementController.AddImpulse(launchDir * 5f + Vector3.up * attackData.airborneForce);
                         MovementController.Motor.ForceUnground();
                         break;
                     }

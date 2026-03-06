@@ -23,6 +23,7 @@ namespace UPlayGround.Component
         [SerializeField] private float _detectionInterval = 0.2f;
         
         private Transform _currentTarget;
+        private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
         private float _detectionTimer;
         private List<IDamageable> _cachedAllies = new List<IDamageable>();
         
@@ -46,13 +47,23 @@ namespace UPlayGround.Component
         public void AcquireTarget(Transform target)
         {
             if (target.GetComponent<IDamageable>()?.IsAlive() == false)
-            {
                 return;
-            }
-            
+
+            bool wasWithoutTarget = !HasTarget;
             _currentTarget = target;
+            _targetAcquiredExternally = wasWithoutTarget; // 새로 주입된 경우만 true
+
+            if (wasWithoutTarget)
+                OnTargetAcquiredExternally?.Invoke();
+
             Debug.Log($"[EnemyDetection] 타겟 획득: {target.name}");
         }
+
+        /// <summary>
+        /// 경보 전파 등으로 외부에서 타겟이 주입됐을 때 발생.
+        /// EnemyBrain이 구독해서 즉시 Chase로 전환한다.
+        /// </summary>
+        public event System.Action OnTargetAcquiredExternally;
         
         private void UpdateDetection()
         {
@@ -97,18 +108,28 @@ namespace UPlayGround.Component
         {
             if (target == null)
                 return false;
-            
-            float distance = Vector3.Distance(transform.position, target.position);
-            
-            // 추적 해제 범위를 벗어났는지 체크
-            if (distance > _lostTargetRadius)
-                return false;
-            
-            // 타겟이 살아있는지 체크 (IDamageable 확인)
+
+            // 타겟이 살아있는지 체크
             var damageable = target.GetComponent<IDamageable>();
             if (damageable != null && !damageable.IsAlive())
                 return false;
-            
+
+            // 외부 주입(AlertGroup 등) 타겟은 거리 체크를 면제한다.
+            // 자체 탐지한 타겟만 lostTargetRadius로 추적 해제한다.
+            if (_targetAcquiredExternally)
+            {
+                // 스스로 감지 범위 안에 들어오면 이후부터는 일반 추적으로 전환
+                float dist = Vector3.Distance(transform.position, target.position);
+                if (dist <= _lostTargetRadius)
+                    _targetAcquiredExternally = false;
+
+                return true; // 아직 멀어도 타겟 유지
+            }
+
+            // 자체 탐지 타겟 — 추적 해제 범위 체크
+            if (Vector3.Distance(transform.position, target.position) > _lostTargetRadius)
+                return false;
+
             return true;
         }
 
@@ -140,6 +161,7 @@ namespace UPlayGround.Component
         {
             Debug.Log($"[EnemyDetection] 타겟 상실: {_currentTarget?.name}");
             _currentTarget = null;
+            _targetAcquiredExternally = false;
         }
 
         public void ForceResetTarget()

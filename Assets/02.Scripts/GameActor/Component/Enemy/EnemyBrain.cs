@@ -140,7 +140,31 @@ namespace UPlayGround.Component
             var actor = GetComponent<GameActor>();
             _hasGuardMotion = actor?.Animator?.HasMotion(AnimKey.Guard) ?? false;
 
+            _detection.OnTargetAcquiredExternally += OnTargetInjected;
+
             RollNextActionDelay();
+        }
+
+        private void OnDestroy()
+        {
+            _detection.OnTargetAcquiredExternally -= OnTargetInjected;
+        }
+
+        /// <summary>
+        /// AlertGroup 등 외부 주입으로 타겟이 생겼을 때 호출.
+        /// 쿨다운을 무시하고 즉시 Chase로 전환한다.
+        /// </summary>
+        private void OnTargetInjected()
+        {
+            if (!enabled) return;
+
+            string state = _movementController?.CurrentState?.StateName;
+            if (state is "Death" or "Attack" or "Hit" or "Grabbed") return;
+
+            // 쿨다운 리셋 후 즉시 Chase
+            _actionCooldownTimer = _nextActionDelay;
+            _movementController.TransitionToState(
+                new EnemyChaseState(_movementController, this, _detection));
         }
 
         private void Update()
@@ -251,7 +275,7 @@ namespace UPlayGround.Component
             if (_actionCooldownTimer < _nextActionDelay)
             {
                 // 단, Chase 중이고 사정거리 안이면 바로 공격
-                if (state == "Chase" && dist <= _maxAttackRange && CanUseSkill())
+                if (state == "Chase" && IsInAttackablePosition(dist) && CanUseSkill())
                 {
                     ExecuteAttack();
                     return;
@@ -259,15 +283,33 @@ namespace UPlayGround.Component
                 return;
             }
 
-            // 사정거리 안이면 공격 우선
-            if (dist <= _maxAttackRange && CanUseSkill() && _combat.HasAvailableSkillAtDistance(dist))
+            // 공격 가능 위치(사정거리 + 최소 접근 거리 충족)면 공격
+            if (IsInAttackablePosition(dist) && CanUseSkill() && _combat.HasAvailableSkillAtDistance(dist))
             {
                 ExecuteAttack();
                 return;
             }
 
+            // 공격 불가 위치 → 접근
+            if (dist > OptimalCombatDistance && state is not "Chase" and not "Charge" and not "Flank")
+            {
+                _movementController.TransitionToState(
+                    new EnemyChaseState(_movementController, this, _detection));
+                return;
+            }
+
             // 거리 기반 행동
             HandleDistanceBasedBehavior(state, dist);
+        }
+
+        /// <summary>
+        /// 공격 가능한 위치인지 판단.
+        /// 사정거리 안 + OptimalCombatDistance 이내여야 한다.
+        /// 원거리 몬스터는 minRange도 충족해야 하므로 HasAvailableSkillAtDistance로 최종 검증.
+        /// </summary>
+        private bool IsInAttackablePosition(float dist)
+        {
+            return dist <= _maxAttackRange && dist <= OptimalCombatDistance * 1.2f;
         }
         
         /// <summary>

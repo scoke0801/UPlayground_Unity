@@ -79,6 +79,9 @@ namespace UPlayGround.State
             
             // 공격 모션 종료 → Hyper Armor 해제
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
+
+            // 그룹 슬롯 반환
+            _brain.ReleaseGroupSlot();
         }
 
         public override void UpdateState(float deltaTime)

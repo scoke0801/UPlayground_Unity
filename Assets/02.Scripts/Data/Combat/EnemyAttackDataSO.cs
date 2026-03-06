@@ -74,10 +74,14 @@ namespace UPlayGround.Data.Combat
         public bool HasRangedSkill()
         {
             foreach (var skill in skills)
-            {
-                if (skill.baseInfo.attackType == AttackType.Ranged)
-                    return true;
-            }
+                if (skill.baseInfo.attackType == AttackType.Ranged) return true;
+            return false;
+        }
+
+        public bool HasMeleeSkill()
+        {
+            foreach (var skill in skills)
+                if (skill.baseInfo.attackType == AttackType.Melee) return true;
             return false;
         }
     }

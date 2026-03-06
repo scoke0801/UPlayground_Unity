@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Group;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -58,7 +60,9 @@ namespace UPlayGround.Data.Event
 
                         if (actor.ActorType == ActorType.Monster)
                         {
-                            HandleMonsterActor(actor as MonsterActor, spawned);
+                            var spawnedMonster = spawned.GetComponent<MonsterActor>();
+                            if (spawnedMonster != null)
+                                HandleMonsterActor(actor as MonsterActor, spawnedMonster);
                         }
                     }
                 }
@@ -74,13 +78,16 @@ namespace UPlayGround.Data.Event
             }
         }
 
-        private void HandleMonsterActor(MonsterActor actor, GameObject spawned)
+        private void HandleMonsterActor(MonsterActor summoner, MonsterActor spawned)
         {
-            if (actor == null || actor.Combat == null)
-            {
-                return;
-            }
-            actor.Combat.RegisterSpawnedUnit(spawned.transform);
+            if (summoner == null || summoner.Combat == null) return;
+
+            summoner.Combat.RegisterSpawnedUnit(spawned.transform);
+
+            // 소환된 유닛을 소환사의 그룹에 편입 (Summon 우선순위 — 슬롯 후순위)
+            var group = summoner.Brain.Group;
+            if (group != null)
+                group.RegisterMember(spawned, MemberPriority.Summon);
         }
 
         private void ResolveOverlap(Collider targetCol)

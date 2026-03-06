@@ -292,6 +292,9 @@ namespace UPlayGround
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
+
+            // 그룹에서 제거 — 슬롯/레지스트리 정리
+            _brain?.Group?.UnregisterMember(this);
             
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 

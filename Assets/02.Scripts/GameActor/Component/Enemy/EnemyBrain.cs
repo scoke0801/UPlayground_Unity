@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Group;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 using Random = UnityEngine.Random;
@@ -39,8 +40,6 @@ namespace UPlayGround.Component
         private float _nextActionDelay;
         /// <summary> 현재 전투 행동 후 경과 타이머 </summary>
         private float _actionCooldownTimer;
-        /// <summary> Circle 도중 갑자기 공격으로 전환할 랜덤 타이밍 </summary>
-        private float _circleInterruptTime;
         /// <summary> 연속 후퇴 방지 카운터 </summary>
         private int   _consecutiveDefensiveCount;
 
@@ -48,6 +47,12 @@ namespace UPlayGround.Component
         private const float MIN_ACTION_DELAY     = 0.5f;  // 최소 행동 간 대기 (0.3 -> 0.5)
         private const float MAX_ACTION_DELAY     = 1.5f;  // 최대 행동 간 대기 (1.2 -> 1.5)
         private const int   MAX_DEFENSIVE_STREAK = 2;     // 연속 방어 행동 제한
+
+        // 그룹 연동
+        private MonsterGroupController _groupController;
+        private MemberPriority         _memberPriority;
+        private MonsterActor           _monster;
+        private AttackType             _myAttackType; // Start()에서 1회 결정, 런타임 불변
 
         // SO 값 접근
         private EnemyBehaviorSO data => _behaviorData;
@@ -60,6 +65,7 @@ namespace UPlayGround.Component
         public float RetreatDistance => data?.retreatDistance  ?? 3f;
         public float CircleDuration  => data?.circleDuration  ?? 2.5f;
         public bool HasGuardMotion   => _hasGuardMotion;
+        public MonsterGroupController Group => _groupController;
 
         public float ContinueAttackChance => _currentPhase?.continueAttackChance ?? data?.continueAttackChance ?? 0.3f;
         public float GuardChance          => _currentPhase?.guardChance          ?? data?.guardChance          ?? 0.25f;
@@ -106,6 +112,7 @@ namespace UPlayGround.Component
             _movementController ??= GetComponent<ActorMovementController>();
             _combat             ??= GetComponent<EnemyCombat>();
             _memory             ??= GetComponent<EnemyTacticalMemory>();
+            _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
         }
 
@@ -123,6 +130,12 @@ namespace UPlayGround.Component
             }
 
             _lastAttackTime = -(_combat?.AttackData?.globalCooldown ?? 1f);
+
+            // 공격 타입 캐싱 — 모든 스킬이 Ranged면 원거리, 하나라도 Melee면 근접
+            _myAttackType = (_combat.AttackData?.HasRangedSkill() == true
+                             && !_combat.AttackData.HasMeleeSkill())
+                ? AttackType.Ranged
+                : AttackType.Melee;
 
             var actor = GetComponent<GameActor>();
             _hasGuardMotion = actor?.Animator?.HasMotion(AnimKey.Guard) ?? false;
@@ -620,10 +633,25 @@ namespace UPlayGround.Component
         
         private void ExecuteAttack()
         {
+            // 그룹 슬롯 요청 — 거절당하면 공격하지 않고 Circle로 대기
+            if (_groupController != null)
+            {
+                if (!_groupController.RequestAttackSlot(_monster, _myAttackType))
+                {
+                    float waitCircle = CircleDuration * Random.Range(0.3f, 0.6f);
+                    _movementController.TransitionToState(
+                        new EnemyCircleState(_movementController, this, _detection, waitCircle));
+                    return;
+                }
+            }
+
             _lastAttackTime = Time.time;
             _actionCooldownTimer = 0f;
-            _consecutiveDefensiveCount = 0; // 공격하면 방어 카운터 리셋
+            _consecutiveDefensiveCount = 0;
             _memory?.NotifyCombatAction();
+
+            if (_detection.HasTarget)
+                _groupController?.AlertGroup(_detection.CurrentTarget);
 
             _movementController.TransitionToState(
                 new EnemyAttackState(_movementController, _combat, this, _detection));
@@ -662,6 +690,22 @@ namespace UPlayGround.Component
         {
             Vector2 c = Random.insideUnitCircle * PatrolRadius;
             return _spawnPosition + new Vector3(c.x, 0, c.y);
+        }
+
+        /// <summary>
+        /// MonsterGroupController가 Awake 또는 동적 소환 시 주입한다.
+        /// </summary>
+        public void SetGroup(MonsterGroupController group, MemberPriority priority)
+        {
+            _groupController = group;
+            _memberPriority  = priority;
+        }
+
+        /// <summary> EnemyAttackState.OnExit에서 호출. 점유한 슬롯을 반환한다. </summary>
+        public void ReleaseGroupSlot()
+        {
+            if (_monster != null)
+                _groupController?.ReleaseAttackSlot(_monster);
         }
 
         public void Freeze()

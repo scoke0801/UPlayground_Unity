@@ -340,7 +340,7 @@ namespace UPlayGround.Component
                         _currentAttackData.hitPoint);
 
                     OnAttackHit?.Invoke(_currentAttackData);
-
+                    
                     isDamageExecuted = true;
                     Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
                 }
@@ -356,9 +356,21 @@ namespace UPlayGround.Component
                 if (isKillHit)
                 {
                     CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
+                   
+                    // 킬캠 발동 시 스폰
+                    var killTrigger = _currentAttackData.attackKind == AttackKind.FinishAttack
+                        ? VitalOrbTrigger.FinishAttackHit
+                        : VitalOrbTrigger.KillKillCam;
+                    VitalOrbManager.Instance.TrySpawn(killTrigger, _currentAttackData.hitPoint);
                 }
                 else
                 {
+                    // 회복 구슬 오브젝트 스폰 - 공격 히트 트리거
+                    var dropTrigger = _currentAttackData.attackKind == AttackKind.HeavyAttack
+                        ? VitalOrbTrigger.HeavyAttackHit
+                        : VitalOrbTrigger.LightAttackHit;
+                    VitalOrbManager.Instance.TrySpawn(dropTrigger, _currentAttackData.hitPoint);
+
                     CameraManager.Instance.Punch(_currentAttackData.attackDirection, 0.12f, 0.12f);
                     CameraManager.Instance.StartShake("LiteHit");
                     GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);

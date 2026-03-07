@@ -18,8 +18,8 @@ namespace UPlayGround.Data.Combat
         public float lifetime        = 12.0f;
 
         [Header("부유 애니메이션")]
-        public float floatAmplitude = 0.15f;
-        public float floatSpeed     = 2.0f;
+        public float floatAmplitude = 0.05f;
+        public float floatSpeed     = 0.05f;
 
         [Header("이펙트 / 사운드")]
         public string spawnParticleName   = "";

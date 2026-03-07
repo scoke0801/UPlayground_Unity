@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -147,6 +148,8 @@ namespace UPlayGround
                 AttachHpUI();
             }
             MovementController.AddVelocity(attackDirection.normalized * 30.0f);
+            
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
 
             OnDeath(null);
         }

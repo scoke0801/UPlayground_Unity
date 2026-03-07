@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.AI;
 using UPlayGround.Data.Combat;
 
@@ -7,12 +8,27 @@ namespace UPlayGround.Manager
 {
     /// <summary>
     /// 회복 구슬 오브젝트 스폰 / 풀링을 담당하는 매니저.
-    /// 기존 전투 코드에서 TrySpawn() 하나만 호출하면 됩니다.
+    /// 전투 코드에서 TrySpawn() 호출
     /// </summary>
     public class VitalOrbManager : BaseManager<VitalOrbManager>, IManager
     {
-        [SerializeField] private VitalOrbActor _vitalOrbObjectPrefab;
-        [SerializeField] private VitalOrbTriggerConfig   _triggerConfig;
+        [Tooltip("지형으로 판정할 레이어")] 
+        private LayerMask _groundLayerMask = 0;
+        
+        [Tooltip("바닥에서 얼만큼 띄워서 스폰할지")] 
+        private float _spawnYOffset = 0.5f;
+
+        [Tooltip("원하는 위치 기준 얼만큼 위에서 레이캐스트를 쏠지")] 
+        private float _raycastStartOffset = 10f;
+
+        [Tooltip("레이캐스트 최대 탐색 거리")] 
+        private float _raycastDistance = 20f;
+        
+        private readonly string configPath = "VitalOrbConfig";
+        private readonly string prefabPath = "VitalOrbPrefab";
+        
+        private VitalOrbActor _vitalOrbObjectPrefab;
+        private VitalOrbTriggerConfig   _triggerConfig;
 
         // 트리거별 런타임 상태
         private readonly Dictionary<VitalOrbTrigger, TriggerRuntimeState> _triggerStates = new();
@@ -25,16 +41,54 @@ namespace UPlayGround.Manager
         // -----------------------------------------------------------
         public void Init()
         {
-            if (_triggerConfig == null)
-            {
-                Debug.LogError("[DropManager] DropTriggerConfig가 할당되지 않았습니다.");
-                return;
-            }
+            LoadConfigData();
+            LoadOrbPrefab();
 
-            foreach (var entry in _triggerConfig.entries)
+            string[] lockLayer =
             {
-                _triggerStates[entry.trigger]  = new TriggerRuntimeState();
-                _activeCountMap[entry.trigger] = 0;
+                "Ground"
+            };
+            foreach (string layerName in lockLayer)
+            {
+                int layer = LayerMask.NameToLayer(layerName);
+                if (layer != -1)
+                {
+                    _groundLayerMask |= (1 << layer);  // 비트 OR로 레이어 추가
+                }
+            }
+        }
+
+        private void LoadOrbPrefab()
+        {
+            Addressables.LoadAssetAsync<GameObject>(prefabPath).Completed += handle =>
+            {
+                _vitalOrbObjectPrefab = handle.Result.GetComponent<VitalOrbActor>(); 
+            };
+        }
+
+        private async void LoadConfigData()
+        {
+            var handle = Addressables.LoadAssetAsync<VitalOrbTriggerConfig>(configPath);
+
+            try
+            {
+                _triggerConfig = await handle.Task;
+
+                if (_triggerConfig == null)
+                {
+                    Debug.LogError($"[VitalOrbManager] '{configPath}' 경로에서 찾을 수 없습니다.");
+                    return;
+                }
+
+                foreach (var entry in _triggerConfig.entries)
+                {
+                    _triggerStates[entry.trigger]  = new TriggerRuntimeState();
+                    _activeCountMap[entry.trigger] = 0;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[VitalOrbManager] Config 로드 실패: {e.Message}");
             }
         }
 
@@ -86,11 +140,10 @@ namespace UPlayGround.Manager
             // 확률 체크
             if (Random.value > entry.probability)
                 return;
-
-            // NavMesh 위 유효 위치 탐색
-            if (!TryGetNavMeshPosition(spawnPosition, out Vector3 validPos))
-                return;
-
+            
+            if (!TryGetGroundPosition(spawnPosition, out Vector3 validPos))
+                return; 
+            
             SpawnDropObject(entry, trigger, validPos);
         }
 
@@ -131,7 +184,26 @@ namespace UPlayGround.Manager
             }
             return null;
         }
+        
+        private bool TryGetGroundPosition(Vector3 desired, out Vector3 result)
+        {
+            // 원하는 위치(desired)가 바닥보다 살짝 아래에 있을 수도 있으므로,
+            // 허공(_raycastStartOffset 만큼 위)에서 아래로 레이캐스트를 쏩니다.
+            Vector3 origin = desired + Vector3.up * _raycastStartOffset;
+    
+            // 아래쪽으로 레이를 쏴서 지형(_groundLayerMask)과 충돌하는지 확인
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, _raycastDistance, _groundLayerMask))
+            {
+                // 충돌한 바닥 좌표에 원하는 yOffset만큼 위로 올려서 반환
+                result = hit.point + Vector3.up * _spawnYOffset;
+                return true;
+            }
 
+            // 바닥을 찾지 못한 경우
+            result = Vector3.zero;
+            return false;
+        }
+        
         private static bool TryGetNavMeshPosition(Vector3 desired, out Vector3 result)
         {
             // 반경 2m 안에서 가장 가까운 NavMesh 샘플

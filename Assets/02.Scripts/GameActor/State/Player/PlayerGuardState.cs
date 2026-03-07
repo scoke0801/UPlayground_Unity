@@ -47,10 +47,6 @@ namespace UPlayGround.State
             _combat.IsGuarding = true;
             _guardStartTime = Time.time;
 
-            // 일반 가드 드롭 스폰 - 플레이어 전방 1m
-            Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
-            
             playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
         }
         
@@ -138,6 +134,10 @@ namespace UPlayGround.State
         /// </summary>
         public void OnAttackBlocked(AttackData incomingAttack)
         {
+            // 일반 가드 드롭 스폰 - 플레이어 전방 1m
+            Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
+
             // Guard Break 공격인지 확인
             if (_combat.IsGuardBreak(incomingAttack))
             {

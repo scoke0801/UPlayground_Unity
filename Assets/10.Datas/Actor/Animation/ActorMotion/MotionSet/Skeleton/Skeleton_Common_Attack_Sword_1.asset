@@ -10,13 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Skeleton_Common_Attack_Sword
+  m_Name: Skeleton_Common_Attack_Sword_1
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: 4151081468701231442, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      motionClip: {fileID: -7935346524452279045, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636617
     globalEvents: []
@@ -31,3 +34,4 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 0

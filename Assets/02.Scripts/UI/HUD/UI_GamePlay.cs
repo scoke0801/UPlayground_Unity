@@ -65,9 +65,6 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
             null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
        
-        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.EquipInventory,
-            null, OnPerformedEquipInventory, null, null, null, InputLayer.Level_0); 
-        
     }
 
     protected override void UnRegisterInputEvents()
@@ -75,8 +72,6 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
             null, OnPerformedInventory,null);
         
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.EquipInventory,
-            null, OnPerformedEquipInventory,null);
     }
 
     #endregion
@@ -93,19 +88,6 @@ class UI_GamePlay : UI_Base
         else
         {
             UIManager.Instance.HideUI("Inventory");
-        }
-    }
-
-    private void OnPerformedEquipInventory(InputAction.CallbackContext obj)
-    {      
-        UI_EquipInventory inventory = UIManager.Instance.GetActiveUI("EquipInventory")?.GetComponent<UI_EquipInventory>();
-        if (inventory == null || inventory.IsVisible == false)
-        {
-            UIManager.Instance.ShowUI("EquipInventory");
-        }
-        else
-        {
-            UIManager.Instance.HideUI("EquipInventory");
         }
     }
 

@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 8992522252433359312, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636614
     globalEvents: []
@@ -31,3 +34,4 @@ MonoBehaviour:
         targetLayers:
           serializedVersion: 2
           m_Bits: 64
+        hitPhaseIndex: 0

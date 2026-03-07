@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 
@@ -95,6 +96,8 @@ namespace UPlayGround
                 _activeSequence = null;
                 yield break;
             }
+            
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
 
             // --- 현재 상태 저장 ---
             float originalDistance = cameraManager.GetCurrentDistance();

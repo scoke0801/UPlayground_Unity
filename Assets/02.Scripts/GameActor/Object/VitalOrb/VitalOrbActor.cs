@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -14,6 +15,8 @@ namespace UPlayGround
         // VitalOrbManager가 카운트 관리에 사용
         public event Action OnExpired;
 
+        private const float AttractDelay = 1.5f; // 1.5초 동안은 흡입되지 않음
+        
         private VitalOrbDataSO _data;
         private Action         _onCollect;   // 습득 시 콜백 (VitalOrbManager의 카운트 감소)
 
@@ -29,7 +32,6 @@ namespace UPlayGround
         private Renderer[] _renderers;
 
         private enum State { Idle, Attract, Collect, Expire }
-
         // -----------------------------------------------------------
         // 초기화
         // -----------------------------------------------------------
@@ -47,7 +49,7 @@ namespace UPlayGround
             // 플레이어 캐싱
             var playerObj = GameObjectManager.Instance.Player;
             if (playerObj != null)
-                _playerTransform = playerObj.transform;
+                _playerTransform = playerObj.GetSocket(ActorSocketType.Center);
         }
 
         // -----------------------------------------------------------
@@ -76,10 +78,16 @@ namespace UPlayGround
                 EnterExpire();
                 return;
             }
-
+            
+            // 딜레이 시간이 지난 이후에만 플레이어와의 거리를 체크하여 Attract 상태로 전환
             float dist = HorizontalDistance(transform.position, _playerTransform.position);
-            if (dist <= _data.collectRadius)
-                _state = State.Attract;
+            if (_lifetimeTimer >= AttractDelay)
+            {
+                if (dist <= _data.collectRadius)
+                {
+                    _state = State.Attract;
+                }
+            }
         }
 
         private void UpdateAttract()

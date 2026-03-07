@@ -38,12 +38,12 @@ namespace UPlayGround.Data.Combat
     /// </summary>
     public enum VitalOrbTrigger
     {
-        FinishAttackHit,    // 처형 공격 히트 (100%)
-        KillKillCam,        // 일반 처치 (킬캠 발동) (40%)
-        PerfectGuard,       // 퍼펙트 가드 성공 (80%)
-        Dodge,              // 구르기 (15%)
-        Guard,              // 가드 (10%)
-        HeavyAttackHit,     // 강 공격 히트 (12%)
-        LightAttackHit,     // 약 공격 히트 (5%)
+        FinishAttackHit,    // 처형 공격 히트
+        KillKillCam,        // 일반 처치 (킬캠 발동)
+        PerfectGuard,       // 퍼펙트 가드 성공
+        Dodge,              // 구르기
+        Guard,              // 가드
+        HeavyAttackHit,     // 강 공격 히트 
+        LightAttackHit,     // 약 공격 히트
     }
 }

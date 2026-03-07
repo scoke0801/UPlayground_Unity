@@ -356,12 +356,6 @@ namespace UPlayGround.Component
                 if (isKillHit)
                 {
                     CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
-                   
-                    // 킬캠 발동 시 스폰
-                    var killTrigger = _currentAttackData.attackKind == AttackKind.FinishAttack
-                        ? VitalOrbTrigger.FinishAttackHit
-                        : VitalOrbTrigger.KillKillCam;
-                    VitalOrbManager.Instance.TrySpawn(killTrigger, _currentAttackData.hitPoint);
                 }
                 else
                 {

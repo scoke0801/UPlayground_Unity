@@ -20,7 +20,7 @@ MonoBehaviour:
       - damage: 30
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
       - damage: 28
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -64,7 +64,7 @@ MonoBehaviour:
       - damage: 28
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -86,7 +86,7 @@ MonoBehaviour:
       - damage: 16
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -96,7 +96,7 @@ MonoBehaviour:
       - damage: 16
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
       - damage: 16
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
       - damage: 16
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
       - damage: 30
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
       - damage: 15
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
       - damage: 20
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -204,7 +204,7 @@ MonoBehaviour:
       - damage: 10
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
       - damage: 10
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -224,7 +224,7 @@ MonoBehaviour:
       - damage: 10
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -246,7 +246,7 @@ MonoBehaviour:
       - damage: 36
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -268,7 +268,7 @@ MonoBehaviour:
       - damage: 40
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -290,7 +290,7 @@ MonoBehaviour:
       - damage: 35
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
       - damage: 30
         poiseDamage: 30
         reactionType: 7
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -334,7 +334,7 @@ MonoBehaviour:
       - damage: 25
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -344,7 +344,7 @@ MonoBehaviour:
       - damage: 25
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -366,7 +366,7 @@ MonoBehaviour:
       - damage: 15
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -376,7 +376,7 @@ MonoBehaviour:
       - damage: 25
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -398,7 +398,7 @@ MonoBehaviour:
       - damage: 40
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -420,7 +420,7 @@ MonoBehaviour:
       - damage: 45
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -442,7 +442,7 @@ MonoBehaviour:
       - damage: 20
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -452,7 +452,7 @@ MonoBehaviour:
       - damage: 25
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -474,7 +474,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -484,7 +484,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -494,7 +494,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -504,7 +504,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -514,7 +514,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -524,7 +524,7 @@ MonoBehaviour:
       - damage: 15
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0
@@ -546,7 +546,7 @@ MonoBehaviour:
       - damage: 25
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitParticleName: LiteHit
         pullForce: 0

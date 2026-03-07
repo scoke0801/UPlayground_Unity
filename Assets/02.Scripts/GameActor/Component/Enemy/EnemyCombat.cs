@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
@@ -313,24 +314,33 @@ namespace UPlayGround.Component
                 if (_hitTargets.Contains(hitCollider))
                     continue;
 
+                // Y축 범위 필터 (-1이면 무제한)
+                if (phase.hitHeightRange > 0f)
+                {
+                    float heightDiff = Mathf.Abs(hitCollider.transform.position.y - attackPosition.y);
+                    if (heightDiff > phase.hitHeightRange)
+                        continue;
+                }
+
                 IDamageable damageable = hitCollider.GetComponent<IDamageable>();
                 if (damageable != null && damageable.CanTakeDamage())
                 {
                     AttackData attackData = new AttackData
                     {
-                        damage           = phase.damage,
-                        poiseDamage      = phase.poiseDamage,
+                        damage             = phase.damage,
+                        poiseDamage        = phase.poiseDamage,
                         criticalMultiplier = 1.0f,
-                        hitPoint         = hitCollider.ClosestPoint(attackPosition),
-                        attackDirection  = _attackOrigin.forward,
-                        reactionType     = phase.reactionType,
-                        hitParticleName  = phase.hitParticleName,
-                        pullForce        = phase.pullForce,
-                        airborneForce    = phase.airborneForce,
-                        hitPhaseIndex    = _currentHitPhaseIndex,
-                        knockbackForce   = phase.knockBackForce,
-                        grabDuration     = phase.grabDuration,
-                        attacker         = _ownerActor,
+                        hitPoint           = hitCollider.ClosestPoint(attackPosition),
+                        attackDirection    = _attackOrigin.forward,
+                        reactionType       = phase.reactionType,
+                        hitParticleName    = phase.hitParticleName,
+                        pullForce          = phase.pullForce,
+                        airborneForce      = phase.airborneForce,
+                        hitPhaseIndex      = _currentHitPhaseIndex,
+                        knockbackForce     = phase.knockBackForce,
+                        grabDuration       = phase.grabDuration,
+                        hitHeightRange     = phase.hitHeightRange,
+                        attacker           = _ownerActor,
                     };
 
                     damageable.TakeDamage(attackData);

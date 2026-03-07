@@ -268,6 +268,7 @@ namespace UPlayGround.Component
                 hitRange         = phase0.attackRadius,
                 hitAngle         = attackInfo.hitAngle,
                 hitHeightOffset  = phase0.attackOffset.y,
+                hitHeightRange   = phase0.hitHeightRange,
                 hitParticleName  = phase0.hitParticleName,
                 pullForce        = phase0.pullForce,
                 knockbackForce   = phase0.knockBackForce,
@@ -284,9 +285,6 @@ namespace UPlayGround.Component
             _hitTargets.Clear();
         }
 
-        /// <summary>
-        /// 히트 판정 실행
-        /// </summary>
         public void PerformHitDetection()
         {
             if (_currentAttackData == null)
@@ -295,51 +293,52 @@ namespace UPlayGround.Component
                 return;
             }
 
-            // 플레이어 위치와 방향
             Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
-            Vector3 forward = transform.forward;
-            
-            // 범위 내 모든 Collider 검출
+
             Collider[] hits = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
-            
-            //Physics.ComputePenetration()
+
             bool isDamageExecuted = false;
             foreach (var hit in hits)
             {
-                // 자기 자신은 제외
                 if (hit.transform == transform || hit.transform.IsChildOf(transform))
                     continue;
-                
-                // 각도 체크
-                Vector3 directionToTarget = (hit.transform.position - transform.position).normalized;
-                float angle = Vector3.Angle(forward, directionToTarget);
-                
-                if (angle > _currentAttackData.hitAngle)
-                    continue;
-                
-                // IDamageable 컴포넌트 확인
+
+                // Y축을 제거한 수평 방향으로만 정면 각도 판정
+                Vector3 dirFlat = hit.transform.position - transform.position;
+                dirFlat.y = 0f;
+                if (dirFlat.sqrMagnitude > 0.001f)
+                {
+                    float angle = Vector3.Angle(transform.forward, dirFlat);
+                    if (angle > _currentAttackData.hitAngle)
+                        continue;
+                }
+
+                // Y축 범위 필터 (-1이면 무제한, 점프/내려찍기 등 특수 공격에만 값 설정)
+                if (_currentAttackData.hitHeightRange > 0f)
+                {
+                    float heightDiff = Mathf.Abs(hit.transform.position.y - origin.y);
+                    if (heightDiff > _currentAttackData.hitHeightRange)
+                        continue;
+                }
+
                 IDamageable damageable = hit.GetComponent<IDamageable>();
                 if (damageable == null)
                     damageable = hit.GetComponentInParent<IDamageable>();
-                
-                //Physics.ComputePenetration()
+
                 if (damageable != null && damageable.CanTakeDamage() && !_hitTargets.Contains(damageable))
                 {
                     _hitTargets.Add(damageable);
-                    
-                    // AttackData에 히트 정보 채우기
-                    _currentAttackData.hitTarget = hit.gameObject;
-                    _currentAttackData.hitPoint = hit.ClosestPoint(origin);
-                    _currentAttackData.attackDirection = directionToTarget;
-                    _currentAttackData.attacker = _playerActor;
-                    
-                    // 데미지 적용
+
+                    _currentAttackData.hitTarget       = hit.gameObject;
+                    _currentAttackData.hitPoint        = hit.ClosestPoint(origin);
+                    _currentAttackData.attackDirection = (hit.transform.position - transform.position).normalized;
+                    _currentAttackData.attacker        = _playerActor;
+
                     damageable.TakeDamage(_currentAttackData);
-                    
+
                     GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName,
                         _currentAttackData.hitPoint);
 
-                    // 히트 이벤트 발생
                     OnAttackHit?.Invoke(_currentAttackData);
 
                     isDamageExecuted = true;
@@ -350,19 +349,16 @@ namespace UPlayGround.Component
             if (isDamageExecuted)
             {
                 GameHitStopManager.Instance.ResetActorTimeScale();
-                
-                // 킬 감지: 마지막 타격으로 적이 사망했는지 체크
-                bool isKillHit = _currentAttackData.hitTarget != null 
+
+                bool isKillHit = _currentAttackData.hitTarget != null
                     && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
 
                 if (isKillHit)
                 {
-                    // 킬캠 시도 (확률/쿨다운 내부 체크)
                     CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
                 }
                 else
                 {
-                    // 일반 히트: 방향성 카메라 펀치 + 쉐이크 + 히트 스탑
                     CameraManager.Instance.Punch(_currentAttackData.attackDirection, 0.12f, 0.12f);
                     CameraManager.Instance.StartShake("LiteHit");
                     GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
@@ -389,6 +385,7 @@ namespace UPlayGround.Component
             _currentAttackData.reactionType     = phase.reactionType;
             _currentAttackData.hitRange         = phase.attackRadius;
             _currentAttackData.hitHeightOffset  = phase.attackOffset.y;
+            _currentAttackData.hitHeightRange   = phase.hitHeightRange;
             _currentAttackData.hitParticleName  = phase.hitParticleName;
             _currentAttackData.pullForce        = phase.pullForce;
             _currentAttackData.airborneForce    = phase.airborneForce;

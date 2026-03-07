@@ -20,8 +20,9 @@ MonoBehaviour:
       - damage: 18
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 0.6
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8

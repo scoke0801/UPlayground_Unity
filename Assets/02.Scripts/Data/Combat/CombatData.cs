@@ -23,6 +23,8 @@ namespace UPlayGround.Data
         [Header("Hitbox")]
         public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
         public float attackRadius = 1.5f;
+        [Tooltip("-1이면 Y 범위 무제한. 0 초과면 attackOffset.y 기준 위아래 hitHeightRange로 클램프")]
+        public float hitHeightRange = 1.2f;
 
         [Header("FX")]
         public string hitParticleName = "LiteHit";
@@ -142,6 +144,8 @@ namespace UPlayGround.Data
         public float hitRange;
         public float hitAngle;
         public float hitHeightOffset;
+        // -1이면 Y축 범위 무제한 (기존 OverlapSphere에 맡김). 0 초과면 origin 기준 위 아래 hitHeightRange로 클램프
+        public float hitHeightRange = -1f;
 
         public Vector3 hitPoint;
         public GameObject hitTarget;

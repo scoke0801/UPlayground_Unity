@@ -496,6 +496,8 @@ namespace UPlayGround
                 return false;
             if (MovementController.CurrentState.StateName == "Dash")
                 return false;
+            if (MovementController.CurrentState.StateName == "FinishAttack")
+                return false;
             
             return IsAlive() && !_isInvincible;
         }

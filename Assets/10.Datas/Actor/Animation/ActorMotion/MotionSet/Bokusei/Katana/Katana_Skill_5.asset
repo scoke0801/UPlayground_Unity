@@ -33,6 +33,7 @@ MonoBehaviour:
       - rid: 5792125102988197897
       - rid: 5792125102988197899
       - rid: 5792125102988197898
+      - rid: 5792125170122752144
     globalEvents: []
   references:
     version: 2
@@ -197,3 +198,17 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 128
         hitParticleName: 
+    - rid: 5792125170122752144
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 4.117647
+        particlePrefab: {fileID: 1586059801500780, guid: 883c04b4795669b468dac641ea3fb3a3, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 0.3, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 0
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 0
+        particleLifeTime: 0

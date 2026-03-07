@@ -35,6 +35,10 @@ namespace UPlayGround
         private bool _isPunching;
         private AnimationCurve _punchDecayCurve;
 
+        // 방향별 쉐이크 진폭 스케일 (기획서 §4.2, 기본 1:1)
+        private float _shakeXMult = 1f;
+        private float _shakeYMult = 1f;
+
         public void SetShakeData(CameraShakeData cameraShakeData)
         {
             if (_isShaking)
@@ -42,6 +46,20 @@ namespace UPlayGround
                 StopShake();
             }
             _shakeData = cameraShakeData;
+
+            // 새 데이터 세팅 시 방향 스케일 초기화
+            _shakeXMult = 1f;
+            _shakeYMult = 1f;
+        }
+
+        /// <summary>
+        /// 다음 StartShake에 적용할 XY 진폭 스케일 설정 (피격 방향별 차별화용)
+        /// StartShake 호출 후 자동으로 1:1로 초기화된다.
+        /// </summary>
+        public void SetShakeStrengthMultiplier(float xMult, float yMult)
+        {
+            _shakeXMult = xMult;
+            _shakeYMult = yMult;
         }
         #region Static
         //--------------------------------------------------------------------------------------------------------------------------------
@@ -182,6 +200,11 @@ namespace UPlayGround
 
                 var randomVec = new Vector3(Random.value, Random.value, Random.value);
                 var shakeVec = Vector3.Scale(randomVec, _shakeData.ShakeStrength) * (Random.value > 0.5f ? -1 : 1);
+
+                // 방향별 XY 진폭 스케일 적용 (기본 1:1, StartShake(key, hitDir) 호출 시 변경됨)
+                shakeVec.x *= _shakeXMult;
+                shakeVec.y *= _shakeYMult;
+
                 _shakeVector = GLOBAL_CAMERA_SHAKE_MULTIPLIER * _shakeData.ShakeCurve.Evaluate(delta) * shakeVec;
             }
             else if (_isShaking)
@@ -254,6 +277,10 @@ namespace UPlayGround
             _elapsedTime = 0.0f;
             _isShaking = true;
             RegisterStaticCallback(this);
+
+            // 한 번 사용 후 방향 스케일 초기화
+            _shakeXMult = 1f;
+            _shakeYMult = 1f;
         }
 
         public void StopShake()

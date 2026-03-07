@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6488e22b9b4c4b8a662a12bb14c6ce, type: 3}
+  m_Name: PlayerHit_Heavy
+  m_EditorClassIdentifier: 
+  key: PlayerHit_Heavy
+  UseMainCamera: 1
+  Cameras: []
+  Duration: 0.25
+  Delay: 0
+  AmplitudeX: 0.18
+  AmplitudeY: 0.25
+  Frequency: 16
+  Dampening: 1
+  ShakeSpace: 0

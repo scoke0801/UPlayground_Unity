@@ -503,12 +503,15 @@ namespace UPlayGround.Component
                 if (Vector3.Angle(forward, dir) > _finishAttackSearchAngle)
                     continue;
 
-                IDamageable damageable = hit.GetComponent<IDamageable>()
-                                         ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage())
+                MonsterActor monsterActor = hit.GetComponent<MonsterActor>()
+                                          ?? hit.GetComponentInParent<MonsterActor>();
+                if (monsterActor == null || !monsterActor.CanTakeDamage())
                     continue;
-
-                if (damageable.GetCurrentHealth() > _finishAttackDamageThreshold)
+                
+                if(monsterActor.Grade == MonsterActorGrade.Weak)
+                    continue;
+                
+                if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold)
                     continue;
 
                 float distSq = dir.sqrMagnitude;

@@ -6,6 +6,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
+using UPlayGround.State;
 
 namespace UPlayGround.Manager
 {
@@ -118,6 +119,7 @@ namespace UPlayGround.Manager
 
         // 킬캠
         private const string KILL_CAM_DATA_PATH = "KillCamData";
+        private const string PERFECT_GUARD_FOV_PATH = "PerfectGuardFOV"; // Addressables 키
         private KillCamController _killCamController;
         
         // 입력 잠금 (킬캠 등 연출 중 카메라 조작 차단)
@@ -192,6 +194,7 @@ namespace UPlayGround.Manager
                 lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             }
             LoadKillCamData();
+            LoadPerfectGuardFOVData();
 
             // 카메라 이펙트 시스템 초기화
             _effectManager = new CameraEffectManager(this);
@@ -897,6 +900,14 @@ namespace UPlayGround.Manager
         public float GetCurrentFOV()
         {
             return mainCamera != null ? mainCamera.fieldOfView : _baseFOV;
+        }
+
+        /// <summary>
+        /// 메인 카메라 참조 반환 (킬캠 등 FOV 직접 제어 시 사용)
+        /// </summary>
+        public Camera GetMainCamera()
+        {
+            return mainCamera;
         }
 
         /// <summary>
@@ -1607,5 +1618,24 @@ namespace UPlayGround.Manager
         }
 
         #endregion
+
+        /// <summary>
+        /// 퍼펙트 가드 FOV 이펙트 SO를 Addressables로 로드하여 PlayerGuardState에 주입.
+        /// CameraShakeDatabase, KillCamData와 동일한 패턴.
+        /// </summary>
+        private async void LoadPerfectGuardFOVData()
+        {
+            var handle = Addressables.LoadAssetAsync<FOVCameraEffectData>(PERFECT_GUARD_FOV_PATH);
+            try
+            {
+                FOVCameraEffectData data = await handle.Task;
+                UPlayGround.State.PlayerGuardState.SetPerfectGuardFOVData(data);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[CameraManager] PerfectGuardFOV 로드 실패: {e.Message}\n" +
+                                 "Addressables에 'PerfectGuardFOV' 키로 FOVCameraEffectData SO를 등록하세요.");
+            }
+        }
     }
 }

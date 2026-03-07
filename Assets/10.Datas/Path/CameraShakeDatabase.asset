@@ -13,4 +13,12 @@ MonoBehaviour:
   m_Name: CameraShakeDatabase
   m_EditorClassIdentifier: 
   allItems:
-  - {fileID: 11400000, guid: 90c8f1d740d715346a794746261a7df5, type: 2}
+  - {fileID: 11400000, guid: f8de079c3c5f28443a5b33b315f30877, type: 2}
+  - {fileID: 11400000, guid: 76b12dcc0a77fea46a44a7f5ae27340e, type: 2}
+  - {fileID: 11400000, guid: 49b3233a25cd39c4dbeb958f2e78f50a, type: 2}
+  - {fileID: 11400000, guid: 7548d7452e16a0346b6e57f548b0286b, type: 2}
+  - {fileID: 11400000, guid: 32790c455ca978946a66b646530090c2, type: 2}
+  - {fileID: 11400000, guid: 1e30fcebb0261f545826842603585cc8, type: 2}
+  - {fileID: 11400000, guid: d4893d36129184d4c9c6d9f098e4ea0c, type: 2}
+  - {fileID: 11400000, guid: 53f8af90ebec1db46810bbf279201e9f, type: 2}
+  - {fileID: 11400000, guid: 21ac76d80d992e6409bf6ea9ee12c8f9, type: 2}

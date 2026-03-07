@@ -19,7 +19,19 @@ namespace UPlayGround.State
         public override string StateName => "Guard";
         private PlayerCombat _combat;
         private float _guardStartTime;
-        private const float PERFECT_GUARD_WINDOW = 0.8f; // Just Guard 타이밍 (초)
+        private const float PERFECT_GUARD_WINDOW = 0.8f;
+
+        // 퍼펙트 가드 FOV 연출용 SO - CameraManager.SetPerfectGuardFOVData()로 주입받음
+        private static FOVCameraEffectData _perfectGuardFOVData;
+
+        /// <summary>
+        /// CameraManager 초기화 시 Addressables로 로드한 SO를 주입.
+        /// 씬 로드 전에 한 번만 호출하면 된다.
+        /// </summary>
+        public static void SetPerfectGuardFOVData(FOVCameraEffectData data)
+        {
+            _perfectGuardFOVData = data;
+        }
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
         {
@@ -173,21 +185,23 @@ namespace UPlayGround.State
                 VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
-                // 퍼펙트 가드 성공 시 공격자를 강제로 Hit 상태로 전환 (공격 끊기)
+                // 퍼펙트 가드 카메라 연출 (기획서 §7.2)
+                // CriticalHit 쉐이크 + FOV -8° 줌인. 슬로우 종료 후 FOV 원복은 별도 이펙트 SO로 처리.
+                CameraManager.Instance?.StartShake("CriticalHit");
+                CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
+
                 if (incomingAttack.attacker != null && incomingAttack.attacker.ActorType == ActorType.Monster)
                 {
                     var attackerController = incomingAttack.attacker.ActorController;
                     if (attackerController != null)
                     {
-                        // 몬스터의 AttackState가 CanTransitionState("Hit")를 거부하더라도 
-                        // TransitionToState를 직접 호출하여 강제로 경직 상태로 진입시킵니다.
+                        // 퍼펙트 가드 성공 시 공격자를 강제로 Hit 상태로 전환 (공격 끊기)
                         // attackerController.TransitionToState(new EnemyHitState(attackerController, new AttackData()
                         // {
                         //     attacker = playerActor,
                         //     reactionType = AttackReactionType.Hit,
-                        //     attackDirection = -incomingAttack.attackDirection // 공격 반대 방향으로 약간 밀려나도록 설정
+                        //     attackDirection = -incomingAttack.attackDirection
                         // }));
-                        
                         Debug.Log($"[PerfectGuard] {incomingAttack.attacker.name}의 공격을 끊었습니다!");
                     }
                 }

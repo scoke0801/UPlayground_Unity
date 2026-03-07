@@ -93,5 +93,15 @@ namespace UPlayGround
 
             return null;
         }
+
+        public bool TryGetSocket(ActorSocketType socketType, out Transform socket)
+        {
+            if (_socketDict.TryGetValue(socketType, out socket))
+            {
+                return true;
+            }
+            
+            return false;
+        }
     }
 }

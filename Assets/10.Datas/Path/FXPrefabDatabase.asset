@@ -37,3 +37,9 @@ MonoBehaviour:
   - key: LiteHit
     prefab: {fileID: 3630950076977652491, guid: a9aa28f8be4ad0d459e5c7c4d1d5699b, type: 3}
     description: 
+  - key: PlayerHeal
+    prefab: {fileID: 1592372973558972, guid: 42b3c9cd0688b534dadeb654c0adb564, type: 3}
+    description: 
+  - key: playerGuardFX
+    prefab: {fileID: 1746675453279186, guid: ca168eb62999ccb40bf4fdba7f63c1d5, type: 3}
+    description: 

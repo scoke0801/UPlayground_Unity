@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 
@@ -104,58 +105,62 @@ namespace UPlayGround
             Vector3 originalOffset = cameraManager.GetCurrentOffset();
 
             // 카메라 입력 차단
-            cameraManager.SetInputLock(true);
+            //cameraManager.SetInputLock(true);
 
             // 슬로모션
-            hitStopManager?.Execute(_data.slowMotionDuration, _data.slowMotionTimeScale);
-
+            MonsterActor actor = victim.GetComponent<GameActor>() as MonsterActor;
+            if (actor != null && actor.Grade != MonsterActorGrade.Normal)
+            {
+                hitStopManager?.Execute(_data.slowMotionDuration, _data.slowMotionTimeScale);
+            }
+            
             // 카메라 쉐이크
             if (!string.IsNullOrEmpty(_data.cameraShakeKey))
             {
                 cameraManager.StartShake(_data.cameraShakeKey);
             }
 
-            // --- Phase 1: 줌인 ---
-            float elapsed = 0f;
-            while (elapsed < _data.zoomInDuration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = _data.zoomCurve.Evaluate(elapsed / _data.zoomInDuration);
-
-                float dist = Mathf.Lerp(originalDistance, _data.zoomDistance, t);
-                Vector3 offset = Vector3.Lerp(originalOffset, _data.killCamOffset, t);
-
-                cameraManager.SetDistance(dist);
-                cameraManager.SetCameraOffset(offset);
-
-                yield return null;
-            }
-
-            cameraManager.SetDistance(_data.zoomDistance);
-            cameraManager.SetCameraOffset(_data.killCamOffset);
-
-            // --- Phase 2: 홀드 ---
-            yield return new WaitForSecondsRealtime(_data.zoomHoldDuration);
-
-            // --- Phase 3: 줌아웃 (복귀) ---
-            elapsed = 0f;
-            while (elapsed < _data.zoomOutDuration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = _data.zoomCurve.Evaluate(elapsed / _data.zoomOutDuration);
-
-                float dist = Mathf.Lerp(_data.zoomDistance, originalDistance, t);
-                Vector3 offset = Vector3.Lerp(_data.killCamOffset, originalOffset, t);
-
-                cameraManager.SetDistance(dist);
-                cameraManager.SetCameraOffset(offset);
-
-                yield return null;
-            }
-
-            // --- 연출 종료 ---
-            RestoreState(originalDistance, originalOffset);
-            _activeSequence = null;
+            // // --- Phase 1: 줌인 ---
+            // float elapsed = 0f;
+            // while (elapsed < _data.zoomInDuration)
+            // {
+            //     elapsed += Time.unscaledDeltaTime;
+            //     float t = _data.zoomCurve.Evaluate(elapsed / _data.zoomInDuration);
+            //
+            //     float dist = Mathf.Lerp(originalDistance, _data.zoomDistance, t);
+            //     Vector3 offset = Vector3.Lerp(originalOffset, _data.killCamOffset, t);
+            //
+            //     cameraManager.SetDistance(dist);
+            //     cameraManager.SetCameraOffset(offset);
+            //
+            //     yield return null;
+            // }
+            //
+            // cameraManager.SetDistance(_data.zoomDistance);
+            // cameraManager.SetCameraOffset(_data.killCamOffset);
+            //
+            // // --- Phase 2: 홀드 ---
+            // yield return new WaitForSecondsRealtime(_data.zoomHoldDuration);
+            //
+            // // --- Phase 3: 줌아웃 (복귀) ---
+            // elapsed = 0f;
+            // while (elapsed < _data.zoomOutDuration)
+            // {
+            //     elapsed += Time.unscaledDeltaTime;
+            //     float t = _data.zoomCurve.Evaluate(elapsed / _data.zoomOutDuration);
+            //
+            //     float dist = Mathf.Lerp(_data.zoomDistance, originalDistance, t);
+            //     Vector3 offset = Vector3.Lerp(_data.killCamOffset, originalOffset, t);
+            //
+            //     cameraManager.SetDistance(dist);
+            //     cameraManager.SetCameraOffset(offset);
+            //
+            //     yield return null;
+            // }
+            //
+            // // --- 연출 종료 ---
+            // RestoreState(originalDistance, originalOffset);
+            // _activeSequence = null;
         }
 
         private void RestoreState()

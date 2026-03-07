@@ -167,8 +167,8 @@ namespace UPlayGround.Manager
         private Vector3 _lockOnPivotVelocity;
         
         // 락온 고저차 감쇠
-        private float _lockOnHeightDampFactor = 0.4f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
-        private float _lockOnPitchMin = 25f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
+        private float _lockOnHeightDampFactor = 0.42f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
+        private float _lockOnPitchMin = 15f;          // 락온 전용 Pitch 하한 (일반 -30보다 좁게)
         private float _lockOnPitchMax = 80f;           // 락온 전용 Pitch 상한 (일반 70보다 좁게)
         private float _lockOnPitchSpeed = 8f;          // 락온 Pitch 전환 속도 (Yaw보다 느리게)
 

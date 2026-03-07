@@ -12,6 +12,14 @@
 
     }
 
+    public enum MonsterActorGrade
+    {
+        Normal = 0,
+        Elite,
+        Boss,
+        Weak,
+    }
+    
     public enum CharacterActorType
     {
         None = 0,

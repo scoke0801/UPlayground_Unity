@@ -192,6 +192,12 @@ namespace UPlayGround.State
                     }
                 }
             }
+            else
+            {
+                var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
+                
+                GameObjectManager.Instance.ShowFX("playerGuardFX", socketTM.position);
+            }
         }
         
         /// <summary>

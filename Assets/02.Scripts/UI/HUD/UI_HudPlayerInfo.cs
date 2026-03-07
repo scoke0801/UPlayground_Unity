@@ -27,6 +27,7 @@ public class UI_HudPlayerInfo : UI_Base
     private PlayerActor _playerActor;
 
     private float _skillTargetRatio;
+    private bool _isInCombat = false;
 
     #region UI_Base
     protected override void OnShow()
@@ -72,6 +73,15 @@ public class UI_HudPlayerInfo : UI_Base
         _hpText.text = $"{(int)hp}/{(int)maxHp}";
     }
 
+    public void SetIsInCombat(bool isInCombat)
+    {
+        _isInCombat = isInCombat;
+        if (_isInCombat == false)
+        {
+            _fxObject.SetActive(false);
+        }
+    }
+
     private IEnumerator HpDelayFillCoroutine()
     {
         yield return new WaitForSeconds(_hpDecreaseDelayTime);
@@ -98,7 +108,7 @@ public class UI_HudPlayerInfo : UI_Base
         bool isFullGauge = Mathf.Approximately(_skillTargetRatio, 1f);
         _animator.SetBool("IsSkillGaugeFull", isFullGauge);
         
-        _fxObject.SetActive(isFullGauge);
+        _fxObject.SetActive(_isInCombat && isFullGauge);
         
         if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
         _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());

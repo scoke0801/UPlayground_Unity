@@ -346,7 +346,7 @@ namespace UPlayGround.Component
                     damageable.TakeDamage(attackData);
                     _hitTargets.Add(hitCollider);
 
-                    GameObjectManager.Instance.ShowFX(phase.hitParticleName, attackData.hitPoint);
+                    // GameObjectManager.Instance.ShowFX(phase.hitParticleName, attackData.hitPoint);
                 }
             }
         }

@@ -78,9 +78,11 @@ namespace UPlayGround.Component
         private bool  AllowFlank            => _currentPhase?.allowFlank            ?? false;
         private int   MaxConsecutiveAttacks => _currentPhase?.maxConsecutiveAttacks ?? 3;
 
-        private float OptimalCombatDistance => data?.optimalCombatDistance ?? 2.5f;
-        private float MinCombatDistance     => data?.minCombatDistance     ?? 1.5f;
-        private bool  MaintainDistance      => data?.maintainDistance      ?? true;
+        public float OptimalCombatDistance  => data?.optimalCombatDistance  ?? 2.5f;
+        public float MinCombatDistance      => data?.minCombatDistance      ?? 1.5f;
+        public bool  MaintainDistance       => data?.maintainDistance       ?? true;
+        public float ChaseStopDistance      => data?.chaseStopDistance      ?? 2.0f;
+        public float PersonalSpaceDistance  => data?.personalSpaceDistance  ?? 0.8f;
 
         // 공격 타이밍의 긴장감을 위한 가변 계수
         /// <summary> 페이즈가 진행될수록 행동이 빨라지는 비율 (0~1, 낮을수록 빠름) </summary>
@@ -254,6 +256,14 @@ namespace UPlayGround.Component
         private void HandleCombatBehavior(string state)
         {
             float dist = _detection.DistanceToTarget;
+
+            // 물리적 겹침 방지: personalSpace 이내로 진입하면 강제 후퇴
+            // Attack Active 중(state == "Attack")에는 흐름을 끊지 않는다
+            if (dist < PersonalSpaceDistance && state != "Retreat")
+            {
+                TransitionRetreating();
+                return;
+            }
 
             // 연속 공격 한계 초과 → 강제 후퇴
             if (_memory != null && _memory.IsOverAttacking(MaxConsecutiveAttacks))

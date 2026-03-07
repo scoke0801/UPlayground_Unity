@@ -21,6 +21,7 @@ MonoBehaviour:
   fieldOfView: 160
   attackRange: 3
   attackCooldown: 1.8
+  grade: 1
   enablePatrol: 0
   patrolRadius: 0
   patrolWaitTime: 0

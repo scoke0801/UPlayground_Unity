@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Enemy
 {
@@ -24,6 +25,7 @@ namespace UPlayGround.Data.Enemy
         [Header("Combat")]
         public float attackRange = 2.5f;
         public float attackCooldown = 1.5f;
+        public MonsterActorGrade grade = MonsterActorGrade.Normal;
         
         [Header("Patrol")]
         public bool enablePatrol = true;

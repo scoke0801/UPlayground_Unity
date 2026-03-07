@@ -22,5 +22,5 @@ MonoBehaviour:
   floatAmplitude: 0.15
   floatSpeed: 2
   spawnParticleName: 
-  collectParticleName: 
+  collectParticleName: PlayerHeal
   collectSoundName: 

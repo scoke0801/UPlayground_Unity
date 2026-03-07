@@ -15,7 +15,7 @@ MonoBehaviour:
   triggerChance: 0.5
   cooldown: 3
   slowMotionTimeScale: 0.05
-  slowMotionDuration: 0.6
+  slowMotionDuration: 0.1
   zoomDistance: 2.5
   zoomInDuration: 0.15
   zoomHoldDuration: 0.3

@@ -99,7 +99,9 @@ class UI_GamePlay : UI_Base
     {
         if (_hudPlayerInfo != null)
         {
-            _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");    
+            _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");
+
+            _hudPlayerInfo.SetIsInCombat(isInCombat);
         }
 
         _isPlayerInCombat = isInCombat;

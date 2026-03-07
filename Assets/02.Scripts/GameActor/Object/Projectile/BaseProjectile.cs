@@ -115,7 +115,7 @@ namespace UPlayGround
             // 자기 자신 제외
             if (hitObject == owner || hitObject.transform.IsChildOf(owner.transform))
                 return;
-            
+
             // IDamageable 찾기
             IDamageable damageable = hitCollider.GetComponent<IDamageable>();
             if (damageable == null)
@@ -136,9 +136,14 @@ namespace UPlayGround
                 
                 // 데미지 적용
                 damageable.TakeDamage(attackData);
-                
+
+                if (owner.ActorType == ActorType.Player)
+                {
+                    CameraManager.Instance.Punch(transform.forward, 0.12f, 0.12f);
+                    CameraManager.Instance.StartShake("LiteHit");
+                }
                 // 이펙트 표시
-                GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);
+                // GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);
                 //
                 // // 카메라 쉐이크
                 // CameraManager.Instance.StartShake("LiteHit");

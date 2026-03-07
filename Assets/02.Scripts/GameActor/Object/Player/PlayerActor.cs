@@ -598,6 +598,14 @@ namespace UPlayGround
                 CameraManager.Instance.StartShake("LiteHit");
             }
 
+            if (TryGetSocket(ActorSocketType.Center, out var center))
+            {   
+                GameObjectManager.Instance.ShowFX(attackData.hitParticleName, center.position);
+            }
+            else
+            {   
+                GameObjectManager.Instance.ShowFX(attackData.hitParticleName, attackData.hitPoint);
+            }
             _colorChanger.OnHit();
             
             Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData?.hitPoint}");

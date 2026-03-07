@@ -16,6 +16,7 @@ namespace UPlayGround.State
         private EnemyDetection _detection;
         
         private float _chaseSpeed;
+        private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
         
         public EnemyChaseState(ActorMovementController controller, EnemyBrain brain, EnemyDetection detection) : base(controller)
         {
@@ -31,9 +32,9 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
-            // 추적 속도 설정
+
             _chaseSpeed = controller.MaxRunMoveSpeed * _brain.ChaseSpeedMultiplier;
+            _strafeSign = Random.value > 0.5f ? 1f : -1f; // 진입마다 측면 방향 랜덤
             
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
             
@@ -88,42 +89,56 @@ namespace UPlayGround.State
         {
             if (!_detection.HasTarget)
             {
-                // 정지
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
                     Vector3.zero,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
                 return;
             }
-            
-            // 타겟을 향한 방향 계산
-            Vector3 directionToTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
-            directionToTarget.y = 0;
-            
-            if (motor.GroundingStatus.IsStableOnGround)
+
+            Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+            toTarget.y       = 0;
+            float dist       = toTarget.magnitude;
+
+            // chaseStopDistance 이하면 제자리 정지 — Brain의 행동 결정 대기
+            if (dist <= _brain.ChaseStopDistance)
             {
-                // 목표 속도
-                Vector3 targetVelocity = directionToTarget * _chaseSpeed;
-                
-                // 경사면 고려
-                targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, motor.GroundingStatus.GroundNormal) * targetVelocity.magnitude;
-                
-                // 부드러운 가속
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
-                    targetVelocity,
+                    Vector3.zero,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
             }
-            else
+
+            if (!motor.GroundingStatus.IsStableOnGround)
             {
-                // 공중에서는 속도 유지
                 if (currentVelocity.sqrMagnitude > 0.01f)
                 {
                     Vector3 airVelocity = currentVelocity;
-                    airVelocity.y = 0;
+                    airVelocity.y   = 0;
                     currentVelocity = airVelocity.normalized * Mathf.Min(airVelocity.magnitude, _chaseSpeed);
                 }
+                return;
             }
+
+            Vector3 moveDir = toTarget.normalized;
+
+            // chaseStopDistance의 1.5배 이내 진입 시 측면 이동 혼합 (직진 70% + 측면 30%)
+            // 단조로운 직선 돌진을 막아 자연스러운 접근처럼 보이게 한다
+            if (dist < _brain.ChaseStopDistance * 1.5f)
+            {
+                Vector3 strafeDir = Vector3.Cross(Vector3.up, moveDir) * _strafeSign;
+                moveDir = (moveDir * 0.7f + strafeDir * 0.3f).normalized;
+            }
+
+            Vector3 targetVelocity = moveDir * _chaseSpeed;
+            targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, motor.GroundingStatus.GroundNormal)
+                             * targetVelocity.magnitude;
+
+            currentVelocity = Vector3.Lerp(
+                currentVelocity,
+                targetVelocity,
+                1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
         }
     }
 }

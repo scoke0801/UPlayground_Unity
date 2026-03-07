@@ -104,7 +104,7 @@ namespace UPlayGround.Component
             return true;
         }
 
-        private void AddGauge(float amount)
+        public void AddGauge(float amount)
         {
             _currentGauge = Mathf.Min(_currentGauge + amount, _maxGauge);
             OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);

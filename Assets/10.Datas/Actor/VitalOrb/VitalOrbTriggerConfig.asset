@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 675d8246015337f49964c61dd1d4c45c, type: 3}
+  m_Name: VitalOrbTriggerConfig
+  m_EditorClassIdentifier: 
+  entries:
+  - trigger: 0
+    dropData: {fileID: 11400000, guid: 8aa0fe42dfeb7f647a13015e84d22c51, type: 2}
+    probability: 1
+    maxStack: 1
+    cooldown: 0
+  - trigger: 1
+    dropData: {fileID: 11400000, guid: 8aa0fe42dfeb7f647a13015e84d22c51, type: 2}
+    probability: 0.4
+    maxStack: 1
+    cooldown: 5
+  - trigger: 2
+    dropData: {fileID: 11400000, guid: 664dc2ad9660ef44e9246be930fc7509, type: 2}
+    probability: 0.15
+    maxStack: 1
+    cooldown: 2
+  - trigger: 4
+    dropData: {fileID: 11400000, guid: 664dc2ad9660ef44e9246be930fc7509, type: 2}
+    probability: 0.1
+    maxStack: 2
+    cooldown: 1
+  - trigger: 3
+    dropData: {fileID: 11400000, guid: 664dc2ad9660ef44e9246be930fc7509, type: 2}
+    probability: 0.1
+    maxStack: 2
+    cooldown: 1
+  - trigger: 6
+    dropData: {fileID: 11400000, guid: 080a38628daca3f44a5b763a2d97753e, type: 2}
+    probability: 0.05
+    maxStack: 5
+    cooldown: 0
+  - trigger: 5
+    dropData: {fileID: 11400000, guid: 080a38628daca3f44a5b763a2d97753e, type: 2}
+    probability: 0.05
+    maxStack: 3
+    cooldown: 0.5

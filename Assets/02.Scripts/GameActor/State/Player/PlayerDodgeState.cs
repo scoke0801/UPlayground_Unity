@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -29,6 +31,9 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            
+            // [TODO] 퍼펙트 구르기 때 스폰하도록 수정 필요 구르기 시작 위치에서 드롭 스폰 시도
+            // VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Dodge, gameActor.transform.position);
             
             IgnoreMonsterColliders();
             

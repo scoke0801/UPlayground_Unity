@@ -4,6 +4,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
+using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
@@ -45,6 +46,10 @@ namespace UPlayGround.State
             _combat = playerActor.GetCombat();
             _combat.IsGuarding = true;
             _guardStartTime = Time.time;
+
+            // 일반 가드 드롭 스폰 - 플레이어 전방 1m
+            Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
             
             playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
         }
@@ -163,6 +168,9 @@ namespace UPlayGround.State
 
             if (isPerfectGuard)
             {
+                // 퍼펙트 가드 드롭 스폰 - 플레이어 전방 1m
+                Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
+                VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
                 // 퍼펙트 가드 성공 시 공격자를 강제로 Hit 상태로 전환 (공격 끊기)

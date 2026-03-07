@@ -54,9 +54,15 @@ namespace UPlayGround.Manager
 
         //Collision Settings
         private LayerMask collisionLayers = -1; // 충돌 레이어
-        private float collisionOffset = 0.2f; // 충돌 오프셋
-        private float cameraRadius = 0.3f; // 카메라 반지름 (SphereCast용)
+        private float collisionOffset = 0.15f; // 충돌 지점에서 카메라를 띄울 여백
+        private float cameraRadius = 0.25f;    // 멀티레이 오프셋 반경
         
+        // 카메라 충돌 스무딩
+        private float _collisionDistance;        // 충돌로 결정된 실제 거리 (스무딩 적용)
+        private float _collisionDistanceVel;     // SmoothDamp 속도
+        private const float COLLISION_PULL_SPEED  = 0f;    // 당김: 즉시 (튀어나오는 느낌 방지)
+        private const float COLLISION_RETURN_SPEED = 0.12f; // 복귀: 부드럽게
+
         //LockOn Settings
         private LayerMask lockOnLayerMask; // LockOn 대상 레이어
         private float lockOnRange = 13f; // LockOn 최대 거리
@@ -386,24 +392,74 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateCameraPosition(float smoothTime)
         {
-            Vector3 pivotBasePosition = target.position;
-
-            Vector3 activeOffset = cameraOffset;
-
-            Vector3 targetPivotPosition = pivotBasePosition + activeOffset;
-
+            Vector3 targetPivotPosition = target.position + cameraOffset;
             smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition,
                 ref positionVelocity, smoothTime);
             cameraPivot.position = smoothPosition;
 
-            currentDistance = Mathf.SmoothDamp(currentDistance, targetDistance,
-                ref distanceVelocity, zoomSmoothTime);
-
             Quaternion rotation = Quaternion.Euler(currentPitch, currentYaw, 0f);
-            Vector3 desiredPosition = cameraPivot.position + rotation * new Vector3(0f, 0f, -currentDistance);
+            Vector3 camDir = rotation * Vector3.back; // pivot → 카메라 방향
 
-            desiredPosition = HandleCollision(cameraPivot.position, desiredPosition);
-            mainCamera.transform.position = desiredPosition;
+            // 충돌로 허용된 최대 거리 계산
+            float blockedDistance = GetCollisionDistance(cameraPivot.position, camDir, targetDistance);
+
+            // 당김은 즉시, 복귀는 부드럽게
+            float smoothTime2 = blockedDistance < _collisionDistance
+                ? COLLISION_PULL_SPEED
+                : COLLISION_RETURN_SPEED;
+
+            _collisionDistance = smoothTime2 > 0f
+                ? Mathf.SmoothDamp(_collisionDistance, blockedDistance, ref _collisionDistanceVel, smoothTime2)
+                : blockedDistance;
+
+            mainCamera.transform.position = cameraPivot.position + camDir * _collisionDistance;
+        }
+
+        /// <summary>
+        /// pivot에서 camDir 방향으로 멀티레이를 쏘아 충돌 없이 배치 가능한 최대 거리를 반환한다.
+        ///
+        /// [왜 멀티레이인가]
+        /// SphereCast는 cast 시작점에 이미 겹쳐있는 콜라이더를 감지하지 못한다.
+        /// 대신 pivot을 중심으로 5개의 Ray(center + 사각 4모서리)를 쏘면:
+        ///  - 구(Sphere) 근사와 유사한 커버리지를 가지면서
+        ///  - 시작점 겹침 문제가 없고
+        ///  - GC 할당이 없다 (RaycastHit은 단일 struct)
+        /// </summary>
+        private float GetCollisionDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
+        {
+            // 카메라 로컬 up/right (월드 y축과 camDir에 수직인 right)
+            Vector3 right = Vector3.Cross(Vector3.up, camDir).normalized;
+            Vector3 up    = Vector3.Cross(camDir, right).normalized;
+
+            // pivot 주변 5개 오프셋 (center + 사각 4모서리)
+            Vector3[] offsets =
+            {
+                Vector3.zero,
+                ( right + up)   * cameraRadius,
+                (-right + up)   * cameraRadius,
+                ( right - up)   * cameraRadius,
+                (-right - up)   * cameraRadius,
+            };
+
+            float minDistance = desiredDistance;
+
+            foreach (Vector3 offset in offsets)
+            {
+                Vector3 rayOrigin = pivot + offset;
+
+                if (Physics.Raycast(rayOrigin, camDir, out RaycastHit hit, desiredDistance, collisionLayers))
+                {
+                    if (hit.transform == target || hit.transform.IsChildOf(target))
+                        continue;
+
+                    // 충돌 지점에서 collisionOffset만큼 앞에 배치
+                    float safeDistance = Mathf.Max(hit.distance - collisionOffset, 0f);
+                    if (safeDistance < minDistance)
+                        minDistance = safeDistance;
+                }
+            }
+
+            return minDistance;
         }
 
         /// <summary>
@@ -602,45 +658,7 @@ namespace UPlayGround.Manager
             }
         }
 
-        /// <summary>
-        /// 충돌 처리
-        /// </summary>
-        private Vector3 HandleCollision(Vector3 origin, Vector3 desiredPosition)
-        {
-            Vector3 direction = desiredPosition - origin;
-            float distance = direction.magnitude;
-            
-            // 안전 거리 = 충돌 오프셋 + 카메라 반지름
-            float safetyMargin = collisionOffset + cameraRadius;
 
-            // SphereCast로 충돌 체크 (캐릭터 자신과 자식 오브젝트는 무시)
-            RaycastHit[] hits = Physics.SphereCastAll(origin, cameraRadius, direction.normalized, distance, collisionLayers);
-            
-            float closestDistance = distance;
-            Vector3 closestHitPoint = desiredPosition;
-            Vector3 closestHitNormal = -direction.normalized;
-            
-            foreach (RaycastHit hit in hits)
-            {
-                // 가장 가까운 충돌 지점 찾기
-                if (hit.distance < closestDistance)
-                {
-                    closestDistance = hit.distance;
-                    closestHitPoint = hit.point;
-                    closestHitNormal = hit.normal;
-                }
-            }
-
-            // 충돌이 발생했다면 안전 거리만큼 카메라를 뒤로 당김
-            if (closestDistance < distance)
-            {
-                // 충돌 지점에서 안전 거리만큼 뒤로 당김 (origin 방향 유지)
-                float safeDistance = Mathf.Max(closestDistance - safetyMargin, _minDistance);
-                return origin + direction.normalized * safeDistance;
-            }
-
-            return desiredPosition;
-        }
 
         #endregion
 
@@ -1056,6 +1074,7 @@ namespace UPlayGround.Manager
             // 초기값 설정
             currentDistance = _defaultDistance;
             targetDistance = _defaultDistance;
+            _collisionDistance = _defaultDistance;
             currentYaw = 0f;
             currentPitch = _explorePitch;
 

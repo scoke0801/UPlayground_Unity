@@ -318,6 +318,7 @@ namespace UPlayGround
             // 사망 애니메이션
             // 아이템 드롭
             // 사망 처리
+            MovementController.Motor.enabled = false;
             _dissolveController.StartDissolve(duration);
             
             //Destroy(gameObject, duration);

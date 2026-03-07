@@ -263,8 +263,8 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddImpulse(launchDir * attackData.knockbackForce 
-                                                      + Vector3.up * attackData.airborneForce);
+                        MovementController.AddImpulse(launchDir * attackData.knockbackForce);
+                                                      // + Vector3.up * attackData.airborneForce);
                         MovementController.Motor.ForceUnground();
                         break;
                     }

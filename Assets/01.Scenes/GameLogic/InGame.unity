@@ -9003,7 +9003,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &458396152
 Transform:
   m_ObjectHideFlags: 0
@@ -50917,7 +50917,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1520806218
 Transform:
   m_ObjectHideFlags: 0
@@ -55362,7 +55362,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1859176452
 Transform:
   m_ObjectHideFlags: 0
@@ -59889,7 +59889,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1378325497934864947, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.8
+      value: -14.78
       objectReference: {fileID: 0}
     - target: {fileID: 1378325497934864947, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_LocalPosition.y
@@ -59897,7 +59897,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1378325497934864947, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 11.29
+      value: 7.98
       objectReference: {fileID: 0}
     - target: {fileID: 1378325497934864947, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_LocalRotation.w
@@ -59965,7 +59965,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3296422363515388446, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_TranslationOffsets.Array.data[0].z
-      value: 0.5185323
+      value: 0.51853275
       objectReference: {fileID: 0}
     - target: {fileID: 3296422363515388446, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_TranslationOffsets.Array.data[1].x
@@ -59973,11 +59973,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3296422363515388446, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_TranslationOffsets.Array.data[1].y
-      value: -0.08692467
+      value: -0.08692455
       objectReference: {fileID: 0}
     - target: {fileID: 3296422363515388446, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_TranslationOffsets.Array.data[1].z
-      value: 0.512197
+      value: 0.51219654
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

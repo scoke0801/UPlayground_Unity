@@ -15,7 +15,8 @@ public class UI_HudPlayerInfo : UI_Base
     [SerializeField] private Image _skillGuageFill;
 
     [SerializeField] private TextMeshProUGUI _hpText;
-
+    [SerializeField] private GameObject _fxObject;
+    
     [Header("Animation Settings")]
     [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
     [SerializeField] private float _hpFillSpeed         = 5.0f;
@@ -94,7 +95,10 @@ public class UI_HudPlayerInfo : UI_Base
 
         _skillTargetRatio = current / max;
 
-        _animator.SetBool("IsSkillGaugeFull", Mathf.Approximately(_skillTargetRatio, 1f));
+        bool isFullGauge = Mathf.Approximately(_skillTargetRatio, 1f);
+        _animator.SetBool("IsSkillGaugeFull", isFullGauge);
+        
+        _fxObject.SetActive(isFullGauge);
         
         if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
         _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());

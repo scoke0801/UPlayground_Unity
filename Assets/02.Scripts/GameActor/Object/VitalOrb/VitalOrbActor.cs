@@ -150,16 +150,15 @@ namespace UPlayGround
         // -----------------------------------------------------------
         private void ApplyRewards()
         {
-            var player = _playerTransform.GetComponent<IDamageable>();
+            var player = GameObjectManager.Instance.Player;
             if (player == null) return;
 
             if (_data.healAmount > 0f)
-                player.Heal(_data.healAmount);
+                player.HealPercent(_data.healAmount);
 
             // 스킬 게이지 - 플레이어 액터에서 직접 접근
-            var playerActor = GameObjectManager.Instance.Player;
-            if (playerActor != null && playerActor.SkillGauge != null)
-                playerActor.SkillGauge.AddGauge(_data.gaugeAmount);
+            if (player != null && player.SkillGauge != null)
+                player.SkillGauge.AddGauge(_data.gaugeAmount);
         }
 
         // -----------------------------------------------------------

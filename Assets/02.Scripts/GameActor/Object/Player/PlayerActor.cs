@@ -523,8 +523,26 @@ namespace UPlayGround
             return _currentHealth;
         }
 
-        public void Heal(float healAmount)
+        public void Heal(float amount)
         {
+            if (!IsAlive())
+                return;
+
+            float oldHealth = _currentHealth;
+            _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+
+            float actualHeal = _currentHealth - oldHealth;
+            if (actualHeal > 0)
+            {
+                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+        }
+
+        public void HealPercent(float ratio)
+        {
+           
+            float healAmount = ratio * _maxHealth;
+            Heal(healAmount);
         }
 
         /// <summary>

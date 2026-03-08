@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Manager;
@@ -13,31 +14,41 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class CameraEffectEvent : MotionEventBase
     {
-        [Tooltip("재생할 CameraEffectData SO")]
-        public CameraEffectData effectData;
+        [Tooltip("재생할 CameraEffectData SO 목록")]
+        public List<CameraEffectData> effectDataList = new List<CameraEffectData>();
 
         [Tooltip("이펙트 재생 중 카메라 수동 조작 잠금")]
         public bool lockCameraInput = false;
 
-        // 재생 중인 이펙트 핸들 (OnCompleteEvent에서 정지용)
-        private ICameraEffect _activeHandle;
+        private readonly List<ICameraEffect> _activeHandles = new List<ICameraEffect>();
 
         public override string GetDisplayName() => "Camera Effect";
 
-        public override string GetShortLabel() =>
-            effectData != null ? $"Cam: {effectData.effectKey}" : "Cam: (None)";
+        public override string GetShortLabel()
+        {
+            if (effectDataList == null || effectDataList.Count == 0)
+                return "Cam: (None)";
+            if (effectDataList.Count == 1)
+                return $"Cam: {effectDataList[0]?.effectKey ?? "None"}";
+            return $"Cam: {effectDataList[0]?.effectKey ?? "None"} +{effectDataList.Count - 1}";
+        }
 
         public override void Execute(GameObject target)
         {
-            if (effectData == null)
+            if (effectDataList == null || effectDataList.Count == 0)
             {
-                Debug.LogWarning("[CameraEffectEvent] effectData가 설정되지 않았습니다.");
+                Debug.LogWarning("[CameraEffectEvent] effectDataList가 비어있습니다.");
                 return;
             }
 
             if (CameraManager.Instance == null) return;
 
-            _activeHandle = CameraManager.Instance.PlayEffect(effectData);
+            _activeHandles.Clear();
+            foreach (var data in effectDataList)
+            {
+                if (data == null) continue;
+                _activeHandles.Add(CameraManager.Instance.PlayEffect(data));
+            }
 
             if (lockCameraInput)
                 CameraManager.Instance.SetInputLock(true);
@@ -45,11 +56,10 @@ namespace UPlayGround.Data.Event
 
         public override void OnCompleteEvent(GameObject target)
         {
-            if (_activeHandle != null)
-            {
-                CameraManager.Instance?.StopEffect(_activeHandle);
-                _activeHandle = null;
-            }
+            foreach (var handle in _activeHandles)
+                CameraManager.Instance?.StopEffect(handle);
+
+            _activeHandles.Clear();
 
             if (lockCameraInput)
                 CameraManager.Instance?.SetInputLock(false);

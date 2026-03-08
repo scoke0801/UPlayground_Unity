@@ -488,6 +488,11 @@ namespace UPlayGround
             return _currentHealth > 0;
         }
 
+        public void SetInvincible(bool invincible)
+        {
+            _isInvincible = invincible;
+        }
+
         public bool CanTakeDamage()
         {
             // if (MovementController.CurrentState.StateName == "Hit")

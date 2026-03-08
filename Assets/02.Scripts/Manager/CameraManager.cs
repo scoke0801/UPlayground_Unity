@@ -173,6 +173,11 @@ namespace UPlayGround.Manager
         // 락온 중점 피벗 (Mid-Point Camera)
         private float _lockOnMidPointWeight = 0.35f;  // 중점 가중치 (0=플레이어, 1=적, 0.35=적 쪽으로 35%)
         private Vector3 _lockOnPivotVelocity;
+
+        // 소켓 LookAt 오버라이드 (애니메이션 이벤트용)
+        // 활성화 중에는 target 대신 이 Transform을 카메라 피벗 기준으로 사용한다
+        private Transform _lookAtOverride;
+        private Vector3 _lookAtOverrideOffset;
         
         // 락온 고저차 감쇠
         private float _lockOnHeightDampFactor = 0.42f;  // 고저차 감쇠 비율 (1=그대로, 0.4=40%만 반영)
@@ -395,8 +400,12 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateCameraPosition(float smoothTime)
         {
-            Vector3 targetPivotPosition = target.position + cameraOffset;
-            smoothPosition = Vector3.SmoothDamp(smoothPosition, targetPivotPosition,
+            // LookAt 오버라이드가 있으면 해당 소켓 위치를 피벗으로 사용
+            Vector3 pivotBase = (_lookAtOverride != null)
+                ? _lookAtOverride.position + _lookAtOverrideOffset
+                : target.position + cameraOffset;
+
+            smoothPosition = Vector3.SmoothDamp(smoothPosition, pivotBase,
                 ref positionVelocity, smoothTime);
             cameraPivot.position = smoothPosition;
 
@@ -916,6 +925,25 @@ namespace UPlayGround.Manager
         public float GetBaseFOV() => _baseFOV;
         public float GetTargetFOV() => _currentTargetFOV;
 
+        /// <summary>
+        /// 카메라 피벗을 특정 Transform(소켓)으로 일시 오버라이드한다.
+        /// 이벤트 endTime에 ClearLookAtOverride()로 반드시 해제할 것.
+        /// </summary>
+        public void SetLookAtOverride(Transform lookAt, Vector3 offset = default)
+        {
+            _lookAtOverride = lookAt;
+            _lookAtOverrideOffset = offset;
+        }
+
+        /// <summary>
+        /// LookAt 오버라이드 해제 → 카메라가 다시 플레이어를 따라간다.
+        /// </summary>
+        public void ClearLookAtOverride()
+        {
+            _lookAtOverride = null;
+            _lookAtOverrideOffset = Vector3.zero;
+        }
+
         #endregion
 
         #region Camera Effect API
@@ -934,7 +962,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public void StopEffect(ICameraEffect effect, bool immediate = false)
         {
-            _effectManager.StopEffect(effect, immediate);
+            _effectManager?.StopEffect(effect, immediate);
         }
 
         /// <summary>
@@ -942,7 +970,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public void StopEffect(string effectId, bool immediate = false)
         {
-            _effectManager.StopEffectById(effectId, immediate);
+            _effectManager?.StopEffectById(effectId, immediate);
         }
 
         /// <summary>

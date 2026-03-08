@@ -553,7 +553,16 @@ namespace UPlayGround.Animation.Editor
             {
                 RecordUndo($"Add element to {label}");
                 Type elementType = listType.IsArray ? listType.GetElementType() : listType.GetGenericArguments()[0];
-                object newItem = elementType == typeof(string) ? "" : Activator.CreateInstance(elementType);
+
+                // ScriptableObject/Component 등 UnityEngine.Object 파생 타입은
+                // Activator로 생성 불가 → null(빈 슬롯)로 추가 후 인스펙터에서 드래그 할당
+                object newItem;
+                if (typeof(UnityEngine.Object).IsAssignableFrom(elementType))
+                    newItem = null;
+                else if (elementType == typeof(string))
+                    newItem = "";
+                else
+                    newItem = Activator.CreateInstance(elementType);
 
                 if (listType.IsArray)
                 {
@@ -605,7 +614,27 @@ namespace UPlayGround.Animation.Editor
 
                 // 요소 내용 그리기
                 object item = list[i];
-                if (item != null)
+                Type elementType2 = listType.IsArray
+                    ? listType.GetElementType()
+                    : listType.GetGenericArguments()[0];
+
+                if (item == null)
+                {
+                    // UnityEngine.Object 파생 타입 → ObjectField로 null 슬롯 표시
+                    if (typeof(UnityEngine.Object).IsAssignableFrom(elementType2))
+                    {
+                        DrawSingleField($"[{i}]", null, elementType2, (newVal) =>
+                        {
+                            list[i] = newVal;
+                            MarkDirty();
+                        });
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField($"[{i}]", "(null)");
+                    }
+                }
+                else
                 {
                     Type itemType = item.GetType();
 

@@ -34,6 +34,9 @@ MonoBehaviour:
       - rid: 5792125102988197899
       - rid: 5792125102988197898
       - rid: 5792125170122752144
+      - rid: 5792125172636713075
+      - rid: 5792125172764901500
+      - rid: 5792125172764901511
     globalEvents: []
   references:
     version: 2
@@ -212,3 +215,25 @@ MonoBehaviour:
         useSpawnRotation: 1
         destroyOnFinish: 0
         particleLifeTime: 0
+    - rid: 5792125172636713075
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 4.1375
+        effectDataList:
+        - {fileID: 11400000, guid: 9158df7728ef2c04e9dbd02249f365ac, type: 2}
+        - {fileID: 11400000, guid: 56558d898ac2b2e4d9de3618e9eea870, type: 2}
+        lockCameraInput: 1
+    - rid: 5792125172764901500
+      type: {class: CameraLookAtSocketEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 4.125
+        socketType: 3
+        offset: {x: 0, y: 0, z: 0}
+        lockCameraInput: 1
+    - rid: 5792125172764901511
+      type: {class: InvincibilityEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 4.125

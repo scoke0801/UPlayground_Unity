@@ -31,9 +31,9 @@ namespace UPlayGround.Animation.Editor
             new Color(0.50f, 0.40f, 0.55f),
         };
 
-        static readonly Color COL_EVENT_BAR = new Color(0.45f, 0.45f, 0.55f, 0.85f);
-        static readonly Color COL_EVENT_SELECTED = new Color(0.7f, 0.6f, 0.2f, 0.95f); // ⑦ 선택된 이벤트 강조색
-        static readonly Color COL_EVENT_DIAMOND = new Color(0.6f, 0.6f, 0.7f);
+        // 이벤트 타입별 색상은 MotionEventStyle에서 관리
+        static readonly Color COL_EVENT_SELECTED_OVERLAY = new Color(1f, 1f, 1f, 0.25f);
+        static readonly Color COL_EVENT_DIAMOND          = new Color(1f, 1f, 1f, 0.8f);
         static readonly Color COL_MARKER = new Color(0.85f, 0.25f, 0.25f);
         static readonly Color COL_MARKER_TEXT = Color.white;
         static readonly Color COL_RANGE_OVERLAY = new Color(0.3f, 1f, 0.3f, 0.12f); // ④ 재생 구간 오버레이
@@ -89,10 +89,27 @@ namespace UPlayGround.Animation.Editor
         // 이벤트 복사 버퍼
         MotionEventBase _copiedEvent = null;
 
-        // 접힘 상태
+        // 섹션 접힘 상태
         public bool foldMotions = true;
         public bool foldTimeline = true;
         public bool foldEvents = true;
+
+        // 이벤트 항목별 접힘 상태: key = "motionIdx_eventIdx" 또는 "set_eventIdx"
+        readonly Dictionary<string, bool> _eventFoldouts = new Dictionary<string, bool>();
+
+        bool GetEventFold(string key)
+        {
+            _eventFoldouts.TryGetValue(key, out bool open);
+            return open; // 기본값 false = 접힌 상태
+        }
+
+        void SetEventFold(string key, bool open)
+        {
+            _eventFoldouts[key] = open;
+        }
+
+        static string EventKey(int motionIdx, int eventIdx) => $"m{motionIdx}_{eventIdx}";
+        static string SetEventKey(int eventIdx) => $"set_{eventIdx}";
 
         // Undo/Dirty 처리용 콜백
         readonly Func<UnityEngine.Object> _getTarget;
@@ -325,7 +342,7 @@ namespace UPlayGround.Animation.Editor
         }
 
         // ====================================================================
-        //  모션별 이벤트
+        //  모션별 이벤트 (개별 접힘/펼침 + 색상 배지)
         // ====================================================================
         void DrawMotionEvents(Motion motion, int motionIdx)
         {
@@ -339,53 +356,68 @@ namespace UPlayGround.Animation.Editor
                 var evt = motion.events[i];
                 if (evt == null) continue;
 
-                // ⑦ 선택된 이벤트는 배경색 강조
-                bool isSelectedEvt = !selectedEventIsSetEvent &&
-                                     selectedEventMotionIndex == motionIdx &&
-                                     selectedEventIndex == i;
-                if (isSelectedEvt) GUI.backgroundColor = new Color(1f, 0.9f, 0.3f);
+                string foldKey = EventKey(motionIdx, i);
+                bool isOpen = GetEventFold(foldKey);
+                var visual = MotionEventStyle.Get(evt);
 
                 EditorGUILayout.BeginVertical(GUI.skin.box);
                 {
+                    // ── 헤더 행 ──
                     EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.LabelField(evt.GetDisplayName(), EditorStyles.boldLabel, GUILayout.Width(100));
-                        GUILayout.FlexibleSpace();
+                        // 컬러 배지
+                        Rect badgeRect = GUILayoutUtility.GetRect(4, 18, GUILayout.Width(4));
+                        EditorGUI.DrawRect(badgeRect, visual.color);
+                        GUILayout.Space(4);
 
-                        GUILayout.Label("Start", GUILayout.Width(40));
-                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(100));
-
-                        GUILayout.Space(10);
-
-                        GUILayout.Label("End", GUILayout.Width(40));
-                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(100));
-
-                        // ⑧ 컨텍스트 메뉴 버튼 (우클릭과 동일 역할)
-                        if (GUILayout.Button("⋮", GUILayout.Width(22)))
+                        // 접힘 토글 화살표 + 이름 (클릭 영역 전체)
+                        string arrow = isOpen ? "▼" : "▶";
+                        var labelStyle = new GUIStyle(EditorStyles.boldLabel)
                         {
-                            ShowEventContextMenu(motion.events, i, false, motionIdx);
+                            normal = { textColor = visual.color }
+                        };
+                        if (GUILayout.Button($"{arrow} {visual.icon} {evt.GetDisplayName()}",
+                            labelStyle, GUILayout.MinWidth(120)))
+                        {
+                            SetEventFold(foldKey, !isOpen);
                         }
 
+                        GUILayout.FlexibleSpace();
+
+                        GUILayout.Label("Start", GUILayout.Width(35));
+                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
+                        GUILayout.Space(4);
+                        GUILayout.Label("End", GUILayout.Width(30));
+                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
+
+                        if (GUILayout.Button("⋮", GUILayout.Width(22)))
+                            ShowEventContextMenu(motion.events, i, false, motionIdx);
+
+                        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
                         if (GUILayout.Button("×", GUILayout.Width(22)))
                         {
+                            GUI.backgroundColor = Color.white;
                             RecordUndo("Remove Motion Event");
                             motion.events.RemoveAt(i);
+                            _eventFoldouts.Remove(foldKey);
                             if (selectedEventMotionIndex == motionIdx && selectedEventIndex == i)
                                 ClearEventSelection();
                             MarkDirty();
                             break;
                         }
+                        GUI.backgroundColor = Color.white;
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    // 이벤트별 세부 프로퍼티
-                    EditorGUI.indentLevel++;
-                    DrawEventProperties(evt);
-                    EditorGUI.indentLevel--;
+                    // ── 프로퍼티 (펼쳐진 경우만) ──
+                    if (isOpen)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawEventProperties(evt);
+                        EditorGUI.indentLevel--;
+                    }
                 }
                 EditorGUILayout.EndVertical();
-
-                if (isSelectedEvt) GUI.backgroundColor = Color.white;
             }
 
             EditorGUILayout.BeginHorizontal();
@@ -395,11 +427,12 @@ namespace UPlayGround.Animation.Editor
                 MotionEventMenuHelper.ShowAddEventMenu(motion.events, 0f, () =>
                 {
                     RecordUndo("Add Motion Event");
+                    // 새로 추가된 이벤트는 바로 펼쳐진 상태로
+                    SetEventFold(EventKey(motionIdx, motion.events.Count - 1), true);
                     MarkDirty();
                     Repaint();
                 });
             }
-
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
         }
@@ -699,7 +732,7 @@ namespace UPlayGround.Animation.Editor
         }
         
         // ====================================================================
-        //  MotionSet 이벤트
+        //  MotionSet 글로벌 이벤트 (개별 접힘/펼침 + 색상 배지)
         // ====================================================================
         void DrawMotionSetEvents(MotionSet set)
         {
@@ -711,50 +744,64 @@ namespace UPlayGround.Animation.Editor
                 var evt = set.globalEvents[i];
                 if (evt == null) continue;
 
-                // ⑦ 선택된 이벤트 강조
-                bool isSelectedEvt = selectedEventIsSetEvent && selectedEventIndex == i;
-                if (isSelectedEvt) GUI.backgroundColor = new Color(1f, 0.9f, 0.3f);
+                string foldKey = SetEventKey(i);
+                bool isOpen = GetEventFold(foldKey);
+                var visual = MotionEventStyle.Get(evt);
 
                 EditorGUILayout.BeginVertical(GUI.skin.box);
                 {
                     EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.LabelField(evt.GetDisplayName(), EditorStyles.boldLabel, GUILayout.Width(100));
-                        GUILayout.FlexibleSpace();
+                        Rect badgeRect = GUILayoutUtility.GetRect(4, 18, GUILayout.Width(4));
+                        EditorGUI.DrawRect(badgeRect, visual.color);
+                        GUILayout.Space(4);
 
-                        GUILayout.Label("Start", GUILayout.Width(40));
-                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(60));
-
-                        GUILayout.Space(10);
-
-                        GUILayout.Label("End", GUILayout.Width(40));
-                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(60));
-
-                        // ⑧ 컨텍스트 메뉴 버튼
-                        if (GUILayout.Button("⋮", GUILayout.Width(22)))
+                        string arrow = isOpen ? "▼" : "▶";
+                        var labelStyle = new GUIStyle(EditorStyles.boldLabel)
                         {
-                            ShowEventContextMenu(set.globalEvents, i, true, -1);
+                            normal = { textColor = visual.color }
+                        };
+                        if (GUILayout.Button($"{arrow} {visual.icon} {evt.GetDisplayName()}",
+                            labelStyle, GUILayout.MinWidth(120)))
+                        {
+                            SetEventFold(foldKey, !isOpen);
                         }
 
+                        GUILayout.FlexibleSpace();
+
+                        GUILayout.Label("Start", GUILayout.Width(35));
+                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
+                        GUILayout.Space(4);
+                        GUILayout.Label("End", GUILayout.Width(30));
+                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
+
+                        if (GUILayout.Button("⋮", GUILayout.Width(22)))
+                            ShowEventContextMenu(set.globalEvents, i, true, -1);
+
+                        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
                         if (GUILayout.Button("×", GUILayout.Width(22)))
                         {
+                            GUI.backgroundColor = Color.white;
                             RecordUndo("Remove MotionSet Event");
                             set.globalEvents.RemoveAt(i);
+                            _eventFoldouts.Remove(foldKey);
                             if (selectedEventIsSetEvent && selectedEventIndex == i)
                                 ClearEventSelection();
                             MarkDirty();
                             break;
                         }
+                        GUI.backgroundColor = Color.white;
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    EditorGUI.indentLevel++;
-                    DrawEventProperties(evt);
-                    EditorGUI.indentLevel--;
+                    if (isOpen)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawEventProperties(evt);
+                        EditorGUI.indentLevel--;
+                    }
                 }
                 EditorGUILayout.EndVertical();
-
-                if (isSelectedEvt) GUI.backgroundColor = Color.white;
             }
 
             EditorGUILayout.BeginHorizontal();
@@ -764,6 +811,7 @@ namespace UPlayGround.Animation.Editor
                 MotionEventMenuHelper.ShowAddEventMenu(set.globalEvents, 0f, () =>
                 {
                     RecordUndo("Add MotionSet Event");
+                    SetEventFold(SetEventKey(set.globalEvents.Count - 1), true);
                     MarkDirty();
                     Repaint();
                 });
@@ -1210,8 +1258,10 @@ namespace UPlayGround.Animation.Editor
                     var evt = set.globalEvents[i];
                     if (evt == null) continue;
 
+                    var visual = MotionEventStyle.Get(evt);
                     float y = yPos + idx * (EVENT_HEIGHT + TRACK_GAP);
-                    DrawTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT), $"Set: {evt.GetDisplayName()}");
+                    DrawEventTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT),
+                        $"{visual.icon} {evt.GetDisplayName()}", visual.color);
                     DrawEventBarWithOffset(new Rect(trackX, y, trackW, EVENT_HEIGHT),
                         evt, 0f, pps, -1, i, true);
                     idx++;
@@ -1232,11 +1282,13 @@ namespace UPlayGround.Animation.Editor
                             var evt = motion.events[ei];
                             if (evt == null) continue;
 
+                            var visual = MotionEventStyle.Get(evt);
                             float y = yPos + idx * (EVENT_HEIGHT + TRACK_GAP);
                             string label = evt.GetShortLabel();
                             if (string.IsNullOrEmpty(label)) label = $"M{mi}[{ei}]";
 
-                            DrawTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT), label);
+                            DrawEventTrackLabel(new Rect(labelX, y, labelW, EVENT_HEIGHT),
+                                $"{visual.icon} {label}", visual.color);
                             DrawEventBarWithOffset(new Rect(trackX, y, trackW, EVENT_HEIGHT),
                                 evt, tOff, pps, mi, ei, false);
                             idx++;
@@ -1253,6 +1305,24 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
+        // 이벤트 트랙 전용 레이블 — 타입 색상 세로 바 포함
+        void DrawEventTrackLabel(Rect rect, string text, Color accentColor)
+        {
+            EditorGUI.DrawRect(rect, COL_LABEL_BG);
+            // 좌측 컬러 악센트 바 (3px)
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 3, rect.height), accentColor);
+            EditorGUI.DrawRect(new Rect(rect.xMax - 1, rect.y, 1, rect.height), COL_LABEL_BORDER);
+
+            var style = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                padding   = new RectOffset(8, 4, 0, 0),
+                normal    = { textColor = new Color(0.88f, 0.88f, 0.88f) },
+                clipping  = TextClipping.Clip,
+            };
+            GUI.Label(rect, text, style);
+        }
+
         void DrawEventBarWithOffset(Rect trackRect, MotionEventBase evt, float tOff, float pps,
             int motionIndex, int eventIndex, bool isSetEvent)
         {
@@ -1265,46 +1335,53 @@ namespace UPlayGround.Animation.Editor
 
             if (x0 + w > 0 && x0 < trackRect.width)
             {
-                // ⑦ 선택된 이벤트는 색상 다르게
                 bool isSelected = isSetEvent
                     ? selectedEventIsSetEvent && selectedEventIndex == eventIndex
                     : !selectedEventIsSetEvent && selectedEventMotionIndex == motionIndex && selectedEventIndex == eventIndex;
 
-                Color barCol = isSelected ? COL_EVENT_SELECTED : COL_EVENT_BAR;
-                Rect bar = new Rect(x0, 3, w, trackRect.height - 6);
-                EditorGUI.DrawRect(bar, barCol);
+                var visual = MotionEventStyle.Get(evt);
 
-                // 다이아몬드
-                float diamondSize = 6f;
+                // 바 배경 (딤 컬러) + 상단 강조선
+                Rect bar = new Rect(x0, 2, Mathf.Max(w, 4f), trackRect.height - 4);
+                EditorGUI.DrawRect(bar, visual.dimmed);
+
+                // 상단 1px 강조선 (타입 색상 solid)
+                EditorGUI.DrawRect(new Rect(bar.x, bar.y, bar.width, 2), visual.color);
+
+                // 선택 시 밝기 오버레이
+                if (isSelected)
+                    EditorGUI.DrawRect(bar, COL_EVENT_SELECTED_OVERLAY);
+
+                // 시작/끝 다이아몬드
+                DrawDiamond(x0, trackRect.height * 0.5f, 5f, visual.color);
+                if (w > 6f)
+                    DrawDiamond(x1, trackRect.height * 0.5f, 5f, visual.color);
+
+                // 핸들 (드래그용 hit area — 시각화 X)
                 float hitAreaSize = 8f;
-                Rect startDiamond = new Rect(x0 - hitAreaSize, trackRect.height / 2f - hitAreaSize, hitAreaSize * 2, hitAreaSize * 2);
-                Rect endDiamond   = new Rect(x1 - hitAreaSize, trackRect.height / 2f - hitAreaSize, hitAreaSize * 2, hitAreaSize * 2);
+                Rect startHandle = new Rect(x0 - hitAreaSize, trackRect.height * 0.5f - hitAreaSize, hitAreaSize * 2, hitAreaSize * 2);
+                Rect endHandle   = new Rect(x1 - hitAreaSize, trackRect.height * 0.5f - hitAreaSize, hitAreaSize * 2, hitAreaSize * 2);
 
-                DrawDiamond(x0, trackRect.height / 2f, diamondSize, COL_EVENT_DIAMOND);
-                DrawDiamond(x1, trackRect.height / 2f, diamondSize, COL_EVENT_DIAMOND);
-
-                // ⑦ 클릭 시 이벤트 선택
                 HandleEventClick(bar, trackRect, motionIndex, eventIndex, isSetEvent);
-
-                // 드래그 처리
-                HandleEventDrag(bar, startDiamond, endDiamond, trackRect, evt, tOff, pps,
-                    motionIndex, eventIndex, isSetEvent);
-
-                // ⑧ 우클릭 컨텍스트 메뉴 (타임라인 바에서)
+                HandleEventDrag(bar, startHandle, endHandle, trackRect, evt, tOff, pps, motionIndex, eventIndex, isSetEvent);
                 HandleEventRightClick(bar, evt, motionIndex, eventIndex, isSetEvent);
 
-                // 라벨
-                string label = evt.GetShortLabel();
-                if (!string.IsNullOrEmpty(label))
+                // 라벨 (짧은 이름, 바 너비에 맞춤)
+                if (w > 20f)
                 {
-                    var style = new GUIStyle(EditorStyles.miniLabel)
+                    string label = evt.GetShortLabel();
+                    if (!string.IsNullOrEmpty(label))
                     {
-                        alignment = TextAnchor.MiddleCenter,
-                        normal    = { textColor = Color.white },
-                        fontSize  = 9,
-                        clipping  = TextClipping.Clip
-                    };
-                    GUI.Label(bar, label, style);
+                        var style = new GUIStyle(EditorStyles.miniLabel)
+                        {
+                            alignment = TextAnchor.MiddleLeft,
+                            normal    = { textColor = visual.color },
+                            fontSize  = 9,
+                            clipping  = TextClipping.Clip,
+                            padding   = new RectOffset(4, 2, 0, 0),
+                        };
+                        GUI.Label(new Rect(bar.x, bar.y + 2, bar.width, bar.height - 2), label, style);
+                    }
                 }
             }
 

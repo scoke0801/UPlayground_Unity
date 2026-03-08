@@ -230,8 +230,10 @@ namespace UPlayGround.Animation.Editor
             {
                 var type = types[i];
                 var name = names[i];
+                // 타입 아이콘을 메뉴 경로에 포함
+                var visual = MotionEventStyle.GetByType(type);
                 
-                menu.AddItem(new GUIContent(name), false, () =>
+                menu.AddItem(new GUIContent($"{visual.icon}  {name}"), false, () =>
                 {
                     var evt = MotionEventTypeRegistry.CreateEventInstance(type);
                     evt.startTime = defaultStartTime;

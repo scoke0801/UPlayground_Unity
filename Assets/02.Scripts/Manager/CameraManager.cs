@@ -134,6 +134,7 @@ namespace UPlayGround.Manager
         private float _rotTransitionElapsed;
         private float _rotTransitionDuration;
         private bool _rotTransitionUnlockOnComplete;   // 전환 완료 시 입력 잠금 자동 해제
+        private AnimationCurve _rotTransitionCurve;    // null이면 SmoothStep, 지정 시 커브 보간
 
         // 컨텍스트 기반 카메라 오프셋 (전투/비전투 숄더 전환)
         private Vector3 _defaultOffset = new Vector3(0.0f, 1.0f, 0f);     
@@ -291,11 +292,14 @@ namespace UPlayGround.Manager
             if (target == null || mainCamera == null || cameraPivot == null)
                 return;
 
+            // _isInputLocked와 무관하게 항상 실행 (연출 전환이므로)
+            UpdateRotationTransition();
+
+            // 아래는 입력 잠금 / LookAt 오버라이드 상태에 따라 내부에서 스킵
             UpdateLockOnTransition();
             UpdateLockOnRotation();
             UpdateCameraAlign();
             UpdateContextOffset();
-            UpdateRotationTransition();
             
             UpdateFOVSystem();
             UpdateCrowdZoomOut();
@@ -309,15 +313,17 @@ namespace UPlayGround.Manager
             currentPitch += fx.pitchDelta;
             currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
 
-            targetDistance += fx.distanceDelta;
-            targetDistance = Mathf.Clamp(targetDistance, _minDistance, _maxDistance);
+            // distanceDelta는 이펙트 전용: targetDistance(유저 입력/상태 기반)에 더하되 클램프하지 않고
+            // UpdateCameraPosition에서 사용하는 별도 값으로 처리한다.
+            // targetDistance는 유저 줌/락온/군중 줌아웃 등 '상태 기반 거리'이므로 이펙트가 오염하면 안 된다.
+            float effectDistance = Mathf.Clamp(targetDistance, _minDistance, _maxDistance) + fx.distanceDelta;
 
             cameraOffset += fx.offsetDelta;
 
             float effectivePosSmoothTime = fx.positionSmoothTimeOverride ?? positionSmoothTime;
             float effectiveRotSmoothTime = fx.rotationSmoothTimeOverride ?? rotationSmoothTime;
 
-            UpdateCameraPosition(effectivePosSmoothTime);
+            UpdateCameraPosition(effectivePosSmoothTime, effectDistance);
             UpdateCameraRotation(effectiveRotSmoothTime);
 
             // 포지션 델타 (Shake, SpringDamp 등)
@@ -398,8 +404,10 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 카메라 위치 업데이트
         /// </summary>
-        private void UpdateCameraPosition(float smoothTime)
+        private void UpdateCameraPosition(float smoothTime, float desiredDistance = -1f)
         {
+            if (desiredDistance < 0f)
+                desiredDistance = Mathf.Clamp(targetDistance, _minDistance, _maxDistance);
             // LookAt 오버라이드가 있으면 해당 소켓 위치를 피벗으로 사용
             Vector3 pivotBase = (_lookAtOverride != null)
                 ? _lookAtOverride.position + _lookAtOverrideOffset
@@ -413,7 +421,7 @@ namespace UPlayGround.Manager
             Vector3 camDir = rotation * Vector3.back; // pivot → 카메라 방향
 
             // 충돌로 허용된 최대 거리 계산
-            float blockedDistance = GetCollisionDistance(cameraPivot.position, camDir, targetDistance);
+            float blockedDistance = GetCollisionDistance(cameraPivot.position, camDir, desiredDistance);
 
             // 당김은 즉시, 복귀는 부드럽게
             float smoothTime2 = blockedDistance < _collisionDistance
@@ -651,17 +659,28 @@ namespace UPlayGround.Manager
 
             _rotTransitionElapsed += Time.deltaTime;
             float t = Mathf.Clamp01(_rotTransitionElapsed / _rotTransitionDuration);
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);  // ease-in/out
 
+            // 커브가 있고 키프레임도 있으면 커브 사용, 없으면 SmoothStep
+            float smoothT = (_rotTransitionCurve != null && _rotTransitionCurve.length > 0)
+                ? _rotTransitionCurve.Evaluate(t)
+                : Mathf.SmoothStep(0f, 1f, t);
+
+            float prevYaw = currentYaw;
             currentYaw   = Mathf.LerpAngle(_rotTransitionStartYaw,   _rotTransitionTargetYaw,   smoothT);
             currentPitch = Mathf.Lerp     (_rotTransitionStartPitch, _rotTransitionTargetPitch, smoothT);
             currentPitch = Mathf.Clamp(currentPitch, _minVerticalAngle, _maxVerticalAngle);
+
+            // 첫 3프레임만 로그
+            if (_rotTransitionElapsed <= Time.deltaTime * 3f)
+            {
+                Debug.Log($"[CameraManager] Transition t={t:F3} smoothT={smoothT:F3} " +
+                          $"yaw {prevYaw:F1}→{currentYaw:F1} pitch→{currentPitch:F1}");
+            }
 
             if (t >= 1f)
             {
                 _rotTransitionActive = false;
 
-                // 복원 전환 완료 시 입력 잠금 자동 해제
                 if (_rotTransitionUnlockOnComplete)
                 {
                     _isInputLocked = false;
@@ -708,6 +727,16 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 현재 카메라 Yaw 반환
+        /// </summary>
+        public float GetCurrentYaw() => currentYaw;
+
+        /// <summary>
+        /// 현재 카메라 Pitch 반환
+        /// </summary>
+        public float GetCurrentPitch() => currentPitch;
+
+        /// <summary>
         /// 카메라 거리 설정
         /// </summary>
         public void SetDistance(float distance)
@@ -733,22 +762,34 @@ namespace UPlayGround.Manager
         /// </summary>
         public void SetRotationSmooth(float yaw, float pitch, float duration, bool unlockOnComplete = false)
         {
+            SetRotationSmooth(yaw, pitch, duration, null, unlockOnComplete);
+        }
+
+        /// <summary>
+        /// AnimationCurve를 사용한 커스텀 보간 회전 전환.
+        /// curve == null이면 기존 SmoothStep 동작.
+        /// </summary>
+        public void SetRotationSmooth(float yaw, float pitch, float duration, AnimationCurve curve, bool unlockOnComplete = false)
+        {
             if (duration <= 0f)
             {
                 SetRotation(yaw, pitch);
-                if (unlockOnComplete)
-                    _isInputLocked = false;
+                if (unlockOnComplete) _isInputLocked = false;
                 return;
             }
 
-            _rotTransitionStartYaw   = currentYaw;
-            _rotTransitionStartPitch = currentPitch;
+            _rotTransitionStartYaw    = currentYaw;
+            _rotTransitionStartPitch  = currentPitch;
             _rotTransitionTargetYaw   = yaw;
             _rotTransitionTargetPitch = Mathf.Clamp(pitch, _minVerticalAngle, _maxVerticalAngle);
             _rotTransitionElapsed     = 0f;
             _rotTransitionDuration    = duration;
+            _rotTransitionCurve       = curve;
             _rotTransitionActive      = true;
             _rotTransitionUnlockOnComplete = unlockOnComplete;
+
+            Debug.Log($"[CameraManager] SetRotationSmooth → startYaw={_rotTransitionStartYaw:F1} targetYaw={_rotTransitionTargetYaw:F1} " +
+                      $"startPitch={_rotTransitionStartPitch:F1} targetPitch={_rotTransitionTargetPitch:F1} duration={duration} active={_rotTransitionActive}");
         }
 
         /// <summary>
@@ -1450,6 +1491,10 @@ namespace UPlayGround.Manager
         {
             // 입력 잠금 중(연출 등)에는 자동 회전 건너뜀
             if (_isInputLocked)
+                return;
+
+            // LookAt 이벤트가 회전을 제어 중이면 LockOn 추적 회전을 건너뜀
+            if (_lookAtOverride != null)
                 return;
 
             if (isLockOnActive == false || lockOnTarget == null)

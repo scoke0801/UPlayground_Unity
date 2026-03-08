@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec1b7306e81a9694ab7139a5a2093519, type: 3}
-  m_Name: RotationCameraEffect
+  m_Script: {fileID: 11500000, guid: 7b8de0471fc573a419d54a709e8815fb, type: 3}
+  m_Name: ZoomCameraEffect
   m_EditorClassIdentifier: 
   effectKey: 
   priority: 0
@@ -66,19 +66,46 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   useUnscaledTime: 0
-  yawDelta: 180
-  pitchDelta: 0
-  rotationCurve:
+  distanceDelta: -2
+  offsetDelta: {x: 0, y: 0, z: 0}
+  zoomCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      inSlope: 3.2027512
+      outSlope: 3.2027512
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.1862484
+      value: 0.5965073
+      inSlope: 2.2698226
+      outSlope: 2.2698226
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49444282
+      value: 1.0085306
+      inSlope: -0.01820085
+      outSlope: -0.01820085
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.14890727
+    - serializedVersion: 3
+      time: 1.0064697
+      value: 1.0142843
+      inSlope: 0.011236981
+      outSlope: 0.011236981
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

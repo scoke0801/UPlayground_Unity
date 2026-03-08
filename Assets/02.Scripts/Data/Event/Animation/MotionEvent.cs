@@ -12,12 +12,31 @@ namespace UPlayGround.Data.Event
     {
         public float startTime;
         public float endTime;
-
+            
+        // 이전 모션들의 누적 시간 (글로벌 타임라인에서의 오프셋)
+        [HideInInspector] public float globalStartTimeOffset = 0f;
+        
         /// <summary>
-        /// 이벤트가 특정 시간에 활성화되는지 확인
+        /// 이벤트가 특정 시간(글로벌 시간)에 활성화되는지 확인
+        /// 앞선 모션에서 흐른 시간을 더해 절대적인 글로벌 시간으로 비교
         /// </summary>
-        public bool IsActiveAt(float time) => time >= startTime && time <= endTime;
-
+        public bool IsActiveAtGlobal(float globalTime)
+        {
+            float absoluteStartTime = startTime + globalStartTimeOffset;
+            float absoluteEndTime = endTime + globalStartTimeOffset;
+            
+            return globalTime >= absoluteStartTime && globalTime <= absoluteEndTime;
+        }
+        
+        /// <summary>
+        /// 이벤트가 특정 시간(글로벌 시간)에 활성화되는지 확인
+        /// 앞선 모션에서 흐른 시간을 더해 절대적인 글로벌 시간으로 비교
+        /// </summary>
+        public bool IsActiveAt(float localTime)
+        {
+            return localTime >= startTime && localTime <= endTime;
+        }
+        
         /// <summary>
         /// 이벤트의 표시 이름 (에디터용)
         /// </summary>

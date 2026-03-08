@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UPlayGround.Data.Event;
 
@@ -28,6 +29,9 @@ namespace UPlayGround.Animation
             _currentTime = 0f;
             _activeEvents.Clear();
             _executedEvents.Clear();
+            
+            // 재생 시작 시 모든 이벤트의 글로벌 시작 시간 오프셋을 미리 계산
+            CalculateEventOffsets();
         }
 
         /// <summary>
@@ -46,6 +50,7 @@ namespace UPlayGround.Animation
         /// </summary>
         void ProcessEvents()
         {
+            //Debug.Log($"ProcessEvent: {_currentTime}");
             var currentActiveEvents = _currentMotionSet.GetActiveEventsAt(_currentTime);
 
             // 새로 활성화된 이벤트 실행
@@ -62,7 +67,7 @@ namespace UPlayGround.Animation
             List<MotionEventBase> toRemove = new List<MotionEventBase>();
             foreach (var evt in _activeEvents)
             {
-                if (evt.IsActiveAt(_currentTime) == false)
+                if (evt.IsActiveAtGlobal(_currentTime) == false)
                 {
                     evt.OnCompleteEvent(TargetObject);
                     toRemove.Add(evt); // 삭제 예약
@@ -138,7 +143,45 @@ namespace UPlayGround.Animation
                 }
             }
         }
+        
+        /// <summary>
+        /// 각 모션의 이벤트를 순회하며 이전 모션들의 누적 재생 시간을 오프셋으로 주입
+        /// </summary>
+        private void CalculateEventOffsets()
+        {
+            if (_currentMotionSet == null) return;
 
+            // 글로벌 이벤트는 모션셋 시작점 기준이므로 오프셋이 0입니다.
+            if (_currentMotionSet.globalEvents != null)
+            {
+                foreach (var evt in _currentMotionSet.globalEvents)
+                {
+                    if (evt != null) evt.globalStartTimeOffset = 0f;
+                }
+            }
+
+            // 모션별 이벤트는 이전 모션들의 길이를 누적하여 오프셋으로 설정합니다.
+            if (_currentMotionSet.motions != null)
+            {
+                float accumulatedTime = 0f;
+                foreach (Motion motion in _currentMotionSet.motions)
+                {
+                    if(motion == null) continue;
+                    
+                    if (motion.events != null)
+                    {
+                        foreach (var evt in motion.events)
+                        {
+                            if (evt != null) 
+                                evt.globalStartTimeOffset = accumulatedTime;
+                        }
+                    }
+                    // 다음 모션으로 넘어가기 전, 현재 모션의 길이를 누적합니다.
+                    accumulatedTime += motion.Duration;
+                }
+            }
+        }
+        
         /// <summary>
         /// 특정 타입의 이벤트만 실행 (디버그/테스트용)
         /// </summary>

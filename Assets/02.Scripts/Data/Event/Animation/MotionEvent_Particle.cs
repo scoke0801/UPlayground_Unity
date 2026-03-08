@@ -39,6 +39,7 @@ namespace UPlayGround.Data.Event
                 particleLifeTime = 0f;
             }
 
+            Debug.Log("PlayParticleEvent");
             Transform spawnPoint = target.transform;
             if (String.IsNullOrEmpty(spawnPointName) == false)
             {
@@ -92,6 +93,7 @@ namespace UPlayGround.Data.Event
         {
             if (_instance != null && destroyOnFinish == true)
             {
+                Debug.Log("PlayParticleEvent - OnComplete");
                 GameObject.Destroy(_instance);
                 _instance = null;
             }

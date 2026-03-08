@@ -65,6 +65,11 @@ namespace UPlayGround.Data.Event
                 combat.SetHitPhaseIndex(hitPhaseIndex);
             }
             combat.SetEnableCollision(isCollisionEnable);
+
+            //if (isCollisionEnable)
+            {
+                Debug.Log($"HandlePlayerCombat - {isCollisionEnable}");
+            }
         }
 
         private void HandleMonsterCombat(MonsterActor monsterActor, bool isCollisionEnable)

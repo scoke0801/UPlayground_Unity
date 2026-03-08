@@ -43,19 +43,25 @@ namespace UPlayGround.Data.Event
         public override void OnCompleteEvent(GameObject target)
         {
             PlayerActor player = target.GetComponent<PlayerActor>();
-            if(player == null)
+            if (player == null)
             {
                 return;
             }
-            
+
             PlayerCombat combat = player.GetCombat();
-            if(combat == null)
+            if (combat == null)
             {
                 return;
             }
-            
+
             foreach (var brain in _frozenBrains)
+            {
+                if (brain == null)
+                {
+                    continue;
+                }
                 brain.Unfreeze();
+            }
         }
     }
 

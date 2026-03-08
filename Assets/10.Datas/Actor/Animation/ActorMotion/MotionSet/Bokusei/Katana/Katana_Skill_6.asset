@@ -26,6 +26,11 @@ MonoBehaviour:
       - rid: 5792125186540306600
       - rid: 5792125186540306601
       - rid: 5792125186540306602
+      - rid: 5792125186540306614
+      - rid: 5792125186540306618
+      - rid: 5792125186540306617
+      - rid: 5792125186540306616
+      - rid: 5792125186540306615
     - motionName: Motion_1
       motionClip: {fileID: 7400000, guid: 4f6e227852a64394398010170e126410, type: 3}
       clipStartTime: 1.35
@@ -37,6 +42,11 @@ MonoBehaviour:
       - rid: 5792125186540306605
       - rid: 5792125186540306606
       - rid: 5792125186540306607
+      - rid: 5792125186540306619
+      - rid: 5792125186540306623
+      - rid: 5792125186540306622
+      - rid: 5792125186540306621
+      - rid: 5792125186540306620
     - motionName: Motion_2
       motionClip: {fileID: 7400000, guid: 4f6e227852a64394398010170e126410, type: 3}
       clipStartTime: 1.35
@@ -44,9 +54,21 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5792125186540306608
+      - rid: 5792125186540306609
+      - rid: 5792125186540306610
+      - rid: 5792125186540306611
+      - rid: 5792125186540306612
+      - rid: 5792125186540306613
+      - rid: 5792125186540306624
+      - rid: 5792125186540306628
+      - rid: 5792125186540306627
+      - rid: 5792125186540306626
+      - rid: 5792125186540306625
+      - rid: 5792125186540306629
     globalEvents:
     - rid: 5792125186540306590
     - rid: 5792125186540306591
+    - rid: 5792125190390415512
   references:
     version: 2
     RefIds:
@@ -55,6 +77,7 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 5.3
+        globalStartTimeOffset: 0
         socketType: 4
         offset: {x: 0, y: 0, z: 0}
         overrideDirection: 0
@@ -75,6 +98,7 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 5.275
+        globalStartTimeOffset: 0
         effectDataList:
         - {fileID: 11400000, guid: 6b5946249b9ed874daaa62e163a48f6b, type: 2}
         lockCameraInput: 1
@@ -83,6 +107,7 @@ MonoBehaviour:
       data:
         startTime: 1.29529
         endTime: 1.3417875
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -92,6 +117,7 @@ MonoBehaviour:
       data:
         startTime: 1.4447464
         endTime: 1.5211352
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -101,6 +127,7 @@ MonoBehaviour:
       data:
         startTime: 1.5844202
         endTime: 1.660809
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -110,6 +137,7 @@ MonoBehaviour:
       data:
         startTime: 1.8370168
         endTime: 1.9134057
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -119,6 +147,7 @@ MonoBehaviour:
       data:
         startTime: 1.9600844
         endTime: 2.0364733
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -128,6 +157,7 @@ MonoBehaviour:
       data:
         startTime: 0.08195639
         endTime: 0.1483815
+        globalStartTimeOffset: 2.13
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -137,6 +167,7 @@ MonoBehaviour:
       data:
         startTime: 0.23805542
         endTime: 0.31112304
+        globalStartTimeOffset: 2.13
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -146,6 +177,7 @@ MonoBehaviour:
       data:
         startTime: 0.35115933
         endTime: 0.42422697
+        globalStartTimeOffset: 2.13
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -155,6 +187,7 @@ MonoBehaviour:
       data:
         startTime: 0.49711347
         endTime: 0.56390095
+        globalStartTimeOffset: 2.13
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -164,6 +197,7 @@ MonoBehaviour:
       data:
         startTime: 0.62018114
         endTime: 0.6869686
+        globalStartTimeOffset: 2.13
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -171,9 +205,306 @@ MonoBehaviour:
     - rid: 5792125186540306608
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.08195639
-        endTime: 0.5
+        startTime: 0.11351127
+        endTime: 0.19413824
+        globalStartTimeOffset: 2.9100003
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
         hitPhaseIndex: 0
+    - rid: 5792125186540306609
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.24413824
+        endTime: 0.3247652
+        globalStartTimeOffset: 2.9100003
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 1
+    - rid: 5792125186540306610
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.362361
+        endTime: 0.42671606
+        globalStartTimeOffset: 2.9100003
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 2
+    - rid: 5792125186540306611
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.48988712
+        endTime: 0.55424213
+        globalStartTimeOffset: 2.9100003
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 3
+    - rid: 5792125186540306612
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6205141
+        endTime: 0.6848691
+        globalStartTimeOffset: 2.9100003
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 4
+    - rid: 5792125186540306613
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7480397
+        endTime: 0.7926385
+        globalStartTimeOffset: 2.9100003
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 5
+    - rid: 5792125186540306614
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2807285
+        endTime: 1.7807283
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306615
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.96334
+        endTime: 2.46334
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_PIvot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306616
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8361976
+        endTime: 2.3361979
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_PIvot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306617
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.5757105
+        endTime: 2.0757103
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_PIvot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306618
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.4268607
+        endTime: 1.9268607
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306619
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.077525854
+        endTime: 0.57752585
+        globalStartTimeOffset: 2.13
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306620
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6298941
+        endTime: 1.129894
+        globalStartTimeOffset: 2.13
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306621
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.49344832
+        endTime: 0.9934483
+        globalStartTimeOffset: 2.13
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306622
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.33839637
+        endTime: 0.8383964
+        globalStartTimeOffset: 2.13
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306623
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.18954687
+        endTime: 0.6895469
+        globalStartTimeOffset: 2.13
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306624
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.12404132
+        endTime: 0.6240413
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306625
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6050857
+        endTime: 1.1050856
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306626
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.44693285
+        endTime: 0.94693285
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306627
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.3166893
+        endTime: 0.8166893
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306628
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.23296122
+        endTime: 0.73296124
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125186540306629
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.74501574
+        endTime: 1.2450156
+        globalStartTimeOffset: 2.9100003
+        particlePrefab: {fileID: 26357312617216343, guid: 227583f637170184886dbe746f16b8f5, type: 3}
+        spawnPointName: VFX_Pivot
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 5792125190390415512
+      type: {class: FreezeEnemyEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 5.2875
+        globalStartTimeOffset: 0

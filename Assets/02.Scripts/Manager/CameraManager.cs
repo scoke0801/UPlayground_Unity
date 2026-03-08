@@ -1489,6 +1489,14 @@ namespace UPlayGround.Manager
         /// </summary>
         private void UpdateLockOnRotation()
         {
+            bool isValidTarget = IsValidTarget(lockOnTarget);
+            
+            // 대상 유효성 체크 실패 시, 다른 대상 탐색
+            if (isValidTarget == false)
+            {
+                ReleaseLockOn();
+            }
+            
             // 입력 잠금 중(연출 등)에는 자동 회전 건너뜀
             if (_isInputLocked)
                 return;
@@ -1505,7 +1513,7 @@ namespace UPlayGround.Manager
                 return;
             
             // 대상 유효성 체크 실패 시, 다른 대상 탐색
-            if (IsValidTarget(lockOnTarget) == false)
+            if (isValidTarget == false)
             {
                 if (TryFindNextLockOnTarget() == false)
                 {
@@ -1687,7 +1695,7 @@ namespace UPlayGround.Manager
             if (damageable == null)
                 damageable = targetTransform.GetComponentInParent<IDamageable>();
 
-            return damageable != null && damageable.CanTakeDamage();
+            return damageable != null && damageable.CanTakeDamage();;
         }
 
         #endregion

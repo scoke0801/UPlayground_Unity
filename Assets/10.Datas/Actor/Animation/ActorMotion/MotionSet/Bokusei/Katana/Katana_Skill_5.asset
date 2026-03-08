@@ -38,6 +38,7 @@ MonoBehaviour:
       - rid: 5792125172764901500
       - rid: 5792125172764901511
       - rid: 5792125186540306552
+      - rid: 5792125186540306578
     globalEvents: []
   references:
     version: 2
@@ -257,3 +258,8 @@ MonoBehaviour:
         endTime: 2.0375
         targetTimeScale: 0.3
         blendDuration: 0.05
+    - rid: 5792125186540306578
+      type: {class: FreezeEnemyEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 4.1375

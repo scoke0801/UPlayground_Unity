@@ -56,11 +56,16 @@ namespace UPlayGround
         
         private List<InputCondition> _skillInputCondition = new List<InputCondition> 
         { 
-            InputCondition.None,
-            InputCondition.None,
-            InputCondition.None,
-            InputCondition.None,
-            InputCondition.None,
+            InputCondition.None,    // 0
+            InputCondition.None,    // 1
+            InputCondition.None,    // 2
+            InputCondition.None,    // 3
+            InputCondition.None,    // 4
+            InputCondition.None,    // 5
+            InputCondition.None,    // 6
+            InputCondition.None,    // 7
+            InputCondition.None,    // 8
+            InputCondition.None,    // 9
         };
         
         public override ActorAnimator Animator => _playerActorAnimator;
@@ -157,6 +162,11 @@ namespace UPlayGround
                     _skillInputCondition[2],
                     _skillInputCondition[3],
                     _skillInputCondition[4],
+                    _skillInputCondition[5],
+                    _skillInputCondition[6],
+                    _skillInputCondition[7],
+                    _skillInputCondition[8],
+                    _skillInputCondition[9],
                 },
             };
 
@@ -231,6 +241,18 @@ namespace UPlayGround
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,
                     null, OnInputPerformedSkill_5, null, null, null, layer);
 
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,
+                    null, OnInputPerformedSkill_6, null, null, null, layer);
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,
+                    null, OnInputPerformedSkill_7, null, null, null, layer);
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,
+                    null, OnInputPerformedSkill_8, null, null, null, layer);
+
+                InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,
+                    null, OnInputPerformedSkill_9, null, null, null, layer);
+
                 InputManager.Instance.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null, null, null, layer);
                 
@@ -288,6 +310,18 @@ namespace UPlayGround
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,
                     null, OnInputPerformedSkill_5, null);
                 
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,
+                    null, OnInputPerformedSkill_6, null);
+
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,
+                    null, OnInputPerformedSkill_7, null);
+
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,
+                    null, OnInputPerformedSkill_8, null);
+
+                InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,
+                    null, OnInputPerformedSkill_9, null);
+
                 InputManager.Instance.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,
                     null, OnInputPerformedEquipWeapon, null);
                 
@@ -373,6 +407,26 @@ namespace UPlayGround
         private void OnInputPerformedSkill_5(InputAction.CallbackContext obj)
         {
             _skillInputCondition[4] = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedSkill_6(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[5] = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedSkill_7(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[6] = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedSkill_8(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[7] = InputCondition.Pressed;
+        }
+        
+        private void OnInputPerformedSkill_9(InputAction.CallbackContext obj)
+        {
+            _skillInputCondition[8] = InputCondition.Pressed;
         }
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {

@@ -208,8 +208,8 @@ namespace UPlayGround.State
         {
             var skillGauge = playerActor.SkillGauge;
 
-            // 스킬 1~5
-            for (int i = 0; i < 5; i++)
+            // 스킬
+            for (int i = 0; i < 10; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;
 

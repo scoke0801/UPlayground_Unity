@@ -307,6 +307,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Skill_8"",
+                    ""type"": ""Button"",
+                    ""id"": ""974de6eb-726d-4c4a-8a47-1eea92182310"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Skill_9"",
+                    ""type"": ""Button"",
+                    ""id"": ""a27b571b-6ec4-4978-ab02-7e7af37df12f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -637,6 +655,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Skill_7"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cbd060bd-2ad5-458b-ac98-21ba7d1f6080"",
+                    ""path"": ""<Keyboard>/8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_8"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""903020ab-e522-46de-8271-1c3f2f8756ce"",
+                    ""path"": ""<Keyboard>/9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_9"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1216,6 +1256,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Dash = m_PlayerAction.FindAction("Dash", throwIfNotFound: true);
         m_PlayerAction_Skill_6 = m_PlayerAction.FindAction("Skill_6", throwIfNotFound: true);
         m_PlayerAction_Skill_7 = m_PlayerAction.FindAction("Skill_7", throwIfNotFound: true);
+        m_PlayerAction_Skill_8 = m_PlayerAction.FindAction("Skill_8", throwIfNotFound: true);
+        m_PlayerAction_Skill_9 = m_PlayerAction.FindAction("Skill_9", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1352,6 +1394,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Dash;
     private readonly InputAction m_PlayerAction_Skill_6;
     private readonly InputAction m_PlayerAction_Skill_7;
+    private readonly InputAction m_PlayerAction_Skill_8;
+    private readonly InputAction m_PlayerAction_Skill_9;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1460,6 +1504,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Skill_7 => m_Wrapper.m_PlayerAction_Skill_7;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/Skill_8".
+        /// </summary>
+        public InputAction @Skill_8 => m_Wrapper.m_PlayerAction_Skill_8;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/Skill_9".
+        /// </summary>
+        public InputAction @Skill_9 => m_Wrapper.m_PlayerAction_Skill_9;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -1557,6 +1609,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_7.started += instance.OnSkill_7;
             @Skill_7.performed += instance.OnSkill_7;
             @Skill_7.canceled += instance.OnSkill_7;
+            @Skill_8.started += instance.OnSkill_8;
+            @Skill_8.performed += instance.OnSkill_8;
+            @Skill_8.canceled += instance.OnSkill_8;
+            @Skill_9.started += instance.OnSkill_9;
+            @Skill_9.performed += instance.OnSkill_9;
+            @Skill_9.canceled += instance.OnSkill_9;
         }
 
         /// <summary>
@@ -1640,6 +1698,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_7.started -= instance.OnSkill_7;
             @Skill_7.performed -= instance.OnSkill_7;
             @Skill_7.canceled -= instance.OnSkill_7;
+            @Skill_8.started -= instance.OnSkill_8;
+            @Skill_8.performed -= instance.OnSkill_8;
+            @Skill_8.canceled -= instance.OnSkill_8;
+            @Skill_9.started -= instance.OnSkill_9;
+            @Skill_9.performed -= instance.OnSkill_9;
+            @Skill_9.canceled -= instance.OnSkill_9;
         }
 
         /// <summary>
@@ -2369,6 +2433,20 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill_7(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skill_8" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkill_8(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skill_9" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkill_9(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

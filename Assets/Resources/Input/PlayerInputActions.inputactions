@@ -221,6 +221,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Skill_8",
+                    "type": "Button",
+                    "id": "974de6eb-726d-4c4a-8a47-1eea92182310",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Skill_9",
+                    "type": "Button",
+                    "id": "a27b571b-6ec4-4978-ab02-7e7af37df12f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -551,6 +569,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Skill_7",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbd060bd-2ad5-458b-ac98-21ba7d1f6080",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill_8",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "903020ab-e522-46de-8271-1c3f2f8756ce",
+                    "path": "<Keyboard>/9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill_9",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

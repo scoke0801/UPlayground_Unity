@@ -121,7 +121,7 @@ namespace UPlayGround.State
 
            
             var skillGauge = playerActor.SkillGauge;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 if (skillGauge == null) break;
                 if (!playerController.HasSkillInput(i)) continue;

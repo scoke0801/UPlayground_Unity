@@ -66,6 +66,10 @@ namespace UPlayGround.Data.EnumType
         Skill_3,
         Skill_4,
         Skill_5,
+        Skill_6,
+        Skill_7,
+        Skill_8,
+        Skill_9,
         
         FinishAttack = 690,
         

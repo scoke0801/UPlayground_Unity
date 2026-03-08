@@ -28,6 +28,10 @@
         public const string Skill_3 = "Skill_3";
         public const string Skill_4 = "Skill_4";
         public const string Skill_5 = "Skill_5";
+        public const string Skill_6 = "Skill_6";
+        public const string Skill_7 = "Skill_7";
+        public const string Skill_8 = "Skill_8";
+        public const string Skill_9 = "Skill_9";
         
         public const string Interact = "Interact";
         

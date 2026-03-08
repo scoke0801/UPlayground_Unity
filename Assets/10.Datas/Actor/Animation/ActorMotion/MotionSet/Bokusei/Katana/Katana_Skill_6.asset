@@ -1,0 +1,179 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Katana_Skill_6
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: 
+      motionClip: {fileID: 7400000, guid: 4f6e227852a64394398010170e126410, type: 3}
+      clipStartTime: -1
+      clipEndTime: 2.13
+      playbackSpeed: 1
+      events:
+      - rid: 5792125186540306598
+      - rid: 5792125186540306599
+      - rid: 5792125186540306600
+      - rid: 5792125186540306601
+      - rid: 5792125186540306602
+    - motionName: Motion_1
+      motionClip: {fileID: 7400000, guid: 4f6e227852a64394398010170e126410, type: 3}
+      clipStartTime: 1.35
+      clipEndTime: 2.13
+      playbackSpeed: 1
+      events:
+      - rid: 5792125186540306603
+      - rid: 5792125186540306604
+      - rid: 5792125186540306605
+      - rid: 5792125186540306606
+      - rid: 5792125186540306607
+    - motionName: Motion_2
+      motionClip: {fileID: 7400000, guid: 4f6e227852a64394398010170e126410, type: 3}
+      clipStartTime: 1.35
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 5792125186540306608
+    globalEvents:
+    - rid: 5792125186540306590
+    - rid: 5792125186540306591
+  references:
+    version: 2
+    RefIds:
+    - rid: 5792125186540306590
+      type: {class: CameraLookAtSocketEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 5.3
+        socketType: 4
+        offset: {x: 0, y: 0, z: 0}
+        overrideDirection: 0
+        angleOffset: 0
+        pitchOffset: 0
+        lookDuration: 0.5
+        lookCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        restoreOnComplete: 0
+        restoreDuration: 0.3
+        lockCameraInput: 0
+    - rid: 5792125186540306591
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 5.275
+        effectDataList:
+        - {fileID: 11400000, guid: 6b5946249b9ed874daaa62e163a48f6b, type: 2}
+        lockCameraInput: 1
+    - rid: 5792125186540306598
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.29529
+        endTime: 1.3417875
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 0
+    - rid: 5792125186540306599
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.4447464
+        endTime: 1.5211352
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 1
+    - rid: 5792125186540306600
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.5844202
+        endTime: 1.660809
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 2
+    - rid: 5792125186540306601
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8370168
+        endTime: 1.9134057
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 3
+    - rid: 5792125186540306602
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.9600844
+        endTime: 2.0364733
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 4
+    - rid: 5792125186540306603
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.08195639
+        endTime: 0.1483815
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 0
+    - rid: 5792125186540306604
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.23805542
+        endTime: 0.31112304
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 1
+    - rid: 5792125186540306605
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.35115933
+        endTime: 0.42422697
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 2
+    - rid: 5792125186540306606
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.49711347
+        endTime: 0.56390095
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 3
+    - rid: 5792125186540306607
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.62018114
+        endTime: 0.6869686
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 4
+    - rid: 5792125186540306608
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.08195639
+        endTime: 0.5
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 0

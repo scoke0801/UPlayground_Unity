@@ -14,14 +14,20 @@ namespace UPlayGround.Animation.Editor
     public class MotionSetDrawer
     {
         // 색상 팔레트
-        static readonly Color COL_BG = new Color(0.18f, 0.18f, 0.18f);
-        static readonly Color COL_TRACK_BG = new Color(0.22f, 0.22f, 0.22f);
-        static readonly Color COL_RULER = new Color(0.15f, 0.15f, 0.15f);
-        static readonly Color COL_RULER_LINE = new Color(0.4f, 0.4f, 0.4f);
-        static readonly Color COL_RULER_TEXT = new Color(0.7f, 0.7f, 0.7f);
-        static readonly Color COL_CURSOR = new Color(0.9f, 0.2f, 0.2f);
-        static readonly Color COL_LABEL_BG = new Color(0.14f, 0.14f, 0.14f);
-        static readonly Color COL_LABEL_BORDER = new Color(0.3f, 0.3f, 0.3f);
+        static readonly Color COL_BG              = new Color(0.13f, 0.14f, 0.15f);
+        static readonly Color COL_PANEL_BG        = new Color(0.11f, 0.12f, 0.13f);
+        static readonly Color COL_TRACK_BG        = new Color(0.16f, 0.17f, 0.18f);
+        static readonly Color COL_GROUP_HEADER_BG = new Color(0.14f, 0.15f, 0.17f);
+        static readonly Color COL_RULER           = new Color(0.10f, 0.11f, 0.12f);
+        static readonly Color COL_RULER_LINE      = new Color(0.35f, 0.37f, 0.40f);
+        static readonly Color COL_RULER_TEXT      = new Color(0.65f, 0.67f, 0.72f);
+        static readonly Color COL_CURSOR          = new Color(1.00f, 0.25f, 0.25f);
+        static readonly Color COL_LABEL_BG        = new Color(0.10f, 0.11f, 0.12f);
+        static readonly Color COL_LABEL_BORDER    = new Color(0.22f, 0.24f, 0.28f);
+        static readonly Color COL_SECTION_HEADER  = new Color(0.16f, 0.18f, 0.20f);
+        static readonly Color COL_INSPECTOR_BG    = new Color(0.12f, 0.13f, 0.14f);
+        static readonly Color COL_INSPECTOR_FIELD = new Color(0.17f, 0.19f, 0.21f);
+        static readonly Color COL_DIVIDER         = new Color(0.22f, 0.24f, 0.27f);
 
         static readonly Color[] COL_MOTION_CLIPS =
         {
@@ -41,15 +47,20 @@ namespace UPlayGround.Animation.Editor
         static readonly Color COL_CLIP_HANDLE = new Color(1f, 0.85f, 0.2f, 0.9f); // ⑥ 클립 핸들 색상
 
         // 레이아웃 상수
-        const float LABEL_WIDTH = 140f;
-        const float RULER_HEIGHT = 24f;
-        const float TRACK_HEIGHT = 28f;
-        const float EVENT_HEIGHT = 22f;
-        const float MARKER_HEIGHT = 20f;
-        const float TRACK_GAP = 2f;
-        const float SECTION_GAP = 6f;
-        const float BASE_PPS = 80f;
-        const float CLIP_HANDLE_W = 6f; // ⑥ 클립 핸들 너비
+        const float LABEL_WIDTH       = 160f;
+        const float INSPECTOR_WIDTH   = 280f;
+        const float RULER_HEIGHT      = 22f;
+        const float TRACK_HEIGHT      = 24f;
+        const float EVENT_HEIGHT      = 20f;
+        const float MARKER_HEIGHT     = 18f;
+        const float GROUP_HEADER_H    = 20f;
+        const float TRACK_GAP         = 1f;
+        const float SECTION_GAP       = 4f;
+        const float BASE_PPS          = 80f;
+        const float CLIP_HANDLE_W     = 6f;
+
+        // 인스펙터 패널 스크롤
+        Vector2 _inspectorScroll;
 
         // 상태
         public float cursorTime;
@@ -146,15 +157,30 @@ namespace UPlayGround.Animation.Editor
 
             EditorGUILayout.Space(4);
             DrawHeader(set);
-            EditorGUILayout.Space(4);
+            EditorGUILayout.Space(2);
 
             foldMotions = EditorGUILayout.Foldout(foldMotions, "애니메이션 리스트", true, EditorStyles.foldoutHeader);
             if (foldMotions) DrawMotionList(set);
 
             EditorGUILayout.Space(4);
 
+            // ── 2단 레이아웃: 인스펙터(좌) | 타임라인(우) ──
             foldTimeline = EditorGUILayout.Foldout(foldTimeline, "타임라인", true, EditorStyles.foldoutHeader);
-            if (foldTimeline && set.IsValid()) DrawTimeline(set);
+            if (foldTimeline && set.IsValid())
+            {
+                Rect splitterRect = GUILayoutUtility.GetRect(0, CalcTimelineAndInspectorHeight(set));
+                splitterRect.x    += 2;
+                splitterRect.width -= 4;
+
+                // 인스펙터 패널
+                Rect inspRect     = new Rect(splitterRect.x, splitterRect.y, INSPECTOR_WIDTH, splitterRect.height);
+                DrawInspectorPanel(inspRect, set);
+
+                // 타임라인 패널
+                Rect tlRect = new Rect(inspRect.xMax + 2, splitterRect.y,
+                    splitterRect.width - INSPECTOR_WIDTH - 2, splitterRect.height);
+                DrawTimeline(tlRect, set);
+            }
 
             EditorGUILayout.Space(4);
 
@@ -163,6 +189,261 @@ namespace UPlayGround.Animation.Editor
 
             if (isDraggingCursor || _isDraggingStart || _isDraggingEnd || _isDraggingBody
                 || _clipHandleDraggingStart || _clipHandleDraggingEnd) Repaint();
+        }
+
+        float CalcTimelineAndInspectorHeight(MotionSet set)
+        {
+            int motionCount     = set.motions?.Count ?? 0;
+            int eventGroupCount = CountEventGroupCount(set);
+            int totalEventTracks = CountEventTracks(set);
+
+            float timelineH = 20f           // zoom bar
+                + RULER_HEIGHT + TRACK_GAP
+                + GROUP_HEADER_H + TRACK_GAP
+                + (TRACK_HEIGHT + TRACK_GAP) * Mathf.Max(motionCount, 1) + SECTION_GAP
+                + GROUP_HEADER_H + TRACK_GAP
+                + MARKER_HEIGHT + TRACK_GAP + SECTION_GAP
+                + GROUP_HEADER_H + TRACK_GAP
+                + (EVENT_HEIGHT + TRACK_GAP) * Mathf.Max(totalEventTracks, 1) + 8f;
+
+            return Mathf.Max(timelineH, 200f);
+        }
+
+        // ====================================================================
+        //  좌측 인스펙터 패널
+        // ====================================================================
+        void DrawInspectorPanel(Rect rect, MotionSet set)
+        {
+            // 패널 배경
+            EditorGUI.DrawRect(rect, COL_INSPECTOR_BG);
+            EditorGUI.DrawRect(new Rect(rect.xMax, rect.y, 1, rect.height), COL_DIVIDER);
+
+            // 타이틀 바
+            Rect titleRect = new Rect(rect.x, rect.y, rect.width, 20f);
+            EditorGUI.DrawRect(titleRect, COL_SECTION_HEADER);
+            DrawPanelTitle(titleRect, "⚙  인스펙터");
+
+            // 선택된 이벤트가 없으면 안내 메시지
+            if (selectedEventIndex < 0)
+            {
+                Rect hintRect = new Rect(rect.x, titleRect.yMax + 20f, rect.width, 60f);
+                var hintStyle = new GUIStyle(EditorStyles.miniLabel)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    normal    = { textColor = new Color(0.45f, 0.47f, 0.52f) },
+                    wordWrap  = true
+                };
+                GUI.Label(hintRect, "타임라인에서 이벤트를\n클릭하여 선택하세요.", hintStyle);
+                return;
+            }
+
+            // 선택된 이벤트 가져오기
+            MotionEventBase selEvt = GetSelectedEvent(set);
+            if (selEvt == null) return;
+
+            var visual = MotionEventStyle.Get(selEvt);
+
+            // 이벤트 타이틀 배지
+            Rect badgeRect = new Rect(rect.x, titleRect.yMax, rect.width, 26f);
+            EditorGUI.DrawRect(badgeRect, new Color(visual.color.r * 0.2f, visual.color.g * 0.2f, visual.color.b * 0.2f, 1f));
+            EditorGUI.DrawRect(new Rect(badgeRect.x, badgeRect.y, 3, badgeRect.height), visual.color);
+
+            var badgeStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                normal    = { textColor = visual.color },
+                fontSize  = 11,
+                padding   = new RectOffset(10, 4, 4, 0),
+                alignment = TextAnchor.MiddleLeft
+            };
+            GUI.Label(badgeRect, $"{visual.icon}  {selEvt.GetDisplayName()}", badgeStyle);
+
+            float y = badgeRect.yMax + 2f;
+
+            // 타이밍 섹션
+            Rect timingHeaderRect = new Rect(rect.x, y, rect.width, 18f);
+            EditorGUI.DrawRect(timingHeaderRect, COL_SECTION_HEADER);
+            EditorGUI.DrawRect(new Rect(rect.x, y, 3, 18f), visual.color);
+            GUI.Label(timingHeaderRect, "  TIMING", new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal    = { textColor = new Color(0.75f, 0.78f, 0.85f) },
+                padding   = new RectOffset(8, 0, 2, 0),
+                fontSize  = 10
+            });
+            y += 19f;
+            y = DrawInspectorTimingRow(rect, y, "Start", ref selEvt.startTime);
+            y = DrawInspectorTimingRow(rect, y, "End",   ref selEvt.endTime);
+            float dur = selEvt.endTime - selEvt.startTime;
+            DrawInspectorReadOnly(rect, ref y, "Duration", $"{dur:F3}s");
+            y += 2f;
+
+            // 프로퍼티 섹션 헤더
+            Rect propHeaderRect = new Rect(rect.x, y, rect.width, 18f);
+            EditorGUI.DrawRect(propHeaderRect, COL_SECTION_HEADER);
+            EditorGUI.DrawRect(new Rect(rect.x, y, 3, 18f), new Color(0.6f, 0.65f, 0.75f));
+            GUI.Label(propHeaderRect, "  PROPERTIES", new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal    = { textColor = new Color(0.75f, 0.78f, 0.85f) },
+                padding   = new RectOffset(8, 0, 2, 0),
+                fontSize  = 10
+            });
+            y += 19f;
+
+            // 프로퍼티 스크롤 영역 (GUILayout 기반)
+            float remainH = rect.yMax - y;
+            if (remainH > 10f)
+            {
+                Rect scrollViewRect = new Rect(rect.x, y, rect.width, remainH);
+                // 내부 콘텐츠 너비: 스크롤바(14px) 제외
+                float innerW        = rect.width - 16f;
+                Rect contentRect    = new Rect(0, 0, innerW, 3000f);
+
+                _inspectorScroll = GUI.BeginScrollView(scrollViewRect, _inspectorScroll, contentRect,
+                    false, true); // 수평 스크롤 비활성, 수직만 활성
+                GUILayout.BeginArea(new Rect(0, 0, innerW, 3000f));
+
+                EditorGUIUtility.labelWidth = innerW * 0.52f;
+                EditorGUI.indentLevel       = 0;
+                DrawObjectFieldsInspector(selEvt);
+
+                EditorGUIUtility.labelWidth = 0; // 기본값 복원
+                GUILayout.EndArea();
+                GUI.EndScrollView();
+            }
+        }
+
+        // 인스펙터용 섹션 헤더 — 콜백 내에서 y를 갱신하도록 Action 대신 내용을 직접 그림
+        float DrawInspectorSection(Rect panel, float y, string title, Color accentColor, System.Action drawContent)
+        {
+            // 섹션 헤더
+            Rect headerRect = new Rect(panel.x, y, panel.width, 18f);
+            EditorGUI.DrawRect(headerRect, COL_SECTION_HEADER);
+            EditorGUI.DrawRect(new Rect(headerRect.x, headerRect.y, 3, headerRect.height), accentColor);
+
+            var style = new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal    = { textColor = new Color(0.75f, 0.78f, 0.85f) },
+                padding   = new RectOffset(8, 0, 2, 0),
+                fontSize  = 10
+            };
+            GUI.Label(new Rect(headerRect.x + 4, headerRect.y, headerRect.width, headerRect.height),
+                title.ToUpper(), style);
+
+            y += 18f + 1f;
+            drawContent?.Invoke();
+            return y;
+        }
+
+        float DrawInspectorTimingRow(Rect panel, float y, string label, ref float value)
+        {
+            Rect rowRect = new Rect(panel.x, y, panel.width, 22f);
+            if ((int)(y / 22f) % 2 == 0)
+                EditorGUI.DrawRect(rowRect, COL_INSPECTOR_FIELD);
+
+            var labelStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                normal    = { textColor = new Color(0.55f, 0.58f, 0.65f) },
+                alignment = TextAnchor.MiddleLeft,
+                padding   = new RectOffset(10, 0, 2, 0)
+            };
+            var valueStyle = new GUIStyle(EditorStyles.miniTextField)
+            {
+                normal    = { textColor = new Color(0.30f, 0.75f, 1.00f) },
+                alignment = TextAnchor.MiddleRight,
+                fontSize  = 10
+            };
+
+            GUI.Label(new Rect(panel.x, y, 80f, 22f), label, labelStyle);
+            value = EditorGUI.FloatField(new Rect(panel.x + 80f, y + 2f, panel.width - 90f, 18f), value);
+
+            return y + 22f;
+        }
+
+        void DrawInspectorReadOnly(Rect panel, ref float y, string label, string valueStr)
+        {
+            Rect rowRect = new Rect(panel.x, y, panel.width, 20f);
+            var labelStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                normal  = { textColor = new Color(0.45f, 0.47f, 0.52f) },
+                padding = new RectOffset(10, 0, 2, 0)
+            };
+            var valStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                normal    = { textColor = new Color(0.85f, 0.87f, 0.92f) },
+                alignment = TextAnchor.MiddleRight,
+                padding   = new RectOffset(0, 8, 2, 0)
+            };
+            GUI.Label(new Rect(panel.x, y, 100f, 20f), label, labelStyle);
+            GUI.Label(new Rect(panel.x + 100f, y, panel.width - 108f, 20f), valueStr, valStyle);
+            y += 20f;
+        }
+
+        // 인스펙터 패널 전용 — Rect 기반으로 필드를 그려 잘림 방지
+        void DrawObjectFieldsInspector(object obj)
+        {
+            if (obj == null) return;
+            var fields = obj.GetType().GetFields(
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+            float rowH  = 20f;
+            float yPos  = 2f;  // BeginArea 기준 로컬 y
+            float w     = EditorGUIUtility.currentViewWidth; // BeginArea 내 너비는 innerW로 이미 고정됨
+
+            foreach (var field in fields)
+            {
+                if (field.Name == "startTime" || field.Name == "endTime") continue;
+
+                var value     = field.GetValue(obj);
+                var fieldType = field.FieldType;
+
+                if (typeof(IList).IsAssignableFrom(fieldType))
+                {
+                    // 리스트는 GUILayout 기반 유지 (복잡도 때문)
+                    DrawListProperty(field.Name, (IList)value, fieldType, obj, field);
+                    yPos += rowH; // 대략적 추정 (리스트는 동적)
+                }
+                else
+                {
+                    DrawSingleField(field.Name, value, fieldType, newVal =>
+                    {
+                        RecordUndo($"Change {field.Name}");
+                        field.SetValue(obj, newVal);
+                        MarkDirty();
+                    });
+                }
+            }
+        }
+
+        void DrawPanelTitle(Rect rect, string text)
+        {
+            var style = new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal    = { textColor = new Color(0.70f, 0.73f, 0.80f) },
+                padding   = new RectOffset(8, 0, 2, 0),
+                fontSize  = 11
+            };
+            GUI.Label(rect, text, style);
+        }
+
+        MotionEventBase GetSelectedEvent(MotionSet set)
+        {
+            if (selectedEventIsSetEvent)
+            {
+                var list = set.globalEvents;
+                if (list != null && selectedEventIndex >= 0 && selectedEventIndex < list.Count)
+                    return list[selectedEventIndex];
+                return null;
+            }
+
+            if (selectedEventMotionIndex < 0 || set.motions == null) return null;
+            if (selectedEventMotionIndex >= set.motions.Count) return null;
+
+            var motion = set.motions[selectedEventMotionIndex];
+            if (motion.events == null || selectedEventIndex >= motion.events.Count) return null;
+            return motion.events[selectedEventIndex];
         }
 
         // ====================================================================
@@ -821,56 +1102,41 @@ namespace UPlayGround.Animation.Editor
         }
 
         // ====================================================================
-        //  타임라인 전체
+        //  타임라인 전체 (Rect 기반 — 2단 레이아웃에서 호출)
         // ====================================================================
-        void DrawTimeline(MotionSet set)
+        void DrawTimeline(Rect fullRect, MotionSet set)
         {
             float totalDur = set.TotalDuration;
             if (totalDur <= 0f) return;
 
             float pps = BASE_PPS * zoom;
-
-            // 높이 계산
-            int motionCount     = set.motions?.Count ?? 0;
-            int eventTrackCount = CountEventTracks(set);
-
-            float timelineH = RULER_HEIGHT + TRACK_GAP
-                + (TRACK_HEIGHT + TRACK_GAP) * Mathf.Max(motionCount, 1) + SECTION_GAP
-                + MARKER_HEIGHT + TRACK_GAP + SECTION_GAP
-                + (EVENT_HEIGHT + TRACK_GAP) * Mathf.Max(eventTrackCount, 1) + 8f;
-
-            Rect fullRect = GUILayoutUtility.GetRect(0, timelineH + 30f);
-            fullRect.x     += 4;
-            fullRect.width -= 8;
-
             EditorGUI.DrawRect(fullRect, COL_BG);
 
-            // 줌 컨트롤 + ① fps 토글
             DrawZoomControl(new Rect(fullRect.x, fullRect.y, fullRect.width, 18f), totalDur);
 
             Rect content = new Rect(fullRect.x, fullRect.y + 20f, fullRect.width, fullRect.height - 20f);
             float labelW    = LABEL_WIDTH;
             float trackW    = content.width - labelW;
             float timelineW = totalDur * pps;
-
             scrollX = Mathf.Clamp(scrollX, 0, Mathf.Max(0, timelineW - trackW));
 
             float y = content.y;
 
-            // 룰러
+            // ── 룰러 ──
             Rect rulerRect = new Rect(content.x + labelW, y, trackW, RULER_HEIGHT);
             DrawRuler(rulerRect, totalDur, pps);
             y += RULER_HEIGHT + TRACK_GAP;
 
-            // 모션 트랙
-            DrawSectionLabel(new Rect(content.x, y - 2, labelW, 16f), "몽타주");
+            // ── 몽타주 그룹 ──
+            y = DrawGroupHeader(content.x, y, content.width, "몽타주", new Color(0.30f, 0.55f, 0.35f));
             if (set.motions != null)
             {
                 float tOff = 0f;
                 for (int i = 0; i < set.motions.Count; i++)
                 {
                     DrawTrackLabel(new Rect(content.x, y, labelW, TRACK_HEIGHT),
-                        set.motions[i].motionName ?? $"Motion {i}");
+                        set.motions[i].motionName ?? $"Motion {i}",
+                        COL_MOTION_CLIPS[i % COL_MOTION_CLIPS.Length]);
                     DrawMotionClipBar(new Rect(content.x + labelW, y, trackW, TRACK_HEIGHT),
                         set.motions[i], i, tOff, pps);
                     tOff += set.motions[i].Duration;
@@ -879,25 +1145,59 @@ namespace UPlayGround.Animation.Editor
             }
             y += SECTION_GAP;
 
-            // 타이밍 마커
-            DrawSectionLabel(new Rect(content.x, y, labelW, MARKER_HEIGHT), "타이밍");
+            // ── 타이밍 그룹 ──
+            y = DrawGroupHeader(content.x, y, content.width, "타이밍", new Color(0.85f, 0.30f, 0.30f));
+            DrawTrackLabel(new Rect(content.x, y, labelW, MARKER_HEIGHT), "전환점",
+                new Color(0.85f, 0.30f, 0.30f));
             DrawTimingMarkers(new Rect(content.x + labelW, y, trackW, MARKER_HEIGHT), set, pps);
             y += MARKER_HEIGHT + TRACK_GAP + SECTION_GAP;
 
-            // 노티파이
-            DrawSectionLabel(new Rect(content.x, y - 2, labelW, 16f), "노티파이");
+            // ── 노티파이 그룹 ──
+            y = DrawGroupHeader(content.x, y, content.width, "노티파이", new Color(0.40f, 0.55f, 0.90f));
             DrawEventTracks(content.x, content.x + labelW, y, labelW, trackW, set, pps);
+            int totalEventTracks = CountEventTracks(set);
+            float eventsEndY = y + (EVENT_HEIGHT + TRACK_GAP) * Mathf.Max(totalEventTracks, 1);
 
-            // 커서
-            Rect cursorArea = new Rect(content.x + labelW, content.y, trackW,
-                y - content.y + EVENT_HEIGHT * eventTrackCount);
+            // ── 커서 & 오버레이 ──
+            Rect cursorArea = new Rect(content.x + labelW, content.y + RULER_HEIGHT,
+                trackW, eventsEndY - content.y - RULER_HEIGHT);
             DrawCursor(cursorArea, totalDur, pps);
             HandleCursorInput(rulerRect, totalDur, pps);
-
-            // ④ 재생 구간 오버레이 (커서 위에 그리기)
-            DrawPlayRangeOverlay(new Rect(content.x + labelW, content.y, trackW, cursorArea.height), totalDur, pps);
+            DrawPlayRangeOverlay(cursorArea, totalDur, pps);
 
             HandleScroll(content, timelineW, trackW);
+        }
+
+        // 그룹 헤더 (색상 악센트 + 제목) — y를 반환
+        float DrawGroupHeader(float x, float y, float width, string title, Color accentColor)
+        {
+            Rect headerRect = new Rect(x, y, width, GROUP_HEADER_H);
+            EditorGUI.DrawRect(headerRect, COL_GROUP_HEADER_BG);
+            EditorGUI.DrawRect(new Rect(x, y, 3, GROUP_HEADER_H), accentColor);
+            EditorGUI.DrawRect(new Rect(x, y, width, 1), COL_DIVIDER);
+            EditorGUI.DrawRect(new Rect(x, y + GROUP_HEADER_H - 1, width, 1), COL_DIVIDER);
+
+            var style = new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                normal    = { textColor = new Color(0.75f, 0.78f, 0.85f) },
+                padding   = new RectOffset(10, 0, 2, 0),
+                fontSize  = 10
+            };
+            GUI.Label(new Rect(x, y, width, GROUP_HEADER_H), $"▼  {title.ToUpper()}", style);
+            return y + GROUP_HEADER_H + TRACK_GAP;
+        }
+
+        int CountEventGroupCount(MotionSet set)
+        {
+            var types = new System.Collections.Generic.HashSet<System.Type>();
+            if (set.globalEvents != null)
+                foreach (var e in set.globalEvents) if (e != null) types.Add(e.GetType());
+            if (set.motions != null)
+                foreach (var m in set.motions)
+                    if (m.events != null)
+                        foreach (var e in m.events) if (e != null) types.Add(e.GetType());
+            return types.Count;
         }
 
         // ====================================================================
@@ -1017,16 +1317,20 @@ namespace UPlayGround.Animation.Editor
             EditorGUI.LabelField(rect, $"▼ {text}", style);
         }
 
-        void DrawTrackLabel(Rect rect, string text)
+        void DrawTrackLabel(Rect rect, string text, Color accentColor = default)
         {
             EditorGUI.DrawRect(rect, COL_LABEL_BG);
+            // 좌측 악센트 바 (컬러가 있을 때만)
+            if (accentColor != default)
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y, 2, rect.height), accentColor);
             EditorGUI.DrawRect(new Rect(rect.xMax - 1, rect.y, 1, rect.height), COL_LABEL_BORDER);
 
             var style = new GUIStyle(EditorStyles.miniLabel)
             {
                 alignment = TextAnchor.MiddleLeft,
-                padding   = new RectOffset(8, 4, 0, 0),
-                normal    = { textColor = new Color(0.75f, 0.75f, 0.75f) }
+                padding   = new RectOffset(accentColor != default ? 8 : 6, 4, 0, 0),
+                normal    = { textColor = new Color(0.80f, 0.82f, 0.87f) },
+                clipping  = TextClipping.Clip
             };
             GUI.Label(rect, text, style);
         }

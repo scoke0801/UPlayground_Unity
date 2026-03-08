@@ -33,6 +33,10 @@ namespace UPlayGround.State
         private Transform _snapTarget;
         private bool _isSnapping;
         
+        // 스냅 범위 밖이지만 Startup 회전 보정에 쓸 소프트 타겟
+        // 공격 1회에만 유효, ChangeToNextState() 시 재탐색
+        private Transform _softRotationTarget;
+        
         // 스냅 시작 시 '스윗 스팟'까지 남은 거리 (감속 비율 계산용)
         private float _snapStartTravelDistance; 
         
@@ -251,8 +255,8 @@ namespace UPlayGround.State
             {
                 float dist = HorizontalDistance(gameActor.transform.position, lockOnTarget.position);
                 
-                // 자석 탐색 범위 안이면 스냅 대상으로 설정
-                if (dist <= _combat.SnapSearchRange)
+                // 락온 전용 탐색 범위 안이면 스냅 대상으로 설정
+                if (dist <= _combat.GetSnapSearchRange(true))
                 {
                     targetToSnap = lockOnTarget;
                     targetDistance = dist;
@@ -262,8 +266,9 @@ namespace UPlayGround.State
             // 락온 대상이 없으면 자석 탐색
             if (targetToSnap == null)
             {
+                bool isLockedOn = lockOnTarget != null;
                 Transform snapCandidate = _combat.FindAttackSnapTarget(
-                    _combat.SnapSearchRange, _currentAttack.hitAngle);
+                    _currentAttack.hitRange, _currentAttack.hitAngle, isLockedOn);
 
                 if (snapCandidate != null)
                 {
@@ -274,9 +279,13 @@ namespace UPlayGround.State
 
             if (targetToSnap != null)
             {
+                // 스냅 범위 내 타겟은 항상 소프트 타겟으로 등록 (Startup 회전 보정에 사용)
+                _softRotationTarget = targetToSnap;
+
                 float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
                 
-                // 이미 스윗 스팟(이상적인 타격 거리) 안쪽에 있다면 스냅 불필요
+                // 이미 스윗 스팟(이상적인 타격 거리) 안쪽에 있다면 이동 스냅은 불필요
+                // 단, 소프트 타겟은 유지하여 회전 보정은 계속 적용
                 if (targetDistance <= sweetSpotDist)
                     return;
 
@@ -323,6 +332,7 @@ namespace UPlayGround.State
         private void ClearSnapState()
         {
             _snapTarget = null;
+            _softRotationTarget = null;
             _isSnapping = false;
             _snapStartTravelDistance = 0f;
         }
@@ -395,26 +405,22 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (_isSnapping && _snapTarget != null)
+            // 이동 스냅 중이거나, 스냅은 끝났지만 소프트 타겟이 있는 경우 회전 보정 적용
+            Transform rotTarget = _isSnapping ? _snapTarget : _softRotationTarget;
+
+            if (rotTarget != null)
             {
-                Vector3 dirToTarget = (_snapTarget.position - gameActor.transform.position);
+                Vector3 dirToTarget = (rotTarget.position - gameActor.transform.position);
                 dirToTarget.y = 0f;
 
                 if (dirToTarget.sqrMagnitude > 0.01f)
                 {
                     Quaternion targetRot = Quaternion.LookRotation(dirToTarget.normalized);
 
-                    // 공격 극초반(0.15초 이내)에는 즉시 타겟을 바라보게 하여 빗나가는 것을 방지
-                    if (_attackTimer < 0.15f)
-                    {
-                        currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 25f);
-                    }
-                    else
-                    {
-                        // 공격 중반 이후로는 회전 속도를 늦춰서 무게감을 줌
-                        currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 8f);
-                    }
-                    
+                    // Startup 구간(0.15초): 720°/초 수준으로 빠르게 보정 — 공격이 빗나가는 것을 방지
+                    // 이후 구간: 속도를 줄여 무게감 유지
+                    float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
+                    currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
                     currentRotation = currentRotation.normalized;
                     return;
                 }
@@ -435,7 +441,6 @@ namespace UPlayGround.State
             }
             else
             {
-                // 아무것도 없으면 루트모션 회전값 적용
                 currentRotation *= gameActor.Animator.DeltaRotation;
             }
             

@@ -34,10 +34,16 @@ public class UI_ActorHpBar : MonoBehaviour
     
     private bool _isInitialized;
     private bool _isShowing = false;
+    
+    // SetActive 토글 대신 사용 — Animator 트리거 소실 방지
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
+        _canvasGroup = GetComponent<CanvasGroup>();
+        if (_canvasGroup == null)
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
     }
 
     public void Init(GameActor actor, Camera targetCamera, Canvas parentCanvas)
@@ -116,7 +122,9 @@ public class UI_ActorHpBar : MonoBehaviour
         Vector3 screenPos = _mainCamera.WorldToScreenPoint(worldPos);
 
         bool behindCamera = screenPos.z < 0f;
-        gameObject.SetActive(!behindCamera);
+        // SetActive 대신 alpha 처리 — SetActive(false)시 Animator 트리거가 소실되는 버그 방지
+        _canvasGroup.alpha = behindCamera ? 0f : 1f;
+        _canvasGroup.blocksRaycasts = !behindCamera;
         if (behindCamera) return;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(

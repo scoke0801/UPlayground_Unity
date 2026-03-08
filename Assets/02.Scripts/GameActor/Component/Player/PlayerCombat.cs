@@ -43,19 +43,36 @@ namespace UPlayGround.Component
         [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
         
         [Header("Attack Snap Settings")]
-        [SerializeField] private float _snapSearchRange = 2f;    // 자석 탐색 범위
-        [SerializeField] private float _snapSearchAngle = 60f;   // 정면 기준 탐색 각도
-        [SerializeField] private float _snapMoveSpeed = 6f;      // 스냅 보정 속도 (루트모션에 합산)
-        [SerializeField] private float _snapStopDistance = 1.2f;  // 이 거리 이내면 스냅 종료
+        [Tooltip("락온 상태: 스냅 탐색 반경")]
+        [SerializeField] private float _lockOnSnapSearchRange = 2f;
+        [Tooltip("락온 상태: 스냅 탐색 각도")]
+        [SerializeField] private float _lockOnSnapSearchAngle = 60f;
+
+        [Space(4)]
+        [Tooltip("자유 전투(락온 없음): 스냅 탐색 반경 — 더 관대하게 설정")]
+        [SerializeField] private float _freeSnapSearchRange = 3.5f;
+        [Tooltip("자유 전투(락온 없음): 스냅 탐색 각도 — 더 관대하게 설정")]
+        [SerializeField] private float _freeSnapSearchAngle = 80f;
+
+        [Space(4)]
+        [SerializeField] private float _snapMoveSpeed = 8f;      // 스냅 보정 속도
+        [SerializeField] private float _snapStopDistance = 1.2f; // 이 거리 이내면 스냅 종료
 
         [Header("Finish Attack Settings")]
         [SerializeField] private float _finishAttackSearchRange = 0.5f;
         [SerializeField] private float _finishAttackSearchAngle = 90f;
         [SerializeField] private float _finishAttackDamageThreshold = 30f; // 이 값 이하 HP면 처형 가능
 
-        public float SnapSearchRange => _snapSearchRange;
         public float SnapMoveSpeed => _snapMoveSpeed;
         public float SnapStopDistance => _snapStopDistance;
+
+        /// <summary>락온 여부에 따라 적절한 탐색 범위를 반환</summary>
+        public float GetSnapSearchRange(bool isLockedOn) =>
+            isLockedOn ? _lockOnSnapSearchRange : _freeSnapSearchRange;
+
+        /// <summary>락온 여부에 따라 적절한 탐색 각도를 반환</summary>
+        public float GetSnapSearchAngle(bool isLockedOn) =>
+            isLockedOn ? _lockOnSnapSearchAngle : _freeSnapSearchAngle;
         public event Action<bool> OnChangeCombatState;
         
         // 현재 공격 정보 (히트 판정용)
@@ -559,7 +576,10 @@ namespace UPlayGround.Component
         /// 현재 히트 범위 내에 적이 있으면 null (보정 불필요).
         /// 히트 범위 밖 ~ 자석 범위 내에 적이 있으면 가장 가까운 적의 Transform 반환.
         /// </summary>
-        public Transform FindAttackSnapTarget(float hitRange, float hitAngle)
+        /// <param name="hitRange">현재 공격의 히트 판정 반경 (이 안에 적이 있으면 스냅 스킵)</param>
+        /// <param name="hitAngle">현재 공격의 히트 판정 각도 (스냅 탐색 각도와 별개)</param>
+        /// <param name="isLockedOn">락온 여부 — false면 더 넓은 탐색 범위 적용</param>
+        public Transform FindAttackSnapTarget(float hitRange, float hitAngle, bool isLockedOn)
         {
             Vector3 origin = transform.position;
             Vector3 forward = transform.forward;
@@ -568,8 +588,12 @@ namespace UPlayGround.Component
             if (HasTargetInRange(origin, forward, hitRange, hitAngle))
                 return null;
 
-            // 2) 자석 범위에서 탐색
-            Collider[] hits = Physics.OverlapSphere(origin, _snapSearchRange, _targetLayerMask);
+            // 2) 스냅 탐색은 hitAngle이 아닌 _snapSearchAngle 기준으로 탐색
+            //    (hitAngle은 판정 범위이고 snapSearchAngle은 자석 감도 — 둘은 독립적)
+            float searchRange = GetSnapSearchRange(isLockedOn);
+            float searchAngle = GetSnapSearchAngle(isLockedOn);
+
+            Collider[] hits = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
 
             Transform bestTarget = null;
             float bestDistSq = float.MaxValue;
@@ -582,12 +606,10 @@ namespace UPlayGround.Component
                 Vector3 dirToTarget = hit.transform.position - origin;
                 dirToTarget.y = 0f;
 
-                // 각도 필터
                 float angle = Vector3.Angle(forward, dirToTarget);
-                if (angle > _snapSearchAngle)
+                if (angle > searchAngle)
                     continue;
 
-                // IDamageable 체크
                 IDamageable damageable = hit.GetComponent<IDamageable>() 
                                          ?? hit.GetComponentInParent<IDamageable>();
                 if (damageable == null || !damageable.CanTakeDamage())

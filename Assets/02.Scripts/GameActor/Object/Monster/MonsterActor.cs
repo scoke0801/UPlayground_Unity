@@ -83,7 +83,8 @@ namespace UPlayGround
                     _poiseStat.ConnectUiBar(_uiHpBar);
                 }
             }
-            _uiHpBar.UpdateHealth(_currentHealth, _maxHealth);
+                
+            _uiHpBar?.UpdateHealth(_currentHealth, _maxHealth);
         }
         #region IDamageable Implementation
         

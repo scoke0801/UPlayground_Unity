@@ -1492,7 +1492,9 @@ namespace UPlayGround.Manager
             bool isValidTarget = IsValidTarget(lockOnTarget);
             
             // 대상 유효성 체크 실패 시, 다른 대상 탐색
-            if (isValidTarget == false)
+            if (isValidTarget == false &&
+                ( _isInputLocked == true 
+                || _lookAtOverride != null))
             {
                 ReleaseLockOn();
             }

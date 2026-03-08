@@ -511,8 +511,15 @@ $RECYCLE.BIN/
 **/09.ResourceData
 **/ExternalAssets
 **/Plugins
+**/BuildOutput
 **/com.rlabrecque.steamworks.net
 steam_appid.txt
 
 Packages/
 Assets/02.Scripts/.claude/settings.local.json
+Assets/Resources/PerformanceTestRunInfo.json
+Assets/Resources/PerformanceTestRunInfo.json.meta
+Assets/Resources/PerformanceTestRunSettings.json
+Assets/Resources/PerformanceTestRunSettings.json.meta
+ProjectSettings/ScriptableBuildPipeline.json
+ProjectSettings/ScriptableBuildPipeline.json

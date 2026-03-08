@@ -78,12 +78,12 @@ MonoBehaviour:
         startTime: 0
         endTime: 5.3
         globalStartTimeOffset: 0
-        socketType: 4
+        socketType: 3
         offset: {x: 0, y: 0, z: 0}
-        overrideDirection: 0
-        angleOffset: 0
-        pitchOffset: 0
-        lookDuration: 0.5
+        overrideDirection: 1
+        angleOffset: 180
+        pitchOffset: 10
+        lookDuration: 1
         lookCurve:
           serializedVersion: 2
           m_Curve: []
@@ -92,7 +92,7 @@ MonoBehaviour:
           m_RotationOrder: 4
         restoreOnComplete: 0
         restoreDuration: 0.3
-        lockCameraInput: 0
+        lockCameraInput: 1
     - rid: 5792125186540306591
       type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

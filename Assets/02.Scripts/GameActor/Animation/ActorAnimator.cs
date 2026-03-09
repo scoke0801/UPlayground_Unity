@@ -3,6 +3,7 @@ using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Animation
 {
@@ -35,6 +36,14 @@ namespace UPlayGround.Animation
         // 애니메이션 전환 추적
         protected AnimKey _lastPlayedKey;
         protected bool _isPlayingMotionSet;
+
+        // ── Loop/Freeze 상태 ──
+        private LoopEvent _activeLoopEvent;
+        private int _loopRemainingCount;
+        private float _freezeTimer;
+        private bool _isFrozen;
+        private bool _isInfiniteLooping;
+        private float _infiniteLoopElapsed; // InfiniteLoop 진입 후 경과 시간
         
         public event Action OnMotionSetCompleted;
         public AnimancerComponent GetAnimancerComponent() => _animator;
@@ -163,6 +172,7 @@ namespace UPlayGround.Animation
             _currentState = null;
             _globalTime = 0f;
             _currentMotionIndex = 0;
+            ResetLoopState();
             
             if (_subAnimator != null)
             {
@@ -279,8 +289,24 @@ namespace UPlayGround.Animation
         {
             if (!_isPlayingMotionSet || _currentMotionSet == null) return;
 
-            // 로컬 타임스케일이 적용된 시간을 사용
             float deltaTime = _actor != null ? _actor.DeltaTime : Time.deltaTime;
+
+            // ── Freeze 중이면 시간을 흘리지 않고 타이머만 소모 ──
+            if (_isFrozen)
+            {
+                _freezeTimer -= deltaTime;
+                if (_freezeTimer <= 0f)
+                {
+                    _isFrozen = false;
+                    // Freeze 해제 시 애니메이션 속도 복원
+                    if (_currentState != null)
+                        _currentState.Speed = GetCurrentMotion()?.playbackSpeed ?? 1f;
+                }
+                // Freeze 중에도 이벤트 업데이트는 수행 (다른 이벤트가 동작할 수 있도록)
+                _eventExecutor?.UpdateTime(_globalTime);
+                return;
+            }
+
             _globalTime += deltaTime;
 
             // MotionSet 종료 체크
@@ -291,19 +317,166 @@ namespace UPlayGround.Animation
                 return;
             }
 
-            // 현재 globalTime에 해당하는 모션 인덱스 계산
+            // 현재 모션 인덱스 계산
             if (_currentMotionSet.GetMotionAtTime(_globalTime, out int newIndex, out float localTime))
             {
-                // 모션 인덱스가 바뀐 경우 → 다음 모션으로 전환
                 if (newIndex != _currentMotionIndex)
                 {
+                    // 모션이 바뀌면 이전 모션의 Loop 상태 리셋
+                    ResetLoopState();
                     _currentMotionIndex = newIndex;
                     PlayMotionAtIndex(_currentMotionIndex, 0f, _currentMotionLayerIndex);
                 }
+
+                // ── Loop/Freeze 이벤트 감지 및 처리 ──
+                ProcessLoopEvents(localTime);
             }
 
-            // 이벤트 실행기 업데이트
             _eventExecutor?.UpdateTime(_globalTime);
+        }
+
+        /// <summary>
+        /// 현재 모션의 LoopEvent를 감지하고 타임라인을 조작한다.
+        /// - Loop: localTime이 endTime을 넘으면 startTime으로 되감기 (남은 횟수만큼)
+        /// - Freeze: localTime이 startTime을 넘으면 애니메이션 정지 + 타이머 시작
+        /// </summary>
+        private void ProcessLoopEvents(float localTime)
+        {
+            var motion = GetCurrentMotion();
+            if (motion?.events == null) return;
+
+            foreach (var evt in motion.events)
+            {
+                if (evt is not LoopEvent loopEvt) continue;
+
+                switch (loopEvt.mode)
+                {
+                    case LoopEventMode.Loop:
+                        HandleLoopMode(loopEvt, localTime);
+                        break;
+                    case LoopEventMode.InfiniteLoop:
+                        HandleInfiniteLoopMode(loopEvt, localTime);
+                        break;
+                    case LoopEventMode.Freeze:
+                        HandleFreezeMode(loopEvt, localTime);
+                        break;
+                }
+            }
+        }
+
+        private void HandleLoopMode(LoopEvent loopEvt, float localTime)
+        {
+            // 아직 이 이벤트의 endTime에 도달하지 않았으면 무시
+            if (localTime < loopEvt.endTime) return;
+
+            // 처음 도달: 루프 카운터 초기화
+            if (_activeLoopEvent != loopEvt)
+            {
+                _activeLoopEvent = loopEvt;
+                _loopRemainingCount = loopEvt.loopCount;
+            }
+
+            if (_loopRemainingCount <= 0) return;
+
+            // globalTime을 되감아 startTime 구간으로 복귀
+            float loopDuration = loopEvt.endTime - loopEvt.startTime;
+            _globalTime -= loopDuration;
+            _loopRemainingCount--;
+
+            // Animancer 클립 시간도 되감기
+            if (_currentState != null)
+            {
+                var motion = GetCurrentMotion();
+                float clipLocalStart = motion != null
+                    ? motion.ClipStartTime + loopEvt.startTime * (motion.playbackSpeed > 0 ? motion.playbackSpeed : 1f)
+                    : 0f;
+                _currentState.Time = clipLocalStart;
+            }
+        }
+
+        private void HandleFreezeMode(LoopEvent loopEvt, float localTime)
+        {
+            if (_isFrozen) return;
+            if (_activeLoopEvent == loopEvt) return; // 이미 처리된 Freeze
+            if (localTime < loopEvt.startTime) return;
+
+            // Freeze 시작
+            _activeLoopEvent = loopEvt;
+            _isFrozen = true;
+            _freezeTimer = loopEvt.freezeDuration;
+
+            if (_currentState != null)
+                _currentState.Speed = 0f;
+        }
+
+        private void HandleInfiniteLoopMode(LoopEvent loopEvt, float localTime)
+        {
+            if (!_isInfiniteLooping && localTime >= loopEvt.endTime)
+            {
+                // 첫 도달: 무한 루프 상태 진입
+                _activeLoopEvent = loopEvt;
+                _isInfiniteLooping = true;
+                _infiniteLoopElapsed = 0f;
+            }
+
+            if (!_isInfiniteLooping || _activeLoopEvent != loopEvt) return;
+
+            // Duration 경과 시 자동 해제
+            float deltaTime = _actor != null ? _actor.DeltaTime : Time.deltaTime;
+            _infiniteLoopElapsed += deltaTime;
+
+            var motion = GetCurrentMotion();
+            if (motion != null && _infiniteLoopElapsed >= motion.Duration)
+            {
+                BreakInfiniteLoop();
+                return;
+            }
+
+            if (localTime >= loopEvt.endTime)
+            {
+                // endTime 도달할 때마다 startTime으로 되감기
+                float loopDuration = loopEvt.endTime - loopEvt.startTime;
+                _globalTime -= loopDuration;
+
+                if (_currentState != null)
+                {
+                    float spd = motion?.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+                    _currentState.Time = (motion?.ClipStartTime ?? 0f) + loopEvt.startTime * spd;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 외부에서 InfiniteLoop를 해제한다.
+        /// 해제 후 모션은 endTime 이후 구간부터 정상 진행된다.
+        /// </summary>
+        public void BreakInfiniteLoop()
+        {
+            if (!_isInfiniteLooping) return;
+            _isInfiniteLooping = false;
+            _activeLoopEvent = null;
+        }
+
+        /// <summary>
+        /// 현재 InfiniteLoop 상태인지 확인
+        /// </summary>
+        public bool IsInfiniteLooping => _isInfiniteLooping;
+
+        private void ResetLoopState()
+        {
+            _activeLoopEvent = null;
+            _loopRemainingCount = 0;
+            _freezeTimer = 0f;
+            _isFrozen = false;
+            _isInfiniteLooping = false;
+            _infiniteLoopElapsed = 0f;
+        }
+
+        private Motion GetCurrentMotion()
+        {
+            if (_currentMotionSet?.motions == null) return null;
+            if (_currentMotionIndex < 0 || _currentMotionIndex >= _currentMotionSet.motions.Count) return null;
+            return _currentMotionSet.motions[_currentMotionIndex];
         }
         
         private void OnAnimatorMove()

@@ -168,6 +168,14 @@ namespace UPlayGround.Animation.Editor
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
         
+        // ── Loop/Freeze 에디터 프리뷰 상태 ──
+        private LoopEvent _editorActiveLoopEvent;
+        private int _editorLoopRemainingCount;
+        private float _editorFreezeTimer;
+        private bool _editorIsFrozen;
+        private bool _editorIsInfiniteLooping;
+        private float _editorInfiniteLoopElapsed;
+        
         void OnEditorUpdate()
         {
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
@@ -175,16 +183,38 @@ namespace UPlayGround.Animation.Editor
                 var currentSet = GetCurrentMotionSet();
                 if (currentSet == null) return;
 
-                // _playbackTime은 타임라인 시간 (Motion.Duration = clipDur/motionSpeed 이므로 이미 정규화됨)
-                // 글로벌 재생 속도만 적용
                 float deltaTime = Time.deltaTime * _playbackSpeed;
+
+                // ── Freeze 처리: 시간을 흘리지 않고 타이머만 소모 ──
+                if (_editorIsFrozen)
+                {
+                    _editorFreezeTimer -= deltaTime;
+                    if (_editorFreezeTimer <= 0f)
+                    {
+                        _editorIsFrozen = false;
+                        // 애니메이션 속도 복원
+                        if (_animancer.States.Current != null)
+                        {
+                            float motionSpd = GetMotionSpeedAtTime(currentSet, _playbackTime);
+                            _animancer.States.Current.Speed = motionSpd * _playbackSpeed;
+                        }
+                    }
+                    else
+                    {
+                        // Freeze 중에도 커서 위치와 이벤트는 갱신
+                        _drawer.cursorTime = _playbackTime;
+                        ExecuteActiveEvents(currentSet);
+                        Repaint();
+                        return;
+                    }
+                }
+
                 _playbackTime += deltaTime;
 
                 float effectiveEnd = GetEffectiveEndTime(currentSet);
 
                 if (_playbackTime >= effectiveEnd)
                 {
-                    // 마지막 이벤트를 종료 시점까지 먼저 처리
                     float savedPrev   = _previousTime;
                     _playbackTime     = effectiveEnd;
                     _previousTime     = savedPrev;
@@ -192,6 +222,7 @@ namespace UPlayGround.Animation.Editor
 
                     if (_isLooping)
                     {
+                        ResetEditorLoopState();
                         LoopPlayback();
                     }
                     else
@@ -203,24 +234,152 @@ namespace UPlayGround.Animation.Editor
                     return;
                 }
 
-                // 모션 인덱스가 바뀌었으면 Animancer 클립 전환
-                if (currentSet.GetMotionAtTime(_playbackTime, out int newIdx, out _))
+                // 모션 인덱스 전환
+                if (currentSet.GetMotionAtTime(_playbackTime, out int newIdx, out float localTime))
                 {
                     if (newIdx != _currentMotionIndex)
                     {
+                        ResetEditorLoopState();
                         _currentMotionIndex = newIdx;
                         if (newIdx >= 0 && newIdx < currentSet.motions.Count)
                             PlayMotionClip(currentSet.motions[newIdx]);
                     }
+
+                    // ── Loop/Freeze 이벤트 처리 ──
+                    ProcessEditorLoopEvents(currentSet, newIdx, localTime);
                 }
 
-                // 이벤트 실행
                 ExecuteActiveEvents(currentSet);
 
                 _drawer.cursorTime = _playbackTime;
                 _previousTime      = _playbackTime;
                 Repaint();
             }
+        }
+
+        /// <summary>
+        /// 에디터 프리뷰에서 Loop/Freeze 이벤트를 처리한다.
+        /// ActorAnimator.ProcessLoopEvents와 동일한 로직.
+        /// </summary>
+        void ProcessEditorLoopEvents(MotionSet motionSet, int motionIndex, float localTime)
+        {
+            if (motionSet?.motions == null) return;
+            if (motionIndex < 0 || motionIndex >= motionSet.motions.Count) return;
+
+            var motion = motionSet.motions[motionIndex];
+            if (motion?.events == null) return;
+
+            foreach (var evt in motion.events)
+            {
+                if (evt is not LoopEvent loopEvt) continue;
+
+                switch (loopEvt.mode)
+                {
+                    case LoopEventMode.Loop:
+                        HandleEditorLoopMode(loopEvt, localTime, motion);
+                        break;
+                    case LoopEventMode.InfiniteLoop:
+                        HandleEditorInfiniteLoopMode(loopEvt, localTime, motion);
+                        break;
+                    case LoopEventMode.Freeze:
+                        HandleEditorFreezeMode(loopEvt, localTime, motion);
+                        break;
+                }
+            }
+        }
+
+        void HandleEditorLoopMode(LoopEvent loopEvt, float localTime, Motion motion)
+        {
+            if (localTime < loopEvt.endTime) return;
+
+            if (_editorActiveLoopEvent != loopEvt)
+            {
+                _editorActiveLoopEvent = loopEvt;
+                _editorLoopRemainingCount = loopEvt.loopCount;
+            }
+
+            if (_editorLoopRemainingCount <= 0) return;
+
+            // globalTime 되감기
+            float loopDuration = loopEvt.endTime - loopEvt.startTime;
+            _playbackTime -= loopDuration;
+            _editorLoopRemainingCount--;
+
+            // Animancer 클립 시간도 되감기
+            if (_animancer != null && _animancer.States.Current != null)
+            {
+                float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+                float clipTime = motion.ClipStartTime + loopEvt.startTime * spd;
+                _animancer.States.Current.Time = clipTime;
+            }
+        }
+
+        void HandleEditorFreezeMode(LoopEvent loopEvt, float localTime, Motion motion)
+        {
+            if (_editorIsFrozen) return;
+            if (_editorActiveLoopEvent == loopEvt) return;
+            if (localTime < loopEvt.startTime) return;
+
+            _editorActiveLoopEvent = loopEvt;
+            _editorIsFrozen = true;
+            _editorFreezeTimer = loopEvt.freezeDuration;
+
+            if (_animancer != null && _animancer.States.Current != null)
+                _animancer.States.Current.Speed = 0f;
+        }
+
+        void HandleEditorInfiniteLoopMode(LoopEvent loopEvt, float localTime, Motion motion)
+        {
+            if (!_editorIsInfiniteLooping && localTime >= loopEvt.endTime)
+            {
+                _editorActiveLoopEvent = loopEvt;
+                _editorIsInfiniteLooping = true;
+                _editorInfiniteLoopElapsed = 0f;
+            }
+
+            if (!_editorIsInfiniteLooping || _editorActiveLoopEvent != loopEvt) return;
+
+            // Duration 경과 시 자동 해제
+            _editorInfiniteLoopElapsed += Time.deltaTime * _playbackSpeed;
+            if (motion != null && _editorInfiniteLoopElapsed >= motion.Duration)
+            {
+                _editorIsInfiniteLooping = false;
+                _editorActiveLoopEvent = null;
+                return;
+            }
+
+            if (localTime >= loopEvt.endTime)
+            {
+                float loopDuration = loopEvt.endTime - loopEvt.startTime;
+                _playbackTime -= loopDuration;
+
+                if (_animancer != null && _animancer.States.Current != null)
+                {
+                    float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+                    _animancer.States.Current.Time = motion.ClipStartTime + loopEvt.startTime * spd;
+                }
+            }
+        }
+
+        void ResetEditorLoopState()
+        {
+            _editorActiveLoopEvent = null;
+            _editorLoopRemainingCount = 0;
+            _editorFreezeTimer = 0f;
+            _editorIsFrozen = false;
+            _editorIsInfiniteLooping = false;
+            _editorInfiniteLoopElapsed = 0f;
+        }
+
+        float GetMotionSpeedAtTime(MotionSet motionSet, float time)
+        {
+            if (motionSet.GetMotionAtTime(time, out int idx, out _) &&
+                idx >= 0 && idx < motionSet.motions.Count)
+            {
+                var m = motionSet.motions[idx];
+                if (m != null) return m.playbackSpeed;
+            }
+            return 1f;
         }
 
         float GetEffectiveEndTime(MotionSet motionSet)
@@ -235,6 +394,9 @@ namespace UPlayGround.Animation.Editor
         {
             var motionSet = GetCurrentMotionSet();
             if (motionSet == null) return;
+
+            // Loop/Freeze 상태 리셋
+            ResetEditorLoopState();
 
             // 이벤트 상태 리셋
             if (_activeEvents != null && _targetActor != null)
@@ -691,6 +853,7 @@ namespace UPlayGround.Animation.Editor
             _playbackTime = loopStart;
             _previousTime = loopStart - 0.001f;
             _drawer.cursorTime = loopStart;
+            ResetEditorLoopState();
 
             // 이벤트 실행 기록 초기화
             _executedEvents = new System.Collections.Generic.HashSet<MotionEventBase>();
@@ -729,6 +892,7 @@ namespace UPlayGround.Animation.Editor
         {
             _isPlaying = false;
             _isPaused = false;
+            ResetEditorLoopState();
             
             // 활성 중인 모든 이벤트 강제 종료 처리
             if (_activeEvents != null && _targetActor != null)
@@ -807,6 +971,8 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
       
+            ResetEditorLoopState();
+
             // Seek 시에는 현재 활성 이벤트를 모두 종료하고 상태를 리셋함
             if (_activeEvents != null && _targetActor != null)
             {

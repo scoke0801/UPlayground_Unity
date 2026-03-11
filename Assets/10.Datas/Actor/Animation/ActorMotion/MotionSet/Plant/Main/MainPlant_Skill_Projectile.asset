@@ -10,29 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: SpiderQueen_Skill_Throw_Web
+  m_Name: MainPlant_Skill_Projectile
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
-    - motionName: 
-      motionClip: {fileID: 5385136767152346346, guid: acad9c63569c5d14a8c87d9cb2ffb9ec, type: 3}
+    - motionName: Motion_0
+      motionClip: {fileID: 7435700985363743425, guid: 94697a1fa0caf874aa2645ba5a2e85ed, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7399917153617182831
+      - rid: 5792125262806122504
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7399917153617182831
+    - rid: 5792125262806122504
       type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 2.2875001
-        endTime: 5.975
+        startTime: 0.5771448
+        endTime: 1.0771447
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: 7c25bede9fc1884478447b1078111753, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: f99abfd66a4ed1e488a6431390ae37c5, type: 3}
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}

@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
+  m_Name: MainPlant
+  m_EditorClassIdentifier: 
+  skills:
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 30
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 0, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 5
+        grabDuration: 0
+    skillType: 1
+    selectionWeight: 15
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 500
+      attackType: 1
+      hitPhases:
+      - damage: 28
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 0
+        grabDuration: 1.5
+    skillType: 3
+    selectionWeight: 20
+    minRange: 2
+    maxRange: 20
+    cooldown: 30
+    conditionGroup:
+      conditionOperator: 0
+      conditions:
+      - type: 6
+        minHealthPercent: 0
+        maxHealthPercent: 0
+        minRange: 0
+        maxRange: 0
+        minAllyCount: 0
+        maxAllyCount: 0
+        checkSpawnCount: 1
+  - baseInfo:
+      animKey: 501
+      attackType: 1
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        grabDuration: 1.5
+    skillType: 1
+    selectionWeight: 20
+    minRange: 2
+    maxRange: 20
+    cooldown: 5
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  globalCooldown: 1

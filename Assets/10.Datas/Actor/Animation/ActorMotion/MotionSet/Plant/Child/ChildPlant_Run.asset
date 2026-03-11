@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: MainPlane_Idle
+  m_Name: ChildPlant_Run
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
-    motions: []
+    motions:
+    - motionName: Motion_0
+      motionClip: {fileID: 5522812681064789136, guid: 0402e06cf6aeac64e83c04a5c4c9435e, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
     globalEvents: []
   references:
     version: 2

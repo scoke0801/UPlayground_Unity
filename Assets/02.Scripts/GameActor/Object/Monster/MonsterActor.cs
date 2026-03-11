@@ -36,6 +36,7 @@ namespace UPlayGround
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
         public MonsterActorGrade Grade => _stats.grade;
+        public EnemyStatsSO Stat => _stats;
         
         protected override void Awake()
         {

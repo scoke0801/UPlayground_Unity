@@ -116,6 +116,7 @@ namespace UPlayGround.Component
             _memory             ??= GetComponent<EnemyTacticalMemory>();
             _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
+            
         }
 
         private void Start()
@@ -163,6 +164,9 @@ namespace UPlayGround.Component
             string state = _movementController?.CurrentState?.StateName;
             if (state is "Death" or "Attack" or "Hit" or "Grabbed") return;
 
+            if (_monster?.Stat?.walkSpeed == 0)
+                return;
+            
             // 쿨다운 리셋 후 즉시 Chase
             _actionCooldownTimer = _nextActionDelay;
             _movementController.TransitionToState(
@@ -303,8 +307,12 @@ namespace UPlayGround.Component
             // 공격 불가 위치 → 접근
             if (dist > OptimalCombatDistance && state is not "Chase" and not "Charge" and not "Flank")
             {
-                _movementController.TransitionToState(
-                    new EnemyChaseState(_movementController, this, _detection));
+                if (_monster?.Stat?.walkSpeed != 0)
+                {
+                    _movementController.TransitionToState(
+                        new EnemyChaseState(_movementController, this, _detection));
+                }
+
                 return;
             }
 

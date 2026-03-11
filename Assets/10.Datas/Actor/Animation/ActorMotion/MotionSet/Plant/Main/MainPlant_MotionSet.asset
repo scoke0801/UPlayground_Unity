@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: MainPlant_MotionSet
+  m_EditorClassIdentifier: 
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: c4ec0af23f73c054aa4da5fbf134ffdc, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: f8290ab00d50a194b97e4f1a03457f0b, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 05fbcbe5e1abe634582fba56071396dc, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: b0b45bb57d3ce2d4abc293685296ed1d, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: 6979481ad2edbc24e97f3400ae9eb3ea, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 559e06402a6eb70449a0b8f73c038677, type: 2}

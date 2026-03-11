@@ -32,6 +32,7 @@ MonoBehaviour:
       data:
         startTime: 1.0125
         endTime: 1.5125002
+        globalStartTimeOffset: 0
         spawnTargetList:
         - targetPrefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
           spawnCount: 1
@@ -51,6 +52,7 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 2.3125
+        globalStartTimeOffset: 0
         particlePrefab: {fileID: 6063518424537689786, guid: bad5794a53f5c3645bb444b3a040ba01, type: 3}
         spawnPointName: 
         offset: {x: 0, y: 1, z: 0}

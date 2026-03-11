@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: ChildPlant_MotionSet
+  m_EditorClassIdentifier: 
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: a0d6058f769fc194ba9d804a2c81ad91, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: eed650ad4c86de2448bf6effcff813c7, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: ae56a5fc5b553a044b0e7df9e418d29f, type: 2}
+    - Key: 20
+      Value: {fileID: 11400000, guid: 14b65c0531a1c3e4daa40dafdd80ecf6, type: 2}
+    - Key: 21
+      Value: {fileID: 11400000, guid: 43934f0337f3692409a385911c14d632, type: 2}
+    - Key: 22
+      Value: {fileID: 11400000, guid: 8441772511366044e8e99fbfe29b3f8f, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: a2642be46972770478517a5e7ca28908, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: e97e835f030d51c4886d4dd5308382ac, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: 776d3ec8106c85d4a84804dad0848a27, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: d4e1b15fcf27fd44ab1a5be91acc44e9, type: 2}

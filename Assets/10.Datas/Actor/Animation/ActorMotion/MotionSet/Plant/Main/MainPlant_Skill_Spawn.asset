@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: MainPlant_Skill_Spawn
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: Motion_0
+      motionClip: {fileID: -5990177634178439634, guid: 94697a1fa0caf874aa2645ba5a2e85ed, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 5792125262806122501
+      - rid: 5792125262806122503
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5792125262806122501
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 3.3
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 6063518424537689786, guid: bad5794a53f5c3645bb444b3a040ba01, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 1, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 0
+        destroyOnFinish: 0
+        particleLifeTime: 1
+    - rid: 5792125262806122503
+      type: {class: SpawnSkillEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6375
+        endTime: 1.1375004
+        globalStartTimeOffset: 0
+        spawnTargetList:
+        - targetPrefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        - targetPrefab: {fileID: 6246715426557206640, guid: 3005218b1fcf5ae4c952b24c0a04dfaa, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        - targetPrefab: {fileID: 4452331556946910925, guid: 61a62e5d27dea7b4396459339f8ab824, type: 3}
+          spawnCount: 1
+          spawnRadius: 3
+          avoidanceRadius: 0.5
+        resolveIterations: 3

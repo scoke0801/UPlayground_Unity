@@ -22,7 +22,7 @@ public class DialogueGraphEditor : EditorWindow
     private DialogueGraphSO _graph;
     private Vector2         _scroll;
     private float           _zoom = 1f;
-    private string          _selectedNodeId; // Inspector 표시용 단일 선택
+    private string          _selectedNodeId;
 
     // 연결선 드래그
     private bool    _isDraggingConnection;
@@ -30,28 +30,28 @@ public class DialogueGraphEditor : EditorWindow
     private string  _connectionSourcePort;
     private Vector2 _connectionDragPos;
 
-    // 단일 노드 드래그 (단일 선택 상태에서만 사용)
+    // 단일 노드 드래그
     private string  _draggingNodeId;
     private Vector2 _draggingNodePos;
 
     // ── 다중 선택 ─────────────────────────────────────────────────────
     private readonly HashSet<string>             _selectedNodeIds  = new();
-    // 다중 드래그: nodeId → 드래그 시작 시점의 editorPosition
     private readonly Dictionary<string, Vector2> _multiDragOrigins = new();
     private bool    _isMultiDragging;
-    private Vector2 _multiDragStartMouse; // 드래그 시작 시 마우스 캔버스 좌표
+    private Vector2 _multiDragStartMouse;
+    private Vector2 _multiDragCurrentMouse;
 
     // 마퀴(rubber-band) 셀렉션
     private bool    _isMarqueeSelecting;
-    private Vector2 _marqueeStart; // 캔버스 좌표
-    private Vector2 _marqueeEnd;   // 캔버스 좌표
+    private Vector2 _marqueeStart;
+    private Vector2 _marqueeEnd;
 
     private Vector2 _inspectorScroll;
 
     // ── 노드 높이 캐시 ────────────────────────────────────────────────
     private readonly Dictionary<string, float> _heightCache = new();
 
-    // ── GUIStyle 캐시 (static — 매 OnGUI마다 new 하지 않음) ───────────
+    // ── GUIStyle 캐시 ─────────────────────────────────────────────────
     private static GUIStyle _styleMiniLabel;
     private static GUIStyle _styleMiniLabelWrap;
     private static GUIStyle _styleMiniLabelCenter;
@@ -69,16 +69,16 @@ public class DialogueGraphEditor : EditorWindow
     }
 
     // ── 색상 팔레트 ──────────────────────────────────────────────────
-    private static readonly Color BgCanvas     = new(0.07f, 0.08f, 0.09f);
-    private static readonly Color BgNode       = new(0.10f, 0.11f, 0.14f);
-    private static readonly Color BgInspector  = new(0.08f, 0.09f, 0.10f);
-    private static readonly Color BorderNormal = new(0.18f, 0.20f, 0.26f);
-    private static readonly Color BorderSelect = new(0.31f, 0.62f, 1.00f);
-    private static readonly Color GridColor    = new(1f, 1f, 1f, 0.04f);
-    private static readonly Color TextSecond   = new(0.53f, 0.54f, 0.64f);
-    private static readonly Color TextMuted    = new(0.31f, 0.35f, 0.42f);
-    private static readonly Color TagBg        = new(0f, 0f, 0f, 0.35f);
-    private static readonly Color MarqueeColor = new(0.31f, 0.62f, 1.00f, 0.15f);
+    private static readonly Color BgCanvas      = new(0.07f, 0.08f, 0.09f);
+    private static readonly Color BgNode        = new(0.10f, 0.11f, 0.14f);
+    private static readonly Color BgInspector   = new(0.08f, 0.09f, 0.10f);
+    private static readonly Color BorderNormal  = new(0.18f, 0.20f, 0.26f);
+    private static readonly Color BorderSelect  = new(0.31f, 0.62f, 1.00f);
+    private static readonly Color GridColor     = new(1f, 1f, 1f, 0.04f);
+    private static readonly Color TextSecond    = new(0.53f, 0.54f, 0.64f);
+    private static readonly Color TextMuted     = new(0.31f, 0.35f, 0.42f);
+    private static readonly Color TagBg         = new(0f, 0f, 0f, 0.35f);
+    private static readonly Color MarqueeColor  = new(0.31f, 0.62f, 1.00f, 0.15f);
     private static readonly Color MarqueeBorder = new(0.31f, 0.62f, 1.00f, 0.6f);
 
     private static Color NodeColor(NodeType t) => t switch
@@ -110,15 +110,8 @@ public class DialogueGraphEditor : EditorWindow
 
     // ── 라이프사이클 ─────────────────────────────────────────────────
 
-    private void OnEnable()
-    {
-        Undo.undoRedoPerformed += OnUndoRedo;
-    }
-
-    private void OnDisable()
-    {
-        Undo.undoRedoPerformed -= OnUndoRedo;
-    }
+    private void OnEnable()  => Undo.undoRedoPerformed += OnUndoRedo;
+    private void OnDisable() => Undo.undoRedoPerformed -= OnUndoRedo;
 
     private void OnUndoRedo()
     {
@@ -201,6 +194,24 @@ public class DialogueGraphEditor : EditorWindow
 
         GUILayout.FlexibleSpace();
 
+        // ── JSON IO ──────────────────────────────────────────────────
+        DrawToolbarSep();
+
+        var importStyle = new GUIStyle(EditorStyles.toolbarButton)
+            { normal = { textColor = new Color(0.34f, 0.83f, 0.93f) } };
+        var exportStyle = new GUIStyle(EditorStyles.toolbarButton)
+            { normal = { textColor = new Color(0.24f, 0.86f, 0.52f) } };
+
+        if (GUILayout.Button("JSON Import", importStyle, GUILayout.Width(90)))
+            DialogueJsonIO.ImportFromJson(_graph);
+
+        GUI.enabled = _graph != null;
+        if (GUILayout.Button("JSON Export", exportStyle, GUILayout.Width(90)))
+            DialogueJsonIO.ExportToJson(_graph);
+        GUI.enabled = true;
+
+        DrawToolbarSep();
+
         var saveStyle = new GUIStyle(EditorStyles.toolbarButton)
             { normal = { textColor = new Color(0.31f, 0.62f, 1f) } };
         if (GUILayout.Button("Save Graph", saveStyle, GUILayout.Width(80))) SaveGraph();
@@ -238,9 +249,7 @@ public class DialogueGraphEditor : EditorWindow
         foreach (var node in _graph.nodes)
             DrawNode(node);
 
-        // 마퀴 셀렉션 박스는 노드 위에 오버레이로 그림
-        if (_isMarqueeSelecting)
-            DrawMarqueeRect();
+        if (_isMarqueeSelecting) DrawMarqueeRect();
 
         GUI.matrix = oldMatrix;
 
@@ -263,18 +272,15 @@ public class DialogueGraphEditor : EditorWindow
         Handles.EndGUI();
     }
 
-    // 마퀴 박스를 캔버스 좌표계에서 그림
     private void DrawMarqueeRect()
     {
         var r = GetMarqueeCanvasRect();
         EditorGUI.DrawRect(r, MarqueeColor);
-        DrawOutline(r, MarqueeBorder, 1f / _zoom); // 줌에 무관한 1px 테두리
+        DrawOutline(r, MarqueeBorder, 1f / _zoom);
     }
 
-    // clip 좌표 → 캔버스 로컬 좌표
     private Vector2 ScreenToCanvas(Vector2 clipPos) => clipPos / _zoom + _scroll;
 
-    // 마퀴 시작/끝 캔버스 좌표 → 정규화된 Rect
     private Rect GetMarqueeCanvasRect()
     {
         float x = Mathf.Min(_marqueeStart.x, _marqueeEnd.x);
@@ -295,14 +301,11 @@ public class DialogueGraphEditor : EditorWindow
         bool    isStart = node.nodeId == _graph.startNodeId;
         var     col     = NodeColor(node.nodeType);
 
-        // 그림자
         EditorGUI.DrawRect(new Rect(rect.x + 3, rect.y + 4, rect.width, rect.height), new Color(0, 0, 0, 0.4f));
         EditorGUI.DrawRect(rect, BgNode);
         DrawOutline(rect, sel ? BorderSelect : BorderNormal, 1);
-        // 좌측 컬러 바
         EditorGUI.DrawRect(new Rect(rect.x, rect.y, 3, rect.height), col);
 
-        // 헤더
         var headerRect = new Rect(rect.x, rect.y, rect.width, NodeHeaderH);
         EditorGUI.DrawRect(headerRect, new Color(col.r, col.g, col.b, 0.15f));
         EditorGUI.DrawRect(new Rect(rect.x, rect.y + NodeHeaderH - 1, rect.width, 1), BorderNormal);
@@ -330,23 +333,14 @@ public class DialogueGraphEditor : EditorWindow
         HandleNodeDragSelect(node, rect);
     }
 
-    // 드래그 중인 노드의 표시 위치 반환
     private Vector2 GetNodeDrawPos(DialogueNodeSO node)
     {
-        // 다중 드래그 중
         if (_isMultiDragging && _multiDragOrigins.TryGetValue(node.nodeId, out Vector2 origin))
-        {
-            Vector2 delta = _multiDragCurrentMouse - _multiDragStartMouse;
-            return origin + delta;
-        }
-        // 단일 드래그 중
+            return origin + (_multiDragCurrentMouse - _multiDragStartMouse);
         if (_draggingNodeId == node.nodeId)
             return _draggingNodePos;
-
         return node.editorPosition;
     }
-
-    private Vector2 _multiDragCurrentMouse; // 현재 마우스 캔버스 좌표 (다중 드래그용)
 
     // ── 노드 본문 ─────────────────────────────────────────────────────
 
@@ -416,9 +410,9 @@ public class DialogueGraphEditor : EditorWindow
         var purple = new Color(0.65f, 0.55f, 0.98f);
         if (node.eventActions == null || node.eventActions.Count == 0)
         {
-            _styleMiniLabel.fontSize          = 10;
-            _styleMiniLabel.alignment         = TextAnchor.UpperLeft;
-            _styleMiniLabel.normal.textColor  = TextMuted;
+            _styleMiniLabel.fontSize         = 10;
+            _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
+            _styleMiniLabel.normal.textColor = TextMuted;
             GUI.Label(new Rect(x, y, w, 18), "— no actions —", _styleMiniLabel);
             return;
         }
@@ -560,7 +554,6 @@ public class DialogueGraphEditor : EditorWindow
         var e = Event.current;
         if (e.type == EventType.Used) return;
 
-        // ── 다중 드래그 중 이동 처리
         if (e.type == EventType.MouseDrag && _isMultiDragging)
         {
             _multiDragCurrentMouse = ScreenToCanvas(e.mousePosition);
@@ -569,7 +562,6 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // ── 단일 드래그 중 이동 처리
         if (e.type == EventType.MouseDrag && _draggingNodeId == node.nodeId)
         {
             _draggingNodePos += e.delta / _zoom;
@@ -586,22 +578,17 @@ public class DialogueGraphEditor : EditorWindow
 
             if (e.control || e.command)
             {
-                // Ctrl/Cmd + 클릭: 선택 토글
-                if (alreadySelected)
-                    _selectedNodeIds.Remove(node.nodeId);
-                else
-                    _selectedNodeIds.Add(node.nodeId);
+                if (alreadySelected) _selectedNodeIds.Remove(node.nodeId);
+                else _selectedNodeIds.Add(node.nodeId);
                 _selectedNodeId = node.nodeId;
             }
             else if (alreadySelected && _selectedNodeIds.Count > 1)
             {
-                // 이미 다중 선택된 노드 클릭 → 다중 드래그 시작 (선택 유지)
                 _selectedNodeId = node.nodeId;
                 BeginMultiDrag(ScreenToCanvas(e.mousePosition));
             }
             else
             {
-                // 일반 클릭: 단일 선택 + 단일 드래그 준비
                 _selectedNodeIds.Clear();
                 _selectedNodeIds.Add(node.nodeId);
                 _selectedNodeId  = node.nodeId;
@@ -625,7 +612,6 @@ public class DialogueGraphEditor : EditorWindow
         _multiDragStartMouse   = canvasMousePos;
         _multiDragCurrentMouse = canvasMousePos;
         _multiDragOrigins.Clear();
-
         foreach (var id in _selectedNodeIds)
         {
             var n = _graph.nodes.Find(x => x.nodeId == id);
@@ -713,7 +699,6 @@ public class DialogueGraphEditor : EditorWindow
     {
         var e = Event.current;
 
-        // 패닝
         if (e.type == EventType.MouseDrag && (e.button == 2 || (e.button == 0 && e.alt)))
         {
             _scroll -= e.delta / _zoom;
@@ -722,7 +707,6 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // 줌
         if (e.type == EventType.ScrollWheel)
         {
             ChangeZoom(-e.delta.y * 0.05f);
@@ -730,7 +714,6 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // 연결 드래그 종료
         if (_isDraggingConnection && e.type == EventType.MouseUp && e.button == 0)
         {
             TryFinishConnection(ScreenToCanvas(e.mousePosition));
@@ -742,7 +725,6 @@ public class DialogueGraphEditor : EditorWindow
 
         if (_isDraggingConnection) { Repaint(); return; }
 
-        // 다중 드래그 종료
         if (e.type == EventType.MouseUp && e.button == 0 && _isMultiDragging)
         {
             CommitMultiDrag();
@@ -750,7 +732,6 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // 단일 노드 드래그 종료
         if (e.type == EventType.MouseUp && e.button == 0 && _draggingNodeId != null)
         {
             CommitNodeDrag();
@@ -760,7 +741,6 @@ public class DialogueGraphEditor : EditorWindow
 
         if (e.type == EventType.MouseUp) _draggingNodeId = null;
 
-        // 마퀴 셀렉션 드래그 업데이트
         if (e.type == EventType.MouseDrag && e.button == 0 && _isMarqueeSelecting)
         {
             _marqueeEnd = ScreenToCanvas(e.mousePosition);
@@ -770,7 +750,6 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // 마퀴 셀렉션 종료
         if (e.type == EventType.MouseUp && e.button == 0 && _isMarqueeSelecting)
         {
             _isMarqueeSelecting = false;
@@ -779,12 +758,10 @@ public class DialogueGraphEditor : EditorWindow
             return;
         }
 
-        // 빈 캔버스 클릭 → 선택 해제 or 마퀴 시작
         if (e.type == EventType.MouseDown && e.button == 0)
         {
             _selectedNodeId = null;
             _selectedNodeIds.Clear();
-            // 마퀴 셀렉션 시작
             _isMarqueeSelecting = true;
             _marqueeStart       = ScreenToCanvas(e.mousePosition);
             _marqueeEnd         = _marqueeStart;
@@ -799,21 +776,17 @@ public class DialogueGraphEditor : EditorWindow
         }
     }
 
-    // 마퀴 Rect와 겹치는 노드를 선택
     private void UpdateMarqueeSelection()
     {
         var marquee = GetMarqueeCanvasRect();
         _selectedNodeIds.Clear();
-
         foreach (var node in _graph.nodes)
         {
-            float h       = GetCachedHeight(node);
+            float h        = GetCachedHeight(node);
             var   nodeRect = new Rect(node.editorPosition.x, node.editorPosition.y, NodeWidth, h);
             if (marquee.Overlaps(nodeRect))
                 _selectedNodeIds.Add(node.nodeId);
         }
-
-        // Inspector용 단일 선택은 마지막으로 추가된 노드
         _selectedNodeId = _selectedNodeIds.Count > 0
             ? _graph.nodes.Find(n => _selectedNodeIds.Contains(n.nodeId))?.nodeId
             : null;
@@ -835,8 +808,6 @@ public class DialogueGraphEditor : EditorWindow
     private void CommitMultiDrag()
     {
         Vector2 delta = _multiDragCurrentMouse - _multiDragStartMouse;
-
-        // 실제로 움직인 경우에만 Undo 기록
         if (delta.sqrMagnitude > 0.01f)
         {
             Undo.IncrementCurrentGroup();
@@ -850,7 +821,6 @@ public class DialogueGraphEditor : EditorWindow
             }
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
         }
-
         _isMultiDragging = false;
         _multiDragOrigins.Clear();
         Repaint();
@@ -858,21 +828,18 @@ public class DialogueGraphEditor : EditorWindow
 
     private void TryFinishConnection(Vector2 canvasPos)
     {
-        const float snapDist   = 40f;
-        DialogueNodeSO best    = null;
-        float          bestD   = float.MaxValue;
+        const float snapDist = 40f;
+        DialogueNodeSO best  = null;
+        float bestD          = float.MaxValue;
 
         foreach (var node in _graph.nodes)
         {
             if (node.nodeId == _connectionSourceId) continue;
-
-            var   inPos    = new Vector2(node.editorPosition.x + NodeWidth * 0.5f, node.editorPosition.y);
-            float d        = Vector2.Distance(canvasPos, inPos);
-            var   hdrRect  = new Rect(node.editorPosition.x, node.editorPosition.y,
-                                      NodeWidth, NodeHeaderH + PortRadius * 2);
-            bool  inHeader = hdrRect.Contains(canvasPos);
-
-            if ((d < snapDist || inHeader) && d < bestD)
+            var   inPos   = new Vector2(node.editorPosition.x + NodeWidth * 0.5f, node.editorPosition.y);
+            float d       = Vector2.Distance(canvasPos, inPos);
+            var   hdrRect = new Rect(node.editorPosition.x, node.editorPosition.y,
+                                     NodeWidth, NodeHeaderH + PortRadius * 2);
+            if ((d < snapDist || hdrRect.Contains(canvasPos)) && d < bestD)
             {
                 bestD = d;
                 best  = node;
@@ -927,7 +894,6 @@ public class DialogueGraphEditor : EditorWindow
         _styleBoldLabel.fontSize         = 10;
         _styleBoldLabel.normal.textColor = TextSecond;
 
-        // 다중 선택 시 선택 수 표시
         string headerText = _selectedNodeIds.Count > 1
             ? $"INSPECTOR  [{_selectedNodeIds.Count} selected]"
             : "INSPECTOR";
@@ -963,8 +929,8 @@ public class DialogueGraphEditor : EditorWindow
         var badgeRect = GUILayoutUtility.GetRect(0, 22, GUILayout.ExpandWidth(true));
         EditorGUI.DrawRect(badgeRect, new Color(col.r, col.g, col.b, 0.1f));
         DrawOutline(badgeRect, new Color(col.r, col.g, col.b, 0.3f), 1);
-        _styleMiniLabelCenter.fontSize      = 10;
-        _styleMiniLabelCenter.fontStyle     = FontStyle.Bold;
+        _styleMiniLabelCenter.fontSize         = 10;
+        _styleMiniLabelCenter.fontStyle        = FontStyle.Bold;
         _styleMiniLabelCenter.normal.textColor = col;
         GUI.Label(badgeRect, node.nodeType.ToString().ToUpper(), _styleMiniLabelCenter);
 
@@ -1117,7 +1083,6 @@ public class DialogueGraphEditor : EditorWindow
         _graph.nodes.Remove(node);
         _graph.InvalidateCache();
         _heightCache.Remove(node.nodeId);
-
         Undo.DestroyObjectImmediate(node);
 
         if (_selectedNodeId == node.nodeId)
@@ -1202,14 +1167,10 @@ public class DialogueGraphEditor : EditorWindow
     private void HandleShortcuts()
     {
         var e = Event.current;
-        if (e.type != EventType.KeyDown) return;
+        if (e.type != EventType.KeyDown || _graph == null) return;
 
-        if (_graph == null) return;
-
-        // Delete / Backspace → 선택 노드 삭제
         if (e.keyCode is KeyCode.Delete or KeyCode.Backspace)
         {
-            // 다중 선택 삭제
             if (_selectedNodeIds.Count > 1)
             {
                 var toDelete = new List<string>(_selectedNodeIds);
@@ -1227,7 +1188,6 @@ public class DialogueGraphEditor : EditorWindow
             e.Use();
         }
 
-        // Ctrl/Cmd+A → 전체 선택
         if ((e.control || e.command) && e.keyCode == KeyCode.A)
         {
             _selectedNodeIds.Clear();

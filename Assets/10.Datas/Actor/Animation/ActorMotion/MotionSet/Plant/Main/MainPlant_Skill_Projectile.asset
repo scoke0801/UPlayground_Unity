@@ -32,7 +32,7 @@ MonoBehaviour:
         startTime: 0.5771448
         endTime: 1.0771447
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: f99abfd66a4ed1e488a6431390ae37c5, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: f3a294978630e474a96e73370acff951, type: 3}
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}

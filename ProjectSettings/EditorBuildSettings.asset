@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/01.Scenes/GameLogic/Title.unity
     guid: eda904662b230734f8fb14c097fe4c44
   - enabled: 1
+    path: Assets/01.Scenes/GameLogic/Loading.unity
+    guid: 0b69a0ee65809dc4290b9bbac999f327
+  - enabled: 1
     path: Assets/01.Scenes/GameLogic/InGame.unity
     guid: 06d14a94475869242a9ad3551cea971b
   - enabled: 1

@@ -1,62 +1,100 @@
 ﻿using System;
-using System.Collections;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UPlayGround.Enum;
 
 namespace UPlayGround.Manager
 {
     public partial class SceneManager : BaseManager<SceneManager>, IManager
     {
-        // 씬 전환 중 중복 호출 방지
+        // Loading씬에서 읽어갈 목적지. static이라 씬 전환 후에도 유지된다.
+        public static string PendingSceneName { get; private set; }
+
         private bool _isLoading = false;
 
-        /// <summary>
-        /// 씬 로드 진행률 (0~1). UI 로딩바 연결용
-        /// </summary>
-        public event Action<float> OnLoadProgress;
+        // 진행률 (0~1). LoadingSceneController가 Update에서 폴링한다.
+        public float LoadProgress { get; private set; }
 
-        /// <summary>
-        /// 씬 로드 완료 이벤트
-        /// </summary>
+        // true가 되면 LoadingSceneController가 씬 전환을 허용한다.
+        public bool IsReadyToActivate { get; private set; }
+
         public event Action<string> OnLoadComplete;
 
         /// <summary>
-        /// 비동기 씬 전환
+        /// 목적지를 예약한 뒤 Loading씬으로 이동.
         /// </summary>
         public void LoadScene(string sceneName)
         {
             if (_isLoading)
             {
-                Debug.LogWarning($"[SceneManager] 씬 로딩 중 중복 요청 무시: {sceneName}");
+                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {sceneName}");
                 return;
             }
-            LoadSceneAsync(sceneName).Forget();
+
+            _isLoading = true;
+            LoadProgress = 0f;
+            IsReadyToActivate = false;
+            PendingSceneName = sceneName;
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.Loading);
         }
 
-        private async UniTaskVoid LoadSceneAsync(string sceneName)
+        /// <summary>
+        /// LoadingSceneController가 준비되면 호출. 비동기 로딩 시작.
+        /// </summary>
+        public void StartPendingLoad()
         {
-            _isLoading = true;
+            if (string.IsNullOrEmpty(PendingSceneName))
+            {
+                Debug.LogError("[SceneManager] PendingSceneName이 비어 있습니다.");
+                return;
+            }
 
+            LoadPendingSceneAsync(PendingSceneName).Forget();
+        }
+
+        /// <summary>
+        /// LoadingSceneController가 슬라이더 연출 완료 후 호출.
+        /// allowSceneActivation을 열어 실제 씬 전환을 실행한다.
+        /// </summary>
+        public void ActivatePendingScene()
+        {
+            _activateCallback?.Invoke();
+        }
+
+        private Action _activateCallback;
+
+        private async UniTaskVoid LoadPendingSceneAsync(string sceneName)
+        {
             var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
             op.allowSceneActivation = false;
 
-            while (op.progress < 0.9f)
+            // allowSceneActivation = false 상태에서 progress는 최대 0.9f까지만 증가한다.
+            // 씬이 작아서 순식간에 끝나도 최소 연출 시간을 보장하기 위해 시간 조건을 병행한다.
+            float elapsed = 0f;
+            const float MinDisplayTime = 1.5f; // 로딩 화면 최소 표시 시간
+
+            while (op.progress < 0.9f || elapsed < MinDisplayTime)
             {
-                OnLoadProgress?.Invoke(op.progress / 0.9f);
+                elapsed += Time.deltaTime;
+                // 실제 로딩 진행률과 최소 시간 진행률 중 작은 값을 사용
+                float realProgress = op.progress / 0.9f;
+                float timeProgress = elapsed / MinDisplayTime;
+                LoadProgress = Mathf.Min(realProgress, timeProgress);
                 await UniTask.Yield();
             }
 
-            OnLoadProgress?.Invoke(1f);
-            await UniTask.Delay(TimeSpan.FromSeconds(0.2f)); // 로딩바 연출용 짧은 대기
+            LoadProgress = 1f;
 
-            op.allowSceneActivation = true;
+            _activateCallback = () =>
+            {
+                op.allowSceneActivation = true;
+                _isLoading = false;
+                PendingSceneName = null;
+                OnLoadComplete?.Invoke(sceneName);
+            };
 
-            await UniTask.WaitUntil(() => op.isDone);
-
-            _isLoading = false;
-            OnLoadComplete?.Invoke(sceneName);
+            IsReadyToActivate = true;
         }
     }
 }

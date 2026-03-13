@@ -9,6 +9,7 @@
         public const string Boot     = "Boot";
         public const string Title    = "Title";
         public const string GamePlay = "GamePlay";
+        public const string Loading  = "Loading";
     }
 
     /// <summary>
@@ -17,12 +18,13 @@
     /// </summary>
     public static class SceneName
     {
-        public const string Boot        = "Boot";
-        public const string Title       = "Title";
-        public const string InGame      = "InGame";
+        public const string Boot            = "Boot";
+        public const string Title           = "Title";
+        public const string Loading         = "Loading";   // 로딩 전용 씬
+        public const string InGame          = "InGame";
         public const string InteractionTest = "InteractionTest";
         public const string CameraTest      = "CameraTest";
-        public const string KccTest      = "KccTest";
+        public const string KccTest         = "KccTest";
         public const string CombatTest      = "CombatTest";
     }
 }

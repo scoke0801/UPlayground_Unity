@@ -62,6 +62,12 @@ namespace UPlayGround.Manager
                 UIManager.Instance.HideUI("GamePlay");
                 UIManager.Instance.ShowUI("TitleMenu");
             }
+            else if (sceneType == SceneType.Loading)
+            {
+                UIManager.Instance.HideUI("PauseMenu");
+                UIManager.Instance.HideUI("GamePlay");
+                UIManager.Instance.HideUI("TitleMenu");
+            }
         }
 
         private IEnumerator CoChangeSceneType(string sceneType)

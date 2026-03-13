@@ -43,7 +43,7 @@ public class BootLoader : MonoBehaviour
 
         _progressBar?.SetValueWithoutNotify(1f);
 
-        SceneManager.Instance.LoadScene(SceneName.Title);
+        SceneManager.Instance.LoadSceneDirect(SceneName.Title);
     }
 
     /// <summary>

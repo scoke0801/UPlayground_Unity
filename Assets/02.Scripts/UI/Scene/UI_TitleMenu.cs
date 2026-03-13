@@ -11,65 +11,55 @@ using UPlayGround.Manager;
 public class UI_TitleMenu : UI_Base
 {
     [Header("UI 버튼")] 
-    [SerializeField] private Button combatSceneButton;
-    [SerializeField] private Button movementSceneButton;
-    [SerializeField] private Button interactionSceneButton;
-    [SerializeField] private Button cameraSceneButton;
-    [SerializeField] private Button defaultSceneButton;
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button loadButton;
+    [SerializeField] private Button newGameButton;
+    [SerializeField] private Button optionButton;
     
     protected override void Awake()
     {
         base.Awake();
 
-        // 버튼 이벤트 연결
-        if (combatSceneButton)
+        if (continueButton)
         {
-            combatSceneButton.onClick.AddListener(OnClickCombatSceneButton);
+            continueButton.onClick.AddListener(OnClickContinueButton);
         }
         
-        if (movementSceneButton)
+        if (loadButton)
         {
-            movementSceneButton.onClick.AddListener(OnClickKccSceneButton);
+            continueButton.onClick.AddListener(OnClickLoadButton);
         }
-        
-        if (interactionSceneButton)
+        if (newGameButton)
         {
-            interactionSceneButton.onClick.AddListener(OnClickInteractionSceneButton);
+            continueButton.onClick.AddListener(OnClickNewGameButton);
         }
-        
-        if (cameraSceneButton)
+        if (optionButton)
         {
-            cameraSceneButton.onClick.AddListener(OnClickCameraSceneButton);
-        }
-        
-        if (defaultSceneButton)
-        {
-            defaultSceneButton.onClick.AddListener(OnClickInGameSceneButton);
+            continueButton.onClick.AddListener(OnClickOptionButton);
         }
     }
 
-    private void OnClickCombatSceneButton()
+    private void OnClickContinueButton()
     {
-        SceneManager.Instance.LoadScene(SceneName.CombatTest);
+        UIManager.Instance.HideAllUI();
+        SceneManager.Instance.LoadScene(SceneName.InGame);
     }
-
-    private void OnClickKccSceneButton()
+    
+    private void OnClickLoadButton()
     {
-        SceneManager.Instance.LoadScene(SceneName.KccTest);
+        UIManager.Instance.HideAllUI();
+        SceneManager.Instance.LoadScene(SceneName.InGame);
     }
-
-    private void OnClickCameraSceneButton()
+    
+    private void OnClickNewGameButton()
     {
-        SceneManager.Instance.LoadScene(SceneName.CameraTest);
+        UIManager.Instance.HideAllUI();
+        SceneManager.Instance.LoadScene(SceneName.InGame);
     }
-
-    private void OnClickInteractionSceneButton()
+    
+    private void OnClickOptionButton()
     {
-        SceneManager.Instance.LoadScene(SceneName.InteractionTest);
-    }
-
-    private void OnClickInGameSceneButton()
-    {
+        UIManager.Instance.HideAllUI();
         SceneManager.Instance.LoadScene(SceneName.InGame);
     }
 }

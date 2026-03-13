@@ -21,7 +21,7 @@ namespace UPlayGround.Manager
         public event Action<string> OnLoadComplete;
 
         /// <summary>
-        /// 목적지를 예약한 뒤 Loading씬으로 이동.
+        /// Loading씬을 경유하는 씬 전환. 인게임처럼 무거운 씬 전환에 사용.
         /// </summary>
         public void LoadScene(string sceneName)
         {
@@ -37,6 +37,20 @@ namespace UPlayGround.Manager
             PendingSceneName = sceneName;
 
             UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.Loading);
+        }
+
+        /// <summary>
+        /// Loading씬 없이 바로 전환. Boot → Title처럼 로딩 연출이 필요 없는 경우에 사용.
+        /// </summary>
+        public void LoadSceneDirect(string sceneName)
+        {
+            if (_isLoading)
+            {
+                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {sceneName}");
+                return;
+            }
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
         }
 
         /// <summary>

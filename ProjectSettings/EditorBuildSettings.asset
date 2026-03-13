@@ -14,18 +14,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/GameLogic/Loading.unity
     guid: 0b69a0ee65809dc4290b9bbac999f327
+  - enabled: 0
+    path: Assets/01.Scenes/GameLogic/InGame_.unity
+    guid: 1516cb8c40595b347abe897dc646e2be
   - enabled: 1
     path: Assets/01.Scenes/GameLogic/InGame.unity
     guid: 06d14a94475869242a9ad3551cea971b
-  - enabled: 1
-    path: Assets/01.Scenes/GameLogic/InteractionTest.unity
-    guid: 7a7c1bb260d49934db28bdc87f00d5f9
-  - enabled: 1
-    path: Assets/01.Scenes/GameLogic/CombatTest.unity
-    guid: 4ad2abb8e997ed44eb6b6d53b9065d44
-  - enabled: 1
-    path: Assets/01.Scenes/GameLogic/KccTest.unity
-    guid: 9a6db7a331152bc479307740e189d939
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 0884584a1216f47478d5eea17b69884e, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 4cc2b0777ec6a914f9294f929b183011, type: 3}

@@ -127,6 +127,9 @@ namespace UPlayGround.Data.EnumType
         UnEquip_Weapon,
         UnEquip_SubWeapon,
         
+        // NpcAction
+        Talk_1 = 3000,
+        
         // 정지 (Stop)
         Move_Stop_Walking = 5000,
         Move_Stop_Running,

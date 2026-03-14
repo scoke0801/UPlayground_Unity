@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Npc_Talk
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: Motion_0
+      motionClip: {fileID: -1105731507409099037, guid: b341fa5c3b8da0e41940b53b6478721d, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    globalEvents: []
+  references:
+    version: 2
+    RefIds: []

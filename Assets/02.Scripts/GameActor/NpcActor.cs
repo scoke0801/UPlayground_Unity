@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.MovementController;
 
 namespace UPlayGround
 {
@@ -11,6 +12,7 @@ namespace UPlayGround
     /// StoryManager를 통한 트리거가 아니라 직접 대화하는 경우에 사용합니다.
     /// </summary>
     [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(NpcMovementController))]
     public class NpcActor : GameActor, IInteractable
     {
         [SerializeField] private NpcActorSO _data;

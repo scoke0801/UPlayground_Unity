@@ -41,7 +41,7 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
-            _actorType = ActorType.Monster;
+            _actorType = ActorType.Monster | ActorType.Combat;
 
             _maxHealth = _stats.maxHealth;
             _currentHealth = _maxHealth;

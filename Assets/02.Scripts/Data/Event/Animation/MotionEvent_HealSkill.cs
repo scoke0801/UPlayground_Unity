@@ -37,13 +37,13 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            if (actor.ActorType == ActorType.Monster)
+            if (actor.HasActorType(ActorType.Monster))
             {
                 HandleMonsterHeal(actor as MonsterActor);
                 return;
             }
 
-            if (actor.ActorType == ActorType.Player)
+            if (actor.HasActorType(ActorType.Player))
             {
                 HandlePlayerHeal(actor as PlayerActor);
                 return;

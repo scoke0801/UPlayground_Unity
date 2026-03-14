@@ -190,7 +190,7 @@ namespace UPlayGround.State
                 CameraManager.Instance?.StartShake("CriticalHit");
                 CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
 
-                if (incomingAttack.attacker != null && incomingAttack.attacker.ActorType == ActorType.Monster)
+                if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
                 {
                     var attackerController = incomingAttack.attacker.ActorController;
                     if (attackerController != null)

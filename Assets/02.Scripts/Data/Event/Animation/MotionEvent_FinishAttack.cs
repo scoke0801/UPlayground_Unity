@@ -24,11 +24,11 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            if (actor.ActorType == ActorType.Player)
+            if (actor.HasActorType(ActorType.Player))
             {
                 HandlePlayerActor(actor as PlayerActor);
             }
-            else if (actor.ActorType == ActorType.Monster)
+            else if (actor.HasActorType(ActorType.Monster))
             {
                 HandleMonsterActor(actor as MonsterActor);
             }

@@ -90,6 +90,14 @@ namespace UPlayGround.State
                 ForceChangeToNextState();
                 return;
             }
+
+            // NPC 대화가 끝나면 자동으로 상태 종료
+            var handler = GameObjectManager.Instance.InteractionHandler;
+            if (_cachedData?.interactionObjectType == InteractionObjectType.NPC
+                && handler?.CurrentClosestInteractable?.IsInteracting() == false)
+            {
+                ForceChangeToNextState();
+            }
         }
 
         private void PlayAnimation()
@@ -107,6 +115,11 @@ namespace UPlayGround.State
                     return;
                 case InteractionObjectType.TREE:
                     PlayWoodCuttingAnimation();
+                    return;
+                case InteractionObjectType.NPC:
+                    // NPC 대화 중에는 별도 애니메이션 없이 대기.
+                    // 대화 종료 시 NpcActor가 _isInteracting을 false로 바꾸므로
+                    // UpdateState의 CanInteract 체크로 자연스럽게 상태가 빠져나옵니다.
                     return;
             }
         }

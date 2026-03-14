@@ -58,7 +58,7 @@ namespace UPlayGround.Data.Event
                     {
                         spawnedColliders.Add(col);
 
-                        if (actor.ActorType == ActorType.Monster)
+                        if (actor.HasActorType(ActorType.Monster))
                         {
                             var spawnedMonster = spawned.GetComponent<MonsterActor>();
                             if (spawnedMonster != null)

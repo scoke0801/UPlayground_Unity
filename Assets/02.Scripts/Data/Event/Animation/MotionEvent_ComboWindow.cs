@@ -22,28 +22,18 @@ namespace UPlayGround.Data.Event
         public override void Execute(GameObject target)
         {
             GameActor actor = target.GetComponent<GameActor>();
-            if (actor != null)
+            if (actor != null && actor.HasActorType(ActorType.Player))
             {
-                switch (actor.ActorType)
-                {
-                    case ActorType.Player:
-                        HandlePlayerCombat(actor as PlayerActor, true);
-                        break;
-                }
+                HandlePlayerCombat(actor as PlayerActor, true);
             }
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
             GameActor actor = target.GetComponent<GameActor>();
-            if (actor != null)
+            if (actor != null && actor.HasActorType(ActorType.Player))
             {
-                switch (actor.ActorType)
-                {
-                    case ActorType.Player:
-                        HandlePlayerCombat(actor as PlayerActor, false);
-                        break;
-                }
+                HandlePlayerCombat(actor as PlayerActor, false);
             }
         }
 

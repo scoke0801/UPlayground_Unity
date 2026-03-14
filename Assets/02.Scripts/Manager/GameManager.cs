@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Story;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
@@ -54,6 +55,7 @@ namespace UPlayGround.Manager
             RegisterManager(EventManager.Instance);
             RegisterManager(GameHitStopManager.Instance);
             RegisterManager(VitalOrbManager.Instance);
+            RegisterManager(StoryManager.Instance);
             
             RegisterManager(SceneManager.Instance);
 

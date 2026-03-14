@@ -50,6 +50,11 @@ namespace UPlayGround
         public ActorType ActorType => _actorType;
         public CharacterActorType CharacterType => _characterActorType;
 
+        /// <summary>
+        /// 플래그 조합 체크. 예: actor.HasActorType(ActorType.Talkable)
+        /// </summary>
+        public bool HasActorType(ActorType flag) => (_actorType & flag) != 0;
+
         public ActorMovementController ActorController => MovementController;
         
         protected virtual void Awake()

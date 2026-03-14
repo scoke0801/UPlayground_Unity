@@ -94,7 +94,7 @@ namespace UPlayGround
         {
             base.Awake();
 
-            _actorType = ActorType.Player;
+            _actorType = ActorType.Player | ActorType.Combat;
             _camera = Camera.main;
             PlayerMovementPlayerController = MovementController as PlayerMovementController;
 

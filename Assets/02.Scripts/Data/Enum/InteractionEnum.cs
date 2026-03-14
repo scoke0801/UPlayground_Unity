@@ -16,6 +16,7 @@
         STONE,      // 채광
         FISHING_ZONE,//낚시터
         GATERING_ZONE,//수집
+        NPC,        // NPC 대화
     }
 }
 

@@ -26,15 +26,10 @@ namespace UPlayGround.Data.Event
             GameActor actor = target.GetComponent<GameActor>();
             if (actor == null) return;
 
-            switch (actor.ActorType)
-            {
-                case ActorType.Player:
-                    HandlePlayerCombat(actor as PlayerActor, true);
-                    break;
-                case ActorType.Monster:
-                    HandleMonsterCombat(actor as MonsterActor, true);
-                    break;
-            }
+            if (actor.HasActorType(ActorType.Player))
+                HandlePlayerCombat(actor as PlayerActor, true);
+            else if (actor.HasActorType(ActorType.Monster))
+                HandleMonsterCombat(actor as MonsterActor, true);
         }
 
         public override void OnCompleteEvent(GameObject target)
@@ -42,15 +37,10 @@ namespace UPlayGround.Data.Event
             GameActor actor = target.GetComponent<GameActor>();
             if (actor == null) return;
 
-            switch (actor.ActorType)
-            {
-                case ActorType.Player:
-                    HandlePlayerCombat(actor as PlayerActor, false);
-                    break;
-                case ActorType.Monster:
-                    HandleMonsterCombat(actor as MonsterActor, false);
-                    break;
-            }
+            if (actor.HasActorType(ActorType.Player))
+                HandlePlayerCombat(actor as PlayerActor, false);
+            else if (actor.HasActorType(ActorType.Monster))
+                HandleMonsterCombat(actor as MonsterActor, false);
         }
 
         private void HandlePlayerCombat(PlayerActor playerActor, bool isCollisionEnable)

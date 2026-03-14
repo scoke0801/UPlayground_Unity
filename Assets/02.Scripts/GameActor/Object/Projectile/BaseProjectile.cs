@@ -63,11 +63,11 @@ namespace UPlayGround
             if (projectileModel != null)
                 projectileModel.SetActive(true);
             
-            if (ownerObject.ActorType == ActorType.Monster)
+            if (ownerObject.HasActorType(ActorType.Monster))
             {
                 InitFromMonsterActor(ownerObject as MonsterActor);
             }
-            else if (ownerObject.ActorType == ActorType.Player)
+            else if (ownerObject.HasActorType(ActorType.Player))
             {
                 InitFromPlayer(ownerObject as PlayerActor);
             }
@@ -137,7 +137,7 @@ namespace UPlayGround
                 // 데미지 적용
                 damageable.TakeDamage(attackData);
 
-                if (owner.ActorType == ActorType.Player)
+                if (owner.HasActorType(ActorType.Player))
                 {
                     CameraManager.Instance.Punch(transform.forward, 0.12f, 0.12f);
                     CameraManager.Instance.StartShake("LiteHit");

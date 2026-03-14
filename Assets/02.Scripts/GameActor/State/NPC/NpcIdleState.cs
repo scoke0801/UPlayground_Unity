@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
@@ -6,11 +7,18 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// NPC 기본 대기 상태.
-    /// 대화 중이 아닐 때 항상 이 상태로 돌아옵니다.
+    /// - NpcBrain.EnableWander == true 이면 잠시 후 WanderState로 전환
+    /// - 대화 시작 시 TalkState로 전환
     /// </summary>
     public class NpcIdleState : NpcActorState
     {
         public override string StateName => "Idle";
+
+        private NpcBrain _brain;
+
+        // Wander 진입 전 최소 대기 시간 (배회 직후 바로 다시 배회하는 것 방지)
+        private const float WANDER_DELAY = 1.5f;
+        private float _wanderDelayTimer;
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
 
@@ -19,16 +27,25 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            _brain = npcActor.GetComponent<NpcBrain>();
+            _wanderDelayTimer = 0f;
             gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)
         {
-            // 대화가 시작되면 TalkState로 전환
             if (npcActor.IsInteracting())
             {
                 npcController.TransitionToState(new NpcTalkState(npcController));
+                return;
             }
+
+            // Brain이 없거나 배회 비활성이면 Idle 유지
+            if (_brain == null || !_brain.EnableWander) return;
+
+            _wanderDelayTimer += deltaTime;
+            if (_wanderDelayTimer >= WANDER_DELAY)
+                npcController.TransitionToState(new NpcWanderState(npcController, _brain));
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -38,7 +55,6 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // NPC는 Idle 중 제자리 고정
             currentVelocity = Vector3.zero;
         }
     }

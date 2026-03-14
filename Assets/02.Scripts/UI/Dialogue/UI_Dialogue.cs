@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Dialogue;
+using UPlayGround.Dialogue;
 
 /// <summary>
 /// DialogueManager 이벤트를 구독해 UI를 그리는 역할만 담당합니다.

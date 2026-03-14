@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using Dialogue;
+using UPlayGround.Dialogue;
 
 /// <summary>
 /// IMGUI 기반 노드 그래프 에디터.
@@ -93,7 +93,7 @@ public class DialogueGraphEditor : EditorWindow
 
     // ── 메뉴 / 오픈 에셋 ─────────────────────────────────────────────
 
-    [MenuItem("Window/Dialogue Graph Editor")]
+    [MenuItem("UPlayGround/Dialogue Graph Editor")]
     public static void Open() => GetWindow<DialogueGraphEditor>("Dialogue Editor");
 
     [UnityEditor.Callbacks.OnOpenAsset]

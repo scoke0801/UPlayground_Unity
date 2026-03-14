@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Dialogue;
+using UPlayGround.Dialogue;
 
 /// <summary>
 /// DialogueGraphSO ↔ JSON 변환 유틸리티.

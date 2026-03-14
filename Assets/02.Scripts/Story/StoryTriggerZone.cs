@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Story;
+using UPlayGround.Story;
 
 /// <summary>
 /// Collider(Is Trigger)를 부착하고 StoryEntrySO를 연결하면,

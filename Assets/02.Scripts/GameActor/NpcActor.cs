@@ -1,7 +1,7 @@
-﻿using Dialogue;
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Dialogue;
 using UPlayGround.MovementController;
 
 namespace UPlayGround
@@ -58,6 +58,12 @@ namespace UPlayGround
         {
             DialogueManager.Instance.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
+        }
+
+        private void OnValidate()
+        {
+            // 일반 NPC 기본값. 전투형이라면 인스펙터에서 Combat 플래그를 추가하세요.
+            _actorType = ActorType.NPC | ActorType.Talkable;
         }
     }
 }

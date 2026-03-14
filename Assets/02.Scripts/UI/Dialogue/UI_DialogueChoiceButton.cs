@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Dialogue;
+using UPlayGround.Dialogue;
 
 public class UI_DialogueChoiceButton : MonoBehaviour
 {

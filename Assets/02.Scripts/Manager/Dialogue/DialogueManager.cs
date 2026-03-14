@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Manager;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
     /// <summary>
     /// 대화 흐름 FSM. UI는 이 Manager의 이벤트를 구독해 그리면 됩니다.
     /// </summary>
-    public class DialogueManager : MonoBehaviour
+    public class DialogueManager : BaseManager<DialogueManager>, IManager
     {
-        public static DialogueManager Instance { get; private set; }
-
         // UI 레이어가 구독하는 이벤트
         public event Action<DialogueNodeSO> OnNodeEnter;
         public event Action<List<ChoiceData>> OnChoicePresented;
@@ -19,13 +18,36 @@ namespace Dialogue
         private DialogueGraphSO _currentGraph;
         private DialogueNodeSO  _currentNode;
         private bool _isRunning;
-
-        private void Awake()
+        
+        #region IManager
+        public void Init()
         {
-            if (Instance != null) { Destroy(gameObject); return; }
-            Instance = this;
         }
 
+        public void AfterInit()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void OnUpdate()
+        {
+        }
+
+        public void OnFixedUpdate()
+        {
+        }
+
+        public void OnLateUpdate()
+        {
+        }
+
+        public void OnSceneChanged(string sceneType)
+        {
+        }
+        #endregion
         // ── Public API ──────────────────────────────────────────────
 
         public void StartDialogue(DialogueGraphSO graph)

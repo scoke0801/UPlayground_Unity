@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "Dialogue/Condition/Flag", fileName = "Cond_Flag_")]
+    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Condition/Flag", fileName = "Cond_Flag_")]
     public class FlagConditionSO : ConditionSO
     {
         public string flagKey;

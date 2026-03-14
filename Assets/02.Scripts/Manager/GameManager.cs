@@ -1,10 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Story;
+using UPlayGround.Story;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager

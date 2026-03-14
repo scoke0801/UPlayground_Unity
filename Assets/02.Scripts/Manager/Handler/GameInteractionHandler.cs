@@ -53,7 +53,9 @@ namespace UPlayGround.Manager.Handler
             // Player 주변에 인터렉션 가능한 대상 조회
             FindClosestInteractable(_player.transform.position);
            
-            if (_currentClosestInteractable != null && _currentClosestInteractable.IsInteracting() == false)
+            if (_currentClosestInteractable != null
+                && _currentClosestInteractable.CanInteract()
+                && _currentClosestInteractable.IsInteracting() == false)
             {
                 ShowIcon(_currentClosestInteractable.GetActor().transform);
             }

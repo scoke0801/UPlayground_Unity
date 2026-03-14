@@ -1,6 +1,6 @@
-﻿using Dialogue;
-using Interaction.Enum;
+﻿using Interaction.Enum;
 using UnityEngine;
+using UPlayGround.Dialogue;
 
 /// <summary>
 /// NPC 한 명의 설정 데이터.

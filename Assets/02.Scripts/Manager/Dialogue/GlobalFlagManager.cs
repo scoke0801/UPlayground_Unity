@@ -1,22 +1,44 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using UPlayGround.Manager;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
     // 대화/퀘스트 플래그 단일 저장소
     // 세이브 시 이 딕셔너리 전체를 직렬화하면 됩니다
-    public class GlobalFlagManager : MonoBehaviour
+    public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager
     {
         public static GlobalFlagManager Instance { get; private set; }
 
         private readonly Dictionary<string, bool> _flags = new();
-
-        private void Awake()
+        #region IManager
+        public void Init()
         {
-            if (Instance != null) { Destroy(gameObject); return; }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
+
+        public void AfterInit()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void OnUpdate()
+        {
+        }
+
+        public void OnFixedUpdate()
+        {
+        }
+
+        public void OnLateUpdate()
+        {
+        }
+
+        public void OnSceneChanged(string sceneType)
+        {
+        }
+        #endregion
 
         public bool GetFlag(string key) => _flags.GetValueOrDefault(key, false);
         public void SetFlag(string key, bool value) => _flags[key] = value;

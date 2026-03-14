@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using UPlayGround.Dialogue;
+using UnityEngine;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "Dialogue/Action/SetFlag", fileName = "Action_SetFlag_")]
+    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/SetFlag", fileName = "Action_SetFlag_")]
     public class SetFlagActionSO : DialogueActionSO
     {
         public string flagKey;

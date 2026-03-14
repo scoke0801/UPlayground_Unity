@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
     public enum NodeType { Talk, Choice, Condition, Event, End }
 
@@ -18,7 +18,7 @@ namespace Dialogue
     }
 
     // 노드 하나 = 대화 그래프의 상태 하나
-    [CreateAssetMenu(menuName = "Dialogue/Node", fileName = "Node_")]
+    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Node", fileName = "Node_")]
     public class DialogueNodeSO : ScriptableObject
     {
         [HideInInspector] public string nodeId;

@@ -2,9 +2,9 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Dialogue
+namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "Dialogue/Graph", fileName = "DLG_")]
+    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Graph", fileName = "DLG_")]
     public class DialogueGraphSO : ScriptableObject
     {
         public string graphId;

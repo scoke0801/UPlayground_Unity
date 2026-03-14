@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Dialogue;
+using UPlayGround.Dialogue;
 using UPlayGround.Manager;
 
-namespace Story
+namespace UPlayGround.Story
 {
     [System.Serializable]
     public class StoryState
@@ -27,10 +27,6 @@ namespace Story
         public int CurrentProgress => _currentProgress;
 
         #region IManager
-
-        
-
-        
         public void Init()
         {
         }

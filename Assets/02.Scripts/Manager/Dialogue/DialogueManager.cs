@@ -56,6 +56,8 @@ namespace UPlayGround.Dialogue
 
             _currentGraph = graph;
             _isRunning    = true;
+            
+            UIManager.Instance.ShowUI("MainDialogue");
             EnterNode(graph.StartNode);
         }
 
@@ -150,6 +152,8 @@ namespace UPlayGround.Dialogue
             _isRunning    = false;
             _currentNode  = null;
             _currentGraph = null;
+            
+            UIManager.Instance.HideUI("MainDialogue");
             OnDialogueEnd?.Invoke();
         }
     }

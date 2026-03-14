@@ -61,3 +61,7 @@ MonoBehaviour:
     prefab: {fileID: 1372793444002400220, guid: ac1bd2928b71f034f8645c099adf8a81, type: 3}
     defaultLayer: 1000
     description: 
+  - key: MainDialogue
+    prefab: {fileID: 4587975935405704615, guid: f71930c1aba08014aa952f7dff48ec31, type: 3}
+    defaultLayer: 1000
+    description: 

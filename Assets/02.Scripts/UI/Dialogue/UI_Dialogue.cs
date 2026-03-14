@@ -9,7 +9,7 @@ using UPlayGround.Dialogue;
 /// DialogueManager 이벤트를 구독해 UI를 그리는 역할만 담당합니다.
 /// 대화 흐름 제어는 DialogueManager에게 위임합니다.
 /// </summary>
-public class UI_Dialogue : MonoBehaviour
+public class UI_Dialogue : UI_Base
 {
     [Header("대화 패널")]
     [SerializeField] private GameObject dialoguePanel;
@@ -31,14 +31,14 @@ public class UI_Dialogue : MonoBehaviour
         advanceButton.onClick.AddListener(() => DialogueManager.Instance.Advance());
     }
 
-    private void OnEnable()
+    protected override void OnShow()
     {
         DialogueManager.Instance.OnNodeEnter       += HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented += HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
     }
-
-    private void OnDisable()
+    
+    protected override void OnHide()
     {
         DialogueManager.Instance.OnNodeEnter       -= HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented -= HandleChoicePresented;
@@ -49,8 +49,12 @@ public class UI_Dialogue : MonoBehaviour
 
     private void HandleNodeEnter(DialogueNodeSO node)
     {
-        choicePanel.SetActive(false);
-        dialoguePanel.SetActive(true);
+        if (choicePanel != null)
+        {
+            choicePanel.SetActive(false);
+        }
+        
+        dialoguePanel?.SetActive(true);
 
         speakerNameText.text = node.speakerId;
         portraitImage.sprite = node.portrait;
@@ -84,7 +88,11 @@ public class UI_Dialogue : MonoBehaviour
     {
         if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
         dialoguePanel.SetActive(false);
-        choicePanel.SetActive(false);
+
+        if (choicePanel != null)
+        {
+            choicePanel.SetActive(false);
+        }
     }
 
     // ── 타이핑 이펙트 ────────────────────────────────────────────────

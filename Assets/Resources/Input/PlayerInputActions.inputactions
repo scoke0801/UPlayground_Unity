@@ -759,6 +759,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "DialogueNext",
+                    "type": "Button",
+                    "id": "12154d84-0fea-4b4a-825d-7e8e7e2862dd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -891,6 +900,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "EquipInventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d1f7782-9d98-4ffc-ba19-9b73b38f02b5",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DialogueNext",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

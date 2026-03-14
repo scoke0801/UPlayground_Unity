@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Dialogue;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 
 /// <summary>
 /// DialogueManager 이벤트를 구독해 UI를 그리는 역할만 담당합니다.
@@ -36,13 +39,19 @@ public class UI_Dialogue : UI_Base
         DialogueManager.Instance.OnNodeEnter       += HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented += HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
+        
+        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
     }
-    
+
     protected override void OnHide()
     {
         DialogueManager.Instance.OnNodeEnter       -= HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented -= HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     -= HandleDialogueEnd;
+        
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            null, OnInputDialogueNext, null);
     }
 
     // ── 이벤트 핸들러 ───────────────────────────────────────────────
@@ -110,4 +119,10 @@ public class UI_Dialogue : UI_Base
 
         advanceButton.gameObject.SetActive(true);
     }
+    
+    private void OnInputDialogueNext(InputAction.CallbackContext obj)
+    {
+        DialogueManager.Instance.Advance();
+    }
+
 }

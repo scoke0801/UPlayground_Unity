@@ -845,6 +845,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DialogueNext"",
+                    ""type"": ""Button"",
+                    ""id"": ""12154d84-0fea-4b4a-825d-7e8e7e2862dd"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -977,6 +986,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""EquipInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d1f7782-9d98-4ffc-ba19-9b73b38f02b5"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueNext"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1274,6 +1294,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_CursorClick = m_UI.FindAction("CursorClick", throwIfNotFound: true);
         m_UI_CursorMove = m_UI.FindAction("CursorMove", throwIfNotFound: true);
         m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
+        m_UI_DialogueNext = m_UI.FindAction("DialogueNext", throwIfNotFound: true);
         // Gamepad
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_L1 = m_Gamepad.FindAction("L1", throwIfNotFound: true);
@@ -1878,6 +1899,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_CursorClick;
     private readonly InputAction m_UI_CursorMove;
     private readonly InputAction m_UI_Point;
+    private readonly InputAction m_UI_DialogueNext;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1921,6 +1943,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/Point".
         /// </summary>
         public InputAction @Point => m_Wrapper.m_UI_Point;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/DialogueNext".
+        /// </summary>
+        public InputAction @DialogueNext => m_Wrapper.m_UI_DialogueNext;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1971,6 +1997,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Point.started += instance.OnPoint;
             @Point.performed += instance.OnPoint;
             @Point.canceled += instance.OnPoint;
+            @DialogueNext.started += instance.OnDialogueNext;
+            @DialogueNext.performed += instance.OnDialogueNext;
+            @DialogueNext.canceled += instance.OnDialogueNext;
         }
 
         /// <summary>
@@ -2006,6 +2035,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Point.started -= instance.OnPoint;
             @Point.performed -= instance.OnPoint;
             @Point.canceled -= instance.OnPoint;
+            @DialogueNext.started -= instance.OnDialogueNext;
+            @DialogueNext.performed -= instance.OnDialogueNext;
+            @DialogueNext.canceled -= instance.OnDialogueNext;
         }
 
         /// <summary>
@@ -2547,6 +2579,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPoint(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DialogueNext" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDialogueNext(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gamepad" which allows adding and removing callbacks.

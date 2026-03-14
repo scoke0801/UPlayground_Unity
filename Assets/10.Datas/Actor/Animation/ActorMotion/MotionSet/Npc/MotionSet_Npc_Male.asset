@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
-  m_Name: MotionSet_Npc_StoryGuide
+  m_Name: MotionSet_Npc_Male
   m_EditorClassIdentifier: 
   motionSets:
     _serializedList:
     - Key: 1
-      Value: {fileID: 11400000, guid: b54ec2311fd7542469a78df5159f20eb, type: 2}
+      Value: {fileID: 11400000, guid: 55e0c54a33144c444bb847d4d5ee690c, type: 2}
     - Key: 2
       Value: {fileID: 11400000, guid: b1b1c3d24a0be18429c05ec32616d138, type: 2}
     - Key: 3000

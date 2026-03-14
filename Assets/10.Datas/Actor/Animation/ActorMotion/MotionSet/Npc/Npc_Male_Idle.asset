@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Npc_Idle
+  m_Name: Npc_Male_Idle
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: 3094330708855449807, guid: 0f69fd4f4ad106447896fb775199ed37, type: 3}
+      motionClip: {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

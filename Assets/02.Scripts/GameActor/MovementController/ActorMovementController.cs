@@ -171,36 +171,27 @@ namespace UPlayGround.MovementController
     {
         public virtual void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 로컬 타임스케일 적용
-            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-            _currentState?.UpdateRotation(ref currentRotation, localDeltaTime);
-
+            // deltaTime은 KCCSimulator가 LocalTimeScale을 반영해서 전달
+            _currentState?.UpdateRotation(ref currentRotation, deltaTime);
             currentRotation = currentRotation.normalized;
         }
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-
-            // State 이동 velocity 계산
-            // Impulse가 활성화된 동안에는 State의 이동 입력을 차단
-            // (넉백 중 플레이어가 이동으로 거리를 상쇄하는 것을 방지)
+            // deltaTime은 KCCSimulator가 LocalTimeScale을 반영해서 전달
             Vector3 stateVelocity = currentVelocity;
-            _currentState?.UpdateVelocity(ref stateVelocity, localDeltaTime);
+            _currentState?.UpdateVelocity(ref stateVelocity, deltaTime);
 
-            // 중력
             if (!Motor.GroundingStatus.IsStableOnGround)
             {
                 if (_currentState is { AdjustGravity: true })
                 {
                     float verticalSpeed     = Vector3.Dot(stateVelocity, Motor.CharacterUp);
                     float gravityMultiplier = verticalSpeed < 0f ? FallGravityMultiplier : RiseGravityMultiplier;
-                    // localDeltaTime 사용 — 히트스톱(LocalTimeScale=0) 중 중력 정지
-                    stateVelocity += gravityMultiplier * localDeltaTime * Gravity;
+                    stateVelocity += gravityMultiplier * deltaTime * Gravity;
                 }
             }
 
-            // AddVelocity — 즉발성 1회 힘 (점프 등)
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {
                 if (_internalVelocityAdd.y > 0f)
@@ -210,51 +201,33 @@ namespace UPlayGround.MovementController
                 _internalVelocityAdd  = Vector3.zero;
             }
 
-            // Impulse — 넉백/Launch 감속 레이어
-            // stateVelocity와 분리 합산 → 이동거리 = impulse / drag (예측 가능)
             if (_hasImpulse)
             {
-                // Exp 감속: 프레임레이트 독립적
                 _impulseVelocity = Vector3.Lerp(
                     _impulseVelocity,
                     Vector3.zero,
-                    1f - Mathf.Exp(-_impulseDrag * localDeltaTime));
+                    1f - Mathf.Exp(-_impulseDrag * deltaTime));
 
                 if (_impulseVelocity.sqrMagnitude < 0.01f)
                     ClearImpulse();
             }
 
-            // 최종 합산
             currentVelocity = stateVelocity + _impulseVelocity;
         }
-        
-        /// <summary>
-        /// KinematicCharacterMotor가 캐릭터의 실제 위치와 회전을 계산하는 'Main Update' 사이클에 진입하기 직전에 호출
-        /// 주요 역할: 입력 데이터의 최종 동기화
-        /// 캐릭터 모터가 물리 계산(중력, 경사면 이동, 충돌 처리 등)을 시작하기 전에, 사용자의 최신 입력 상태를 변수에 저장하거나 전처리하는 단계입니다.
-        /// </summary>
+
         public virtual void BeforeCharacterUpdate(float deltaTime)
         {
-            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-            _currentState?.BeforeCharacterUpdate(localDeltaTime);
+            _currentState?.BeforeCharacterUpdate(deltaTime);
         }
-        /// <summary>
-        /// Kinematic Character Motor가 모든 물리 계산과 위치 이동을 완료한 직후에 호출되는 콜백 메서드입니다.
-        /// </summary>
+
         public virtual void AfterCharacterUpdate(float deltaTime)
         {
-            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-            _currentState?.AfterCharacterUpdate(localDeltaTime);
+            _currentState?.AfterCharacterUpdate(deltaTime);
         }
-        
-        /// <summary>
-        /// 호출 시점: 모든 이동과 충돌 해결이 끝나고, 캐릭터의 최종 접지 상태(Grounded/Airborne)가 결정된 직후 호출됩니다.
-        /// 역할: 이전 프레임과 현재 프레임의 상태를 비교하여 상태 변화를 감지하기에 최적입니다.
-        /// </summary>
+
         public virtual void PostGroundingUpdate(float deltaTime)
         {
-            float localDeltaTime = deltaTime * Actor.LocalTimeScale;
-            _currentState?.PostGroundingUpdate(localDeltaTime);
+            _currentState?.PostGroundingUpdate(deltaTime);
         }
 
         /// <summary>

@@ -26,7 +26,9 @@ namespace UPlayGround.Manager
 
             Application.targetFrameRate = 60;
 
-            // BaseManager의 Awake가 실행된 후, 이 인스턴스가 유효하면 초기화
+            // KCC AutoSimulation 제어권을 KCCSimulator에 위임
+            gameObject.AddComponent<KCCSimulator>();
+
             if (this != null && !IsInitialized)
             {
                 InitializeManagers();

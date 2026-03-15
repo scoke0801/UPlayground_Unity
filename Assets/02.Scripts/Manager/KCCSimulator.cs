@@ -1,0 +1,108 @@
+﻿using System.Collections.Generic;
+using KinematicCharacterController;
+using UnityEngine;
+using UPlayGround;
+using UPlayGround.Manager;
+
+/// <summary>
+/// KinematicCharacterSystem의 AutoSimulation을 끄고,
+/// 우리가 직접 Simulate를 호출하여 액터별 LocalTimeScale을 deltaTime에 반영한다.
+///
+/// 동작 원리:
+///   KCS.Simulate(deltaTime, motors, movers) 는 모든 motor에 동일한 deltaTime을 넘긴다.
+///   AutoSimulation = false 로 설정하면 KCS.FixedUpdate가 Simulate를 호출하지 않는다.
+///   대신 이 클래스의 FixedUpdate에서 motor를 LocalTimeScale별로 그룹핑하여
+///   각 그룹에 보정된 deltaTime으로 Simulate를 1회씩 호출한다.
+///   → KinematicCharacterSystem.cs 원본을 전혀 수정하지 않아도 된다.
+/// </summary>
+[DefaultExecutionOrder(-99)] // KinematicCharacterSystem(-100) 직후 실행
+public class KCCSimulator : MonoBehaviour
+{
+    // LocalTimeScale이 1.0인 모터(정상 속도)를 별도 리스트로 관리할 필요 없이
+    // 그룹핑 결과로 자연스럽게 처리된다.
+    private readonly Dictionary<float, List<KinematicCharacterMotor>> _groups
+        = new Dictionary<float, List<KinematicCharacterMotor>>();
+
+    private readonly List<PhysicsMover> _emptyMovers = new List<PhysicsMover>();
+
+    private void Awake()
+    {
+        // AutoSimulation을 끄면 KCS.FixedUpdate가 Simulate를 호출하지 않는다.
+        // 이 컴포넌트가 대신 제어권을 가진다.
+        KinematicCharacterSystem.EnsureCreation();
+        KinematicCharacterSystem.Settings.AutoSimulation = false;
+    }
+
+    private void OnDestroy()
+    {
+        // 씬 언로드 등으로 소멸 시 AutoSimulation 복구
+        if (KinematicCharacterSystem.Settings != null)
+            KinematicCharacterSystem.Settings.AutoSimulation = true;
+    }
+
+    private void FixedUpdate()
+    {
+        float baseDt = Time.deltaTime;
+        var motors  = KinematicCharacterSystem.CharacterMotors;
+        var movers  = KinematicCharacterSystem.PhysicsMovers;
+
+        if (KinematicCharacterSystem.Settings.Interpolate)
+            KinematicCharacterSystem.PreSimulationInterpolationUpdate(baseDt);
+
+        // ── PhysicsMover는 LocalTimeScale 개념이 없으므로 baseDt로 선처리 ──
+        for (int i = 0; i < movers.Count; i++)
+            movers[i].VelocityUpdate(baseDt);
+
+        // ── motor를 LocalTimeScale 값으로 그룹핑 ──
+        BuildGroups(motors, baseDt);
+
+        foreach (var (scale, group) in _groups)
+        {
+            float scaledDt = baseDt * scale;
+            // Mover는 이미 처리했으므로 빈 리스트를 전달
+            // → KCS.Simulate 내부에서 mover 루프가 0회 돌아 안전하다
+            KinematicCharacterSystem.Simulate(scaledDt, group, _emptyMovers);
+        }
+
+        // ── PhysicsMover 위치 확정 ──
+        for (int i = 0; i < movers.Count; i++)
+        {
+            var mover = movers[i];
+            mover.Transform.SetPositionAndRotation(mover.TransientPosition, mover.TransientRotation);
+            mover.Rigidbody.position = mover.TransientPosition;
+            mover.Rigidbody.rotation = mover.TransientRotation;
+        }
+
+        if (KinematicCharacterSystem.Settings.Interpolate)
+            KinematicCharacterSystem.PostSimulationInterpolationUpdate(baseDt);
+    }
+
+    private void BuildGroups(List<KinematicCharacterMotor> motors, float baseDt)
+    {
+        // 리스트는 재사용하되 내용만 초기화
+        foreach (var list in _groups.Values)
+            list.Clear();
+
+        for (int i = 0; i < motors.Count; i++)
+        {
+            var motor = motors[i];
+            var actor = motor.GetComponent<GameActor>();
+            // 소수점 3자리 반올림: 0.05f / 0.1f 등 근사값이 다른 키로 분류되는 것 방지
+            float scale = actor != null ? Mathf.Round(actor.LocalTimeScale * 1000f) / 1000f : 1f;
+
+            if (!_groups.TryGetValue(scale, out var list))
+            {
+                list = new List<KinematicCharacterMotor>();
+                _groups[scale] = list;
+            }
+            list.Add(motor);
+        }
+
+        // 비어있는 그룹 제거 (이전 프레임에서 생성됐지만 더 이상 없는 scale 값)
+        var toRemove = new List<float>();
+        foreach (var kv in _groups)
+            if (kv.Value.Count == 0) toRemove.Add(kv.Key);
+        foreach (var key in toRemove)
+            _groups.Remove(key);
+    }
+}

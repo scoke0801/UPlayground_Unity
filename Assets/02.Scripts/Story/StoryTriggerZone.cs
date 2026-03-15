@@ -5,6 +5,7 @@ using UPlayGround.Story;
 /// Collider(Is Trigger)를 부착하고 StoryEntrySO를 연결하면,
 /// 플레이어가 진입할 때 StoryManager에 트리거 요청을 보냅니다.
 /// </summary>
+[RequireComponent(typeof(CapsuleCollider))]
 public class StoryTriggerZone : MonoBehaviour
 {
     [SerializeField] private StoryEntrySO _storyEntry;

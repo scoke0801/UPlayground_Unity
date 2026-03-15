@@ -12,6 +12,7 @@ namespace UPlayGround.Data.Config
         {
             "Player",
             "Enemy",
+            "Default",
             "Npc",
             "Projectile",
         };

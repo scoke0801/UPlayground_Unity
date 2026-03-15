@@ -322,6 +322,19 @@ public class DialogueGraphEditor : EditorWindow
         GUI.Label(new Rect(rect.x + 10, rect.y, rect.width - 60, NodeHeaderH),
             $"[{node.nodeType.ToString().ToUpper()}]  {node.speakerId}", _styleBoldLabel);
 
+        // 채널이 Main이 아닐 때 채널 태그 표시
+        if (node.channel != DialogueChannel.Main)
+        {
+            var chCol  = ChannelColor(node.channel);
+            string tag = node.channel == DialogueChannel.System ? "SYS" : "MLG";
+            var tagRect = new Rect(rect.xMax - 38, rect.y + 5, 30, 14);
+            EditorGUI.DrawRect(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.2f));
+            DrawOutline(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.5f), 1);
+            _styleMiniLabelCenter.fontSize         = 8;
+            _styleMiniLabelCenter.normal.textColor = chCol;
+            GUI.Label(tagRect, tag, _styleMiniLabelCenter);
+        }
+
         string shortId = node.nodeId.Length > 6 ? node.nodeId[..6] : node.nodeId;
         _styleMiniLabelRight.normal.textColor = TextMuted;
         GUI.Label(new Rect(rect.x, rect.y, rect.width - 6, NodeHeaderH), shortId, _styleMiniLabelRight);
@@ -925,6 +938,7 @@ public class DialogueGraphEditor : EditorWindow
 
         GUILayout.Space(10);
 
+        // ── 노드 타입 배지 ───────────────────────────────────────────
         var col       = NodeColor(node.nodeType);
         var badgeRect = GUILayoutUtility.GetRect(0, 22, GUILayout.ExpandWidth(true));
         EditorGUI.DrawRect(badgeRect, new Color(col.r, col.g, col.b, 0.1f));
@@ -933,6 +947,17 @@ public class DialogueGraphEditor : EditorWindow
         _styleMiniLabelCenter.fontStyle        = FontStyle.Bold;
         _styleMiniLabelCenter.normal.textColor = col;
         GUI.Label(badgeRect, node.nodeType.ToString().ToUpper(), _styleMiniLabelCenter);
+
+        // ── 채널 배지 ────────────────────────────────────────────────
+        GUILayout.Space(2);
+        var channelColor = ChannelColor(node.channel);
+        var channelRect  = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
+        EditorGUI.DrawRect(channelRect, new Color(channelColor.r, channelColor.g, channelColor.b, 0.08f));
+        DrawOutline(channelRect, new Color(channelColor.r, channelColor.g, channelColor.b, 0.25f), 1);
+        _styleMiniLabelCenter.fontSize         = 9;
+        _styleMiniLabelCenter.fontStyle        = FontStyle.Normal;
+        _styleMiniLabelCenter.normal.textColor = channelColor;
+        GUI.Label(channelRect, $"CH: {node.channel.ToString().ToUpper()}", _styleMiniLabelCenter);
 
         GUILayout.Space(8);
         _styleMiniLabel.fontSize         = 9;
@@ -945,15 +970,34 @@ public class DialogueGraphEditor : EditorWindow
         InspectorDivider();
 
         EditorGUI.BeginChangeCheck();
+
+        // ── 기본 속성 ────────────────────────────────────────────────
         EditorGUILayout.PropertyField(so.FindProperty("nodeType"));
-        EditorGUILayout.PropertyField(so.FindProperty("speakerId"));
-        EditorGUILayout.PropertyField(so.FindProperty("dialogueText"));
-        EditorGUILayout.PropertyField(so.FindProperty("portrait"));
-        EditorGUILayout.PropertyField(so.FindProperty("typingSpeed"));
+        GUILayout.Space(2);
+        EditorGUILayout.PropertyField(so.FindProperty("channel"));
 
         GUILayout.Space(4);
         InspectorDivider();
 
+        // ── Talk / Choice 속성 ──────────────────────────────────────
+        if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+        {
+            InspectorSectionLabel("TALK / CHOICE", col);
+            EditorGUILayout.PropertyField(so.FindProperty("speakerId"));
+            EditorGUILayout.PropertyField(so.FindProperty("dialogueText"));
+            EditorGUILayout.PropertyField(so.FindProperty("portrait"));
+            EditorGUILayout.PropertyField(so.FindProperty("typingSpeed"));
+
+            // autoAdvanceDuration — Main 이외 채널에서만 의미있지만 모든 Talk에서 편집 허용
+            EditorGUILayout.PropertyField(so.FindProperty("autoAdvanceDuration"),
+                new GUIContent("Auto Advance (sec)", "0 = 입력 대기 / 0 초과 = N초 후 자동 진행"));
+
+            GUILayout.Space(4);
+            InspectorDivider();
+        }
+
+        // ── Routing ──────────────────────────────────────────────────
+        InspectorSectionLabel("ROUTING", TextSecond);
         switch (node.nodeType)
         {
             case NodeType.Talk:
@@ -971,6 +1015,10 @@ public class DialogueGraphEditor : EditorWindow
         }
 
         GUILayout.Space(4);
+        InspectorDivider();
+
+        // ── Events ───────────────────────────────────────────────────
+        InspectorSectionLabel("EVENTS", new Color(0.65f, 0.55f, 0.98f));
         EditorGUILayout.PropertyField(so.FindProperty("eventActions"), true);
 
         if (EditorGUI.EndChangeCheck())
@@ -982,6 +1030,23 @@ public class DialogueGraphEditor : EditorWindow
         {
             so.ApplyModifiedProperties();
         }
+    }
+
+    private static Color ChannelColor(DialogueChannel ch) => ch switch
+    {
+        DialogueChannel.Main      => new Color(0.31f, 0.62f, 1.00f),
+        DialogueChannel.System    => new Color(0.96f, 0.65f, 0.14f),
+        DialogueChannel.Monologue => new Color(0.65f, 0.55f, 0.98f),
+        _                         => Color.white,
+    };
+
+    private void InspectorSectionLabel(string label, Color color)
+    {
+        _styleMiniLabel.fontSize         = 9;
+        _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
+        _styleMiniLabel.normal.textColor = color;
+        GUILayout.Label(label, _styleMiniLabel);
+        GUILayout.Space(2);
     }
 
     private static void InspectorDivider()

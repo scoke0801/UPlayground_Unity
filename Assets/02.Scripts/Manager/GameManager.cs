@@ -58,6 +58,7 @@ namespace UPlayGround.Manager
             RegisterManager(GlobalFlagManager.Instance);
             RegisterManager(DialogueManager.Instance);
             RegisterManager(StoryManager.Instance);
+            RegisterManager(GameTimeManager.Instance);
             
             RegisterManager(SceneManager.Instance);
 

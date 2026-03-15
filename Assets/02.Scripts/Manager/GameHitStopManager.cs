@@ -56,9 +56,7 @@ namespace UPlayGround.Manager.Handler
 
         public void Init()
         {
-            Time.timeScale = NORMAL_TIME_SCALE;
             _actorHitStopCoroutines.Clear();
-
             LoadVolume();
         }
 
@@ -194,7 +192,7 @@ namespace UPlayGround.Manager.Handler
                 _currentHitStopCoroutine = null;
             }
 
-            Time.timeScale = NORMAL_TIME_SCALE;
+            GameTimeManager.Instance?.ResetHitStopTimeScale();
             _isHitStopping = false;
         }
 
@@ -346,15 +344,13 @@ namespace UPlayGround.Manager.Handler
         private IEnumerator HitStopCoroutine(float duration, float timeScale)
         {
             _isHitStopping = true;
-            
-            // HitStop 적용
-            Time.timeScale = timeScale;
-            
-            // 실제 시간 기준으로 대기
+
+            GameTimeManager.Instance.SetHitStopTimeScale(timeScale);
+
             yield return new WaitForSecondsRealtime(duration);
-            
-            Time.timeScale = NORMAL_TIME_SCALE;
-            
+
+            GameTimeManager.Instance.ResetHitStopTimeScale();
+
             _isHitStopping = false;
             _currentHitStopCoroutine = null;
         }

@@ -244,6 +244,10 @@ namespace UPlayGround.Manager
 
         private void HandleInput()
         {
+            // 다른 메뉴가 UI 점유중이라면 카메라 조작을 허용하지 않음.
+            if (InputManager.Instance.CurrentLayer != InputLayer.Level_0)
+                return;
+            
             if (Cursor.visible || _isInputLocked) return;
 
             var input = InputManager.Instance;

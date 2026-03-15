@@ -65,3 +65,11 @@ MonoBehaviour:
     prefab: {fileID: 4587975935405704615, guid: f71930c1aba08014aa952f7dff48ec31, type: 3}
     defaultLayer: 1000
     description: 
+  - key: SystemDialogue
+    prefab: {fileID: 3693293314008761871, guid: b21d3123f9ffc2e4e8226f4cc087c34b, type: 3}
+    defaultLayer: 1000
+    description: 
+  - key: MonologueDialogue
+    prefab: {fileID: 2239396806796856735, guid: 3e26e4b053ce1294a994c5dc666331ec, type: 3}
+    defaultLayer: 1000
+    description: 

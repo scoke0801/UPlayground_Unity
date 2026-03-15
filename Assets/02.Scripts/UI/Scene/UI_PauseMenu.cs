@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround.Enum;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -28,7 +29,20 @@ public class UI_PauseMenu : UI_Base
         if (quitButton != null)
             quitButton.onClick.AddListener(OnQuitClicked);
     }
-    
+
+    protected override void OnShow()
+    {
+        base.OnShow();
+        
+        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
+    }
+
+    protected override void OnHide()
+    {
+        InputManager.Instance.SetInputLayer(InputLayer.None);
+        base.OnHide();
+    }
+
     /// <summary>
     /// 게임 재개 버튼
     /// </summary>

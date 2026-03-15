@@ -6,6 +6,12 @@ namespace UPlayGround.Dialogue
 {
     public enum NodeType { Talk, Choice, Condition, Event, End }
 
+    /// <summary>
+    /// 어떤 UI 채널로 출력할지 결정.
+    /// Main = 캐릭터 대화, System = 게임 알림, Monologue = 주인공 독백
+    /// </summary>
+    public enum DialogueChannel { Main, System, Monologue }
+
     [Serializable]
     public class ChoiceData
     {
@@ -23,12 +29,15 @@ namespace UPlayGround.Dialogue
     {
         [HideInInspector] public string nodeId;
         public NodeType nodeType;
+        public DialogueChannel channel = DialogueChannel.Main;
 
         [Header("Talk / Choice")]
         public string speakerId;
         [TextArea(2, 5)] public string dialogueText;
         public Sprite portrait;
         [Range(0.01f, 0.2f)] public float typingSpeed = 0.04f;
+        [Tooltip("타이핑 완료 후 자동 진행까지 대기 시간(초). 0이면 입력 대기.")]
+        [Min(0f)] public float autoAdvanceDuration = 0f;
 
         [Header("Routing")]
         public string nextNodeId;       // Talk, Event

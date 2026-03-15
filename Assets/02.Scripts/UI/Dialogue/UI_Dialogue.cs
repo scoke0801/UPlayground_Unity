@@ -36,22 +36,26 @@ public class UI_Dialogue : UI_Base
 
     protected override void OnShow()
     {
-        DialogueManager.Instance.OnNodeEnter       += HandleNodeEnter;
+        DialogueManager.Instance.OnMainNodeEnter   += HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented += HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
         
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
+        
+        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
     }
 
     protected override void OnHide()
     {
-        DialogueManager.Instance.OnNodeEnter       -= HandleNodeEnter;
+        DialogueManager.Instance.OnMainNodeEnter   -= HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented -= HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     -= HandleDialogueEnd;
         
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputDialogueNext, null);
+        
+        InputManager.Instance.SetInputLayer(InputLayer.None);
     }
 
     // ── 이벤트 핸들러 ───────────────────────────────────────────────

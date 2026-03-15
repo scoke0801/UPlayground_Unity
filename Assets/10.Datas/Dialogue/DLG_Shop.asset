@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
-  speakerId: 
+  speakerId: "\uC0C1\uC778"
   dialogueText: "\uC624\uB298\uC740 \uC5B4\uCA50\uC77C\uB85C \uC624\uC168\uB098\uC694?"
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
@@ -24,7 +24,7 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 440, y: 280}
+  editorPosition: {x: 460, y: 320}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,4 +67,4 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 840}
+  editorPosition: {x: 460, y: 580}

@@ -80,3 +80,5 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 74e064103120fc945b6cbc40d201f4cb, type: 2}
     - Key: 840
       Value: {fileID: 11400000, guid: 11d6ad9d45bad0944a6b42385d6eea8d, type: 2}
+    - Key: 3000
+      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}

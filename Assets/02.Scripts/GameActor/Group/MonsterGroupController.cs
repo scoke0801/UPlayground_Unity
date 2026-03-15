@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 
@@ -36,6 +37,12 @@ namespace UPlayGround.Group
         private readonly Dictionary<MonsterActor, MemberPriority>  _priorities = new();
 
         private bool _isActivated = false;
+
+    /// <summary>
+    /// 그룹 내 모든 멤버가 사망했을 때 1회 발동.
+    /// GroupStoryTrigger 등 외부에서 구독해 후속 처리를 연결한다.
+    /// </summary>
+    public event Action OnGroupDefeated;
 
         #region 초기화
 
@@ -82,6 +89,10 @@ namespace UPlayGround.Group
             _members.Remove(actor);
             _priorities.Remove(actor);
             ReleaseAttackSlot(actor);
+
+            // 전멸 감지 — 활성화된 그룹이 전부 사망했을 때만 발동
+            if (_isActivated && AliveCount == 0)
+                OnGroupDefeated?.Invoke();
         }
 
         #endregion

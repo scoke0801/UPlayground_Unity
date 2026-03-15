@@ -16,8 +16,8 @@ MonoBehaviour:
   combatOffset: {x: 0.05, y: 1, z: 0}
   offsetSmoothTime: 0.35
   defaultDistance: 4.2
-  minDistance: 3.7
-  maxDistance: 4.5
+  minDistance: 2
+  maxDistance: 5.7
   rotationSpeed: 20
   minVerticalAngle: 0
   maxVerticalAngle: 50

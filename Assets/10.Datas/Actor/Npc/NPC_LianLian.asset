@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
-  m_Name: NPC_Shop
+  m_Name: NPC_LianLian
   m_EditorClassIdentifier: 
   actorName: StoryGuide
   description: 
@@ -19,4 +19,4 @@ MonoBehaviour:
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0
-  dialogueGraph: {fileID: 11400000, guid: 30127a0341e867c44b5a6513a9697998, type: 2}
+  dialogueGraph: {fileID: 11400000, guid: 8a64eed4c3dc0a84083f81fe63cfbceb, type: 2}

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e53bc7d8392d61f4aa2839c769d44896, type: 3}
-  m_Name: Story_Main_1
+  m_Name: Story_Main_2
   m_EditorClassIdentifier: 
-  storyId: 1
+  storyId: 2
   requiredProgress: 0
-  dialogueGraph: {fileID: 11400000, guid: a58a5643b3bb0d74dac3249152f9ebca, type: 2}
+  dialogueGraph: {fileID: 11400000, guid: c33acc75576993b42ba7f2e35f15ff9a, type: 2}
   variants: []

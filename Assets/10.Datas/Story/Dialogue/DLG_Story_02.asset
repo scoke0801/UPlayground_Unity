@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Story_01
+  m_Name: DLG_Story_02
   m_EditorClassIdentifier: 
   graphId: 
   graphName: 
@@ -34,8 +34,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC2DC\uC791\uBD80\uD130 \uBAAC\uC2A4\uD130 \uBB34\uB9AC\uB77C\uB2C8..
-    \uC774\uB7F0 \uC758\uBBF8\uC600\uAD70"
+  dialogueText: "\uC0DD\uAC01\uBCF4\uB2E4\uB3C4 \uB354 \uC27D\uC9C0 \uC54A\uC740
+    \uC5EC\uD589\uAE38\uC774 \uB418\uACA0\uB294 \uAC78"
   portrait: {fileID: 21300000, guid: 13ae7e6b6a5eb1845aba3bf41e0c6ebd, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

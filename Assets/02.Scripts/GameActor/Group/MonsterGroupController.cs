@@ -53,6 +53,9 @@ namespace UPlayGround.Group
             var actors = GetComponentsInChildren<MonsterActor>(includeInactive: true);
             foreach (var actor in actors)
                 RegisterMember(actor, MemberPriority.Normal);
+
+            if (actors.Length != 0)
+                _isActivated = true;
         }
 
         public void Activate()

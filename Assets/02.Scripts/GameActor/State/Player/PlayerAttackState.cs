@@ -57,6 +57,8 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            
+            _isHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
 
             playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
@@ -65,8 +67,7 @@ namespace UPlayGround.State
             _combat.ResetCombo();
             
             _equipment = playerActor.GetPlayerEquipment();
-
-            _isHeavyAttack = playerController.HasHeavyAttackInput();
+            
             _attackTimer = 0f;
 
             if (_isHeavyAttack)
@@ -166,7 +167,7 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _attackTimer = 0f;
             
-            _isHeavyAttack = playerController.HasHeavyAttackInput();
+            _isHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             
             if (_isHeavyAttack)
             {

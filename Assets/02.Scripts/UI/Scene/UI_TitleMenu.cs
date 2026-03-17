@@ -27,15 +27,15 @@ public class UI_TitleMenu : UI_Base
         
         if (loadButton)
         {
-            continueButton.onClick.AddListener(OnClickLoadButton);
+            loadButton.onClick.AddListener(OnClickLoadButton);
         }
         if (newGameButton)
         {
-            continueButton.onClick.AddListener(OnClickNewGameButton);
+            newGameButton.onClick.AddListener(OnClickNewGameButton);
         }
         if (optionButton)
         {
-            continueButton.onClick.AddListener(OnClickOptionButton);
+            optionButton.onClick.AddListener(OnClickOptionButton);
         }
     }
 
@@ -59,7 +59,6 @@ public class UI_TitleMenu : UI_Base
     
     private void OnClickOptionButton()
     {
-        UIManager.Instance.HideAllUI();
-        SceneManager.Instance.LoadScene(SceneName.InGame);
+        UIManager.Instance.ShowUI("SettingMenu");
     }
 }

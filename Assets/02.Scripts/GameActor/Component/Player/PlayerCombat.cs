@@ -12,36 +12,37 @@ using UPlayGround.Manager.Handler;
 namespace UPlayGround.Component
 {
     /// <summary>
-    /// 플레이어의 전투 관련 데이터와 로직
+    /// 플레이어의 전투 관련 데이터와 로직.
     /// State는 "언제" 공격할지 결정하고
-    /// Component는 "어떤" 공격을 실행하는지 처리
+    /// Component는 "어떤" 공격을 실행하는지 처리한다.
     /// </summary>
     public class PlayerCombat : PlayerActorComponent
     {
         private enum AttackState
         {
             NormalAttack = 0,
-            HeavyAttack = 1,
+            HeavyAttack  = 1,
             JumpAttack,
             DashAttack,
             SkillAttack,
         }
+
         [FormerlySerializedAs("equipment")]
         [Header("References")]
         [SerializeField] private PlayerEquipment _equipment;
-        [SerializeField] private ActorAnimator _actorAnimator;
-        
+        [SerializeField] private ActorAnimator   _actorAnimator;
+
         [FormerlySerializedAs("stats")]
         [Header("Combat Data")]
         [SerializeField] private PlayerAttackDataSO _attackData;
-        
+
         [Header("Combat State")]
-        [SerializeField] private float _combatStateDuration = 30f; // 전투 상태 유지 시간
+        [SerializeField] private float _combatStateDuration = 30f;
 
         [Header("Hit Detection Settings")]
-        [SerializeField] private LayerMask _targetLayerMask = -1; // 히트 가능한 레이어
-        [SerializeField] private bool _showHitDebug = true; // 디버그 시각화
-        
+        [SerializeField] private LayerMask _targetLayerMask = -1;
+        [SerializeField] private bool      _showHitDebug    = true;
+
         [Header("Attack Snap Settings")]
         [Tooltip("락온 상태: 스냅 탐색 반경")]
         [SerializeField] private float _lockOnSnapSearchRange = 2f;
@@ -49,174 +50,139 @@ namespace UPlayGround.Component
         [SerializeField] private float _lockOnSnapSearchAngle = 60f;
 
         [Space(4)]
-        [Tooltip("자유 전투(락온 없음): 스냅 탐색 반경 — 더 관대하게 설정")]
+        [Tooltip("자유 전투: 스냅 탐색 반경")]
         [SerializeField] private float _freeSnapSearchRange = 3.5f;
-        [Tooltip("자유 전투(락온 없음): 스냅 탐색 각도 — 더 관대하게 설정")]
+        [Tooltip("자유 전투: 스냅 탐색 각도")]
         [SerializeField] private float _freeSnapSearchAngle = 80f;
 
         [Space(4)]
-        [SerializeField] private float _snapMoveSpeed = 8f;      // 스냅 보정 속도
-        [SerializeField] private float _snapStopDistance = 1.2f; // 이 거리 이내면 스냅 종료
+        [SerializeField] private float _snapMoveSpeed    = 8f;
+        [SerializeField] private float _snapStopDistance = 1.2f;
 
         [Header("Finish Attack Settings")]
-        [SerializeField] private float _finishAttackSearchRange = 0.5f;
-        [SerializeField] private float _finishAttackSearchAngle = 90f;
-        [SerializeField] private float _finishAttackDamageThreshold = 30f; // 이 값 이하 HP면 처형 가능
+        [SerializeField] private float _finishAttackSearchRange       = 0.5f;
+        [SerializeField] private float _finishAttackSearchAngle       = 90f;
+        [SerializeField] private float _finishAttackDamageThreshold   = 30f;
 
-        public float SnapMoveSpeed => _snapMoveSpeed;
+        // ── 히트 피드백 설정 ──────────────────────────────────────────
+        // 공격 종류별 피드백 수치를 인스펙터에서 직접 튜닝할 수 있도록 분리한다.
+        // 값을 0으로 두면 해당 효과를 비활성화한 것과 같다.
+        [Header("Hit Feedback — Punch Strength")]
+        [Tooltip("약 공격 히트 시 카메라 펀치 강도")]
+        [SerializeField] private float _punchStrengthLight    = 0.08f;
+        [Tooltip("강/대시/점프 공격 히트 시 카메라 펀치 강도")]
+        [SerializeField] private float _punchStrengthHeavy    = 0.18f;
+        [Tooltip("스킬 공격 히트 시 카메라 펀치 강도")]
+        [SerializeField] private float _punchStrengthSkill    = 0.22f;
+
+        [Header("Hit Feedback — Punch Duration")]
+        [SerializeField] private float _punchDurationLight    = 0.12f;
+        [SerializeField] private float _punchDurationHeavy    = 0.18f;
+        [SerializeField] private float _punchDurationSkill    = 0.20f;
+
+        [Header("Hit Feedback — Shake Keys")]
+        [Tooltip("약 공격 쉐이크 DB 키")]
+        [SerializeField] private string _shakeKeyLight  = "LiteHit";
+        [Tooltip("강 공격 쉐이크 DB 키")]
+        [SerializeField] private string _shakeKeyHeavy  = "HeavyHit";
+        // ──────────────────────────────────────────────────────────────
+
+        public float SnapMoveSpeed    => _snapMoveSpeed;
         public float SnapStopDistance => _snapStopDistance;
 
-        /// <summary>락온 여부에 따라 적절한 탐색 범위를 반환</summary>
         public float GetSnapSearchRange(bool isLockedOn) =>
             isLockedOn ? _lockOnSnapSearchRange : _freeSnapSearchRange;
 
-        /// <summary>락온 여부에 따라 적절한 탐색 각도를 반환</summary>
         public float GetSnapSearchAngle(bool isLockedOn) =>
             isLockedOn ? _lockOnSnapSearchAngle : _freeSnapSearchAngle;
+
         public event Action<bool> OnChangeCombatState;
-        
-        // 현재 공격 정보 (히트 판정용)
-        private AttackData _currentAttackData;
-        
-        // 현재 공격의 AttackInfoBase (멀티 히트 Phase 조회용)
+
+        private AttackData     _currentAttackData;
         private AttackInfoBase _currentAttackInfoBase;
-        
-        private AttackState _attackState = AttackState.NormalAttack;
-        private float _lastCombatEventTime = -999f;
-        
-        // 공격 충돌 감지가 가능한 상태인가?
-        // - 애니메이션 이벤트로 적절한 상태에 설정
-        private bool _isCollideCollisionEnable;
-        private PlayerActor _playerActor;
-        
+        private AttackState    _attackState = AttackState.NormalAttack;
+        private float          _lastCombatEventTime = -999f;
+        private bool           _isCollideCollisionEnable;
+        private PlayerActor    _playerActor;
         private List<IDamageable> _hitTargets = new List<IDamageable>();
-        
-        // 가드 상태인가?
+
         public bool IsGuarding = false;
-        
-        /// <summary>
-        /// 현재 전투 상태인지 여부
-        /// </summary>
         public bool IsInCombat => Time.time - _lastCombatEventTime < _combatStateDuration;
 
         public AttackData CurrentAttackData => _currentAttackData;
-        // 현재 전투 상태
-        public int CurrentComboIndex { get; private set; }
-        public float LastAttackTime { get; private set; }
-        public bool CanCombo { get; private set; }
-        
-        public bool IsPossibleCollide => _isCollideCollisionEnable;
-        
-        // 이벤트
-        public event System.Action<AttackData> OnAttackStarted;
-        public event System.Action<AttackData> OnAttackHit;
-        public event System.Action OnComboReset;
-        
+        public int  CurrentComboIndex { get; private set; }
+        public float LastAttackTime   { get; private set; }
+        public bool  CanCombo         { get; private set; }
+        public bool  IsPossibleCollide => _isCollideCollisionEnable;
+
+        public event Action<AttackData> OnAttackStarted;
+        public event Action<AttackData> OnAttackHit;
+        public event Action             OnComboReset;
+
         private void Awake()
         {
             if (_equipment == null)
                 _equipment = GetComponent<PlayerEquipment>();
-            
-            if(_actorAnimator == null)
+            if (_actorAnimator == null)
                 _actorAnimator = GetComponent<ActorAnimator>();
-            
             _playerActor = GetComponent<PlayerActor>();
         }
 
         private void Update()
         {
             if (IsPossibleCollide)
-            {
                 PerformHitDetection();
-            }
-            
         }
-        
-        /// <summary>
-        /// Guard Break 공격인지 판정
-        /// </summary>
-        public bool IsGuardBreak(AttackData incomingAttack)
-        {
-            // [TODO] 여러 번 방어하면 깨진다거나 조치를 해볼까?
-            return false;
-        }
-        
-        /// <summary>
-        /// 전투 상태 갱신 (공격/피격 시 등 전투 상태로 전환이 필요할 때 호출)
-        /// </summary>
+
+        public bool IsGuardBreak(AttackData incomingAttack) => false;
+
         public void RefreshCombatState()
         {
-            bool prevState = IsInCombat;
+            bool prev = IsInCombat;
             _lastCombatEventTime = Time.time;
-            if (prevState != IsInCombat)
-            {
+            if (prev != IsInCombat)
                 OnChangeCombatState?.Invoke(IsInCombat);
-            }
         }
-        
-        /// <summary>
-        /// 일반 공격 실행
-        /// </summary>
+
+        #region Execute Attack
+
         public AttackData ExecuteAttack(bool isCombo)
         {
-            if (_attackState == AttackState.HeavyAttack)
-                ResetCombo();
-    
-            _attackState = AttackState.NormalAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-            
-            var comboData = _attackData.liteComboAttackList[CurrentComboIndex];
-            _currentAttackData = ConvertToAttackData(comboData, AttackKind.NormalAttack);
-            
-            LastAttackTime = Time.time;
+            if (_attackState == AttackState.HeavyAttack) ResetCombo();
+            _attackState       = AttackState.NormalAttack;
+            CurrentComboIndex  = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
+            LastAttackTime     = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
-        
-        /// <summary>
-        /// 강공격 실행
-        /// </summary>
+
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
-            if (_attackState == AttackState.NormalAttack)
-                ResetCombo();
-
-            _attackState = AttackState.HeavyAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-            
-            var comboData = _attackData.heavyComboAttackList[CurrentComboIndex];
-            _currentAttackData = ConvertToAttackData(comboData, AttackKind.HeavyAttack);
-            
-            LastAttackTime = Time.time;
+            if (_attackState == AttackState.NormalAttack) ResetCombo();
+            _attackState       = AttackState.HeavyAttack;
+            CurrentComboIndex  = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
+            LastAttackTime     = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
-        
-        /// <summary>
-        /// 스킬 공격 실행
-        /// </summary>
+
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
-            if (_attackData.skillAttackList.Count <= skillIndex)
-                return null;
-
+            if (_attackData.skillAttackList.Count <= skillIndex) return null;
             _currentAttackData = ConvertToAttackData(_attackData.skillAttackList[skillIndex], AttackKind.SkillAttack);
-            LastAttackTime = Time.time;
+            LastAttackTime     = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
 
-        /// <summary>
-        /// 점프 공격 실행
-        /// </summary>
         public AttackData ExecuteJumpAttack()
         {
-            if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0)
-                return null;
-            
+            if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[0], AttackKind.JumpAttack);
             ResetCombo();
             LastAttackTime = Time.time;
@@ -224,15 +190,10 @@ namespace UPlayGround.Component
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
-        
-        /// <summary>
-        /// 대시 공격 실행
-        /// </summary>
+
         public AttackData ExecuteDashAttack()
         {
-            if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0)
-                return null;
-            
+            if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
             ResetCombo();
             LastAttackTime = Time.time;
@@ -241,14 +202,10 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
-        /// <summary>
-        /// 마무리(처형) 공격 히트 판정용 AttackData 세팅
-        /// FinishAttackState.OnEnter()에서 호출
-        /// </summary>
         public void SetupFinishAttackData()
         {
             _currentAttackInfoBase = null;
-            _currentAttackData = new AttackData
+            _currentAttackData     = new AttackData
             {
                 animKey          = AnimKey.FinishAttack,
                 damage           = 9999f,
@@ -266,15 +223,10 @@ namespace UPlayGround.Component
             OnAttackStarted?.Invoke(_currentAttackData);
         }
 
-        /// <summary>
-        /// PlayerAttackInfo를 AttackData로 변환.
-        /// Phase[0] 데이터를 초기값으로 세팅하고, 런타임에 SetHitPhaseIndex()로 갱신된다.
-        /// </summary>
         private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo, AttackKind attackKind)
         {
             _currentAttackInfoBase = attackInfo.baseInfo;
             var phase0 = attackInfo.baseInfo.GetHitPhase(0);
-
             return new AttackData
             {
                 animKey          = attackInfo.baseInfo.animKey,
@@ -294,13 +246,12 @@ namespace UPlayGround.Component
                 attackKind       = attackKind,
             };
         }
-        /// <summary>
-        /// 맞은 대상 초기화
-        /// </summary>
-        public void ClearHitTargets()
-        {
-            _hitTargets.Clear();
-        }
+
+        #endregion
+
+        #region Hit Detection
+
+        public void ClearHitTargets() => _hitTargets.Clear();
 
         public void PerformHitDetection()
         {
@@ -310,368 +261,295 @@ namespace UPlayGround.Component
                 return;
             }
 
-            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            Vector3    origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            Collider[] hits   = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
 
-            Collider[] hits = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
+            bool hitOccurred = false;
 
-            bool isDamageExecuted = false;
             foreach (var hit in hits)
             {
                 if (hit.transform == transform || hit.transform.IsChildOf(transform))
                     continue;
 
-                // Y축을 제거한 수평 방향으로만 정면 각도 판정
                 Vector3 dirFlat = hit.transform.position - transform.position;
                 dirFlat.y = 0f;
                 if (dirFlat.sqrMagnitude > 0.001f)
                 {
-                    float angle = Vector3.Angle(transform.forward, dirFlat);
-                    if (angle > _currentAttackData.hitAngle)
+                    if (Vector3.Angle(transform.forward, dirFlat) > _currentAttackData.hitAngle)
                         continue;
                 }
 
-                // Y축 범위 필터 (-1이면 무제한, 점프/내려찍기 등 특수 공격에만 값 설정)
                 if (_currentAttackData.hitHeightRange > 0f)
                 {
-                    float heightDiff = Mathf.Abs(hit.transform.position.y - origin.y);
-                    if (heightDiff > _currentAttackData.hitHeightRange)
+                    if (Mathf.Abs(hit.transform.position.y - origin.y) > _currentAttackData.hitHeightRange)
                         continue;
                 }
 
-                IDamageable damageable = hit.GetComponent<IDamageable>();
-                if (damageable == null)
-                    damageable = hit.GetComponentInParent<IDamageable>();
+                IDamageable damageable = hit.GetComponent<IDamageable>()
+                                      ?? hit.GetComponentInParent<IDamageable>();
 
-                if (damageable != null && damageable.CanTakeDamage() && !_hitTargets.Contains(damageable))
-                {
-                    _hitTargets.Add(damageable);
+                if (damageable == null || !damageable.CanTakeDamage() || _hitTargets.Contains(damageable))
+                    continue;
 
-                    _currentAttackData.hitTarget       = hit.gameObject;
-                    _currentAttackData.hitPoint        = hit.ClosestPoint(origin);
-                    _currentAttackData.attackDirection = (hit.transform.position - transform.position).normalized;
-                    _currentAttackData.attacker        = _playerActor;
+                _hitTargets.Add(damageable);
+                _currentAttackData.hitTarget       = hit.gameObject;
+                _currentAttackData.hitPoint        = hit.ClosestPoint(origin);
+                _currentAttackData.attackDirection = (hit.transform.position - transform.position).normalized;
+                _currentAttackData.attacker        = _playerActor;
 
-                    damageable.TakeDamage(_currentAttackData);
+                damageable.TakeDamage(_currentAttackData);
+                GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, _currentAttackData.hitPoint);
+                OnAttackHit?.Invoke(_currentAttackData);
+                hitOccurred = true;
 
-                    GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName,
-                        _currentAttackData.hitPoint);
-
-                    OnAttackHit?.Invoke(_currentAttackData);
-                    
-                    isDamageExecuted = true;
-                    Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
-                }
+                Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
             }
 
-            if (isDamageExecuted)
-            {
-                GameHitStopManager.Instance.ResetActorTimeScale();
-
-                bool isKillHit = _currentAttackData.hitTarget != null
-                    && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
-
-                if (isKillHit)
-                {
-                    CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
-                }
-                else
-                {
-                    // 회복 구슬 오브젝트 스폰 - 공격 히트 트리거
-                    var dropTrigger = _currentAttackData.attackKind == AttackKind.HeavyAttack
-                        ? VitalOrbTrigger.HeavyAttackHit
-                        : VitalOrbTrigger.LightAttackHit;
-                    VitalOrbManager.Instance.TrySpawn(dropTrigger, _currentAttackData.hitPoint);
-
-                    CameraManager.Instance.Punch(_currentAttackData.attackDirection, 0.12f, 0.12f);
-                    CameraManager.Instance.StartShake("LiteHit");
-                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
-                }
-            }
-        }
-        
-        public void SetEnableCollision(bool isCollisionEnable)
-        {
-            _isCollideCollisionEnable = isCollisionEnable;
+            if (hitOccurred)
+                ApplyHitFeedback();
         }
 
         /// <summary>
-        /// BeginCollisionEvent에서 호출 — 현재 히트 Phase 인덱스를 AttackData에 반영한다.
+        /// 히트 성공 시 공격 종류(AttackKind)에 따라 피드백을 차별화한다.
+        ///
+        /// 분기 기준:
+        ///  - FinishAttack / KillHit → KillCam (별도 처리)
+        ///  - Heavy / Dash / Jump    → 강한 펀치 + 강한 히트스탑 + HeavyHit 쉐이크
+        ///  - Skill                  → 가장 강한 펀치 + Critical 히트스탑
+        ///  - Normal (그 외)         → 가벼운 펀치 + Light 히트스탑 + LiteHit 쉐이크
         /// </summary>
+        private void ApplyHitFeedback()
+        {
+            GameHitStopManager.Instance.ResetActorTimeScale();
+
+            bool isKillHit = _currentAttackData.hitTarget != null
+                && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
+
+            if (isKillHit)
+            {
+                CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
+                return;
+            }
+
+            var kind = _currentAttackData.attackKind;
+            var dir  = _currentAttackData.attackDirection;
+
+            // VitalOrb 트리거
+            var orbTrigger = kind == AttackKind.HeavyAttack
+                ? VitalOrbTrigger.HeavyAttackHit
+                : VitalOrbTrigger.LightAttackHit;
+            VitalOrbManager.Instance.TrySpawn(orbTrigger, _currentAttackData.hitPoint);
+
+            switch (kind)
+            {
+                case AttackKind.SkillAttack:
+                    CameraManager.Instance.Punch(dir, _punchStrengthSkill, _punchDurationSkill);
+                    CameraManager.Instance.StartShake(_shakeKeyHeavy);
+                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Critical);
+                    break;
+
+                case AttackKind.HeavyAttack:
+                case AttackKind.DashAttack:
+                case AttackKind.JumpAttack:
+                    CameraManager.Instance.Punch(dir, _punchStrengthHeavy, _punchDurationHeavy);
+                    CameraManager.Instance.StartShake(_shakeKeyHeavy);
+                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
+                    break;
+
+                default: // NormalAttack
+                    CameraManager.Instance.Punch(dir, _punchStrengthLight, _punchDurationLight);
+                    CameraManager.Instance.StartShake(_shakeKeyLight);
+                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Light);
+                    break;
+            }
+        }
+
+        #endregion
+
+        public void SetEnableCollision(bool isCollisionEnable) =>
+            _isCollideCollisionEnable = isCollisionEnable;
+
         public void SetHitPhaseIndex(int index)
         {
             if (_currentAttackData == null || _currentAttackInfoBase == null) return;
-
             var phase = _currentAttackInfoBase.GetHitPhase(index);
-            _currentAttackData.hitPhaseIndex    = index;
-            _currentAttackData.damage           = phase.damage;
-            _currentAttackData.poiseDamage      = phase.poiseDamage;
-            _currentAttackData.reactionType     = phase.reactionType;
-            _currentAttackData.hitRange         = phase.attackRadius;
-            _currentAttackData.hitHeightOffset  = phase.attackOffset.y;
-            _currentAttackData.hitHeightRange   = phase.hitHeightRange;
-            _currentAttackData.hitParticleName  = phase.hitParticleName;
-            _currentAttackData.pullForce        = phase.pullForce;
-            _currentAttackData.airborneForce    = phase.airborneForce;
-            _currentAttackData.knockbackForce   = phase.knockBackForce;
+            _currentAttackData.hitPhaseIndex   = index;
+            _currentAttackData.damage          = phase.damage;
+            _currentAttackData.poiseDamage     = phase.poiseDamage;
+            _currentAttackData.reactionType    = phase.reactionType;
+            _currentAttackData.hitRange        = phase.attackRadius;
+            _currentAttackData.hitHeightOffset = phase.attackOffset.y;
+            _currentAttackData.hitHeightRange  = phase.hitHeightRange;
+            _currentAttackData.hitParticleName = phase.hitParticleName;
+            _currentAttackData.pullForce       = phase.pullForce;
+            _currentAttackData.airborneForce   = phase.airborneForce;
+            _currentAttackData.knockbackForce  = phase.knockBackForce;
         }
 
-        /// <summary>
-        /// AnimKey에 해당하는 AnimationClip의 duration 가져오기
-        /// </summary>
         private float GetAnimationDuration(AnimKey animKey)
         {
-            if (_actorAnimator == null)
-            {
-                Debug.LogWarning($"[PlayerCombat] ActorAnimator가 없습니다. 기본값 1.0 사용");
-                return 1.0f;
-            }
-            
+            if (_actorAnimator == null) return 1.0f;
             float duration = _actorAnimator.GetMotionSetDuration(animKey);
-            
-            if (duration <= 0)
-            {
-                Debug.LogWarning($"[PlayerCombat] {animKey}의 duration을 가져올 수 없습니다. 기본값 1.0 사용");
-                return 1.0f;
-            }
-            
-            return duration;
+            return duration > 0 ? duration : 1.0f;
         }
-        
-        /// <summary>
-        /// 콤보 계속 가능한지 체크
-        /// </summary>
+
+        #region Combo
+
         private bool CanContinueCombo()
         {
-            int length = Int32.MaxValue;
-            switch (_attackState)
+            int length = _attackState switch
             {
-                case AttackState.NormalAttack:
-                    length = _attackData.liteComboAttackList.Count;
-                    break;
-                case AttackState.HeavyAttack:
-                    length = _attackData.heavyComboAttackList.Count;
-                    break;
-                case AttackState.JumpAttack:
-                    length = _attackData.jumpAttackList.Count;
-                    break;
-                case AttackState.DashAttack:
-                    length = _attackData.dashAttackList.Count;
-                    break;
-                case AttackState.SkillAttack:
-                    length = _attackData.skillAttackList.Count;
-                    break;
-                default:
-                    return false;
-            }
-            
+                AttackState.NormalAttack => _attackData.liteComboAttackList.Count,
+                AttackState.HeavyAttack  => _attackData.heavyComboAttackList.Count,
+                AttackState.JumpAttack   => _attackData.jumpAttackList.Count,
+                AttackState.DashAttack   => _attackData.dashAttackList.Count,
+                AttackState.SkillAttack  => _attackData.skillAttackList.Count,
+                _                        => 0,
+            };
             return CurrentComboIndex < length - 1;
         }
-        /// <summary>
-        /// 콤보 윈도우 열기 (애니메이션 이벤트에서 호출)
-        /// </summary>
-        public void OpenComboWindow()
-        {
-            CanCombo = true;
-        }
 
-        public void CloseComboWindow()
-        {
-            CanCombo = false;
-        }
-        
-        /// <summary>
-        /// 콤보 리셋
-        /// </summary>
+        public void OpenComboWindow()  => CanCombo = true;
+        public void CloseComboWindow() => CanCombo = false;
+
         public void ResetCombo()
         {
-            LastAttackTime = Time.time;
+            LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
-            CanCombo = false;
+            CanCombo          = false;
             OnComboReset?.Invoke();
-            InputManager.Instance.InputBuffer.Clear(); // 콤보 리셋 시 입력 버퍼 비우기
+            InputManager.Instance.InputBuffer.Clear();
         }
-        
+
+        #endregion
+
         #region Finish Attack
 
-        /// <summary>
-        /// 처형 가능한 타겟을 탐색한다.
-        /// 정면 기준 각도 내, 지정 범위 안에서 HP가 임계값 이하인 가장 가까운 IDamageable을 반환.
-        /// 없으면 null.
-        /// </summary>
         public Transform FindFinishableTarget()
         {
-            Vector3 origin = transform.position;
+            Vector3 origin  = transform.position;
             Vector3 forward = transform.forward;
-
             Collider[] hits = Physics.OverlapSphere(origin, _finishAttackSearchRange, _targetLayerMask);
 
             Transform bestTarget = null;
-            float bestDistSq = float.MaxValue;
-            
+            float     bestDistSq = float.MaxValue;
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            
+
             foreach (var hit in hits)
             {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform))
-                    continue;
+                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
                 Vector3 dir = hit.transform.position - origin;
                 dir.y = 0f;
-                if (Vector3.Angle(forward, dir) > _finishAttackSearchAngle)
-                    continue;
+                if (Vector3.Angle(forward, dir) > _finishAttackSearchAngle) continue;
 
                 MonsterActor monsterActor = hit.GetComponent<MonsterActor>()
-                                          ?? hit.GetComponentInParent<MonsterActor>();
-                if (monsterActor == null || !monsterActor.CanTakeDamage())
-                    continue;
-                
-                if(monsterActor.Grade == MonsterActorGrade.Weak)
-                    continue;
-                
-                if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold)
-                    continue;
+                                         ?? hit.GetComponentInParent<MonsterActor>();
+                if (monsterActor == null || !monsterActor.CanTakeDamage()) continue;
+                if (monsterActor.Grade == MonsterActorGrade.Weak) continue;
+                if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold) continue;
+
+                if (lockOnTarget != null && hit.transform == lockOnTarget)
+                    return hit.transform;
 
                 float distSq = dir.sqrMagnitude;
                 if (distSq < bestDistSq)
                 {
-                    bestDistSq = distSq;
-                    bestTarget = hit.transform;
-                }
-                
-                // 락온 대상이 가장 먼저.
-                if (lockOnTarget != null && hit.transform == lockOnTarget)
-                {
-                    return hit.transform;
+                    bestDistSq  = distSq;
+                    bestTarget  = hit.transform;
                 }
             }
-
             return bestTarget;
         }
 
-        /// <summary>
-        /// 반경 내의 모든 EnemyBrain 컴포넌트를 반환한다. (FinishAttackState의 freeze용)
-        /// </summary>
         public List<EnemyBrain> GetEnemyBrainsInRadius(float radius)
         {
-            var result = new List<EnemyBrain>();
-
+            var result  = new List<EnemyBrain>();
             Collider[] hits = Physics.OverlapSphere(transform.position, radius, _targetLayerMask);
             foreach (var hit in hits)
             {
                 EnemyBrain brain = hit.GetComponent<EnemyBrain>()
-                                    ?? hit.GetComponentInParent<EnemyBrain>();
+                                ?? hit.GetComponentInParent<EnemyBrain>();
                 if (brain != null && !result.Contains(brain))
                     result.Add(brain);
             }
-
             return result;
         }
 
         #endregion
 
-        #region Attack Snap (Target Magnetism)
+        #region Attack Snap
 
-        /// <summary>
-        /// 공격 시 자석 보정 대상을 탐색한다.
-        /// 현재 히트 범위 내에 적이 있으면 null (보정 불필요).
-        /// 히트 범위 밖 ~ 자석 범위 내에 적이 있으면 가장 가까운 적의 Transform 반환.
-        /// </summary>
-        /// <param name="hitRange">현재 공격의 히트 판정 반경 (이 안에 적이 있으면 스냅 스킵)</param>
-        /// <param name="hitAngle">현재 공격의 히트 판정 각도 (스냅 탐색 각도와 별개)</param>
-        /// <param name="isLockedOn">락온 여부 — false면 더 넓은 탐색 범위 적용</param>
         public Transform FindAttackSnapTarget(float hitRange, float hitAngle, bool isLockedOn)
         {
-            Vector3 origin = transform.position;
+            Vector3 origin  = transform.position;
             Vector3 forward = transform.forward;
 
-            // 1) 히트 범위 내 적이 있는지 체크 — 있으면 보정 불필요
             if (HasTargetInRange(origin, forward, hitRange, hitAngle))
                 return null;
 
-            // 2) 스냅 탐색은 hitAngle이 아닌 _snapSearchAngle 기준으로 탐색
-            //    (hitAngle은 판정 범위이고 snapSearchAngle은 자석 감도 — 둘은 독립적)
             float searchRange = GetSnapSearchRange(isLockedOn);
             float searchAngle = GetSnapSearchAngle(isLockedOn);
-
-            Collider[] hits = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
+            Collider[] hits   = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
 
             Transform bestTarget = null;
-            float bestDistSq = float.MaxValue;
+            float     bestDistSq = float.MaxValue;
 
             foreach (var hit in hits)
             {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform))
-                    continue;
+                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
                 Vector3 dirToTarget = hit.transform.position - origin;
                 dirToTarget.y = 0f;
+                if (Vector3.Angle(forward, dirToTarget) > searchAngle) continue;
 
-                float angle = Vector3.Angle(forward, dirToTarget);
-                if (angle > searchAngle)
-                    continue;
-
-                IDamageable damageable = hit.GetComponent<IDamageable>() 
-                                         ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage())
-                    continue;
+                IDamageable damageable = hit.GetComponent<IDamageable>()
+                                      ?? hit.GetComponentInParent<IDamageable>();
+                if (damageable == null || !damageable.CanTakeDamage()) continue;
 
                 float distSq = dirToTarget.sqrMagnitude;
                 if (distSq < bestDistSq)
                 {
-                    bestDistSq = distSq;
-                    bestTarget = hit.transform;
+                    bestDistSq  = distSq;
+                    bestTarget  = hit.transform;
                 }
             }
-
             return bestTarget;
         }
 
-        /// <summary>
-        /// 주어진 범위/각도 내에 히트 가능한 대상이 있는지 체크
-        /// </summary>
         private bool HasTargetInRange(Vector3 origin, Vector3 forward, float range, float angle)
         {
             Collider[] hits = Physics.OverlapSphere(origin, range, _targetLayerMask);
             foreach (var hit in hits)
             {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform))
-                    continue;
+                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
                 Vector3 dir = hit.transform.position - origin;
                 dir.y = 0f;
-                if (Vector3.Angle(forward, dir) > angle)
-                    continue;
+                if (Vector3.Angle(forward, dir) > angle) continue;
 
-                IDamageable damageable = hit.GetComponent<IDamageable>() 
-                                         ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable != null && damageable.CanTakeDamage())
-                    return true;
+                IDamageable damageable = hit.GetComponent<IDamageable>()
+                                      ?? hit.GetComponentInParent<IDamageable>();
+                if (damageable != null && damageable.CanTakeDamage()) return true;
             }
             return false;
         }
 
         #endregion
-        
-        // 디버그 시각화
+
         private void OnDrawGizmosSelected()
         {
-            if (!_showHitDebug || _currentAttackData == null)
-                return;
-            
-            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            if (!_showHitDebug || _currentAttackData == null) return;
+
+            Vector3 origin  = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
             Vector3 forward = transform.forward;
-            
-            // 히트 범위 구체
+
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(origin, _currentAttackData.hitRange);
-            
-            // 히트 각도 시각화
+
             Gizmos.color = Color.yellow;
-            Vector3 rightBoundary = Quaternion.Euler(0, _currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange;
-            Vector3 leftBoundary = Quaternion.Euler(0, -_currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange;
-            
-            Gizmos.DrawLine(origin, origin + rightBoundary);
-            Gizmos.DrawLine(origin, origin + leftBoundary);
+            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0,  _currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange);
+            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0, -_currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange);
             Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
         }
     }

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace UPlayGround.Data
@@ -9,9 +8,9 @@ namespace UPlayGround.Data
     {
         public enum DampeningType
         {
-            EaseOut,   // 점진 감쇠 (공격 히트 계열)
-            Linear,    // 선형 감쇠 (피격 계열)
-            Constant,  // 감쇠 없음 (킬캠 미진동 등 지속 진동)
+            EaseOut,   // 점진 감쇠 — 공격 히트 계열
+            Linear,    // 선형 감쇠 — 피격 계열
+            Constant,  // 감쇠 없음 — 지속 진동
         }
 
         public string key;
@@ -27,7 +26,7 @@ namespace UPlayGround.Data
         public float Delay = 0f;
 
         [Space]
-        [Header("Amplitude (기획서 §4.1)")]
+        [Header("Amplitude")]
         [Tooltip("X축 진폭 (좌우)")]
         public float AmplitudeX = 0.1f;
 
@@ -45,29 +44,28 @@ namespace UPlayGround.Data
         [Space]
         public CameraShaker.ShakeSpace ShakeSpace = CameraShaker.ShakeSpace.Screen;
 
-        // ── 하위 호환 ──────────────────────────────────────────────
-        // CameraShaker.Update()는 ShakeStrength / ShakeCurve를 직접 참조하므로
-        // AmplitudeX/Y → ShakeStrength, Dampening → ShakeCurve 로 변환하는 프로퍼티를 제공.
-        // SO 에셋을 수동으로 다시 세팅할 필요 없이 런타임에서 자동 변환된다.
+        // ── 런타임 캐시 ───────────────────────────────────────────────
+        // ShakeCurve는 프로퍼티 getter 호출마다 new 했던 것을 OnEnable에서 1회만 생성한다.
+        // SO가 로드/재로드될 때마다 OnEnable이 호출되므로 항상 최신 Dampening을 반영한다.
+        private AnimationCurve _cachedCurve;
 
-        /// <summary>CameraShaker가 사용하는 월드 강도 벡터 (Z는 0 고정)</summary>
+        private void OnEnable()  => _cachedCurve = BuildCurve();
+        private void OnValidate() => _cachedCurve = BuildCurve(); // 인스펙터에서 값 변경 시 즉시 갱신
+
+        private AnimationCurve BuildCurve() => Dampening switch
+        {
+            DampeningType.Linear   => AnimationCurve.Linear(0f, 1f, 1f, 0f),
+            DampeningType.Constant => AnimationCurve.Linear(0f, 1f, 1f, 1f),
+            _                      => AnimationCurve.EaseInOut(0f, 1f, 1f, 0f), // EaseOut
+        };
+
+        /// <summary>CameraShaker가 사용하는 월드 강도 벡터 (Z 고정 0)</summary>
         public Vector3 ShakeStrength => new Vector3(AmplitudeX, AmplitudeY, 0f);
 
-        /// <summary>Dampening 타입에 맞는 감쇠 커브 (0=시작, 1=종료)</summary>
-        public AnimationCurve ShakeCurve
-        {
-            get
-            {
-                return Dampening switch
-                {
-                    DampeningType.Linear   => AnimationCurve.Linear(0f, 1f, 1f, 0f),
-                    DampeningType.Constant => AnimationCurve.Linear(0f, 1f, 1f, 1f),
-                    _                      => AnimationCurve.EaseInOut(0f, 1f, 1f, 0f), // EaseOut
-                };
-            }
-        }
+        /// <summary>캐싱된 감쇠 커브. 매 프레임 new 하지 않는다.</summary>
+        public AnimationCurve ShakeCurve => _cachedCurve ??= BuildCurve();
 
-        /// <summary>주파수 기반 진동 간격 (초). CameraShaker.ShakesDelay에 대응</summary>
+        /// <summary>주파수 기반 진동 간격 (초)</summary>
         public float ShakesDelay => Frequency > 0f ? 1f / Frequency : 0f;
     }
 }

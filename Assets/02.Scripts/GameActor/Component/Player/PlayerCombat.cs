@@ -106,8 +106,21 @@ namespace UPlayGround.Component
         private PlayerActor    _playerActor;
         private List<IDamageable> _hitTargets = new List<IDamageable>();
 
-        public bool IsGuarding = false;
+        public bool IsGuarding  = false;
         public bool IsInCombat => Time.time - _lastCombatEventTime < _combatStateDuration;
+
+        // ── 가드 내구도 ───────────────────────────────────────────────
+        // 연속으로 막을 수 있는 횟수. 초과 시 가드 브레이크 발생.
+        [Header("Guard Settings")]
+        [SerializeField] private int   _maxGuardCount    = 3;
+        [SerializeField] private float _guardResetDelay  = 3f; // 가드 해제 후 이 시간이 지나면 카운트 초기화
+
+        private int   _guardHitCount;
+        private float _guardEndTime = -999f;
+
+        public bool IsGuardBroken   { get; private set; }
+        public int  GuardHitCount   => _guardHitCount;
+        public int  MaxGuardCount   => _maxGuardCount;
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int  CurrentComboIndex { get; private set; }
@@ -134,7 +147,51 @@ namespace UPlayGround.Component
                 PerformHitDetection();
         }
 
-        public bool IsGuardBreak(AttackData incomingAttack) => false;
+        // 가드 브레이크 조건: 누적 횟수가 한계 도달
+        public bool IsGuardBreak(AttackData incomingAttack)
+        {
+            if (IsGuardBroken) return true;
+
+            _guardHitCount++;
+
+            if (_guardHitCount >= _maxGuardCount)
+            {
+                IsGuardBroken = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 가드를 올릴 수 있는지 확인.
+        /// 가드 브레이크 후 _guardResetDelay가 지나기 전에는 가드 불가.
+        /// </summary>
+        public bool CanGuard()
+        {
+            return Time.time - _guardEndTime >= _guardResetDelay;
+        }
+
+        /// <summary> 가드 시작 시 호출 — 카운트 유지, 브레이크 플래그만 해제 </summary>
+        public void OnGuardStart()
+        {
+            IsGuardBroken  = false;
+            _guardHitCount = 0;
+        }
+
+        /// <summary> 가드 브레이크 확정 시 호출 — 쿨타임 타이머 시작 </summary>
+        public void OnGuardBreakConfirmed()
+        {
+            _guardEndTime = Time.time;
+        }
+
+        /// <summary> 완전 초기화 (부활, 씬 전환 등에서 사용) </summary>
+        public void ResetGuardCount()
+        {
+            _guardHitCount = 0;
+            IsGuardBroken  = false;
+            _guardEndTime  = -999f;
+        }
 
         public void RefreshCombatState()
         {

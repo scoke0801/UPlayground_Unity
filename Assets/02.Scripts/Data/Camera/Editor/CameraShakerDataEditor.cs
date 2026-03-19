@@ -8,10 +8,10 @@ namespace UPlayGround.Editor
     public class CameraShakerDataEditor : UnityEditor.Editor
     {
         private CameraShakeData _data;
-        private CameraShaker _testShaker;
-        private float _elapsedTime;
-        private bool _isTesting;
-        private double _lastUpdateTime;
+        private CameraShaker    _testShaker;
+        private float           _elapsedTime;
+        private bool            _isTesting;
+        private double          _lastUpdateTime;
 
         private void OnEnable()
         {
@@ -27,37 +27,28 @@ namespace UPlayGround.Editor
 
         public override void OnInspectorGUI()
         {
-            // 기본 인스펙터 그리기
             DrawDefaultInspector();
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("에디터 테스트", EditorStyles.boldLabel);
-            
-            // 테스트 상태 표시
+
             if (_isTesting)
             {
                 EditorGUILayout.HelpBox(
-                    $"테스트 진행 중...\n경과 시간: {_elapsedTime:F2}초 / {_data.Duration + _data.Delay:F2}초", 
-                    MessageType.Info
-                );
+                    $"테스트 진행 중...\n경과 시간: {_elapsedTime:F2}초 / {_data.Duration + _data.Delay:F2}초",
+                    MessageType.Info);
             }
 
-            // 테스트 버튼
             GUI.enabled = !_isTesting;
             if (GUILayout.Button("쉐이크 테스트 시작", GUILayout.Height(30)))
-            {
                 StartTest();
-            }
             GUI.enabled = true;
 
             GUI.enabled = _isTesting;
             if (GUILayout.Button("테스트 중지", GUILayout.Height(25)))
-            {
                 StopTest();
-            }
             GUI.enabled = true;
 
-            // Scene View 카메라 정보
             EditorGUILayout.Space(5);
             if (SceneView.lastActiveSceneView != null)
             {
@@ -78,34 +69,26 @@ namespace UPlayGround.Editor
                 return;
             }
 
-            // 임시 게임오브젝트 생성
-            var tempGo = new GameObject("_TempCameraShaker");
-            tempGo.hideFlags = HideFlags.HideAndDontSave;
-            
+            var tempGo = new GameObject("_TempCameraShaker") { hideFlags = HideFlags.HideAndDontSave };
             _testShaker = tempGo.AddComponent<CameraShaker>();
-            
-            // 리플렉션으로 private 필드 설정
-            var shakerType = typeof(CameraShaker);
-            var shakeDataField = shakerType.GetField("_shakeData", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            shakeDataField?.SetValue(_testShaker, _data);
 
-            // Scene View 카메라 추가
+            // _shakeData 리플렉션으로 주입
+            typeof(CameraShaker)
+                .GetField("_shakeData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(_testShaker, _data);
+
+            // Scene View 카메라를 _data.Cameras에 직접 등록
+            // (FetchCameras 제거 후 에디터 프리뷰는 SO의 Cameras 리스트를 직접 활용)
             var sceneCamera = SceneView.lastActiveSceneView.camera;
-            if (!_data.Cameras.Contains(sceneCamera))
-            {
+            if (sceneCamera != null && !_data.Cameras.Contains(sceneCamera))
                 _data.Cameras.Add(sceneCamera);
-            }
-            
-            _testShaker.FetchCameras();
-            
-            _elapsedTime = 0f;
+
+            _elapsedTime    = 0f;
             _lastUpdateTime = EditorApplication.timeSinceStartup;
-            _isTesting = true;
-            
+            _isTesting      = true;
+
             CameraShaker.EditorPreview = true;
-            
-            Debug.Log("카메라 쉐이크 테스트 시작");
+            Debug.Log("[CameraShakerDataEditor] 쉐이크 테스트 시작");
         }
 
         private void StopTest()
@@ -117,46 +100,32 @@ namespace UPlayGround.Editor
                 _testShaker = null;
             }
 
-            _isTesting = false;
+            _isTesting   = false;
             _elapsedTime = 0f;
-            
-            // Scene View 카메라 제거
+
             if (SceneView.lastActiveSceneView != null)
-            {
-                var sceneCamera = SceneView.lastActiveSceneView.camera;
-                _data.Cameras.Remove(sceneCamera);
-            }
-            
+                _data.Cameras.Remove(SceneView.lastActiveSceneView.camera);
+
             SceneView.RepaintAll();
-            Debug.Log("카메라 쉐이크 테스트 종료");
+            Debug.Log("[CameraShakerDataEditor] 쉐이크 테스트 종료");
         }
 
         private void OnEditorUpdate()
         {
-            if (!_isTesting || _testShaker == null)
-                return;
+            if (!_isTesting || _testShaker == null) return;
 
-            // deltaTime 계산
             double currentTime = EditorApplication.timeSinceStartup;
-            float deltaTime = (float)(currentTime - _lastUpdateTime);
-            _lastUpdateTime = currentTime;
-            
-            _elapsedTime += deltaTime;
-            
-            // 매 프레임 animate 호출
+            float  delta       = (float)(currentTime - _lastUpdateTime);
+            _lastUpdateTime    = currentTime;
+
+            _elapsedTime += delta;
             _testShaker.Animate(_elapsedTime);
 
-            // Scene View 갱신
             SceneView.RepaintAll();
-            
-            // 인스펙터 갱신
             Repaint();
 
-            // 종료 조건
             if (_elapsedTime >= _data.Duration + _data.Delay)
-            {
                 StopTest();
-            }
         }
     }
 }

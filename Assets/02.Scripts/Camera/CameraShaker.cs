@@ -6,41 +6,55 @@ using UPlayGround.Data;
 
 namespace UPlayGround
 {
+    /// <summary>
+    /// 카메라 쉐이크 + 방향성 펀치.
+    ///
+    /// [런타임] CameraManager.OnUpdate() → ManualUpdate(dt)
+    /// [에디터] CameraShakerDataEditor → Animate(time)
+    /// </summary>
     public class CameraShaker : MonoBehaviour
     {
-        public enum ShakeSpace
-        {
-            Screen,
-            World,
-        }
-        const float GLOBAL_CAMERA_SHAKE_MULTIPLIER = 1.0f;
-        static public bool EditorPreview = true;
+        public enum ShakeSpace { Screen, World }
+
+        private const float GLOBAL_SHAKE_MULTIPLIER = 1.0f;
+        public static bool  EditorPreview            = true;
 
         [SerializeField] private CameraShakeData _shakeData;
 
-        private bool _isShaking;
-        private Dictionary<Camera, Vector3> _camerasPreRenderPosition = new Dictionary<Camera, Vector3>();
+        // ── Shake ─────────────────────────────────────────────────────
+        private bool    _isShaking;
         private Vector3 _shakeVector;
-        private float _delaysTimer;
-        private float _elapsedTime = 0.0f;
+        private float   _shakeElapsed;
+        private float   _delaysTimer;
+        private float   _shakeXMult = 1f;
+        private float   _shakeYMult = 1f;
 
-        // ── 방향성 펀치 ──────────────────────────────────────────────
-        // 월드 방향을 카메라 로컬 XY로 투영하여
-        // 타격 방향에 따라 카메라가 실제로 다른 축으로 밀린다.
-        private Vector3 _punchLocalOffset;   // 카메라 로컬 스페이스 기준 최대 오프셋
-        private float   _punchDuration;
-        private float   _punchElapsed;
-        private bool    _isPunching;
+        // ── Punch ─────────────────────────────────────────────────────
+        private bool           _isPunching;
+        private Vector3        _punchLocalOffset;
+        private float          _punchDuration;
+        private float          _punchElapsed;
         private AnimationCurve _punchDecayCurve;
-        // ──────────────────────────────────────────────────────────────
 
-        private float _shakeXMult = 1f;
-        private float _shakeYMult = 1f;
+        // Pre/PostRender 카메라 원래 위치 저장
+        private readonly Dictionary<Camera, Vector3> _savedPositions = new Dictionary<Camera, Vector3>();
 
-        public void SetShakeData(CameraShakeData cameraShakeData)
+        // 수동 틱 모드 플래그
+        private bool _autoUpdate = true;
+
+        // ─────────────────────────────────────────────────────────────
+
+        #region Public API
+
+        public void SetAutoUpdate(bool enabled) => _autoUpdate = enabled;
+
+        /// <summary>CameraManager.OnUpdate()에서 매 프레임 호출</summary>
+        public void ManualUpdate(float deltaTime) => Tick(deltaTime);
+
+        public void SetShakeData(CameraShakeData data)
         {
             if (_isShaking) StopShake();
-            _shakeData  = cameraShakeData;
+            _shakeData  = data;
             _shakeXMult = 1f;
             _shakeYMult = 1f;
         }
@@ -51,300 +65,299 @@ namespace UPlayGround
             _shakeYMult = yMult;
         }
 
-        #region Static Callbacks
-
-        static bool s_CallbackRegistered;
-        static List<CameraShaker> s_CameraShakes = new List<CameraShaker>();
-
-        static void OnPreRenderCamera_Static_URP(ScriptableRenderContext context, Camera cam)  => OnPreRenderCamera_Static(cam);
-        static void OnPostRenderCamera_Static_URP(ScriptableRenderContext context, Camera cam) => OnPostRenderCamera_Static(cam);
-
-        static void OnPreRenderCamera_Static(Camera cam)
-        {
-            for (int i = 0; i < s_CameraShakes.Count; i++)
-                s_CameraShakes[i].onPreRenderCamera(cam);
-        }
-
-        static void OnPostRenderCamera_Static(Camera cam)
-        {
-            for (int i = s_CameraShakes.Count - 1; i >= 0; i--)
-                s_CameraShakes[i].onPostRenderCamera(cam);
-        }
-
-        static void RegisterStaticCallback(CameraShaker cameraShake)
-        {
-            s_CameraShakes.Add(cameraShake);
-            if (!s_CallbackRegistered)
-            {
-                if (GraphicsSettings.currentRenderPipeline == null)
-                {
-                    Camera.onPreRender  += OnPreRenderCamera_Static;
-                    Camera.onPostRender += OnPostRenderCamera_Static;
-                }
-                else
-                {
-                    RenderPipelineManager.beginCameraRendering += OnPreRenderCamera_Static_URP;
-                    RenderPipelineManager.endCameraRendering   += OnPostRenderCamera_Static_URP;
-                }
-                Camera.onPreRender  += OnPreRenderCamera_Static;
-                Camera.onPostRender += OnPostRenderCamera_Static;
-                s_CallbackRegistered = true;
-            }
-        }
-
-        static void UnregisterStaticCallback(CameraShaker cameraShake)
-        {
-            s_CameraShakes.Remove(cameraShake);
-            if (s_CallbackRegistered && s_CameraShakes.Count == 0)
-            {
-                if (GraphicsSettings.currentRenderPipeline == null)
-                {
-                    Camera.onPreRender  -= OnPreRenderCamera_Static;
-                    Camera.onPostRender -= OnPostRenderCamera_Static;
-                }
-                else
-                {
-                    RenderPipelineManager.beginCameraRendering -= OnPreRenderCamera_Static_URP;
-                    RenderPipelineManager.endCameraRendering   -= OnPostRenderCamera_Static_URP;
-                }
-                Camera.onPreRender  -= OnPreRenderCamera_Static;
-                Camera.onPostRender -= OnPostRenderCamera_Static;
-                s_CallbackRegistered = false;
-            }
-        }
-
-        #endregion
-
-        public void Update()
-        {
-            UpdatePunch();
-
-            if (_shakeData == null) return;
-
-            _elapsedTime += Time.deltaTime;
-            float totalDuration = _shakeData.Duration + _shakeData.Delay;
-
-            if (_elapsedTime < totalDuration)
-            {
-                if (_elapsedTime < _shakeData.Delay) return;
-                if (!_isShaking) StartShake();
-
-                float delta = Mathf.Clamp01(_elapsedTime / totalDuration);
-
-                if (_shakeData.ShakesDelay > 0)
-                {
-                    _delaysTimer += Time.deltaTime;
-                    if (_delaysTimer < _shakeData.ShakesDelay) return;
-                    while (_delaysTimer >= _shakeData.ShakesDelay)
-                        _delaysTimer -= _shakeData.ShakesDelay;
-                }
-
-                var randomVec = new Vector3(Random.value, Random.value, Random.value);
-                var shakeVec  = Vector3.Scale(randomVec, _shakeData.ShakeStrength) * (Random.value > 0.5f ? -1 : 1);
-                shakeVec.x   *= _shakeXMult;
-                shakeVec.y   *= _shakeYMult;
-
-                _shakeVector = GLOBAL_CAMERA_SHAKE_MULTIPLIER * _shakeData.ShakeCurve.Evaluate(delta) * shakeVec;
-            }
-            else if (_isShaking)
-            {
-                StopShake();
-            }
-        }
-
-        public void Animate(float time)
-        {
-#if UNITY_EDITOR
-            if (!EditorPreview && !EditorApplication.isPlaying)
-            {
-                _shakeVector = Vector3.zero;
-                return;
-            }
-#endif
-            float totalDuration = _shakeData.Duration + _shakeData.Delay;
-            if (time < totalDuration)
-            {
-                if (time < _shakeData.Delay) return;
-                if (!_isShaking) StartShake();
-
-                float delta = Mathf.Clamp01(time / totalDuration);
-
-                if (_shakeData.ShakesDelay > 0)
-                {
-                    _delaysTimer += Time.deltaTime;
-                    if (_delaysTimer < _shakeData.ShakesDelay) return;
-                    while (_delaysTimer >= _shakeData.ShakesDelay)
-                        _delaysTimer -= _shakeData.ShakesDelay;
-                }
-
-                var randomVec = new Vector3(Random.value, Random.value, Random.value);
-                var shakeVec  = Vector3.Scale(randomVec, _shakeData.ShakeStrength) * (Random.value > 0.5f ? -1 : 1);
-                _shakeVector  = GLOBAL_CAMERA_SHAKE_MULTIPLIER * _shakeData.ShakeCurve.Evaluate(delta) * shakeVec;
-            }
-            else if (_isShaking)
-            {
-                StopShake();
-            }
-        }
-
         public void StartShake()
         {
+            if (_shakeData == null) return;
             if (_isShaking) StopShake();
-            FetchCameras();
-            _elapsedTime = 0f;
-            _isShaking   = true;
-            RegisterStaticCallback(this);
-            _shakeXMult  = 1f;
-            _shakeYMult  = 1f;
+
+            _shakeElapsed = 0f;
+            _isShaking    = true;
+            _shakeXMult   = 1f;
+            _shakeYMult   = 1f;
+
+            RegisterShakeCameras();
+            s_Shakers.AddUnique(this);
+            EnsureCallbacks();
         }
 
         public void StopShake()
         {
             _isShaking   = false;
             _shakeVector = Vector3.zero;
-            UnregisterStaticCallback(this);
+            TryCleanup();
         }
 
         /// <summary>
-        /// 월드 스페이스 방향으로 카메라를 밀어낸 뒤 감쇠 복귀한다.
-        /// 내부에서 월드 방향을 카메라 로컬 XY에 투영하므로
-        /// 좌측 타격 → 카메라가 왼쪽으로, 상방 타격 → 카메라가 위로 밀린다.
+        /// 타격 방향으로 카메라를 순간 밀어낸 뒤 감쇠 복귀.
+        /// StartShake() 없이 단독 호출 가능.
         /// </summary>
-        /// <param name="worldDirection">월드 기준 타격 방향 (정규화 불필요)</param>
-        /// <param name="strength">펀치 강도</param>
-        /// <param name="duration">복귀까지 걸리는 시간</param>
-        /// <param name="decayCurve">감쇠 커브 (null = EaseOut 2차)</param>
-        public void Punch(Vector3 worldDirection, float strength, float duration = 0.15f, AnimationCurve decayCurve = null)
+        public void Punch(Vector3 worldDirection, float strength, float duration = 0.15f,
+                          AnimationCurve decayCurve = null)
         {
-            if (worldDirection.sqrMagnitude < 0.001f || strength <= 0f)
-                return;
+            if (worldDirection.sqrMagnitude < 0.001f || strength <= 0f) return;
 
             Camera cam = Camera.main;
-            Vector3 localDir = cam != null
-                ? ProjectWorldDirToCameraLocal(worldDirection.normalized, cam)
-                : worldDirection.normalized;
+            if (cam == null) return;
 
-            // 월드 방향을 카메라 로컬 XY로 압축했으므로 magnitude가 1 이하일 수 있다.
-            // strength는 그대로 유지하고 방향만 투영 결과를 쓴다.
-            _punchLocalOffset = localDir * strength;
-            _punchDuration    = duration;
+            _punchLocalOffset = ProjectToLocalXY(worldDirection.normalized, cam) * strength;
+            _punchDuration    = Mathf.Max(duration, 0.01f);
             _punchElapsed     = 0f;
             _punchDecayCurve  = decayCurve;
             _isPunching       = true;
 
-            if (!_isShaking)
+            RegisterCamera(cam);
+            s_Shakers.AddUnique(this);
+            EnsureCallbacks();
+        }
+
+        #endregion
+
+        #region Unity 자동 Update
+
+        private void Update()
+        {
+            if (!_autoUpdate) return;
+            Tick(Time.deltaTime);
+        }
+
+        #endregion
+
+        #region 틱
+
+        private void Tick(float deltaTime)
+        {
+            UpdateShake(deltaTime);
+            UpdatePunch(deltaTime);
+
+            if (!_isShaking && !_isPunching)
             {
-                FetchCameras();
-                RegisterStaticCallback(this);
-                _isShaking = true;
+                s_Shakers.Remove(this);
+                TryCleanup();
+                _savedPositions.Clear();
             }
         }
 
-        /// <summary>
-        /// 월드 방향 벡터를 카메라 로컬 XY(화면 좌우/상하)로 투영한다.
-        /// Z(전방) 성분은 버린다 — 카메라가 앞뒤로 흔들리는 건 타격감에 기여하지 않는다.
-        /// </summary>
-        private static Vector3 ProjectWorldDirToCameraLocal(Vector3 worldDir, Camera cam)
+        private void UpdateShake(float deltaTime)
         {
-            Vector3 camRight = cam.transform.right;
-            Vector3 camUp    = cam.transform.up;
+            if (_shakeData == null || !_isShaking) return;
 
-            float x = Vector3.Dot(worldDir, camRight); // 좌우
-            float y = Vector3.Dot(worldDir, camUp);    // 상하
+            _shakeElapsed += deltaTime;
+            float total    = _shakeData.Duration + _shakeData.Delay;
 
-            // Z는 0: 화면 안쪽 방향 무시
-            return new Vector3(x, y, 0f);
+            if (_shakeElapsed >= total) { StopShake(); return; }
+            if (_shakeElapsed < _shakeData.Delay) return;
+
+            ComputeShakeVector(Mathf.Clamp01(_shakeElapsed / total), deltaTime);
         }
 
-        private void UpdatePunch()
+        private void UpdatePunch(float deltaTime)
         {
             if (!_isPunching) return;
-
-            _punchElapsed += Time.deltaTime;
+            _punchElapsed += deltaTime;
             if (_punchElapsed >= _punchDuration)
-            {
                 _isPunching = false;
-                if (_shakeData == null || _elapsedTime >= _shakeData.Duration + _shakeData.Delay)
-                {
-                    if (_isShaking) StopShake();
-                }
-            }
         }
 
-        /// <summary>현재 프레임의 펀치 오프셋 (카메라 로컬 스페이스)</summary>
-        private Vector3 GetPunchOffset()
-        {
-            if (!_isPunching) return Vector3.zero;
+        #endregion
 
-            float t     = Mathf.Clamp01(_punchElapsed / _punchDuration);
-            float decay = _punchDecayCurve != null
-                ? _punchDecayCurve.Evaluate(t)
-                : 1f - (t * t); // EaseOut 2차
+        #region Animate (에디터 프리뷰)
 
-            return _punchLocalOffset * decay;
-        }
-
-        public void FetchCameras()
+        public void Animate(float time)
         {
 #if UNITY_EDITOR
-            if (!EditorApplication.isPlayingOrWillChangePlaymode) return;
-#endif
+            if (!EditorPreview && !EditorApplication.isPlaying) { _shakeVector = Vector3.zero; return; }
             if (_shakeData == null) return;
 
-            foreach (var cam in _shakeData.Cameras)
-            {
-                if (cam == null) continue;
-                _camerasPreRenderPosition.Remove(cam);
-            }
-            _shakeData.Cameras.Clear();
+            float total = _shakeData.Duration + _shakeData.Delay;
+            if (time >= total) { StopShake(); return; }
+            if (time < _shakeData.Delay) return;
 
-            if (_shakeData.UseMainCamera && Camera.main != null)
-                _shakeData.Cameras.Add(Camera.main);
-
-            foreach (var cam in _shakeData.Cameras)
-            {
-                if (cam == null) continue;
-                if (!_camerasPreRenderPosition.ContainsKey(cam))
-                    _camerasPreRenderPosition.Add(cam, Vector3.zero);
-            }
+            RegisterEditorCameras();
+            s_Shakers.AddUnique(this);
+            EnsureCallbacks();
+            ComputeShakeVector(Mathf.Clamp01(time / total), 1f / 60f);
+#endif
         }
+
+        #endregion
+
+        #region Shake Vector
+
+        private void ComputeShakeVector(float t, float deltaTime)
+        {
+            if (_shakeData == null) return;
+
+            if (_shakeData.ShakesDelay > 0f)
+            {
+                _delaysTimer += deltaTime;
+                if (_delaysTimer < _shakeData.ShakesDelay) return;
+                while (_delaysTimer >= _shakeData.ShakesDelay)
+                    _delaysTimer -= _shakeData.ShakesDelay;
+            }
+
+            var rand = new Vector3(Random.value, Random.value, Random.value);
+            var vec  = Vector3.Scale(rand, _shakeData.ShakeStrength) * (Random.value > 0.5f ? -1 : 1);
+            vec.x   *= _shakeXMult;
+            vec.y   *= _shakeYMult;
+            _shakeVector = GLOBAL_SHAKE_MULTIPLIER * _shakeData.ShakeCurve.Evaluate(t) * vec;
+        }
+
+        #endregion
+
+        #region Pre/Post Render
 
         private void onPreRenderCamera(Camera cam)
         {
 #if UNITY_EDITOR
-            if (!EditorApplication.isPlaying && EditorPreview)
+            if (!EditorApplication.isPlaying && EditorPreview
+                && SceneView.currentDrawingSceneView?.camera == cam)
             {
-                if (SceneView.currentDrawingSceneView != null && SceneView.currentDrawingSceneView.camera == cam
-                    && !_camerasPreRenderPosition.ContainsKey(cam))
-                {
-                    _camerasPreRenderPosition.Add(cam, cam.transform.localPosition);
-                }
+                RegisterCamera(cam);
             }
 #endif
-            if (!_isShaking || !_camerasPreRenderPosition.ContainsKey(cam)) return;
+            if (!_savedPositions.ContainsKey(cam)) return;
+            if (Application.isPlaying && Time.timeScale <= 0f) return;
 
-            _camerasPreRenderPosition[cam] = cam.transform.localPosition;
-            if (Time.timeScale <= 0) return;
+            _savedPositions[cam] = cam.transform.localPosition;
 
-            // 랜덤 쉐이크는 기존 로컬 스페이스 적용
-            // 펀치는 이미 카메라 로컬 XY로 계산되어 있으므로 동일하게 localPosition에 더한다
-            Vector3 punchOffset = GetPunchOffset();
+            Vector3 shake = (_isShaking || _shakeVector != Vector3.zero) ? GetShakeOffset(cam) : Vector3.zero;
+            Vector3 punch = _isPunching ? GetPunchOffset() : Vector3.zero;
 
-            switch (_shakeData?.ShakeSpace ?? ShakeSpace.Screen)
-            {
-                case ShakeSpace.Screen:
-                    cam.transform.localPosition += cam.transform.rotation * _shakeVector + punchOffset;
-                    break;
-                case ShakeSpace.World:
-                    cam.transform.localPosition += _shakeVector + punchOffset;
-                    break;
-            }
+            cam.transform.localPosition += shake + punch;
         }
 
         private void onPostRenderCamera(Camera cam)
         {
-            if (_camerasPreRenderPosition.ContainsKey(cam))
-                cam.transform.localPosition = _camerasPreRenderPosition[cam];
+            if (_savedPositions.ContainsKey(cam))
+                cam.transform.localPosition = _savedPositions[cam];
+        }
+
+        private Vector3 GetShakeOffset(Camera cam)
+        {
+            if (_shakeData == null) return _shakeVector;
+            return _shakeData.ShakeSpace == ShakeSpace.Screen
+                ? cam.transform.rotation * _shakeVector
+                : _shakeVector;
+        }
+
+        private Vector3 GetPunchOffset()
+        {
+            float t     = Mathf.Clamp01(_punchElapsed / _punchDuration);
+            float decay = _punchDecayCurve != null
+                ? _punchDecayCurve.Evaluate(t)
+                : 1f - t * t; // EaseOut 2차
+            return _punchLocalOffset * decay;
+        }
+
+        #endregion
+
+        #region Camera Registration
+
+        private void RegisterShakeCameras()
+        {
+            if (_shakeData == null) return;
+
+            // SO의 Cameras 리스트는 읽기만 한다 — 런타임 카메라를 Add하면
+            // 에디터에서 "Type mismatch" 오염이 생기므로 _savedPositions에만 등록한다.
+            foreach (var c in _shakeData.Cameras)
+                RegisterCamera(c);
+
+            if (_shakeData.UseMainCamera)
+                RegisterCamera(Camera.main);
+        }
+
+        private void RegisterEditorCameras()
+        {
+#if UNITY_EDITOR
+            if (_shakeData != null)
+                foreach (var c in _shakeData.Cameras)
+                    RegisterCamera(c);
+
+            if (SceneView.lastActiveSceneView != null)
+                RegisterCamera(SceneView.lastActiveSceneView.camera);
+#endif
+        }
+
+        private void RegisterCamera(Camera cam)
+        {
+            if (cam == null || _savedPositions.ContainsKey(cam)) return;
+            _savedPositions.Add(cam, Vector3.zero);
+        }
+
+        #endregion
+
+        #region Static Callback Management
+
+        private static readonly List<CameraShaker> s_Shakers       = new List<CameraShaker>();
+        private static          bool               s_CallbacksActive;
+
+        private static void EnsureCallbacks()
+        {
+            if (s_CallbacksActive) return;
+            if (GraphicsSettings.currentRenderPipeline != null)
+            {
+                RenderPipelineManager.beginCameraRendering += OnBeginCamera;
+                RenderPipelineManager.endCameraRendering   += OnEndCamera;
+            }
+            Camera.onPreRender  += OnPreStatic;
+            Camera.onPostRender += OnPostStatic;
+            s_CallbacksActive = true;
+        }
+
+        private static void TryCleanup()
+        {
+            if (!s_CallbacksActive || s_Shakers.Count > 0) return;
+            if (GraphicsSettings.currentRenderPipeline != null)
+            {
+                RenderPipelineManager.beginCameraRendering -= OnBeginCamera;
+                RenderPipelineManager.endCameraRendering   -= OnEndCamera;
+            }
+            Camera.onPreRender  -= OnPreStatic;
+            Camera.onPostRender -= OnPostStatic;
+            s_CallbacksActive = false;
+        }
+
+        private static void OnBeginCamera(ScriptableRenderContext ctx, Camera cam) => OnPreStatic(cam);
+        private static void OnEndCamera(ScriptableRenderContext ctx, Camera cam)   => OnPostStatic(cam);
+
+        private static void OnPreStatic(Camera cam)
+        {
+            for (int i = 0; i < s_Shakers.Count; i++)
+                s_Shakers[i].onPreRenderCamera(cam);
+        }
+
+        private static void OnPostStatic(Camera cam)
+        {
+            for (int i = s_Shakers.Count - 1; i >= 0; i--)
+                s_Shakers[i].onPostRenderCamera(cam);
+        }
+
+        #endregion
+
+        #region Utility
+
+        private static Vector3 ProjectToLocalXY(Vector3 worldDir, Camera cam)
+        {
+            return new Vector3(
+                Vector3.Dot(worldDir, cam.transform.right),
+                Vector3.Dot(worldDir, cam.transform.up),
+                0f);
+        }
+
+        private void OnDestroy()
+        {
+            s_Shakers.Remove(this);
+            TryCleanup();
+        }
+
+        #endregion
+    }
+
+    internal static class CameraShakerListExtensions
+    {
+        public static void AddUnique<T>(this List<T> list, T item)
+        {
+            if (!list.Contains(item)) list.Add(item);
         }
     }
 }

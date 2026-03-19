@@ -10,16 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a6488e22b9b4c4b8a662a12bb14c6ce, type: 3}
-  m_Name: KillCam
+  m_Name: PlayerDeath
   m_EditorClassIdentifier: 
-  key: KillCam
+  key: PlayerDeath
   UseMainCamera: 1
-  Cameras:
-  - {fileID: 0}
-  Duration: 0.45
+  Cameras: []
+  Duration: 0.5
   Delay: 0
-  AmplitudeX: 0.12
-  AmplitudeY: 0.06
-  Frequency: 18
+  AmplitudeX: 0.18
+  AmplitudeY: 0.12
+  Frequency: 12
   Dampening: 0
   ShakeSpace: 0

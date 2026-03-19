@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b12a444d15dc49d43a5c990317299825, type: 3}
-  m_Name: ShakeCameraEffect
+  m_Name: KillCamShakeCameraEffect
   m_EditorClassIdentifier: 
   effectKey: 
   priority: 0
@@ -66,5 +66,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   useUnscaledTime: 0
-  shakeData: {fileID: 11400000, guid: 90c8f1d740d715346a794746261a7df5, type: 2}
+  shakeData: {fileID: 11400000, guid: 7548d7452e16a0346b6e57f548b0286b, type: 2}
   shakeDataKey: 

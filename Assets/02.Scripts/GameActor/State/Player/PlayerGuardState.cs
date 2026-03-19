@@ -19,7 +19,7 @@ namespace UPlayGround.State
         public override string StateName => "Guard";
         private PlayerCombat _combat;
         private float _guardStartTime;
-        private const float PERFECT_GUARD_WINDOW = 0.8f;
+        private const float PERFECT_GUARD_WINDOW = 0.3f;
 
         // 퍼펙트 가드 FOV 연출용 SO - CameraManager.SetPerfectGuardFOVData()로 주입받음
         private static FOVCameraEffectData _perfectGuardFOVData;
@@ -49,14 +49,24 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            Debug.Log("Player Guard Started");
             if (playerActor.Animator.HasMotion(AnimKey.Guard, true) == false)
             {
                 TransitionToIdleOrMove();
                 return;
             }
-            
+
             _combat = playerActor.GetCombat();
+
+            // 가드 브레이크 쿨타임 중이면 가드 불가
+            if (!_combat.CanGuard())
+            {
+                TransitionToIdleOrMove();
+                return;
+            }
+
             _combat.IsGuarding = true;
+            _combat.OnGuardStart();
             _guardStartTime = Time.time;
 
             playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
@@ -146,22 +156,14 @@ namespace UPlayGround.State
         /// </summary>
         public void OnAttackBlocked(AttackData incomingAttack)
         {
-            // 일반 가드 드롭 스폰 - 플레이어 전방 1m
+            // 일반 가드 드롭 스폰
             Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
             VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
 
-            // Guard Break 공격인지 확인
+            // 가드 브레이크 판정 (누적 횟수 초과 or 공격 자체가 GuardBreak)
             if (_combat.IsGuardBreak(incomingAttack))
             {
-                // Guard Break 애니메이션 재생 후 Hit 상태로
-                var animState = playerActor.Animator.PlayMotion(AnimKey.Knockback, 0.1f, 0);
-                if (animState != null)
-                {
-                    animState.OwnedEvents.OnEnd = () =>
-                    {
-                        controller.TransitionToState(new PlayerIdleState(controller));
-                    };
-                }
+                TriggerGuardBreak();
                 return;
             }
             
@@ -180,13 +182,10 @@ namespace UPlayGround.State
 
             if (isPerfectGuard)
             {
-                // 퍼펙트 가드 드롭 스폰 - 플레이어 전방 1m
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
                 VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
-                // 퍼펙트 가드 카메라 연출 (기획서 §7.2)
-                // CriticalHit 쉐이크 + FOV -8° 줌인. 슬로우 종료 후 FOV 원복은 별도 이펙트 SO로 처리.
                 CameraManager.Instance?.StartShake("CriticalHit");
                 CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
 
@@ -195,13 +194,6 @@ namespace UPlayGround.State
                     var attackerController = incomingAttack.attacker.ActorController;
                     if (attackerController != null)
                     {
-                        // 퍼펙트 가드 성공 시 공격자를 강제로 Hit 상태로 전환 (공격 끊기)
-                        // attackerController.TransitionToState(new EnemyHitState(attackerController, new AttackData()
-                        // {
-                        //     attacker = playerActor,
-                        //     reactionType = AttackReactionType.Hit,
-                        //     attackDirection = -incomingAttack.attackDirection
-                        // }));
                         Debug.Log($"[PerfectGuard] {incomingAttack.attacker.name}의 공격을 끊었습니다!");
                     }
                 }
@@ -209,24 +201,19 @@ namespace UPlayGround.State
             else
             {
                 var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
-                
                 GameObjectManager.Instance.ShowFX("playerGuardFX", socketTM.position);
             }
         }
-        
+
         /// <summary>
-        /// Counter Attack (슈퍼 공격) 실행
+        /// 가드 브레이크 애니메이션 재생 후 Idle로 복귀
         /// </summary>
-        private void ExecuteCounterAttack()
+        private void TriggerGuardBreak()
         {
-            Debug.Log("[PlayerGuardState] Counter Attack 실행!");
-            
-            // Counter Attack State로 전환하거나
-            // 바로 공격 실행
-            controller.TransitionToState(new PlayerAttackState(controller));
-            
-            // 또는 특별한 Counter 공격 실행
-            // AttackData counterAttack = _combat.ExecuteCounterAttack();
+            _combat.OnGuardBreakConfirmed();
+            _combat.ResetGuardCount();
+
+            controller.TransitionToState(new PlayerGuardBreakState(controller));
         }
         
         private void TransitionToIdleOrMove()

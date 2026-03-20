@@ -266,8 +266,8 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddImpulse(launchDir * attackData.knockbackForce);
-                                                      // + Vector3.up * attackData.airborneForce);
+                        // knockbackForce: 수평 밀림 거리, airborneForce: 공중 띄움 높이
+                        MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce);
                         MovementController.Motor.ForceUnground();
                         break;
                     }

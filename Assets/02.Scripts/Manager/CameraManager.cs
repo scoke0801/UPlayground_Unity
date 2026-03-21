@@ -47,6 +47,10 @@ namespace UPlayGround.Manager
         private bool  _isAligning;
         private float _alignTimer;
 
+        // 경사 지형 피치 보정
+        private float _slopePitchOffset;
+        private float _slopePitchVelocity;
+
         private Transform _lookAtOverride;
         private Vector3   _lookAtOverrideOffset;
 
@@ -195,7 +199,11 @@ namespace UPlayGround.Manager
 
             _currentYaw   += fx.yawDelta;
             _currentPitch += fx.pitchDelta;
-            _currentPitch  = Mathf.Clamp(_currentPitch, settings.minVerticalAngle, settings.maxVerticalAngle);
+
+            // 경사 보정: 경사각만큼 피치 하한을 동적으로 내려줘서 올려다보기 가능하게
+            float slopeOffset = ComputeSlopePitchOffset();
+            float dynamicMin  = settings.minVerticalAngle + slopeOffset;
+            _currentPitch = Mathf.Clamp(_currentPitch, dynamicMin, settings.maxVerticalAngle);
 
             float effectDistance = Mathf.Clamp(_targetDistance, settings.minDistance, settings.maxDistance) + fx.distanceDelta;
             _cameraOffset += fx.offsetDelta;
@@ -236,7 +244,11 @@ namespace UPlayGround.Manager
                     Vector2 look  = lookAction.ReadValue<Vector2>();
                     _currentYaw  += look.x * settings.rotationSpeed * 0.01f;
                     _currentPitch -= look.y * settings.rotationSpeed * 0.01f;
-                    _currentPitch  = Mathf.Clamp(_currentPitch, settings.minVerticalAngle, settings.maxVerticalAngle);
+
+                    // 입력 단계에서도 동적 하한 적용
+                    float slopeOffset = ComputeSlopePitchOffset();
+                    float dynamicMin  = settings.minVerticalAngle + slopeOffset;
+                    _currentPitch = Mathf.Clamp(_currentPitch, dynamicMin, settings.maxVerticalAngle);
                 }
             }
 
@@ -313,6 +325,41 @@ namespace UPlayGround.Manager
 
         #endregion
 
+        #region 경사 보정
+
+        /// <summary>
+        /// 캐릭터 발밑 레이캐스트로 경사각을 구하고, 피치 하한 오프셋을 반환.
+        /// 오르막에서는 카메라가 땅 아래로 잘리지 않도록 하한을 올려주고,
+        /// 내리막에서는 자연스럽게 아래를 보도록 풀어준다.
+        /// </summary>
+        private float ComputeSlopePitchOffset()
+        {
+            if (_target == null || settings.slopePitchCorrectionStrength <= 0f)
+                return 0f;
+
+            // 발밑 레이캐스트 (캐릭터 콜라이더를 제외하려면 Player 레이어는 _collisionLayers에서 이미 제외돼 있음)
+            var ray = new Ray(_target.position + Vector3.up * 0.1f, Vector3.down);
+            if (!Physics.Raycast(ray, out RaycastHit hit, settings.slopeCheckDistance, _collisionLayers))
+                return 0f;
+
+            // 법선과 Up 벡터의 각도 = 경사각
+            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+            if (slopeAngle < 1f) return 0f; // 평지는 무시
+
+            // 경사 방향이 카메라 진행방향 기준 오르막/내리막인지 판단
+            // 내리막: 카메라가 앞을 보면 발밑이 내려가는 방향 → 피치 하한을 낮춰야 위를 볼 수 있음
+            // 여기서는 단순히 경사각 비례로 offset을 스무딩해서 반환
+            float targetOffset = -slopeAngle * settings.slopePitchCorrectionStrength;
+
+            _slopePitchOffset = Mathf.SmoothDamp(
+                _slopePitchOffset, targetOffset,
+                ref _slopePitchVelocity, settings.slopeCorrectionSmoothTime);
+
+            return _slopePitchOffset;
+        }
+
+        #endregion
+
         #region 카메라 정렬
 
         private void StartCameraAlign()
@@ -334,7 +381,8 @@ namespace UPlayGround.Manager
 
             _currentYaw   = Mathf.LerpAngle(_currentYaw, targetYaw, Time.deltaTime * settings.alignSpeed);
             _currentPitch = Mathf.Lerp(_currentPitch, targetPitch, Time.deltaTime * settings.alignSpeed);
-            _currentPitch = Mathf.Clamp(_currentPitch, settings.minVerticalAngle, settings.maxVerticalAngle);
+            float alignDynamicMin = settings.minVerticalAngle + ComputeSlopePitchOffset();
+            _currentPitch = Mathf.Clamp(_currentPitch, alignDynamicMin, settings.maxVerticalAngle);
         }
 
         #endregion

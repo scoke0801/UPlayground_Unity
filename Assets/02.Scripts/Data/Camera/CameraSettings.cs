@@ -21,8 +21,17 @@ namespace UPlayGround.Data
 
         [Header("회전")]
         public float rotationSpeed = 20f;
-        public float minVerticalAngle = 0f;
-        public float maxVerticalAngle = 50f;
+        public float minVerticalAngle = -30f;   // 음수 = 위쪽, 양수 = 아래쪽
+        public float maxVerticalAngle = 70f;
+
+        [Header("경사 보정")]
+        [Tooltip("경사면 감지 레이캐스트 거리")]
+        public float slopeCheckDistance = 1.5f;
+        [Tooltip("경사에 따라 피치 하한을 얼마나 끌어올릴지 (0 = 보정 없음, 1 = 완전 추종)")]
+        [Range(0f, 1f)]
+        public float slopePitchCorrectionStrength = 0.5f;
+        [Tooltip("경사 보정 스무딩 속도")]
+        public float slopeCorrectionSmoothTime = 0.3f;
 
         [Header("줌")]
         public float zoomSpeed = 0.5f;

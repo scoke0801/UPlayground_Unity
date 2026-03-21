@@ -8,6 +8,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.UI;
 
 namespace UPlayGround.Component
 {
@@ -356,6 +357,8 @@ namespace UPlayGround.Component
                 _currentAttackData.attacker        = _playerActor;
 
                 damageable.TakeDamage(_currentAttackData);
+                ShowDamageFloater(_currentAttackData);
+
                 GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, _currentAttackData.hitPoint);
                 OnAttackHit?.Invoke(_currentAttackData);
                 hitOccurred = true;
@@ -365,6 +368,20 @@ namespace UPlayGround.Component
 
             if (hitOccurred)
                 ApplyHitFeedback();
+        }
+
+        /// <summary>
+        /// Heavy / Skill / Finish → Critical 스타일, 그 외 → Normal.
+        /// </summary>
+        private void ShowDamageFloater(AttackData attackData)
+        {
+            var style = attackData.attackKind is AttackKind.HeavyAttack
+                                              or AttackKind.SkillAttack
+                                              or AttackKind.FinishAttack
+                ? FloatStyle.Critical
+                : FloatStyle.Normal;
+
+            UIManager.Instance.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
         }
 
         /// <summary>

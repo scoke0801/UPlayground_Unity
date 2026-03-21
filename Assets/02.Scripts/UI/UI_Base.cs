@@ -134,7 +134,6 @@ public abstract class UI_Base : MonoBehaviour
     public virtual void Close()
     {
         OnClose();
-        Destroy(gameObject);
     }
 
     #endregion

@@ -1,177 +1,138 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.UI;
 using UPlayGround.Enum;
 using UPlayGround.InputDefine;
+using UPlayGround.UI;
 
 namespace UPlayGround.Manager
 {
-    /// <summary>
-    /// UI 캔버스 레이어 정의
-    /// </summary>
     public enum CanvasLayer
     {
-        // HUD -> SceneWindow -> PopupWindow -> SystemMessage
-        HUD = 0, // HUD    
-        Scene = 1000, // 씬
-        Popup = 2000, // 팝업  
-        System = 3000, // 시스템
-        
+        HUD        = 0,
+        Scene      = 1000,
+        Popup      = 2000,
+        System     = 3000,
         WorldSpace = 10000,
     }
 
-    /// <summary>
-    /// UI 관리 매니저
-    /// 7개의 캔버스 레이어를 관리하고 UI를 배치합니다.
-    /// </summary>
     public class UIManager : BaseManager<UIManager>, IManager
     {
-        // 캔버스 레이어별 간격
-        private const int SORTING_ORDER_GAP = 100;
+        private const string DATABASE_PATH       = "UIPrefabDatabase";
+        private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig"; // Addressables 등록 키
 
-        // 캔버스 딕셔너리
-        private Dictionary<CanvasLayer, Canvas> _canvasDictionary;
-
-        // UI 오브젝트 추적 (선택적)
-        private Dictionary<string, GameObject> _activeUIObjects;
-
-        // UI_Base 컴포넌트 추적
-        private Dictionary<string, UI_Base> _activeUIComponents;
-
-        // 타입별 UI 추적 (빠른 타입 검색용)
+        private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
+        private Dictionary<string, GameObject>   _activeUIObjects;
+        private Dictionary<string, UI_Base>      _activeUIComponents;
         private Dictionary<System.Type, UI_Base> _uiByType;
 
-        private const string DATABASE_PATH = "UIPrefabDatabase";
-
         private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
-        
-        // UI 프리팹 데이터베이스
-        [SerializeField] private UIPrefabDatabase _uiPrefabDatabase;
+
+        // 둘 다 Addressables로 로드 — 인스펙터 연결 없음
+        private UIPrefabDatabase      _uiPrefabDatabase;
+        private DamageFloaterConfigSO _floaterConfig;
 
         public bool IsInitialized { get; set; } = false;
-
         public UI_WorldSpaceHudLayer WorldSpaceHudLayer => _worldSpaceHudLayer;
-        #region IManager 구현
+
+        #region IManager
 
         public void Init()
         {
-            Debug.Log("[UIManager] 초기화 시작");
-
-            _canvasDictionary = new Dictionary<CanvasLayer, Canvas>();
-            _activeUIObjects = new Dictionary<string, GameObject>();
+            _canvasDictionary   = new Dictionary<CanvasLayer, Canvas>();
+            _activeUIObjects    = new Dictionary<string, GameObject>();
             _activeUIComponents = new Dictionary<string, UI_Base>();
-            _uiByType = new Dictionary<System.Type, UI_Base>();
+            _uiByType           = new Dictionary<System.Type, UI_Base>();
 
             CreateCanvasLayers();
-            LoadUIPrefabDatabase();
-
+            LoadAssetsAsync();       // DB + Config 동시 로드
             RegisterInputEvents();
-            
-            Debug.Log("[UIManager] 초기화 완료");
         }
 
-        public void AfterInit()
-        {
-            
-        }
+        public void AfterInit() { }
 
         public void Dispose()
         {
-            Debug.Log("[UIManager] 정리 시작");
-
             UnRegisterInputEvents();
 
-            // 모든 활성 UI 제거 (UI_Base 먼저 정리)
             foreach (var ui in _activeUIComponents.Values)
-            {
-                if (ui != null)
-                {
-                    ui.Close();
-                }
-            }
+                ui?.Close();
 
             foreach (var ui in _activeUIObjects.Values)
             {
-                if (ui != null)
-                {
-                    Destroy(ui);
-                }
+                if (ui != null) Destroy(ui);
             }
 
             _activeUIObjects.Clear();
             _activeUIComponents.Clear();
             _uiByType.Clear();
             _canvasDictionary.Clear();
-
-            Debug.Log("[UIManager] 정리 완료");
-        }
-        public void OnUpdate()
-        {
         }
 
-        public void OnFixedUpdate()
-        {
-        }
-
-        public void OnLateUpdate()
-        {
-        }
-
+        public void OnUpdate()      { }
+        public void OnFixedUpdate() { }
+        public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType) { }
 
         #endregion
 
-        /// <summary>
-        /// UIPrefabDatabase를 Resources 폴더에서 자동 로드
-        /// </summary>
-        private async void LoadUIPrefabDatabase()
+        // ── Addressables 로드 ─────────────────────────────────────────
+        // UIPrefabDatabase와 DamageFloaterConfig를 병렬 로드한 뒤
+        // 둘 다 준비되면 WorldSpaceHudLayer를 세팅한다.
+
+        private async void LoadAssetsAsync()
         {
-            var handle = Addressables.LoadAssetAsync<UIPrefabDatabase>(DATABASE_PATH);
+            var dbTask     = Addressables.LoadAssetAsync<UIPrefabDatabase>(DATABASE_PATH).Task;
+            var configTask = Addressables.LoadAssetAsync<DamageFloaterConfigSO>(FLOATER_CONFIG_PATH).Task;
 
-            try
+            await Task.WhenAll(dbTask, configTask);
+
+            _uiPrefabDatabase = dbTask.Result;
+            _floaterConfig    = configTask.Result;
+
+            if (_uiPrefabDatabase == null)
             {
-                _uiPrefabDatabase = await handle.Task;
-
-                if (_uiPrefabDatabase == null)
-                {
-                    Debug.LogError($"[UIManager] UIPrefabDatabase를 '{DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
-                    return;
-                }
-
-                _uiPrefabDatabase.Initialize();
-                IsInitialized = true;
-                
-                _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry("ActorHpBar"));
-                Debug.Log($"[UIManager] UIPrefabDatabase 로드 완료");
+                Debug.LogError($"[UIManager] UIPrefabDatabase '{DATABASE_PATH}' 로드 실패");
+                return;
             }
-            catch (System.Exception e)
+            if (_floaterConfig == null)
             {
-                Debug.LogError($"[UIManager] UIPrefabDatabase 로드 실패: {e.Message}");
+                Debug.LogError($"[UIManager] DamageFloaterConfig '{FLOATER_CONFIG_PATH}' 로드 실패");
+                return;
             }
+
+            _uiPrefabDatabase.Initialize();
+            IsInitialized = true;
+
+            // HpBar 세팅 (기존)
+            _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry("ActorHpBar"));
+
+            // 플로터 풀 세팅 — Config도 Addressables에서 왔으므로 바로 전달
+            var floaterPrefab = GetUIPrefabEntry("DamageFloater");
+            if (floaterPrefab != null)
+                _worldSpaceHudLayer.SetupFloaterPool(floaterPrefab, _floaterConfig);
+            else
+                Debug.LogWarning("[UIManager] 'DamageFloater' 프리팹이 UIPrefabDatabase에 없습니다.");
+
+            Debug.Log("[UIManager] 에셋 로드 완료");
         }
 
-        #region 캔버스 생성 및 관리
+        #region 캔버스 생성
 
-        /// <summary>
-        /// 7개의 캔버스 레이어 생성
-        /// </summary>
         private void CreateCanvasLayers()
         {
-            // UIManager의 자식으로 캔버스들을 생성
             foreach (CanvasLayer layer in System.Enum.GetValues(typeof(CanvasLayer)))
             {
                 Canvas canvas = CreateCanvas(layer);
-    
-                // 딕셔너리에 추가
+
                 if (!_canvasDictionary.ContainsKey(layer))
-                {
                     _canvasDictionary.Add(layer, canvas);
-                }
-                
-                // HUD Canvas에 WorldSpaceHudLayer 추가
+
                 if (layer == CanvasLayer.HUD)
                 {
                     _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
@@ -185,54 +146,38 @@ namespace UPlayGround.Manager
             GameObject layerObj = new GameObject("WorldSpaceHudLayer");
             layerObj.transform.SetParent(hudCanvas.transform, false);
 
-            var rectTransform = layerObj.AddComponent<RectTransform>();
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.anchorMax = Vector2.one;
-            rectTransform.offsetMin = Vector2.zero;
-            rectTransform.offsetMax = Vector2.zero;
+            var rect = layerObj.AddComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
 
             return layerObj.AddComponent<UI_WorldSpaceHudLayer>();
         }
-        
-        /// <summary>
-        /// 개별 캔버스 생성
-        /// </summary>
+
         private Canvas CreateCanvas(CanvasLayer layer)
         {
-            // 캔버스 오브젝트 생성
             GameObject canvasObj = new GameObject($"Canvas_{layer}");
             canvasObj.transform.SetParent(transform);
 
-            // Canvas 컴포넌트 추가 및 설정
             Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.renderMode   = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = (int)layer;
 
-
-            // CanvasScaler 추가 (해상도 대응)
             CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            scaler.uiScaleMode         = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.screenMatchMode     = CanvasScaler.ScreenMatchMode.Expand;
             scaler.referenceResolution = new Vector2(2560, 1440);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.matchWidthOrHeight  = 0.5f;
 
-            // GraphicRaycaster 추가 (UI 입력 처리)
             canvasObj.AddComponent<GraphicRaycaster>();
-
-            Debug.Log($"[UIManager] {layer} 캔버스 생성 (SortingOrder: {canvas.sortingOrder})");
-
             return canvas;
         }
 
-        /// <summary>
-        /// 특정 레이어의 캔버스 가져오기
-        /// </summary>
         public Canvas GetCanvas(CanvasLayer layer)
         {
             if (_canvasDictionary.TryGetValue(layer, out Canvas canvas))
-            {
                 return canvas;
-            }
 
             Debug.LogWarning($"[UIManager] {layer} 캔버스를 찾을 수 없습니다.");
             return null;
@@ -242,430 +187,217 @@ namespace UPlayGround.Manager
 
         #region UI 배치 및 관리
 
-        /// <summary>
-        /// UI를 지정된 캔버스 레이어에 배치
-        /// </summary>
-        /// <param name="uiPrefab">UI 프리팹</param>
-        /// <param name="layer">배치할 캔버스 레이어</param>
-        /// <param name="uiName">UI 식별 이름 (선택)</param>
-        /// <returns>생성된 UI GameObject</returns>
         public GameObject ShowUI(GameObject uiPrefab, CanvasLayer layer, string uiName = null)
         {
-            // 활성 UI에 존재하면 바로 반환
             if (_activeUIObjects.TryGetValue(uiName, out var uiObject))
             {
                 UI_Base ui = uiObject.GetComponentInChildren<UI_Base>();
-                if (ui != null)
-                {
-                    ui.Initialize();
-                    ui.Show();
-                }
-
+                ui?.Initialize();
+                ui?.Show();
                 return uiObject;
             }
 
-            if (uiPrefab == null)
-            {
-                Debug.LogError("[UIManager] UI 프리팹이 null입니다.");
-                return null;
-            }
+            if (uiPrefab == null) { Debug.LogError("[UIManager] UI 프리팹이 null입니다."); return null; }
 
             Canvas targetCanvas = GetCanvas(layer);
-            if (targetCanvas == null)
-            {
-                return null;
-            }
+            if (targetCanvas == null) return null;
 
-            // UI 인스턴스 생성
             GameObject uiInstance = Instantiate(uiPrefab, targetCanvas.transform);
-            // ✨ false를 사용하면 로컬 위치/스케일 유지
-            //uiInstance.transform.SetParent(targetCanvas.transform, false);
-
-            // UI 이름 설정 및 추적
             string finalName = string.IsNullOrEmpty(uiName) ? uiPrefab.name : uiName;
             uiInstance.name = finalName;
 
-            // 활성 UI 딕셔너리에 추가
             if (_activeUIObjects.ContainsKey(finalName))
             {
-                Debug.LogWarning($"[UIManager] '{finalName}' UI가 이미 존재합니다. 기존 UI를 제거합니다.");
+                Debug.LogWarning($"[UIManager] '{finalName}' 이미 존재, 기존 제거");
                 HideUI(finalName);
             }
 
             _activeUIObjects.Add(finalName, uiInstance);
 
-            // UI_Base 컴포넌트가 있으면 자동으로 관리
             UI_Base uiBase = uiInstance.GetComponentInChildren<UI_Base>();
             if (uiBase != null)
             {
                 _activeUIComponents.Add(finalName, uiBase);
-
-                // 타입별 추적 (같은 타입이 여러 개면 마지막 것만 저장)
                 _uiByType[uiBase.GetType()] = uiBase;
-
-                // UI_Base 초기화 및 표시
                 uiBase.Initialize();
                 uiBase.Show();
             }
 
-            Debug.Log($"[UIManager] '{finalName}' UI를 {layer} 레이어에 배치했습니다.");
-
             return uiInstance;
         }
 
-        /// <summary>
-        /// Key로 UI 프리팹을 로드하여 표시
-        /// </summary>
-        /// <param name="uiKey">UI 식별 키</param>
-        /// <param name="layer">배치할 캔버스 레이어 (null이면 기본 레이어 사용)</param>
-        /// <returns>생성된 UI GameObject</returns>
         public GameObject ShowUI(string uiKey, CanvasLayer? layer = null)
         {
-            if (_uiPrefabDatabase == null)
-            {
-                Debug.LogError("[UIManager] UIPrefabDatabase가 로드되지 않았습니다.");
-                return null;
-            }
+            if (_uiPrefabDatabase == null) { Debug.LogError("[UIManager] DB 미로드"); return null; }
 
-            var prefabEntry = _uiPrefabDatabase.GetPrefabEntry(uiKey);
-            if (prefabEntry == null)
-            {
-                Debug.LogError($"[UIManager] '{uiKey}' UI를 찾을 수 없습니다.");
-                return null;
-            }
+            var entry = _uiPrefabDatabase.GetPrefabEntry(uiKey);
+            if (entry?.prefab == null) { Debug.LogError($"[UIManager] '{uiKey}' 프리팹 없음"); return null; }
 
-            if (prefabEntry.prefab == null)
-            {
-                Debug.LogError($"[UIManager] '{uiKey}' UI의 프리팹이 null입니다.");
-                return null;
-            }
-
-            CanvasLayer targetLayer = layer ?? prefabEntry.defaultLayer;
-
-            return ShowUI(prefabEntry.prefab, targetLayer, uiKey);
+            return ShowUI(entry.prefab, layer ?? entry.defaultLayer, uiKey);
         }
 
         public GameObject GetUIPrefabEntry(string uiKey)
         {
-            if (_uiPrefabDatabase == null)
-            {
-                Debug.LogError("[UIManager] UIPrefabDatabase가 로드되지 않았습니다.");
-                return null;
-            }
-
-            var prefabEntry = _uiPrefabDatabase.GetPrefabEntry(uiKey);
-            if (prefabEntry == null)
-            {
-                Debug.LogError($"[UIManager] '{uiKey}' UI를 찾을 수 없습니다.");
-                return null;
-            }
-
-            return prefabEntry.prefab;
+            return _uiPrefabDatabase?.GetPrefabEntry(uiKey)?.prefab;
         }
-        
-        /// <summary>
-        /// UI를 이름으로 숨기기
-        /// </summary>
+
         public void HideUI(string uiName)
         {
-            if (_activeUIObjects.TryGetValue(uiName, out GameObject uiObj))
-            {
-                // UI_Base 컴포넌트가 있으면 먼저 정리
-                if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
-                {
-                    // 타입별 추적에서 제거
-                    if (_uiByType.ContainsKey(uiBase.GetType()) && _uiByType[uiBase.GetType()] == uiBase)
-                    {
-                        _uiByType.Remove(uiBase.GetType());
-                    }
+            if (!_activeUIObjects.TryGetValue(uiName, out GameObject uiObj)) return;
 
-                    uiBase.Hide();
-                }
-                else
-                {
-                    // UI_Base가 아닌 경우 직접 숨김
-                    uiObj.SetActive(false);
-                }
-                
-                Debug.Log($"[UIManager] '{uiName}' UI를 숨김처리 했습니다.");
+            if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
+            {
+                if (_uiByType.TryGetValue(uiBase.GetType(), out var tracked) && tracked == uiBase)
+                    _uiByType.Remove(uiBase.GetType());
+                uiBase.Hide();
             }
             else
             {
-                Debug.LogWarning($"[UIManager] '{uiName}' UI를 찾을 수 없습니다.");
+                uiObj.SetActive(false);
             }
         }
 
-        /// <summary>
-        /// UI를 이름으로 삭제
-        /// </summary>
         public void CloseUI(string uiName)
         {
-            if (_activeUIObjects.TryGetValue(uiName, out GameObject uiObj))
+            if (!_activeUIObjects.TryGetValue(uiName, out _)) return;
+
+            if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
             {
-                // UI_Base 컴포넌트가 있으면 먼저 정리
-                if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
-                {
-                    // 타입별 추적에서 제거
-                    if (_uiByType.ContainsKey(uiBase.GetType()) && _uiByType[uiBase.GetType()] == uiBase)
-                    {
-                        _uiByType.Remove(uiBase.GetType());
-                    }
-
-                    _activeUIComponents.Remove(uiName);
-                    uiBase.Close();
-                }
-                else
-                {
-                    // UI_Base가 아닌 경우 직접 삭제
-                    Destroy(uiObj);
-                }
-
-                _activeUIObjects.Remove(uiName);
-
-                Debug.Log($"[UIManager] '{uiName}' UI를 제거했습니다.");
+                if (_uiByType.TryGetValue(uiBase.GetType(), out var tracked) && tracked == uiBase)
+                    _uiByType.Remove(uiBase.GetType());
+                _activeUIComponents.Remove(uiName);
+                uiBase.Close();
             }
             else
             {
-                Debug.LogWarning($"[UIManager] '{uiName}' UI를 찾을 수 없습니다.");
+                Destroy(_activeUIObjects[uiName]);
             }
+
+            _activeUIObjects.Remove(uiName);
         }
 
-        /// <summary>
-        /// 활성화된 UI 가져오기
-        /// </summary>
         public GameObject GetActiveUI(string uiName)
         {
-            if (_activeUIObjects.TryGetValue(uiName, out GameObject uiObj))
-            {
-                return uiObj;
-            }
-
-            return null;
+            _activeUIObjects.TryGetValue(uiName, out GameObject uiObj);
+            return uiObj;
         }
+
+        #endregion
+
+        #region WorldSpace HUD
 
         public UI_ActorHpBar CreateHpBar(GameActor actor)
         {
             return _worldSpaceHudLayer?.CreateHpBar(actor);
         }
-        
-        /// <summary>
-        /// 특정 레이어의 모든 UI 숨기기
-        /// </summary>
-        public void HideAllUIInLayer(CanvasLayer layer)
+
+        public void ShowDamageFloater(Vector3 worldPos, float damage, FloatStyle style = FloatStyle.Normal)
         {
-            Canvas targetCanvas = GetCanvas(layer);
-            if (targetCanvas == null)
-            {
-                return;
-            }
-
-            // 해당 캔버스의 모든 자식 제거
-            List<string> uisToRemove = new List<string>();
-
-            foreach (var kvp in _activeUIObjects)
-            {
-                if (kvp.Value != null && kvp.Value.transform.parent == targetCanvas.transform)
-                {
-                    uisToRemove.Add(kvp.Key);
-                }
-            }
-
-            foreach (var uiName in uisToRemove)
-            {
-                HideUI(uiName);
-            }
-
-            Debug.Log($"[UIManager] {layer} 레이어의 모든 UI를 제거했습니다.");
+            _worldSpaceHudLayer?.ShowFloater(worldPos, damage, style);
         }
 
-        /// <summary>
-        /// 모든 UI 숨기기
-        /// </summary>
-        public void HideAllUI()
+        public void ShowDamageFloaterMiss(Vector3 worldPos)
         {
-            List<string> allUINames = new List<string>(_activeUIObjects.Keys);
+            _worldSpaceHudLayer?.ShowFloaterMiss(worldPos);
+        }
 
-            foreach (var uiName in allUINames)
-            {
-                HideUI(uiName);
-            }
-
-            Debug.Log("[UIManager] 모든 UI를 제거했습니다.");
+        public void ShowDamageFloaterHeal(Vector3 worldPos, float amount)
+        {
+            _worldSpaceHudLayer?.ShowFloaterHeal(worldPos, amount);
         }
 
         #endregion
 
         #region UI_Base 전용 관리
 
-        /// <summary>
-        /// UI_Base를 상속받은 UI 표시 (제네릭 버전)
-        /// </summary>
-        /// <typeparam name="T">UI_Base를 상속받은 타입</typeparam>
-        /// <param name="uiPrefab">UI 프리팹</param>
-        /// <param name="layer">배치할 캔버스 레이어</param>
-        /// <param name="uiName">UI 식별 이름 (선택, 미지정 시 타입 이름 사용)</param>
-        /// <returns>생성된 UI 컴포넌트</returns>
         public T ShowUI<T>(GameObject uiPrefab, CanvasLayer layer, string uiName = null) where T : UI_Base
         {
-            // 이름이 없으면 타입 이름 사용
-            string finalName = string.IsNullOrEmpty(uiName) ? typeof(T).Name : uiName;
+            string finalName    = string.IsNullOrEmpty(uiName) ? typeof(T).Name : uiName;
+            GameObject instance = ShowUI(uiPrefab, layer, finalName);
+            if (instance == null) return null;
 
-            // 기존 ShowUI 메서드 호출
-            GameObject uiInstance = ShowUI(uiPrefab, layer, finalName);
-
-            if (uiInstance == null)
-            {
-                return null;
-            }
-
-            // UI_Base 컴포넌트 가져오기
-            T uiComponent = uiInstance.GetComponent<T>();
-
+            T uiComponent = instance.GetComponent<T>();
             if (uiComponent == null)
             {
-                Debug.LogError($"[UIManager] UI 프리팹에 {typeof(T)} 컴포넌트가 없습니다.");
+                Debug.LogError($"[UIManager] {typeof(T)} 컴포넌트 없음");
                 HideUI(finalName);
                 return null;
             }
-
             return uiComponent;
         }
 
-        /// <summary>
-        /// UI_Base를 상속받은 UI 가져오기 (이름으로 검색)
-        /// </summary>
         public T GetUI<T>(string uiName) where T : UI_Base
         {
-            if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
-            {
-                return uiBase as T;
-            }
-
-            return null;
+            _activeUIComponents.TryGetValue(uiName, out UI_Base uiBase);
+            return uiBase as T;
         }
 
-        /// <summary>
-        /// UI_Base를 상속받은 UI 가져오기 (타입으로 검색)
-        /// </summary>
         public T GetUI<T>() where T : UI_Base
         {
-            if (_uiByType.TryGetValue(typeof(T), out UI_Base uiBase))
-            {
-                return uiBase as T;
-            }
-
-            return null;
+            _uiByType.TryGetValue(typeof(T), out UI_Base uiBase);
+            return uiBase as T;
         }
 
-        /// <summary>
-        /// 특정 타입의 UI가 활성화되어 있는지 확인
-        /// </summary>
-        public bool IsUIActive<T>() where T : UI_Base
-        {
-            return _uiByType.ContainsKey(typeof(T));
-        }
+        public bool IsUIActive<T>() where T : UI_Base => _uiByType.ContainsKey(typeof(T));
 
-        /// <summary>
-        /// UI_Base 컴포넌트를 가진 모든 활성 UI 가져오기
-        /// </summary>
-        public List<UI_Base> GetAllActiveUIBases()
-        {
-            return new List<UI_Base>(_activeUIComponents.Values);
-        }
+        public List<UI_Base> GetAllActiveUIBases() => new List<UI_Base>(_activeUIComponents.Values);
 
-        /// <summary>
-        /// 특정 타입의 모든 UI 가져오기
-        /// </summary>
         public List<T> GetAllUI<T>() where T : UI_Base
         {
-            List<T> result = new List<T>();
-
+            var result = new List<T>();
             foreach (var uiBase in _activeUIComponents.Values)
-            {
-                if (uiBase is T typedUI)
-                {
-                    result.Add(typedUI);
-                }
-            }
-
+                if (uiBase is T t) result.Add(t);
             return result;
-        }
-
-        /// <summary>
-        /// 특정 레이어의 모든 UI_Base 숨기기
-        /// </summary>
-        public void HideAllUIBaseInLayer(CanvasLayer layer)
-        {
-            Canvas targetCanvas = GetCanvas(layer);
-            if (targetCanvas == null)
-            {
-                return;
-            }
-
-            List<string> uisToRemove = new List<string>();
-
-            foreach (var kvp in _activeUIComponents)
-            {
-                if (kvp.Value != null && kvp.Value.transform.parent == targetCanvas.transform)
-                {
-                    uisToRemove.Add(kvp.Key);
-                }
-            }
-
-            foreach (var uiName in uisToRemove)
-            {
-                HideUI(uiName);
-            }
-
-            Debug.Log($"[UIManager] {layer} 레이어의 모든 UI_Base를 제거했습니다.");
         }
 
         #endregion
 
         #region 유틸리티
 
-        /// <summary>
-        /// UI가 활성화되어 있는지 확인 (이름으로)
-        /// </summary>
         public bool IsUIActive(string uiName)
         {
-            if (_activeUIComponents.TryGetValue(uiName, out UI_Base ui))
-            {
-                return ui.IsVisible;
-            }
+            return _activeUIComponents.TryGetValue(uiName, out UI_Base ui) && ui.IsVisible;
+        }
 
-            return false;
+        public void HideAllUIInLayer(CanvasLayer layer)
+        {
+            Canvas targetCanvas = GetCanvas(layer);
+            if (targetCanvas == null) return;
+
+            var toRemove = new List<string>();
+            foreach (var kvp in _activeUIObjects)
+                if (kvp.Value != null && kvp.Value.transform.parent == targetCanvas.transform)
+                    toRemove.Add(kvp.Key);
+
+            foreach (var name in toRemove) HideUI(name);
+        }
+
+        public void HideAllUI()
+        {
+            var allNames = new List<string>(_activeUIObjects.Keys);
+            foreach (var name in allNames) HideUI(name);
+        }
+
+        public CanvasLayer GetTopCanvasLayer()
+        {
+            var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
+            for (int i = layers.Length - 1; i >= 0; i--)
+            {
+                if (!_canvasDictionary.TryGetValue(layers[i], out Canvas canvas)) continue;
+
+                for (int c = canvas.transform.childCount - 1; c >= 0; c--)
+                {
+                    var uiBase = canvas.transform.GetChild(c).GetComponentInChildren<UI_Base>();
+                    if (uiBase != null && uiBase.IsVisible) return uiBase.Layer;
+                }
+            }
+            return CanvasLayer.HUD;
         }
 
         #endregion
 
-        public CanvasLayer GetTopCanvasLayer()
-        {
-            // 열린 UI 중 상위 UI 처리
-            var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
-            for (int i = layers.Length - 1; i >= 0; i--)
-            {
-                var layer = layers[i];
+        #region Input
 
-                if (_canvasDictionary.TryGetValue(layer, out Canvas canvas) == false)
-                {
-                    continue;
-                }
-                for (int childIndex = canvas.transform.childCount - 1; childIndex >= 0; childIndex--)
-                {
-                    Transform child = canvas.transform.GetChild(childIndex);
-                    UI_Base uiBase = child.GetComponentInChildren<UI_Base>();
-            
-                    if (uiBase != null && uiBase.IsVisible)
-                    {
-                        return uiBase.Layer;
-                    }
-                }
-            }
-
-            return CanvasLayer.HUD;
-        }
-        
         private void RegisterInputEvents()
         {
             InputManager.Instance.RegisterInputEvent(InputMapNames.System, SystemAction.Back,
@@ -674,62 +406,35 @@ namespace UPlayGround.Manager
 
         private void UnRegisterInputEvents()
         {
-            if (InputManager.Instance == null)
-            {
-                return;
-            }
-            
+            if (InputManager.Instance == null) return;
             InputManager.Instance.UnRegisterInputEvent(InputMapNames.System, SystemAction.Back,
                 null, OnPerformedBack, null);
-
         }
 
         private void OnPerformedBack(InputAction.CallbackContext obj)
         {
-            // 열린 UI 중 상위 UI 처리
             var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
             for (int i = layers.Length - 1; i >= 0; i--)
             {
-                var layer = layers[i];
+                if (!_canvasDictionary.TryGetValue(layers[i], out Canvas canvas)) continue;
 
-                if (_canvasDictionary.TryGetValue(layer, out Canvas canvas) == false)
+                for (int c = canvas.transform.childCount - 1; c >= 0; c--)
                 {
-                    continue;
-                }
-                for (int childIndex = canvas.transform.childCount - 1; childIndex >= 0; childIndex--)
-                {
-                    Transform child = canvas.transform.GetChild(childIndex);
-                    UI_Base uiBase = child.GetComponentInChildren<UI_Base>();
-            
-                    if (uiBase != null && uiBase.IsVisible)
-                    {
-                        if (uiBase.IsCanCloseWithEsc == false)
-                        {
-                            continue;
-                        }
-                        
-                        bool shouldContinue = uiBase.PerformBackFunction();
-                        if (!shouldContinue)
-                        {
-                            return;
-                        }
-                    }
+                    var uiBase = canvas.transform.GetChild(c).GetComponentInChildren<UI_Base>();
+                    if (uiBase == null || !uiBase.IsVisible || !uiBase.IsCanCloseWithEsc) continue;
+
+                    if (!uiBase.PerformBackFunction()) return;
                 }
             }
 
             if (SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
             {
-                UI_Base ui = UIManager.Instance.GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
-                if (ui == null || ui.IsVisible == false)
-                {
-                    UIManager.Instance.ShowUI("PauseMenu");
-                }
-                else
-                {
-                    UIManager.Instance.HideUI("PauseMenu");
-                }
+                UI_Base ui = GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
+                if (ui == null || !ui.IsVisible) ShowUI("PauseMenu");
+                else HideUI("PauseMenu");
             }
         }
 
+        #endregion
     }
 }

@@ -250,7 +250,7 @@ namespace UPlayGround
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce);
+                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce, attackData.knockbackDrag);
                         break;
 
                     case AttackReactionType.Pull:
@@ -267,7 +267,7 @@ namespace UPlayGround
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
                         // knockbackForce: 수평 밀림 거리, airborneForce: 공중 띄움 높이
-                        MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce);
+                        MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce, attackData.knockbackDrag);
                         MovementController.Motor.ForceUnground();
                         break;
                     }

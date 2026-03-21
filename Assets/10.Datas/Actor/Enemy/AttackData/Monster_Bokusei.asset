@@ -22,11 +22,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 3
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -44,11 +45,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 3
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -66,11 +68,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 3
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -88,21 +91,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 3
-        grabDuration: 0
-      - damage: 16
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 3
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -120,21 +114,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 16
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -152,11 +137,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -174,21 +160,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 20
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -206,31 +183,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 10
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
-      - damage: 10
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -248,11 +206,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -270,11 +229,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -292,11 +252,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -314,11 +275,12 @@ MonoBehaviour:
         reactionType: 7
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
-        airborneForce: 7.5
-        knockBackForce: 7.5
-        grabDuration: 0
+        airborneForce: 7
+        knockBackForce: 5
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -336,21 +298,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 25
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 7
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -368,21 +321,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 25
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 8
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -400,11 +344,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 8
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 30
     minRange: 0
@@ -422,11 +367,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 15
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 10
     minRange: 0
@@ -444,21 +390,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 25
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 10
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 10
     minRange: 0
@@ -476,61 +413,12 @@ MonoBehaviour:
         reactionType: 2
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
-        grabDuration: 0
-      - damage: 8
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
-      - damage: 8
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
-      - damage: 8
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
-      - damage: 8
-        poiseDamage: 30
-        reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        grabDuration: 0
-      - damage: 15
-        poiseDamage: 30
-        reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitParticleName: LiteHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 15
-        grabDuration: 0
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 10
     minRange: 0
@@ -548,11 +436,12 @@ MonoBehaviour:
         reactionType: 4
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
+        hitHeightRange: 1.2
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
-        knockBackForce: 15
-        grabDuration: 0
+        knockBackForce: 6
+        grabDuration: 1.5
     skillType: 1
     selectionWeight: 10
     minRange: 0

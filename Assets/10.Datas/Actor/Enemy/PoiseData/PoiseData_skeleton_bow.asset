@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b981ba405e0534191caaa4b81e0439, type: 3}
   m_Name: PoiseData_skeleton_bow
   m_EditorClassIdentifier: 
-  maxPoise: 50
-  recoveryDelay: 1.5
-  recoveryRate: 35
+  maxPoise: 100
+  recoveryDelay: 2
+  recoveryRate: 40
   hasHyperArmor: 0

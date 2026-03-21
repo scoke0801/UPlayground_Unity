@@ -64,6 +64,8 @@ namespace UPlayGround.State
 
         private void SetupReaction(AttackReactionType reaction)
         {
+            // 물리적 힘(넉백/Pull/Airborne)은 PlayerActor.OnDamaged()에서 일괄 처리.
+            // 여기서는 캔슬 윈도우와 경직 강도만 설정한다.
             switch (reaction)
             {
                 case AttackReactionType.None:
@@ -86,32 +88,16 @@ namespace UPlayGround.State
                 case AttackReactionType.KnockBack:
                     _cancelWindow = float.MaxValue;
                     _heavyHit     = true;
-                    if (_attackData != null)
-                        controller.AddVelocity(_attackData.attackDirection.normalized * _attackData.knockbackForce);
                     break;
 
                 case AttackReactionType.Pull:
                     _cancelWindow = HEAVY_CANCEL_WINDOW;
                     _heavyHit     = true;
-                    if (_attackData?.attacker != null)
-                    {
-                        Vector3 pullDir = (_attackData.attacker.transform.position - motor.TransientPosition).normalized;
-                        pullDir.y = 0f;
-                        controller.AddVelocity(pullDir * _attackData.pullForce);
-                    }
                     break;
 
                 case AttackReactionType.Airborne:
                     _cancelWindow = float.MaxValue;
                     _heavyHit     = true;
-                    // 수평 넉백 + 위로 띄움
-                    if (_attackData != null)
-                    {
-                        Vector3 launchDir = _attackData.attackDirection.normalized;
-                        launchDir.y = 0f;
-                        controller.AddVelocity(launchDir * _attackData.knockbackForce 
-                                               + Vector3.up * _attackData.airborneForce);
-                    }
                     break;
 
                 case AttackReactionType.Knockdown:
@@ -124,7 +110,6 @@ namespace UPlayGround.State
                     _heavyHit     = true;
                     break;
 
-                // Grab과 LaunchSmash는 전용 State로 처리되므로 여기 오지 않지만 안전장치
                 case AttackReactionType.Grab:
                     _cancelWindow = float.MaxValue;
                     _heavyHit     = true;

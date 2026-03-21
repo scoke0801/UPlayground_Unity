@@ -4,7 +4,7 @@
     {
       "_id": "Bokusei",
       "stats": {
-        "maxHealth": 500,
+        "maxHealth": 2200,
         "walkSpeed": 2,
         "runSpeed": 4,
         "chaseSpeedMultiplier": 1.2,
@@ -16,2139 +16,6 @@
         "enablePatrol": true,
         "patrolRadius": 5,
         "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-        "optimalCombatDistance": 2.2,
-        "minCombatDistance": 1,
-        "maintainDistance": true,
-        "continueAttackChance": 0.35,
-        "guardChance": 0.1,
-        "retreatChance": 0.2,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "공세 (HP 60% 이하)", "hpThreshold": 0.6, "continueAttackChance": 0.45, "guardChance": 0.2, "retreatChance": 0.1, "chargeChance": 0.25, "flankChance": 0.35, "chaseSpeedMultiplier": 1.4, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 4 },
-          { "phaseName": "광전사 (HP 30% 이하)", "hpThreshold": 0.3, "continueAttackChance": 0.6, "guardChance": 0.1, "retreatChance": 0.05, "chargeChance": 0.45, "flankChance": 0.45, "chaseSpeedMultiplier": 1.6, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 5 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "DefaultEnemyAttackData",
-      "stats": {
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-        ]
-      }
-    }    ,
-    {
-      "_id": "DefaultStats",
-      "stats": {
-        "maxHealth": 100,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2.5,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "ent",
-      "stats": {
-      },
-      "poise": {
-        "maxPoise": 250,
-        "recoveryDelay": 3,
-        "recoveryRate": 60,
-        "hasHyperArmor": true
-      },
-      "brain": {
-        "optimalCombatDistance": 3,
-        "minCombatDistance": 1.5,
-        "maintainDistance": false,
-        "continueAttackChance": 0.3,
-        "guardChance": 0,
-        "retreatChance": 0.1,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "분노 (HP 30% 이하)", "hpThreshold": 0.3, "continueAttackChance": 0.45, "guardChance": 0, "retreatChance": 0.05, "chargeChance": 0.35, "flankChance": 0, "chaseSpeedMultiplier": 1.25, "allowCharge": true, "allowFlank": false, "maxConsecutiveAttacks": 4 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Ent",
-      "stats": {
-        "maxHealth": 450,
-        "walkSpeed": 1.8,
-        "runSpeed": 3.5,
-        "chaseSpeedMultiplier": 1,
-        "detectionRadius": 14,
-        "lostTargetRadius": 20,
-        "fieldOfView": 120,
-        "attackRange": 3.5,
-        "attackCooldown": 2,
-        "enablePatrol": true,
-        "patrolRadius": 6,
-        "patrolWaitTime": 3
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 0,
-            "selectionWeight": 21,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 0,
-            "selectionWeight": 21,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 0,
-            "selectionWeight": 21,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 0,
-            "selectionWeight": 21,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 2,
-            "selectionWeight": 10,
-            "minRange": 1,
-            "maxRange": 20,
-            "cooldown": 10,
-            "conditionGroup": {
-              "conditionOperator": 1,
-              "conditions": [
-                { "type": 1, "minHealthPercent": 0.1, "maxHealthPercent": 0.7, "minRange": 0, "maxRange": 10, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 0 },
-                { "type": 5, "minHealthPercent": 0, "maxHealthPercent": 0.7, "minRange": 0, "maxRange": 10, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 0 }
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "golem",
-      "stats": {
-      },
-      "poise": {
-        "maxPoise": 500,
-        "recoveryDelay": 4,
-        "recoveryRate": 80,
-        "hasHyperArmor": true
-      },
-      "brain": {
-        "optimalCombatDistance": 2.5,
-        "minCombatDistance": 1,
-        "maintainDistance": false,
-        "continueAttackChance": 0.25,
-        "guardChance": 0,
-        "retreatChance": 0.05,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "분노 (HP 50% 이하)", "hpThreshold": 0.5, "continueAttackChance": 0.35, "guardChance": 0, "retreatChance": 0, "chargeChance": 0.5, "flankChance": 0, "chaseSpeedMultiplier": 1.3, "allowCharge": true, "allowFlank": false, "maxConsecutiveAttacks": 3 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Golem",
-      "stats": {
-        "maxHealth": 800,
-        "walkSpeed": 1.5,
-        "runSpeed": 3,
-        "chaseSpeedMultiplier": 1,
-        "detectionRadius": 12,
-        "lostTargetRadius": 18,
-        "fieldOfView": 100,
-        "attackRange": 3,
-        "attackCooldown": 2.5,
-        "enablePatrol": true,
-        "patrolRadius": 4,
-        "patrolWaitTime": 3
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 25,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "Honoka",
-      "stats": {
-        "maxHealth": 500,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2.5,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-        "optimalCombatDistance": 2.2,
-        "minCombatDistance": 1,
-        "maintainDistance": true,
-        "continueAttackChance": 0.35,
-        "guardChance": 0.3,
-        "retreatChance": 0.2,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "공세 (HP 60% 이하)", "hpThreshold": 0.6, "continueAttackChance": 0.45, "guardChance": 0.2, "retreatChance": 0.1, "chargeChance": 0.25, "flankChance": 0.35, "chaseSpeedMultiplier": 1.4, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 4 },
-          { "phaseName": "광전사 (HP 30% 이하)", "hpThreshold": 0.3, "continueAttackChance": 0.6, "guardChance": 0.1, "retreatChance": 0.05, "chargeChance": 0.45, "flankChance": 0.45, "chaseSpeedMultiplier": 1.6, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 5 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "humanoid",
-      "stats": {
-        "maxHealth": 700,
-        "walkSpeed": 2.5,
-        "runSpeed": 5.5,
-        "chaseSpeedMultiplier": 1.3,
-        "detectionRadius": 15,
-        "lostTargetRadius": 22,
-        "fieldOfView": 130,
-        "attackRange": 2.5,
-        "attackCooldown": 1.2,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-        "maxPoise": 180,
-        "recoveryDelay": 2,
-        "recoveryRate": 50,
-        "hasHyperArmor": true
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 104,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 105,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 106,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 107,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 108,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 501,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 502,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "LianLian",
-      "stats": {
-        "maxHealth": 500,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2.5,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-        "optimalCombatDistance": 2.2,
-        "minCombatDistance": 1,
-        "maintainDistance": true,
-        "continueAttackChance": 0.35,
-        "guardChance": 0.1,
-        "retreatChance": 0.2,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "공세 (HP 60% 이하)", "hpThreshold": 0.6, "continueAttackChance": 0.45, "guardChance": 0.2, "retreatChance": 0.1, "chargeChance": 0.25, "flankChance": 0.35, "chaseSpeedMultiplier": 1.4, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 4 },
-          { "phaseName": "광전사 (HP 30% 이하)", "hpThreshold": 0.3, "continueAttackChance": 0.6, "guardChance": 0.1, "retreatChance": 0.05, "chargeChance": 0.45, "flankChance": 0.45, "chaseSpeedMultiplier": 1.6, "allowCharge": true, "allowFlank": true, "maxConsecutiveAttacks": 5 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "lich",
-      "stats": {
-      },
-      "poise": {
-        "maxPoise": 200,
-        "recoveryDelay": 2.5,
-        "recoveryRate": 50,
-        "hasHyperArmor": true
-      },
-      "brain": {
-        "optimalCombatDistance": 10,
-        "minCombatDistance": 5,
-        "maintainDistance": true,
-        "continueAttackChance": 0.3,
-        "guardChance": 0,
-        "retreatChance": 0.4,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 3,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "절박 (HP 40% 이하)", "hpThreshold": 0.4, "continueAttackChance": 0.5, "guardChance": 0, "retreatChance": 0.3, "chargeChance": 0, "flankChance": 0, "chaseSpeedMultiplier": 1.2, "allowCharge": false, "allowFlank": false, "maxConsecutiveAttacks": 3 }
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Lich",
-      "stats": {
-        "maxHealth": 500,
-        "walkSpeed": 1.8,
-        "runSpeed": 3.5,
-        "chaseSpeedMultiplier": 1,
-        "detectionRadius": 20,
-        "lostTargetRadius": 28,
-        "fieldOfView": 150,
-        "attackRange": 15,
-        "attackCooldown": 2,
-        "enablePatrol": false,
-        "patrolRadius": 0,
-        "patrolWaitTime": 0
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 40,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 40,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 3,
-            "selectionWeight": 20,
-            "minRange": 0,
-            "maxRange": 20,
-            "cooldown": 30,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-                { "type": 6, "minHealthPercent": 0, "maxHealthPercent": 0, "minRange": 0, "maxRange": 0, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 1 }
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 20,
-            "minRange": 0,
-            "maxRange": 20,
-            "cooldown": 10,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 501,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "Monster_Bokusei",
-      "stats": {
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 104,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 105,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 106,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 107,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 108,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 200,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 201,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 202,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 203,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 204,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 205,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 501,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 502,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 503,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "Monster_Honoka",
-      "stats": {
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 30,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 104,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 105,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 106,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 107,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 108,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 501,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 502,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "Monster_LianLian",
-      "stats": {
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 25,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 101,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 25,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 102,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 25,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 103,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 25,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 104,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 25,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 105,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 25,
-              "poiseDamage": 25,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 200,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 201,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 202,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 25,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 203,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 30,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 204,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 500,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 10,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 501,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          },
-          {
-            "skillType": 1,
-            "selectionWeight": 70,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 5,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 502,
-              "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 10,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "Reien",
-      "stats": {
-        "maxHealth": 100,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2.5,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Skeleton",
-      "stats": {
-        "maxHealth": 120,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2.5,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "skeleton_bow",
-      "stats": {
-      },
-      "poise": {
-        "maxPoise": 50,
-        "recoveryDelay": 1.5,
-        "recoveryRate": 35,
-        "hasHyperArmor": false
-      },
-      "brain": {
-        "optimalCombatDistance": 10,
-        "minCombatDistance": 5,
-        "maintainDistance": true,
-        "continueAttackChance": 0.25,
-        "guardChance": 0,
-        "retreatChance": 0.5,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Skeleton_Bow",
-      "stats": {
-        "maxHealth": 70,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1,
-        "detectionRadius": 16,
-        "lostTargetRadius": 22,
-        "fieldOfView": 130,
-        "attackRange": 14,
-        "attackCooldown": 2,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2.5
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 100,
-            "minRange": 0,
-            "maxRange": 20,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 1,
-              "reactionType": 2,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "skeleton_common",
-      "stats": {
-        "maxHealth": 80,
-        "walkSpeed": 2,
-        "runSpeed": 4,
-        "chaseSpeedMultiplier": 1.1,
-        "detectionRadius": 10,
-        "lostTargetRadius": 15,
-        "fieldOfView": 120,
-        "attackRange": 2,
-        "attackCooldown": 1.5,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2
-      },
-      "poise": {
-        "maxPoise": 60,
-        "recoveryDelay": 2,
-        "recoveryRate": 30,
-        "hasHyperArmor": false
-      },
-      "brain": {
-        "optimalCombatDistance": 1.8,
-        "minCombatDistance": 0.8,
-        "maintainDistance": false,
-        "continueAttackChance": 0.4,
-        "guardChance": 0,
-        "retreatChance": 0.1,
-        "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 1.5,
-        "guardDuration": 1.5,
-        "retreatDistance": 3,
-        "enablePatrol": true,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2,
-        "phases": [
-        ]
-      },
-      "attackData": {
-      }
-    }    ,
-    {
-      "_id": "Skeleton_Common",
-      "stats": {
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 100,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "skeleton_sword",
-      "stats": {
       },
       "poise": {
         "maxPoise": 100,
@@ -2157,77 +24,68 @@
         "hasHyperArmor": false
       },
       "brain": {
-        "optimalCombatDistance": 2,
+        "optimalCombatDistance": 2.2,
         "minCombatDistance": 1,
         "maintainDistance": true,
-        "continueAttackChance": 0.3,
-        "guardChance": 0.35,
-        "retreatChance": 0.15,
+        "continueAttackChance": 0.35,
+        "guardChance": 0.1,
+        "retreatChance": 0.2,
         "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 2,
+        "circleDuration": 2.5,
         "guardDuration": 1.5,
         "retreatDistance": 3,
         "enablePatrol": true,
         "patrolRadius": 5,
         "patrolWaitTime": 2,
         "phases": [
-          { "phaseName": "격노", "hpThreshold": 0.5, "continueAttackChance": 0.45, "guardChance": 0.2, "retreatChance": 0.1, "chargeChance": 0, "flankChance": 0, "chaseSpeedMultiplier": 1.4, "allowCharge": false, "allowFlank": false, "maxConsecutiveAttacks": 4 }
+          {
+            "phaseName": "공세 (HP 60% 이하)",
+            "hpThreshold": 0.6,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.2,
+            "retreatChance": 0.1,
+            "chargeChance": 0.25,
+            "flankChance": 0.35,
+            "chaseSpeedMultiplier": 1.4,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 4
+          },
+          {
+            "phaseName": "광전사 (HP 30% 이하)",
+            "hpThreshold": 0.3,
+            "continueAttackChance": 0.6,
+            "guardChance": 0.1,
+            "retreatChance": 0.05,
+            "chargeChance": 0.45,
+            "flankChance": 0.45,
+            "chaseSpeedMultiplier": 1.6,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 5
+          }
         ]
       },
       "attackData": {
+        "globalCooldown": 1,
+        "skills": []
       }
-    }    ,
+    },
     {
-      "_id": "Skeleton_Sword",
+      "_id": "ChildPlant",
       "stats": {
-        "maxHealth": 120,
-        "walkSpeed": 2.2,
-        "runSpeed": 4.5,
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
         "chaseSpeedMultiplier": 1.2,
-        "detectionRadius": 11,
-        "lostTargetRadius": 16,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
         "fieldOfView": 120,
-        "attackRange": 2.2,
+        "attackRange": 2.5,
         "attackCooldown": 1.5,
         "enablePatrol": true,
         "patrolRadius": 5,
         "patrolWaitTime": 2
-      },
-      "poise": {
-      },
-      "brain": {
-      },
-      "attackData": {
-        "globalCooldown": 1,
-        "skills": [
-          {
-            "skillType": 1,
-            "selectionWeight": 100,
-            "minRange": 0,
-            "maxRange": 2.5,
-            "cooldown": 2,
-            "conditionGroup": {
-              "conditionOperator": 0,
-              "conditions": [
-              ]
-            },
-            "baseInfo": {
-              "animKey": 100,
-              "attackType": 0,
-              "reactionType": 4,
-              "damage": 10,
-              "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
-              "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
-            }
-          }
-        ]
-      }
-    }    ,
-    {
-      "_id": "spider_minion",
-      "stats": {
       },
       "poise": {
         "maxPoise": 30,
@@ -2249,12 +107,3383 @@
         "enablePatrol": true,
         "patrolRadius": 5,
         "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 12,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 12,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "DefaultEnemyAttackData",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "DefaultStats",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "ent",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Ent",
+      "stats": {
+        "maxHealth": 280,
+        "walkSpeed": 1.8,
+        "runSpeed": 3.5,
+        "chaseSpeedMultiplier": 1,
+        "detectionRadius": 14,
+        "lostTargetRadius": 20,
+        "fieldOfView": 120,
+        "attackRange": 3.5,
+        "attackCooldown": 2,
+        "enablePatrol": true,
+        "patrolRadius": 6,
+        "patrolWaitTime": 3
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 28,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 28,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 38,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 0,
+            "selectionWeight": 21,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 32,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 2,
+            "selectionWeight": 10,
+            "minRange": 1,
+            "maxRange": 20,
+            "cooldown": 10,
+            "conditionGroup": {
+              "conditionOperator": 1,
+              "conditions": [
+                {
+                  "type": 1,
+                  "minHealthPercent": 0.1,
+                  "maxHealthPercent": 0.7,
+                  "minRange": 0,
+                  "maxRange": 10,
+                  "minAllyCount": 0,
+                  "maxAllyCount": 0,
+                  "checkSpawnCount": 0
+                },
+                {
+                  "type": 5,
+                  "minHealthPercent": 0,
+                  "maxHealthPercent": 0.7,
+                  "minRange": 0,
+                  "maxRange": 10,
+                  "minAllyCount": 0,
+                  "maxAllyCount": 0,
+                  "checkSpawnCount": 0
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 0,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "golem",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Golem",
+      "stats": {
+        "maxHealth": 450,
+        "walkSpeed": 1.5,
+        "runSpeed": 3,
+        "chaseSpeedMultiplier": 1,
+        "detectionRadius": 12,
+        "lostTargetRadius": 18,
+        "fieldOfView": 100,
+        "attackRange": 3,
+        "attackCooldown": 2.5,
+        "enablePatrol": true,
+        "patrolRadius": 4,
+        "patrolWaitTime": 3
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 35,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 35,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 25,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "griffin",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "Griffin",
+      "stats": {
+        "maxHealth": 550,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {}
+    },
+    {
+      "_id": "Honoka",
+      "stats": {
+        "maxHealth": 1600,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.2,
+        "minCombatDistance": 1,
+        "maintainDistance": true,
+        "continueAttackChance": 0.35,
+        "guardChance": 0.3,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
         "phases": [
+          {
+            "phaseName": "공세 (HP 60% 이하)",
+            "hpThreshold": 0.6,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.2,
+            "retreatChance": 0.1,
+            "chargeChance": 0.25,
+            "flankChance": 0.35,
+            "chaseSpeedMultiplier": 1.4,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 4
+          },
+          {
+            "phaseName": "광전사 (HP 30% 이하)",
+            "hpThreshold": 0.3,
+            "continueAttackChance": 0.6,
+            "guardChance": 0.1,
+            "retreatChance": 0.05,
+            "chargeChance": 0.45,
+            "flankChance": 0.45,
+            "chaseSpeedMultiplier": 1.6,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 5
+          }
         ]
       },
       "attackData": {
+        "globalCooldown": 1,
+        "skills": []
       }
-    }    ,
+    },
+    {
+      "_id": "humanoid",
+      "stats": {
+        "maxHealth": 700,
+        "walkSpeed": 2.5,
+        "runSpeed": 5.5,
+        "chaseSpeedMultiplier": 1.3,
+        "detectionRadius": 15,
+        "lostTargetRadius": 22,
+        "fieldOfView": 130,
+        "attackRange": 2.5,
+        "attackCooldown": 1.2,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 350,
+        "recoveryDelay": 2,
+        "recoveryRate": 50,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 104,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 106,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 107,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 108,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "LianLian",
+      "stats": {
+        "maxHealth": 800,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.2,
+        "minCombatDistance": 1,
+        "maintainDistance": true,
+        "continueAttackChance": 0.35,
+        "guardChance": 0.1,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": [
+          {
+            "phaseName": "공세 (HP 60% 이하)",
+            "hpThreshold": 0.6,
+            "continueAttackChance": 0.45,
+            "guardChance": 0.2,
+            "retreatChance": 0.1,
+            "chargeChance": 0.25,
+            "flankChance": 0.35,
+            "chaseSpeedMultiplier": 1.4,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 4
+          },
+          {
+            "phaseName": "광전사 (HP 30% 이하)",
+            "hpThreshold": 0.3,
+            "continueAttackChance": 0.6,
+            "guardChance": 0.1,
+            "retreatChance": 0.05,
+            "chargeChance": 0.45,
+            "flankChance": 0.45,
+            "chaseSpeedMultiplier": 1.6,
+            "allowCharge": true,
+            "allowFlank": true,
+            "maxConsecutiveAttacks": 5
+          }
+        ]
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "lich",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Lich",
+      "stats": {
+        "maxHealth": 600,
+        "walkSpeed": 1.8,
+        "runSpeed": 3.5,
+        "chaseSpeedMultiplier": 1,
+        "detectionRadius": 20,
+        "lostTargetRadius": 28,
+        "fieldOfView": 150,
+        "attackRange": 15,
+        "attackCooldown": 2,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 40,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 3,
+            "selectionWeight": 20,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 30,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 6,
+                  "minHealthPercent": 0,
+                  "maxHealthPercent": 0,
+                  "minRange": 0,
+                  "maxRange": 0,
+                  "minAllyCount": 0,
+                  "maxAllyCount": 0,
+                  "checkSpawnCount": 1
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 10,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "MainPlant",
+      "stats": {
+        "maxHealth": 550,
+        "walkSpeed": 0,
+        "runSpeed": 0,
+        "chaseSpeedMultiplier": 0,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+      "poise": {
+        "maxPoise": 250,
+        "recoveryDelay": 3,
+        "recoveryRate": 60,
+        "hasHyperArmor": true
+      },
+      "brain": {
+        "optimalCombatDistance": 10,
+        "minCombatDistance": 0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0,
+        "retreatChance": 0,
+        "chaseSpeedMultiplier": 0,
+        "circleDuration": 0,
+        "guardDuration": 0,
+        "retreatDistance": 0,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0,
+        "phases": [
+          {
+            "phaseName": "절박 (HP 40% 이하)",
+            "hpThreshold": 0.4,
+            "continueAttackChance": 0.5,
+            "guardChance": 0,
+            "retreatChance": 0.3,
+            "chargeChance": 0,
+            "flankChance": 0,
+            "chaseSpeedMultiplier": 1.2,
+            "allowCharge": false,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 3
+          }
+        ]
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 15,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 3,
+            "selectionWeight": 20,
+            "minRange": 2,
+            "maxRange": 20,
+            "cooldown": 30,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": [
+                {
+                  "type": 6,
+                  "minHealthPercent": 0,
+                  "maxHealthPercent": 0,
+                  "minRange": 0,
+                  "maxRange": 0,
+                  "minAllyCount": 0,
+                  "maxAllyCount": 0,
+                  "checkSpawnCount": 1
+                }
+              ]
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 28,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 20,
+            "minRange": 2,
+            "maxRange": 20,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "Monster_Bokusei",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 28,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 28,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 16,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 104,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 16,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 106,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 107,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 108,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 36,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 201,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 35,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 202,
+              "attackType": 0,
+              "reactionType": 7,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 5,
+              "airborneForce": 7,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 203,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 204,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 205,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 40,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 45,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 8,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 503,
+              "attackType": 1,
+              "reactionType": 4,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "Monster_Honoka",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 28,
+              "poiseDamage": 28,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 7,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 5,
+              "airborneForce": 7,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 104,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 106,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 107,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 108,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 30,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 9,
+              "damage": 20,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "Monster_LianLian",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 102,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 25,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 5,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 103,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 104,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 5,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 105,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 25,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 200,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 201,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 202,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 5,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 203,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 30,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 204,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 500,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 10,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 501,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 70,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 5,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 502,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 10,
+              "poiseDamage": 10,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "PlantChild",
+      "stats": {
+        "maxHealth": 40,
+        "walkSpeed": 3,
+        "runSpeed": 6,
+        "chaseSpeedMultiplier": 1.3,
+        "detectionRadius": 10,
+        "lostTargetRadius": 14,
+        "fieldOfView": 150,
+        "attackRange": 1,
+        "attackCooldown": 1,
+        "enablePatrol": true,
+        "patrolRadius": 3,
+        "patrolWaitTime": 1
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "PlantRoot",
+      "stats": {
+        "maxHealth": 250,
+        "walkSpeed": 0,
+        "runSpeed": 0,
+        "chaseSpeedMultiplier": 0,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+      "poise": {
+        "maxPoise": 250,
+        "recoveryDelay": 3,
+        "recoveryRate": 60,
+        "hasHyperArmor": true
+      },
+      "brain": {
+        "optimalCombatDistance": 10,
+        "minCombatDistance": 0,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0,
+        "retreatChance": 0,
+        "chaseSpeedMultiplier": 0,
+        "circleDuration": 0,
+        "guardDuration": 0,
+        "retreatDistance": 0,
+        "enablePatrol": false,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": [
+          {
+            "phaseName": "절박 (HP 40% 이하)",
+            "hpThreshold": 0.4,
+            "continueAttackChance": 0.5,
+            "guardChance": 0,
+            "retreatChance": 0.3,
+            "chargeChance": 0,
+            "flankChance": 0,
+            "chaseSpeedMultiplier": 1.2,
+            "allowCharge": false,
+            "allowFlank": false,
+            "maxConsecutiveAttacks": 3
+          }
+        ]
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 2,
+              "damage": 25,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "Reien",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "Skeleton",
+      "stats": {
+        "maxHealth": 120,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
+      }
+    },
+    {
+      "_id": "skeleton_bow",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Skeleton_Bow",
+      "stats": {
+        "maxHealth": 70,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1,
+        "detectionRadius": 16,
+        "lostTargetRadius": 22,
+        "fieldOfView": 130,
+        "attackRange": 14,
+        "attackCooldown": 2,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.5
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 20,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 1,
+              "reactionType": 2,
+              "damage": 18,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "skeleton_common",
+      "stats": {
+        "maxHealth": 100,
+        "walkSpeed": 2,
+        "runSpeed": 4,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 10,
+        "lostTargetRadius": 15,
+        "fieldOfView": 120,
+        "attackRange": 2.5,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Skeleton_Common",
+      "stats": {},
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 2.5,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 15,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 2.5,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "skeleton_sword",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Skeleton_Sword",
+      "stats": {
+        "maxHealth": 120,
+        "walkSpeed": 2.2,
+        "runSpeed": 4.5,
+        "chaseSpeedMultiplier": 1.2,
+        "detectionRadius": 11,
+        "lostTargetRadius": 16,
+        "fieldOfView": 120,
+        "attackRange": 2.2,
+        "attackCooldown": 1.5,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2
+      },
+      "poise": {},
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": [
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 100,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 22,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          },
+          {
+            "skillType": 1,
+            "selectionWeight": 100,
+            "minRange": 0,
+            "maxRange": 2.5,
+            "cooldown": 2,
+            "conditionGroup": {
+              "conditionOperator": 0,
+              "conditions": []
+            },
+            "baseInfo": {
+              "animKey": 101,
+              "attackType": 0,
+              "reactionType": 4,
+              "damage": 22,
+              "poiseDamage": 30,
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
+              "attackRadius": 1.5,
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 4,
+              "airborneForce": 0,
+              "pullForce": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_id": "spider_minion",
+      "stats": {},
+      "poise": {
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
+      },
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
     {
       "_id": "Spider_Minion",
       "stats": {
@@ -2271,10 +3500,8 @@
         "patrolRadius": 3,
         "patrolWaitTime": 1
       },
-      "poise": {
-      },
-      "brain": {
-      },
+      "poise": {},
+      "brain": {},
       "attackData": {
         "globalCooldown": 1,
         "skills": [
@@ -2286,58 +3513,60 @@
             "cooldown": 2,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
               "reactionType": 2,
-              "damage": 10,
+              "damage": 12,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           }
         ]
       }
-    }    ,
+    },
     {
       "_id": "spider_queen",
-      "stats": {
-      },
+      "stats": {},
       "poise": {
-        "maxPoise": 300,
-        "recoveryDelay": 3,
-        "recoveryRate": 60,
-        "hasHyperArmor": true
+        "maxPoise": 100,
+        "recoveryDelay": 2,
+        "recoveryRate": 40,
+        "hasHyperArmor": false
       },
       "brain": {
-        "optimalCombatDistance": 3,
+        "optimalCombatDistance": 2.5,
         "minCombatDistance": 1.5,
         "maintainDistance": true,
         "continueAttackChance": 0.3,
-        "guardChance": 0,
+        "guardChance": 0.25,
         "retreatChance": 0.2,
         "chaseSpeedMultiplier": 1.2,
-        "circleDuration": 3,
+        "circleDuration": 2.5,
         "guardDuration": 1.5,
         "retreatDistance": 3,
         "enablePatrol": true,
         "patrolRadius": 5,
         "patrolWaitTime": 2,
-        "phases": [
-          { "phaseName": "격노 (HP 50% 이하)", "hpThreshold": 0.5, "continueAttackChance": 0.45, "guardChance": 0, "retreatChance": 0.1, "chargeChance": 0.3, "flankChance": 0, "chaseSpeedMultiplier": 1.3, "allowCharge": true, "allowFlank": false, "maxConsecutiveAttacks": 4 }
-        ]
+        "phases": []
       },
-      "attackData": {
-      }
-    }    ,
+      "attackData": {}
+    },
     {
       "_id": "Spider_Queen",
       "stats": {
-        "maxHealth": 600,
+        "maxHealth": 1200,
         "walkSpeed": 2,
         "runSpeed": 4.5,
         "chaseSpeedMultiplier": 1.1,
@@ -2350,10 +3579,8 @@
         "patrolRadius": 0,
         "patrolWaitTime": 0
       },
-      "poise": {
-      },
-      "brain": {
-      },
+      "poise": {},
+      "brain": {},
       "attackData": {
         "globalCooldown": 1,
         "skills": [
@@ -2365,18 +3592,24 @@
             "cooldown": 2,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 100,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
+              "reactionType": 4,
+              "damage": 30,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           },
           {
@@ -2387,18 +3620,24 @@
             "cooldown": 2,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 101,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
+              "reactionType": 4,
+              "damage": 25,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           },
           {
@@ -2409,18 +3648,24 @@
             "cooldown": 2,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 200,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
+              "reactionType": 4,
+              "damage": 35,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           },
           {
@@ -2431,18 +3676,24 @@
             "cooldown": 2,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 201,
               "attackType": 0,
-              "reactionType": 2,
-              "damage": 10,
+              "reactionType": 4,
+              "damage": 35,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 6,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           },
           {
@@ -2454,18 +3705,34 @@
             "conditionGroup": {
               "conditionOperator": 0,
               "conditions": [
-                { "type": 6, "minHealthPercent": 0, "maxHealthPercent": 0, "minRange": 0, "maxRange": 0, "minAllyCount": 0, "maxAllyCount": 0, "checkSpawnCount": 1 }
+                {
+                  "type": 6,
+                  "minHealthPercent": 0,
+                  "maxHealthPercent": 0,
+                  "minRange": 0,
+                  "maxRange": 0,
+                  "minAllyCount": 0,
+                  "maxAllyCount": 0,
+                  "checkSpawnCount": 1
+                }
               ]
             },
             "baseInfo": {
               "animKey": 500,
               "attackType": 1,
               "reactionType": 2,
-              "damage": 10,
+              "damage": 28,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           },
           {
@@ -2476,8 +3743,7 @@
             "cooldown": 5,
             "conditionGroup": {
               "conditionOperator": 0,
-              "conditions": [
-              ]
+              "conditions": []
             },
             "baseInfo": {
               "animKey": 501,
@@ -2485,12 +3751,69 @@
               "reactionType": 2,
               "damage": 10,
               "poiseDamage": 30,
-              "attackOffset": { "x": 0, "y": 1, "z": 1.5 },
+              "attackOffset": {
+                "x": 0,
+                "y": 1,
+                "z": 1.5
+              },
               "attackRadius": 1.5,
-              "hitParticleName": "LiteHit"
+              "hitParticleName": "LiteHit",
+              "knockbackForce": 0,
+              "airborneForce": 0,
+              "pullForce": 0
             }
           }
         ]
+      }
+    },
+    {
+      "_id": "traning_dummy",
+      "stats": {},
+      "poise": {},
+      "brain": {
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "maintainDistance": true,
+        "continueAttackChance": 0.3,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "chaseSpeedMultiplier": 1.2,
+        "circleDuration": 2.5,
+        "guardDuration": 1.5,
+        "retreatDistance": 3,
+        "enablePatrol": true,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2,
+        "phases": []
+      },
+      "attackData": {}
+    },
+    {
+      "_id": "Traning_Dummy",
+      "stats": {
+        "maxHealth": 999999,
+        "walkSpeed": 0,
+        "runSpeed": 0,
+        "chaseSpeedMultiplier": 0,
+        "detectionRadius": 0,
+        "lostTargetRadius": 0,
+        "fieldOfView": 0,
+        "attackRange": 0,
+        "attackCooldown": 0,
+        "enablePatrol": false,
+        "patrolRadius": 0,
+        "patrolWaitTime": 0
+      },
+      "poise": {
+        "maxPoise": 1000000000.0,
+        "recoveryDelay": 1.5,
+        "recoveryRate": 20,
+        "hasHyperArmor": true
+      },
+      "brain": {},
+      "attackData": {
+        "globalCooldown": 1,
+        "skills": []
       }
     }
   ]

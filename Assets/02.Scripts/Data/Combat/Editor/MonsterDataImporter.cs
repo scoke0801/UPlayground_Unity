@@ -91,6 +91,10 @@ namespace UPlayGround.Editor
             public float  damage;  public float poiseDamage;
             public Vec3Json attackOffset; public float attackRadius;
             public string hitParticleName;
+            public float  knockbackForce;
+            public float  knockbackDrag;
+            public float  airborneForce;
+            public float  pullForce;
         }
 
         [Serializable] private class Vec3Json { public float x, y, z; }
@@ -325,6 +329,10 @@ namespace UPlayGround.Editor
                                         : Vector3.zero;
             phase.attackRadius    = bj.attackRadius;
             phase.hitParticleName = bj.hitParticleName ?? "";
+            phase.knockBackForce  = bj.knockbackForce;
+            phase.knockBackDrag   = bj.knockbackDrag > 0f ? bj.knockbackDrag : 20f; // 기존 데이터 호환: 없으면 기본값
+            phase.airborneForce   = bj.airborneForce;
+            phase.pullForce       = bj.pullForce;
 
             return info;
         }

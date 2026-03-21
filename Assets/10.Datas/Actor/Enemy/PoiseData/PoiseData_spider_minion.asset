@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b981ba405e0534191caaa4b81e0439, type: 3}
   m_Name: PoiseData_spider_minion
   m_EditorClassIdentifier: 
-  maxPoise: 30
-  recoveryDelay: 1.5
-  recoveryRate: 20
+  maxPoise: 100
+  recoveryDelay: 2
+  recoveryRate: 40
   hasHyperArmor: 0

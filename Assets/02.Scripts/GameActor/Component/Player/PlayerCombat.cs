@@ -298,6 +298,7 @@ namespace UPlayGround.Component
                 hitParticleName  = phase0.hitParticleName,
                 pullForce        = phase0.pullForce,
                 knockbackForce   = phase0.knockBackForce,
+                knockbackDrag    = phase0.knockBackDrag,
                 airborneForce    = phase0.airborneForce,
                 hitPhaseIndex    = 0,
                 attackKind       = attackKind,
@@ -441,6 +442,7 @@ namespace UPlayGround.Component
             _currentAttackData.pullForce       = phase.pullForce;
             _currentAttackData.airborneForce   = phase.airborneForce;
             _currentAttackData.knockbackForce  = phase.knockBackForce;
+            _currentAttackData.knockbackDrag   = phase.knockBackDrag;
         }
 
         private float GetAnimationDuration(AnimKey animKey)

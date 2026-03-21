@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_griffin
   m_EditorClassIdentifier: 
-  optimalCombatDistance: 1.8
-  minCombatDistance: 0.8
-  maintainDistance: 0
-  continueAttackChance: 0.4
-  guardChance: 0
-  retreatChance: 0.1
+  optimalCombatDistance: 2.5
+  minCombatDistance: 1.5
+  maintainDistance: 1
+  chaseStopDistance: 2
+  personalSpaceDistance: 0.8
+  continueAttackChance: 0.3
+  guardChance: 0.25
+  retreatChance: 0.2
   chaseSpeedMultiplier: 1.2
-  circleDuration: 1.5
+  circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
   enablePatrol: 1

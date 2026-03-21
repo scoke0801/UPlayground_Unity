@@ -12,15 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
   m_Name: DefaultEnemyAttackData
   m_EditorClassIdentifier: 
-  AttackList:
-  - animKey: 100
-    damage: 10
-    attackOffset: {x: 0, y: 1, z: 1.5}
-    attackRadius: 1.5
-    hitStartTime: 0.3
-    hitEndTime: 0.6
-    moveSpeedMultiplier: 0.2
-    comboWindowStart: 0.5
-    comboWindowEnd: 1
-  attackCooldown: 1.5
-  attackProbability: 0.7
+  skills: []
+  globalCooldown: 1

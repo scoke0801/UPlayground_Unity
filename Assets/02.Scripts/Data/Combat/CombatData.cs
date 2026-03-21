@@ -30,9 +30,11 @@ namespace UPlayGround.Data
         public string hitParticleName = "LiteHit";
 
         [Header("Reaction Forces")]
-        public float pullForce    = 10f;
+        public float pullForce     = 10f;
         public float airborneForce = 8f;
         public float knockBackForce = 10f;
+        [Tooltip("넉백 감속 강도. 높을수록 빠르게 멈춤\nKnockBack 권장: 20 / Airborne 권장: 5")]
+        public float knockBackDrag = 20f;
 
         [Header("Grab")]
         [Tooltip("Grab 지속 시간 (초)")]
@@ -158,6 +160,8 @@ namespace UPlayGround.Data
         public float pullForce    = 10f;
         public float airborneForce = 8f;
         public float knockbackForce = 10f;
+        // 넉백 감속 강도. 높을수록 빠르게 멈춤 (KnockBack: 20, Airborne: 5)
+        public float knockbackDrag = 20f;
 
         // ── Grab 파라미터 ──────────────────────────
         /// <summary> Grab 지속 시간 (초). </summary>

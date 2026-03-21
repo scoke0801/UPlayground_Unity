@@ -293,15 +293,22 @@ namespace UPlayGround.Editor
 
         private void WriteBaseInfo(StringBuilder sb, AttackInfoBase bi)
         {
+            var phase = bi.GetHitPhase(0);
+            
             sb.AppendLine(I(6) + "\"baseInfo\": {");
             sb.AppendLine(I(7) + $"\"animKey\": {(int)bi.animKey},");
             sb.AppendLine(I(7) + $"\"attackType\": {(int)bi.attackType},");
-            sb.AppendLine(I(7) + $"\"reactionType\": {(int)bi.reactionType},");
-            sb.AppendLine(I(7) + $"\"damage\": {bi.damage},");
-            sb.AppendLine(I(7) + $"\"poiseDamage\": {bi.poiseDamage},");
-            sb.AppendLine(I(7) + $"\"attackOffset\": {{ \"x\": {bi.attackOffset.x}, \"y\": {bi.attackOffset.y}, \"z\": {bi.attackOffset.z} }},");
-            sb.AppendLine(I(7) + $"\"attackRadius\": {bi.attackRadius},");
-            sb.AppendLine(I(7) + $"\"hitParticleName\": \"{bi.hitParticleName}\"");
+            sb.AppendLine(I(7) + $"\"reactionType\": {(int)phase.reactionType},");
+            sb.AppendLine(I(7) + $"\"damage\": {phase.damage},");
+            sb.AppendLine(I(7) + $"\"poiseDamage\": {phase.poiseDamage},");
+            sb.AppendLine(I(7) + $"\"attackOffset\": {{ \"x\": {phase.attackOffset.x}, \"y\": {phase.attackOffset.y}, \"z\": {phase.attackOffset.z} }},");
+            sb.AppendLine(I(7) + $"\"attackRadius\": {phase.attackRadius},");
+            sb.AppendLine(I(7) + $"\"hitParticleName\": \"{phase.hitParticleName}\",");
+            // Reaction Forces — reactionType이 KnockBack/Airborne/Pull일 때만 의미 있지만 항상 내보낸다
+            sb.AppendLine(I(7) + $"\"knockbackForce\": {phase.knockBackForce},");
+            sb.AppendLine(I(7) + $"\"knockbackDrag\": {phase.knockBackDrag},");
+            sb.AppendLine(I(7) + $"\"airborneForce\": {phase.airborneForce},");
+            sb.AppendLine(I(7) + $"\"pullForce\": {phase.pullForce}");
             sb.AppendLine(I(6) + "}");
         }
 

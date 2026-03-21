@@ -12,28 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_spider_queen
   m_EditorClassIdentifier: 
-  optimalCombatDistance: 3
+  optimalCombatDistance: 2.5
   minCombatDistance: 1.5
   maintainDistance: 1
+  chaseStopDistance: 2
+  personalSpaceDistance: 0.8
   continueAttackChance: 0.3
-  guardChance: 0
+  guardChance: 0.25
   retreatChance: 0.2
   chaseSpeedMultiplier: 1.2
-  circleDuration: 3
+  circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2
-  phases:
-  - phaseName: "\uACA9\uB178 (HP 50% \uC774\uD558)"
-    hpThreshold: 0.5
-    continueAttackChance: 0.45
-    guardChance: 0
-    retreatChance: 0.1
-    chargeChance: 0.3
-    flankChance: 0
-    chaseSpeedMultiplier: 1.3
-    allowCharge: 1
-    allowFlank: 0
-    maxConsecutiveAttacks: 4
+  phases: []

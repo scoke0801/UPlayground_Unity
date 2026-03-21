@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f43e3497a410b8989b4373882faaf, type: 3}
   m_Name: StatData_skeleton_common
   m_EditorClassIdentifier: 
-  maxHealth: 80
+  maxHealth: 100
   walkSpeed: 2
   runSpeed: 4
-  chaseSpeedMultiplier: 1.1
+  chaseSpeedMultiplier: 1.2
   detectionRadius: 10
   lostTargetRadius: 15
   fieldOfView: 120
-  attackRange: 2
+  attackRange: 2.5
   attackCooldown: 1.5
+  grade: 0
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

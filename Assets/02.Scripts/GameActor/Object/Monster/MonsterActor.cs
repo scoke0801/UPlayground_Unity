@@ -7,6 +7,7 @@ using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.State;
+using UPlayGround.UI;
 using Random = System.Random;
 
 namespace UPlayGround
@@ -46,33 +47,20 @@ namespace UPlayGround
             _maxHealth = _stats.maxHealth;
             _currentHealth = _maxHealth;
             
-            // AI 컴포넌트 자동 할당
-            if (_detection == null)
-                _detection = GetComponent<EnemyDetection>();
-            
-            if (_brain == null)
-                _brain = GetComponent<EnemyBrain>();
-            
-            if (_combat == null)
-                _combat = GetComponent<EnemyCombat>();
-            
-            if(_poiseStat == null)
-                _poiseStat = GetComponent<PoiseStat>();
+            if (_detection == null) _detection = GetComponent<EnemyDetection>();
+            if (_brain     == null) _brain     = GetComponent<EnemyBrain>();
+            if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
+            if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
         }
 
         protected override void Start()
         {
             base.Start();
-            
-            // AttachHpUI();
         }
 
         private void AttachHpUI()
         {
-            if (_uiHpBar != null)
-            {
-                return;
-            }
+            if (_uiHpBar != null) return;
             
             _uiHpBar = UIManager.Instance.CreateHpBar(this);
             if (_uiHpBar != null)
@@ -80,24 +68,22 @@ namespace UPlayGround
                 OnHealthChanged += _uiHpBar.UpdateHealth;
 
                 if (_poiseStat != null)
-                {
                     _poiseStat.ConnectUiBar(_uiHpBar);
-                }
             }
                 
             _uiHpBar?.UpdateHealth(_currentHealth, _maxHealth);
         }
+
         #region IDamageable Implementation
         
         public void TakeDamage(AttackData attackData)
         {
             if (_combat.IsGuarding)
             {
-                // Guard State가 처리하도록 위임
                 if (MovementController.CurrentState is EnemyGuardState guardState)
                 {
                     guardState.OnAttackBlocked(attackData);
-                    return; // 데미지 처리 중단
+                    return;
                 }
             }
 
@@ -109,7 +95,6 @@ namespace UPlayGround
             
             float finalDamage = attackData.damage;
             
-            // 크리티컬 처리
             if (attackData.criticalMultiplier > 1.0f)
             {
                 finalDamage *= attackData.criticalMultiplier;
@@ -118,126 +103,79 @@ namespace UPlayGround
             
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
 
-            if (_uiHpBar == null)
-            {
-                AttachHpUI();
-            }
+            if (_uiHpBar == null) AttachHpUI();
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            
-            // 페이즈 업데이트
             _brain?.UpdatePhase(GetHealthPercent());
             
             Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
             
             _detection.AcquireTarget(attackData.attacker?.transform);
             
-            // 피격 이펙트, 사운드, 넉백 등 추가 가능
             OnDamaged(attackData);
             
-            // 사망 처리
             if (_currentHealth <= 0)
-            {
                 OnDeath(attackData);
-            }
         }
 
         public void OnTakeFinishAttack(Vector3 attackDirection)
         {
             _currentHealth = 0;
 
-            if (_uiHpBar == null)
-            {
-                AttachHpUI();
-            }
-            MovementController.AddVelocity(attackDirection.normalized * 30.0f);
-            
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
+            if (_uiHpBar == null) AttachHpUI();
 
+            MovementController.AddVelocity(attackDirection.normalized * 30.0f);
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath(null);
         }
         
-        public bool IsAlive()
-        {
-            return _currentHealth > 0;
-        }
-        
-        public bool CanTakeDamage()
-        {
-            // if (MovementController.CurrentState.StateName == "Hit")
-            //     return false;
-            return IsAlive() && !_isInvincible;
-        }
-        
-        public Transform GetTransform()
-        {
-            return transform;
-        }
+        public bool IsAlive()          => _currentHealth > 0;
+        public bool CanTakeDamage()    => IsAlive() && !_isInvincible;
+        public Transform GetTransform() => transform;
 
-        public void LockOn()
-        {
-            _lockOnDecal?.SetActive(true);
-        }
+        public void LockOn()   => _lockOnDecal?.SetActive(true);
+        public void UnLockOn() => _lockOnDecal?.SetActive(false);
 
-        public void UnLockOn()
-        {
-            _lockOnDecal?.SetActive(false);
-        }
-
-        public float GetHealthPercent()
-        {
-            return _currentHealth / _maxHealth;
-        }
-
-        public float GetCurrentHealth()
-        {
-            return _currentHealth;
-        }
+        public float GetHealthPercent() => _currentHealth / _maxHealth;
+        public float GetCurrentHealth() => _currentHealth;
 
         #endregion
         
         #region Health Management
         
-        /// <summary>
-        /// 체력 회복
-        /// </summary>
         public void Heal(float amount)
         {
-            if (!IsAlive())
-                return;
+            if (!IsAlive()) return;
             
-            float oldHealth = _currentHealth;
-            _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
-            float actualHeal = _currentHealth - oldHealth;
-            
-            if (_uiHpBar == null)
-            {
-                AttachHpUI();
-            }
+            float oldHealth   = _currentHealth;
+            _currentHealth    = Mathf.Min(_currentHealth + amount, _maxHealth);
+            float actualHeal  = _currentHealth - oldHealth;
+
+            if (actualHeal <= 0f) return;
+
+            if (_uiHpBar == null) AttachHpUI();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // 힐 위치: Center 소켓 우선, 없으면 루트 위치
+            Vector3 floaterPos = TryGetSocket(ActorSocketType.Center, out var center)
+                ? center.position
+                : transform.position;
+            UIManager.Instance.ShowDamageFloaterHeal(floaterPos, actualHeal, FloatStyle.MonsterHeal);
+
             Debug.Log($"[MonsterActor] {gameObject.name} 체력 회복: +{actualHeal:F1} HP (현재: {_currentHealth:F1}/{_maxHealth})");
         }
         
-        /// <summary>
-        /// 체력 직접 설정
-        /// </summary>
         public void SetHealth(float health)
         {
             _currentHealth = Mathf.Clamp(health, 0f, _maxHealth);
-            
             if (_currentHealth <= 0 && IsAlive())
-            {
                 OnDeath(null);
-            }
         }
         
         #endregion
-        /// <summary>
-        /// 피격 시 호출 (이펙트, 사운드 등)
-        /// </summary>
+
         protected virtual void OnDamaged(AttackData attackData)
         {
-            // Poise 판정 — Poise가 소진됐을 때만 Hit State 진입
             bool poiseBroken = true;
             if (_poiseStat != null)
             { 
@@ -245,7 +183,7 @@ namespace UPlayGround
                 poiseBroken = _poiseStat.IsPoiseBroken;
             }
             
-            if (attackData != null &&  poiseBroken == true)
+            if (attackData != null && poiseBroken)
             {
                 switch (attackData.reactionType)
                 {
@@ -266,7 +204,6 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        // knockbackForce: 수평 밀림 거리, airborneForce: 공중 띄움 높이
                         MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce, attackData.knockbackDrag);
                         MovementController.Motor.ForceUnground();
                         break;
@@ -288,20 +225,14 @@ namespace UPlayGround
             }
 
             _colorChanger.OnHit();
-            
             Debug.Log($"[MonsterActor] 피격! PoiseBroken={poiseBroken}, HitPoint: {attackData?.hitPoint}");
         }
         
-        /// <summary>
-        /// 사망 시 호출
-        /// </summary>
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
-            // 그룹에서 제거 — 슬롯/레지스트리 정리
             _brain?.Group?.UnregisterMember(this);
-            
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             if (_uiHpBar != null)
@@ -310,30 +241,15 @@ namespace UPlayGround
                 Destroy(_uiHpBar.gameObject);
             }
             
-            //_dissolveController.StartDissolve(3f);
-            // KCC 캡슐 콜라이더 충돌 비활성화
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
-            //MovementController.Motor.enabled = false;
         }
 
         public void PlayDissolveAndDestroy(float duration)
         {
-            // 사망 애니메이션
-            // 아이템 드롭
-            // 사망 처리
             MovementController.Motor.enabled = false;
             _dissolveController.StartDissolve(duration);
-            
-            //Destroy(gameObject, duration);
         }
         
-        /// <summary>
-        /// 무적 상태 설정 (디버깅/테스트용)
-        /// </summary>
-        public void SetInvincible(bool invincible)
-        {
-            _isInvincible = invincible;
-        }
-
+        public void SetInvincible(bool invincible) => _isInvincible = invincible;
     }
 }

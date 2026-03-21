@@ -24,7 +24,7 @@ namespace UPlayGround.Manager
     public class UIManager : BaseManager<UIManager>, IManager
     {
         private const string DATABASE_PATH       = "UIPrefabDatabase";
-        private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig"; // Addressables 등록 키
+        private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
         private Dictionary<string, GameObject>   _activeUIObjects;
@@ -33,7 +33,6 @@ namespace UPlayGround.Manager
 
         private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
 
-        // 둘 다 Addressables로 로드 — 인스펙터 연결 없음
         private UIPrefabDatabase      _uiPrefabDatabase;
         private DamageFloaterConfigSO _floaterConfig;
 
@@ -50,7 +49,7 @@ namespace UPlayGround.Manager
             _uiByType           = new Dictionary<System.Type, UI_Base>();
 
             CreateCanvasLayers();
-            LoadAssetsAsync();       // DB + Config 동시 로드
+            LoadAssetsAsync();
             RegisterInputEvents();
         }
 
@@ -81,10 +80,6 @@ namespace UPlayGround.Manager
 
         #endregion
 
-        // ── Addressables 로드 ─────────────────────────────────────────
-        // UIPrefabDatabase와 DamageFloaterConfig를 병렬 로드한 뒤
-        // 둘 다 준비되면 WorldSpaceHudLayer를 세팅한다.
-
         private async void LoadAssetsAsync()
         {
             var dbTask     = Addressables.LoadAssetAsync<UIPrefabDatabase>(DATABASE_PATH).Task;
@@ -109,10 +104,8 @@ namespace UPlayGround.Manager
             _uiPrefabDatabase.Initialize();
             IsInitialized = true;
 
-            // HpBar 세팅 (기존)
             _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry("ActorHpBar"));
 
-            // 플로터 풀 세팅 — Config도 Addressables에서 왔으므로 바로 전달
             var floaterPrefab = GetUIPrefabEntry("DamageFloater");
             if (floaterPrefab != null)
                 _worldSpaceHudLayer.SetupFloaterPool(floaterPrefab, _floaterConfig);
@@ -301,9 +294,10 @@ namespace UPlayGround.Manager
             _worldSpaceHudLayer?.ShowFloaterMiss(worldPos);
         }
 
-        public void ShowDamageFloaterHeal(Vector3 worldPos, float amount)
+        /// <param name="style">기본값 Heal (플레이어). 몬스터 힐은 MonsterHeal 전달.</param>
+        public void ShowDamageFloaterHeal(Vector3 worldPos, float amount, FloatStyle style = FloatStyle.Heal)
         {
-            _worldSpaceHudLayer?.ShowFloaterHeal(worldPos, amount);
+            _worldSpaceHudLayer?.ShowFloaterHeal(worldPos, amount, style);
         }
 
         #endregion

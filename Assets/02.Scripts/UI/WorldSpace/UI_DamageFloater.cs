@@ -4,6 +4,16 @@ using UPlayGround.Data.UI;
 
 namespace UPlayGround.UI
 {
+    public enum FloatStyle
+    {
+        Normal,       // 일반 공격 데미지 (흰색)
+        Critical,     // 강/스킬 공격 데미지 (골드)
+        Heal,         // 플레이어 체력 회복 (밝은 그린)
+        MonsterHeal,  // 몬스터 체력 회복 (황록색)
+        Miss,         // 회피·무적 (회색)
+        PlayerDamage, // 플레이어 피격 데미지 (레드)
+    }
+
     /// <summary>
     /// 피격 지점 위로 떠오르는 데미지 숫자 하나.
     /// UI_WorldSpaceHudLayer가 풀에서 꺼내서 Play()를 호출한다.
@@ -11,12 +21,12 @@ namespace UPlayGround.UI
     [RequireComponent(typeof(TextMeshProUGUI))]
     public class UI_DamageFloater : MonoBehaviour
     {
-        private TextMeshProUGUI      _text;
-        private RectTransform        _rect;
-        private Camera               _camera;
-        private Canvas               _canvas;
+        private TextMeshProUGUI       _text;
+        private RectTransform         _rect;
+        private Camera                _camera;
+        private Canvas                _canvas;
         private DamageFloaterConfigSO _config;
-        private UI_WorldSpaceHudLayer _owner; // 풀 반환 대상
+        private UI_WorldSpaceHudLayer _owner;
 
         private Vector3 _worldOrigin;
         private float   _elapsed;
@@ -94,11 +104,19 @@ namespace UPlayGround.UI
                     _text.color    = _config.healColor;
                     _text.fontSize = _config.healFontSize;
                     break;
+                case FloatStyle.MonsterHeal:
+                    _text.color    = _config.monsterHealColor;
+                    _text.fontSize = _config.monsterHealFontSize;
+                    break;
                 case FloatStyle.Miss:
                     _text.color    = _config.missColor;
                     _text.fontSize = _config.normalFontSize;
                     break;
-                default:
+                case FloatStyle.PlayerDamage:
+                    _text.color    = _config.playerDamageColor;
+                    _text.fontSize = _config.playerDamageFontSize;
+                    break;
+                default: // Normal
                     _text.color    = _config.normalColor;
                     _text.fontSize = _config.normalFontSize;
                     break;
@@ -111,13 +129,5 @@ namespace UPlayGround.UI
             gameObject.SetActive(false);
             _owner.ReturnFloaterToPool(this);
         }
-    }
-
-    public enum FloatStyle
-    {
-        Normal,
-        Critical,
-        Heal,
-        Miss,
     }
 }

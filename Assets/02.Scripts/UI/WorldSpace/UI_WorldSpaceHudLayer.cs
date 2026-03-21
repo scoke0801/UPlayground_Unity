@@ -17,10 +17,12 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     private GameObject _hpBarPrefab;
 
-    // ── 데미지 플로터 풀 ──────────────────────────────────────────────
-    private GameObject               _floaterPrefab;
-    private DamageFloaterConfigSO    _floaterConfig;
-    private Queue<UI_DamageFloater>  _floaterPool = new Queue<UI_DamageFloater>();
+    private GameObject              _floaterPrefab;
+    private DamageFloaterConfigSO   _floaterConfig;
+    private Queue<UI_DamageFloater> _floaterPool = new Queue<UI_DamageFloater>();
+
+    // 풀 준비 완료 여부 — 미준비 상태에서 호출 시 조용히 스킵
+    private bool _isPoolReady = false;
 
     public void Init(Canvas parentCanvas)
     {
@@ -30,17 +32,12 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     // ── HP Bar ────────────────────────────────────────────────────────
 
-    public void SetHpBarPrefab(GameObject hpBarPrefab)
-    {
-        _hpBarPrefab = hpBarPrefab;
-    }
+    public void SetHpBarPrefab(GameObject hpBarPrefab) => _hpBarPrefab = hpBarPrefab;
 
     public UI_ActorHpBar CreateHpBar(GameActor actor)
     {
         if (_hpBarPrefab == null) return null;
-
-        if (_mainCamera == null)
-            _mainCamera = Camera.main;
+        if (_mainCamera  == null) _mainCamera = Camera.main;
 
         var hpBar = Instantiate(_hpBarPrefab, transform)?.GetComponent<UI_ActorHpBar>();
         hpBar?.Init(actor, _mainCamera, _parentCanvas);
@@ -49,47 +46,42 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     // ── 데미지 플로터 ─────────────────────────────────────────────────
 
-    /// <summary>
-    /// UIManager.Init() 흐름에서 HpBar 프리팹 세팅 직후에 호출
-    /// </summary>
     public void SetupFloaterPool(GameObject floaterPrefab, DamageFloaterConfigSO config)
     {
-        _floaterPrefab  = floaterPrefab;
-        _floaterConfig  = config;
+        _floaterPrefab = floaterPrefab;
+        _floaterConfig = config;
 
-        if (_mainCamera == null)
-            _mainCamera = Camera.main;
+        if (_mainCamera == null) _mainCamera = Camera.main;
 
         for (int i = 0; i < config.initialPoolSize; i++)
             _floaterPool.Enqueue(CreateFloater());
+
+        _isPoolReady = true;
     }
 
     public void ShowFloater(Vector3 worldPos, float damage, FloatStyle style)
     {
-        string label = Mathf.RoundToInt(damage).ToString();
-        GetFloaterFromPool().Play(worldPos, label, style);
+        if (!_isPoolReady) return;
+        GetFloaterFromPool().Play(worldPos, Mathf.RoundToInt(damage).ToString(), style);
     }
 
     public void ShowFloaterMiss(Vector3 worldPos)
     {
+        if (!_isPoolReady) return;
         GetFloaterFromPool().Play(worldPos, "MISS", FloatStyle.Miss);
     }
 
-    public void ShowFloaterHeal(Vector3 worldPos, float amount)
+    /// <param name="style">Heal 또는 MonsterHeal — 호출자가 구분해서 전달</param>
+    public void ShowFloaterHeal(Vector3 worldPos, float amount, FloatStyle style = FloatStyle.Heal)
     {
-        string label = $"+{Mathf.RoundToInt(amount)}";
-        GetFloaterFromPool().Play(worldPos, label, FloatStyle.Heal);
+        if (!_isPoolReady) return;
+        GetFloaterFromPool().Play(worldPos, $"+{Mathf.RoundToInt(amount)}", style);
     }
 
-    public void ReturnFloaterToPool(UI_DamageFloater floater)
-    {
-        _floaterPool.Enqueue(floater);
-    }
+    public void ReturnFloaterToPool(UI_DamageFloater floater) => _floaterPool.Enqueue(floater);
 
-    private UI_DamageFloater GetFloaterFromPool()
-    {
-        return _floaterPool.Count > 0 ? _floaterPool.Dequeue() : CreateFloater();
-    }
+    private UI_DamageFloater GetFloaterFromPool() =>
+        _floaterPool.Count > 0 ? _floaterPool.Dequeue() : CreateFloater();
 
     private UI_DamageFloater CreateFloater()
     {

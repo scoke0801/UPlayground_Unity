@@ -13,6 +13,7 @@ using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.State;
+using UPlayGround.UI;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround
@@ -22,7 +23,7 @@ namespace UPlayGround
         [SerializeField] private float _interactionRadius;
         [SerializeField] private LayerMask _interactionLayer;
 
-        [SerializeField] private float _maxHealth    = 100f;
+        [SerializeField] private float _maxHealth     = 100f;
         [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool  _isInvincible  = false;
 
@@ -30,17 +31,13 @@ namespace UPlayGround
         [SerializeField] private PlayerCombat     _combat;
         [SerializeField] private PlayerSkillGauge _skillGauge;
 
-        // ── 피격 쉐이크 키 ────────────────────────────────────────────
-        // 하드코딩 문자열 대신 인스펙터에서 튜닝 가능하도록 분리.
-        // CameraShakeDatabase에 등록된 키와 일치해야 한다.
         [Header("Hit Shake Keys")]
         [Tooltip("일반 피격 쉐이크")]
-        [SerializeField] private string _shakeKeyHit       = "PlayerHit";
+        [SerializeField] private string _shakeKeyHit      = "PlayerHit";
         [Tooltip("Heavy / KnockBack / Airborne 피격 쉐이크")]
-        [SerializeField] private string _shakeKeyHeavyHit  = "PlayerHeavyHit";
+        [SerializeField] private string _shakeKeyHeavyHit = "PlayerHeavyHit";
         [Tooltip("사망 쉐이크")]
-        [SerializeField] private string _shakeKeyDeath     = "PlayerDeath";
-        // ──────────────────────────────────────────────────────────────
+        [SerializeField] private string _shakeKeyDeath    = "PlayerDeath";
 
         public event Action<float, float> OnHpChanged;
         public event Action<float, float> OnSkillGaugeChanged;
@@ -67,16 +64,16 @@ namespace UPlayGround
             InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None,
         };
 
-        public override ActorAnimator      Animator        => _playerActorAnimator;
-        public PlayerMovementController    PlayerController => PlayerMovementPlayerController;
-        public float                       InteractionRadius => _interactionRadius;
-        public LayerMask                   InteractionLayer  => _interactionLayer;
+        public override ActorAnimator      Animator              => _playerActorAnimator;
+        public PlayerMovementController    PlayerController       => PlayerMovementPlayerController;
+        public float                       InteractionRadius      => _interactionRadius;
+        public LayerMask                   InteractionLayer       => _interactionLayer;
         public bool                        IsEquippedRightWeapon => _equipment.IsMainWeaponEquipped;
         public bool                        IsEquippedLeftWeapon  => _equipment.IsSubWeaponEquipped;
-        public bool                        IsInCombat  => _combat?.IsInCombat ?? false;
-        public float                       MaxHealth   => _maxHealth;
-        public float                       CurrentHealth => _currentHealth;
-        public PlayerSkillGauge            SkillGauge  => _skillGauge;
+        public bool                        IsInCombat            => _combat?.IsInCombat ?? false;
+        public float                       MaxHealth             => _maxHealth;
+        public float                       CurrentHealth         => _currentHealth;
+        public PlayerSkillGauge            SkillGauge            => _skillGauge;
     }
 
     public partial class PlayerActor : GameActor, IDamageable
@@ -90,7 +87,7 @@ namespace UPlayGround
             _actorType = ActorType.Player | ActorType.Combat;
             _camera    = Camera.main;
             PlayerMovementPlayerController = MovementController as PlayerMovementController;
-            _playerActorAnimator = _animator as PlayerActorAnimator;
+            _playerActorAnimator           = _animator as PlayerActorAnimator;
 
             InitComponents();
             RegisterInputEvents();
@@ -160,27 +157,27 @@ namespace UPlayGround
             InputLayer layer = InputLayer.Level_0;
             var I = InputManager.Instance;
 
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,                OnInputMove,                    OnInputMove,                    null,           OnMoveCanceled,         layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                       OnInputPerformedJump,           null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                       OnInputPerformedWalk,           null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                       OnInputPerformedSprint,         null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                       OnInputPerformedCrouching,      null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                       OnInputPerformedDodge,          null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                       OnInputPerformedDash,           null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                       OnInputPerformedAttack,         null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, null,                       OnInputPerformedHeavyAttack,    null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                       OnInputPerformedSkill_1,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                       OnInputPerformedSkill_2,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                       OnInputPerformedSkill_3,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                       OnInputPerformedSkill_4,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                       OnInputPerformedSkill_5,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                       OnInputPerformedSkill_6,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                       OnInputPerformedSkill_7,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                       OnInputPerformedSkill_8,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                       OnInputPerformedSkill_9,        null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                       OnInputPerformedEquipWeapon,    null,                           null,           null,                   layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                       OnInputPerformedInteraction,    null,                           CanInputInteract, null,                 layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,        null,                           OnInputFinishedGuard,           null,           null,                   layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove,             null,             OnMoveCanceled,  layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, null,                    OnInputPerformedHeavyAttack, null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                    OnInputPerformedSkill_3,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                    OnInputPerformedSkill_4,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                    OnInputPerformedSkill_5,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                    OnInputPerformedSkill_6,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                    OnInputPerformedSkill_7,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                    OnInputPerformedSkill_8,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                    OnInputPerformedSkill_9,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
         }
 
         private void UnRegisterInputEvents()
@@ -188,26 +185,26 @@ namespace UPlayGround
             if (!InputManager.Instance) return;
 
             var I = InputManager.Instance;
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,                OnInputMove,                OnInputMove);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                       OnInputPerformedJump,       null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                       OnInputPerformedWalk,       null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                       OnInputPerformedSprint,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                       OnInputPerformedCrouching,  null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                       OnInputPerformedDodge,      null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                       OnInputPerformedDash,       null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                       OnInputPerformedAttack,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, null,                       OnInputPerformedHeavyAttack,null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                       OnInputPerformedSkill_1,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                       OnInputPerformedSkill_2,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                       OnInputPerformedSkill_3,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                       OnInputPerformedSkill_4,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                       OnInputPerformedSkill_5,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                       OnInputPerformedSkill_6,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                       OnInputPerformedSkill_7,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                       OnInputPerformedSkill_8,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                       OnInputPerformedSkill_9,    null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                       OnInputPerformedEquipWeapon,null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                       OnInputPerformedInteraction,null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, null,                    OnInputPerformedHeavyAttack, null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                    OnInputPerformedSkill_3,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                    OnInputPerformedSkill_4,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                    OnInputPerformedSkill_5,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                    OnInputPerformedSkill_6,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                    OnInputPerformedSkill_7,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                    OnInputPerformedSkill_8,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                    OnInputPerformedSkill_9,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
         }
 
         #region Input Callbacks
@@ -226,21 +223,21 @@ namespace UPlayGround
             if (MovementController.CurrentState.StateName == "GroundMove")
                 MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
         }
-        private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)  => _heavyInputCondition        = InputCondition.Pressed;
-        private void OnInputPerformedAttack(InputAction.CallbackContext obj)       => _attackInputCondition       = InputCondition.Pressed;
-        private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition        = InputCondition.Pressed;
-        private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)      => _skillInputCondition[1]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_3(InputAction.CallbackContext obj)      => _skillInputCondition[2]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_4(InputAction.CallbackContext obj)      => _skillInputCondition[3]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_5(InputAction.CallbackContext obj)      => _skillInputCondition[4]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_6(InputAction.CallbackContext obj)      => _skillInputCondition[5]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_7(InputAction.CallbackContext obj)      => _skillInputCondition[6]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_8(InputAction.CallbackContext obj)      => _skillInputCondition[7]     = InputCondition.Pressed;
-        private void OnInputPerformedSkill_9(InputAction.CallbackContext obj)      => _skillInputCondition[8]     = InputCondition.Pressed;
-        private void OnInputPerformedInteraction(InputAction.CallbackContext obj)  => _interactionInputCondition  = InputCondition.Pressed;
-        private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition        = InputCondition.Pressed;
-        private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition        = InputCondition.None;
+        private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)  => _heavyInputCondition    = InputCondition.Pressed;
+        private void OnInputPerformedAttack(InputAction.CallbackContext obj)       => _attackInputCondition   = InputCondition.Pressed;
+        private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
+        private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)      => _skillInputCondition[1] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_3(InputAction.CallbackContext obj)      => _skillInputCondition[2] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_4(InputAction.CallbackContext obj)      => _skillInputCondition[3] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_5(InputAction.CallbackContext obj)      => _skillInputCondition[4] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_6(InputAction.CallbackContext obj)      => _skillInputCondition[5] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_7(InputAction.CallbackContext obj)      => _skillInputCondition[6] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_8(InputAction.CallbackContext obj)      => _skillInputCondition[7] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_9(InputAction.CallbackContext obj)      => _skillInputCondition[8] = InputCondition.Pressed;
+        private void OnInputPerformedInteraction(InputAction.CallbackContext obj)  => _interactionInputCondition = InputCondition.Pressed;
+        private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
+        private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;
 
         #endregion
 
@@ -267,8 +264,8 @@ namespace UPlayGround
 
         private void InitComponents()
         {
-            if (_combat    == null) _combat    = GetComponent<PlayerCombat>();
-            if (_equipment == null) _equipment = GetComponent<PlayerEquipment>();
+            if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
+            if (_equipment  == null) _equipment  = GetComponent<PlayerEquipment>();
             if (_skillGauge == null) _skillGauge = GetComponent<PlayerSkillGauge>();
 
             if (_skillGauge != null)
@@ -289,8 +286,6 @@ namespace UPlayGround
                 {
                     guardState.OnAttackBlocked(attackData);
 
-                    // 가드 브레이크 발생 시 (OnExit에서 IsGuarding = false로 세팅됨)
-                    // GuardBreakState가 경직을 담당하므로 State 전환은 건너뛰고 데미지/피드백만 적용
                     if (!_combat.IsGuarding)
                         OnGuardBrokenDamage(attackData);
 
@@ -314,6 +309,11 @@ namespace UPlayGround
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             Debug.Log($"[PlayerActor] {gameObject.name}가 {finalDamage} 데미지 (남은 HP: {_currentHealth}/{_maxHealth})");
+
+            Vector3 floaterPos = attackData.hitPoint != Vector3.zero
+                ? attackData.hitPoint
+                : transform.position;
+            UIManager.Instance.ShowDamageFloater(floaterPos, finalDamage, FloatStyle.PlayerDamage);
 
             OnDamaged(attackData);
 
@@ -343,7 +343,10 @@ namespace UPlayGround
             float old = _currentHealth;
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             if (_currentHealth > old)
+            {
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+                UIManager.Instance.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+            }
         }
 
         public void HealPercent(float ratio) => Heal(ratio * _maxHealth);
@@ -359,11 +362,16 @@ namespace UPlayGround
             _currentHealth = MathF.Max(0, _currentHealth - attackData.damage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
+            Vector3 floaterPos = attackData.hitPoint != Vector3.zero
+                ? attackData.hitPoint
+                : transform.position;
+            UIManager.Instance.ShowDamageFloater(floaterPos, attackData.damage, FloatStyle.PlayerDamage);
+
             CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
-                : (attackData.hitPoint);
+                : attackData.hitPoint;
             GameObjectManager.Instance.ShowFX(attackData.hitParticleName, fxPos);
 
             _colorChanger.OnHit();
@@ -399,7 +407,6 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        // knockbackForce: 수평 밀림 거리, airborneForce: 공중 띄움 높이
                         MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce, attackData.knockbackDrag);
                         MovementController.Motor.ForceUnground();
                         break;
@@ -423,17 +430,14 @@ namespace UPlayGround
                         MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }
 
-                // 리액션 강도에 따라 쉐이크 키 선택
-                // Heavy / KnockBack / Airborne → 강한 쉐이크, 그 외 → 일반 쉐이크
                 bool isHeavyReaction = attackData?.reactionType is
-                    AttackReactionType.Heavy or
+                    AttackReactionType.Heavy    or
                     AttackReactionType.KnockBack or
-                    AttackReactionType.Airborne or
+                    AttackReactionType.Airborne  or
                     AttackReactionType.Knockdown or
                     AttackReactionType.Stun;
 
-                string shakeKey = isHeavyReaction ? _shakeKeyHeavyHit : _shakeKeyHit;
-                CameraManager.Instance.StartShake(shakeKey);
+                CameraManager.Instance.StartShake(isHeavyReaction ? _shakeKeyHeavyHit : _shakeKeyHit);
             }
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)

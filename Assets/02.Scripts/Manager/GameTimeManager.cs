@@ -1,95 +1,123 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UPlayGround.Manager
 {
     /// <summary>
-    /// 게임 시간 흐름 제어 + 플레이 시간 누적
-    /// - Pause 시 Time.timeScale = 0 으로 물리/애니메이션 등 전체 정지
-    /// - 플레이 시간은 Pause 구간을 제외하고 누적 (unscaledDeltaTime 사용)
+    /// 게임 시간 흐름 제어 + 플레이 시간 누적.
+    ///
+    /// timeScale 소유권 모델:
+    ///   여러 시스템(HitStop, TimeScaleEvent, PlayerGuard 등)이 동시에
+    ///   timeScale 감속을 요청할 수 있다. 각 요청자는 고유 id로 등록하고,
+    ///   활성 요청 중 가장 낮은 scale(가장 강한 효과)이 실제로 적용된다.
+    ///   마지막 요청자가 해제하면 자동으로 1.0으로 복구된다.
     /// </summary>
     public class GameTimeManager : BaseManager<GameTimeManager>, IManager
     {
-        public static event Action<bool> OnPauseChanged; // true = 일시정지
+        public static event Action<bool> OnPauseChanged;
 
-        public bool IsPaused { get; private set; }
-
-        // 누적 플레이 시간 (초). 저장/불러오기 시 외부에서 주입 가능.
+        public bool IsPaused          { get; private set; }
         public float TotalPlaySeconds { get; private set; }
 
-        // HitStop이 요청한 timeScale. Pause 중엔 적용을 보류하고, 재개 시 복구에 활용.
-        private float _hitStopTimeScale = 1f;
-        private bool _isHitStopping;
+        // key: 요청자 id, value: 요청한 scale
+        private readonly Dictionary<int, float> _requests = new Dictionary<int, float>();
+        private int  _nextId        = 0;
+        private float _activeScale  = 1f; // 현재 적용된 scale (Pause 해제 시 복구용)
 
-        // ─────────────────────────────────────────────
         #region IManager
 
-        public void Init() { }
+        public void Init()   { }
         public void AfterInit() { }
-        public void Dispose() => SetPause(false); // 씬 전환 등에서 timeScale 복구 보장
+        public void Dispose() => SetPause(false);
         public void OnFixedUpdate() { }
-        public void OnLateUpdate() { }
+        public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType) { }
 
         public void OnUpdate()
         {
-            // Pause 중엔 누적하지 않음
             if (!IsPaused)
                 TotalPlaySeconds += Time.unscaledDeltaTime;
         }
 
         #endregion
 
-        // ─────────────────────────────────────────────
-        #region Public API
+        #region Pause
 
         public void SetPause(bool pause)
         {
             if (IsPaused == pause) return;
 
             IsPaused = pause;
-            // HitStop 중이더라도 Pause가 우선. 재개 시엔 HitStop 스케일로 복구.
-            Time.timeScale = pause ? 0f : _hitStopTimeScale;
-
+            // Pause가 최우선 — 재개 시엔 활성 요청 scale로 복구
+            Time.timeScale = pause ? 0f : _activeScale;
             OnPauseChanged?.Invoke(IsPaused);
-            Debug.Log($"[GameTimeManager] {(IsPaused ? "일시정지" : "재개")} | 누적 플레이 {FormatPlayTime()}");
         }
 
         public void TogglePause() => SetPause(!IsPaused);
 
-        /// <summary>
-        /// HitStopManager 전용. timeScale 소유권을 GameTimeManager에 위임.
-        /// Pause 중엔 값만 저장하고 실제 적용은 보류.
-        /// </summary>
-        public void SetHitStopTimeScale(float scale)
-        {
-            _hitStopTimeScale = scale;
-            _isHitStopping = scale < 1f;
+        #endregion
 
-            if (!IsPaused)
-                Time.timeScale = _hitStopTimeScale;
+        #region TimeScale 요청 API
+
+        /// <summary>
+        /// timeScale 감속 요청을 등록한다.
+        /// 반환된 id를 Release()에 전달해서 해제해야 한다.
+        /// </summary>
+        /// <param name="scale">목표 timeScale (낮을수록 강한 효과)</param>
+        /// <returns>이 요청을 식별하는 고유 id</returns>
+        public int Request(float scale)
+        {
+            int id = _nextId++;
+            _requests[id] = Mathf.Clamp(scale, 0.001f, 1f);
+            ApplyLowest();
+            return id;
         }
 
         /// <summary>
-        /// HitStop 종료 시 호출. timeScale을 정상으로 복구.
+        /// 등록된 요청을 해제한다.
+        /// 남은 요청이 없으면 timeScale이 1.0으로 복구된다.
         /// </summary>
-        public void ResetHitStopTimeScale()
+        public void Release(int id)
         {
-            _hitStopTimeScale = 1f;
-            _isHitStopping = false;
-
-            if (!IsPaused)
-                Time.timeScale = 1f;
+            if (!_requests.Remove(id)) return;
+            ApplyLowest();
         }
 
         /// <summary>
-        /// 세이브 데이터 로드 시 누적 시간 주입
+        /// 강제 전체 초기화 (씬 전환, OnSceneChanged 등)
         /// </summary>
+        public void ReleaseAll()
+        {
+            _requests.Clear();
+            ApplyLowest();
+        }
+
+        public bool IsSlowed => _activeScale < 1f;
+
+        #endregion
+
+        #region 내부
+
+        private void ApplyLowest()
+        {
+            // 활성 요청 중 가장 낮은 scale 선택 → 없으면 1.0
+            float lowest = 1f;
+            foreach (var v in _requests.Values)
+                if (v < lowest) lowest = v;
+
+            _activeScale = lowest;
+
+            if (!IsPaused)
+                Time.timeScale = _activeScale;
+        }
+
+        #endregion
+
+        #region 유틸
+
         public void SetTotalPlaySeconds(float seconds) => TotalPlaySeconds = Mathf.Max(0f, seconds);
 
-        /// <summary>
-        /// HH:MM:SS 포맷으로 반환
-        /// </summary>
         public string FormatPlayTime()
         {
             int total = (int)TotalPlaySeconds;

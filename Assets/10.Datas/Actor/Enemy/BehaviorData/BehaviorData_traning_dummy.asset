@@ -12,19 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_traning_dummy
   m_EditorClassIdentifier: 
-  optimalCombatDistance: 2.5
-  minCombatDistance: 1.5
-  maintainDistance: 1
+  optimalCombatDistance: 0
+  minCombatDistance: 0
+  maintainDistance: 0
   chaseStopDistance: 0
   personalSpaceDistance: 0
   continueAttackChance: 0.3
   guardChance: 0.25
   retreatChance: 0.2
-  chaseSpeedMultiplier: 1.2
-  circleDuration: 2.5
-  guardDuration: 1.5
-  retreatDistance: 3
-  enablePatrol: 1
-  patrolRadius: 5
-  patrolWaitTime: 2
+  chaseSpeedMultiplier: 0
+  circleDuration: 0
+  guardDuration: 0
+  retreatDistance: 0
+  enablePatrol: 0
+  patrolRadius: 0
+  patrolWaitTime: 0
   phases: []

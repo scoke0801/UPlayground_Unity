@@ -1,358 +1,300 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UPlayGround.Data.Path;
 
 namespace UPlayGround.Manager.Handler
 {
     /// <summary>
-    /// HitStop(타격 정지) 효과를 전역적으로 관리하는 매니저
-    /// Time.timeScale을 조작
-    /// 액터 단위 Animation 속도 제어
+    /// HitStop(타격 정지) 효과 관리.
+    ///
+    /// timeScale 요청 모델:
+    ///   Execute()는 GameTimeManager에 id 기반 요청을 등록한다.
+    ///   duration 종료 후 해당 id만 Release — 더 강한 다른 효과가 살아있으면
+    ///   timeScale은 그 효과의 값을 유지한다.
+    ///
+    ///   강도 비교:
+    ///   새 요청의 scale < 현재 활성 scale → 더 강한 효과이므로 현재 것을 교체
+    ///   새 요청의 scale ≥ 현재 활성 scale → 더 약하므로 큐에만 추가 (현재 scale 유지)
     /// </summary>
-    public class GameHitStopManager: BaseManager<GameHitStopManager>, IManager
+    public class GameHitStopManager : BaseManager<GameHitStopManager>, IManager
     {
-        /// <summary>
-        /// HitStop 강도 Enum
-        /// </summary>
         public enum HitStopIntensity
         {
-            Light,      // 0.05초 - 약 공격
-            Medium,     // 0.08초 - 중 공격
-            Heavy,      // 0.12초 - 강 공격
-            Critical,   // 0.15초 - 크리티컬/피니셔
-            PlayerDie,  // 1초   - 플레이어 사망
-            
-            PlayerGuard, // 1초
+            Light,       // 0.05s  scale=0.15
+            Medium,      // 0.08s  scale=0.10
+            Heavy,       // 0.12s  scale=0.05
+            Critical,    // 0.15s  scale=0.02
+            PlayerDie,   // 1.00s  scale=0.02
+            PlayerGuard, // actor-only
         }
-        
+
         [Header("HitStop Settings")]
         [SerializeField] private float _defaultHitStopDuration = 0.08f;
-        [SerializeField] private float _defaultTimeScale = 0.1f;
+        [SerializeField] private float _defaultTimeScale       = 0.1f;
 
         private AsyncOperationHandle<GameObject> _volumeHandle;
-        private Volume _volume;
+        private Volume     _volume;
         private GameObject _volumeInstance;
-        
-        private Coroutine _currentHitStopCoroutine;
-        private bool _isHitStopping;
-        
-        private float _transitionTime = 0.05f; // 전환 속도
-        
-        private float _targetWeight = 0f;
-        private float _currentWeight = 0f;
-        private float _weightVelocity = 0f;
-        
-        // GameActor별 코루틴 캐싱
-        private Dictionary<GameActor, Coroutine> _actorHitStopCoroutines = new Dictionary<GameActor, Coroutine>();
-        
-        private const float NORMAL_TIME_SCALE = 1.0f;
-        
-        public bool IsHitStopping => _isHitStopping;
+
+        private float _transitionTime  = 0.05f;
+        private float _targetWeight    = 0f;
+        private float _currentWeight   = 0f;
+        private float _weightVelocity  = 0f;
+
+        // 전역 HitStop: id → 코루틴. 복수 요청이 동시에 살아있을 수 있다.
+        private readonly Dictionary<int, Coroutine> _globalCoroutines = new Dictionary<int, Coroutine>();
+
+        // GameActor 단위 Animator 속도 조작
+        private readonly Dictionary<GameActor, Coroutine> _actorCoroutines = new Dictionary<GameActor, Coroutine>();
+
+        public bool IsHitStopping => GameTimeManager.Instance?.IsSlowed ?? false;
+
+        #region IManager
 
         public void Init()
         {
-            _actorHitStopCoroutines.Clear();
+            _actorCoroutines.Clear();
+            _globalCoroutines.Clear();
             LoadVolume();
         }
 
-        public void AfterInit()
-        {
-        }
+        public void AfterInit() { }
 
         public void Dispose()
-        {            
+        {
             Stop();
             StopAllActors();
-            
-            // 볼륨 인스턴스 파괴
+
             if (_volumeInstance != null)
             {
                 Destroy(_volumeInstance);
                 _volumeInstance = null;
             }
-
-            // 어드레서블 메모리 해제
             if (_volumeHandle.IsValid())
-            {
                 Addressables.Release(_volumeHandle);
-            }
         }
 
         public void OnUpdate()
         {
             if (_volume == null) return;
 
-            // Time.unscaledDeltaTime을 사용하여 현실 시간 기준으로 보간
             _currentWeight = Mathf.SmoothDamp(
-                _currentWeight, 
-                _targetWeight, 
-                ref _weightVelocity, 
-                _transitionTime, 
-                Mathf.Infinity, 
-                Time.unscaledDeltaTime
-            );
+                _currentWeight, _targetWeight,
+                ref _weightVelocity, _transitionTime,
+                Mathf.Infinity, Time.unscaledDeltaTime);
 
-            // Volume의 투명도(강도) 적용
             _volume.weight = _currentWeight;
         }
 
-        public void OnFixedUpdate()
-        {
-        }
-
-        public void OnLateUpdate()
-        {
-        }
+        public void OnFixedUpdate() { }
+        public void OnLateUpdate()  { }
 
         public void OnSceneChanged(string sceneType)
         {
             Stop();
             StopAllActors();
         }
-        
-        /// <summary>
-        /// HitStop 실행
-        /// </summary>
-        public void Execute()
-        {
-            Execute(_defaultHitStopDuration, _defaultTimeScale);
-        }
-        
-        /// <summary>
-        /// HitStop 실행 (강도 지정)
-        /// </summary>
-        /// <param name="intensity">강도 (Light=0.05s, Medium=0.08s, Heavy=0.12s)</param>
+
+        #endregion
+
+        #region 전역 HitStop — 공개 API
+
+        public void Execute() => Execute(_defaultHitStopDuration, _defaultTimeScale);
+
         public void Execute(HitStopIntensity intensity)
         {
             switch (intensity)
             {
-                case HitStopIntensity.Light:
-                    Execute(0.05f, 0.15f);
-                    break;
-                case HitStopIntensity.Medium:
-                    Execute(0.08f, 0.1f);
-                    break;
-                case HitStopIntensity.Heavy:
-                    Execute(0.12f, 0.05f);
-                    break;
-                case HitStopIntensity.Critical:
-                    Execute(0.15f, 0.02f);
-                    break;
-                case HitStopIntensity.PlayerDie:
-                    Execute(1.0f, 0.02f);
-                    break;
+                case HitStopIntensity.Light:      Execute(0.05f, 0.15f); break;
+                case HitStopIntensity.Medium:     Execute(0.08f, 0.10f); break;
+                case HitStopIntensity.Heavy:      Execute(0.12f, 0.05f); break;
+                case HitStopIntensity.Critical:   Execute(0.15f, 0.02f); break;
+                case HitStopIntensity.PlayerDie:  Execute(1.00f, 0.02f); break;
                 case HitStopIntensity.PlayerGuard:
-                    _targetWeight = 0f;
+                    // timeScale은 건드리지 않고 Actor-only 슬로우만 적용
+                    _targetWeight  = 0f;
                     _currentWeight = 1f;
                     _transitionTime = 3f;
                     GameObjectManager.Instance?.SetGlobalTimeScaleExceptPlayer(0.05f, 3f);
-                    //Execute(1f, 0.05f);
                     break;
             }
         }
 
-        public void ResetActorTimeScale()
-        {
-            if (_currentWeight > 0)
-            {
-                _targetWeight = 0f;
-                _transitionTime = 0f;
-                GameObjectManager.Instance.ResetTimeScale();
-            }
-        }
         /// <summary>
-        /// HitStop 실행 (커스텀 파라미터)
+        /// 커스텀 파라미터 HitStop.
+        /// 더 강한 효과(scale 더 낮음)가 이미 있으면 해당 효과를 교체하고
+        /// 현재 효과보다 약하면 큐에만 추가한다(현재 scale은 유지됨).
         /// </summary>
-        /// <param name="duration">지속 시간 (초)</param>
-        /// <param name="timeScale">시간 스케일 (0~1, 낮을수록 느림)</param>
         public void Execute(float duration, float timeScale = 0.1f)
         {
-            // 이미 HitStop 중이면 중단하고 새로 시작 (더 강한 타격이 덮어씀)
-            if (_currentHitStopCoroutine != null)
-            {
-                StopCoroutine(_currentHitStopCoroutine);
-            }
-            
-            _currentHitStopCoroutine = StartCoroutine(HitStopCoroutine(duration, timeScale));
+            // 현재 활성 scale보다 강한(더 낮은) 요청이면 기존 것을 중단해서 교체
+            if (ShouldReplaceExisting(timeScale))
+                StopWeakerThan(timeScale);
+
+            int id  = GameTimeManager.Instance.Request(timeScale);
+            var co  = StartCoroutine(HitStopCoroutine(id, duration));
+            _globalCoroutines[id] = co;
         }
-        
+
         /// <summary>
-        /// 현재 전역 HitStop 강제 종료
+        /// 모든 전역 HitStop 강제 종료.
         /// </summary>
         public void Stop()
         {
-            if (_currentHitStopCoroutine != null)
-            {
-                StopCoroutine(_currentHitStopCoroutine);
-                _currentHitStopCoroutine = null;
-            }
+            foreach (var co in _globalCoroutines.Values)
+                if (co != null) StopCoroutine(co);
 
-            GameTimeManager.Instance?.ResetHitStopTimeScale();
-            _isHitStopping = false;
+            _globalCoroutines.Clear();
+            GameTimeManager.Instance?.ReleaseAll();
         }
 
         /// <summary>
-        /// 특정 GameActor만 느려지도록 (Animator 속도 조작)
+        /// ApplyHitFeedback에서 호출하던 ResetActorTimeScale 대체.
+        /// 더 이상 timeScale을 강제 리셋하지 않는다 — 요청 큐가 알아서 관리.
+        /// Volume 페이드만 처리한다.
         /// </summary>
+        public void ResetActorTimeScale()
+        {
+            // 의도적으로 비워둠:
+            // 이전에는 이 시점에 timeScale을 1.0으로 강제 복구했으나
+            // 요청 큐 모델에서는 각 요청이 duration 종료 후 스스로 Release한다.
+            // Volume 시각 효과만 즉시 끈다.
+            _targetWeight   = 0f;
+            _transitionTime = 0f;
+        }
+
+        #endregion
+
+        #region Actor 단위 Animator 속도 조작
+
         public void ExecuteActorOnly(GameActor actor, float duration, float animSpeed = 0.1f)
         {
             if (actor == null) return;
-            
-            // 이미 실행 중인 코루틴 정리
             StopActor(actor);
-            
-            Coroutine coroutine = StartCoroutine(ActorOnlyHitStopCoroutine(actor, duration, animSpeed));
-            _actorHitStopCoroutines[actor] = coroutine;
+            _actorCoroutines[actor] = StartCoroutine(ActorOnlyCoroutine(actor, duration, animSpeed));
         }
-        
-        /// <summary>
-        /// 특정 GameActor의 HitStop 강제 종료
-        /// </summary>
+
         public void StopActor(GameActor actor)
         {
             if (actor == null) return;
-            
-            if (_actorHitStopCoroutines.TryGetValue(actor, out Coroutine coroutine))
-            {
-                if (coroutine != null)
-                {
-                    StopCoroutine(coroutine);
-                }
-                
-                _actorHitStopCoroutines.Remove(actor);
-                
-                // Animator 속도 복구
-                Animator animator = actor.Animator?.GetAnimator;
-                if (animator != null)
-                {
-                    animator.speed = 1.0f;
-                }
-            }
+            if (!_actorCoroutines.TryGetValue(actor, out var co)) return;
+
+            if (co != null) StopCoroutine(co);
+            _actorCoroutines.Remove(actor);
+
+            var anim = actor.Animator?.GetAnimator;
+            if (anim != null) anim.speed = 1f;
         }
-        
-        /// <summary>
-        /// 모든 GameActor의 HitStop 강제 종료
-        /// </summary>
+
         public void StopAllActors()
         {
-            foreach (var kvp in _actorHitStopCoroutines)
+            foreach (var kvp in _actorCoroutines)
             {
-                if (kvp.Value != null)
-                {
-                    StopCoroutine(kvp.Value);
-                }
-                
-                // Animator 속도 복구
+                if (kvp.Value != null) StopCoroutine(kvp.Value);
                 if (kvp.Key != null)
                 {
-                    Animator animator = kvp.Key.Animator?.GetAnimator;
-                    if (animator != null)
-                    {
-                        animator.speed = 1.0f;
-                    }
+                    var anim = kvp.Key.Animator?.GetAnimator;
+                    if (anim != null) anim.speed = 1f;
                 }
             }
-            
-            _actorHitStopCoroutines.Clear();
+            _actorCoroutines.Clear();
         }
-        
+
+        public bool IsActorHitStopping(GameActor actor) =>
+            actor != null && _actorCoroutines.ContainsKey(actor);
+
+        #endregion
+
+        #region 내부
+
         /// <summary>
-        /// 특정 GameActor가 HitStop 중인지 확인
+        /// 새 요청의 scale이 현재 활성 scale보다 낮으면(더 강하면) true.
         /// </summary>
-        public bool IsActorHitStopping(GameActor actor)
+        private bool ShouldReplaceExisting(float newScale)
         {
-            if (actor == null) return false;
-            return _actorHitStopCoroutines.ContainsKey(actor);
+            float current = GameTimeManager.Instance?.IsSlowed == true
+                ? Time.timeScale
+                : 1f;
+            return newScale < current;
         }
-    
-        private IEnumerator ActorOnlyHitStopCoroutine(GameActor actor, float duration, float animSpeed)
+
+        /// <summary>
+        /// 등록된 요청 중 newScale보다 약한(scale이 높은) 것들을 모두 중단한다.
+        /// 더 강한 효과가 들어왔을 때 약한 요청의 잔여 시간을 정리하기 위함.
+        /// </summary>
+        private void StopWeakerThan(float newScale)
+        {
+            var toRemove = new List<int>();
+            foreach (var id in _globalCoroutines.Keys)
+                toRemove.Add(id);
+
+            foreach (int id in toRemove)
+            {
+                if (_globalCoroutines.TryGetValue(id, out var co) && co != null)
+                    StopCoroutine(co);
+                _globalCoroutines.Remove(id);
+                GameTimeManager.Instance?.Release(id);
+            }
+        }
+
+        private IEnumerator HitStopCoroutine(int id, float duration)
+        {
+            yield return new WaitForSecondsRealtime(duration);
+
+            _globalCoroutines.Remove(id);
+            GameTimeManager.Instance?.Release(id);
+
+            // 남은 요청이 없을 때만 Volume 페이드 아웃
+            if (_globalCoroutines.Count == 0)
+            {
+                _targetWeight   = 0f;
+                _transitionTime = 0.05f;
+            }
+        }
+
+        private IEnumerator ActorOnlyCoroutine(GameActor actor, float duration, float animSpeed)
         {
             if (actor == null) yield break;
-            
-            Animator animator = actor.Animator?.GetAnimator;
-            if (animator == null)
-            {
-                _actorHitStopCoroutines.Remove(actor);
-                yield break;
-            }
-        
-            float originalSpeed = animator.speed;
-            animator.speed = animSpeed;
-        
+
+            var anim = actor.Animator?.GetAnimator;
+            if (anim == null) { _actorCoroutines.Remove(actor); yield break; }
+
+            float original = anim.speed;
+            anim.speed = animSpeed;
+
             yield return new WaitForSecondsRealtime(duration);
-            
-            // 코루틴 종료 전 액터와 애니메이터가 여전히 유효한지 확인
-            if (actor != null && animator != null)
-            {
-                animator.speed = originalSpeed;
-            }
-            
-            // 딕셔너리에서 제거
-            if (actor != null)
-            {
-                _actorHitStopCoroutines.Remove(actor);
-            }
+
+            if (actor != null && anim != null) anim.speed = original;
+            _actorCoroutines.Remove(actor);
         }
 
         private async void LoadVolume()
         {
-            // 이미 로드 중이거나 로드된 상태라면 중복 실행 방지
-            if (_volumeHandle.IsValid() || _volume != null)
-            {
-                return;
-            }
+            if (_volumeHandle.IsValid() || _volume != null) return;
 
             _volumeHandle = Addressables.LoadAssetAsync<GameObject>("SlowMoveVolume");
-    
+
             try
             {
                 GameObject go = await _volumeHandle.Task;
+                if (go == null) { Debug.LogError("[HitStopManager] SlowMoveVolume 로드 실패"); return; }
 
-                if (go == null)
-                {
-                    Debug.LogError("[CameraManager] SlowMoveVolume 에셋이 Null입니다.");
-                    return;
-                }
-
-                _volumeInstance = Instantiate(go, transform.position, Quaternion.identity, transform);
+                _volumeInstance      = Instantiate(go, transform.position, Quaternion.identity, transform);
                 _volumeInstance.name = "Action_SlowMo_Volume";
-        
-                _volume = _volumeInstance.GetComponent<Volume>();
-        
-                if (_volume != null)
-                {
-                    _volume.weight = 0f;
-                }
+                _volume              = _volumeInstance.GetComponent<Volume>();
+
+                if (_volume != null) _volume.weight = 0f;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"[CameraManager] LoadVolume 로드 실패: {e.Message}");
-        
-                // 로드 실패 시 핸들 메모리 해제
-                if (_volumeHandle.IsValid())
-                {
-                    Addressables.Release(_volumeHandle);
-                }
+                Debug.LogError($"[HitStopManager] LoadVolume 실패: {e.Message}");
+                if (_volumeHandle.IsValid()) Addressables.Release(_volumeHandle);
             }
         }
 
-        private IEnumerator HitStopCoroutine(float duration, float timeScale)
-        {
-            _isHitStopping = true;
-
-            GameTimeManager.Instance.SetHitStopTimeScale(timeScale);
-
-            yield return new WaitForSecondsRealtime(duration);
-
-            GameTimeManager.Instance.ResetHitStopTimeScale();
-
-            _isHitStopping = false;
-            _currentHitStopCoroutine = null;
-        }
+        #endregion
     }
 }

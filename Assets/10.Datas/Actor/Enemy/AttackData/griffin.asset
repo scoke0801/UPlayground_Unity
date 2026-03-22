@@ -12,5 +12,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 614e41b14ccc4bc5b44b5fadebaaa651, type: 3}
   m_Name: griffin
   m_EditorClassIdentifier: 
-  skills: []
+  skills:
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 45
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 0, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 3
+        airborneForce: 8
+        knockBackForce: 3
+        grabDuration: 1.5
+    skillType: 1
+    selectionWeight: 100
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      hitPhases:
+      - damage: 45
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 0, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 3
+        airborneForce: 8
+        knockBackForce: 3
+        grabDuration: 1.5
+    skillType: 1
+    selectionWeight: 100
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      hitPhases:
+      - damage: 45
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 0, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 0.6
+        hitParticleName: LiteHit
+        pullForce: 3
+        airborneForce: 8
+        knockBackForce: 3
+        grabDuration: 1.5
+    skillType: 1
+    selectionWeight: 100
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
   globalCooldown: 1

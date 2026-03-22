@@ -58,7 +58,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             
-            _isHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
@@ -167,8 +167,8 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _attackTimer = 0f;
             
-            _isHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
-            
+            _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+
             if (_isHeavyAttack)
             {
                 Transform finishTarget = _combat.FindFinishableTarget();

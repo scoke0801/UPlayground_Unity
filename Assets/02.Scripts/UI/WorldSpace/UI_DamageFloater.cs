@@ -16,7 +16,11 @@ namespace UPlayGround.UI
 
     /// <summary>
     /// 피격 지점 위로 떠오르는 데미지 숫자 하나.
-    /// UI_WorldSpaceHudLayer가 풀에서 꺼내서 Play()를 호출한다.
+    ///
+    /// 스케일 애니메이션 3단계:
+    ///   [0 → scalePopEndT]      0 → scalePopPeak  (EaseOut overshoot)
+    ///   [scalePopEndT → scaleShrinkStartT]  scalePopPeak → 1.0  (EaseInOut 안정화)
+    ///   [scaleShrinkStartT → 1]  1.0 → scaleShrinkEndValue  (EaseIn 축소)
     /// </summary>
     [RequireComponent(typeof(TextMeshProUGUI))]
     public class UI_DamageFloater : MonoBehaviour
@@ -69,6 +73,7 @@ namespace UPlayGround.UI
             _elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(_elapsed / _config.lifetime);
 
+            // ── 위치 ──────────────────────────────────────────────────
             Vector3 worldPos  = _worldOrigin + Vector3.up * (_config.riseCurve.Evaluate(t) * _config.riseHeight);
             Vector3 screenPos = _camera.WorldToScreenPoint(worldPos);
 
@@ -85,11 +90,49 @@ namespace UPlayGround.UI
                 _text.alpha = _config.fadeCurve.Evaluate(t);
             }
 
-            float s = _config.scaleCurve.Evaluate(t);
-            _rect.localScale = Vector3.one * (s > 0f ? s : 1f);
+            // ── 스케일 ────────────────────────────────────────────────
+            _rect.localScale = Vector3.one * EvaluateScale(t);
 
             if (t >= 1f)
                 ReturnToPool();
+        }
+
+        /// <summary>
+        /// 3단계 스케일 계산.
+        ///   팝  : 0 → peak  (EaseOutQuart — 빠르게 튀어오름)
+        ///   안정 : peak → 1  (EaseInOutQuad — 부드럽게 안착)
+        ///   축소 : 1 → end   (EaseInQuad — 가속 소멸)
+        /// </summary>
+        private float EvaluateScale(float t)
+        {
+            float popEnd     = _config.scalePopEndT;
+            float shrinkStart = _config.scaleShrinkStartT;
+            float peak       = _config.scalePopPeak;
+            float endVal     = _config.scaleShrinkEndValue;
+
+            if (t < popEnd)
+            {
+                // 팝 구간: 0 → peak (EaseOutQuart)
+                float tN = t / popEnd;
+                float eased = 1f - Mathf.Pow(1f - tN, 4f);
+                return Mathf.LerpUnclamped(0f, peak, eased);
+            }
+            else if (t < shrinkStart)
+            {
+                // 안정 구간: peak → 1 (EaseInOutQuad)
+                float tN = (t - popEnd) / (shrinkStart - popEnd);
+                float eased = tN < 0.5f
+                    ? 2f * tN * tN
+                    : 1f - Mathf.Pow(-2f * tN + 2f, 2f) * 0.5f;
+                return Mathf.LerpUnclamped(peak, 1f, eased);
+            }
+            else
+            {
+                // 축소 구간: 1 → endVal (EaseInQuad)
+                float tN = (t - shrinkStart) / (1f - shrinkStart);
+                float eased = tN * tN;
+                return Mathf.LerpUnclamped(1f, endVal, eased);
+            }
         }
 
         private void ApplyStyle(FloatStyle style)

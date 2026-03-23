@@ -285,10 +285,11 @@ namespace UPlayGround.Component
         {
             _currentAttackInfoBase = attackInfo.baseInfo;
             var phase0 = attackInfo.baseInfo.GetHitPhase(0);
+            
             return new AttackData
             {
                 animKey          = attackInfo.baseInfo.animKey,
-                damage           = phase0.damage,
+                damage           = UPlayGround.Util.ApplyRandomValue(phase0.damage, -0.2f, 0.2f),
                 poiseDamage      = phase0.poiseDamage,
                 canBeInterrupted = attackInfo.canBeInterrupted,
                 reactionType     = phase0.reactionType,
@@ -449,7 +450,7 @@ namespace UPlayGround.Component
             if (_currentAttackData == null || _currentAttackInfoBase == null) return;
             var phase = _currentAttackInfoBase.GetHitPhase(index);
             _currentAttackData.hitPhaseIndex   = index;
-            _currentAttackData.damage          = phase.damage;
+            _currentAttackData.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
             _currentAttackData.poiseDamage     = phase.poiseDamage;
             _currentAttackData.reactionType    = phase.reactionType;
             _currentAttackData.hitRange        = phase.attackRadius;

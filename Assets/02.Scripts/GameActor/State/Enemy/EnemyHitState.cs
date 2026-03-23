@@ -16,6 +16,7 @@ namespace UPlayGround.State
         public override string StateName => "Hit";
 
         private readonly AttackData _attackData;
+        private bool _fromAerialState; // 공중 State에서 진입한 경우 true
 
         public EnemyHitState(ActorMovementController controller, AttackData attackData = null) : base(controller)
         {
@@ -31,8 +32,16 @@ namespace UPlayGround.State
             var memory = gameActor.GetComponent<EnemyTacticalMemory>();
             memory?.NotifyTookDamage();
 
+            // 공중 State에서 피격 → Poise Break 시 강제 착지 요청
+            _fromAerialState = fromState?.StateName is "Aerial" or "AerialAttack" or "TakeOff";
+            if (_fromAerialState)
+            {
+                gameActor.GetComponent<AerialBehaviorLayer>()?.RequestForceLand();
+                motor.SetGroundSolvingActivation(true);
+            }
+
             // reactionType에 따라 경직 애니 선택
-            AnimKey hitAnim = GetHitAnimKey();
+            AnimKey hitAnim    = GetHitAnimKey();
             float fadeDuration = hitAnim == AnimKey.Knockback ? 0.1f : 0.2f;
 
             var state = gameActor.Animator.PlayMotion(hitAnim, fadeDuration);
@@ -44,7 +53,8 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            // 공중 몬스터 피격(Aerial → Hit)은 RequestForceLand로 처리되므로 AirborneState 전환 스킵
+            if (!_fromAerialState && !motor.GroundingStatus.IsStableOnGround)
                 controller.TransitionToState(new EnemyAirborneState(controller));
         }
 

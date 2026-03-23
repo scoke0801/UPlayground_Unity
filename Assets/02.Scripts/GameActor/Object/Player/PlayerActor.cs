@@ -300,6 +300,7 @@ namespace UPlayGround
             }
 
             float finalDamage = attackData.damage;
+            
             if (attackData.criticalMultiplier > 1.0f)
             {
                 finalDamage *= attackData.criticalMultiplier;

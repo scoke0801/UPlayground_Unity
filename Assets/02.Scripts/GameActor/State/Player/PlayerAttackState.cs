@@ -144,12 +144,18 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
+                    if(_isHeavyAttack == true)
+                        _combat.ResetCombo();
+                    
                     _comboInputted = true;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
                 }
                 else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
-                {
+                {                    
+                    if(_isHeavyAttack == false)
+                        _combat.ResetCombo();
+                    
                     _comboInputted = true;
                     _isHeavyAttack = true;
                     _combat.CloseComboWindow();

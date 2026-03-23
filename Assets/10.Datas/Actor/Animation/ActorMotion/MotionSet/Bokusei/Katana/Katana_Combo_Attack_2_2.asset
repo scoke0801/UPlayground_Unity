@@ -33,6 +33,7 @@ MonoBehaviour:
       data:
         startTime: 0.31331962
         endTime: 0.3741803
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -42,6 +43,7 @@ MonoBehaviour:
       data:
         startTime: 0.5545081
         endTime: 0.619877
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -49,5 +51,6 @@ MonoBehaviour:
     - rid: 7399917168494117007
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.46505332
+        startTime: 0.5694942
         endTime: 0.827977
+        globalStartTimeOffset: 0

@@ -321,13 +321,13 @@ namespace UPlayGround.Component
                     if (heightDiff > phase.hitHeightRange)
                         continue;
                 }
-
+                
                 IDamageable damageable = hitCollider.GetComponent<IDamageable>();
                 if (damageable != null && damageable.CanTakeDamage())
                 {
                     AttackData attackData = new AttackData
                     {
-                        damage             = phase.damage,
+                        damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                         poiseDamage        = phase.poiseDamage,
                         criticalMultiplier = 1.0f,
                         hitPoint           = hitCollider.ClosestPoint(attackPosition),

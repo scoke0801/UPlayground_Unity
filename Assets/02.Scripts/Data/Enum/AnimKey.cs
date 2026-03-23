@@ -21,6 +21,13 @@ namespace UPlayGround.Data.EnumType
         Land,
         DoubleJump,
 
+        // 공중 이동 몬스터 전용
+        Fly_Start = 25,  // 지상 → 공중 전환 (이륙)
+        Fly_Move,        // 공중 순항 루프
+        Fly_Landing,     // 공중 → 지상 착지
+        Fly_Attack,      // 공중 공격 (1종)
+        Fly_Idle,
+
         // [TODO] 이런 경우는 하나의 묶음이 되어야 하지 않을까?
         Crouch_Idle = 30,
         Crouch_Walk,

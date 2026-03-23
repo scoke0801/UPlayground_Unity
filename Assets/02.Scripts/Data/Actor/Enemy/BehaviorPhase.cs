@@ -29,5 +29,13 @@ namespace UPlayGround.Data.Enemy
 
         [Header("연속 공격 한계")]
         public int maxConsecutiveAttacks = 3;
+
+        [Header("공중 행동 오버라이드 (AerialBehaviorSO 값을 덮어씀)")]
+        [Tooltip("true = 아래 공중 수치를 이 페이즈에서 오버라이드")]
+        public bool overrideAerial = false;
+        [Range(0f, 1f)] public float aerialTakeOffChance      = 0.4f;
+        public int                   aerialMaxAttackCount     = 3;
+        [Range(0f, 1f)] public float aerialHpThreshold        = 1f;
+        public float                 aerialDuration           = 12f;
     }
 }

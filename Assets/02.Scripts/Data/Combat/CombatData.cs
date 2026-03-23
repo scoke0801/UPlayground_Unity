@@ -92,6 +92,16 @@ namespace UPlayGround.Data
         
         [Header("Cooldown")]
         public float cooldown = 2f;
+
+        [Header("Aerial")]
+        [Tooltip("true = EnemyAerialState에서만 선택되는 공중 전용 스킬")]
+        public bool isAerialSkill = false;
+        [Tooltip("true = Dive Attack 전용 하강 이동 로직 사용")]
+        public bool isDiveAttack = false;
+        [Tooltip("Dive Attack 전용 하강 속도 (기본 낙하보다 빠르게)")]
+        public float diveDescentSpeed = 15f;
+        [Tooltip("공중 스킬 가중치 (aerialSkillWeight > 0 인 스킬끼리 경쟁)")]
+        public float aerialSkillWeight = 1f;
         
         [Header("Activation Conditions")]
         [Tooltip("복합 조건 설정 (여러 조건을 AND/OR로 연결)")]

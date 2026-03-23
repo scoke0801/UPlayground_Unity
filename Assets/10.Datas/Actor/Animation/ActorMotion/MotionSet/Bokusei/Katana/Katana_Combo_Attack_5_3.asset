@@ -31,6 +31,7 @@ MonoBehaviour:
       data:
         startTime: 0.51911277
         endTime: 0.63591313
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128

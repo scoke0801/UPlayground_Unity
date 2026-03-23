@@ -33,6 +33,7 @@ MonoBehaviour:
       data:
         startTime: 0.36164382
         endTime: 0.4407534
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -40,8 +41,9 @@ MonoBehaviour:
     - rid: 7399917168494117003
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.5952055
-        endTime: 0.6893835
+        startTime: 0.6125
+        endTime: 0.8431603
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -49,5 +51,6 @@ MonoBehaviour:
     - rid: 7399917168494117004
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.5134494
+        startTime: 0.6625
         endTime: 1.0420518
+        globalStartTimeOffset: 0

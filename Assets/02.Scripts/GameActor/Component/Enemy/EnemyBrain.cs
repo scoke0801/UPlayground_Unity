@@ -108,7 +108,7 @@ namespace UPlayGround.Component
             _behaviorData = data;
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             _detection          ??= GetComponent<EnemyDetection>();
             _movementController ??= GetComponent<ActorMovementController>();
@@ -119,7 +119,7 @@ namespace UPlayGround.Component
             
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             if (_combat?.AttackData != null)
             {
@@ -148,7 +148,7 @@ namespace UPlayGround.Component
             RollNextActionDelay();
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _detection.OnTargetAcquiredExternally -= OnTargetInjected;
         }
@@ -173,7 +173,7 @@ namespace UPlayGround.Component
                 new EnemyChaseState(_movementController, this, _detection));
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             _decisionTimer += Time.deltaTime;
             _actionCooldownTimer += Time.deltaTime;
@@ -220,14 +220,28 @@ namespace UPlayGround.Component
 
         #region 의사 결정
 
-        private void MakeDecision()
+        protected virtual void MakeDecision()
         {
             if (_movementController?.CurrentState == null) return;
 
             string state = _movementController.CurrentState.StateName;
 
+            // 공중 레이어 이륙 조건 체크 — 지상 AI보다 먼저 평가
+            // Aerial / TakeOff / Land 중이면 스킵 (이미 공중)
+            if (state is not ("Aerial" or "TakeOff" or "Land" or "AerialAttack"))
+            {
+                var aerial = GetComponent<AerialBehaviorLayer>();
+                if (aerial != null && aerial.ShouldTakeOff())
+                {
+                    _movementController.TransitionToState(
+                        new EnemyTakeOffState(_movementController, aerial));
+                    return;
+                }
+            }
+
             // 절대 개입하지 않는 State
-            if (state is "Death" or "Hit" or "Attack" or "Counter" or "Airborne" or "Grabbed" or "LaunchSmash")
+            if (state is "Death" or "Hit" or "Attack" or "Counter" or "Airborne" or "Grabbed" or "LaunchSmash"
+                      or "TakeOff" or "Aerial" or "AerialAttack" or "Land")
                 return;
 
             // 비전투 스킬 체크 (힐/버프)
@@ -691,7 +705,7 @@ namespace UPlayGround.Component
 
         #region 기타
         
-        private void ExecuteAttack()
+        protected void ExecuteAttack()
         {
             // 그룹 슬롯 요청 — 거절당하면 공격하지 않고 Circle로 대기
             if (_groupController != null)
@@ -717,7 +731,7 @@ namespace UPlayGround.Component
                 new EnemyAttackState(_movementController, _combat, this, _detection));
         }
 
-        private bool CanUseSkill()
+        protected bool CanUseSkill()
         {
             if (_combat?.AttackData == null) return false;
             return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
@@ -767,6 +781,9 @@ namespace UPlayGround.Component
             if (_monster != null)
                 _groupController?.ReleaseAttackSlot(_monster);
         }
+
+        /// <summary> AerialBehaviorLayer가 페이즈 오버라이드 접근에 사용 </summary>
+        public EnemyBehaviorSO GetBehaviorSO() => _behaviorData;
 
         public void Freeze()
         {

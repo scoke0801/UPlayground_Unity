@@ -49,9 +49,9 @@ namespace UPlayGround.Data.Event
             PlayerCombat combat = playerActor.GetCombat();
             if (combat == null) return;
 
+            combat.ClearHitTargets();
             if (isCollisionEnable)
             {
-                combat.ClearHitTargets();
                 combat.SetHitPhaseIndex(hitPhaseIndex);
             }
             combat.SetEnableCollision(isCollisionEnable);
@@ -68,9 +68,9 @@ namespace UPlayGround.Data.Event
             EnemyCombat combat = monsterActor.Combat;
             if (combat == null) return;
 
+            combat.ClearHitTargets();
             if (isCollisionEnable)
             {
-                combat.ClearHitTargets();
                 combat.SetHitPhaseIndex(hitPhaseIndex);
             }
             combat.SetEnableCollision(isCollisionEnable);

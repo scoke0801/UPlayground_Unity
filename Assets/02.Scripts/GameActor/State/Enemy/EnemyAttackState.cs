@@ -117,7 +117,6 @@ namespace UPlayGround.State
 
         private void TransitionToNextState()
         {
-            // 공격이 실제로 히트했는지 여부를 Brain에 알리고 다음 행동을 위임
             bool didHit = _combat.LastHitCount > 0;
             _brain.DecidePostAttack(didHit);
         }

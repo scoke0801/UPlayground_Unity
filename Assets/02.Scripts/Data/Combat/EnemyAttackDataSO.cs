@@ -84,5 +84,34 @@ namespace UPlayGround.Data.Combat
                 if (skill.baseInfo.attackType == AttackType.Melee) return true;
             return false;
         }
+
+        /// <summary> 공중 전용 스킬 중 거리 조건을 만족하는 목록 반환 </summary>
+        public List<EnemyAttackInfo> GetAvailableAerialSkills(float distance)
+        {
+            var result = new List<EnemyAttackInfo>();
+            foreach (var skill in skills)
+            {
+                if (!skill.isAerialSkill) continue;
+                if (!skill.IsInRange(distance)) continue;
+                result.Add(skill);
+            }
+            return result;
+        }
+
+        /// <summary> aerialSkillWeight 기반 가중치 랜덤 선택 </summary>
+        public EnemyAttackInfo SelectRandomAerialSkill(List<EnemyAttackInfo> aerialSkills)
+        {
+            if (aerialSkills == null || aerialSkills.Count == 0) return null;
+            float total = 0f;
+            foreach (var s in aerialSkills) total += s.aerialSkillWeight;
+            float roll = Random.Range(0f, total);
+            float acc  = 0f;
+            foreach (var s in aerialSkills)
+            {
+                acc += s.aerialSkillWeight;
+                if (roll <= acc) return s;
+            }
+            return aerialSkills[aerialSkills.Count - 1];
+        }
     }
 }

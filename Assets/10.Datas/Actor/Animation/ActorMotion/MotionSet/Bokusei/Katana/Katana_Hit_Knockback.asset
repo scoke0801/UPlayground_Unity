@@ -16,9 +16,22 @@ MonoBehaviour:
     motionSetName: Hit_Knockback
     motions:
     - motionName: 
-      motionClip: {fileID: 7400000, guid: 63366185bd1fef6408743d880a68621f, type: 3}
-      events: []
+      motionClip: {fileID: 7400000, guid: 9f1e07f9826306746ae3558f1ff26bae, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 5792125535029297269
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5792125535029297269
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.20644203
+        endTime: 0.21644203
+        globalStartTimeOffset: 0
+        mode: 2
+        loopCount: 1
+        freezeDuration: 3

@@ -38,6 +38,7 @@
         DashAttack    = 3,  // 대시 공격
         FinishAttack  = 4,  // 마무리(처형) 공격
         SkillAttack   = 5,  // 스킬 (게이지 충전 없음)
+        ChargeAttack  = 6,  // 차지 공격 (홀드 후 릴리즈)
     }
 
     public enum AttackReactionType

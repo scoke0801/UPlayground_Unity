@@ -111,8 +111,23 @@ namespace UPlayGround.Component
             float hpPercent = _damageable?.GetHealthPercent() ?? 1f;
             if (hpPercent > AerialHpThreshold) return false;
 
+            // 공중 스킬 사용 가능 여부 — 쿨다운이 아닌 스킬이 하나라도 있어야 이륙
+            if (!HasAvailableAerialSkill()) return false;
+
             // 확률
             return Random.value <= TakeOffChance;
+        }
+
+        /// <summary> 쿨다운이 해소된 공중 스킬이 하나라도 존재하는지 확인 </summary>
+        private bool HasAvailableAerialSkill()
+        {
+            if (_combat?.AttackData == null) return false;
+            foreach (var s in _combat.AttackData.skills)
+            {
+                if (s.isAerialSkill && !_aerialCooldowns.ContainsKey(s))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

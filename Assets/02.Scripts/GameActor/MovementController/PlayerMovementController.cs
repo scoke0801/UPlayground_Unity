@@ -24,6 +24,10 @@ namespace UPlayGround.MovementController
         // 일회성 상태 변경 - 공격
         public InputCondition AttackInput;
         public InputCondition HeavyAttackInput;
+
+        // 차지 공격
+        public bool  ChargeAttackHeld; // 현재 홀드 중 (임계값 초과)
+        public float ChargeHoldTime;   // 누른 총 시간
         
         // 일회성 상태 변경 - 기타
         public InputCondition EquipInput;
@@ -196,6 +200,9 @@ namespace UPlayGround.MovementController
         {
             return _inputState.HeavyAttackInput == InputCondition.Pressed;
         }
+
+        public bool  IsChargeAttackHeld() => _inputState.ChargeAttackHeld;
+        public float GetChargeHoldTime()  => _inputState.ChargeHoldTime;
 
         public bool HasEquipInput()
         {

@@ -125,6 +125,30 @@ namespace UPlayGround.Data
     }
     
     /// <summary>
+    /// 차지 단계별 공격 데이터.
+    /// AnimKey는 PlayerAttackDataSO.chargeAnimKey 하나로 공유하므로 수치만 포함한다.
+    /// </summary>
+    [Serializable]
+    public class ChargeStageData
+    {
+        [Header("Hit Phases")]
+        [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]
+        public List<HitPhaseData> hitPhases = new List<HitPhaseData> { new HitPhaseData() };
+
+        [Tooltip("공격 중 끊을 수 있는지 여부")]
+        public bool canBeInterrupted;
+
+        [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
+        public float hitAngle = 60f;
+
+        public HitPhaseData GetHitPhase(int index)
+        {
+            if (hitPhases == null || hitPhases.Count == 0) return new HitPhaseData();
+            return hitPhases[Mathf.Clamp(index, 0, hitPhases.Count - 1)];
+        }
+    }
+
+    /// <summary>
     /// 캐릭터 공격 정보, 에디터 타임 사전 설정
     /// </summary>
     [Serializable]

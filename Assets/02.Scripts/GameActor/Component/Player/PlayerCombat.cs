@@ -26,6 +26,7 @@ namespace UPlayGround.Component
             JumpAttack,
             DashAttack,
             SkillAttack,
+            ChargeAttack,
         }
 
         [FormerlySerializedAs("equipment")]
@@ -228,6 +229,88 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        /// <summary>
+        /// 차지 단계 전환 임계값 배열을 반환한다.
+        /// chargeStageThresholds가 비어 있으면 chargeStages.Count 기준으로 균등 분배한다.
+        /// </summary>
+        public float[] GetChargeStageThresholds()
+        {
+            int stageCount = _attackData.chargeStages?.Count ?? 0;
+            if (stageCount <= 1) return System.Array.Empty<float>();
+
+            var configured = _attackData.chargeStageThresholds;
+            int needed = stageCount - 1;
+
+            if (configured != null && configured.Count == needed)
+                return configured.ToArray();
+
+            // 균등 분배
+            var result = new float[needed];
+            for (int i = 0; i < needed; i++)
+                result[i] = (float)(i + 1) / stageCount;
+            return result;
+        }
+
+        /// <summary>
+        /// 차지 공격 AnimKey를 반환한다.
+        /// ChargeState 진입 시 어떤 MotionSet을 재생할지 결정하는 데 사용한다.
+        /// </summary>
+        public AnimKey GetFirstChargeAttackAnimKey()
+        {
+            return _attackData.chargeAnimKey;
+        }
+
+        /// <summary>
+        /// stageIndex: 차지 단계 (0 = 최소, chargeAttackList.Count-1 = 최대).
+        /// chargeRatio(0~1): 스테이지 내 차지 진행도 — 데미지 추가 스케일에만 사용.
+        /// </summary>
+        public AttackData ExecuteChargeAttack(int stageIndex, float chargeRatio)
+        {
+            if (_attackData.chargeStages == null || _attackData.chargeStages.Count == 0) return null;
+
+            _attackState = AttackState.ChargeAttack;
+            ResetCombo();
+
+            int index = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
+
+            _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[index], chargeRatio);
+
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
+        private AttackData ConvertToChargeAttackData(ChargeStageData stage, float chargeRatio)
+        {
+            _currentAttackInfoBase = null;
+            var phase0 = stage.GetHitPhase(0);
+
+            var data = new AttackData
+            {
+                animKey          = _attackData.chargeAnimKey,
+                damage           = UPlayGround.Util.ApplyRandomValue(phase0.damage, -0.2f, 0.2f),
+                poiseDamage      = phase0.poiseDamage,
+                canBeInterrupted = stage.canBeInterrupted,
+                reactionType     = phase0.reactionType,
+                hitRange         = phase0.attackRadius,
+                hitAngle         = stage.hitAngle,
+                hitHeightOffset  = phase0.attackOffset.y,
+                hitHeightRange   = phase0.hitHeightRange,
+                hitParticleName  = phase0.hitParticleName,
+                pullForce        = phase0.pullForce,
+                knockbackForce   = phase0.knockBackForce,
+                knockbackDrag    = phase0.knockBackDrag,
+                airborneForce    = phase0.airborneForce,
+                hitPhaseIndex    = 0,
+                attackKind       = AttackKind.ChargeAttack,
+            };
+
+            // 스테이지 내 차지 진행도에 비례해 데미지 추가 스케일 (1.0배 ~ 1.5배)
+            data.damage *= Mathf.Lerp(1.0f, 1.5f, chargeRatio);
+            return data;
+        }
+
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             if (_attackData.skillAttackList.Count <= skillIndex) return null;
@@ -379,6 +462,7 @@ namespace UPlayGround.Component
             var style = attackData.attackKind is AttackKind.HeavyAttack
                                               or AttackKind.SkillAttack
                                               or AttackKind.FinishAttack
+                                              or AttackKind.ChargeAttack
                 ? FloatStyle.Critical
                 : FloatStyle.Normal;
 
@@ -411,13 +495,14 @@ namespace UPlayGround.Component
             var dir  = _currentAttackData.attackDirection;
 
             // VitalOrb 트리거
-            var orbTrigger = kind == AttackKind.HeavyAttack
+            var orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
                 ? VitalOrbTrigger.HeavyAttackHit
                 : VitalOrbTrigger.LightAttackHit;
             VitalOrbManager.Instance.TrySpawn(orbTrigger, _currentAttackData.hitPoint);
 
             switch (kind)
             {
+                case AttackKind.ChargeAttack:  // 차지: 스킬 수준의 강한 피드백
                 case AttackKind.SkillAttack:
                     CameraManager.Instance.Punch(dir, _punchStrengthSkill, _punchDurationSkill);
                     CameraManager.Instance.StartShake(_shakeKeyHeavy);
@@ -481,6 +566,7 @@ namespace UPlayGround.Component
                 AttackState.JumpAttack   => _attackData.jumpAttackList.Count,
                 AttackState.DashAttack   => _attackData.dashAttackList.Count,
                 AttackState.SkillAttack  => _attackData.skillAttackList.Count,
+                AttackState.ChargeAttack => 0, // 차지 공격은 콤보 없음
                 _                        => 0,
             };
             return CurrentComboIndex < length - 1;

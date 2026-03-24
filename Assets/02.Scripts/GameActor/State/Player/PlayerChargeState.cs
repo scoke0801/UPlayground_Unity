@@ -1,0 +1,236 @@
+using UnityEngine;
+using UPlayGround.Component;
+using UPlayGround.Data.EnumType;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
+using UPlayGround.MovementController;
+
+namespace UPlayGround.State
+{
+    /// <summary>
+    /// 차지 공격 상태
+    ///
+    /// 흐름:
+    ///   1. OnEnter: chargeAttackList[0]의 AnimKey로 MotionSet 재생
+    ///   2. MotionSet 내 첫 번째 InfiniteLoop 구간에서 차지 포즈 대기 (Stage 0)
+    ///   3. InfiniteLoop 진입 시점부터 chargeRatio(0→1) 누적
+    ///   4. chargeRatio가 StageThresholds[stageIndex]를 초과하면 BreakInfiniteLoop →
+    ///      MotionSet이 다음 InfiniteLoop까지 자동 진행 (Stage 1, 2 ...)
+    ///   5. 버튼 뗌 또는 최대 차지 도달 → ExecuteChargeAttack(stageIndex) + BreakInfiniteLoop
+    ///   6. 루프 해제 후 애니메이션이 공격 구간으로 진행 → OnMotionSetCompleted → 상태 종료
+    ///
+    /// 취소:
+    ///   - Dodge 입력 시 BreakInfiniteLoop 후 DodgeState로 전환
+    ///   - 피격(Hit) 시 CanTransitionState → true (BreakInfiniteLoop는 OnExit에서 처리)
+    /// </summary>
+    public class PlayerChargeState : PlayerActorState
+    {
+        public override string StateName => "Charge";
+
+        private PlayerCombat _combat;
+
+        // 차지 시간 (InfiniteLoop 진입 후 카운트)
+        private float _chargeTime;
+        private float _chargeRatio;
+        private bool  _isInLoop;      // InfiniteLoop 구간에 진입했는지
+        private bool  _isFired;       // BreakInfiniteLoop 한 번만 호출되도록
+        private bool  _releasedBeforeLoop; // 루프 진입 전에 이미 버튼을 뗐는지
+
+        private const float MaxChargeTime = 1.5f; // 풀 차지까지 걸리는 시간 (초)
+
+        // 스테이지 전환 임계값. OnEnter에서 PlayerAttackDataSO 기준으로 초기화.
+        private float[] _stageThresholds = System.Array.Empty<float>();
+
+        // 락온/소프트 타겟 (회전 보정용)
+        private Transform _softRotationTarget;
+
+        public PlayerChargeState(ActorMovementController controller) : base(controller) { }
+
+        // 피격은 차지를 끊음, 그 외 전환 허용
+        public override bool CanTransitionState(string stateName) => true;
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+
+            _combat             = playerActor.GetCombat();
+            _chargeTime         = 0f;
+            _chargeRatio        = 0f;
+            _isInLoop           = false;
+            _isFired            = false;
+            _releasedBeforeLoop = false;
+            _stageThresholds    = _combat.GetChargeStageThresholds();
+
+            playerActor.Animator.ApplyRootMotion(false);
+
+            // chargeAttackList[0]의 AnimKey로 애니메이션 재생
+            // 해당 애니메이션에는 반드시 InfiniteLoop LoopEvent가 포함되어야 함
+            var attackData = _combat.GetFirstChargeAttackAnimKey();
+            if (attackData == AnimKey.None)
+            {
+                ExitToIdle();
+                return;
+            }
+
+            var animState = gameActor.Animator.PlayMotion(attackData, 0.15f);
+            if (animState == null)
+            {
+                ExitToIdle();
+                return;
+            }
+
+            gameActor.Animator.OnMotionSetCompleted += OnAttackAnimEnd;
+
+            // 소프트 회전 타겟 등록
+            _softRotationTarget = CameraManager.Instance.GetLockOnTarget();
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimEnd;
+
+            // 혹시 루프가 아직 걸려있으면 해제 (피격 등으로 강제 전환 시)
+            if (gameActor.Animator.IsInfiniteLooping)
+                gameActor.Animator.BreakInfiniteLoop();
+
+            _combat.SetEnableCollision(false);
+            _combat.ClearHitTargets();
+
+            playerActor.Animator.ApplyRootMotion(true);
+            _softRotationTarget = null;
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            // ── 취소: 회피 ──────────────────────────────────────────────
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
+            {
+                controller.TransitionToState(new PlayerDodgeState(controller));
+                return;
+            }
+
+            // IsChargeAttackHeld: 버튼을 현재 누르고 있는지 (threshold 초과 여부 포함)
+            // 버튼을 뗀 순간부터 false가 되므로 1프레임 플래그보다 신뢰성 높음
+            bool isHeld = playerController.IsChargeAttackHeld();
+
+            // ── 루프 진입 전에 버튼을 이미 뗐다면 기록 ────────────────
+            if (!_isInLoop && !isHeld)
+                _releasedBeforeLoop = true;
+
+            // ── InfiniteLoop 진입 감지 ──────────────────────────────────
+            if (!_isInLoop && gameActor.Animator.IsInfiniteLooping)
+            {
+                _isInLoop   = true;
+                _chargeTime = 0f;
+                // TODO: 차지 시작 VFX / 사운드 트리거
+
+                // 루프 도달 전에 이미 뗐으면 최소 차지로 즉시 발동
+                if (_releasedBeforeLoop)
+                {
+                    FireChargeAttack();
+                    return;
+                }
+            }
+
+            // ── 차지 비율 누적 및 발동 ──────────────────────────────────
+            if (_isInLoop && !_isFired)
+            {
+                _chargeTime  += deltaTime;
+                _chargeRatio  = Mathf.Clamp01(_chargeTime / MaxChargeTime);
+
+                // ── 스테이지 전환: 홀드 중 임계값 도달 시 다음 InfiniteLoop로 진행 ──
+                int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
+                if (isHeld
+                    && stageIndex < _stageThresholds.Length
+                    && _chargeRatio >= _stageThresholds[stageIndex]
+                    && gameActor.Animator.IsInfiniteLooping)
+                {
+                    gameActor.Animator.BreakInfiniteLoop();
+                    // TODO: 스테이지 전환 VFX / 사운드 (stageIndex + 1 단계 진입)
+                    return;
+                }
+
+                // 버튼을 뗐거나 풀 차지 도달 시 발동
+                if (!isHeld || _chargeRatio >= 1.0f)
+                {
+                    FireChargeAttack();
+                }
+            }
+        }
+
+        private void FireChargeAttack()
+        {
+            if (_isFired) return;
+            _isFired = true;
+
+            // 현재 InfiniteLoop 단계로 공격 데이터 확정
+            int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
+            _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
+            _combat.ClearHitTargets();
+
+            // 루프 해제 → 애니메이션이 공격 구간으로 진행
+            gameActor.Animator.BreakInfiniteLoop();
+
+            // 히트 판정은 애니메이션 이벤트(BeginCollision)에서 활성화됨
+        }
+
+        private void OnAttackAnimEnd()
+        {
+            _combat.SetEnableCollision(false);
+            _combat.ClearHitTargets();
+            ExitToIdle();
+        }
+
+        private void ExitToIdle()
+        {
+            _combat.ResetCombo();
+            if (playerController.HasMoveInput())
+                controller.TransitionToState(new PlayerGroundMoveState(controller));
+            else
+                controller.TransitionToState(new PlayerIdleState(controller));
+        }
+
+        public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            // InfiniteLoop 중(차지 대기)에는 제자리 고정
+            // 루프 해제 후(실제 공격)에는 루트모션 적용
+            if (_isInLoop && !_isFired)
+            {
+                currentVelocity = Vector3.zero;
+                return;
+            }
+
+            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            Transform rotTarget = CameraManager.Instance.GetLockOnTarget() ?? _softRotationTarget;
+
+            if (rotTarget != null)
+            {
+                Vector3 dir = rotTarget.position - gameActor.transform.position;
+                dir.y = 0f;
+                if (dir.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(dir.normalized);
+                    currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 10f);
+                    currentRotation = currentRotation.normalized;
+                }
+                return;
+            }
+
+            Vector3 moveInput = playerController.MoveInputVector;
+            if (moveInput.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(moveInput.normalized);
+                currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * 8f);
+                currentRotation = currentRotation.normalized;
+            }
+        }
+
+        /// <summary> 현재 차지 비율 (0~1). UI 게이지 등에 활용 가능 </summary>
+        public float ChargeRatio => _chargeRatio;
+    }
+}

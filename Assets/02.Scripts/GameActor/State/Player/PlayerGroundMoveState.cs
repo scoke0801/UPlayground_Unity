@@ -105,6 +105,13 @@ namespace UPlayGround.State
                 return;
             }
 
+            // 차지 공격: 홀드 임계값 초과 시 우선 진입 (HeavyAttack 버퍼 체크보다 앞)
+            if (playerController.IsChargeAttackHeld())
+            {
+                playerController.TransitionToState(new PlayerChargeState(playerController));
+                return;
+            }
+
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
             {
                 if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)

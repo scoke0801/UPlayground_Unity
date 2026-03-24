@@ -45,6 +45,9 @@ namespace UPlayGround.State
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(true);
             motor.SetGroundSolvingActivation(false);
 
+            // EnemyCombat에 현재 스킬을 설정하여 CheckMeleeAttackHit이 올바른 스킬 데이터를 참조하도록 한다
+            _combat.SetCurrentSkill(_skill);
+
             var anim = gameActor.Animator.PlayMotion(_skill.baseInfo.animKey, 0.1f);
             if (anim != null)
                 gameActor.Animator.OnMotionSetCompleted += OnAttackEnd;
@@ -59,6 +62,13 @@ namespace UPlayGround.State
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(false);
             _combat.ClearHitTargets();
             _aerialLayer.OnAerialAttackEnd();
+
+            // Hit/Death 등 비공중 State로 전환 시 GroundSolving 복구
+            // (→ EnemyAerialState 전환 시에는 AerialState.OnEnter에서 다시 OFF)
+            motor.SetGroundSolvingActivation(true);
+
+            // 그룹 공격 슬롯 반환 (슬롯이 점유되지 않았으면 내부에서 무시됨)
+            gameActor.GetComponent<EnemyBrain>()?.ReleaseGroupSlot();
         }
 
         public override void UpdateState(float deltaTime)

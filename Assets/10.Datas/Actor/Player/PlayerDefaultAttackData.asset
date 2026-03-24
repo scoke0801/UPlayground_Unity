@@ -515,3 +515,45 @@ MonoBehaviour:
         grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
+  chargeAnimKey: 620
+  chargeStages:
+  - hitPhases:
+    - damage: 30
+      poiseDamage: 30
+      reactionType: 2
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      hitHeightRange: 1.2
+      hitParticleName: DefaultCombatHit
+      pullForce: 0
+      airborneForce: 0
+      knockBackForce: 0
+      knockBackDrag: 20
+      grabDuration: 0
+    - damage: 55
+      poiseDamage: 30
+      reactionType: 2
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      hitHeightRange: 1.2
+      hitParticleName: DefaultCombatHit
+      pullForce: 0
+      airborneForce: 0
+      knockBackForce: 0
+      knockBackDrag: 20
+      grabDuration: 0
+    - damage: 90
+      poiseDamage: 30
+      reactionType: 3
+      attackOffset: {x: 0, y: 1, z: 1.5}
+      attackRadius: 1.5
+      hitHeightRange: 1.2
+      hitParticleName: DefaultCombatHit
+      pullForce: 0
+      airborneForce: 0
+      knockBackForce: 0
+      knockBackDrag: 20
+      grabDuration: 0
+    canBeInterrupted: 0
+    hitAngle: 0
+  chargeStageThresholds: []

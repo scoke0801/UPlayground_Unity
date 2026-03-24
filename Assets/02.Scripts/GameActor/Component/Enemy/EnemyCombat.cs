@@ -352,6 +352,15 @@ namespace UPlayGround.Component
             }
         }
 
+        /// <summary>
+        /// 외부에서 현재 스킬을 직접 지정한다 (공중 공격 등, SelectAndExecuteSkill을 거치지 않는 경우).
+        /// </summary>
+        public void SetCurrentSkill(EnemyAttackInfo skill)
+        {
+            _currentSkill = skill;
+            _currentHitPhaseIndex = 0;
+        }
+
         public void ClearHitTargets()
         {
             _hitTargets.Clear();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
@@ -39,11 +40,13 @@ namespace UPlayGround.Animation
 
         // ── Loop/Freeze 상태 ──
         private LoopEvent _activeLoopEvent;
+        private HashSet<LoopEvent> _brokenLoopEvents = new HashSet<LoopEvent>(); // BreakInfiniteLoop로 해제된 이벤트 목록 (재진입 방지)
         private int _loopRemainingCount;
         private float _freezeTimer;
         private bool _isFrozen;
         private bool _isInfiniteLooping;
         private float _infiniteLoopElapsed; // InfiniteLoop 진입 후 경과 시간
+        private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
         
         public event Action OnMotionSetCompleted;
         public AnimancerComponent GetAnimancerComponent() => _animator;
@@ -411,12 +414,16 @@ namespace UPlayGround.Animation
 
         private void HandleInfiniteLoopMode(LoopEvent loopEvt, float localTime)
         {
+            // BreakInfiniteLoop로 명시적으로 해제된 이벤트는 재진입하지 않는다
+            if (_brokenLoopEvents.Contains(loopEvt)) return;
+
             if (!_isInfiniteLooping && localTime >= loopEvt.endTime)
             {
                 // 첫 도달: 무한 루프 상태 진입
                 _activeLoopEvent = loopEvt;
                 _isInfiniteLooping = true;
                 _infiniteLoopElapsed = 0f;
+                _infiniteLoopStageIndex++; // 스테이지 인덱스 증가 (0-based)
             }
 
             if (!_isInfiniteLooping || _activeLoopEvent != loopEvt) return;
@@ -453,8 +460,9 @@ namespace UPlayGround.Animation
         public void BreakInfiniteLoop()
         {
             if (!_isInfiniteLooping) return;
+            _brokenLoopEvents.Add(_activeLoopEvent); // 재진입 방지를 위해 목록에 추가
             _isInfiniteLooping = false;
-            _activeLoopEvent = null;
+            _activeLoopEvent   = null;
         }
 
         /// <summary>
@@ -462,14 +470,23 @@ namespace UPlayGround.Animation
         /// </summary>
         public bool IsInfiniteLooping => _isInfiniteLooping;
 
+        /// <summary>
+        /// 현재까지 진입한 InfiniteLoop 순번 (0-based).
+        /// 첫 번째 루프 = 0, 두 번째 루프 = 1 ...
+        /// 아직 어떤 루프에도 진입하지 않은 경우 -1.
+        /// </summary>
+        public int InfiniteLoopStageIndex => _infiniteLoopStageIndex;
+
         private void ResetLoopState()
         {
-            _activeLoopEvent = null;
-            _loopRemainingCount = 0;
-            _freezeTimer = 0f;
-            _isFrozen = false;
-            _isInfiniteLooping = false;
-            _infiniteLoopElapsed = 0f;
+            _activeLoopEvent    = null;
+            _brokenLoopEvents.Clear();
+            _loopRemainingCount     = 0;
+            _freezeTimer            = 0f;
+            _isFrozen               = false;
+            _isInfiniteLooping      = false;
+            _infiniteLoopElapsed    = 0f;
+            _infiniteLoopStageIndex = -1;
         }
 
         private Motion GetCurrentMotion()

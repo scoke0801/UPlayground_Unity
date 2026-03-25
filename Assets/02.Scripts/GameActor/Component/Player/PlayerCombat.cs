@@ -261,7 +261,7 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
-        /// stageIndex: 차지 단계 (0 = 최소, chargeAttackList.Count-1 = 최대).
+        /// stageIndex: 차지 단계
         /// chargeRatio(0~1): 스테이지 내 차지 진행도 — 데미지 추가 스케일에만 사용.
         /// </summary>
         public AttackData ExecuteChargeAttack(int stageIndex, float chargeRatio)
@@ -271,7 +271,9 @@ namespace UPlayGround.Component
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
 
-            int index = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
+            int count = _attackData.chargeStages[0].hitPhases.Count;
+            Debug.Log($"StageIndex: {stageIndex}, count: {count}");
+            int index = Mathf.Clamp(stageIndex, 0, count - 1);
 
             _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[index], chargeRatio);
 

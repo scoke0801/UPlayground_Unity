@@ -32,8 +32,8 @@ MonoBehaviour:
     - rid: 5792125535029297270
       type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.13
-        endTime: 0.13
+        startTime: 0.1
+        endTime: 0.11
         globalStartTimeOffset: 0
         mode: 2
         loopCount: 1
@@ -41,8 +41,8 @@ MonoBehaviour:
     - rid: 5792125557290303606
       type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.145
-        endTime: 0.145
+        startTime: 0.2
+        endTime: 0.21
         globalStartTimeOffset: 0
         mode: 2
         loopCount: 1
@@ -50,8 +50,8 @@ MonoBehaviour:
     - rid: 5792125557290303607
       type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.195
-        endTime: 0.195
+        startTime: 0.3
+        endTime: 0.31
         globalStartTimeOffset: 0
         mode: 2
         loopCount: 1

@@ -39,6 +39,7 @@ namespace UPlayGround.Animation
         protected bool _isPlayingMotionSet;
 
         // ── Loop/Freeze 상태 ──
+        private float _lastLocalTime; // 이전 프레임의 로컬 타임
         private LoopEvent _activeLoopEvent;
         private HashSet<LoopEvent> _brokenLoopEvents = new HashSet<LoopEvent>(); // BreakInfiniteLoop로 해제된 이벤트 목록 (재진입 방지)
         private int _loopRemainingCount;
@@ -144,8 +145,10 @@ namespace UPlayGround.Animation
             
             _currentMotionIndex = 0;
             _globalTime = 0f;
+            _lastLocalTime = -0.001f;
             _isPlayingMotionSet = true;
             _lastPlayedKey = key;
+            _infiniteLoopStageIndex = -1; // 새로운 MotionSet 시작 시에만 리셋
 
             // 이벤트 실행기 초기화
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
@@ -325,14 +328,29 @@ namespace UPlayGround.Animation
             {
                 if (newIndex != _currentMotionIndex)
                 {
-                    // 모션이 바뀌면 이전 모션의 Loop 상태 리셋
-                    ResetLoopState();
+                    // 모션이 바뀌기 전, 이전 모션의 남은 구간 처리
+                    var oldMotion = GetCurrentMotion();
+                    if (oldMotion != null)
+                    {
+                        ProcessLoopEvents(_lastLocalTime, oldMotion.Duration);
+                    }
+
                     _currentMotionIndex = newIndex;
                     PlayMotionAtIndex(_currentMotionIndex, 0f, _currentMotionLayerIndex);
+                    
+                    // 새 모션의 localTime 재계산 및 시작점 초기화
+                    _currentMotionSet.GetMotionAtTime(_globalTime, out _, out localTime);
+                    _lastLocalTime = 0f;
                 }
 
                 // ── Loop/Freeze 이벤트 감지 및 처리 ──
-                ProcessLoopEvents(localTime);
+                ProcessLoopEvents(_lastLocalTime, localTime);
+                
+                // 최종 결과 반영
+                if (_currentMotionSet.GetMotionAtTime(_globalTime, out _, out float finalLocalTime))
+                {
+                    _lastLocalTime = finalLocalTime;
+                }
             }
 
             _eventExecutor?.UpdateTime(_globalTime);
@@ -340,10 +358,8 @@ namespace UPlayGround.Animation
 
         /// <summary>
         /// 현재 모션의 LoopEvent를 감지하고 타임라인을 조작한다.
-        /// - Loop: localTime이 endTime을 넘으면 startTime으로 되감기 (남은 횟수만큼)
-        /// - Freeze: localTime이 startTime을 넘으면 애니메이션 정지 + 타이머 시작
         /// </summary>
-        private void ProcessLoopEvents(float localTime)
+        private void ProcessLoopEvents(float start, float end)
         {
             var motion = GetCurrentMotion();
             if (motion?.events == null) return;
@@ -352,56 +368,82 @@ namespace UPlayGround.Animation
             {
                 if (evt is not LoopEvent loopEvt) continue;
 
-                switch (loopEvt.mode)
+                bool triggered = false;
+
+                // 이미 활성화된 루프/무한루프라면 현재 시간이 endTime을 넘었는지만 체크 (구간 스킵 방지)
+                if ((loopEvt.mode == LoopEventMode.Loop && _activeLoopEvent == loopEvt && _loopRemainingCount > 0) ||
+                    (loopEvt.mode == LoopEventMode.InfiniteLoop && _isInfiniteLooping && _activeLoopEvent == loopEvt))
                 {
-                    case LoopEventMode.Loop:
-                        HandleLoopMode(loopEvt, localTime);
-                        break;
-                    case LoopEventMode.InfiniteLoop:
-                        HandleInfiniteLoopMode(loopEvt, localTime);
-                        break;
-                    case LoopEventMode.Freeze:
-                        HandleFreezeMode(loopEvt, localTime);
-                        break;
+                    if (end >= loopEvt.endTime) triggered = true;
+                }
+                else
+                {
+                    // 신규 진입 시에는 startTime을 기준으로 체크 (Freeze와 동일)
+                    if (loopEvt.startTime >= start && loopEvt.startTime <= end) triggered = true;
+                }
+
+                if (triggered)
+                {
+                    switch (loopEvt.mode)
+                    {
+                        case LoopEventMode.Loop:
+                            HandleLoopMode(loopEvt, end);
+                            break;
+                        case LoopEventMode.InfiniteLoop:
+                            HandleInfiniteLoopMode(loopEvt, end);
+                            break;
+                        case LoopEventMode.Freeze:
+                            HandleFreezeMode(loopEvt, end);
+                            break;
+                    }
                 }
             }
         }
 
         private void HandleLoopMode(LoopEvent loopEvt, float localTime)
         {
-            // 아직 이 이벤트의 endTime에 도달하지 않았으면 무시
-            if (localTime < loopEvt.endTime) return;
-
-            // 처음 도달: 루프 카운터 초기화
+            // 루프 카운터 초기화 (새로운 루프 이벤트 진입 시)
             if (_activeLoopEvent != loopEvt)
             {
                 _activeLoopEvent = loopEvt;
                 _loopRemainingCount = loopEvt.loopCount;
             }
 
-            if (_loopRemainingCount <= 0) return;
-
-            // globalTime을 되감아 startTime 구간으로 복귀
-            float loopDuration = loopEvt.endTime - loopEvt.startTime;
-            _globalTime -= loopDuration;
-            _loopRemainingCount--;
+            float duration = loopEvt.endTime - loopEvt.startTime;
+            if (duration <= 0.0001f)
+            {
+                // 시작/종료 시간이 같을 경우, 루프 횟수만큼 즉시 차감하고 시간을 고정
+                if (_loopRemainingCount > 0 && localTime >= loopEvt.startTime)
+                {
+                    _globalTime -= (localTime - loopEvt.startTime);
+                    localTime = loopEvt.startTime;
+                    _loopRemainingCount--;
+                }
+            }
+            else
+            {
+                // 현재 시간이 루프 구간 안으로 들어올 때까지 반복 되감기 (미세 구간 대응)
+                while (_loopRemainingCount > 0 && localTime >= loopEvt.endTime)
+                {
+                    _globalTime -= duration;
+                    localTime -= duration;
+                    _loopRemainingCount--;
+                }
+            }
 
             // Animancer 클립 시간도 되감기
             if (_currentState != null)
             {
                 var motion = GetCurrentMotion();
-                float clipLocalStart = motion != null
-                    ? motion.ClipStartTime + loopEvt.startTime * (motion.playbackSpeed > 0 ? motion.playbackSpeed : 1f)
-                    : 0f;
-                _currentState.Time = clipLocalStart;
+                float spd = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
+                _currentState.Time = (motion?.ClipStartTime ?? 0f) + localTime * spd;
             }
         }
 
         private void HandleFreezeMode(LoopEvent loopEvt, float localTime)
         {
             if (_isFrozen) return;
-            if (_activeLoopEvent == loopEvt) return; // 이미 처리된 Freeze
-            if (localTime < loopEvt.startTime) return;
+            if (_activeLoopEvent == loopEvt) return; // 이미 처리된 Freeze (같은 프레임 중복 방지)
 
             // Freeze 시작
             _activeLoopEvent = loopEvt;
@@ -417,50 +459,103 @@ namespace UPlayGround.Animation
             // BreakInfiniteLoop로 명시적으로 해제된 이벤트는 재진입하지 않는다
             if (_brokenLoopEvents.Contains(loopEvt)) return;
 
-            if (!_isInfiniteLooping && localTime >= loopEvt.endTime)
+            if (!_isInfiniteLooping)
             {
                 // 첫 도달: 무한 루프 상태 진입
                 _activeLoopEvent = loopEvt;
                 _isInfiniteLooping = true;
                 _infiniteLoopElapsed = 0f;
                 _infiniteLoopStageIndex++; // 스테이지 인덱스 증가 (0-based)
+                
+                Debug.Log($"InfiniteLoopStageIndex: {_infiniteLoopStageIndex}");
             }
 
-            if (!_isInfiniteLooping || _activeLoopEvent != loopEvt) return;
-
-            // Duration 경과 시 자동 해제
-            float deltaTime = _actor != null ? _actor.DeltaTime : Time.deltaTime;
-            _infiniteLoopElapsed += deltaTime;
-
-            var motion = GetCurrentMotion();
-            if (motion != null && _infiniteLoopElapsed >= motion.Duration)
+            float duration = loopEvt.endTime - loopEvt.startTime;
+            if (duration <= 0.0001f)
             {
-                BreakInfiniteLoop();
-                return;
-            }
-
-            if (localTime >= loopEvt.endTime)
-            {
-                // endTime 도달할 때마다 startTime으로 되감기
-                float loopDuration = loopEvt.endTime - loopEvt.startTime;
-                _globalTime -= loopDuration;
-
-                if (_currentState != null)
+                // 시작/종료 시간이 같을 경우 해당 위치에 고정 (무한 루프/일시정지 효과)
+                if (localTime >= loopEvt.startTime)
                 {
-                    float spd = motion?.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
-                    _currentState.Time = (motion?.ClipStartTime ?? 0f) + loopEvt.startTime * spd;
+                    _globalTime -= (localTime - loopEvt.startTime);
+                    localTime = loopEvt.startTime;
                 }
+            }
+            else
+            {
+                // 무한 루프이므로 구간 안으로 들어올 때까지 반복 되감기
+                while (localTime >= loopEvt.endTime)
+                {
+                    _globalTime -= duration;
+                    localTime -= duration;
+                }
+            }
+
+            if (_currentState != null)
+            {
+                var motion = GetCurrentMotion();
+                float spd = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
+                _currentState.Time = (motion?.ClipStartTime ?? 0f) + localTime * spd;
             }
         }
 
         /// <summary>
-        /// 외부에서 InfiniteLoop를 해제한다.
-        /// 해제 후 모션은 endTime 이후 구간부터 정상 진행된다.
+        /// 외부에서 현재 InfiniteLoop를 해제한다.
+        /// 해제 후 모션은 endTime 이후 구간부터 즉시 진행된다.
         /// </summary>
         public void BreakInfiniteLoop()
         {
-            if (!_isInfiniteLooping) return;
-            _brokenLoopEvents.Add(_activeLoopEvent); // 재진입 방지를 위해 목록에 추가
+            if (!_isInfiniteLooping || _activeLoopEvent == null) return;
+
+            // 현재 루프의 종료 지점으로 시간을 점프시켜 대기 시간을 스킵한다.
+            if (_currentMotionSet.GetMotionAtTime(_globalTime, out _, out float localTime))
+            {
+                float gap = _activeLoopEvent.endTime - localTime;
+                if (gap > 0)
+                {
+                    _globalTime += gap;
+                }
+            }
+
+            _brokenLoopEvents.Add(_activeLoopEvent);
+            _isInfiniteLooping = false;
+            _activeLoopEvent   = null;
+        }
+
+        /// <summary>
+        /// 현재 모션에 있는 모든 InfiniteLoop 이벤트를 한 번에 차단하고,
+        /// 루프 구간이 있다면 마지막 루프의 종료 지점으로 점프한다.
+        /// </summary>
+        public void BreakAllInfiniteLoops()
+        {
+            float lastLoopEndTime = -1f;
+            var motion = GetCurrentMotion();
+            
+            if (motion?.events != null)
+            {
+                foreach (var evt in motion.events)
+                {
+                    if (evt is LoopEvent { mode: LoopEventMode.InfiniteLoop } loopEvt)
+                    {
+                        _brokenLoopEvents.Add(loopEvt);
+                        if (loopEvt.endTime > lastLoopEndTime)
+                            lastLoopEndTime = loopEvt.endTime;
+                    }
+                }
+            }
+
+            // 활성 루프가 있거나 루프 구간 내에 있다면 마지막 루프 끝으로 점프
+            if (lastLoopEndTime > 0)
+            {
+                if (_currentMotionSet.GetMotionAtTime(_globalTime, out _, out float localTime))
+                {
+                    float gap = lastLoopEndTime - localTime;
+                    if (gap > 0)
+                    {
+                        _globalTime += gap;
+                    }
+                }
+            }
+
             _isInfiniteLooping = false;
             _activeLoopEvent   = null;
         }
@@ -487,6 +582,7 @@ namespace UPlayGround.Animation
             _isInfiniteLooping      = false;
             _infiniteLoopElapsed    = 0f;
             _infiniteLoopStageIndex = -1;
+            _lastLocalTime          = -0.001f;
         }
 
         private Motion GetCurrentMotion()

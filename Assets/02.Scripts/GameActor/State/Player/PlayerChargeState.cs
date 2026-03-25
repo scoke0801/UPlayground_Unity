@@ -61,7 +61,7 @@ namespace UPlayGround.State
             _releasedBeforeLoop = false;
             _stageThresholds    = _combat.GetChargeStageThresholds();
 
-            playerActor.Animator.ApplyRootMotion(false);
+            playerActor.Animator.ApplyRootMotion(true);
 
             // chargeAttackList[0]의 AnimKey로 애니메이션 재생
             // 해당 애니메이션에는 반드시 InfiniteLoop LoopEvent가 포함되어야 함
@@ -89,14 +89,13 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimEnd;
 
-            // 혹시 루프가 아직 걸려있으면 해제 (피격 등으로 강제 전환 시)
-            if (gameActor.Animator.IsInfiniteLooping)
-                gameActor.Animator.BreakInfiniteLoop();
+            // 피격 등 강제 전환 시 남은 모든 InfiniteLoop 차단
+            gameActor.Animator.BreakAllInfiniteLoops();
 
             _combat.SetEnableCollision(false);
             _combat.ClearHitTargets();
 
-            playerActor.Animator.ApplyRootMotion(true);
+            playerActor.Animator.ApplyRootMotion(false);
             _softRotationTarget = null;
             base.OnExit(toState);
         }
@@ -133,6 +132,10 @@ namespace UPlayGround.State
                 }
             }
 
+            // ── 루프 대기 중 충돌 강제 비활성화 (BeginCollision 이벤트 오발 방지) ──
+            if (_isInLoop && !_isFired)
+                _combat.SetEnableCollision(false);
+
             // ── 차지 비율 누적 및 발동 ──────────────────────────────────
             if (_isInLoop && !_isFired)
             {
@@ -164,13 +167,14 @@ namespace UPlayGround.State
             if (_isFired) return;
             _isFired = true;
 
+            Debug.Log("FireChargeAttack");
             // 현재 InfiniteLoop 단계로 공격 데이터 확정
             int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
             _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
             _combat.ClearHitTargets();
 
-            // 루프 해제 → 애니메이션이 공격 구간으로 진행
-            gameActor.Animator.BreakInfiniteLoop();
+            // 현재 및 이후의 모든 InfiniteLoop 차단 → 애니메이션이 공격 구간으로 진행
+            gameActor.Animator.BreakAllInfiniteLoops();
 
             // 히트 판정은 애니메이션 이벤트(BeginCollision)에서 활성화됨
         }

@@ -119,17 +119,17 @@ namespace UPlayGround.Animation
         public List<MotionEventBase> GetActiveEventsAt(float globalTime)
         {
             var activeEvents = new List<MotionEventBase>();
-            
+
             // 글로벌 이벤트 체크
             if (globalEvents != null)
             {
                 foreach (var evt in globalEvents)
                 {
-                    if (evt != null && evt.IsActiveAt(globalTime))
+                    if (evt != null && evt.IsActiveAtGlobal(globalTime))
                         activeEvents.Add(evt);
                 }
             }
-            
+
             // 각 모션의 이벤트 체크
             float currentTime = 0f;
             if (motions != null)
@@ -137,22 +137,69 @@ namespace UPlayGround.Animation
                 foreach (var motion in motions)
                 {
                     if (motion == null) continue;
-                    
+
                     float motionEnd = currentTime + motion.Duration;
                     if (globalTime >= currentTime && globalTime <= motionEnd)
                     {
                         float localTime = globalTime - currentTime;
                         activeEvents.AddRange(motion.GetActiveEventsAt(localTime));
                     }
-                    
+
                     currentTime = motionEnd;
                     if (globalTime < currentTime) break;
                 }
             }
-            
+
             return activeEvents;
         }
-        
+
+        /// <summary>
+        /// 특정 시간 범위 [start, end] 내에서 시작되는 모든 이벤트 반환 (글로벌 타임라인 기준)
+        /// </summary>
+        public List<MotionEventBase> GetEventsInRange(float startGlobalTime, float endGlobalTime)
+        {
+            var results = new List<MotionEventBase>();
+
+            // 글로벌 이벤트 체크
+            if (globalEvents != null)
+            {
+                foreach (var evt in globalEvents)
+                {
+                    if (evt == null) continue;
+                    float absStart = evt.startTime; // globalEvents는 오프셋 0
+                    if (absStart > startGlobalTime && absStart <= endGlobalTime)
+                        results.Add(evt);
+                }
+            }
+
+            // 각 모션의 이벤트 체크
+            float accumulated = 0f;
+            if (motions != null)
+            {
+                foreach (var motion in motions)
+                {
+                    if (motion == null) continue;
+                    float motionEnd = accumulated + motion.Duration;
+
+                    // 검색 범위가 이 모션 구간과 겹치는지 확인
+                    if (endGlobalTime > accumulated && startGlobalTime < motionEnd)
+                    {
+                        float localRangeStart = Mathf.Max(0f, startGlobalTime - accumulated);
+                        float localRangeEnd = endGlobalTime - accumulated;
+
+                        foreach (var evt in motion.events)
+                        {
+                            if (evt != null && evt.startTime > localRangeStart && evt.startTime <= localRangeEnd)
+                                results.Add(evt);
+                        }
+                    }
+                    accumulated = motionEnd;
+                    if (startGlobalTime > accumulated) continue;
+                }
+            }
+            return results;
+        }
+
         /// <summary>
         /// 특정 모션의 인덱스와 로컬 타임 계산
         /// </summary>

@@ -14,6 +14,7 @@ namespace UPlayGround.Animation
         
         private MotionSet _currentMotionSet;
         private float _currentTime;
+        private float _lastTime; // 이전 프레임 시간 저장
         private HashSet<MotionEventBase> _activeEvents = new HashSet<MotionEventBase>();
         private HashSet<MotionEventBase> _executedEvents = new HashSet<MotionEventBase>();
 
@@ -26,6 +27,7 @@ namespace UPlayGround.Animation
         {
             _currentMotionSet = motionSet;
             _currentTime = 0f;
+            _lastTime = -0.001f; // 0초에 걸린 이벤트도 실행되도록 약간 음수에서 시작
             _activeEvents.Clear();
             _executedEvents.Clear();
             
@@ -40,6 +42,12 @@ namespace UPlayGround.Animation
         {
             if (_currentMotionSet == null) return;
 
+            // 시간이 되감아진 경우 (Loop 발생 시) lastTime을 조정하여 중복 실행 방지
+            if (time < _lastTime)
+            {
+                _lastTime = time - 0.001f;
+            }
+
             _currentTime = time;
             ProcessEvents();
         }
@@ -49,20 +57,7 @@ namespace UPlayGround.Animation
         /// </summary>
         void ProcessEvents()
         {
-            //Debug.Log($"ProcessEvent: {_currentTime}");
-            var currentActiveEvents = _currentMotionSet.GetActiveEventsAt(_currentTime);
-
-            // 새로 활성화된 이벤트 실행
-            foreach (var evt in currentActiveEvents)
-            {
-                if (!_executedEvents.Contains(evt))
-                {
-                    ExecuteEvent(evt);
-                    _executedEvents.Add(evt);
-                    _activeEvents.Add(evt);
-                }
-            }
-            
+            // 1. 기존 활성 이벤트들 중 종료된 것 처리
             List<MotionEventBase> toRemove = new List<MotionEventBase>();
             foreach (var evt in _activeEvents)
             {
@@ -73,11 +68,27 @@ namespace UPlayGround.Animation
                 }
             }
             
-            // 예약된 요소들만 삭제
+            // 예약된 요소들 삭제
             foreach (var evt in toRemove)
             {
                 _activeEvents.Remove(evt);
             }
+
+            // 2. 새로운 이벤트들 탐색 및 실행
+            // [lastTime, currentTime] 구간에 시작점이 포함된 모든 이벤트 탐색
+            var eventsToTrigger = _currentMotionSet.GetEventsInRange(_lastTime, _currentTime);
+
+            foreach (var evt in eventsToTrigger)
+            {
+                if (!_executedEvents.Contains(evt))
+                {
+                    ExecuteEvent(evt);
+                    _executedEvents.Add(evt);
+                    _activeEvents.Add(evt);
+                }
+            }
+
+            _lastTime = _currentTime;
         }
 
         /// <summary>

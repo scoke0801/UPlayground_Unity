@@ -37,5 +37,13 @@ namespace UPlayGround.Data.Combat
 
         [Tooltip("차지 단계 전환 비율 임계값 (0~1).\n요소 수 = chargeStages.Count - 1.\n예) 3단계 → { 0.35, 0.70 }\n비워두면 단계 수에 맞게 균등 분배된다.")]
         public List<float> chargeStageThresholds = new List<float>();
+
+        [Header("Full Charge VFX")]
+        [Tooltip("풀 차지 도달 시 재생할 VFX 키 (GameObjectManager FX Pool)")]
+        public string fullChargeVfxKey;
+        [Tooltip("VFX 재생 기준 소켓. None이면 루트 위치 사용")]
+        public ActorSocketType fullChargeVfxSocket = ActorSocketType.Center;
+        [Tooltip("소켓 위치에 추가할 로컬 오프셋")]
+        public Vector3 fullChargeVfxOffset;
     }
 }

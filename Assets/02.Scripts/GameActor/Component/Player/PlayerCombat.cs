@@ -235,7 +235,7 @@ namespace UPlayGround.Component
         /// </summary>
         public float[] GetChargeStageThresholds()
         {
-            int stageCount = _attackData.chargeStages?.Count ?? 0;
+            int stageCount = _attackData.chargeStageThresholds?.Count ?? 0;
             if (stageCount <= 1) return System.Array.Empty<float>();
 
             var configured = _attackData.chargeStageThresholds;
@@ -261,6 +261,12 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
+        /// 풀 차지 VFX 데이터 (키, 소켓, 오프셋)를 반환한다.
+        /// </summary>
+        public (string key, ActorSocketType socket, Vector3 offset) GetFullChargeVfxData()
+            => (_attackData.fullChargeVfxKey, _attackData.fullChargeVfxSocket, _attackData.fullChargeVfxOffset);
+
+        /// <summary>
         /// stageIndex: 차지 단계
         /// chargeRatio(0~1): 스테이지 내 차지 진행도 — 데미지 추가 스케일에만 사용.
         /// </summary>
@@ -275,7 +281,7 @@ namespace UPlayGround.Component
             Debug.Log($"StageIndex: {stageIndex}, count: {count}");
             int index = Mathf.Clamp(stageIndex, 0, count - 1);
 
-            _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[index], chargeRatio);
+            _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[0], chargeRatio, index);
 
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -283,27 +289,27 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
-        private AttackData ConvertToChargeAttackData(ChargeStageData stage, float chargeRatio)
+        private AttackData ConvertToChargeAttackData(ChargeStageData stage, float chargeRatio, int phaseIndex)
         {
             _currentAttackInfoBase = null;
-            var phase0 = stage.GetHitPhase(0);
+            var phase = stage.GetHitPhase(phaseIndex);
 
             var data = new AttackData
             {
                 animKey          = _attackData.chargeAnimKey,
-                damage           = UPlayGround.Util.ApplyRandomValue(phase0.damage, -0.2f, 0.2f),
-                poiseDamage      = phase0.poiseDamage,
+                damage           = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
+                poiseDamage      = phase.poiseDamage,
                 canBeInterrupted = stage.canBeInterrupted,
-                reactionType     = phase0.reactionType,
-                hitRange         = phase0.attackRadius,
+                reactionType     = phase.reactionType,
+                hitRange         = phase.attackRadius,
                 hitAngle         = stage.hitAngle,
-                hitHeightOffset  = phase0.attackOffset.y,
-                hitHeightRange   = phase0.hitHeightRange,
-                hitParticleName  = phase0.hitParticleName,
-                pullForce        = phase0.pullForce,
-                knockbackForce   = phase0.knockBackForce,
-                knockbackDrag    = phase0.knockBackDrag,
-                airborneForce    = phase0.airborneForce,
+                hitHeightOffset  = phase.attackOffset.y,
+                hitHeightRange   = phase.hitHeightRange,
+                hitParticleName  = phase.hitParticleName,
+                pullForce        = phase.pullForce,
+                knockbackForce   = phase.knockBackForce,
+                knockbackDrag    = phase.knockBackDrag,
+                airborneForce    = phase.airborneForce,
                 hitPhaseIndex    = 0,
                 attackKind       = AttackKind.ChargeAttack,
             };

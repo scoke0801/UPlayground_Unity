@@ -459,25 +459,36 @@ namespace UPlayGround.Animation
             // BreakInfiniteLoop로 명시적으로 해제된 이벤트는 재진입하지 않는다
             if (_brokenLoopEvents.Contains(loopEvt)) return;
 
-            if (!_isInfiniteLooping)
+            bool isFirstEntry = !_isInfiniteLooping;
+            if (isFirstEntry)
             {
                 // 첫 도달: 무한 루프 상태 진입
                 _activeLoopEvent = loopEvt;
                 _isInfiniteLooping = true;
                 _infiniteLoopElapsed = 0f;
                 _infiniteLoopStageIndex++; // 스테이지 인덱스 증가 (0-based)
-                
+
                 Debug.Log($"InfiniteLoopStageIndex: {_infiniteLoopStageIndex}");
             }
 
             float duration = loopEvt.endTime - loopEvt.startTime;
             if (duration <= 0.0001f)
             {
-                // 시작/종료 시간이 같을 경우 해당 위치에 고정 (무한 루프/일시정지 효과)
-                if (localTime >= loopEvt.startTime)
+                // startTime = endTime인 경우:
+                // _currentState.Time을 매 프레임 강제 세팅하면 Animancer의 deltaPosition 계산이
+                // 흔들려 시각적 떨림이 발생한다. Speed = 0으로 포즈를 고정하는 방식을 사용한다.
+                _globalTime -= (localTime - loopEvt.startTime);
+
+                if (_currentState != null)
                 {
-                    _globalTime -= (localTime - loopEvt.startTime);
-                    localTime = loopEvt.startTime;
+                    // 첫 진입 시 한 번만 정확한 프레임으로 스냅
+                    if (isFirstEntry)
+                    {
+                        var motion = GetCurrentMotion();
+                        float spd = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
+                        _currentState.Time = (motion?.ClipStartTime ?? 0f) + loopEvt.startTime * spd;
+                    }
+                    _currentState.Speed = 0f;
                 }
             }
             else
@@ -488,13 +499,13 @@ namespace UPlayGround.Animation
                     _globalTime -= duration;
                     localTime -= duration;
                 }
-            }
 
-            if (_currentState != null)
-            {
-                var motion = GetCurrentMotion();
-                float spd = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
-                _currentState.Time = (motion?.ClipStartTime ?? 0f) + localTime * spd;
+                if (_currentState != null)
+                {
+                    var motion = GetCurrentMotion();
+                    float spd = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
+                    _currentState.Time = (motion?.ClipStartTime ?? 0f) + localTime * spd;
+                }
             }
         }
 
@@ -505,6 +516,13 @@ namespace UPlayGround.Animation
         public void BreakInfiniteLoop()
         {
             if (!_isInfiniteLooping || _activeLoopEvent == null) return;
+
+            // Speed = 0으로 고정됐을 수 있으므로 정상 속도로 복원
+            if (_currentState != null)
+            {
+                var motion = GetCurrentMotion();
+                _currentState.Speed = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
+            }
 
             // 현재 루프의 종료 지점으로 시간을 점프시켜 대기 시간을 스킵한다.
             if (_currentMotionSet.GetMotionAtTime(_globalTime, out _, out float localTime))
@@ -554,6 +572,12 @@ namespace UPlayGround.Animation
                         _globalTime += gap;
                     }
                 }
+            }
+
+            // Speed = 0으로 고정됐을 수 있으므로 정상 속도로 복원
+            if (_currentState != null)
+            {
+                _currentState.Speed = motion?.playbackSpeed > 0 ? motion.playbackSpeed : 1f;
             }
 
             _isInfiniteLooping = false;

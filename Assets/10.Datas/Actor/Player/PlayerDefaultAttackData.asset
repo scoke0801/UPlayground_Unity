@@ -556,4 +556,10 @@ MonoBehaviour:
       grabDuration: 0
     canBeInterrupted: 0
     hitAngle: 0
-  chargeStageThresholds: []
+  chargeStageThresholds:
+  - 0.3
+  - 0.3
+  - 0.3
+  fullChargeVfxKey: playerFullChargeFX
+  fullChargeVfxSocket: 0
+  fullChargeVfxOffset: {x: 0, y: 0, z: 0}

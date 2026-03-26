@@ -43,3 +43,6 @@ MonoBehaviour:
   - key: playerGuardFX
     prefab: {fileID: 1746675453279186, guid: ca168eb62999ccb40bf4fdba7f63c1d5, type: 3}
     description: 
+  - key: playerFullChargeFX
+    prefab: {fileID: 1171190231128718, guid: 9fa6cd28cd97cc54eb5099893515d913, type: 3}
+    description: 

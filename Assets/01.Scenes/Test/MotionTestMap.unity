@@ -35359,7 +35359,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &211433447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76440,7 +76440,17 @@ MonoBehaviour:
   _finishAttackSearchRange: 3
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
+  _punchStrengthLight: 0.08
+  _punchStrengthHeavy: 0.18
+  _punchStrengthSkill: 0.22
+  _punchDurationLight: 0.12
+  _punchDurationHeavy: 0.18
+  _punchDurationSkill: 0.2
+  _shakeKeyLight: LiteHit
+  _shakeKeyHeavy: HeavyHit
   IsGuarding: 0
+  _maxGuardCount: 3
+  _guardResetDelay: 3
 --- !u!114 &763013492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76467,6 +76477,9 @@ MonoBehaviour:
   _equipment: {fileID: 0}
   _combat: {fileID: 0}
   _skillGauge: {fileID: 0}
+  _shakeKeyHit: PlayerHit
+  _shakeKeyHeavyHit: PlayerHeavyHit
+  _shakeKeyDeath: PlayerDeath
 --- !u!1 &764838499
 GameObject:
   m_ObjectHideFlags: 0
@@ -151917,7 +151930,17 @@ MonoBehaviour:
   _finishAttackSearchRange: 2
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
+  _punchStrengthLight: 0.08
+  _punchStrengthHeavy: 0.18
+  _punchStrengthSkill: 0.22
+  _punchDurationLight: 0.12
+  _punchDurationHeavy: 0.18
+  _punchDurationSkill: 0.2
+  _shakeKeyLight: LiteHit
+  _shakeKeyHeavy: HeavyHit
   IsGuarding: 0
+  _maxGuardCount: 3
+  _guardResetDelay: 3
 --- !u!114 &1416824004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151966,6 +151989,9 @@ MonoBehaviour:
   _equipment: {fileID: 1416824004}
   _combat: {fileID: 1416824003}
   _skillGauge: {fileID: 0}
+  _shakeKeyHit: PlayerHit
+  _shakeKeyHeavyHit: PlayerHeavyHit
+  _shakeKeyDeath: PlayerDeath
 --- !u!114 &1416824006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152820,7 +152846,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1430839463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180480,7 +180506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1769971961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236242,7 +236268,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &8783240590404449170
 MonoBehaviour:
   m_ObjectHideFlags: 0

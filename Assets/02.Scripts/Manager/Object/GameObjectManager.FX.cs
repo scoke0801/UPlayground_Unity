@@ -80,7 +80,12 @@ namespace UPlayGround.Manager
                 return null;
             }
             
-            var instance = Instantiate(prefabEntry.prefab, position, rotation, parent);
+            // rotation이 default(zero quaternion)이면 프리팹 자체 회전을 그대로 사용.
+            // 외부에서 방향을 지정한 경우에는 "지정 회전 * 프리팹 회전"으로 합성해
+            // 프리팹에 설정된 로컬 오프셋(예: -90,0,0)을 보존한다.
+            Quaternion baseRot    = (rotation == default) ? Quaternion.identity : rotation;
+            Quaternion finalRot   = baseRot * prefabEntry.prefab.transform.rotation;
+            var instance = Instantiate(prefabEntry.prefab, position, finalRot, parent);
 
             if (duration > 0f)
                 _pendingDestroyFXList.Add((instance, Time.time + duration));

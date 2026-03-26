@@ -523,3 +523,4 @@ Assets/Resources/PerformanceTestRunSettings.json
 Assets/Resources/PerformanceTestRunSettings.json.meta
 ProjectSettings/ScriptableBuildPipeline.json
 ProjectSettings/ScriptableBuildPipeline.json
+.code-review-graph/graph.db

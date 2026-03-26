@@ -122,7 +122,6 @@ namespace UPlayGround.State
             {
                 _isInLoop   = true;
                 _chargeTime = 0f;
-                // TODO: 차지 시작 VFX / 사운드 트리거
 
                 // 루프 도달 전에 이미 뗐으면 최소 차지로 즉시 발동
                 if (_releasedBeforeLoop)
@@ -139,27 +138,52 @@ namespace UPlayGround.State
             // ── 차지 비율 누적 및 발동 ──────────────────────────────────
             if (_isInLoop && !_isFired)
             {
-                _chargeTime  += deltaTime;
-                _chargeRatio  = Mathf.Clamp01(_chargeTime / MaxChargeTime);
-
-                // ── 스테이지 전환: 홀드 중 임계값 도달 시 다음 InfiniteLoop로 진행 ──
-                int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
-                if (isHeld
-                    && stageIndex < _stageThresholds.Length
-                    && _chargeRatio >= _stageThresholds[stageIndex]
-                    && gameActor.Animator.IsInfiniteLooping)
+                // InfiniteLoop 안에서만 차지 시간 누적
+                // 루프 간 이동 구간(애니메이션 전환 중)에서는 누적하지 않아
+                // 루프 도달 전에 _chargeRatio >= 1.0f 로 조기 발동되는 문제 방지
+                if (gameActor.Animator.IsInfiniteLooping)
                 {
-                    gameActor.Animator.BreakInfiniteLoop();
-                    // TODO: 스테이지 전환 VFX / 사운드 (stageIndex + 1 단계 진입)
-                    return;
+                    _chargeTime  += deltaTime;
+                    _chargeRatio  = Mathf.Clamp01(_chargeTime / MaxChargeTime);
+
+                    Debug.Log($"Charge: {_chargeRatio}");
+                    // ── 스테이지 전환: 홀드 중 임계값 도달 시 다음 InfiniteLoop로 진행 ──
+                    int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
+                    if (isHeld
+                        && stageIndex < _stageThresholds.Length
+                        && _chargeRatio >= _stageThresholds[stageIndex])
+                    {
+                        gameActor.Animator.BreakInfiniteLoop();
+                        return;
+                    }
+
+                    // 풀 차지 자동 발동 (루프 안에서만)
+                    if (_chargeRatio >= 1.0f)
+                    {
+                        PlayFullChargeVfx();
+                        FireChargeAttack();
+                        return;
+                    }
                 }
 
-                // 버튼을 뗐거나 풀 차지 도달 시 발동
-                if (!isHeld || _chargeRatio >= 1.0f)
+                // 버튼을 뗐을 때는 루프 여부 무관하게 발동
+                if (!isHeld)
                 {
                     FireChargeAttack();
                 }
             }
+        }
+
+        private void PlayFullChargeVfx()
+        {
+            var (key, socket, offset) = _combat.GetFullChargeVfxData();
+            if (string.IsNullOrEmpty(key)) return;
+
+            Vector3 pos = gameActor.TryGetSocket(socket, out Transform socketTM)
+                ? socketTM.position + offset
+                : gameActor.transform.position + offset;
+            
+            GameObjectManager.Instance.ShowFX(key, pos, gameActor.transform.rotation);
         }
 
         private void FireChargeAttack()

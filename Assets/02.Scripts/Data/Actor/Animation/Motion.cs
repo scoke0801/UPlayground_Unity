@@ -167,7 +167,7 @@ namespace UPlayGround.Animation
                 {
                     if (evt == null) continue;
                     float absStart = evt.startTime; // globalEvents는 오프셋 0
-                    if (absStart > startGlobalTime && absStart <= endGlobalTime)
+                    if (absStart >= startGlobalTime && absStart <= endGlobalTime)
                         results.Add(evt);
                 }
             }
@@ -189,7 +189,7 @@ namespace UPlayGround.Animation
 
                         foreach (var evt in motion.events)
                         {
-                            if (evt != null && evt.startTime > localRangeStart && evt.startTime <= localRangeEnd)
+                            if (evt != null && evt.startTime >= localRangeStart && evt.startTime <= localRangeEnd)
                                 results.Add(evt);
                         }
                     }

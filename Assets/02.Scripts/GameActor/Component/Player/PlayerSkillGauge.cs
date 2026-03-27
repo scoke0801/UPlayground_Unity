@@ -21,6 +21,7 @@ namespace UPlayGround.Component
             public float jumpAttack;     // 점프 공격
             public float dashAttack;     // 대시 공격
             public float finishAttack;   // 마무리 공격
+            public float chargeAttack;   // 차지 공격
         }
 
         [Header("Gauge Settings")]
@@ -35,6 +36,7 @@ namespace UPlayGround.Component
             jumpAttack   = 8f,
             dashAttack   = 8f,
             finishAttack = 30f,
+            chargeAttack = 15f,
         };
 
         [Header("Skill Cost (Slot 0~4)")]
@@ -76,6 +78,7 @@ namespace UPlayGround.Component
                 AttackKind.JumpAttack    => _chargeTable.jumpAttack,
                 AttackKind.DashAttack    => _chargeTable.dashAttack,
                 AttackKind.FinishAttack  => _chargeTable.finishAttack,
+                AttackKind.ChargeAttack  => _chargeTable.chargeAttack,
                 AttackKind.SkillAttack   => 0f,   // 스킬은 충전 없음
                 _                        => 0f,
             };

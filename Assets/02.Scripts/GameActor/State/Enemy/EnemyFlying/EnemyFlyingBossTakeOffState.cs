@@ -19,8 +19,7 @@ namespace UPlayGround.State
         private bool _motionDone;
         private float _targetHeight;
 
-        // 이륙 모션 지속 시간 (SO로 빼도 되지만 일단 하드코딩)
-        private const float TakeOffDuration = 1.0f;
+        private const float TakeOffDuration = 0.7f; // 빠른 이륙 (1.0 → 0.7)
 
         public EnemyFlyingTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
@@ -78,7 +77,7 @@ namespace UPlayGround.State
             // 수직 상승 — 목표 고도까지 부드럽게
             float currentY = motor.TransientPosition.y;
             float diff = _targetHeight - currentY;
-            float ascentSpeed = Mathf.Clamp(diff * 3f, 1f, 12f);
+            float ascentSpeed = Mathf.Clamp(diff * 5f, 2f, 16f); // 빠른 상승 (3f→5f, min 1→2, max 12→16)
 
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 5f);
             currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 5f);

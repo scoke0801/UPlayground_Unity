@@ -23,6 +23,8 @@ namespace UPlayGround.State
         // 선회
         private float _orbitAngle;
         private float _orbitDirection;
+        private float _dirChangeTimer;
+        private float _nextDirChangeTime;
 
         // 공격 타이밍
         private float _attackCooldown;
@@ -35,10 +37,10 @@ namespace UPlayGround.State
         // 전체 체류 타임아웃 — 어떤 이유로든 빠져나가지 못하는 상황 방지
         private float _totalTimer;
 
-        private const float FirstShotDelay = 1.0f;
-        private const float ShotInterval = 1.5f;
-        private const float AttackMotionTimeout = 3.0f; // 모션이 이 시간 안에 안 끝나면 강제 완료
-        private const float MaxStayDuration = 15.0f;    // 최대 체류 시간
+        private const float FirstShotDelay = 0.5f;       // 선회 진입 → 첫 발사 (1.0 → 0.5)
+        private const float ShotInterval = 0.8f;          // 발사 간 대기 (1.5 → 0.8)
+        private const float AttackMotionTimeout = 3.0f;
+        private const float MaxStayDuration = 8.0f;       // 최대 체류 시간 (15 → 8)
 
         public EnemyFlyingAirCircleState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
@@ -58,6 +60,8 @@ namespace UPlayGround.State
             _verticalVelocity = 0f;
             _totalTimer = 0f;
             _orbitDirection = Random.value > 0.5f ? 1f : -1f;
+            _dirChangeTimer = 0f;
+            _nextDirChangeTime = Random.Range(1.5f, 3.0f);
 
             if (_brain.Detection.HasTarget)
             {
@@ -152,6 +156,16 @@ namespace UPlayGround.State
             float speed = _brain.AirMoveSpeed;
 
             float angularSpeed = speed / radius;
+
+            // 간헐적 방향 전환 — 같은 방향으로만 도는 어색함 방지
+            _dirChangeTimer += deltaTime;
+            if (_dirChangeTimer >= _nextDirChangeTime)
+            {
+                _orbitDirection *= -1f;
+                _dirChangeTimer = 0f;
+                _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+            }
+
             _orbitAngle += angularSpeed * _orbitDirection * deltaTime;
 
             Vector3 desiredPos = targetPos + new Vector3(
@@ -221,6 +235,12 @@ namespace UPlayGround.State
             Debug.Log($"[AirCircle] 공격 모션 완료, Brain에 알림 (현재 count={_brain.AirAttackCount})");
 
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
+
+            // 공격 후 선회 방향 반전 — "쏘고 반대로 빠지는" 기동
+            _orbitDirection *= -1f;
+            _dirChangeTimer = 0f;
+            _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+
             _brain.OnAirAttackFinished();
         }
 
@@ -232,6 +252,12 @@ namespace UPlayGround.State
             _attackCooldown = ShotInterval;
 
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
+
+            // 공격 후 선회 방향 반전 — "쏘고 반대로 빠지는" 기동
+            _orbitDirection *= -1f;
+            _dirChangeTimer = 0f;
+            _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+
             _brain.OnAirAttackFinished();
         }
 

@@ -27,9 +27,9 @@ namespace UPlayGround.Component
         [SerializeField] private ActorMovementController _movementController;
 
         [Header("Ground Combat")]
-        [SerializeField] private float _chaseStopDistance = 3.0f;
+        [SerializeField] private float _chaseStopDistance = 2f;
         [SerializeField] private float _chaseSpeedMultiplier = 1.2f;
-        [SerializeField] private float _optimalCombatDistance = 2.5f;
+        [SerializeField] private float _optimalCombatDistance = 1.5f;
         [SerializeField] private float _minCombatDistance = 1.5f;
         [SerializeField] private float _personalSpaceDistance = 0.8f;
 
@@ -40,8 +40,9 @@ namespace UPlayGround.Component
         [SerializeField] private float _retreatDistance = 3.0f;
 
         [Header("TakeOff Conditions")]
-        [Tooltip("지상 체류 시간이 이 값을 초과하면 강제 이륙")]
-        [SerializeField] private float _groundStayLimit = 10f;
+        [Tooltip("지상 체류 시간 초과 시 강제 이륙 (랜덤 범위)")]
+        [SerializeField] private float _groundStayLimitMin = 7f;
+        [SerializeField] private float _groundStayLimitMax = 12f;
         [Tooltip("지상 공격 횟수가 이 값에 도달하면 이륙")]
         [SerializeField] private int _groundAttackLimit = 2;
 
@@ -51,10 +52,12 @@ namespace UPlayGround.Component
         [SerializeField] private float _patrolWaitTime = 2f;
 
         [Header("Air Settings")]
-        [SerializeField] private float _airCircleRadius = 8f;
-        [SerializeField] private float _airHoverHeight = 6f;
-        [SerializeField] private float _airMoveSpeed = 5f;
-        [SerializeField] private int _airAttackLimit = 2;
+        [SerializeField] private float _airCircleRadius = 6f;
+        [SerializeField] private float _airHoverHeight = 4f;
+        [SerializeField] private float _airMoveSpeed = 6f;
+        [Tooltip("공중 투사체 발사 횟수 (랜덤 범위)")]
+        [SerializeField] private int _airAttackLimitMin = 1;
+        [SerializeField] private int _airAttackLimitMax = 3;
 
         [Header("Dive Settings")]
         [SerializeField] private float _diveSpeed = 20f;
@@ -67,6 +70,8 @@ namespace UPlayGround.Component
 
         // ── 런타임 ──
         private float _groundTimer;
+        private float _currentGroundStayLimit; // 매 루프마다 랜덤 결정
+        private int _currentAirAttackLimit;     // 매 공중 루프마다 랜덤 결정
         private int _groundAttackCount;
         private int _airAttackCount;
         private float _decisionTimer;
@@ -84,7 +89,7 @@ namespace UPlayGround.Component
         public float AirCircleRadius => _airCircleRadius;
         public float AirHoverHeight => _airHoverHeight;
         public float AirMoveSpeed => _airMoveSpeed;
-        public int AirAttackLimit => _airAttackLimit;
+        public int AirAttackLimit => _currentAirAttackLimit;
         public float DiveSpeed => _diveSpeed;
         public float DiveImpactRadius => _diveImpactRadius;
         public float GroundTimer => _groundTimer;
@@ -190,7 +195,7 @@ namespace UPlayGround.Component
             // ── 지상 Chase: 이륙 타이머 + 공격 거리 판단 ──
             if (stateName == "Flying_Chase")
             {
-                if (_groundTimer >= _groundStayLimit)
+                if (_groundTimer >= _currentGroundStayLimit)
                 {
                     TransitionToTakeOff();
                     return;
@@ -208,7 +213,7 @@ namespace UPlayGround.Component
             }
 
             // ── AirCircle 안전장치 ──
-            if (stateName == "Flying_AirCircle" && _airAttackCount >= _airAttackLimit)
+            if (stateName == "Flying_AirCircle" && _airAttackCount >= _currentAirAttackLimit)
             {
                 TransitionToDescend();
             }
@@ -241,7 +246,7 @@ namespace UPlayGround.Component
         public void OnAirAttackFinished()
         {
             _airAttackCount++;
-            if (_airAttackCount >= _airAttackLimit)
+            if (_airAttackCount >= _currentAirAttackLimit)
                 TransitionToDescend();
         }
 
@@ -285,7 +290,7 @@ namespace UPlayGround.Component
             float dist = _detection.DistanceToTarget;
 
             // 시간 초과 → 이륙
-            if (_groundTimer >= _groundStayLimit)
+            if (_groundTimer >= _currentGroundStayLimit)
             {
                 TransitionToTakeOff();
                 return;
@@ -358,7 +363,7 @@ namespace UPlayGround.Component
         private bool ShouldTakeOff()
         {
             return _groundAttackCount >= _groundAttackLimit
-                   || _groundTimer >= _groundStayLimit;
+                   || _groundTimer >= _currentGroundStayLimit;
         }
 
         private bool CanUseSkill()
@@ -385,11 +390,14 @@ namespace UPlayGround.Component
             _groundTimer = 0f;
             _groundAttackCount = 0;
             _airAttackCount = 0;
+            _currentGroundStayLimit = Random.Range(_groundStayLimitMin, _groundStayLimitMax);
+            _currentAirAttackLimit = Random.Range(_airAttackLimitMin, _airAttackLimitMax + 1); // +1: 상한 포함
         }
 
         public void ResetAirCounters()
         {
             _airAttackCount = 0;
+            _currentAirAttackLimit = Random.Range(_airAttackLimitMin, _airAttackLimitMax + 1);
         }
 
         public Vector3 GetRandomPatrolPoint()

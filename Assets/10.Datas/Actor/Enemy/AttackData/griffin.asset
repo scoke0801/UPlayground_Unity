@@ -32,7 +32,7 @@ MonoBehaviour:
     skillType: 1
     selectionWeight: 100
     minRange: 0
-    maxRange: 2.5
+    maxRange: 3
     cooldown: 2
     isAerialSkill: 0
     isDiveAttack: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
     skillType: 1
     selectionWeight: 100
     minRange: 0
-    maxRange: 2.5
+    maxRange: 3
     cooldown: 2
     isAerialSkill: 0
     isDiveAttack: 0
@@ -88,7 +88,7 @@ MonoBehaviour:
     skillType: 1
     selectionWeight: 100
     minRange: 0
-    maxRange: 2.5
+    maxRange: 3
     cooldown: 2
     isAerialSkill: 0
     isDiveAttack: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
     skillType: 1
     selectionWeight: 100
     minRange: 0
-    maxRange: 2.5
+    maxRange: 3
     cooldown: 2
     isAerialSkill: 1
     isDiveAttack: 0

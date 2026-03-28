@@ -116,7 +116,7 @@ namespace UPlayGround.Component
             _memory             ??= GetComponent<EnemyTacticalMemory>();
             _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
-            
+
         }
 
         protected virtual void Start()
@@ -226,22 +226,13 @@ namespace UPlayGround.Component
 
             string state = _movementController.CurrentState.StateName;
 
-            // 공중 레이어 이륙 조건 체크 — 지상 AI보다 먼저 평가
-            // Aerial / TakeOff / Land 중이면 스킵 (이미 공중)
-            if (state is not ("Aerial" or "TakeOff" or "Land" or "AerialAttack"))
-            {
-                var aerial = GetComponent<AerialBehaviorLayer>();
-                if (aerial != null && aerial.ShouldTakeOff())
-                {
-                    _movementController.TransitionToState(
-                        new EnemyTakeOffState(_movementController, aerial));
-                    return;
-                }
-            }
-
             // 절대 개입하지 않는 State
             if (state is "Death" or "Hit" or "Attack" or "Counter" or "Airborne" or "Grabbed" or "LaunchSmash"
-                      or "TakeOff" or "Aerial" or "AerialAttack" or "Land")
+                or "Land" or "TakeOff" or "AerialAttack")
+                return;
+
+            // 공중 체공 중에는 AerialState 내부 로직이 공격/착지를 결정
+            if (state == "Aerial")
                 return;
 
             // 비전투 스킬 체크 (힐/버프)

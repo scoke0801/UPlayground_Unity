@@ -266960,7 +266960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da547a1335efec4ab8cb1f39e4a4cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
+  _aerialData: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
 --- !u!114 &1928405642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376594,6 +376594,7 @@ MonoBehaviour:
     jumpAttack: 8
     dashAttack: 8
     finishAttack: 30
+    chargeAttack: 15
   _skillCost:
   - 20
   - 25
@@ -377443,7 +377444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da547a1335efec4ab8cb1f39e4a4cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
+  _aerialData: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
 --- !u!114 &8943690300204390003
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,0 +1,110 @@
+﻿using UnityEngine;
+using UPlayGround.Component;
+using UPlayGround.Data.EnumType;
+using UPlayGround.MovementController;
+
+namespace UPlayGround.State
+{
+    /// <summary>
+    /// 비행 보스 이륙.
+    /// Fly_Start 모션 재생 → 수직 상승 → 모션 완료 시 Air_Circle로 전환.
+    /// </summary>
+    public class EnemyFlyingBossTakeOffState : GameActorState
+    {
+        public override string StateName => "Flying_TakeOff";
+        public override bool AdjustGravity => false; // 이륙 중 중력 무시
+
+        private readonly EnemyFlyingBrain _brain;
+        private float _timer;
+        private bool _motionDone;
+        private float _targetHeight;
+
+        // 이륙 모션 지속 시간 (SO로 빼도 되지만 일단 하드코딩)
+        private const float TakeOffDuration = 1.0f;
+
+        public EnemyFlyingBossTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
+            : base(controller)
+        {
+            _brain = brain;
+        }
+
+        public override bool CanTransitionState(string stateName)
+            => stateName is "Death";
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+            _timer = 0f;
+            _motionDone = false;
+
+            // 지면 판정 해제 — 공중으로 떠야 하므로
+            motor.SetGroundSolvingActivation(false);
+            motor.ForceUnground();
+
+            _targetHeight = motor.TransientPosition.y + _brain.AirHoverHeight;
+
+            var animState = gameActor.Animator.PlayMotion(AnimKey.Fly_Start, 0.15f);
+            if (animState != null)
+                gameActor.Animator.OnMotionSetCompleted += OnMotionEnd;
+            else
+                _motionDone = true; // 모션 없으면 바로 전환
+
+            // Hyper Armor — 이륙 중 피격 무시
+            gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(true);
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            base.OnExit(toState);
+            gameActor.Animator.OnMotionSetCompleted -= OnMotionEnd;
+            gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(false);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            _timer += deltaTime;
+
+            // 모션 완료 or 시간 초과 시 Air_Circle 진입
+            if (_motionDone || _timer >= TakeOffDuration + 0.5f)
+            {
+                _brain.ResetAirCounters();
+                controller.TransitionToState(
+                    new EnemyFlyingAirCircleState(controller, _brain));
+            }
+        }
+
+        public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            // 수직 상승 — 목표 고도까지 부드럽게
+            float currentY = motor.TransientPosition.y;
+            float diff = _targetHeight - currentY;
+            float ascentSpeed = Mathf.Clamp(diff * 3f, 1f, 12f);
+
+            currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 5f);
+            currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 5f);
+            currentVelocity.y = ascentSpeed;
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            // 이륙 중 타겟 방향 유지
+            if (_brain.Detection.HasTarget)
+            {
+                Vector3 dir = (_brain.Detection.CurrentTarget.position - motor.TransientPosition);
+                dir.y = 0;
+                if (dir.sqrMagnitude > 0.01f)
+                {
+                    Quaternion target = Quaternion.LookRotation(dir.normalized);
+                    currentRotation = Quaternion.Slerp(currentRotation, target,
+                        1 - Mathf.Exp(-controller.OrientationSharpness * 0.5f * deltaTime));
+                }
+            }
+            currentRotation = currentRotation.normalized;
+        }
+
+        private void OnMotionEnd()
+        {
+            _motionDone = true;
+        }
+    }
+}

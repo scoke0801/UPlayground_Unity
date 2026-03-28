@@ -266675,8 +266675,7 @@ GameObject:
   - component: {fileID: 1928405630}
   - component: {fileID: 1928405629}
   - component: {fileID: 1928405628}
-  - component: {fileID: 1928405641}
-  - component: {fileID: 1928405642}
+  - component: {fileID: 1928405640}
   m_Layer: 7
   m_Name: Monster_Griffin_Dark
   m_TagString: Untagged
@@ -266948,7 +266947,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1928405641
+--- !u!114 &1928405640
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -266957,28 +266956,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1928405626}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da547a1335efec4ab8cb1f39e4a4cab, type: 3}
+  m_Script: {fileID: 11500000, guid: 564713ee7509fff46a414b18d904f1c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _aerialData: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
---- !u!114 &1928405642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1928405626}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 266b012d238546d394677c4dc1632698, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _behaviorData: {fileID: 11400000, guid: 6188c936edeb766419c365a3f938f7c9, type: 2}
   _detection: {fileID: 0}
-  _movementController: {fileID: 0}
   _combat: {fileID: 0}
-  _memory: {fileID: 0}
-  _decisionInterval: 0.1
+  _movementController: {fileID: 0}
+  _chaseStopDistance: 3
+  _chaseSpeedMultiplier: 1.2
+  _groundStayLimit: 10
+  _groundAttackLimit: 2
+  _airCircleRadius: 8
+  _airHoverHeight: 6
+  _airMoveSpeed: 5
+  _airAttackLimit: 2
+  _diveSpeed: 20
+  _diveImpactRadius: 3
 --- !u!1 &1929574407
 GameObject:
   m_ObjectHideFlags: 0
@@ -306715,8 +306708,7 @@ GameObject:
   - component: {fileID: 608132951334988697}
   - component: {fileID: 5805646409802433700}
   - component: {fileID: 8943690300204390000}
-  - component: {fileID: 8943690300204390002}
-  - component: {fileID: 8943690300204390003}
+  - component: {fileID: 8943690300204390001}
   m_Layer: 7
   m_Name: Monster_Griffin_Brown
   m_TagString: Untagged
@@ -377432,7 +377424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _data: {fileID: 11400000, guid: bb242712b966f5b4191bfc58565ca0e1, type: 2}
---- !u!114 &8943690300204390002
+--- !u!114 &8943690300204390001
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -377441,28 +377433,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1863737521219424476}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da547a1335efec4ab8cb1f39e4a4cab, type: 3}
+  m_Script: {fileID: 11500000, guid: 564713ee7509fff46a414b18d904f1c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _aerialData: {fileID: 11400000, guid: 299ad56f2571fb44e8eedaa0f7cae1a4, type: 2}
---- !u!114 &8943690300204390003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1863737521219424476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 266b012d238546d394677c4dc1632698, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _behaviorData: {fileID: 11400000, guid: 6188c936edeb766419c365a3f938f7c9, type: 2}
   _detection: {fileID: 0}
-  _movementController: {fileID: 0}
   _combat: {fileID: 0}
-  _memory: {fileID: 0}
-  _decisionInterval: 0.1
+  _movementController: {fileID: 0}
+  _chaseStopDistance: 3
+  _chaseSpeedMultiplier: 1.2
+  _groundStayLimit: 10
+  _groundAttackLimit: 2
+  _airCircleRadius: 8
+  _airHoverHeight: 6
+  _airMoveSpeed: 5
+  _airAttackLimit: 2
+  _diveSpeed: 20
+  _diveImpactRadius: 3
 --- !u!4 &8953664238023578165
 Transform:
   m_ObjectHideFlags: 0

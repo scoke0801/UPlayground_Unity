@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 비행 보스 이륙.
     /// Fly_Start 모션 재생 → 수직 상승 → 모션 완료 시 Air_Circle로 전환.
     /// </summary>
-    public class EnemyFlyingBossTakeOffState : GameActorState
+    public class EnemyFlyingTakeOffState : GameActorState
     {
         public override string StateName => "Flying_TakeOff";
         public override bool AdjustGravity => false; // 이륙 중 중력 무시
@@ -22,7 +22,7 @@ namespace UPlayGround.State
         // 이륙 모션 지속 시간 (SO로 빼도 되지만 일단 하드코딩)
         private const float TakeOffDuration = 1.0f;
 
-        public EnemyFlyingBossTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
         {
             _brain = brain;

@@ -178,8 +178,11 @@ namespace UPlayGround.MovementController
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // deltaTime은 KCCSimulator가 LocalTimeScale을 반영해서 전달
-            Vector3 stateVelocity = currentVelocity;
+            // ── impulse 분리 ──────────────────────────────────
+            // KCC가 넘겨주는 currentVelocity에는 이전 프레임의 impulse가 합산되어 있다.
+            // State에게는 impulse를 제외한 순수 stateVelocity만 넘겨야
+            // impulse 성분이 stateVelocity에 영구 주입되는 버그를 방지한다.
+            Vector3 stateVelocity = currentVelocity - _impulseVelocity;
             _currentState?.UpdateVelocity(ref stateVelocity, deltaTime);
 
             if (!Motor.GroundingStatus.IsStableOnGround)
@@ -201,6 +204,7 @@ namespace UPlayGround.MovementController
                 _internalVelocityAdd  = Vector3.zero;
             }
 
+            // ── impulse 감속 + 재합산 ──────────────────────────
             if (_hasImpulse)
             {
                 _impulseVelocity = Vector3.Lerp(

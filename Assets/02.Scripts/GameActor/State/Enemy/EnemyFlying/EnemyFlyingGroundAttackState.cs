@@ -7,8 +7,8 @@ using UPlayGround.MovementController;
 namespace UPlayGround.State
 {
     /// <summary>
-    /// 비행 보스 지상 근접 공격 (Claw_Single).
-    /// 기존 EnemyAttackState를 참고하되 FlyingBossBrain과 연동.
+    /// 비행 몬스터 지상 근접 공격.
+    /// 모션 완료 or 타임아웃 → Brain.OnGroundAttackFinished()
     /// </summary>
     public class EnemyFlyingGroundAttackState : GameActorState
     {
@@ -20,14 +20,15 @@ namespace UPlayGround.State
         private bool _isActive;
         private EnemyAttackInfo _currentSkill;
 
+        private const float MotionTimeout = 3.0f;
+
         public EnemyFlyingGroundAttackState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
         {
             _brain = brain;
         }
 
-        public override bool CanTransitionState(string stateName)
-            => stateName is not "Hit"; // HyperArmor 중이므로 Hit 무시
+        public override bool CanTransitionState(string stateName) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -37,24 +38,26 @@ namespace UPlayGround.State
             _attackTimer = 0f;
             _isActive = true;
 
-            // Hyper Armor ON
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(true);
 
-            // 거리 기반 스킬 선택 (Claw_Single이 선택되도록 SO에 세팅)
             float dist = _brain.Detection.DistanceToTarget;
             _currentSkill = _combat.SelectAndExecuteSkill(dist);
 
             if (_currentSkill != null)
             {
+                Debug.Log($"[FlyingGroundAttack] 스킬: {_currentSkill.baseInfo.animKey}");
                 var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += OnAttackEnd;
                 else
+                {
+                    Debug.LogWarning("[FlyingGroundAttack] 모션 재생 실패, 즉시 완료");
                     OnAttackEnd();
+                }
             }
             else
             {
-                // 스킬 없으면 바로 Brain에 알림
+                Debug.LogWarning("[FlyingGroundAttack] 스킬 없음, 즉시 완료");
                 _isActive = false;
                 _brain.OnGroundAttackFinished();
             }
@@ -75,13 +78,20 @@ namespace UPlayGround.State
 
             _attackTimer += deltaTime;
 
+            // 모션 타임아웃 — OnMotionSetCompleted 미발화 대비
+            if (_attackTimer >= MotionTimeout)
+            {
+                Debug.LogWarning("[FlyingGroundAttack] 모션 타임아웃, 강제 완료");
+                ForceEnd();
+                return;
+            }
+
             if (_currentSkill.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
                 _combat.CheckMeleeAttackHit();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 공격 초반에만 타겟 방향으로 회전
             if (_brain.Detection.HasTarget && _attackTimer < 0.3f)
             {
                 Vector3 dir = (_brain.Detection.CurrentTarget.position - motor.TransientPosition);
@@ -100,7 +110,6 @@ namespace UPlayGround.State
         {
             float lastY = currentVelocity.y;
 
-            // 근접이면 루트모션, 원거리면 정지
             if (_currentSkill != null && _currentSkill.baseInfo.attackType == AttackType.Ranged)
                 currentVelocity = Vector3.zero;
             else
@@ -121,6 +130,15 @@ namespace UPlayGround.State
         private void OnAttackEnd()
         {
             if (!_isActive) return;
+            _isActive = false;
+            _combat.ClearHitTargets();
+            _brain.OnGroundAttackFinished();
+        }
+
+        private void ForceEnd()
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnAttackEnd;
+            _isActive = false;
             _combat.ClearHitTargets();
             _brain.OnGroundAttackFinished();
         }

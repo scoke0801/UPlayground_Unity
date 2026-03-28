@@ -21,8 +21,9 @@ namespace UPlayGround.State
         private Phase _phase;
         private float _phaseTimer;
 
-        private Vector3 _diveTarget; // 급강하 목표 지점 (타겟 발밑)
+        private Vector3 _diveTarget;
         private bool _impactApplied;
+        private Collider _targetCollider; // Diving 중 충돌 무시용
 
         // 타이밍
         private const float TelegraphDuration = 0.7f;
@@ -44,19 +45,23 @@ namespace UPlayGround.State
             _phase = Phase.Telegraph;
             _phaseTimer = 0f;
             _impactApplied = false;
+            _targetCollider = null;
 
             motor.SetGroundSolvingActivation(false);
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(true);
 
-            // 텔레그래핑 모션 (Fly_Attack 또는 전용 모션)
-            // 날개 접기 자세 — 없으면 Fly_Idle 등으로 대체
             gameActor.Animator.PlayMotion(AnimKey.Fly_Attack, 0.15f);
 
-            // 급강하 목표: 타겟 현재 위치의 발밑
             if (_brain.Detection.HasTarget)
             {
-                _diveTarget = _brain.Detection.CurrentTarget.position;
+                Transform target = _brain.Detection.CurrentTarget;
+                _diveTarget = target.position;
                 _diveTarget.y = GetGroundY(_diveTarget);
+
+                // 플레이어 Collider와의 KCC 충돌 무시 — 머리 위에 올라타는 것 방지
+                _targetCollider = target.GetComponent<Collider>();
+                if (_targetCollider != null)
+                    controller.AddIgnoreCollider(_targetCollider);
             }
             else
             {
@@ -70,6 +75,13 @@ namespace UPlayGround.State
             base.OnExit(toState);
             motor.SetGroundSolvingActivation(true);
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(false);
+
+            // 충돌 무시 해제
+            if (_targetCollider != null)
+            {
+                controller.RemoveIgnoreCollider(_targetCollider);
+                _targetCollider = null;
+            }
         }
 
         public override void UpdateState(float deltaTime)
@@ -246,10 +258,18 @@ namespace UPlayGround.State
             return null;
         }
 
+        /// <summary>
+        /// 지면 높이 계산. 플레이어/몬스터 Collider를 무시하고 순수 지형만 감지.
+        /// </summary>
         private float GetGroundY(Vector3 pos)
         {
+            // Ground/Environment 레이어만 대상. Player/Monster Collider 위에 착지하는 것을 방지.
+            // 프로젝트 레이어 구성에 맞게 조정 필요.
+            int groundMask = LayerMask.GetMask("Default", "Ground", "InteractableObject");
+            if (groundMask == 0) groundMask = ~LayerMask.GetMask("Player", "Monster", "Enemy");
+
             if (Physics.Raycast(pos + Vector3.up * 50f, Vector3.down, out RaycastHit hit, 100f,
-                    ~0, QueryTriggerInteraction.Ignore))
+                    groundMask, QueryTriggerInteraction.Ignore))
                 return hit.point.y;
             return 0f;
         }

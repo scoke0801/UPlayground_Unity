@@ -7,13 +7,17 @@ using UPlayGround.State;
 namespace UPlayGround.Component
 {
     /// <summary>
-    /// 비행형 보스 전용 Brain.
+    /// 비행형 몬스터 전용 Brain.
     /// "지상 추격 → 근접 공격 → 이륙 → 공중 선회 + 투사체 → 급강하 → 반복"
     /// 
     /// 의사결정 구조:
-    /// 1) Update에서 주기적으로 MakeDecision 실행 (EnemyBrain과 동일 패턴)
-    /// 2) 각 State 완료 시 콜백으로 다음 전환 판단
-    /// 두 경로가 공존하므로, State가 정상 완료되면 콜백이, 예외 상황이면 Decision이 처리한다.
+    /// 1) Update에서 주기적으로 MakeDecision 실행 — 예외/보정 전용
+    /// 2) 각 State 완료 시 콜백으로 정상 흐름 전환
+    /// 
+    /// 카운트 소유권:
+    /// - _groundAttackCount: GroundAttackState 완료 콜백에서만 증가
+    /// - _airAttackCount: AirCircleState의 OnAttackMotionEnd 콜백에서만 증가
+    /// - MakeDecision은 카운터를 읽기만 하고, 절대 증가시키지 않는다
     /// </summary>
     public class EnemyFlyingBrain : MonoBehaviour
     {
@@ -47,6 +51,9 @@ namespace UPlayGround.Component
         [SerializeField] private float _diveSpeed = 20f;
         [Tooltip("착지 충격 판정 반경")]
         [SerializeField] private float _diveImpactRadius = 3f;
+        [Tooltip("공중 루프 종료 시 Dive 확률 (0=항상 착지, 1=항상 Dive)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _diveChance = 0.4f;
 
         [Header("Decision")]
         [SerializeField] private float _decisionInterval = 0.15f;
@@ -164,11 +171,13 @@ namespace UPlayGround.Component
             }
 
             // ── 공중 AirCircle 체류 안전장치 ────────────────
-            // AirCircle이 공격 실패 등으로 무한 체류하는 것 방지
+            // 모션 미발화 등으로 무한 체류 방지 — MakeDecision은 카운터를 읽기만 한다
+            // AirCircle 내부의 MaxStayDuration + ForceDive가 1차 방어선,
+            // 여기는 2차 방어선 (State 자체가 꼬인 경우)
             if (stateName == "Flying_AirCircle" && _airAttackCount >= _airAttackLimit)
             {
-                _movementController.TransitionToState(
-                    new EnemyFlyingDiveState(_movementController, this));
+                Debug.LogWarning("[Brain] AirCircle 안전장치 발동 — 강제 하강");
+                TransitionToDescend();
             }
         }
 
@@ -211,13 +220,16 @@ namespace UPlayGround.Component
         public void OnGroundAttackFinished()
         {
             _groundAttackCount++;
+            Debug.Log($"[FlyingBrain] GroundAttack 완료 #{_groundAttackCount}/{_groundAttackLimit}, timer={_groundTimer:F1}s");
 
             if (ShouldTakeOff())
             {
+                Debug.Log("[FlyingBrain] → TakeOff");
                 TransitionToTakeOff();
                 return;
             }
 
+            Debug.Log("[FlyingBrain] → Chase (공격 더 필요)");
             _movementController.TransitionToState(
                 new EnemyFlyingChaseState(_movementController, this));
         }
@@ -233,19 +245,23 @@ namespace UPlayGround.Component
 
             if (_groundTimer >= _groundStayLimit)
             {
+                Debug.Log($"[FlyingBrain] Chase 시간 초과 ({_groundTimer:F1}s) → TakeOff");
                 TransitionToTakeOff();
                 return;
             }
 
+            // 지상 스킬(isAerialSkill=false)만 체크
             if (dist <= _chaseStopDistance && _combat.HasAvailableSkillAtDistance(dist))
             {
+                Debug.Log($"[FlyingBrain] 공격 거리 진입 (dist={dist:F1}) → GroundAttack");
                 _movementController.TransitionToState(
                     new EnemyFlyingGroundAttackState(_movementController, this));
             }
         }
 
         /// <summary>
-        /// 공중 공격 모션 완료 후 호출. Dive 조건 판단.
+        /// 공중 공격 모션 완료 후 호출. 카운터 증가 + 하강 방식 판단.
+        /// AirCircle State의 OnAttackMotionEnd에서만 호출된다 (1회 호출 보장).
         /// </summary>
         public void OnAirAttackFinished()
         {
@@ -253,10 +269,9 @@ namespace UPlayGround.Component
 
             if (_airAttackCount >= _airAttackLimit)
             {
-                _movementController.TransitionToState(
-                    new EnemyFlyingDiveState(_movementController, this));
+                TransitionToDescend();
             }
-            // 아직 남았으면 AirCircle State가 자체적으로 다음 발사 진행
+            // 미달이면 AirCircle State가 _attackCooldown 후 다음 발사를 자체 진행
         }
 
         /// <summary>
@@ -264,7 +279,9 @@ namespace UPlayGround.Component
         /// </summary>
         public void OnDiveLanded()
         {
+            Debug.Log($"[FlyingBrain] Dive 착지 완료 → Chase 복귀 (ground={_groundAttackCount}, air={_airAttackCount})");
             ResetGroundCounters();
+            ResetAirCounters(); // 다음 공중 루프를 위해 함께 리셋
             _movementController.TransitionToState(
                 new EnemyFlyingChaseState(_movementController, this));
         }
@@ -282,7 +299,27 @@ namespace UPlayGround.Component
         private void TransitionToTakeOff()
         {
             _movementController.TransitionToState(
-                new EnemyFlyingBossTakeOffState(_movementController, this));
+                new EnemyFlyingTakeOffState(_movementController, this));
+        }
+
+        /// <summary>
+        /// 공중 루프 종료 시 하강 방식 결정.
+        /// _diveChance 확률로 Dive(공격 착지), 그 외에는 Landing(일반 착지).
+        /// </summary>
+        private void TransitionToDescend()
+        {
+            if (Random.value < _diveChance)
+            {
+                Debug.Log("[FlyingBrain] 공중 루프 종료 → Dive (공격 착지)");
+                _movementController.TransitionToState(
+                    new EnemyFlyingDiveState(_movementController, this));
+            }
+            else
+            {
+                Debug.Log("[FlyingBrain] 공중 루프 종료 → Landing (일반 착지)");
+                _movementController.TransitionToState(
+                    new EnemyFlyingLandState(_movementController, this));
+            }
         }
 
         public void ResetGroundCounters()

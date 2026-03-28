@@ -22,6 +22,8 @@ namespace UPlayGround.State
 
         private const float MotionTimeout = 3.0f;
 
+        private float Cfg_MotionTimeout => _brain.FlyingSettings ? _brain.FlyingSettings.groundAttackMotionTimeout : MotionTimeout;
+
         public EnemyFlyingGroundAttackState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
         {
@@ -79,7 +81,7 @@ namespace UPlayGround.State
             _attackTimer += deltaTime;
 
             // 모션 타임아웃 — OnMotionSetCompleted 미발화 대비
-            if (_attackTimer >= MotionTimeout)
+            if (_attackTimer >= Cfg_MotionTimeout)
             {
                 Debug.LogWarning("[FlyingGroundAttack] 모션 타임아웃, 강제 완료");
                 ForceEnd();

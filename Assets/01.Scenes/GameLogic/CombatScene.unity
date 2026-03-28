@@ -266962,6 +266962,7 @@ MonoBehaviour:
   _detection: {fileID: 0}
   _combat: {fileID: 0}
   _movementController: {fileID: 0}
+  _flyingSettings: {fileID: 11400000, guid: 0c15df1263455724688de27fc5df3163, type: 2}
   _chaseStopDistance: 3
   _chaseSpeedMultiplier: 1.2
   _optimalCombatDistance: 3
@@ -266971,15 +266972,17 @@ MonoBehaviour:
   _retreatChance: 0.2
   _circleDuration: 2
   _retreatDistance: 3
-  _groundStayLimit: 10
+  _groundStayLimitMin: 7
+  _groundStayLimitMax: 12
   _groundAttackLimit: 2
   _enablePatrol: 1
   _patrolRadius: 5
   _patrolWaitTime: 2
   _airCircleRadius: 8
-  _airHoverHeight: 4
+  _airHoverHeight: 2.5
   _airMoveSpeed: 5
-  _airAttackLimit: 2
+  _airAttackLimitMin: 1
+  _airAttackLimitMax: 3
   _diveSpeed: 20
   _diveImpactRadius: 3
   _diveChance: 0.4
@@ -377451,6 +377454,7 @@ MonoBehaviour:
   _detection: {fileID: 0}
   _combat: {fileID: 0}
   _movementController: {fileID: 0}
+  _flyingSettings: {fileID: 11400000, guid: 0c15df1263455724688de27fc5df3163, type: 2}
   _chaseStopDistance: 3
   _chaseSpeedMultiplier: 1.2
   _optimalCombatDistance: 3
@@ -377460,15 +377464,17 @@ MonoBehaviour:
   _retreatChance: 0.2
   _circleDuration: 2
   _retreatDistance: 3
-  _groundStayLimit: 10
+  _groundStayLimitMin: 7
+  _groundStayLimitMax: 12
   _groundAttackLimit: 2
   _enablePatrol: 1
   _patrolRadius: 5
   _patrolWaitTime: 2
   _airCircleRadius: 8
-  _airHoverHeight: 4
+  _airHoverHeight: 2.5
   _airMoveSpeed: 5
-  _airAttackLimit: 2
+  _airAttackLimitMin: 1
+  _airAttackLimitMax: 3
   _diveSpeed: 20
   _diveImpactRadius: 3
   _diveChance: 0.4

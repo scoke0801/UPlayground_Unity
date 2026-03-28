@@ -33,14 +33,23 @@ namespace UPlayGround.State
 
         // 고도 유지
         private float _verticalVelocity;
+        private float _currentHoverHeight; // 매 진입마다 랜덤 결정
+        private float _currentMaxStay;    // 매 진입마다 랜덤 결정
 
         // 전체 체류 타임아웃 — 어떤 이유로든 빠져나가지 못하는 상황 방지
         private float _totalTimer;
 
-        private const float FirstShotDelay = 0.5f;       // 선회 진입 → 첫 발사 (1.0 → 0.5)
-        private const float ShotInterval = 0.8f;          // 발사 간 대기 (1.5 → 0.8)
+        private const float FirstShotDelay = 0.5f;       // SO 폴백용 기본값
+        private const float ShotInterval = 0.8f;
         private const float AttackMotionTimeout = 3.0f;
-        private const float MaxStayDuration = 8.0f;       // 최대 체류 시간 (15 → 8)
+        private const float MaxStayDuration = 8.0f;
+
+        // SO에서 값을 읽되, SO 미할당 시 const 폴백
+        private float Cfg_FirstShotDelay => _brain.FlyingSettings ? _brain.FlyingSettings.firstShotDelay : FirstShotDelay;
+        private float Cfg_ShotInterval => _brain.FlyingSettings ? _brain.FlyingSettings.shotInterval : ShotInterval;
+        private float Cfg_MotionTimeout => _brain.FlyingSettings ? _brain.FlyingSettings.attackMotionTimeout : AttackMotionTimeout;
+        private float Cfg_DirChangeMin => _brain.FlyingSettings ? _brain.FlyingSettings.dirChangeTimeMin : 1.5f;
+        private float Cfg_DirChangeMax => _brain.FlyingSettings ? _brain.FlyingSettings.dirChangeTimeMax : 3.5f;
 
         public EnemyFlyingAirCircleState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
@@ -54,14 +63,24 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            _attackCooldown = FirstShotDelay;
+            _attackCooldown = Cfg_FirstShotDelay;
             _isAttacking = false;
             _attackMotionTimer = 0f;
             _verticalVelocity = 0f;
             _totalTimer = 0f;
             _orbitDirection = Random.value > 0.5f ? 1f : -1f;
             _dirChangeTimer = 0f;
-            _nextDirChangeTime = Random.Range(1.5f, 3.0f);
+            _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
+
+            // 고도 랜덤: Brain.AirHoverHeight ± SO.hoverHeightVariance
+            float variance = _brain.FlyingSettings ? _brain.FlyingSettings.hoverHeightVariance : 1.5f;
+            _currentHoverHeight = _brain.AirHoverHeight + Random.Range(-variance, variance);
+            _currentHoverHeight = Mathf.Max(_currentHoverHeight, 2f); // 최소 2m
+
+            // 체류 시간 랜덤
+            float stayMin = _brain.FlyingSettings ? _brain.FlyingSettings.maxAirStayMin : 4f;
+            float stayMax = _brain.FlyingSettings ? _brain.FlyingSettings.maxAirStayMax : MaxStayDuration;
+            _currentMaxStay = Random.Range(stayMin, stayMax);
 
             if (_brain.Detection.HasTarget)
             {
@@ -89,7 +108,7 @@ namespace UPlayGround.State
             _totalTimer += deltaTime;
 
             // ── 최대 체류 시간 초과 → 강제 Dive ──
-            if (_totalTimer >= MaxStayDuration)
+            if (_totalTimer >= _currentMaxStay)
             {
                 Debug.LogWarning("[AirCircle] 최대 체류 시간 초과, 강제 Dive");
                 ForceDive();
@@ -104,7 +123,7 @@ namespace UPlayGround.State
                 _attackMotionTimer += deltaTime;
 
                 // 모션이 일정 시간 안에 안 끝나면 강제 완료
-                if (_attackMotionTimer >= AttackMotionTimeout)
+                if (_attackMotionTimer >= Cfg_MotionTimeout)
                 {
                     Debug.LogWarning("[AirCircle] 공격 모션 타임아웃, 강제 완료");
                     ForceEndAttackMotion();
@@ -163,7 +182,7 @@ namespace UPlayGround.State
             {
                 _orbitDirection *= -1f;
                 _dirChangeTimer = 0f;
-                _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+                _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
             }
 
             _orbitAngle += angularSpeed * _orbitDirection * deltaTime;
@@ -172,7 +191,7 @@ namespace UPlayGround.State
                 Mathf.Cos(_orbitAngle) * radius,
                 0f,
                 Mathf.Sin(_orbitAngle) * radius);
-            desiredPos.y = targetPos.y + _brain.AirHoverHeight;
+            desiredPos.y = targetPos.y + _currentHoverHeight;
 
             Vector3 toDesired = desiredPos - motor.TransientPosition;
             Vector3 horizontalMove = new Vector3(toDesired.x, 0f, toDesired.z);
@@ -219,7 +238,7 @@ namespace UPlayGround.State
             {
                 Debug.LogWarning("[AirCircle] 공격 모션 재생 실패, 즉시 완료 처리");
                 _isAttacking = false;
-                _attackCooldown = ShotInterval;
+                _attackCooldown = Cfg_ShotInterval;
                 _brain.OnAirAttackFinished();
             }
         }
@@ -230,16 +249,15 @@ namespace UPlayGround.State
 
             if (!_isAttacking) return; // 이미 타임아웃으로 처리됨
             _isAttacking = false;
-            _attackCooldown = ShotInterval;
+            _attackCooldown = Cfg_ShotInterval;
 
             Debug.Log($"[AirCircle] 공격 모션 완료, Brain에 알림 (현재 count={_brain.AirAttackCount})");
 
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
 
-            // 공격 후 선회 방향 반전 — "쏘고 반대로 빠지는" 기동
             _orbitDirection *= -1f;
             _dirChangeTimer = 0f;
-            _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+            _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
 
             _brain.OnAirAttackFinished();
         }
@@ -249,14 +267,13 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
             _isAttacking = false;
-            _attackCooldown = ShotInterval;
+            _attackCooldown = Cfg_ShotInterval;
 
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
 
-            // 공격 후 선회 방향 반전 — "쏘고 반대로 빠지는" 기동
             _orbitDirection *= -1f;
             _dirChangeTimer = 0f;
-            _nextDirChangeTime = Random.Range(1.5f, 3.5f);
+            _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
 
             _brain.OnAirAttackFinished();
         }

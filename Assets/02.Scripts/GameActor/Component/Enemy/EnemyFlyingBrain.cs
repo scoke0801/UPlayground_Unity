@@ -25,6 +25,7 @@ namespace UPlayGround.Component
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyCombat _combat;
         [SerializeField] private ActorMovementController _movementController;
+        [SerializeField] private EnemyFlyingSettingsSO _flyingSettings;
 
         [Header("Ground Combat")]
         [SerializeField] private float _chaseStopDistance = 2f;
@@ -104,6 +105,9 @@ namespace UPlayGround.Component
         public float CircleDuration => _circleDuration;
         public float RetreatDistance => _retreatDistance;
         public float OptimalCombatDistance => _optimalCombatDistance;
+
+        /// <summary> State들이 튜닝 값에 접근하는 단일 창구 </summary>
+        public EnemyFlyingSettingsSO FlyingSettings => _flyingSettings;
 
         #region Mono
 

@@ -19,7 +19,12 @@ namespace UPlayGround.State
         private bool _motionDone;
         private float _targetHeight;
 
-        private const float TakeOffDuration = 0.7f; // 빠른 이륙 (1.0 → 0.7)
+        private const float TakeOffDuration = 0.7f;
+
+        private float Cfg_TakeOffDuration => _brain.FlyingSettings ? _brain.FlyingSettings.takeOffDuration : TakeOffDuration;
+        private float Cfg_AscentSpringK => _brain.FlyingSettings ? _brain.FlyingSettings.ascentSpringK : 5f;
+        private float Cfg_AscentMin => _brain.FlyingSettings ? _brain.FlyingSettings.ascentSpeedMin : 2f;
+        private float Cfg_AscentMax => _brain.FlyingSettings ? _brain.FlyingSettings.ascentSpeedMax : 16f;
 
         public EnemyFlyingTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
@@ -64,7 +69,7 @@ namespace UPlayGround.State
             _timer += deltaTime;
 
             // 모션 완료 or 시간 초과 시 Air_Circle 진입
-            if (_motionDone || _timer >= TakeOffDuration + 0.5f)
+            if (_motionDone || _timer >= Cfg_TakeOffDuration + 0.5f)
             {
                 _brain.ResetAirCounters();
                 controller.TransitionToState(
@@ -77,7 +82,7 @@ namespace UPlayGround.State
             // 수직 상승 — 목표 고도까지 부드럽게
             float currentY = motor.TransientPosition.y;
             float diff = _targetHeight - currentY;
-            float ascentSpeed = Mathf.Clamp(diff * 5f, 2f, 16f); // 빠른 상승 (3f→5f, min 1→2, max 12→16)
+            float ascentSpeed = Mathf.Clamp(diff * Cfg_AscentSpringK, Cfg_AscentMin, Cfg_AscentMax);
 
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 5f);
             currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 5f);

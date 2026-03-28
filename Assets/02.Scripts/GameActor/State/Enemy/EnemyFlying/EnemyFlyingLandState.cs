@@ -20,8 +20,13 @@ namespace UPlayGround.State
         private float _timer;
         private float _descentSpeed;
 
-        private const float LandingMotionDuration = 0.8f; // 착지 모션 대기
-        private const float MaxDescentTime = 5f;           // 안전장치
+        private const float LandingMotionDuration = 0.8f;
+        private const float MaxDescentTime = 5f;
+
+        private float Cfg_LandMotion => _brain.FlyingSettings ? _brain.FlyingSettings.landMotionDuration : LandingMotionDuration;
+        private float Cfg_MaxDescent => _brain.FlyingSettings ? _brain.FlyingSettings.landMaxDescentTime : MaxDescentTime;
+        private float Cfg_DescentSpeed => _brain.FlyingSettings ? _brain.FlyingSettings.landDescentSpeed : 6f;
+        private float Cfg_ApproachSpeed => _brain.FlyingSettings ? _brain.FlyingSettings.landApproachSpeed : 2f;
 
         public EnemyFlyingLandState(ActorMovementController controller, EnemyFlyingBrain brain)
             : base(controller)
@@ -37,7 +42,7 @@ namespace UPlayGround.State
 
             _groundReached = false;
             _timer = 0f;
-            _descentSpeed = 6f; // Dive(20)보다 훨씬 느린 부드러운 하강
+            _descentSpeed = Cfg_DescentSpeed;
 
             // 착지 준비 모션
             gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.2f);
@@ -59,7 +64,7 @@ namespace UPlayGround.State
             if (_groundReached)
             {
                 // 착지 모션 대기 후 루프 복귀
-                if (_timer >= LandingMotionDuration)
+                if (_timer >= Cfg_LandMotion)
                 {
                     _brain.OnDiveLanded(); // Dive/Land 공용 콜백
                 }
@@ -74,7 +79,7 @@ namespace UPlayGround.State
             }
 
             // 안전장치
-            if (_timer >= MaxDescentTime)
+            if (_timer >= Cfg_MaxDescent)
             {
                 Debug.LogWarning("[FlyingLand] 하강 타임아웃");
                 OnLanded();
@@ -102,8 +107,7 @@ namespace UPlayGround.State
                 toTarget.y = 0;
                 if (toTarget.magnitude > 2f)
                 {
-                    // 수평으로 살짝 접근 (착지 후 바로 Chase 거리 줄이기)
-                    descendVel += toTarget.normalized * 2f;
+                    descendVel += toTarget.normalized * Cfg_ApproachSpeed;
                 }
             }
 

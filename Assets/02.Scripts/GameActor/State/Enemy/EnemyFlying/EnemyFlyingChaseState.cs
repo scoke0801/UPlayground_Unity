@@ -27,6 +27,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            motor.SetGroundSolvingActivation(true); // 공중 State에서 꺼졌을 수 있으므로 복구
             _chaseSpeed = controller.MaxRunMoveSpeed * _brain.ChaseSpeedMultiplier;
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
         }

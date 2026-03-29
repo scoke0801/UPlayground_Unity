@@ -35,6 +35,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            motor.SetGroundSolvingActivation(true);
 
             _combat = _brain.Combat;
             _attackTimer = 0f;

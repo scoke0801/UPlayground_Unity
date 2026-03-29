@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
@@ -254,6 +255,15 @@ namespace UPlayGround.Component
                 TransitionToDescend();
         }
 
+        /// <summary>
+        /// AirCircle 안전장치(체류 시간 초과/공격 횟수 소진)에서 호출.
+        /// TransitionToDescend를 통해 데이터 기반 Dive/Land 분기를 탄다.
+        /// </summary>
+        public void OnAirCircleForceDescend()
+        {
+            TransitionToDescend();
+        }
+
         public void OnDiveLanded()
         {
             ResetAllCounters();
@@ -381,12 +391,53 @@ namespace UPlayGround.Component
             _movementController.TransitionToState(new EnemyFlyingTakeOffState(_movementController, this));
         }
 
+        /// <summary>
+        /// 공중 루프 종료 시 하강 방식 결정.
+        /// isDiveAttack 스킬이 있으면 가중치 확률로 Dive, 없으면 Land.
+        /// Dive 스킬이 선택되면 해당 스킬을 Combat에 설정하여 DiveState가 참조.
+        /// </summary>
         private void TransitionToDescend()
         {
-            if (Random.value < _diveChance)
-                _movementController.TransitionToState(new EnemyFlyingDiveState(_movementController, this));
-            else
+            if (!_detection.HasTarget || _combat?.AttackData == null)
+            {
                 _movementController.TransitionToState(new EnemyFlyingLandState(_movementController, this));
+                return;
+            }
+
+            // isDiveAttack 스킬만 수집
+            float dist = _detection.DistanceToTarget;
+            var diveSkills = new System.Collections.Generic.List<EnemyAttackInfo>();
+            foreach (var skill in _combat.AttackData.skills)
+            {
+                if (skill.isDiveAttack)
+                    diveSkills.Add(skill);
+            }
+
+            if (diveSkills.Count == 0)
+            {
+                // Dive 스킬이 없으면 항상 일반 착지
+                _movementController.TransitionToState(new EnemyFlyingLandState(_movementController, this));
+                return;
+            }
+
+            // _diveChance 확률로 Dive 시도
+            if (Random.value >= _diveChance)
+            {
+                _movementController.TransitionToState(new EnemyFlyingLandState(_movementController, this));
+                return;
+            }
+
+            // 가중치 기반 Dive 스킬 선택
+            var selected = _combat.AttackData.SelectRandomAerialSkill(diveSkills);
+            if (selected != null)
+            {
+                _combat.SetCurrentSkill(selected);
+                _movementController.TransitionToState(new EnemyFlyingDiveState(_movementController, this));
+            }
+            else
+            {
+                _movementController.TransitionToState(new EnemyFlyingLandState(_movementController, this));
+            }
         }
 
         public void ResetAllCounters()

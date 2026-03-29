@@ -98,19 +98,19 @@ MonoBehaviour:
       conditionOperator: 0
       conditions: []
   - baseInfo:
-      animKey: 28
+      animKey: 26
       attackType: 0
       hitPhases:
-      - damage: 45
-        poiseDamage: 30
-        reactionType: 4
+      - damage: 50
+        poiseDamage: 100
+        reactionType: 7
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 0.6
-        hitParticleName: LiteHit
+        hitParticleName: HeavyHit
         pullForce: 3
-        airborneForce: 8
-        knockBackForce: 3
+        airborneForce: 12
+        knockBackForce: 8
         knockBackDrag: 20
         grabDuration: 1.5
     skillType: 1
@@ -119,7 +119,7 @@ MonoBehaviour:
     maxRange: 3
     cooldown: 2
     isAerialSkill: 1
-    isDiveAttack: 0
+    isDiveAttack: 1
     diveDescentSpeed: 15
     aerialSkillWeight: 1
     conditionGroup:

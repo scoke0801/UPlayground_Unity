@@ -31,6 +31,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            motor.SetGroundSolvingActivation(true);
             _patrolSpeed = controller.MaxRunMoveSpeed * 0.5f;
             _isWaiting = false;
             _waitTimer = 0f;

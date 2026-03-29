@@ -145,7 +145,7 @@ namespace UPlayGround.State
             _groundReached = true;
             _timer = 0f; // 착지 모션 타이머 리셋
 
-            gameActor.Animator.PlayMotion(AnimKey.Land, 0.15f);
+            //gameActor.Animator.PlayMotion(AnimKey.Land, 0.15f);
             Debug.Log("[FlyingLand] 일반 착지 완료");
         }
     }

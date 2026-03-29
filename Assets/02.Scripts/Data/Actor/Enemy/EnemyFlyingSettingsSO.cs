@@ -38,12 +38,12 @@ namespace UPlayGround.Data.Enemy
         public float hoverHeightVariance = 1.5f;
 
         [Header("── Dive ──")]
-        [Tooltip("텔레그래핑(날개 접기) 시간")]
-        public float diveTelegraphDuration = 0.7f;
+        [Tooltip("텔레그래핑(날개 접기) 시간 — 플레이어 회피 기회")]
+        public float diveTelegraphDuration = 1.0f;
         [Tooltip("착지 후딜 — 플레이어 반격 창")]
         public float diveRecoveryDuration = 1.0f;
-        [Tooltip("Approach 목표: 타겟 전방 이 거리에서 내려찍기 (0=머리 위)")]
-        public float diveApproachOffset = 3.0f;
+        [Tooltip("Approach 목표: 타겟 전방 이 거리의 상공 (넓을수록 대각선 길어짐)")]
+        public float diveApproachOffset = 5.0f;
         [Tooltip("Approach 도달 판정 수평 거리")]
         public float diveApproachArrivalDist = 2.5f;
         [Tooltip("Approach 타임아웃")]

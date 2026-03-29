@@ -173,6 +173,10 @@ namespace UPlayGround.Component
             
             foreach (var skill in _attackData.skills)
             {
+                // 공중 전용 스킬은 지상 공격에서 제외
+                if (skill.isAerialSkill)
+                    continue;
+                
                 // 쿨다운 체크
                 if (_skillCooldowns.ContainsKey(skill))
                     continue;

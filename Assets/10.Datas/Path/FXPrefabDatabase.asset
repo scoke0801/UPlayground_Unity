@@ -46,3 +46,6 @@ MonoBehaviour:
   - key: playerFullChargeFX
     prefab: {fileID: 1171190231128718, guid: 9fa6cd28cd97cc54eb5099893515d913, type: 3}
     description: 
+  - key: GriffinDiveImpact
+    prefab: {fileID: 4994997792314849709, guid: 41b241ed54cb54c46b48acfebf17842a, type: 3}
+    description: 

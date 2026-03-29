@@ -41,7 +41,7 @@ namespace UPlayGround.State
             _timer = 0f;
             _motionDone = false;
 
-            // 지면 판정 해제 — 공중으로 떠야 하므로
+            // 지면 판정 해제 + 강제 이탈 — 공중으로 떠야 하므로
             motor.SetGroundSolvingActivation(false);
             motor.ForceUnground();
 
@@ -51,10 +51,15 @@ namespace UPlayGround.State
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += OnMotionEnd;
             else
-                _motionDone = true; // 모션 없으면 바로 전환
+                _motionDone = true;
 
-            // Hyper Armor — 이륙 중 피격 무시
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(true);
+        }
+
+        /// <summary> 매 물리 틱 직전에 ForceUnground — KCC가 재접지하는 것 방지 </summary>
+        public override void BeforeCharacterUpdate(float deltaTime)
+        {
+            motor.ForceUnground();
         }
 
         public override void OnExit(GameActorState toState)
@@ -86,7 +91,10 @@ namespace UPlayGround.State
 
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 5f);
             currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 5f);
-            currentVelocity.y = ascentSpeed;
+
+            // 하강 속도 허용 안 함 — 이전 State의 음수 잔여 + 지면 스냅 방지
+            currentVelocity.y = Mathf.Max(currentVelocity.y, 0f);
+            currentVelocity.y = Mathf.Lerp(currentVelocity.y, ascentSpeed, deltaTime * 10f);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

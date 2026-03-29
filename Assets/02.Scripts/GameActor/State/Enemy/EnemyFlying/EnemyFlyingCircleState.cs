@@ -32,6 +32,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            motor.SetGroundSolvingActivation(true);
             _timer = 0f;
             _circleDir = Random.value > 0.5f ? 1f : -1f;
             _baseSpeed = controller.MaxRunMoveSpeed * 0.5f;

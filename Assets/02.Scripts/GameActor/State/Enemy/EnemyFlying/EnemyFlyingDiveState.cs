@@ -2,6 +2,7 @@
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -17,7 +18,7 @@ namespace UPlayGround.State
 
         private readonly EnemyFlyingBrain _brain;
 
-        private enum Phase { Approach, Telegraph, Diving, Recovery }
+        private enum Phase { Approach, Telegraph, Diving, Recovery, WaitGround }
         private Phase _phase;
         private float _phaseTimer;
 
@@ -27,9 +28,9 @@ namespace UPlayGround.State
         private Collider _targetCollider;
 
         // 폴백 기본값
-        private const float TelegraphDuration = 0.7f;
+        private const float TelegraphDuration = 1.0f;
         private const float RecoveryDuration = 1.0f;
-        private const float ApproachOffset = 3.0f;
+        private const float ApproachOffset = 5.0f;
         private const float ApproachArrivalDist = 2.5f;
         private const float ApproachTimeout = 3.0f;
 
@@ -105,7 +106,7 @@ namespace UPlayGround.State
                 {
                     float horizDist = HorizDist(motor.TransientPosition, _approachTarget);
                     if (horizDist <= Cfg_ArrivalDist || _phaseTimer >= Cfg_ApproachTimeout)
-                        EnterDiving();
+                        EnterTelegraph();
                     break;
                 }
 
@@ -124,9 +125,25 @@ namespace UPlayGround.State
                     {
                         OnImpact();
                         motor.SetGroundSolvingActivation(true);
-                        _phase = Phase.Recovery;
+
+                        // 지면에 확실히 붙을 때까지 대기 Phase로 전환
+                        _phase = Phase.WaitGround;
                         _phaseTimer = 0f;
-                        gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.1f);
+                    }
+                    break;
+                }
+
+                case Phase.WaitGround:
+                {
+                    if (motor.GroundingStatus.IsStableOnGround)
+                    {
+                        EnterRecovery();
+                        break;
+                    }
+
+                    if (_phaseTimer > 2f)
+                    {
+                        EnterRecovery();
                     }
                     break;
                 }
@@ -199,12 +216,14 @@ namespace UPlayGround.State
 
                 case Phase.Diving:
                 {
-                    // 착지 목표를 향한 돌진 (대각선)
                     Vector3 toTarget = _diveTarget - motor.TransientPosition;
+                    // 공격 Dive: 고속 돌진, 비공격: 부드러운 하강
+                    float speed = IsAttackDive ? _brain.DiveSpeed : _brain.DiveSpeed * 0.4f;
+
                     if (toTarget.sqrMagnitude > 0.1f)
-                        currentVelocity = toTarget.normalized * _brain.DiveSpeed;
+                        currentVelocity = toTarget.normalized * speed;
                     else
-                        currentVelocity = Vector3.down * _brain.DiveSpeed;
+                        currentVelocity = Vector3.down * speed;
                     break;
                 }
 
@@ -213,6 +232,13 @@ namespace UPlayGround.State
                         1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
                     if (motor.GroundingStatus.IsStableOnGround && currentVelocity.y < 0)
                         currentVelocity.y = -0.1f;
+                    break;
+
+                case Phase.WaitGround:
+                    // 중력으로 자연 낙하하여 지면에 붙기
+                    currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 8f);
+                    currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 8f);
+                    currentVelocity += controller.Gravity * deltaTime;
                     break;
             }
         }
@@ -225,9 +251,14 @@ namespace UPlayGround.State
             {
                 OnImpact();
                 motor.SetGroundSolvingActivation(true);
-                _phase = Phase.Recovery;
+                _phase = Phase.WaitGround;
                 _phaseTimer = 0f;
-                gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.1f);
+            }
+
+            if (_phase == Phase.WaitGround
+                && motor.GroundingStatus.IsStableOnGround)
+            {
+                EnterRecovery();
             }
         }
 
@@ -262,12 +293,32 @@ namespace UPlayGround.State
             _approachTarget.y = motor.TransientPosition.y; // 현재 고도 유지
         }
 
+        private bool IsAttackDive =>
+            _brain.Combat.CurrentSkill != null && _brain.Combat.CurrentSkill.isDiveAttack;
+
+        /// <summary>
+        /// Recovery Phase 진입.
+        /// 공격 Dive: Fall → Fly_Landing 전환 필요.
+        /// 비공격 Dive: 이미 Fly_Landing 재생 중이므로 모션 재생 스킵.
+        /// </summary>
+        private void EnterRecovery()
+        {
+            _phase = Phase.Recovery;
+            _phaseTimer = 0f;
+
+            if (IsAttackDive)
+                gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.1f);
+        }
+
         private void EnterTelegraph()
         {
-            //_phase = Phase.Telegraph;
-            //_phaseTimer = 0f;
-            //// 텔레그래핑: 공격 준비 모션
-            //gameActor.Animator.PlayMotion(AnimKey.Fly_Attack, 0.15f);
+            _phase = Phase.Telegraph;
+            _phaseTimer = 0f;
+
+            if (IsAttackDive)
+                gameActor.Animator.PlayMotion(AnimKey.Fly_Attack, 0.15f);
+            // else
+            //     gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.15f);
         }
 
         private void EnterDiving()
@@ -287,7 +338,6 @@ namespace UPlayGround.State
                 _diveTarget.y = GetGroundY(_diveTarget);
             }
 
-            // 낙하 모션으로 전환
             gameActor.Animator.PlayMotion(AnimKey.Fall, 0.1f);
         }
 
@@ -296,20 +346,26 @@ namespace UPlayGround.State
             if (_impactApplied) return;
             _impactApplied = true;
 
+            // 비공격 Dive는 착지 충격 판정 없음
+            if (!IsAttackDive) return;
+
             float radius = _brain.DiveImpactRadius;
             Vector3 impactPos = motor.TransientPosition;
             impactPos.y = GetGroundY(impactPos);
 
+            GameObjectManager.Instance.ShowFX("GriffinDiveImpact", impactPos);
+
             LayerMask targetLayer = LayerMask.GetMask("Player");
             Collider[] hits = Physics.OverlapSphere(impactPos, radius, targetLayer);
+
+            // Brain.TransitionToDescend에서 SetCurrentSkill한 Dive 스킬 사용
+            var diveSkill = _brain.Combat.CurrentSkill;
+            var phase = diveSkill?.baseInfo.GetHitPhase(0);
 
             foreach (var hit in hits)
             {
                 IDamageable damageable = hit.GetComponent<IDamageable>();
                 if (damageable == null || !damageable.CanTakeDamage()) continue;
-
-                var diveSkill = FindDiveSkill();
-                var phase = diveSkill?.baseInfo.GetHitPhase(0);
 
                 AttackData attackData = new AttackData
                 {
@@ -327,16 +383,6 @@ namespace UPlayGround.State
 
                 damageable.TakeDamage(attackData);
             }
-        }
-
-        private EnemyAttackInfo FindDiveSkill()
-        {
-            if (_brain.Combat.AttackData == null) return null;
-            foreach (var skill in _brain.Combat.AttackData.skills)
-            {
-                if (skill.isDiveAttack) return skill;
-            }
-            return null;
         }
 
         private static float HorizDist(Vector3 a, Vector3 b)

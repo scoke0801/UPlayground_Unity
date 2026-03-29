@@ -27,6 +27,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            motor.SetGroundSolvingActivation(true);
             _timer = 0f;
             _retreatSpeed = controller.MaxRunMoveSpeed * 0.65f;
             gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);

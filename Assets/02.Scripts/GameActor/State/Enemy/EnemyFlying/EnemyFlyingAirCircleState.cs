@@ -29,7 +29,6 @@ namespace UPlayGround.State
         // 공격 타이밍
         private float _attackCooldown;
         private bool _isAttacking;
-        private float _attackMotionTimer; // 모션 미완료 대비 타임아웃
 
         // 고도 유지
         private float _verticalVelocity;
@@ -65,7 +64,6 @@ namespace UPlayGround.State
 
             _attackCooldown = Cfg_FirstShotDelay;
             _isAttacking = false;
-            _attackMotionTimer = 0f;
             _verticalVelocity = 0f;
             _totalTimer = 0f;
             _orbitDirection = Random.value > 0.5f ? 1f : -1f;
@@ -91,8 +89,6 @@ namespace UPlayGround.State
 
             motor.SetGroundSolvingActivation(false);
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
-
-            Debug.Log($"[AirCircle] OnEnter — airAttackCount={_brain.AirAttackCount}/{_brain.AirAttackLimit}");
         }
 
         public override void OnExit(GameActorState toState)
@@ -100,7 +96,6 @@ namespace UPlayGround.State
             base.OnExit(toState);
             gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
             _isAttacking = false;
-            Debug.Log($"[AirCircle] OnExit → {toState.StateName}");
         }
 
         public override void UpdateState(float deltaTime)
@@ -110,40 +105,24 @@ namespace UPlayGround.State
             // ── 최대 체류 시간 초과 → 강제 Dive ──
             if (_totalTimer >= _currentMaxStay)
             {
-                Debug.LogWarning("[AirCircle] 최대 체류 시간 초과, 강제 Dive");
-                ForceDive();
+                ForceDescend();
                 return;
             }
 
             if (!_brain.Detection.HasTarget) return;
-
-            // ── 공격 모션 중 ──
-            if (_isAttacking)
-            {
-                _attackMotionTimer += deltaTime;
-
-                // 모션이 일정 시간 안에 안 끝나면 강제 완료
-                if (_attackMotionTimer >= Cfg_MotionTimeout)
-                {
-                    Debug.LogWarning("[AirCircle] 공격 모션 타임아웃, 강제 완료");
-                    ForceEndAttackMotion();
-                }
-                return;
-            }
-
-            // ── 발사 횟수 도달 → Dive ──
+            
+            // ── 공격 횟수 도달 → Dive ──
             if (_brain.AirAttackCount >= _brain.AirAttackLimit)
             {
-                Debug.Log($"[AirCircle] 발사 완료 ({_brain.AirAttackCount}/{_brain.AirAttackLimit}), Dive 전환");
-                ForceDive();
+                ForceDescend();
                 return;
             }
 
-            // ── 쿨다운 후 발사 ──
+            // ── 쿨다운 후 공격 ──
             _attackCooldown -= deltaTime;
             if (_attackCooldown <= 0f)
             {
-                TryFireProjectile();
+                TryAerialAttack();
             }
         }
 
@@ -171,12 +150,27 @@ namespace UPlayGround.State
             }
 
             Vector3 targetPos = _brain.Detection.CurrentTarget.position;
+
+            // ── 공격 모션 중: 선회 정지, 고도만 유지 ──
+            if (_isAttacking)
+            {
+                // 수평 감속 → 정지
+                currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0f, deltaTime * 8f);
+                currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0f, deltaTime * 8f);
+
+                // 고도 유지
+                float hoverY = targetPos.y + _currentHoverHeight;
+                float hDiff = hoverY - motor.TransientPosition.y;
+                _verticalVelocity += (hDiff * 6f - _verticalVelocity * 4f) * deltaTime;
+                currentVelocity.y = _verticalVelocity;
+                return;
+            }
+
+            // ── 선회 이동 ──
             float radius = _brain.AirCircleRadius;
             float speed = _brain.AirMoveSpeed;
-
             float angularSpeed = speed / radius;
 
-            // 간헐적 방향 전환 — 같은 방향으로만 도는 어색함 방지
             _dirChangeTimer += deltaTime;
             if (_dirChangeTimer >= _nextDirChangeTime)
             {
@@ -209,25 +203,29 @@ namespace UPlayGround.State
 
         #region 공격
 
-        private void TryFireProjectile()
+        /// <summary>
+        /// 공중 공격 스킬 선택 + 모션 재생.
+        /// 투사체 발사는 AnimEvent에서 처리 — 여기서는 모션만 제어한다.
+        /// </summary>
+        private void TryAerialAttack()
         {
             float dist = _brain.Detection.DistanceToTarget;
             var aerialSkills = _brain.Combat.AttackData?.GetAvailableAerialSkills(dist);
+            // isDiveAttack 스킬 제외 (Dive는 Brain.TransitionToDescend에서 처리)
+            aerialSkills?.RemoveAll(s => s.isDiveAttack);
+
             if (aerialSkills == null || aerialSkills.Count == 0)
             {
                 _attackCooldown = 0.5f;
-                Debug.LogWarning("[AirCircle] 공중 스킬 없음 — 0.5초 후 재시도");
                 return;
             }
 
             var skill = _brain.Combat.AttackData.SelectRandomAerialSkill(aerialSkills);
             if (skill == null) return;
 
+            // Combat에 스킬 설정 — AnimEvent가 이 스킬을 참조하여 투사체 발사
             _brain.Combat.SetCurrentSkill(skill);
             _isAttacking = true;
-            _attackMotionTimer = 0f;
-
-            Debug.Log($"[AirCircle] 공격 모션 시작: {skill.baseInfo.animKey}");
 
             var animState = gameActor.Animator.PlayMotion(skill.baseInfo.animKey, 0.1f);
             if (animState != null)
@@ -236,7 +234,7 @@ namespace UPlayGround.State
             }
             else
             {
-                Debug.LogWarning("[AirCircle] 공격 모션 재생 실패, 즉시 완료 처리");
+                // 모션 없으면 즉시 완료 처리
                 _isAttacking = false;
                 _attackCooldown = Cfg_ShotInterval;
                 _brain.OnAirAttackFinished();
@@ -247,14 +245,12 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
 
-            if (!_isAttacking) return; // 이미 타임아웃으로 처리됨
+            if (!_isAttacking) return;
             _isAttacking = false;
             _attackCooldown = Cfg_ShotInterval;
 
-            Debug.Log($"[AirCircle] 공격 모션 완료, Brain에 알림 (현재 count={_brain.AirAttackCount})");
-
+            // 선회 모션 복귀 + 방향 반전
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
-
             _orbitDirection *= -1f;
             _dirChangeTimer = 0f;
             _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
@@ -262,30 +258,16 @@ namespace UPlayGround.State
             _brain.OnAirAttackFinished();
         }
 
-        /// <summary> 모션 타임아웃 시 강제 완료 </summary>
-        private void ForceEndAttackMotion()
-        {
-            gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
-            _isAttacking = false;
-            _attackCooldown = Cfg_ShotInterval;
-
-            gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
-
-            _orbitDirection *= -1f;
-            _dirChangeTimer = 0f;
-            _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);
-
-            _brain.OnAirAttackFinished();
-        }
-
-        /// <summary> 체류 한계 시 직접 Dive 전환 (Brain 콜백 우회) </summary>
-        private void ForceDive()
+        /// <summary>
+        /// 안전장치 하강 — Brain.TransitionToDescend를 호출하여
+        /// 데이터 기반(Dive/Land) 분기를 타게 한다.
+        /// </summary>
+        private void ForceDescend()
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
             _isAttacking = false;
 
-            controller.TransitionToState(
-                new EnemyFlyingDiveState(controller, _brain));
+            _brain.OnAirCircleForceDescend();
         }
 
         #endregion

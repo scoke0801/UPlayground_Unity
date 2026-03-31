@@ -26,7 +26,7 @@ namespace UPlayGround.MovementController
         [Header("Jumping")]
         public float JumpSpeed = 10f;
         public float JumpPreGroundingGraceTime = 0.1f; // 땅에 닿기 직전 점프 입력 허용 시간
-        public float JumpPostGroundingGraceTime = 0.15f; // 낭떠러지에서 떨어진 후 점프 허용 시간 (코요테 타임)
+        public float JumpPostGroundingGraceTime = 0.05f; // 낭떠러지에서 떨어진 후 점프 허용 시간 (코요테 타임) — 유예 시간과 합산 고려하여 축소
         public float LandDrag = 1.5f;  // 착지 시점에 적용할 Drag은 별도로 사용한다.
          
         [Header("Jump Feel")]

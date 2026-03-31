@@ -17745,6 +17745,7 @@ MonoBehaviour:
   _equipment: {fileID: 128408075}
   _combat: {fileID: 128408074}
   _skillGauge: {fileID: 0}
+  _footIK: {fileID: 0}
   _shakeKeyHit: PlayerHit
   _shakeKeyHeavyHit: PlayerHeavyHit
   _shakeKeyDeath: PlayerDeath
@@ -59767,7 +59768,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d020e9be71f843d47abf3a4cf856c49c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxMeleeAttackers: 2
+  _maxMeleeAttackers: 0
   _maxRangedAttackers: 2
 --- !u!1 &453226478
 GameObject:
@@ -210614,7 +210615,7 @@ Transform:
   m_GameObject: {fileID: 1494930509}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.017300867, z: -0, w: -0.99985033}
-  m_LocalPosition: {x: 8.78, y: 1.405, z: -6.76}
+  m_LocalPosition: {x: -20.64, y: 1.405, z: -20.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -311805,67 +311806,6 @@ MonoBehaviour:
   DashCollisionSearchRadius: 5
   RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
---- !u!1001 &1395518120417047184
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1583338740874812416, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_Name
-      value: StoryTrigger
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.18
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.49
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 30.27
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6113097839771004576, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8665455631176001402, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
-      propertyPath: _storyEntry
-      value: 
-      objectReference: {fileID: 11400000, guid: 20fb8312abd64874f819c5c91ec20124, type: 2}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a7b7961192f96884fb7ff23f720d12de, type: 3}
 --- !u!1 &1397538506421204335
 GameObject:
   m_ObjectHideFlags: 0
@@ -385407,7 +385347,7 @@ MonoBehaviour:
   _retreatDistance: 3
   _groundStayLimitMin: 7
   _groundStayLimitMax: 12
-  _groundAttackLimit: 2
+  _groundAttackLimit: 5
   _enablePatrol: 1
   _patrolRadius: 5
   _patrolWaitTime: 2
@@ -385418,7 +385358,7 @@ MonoBehaviour:
   _airAttackLimitMax: 3
   _diveSpeed: 20
   _diveImpactRadius: 3
-  _diveChance: 0.8
+  _diveChance: 1
   _decisionInterval: 0.15
 --- !u!4 &8953664238023578165
 Transform:
@@ -386556,5 +386496,4 @@ SceneRoots:
   - {fileID: 1813756738}
   - {fileID: 520717117}
   - {fileID: 7413222797807735804}
-  - {fileID: 1395518120417047184}
   - {fileID: 1499888274}

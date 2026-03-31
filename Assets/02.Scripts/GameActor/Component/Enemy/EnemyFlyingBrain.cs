@@ -57,6 +57,7 @@ namespace UPlayGround.Component
         [SerializeField] private float _airCircleRadius = 6f;
         [SerializeField] private float _airHoverHeight = 4f;
         [SerializeField] private float _airMoveSpeed = 6f;
+        
         [Tooltip("공중 투사체 발사 횟수 (랜덤 범위)")]
         [SerializeField] private int _airAttackLimitMin = 1;
         [SerializeField] private int _airAttackLimitMax = 3;

@@ -30,6 +30,7 @@ namespace UPlayGround
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
         [SerializeField] private PlayerSkillGauge _skillGauge;
+        [SerializeField] private FootIKController _footIK;
 
         [Header("Hit Shake Keys")]
         [Tooltip("일반 피격 쉐이크")]
@@ -79,6 +80,7 @@ namespace UPlayGround
         public float                       MaxHealth             => _maxHealth;
         public float                       CurrentHealth         => _currentHealth;
         public PlayerSkillGauge            SkillGauge            => _skillGauge;
+        public FootIKController            FootIK                => _footIK;
     }
 
     public partial class PlayerActor : GameActor, IDamageable
@@ -298,6 +300,7 @@ namespace UPlayGround
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
             if (_equipment  == null) _equipment  = GetComponent<PlayerEquipment>();
             if (_skillGauge == null) _skillGauge = GetComponent<PlayerSkillGauge>();
+            if (_footIK    == null) _footIK    = GetComponent<FootIKController>();
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);

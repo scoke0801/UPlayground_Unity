@@ -29,12 +29,13 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _equipment = playerActor.GetPlayerEquipment();
             gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            playerActor.FootIK?.SetIKActive(true);
         }
 
         public override void UpdateState(float deltaTime)
         {
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
+            // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 playerController.TransitionToState(new PlayerAirborneState(playerController));
                 return;

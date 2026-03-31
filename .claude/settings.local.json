@@ -7,7 +7,12 @@
       "Bash(command -v uv)",
       "Bash(uv --version)",
       "Bash(uv run:*)",
-      "Bash(PYTHONUTF8=1 uv run --project \"/c/Users/scoke/.claude/plugins/cache/code-review-graph/code-review-graph/1.8.3\" code-review-graph build)"
+      "Bash(PYTHONUTF8=1 uv run --project \"/c/Users/scoke/.claude/plugins/cache/code-review-graph/code-review-graph/1.8.3\" code-review-graph build)",
+      "Bash(xargs grep:*)",
+      "mcp__plugin_code-review-graph_code-review-graph__list_graph_stats_tool",
+      "mcp__plugin_code-review-graph_code-review-graph__build_or_update_graph_tool",
+      "Bash(find . -maxdepth 2 -type f -name *.csproj -o -name *.sln -o -name package.json -o -name README.md)",
+      "Bash(find /c/UsingProject/UnityProject/UPlayground/Assets/Test -type f -name *.cs)"
     ]
   }
 }

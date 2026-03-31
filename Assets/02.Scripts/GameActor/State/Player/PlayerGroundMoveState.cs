@@ -38,7 +38,9 @@ namespace UPlayGround.State
             _sprintAutoChangeDealy = playerActor.PlayerController.SprintAutoStartDelay;
 
             _cachedAnimType = gameActor.MoveAnimType;
-            gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);            
+            gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
+            // 이동 중에는 Foot IK 비활성 (애니메이션과 IK가 충돌하여 발이 끌리는 현상 방지)
+            playerActor.FootIK?.SetIKActive(false);
         }
 
         public override void UpdateState(float deltaTime)
@@ -71,8 +73,8 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
+            // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 playerController.TransitionToState(new PlayerAirborneState(controller));
                 return;

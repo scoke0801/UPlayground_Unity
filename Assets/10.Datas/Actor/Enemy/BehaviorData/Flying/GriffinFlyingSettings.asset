@@ -19,11 +19,16 @@ MonoBehaviour:
   firstShotDelay: 0.5
   shotInterval: 0.8
   attackMotionTimeout: 3
-  maxAirStayDuration: 8
+  maxAirStayMin: 2
+  maxAirStayMax: 6
   dirChangeTimeMin: 1.5
   dirChangeTimeMax: 3.5
+  hoverHeightVariance: 1.5
   diveTelegraphDuration: 0.7
   diveRecoveryDuration: 1
+  diveApproachOffset: 5
+  diveApproachArrivalDist: 2.5
+  diveApproachTimeout: 3
   landMotionDuration: 0.8
   landDescentSpeed: 6
   landApproachSpeed: 2

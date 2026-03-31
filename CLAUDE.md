@@ -1,271 +1,96 @@
-# UPlayground - Unity Action RPG Project
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 프로젝트 개요
 
-소울라이크 스타일의 액션 RPG. 3인칭 전투 시스템, 스테이트 머신 기반 액터 제어, 다단계 차지 공격, 적 AI를 갖춘 게임.
+Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP 렌더링 파이프라인.
+플레이어블 캐릭터 3종: Bokusei(카타나), Honoka(쌍도끼), LianLian(채찍).
 
-**주요 캐릭터:** Bokusei(카타나), Honoka(쌍도끼), LianLian(채찍)
+**핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 
----
+## 언어
 
-## 폴더 구조
+한국어 프로젝트. 코드 주석, 커밋 메시지, 문서 모두 한국어. 사용자가 한국어로 작성하면 한국어로 응답할 것.
 
-```
-Assets/
-├── 01.Scenes/         # 씬 파일 (GameLogic/, Test/)
-├── 02.Scripts/        # 모든 C# 스크립트 (281개)
-│   ├── Animation/     # 애니메이션 컨트롤러
-│   ├── Camera/        # 카메라 시스템
-│   ├── Data/          # 데이터 구조체/SO 정의
-│   ├── GameActor/     # 액터 (Player, Enemy, NPC) 핵심 로직
-│   ├── Input/         # 입력 처리
-│   ├── Manager/       # 싱글턴 매니저들
-│   └── UI/            # UI 시스템
-└── 10.Datas/          # ScriptableObject 데이터 파일 (543개)
-    ├── Actor/         # 캐릭터/적 데이터, 애니메이션 모션셋
-    ├── Camera/        # 카메라 이펙트/셰이크 프리셋
-    ├── Item/          # 장비/무기 데이터
-    └── Story/         # 다이얼로그/스토리 데이터
-```
+## 빌드 & 실행
 
----
+Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)에서 URP로 열기. 자동화된 테스트 스위트 없음.
 
-## 핵심 아키텍처
+## 아키텍처
 
-### 1. 계층형 스테이트 머신
+### 매니저 시스템
 
-모든 액터의 행동은 상태로 관리된다.
+`GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-**베이스 클래스:** `GameActorState` → `PlayerActorState` / `EnemyActorState` / `NpcActorState`
+매니저 목록: InputManager, AssetManager, UIManager, CameraManager, GameObjectManager, ItemManager, InventoryManager, EventManager, GameHitStopManager, VitalOrbManager, DialogueManager, GlobalFlagManager, StoryManager, GameTimeManager, SceneManager, SettingsManager.
 
-**플레이어 상태 목록 (17개):**
-`Idle`, `GroundMove`, `Jump`, `Airborn`, `Attack`, `HeavyAttack`, `ChargeAttack`, `DashAttack`, `JumpAttack`, `Guard`, `GuardBreak`, `Dodge`, `Dash`, `Crouch`, `Grabbed`, `Interaction`, `Death`
+### GameActor 계층 구조
 
-상태 전환은 `ActorMovementController`가 담당하며, KCC(Kinematic Character Controller)와 통합되어 있다.
+`GameActor`(추상 MonoBehaviour)가 모든 인터랙티브 오브젝트의 베이스:
+- `PlayerActor` — partial class로 5개 파일 분리 (base, lifecycle, input, combat, equipment). `IDamageable` 구현.
+- `MonsterActor` — 적 엔티티. `IDamageable` 구현.
+- `NpcActor` — `IInteractable` 구현.
+- `GatheringActor`, `ItemActor`, `VitalOrbActor`, 투사체 (`BaseProjectile` → `LinearProjectile` / `AOEProjectile`).
 
-**주요 파일:**
-- `Assets/02.Scripts/GameActor/State/Base/GameActorState.cs`
-- `Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs`
-- `Assets/02.Scripts/GameActor/State/Player/Player*State.cs`
+### 상태 머신 (핵심 패턴)
 
----
-
-### 2. 컴포넌트 시스템
-
-액터는 `GameActor`를 상속하고, 기능별 컴포넌트를 조합한다.
-
-| 컴포넌트 | 역할 |
-|----------|------|
-| `PlayerCombat` | 공격 실행, 히트 판정, 콤보, 가드 |
-| `PlayerEquipment` | 무기 장착/교체 |
-| `PlayerSkillGauge` | 스킬 게이지 관리 |
-| `EnemyBrain` | AI 의사결정 |
-| `EnemyCombat` | 적 공격 실행 |
-| `EnemyDetection` | 타겟 탐지 |
-| `PoiseStat` | 포이즈(강인도) 시스템 |
-
-**주요 파일:**
-- `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs`
-- `Assets/02.Scripts/GameActor/Component/Enemy/EnemyBrain.cs`
-- `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs`
-
----
-
-### 3. 애니메이션 시스템 (Animancer 기반)
-
-**계층 구조:** `MotionSet` → `Motion[]`
-
-- **MotionSet:** 애니메이션 클립 묶음 (한 동작의 전체 시퀀스)
-- **Motion:** 개별 애니메이션 클립 + 메타데이터 (재생속도, 구간, 이벤트 타임라인)
-
-**MotionEvent 종류:**
-
-| 이벤트 | 역할 |
-|--------|------|
-| `MotionEvent_BeginCollision` | 히트 판정 시작 |
-| `MotionEvent_Collision` | 히트박스 활성/비활성 |
-| `MotionEvent_ComboWindow` | 콤보 입력 창 열기/닫기 |
-| `MotionEvent_CameraEffect` | 카메라 이펙트 트리거 |
-| `MotionEvent_AddForce` | 루트모션 힘 적용 |
-| `MotionEvent_FinishAttack` | 처형 공격 트리거 |
-| `LoopEvent` | 무한루프 구간 정의 (차지 공격에 핵심) |
-
-**주요 파일:**
-- `Assets/02.Scripts/Data/Actor/Animation/Motion.cs`
-- `Assets/02.Scripts/GameActor/Animation/ActorAnimator.cs`
-
----
-
-## 전투 시스템
-
-### 공격 데이터 구조
+상태는 KCC의 `ICharacterController`와 긴밀히 결합. 각 상태가 `UpdateVelocity`, `UpdateRotation` 등 KCC 콜백을 오버라이드하여 상태별 물리 동작을 제어.
 
 ```
-PlayerAttackDataSO (ScriptableObject)
-└── AttackInfoBase
-    ├── AnimKey (모션셋 키)
-    └── HitPhaseData[] (히트 구간 배열)
-        ├── Damage, PoiseDamage
-        ├── AttackRadius, HitAngle, HeightRange
-        ├── Knockback/Airborne/Pull 힘
-        ├── HitParticleName (VFX)
-        └── ReactionType (Hit/Heavy/Knockback/Airborne/Knockdown/Grab/Stun...)
+GameActorState (추상)
+├── PlayerActorState → 11개 구체 상태 (Idle, GroundMove, Airborn, Attack, Charge, Dash, DashAttack, Dodge, Guard, Crouching, Hit, Death, Interaction)
+├── EnemyActorState → 13개+ 지상 상태 + 9개 비행 상태 (State/Enemy/EnemyFlying/)
+└── NpcActorState → Idle, Talk, Wander
 ```
 
-**런타임 인스턴스:** `AttackData` - 공격 실행 시 생성되며 대상, 충격지점, 방향 등을 포함.
+주요 메서드: `OnEnter`, `OnExit`, `UpdateState`, `CanTransitionState(string stateName)`, `UpdateVelocity`, `UpdateRotation`, `BeforeCharacterUpdate`, `AfterCharacterUpdate`, `PostGroundingUpdate`.
 
-**주요 파일:**
-- `Assets/02.Scripts/Data/Combat/CombatData.cs`
-- `Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs`
+### 컴포넌트 시스템
 
----
+`ActorComponent`(베이스) → `PlayerActorComponent`(플레이어 전용 베이스). GameActor에 기능별 컴포넌트를 조합:
 
-### PlayerCombat 핵심 메서드
+- **전투:** `PlayerCombat`, `EnemyCombat` — 공격 로직, 데미지, 스킬
+- **AI:** `EnemyBrain`(의사결정), `EnemyFlyingBrain`, `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`
+- **스탯:** `PoiseStat`(강인도/경직 저항)
+- **장비:** `PlayerEquipment`, `PlayerSkillGauge`
+- **VFX:** `ActorColorChanger`(피격 플래시), `DissolveController`(사망 디졸브)
+- **IK:** `FootIKController`
 
-```csharp
-ExecuteAttack(bool isCombo)           // 약공격 콤보
-ExecuteHeavyAttack()                  // 강공격
-ExecuteChargeAttack(stage, ratio)     // 차지공격 (스테이지 + 비율)
-ExecuteSkillAttack(skillIndex)        // 스킬 공격
-ExecuteJumpAttack()                   // 공중 공격
-ExecuteDashAttack()                   // 대시 공격
-PerformHitDetection()                 // 매 프레임 히트 판정 (구체 기반)
-FindAttackSnapTarget()                // 자동조준 스냅
-FindFinishableTarget()                // 처형 가능 대상 탐색 (HP < 30)
-```
+### 이동 컨트롤러
 
-**히트 피드백 차별화:**
+`ActorMovementController`가 KCC의 `ICharacterController`를 구현하고 상태 머신을 호스팅:
+- `PlayerMovementController`, `EnemyMovementController`, `NpcMovementController`
+- 이동 컨트롤러가 KCC 콜백을 현재 상태에 위임.
 
-| 공격 종류 | Punch 강도 | 지속시간 | 셰이크 키 |
-|-----------|-----------|---------|-----------|
-| 약공격 | 0.08 | 0.12s | "LiteHit" |
-| 강공격/대시/점프 | 0.18 | 0.18s | "HeavyHit" |
-| 스킬/차지 | 0.22 | 0.20s | "HeavyHit" |
+### 애니메이션 시스템
 
----
+Animancer 기반 **MotionSet 타임라인** 구조 — 하나의 액션에 여러 애니메이션 클립을 순차 체이닝. `MotionEventExecutor`가 타임라인 기반 이벤트(히트박스 활성화, VFX, SFX) 발화. `AvatarMask`를 통한 상체/하체 레이어 분리 지원.
 
-### 차지 공격 흐름 (PlayerChargeState)
+### 입력 시스템
 
-```
-OnEnter
-  → 차지 애니메이션 재생 (InfiniteLoop 이벤트 포함)
-  → Loop 구간: 시간 누적 (max 1.5초)
-  → chargeRatio >= stageThreshold? → 루프 탈출 → 다음 스테이지
-  → 버튼 해제 또는 최대 차지 → FireChargeAttack()
-  → 데미지 배율: 1.0x ~ 1.5x (chargeRatio 기반)
-```
+Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene=1000, Popup=2000, System=3000, Top=10000). `InputBuffer`로 선입력 지원. 이벤트 기반 등록/해제: `RegisterInputEvent`/`UnRegisterInputEvent`.
 
-**주요 파일:** `Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs`
+### 데이터 아키텍처 (ScriptableObject)
 
----
+모든 수치 데이터는 `Assets/10.Datas/`의 ScriptableObject로 외부화:
+- `EnemyBehaviorSO` — 페이즈 기반 AI 프로필 (HP 임계값에 따른 행동 전환)
+- `EnemyStatsSO`, `EnemyFlyingSettingsSO`, `PoiseSO`
+- `PlayerAttackDataSO`, `EnemyAttackDataSO` — 다단 `HitPhaseData`를 포함한 공격 데이터
+- `CameraShakeData`, 카메라 이펙트 SO
+- `MotionSetAsset` — 애니메이션 타임라인 정의
 
-## 적 AI 시스템
+### 주요 Enum
 
-### EnemyBrain (의사결정)
-- 0.1초 간격 의사결정
-- HP 임계값 기반 페이즈 전환
-- 행동 가중치: `continueAttackChance`, `guardChance`, `retreatChance`, `chargeChance`
-- `EnemyTacticalMemory`: 플레이어 마지막 행동, 예측 위치, 거리/각도 추적
+- `ActorType` [Flags] — Player, Monster, Obstacle, NPC, Combat, Talkable
+- `CharacterActorType` — Bokusei, Honoka, Reine, H09
+- `AttackReactionType` — Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab
+- `EnemyCombatStyle` — Melee, Ranged, Balanced, Support
 
-### EnemyAttackDataSO 구조
-- `skillType` (Attack/Heal/Spawn/Buff/Debuff)
-- `minRange` / `maxRange` - 거리 게이팅
-- `cooldown` - 재사용 대기시간
-- `selectionWeight` - 확률 가중치
-- `conditionGroup` - 복합 활성화 조건
-- `isAerialSkill`, `isDiveAttack` - 공중 공격 여부
+## 코드 컨벤션
 
-**주요 파일:** `Assets/02.Scripts/GameActor/Component/Enemy/EnemyBrain.cs`
-
----
-
-## 포이즈(강인도) 시스템
-
-- `PoiseStat` 컴포넌트 (모든 액터 공유)
-- 포이즈 = 0 → 강제 히트 상태 진입
-- 회복 딜레이 + 회복 속도 설정 가능
-- **하이퍼아머:** 포이즈 데미지 면역 (보스 무적 구간)
-- SO에서 최대 포이즈값 설정
-
----
-
-## 매니저 시스템
-
-모두 `BaseManager<T>` 싱글턴 기반.
-
-| 매니저 | 역할 |
-|--------|------|
-| `InputManager` | 입력 버퍼링, 컨텍스트 레이어 |
-| `CameraManager` | 록온, 펀치/셰이크 이펙트 |
-| `GameHitStopManager` | 히트스톱 (경량/중량/크리티컬) |
-| `GameObjectManager` | FX 풀링 및 재생 |
-| `UIManager` | 데미지 플로터, HP바, HUD |
-| `EventManager` | 글로벌 이벤트 브로드캐스트 |
-| `DialogueManager` | 대화 흐름 |
-| `VitalOrbManager` | 회복 오브 스폰 |
-
----
-
-## 이동/물리 시스템
-
-**KCC (Kinematic Character Controller) 통합**
-
-| 이동 타입 | 속도 |
-|-----------|------|
-| 걷기 | 3 m/s |
-| 달리기 | 6.5 m/s |
-| 전력질주 | 10 m/s |
-| 크라우치 | 3 m/s |
-| 대시 | 18 m/s (0.3초) |
-| 회피 | 7.5 파워 |
-
-- 상승/하강 중력 배율 개별 설정
-- 점프 유예시간 지원 (코요테 타임)
-- 임펄스 기반 넉백/발사 (이동 속도와 별도)
-- 루트모션 블렌딩 (상태별 선택)
-
----
-
-## 라이트 어택 흐름 (전체 데이터 흐름 예시)
-
-```
-1. 입력 → InputManager 버퍼 등록
-2. PlayerActor.Update() → _attackInputCondition 설정
-3. ActorMovementController → 현재 상태로 전달
-4. PlayerAttackState → 콤보 창 확인 → PlayerCombat.ExecuteAttack()
-5. PlayerCombat → AttackData 런타임 생성 → OnAttackStarted 이벤트
-6. ActorAnimator → MotionSet 재생 (AnimKey 기반)
-7. MotionEvent_BeginCollision → 히트 판정 활성화
-8. PlayerCombat.PerformHitDetection() → 매 프레임 스피어 캐스트
-9. 히트 발생 → IDamageable.TakeDamage() → 적 상태 전환
-10. UIManager → 데미지 플로터 / CameraManager → 셰이크
-11. MotionEvent_ComboWindow → 다음 입력 창 열기
-12. 애니메이션 종료 → Idle/Move로 복귀
-```
-
----
-
-## 핵심 파일 빠른 참조
-
-| 목적 | 파일 경로 |
-|------|-----------|
-| 플레이어 전투 전체 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` |
-| 차지 공격 상태 | `Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs` |
-| 모션/이벤트 정의 | `Assets/02.Scripts/Data/Actor/Animation/Motion.cs` |
-| 전투 데이터 구조 | `Assets/02.Scripts/Data/Combat/CombatData.cs` |
-| 플레이어 공격 SO | `Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs` |
-| 액터 스테이트 베이스 | `Assets/02.Scripts/GameActor/State/Base/GameActorState.cs` |
-| 액터 애니메이터 | `Assets/02.Scripts/GameActor/Animation/ActorAnimator.cs` |
-| 이동 컨트롤러 | `Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs` |
-| 적 AI | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyBrain.cs` |
-| 포이즈 시스템 | `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs` |
-
----
-
-## 코딩 컨벤션
-
-- 폴더명: 번호 접두사 사용 (`01.Scenes`, `02.Scripts`, `10.Datas`)
-- 스크립트: PascalCase 클래스명, `_camelCase` private 필드
-- 데이터: ScriptableObject로 설정값 외부화
-- 이벤트: `On` 접두사 (예: `OnAttackStarted`, `OnTargetAcquiredExternally`)
-- 애니메이션 키: `AnimKey` enum 또는 string 상수로 참조
+- 폴더 앞 숫자 접두사 (`01.Scenes`, `02.Scripts` 등)로 Unity Project 창 정렬
+- 상태 이름 패턴: `{액터타입}{액션이름}State` (예: `PlayerDashState`, `EnemyChaseState`)
+- 컴포넌트 이름 패턴: `{액터타입}{기능}` (예: `PlayerCombat`, `EnemyBrain`)
+- PlayerActor는 partial class 사용 — 플레이어 동작 수정 시 5개 파일 모두 확인 필요
+- 적 비행 상태는 별도 하위 폴더: `State/Enemy/EnemyFlying/`

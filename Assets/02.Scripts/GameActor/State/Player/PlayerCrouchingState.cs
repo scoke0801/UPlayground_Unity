@@ -30,9 +30,10 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
+
             // 캡슐 크기 축소
             motor.SetCapsuleDimensions(0.5f, 1f, 0.5f);
+            playerActor.FootIK?.SetIKActive(true);
             var animState = gameActor.Animator.PlayMotion(AnimKey.Idle_To_Crouch, 0.25f);
             if (animState != null)
             {
@@ -115,8 +116,8 @@ namespace UPlayGround.State
                 }
             }
             
-            // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
+            // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new PlayerAirborneState(controller));
                 return;

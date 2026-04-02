@@ -29,17 +29,13 @@ namespace UPlayGround.State
         
         private PlayerActorAnimator _playerActorAnimator;
 
-        // --- Attack Snap ---
-        private Transform _snapTarget;
-        private bool _isSnapping;
-        
-        // 스냅 범위 밖이지만 Startup 회전 보정에 쓸 소프트 타겟
-        // 공격 1회에만 유효, ChangeToNextState() 시 재탐색
-        private Transform _softRotationTarget;
-        
-        // 스냅 시작 시 '스윗 스팟'까지 남은 거리 (감속 비율 계산용)
-        private float _snapStartTravelDistance; 
-        
+        // --- Motion Warp ---
+        private Transform _warpTarget;
+        private bool _isWarping;
+
+        // 워핑 시작 시 '스윗 스팟'까지 남은 거리 (감속 비율 계산용)
+        private float _warpStartDistance;
+
         // 타격하기 가장 좋은 이상적인 거리 비율 (사거리의 80% 지점)
         private const float SweetSpotMultiplier = 0.8f;
 
@@ -91,8 +87,8 @@ namespace UPlayGround.State
                 return;
             }
             
-            // Attack Snap 시도
-            TryInitAttackSnap();
+            // 모션 워핑 시도
+            TryInitWarp();
         }
 
         public override void OnExit(GameActorState toState)
@@ -104,8 +100,8 @@ namespace UPlayGround.State
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
             
-            ClearSnapState();
-            
+            ClearWarpState();
+
             base.OnExit(toState);
         }
 
@@ -113,8 +109,8 @@ namespace UPlayGround.State
         {
             _attackTimer += deltaTime;
 
-            // 스냅 종료 조건 체크
-            UpdateSnapState();
+            // 워핑 종료 조건 체크
+            UpdateWarpState();
 
             if (_currentAttack.canBeInterrupted)
             {
@@ -198,8 +194,8 @@ namespace UPlayGround.State
                 _combat.CloseComboWindow();
                 _comboInputted = false;
                 
-                // 콤보 연결 시 스냅 재시도
-                TryInitAttackSnap();
+                // 콤보 연결 시 워핑 재시도
+                TryInitWarp();
             }
             else
             {
@@ -241,107 +237,84 @@ namespace UPlayGround.State
             return _currentAttack?.animKey ?? AnimKey.None;
         }
 
-        #region Attack Snap (Target Magnetism)
+        #region Motion Warp + Homing
 
         /// <summary>
-        /// 공격 시작/콤보 연결 시 스냅 대상 탐색 및 초기화
+        /// 공격 시작/콤보 연결 시 워핑 대상 탐색 및 초기화
         /// </summary>
-        private void TryInitAttackSnap()
+        private void TryInitWarp()
         {
-            ClearSnapState();
+            ClearWarpState();
 
             if (_currentAttack == null)
                 return;
 
-            Transform targetToSnap = null;
-            float targetDistance = 0f;
+            Transform target = FindWarpTarget();
+            if (target == null)
+                return;
 
-            // 락온 대상 우선 체크
+            _warpTarget = target;
+
+            float dist = HorizontalDistance(gameActor.transform.position, target.position);
+            float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
+
+            // 스윗 스팟 안쪽이면 이동 워핑 불필요, 호밍(회전)만 적용
+            if (dist > sweetSpotDist)
+            {
+                _isWarping = true;
+                _warpStartDistance = dist - sweetSpotDist;
+            }
+        }
+
+        private Transform FindWarpTarget()
+        {
+            // 1. 락온 대상 우선
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
                 float dist = HorizontalDistance(gameActor.transform.position, lockOnTarget.position);
-                
-                // 락온 전용 탐색 범위 안이면 스냅 대상으로 설정
                 if (dist <= _combat.GetSnapSearchRange(true))
-                {
-                    targetToSnap = lockOnTarget;
-                    targetDistance = dist;
-                }
+                    return lockOnTarget;
             }
 
-            // 락온 대상이 없으면 자석 탐색
-            if (targetToSnap == null)
-            {
-                bool isLockedOn = lockOnTarget != null;
-                Transform snapCandidate = _combat.FindAttackSnapTarget(
-                    _currentAttack.hitRange, _currentAttack.hitAngle, isLockedOn);
-
-                if (snapCandidate != null)
-                {
-                    targetToSnap = snapCandidate;
-                    targetDistance = HorizontalDistance(gameActor.transform.position, snapCandidate.position);
-                }
-            }
-
-            if (targetToSnap != null)
-            {
-                // 스냅 범위 내 타겟은 항상 소프트 타겟으로 등록 (Startup 회전 보정에 사용)
-                _softRotationTarget = targetToSnap;
-
-                float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
-                
-                // 이미 스윗 스팟(이상적인 타격 거리) 안쪽에 있다면 이동 스냅은 불필요
-                // 단, 소프트 타겟은 유지하여 회전 보정은 계속 적용
-                if (targetDistance <= sweetSpotDist)
-                    return;
-
-                BeginSnap(targetToSnap, targetDistance, sweetSpotDist);
-            }
+            // 2. 자유 전투 자석 탐색
+            bool isLockedOn = lockOnTarget != null;
+            return _combat.FindAttackSnapTarget(
+                _currentAttack.hitRange, _currentAttack.hitAngle, isLockedOn);
         }
 
-        private void BeginSnap(Transform target, float currentDistance, float sweetSpotDist)
+        private void UpdateWarpState()
         {
-            _snapTarget = target;
-            _isSnapping = true;
-            
-            // 실제 이동해야 할 거리 (현재 거리 - 스윗 스팟 거리)
-            _snapStartTravelDistance = currentDistance - sweetSpotDist;
+            if (!_isWarping)
+                return;
+
+            if (_warpTarget == null || _combat.IsPossibleCollide)
+            {
+                _isWarping = false;
+                return;
+            }
+
+            float dist = HorizontalDistance(gameActor.transform.position, _warpTarget.position);
+            float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
+
+            if (dist <= sweetSpotDist)
+                _isWarping = false;
+        }
+
+        private void ClearWarpState()
+        {
+            _warpTarget = null;
+            _isWarping = false;
+            _warpStartDistance = 0f;
         }
 
         /// <summary>
-        /// 스냅 종료 조건 체크
-        /// - 타겟이 사라짐
-        /// - 히트 판정 시작됨 (충분히 접근했으므로 루트모션에 맡김)
-        /// - 스윗 스팟(정지 거리) 도달
+        /// EaseOut 커브: 출발 시 빠르게, 도착 시 부드럽게 감속
+        /// t: 0~1 진행률 → 반환: 0~1 이징된 값
         /// </summary>
-        private void UpdateSnapState()
+        private static float EaseOut(float t)
         {
-            if (!_isSnapping)
-                return;
-
-            if (_snapTarget == null || _combat.IsPossibleCollide)
-            {
-                ClearSnapState();
-                return;
-            }
-
-            float dist = HorizontalDistance(gameActor.transform.position, _snapTarget.position);
-            float sweetSpotDist = _currentAttack.hitRange * SweetSpotMultiplier;
-
-            // 스윗 스팟에 도달했거나 넘어섰다면 스냅 종료
-            if (dist <= sweetSpotDist)
-            {
-                ClearSnapState();
-            }
-        }
-
-        private void ClearSnapState()
-        {
-            _snapTarget = null;
-            _softRotationTarget = null;
-            _isSnapping = false;
-            _snapStartTravelDistance = 0f;
+            return 1f - (1f - t) * (1f - t);
         }
 
         private static float HorizontalDistance(Vector3 a, Vector3 b)
@@ -361,9 +334,9 @@ namespace UPlayGround.State
 
             Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
 
-            if (_isSnapping && _snapTarget != null)
+            if (_isWarping && _warpTarget != null)
             {
-                Vector3 toTarget = _snapTarget.position - gameActor.transform.position;
+                Vector3 toTarget = _warpTarget.position - gameActor.transform.position;
                 toTarget.y = 0f;
                 float currentDist = toTarget.magnitude;
 
@@ -372,33 +345,24 @@ namespace UPlayGround.State
 
                 if (distToTravel > 0.01f)
                 {
-                    Vector3 snapDir = toTarget.normalized;
+                    Vector3 warpDir = toTarget.normalized;
 
-                    // EaseOut: 출발할 땐 빠르게, 도착할 땐 부드럽게 감속
-                    float progress = (_snapStartTravelDistance > 0.01f) 
-                        ? 1f - Mathf.Clamp01(distToTravel / _snapStartTravelDistance) 
+                    // 진행률 0→1, EaseOut 적용: 출발 시 빠르게, 도착 시 부드럽게
+                    float progress = (_warpStartDistance > 0.01f)
+                        ? Mathf.Clamp01(1f - distToTravel / _warpStartDistance)
                         : 1f;
-                    
-                    float easeOutMultiplier = 1f - (progress * progress);
-                    
-                    // 남은 거리에 비례하여 필요한 속도를 구함 (거리가 멀수록 빠르게)
-                    float neededSpeed = (distToTravel * 5.0f) * easeOutMultiplier;
-                    float finalSpeed = Mathf.Min(neededSpeed, _combat.SnapMoveSpeed);
+                    float easedSpeed = Mathf.Lerp(_combat.SnapMoveSpeed, 0f, EaseOut(progress));
 
-                    // 루트모션 방향이 타겟 방향과 얼마나 일치하는지 내적(Dot)으로 확인
-                    float dot = Vector3.Dot(rootMotionVel.normalized, snapDir);
-                    Vector3 finalVel;
+                    // 루트모션과 워핑을 블렌딩: 진행률이 높을수록 루트모션 비중 증가
+                    float rootMotionBlend = Mathf.Clamp01(progress);
+                    Vector3 warpVel = warpDir * easedSpeed;
+                    Vector3 finalVel = Vector3.Lerp(warpVel, rootMotionVel, rootMotionBlend);
 
+                    // 루트모션이 타겟 방향과 같으면 속도 보강
+                    float dot = Vector3.Dot(rootMotionVel.normalized, warpDir);
                     if (dot > 0.5f && rootMotionVel.magnitude > 0.1f)
                     {
-                        // 전진하는 공격 모션인 경우: 루트모션의 방향을 유지하면서 속도만 스케일 업(모션 워핑)
-                        // 타겟 방향 벡터와 부족한 스피드만큼 더해줌
-                        finalVel = rootMotionVel + (snapDir * Mathf.Max(0, finalSpeed - rootMotionVel.magnitude));
-                    }
-                    else
-                    {
-                        // 제자리 공격이거나 엉뚱한 방향인 경우: 강제로 타겟을 향해 끌어당김
-                        finalVel = snapDir * finalSpeed;
+                        finalVel = Vector3.Max(finalVel, rootMotionVel);
                     }
 
                     currentVelocity = new Vector3(finalVel.x, rootMotionVel.y, finalVel.z);
@@ -406,40 +370,41 @@ namespace UPlayGround.State
                 }
             }
 
-            // 스냅을 하지 않거나 종료된 상태라면 순수 루트모션만 적용
             currentVelocity = rootMotionVel;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 이동 스냅 중이거나, 스냅은 끝났지만 소프트 타겟이 있는 경우 회전 보정 적용
-            Transform rotTarget = _isSnapping ? _snapTarget : _softRotationTarget;
-
-            if (rotTarget != null)
+            // 호밍: 워핑 타겟이 있으면 공격 전반부에서 타겟을 향해 회전
+            if (_warpTarget != null)
             {
-                Vector3 dirToTarget = (rotTarget.position - gameActor.transform.position);
+                Vector3 dirToTarget = _warpTarget.position - gameActor.transform.position;
                 dirToTarget.y = 0f;
 
                 if (dirToTarget.sqrMagnitude > 0.01f)
                 {
                     Quaternion targetRot = Quaternion.LookRotation(dirToTarget.normalized);
 
-                    // Startup 구간(0.15초): 720°/초 수준으로 빠르게 보정 — 공격이 빗나가는 것을 방지
-                    // 이후 구간: 속도를 줄여 무게감 유지
+                    // Startup(0.15초): 빠르게 보정 → 이후: 무게감 있게 감속
                     float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
-                    currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
-                    currentRotation = currentRotation.normalized;
-                    return;
+
+                    // 히트 판정 시작 이후에는 호밍 종료 (무게감 유지)
+                    if (!_combat.IsPossibleCollide)
+                    {
+                        currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
+                        currentRotation = currentRotation.normalized;
+                        return;
+                    }
                 }
             }
 
-            // Lock-On 타겟이 있으면 스냅과 무관하게 항상 타겟 쪽을 바라보도록 보정
+            // Lock-On 타겟이 있으면 항상 타겟 쪽을 바라봄
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
                 Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
                 directionToTarget.y = 0f;
-                
+
                 if (directionToTarget.sqrMagnitude > 0.01f)
                 {
                     Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
@@ -450,7 +415,7 @@ namespace UPlayGround.State
             {
                 currentRotation *= gameActor.Animator.DeltaRotation;
             }
-            
+
             currentRotation = currentRotation.normalized;
         }
 

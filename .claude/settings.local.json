@@ -12,7 +12,9 @@
       "mcp__plugin_code-review-graph_code-review-graph__list_graph_stats_tool",
       "mcp__plugin_code-review-graph_code-review-graph__build_or_update_graph_tool",
       "Bash(find . -maxdepth 2 -type f -name *.csproj -o -name *.sln -o -name package.json -o -name README.md)",
-      "Bash(find /c/UsingProject/UnityProject/UPlayground/Assets/Test -type f -name *.cs)"
+      "Bash(find /c/UsingProject/UnityProject/UPlayground/Assets/Test -type f -name *.cs)",
+      "Bash(sed 's/MotionEvent_//g')",
+      "Bash(sed 's/\\\\.cs//g')"
     ]
   }
 }

@@ -8,11 +8,11 @@ namespace UPlayGround.Component
     /// OnAnimatorIK 콜백으로 양발을 지면에 밀착시키고, 골반 높이를 자동 보정한다.
     ///
     /// [핵심 원리]
-    /// - 발 본 위치와 캐릭터 루트 중 높은 쪽 기준으로 SphereCast하여 지면 탐지 (꼭지점 대응)
-    /// - 다중 샘플링으로 지형 꼭지점/경계에서도 안정적 지면 높이 산출
-    /// - 발 위치·법선 모두 프레임 간 보간하여 jitter 방지
+    /// - 발당 3점 샘플링(중앙/toe/heel)으로 지면 높이 + 경계 감지
+    /// - 경계에 걸친 발은 confidence가 낮아져 개별적으로 IK weight 감소 (애니메이션 복귀)
+    /// - 꼭지점(vertex)에서는 toe/heel 높이로 보정하여 발이 뜨지 않게 함
+    /// - 발 위치·법선·confidence 모두 프레임 간 보간하여 jitter 방지
     /// - 양발 높이차를 고려한 hip 보정으로 양쪽 다리 모두 자연스럽게 구부러지게 함
-    /// - 발 간 높이차가 다리 한계를 초과하면 IK weight를 점진적으로 줄여 애니메이션으로 복귀
     /// - 이동 중에는 IK weight를 0으로 페이드하여 애니메이션과 충돌하지 않음
     /// </summary>
     public class FootIKController : MonoBehaviour
@@ -22,24 +22,25 @@ namespace UPlayGround.Component
             public readonly bool HasHit;
             public readonly float GroundY;
             public readonly Vector3 Normal;
+            /// <summary>1 = 안정 지면, 0 = 경계/꼭지점 (해당 발의 IK weight에 반영)</summary>
+            public readonly float Confidence;
 
-            public GroundSample(bool hasHit, float groundY, Vector3 normal)
+            public GroundSample(bool hasHit, float groundY, Vector3 normal, float confidence = 1f)
             {
                 HasHit = hasHit;
                 GroundY = groundY;
                 Normal = normal;
+                Confidence = confidence;
             }
 
-            public static readonly GroundSample Miss = new GroundSample(false, 0f, Vector3.up);
+            public static readonly GroundSample Miss = new GroundSample(false, 0f, Vector3.up, 0f);
         }
 
-        /// <summary>
-        /// 발별 보간 상태. 프레임 간 IK 위치/법선을 부드럽게 전환한다.
-        /// </summary>
         private struct FootState
         {
             public float SmoothedGroundY;
             public Vector3 SmoothedNormal;
+            public float SmoothedConfidence;
             public bool WasValid;
         }
 
@@ -51,25 +52,30 @@ namespace UPlayGround.Component
         private float _minGroundNormalY = 0.7f;
 
         [Header("Ground Probe")]
-        [SerializeField, Meters, Tooltip("SphereCast 반경 (꼭지점/엣지 탐지 강화)")]
+        [SerializeField, Meters, Tooltip("SphereCast 반경")]
         private float _sphereCastRadius = 0.06f;
-        [SerializeField, Meters, Tooltip("다중 샘플링 반경 — 발 주변 추가 탐색 거리")]
-        private float _probeRadius = 0.08f;
-        [SerializeField, Range(0, 8), Tooltip("추가 샘플 수 (0이면 중앙 1개만 사용)")]
-        private int _probeSampleCount = 4;
+        [SerializeField, Meters, Tooltip("발끝(toe) 샘플 오프셋")]
+        private float _toeOffset = 0.12f;
+        [SerializeField, Meters, Tooltip("뒤꿈치(heel) 샘플 오프셋")]
+        private float _heelOffset = 0.06f;
+
+        [Header("Edge Detection")]
+        [SerializeField, Meters, Tooltip("샘플 간 높이차가 이 값 이상이면 경계 판정 시작")]
+        private float _edgeThresholdMin = 0.05f;
+        [SerializeField, Meters, Tooltip("이 높이차 이상이면 confidence = 0")]
+        private float _edgeThresholdMax = 0.2f;
 
         [Header("IK Blend")]
         [SerializeField] private float _ikBlendSpeed = 10f;
-        [SerializeField, Meters, Tooltip("이 높이차를 초과하면 IK weight 감쇠 시작")]
+        [SerializeField, Meters, Tooltip("양발 높이차 이 값 초과 시 전체 IK weight 감쇠 (안전 제한)")]
         private float _maxFootHeightDiff = 0.4f;
-        [SerializeField, Meters, Tooltip("이 높이차 이상이면 IK weight = 0")]
+        [SerializeField, Meters, Tooltip("양발 높이차 이 값 이상이면 전체 IK weight = 0")]
         private float _footHeightDiffFadeOut = 0.7f;
 
         [Header("Foot Smoothing")]
-        [SerializeField, Tooltip("발 위치 보간 속도 (높을수록 빠르게 추종)")]
-        private float _footPositionSmoothSpeed = 15f;
-        [SerializeField, Tooltip("법선 벡터 보간 속도 (꼭지점 떨림 방지)")]
-        private float _normalSmoothSpeed = 12f;
+        [SerializeField] private float _footPositionSmoothSpeed = 15f;
+        [SerializeField] private float _normalSmoothSpeed = 12f;
+        [SerializeField] private float _confidenceSmoothSpeed = 8f;
 
         [Header("Hip Correction")]
         [SerializeField] private float _hipDropSpeed = 10f;
@@ -87,9 +93,6 @@ namespace UPlayGround.Component
         private FootState _leftState;
         private FootState _rightState;
 
-        // 다중 샘플링용 재사용 배열
-        private Vector3[] _sampleOffsets;
-
         private void Awake()
         {
             _animator = GetComponentInChildren<Animator>();
@@ -98,26 +101,8 @@ namespace UPlayGround.Component
 
             _leftState.SmoothedNormal = Vector3.up;
             _rightState.SmoothedNormal = Vector3.up;
-
-            BuildSampleOffsets();
-        }
-
-        /// <summary>
-        /// 발 주변 샘플링 오프셋을 미리 계산한다. (원형 배치)
-        /// </summary>
-        private void BuildSampleOffsets()
-        {
-            _sampleOffsets = new Vector3[1 + _probeSampleCount];
-            _sampleOffsets[0] = Vector3.zero;
-
-            for (int i = 0; i < _probeSampleCount; i++)
-            {
-                float angle = (360f / _probeSampleCount) * i * Mathf.Deg2Rad;
-                _sampleOffsets[i + 1] = new Vector3(
-                    Mathf.Cos(angle) * _probeRadius,
-                    0f,
-                    Mathf.Sin(angle) * _probeRadius);
-            }
+            _leftState.SmoothedConfidence = 1f;
+            _rightState.SmoothedConfidence = 1f;
         }
 
         /// <summary>
@@ -149,11 +134,17 @@ namespace UPlayGround.Component
             GroundSample leftSample = ProbeGround(_leftFoot);
             GroundSample rightSample = ProbeGround(_rightFoot);
 
-            // 양발 높이차 기반 IK weight 감쇠
-            float heightDiffWeight = CalcHeightDiffWeight(leftSample, rightSample);
-            float effectiveWeight = _currentIKWeight * heightDiffWeight;
+            // 양발 높이차 안전 제한 (다리 길이 초과 방지)
+            float globalWeight = CalcHeightDiffWeight(leftSample, rightSample);
 
-            if (effectiveWeight < 0.01f)
+            // Per-foot confidence weight — 경계에 걸친 발만 개별적으로 감쇠
+            float leftConfidence = SmoothConfidence(leftSample, ref _leftState, dt);
+            float rightConfidence = SmoothConfidence(rightSample, ref _rightState, dt);
+
+            float leftWeight = _currentIKWeight * globalWeight * leftConfidence;
+            float rightWeight = _currentIKWeight * globalWeight * rightConfidence;
+
+            if (leftWeight < 0.01f && rightWeight < 0.01f)
             {
                 ClearAllIK();
                 FadeOutHipDrop(dt);
@@ -161,107 +152,183 @@ namespace UPlayGround.Component
                 return;
             }
 
-            // Hip 보정
-            SolveHipDrop(leftSample, rightSample, dt);
+            // Hip 보정 (confidence 가중 — 경계 발은 hip 보정에도 영향 축소)
+            SolveHipDrop(leftSample, rightSample, leftConfidence, rightConfidence, dt);
 
-            // 발 IK 적용 (IK는 월드 스페이스이므로 hip과 독립)
-            ApplyFootIK(AvatarIKGoal.LeftFoot, leftSample, effectiveWeight,
+            ApplyFootIK(AvatarIKGoal.LeftFoot, leftSample, leftWeight,
                 leftFootBottom, ref _leftState, dt);
-            ApplyFootIK(AvatarIKGoal.RightFoot, rightSample, effectiveWeight,
+            ApplyFootIK(AvatarIKGoal.RightFoot, rightSample, rightWeight,
                 rightFootBottom, ref _rightState, dt);
         }
 
         /// <summary>
-        /// 지면 탐지. 중앙(발 바로 아래)을 우선하고, 실패 시에만 주변 샘플로 폴백한다.
-        /// 주변 샘플은 법선 평균에만 기여하고, 높이는 중앙 히트를 기준으로 한다.
+        /// confidence를 프레임 간 보간하여 IK weight 변화를 부드럽게.
+        /// </summary>
+        private float SmoothConfidence(GroundSample sample, ref FootState state, float dt)
+        {
+            float target = sample.HasHit ? sample.Confidence : 0f;
+            float blend = 1f - Mathf.Exp(-_confidenceSmoothSpeed * dt);
+            state.SmoothedConfidence = Mathf.Lerp(state.SmoothedConfidence, target, blend);
+            return state.SmoothedConfidence;
+        }
+
+        /// <summary>
+        /// 3점 샘플링(중앙/toe/heel)으로 지면 탐지 + 경계 감지 + 꼭지점 보정.
+        /// toe/heel 높이차가 크면 경계에 걸쳐있으므로 confidence를 낮춘다.
+        /// 중앙이 toe/heel보다 높으면 꼭지점 위이므로 groundY를 아래로 보정한다.
         /// </summary>
         private GroundSample ProbeGround(Transform footBone)
         {
             float baseY = Mathf.Max(footBone.position.y, transform.position.y) + _raycastOriginY;
             float distance = baseY - (transform.position.y + _raycastEndY);
 
-            Vector3 centerOrigin = new Vector3(footBone.position.x, baseY, footBone.position.z);
+            Vector3 footPos = footBone.position;
+            Vector3 centerOrigin = new Vector3(footPos.x, baseY, footPos.z);
 
-            // 1차: 중앙 샘플 (발 바로 아래)
-            if (TryGroundCast(centerOrigin, distance, out float centerY, out Vector3 centerNormal))
+            // 발 방향 (XZ 평면) — toe/heel 오프셋 방향
+            Vector3 footFwd = footBone.forward;
+            footFwd.y = 0f;
+            if (footFwd.sqrMagnitude < 0.01f) footFwd = transform.forward;
+            footFwd.Normalize();
+
+            // 3점 샘플링
+            bool centerHit = TryGroundCast(centerOrigin, distance,
+                out float centerY, out Vector3 centerNormal);
+
+            Vector3 toeOrigin = new Vector3(
+                footPos.x + footFwd.x * _toeOffset, baseY,
+                footPos.z + footFwd.z * _toeOffset);
+            bool toeHit = TryGroundCast(toeOrigin, distance,
+                out float toeY, out Vector3 toeNormal);
+
+            Vector3 heelOrigin = new Vector3(
+                footPos.x - footFwd.x * _heelOffset, baseY,
+                footPos.z - footFwd.z * _heelOffset);
+            bool heelHit = TryGroundCast(heelOrigin, distance,
+                out float heelY, out Vector3 heelNormal);
+
+            int hitCount = (centerHit ? 1 : 0) + (toeHit ? 1 : 0) + (heelHit ? 1 : 0);
+            if (hitCount == 0) return GroundSample.Miss;
+
+            float groundY;
+            Vector3 normal;
+            float confidence;
+
+            if (centerHit)
             {
-                // 주변 샘플로 법선만 보강 (높이는 중앙 기준 유지)
-                Vector3 accNormal = centerNormal;
+                // 법선 평균
+                normal = centerNormal;
                 int normalCount = 1;
+                if (toeHit) { normal += toeNormal; normalCount++; }
+                if (heelHit) { normal += heelNormal; normalCount++; }
+                normal = (normal / normalCount).normalized;
 
-                for (int i = 1; i < _sampleOffsets.Length; i++)
+                // 경계/꼭지점 감지: 샘플 간 최대 높이차
+                float maxDiff = 0f;
+                if (toeHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(centerY - toeY));
+                if (heelHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(centerY - heelY));
+                if (toeHit && heelHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(toeY - heelY));
+
+                confidence = CalcEdgeConfidence(maxDiff);
+
+                // 꼭지점 보정: 중앙이 주변보다 높으면 발이 정점 위에 있음
+                // 물리적으로 발이 놓이는 높이로 아래 보정
+                float minPeripheralY = float.MaxValue;
+                bool hasPeripheral = false;
+                if (toeHit) { minPeripheralY = Mathf.Min(minPeripheralY, toeY); hasPeripheral = true; }
+                if (heelHit) { minPeripheralY = Mathf.Min(minPeripheralY, heelY); hasPeripheral = true; }
+
+                if (hasPeripheral && centerY > minPeripheralY)
                 {
-                    Vector3 origin = new Vector3(
-                        footBone.position.x + _sampleOffsets[i].x,
-                        baseY,
-                        footBone.position.z + _sampleOffsets[i].z);
-
-                    if (TryGroundCast(origin, distance, out _, out Vector3 sideNormal))
-                    {
-                        accNormal += sideNormal;
-                        normalCount++;
-                    }
+                    // confidence가 낮을수록(경계/꼭지점) 낮은 쪽으로 강하게 보정
+                    float vertexBlend = 1f - confidence;
+                    groundY = Mathf.Lerp(centerY, minPeripheralY, vertexBlend * 0.6f);
                 }
-
-                Vector3 avgNormal = (accNormal / normalCount).normalized;
-                return new GroundSample(true, centerY, avgNormal);
+                else
+                {
+                    groundY = centerY;
+                }
             }
-
-            // 2차: 중앙 실패 시 주변 샘플에서 가장 가까운(높은) 히트로 폴백
-            float bestY = float.NegativeInfinity;
-            Vector3 bestNormal = Vector3.up;
-            bool found = false;
-
-            for (int i = 1; i < _sampleOffsets.Length; i++)
+            else
             {
-                Vector3 origin = new Vector3(
-                    footBone.position.x + _sampleOffsets[i].x,
-                    baseY,
-                    footBone.position.z + _sampleOffsets[i].z);
-
-                if (TryGroundCast(origin, distance, out float hitY, out Vector3 hitNormal))
+                // 중앙 미스 — toe/heel 폴백
+                if (toeHit && heelHit)
                 {
-                    found = true;
-                    if (hitY > bestY)
-                    {
-                        bestY = hitY;
-                        bestNormal = hitNormal;
-                    }
+                    groundY = Mathf.Max(toeY, heelY);
+                    normal = Vector3.Slerp(toeNormal, heelNormal, 0.5f);
+                    confidence = CalcEdgeConfidence(Mathf.Abs(toeY - heelY)) * 0.5f;
+                }
+                else if (toeHit)
+                {
+                    groundY = toeY;
+                    normal = toeNormal;
+                    confidence = 0.3f;
+                }
+                else
+                {
+                    groundY = heelY;
+                    normal = heelNormal;
+                    confidence = 0.3f;
                 }
             }
 
-            return found ? new GroundSample(true, bestY, bestNormal) : GroundSample.Miss;
+            return new GroundSample(true, groundY, normal, confidence);
         }
 
         /// <summary>
-        /// 단일 지점 지면 탐지. SphereCast 우선, 실패 시 Raycast 폴백.
+        /// 샘플 간 높이차로 경계 신뢰도 산출. 차이가 클수록 경계에 걸쳐있음.
+        /// </summary>
+        private float CalcEdgeConfidence(float heightDiff)
+        {
+            if (heightDiff <= _edgeThresholdMin) return 1f;
+            if (heightDiff >= _edgeThresholdMax) return 0f;
+            return 1f - (heightDiff - _edgeThresholdMin) / (_edgeThresholdMax - _edgeThresholdMin);
+        }
+
+        /// <summary>
+        /// 단일 지점 지면 탐지.
+        /// Raycast로 정밀 높이, SphereCast로 엣지 감지 + 법선 보강.
         /// </summary>
         private bool TryGroundCast(Vector3 origin, float distance, out float groundY, out Vector3 normal)
         {
-            // 1차: SphereCast — 넓은 영역으로 꼭지점/엣지 안정 탐지
+            bool rayDidHit = Physics.Raycast(origin, Vector3.down, out RaycastHit rayHit, distance,
+                _groundLayers, QueryTriggerInteraction.Ignore)
+                && rayHit.normal.y >= _minGroundNormalY;
+
+            bool sphereDidHit = false;
+            RaycastHit sphereHit = default;
             if (_sphereCastRadius > 0f)
             {
                 float sphereDistance = distance - _sphereCastRadius;
-                if (sphereDistance > 0f &&
+                sphereDidHit = sphereDistance > 0f &&
                     Physics.SphereCast(origin, _sphereCastRadius, Vector3.down,
-                        out RaycastHit sphereHit, sphereDistance, _groundLayers,
+                        out sphereHit, sphereDistance, _groundLayers,
                         QueryTriggerInteraction.Ignore)
-                    && sphereHit.normal.y >= _minGroundNormalY)
-                {
-                    // sphereHit.point는 콜라이더 표면 실제 접촉점 — 꼭지점/엣지에서도 정확
-                    groundY = sphereHit.point.y;
-                    normal = sphereHit.normal;
-                    return true;
-                }
+                    && sphereHit.normal.y >= _minGroundNormalY;
             }
 
-            // 2차: Raycast 폴백 — SphereCast가 놓칠 수 있는 좁은 틈
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit rayHit, distance,
-                    _groundLayers, QueryTriggerInteraction.Ignore)
-                && rayHit.normal.y >= _minGroundNormalY)
+            if (rayDidHit)
             {
                 groundY = rayHit.point.y;
-                normal = rayHit.normal;
+                normal = sphereDidHit
+                    ? Vector3.Slerp(rayHit.normal, sphereHit.normal, 0.5f)
+                    : rayHit.normal;
+                return true;
+            }
+
+            if (sphereDidHit)
+            {
+                Vector3 refinedOrigin = sphereHit.point + Vector3.up * 0.1f;
+                if (Physics.Raycast(refinedOrigin, Vector3.down, out RaycastHit refineHit, 0.3f,
+                        _groundLayers, QueryTriggerInteraction.Ignore))
+                {
+                    groundY = refineHit.point.y;
+                }
+                else
+                {
+                    groundY = sphereHit.point.y;
+                }
+                normal = sphereHit.normal;
                 return true;
             }
 
@@ -271,8 +338,7 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
-        /// 양발 높이차가 클 때 IK weight를 점진적으로 줄인다.
-        /// 다리 길이를 초과하는 높이차에서 부자연스러운 스트레칭 방지.
+        /// 양발 높이차 안전 제한. 다리 길이를 초과하는 극단적 높이차에서만 전체 IK 감쇠.
         /// </summary>
         private float CalcHeightDiffWeight(GroundSample left, GroundSample right)
         {
@@ -286,8 +352,7 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
-        /// 히트 결과를 IK에 적용. 위치·법선 모두 프레임 간 보간하여 안정성 확보.
-        /// IK 위치는 월드 스페이스이므로 hip 보정과 독립적으로 지면에 고정한다.
+        /// 히트 결과를 IK에 적용. 위치·법선 모두 프레임 간 보간.
         /// </summary>
         private void ApplyFootIK(
             AvatarIKGoal goal, GroundSample sample, float weight,
@@ -296,7 +361,6 @@ namespace UPlayGround.Component
         {
             if (!sample.HasHit)
             {
-                // 지면을 잃었을 때 — 이전 상태가 있으면 서서히 페이드아웃
                 if (state.WasValid)
                 {
                     float fadeBlend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * 0.5f * dt);
@@ -327,7 +391,6 @@ namespace UPlayGround.Component
                 return;
             }
 
-            // 위치·법선 보간
             float posBlend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * dt);
             float normalBlend = 1f - Mathf.Exp(-_normalSmoothSpeed * dt);
 
@@ -347,7 +410,6 @@ namespace UPlayGround.Component
             _animator.SetIKPositionWeight(goal, weight);
             _animator.SetIKRotationWeight(goal, weight);
 
-            // 발 위치: 보간된 지면 높이 + 발바닥 높이 (IK는 월드 스페이스이므로 hip과 독립)
             Vector3 ikPos = _animator.GetIKPosition(goal);
             ikPos.y = state.SmoothedGroundY + footBottomHeight;
             _animator.SetIKPosition(goal, ikPos);
@@ -372,30 +434,35 @@ namespace UPlayGround.Component
 
         /// <summary>
         /// 양발 지면 높이를 고려한 hip 보정.
-        /// 낮은 발에 맞춰 내리되, 높이차가 과도하면 중간점으로 이동하여
-        /// 양쪽 다리가 모두 자연스럽게 도달하도록 한다.
+        /// confidence가 낮은 발(경계)의 영향을 축소하여 안정된 발 기준으로 보정.
         /// </summary>
-        private void SolveHipDrop(GroundSample left, GroundSample right, float dt)
+        private void SolveHipDrop(
+            GroundSample left, GroundSample right,
+            float leftConfidence, float rightConfidence, float dt)
         {
             float rootY = transform.position.y;
-            float leftOffset = left.HasHit ? left.GroundY - rootY : 0f;
-            float rightOffset = right.HasHit ? right.GroundY - rootY : 0f;
+
+            // confidence 가중 오프셋 — 경계에 걸친 발은 hip에 미치는 영향 축소
+            float leftOffset = left.HasHit ? (left.GroundY - rootY) * leftConfidence : 0f;
+            float rightOffset = right.HasHit ? (right.GroundY - rootY) * rightConfidence : 0f;
 
             float targetDrop;
-            if (left.HasHit && right.HasHit)
+            bool leftValid = left.HasHit && leftConfidence > 0.1f;
+            bool rightValid = right.HasHit && rightConfidence > 0.1f;
+
+            if (leftValid && rightValid)
             {
                 float lower = Mathf.Min(leftOffset, rightOffset);
                 float upper = Mathf.Max(leftOffset, rightOffset);
                 float heightDiff = upper - lower;
+                float midpoint = (lower + upper) * 0.5f;
 
-                if (heightDiff > _maxHipDrop)
-                    targetDrop = (lower + upper) * 0.5f;
-                else
-                    targetDrop = lower;
+                float midBlend = Mathf.Clamp01(heightDiff / _maxHipDrop);
+                targetDrop = Mathf.Lerp(lower, midpoint, midBlend);
             }
-            else if (left.HasHit)
+            else if (leftValid)
                 targetDrop = leftOffset;
-            else if (right.HasHit)
+            else if (rightValid)
                 targetDrop = rightOffset;
             else
                 targetDrop = 0f;
@@ -425,9 +492,6 @@ namespace UPlayGround.Component
             }
         }
 
-        /// <summary>
-        /// IK 비활성 시 발 상태도 서서히 초기화
-        /// </summary>
         private void FadeOutFootStates(float dt)
         {
             FadeOutSingleFootState(ref _leftState, dt);
@@ -441,12 +505,14 @@ namespace UPlayGround.Component
             float blend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * dt);
             state.SmoothedGroundY = Mathf.Lerp(state.SmoothedGroundY, transform.position.y, blend);
             state.SmoothedNormal = Vector3.Slerp(state.SmoothedNormal, Vector3.up, blend);
+            state.SmoothedConfidence = Mathf.Lerp(state.SmoothedConfidence, 1f, blend);
 
             if (Mathf.Abs(state.SmoothedGroundY - transform.position.y) < 0.005f)
             {
                 state.WasValid = false;
                 state.SmoothedGroundY = 0f;
                 state.SmoothedNormal = Vector3.up;
+                state.SmoothedConfidence = 1f;
             }
         }
     }

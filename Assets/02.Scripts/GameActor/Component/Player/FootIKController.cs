@@ -59,11 +59,9 @@ namespace UPlayGround.Component
         [SerializeField, Meters, Tooltip("뒤꿈치(heel) 샘플 오프셋")]
         private float _heelOffset = 0.06f;
 
-        [Header("Edge Detection")]
-        [SerializeField, Meters, Tooltip("샘플 간 높이차가 이 값 이상이면 경계 판정 시작")]
-        private float _edgeThresholdMin = 0.05f;
-        [SerializeField, Meters, Tooltip("이 높이차 이상이면 confidence = 0")]
-        private float _edgeThresholdMax = 0.2f;
+        [Header("Vertex Detection")]
+        [SerializeField, Meters, Tooltip("중앙 대비 주변이 이 값 이상 낮으면 꼭지점 판정")]
+        private float _vertexThreshold = 0.05f;
 
         [Header("IK Blend")]
         [SerializeField] private float _ikBlendSpeed = 10f;
@@ -216,6 +214,10 @@ namespace UPlayGround.Component
 
             if (centerHit)
             {
+                // 중앙(발 바로 아래)에 지면이 있음 → IK를 완전히 유지 (confidence = 1)
+                // 발이 뜨는 것보다 지면에 붙어있는 게 항상 나음
+                confidence = 1f;
+
                 // 법선 평균
                 normal = centerNormal;
                 int normalCount = 1;
@@ -223,40 +225,37 @@ namespace UPlayGround.Component
                 if (heelHit) { normal += heelNormal; normalCount++; }
                 normal = (normal / normalCount).normalized;
 
-                // 경계/꼭지점 감지: 샘플 간 최대 높이차
-                float maxDiff = 0f;
-                if (toeHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(centerY - toeY));
-                if (heelHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(centerY - heelY));
-                if (toeHit && heelHit) maxDiff = Mathf.Max(maxDiff, Mathf.Abs(toeY - heelY));
-
-                confidence = CalcEdgeConfidence(maxDiff);
-
-                // 꼭지점 보정: 중앙이 주변보다 높으면 발이 정점 위에 있음
-                // 물리적으로 발이 놓이는 높이로 아래 보정
-                float minPeripheralY = float.MaxValue;
+                // 꼭지점 보정: 중앙이 모든 주변보다 높으면 메쉬 정점/능선 위
+                // → groundY를 주변 높이로 내려서 발이 뜨지 않게 함
+                float maxPeripheralY = float.MinValue;
                 bool hasPeripheral = false;
-                if (toeHit) { minPeripheralY = Mathf.Min(minPeripheralY, toeY); hasPeripheral = true; }
-                if (heelHit) { minPeripheralY = Mathf.Min(minPeripheralY, heelY); hasPeripheral = true; }
+                bool allLower = true;
+                if (toeHit)
+                {
+                    maxPeripheralY = Mathf.Max(maxPeripheralY, toeY);
+                    hasPeripheral = true;
+                    if (toeY >= centerY - _vertexThreshold) allLower = false;
+                }
+                if (heelHit)
+                {
+                    maxPeripheralY = Mathf.Max(maxPeripheralY, heelY);
+                    hasPeripheral = true;
+                    if (heelY >= centerY - _vertexThreshold) allLower = false;
+                }
 
-                if (hasPeripheral && centerY > minPeripheralY)
-                {
-                    // confidence가 낮을수록(경계/꼭지점) 낮은 쪽으로 강하게 보정
-                    float vertexBlend = 1f - confidence;
-                    groundY = Mathf.Lerp(centerY, minPeripheralY, vertexBlend * 0.6f);
-                }
+                if (hasPeripheral && allLower)
+                    groundY = maxPeripheralY; // 꼭지점: 주변 중 높은 쪽으로 보정
                 else
-                {
                     groundY = centerY;
-                }
             }
             else
             {
-                // 중앙 미스 — toe/heel 폴백
+                // 중앙 미스 — 발 아래 지면 불확실, 주변 폴백 + confidence 감소
                 if (toeHit && heelHit)
                 {
                     groundY = Mathf.Max(toeY, heelY);
                     normal = Vector3.Slerp(toeNormal, heelNormal, 0.5f);
-                    confidence = CalcEdgeConfidence(Mathf.Abs(toeY - heelY)) * 0.5f;
+                    confidence = 0.5f;
                 }
                 else if (toeHit)
                 {
@@ -273,16 +272,6 @@ namespace UPlayGround.Component
             }
 
             return new GroundSample(true, groundY, normal, confidence);
-        }
-
-        /// <summary>
-        /// 샘플 간 높이차로 경계 신뢰도 산출. 차이가 클수록 경계에 걸쳐있음.
-        /// </summary>
-        private float CalcEdgeConfidence(float heightDiff)
-        {
-            if (heightDiff <= _edgeThresholdMin) return 1f;
-            if (heightDiff >= _edgeThresholdMax) return 0f;
-            return 1f - (heightDiff - _edgeThresholdMin) / (_edgeThresholdMax - _edgeThresholdMin);
         }
 
         /// <summary>

@@ -14,6 +14,9 @@ namespace UPlayGround.Component
         [SerializeField] private EnemyAttackDataSO _attackData;
         [SerializeField] private Transform _attackOrigin;
         [SerializeField] private LayerMask _targetLayer;
+
+        [Header("Motion Warp")]
+        [SerializeField] private float _warpMoveSpeed = 10f;
         
         private MonsterActor _ownerActor;
         private IDamageable _ownerDamageable;
@@ -31,6 +34,7 @@ namespace UPlayGround.Component
 
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         
+        public float WarpMoveSpeed => _warpMoveSpeed;
         public EnemyAttackDataSO AttackData => _attackData;
         public EnemyAttackInfo CurrentSkill => _currentSkill;
         public bool IsPossibleCollide => _isCollisionEnabled;

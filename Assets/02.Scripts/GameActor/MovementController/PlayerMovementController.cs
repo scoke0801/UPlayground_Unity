@@ -73,13 +73,16 @@ namespace UPlayGround.MovementController
         
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
-        
+        private Vector3 _cameraForwardDirection;
+
         private PlayerCharacterInputs _inputState;
-        
+
         private float _dashCooldownTimer;
-    
+
         public Vector3 LookInputVector => _lookInputVector;
         public Vector3 MoveInputVector => _moveInputVector;
+        /// <summary> 카메라 평면 정면 방향 — 이동 입력 유무와 관계없이 항상 최신값 유지 </summary>
+        public Vector3 CameraForwardDirection => _cameraForwardDirection;
         
         public bool IsDashReady => _dashCooldownTimer <= 0f;
 
@@ -133,8 +136,11 @@ namespace UPlayGround.MovementController
 
             // 4. 입력 벡터를 카메라 회전에 맞춰 변환 (카메라 앞방향이 캐릭터의 이동 앞방향이 됨)
             _moveInputVector = cameraPlanarRotation * rawMoveInput;
-            
-            // 5. 캐릭터가 바라볼 방향 설정 (이동 중일 때만 업데이트하거나 카메라 정면 유지)
+
+            // 5. 카메라 정면 방향은 항상 갱신 (TurnInPlace 등 Idle 상태에서도 참조)
+            _cameraForwardDirection = cameraPlanarDirection;
+
+            // 6. 캐릭터가 바라볼 방향 설정 (이동 중일 때만 업데이트)
             if (_moveInputVector.sqrMagnitude > 0f)
             {
                 _lookInputVector = _moveInputVector.normalized;

@@ -1,508 +1,275 @@
-using Animancer.Units;
+using Animancer;
 using UnityEngine;
 
 namespace UPlayGround.Component
 {
     /// <summary>
-    /// Foot IK + Hip 보정 컴포넌트.
-    /// OnAnimatorIK 콜백으로 양발을 지면에 밀착시키고, 골반 높이를 자동 보정한다.
+    /// Foot IK — 각 발에서 레이를 쏴서 지면에 부착, 골반 하강 및 상체 기울기 보정.
     ///
-    /// [핵심 원리]
-    /// - 발당 3점 샘플링(중앙/toe/heel)으로 지면 높이 + 경계 감지
-    /// - 경계에 걸친 발은 confidence가 낮아져 개별적으로 IK weight 감소 (애니메이션 복귀)
-    /// - 꼭지점(vertex)에서는 toe/heel 높이로 보정하여 발이 뜨지 않게 함
-    /// - 발 위치·법선·confidence 모두 프레임 간 보간하여 jitter 방지
-    /// - 양발 높이차를 고려한 hip 보정으로 양쪽 다리 모두 자연스럽게 구부러지게 함
-    /// - 이동 중에는 IK weight를 0으로 페이드하여 애니메이션과 충돌하지 않음
+    /// [동작 원리]
+    /// 1. 각 발 위치에서 아래로 Raycast → 지면 높이(groundY) + 법선 획득
+    /// 2. 두 발 delta 중 하강 방향만 반영 → 골반(hip) 자연스럽게 내림
+    /// 3. 두 발 법선 평균 → bodyRotation으로 상체 기울기 보정
+    /// 4. 각 발을 groundY + footBottomHeight 위치로 IK Position/Rotation 설정
     /// </summary>
     public class FootIKController : MonoBehaviour
     {
-        private readonly struct GroundSample
-        {
-            public readonly bool HasHit;
-            public readonly float GroundY;
-            public readonly Vector3 Normal;
-            /// <summary>1 = 안정 지면, 0 = 경계/꼭지점 (해당 발의 IK weight에 반영)</summary>
-            public readonly float Confidence;
-
-            public GroundSample(bool hasHit, float groundY, Vector3 normal, float confidence = 1f)
-            {
-                HasHit = hasHit;
-                GroundY = groundY;
-                Normal = normal;
-                Confidence = confidence;
-            }
-
-            public static readonly GroundSample Miss = new GroundSample(false, 0f, Vector3.up, 0f);
-        }
-
-        private struct FootState
-        {
-            public float SmoothedGroundY;
-            public Vector3 SmoothedNormal;
-            public float SmoothedConfidence;
-            public bool WasValid;
-        }
-
         [Header("Raycast")]
-        [SerializeField, Meters] private float _raycastOriginY = 0.5f;
-        [SerializeField, Meters] private float _raycastEndY = -0.75f;
         [SerializeField] private LayerMask _groundLayers;
-        [SerializeField, Tooltip("지면으로 인정할 최소 법선 Y값")]
-        private float _minGroundNormalY = 0.7f;
+        [SerializeField] private float _rayOriginHeight = 0.5f;
+        [SerializeField] private float _rayLength = 1.5f;
 
-        [Header("Ground Probe")]
-        [SerializeField, Meters, Tooltip("SphereCast 반경")]
-        private float _sphereCastRadius = 0.06f;
-        [SerializeField, Meters, Tooltip("발끝(toe) 샘플 오프셋")]
-        private float _toeOffset = 0.12f;
-        [SerializeField, Meters, Tooltip("뒤꿈치(heel) 샘플 오프셋")]
-        private float _heelOffset = 0.06f;
-
-        [Header("Vertex Detection")]
-        [SerializeField, Meters, Tooltip("중앙 대비 주변이 이 값 이상 낮으면 꼭지점 판정")]
-        private float _vertexThreshold = 0.05f;
-
-        [Header("IK Blend")]
-        [SerializeField] private float _ikBlendSpeed = 10f;
-        [SerializeField, Meters, Tooltip("양발 높이차 이 값 초과 시 전체 IK weight 감쇠 (안전 제한)")]
-        private float _maxFootHeightDiff = 0.4f;
-        [SerializeField, Meters, Tooltip("양발 높이차 이 값 이상이면 전체 IK weight = 0")]
-        private float _footHeightDiffFadeOut = 0.7f;
-
-        [Header("Foot Smoothing")]
-        [SerializeField] private float _footPositionSmoothSpeed = 15f;
-        [SerializeField] private float _normalSmoothSpeed = 12f;
-        [SerializeField] private float _confidenceSmoothSpeed = 8f;
-
-        [Header("Hip Correction")]
-        [SerializeField] private float _hipDropSpeed = 10f;
-        [SerializeField, Meters] private float _maxHipDrop = 0.35f;
-        [SerializeField, Meters] private float _maxHipRaise = 0.15f;
+        [Header("IK")]
+        [SerializeField] private float _footBottomHeight = 0.08f;
+        [SerializeField] private float _smoothSpeed = 12f;
+        [SerializeField] private float _maxHipDrop = 0.5f;
+        [SerializeField, Tooltip("상체 기울기 최대 각도 (도)")]
+        private float _maxBodyTiltAngle = 15f;
+        [SerializeField, Tooltip("두 발 법선 차이가 이 각도 이하일 때만 상체 기울기 적용 (뾰족한 장애물/급경사 필터링)")]
+        private float _maxNormalDiffAngle = 30f;
+        [SerializeField, Tooltip("발 회전 보정 최소 법선 Y (미만이면 수직 사용)")]
+        private float _minNormalY = 0.5f;
+        [SerializeField, Tooltip("발이 지면 착지 위치에서 이 높이 이상 올라가면 IK 가중치 0 (스윙 페이즈 자동 감지, 커브 불필요)")]
+        private float _maxLiftHeight = 0.15f;
 
         private Animator _animator;
-        private Transform _leftFoot;
-        private Transform _rightFoot;
 
-        private float _targetIKWeight;
-        private float _currentIKWeight;
-        private float _currentHipDrop;
+        private float _hipOffset;
+        private Quaternion _bodyRotOffset = Quaternion.identity;
 
-        private FootState _leftState;
-        private FootState _rightState;
+        private float _leftFootY, _rightFootY;
+        private Vector3 _leftNormal = Vector3.up;
+        private Vector3 _rightNormal = Vector3.up;
+        private float _leftIKWeight = 1f, _rightIKWeight = 1f;
+        private bool _initialized;
+
+        // 디버그
+        private bool _ikCalled;
+        private Vector3 _dbgLeftOrigin, _dbgRightOrigin;
+        private Vector3 _dbgLeftHit, _dbgRightHit;
+        private bool _dbgLeftDidHit, _dbgRightDidHit;
 
         private void Awake()
         {
             _animator = GetComponentInChildren<Animator>();
-            _leftFoot = _animator.GetBoneTransform(HumanBodyBones.LeftFoot);
-            _rightFoot = _animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            if (_animator == null)
+            {
+                Debug.LogError("[FootIK] Animator를 찾을 수 없습니다.", this);
+                enabled = false;
+                return;
+            }
 
-            _leftState.SmoothedNormal = Vector3.up;
-            _rightState.SmoothedNormal = Vector3.up;
-            _leftState.SmoothedConfidence = 1f;
-            _rightState.SmoothedConfidence = 1f;
+            // Animator가 자식 GameObject에 있으면 OnAnimatorIK가 이 컴포넌트에서 호출되지 않음
+            // → 릴레이 컴포넌트를 Animator의 GO에 추가하여 콜백 전달
+            if (_animator.gameObject != gameObject)
+            {
+                var existing = _animator.gameObject.GetComponent<FootIKRelay>();
+                if (existing == null)
+                {
+                    var relay = _animator.gameObject.AddComponent<FootIKRelay>();
+                    relay.Owner = this;
+                }
+                else
+                {
+                    existing.Owner = this;
+                }
+            }
         }
 
-        /// <summary>
-        /// IK 활성/비활성 설정. 상태 전환 시 호출.
-        /// </summary>
-        public void SetIKActive(bool active)
+        private void Start()
         {
-            _targetIKWeight = active ? 1f : 0f;
+            // Animancer 내장 Foot IK 비활성화 — 커스텀 IK와 충돌 방지
+            // ActorAnimator.Awake()에서 ApplyFootIK = true로 설정하므로, Start에서 덮어씀
+            var animancer = GetComponentInChildren<AnimancerComponent>();
+            if (animancer != null && animancer.Layers.Count > 0)
+                animancer.Layers[0].ApplyFootIK = false;
         }
 
-        private void OnAnimatorIK(int layerIndex)
+        // Animator가 같은 GO일 때 직접 호출됨
+        private void OnAnimatorIK(int layerIndex) => ProcessFootIK();
+
+        /// <summary>릴레이에서도 호출 가능하도록 internal.</summary>
+        internal void ProcessFootIK()
         {
             float dt = Time.deltaTime;
-            if (dt < Mathf.Epsilon) return;
+            if (dt < Mathf.Epsilon || _animator == null) return;
 
-            _currentIKWeight = Mathf.MoveTowards(_currentIKWeight, _targetIKWeight, dt * _ikBlendSpeed);
+            _ikCalled = true;
 
-            if (_currentIKWeight < 0.01f)
+            float t = 1f - Mathf.Exp(-_smoothSpeed * dt);
+
+            Vector3 leftAnimPos  = _animator.GetIKPosition(AvatarIKGoal.LeftFoot);
+            Vector3 rightAnimPos = _animator.GetIKPosition(AvatarIKGoal.RightFoot);
+            float   rootY        = transform.position.y;
+
+            // 첫 프레임: 스무딩 시작점을 현재 애니메이션 발 위치로 초기화
+            if (!_initialized)
             {
-                ClearAllIK();
-                FadeOutHipDrop(dt);
-                FadeOutFootStates(dt);
-                return;
+                _leftFootY   = leftAnimPos.y;
+                _rightFootY  = rightAnimPos.y;
+                _initialized = true;
             }
 
-            float leftFootBottom = _animator.leftFeetBottomHeight;
-            float rightFootBottom = _animator.rightFeetBottomHeight;
+            // === 1) 각 발에서 아래로 레이캐스트 ===
+            bool leftHit  = FootRay(leftAnimPos,  rootY, out float leftGroundY,  out Vector3 leftNorm);
+            bool rightHit = FootRay(rightAnimPos, rootY, out float rightGroundY, out Vector3 rightNorm);
 
-            GroundSample leftSample = ProbeGround(_leftFoot);
-            GroundSample rightSample = ProbeGround(_rightFoot);
+#if UNITY_EDITOR
+            _dbgLeftOrigin  = new Vector3(leftAnimPos.x,  rootY + _rayOriginHeight, leftAnimPos.z);
+            _dbgRightOrigin = new Vector3(rightAnimPos.x, rootY + _rayOriginHeight, rightAnimPos.z);
+            _dbgLeftDidHit  = leftHit;
+            _dbgRightDidHit = rightHit;
+            if (leftHit)  _dbgLeftHit  = new Vector3(leftAnimPos.x,  leftGroundY,  leftAnimPos.z);
+            if (rightHit) _dbgRightHit = new Vector3(rightAnimPos.x, rightGroundY, rightAnimPos.z);
+#endif
 
-            // 양발 높이차 안전 제한 (다리 길이 초과 방지)
-            float globalWeight = CalcHeightDiffWeight(leftSample, rightSample);
+            // === 2) 목표 발 높이 (bone Y = groundY + footBottom) ===
+            float leftTargetY  = leftHit  ? leftGroundY  + _footBottomHeight : leftAnimPos.y;
+            float rightTargetY = rightHit ? rightGroundY + _footBottomHeight : rightAnimPos.y;
 
-            // Per-foot confidence weight — 경계에 걸친 발만 개별적으로 감쇠
-            float leftConfidence = SmoothConfidence(leftSample, ref _leftState, dt);
-            float rightConfidence = SmoothConfidence(rightSample, ref _rightState, dt);
+            // === 3) 골반 보정: 하강 방향 delta만 반영 ===
+            // 이유: 한 발이 계단 위에 올라가도 골반을 올려선 안 됨. 반드시 내리거나 유지만.
+            float leftDelta  = leftTargetY  - leftAnimPos.y;
+            float rightDelta = rightTargetY - rightAnimPos.y;
 
-            float leftWeight = _currentIKWeight * globalWeight * leftConfidence;
-            float rightWeight = _currentIKWeight * globalWeight * rightConfidence;
+            float hipTarget = 0f;
+            if (leftHit && rightHit)
+                hipTarget = Mathf.Min(leftDelta, rightDelta, 0f);
+            else if (leftHit)
+                hipTarget = Mathf.Min(leftDelta, 0f);
+            else if (rightHit)
+                hipTarget = Mathf.Min(rightDelta, 0f);
 
-            if (leftWeight < 0.01f && rightWeight < 0.01f)
+            hipTarget  = Mathf.Max(hipTarget, -_maxHipDrop);
+            _hipOffset = Mathf.Lerp(_hipOffset, hipTarget, t);
+            _animator.bodyPosition += Vector3.up * _hipOffset;
+
+            // === 4) 발 Y 스무딩 ===
+            _leftFootY  = Mathf.Lerp(_leftFootY,  leftTargetY,  t);
+            _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, t);
+
+            // === 5) 법선 스무딩 ===
+            _leftNormal = Vector3.Slerp(_leftNormal,
+                leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up, t);
+            _rightNormal = Vector3.Slerp(_rightNormal,
+                rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up, t);
+
+            // === 6) 상체 기울기 보정 ===
+            // 두 발 모두 닿았고 법선 차이가 완만할 때만 적용. 뾰족한 장애물/급경사 필터링.
+            Quaternion targetBodyRot = Quaternion.identity;
+            if (leftHit && rightHit &&
+                Vector3.Angle(_leftNormal, _rightNormal) <= _maxNormalDiffAngle)
             {
-                ClearAllIK();
-                FadeOutHipDrop(dt);
-                FadeOutFootStates(dt);
-                return;
+                targetBodyRot = CalculateBodyTilt((_leftNormal + _rightNormal).normalized);
             }
+            _bodyRotOffset        = Quaternion.Slerp(_bodyRotOffset, targetBodyRot, t);
+            _animator.bodyRotation = _bodyRotOffset * _animator.bodyRotation;
 
-            // Hip 보정 (confidence 가중 — 경계 발은 hip 보정에도 영향 축소)
-            SolveHipDrop(leftSample, rightSample, leftConfidence, rightConfidence, dt);
-
-            ApplyFootIK(AvatarIKGoal.LeftFoot, leftSample, leftWeight,
-                leftFootBottom, ref _leftState, dt);
-            ApplyFootIK(AvatarIKGoal.RightFoot, rightSample, rightWeight,
-                rightFootBottom, ref _rightState, dt);
+            // === 7) 발 IK Position/Rotation 적용 ===
+            ApplyFoot(AvatarIKGoal.LeftFoot,  leftAnimPos,  _leftFootY,  _leftNormal);
+            ApplyFoot(AvatarIKGoal.RightFoot, rightAnimPos, _rightFootY, _rightNormal);
         }
 
-        /// <summary>
-        /// confidence를 프레임 간 보간하여 IK weight 변화를 부드럽게.
-        /// </summary>
-        private float SmoothConfidence(GroundSample sample, ref FootState state, float dt)
+        private bool FootRay(Vector3 footPos, float rootY, out float groundY, out Vector3 normal)
         {
-            float target = sample.HasHit ? sample.Confidence : 0f;
-            float blend = 1f - Mathf.Exp(-_confidenceSmoothSpeed * dt);
-            state.SmoothedConfidence = Mathf.Lerp(state.SmoothedConfidence, target, blend);
-            return state.SmoothedConfidence;
-        }
-
-        /// <summary>
-        /// 3점 샘플링(중앙/toe/heel)으로 지면 탐지 + 경계 감지 + 꼭지점 보정.
-        /// toe/heel 높이차가 크면 경계에 걸쳐있으므로 confidence를 낮춘다.
-        /// 중앙이 toe/heel보다 높으면 꼭지점 위이므로 groundY를 아래로 보정한다.
-        /// </summary>
-        private GroundSample ProbeGround(Transform footBone)
-        {
-            float baseY = Mathf.Max(footBone.position.y, transform.position.y) + _raycastOriginY;
-            float distance = baseY - (transform.position.y + _raycastEndY);
-
-            Vector3 footPos = footBone.position;
-            Vector3 centerOrigin = new Vector3(footPos.x, baseY, footPos.z);
-
-            // 발 방향 (XZ 평면) — toe/heel 오프셋 방향
-            Vector3 footFwd = footBone.forward;
-            footFwd.y = 0f;
-            if (footFwd.sqrMagnitude < 0.01f) footFwd = transform.forward;
-            footFwd.Normalize();
-
-            // 3점 샘플링
-            bool centerHit = TryGroundCast(centerOrigin, distance,
-                out float centerY, out Vector3 centerNormal);
-
-            Vector3 toeOrigin = new Vector3(
-                footPos.x + footFwd.x * _toeOffset, baseY,
-                footPos.z + footFwd.z * _toeOffset);
-            bool toeHit = TryGroundCast(toeOrigin, distance,
-                out float toeY, out Vector3 toeNormal);
-
-            Vector3 heelOrigin = new Vector3(
-                footPos.x - footFwd.x * _heelOffset, baseY,
-                footPos.z - footFwd.z * _heelOffset);
-            bool heelHit = TryGroundCast(heelOrigin, distance,
-                out float heelY, out Vector3 heelNormal);
-
-            int hitCount = (centerHit ? 1 : 0) + (toeHit ? 1 : 0) + (heelHit ? 1 : 0);
-            if (hitCount == 0) return GroundSample.Miss;
-
-            float groundY;
-            Vector3 normal;
-            float confidence;
-
-            if (centerHit)
+            var origin = new Vector3(footPos.x, rootY + _rayOriginHeight, footPos.z);
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, _rayLength,
+                    _groundLayers, QueryTriggerInteraction.Ignore))
             {
-                // 중앙(발 바로 아래)에 지면이 있음 → IK를 완전히 유지 (confidence = 1)
-                // 발이 뜨는 것보다 지면에 붙어있는 게 항상 나음
-                confidence = 1f;
-
-                // 법선 평균
-                normal = centerNormal;
-                int normalCount = 1;
-                if (toeHit) { normal += toeNormal; normalCount++; }
-                if (heelHit) { normal += heelNormal; normalCount++; }
-                normal = (normal / normalCount).normalized;
-
-                // 꼭지점 보정: 중앙이 모든 주변보다 높으면 메쉬 정점/능선 위
-                // → groundY를 주변 높이로 내려서 발이 뜨지 않게 함
-                float maxPeripheralY = float.MinValue;
-                bool hasPeripheral = false;
-                bool allLower = true;
-                if (toeHit)
-                {
-                    maxPeripheralY = Mathf.Max(maxPeripheralY, toeY);
-                    hasPeripheral = true;
-                    if (toeY >= centerY - _vertexThreshold) allLower = false;
-                }
-                if (heelHit)
-                {
-                    maxPeripheralY = Mathf.Max(maxPeripheralY, heelY);
-                    hasPeripheral = true;
-                    if (heelY >= centerY - _vertexThreshold) allLower = false;
-                }
-
-                if (hasPeripheral && allLower)
-                    groundY = maxPeripheralY; // 꼭지점: 주변 중 높은 쪽으로 보정
-                else
-                    groundY = centerY;
-            }
-            else
-            {
-                // 중앙 미스 — 발 아래 지면 불확실, 주변 폴백 + confidence 감소
-                if (toeHit && heelHit)
-                {
-                    groundY = Mathf.Max(toeY, heelY);
-                    normal = Vector3.Slerp(toeNormal, heelNormal, 0.5f);
-                    confidence = 0.5f;
-                }
-                else if (toeHit)
-                {
-                    groundY = toeY;
-                    normal = toeNormal;
-                    confidence = 0.3f;
-                }
-                else
-                {
-                    groundY = heelY;
-                    normal = heelNormal;
-                    confidence = 0.3f;
-                }
-            }
-
-            return new GroundSample(true, groundY, normal, confidence);
-        }
-
-        /// <summary>
-        /// 단일 지점 지면 탐지.
-        /// Raycast로 정밀 높이, SphereCast로 엣지 감지 + 법선 보강.
-        /// </summary>
-        private bool TryGroundCast(Vector3 origin, float distance, out float groundY, out Vector3 normal)
-        {
-            bool rayDidHit = Physics.Raycast(origin, Vector3.down, out RaycastHit rayHit, distance,
-                _groundLayers, QueryTriggerInteraction.Ignore)
-                && rayHit.normal.y >= _minGroundNormalY;
-
-            bool sphereDidHit = false;
-            RaycastHit sphereHit = default;
-            if (_sphereCastRadius > 0f)
-            {
-                float sphereDistance = distance - _sphereCastRadius;
-                sphereDidHit = sphereDistance > 0f &&
-                    Physics.SphereCast(origin, _sphereCastRadius, Vector3.down,
-                        out sphereHit, sphereDistance, _groundLayers,
-                        QueryTriggerInteraction.Ignore)
-                    && sphereHit.normal.y >= _minGroundNormalY;
-            }
-
-            if (rayDidHit)
-            {
-                groundY = rayHit.point.y;
-                normal = sphereDidHit
-                    ? Vector3.Slerp(rayHit.normal, sphereHit.normal, 0.5f)
-                    : rayHit.normal;
+                groundY = hit.point.y;
+                normal  = hit.normal;
                 return true;
             }
-
-            if (sphereDidHit)
-            {
-                Vector3 refinedOrigin = sphereHit.point + Vector3.up * 0.1f;
-                if (Physics.Raycast(refinedOrigin, Vector3.down, out RaycastHit refineHit, 0.3f,
-                        _groundLayers, QueryTriggerInteraction.Ignore))
-                {
-                    groundY = refineHit.point.y;
-                }
-                else
-                {
-                    groundY = sphereHit.point.y;
-                }
-                normal = sphereHit.normal;
-                return true;
-            }
-
             groundY = 0f;
-            normal = Vector3.up;
+            normal  = Vector3.up;
             return false;
         }
 
         /// <summary>
-        /// 양발 높이차 안전 제한. 다리 길이를 초과하는 극단적 높이차에서만 전체 IK 감쇠.
+        /// 지면 평균 법선 → 상체 기울기 Quaternion.
+        /// _maxBodyTiltAngle로 최대 기울기 클램프.
         /// </summary>
-        private float CalcHeightDiffWeight(GroundSample left, GroundSample right)
+        private Quaternion CalculateBodyTilt(Vector3 avgNormal)
         {
-            if (!left.HasHit || !right.HasHit) return 1f;
+            Vector3 axis = Vector3.Cross(Vector3.up, avgNormal);
+            if (axis.sqrMagnitude < 1e-6f) return Quaternion.identity;
 
-            float diff = Mathf.Abs(left.GroundY - right.GroundY);
-            if (diff <= _maxFootHeightDiff) return 1f;
-            if (diff >= _footHeightDiffFadeOut) return 0f;
-
-            return 1f - (diff - _maxFootHeightDiff) / (_footHeightDiffFadeOut - _maxFootHeightDiff);
+            float angle = Mathf.Min(Vector3.Angle(Vector3.up, avgNormal), _maxBodyTiltAngle);
+            return Quaternion.AngleAxis(angle, axis.normalized);
         }
 
-        /// <summary>
-        /// 히트 결과를 IK에 적용. 위치·법선 모두 프레임 간 보간.
-        /// </summary>
-        private void ApplyFootIK(
-            AvatarIKGoal goal, GroundSample sample, float weight,
-            float footBottomHeight,
-            ref FootState state, float dt)
+        private void ApplyFoot(AvatarIKGoal goal, Vector3 animPos, float targetY, Vector3 normal)
         {
-            if (!sample.HasHit)
+            _animator.SetIKPositionWeight(goal, 1f);
+            _animator.SetIKRotationWeight(goal, 1f);
+
+            _animator.SetIKPosition(goal, new Vector3(animPos.x, targetY, animPos.z));
+
+            // 지면 법선에 맞춘 발 회전
+            Quaternion rot  = _animator.GetIKRotation(goal);
+            Vector3    axis = Vector3.Cross(rot * Vector3.up, normal);
+            if (axis.sqrMagnitude > 1e-6f)
+                _animator.SetIKRotation(goal,
+                    Quaternion.AngleAxis(Vector3.Angle(rot * Vector3.up, normal), axis) * rot);
+        }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            if (!Application.isPlaying || _animator == null) return;
+
+            if (!_ikCalled)
             {
-                if (state.WasValid)
-                {
-                    float fadeBlend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * 0.5f * dt);
-                    state.SmoothedGroundY = Mathf.Lerp(state.SmoothedGroundY,
-                        transform.position.y, fadeBlend);
-                    state.SmoothedNormal = Vector3.Slerp(state.SmoothedNormal, Vector3.up, fadeBlend);
-
-                    if (Mathf.Abs(state.SmoothedGroundY - transform.position.y) < 0.005f)
-                    {
-                        state.WasValid = false;
-                        _animator.SetIKPositionWeight(goal, 0f);
-                        _animator.SetIKRotationWeight(goal, 0f);
-                        return;
-                    }
-
-                    _animator.SetIKPositionWeight(goal, weight);
-                    _animator.SetIKRotationWeight(goal, weight);
-
-                    Vector3 fadePos = _animator.GetIKPosition(goal);
-                    fadePos.y = state.SmoothedGroundY + footBottomHeight;
-                    _animator.SetIKPosition(goal, fadePos);
-                    ApplyFootRotation(goal, state.SmoothedNormal);
-                    return;
-                }
-
-                _animator.SetIKPositionWeight(goal, 0f);
-                _animator.SetIKRotationWeight(goal, 0f);
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(transform.position + Vector3.up * 1.5f, 0.3f);
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
+                    "[FootIK] OnAnimatorIK 미호출!\nAnimator Layer에서 IK Pass를 확인하세요.");
                 return;
             }
 
-            float posBlend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * dt);
-            float normalBlend = 1f - Mathf.Exp(-_normalSmoothSpeed * dt);
-
-            if (state.WasValid)
+            Gizmos.color = _dbgLeftDidHit ? Color.green : Color.red;
+            Gizmos.DrawLine(_dbgLeftOrigin, _dbgLeftOrigin + Vector3.down * _rayLength);
+            if (_dbgLeftDidHit)
             {
-                state.SmoothedGroundY = Mathf.Lerp(state.SmoothedGroundY, sample.GroundY, posBlend);
-                state.SmoothedNormal = Vector3.Slerp(state.SmoothedNormal, sample.Normal, normalBlend);
-            }
-            else
-            {
-                state.SmoothedGroundY = sample.GroundY;
-                state.SmoothedNormal = sample.Normal;
+                Gizmos.DrawWireSphere(_dbgLeftHit, 0.04f);
+                Gizmos.DrawLine(_dbgLeftHit, _dbgLeftHit + _leftNormal * 0.2f);
             }
 
-            state.WasValid = true;
-
-            _animator.SetIKPositionWeight(goal, weight);
-            _animator.SetIKRotationWeight(goal, weight);
-
-            Vector3 ikPos = _animator.GetIKPosition(goal);
-            ikPos.y = state.SmoothedGroundY + footBottomHeight;
-            _animator.SetIKPosition(goal, ikPos);
-
-            ApplyFootRotation(goal, state.SmoothedNormal);
-        }
-
-        /// <summary>
-        /// 지면 법선에 맞춘 발 회전 적용.
-        /// </summary>
-        private void ApplyFootRotation(AvatarIKGoal goal, Vector3 groundNormal)
-        {
-            Quaternion footRot = _animator.GetIKRotation(goal);
-            Vector3 footUp = footRot * Vector3.up;
-            Vector3 axis = Vector3.Cross(footUp, groundNormal);
-            if (axis.sqrMagnitude > 1e-6f)
+            Gizmos.color = _dbgRightDidHit ? new Color(0f, 0.8f, 1f) : Color.red;
+            Gizmos.DrawLine(_dbgRightOrigin, _dbgRightOrigin + Vector3.down * _rayLength);
+            if (_dbgRightDidHit)
             {
-                float angle = Vector3.Angle(footUp, groundNormal);
-                _animator.SetIKRotation(goal, Quaternion.AngleAxis(angle, axis) * footRot);
+                Gizmos.DrawWireSphere(_dbgRightHit, 0.04f);
+                Gizmos.DrawLine(_dbgRightHit, _dbgRightHit + _rightNormal * 0.2f);
             }
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(_animator.bodyPosition, 0.05f);
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(_animator.bodyPosition,
+                _animator.bodyPosition + (_leftNormal + _rightNormal).normalized * 0.3f);
+
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
+                $"[FootIK] hip={_hipOffset:F3}\n" +
+                $"L={(_dbgLeftDidHit ? _dbgLeftHit.y.ToString("F3") : "miss")} " +
+                $"R={(_dbgRightDidHit ? _dbgRightHit.y.ToString("F3") : "miss")}");
         }
+#endif
+    }
 
-        /// <summary>
-        /// 양발 지면 높이를 고려한 hip 보정.
-        /// confidence가 낮은 발(경계)의 영향을 축소하여 안정된 발 기준으로 보정.
-        /// </summary>
-        private void SolveHipDrop(
-            GroundSample left, GroundSample right,
-            float leftConfidence, float rightConfidence, float dt)
+    /// <summary>
+    /// Animator가 FootIKController와 다른 GameObject에 있을 때
+    /// OnAnimatorIK 콜백을 FootIKController로 전달하는 릴레이.
+    /// </summary>
+    internal class FootIKRelay : MonoBehaviour
+    {
+        internal FootIKController Owner;
+
+        private void OnAnimatorIK(int layerIndex)
         {
-            float rootY = transform.position.y;
-
-            // confidence 가중 오프셋 — 경계에 걸친 발은 hip에 미치는 영향 축소
-            float leftOffset = left.HasHit ? (left.GroundY - rootY) * leftConfidence : 0f;
-            float rightOffset = right.HasHit ? (right.GroundY - rootY) * rightConfidence : 0f;
-
-            float targetDrop;
-            bool leftValid = left.HasHit && leftConfidence > 0.1f;
-            bool rightValid = right.HasHit && rightConfidence > 0.1f;
-
-            if (leftValid && rightValid)
-            {
-                float lower = Mathf.Min(leftOffset, rightOffset);
-                float upper = Mathf.Max(leftOffset, rightOffset);
-                float heightDiff = upper - lower;
-                float midpoint = (lower + upper) * 0.5f;
-
-                float midBlend = Mathf.Clamp01(heightDiff / _maxHipDrop);
-                targetDrop = Mathf.Lerp(lower, midpoint, midBlend);
-            }
-            else if (leftValid)
-                targetDrop = leftOffset;
-            else if (rightValid)
-                targetDrop = rightOffset;
-            else
-                targetDrop = 0f;
-
-            targetDrop = Mathf.Clamp(targetDrop, -_maxHipDrop, _maxHipRaise);
-
-            float blend = 1f - Mathf.Exp(-_hipDropSpeed * dt);
-            _currentHipDrop = Mathf.Lerp(_currentHipDrop, targetDrop, blend);
-            _animator.bodyPosition += Vector3.up * _currentHipDrop;
-        }
-
-        private void ClearAllIK()
-        {
-            _animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 0f);
-            _animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 0f);
-            _animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 0f);
-            _animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 0f);
-        }
-
-        private void FadeOutHipDrop(float dt)
-        {
-            if (Mathf.Abs(_currentHipDrop) > 0.001f)
-            {
-                float blend = 1f - Mathf.Exp(-_hipDropSpeed * dt);
-                _currentHipDrop = Mathf.Lerp(_currentHipDrop, 0f, blend);
-                _animator.bodyPosition += Vector3.up * _currentHipDrop;
-            }
-        }
-
-        private void FadeOutFootStates(float dt)
-        {
-            FadeOutSingleFootState(ref _leftState, dt);
-            FadeOutSingleFootState(ref _rightState, dt);
-        }
-
-        private void FadeOutSingleFootState(ref FootState state, float dt)
-        {
-            if (!state.WasValid) return;
-
-            float blend = 1f - Mathf.Exp(-_footPositionSmoothSpeed * dt);
-            state.SmoothedGroundY = Mathf.Lerp(state.SmoothedGroundY, transform.position.y, blend);
-            state.SmoothedNormal = Vector3.Slerp(state.SmoothedNormal, Vector3.up, blend);
-            state.SmoothedConfidence = Mathf.Lerp(state.SmoothedConfidence, 1f, blend);
-
-            if (Mathf.Abs(state.SmoothedGroundY - transform.position.y) < 0.005f)
-            {
-                state.WasValid = false;
-                state.SmoothedGroundY = 0f;
-                state.SmoothedNormal = Vector3.up;
-                state.SmoothedConfidence = 1f;
-            }
+            if (Owner != null && Owner.enabled)
+                Owner.ProcessFootIK();
         }
     }
 }

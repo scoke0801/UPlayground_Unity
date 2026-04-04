@@ -145,26 +145,42 @@ namespace UPlayGround.Data.EnumType
         // NpcAction
         Talk_1 = 3000,
         
-        // 정지 (Stop)
+        // 정지 (Stop) — 방향별로 세분화: F / F_L45 / F_R45
         Move_Stop_Walking = 5000,
         Move_Stop_Running,
         Move_Stop_Sprinting,
+        Move_Stop_Walking_L45,
+        Move_Stop_Walking_R45,
+        Move_Stop_Running_L45,
+        Move_Stop_Running_R45,
+        Move_Stop_Sprinting_L45,
+        Move_Stop_Sprinting_R45,
 
-        #region Trun
+        #region Turn
 
-        Walk_Turn_L45,
+        // Idle TurnInPlace — Stand_Idle_Turn_*
+        Stand_Idle_Turn_L45 = 5100,
+        Stand_Idle_Turn_R45,
+        Stand_Idle_Turn_L90,
+        Stand_Idle_Turn_R90,
+        Stand_Idle_Turn_180,
+
+        // Walk TurnInPlace — Walk_F_Turn_*
+        Walk_Turn_L45 = 5110,
         Walk_Turn_R45,
         Walk_Turn_L90,
         Walk_Turn_R90,
         Walk_Turn_180,
 
-        Run_Turn_L45,
+        // Run TurnInPlace — Run_F_Turn_*
+        Run_Turn_L45 = 5120,
         Run_Turn_R45,
         Run_Turn_L90,
         Run_Turn_R90,
         Run_Turn_180,
 
-        Sprint_Turn_L45,
+        // Sprint TurnInPlace — Sprint_F_Turn_*
+        Sprint_Turn_L45 = 5130,
         Sprint_Turn_R45,
         Sprint_Turn_L90,
         Sprint_Turn_R90,

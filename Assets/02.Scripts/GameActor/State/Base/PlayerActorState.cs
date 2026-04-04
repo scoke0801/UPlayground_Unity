@@ -67,9 +67,6 @@ namespace UPlayGround.State
 
             playerActor = gameActor as PlayerActor;
             _unstableTimer = 0f;
-
-            // Foot IK 기본 비활성 (Idle, GroundMove, Crouch에서만 활성화)
-            playerActor?.FootIK?.SetIKActive(false);
         }
 
         protected PlayerActorState(ActorMovementController controller) : base(controller)

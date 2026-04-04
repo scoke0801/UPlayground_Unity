@@ -39,8 +39,6 @@ namespace UPlayGround.State
 
             _cachedAnimType = gameActor.MoveAnimType;
             gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
-            // 이동 중에는 Foot IK 비활성 (애니메이션과 IK가 충돌하여 발이 끌리는 현상 방지)
-            playerActor.FootIK?.SetIKActive(false);
         }
 
         public override void UpdateState(float deltaTime)
@@ -80,10 +78,19 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 이동 입력이 없으면 Idle 상태로 전환
+            // 이동 입력이 없으면 Stop 전환 시도 — 전방 기본 클립이 등록된 경우에만 Stop 상태 사용
             if (!playerController.HasMoveInput())
             {
-                playerController.TransitionToState(new PlayerIdleState(controller));
+                var forwardStopKey = PlayerStopState.GetStopAnimKeyForward(gameActor.MoveAnimType);
+                if (gameActor.Animator.HasMotion(forwardStopKey))
+                {
+                    playerController.TransitionToState(
+                        new PlayerStopState(controller, gameActor.MoveAnimType, playerController.LookInputVector));
+                }
+                else
+                {
+                    playerController.TransitionToState(new PlayerIdleState(controller));
+                }
                 return;
             }
 

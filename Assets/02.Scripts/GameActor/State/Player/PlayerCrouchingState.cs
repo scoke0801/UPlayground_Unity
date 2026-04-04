@@ -33,7 +33,6 @@ namespace UPlayGround.State
 
             // 캡슐 크기 축소
             motor.SetCapsuleDimensions(0.5f, 1f, 0.5f);
-            playerActor.FootIK?.SetIKActive(true);
             var animState = gameActor.Animator.PlayMotion(AnimKey.Idle_To_Crouch, 0.25f);
             if (animState != null)
             {

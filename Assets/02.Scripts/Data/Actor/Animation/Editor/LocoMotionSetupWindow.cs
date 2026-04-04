@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
@@ -18,24 +19,42 @@ namespace UPlayGround.Animation.Editor
         // _InPlace 접미사는 스캔 시 자동으로 제거한 뒤 비교한다.
         private static readonly Dictionary<string, AnimKey> PatternToKey = new()
         {
-            // Stop — Run
+            // ── Stop — Run ────────────────────────────────────────────────────
             { "Run_F_To_Idle",     AnimKey.Move_Stop_Running     },
             { "Run_F_L45_To_Idle", AnimKey.Move_Stop_Running_L45 },
             { "Run_F_R45_To_Idle", AnimKey.Move_Stop_Running_R45 },
-            // Stop — Walk
+            // ── Stop — Walk ───────────────────────────────────────────────────
             { "Walk_F_To_Idle",     AnimKey.Move_Stop_Walking     },
             { "Walk_F_L45_To_Idle", AnimKey.Move_Stop_Walking_L45 },
             { "Walk_F_R45_To_Idle", AnimKey.Move_Stop_Walking_R45 },
-            // Stop — Sprint
+            // ── Stop — Sprint ─────────────────────────────────────────────────
             { "Sprint_F_To_Idle",     AnimKey.Move_Stop_Sprinting     },
             { "Sprint_F_L45_To_Idle", AnimKey.Move_Stop_Sprinting_L45 },
             { "Sprint_F_R45_To_Idle", AnimKey.Move_Stop_Sprinting_R45 },
-            // TurnInPlace — Stand Idle
+            // ── TurnInPlace — Stand Idle ──────────────────────────────────────
             { "Stand_Idle_Turn_L45", AnimKey.Stand_Idle_Turn_L45 },
             { "Stand_Idle_Turn_R45", AnimKey.Stand_Idle_Turn_R45 },
             { "Stand_Idle_Turn_L90", AnimKey.Stand_Idle_Turn_L90 },
             { "Stand_Idle_Turn_R90", AnimKey.Stand_Idle_Turn_R90 },
             { "Stand_Idle_Turn_180", AnimKey.Stand_Idle_Turn_180 },
+            // ── Turn — Run (이동 중 방향 전환) ────────────────────────────────
+            { "Run_F_Turn_L45", AnimKey.Run_Turn_L45 },
+            { "Run_F_Turn_R45", AnimKey.Run_Turn_R45 },
+            { "Run_F_Turn_L90", AnimKey.Run_Turn_L90 },
+            { "Run_F_Turn_R90", AnimKey.Run_Turn_R90 },
+            { "Run_F_Turn_180", AnimKey.Run_Turn_180 },
+            // ── Turn — Walk ───────────────────────────────────────────────────
+            { "Walk_F_Turn_L45", AnimKey.Walk_Turn_L45 },
+            { "Walk_F_Turn_R45", AnimKey.Walk_Turn_R45 },
+            { "Walk_F_Turn_L90", AnimKey.Walk_Turn_L90 },
+            { "Walk_F_Turn_R90", AnimKey.Walk_Turn_R90 },
+            { "Walk_F_Turn_180", AnimKey.Walk_Turn_180 },
+            // ── Turn — Sprint ─────────────────────────────────────────────────
+            { "Sprint_F_Turn_L45", AnimKey.Sprint_Turn_L45 },
+            { "Sprint_F_Turn_R45", AnimKey.Sprint_Turn_R45 },
+            { "Sprint_F_Turn_L90", AnimKey.Sprint_Turn_L90 },
+            { "Sprint_F_Turn_R90", AnimKey.Sprint_Turn_R90 },
+            { "Sprint_F_Turn_180", AnimKey.Sprint_Turn_180 },
         };
 
         // ── 내부 데이터 ─────────────────────────────────────────────────────────
@@ -50,12 +69,17 @@ namespace UPlayGround.Animation.Editor
         }
 
         // ── 상태 ────────────────────────────────────────────────────────────────
-        private string                   _scanFolder    = "";
-        private ActorAnimationMotionSet  _targetSO;
-        private string                   _outputFolder  = "Assets/10.Datas/Motion/Locomotion";
-        private string                   _filePrefix    = "MS_";
-        private bool                     _preferInPlace = true;
-        private bool                     _overwrite     = false;
+        private string                        _scanFolder    = "";
+        // 직접 지정 모드
+        private ActorAnimationMotionSet       _targetSO;
+        // PlayerActor 모드 — WeaponType.NoWeapon 아래 SO를 자동 추출
+        private PlayerActorAnimationMotionSet _playerActorSO;
+        private WeaponType                    _weaponType    = WeaponType.NoWeapon;
+
+        private string _outputFolder  = "Assets/10.Datas/Motion/Locomotion";
+        private string _filePrefix    = "MS_";
+        private bool   _preferInPlace = true;
+        private bool   _overwrite     = false;
 
         private List<MappingEntry> _entries  = new();
         private Vector2            _scroll;
@@ -133,9 +157,42 @@ namespace UPlayGround.Animation.Editor
                 }
             }
 
-            // 대상 ActorAnimationMotionSet
-            _targetSO = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
-                "대상 ActorAnimationMotionSet", _targetSO, typeof(ActorAnimationMotionSet), false);
+            // ── 타겟 모드 ─────────────────────────────────────────────────────
+            EditorGUILayout.Space(2);
+            EditorGUILayout.LabelField("등록 대상", EditorStyles.boldLabel);
+
+            // PlayerActorAnimationMotionSet 모드 (권장 — HasMotion과 동일 경로)
+            _playerActorSO = (PlayerActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                new GUIContent("PlayerActor MotionSet", "PlayerActorAnimationMotionSet을 드래그하면 WeaponType에 맞는 ActorAnimationMotionSet을 자동으로 찾습니다."),
+                _playerActorSO, typeof(PlayerActorAnimationMotionSet), false);
+
+            if (_playerActorSO != null)
+            {
+                _weaponType = (WeaponType)EditorGUILayout.EnumPopup(
+                    new GUIContent("Weapon Type", "NoWeapon = 공통 로코모션 (HasMotion이 체크하는 경로)"),
+                    _weaponType);
+
+                var resolved = _playerActorSO.GetActorAnimationMotionSet(_weaponType);
+                if (resolved != null)
+                {
+                    GUI.enabled = false;
+                    EditorGUILayout.ObjectField("  └ 해석된 SO", resolved, typeof(ActorAnimationMotionSet), false);
+                    GUI.enabled = true;
+                    _targetSO = resolved;
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox($"WeaponType.{_weaponType} 에 연결된 ActorAnimationMotionSet이 없습니다.\n PlayerActorAnimationMotionSet 인스펙터에서 먼저 등록하세요.", MessageType.Warning);
+                    _targetSO = null;
+                }
+            }
+            else
+            {
+                // 직접 지정 모드 (fallback)
+                _targetSO = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                    new GUIContent("ActorAnimationMotionSet", "PlayerActorAnimationMotionSet이 없을 때 직접 지정합니다."),
+                    _targetSO, typeof(ActorAnimationMotionSet), false);
+            }
 
             // 출력 폴더
             using (new EditorGUILayout.HorizontalScope())
@@ -325,66 +382,82 @@ namespace UPlayGround.Animation.Editor
             var selected = _entries.Where(e => e.Selected && e.Clip != null).ToList();
             if (selected.Count == 0) return;
 
-            string prefix = _filePrefix ?? "";
+            string prefix  = _filePrefix ?? "";
             int created = 0, updated = 0;
 
-            // ── Phase 1: MotionSetAsset 생성/업데이트 ──────────────────────────
-            // AssetDatabase.CreateAsset 호출이 끝난 뒤에 딕셔너리를 건드려야
-            // SerializedDictionary의 dirty 처리가 올바르게 된다.
-            var toRegister = new List<(AnimKey key, MotionSetAsset msa)>();
+            // 각 항목의 저장 경로 미리 계산
+            var pathMap = selected.ToDictionary(
+                e => e,
+                e => $"{_outputFolder}/{prefix}{e.AnimKey}.asset");
+
+            // ── Phase 1: MotionSetAsset 파일 생성/업데이트 ────────────────────
+            // StartAssetEditing으로 묶어 CreateAsset 중간에 발생하는
+            // 개별 import를 막고, Stop 시점에 일괄 import하도록 한다.
+            AssetDatabase.StartAssetEditing();
+            try
+            {
+                foreach (var entry in selected)
+                {
+                    string assetPath = pathMap[entry];
+                    MotionSetAsset msa = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(assetPath);
+                    bool isNew         = msa == null;
+
+                    if (isNew)
+                    {
+                        msa           = CreateInstance<MotionSetAsset>();
+                        msa.motionSet = new MotionSet { motionSetName = $"{prefix}{entry.AnimKey}" };
+                    }
+
+                    if (msa.motionSet.motions.Count == 0)
+                        msa.motionSet.motions.Add(new Motion());
+
+                    var motion           = msa.motionSet.motions[0];
+                    motion.motionClip    = entry.Clip;
+                    motion.motionName    = entry.Clip.name;
+                    motion.playbackSpeed = 1f;
+                    motion.clipStartTime = -1f;
+                    motion.clipEndTime   = -1f;
+
+                    if (isNew)
+                    {
+                        AssetDatabase.CreateAsset(msa, assetPath);
+                        created++;
+                    }
+                    else
+                    {
+                        EditorUtility.SetDirty(msa);
+                        updated++;
+                    }
+                }
+            }
+            finally
+            {
+                // Stop 시점에 일괄 import — 이후 LoadAssetAtPath가 확정된 참조를 반환
+                AssetDatabase.StopAssetEditing();
+            }
+
+            // ── Phase 2: import 완료된 에셋을 디스크에서 다시 로드하여 등록 ──
+            // CreateInstance로 만든 객체는 import 후 무효화될 수 있으므로
+            // 반드시 경로 기반으로 재로드한 참조를 딕셔너리에 넣는다.
+            Undo.RecordObject(_targetSO, "Locomotion Setup: Register AnimKeys");
 
             foreach (var entry in selected)
             {
-                string assetPath = $"{_outputFolder}/{prefix}{entry.AnimKey}.asset";
-
-                MotionSetAsset msa = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(assetPath);
-                bool isNew         = msa == null;
-
-                if (isNew)
+                string assetPath = pathMap[entry];
+                var msa = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(assetPath);
+                if (msa == null)
                 {
-                    msa           = CreateInstance<MotionSetAsset>();
-                    msa.motionSet = new MotionSet { motionSetName = $"{prefix}{entry.AnimKey}" };
+                    Debug.LogWarning($"[LocoSetup] 로드 실패: {assetPath}");
+                    continue;
                 }
 
-                if (msa.motionSet.motions.Count == 0)
-                    msa.motionSet.motions.Add(new Motion());
-
-                var motion           = msa.motionSet.motions[0];
-                motion.motionClip    = entry.Clip;
-                motion.motionName    = entry.Clip.name;
-                motion.playbackSpeed = 1f;
-                motion.clipStartTime = -1f;
-                motion.clipEndTime   = -1f;
-
-                if (isNew)
-                {
-                    AssetDatabase.CreateAsset(msa, assetPath);
-                    created++;
-                }
+                if (_targetSO.motionSets.ContainsKey(entry.AnimKey))
+                    _targetSO.motionSets[entry.AnimKey] = msa;
                 else
-                {
-                    EditorUtility.SetDirty(msa);
-                    updated++;
-                }
-
-                toRegister.Add((entry.AnimKey, msa));
+                    _targetSO.motionSets.Add(entry.AnimKey, msa);
             }
-
-            // Phase 1 확정: 에셋 디스크에 기록
-            AssetDatabase.SaveAssets();
-
-            // ── Phase 2: ActorAnimationMotionSet 딕셔너리 일괄 등록 ────────────
-            // 에셋 생성이 모두 끝난 뒤 한 번에 RecordObject → 딕셔너리 수정 → SetDirty
-            Undo.RecordObject(_targetSO, "Locomotion Setup: Register AnimKeys");
-
-            foreach (var (key, msa) in toRegister)
-            {
-                if (_targetSO.motionSets.ContainsKey(key))
-                    _targetSO.motionSets[key] = msa;
-                else
-                    _targetSO.motionSets.Add(key, msa);
-            }
-
+            
+            SyncSerializedDictionary(_targetSO.motionSets);
             EditorUtility.SetDirty(_targetSO);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -439,6 +512,25 @@ namespace UPlayGround.Animation.Editor
 
             _rowEvenStyle = new GUIStyle(GUIStyle.none);
             _rowOddStyle  = new GUIStyle(GUIStyle.none);
+        }
+        
+        private void SyncSerializedDictionary<TKey, TValue>(SerializedDictionary<TKey, TValue> dict)
+        {
+            if (dict == null) return;
+
+            // 리플렉션으로 internal 필드인 _serializedList를 찾아옴
+            var field = typeof(SerializedDictionary<TKey, TValue>).GetField("_serializedList", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (field != null)
+            {
+                var list = (List<SerializedKeyValuePair<TKey, TValue>>)field.GetValue(dict);
+                list.Clear();
+                foreach (var kvp in dict)
+                {
+                    list.Add(new SerializedKeyValuePair<TKey, TValue> { Key = kvp.Key, Value = kvp.Value });
+                }
+            }
         }
     }
 }

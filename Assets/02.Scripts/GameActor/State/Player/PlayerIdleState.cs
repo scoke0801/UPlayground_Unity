@@ -14,9 +14,6 @@ namespace UPlayGround.State
     {
         public override string StateName => "Idle";
         
-        /// <summary> TurnInPlace 트리거 각도 임계값 (도). 이 값 이상 차이나면 제자리 회전 진입. </summary>
-        private const float TurnThreshold = 90f;
-
         private PlayerEquipment _equipment;
 
         public PlayerIdleState(ActorMovementController controller) : base(controller)
@@ -37,24 +34,6 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // 카메라 방향과 캐릭터 전방 각도가 임계값 초과 시 TurnInPlace
-            // — 해당 클립이 MotionSet에 등록된 경우에만 상태 전환, 없으면 Idle 유지
-            float turnAngle = Vector3.SignedAngle(
-                motor.CharacterForward,
-                playerController.CameraForwardDirection,
-                motor.CharacterUp);
-
-            if (Mathf.Abs(turnAngle) > TurnThreshold)
-            {
-                var turnKey = PlayerTurnInPlaceState.GetTurnAnimKey(turnAngle);
-                if (gameActor.Animator.HasMotion(turnKey))
-                {
-                    playerController.TransitionToState(
-                        new PlayerTurnInPlaceState(controller, playerController.CameraForwardDirection));
-                    return;
-                }
-            }
-
             // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
             if (ShouldTransitionToAirborne(deltaTime))
             {

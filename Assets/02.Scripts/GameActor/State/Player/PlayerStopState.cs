@@ -36,6 +36,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            gameActor.Animator.ApplyRootMotion(true);
 
             // 방향별 클립 시도 → 없으면 전방 클립 시도
             // (진입 자체는 PlayerGroundMoveState에서 HasMotion으로 보장되지만, L45/R45 클립이 없는 경우 fallback)
@@ -61,6 +62,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Animator.ApplyRootMotion(false);
             gameActor.Animator.OnMotionSetCompleted -= TransitionToIdle;
             base.OnExit(toState);
         }
@@ -125,22 +127,12 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            currentRotation = currentRotation.normalized;
+            currentRotation = currentRotation * gameActor.Animator.DeltaRotation;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            if (motor.GroundingStatus.IsStableOnGround)
-            {
-                currentVelocity = motor.GetDirectionTangentToSurface(
-                    currentVelocity,
-                    motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-
-                currentVelocity = Vector3.Lerp(
-                    currentVelocity,
-                    Vector3.zero,
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
-            }
+            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
         }
 
         private void TransitionToIdle()

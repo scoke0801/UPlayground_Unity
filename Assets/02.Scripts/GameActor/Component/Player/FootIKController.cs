@@ -37,14 +37,20 @@ namespace UPlayGround.Component
         [Header("Weight Blending")]
         [SerializeField, Tooltip("IK weight 변화 속도. 높을수록 on/off 전환이 빠름.")]
         private float _blendSpeed = 15f;
-        [SerializeField, Tooltip("이 수평속도(m/s) 이하일 때 IK 활성.")]
+        [SerializeField, Tooltip("이 수평속도(m/s) 이하일 때 IK 활성 후보.")]
         private float _idleSpeedThreshold = 0.1f;
+        [SerializeField, Tooltip("정지 판정까지 대기 시간(초). 루트모션 순간 속도 진동 필터링용.")]
+        private float _idleDelay = 0.15f;
 
         private Animator                 _animator;
         private KinematicCharacterMotor  _motor;
 
         private float      _weight;
-        private bool       _wasActive; // IK 활성화 첫 프레임 감지용
+        private bool       _wasActive;   // IK 활성화 첫 프레임 감지용
+        private float      _idleTimer;   // 정지 유지 시간 누적
+
+        // 외부(상태머신 등)에서 IK를 강제 비활성화. true면 weight를 0으로 블렌딩.
+        public bool ForceDisabled;
 
         private float      _hipOffset;
         private Quaternion _bodyRotOffset = Quaternion.identity;
@@ -103,12 +109,40 @@ namespace UPlayGround.Component
 
             // 수평 속도로 정지 여부 판단 → targetWeight 결정
             // motor가 없으면 항상 활성 (fallback)
+            if (ForceDisabled)
+            {
+                _weight    = Mathf.MoveTowards(_weight, 0f, dt * _blendSpeed);
+                _idleTimer = 0f;
+                SetFootWeight(AvatarIKGoal.LeftFoot,  _weight);
+                SetFootWeight(AvatarIKGoal.RightFoot, _weight);
+                _hipOffset     = Mathf.Lerp(_hipOffset, 0f, 1f - Mathf.Exp(-_smoothSpeed * dt));
+                _bodyRotOffset = Quaternion.Slerp(_bodyRotOffset, Quaternion.identity, 1f - Mathf.Exp(-_smoothSpeed * dt));
+                if (Mathf.Abs(_hipOffset) > 0.001f)
+                    _animator.bodyPosition += Vector3.up * _hipOffset;
+                if (_weight < 0.01f) _wasActive = false;
+                return;
+            }
+
             float targetWeight = 1f;
             if (_motor != null)
             {
                 bool isGrounded = _motor.GroundingStatus.IsStableOnGround;
                 Vector3 hVel    = Vector3.ProjectOnPlane(_motor.BaseVelocity, _motor.CharacterUp);
-                targetWeight    = (isGrounded && hVel.magnitude <= _idleSpeedThreshold) ? 1f : 0f;
+                bool isIdle     = isGrounded && hVel.magnitude <= _idleSpeedThreshold;
+
+                if (isIdle)
+                {
+                    // 정지 상태가 _idleDelay 초 이상 유지돼야 IK 활성.
+                    // 루트모션 순간 진동(수십ms)은 타이머를 채우지 못해 필터링됨.
+                    _idleTimer += dt;
+                }
+                else
+                {
+                    // 이동 감지 즉시 타이머 리셋 → targetWeight = 0
+                    _idleTimer = 0f;
+                }
+
+                targetWeight = _idleTimer >= _idleDelay ? 1f : 0f;
             }
 
             _weight = Mathf.MoveTowards(_weight, targetWeight, dt * _blendSpeed);

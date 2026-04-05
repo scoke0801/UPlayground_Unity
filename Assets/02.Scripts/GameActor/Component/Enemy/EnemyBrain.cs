@@ -66,6 +66,8 @@ namespace UPlayGround.Component
         public float CircleDuration  => data?.circleDuration  ?? 2.5f;
         public bool HasGuardMotion   => _hasGuardMotion;
         public MonsterGroupController Group => _groupController;
+        /// <summary> 현재 플레이어(타겟)를 인식하고 추적 중인지 여부 </summary>
+        public bool HasAggroTarget   => _detection != null && _detection.HasTarget;
 
         public float ContinueAttackChance => _currentPhase?.continueAttackChance ?? data?.continueAttackChance ?? 0.3f;
         public float GuardChance          => _currentPhase?.guardChance          ?? data?.guardChance          ?? 0.25f;

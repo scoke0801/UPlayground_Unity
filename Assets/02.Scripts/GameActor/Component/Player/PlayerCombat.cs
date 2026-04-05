@@ -41,6 +41,12 @@ namespace UPlayGround.Component
         [Header("Combat State")]
         [SerializeField] private float _combatStateDuration = 30f;
 
+        [Header("Combat State — Threat Detection")]
+        [Tooltip("주변 위협(aggro 중인 적) 자동 탐색 반경")]
+        [SerializeField] private float _threatDetectionRange  = 20f;
+        [Tooltip("위협 탐색 주기 (초)")]
+        [SerializeField] private float _threatCheckInterval   = 0.5f;
+
         [Header("Hit Detection Settings")]
         [SerializeField] private LayerMask _targetLayerMask = -1;
         [SerializeField] private bool      _showHitDebug    = true;
@@ -102,6 +108,8 @@ namespace UPlayGround.Component
         private bool              _isCollideCollisionEnable;
         private PlayerActor       _playerActor;
         private List<IDamageable> _hitTargets = new List<IDamageable>();
+        private bool              _cachedCombatState;
+        private float             _threatCheckTimer;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이(endTime-startTime)를 주입.
@@ -155,6 +163,38 @@ namespace UPlayGround.Component
 
             if (IsPossibleCollide)
                 PerformHitDetection();
+
+            UpdateCombatState();
+        }
+
+        private void UpdateCombatState()
+        {
+            // 주기적 위협 탐색: aggro 중인 적이 있으면 전투 상태 타임스탬프 갱신
+            _threatCheckTimer += Time.deltaTime;
+            if (_threatCheckTimer >= _threatCheckInterval)
+            {
+                _threatCheckTimer = 0f;
+                if (HasThreatNearby())
+                    _lastCombatEventTime = Time.time;
+            }
+
+            // 전투 상태 변화 감지 → 이벤트 단일 발화
+            bool current = IsInCombat;
+            if (_cachedCombatState != current)
+            {
+                _cachedCombatState = current;
+                OnChangeCombatState?.Invoke(current);
+            }
+        }
+
+        private bool HasThreatNearby()
+        {
+            var brains = GetEnemyBrainsInRadius(_threatDetectionRange);
+            foreach (var brain in brains)
+            {
+                if (brain.HasAggroTarget) return true;
+            }
+            return false;
         }
 
         public bool IsGuardBreak(AttackData incomingAttack)
@@ -188,10 +228,18 @@ namespace UPlayGround.Component
 
         public void RefreshCombatState()
         {
-            bool prev = IsInCombat;
             _lastCombatEventTime = Time.time;
-            if (prev != IsInCombat)
-                OnChangeCombatState?.Invoke(IsInCombat);
+            // 상태 변화 이벤트는 UpdateCombatState()에서 단일 발화
+        }
+
+        /// <summary>
+        /// 전투 상태를 즉시 강제 해제한다. (예: 보스 사망, 안전 구역 진입)
+        /// </summary>
+        public void ForceExitCombat()
+        {
+            if (!IsInCombat) return;
+            _lastCombatEventTime = -999f;
+            // UpdateCombatState()에서 다음 프레임에 이벤트 발화
         }
 
         /// <summary>

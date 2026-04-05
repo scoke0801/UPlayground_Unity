@@ -14,7 +14,6 @@ class UI_GamePlay : UI_Base
     
     private UI_HudPlayerInfo _hudPlayerInfo;
     
-    private bool _isPlayerInCombat = false;
     #region UI_Base
 
     protected override void OnShow()
@@ -40,24 +39,6 @@ class UI_GamePlay : UI_Base
         }
 
         _playerActor.GetCombat().OnChangeCombatState -= OnPlayerCombatStateChanged;
-    }
-
-    protected override void Update()
-    {
-        if (_isPlayerInCombat == false)
-        {
-            return;
-        }
-
-        if (_playerCombat == null)
-        {
-            return;
-        }
-
-        if (_playerCombat.IsInCombat == false)
-        {
-            OnPlayerCombatStateChanged(false);
-        }
     }
 
     protected override void RegisterInputEvents()
@@ -100,11 +81,8 @@ class UI_GamePlay : UI_Base
         if (_hudPlayerInfo != null)
         {
             _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");
-
             _hudPlayerInfo.SetIsInCombat(isInCombat);
         }
-
-        _isPlayerInCombat = isInCombat;
     }
 
     #endregion

@@ -14,10 +14,11 @@ namespace UPlayGround.State
         public override string StateName => "Airborne";
         public override bool AdjustGravity => false;
         
-        private int _remainingJumps;     
+        private int _remainingJumps;
         private bool _hasLanded = false;
         private bool _landStarted = false;
-        
+        private bool _jumpAnimPlayed = false;
+
         private float _timeSinceJumpRequested = 0f;
         private float _timeSinceLastAbleToJump = 0f;
 
@@ -38,11 +39,18 @@ namespace UPlayGround.State
 
             _dragSpeed = controller.Drag;
             _remainingJumps = playerController.MaxJumpCount;
-            
-            if(InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
+            _jumpAnimPlayed = false;
+
+            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
                 _remainingJumps -= 1;
                 gameActor.Animator.PlayMotion(AnimKey.Fall);
+            }
+            else
+            {
+                // 점프 입력으로 진입: UpdateVelocity(HandleJump) 실행을 기다리지 않고 즉시 재생
+                PlayJumpAnimation(true);
+                _jumpAnimPlayed = true;
             }
         }
 
@@ -193,7 +201,11 @@ namespace UPlayGround.State
             _timeSinceJumpRequested = 0f;
             motor.ForceUnground();
 
-            PlayJumpAnimation(isFirstJump);
+            if (!_jumpAnimPlayed)
+            {
+                PlayJumpAnimation(isFirstJump);
+                _jumpAnimPlayed = true;
+            }
         }
         
         private void ChangeToNextState()

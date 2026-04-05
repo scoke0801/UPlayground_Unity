@@ -34,6 +34,13 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            // 점프 입력이 있으면 Airborne 상태로 전환 (낙하 판정보다 먼저 체크)
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Jump))
+            {
+                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                return;
+            }
+
             // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
             if (ShouldTransitionToAirborne(deltaTime))
             {
@@ -47,18 +54,11 @@ namespace UPlayGround.State
                 playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }
-            
+
             // 이동 입력이 있으면 GroundMove 상태로 전환
             if (playerController.HasMoveInput())
             {
                 playerController.TransitionToState(new PlayerGroundMoveState(playerController));
-                return;
-            }
-            
-            // 점프 입력이 있으면 Airborne 상태로 전환
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Jump))
-            {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
                 return;
             }
 

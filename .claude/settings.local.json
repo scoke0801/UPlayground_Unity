@@ -14,7 +14,8 @@
       "Bash(find . -maxdepth 2 -type f -name *.csproj -o -name *.sln -o -name package.json -o -name README.md)",
       "Bash(find /c/UsingProject/UnityProject/UPlayground/Assets/Test -type f -name *.cs)",
       "Bash(sed 's/MotionEvent_//g')",
-      "Bash(sed 's/\\\\.cs//g')"
+      "Bash(sed 's/\\\\.cs//g')",
+      "mcp__plugin_code-review-graph_code-review-graph__semantic_search_nodes_tool"
     ]
   }
 }

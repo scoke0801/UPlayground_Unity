@@ -14,10 +14,6 @@ namespace UPlayGround.State
     {
         public override string StateName => "GroundMove";
         
-        
-        /// <summary> 이동 중 방향전환 트리거 각도 (도). 이 값 이상 차이 나면 TurnInPlace 진입. </summary>
-        private const float TurnTriggerThreshold = 90f;
-
         private float _runTimer;
         private float _sprintAutoChangeDealy = 0f;
 
@@ -81,33 +77,12 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 이동 중 급격한 방향 전환 감지 → TurnInPlace 진입
-            if (playerController.HasMoveInput())
-            {
-                float dirAngle = Vector3.SignedAngle(
-                    motor.CharacterForward,
-                    playerController.MoveInputVector,
-                    motor.CharacterUp);
-
-                if (Mathf.Abs(dirAngle) >= TurnTriggerThreshold)
-                {
-                    var turnKey = PlayerTurnInPlaceState.GetTurnAnimKey(gameActor.MoveAnimType, dirAngle);
-                    if (gameActor.Animator.HasMotion(turnKey, true))
-                    {
-                        playerController.TransitionToState(
-                            new PlayerTurnInPlaceState(controller, gameActor.MoveAnimType, playerController.MoveInputVector));
-                        return;
-                    }
-                }
-            }
-
             // 이동 입력이 없으면 Stop 전환 시도 — 전방 기본 클립이 등록된 경우에만 Stop 상태 사용
             if (!playerController.HasMoveInput())
             {
                 var forwardStopKey = PlayerStopState.GetStopAnimKeyForward(gameActor.MoveAnimType);
                 bool hasStop = gameActor.Animator.HasMotion(forwardStopKey, true);
-                Debug.Log($"[Stop] MoveAnimType={gameActor.MoveAnimType}  Key={forwardStopKey}  HasMotion={hasStop}");
-                if (hasStop)
+                if (hasStop && gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
                 {
                     playerController.TransitionToState(
                         new PlayerStopState(controller, gameActor.MoveAnimType, playerController.LookInputVector));
@@ -181,6 +156,7 @@ namespace UPlayGround.State
             if (_runTimer + _sprintAutoChangeDealy < Time.realtimeSinceStartup)
             {
                 gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
+                _runTimer = float.MaxValue; // 자동 전환은 상태 진입 후 1회만 발동
             }
         }
 

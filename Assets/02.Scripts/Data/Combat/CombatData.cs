@@ -30,11 +30,11 @@ namespace UPlayGround.Data
         public string hitParticleName = "LiteHit";
 
         [Header("Reaction Forces")]
-        public float pullForce     = 10f;
-        public float airborneForce = 8f;
+        public float pullForce      = 10f;
+        public float airborneForce  = 8f;
         public float knockBackForce = 10f;
         [Tooltip("넉백 감속 강도. 높을수록 빠르게 멈춤\nKnockBack 권장: 20 / Airborne 권장: 5")]
-        public float knockBackDrag = 20f;
+        public float knockBackDrag  = 20f;
 
         [Header("Grab")]
         [Tooltip("Grab 지속 시간 (초)")]
@@ -70,26 +70,26 @@ namespace UPlayGround.Data
         public float damage                    => GetHitPhase(0).damage;
         public float poiseDamage               => GetHitPhase(0).poiseDamage;
     }
-    
+
     /// <summary>
     /// 적 공격 정보, 에디터 타임 사전 설정
     /// </summary>
     [Serializable]
     public class EnemyAttackInfo
-    {  
+    {
         public AttackInfoBase baseInfo;
-        
+
         [Header("Skill Type")]
         public SkillType skillType = SkillType.Attack;
 
         [Header("Selection Weight")]
         [Range(0f, 100f)]
         public float selectionWeight = 10f;
-        
+
         [Header("Range")]
-        public float minRange = 0f;    // 이 거리보다 멀어야 함
-        public float maxRange = 2.5f; // 이 거리보다 가까워야 함
-        
+        public float minRange = 0f;
+        public float maxRange = 2.5f;
+
         [Header("Cooldown")]
         public float cooldown = 2f;
 
@@ -102,28 +102,16 @@ namespace UPlayGround.Data
         public float diveDescentSpeed = 15f;
         [Tooltip("공중 스킬 가중치 (aerialSkillWeight > 0 인 스킬끼리 경쟁)")]
         public float aerialSkillWeight = 1f;
-        
+
         [Header("Activation Conditions")]
         [Tooltip("복합 조건 설정 (여러 조건을 AND/OR로 연결)")]
         public SkillConditionGroup conditionGroup = new SkillConditionGroup();
 
-        /// <summary>
-        /// 거리 범위 체크
-        /// </summary>
-        public bool IsInRange(float distance)
-        {
-            return distance >= minRange && distance <= maxRange;
-        }
-        
-        /// <summary>
-        /// 스킬 발동 조건 체크 (복합 조건 지원)
-        /// </summary>
-        public bool CheckCondition(SkillConditionContext context)
-        {
-            return conditionGroup.CheckAll(context);
-        }
+        public bool IsInRange(float distance) => distance >= minRange && distance <= maxRange;
+
+        public bool CheckCondition(SkillConditionContext context) => conditionGroup.CheckAll(context);
     }
-    
+
     /// <summary>
     /// 차지 단계별 공격 데이터.
     /// AnimKey는 PlayerAttackDataSO.chargeAnimKey 하나로 공유하므로 수치만 포함한다.
@@ -155,15 +143,14 @@ namespace UPlayGround.Data
     public class PlayerAttackInfo
     {
         public AttackInfoBase baseInfo;
-        
+
         [Tooltip("공격 중 끊을 수 있는지 여부")]
         public bool canBeInterrupted;
-        
-            
+
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
     }
-    
+
     // 런타임에 결정되는 공격 정보
     public class AttackData
     {
@@ -171,16 +158,15 @@ namespace UPlayGround.Data
         public float damage;
         public float poiseDamage = 30f;
         public bool canBeInterrupted;
-        public AttackKind attackKind = AttackKind.NormalAttack;  // 게이지 충전 구분용
+        public AttackKind attackKind = AttackKind.NormalAttack;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;
 
-        // Hit Detection Data
+        // Hit Detection
         public GameActor attacker;
         public float hitRange;
         public float hitAngle;
         public float hitHeightOffset;
-        // -1이면 Y축 범위 무제한 (기존 OverlapSphere에 맡김). 0 초과면 origin 기준 위 아래 hitHeightRange로 클램프
         public float hitHeightRange = -1f;
 
         public Vector3 hitPoint;
@@ -190,20 +176,16 @@ namespace UPlayGround.Data
         public Vector3 attackDirection;
         public string hitParticleName = "LiteHit";
 
-        // ── 반응 파라미터 ──────────────────────────
-        public float pullForce    = 10f;
-        public float airborneForce = 8f;
+        // 반응 파라미터
+        public float pullForce      = 10f;
+        public float airborneForce  = 8f;
         public float knockbackForce = 10f;
-        // 넉백 감속 강도. 높을수록 빠르게 멈춤 (KnockBack: 20, Airborne: 5)
-        public float knockbackDrag = 20f;
+        public float knockbackDrag  = 20f;
 
-        // ── Grab 파라미터 ──────────────────────────
-        /// <summary> Grab 지속 시간 (초). </summary>
+        // Grab
         public float grabDuration = 1.5f;
 
-        // ── 멀티 히트 ──────────────────────────────
-        /// <summary> 현재 몇 번째 히트 구간인지 (BeginCollisionEvent.hitPhaseIndex와 동기화) </summary>
+        // 멀티 히트
         public int hitPhaseIndex = 0;
     }
-
 }

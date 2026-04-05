@@ -81,6 +81,17 @@ namespace UPlayGround.State
                 if (controller.TryTransitionToState(new PlayerDashState(controller)))
                     return;
             }
+
+            // 입력 방향이 목표 방향에서 45° 이상 벗어나면 Turn 중단 → GroundMove에서 재평가
+            if (playerController.HasMoveInput())
+            {
+                float angleToTarget = Vector3.Angle(playerController.MoveInputVector, _targetDirection);
+                if (angleToTarget > 45f)
+                {
+                    playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                    return;
+                }
+            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

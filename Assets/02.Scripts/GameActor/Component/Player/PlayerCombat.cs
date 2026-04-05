@@ -45,52 +45,47 @@ namespace UPlayGround.Component
         [SerializeField] private LayerMask _targetLayerMask = -1;
         [SerializeField] private bool      _showHitDebug    = true;
 
-        [Header("Attack Snap Settings")]
-        [Tooltip("락온 상태: 스냅 탐색 반경")]
+        [Header("Homing — Search Range")]
+        [Tooltip("락온 상태: 호밍 탐색 반경")]
         [SerializeField] private float _lockOnSnapSearchRange = 2f;
-        [Tooltip("락온 상태: 스냅 탐색 각도")]
+        [Tooltip("락온 상태: 호밍 탐색 각도")]
         [SerializeField] private float _lockOnSnapSearchAngle = 60f;
 
         [Space(4)]
-        [Tooltip("자유 전투: 스냅 탐색 반경")]
+        [Tooltip("자유 전투: 호밍 탐색 반경")]
         [SerializeField] private float _freeSnapSearchRange = 3.5f;
-        [Tooltip("자유 전투: 스냅 탐색 각도")]
+        [Tooltip("자유 전투: 호밍 탐색 각도")]
         [SerializeField] private float _freeSnapSearchAngle = 80f;
 
-        [Space(4)]
-        [SerializeField] private float _snapMoveSpeed    = 8f;
-        [SerializeField] private float _snapStopDistance = 1.2f;
+        [Header("Motion Warp Settings")]
+        [Tooltip("워프 최소 거리. 이 거리 이내의 적에게는 워프 미적용 (씹힘 방지)")]
+        [SerializeField] private float _warpMinDistance = 0.3f;
+        [Tooltip("워프 최대 거리. 이 거리를 초과한 적에게는 워프 미적용")]
+        [SerializeField] private float _warpMaxDistance = 4f;
+
+        public float WarpMinDistance    => _warpMinDistance;
+        public float WarpMaxDistance    => _warpMaxDistance;
 
         [Header("Finish Attack Settings")]
-        [SerializeField] private float _finishAttackSearchRange       = 0.5f;
-        [SerializeField] private float _finishAttackSearchAngle       = 90f;
-        [SerializeField] private float _finishAttackDamageThreshold   = 30f;
+        [SerializeField] private float _finishAttackSearchRange     = 0.5f;
+        [SerializeField] private float _finishAttackSearchAngle     = 90f;
+        [SerializeField] private float _finishAttackDamageThreshold = 30f;
 
         // ── 히트 피드백 설정 ──────────────────────────────────────────
-        // 공격 종류별 피드백 수치를 인스펙터에서 직접 튜닝할 수 있도록 분리한다.
-        // 값을 0으로 두면 해당 효과를 비활성화한 것과 같다.
         [Header("Hit Feedback — Punch Strength")]
-        [Tooltip("약 공격 히트 시 카메라 펀치 강도")]
-        [SerializeField] private float _punchStrengthLight    = 0.08f;
-        [Tooltip("강/대시/점프 공격 히트 시 카메라 펀치 강도")]
-        [SerializeField] private float _punchStrengthHeavy    = 0.18f;
-        [Tooltip("스킬 공격 히트 시 카메라 펀치 강도")]
-        [SerializeField] private float _punchStrengthSkill    = 0.22f;
+        [SerializeField] private float _punchStrengthLight = 0.08f;
+        [SerializeField] private float _punchStrengthHeavy = 0.18f;
+        [SerializeField] private float _punchStrengthSkill = 0.22f;
 
         [Header("Hit Feedback — Punch Duration")]
-        [SerializeField] private float _punchDurationLight    = 0.12f;
-        [SerializeField] private float _punchDurationHeavy    = 0.18f;
-        [SerializeField] private float _punchDurationSkill    = 0.20f;
+        [SerializeField] private float _punchDurationLight = 0.12f;
+        [SerializeField] private float _punchDurationHeavy = 0.18f;
+        [SerializeField] private float _punchDurationSkill = 0.20f;
 
         [Header("Hit Feedback — Shake Keys")]
-        [Tooltip("약 공격 쉐이크 DB 키")]
-        [SerializeField] private string _shakeKeyLight  = "LiteHit";
-        [Tooltip("강 공격 쉐이크 DB 키")]
-        [SerializeField] private string _shakeKeyHeavy  = "HeavyHit";
+        [SerializeField] private string _shakeKeyLight = "LiteHit";
+        [SerializeField] private string _shakeKeyHeavy = "HeavyHit";
         // ──────────────────────────────────────────────────────────────
-
-        public float SnapMoveSpeed    => _snapMoveSpeed;
-        public float SnapStopDistance => _snapStopDistance;
 
         public float GetSnapSearchRange(bool isLockedOn) =>
             isLockedOn ? _lockOnSnapSearchRange : _freeSnapSearchRange;
@@ -100,35 +95,44 @@ namespace UPlayGround.Component
 
         public event Action<bool> OnChangeCombatState;
 
-        private AttackData     _currentAttackData;
-        private AttackInfoBase _currentAttackInfoBase;
-        private AttackState    _attackState = AttackState.NormalAttack;
-        private float          _lastCombatEventTime = -999f;
-        private bool           _isCollideCollisionEnable;
-        private PlayerActor    _playerActor;
+        private AttackData        _currentAttackData;
+        private AttackInfoBase    _currentAttackInfoBase;
+        private AttackState       _attackState         = AttackState.NormalAttack;
+        private float             _lastCombatEventTime = -999f;
+        private bool              _isCollideCollisionEnable;
+        private PlayerActor       _playerActor;
         private List<IDamageable> _hitTargets = new List<IDamageable>();
 
-        public bool IsGuarding  = false;
-        public bool IsInCombat => Time.time - _lastCombatEventTime < _combatStateDuration;
+        // ── Motion Warp 상태 ──────────────────────────────────────────
+        // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이(endTime-startTime)를 주입.
+        // 매 프레임 deltaTime만큼 소모하며, 0 이하가 되면 워프 비활성.
+        private float _warpRemainingTime;
+
+        /// <summary> 워프 이벤트 구간 내 남은 시간. PlayerAttackState의 속력 역산에 사용. </summary>
+        public float  WarpRemainingTime => _warpRemainingTime;
+        public bool   IsMotionWarping   => _warpRemainingTime > 0f;
+        // ──────────────────────────────────────────────────────────────
+
+        public bool IsGuarding    = false;
+        public bool IsInCombat    => Time.time - _lastCombatEventTime < _combatStateDuration;
+        public bool IsPossibleCollide => _isCollideCollisionEnable;
 
         // ── 가드 내구도 ───────────────────────────────────────────────
-        // 연속으로 막을 수 있는 횟수. 초과 시 가드 브레이크 발생.
         [Header("Guard Settings")]
-        [SerializeField] private int   _maxGuardCount    = 3;
-        [SerializeField] private float _guardResetDelay  = 3f; // 가드 해제 후 이 시간이 지나면 카운트 초기화
+        [SerializeField] private int   _maxGuardCount   = 3;
+        [SerializeField] private float _guardResetDelay = 3f;
 
         private int   _guardHitCount;
         private float _guardEndTime = -999f;
 
-        public bool IsGuardBroken   { get; private set; }
-        public int  GuardHitCount   => _guardHitCount;
-        public int  MaxGuardCount   => _maxGuardCount;
+        public bool IsGuardBroken { get; private set; }
+        public int  GuardHitCount => _guardHitCount;
+        public int  MaxGuardCount => _maxGuardCount;
 
         public AttackData CurrentAttackData => _currentAttackData;
-        public int  CurrentComboIndex { get; private set; }
-        public float LastAttackTime   { get; private set; }
-        public bool  CanCombo         { get; private set; }
-        public bool  IsPossibleCollide => _isCollideCollisionEnable;
+        public int        CurrentComboIndex { get; private set; }
+        public float      LastAttackTime    { get; private set; }
+        public bool       CanCombo          { get; private set; }
 
         public event Action<AttackData> OnAttackStarted;
         public event Action<AttackData> OnAttackHit;
@@ -145,49 +149,36 @@ namespace UPlayGround.Component
 
         private void Update()
         {
+            // 워프 남은 시간 소모
+            if (_warpRemainingTime > 0f)
+                _warpRemainingTime -= Time.deltaTime;
+
             if (IsPossibleCollide)
                 PerformHitDetection();
         }
 
-        // 가드 브레이크 조건: 누적 횟수가 한계 도달
         public bool IsGuardBreak(AttackData incomingAttack)
         {
             if (IsGuardBroken) return true;
-
             _guardHitCount++;
-
             if (_guardHitCount >= _maxGuardCount)
             {
                 IsGuardBroken = true;
                 return true;
             }
-
             return false;
         }
 
-        /// <summary>
-        /// 가드를 올릴 수 있는지 확인.
-        /// 가드 브레이크 후 _guardResetDelay가 지나기 전에는 가드 불가.
-        /// </summary>
-        public bool CanGuard()
-        {
-            return Time.time - _guardEndTime >= _guardResetDelay;
-        }
+        public bool CanGuard() => Time.time - _guardEndTime >= _guardResetDelay;
 
-        /// <summary> 가드 시작 시 호출 — 카운트 유지, 브레이크 플래그만 해제 </summary>
         public void OnGuardStart()
         {
             IsGuardBroken  = false;
             _guardHitCount = 0;
         }
 
-        /// <summary> 가드 브레이크 확정 시 호출 — 쿨타임 타이머 시작 </summary>
-        public void OnGuardBreakConfirmed()
-        {
-            _guardEndTime = Time.time;
-        }
+        public void OnGuardBreakConfirmed() => _guardEndTime = Time.time;
 
-        /// <summary> 완전 초기화 (부활, 씬 전환 등에서 사용) </summary>
         public void ResetGuardCount()
         {
             _guardHitCount = 0;
@@ -203,15 +194,26 @@ namespace UPlayGround.Component
                 OnChangeCombatState?.Invoke(IsInCombat);
         }
 
+        /// <summary>
+        /// MotionEvent_MotionWarp.Execute()에서 호출.
+        /// warpDuration = 이벤트의 endTime - startTime.
+        /// </summary>
+        public void BeginMotionWarp(float warpDuration) => _warpRemainingTime = warpDuration;
+
+        /// <summary>
+        /// MotionEvent_MotionWarp.OnCompleteEvent()에서 호출.
+        /// </summary>
+        public void EndMotionWarp() => _warpRemainingTime = 0f;
+
         #region Execute Attack
 
         public AttackData ExecuteAttack(bool isCombo)
         {
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
-            _attackState       = AttackState.NormalAttack;
-            CurrentComboIndex  = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _attackState      = AttackState.NormalAttack;
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
-            LastAttackTime     = Time.time;
+            LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
@@ -220,60 +222,40 @@ namespace UPlayGround.Component
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
             if (_attackState == AttackState.NormalAttack) ResetCombo();
-            _attackState       = AttackState.HeavyAttack;
-            CurrentComboIndex  = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _attackState      = AttackState.HeavyAttack;
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
-            LastAttackTime     = Time.time;
+            LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
 
-        /// <summary>
-        /// 차지 단계 전환 임계값 배열을 반환한다.
-        /// chargeStageThresholds가 비어 있으면 chargeStages.Count 기준으로 균등 분배한다.
-        /// </summary>
         public float[] GetChargeStageThresholds()
         {
             int stageCount = _attackData.chargeStageThresholds?.Count ?? 0;
             if (stageCount <= 1) return System.Array.Empty<float>();
 
             var configured = _attackData.chargeStageThresholds;
-            int needed = stageCount - 1;
+            int needed     = stageCount - 1;
 
             if (configured != null && configured.Count == needed)
                 return configured.ToArray();
 
-            // 균등 분배
             var result = new float[needed];
             for (int i = 0; i < needed; i++)
                 result[i] = (float)(i + 1) / stageCount;
             return result;
         }
 
-        /// <summary>
-        /// 차지 공격 AnimKey를 반환한다.
-        /// ChargeState 진입 시 어떤 MotionSet을 재생할지 결정하는 데 사용한다.
-        /// </summary>
-        public AnimKey GetFirstChargeAttackAnimKey()
-        {
-            return _attackData.chargeAnimKey;
-        }
+        public AnimKey GetFirstChargeAttackAnimKey() => _attackData.chargeAnimKey;
 
-        /// <summary>
-        /// 풀 차지 VFX 데이터 (키, 소켓, 오프셋)를 반환한다.
-        /// </summary>
         public (string key, ActorSocketType socket, Vector3 offset) GetFullChargeVfxData()
             => (_attackData.fullChargeVfxKey, _attackData.fullChargeVfxSocket, _attackData.fullChargeVfxOffset);
 
-        /// <summary>
-        /// stageIndex: 차지 단계
-        /// chargeRatio(0~1): 스테이지 내 차지 진행도 — 데미지 추가 스케일에만 사용.
-        /// </summary>
         public AttackData ExecuteChargeAttack(int stageIndex, float chargeRatio)
         {
             if (_attackData.chargeStages == null || _attackData.chargeStages.Count == 0) return null;
-
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
 
@@ -282,7 +264,6 @@ namespace UPlayGround.Component
             int index = Mathf.Clamp(stageIndex, 0, count - 1);
 
             _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[0], chargeRatio, index);
-
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -313,8 +294,6 @@ namespace UPlayGround.Component
                 hitPhaseIndex    = 0,
                 attackKind       = AttackKind.ChargeAttack,
             };
-
-            // 스테이지 내 차지 진행도에 비례해 데미지 추가 스케일 (1.0배 ~ 1.5배)
             data.damage *= Mathf.Lerp(1.0f, 1.5f, chargeRatio);
             return data;
         }
@@ -323,7 +302,7 @@ namespace UPlayGround.Component
         {
             if (_attackData.skillAttackList.Count <= skillIndex) return null;
             _currentAttackData = ConvertToAttackData(_attackData.skillAttackList[skillIndex], AttackKind.SkillAttack);
-            LastAttackTime     = Time.time;
+            LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
@@ -376,7 +355,7 @@ namespace UPlayGround.Component
         {
             _currentAttackInfoBase = attackInfo.baseInfo;
             var phase0 = attackInfo.baseInfo.GetHitPhase(0);
-            
+
             return new AttackData
             {
                 animKey          = attackInfo.baseInfo.animKey,
@@ -450,7 +429,6 @@ namespace UPlayGround.Component
 
                 damageable.TakeDamage(_currentAttackData);
                 ShowDamageFloater(_currentAttackData);
-
                 GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, _currentAttackData.hitPoint);
                 OnAttackHit?.Invoke(_currentAttackData);
                 hitOccurred = true;
@@ -462,9 +440,6 @@ namespace UPlayGround.Component
                 ApplyHitFeedback();
         }
 
-        /// <summary>
-        /// Heavy / Skill / Finish → Critical 스타일, 그 외 → Normal.
-        /// </summary>
         private void ShowDamageFloater(AttackData attackData)
         {
             var style = attackData.attackKind is AttackKind.HeavyAttack
@@ -477,15 +452,6 @@ namespace UPlayGround.Component
             UIManager.Instance.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
         }
 
-        /// <summary>
-        /// 히트 성공 시 공격 종류(AttackKind)에 따라 피드백을 차별화한다.
-        ///
-        /// 분기 기준:
-        ///  - FinishAttack / KillHit → KillCam (별도 처리)
-        ///  - Heavy / Dash / Jump    → 강한 펀치 + 강한 히트스탑 + HeavyHit 쉐이크
-        ///  - Skill                  → 가장 강한 펀치 + Critical 히트스탑
-        ///  - Normal (그 외)         → 가벼운 펀치 + Light 히트스탑 + LiteHit 쉐이크
-        /// </summary>
         private void ApplyHitFeedback()
         {
             GameHitStopManager.Instance.ResetActorTimeScale();
@@ -502,7 +468,6 @@ namespace UPlayGround.Component
             var kind = _currentAttackData.attackKind;
             var dir  = _currentAttackData.attackDirection;
 
-            // VitalOrb 트리거
             var orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
                 ? VitalOrbTrigger.HeavyAttackHit
                 : VitalOrbTrigger.LightAttackHit;
@@ -510,7 +475,7 @@ namespace UPlayGround.Component
 
             switch (kind)
             {
-                case AttackKind.ChargeAttack:  // 차지: 스킬 수준의 강한 피드백
+                case AttackKind.ChargeAttack:
                 case AttackKind.SkillAttack:
                     CameraManager.Instance.Punch(dir, _punchStrengthSkill, _punchDurationSkill);
                     CameraManager.Instance.StartShake(_shakeKeyHeavy);
@@ -525,7 +490,7 @@ namespace UPlayGround.Component
                     GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
                     break;
 
-                default: // NormalAttack
+                default:
                     CameraManager.Instance.Punch(dir, _punchStrengthLight, _punchDurationLight);
                     CameraManager.Instance.StartShake(_shakeKeyLight);
                     GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Light);
@@ -543,7 +508,7 @@ namespace UPlayGround.Component
             if (_currentAttackData == null || _currentAttackInfoBase == null) return;
             var phase = _currentAttackInfoBase.GetHitPhase(index);
             _currentAttackData.hitPhaseIndex   = index;
-            _currentAttackData.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
+            _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
             _currentAttackData.poiseDamage     = phase.poiseDamage;
             _currentAttackData.reactionType    = phase.reactionType;
             _currentAttackData.hitRange        = phase.attackRadius;
@@ -574,7 +539,7 @@ namespace UPlayGround.Component
                 AttackState.JumpAttack   => _attackData.jumpAttackList.Count,
                 AttackState.DashAttack   => _attackData.dashAttackList.Count,
                 AttackState.SkillAttack  => _attackData.skillAttackList.Count,
-                AttackState.ChargeAttack => 0, // 차지 공격은 콤보 없음
+                AttackState.ChargeAttack => 0,
                 _                        => 0,
             };
             return CurrentComboIndex < length - 1;
@@ -598,12 +563,12 @@ namespace UPlayGround.Component
 
         public Transform FindFinishableTarget()
         {
-            Vector3 origin  = transform.position;
-            Vector3 forward = transform.forward;
-            Collider[] hits = Physics.OverlapSphere(origin, _finishAttackSearchRange, _targetLayerMask);
+            Vector3    origin  = transform.position;
+            Vector3    forward = transform.forward;
+            Collider[] hits    = Physics.OverlapSphere(origin, _finishAttackSearchRange, _targetLayerMask);
 
-            Transform bestTarget = null;
-            float     bestDistSq = float.MaxValue;
+            Transform bestTarget   = null;
+            float     bestDistSq   = float.MaxValue;
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
 
             foreach (var hit in hits)
@@ -626,8 +591,8 @@ namespace UPlayGround.Component
                 float distSq = dir.sqrMagnitude;
                 if (distSq < bestDistSq)
                 {
-                    bestDistSq  = distSq;
-                    bestTarget  = hit.transform;
+                    bestDistSq = distSq;
+                    bestTarget = hit.transform;
                 }
             }
             return bestTarget;
@@ -635,8 +600,8 @@ namespace UPlayGround.Component
 
         public List<EnemyBrain> GetEnemyBrainsInRadius(float radius)
         {
-            var result  = new List<EnemyBrain>();
-            Collider[] hits = Physics.OverlapSphere(transform.position, radius, _targetLayerMask);
+            var        result = new List<EnemyBrain>();
+            Collider[] hits   = Physics.OverlapSphere(transform.position, radius, _targetLayerMask);
             foreach (var hit in hits)
             {
                 EnemyBrain brain = hit.GetComponent<EnemyBrain>()
@@ -649,7 +614,7 @@ namespace UPlayGround.Component
 
         #endregion
 
-        #region Attack Snap
+        #region Homing Target Search
 
         public Transform FindAttackSnapTarget(float hitRange, float hitAngle, bool isLockedOn)
         {
@@ -659,9 +624,9 @@ namespace UPlayGround.Component
             if (HasTargetInRange(origin, forward, hitRange, hitAngle))
                 return null;
 
-            float searchRange = GetSnapSearchRange(isLockedOn);
-            float searchAngle = GetSnapSearchAngle(isLockedOn);
-            Collider[] hits   = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
+            float      searchRange = GetSnapSearchRange(isLockedOn);
+            float      searchAngle = GetSnapSearchAngle(isLockedOn);
+            Collider[] hits        = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
 
             Transform bestTarget = null;
             float     bestDistSq = float.MaxValue;
@@ -681,8 +646,8 @@ namespace UPlayGround.Component
                 float distSq = dirToTarget.sqrMagnitude;
                 if (distSq < bestDistSq)
                 {
-                    bestDistSq  = distSq;
-                    bestTarget  = hit.transform;
+                    bestDistSq = distSq;
+                    bestTarget = hit.transform;
                 }
             }
             return bestTarget;

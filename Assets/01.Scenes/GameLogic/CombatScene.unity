@@ -17675,12 +17675,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   _showHitDebug: 1
-  _lockOnSnapSearchRange: 2
+  _lockOnSnapSearchRange: 5
   _lockOnSnapSearchAngle: 60
-  _freeSnapSearchRange: 3.5
+  _freeSnapSearchRange: 7.6
   _freeSnapSearchAngle: 80
-  _snapMoveSpeed: 6
-  _snapStopDistance: 1.2
+  _warpAnimationDistance: 1.2
+  _warpEndNormalized: 0.5
+  _warpMinDistance: 0.3
+  _warpMaxDistance: 15
   _finishAttackSearchRange: 2
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
@@ -52019,6 +52021,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &417582396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59768,8 +59771,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d020e9be71f843d47abf3a4cf856c49c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxMeleeAttackers: 0
-  _maxRangedAttackers: 2
+  _maxMeleeAttackers: 2
+  _maxRangedAttackers: 0
 --- !u!1 &453226478
 GameObject:
   m_ObjectHideFlags: 0
@@ -148726,6 +148729,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1114363363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209671,6 +209675,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1478419744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210679,6 +210684,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1494930515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245690,6 +245696,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1774548082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259584,6 +259591,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1843978461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274327,6 +274335,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &1928405632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283161,6 +283170,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!114 &2008380180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305955,6 +305965,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!1 &620134785571410489
 GameObject:
   m_ObjectHideFlags: 0
@@ -318284,6 +318295,7 @@ MonoBehaviour:
   _targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  _warpMoveSpeed: 10
 --- !u!4 &2183759319897749887
 Transform:
   m_ObjectHideFlags: 0

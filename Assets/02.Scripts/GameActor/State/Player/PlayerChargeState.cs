@@ -194,8 +194,16 @@ namespace UPlayGround.State
             Debug.Log("FireChargeAttack");
             // 현재 InfiniteLoop 단계로 공격 데이터 확정
             int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
-            _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
+            var attackData = _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
             _combat.ClearHitTargets();
+
+            // 락온 없을 때: 발동 후 방향 보정을 위한 소프트 타겟 확보
+            // → UpdateRotation의 _softRotationTarget 추적이 이어지도록
+            if (CameraManager.Instance.GetLockOnTarget() == null && attackData != null)
+            {
+                _softRotationTarget = _combat.FindAttackSnapTarget(
+                    attackData.hitRange, attackData.hitAngle, false);
+            }
 
             // 현재 및 이후의 모든 InfiniteLoop 차단 → 애니메이션이 공격 구간으로 진행
             gameActor.Animator.BreakAllInfiniteLoops();

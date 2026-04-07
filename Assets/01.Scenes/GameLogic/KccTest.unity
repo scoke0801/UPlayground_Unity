@@ -3640,7 +3640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef924fb32825664ca1fe8f4a2150f2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneType: GamePlay
+  SceneType: Test
 --- !u!4 &13577009
 Transform:
   m_ObjectHideFlags: 0
@@ -59023,15 +59023,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 742f54db68a6cac4e8a7303e8e7f0332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _raycastOriginY: 0.5
-  _raycastEndY: -0.2
   _groundLayers:
     serializedVersion: 2
     m_Bits: 521
-  _minGroundNormalY: 0.7
-  _ikBlendSpeed: 8
-  _hipDropSpeed: 8
+  _rayOriginHeight: 0.5
+  _rayLength: 1.5
+  _footBottomHeight: 0.08
+  _smoothSpeed: 12
   _maxHipDrop: 0.35
+  _maxBodyTiltAngle: 15
+  _maxNormalDiffAngle: 30
+  _minNormalY: 0.5
+  _blendSpeed: 15
+  _idleSpeedThreshold: 0.1
+  _idleDelay: 0.15
+  ForceDisabled: 0
 --- !u!114 &1687165928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59208,6 +59214,8 @@ MonoBehaviour:
   _actorAnimator: {fileID: 1687165930}
   _attackData: {fileID: 11400000, guid: 17f08f7384b34f14a8c067e642d33cd9, type: 2}
   _combatStateDuration: 10
+  _threatDetectionRange: 20
+  _threatCheckInterval: 0.5
   _targetLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -59216,8 +59224,8 @@ MonoBehaviour:
   _lockOnSnapSearchAngle: 60
   _freeSnapSearchRange: 3.5
   _freeSnapSearchAngle: 80
-  _snapMoveSpeed: 6
-  _snapStopDistance: 1.2
+  _warpMinDistance: 0.3
+  _warpMaxDistance: 4
   _finishAttackSearchRange: 2
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
@@ -62190,6 +62198,67 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1759015139}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &1761742312
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 440606361390421467, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: _targetSceneName
+      value: CombatTest
+      objectReference: {fileID: 0}
+    - target: {fileID: 3694103045463306722, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_Name
+      value: Portal_ChainGate
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -39.612896
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.2782977
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7365625505960910116, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
 --- !u!1 &1763214255
 GameObject:
   m_ObjectHideFlags: 0
@@ -74348,3 +74417,4 @@ SceneRoots:
   - {fileID: 1282805945778787309}
   - {fileID: 13577009}
   - {fileID: 1687165939}
+  - {fileID: 1761742312}

@@ -8,13 +8,14 @@ namespace UPlayGround.Component
     /// Foot IK — 각 발에서 레이를 쏴서 지면에 부착, 골반 하강 및 상체 기울기 보정.
     ///
     /// [동작 원리]
-    /// 1. KCC 수평 속도 기준으로 정지 여부 판단 → IK weight 자동 블렌딩
-    ///    - 이동 중: weight → 0 (발이 바닥에 끌리지 않음)
-    ///    - 정지 시: weight → 1
-    /// 2. 각 발 위치에서 아래로 Raycast → 지면 높이(groundY) + 법선 획득
-    /// 3. 두 발 delta 중 하강 방향만 반영 → 골반(hip) 자연스럽게 내림
-    /// 4. 두 발 법선 평균 → bodyRotation으로 상체 기울기 보정
-    /// 5. 각 발을 groundY + footBottomHeight 위치로 IK Position/Rotation 설정
+    /// 1. 각 발의 애니메이션 높이 vs 지면 높이로 per-foot IK weight 결정
+    ///    - 발이 지면 근처 (stance): weight → 1  (IK가 발을 지형에 밀착)
+    ///    - 발이 공중 (swing)      : weight → 0  (애니메이션이 자유롭게 제어)
+    ///    → 이동/정지 전환과 무관하게 항상 부드럽게 동작
+    /// 2. ForceDisabled = true 시 전체 weight를 0으로 페이드 (공격 등 명시적 비활성화)
+    /// 3. 각 발 위치에서 아래로 Raycast → 지면 높이(groundY) + 법선 획득
+    /// 4. 지면 Y - 루트 Y 기준 → 골반(hip) 보정 (평지에서 가라앉음 없음)
+    /// 5. 두 발 법선 평균 → bodyRotation으로 상체 기울기 보정
     /// </summary>
     public class FootIKController : MonoBehaviour
     {
@@ -34,23 +35,25 @@ namespace UPlayGround.Component
         [SerializeField, Tooltip("발 회전 보정 최소 법선 Y (미만이면 수직 사용)")]
         private float _minNormalY = 0.5f;
 
-        [Header("Weight Blending")]
-        [SerializeField, Tooltip("IK weight 변화 속도. 높을수록 on/off 전환이 빠름.")]
-        private float _blendSpeed = 15f;
-        [SerializeField, Tooltip("이 수평속도(m/s) 이하일 때 IK 활성 후보.")]
-        private float _idleSpeedThreshold = 0.1f;
-        [SerializeField, Tooltip("정지 판정까지 대기 시간(초). 루트모션 순간 속도 진동 필터링용.")]
-        private float _idleDelay = 0.15f;
+        [Header("Per-Foot Weight")]
+        [SerializeField, Tooltip("발이 지면 목표보다 이 높이(m) 이상 들리면 IK weight=0.\n보행 중 swing phase를 자동으로 비활성화하는 임계값.")]
+        private float _footLiftThreshold = 0.15f;
+        [SerializeField, Tooltip("per-foot weight 변화 속도.")]
+        private float _footWeightSpeed   = 10f;
+        [SerializeField, Tooltip("ForceDisabled 시 전체 weight 페이드 속도.")]
+        private float _globalFadeSpeed   = 15f;
 
-        private Animator                 _animator;
-        private KinematicCharacterMotor  _motor;
+        private Animator                _animator;
+        private KinematicCharacterMotor _motor;
 
-        private float      _weight;
-        private bool       _wasActive;   // IK 활성화 첫 프레임 감지용
-        private float      _idleTimer;   // 정지 유지 시간 누적
-
-        // 외부(상태머신 등)에서 IK를 강제 비활성화. true면 weight를 0으로 블렌딩.
+        // 외부(상태머신 등)에서 IK를 강제 비활성화. true면 globalWeight를 0으로 페이드.
         public bool ForceDisabled;
+
+        private float      _globalWeight = 1f; // ForceDisabled 페이드용
+        private bool       _initialized;
+
+        private float      _leftFootWeight;
+        private float      _rightFootWeight;
 
         private float      _hipOffset;
         private Quaternion _bodyRotOffset = Quaternion.identity;
@@ -107,67 +110,14 @@ namespace UPlayGround.Component
 
             _ikCalled = true;
 
-            // 수평 속도로 정지 여부 판단 → targetWeight 결정
-            // motor가 없으면 항상 활성 (fallback)
-            if (ForceDisabled)
-            {
-                _weight    = Mathf.MoveTowards(_weight, 0f, dt * _blendSpeed);
-                _idleTimer = 0f;
-                SetFootWeight(AvatarIKGoal.LeftFoot,  _weight);
-                SetFootWeight(AvatarIKGoal.RightFoot, _weight);
-                _hipOffset     = Mathf.Lerp(_hipOffset, 0f, 1f - Mathf.Exp(-_smoothSpeed * dt));
-                _bodyRotOffset = Quaternion.Slerp(_bodyRotOffset, Quaternion.identity, 1f - Mathf.Exp(-_smoothSpeed * dt));
-                if (Mathf.Abs(_hipOffset) > 0.001f)
-                    _animator.bodyPosition += Vector3.up * _hipOffset;
-                if (_weight < 0.01f) _wasActive = false;
-                return;
-            }
+            float smoothT      = 1f - Mathf.Exp(-_smoothSpeed    * dt);
+            float footWeightDt = _footWeightSpeed * dt;
 
-            float targetWeight = 1f;
-            if (_motor != null)
-            {
-                bool isGrounded = _motor.GroundingStatus.IsStableOnGround;
-                Vector3 hVel    = Vector3.ProjectOnPlane(_motor.BaseVelocity, _motor.CharacterUp);
-                bool isIdle     = isGrounded && hVel.magnitude <= _idleSpeedThreshold;
-
-                if (isIdle)
-                {
-                    // 정지 상태가 _idleDelay 초 이상 유지돼야 IK 활성.
-                    // 루트모션 순간 진동(수십ms)은 타이머를 채우지 못해 필터링됨.
-                    _idleTimer += dt;
-                }
-                else
-                {
-                    // 이동 감지 즉시 타이머 리셋 → targetWeight = 0
-                    _idleTimer = 0f;
-                }
-
-                targetWeight = _idleTimer >= _idleDelay ? 1f : 0f;
-            }
-
-            _weight = Mathf.MoveTowards(_weight, targetWeight, dt * _blendSpeed);
-
-            float t = 1f - Mathf.Exp(-_smoothSpeed * dt);
-
-            // weight = 0 수렴: hip/tilt 복원 후 종료
-            // _wasActive = false로 세팅해서, 다음 활성화 시 snap이 동작하도록 함
-            if (_weight < 0.01f)
-            {
-                SetFootWeight(AvatarIKGoal.LeftFoot,  0f);
-                SetFootWeight(AvatarIKGoal.RightFoot, 0f);
-                _hipOffset     = Mathf.Lerp(_hipOffset, 0f, t);
-                _bodyRotOffset = Quaternion.Slerp(_bodyRotOffset, Quaternion.identity, t);
-                if (Mathf.Abs(_hipOffset) > 0.001f)
-                    _animator.bodyPosition += Vector3.up * _hipOffset;
-                _wasActive = false;
-                return;
-            }
-
+            // ─── 1) 발 애니메이션 위치 & 레이캐스트 ───
             Vector3 leftAnimPos  = _animator.GetIKPosition(AvatarIKGoal.LeftFoot);
             Vector3 rightAnimPos = _animator.GetIKPosition(AvatarIKGoal.RightFoot);
             float   rootY        = transform.position.y;
 
-            // === 1) 각 발에서 아래로 레이캐스트 ===
             bool leftHit  = FootRay(leftAnimPos,  rootY, out float leftGroundY,  out Vector3 leftNorm);
             bool rightHit = FootRay(rightAnimPos, rootY, out float rightGroundY, out Vector3 rightNorm);
 
@@ -180,59 +130,83 @@ namespace UPlayGround.Component
             if (rightHit) _dbgRightHit = new Vector3(rightAnimPos.x, rightGroundY, rightAnimPos.z);
 #endif
 
-            // === 2) 목표 발 높이 ===
             float leftTargetY  = leftHit  ? leftGroundY  + _footBottomHeight : leftAnimPos.y;
             float rightTargetY = rightHit ? rightGroundY + _footBottomHeight : rightAnimPos.y;
 
-            // === 3) IK 활성화 첫 프레임: footY를 현재 애니메이션 발 위치로 snap ===
-            // 직전 비활성 구간의 낡은 값에서 스무딩이 시작되는 것을 방지
-            if (!_wasActive)
+            // ─── 2) 발 위치·법선 항상 추적 (IK 비활성 중에도) ───
+            if (!_initialized)
             {
-                _leftFootY   = leftAnimPos.y;
-                _rightFootY  = rightAnimPos.y;
-                _leftNormal  = Vector3.up;
-                _rightNormal = Vector3.up;
-                _hipOffset   = 0f;
-                _wasActive   = true;
+                _leftFootY   = leftTargetY;
+                _rightFootY  = rightTargetY;
+                _leftNormal  = leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up;
+                _rightNormal = rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up;
+                _initialized = true;
+            }
+            else
+            {
+                _leftFootY  = Mathf.Lerp(_leftFootY,  leftTargetY,  smoothT);
+                _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, smoothT);
+                _leftNormal  = Vector3.Slerp(_leftNormal,
+                    leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up, smoothT);
+                _rightNormal = Vector3.Slerp(_rightNormal,
+                    rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up, smoothT);
             }
 
-            // === 4) 발 Y / 법선 스무딩 ===
-            _leftFootY  = Mathf.Lerp(_leftFootY,  leftTargetY,  t);
-            _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, t);
+            // ─── 3) per-foot weight: 발이 지면 근처면 1, 공중이면 0 ───
+            // 이동 중 swing phase는 자연스럽게 weight=0이 되어 애니메이션이 제어
+            // 이동/정지 전환과 무관하므로 on/off 끊김 없음
+            float targetLeftWeight  = leftHit
+                ? Mathf.Clamp01(1f - (leftAnimPos.y  - leftTargetY)  / _footLiftThreshold)
+                : 0f;
+            float targetRightWeight = rightHit
+                ? Mathf.Clamp01(1f - (rightAnimPos.y - rightTargetY) / _footLiftThreshold)
+                : 0f;
 
-            _leftNormal = Vector3.Slerp(_leftNormal,
-                leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up, t);
-            _rightNormal = Vector3.Slerp(_rightNormal,
-                rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up, t);
+            _leftFootWeight  = Mathf.MoveTowards(_leftFootWeight,  targetLeftWeight,  footWeightDt);
+            _rightFootWeight = Mathf.MoveTowards(_rightFootWeight, targetRightWeight, footWeightDt);
 
-            // === 5) 골반 보정: 하강 방향 delta만 반영 ===
-            // 이유: 한 발이 계단 위에 올라가도 골반을 올려선 안 됨. 반드시 내리거나 유지만.
-            float leftDelta  = leftTargetY  - leftAnimPos.y;
-            float rightDelta = rightTargetY - rightAnimPos.y;
+            // ─── 4) ForceDisabled: 전체 weight 페이드 ───
+            float targetGlobal = ForceDisabled ? 0f : 1f;
+            _globalWeight = Mathf.MoveTowards(_globalWeight, targetGlobal, _globalFadeSpeed * dt);
 
+            float appliedLeft  = _leftFootWeight  * _globalWeight;
+            float appliedRight = _rightFootWeight * _globalWeight;
+
+            // ─── 5) 골반 오프셋 추적 ───
+            // 지면 자체가 루트보다 낮을 때만 내림 (평지에서 가라앉음 방지)
+            float leftGroundDelta  = leftHit  ? Mathf.Min(leftGroundY  + _footBottomHeight - rootY, 0f) : 0f;
+            float rightGroundDelta = rightHit ? Mathf.Min(rightGroundY + _footBottomHeight - rootY, 0f) : 0f;
             float hipTarget = 0f;
-            if      (leftHit && rightHit) hipTarget = Mathf.Min(leftDelta, rightDelta, 0f);
-            else if (leftHit)             hipTarget = Mathf.Min(leftDelta,  0f);
-            else if (rightHit)            hipTarget = Mathf.Min(rightDelta, 0f);
-
+            if      (leftHit && rightHit) hipTarget = Mathf.Min(leftGroundDelta, rightGroundDelta);
+            else if (leftHit)             hipTarget = leftGroundDelta;
+            else if (rightHit)            hipTarget = rightGroundDelta;
             hipTarget  = Mathf.Max(hipTarget, -_maxHipDrop);
-            _hipOffset = Mathf.Lerp(_hipOffset, hipTarget, t);
-            _animator.bodyPosition += Vector3.up * _hipOffset;
+            _hipOffset = Mathf.Lerp(_hipOffset, hipTarget, smoothT);
 
-            // === 6) 상체 기울기 보정 ===
-            // 두 발 모두 닿았고 법선 차이가 완만할 때만 적용
+            // ─── 6) 상체 기울기 오프셋 추적 ───
             Quaternion targetBodyRot = Quaternion.identity;
             if (leftHit && rightHit &&
                 Vector3.Angle(_leftNormal, _rightNormal) <= _maxNormalDiffAngle)
-            {
                 targetBodyRot = CalculateBodyTilt((_leftNormal + _rightNormal).normalized);
-            }
-            _bodyRotOffset         = Quaternion.Slerp(_bodyRotOffset, targetBodyRot, t);
-            _animator.bodyRotation = _bodyRotOffset * _animator.bodyRotation;
+            _bodyRotOffset = Quaternion.Slerp(_bodyRotOffset, targetBodyRot, smoothT);
 
-            // === 7) 발 IK 적용 ===
-            ApplyFoot(AvatarIKGoal.LeftFoot,  leftAnimPos,  _leftFootY,  _leftNormal);
-            ApplyFoot(AvatarIKGoal.RightFoot, rightAnimPos, _rightFootY, _rightNormal);
+            // ─── 7) IK 적용 ───
+            float avgWeight = (appliedLeft + appliedRight) * 0.5f;
+
+            if (avgWeight > 0.001f)
+            {
+                _animator.bodyPosition += Vector3.up * _hipOffset * avgWeight;
+                _animator.bodyRotation  = Quaternion.Slerp(Quaternion.identity, _bodyRotOffset, avgWeight)
+                                          * _animator.bodyRotation;
+            }
+
+            SetFootWeight(AvatarIKGoal.LeftFoot,  appliedLeft);
+            SetFootWeight(AvatarIKGoal.RightFoot, appliedRight);
+
+            if (appliedLeft  > 0.001f)
+                ApplyFootPosition(AvatarIKGoal.LeftFoot,  leftAnimPos,  _leftFootY,  _leftNormal);
+            if (appliedRight > 0.001f)
+                ApplyFootPosition(AvatarIKGoal.RightFoot, rightAnimPos, _rightFootY, _rightNormal);
         }
 
         private bool FootRay(Vector3 footPos, float rootY, out float groundY, out Vector3 normal)
@@ -258,10 +232,8 @@ namespace UPlayGround.Component
             return Quaternion.AngleAxis(angle, axis.normalized);
         }
 
-        private void ApplyFoot(AvatarIKGoal goal, Vector3 animPos, float targetY, Vector3 normal)
+        private void ApplyFootPosition(AvatarIKGoal goal, Vector3 animPos, float targetY, Vector3 normal)
         {
-            _animator.SetIKPositionWeight(goal, _weight);
-            _animator.SetIKRotationWeight(goal, _weight);
             _animator.SetIKPosition(goal, new Vector3(animPos.x, targetY, animPos.z));
 
             Quaternion rot  = _animator.GetIKRotation(goal);
@@ -315,9 +287,9 @@ namespace UPlayGround.Component
                 _animator.bodyPosition + (_leftNormal + _rightNormal).normalized * 0.3f);
 
             UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
-                $"[FootIK] w={_weight:F2} hip={_hipOffset:F3}\n" +
-                $"L={(_dbgLeftDidHit ? _dbgLeftHit.y.ToString("F3") : "miss")} " +
-                $"R={(_dbgRightDidHit ? _dbgRightHit.y.ToString("F3") : "miss")}");
+                $"[FootIK] global={_globalWeight:F2} hip={_hipOffset:F3}\n" +
+                $"L={_leftFootWeight:F2} ({(_dbgLeftDidHit ? _dbgLeftHit.y.ToString("F3") : "miss")})  " +
+                $"R={_rightFootWeight:F2} ({(_dbgRightDidHit ? _dbgRightHit.y.ToString("F3") : "miss")})");
         }
 #endif
     }

@@ -37,6 +37,8 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+
             _dragSpeed = controller.Drag;
             _remainingJumps = playerController.MaxJumpCount;
             _jumpAnimPlayed = false;
@@ -57,7 +59,8 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState state)
         {
             playerActor.ClearJumpInput();
-            
+            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
+
             base.OnExit(state);
         }
 

@@ -10,6 +10,7 @@
         public const string Title    = "Title";
         public const string GamePlay = "GamePlay";
         public const string Loading  = "Loading";
+        public const string Test     = "Test";
     }
 
     /// <summary>

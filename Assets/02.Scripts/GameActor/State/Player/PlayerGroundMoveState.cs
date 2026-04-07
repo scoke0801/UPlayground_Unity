@@ -40,6 +40,11 @@ namespace UPlayGround.State
             gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.MoveAnimType =  BaseMoveAnimType.Run;
+            base.OnExit(toState);
+        }
         public override void UpdateState(float deltaTime)
         {
             // 점프 입력이 있으면 Airborne 상태로 전환

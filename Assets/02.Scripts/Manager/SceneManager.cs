@@ -62,7 +62,7 @@ namespace UPlayGround.Manager
                 UIManager.Instance.HideUI("GamePlay");
                 UIManager.Instance.ShowUI("TitleMenu");
             }
-            else if (sceneType == SceneType.Loading)
+            else
             {
                 UIManager.Instance.HideUI("PauseMenu");
                 UIManager.Instance.HideUI("GamePlay");

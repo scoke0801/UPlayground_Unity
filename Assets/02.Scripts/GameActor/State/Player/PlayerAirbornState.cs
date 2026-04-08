@@ -18,6 +18,8 @@ namespace UPlayGround.State
         private bool _hasLanded = false;
         private bool _landStarted = false;
         private bool _jumpAnimPlayed = false;
+        private bool _fallAnimPlayed = false;
+        private bool _hasLeftGround; // 한 번이라도 실제로 지면을 떠났는지
 
         private float _timeSinceJumpRequested = 0f;
         private float _timeSinceLastAbleToJump = 0f;
@@ -46,7 +48,8 @@ namespace UPlayGround.State
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
                 _remainingJumps -= 1;
-                gameActor.Animator.PlayMotion(AnimKey.Fall);
+                gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
+                _fallAnimPlayed = true;
             }
             else
             {
@@ -89,11 +92,15 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (playerController.HasJumpInput() == false
-                && (motor.GroundingStatus.IsStableOnGround && _landStarted == false))
+            // 한 번이라도 실제로 공중에 다녀온 후에만 조기 종료 가능.
+            // 점프 직후 1프레임은 KCC의 grounding 상태가 아직 갱신되지 않아
+            // IsStableOnGround가 true로 남아있을 수 있어 잘못 발화하는 것을 방지.
+            if (_hasLeftGround
+                && playerController.HasJumpInput() == false
+                && motor.GroundingStatus.IsStableOnGround
+                && _landStarted == false)
             {
                 ChangeToNextState();
-                return;
             }
         }
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -160,13 +167,31 @@ namespace UPlayGround.State
                 
             // Drag
             currentVelocity *= (1f / (1f + (_dragSpeed * deltaTime)));
-            
+
             HandleJump(ref currentVelocity, deltaTime);
+
+            // 정점 통과(수직 속도 ≤ 0) 시점에 Fall 애니메이션으로 자연스럽게 페이드.
+            // Jump 클립의 OnEnd에 의존하지 않도록 물리 기반으로 트리거.
+            if (_jumpAnimPlayed && !_fallAnimPlayed)
+            {
+                float verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
+                if (verticalSpeed <= 0f)
+                {
+                    gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
+                    _fallAnimPlayed = true;
+                }
+            }
         }
 
 
         public override void PostGroundingUpdate(float deltaTime)
         {
+            // 실제로 지면을 떠난 시점 기록 (조기 종료 가드용)
+            if (!_hasLeftGround && !motor.GroundingStatus.IsStableOnGround)
+            {
+                _hasLeftGround = true;
+            }
+
             // 착지 감지
             if (motor.GroundingStatus.IsStableOnGround && !motor.LastGroundingStatus.IsStableOnGround)
             {
@@ -204,7 +229,9 @@ namespace UPlayGround.State
             _timeSinceJumpRequested = 0f;
             motor.ForceUnground();
 
-            if (!_jumpAnimPlayed)
+            // 첫 점프는 OnEnter에서 이미 재생했을 수 있으므로 중복 방지.
+            // 더블 점프는 항상 새로 재생해야 함 (DoubleJump 모션).
+            if (!_jumpAnimPlayed || !isFirstJump)
             {
                 PlayJumpAnimation(isFirstJump);
                 _jumpAnimPlayed = true;
@@ -220,7 +247,7 @@ namespace UPlayGround.State
             }
             else
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                 controller.TransitionToState(new PlayerIdleState(controller));
             }
         }
 
@@ -250,15 +277,12 @@ namespace UPlayGround.State
                 && isFirstJump == false)
             {
                 jumpKey = AnimKey.DoubleJump;
-            } 
-            var state = gameActor.Animator.PlayMotion(jumpKey, 0.2f);
-            if (state != null)
-            {
-                state.OwnedEvents.OnEnd += () =>
-                {
-                    gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
-                };
             }
+
+            // 즉발 액션이므로 페이드를 짧게 — 0.2f는 도약 시작이 한 박자 늦어보임
+            gameActor.Animator.PlayMotion(jumpKey, 0.05f);
+            // Jump → Fall 전이는 UpdateVelocity의 수직 속도 체크에서 처리 (정점 통과 시점)
+            _fallAnimPlayed = false;
         }
     }
 }

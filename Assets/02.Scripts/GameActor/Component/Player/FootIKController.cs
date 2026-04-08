@@ -46,8 +46,34 @@ namespace UPlayGround.Component
         private Animator                _animator;
         private KinematicCharacterMotor _motor;
 
-        // 외부(상태머신 등)에서 IK를 강제 비활성화. true면 globalWeight를 0으로 페이드.
-        public bool ForceDisabled;
+        // 외부(상태머신 등)에서 IK를 강제 비활성화.
+        // 비대칭 페이드: 끄는 건 즉시(도약 시 발 stretch 방지), 켜는 건 부드럽게(착지 팝 방지).
+        public bool ForceDisabled
+        {
+            get => _forceDisabled;
+            set
+            {
+                if (_forceDisabled == value) return;
+                _forceDisabled = value;
+                if (value)
+                {
+                    // 즉시 비활성화 + 내부 상태 리셋
+                    _globalWeight    = 0f;
+                    _leftFootWeight  = 0f;
+                    _rightFootWeight = 0f;
+                    _hipOffset       = 0f;
+                    _bodyRotOffset   = Quaternion.identity;
+                    _initialized     = false; // 재활성 시 깨끗한 시작
+                    if (_animator != null)
+                    {
+                        SetFootWeight(AvatarIKGoal.LeftFoot,  0f);
+                        SetFootWeight(AvatarIKGoal.RightFoot, 0f);
+                    }
+                }
+                // false로 돌아갈 땐 _globalWeight 0에서 _globalFadeSpeed로 자연스럽게 페이드 인
+            }
+        }
+        private bool _forceDisabled;
 
         private float      _globalWeight = 1f; // ForceDisabled 페이드용
         private bool       _initialized;
@@ -110,6 +136,14 @@ namespace UPlayGround.Component
 
             _ikCalled = true;
 
+            // 완전 비활성 상태: 모든 계산/레이캐스트 스킵 (stale 누적 방지 + CPU 절약)
+            if (_forceDisabled && _globalWeight <= 0f)
+            {
+                SetFootWeight(AvatarIKGoal.LeftFoot,  0f);
+                SetFootWeight(AvatarIKGoal.RightFoot, 0f);
+                return;
+            }
+
             float smoothT      = 1f - Mathf.Exp(-_smoothSpeed    * dt);
             float footWeightDt = _footWeightSpeed * dt;
 
@@ -153,21 +187,25 @@ namespace UPlayGround.Component
             }
 
             // ─── 3) per-foot weight: 발이 지면 근처면 1, 공중이면 0 ───
-            // 이동 중 swing phase는 자연스럽게 weight=0이 되어 애니메이션이 제어
-            // 이동/정지 전환과 무관하므로 on/off 끊김 없음
+            // swing 판정은 "루트 대비 들림량"으로 측정 — 지면 기준이 아님!
+            // 지면이 발보다 낮은 경우(단차/경계면)에도 IK가 살아있어야 발이 늘어가 부착됨.
+            // 오직 애니메이터가 발을 stance 위로 실제로 들어올렸을 때만 weight를 낮춘다.
+            float leftLift  = leftAnimPos.y  - rootY - _footBottomHeight;
+            float rightLift = rightAnimPos.y - rootY - _footBottomHeight;
             float targetLeftWeight  = leftHit
-                ? Mathf.Clamp01(1f - (leftAnimPos.y  - leftTargetY)  / _footLiftThreshold)
+                ? Mathf.Clamp01(1f - Mathf.Max(0f, leftLift)  / _footLiftThreshold)
                 : 0f;
             float targetRightWeight = rightHit
-                ? Mathf.Clamp01(1f - (rightAnimPos.y - rightTargetY) / _footLiftThreshold)
+                ? Mathf.Clamp01(1f - Mathf.Max(0f, rightLift) / _footLiftThreshold)
                 : 0f;
 
             _leftFootWeight  = Mathf.MoveTowards(_leftFootWeight,  targetLeftWeight,  footWeightDt);
             _rightFootWeight = Mathf.MoveTowards(_rightFootWeight, targetRightWeight, footWeightDt);
 
-            // ─── 4) ForceDisabled: 전체 weight 페이드 ───
-            float targetGlobal = ForceDisabled ? 0f : 1f;
-            _globalWeight = Mathf.MoveTowards(_globalWeight, targetGlobal, _globalFadeSpeed * dt);
+            // ─── 4) ForceDisabled 해제 시 글로벌 weight 페이드 인 ───
+            // 끄는 방향은 setter에서 즉시 0으로 처리되므로 여기는 0→1 방향만.
+            if (!_forceDisabled)
+                _globalWeight = Mathf.MoveTowards(_globalWeight, 1f, _globalFadeSpeed * dt);
 
             float appliedLeft  = _leftFootWeight  * _globalWeight;
             float appliedRight = _rightFootWeight * _globalWeight;

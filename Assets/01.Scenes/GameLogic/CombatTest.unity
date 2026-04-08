@@ -59071,7 +59071,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef924fb32825664ca1fe8f4a2150f2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneType: Test
+  SceneType: GamePlay
 --- !u!4 &445373081
 Transform:
   m_ObjectHideFlags: 0
@@ -314013,32 +314013,6 @@ Transform:
   - {fileID: 5969880442149057492}
   m_Father: {fileID: 7016498082189832620}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1788947183467825173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5783163184149014164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 505f99ad4bdb45ec842521bc4e48412a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _detectionRadius: 10
-  _lostTargetRadius: 15
-  _fieldOfView: 120
-  _targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  _obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 529
-  _allyDetectionRadius: 10
-  _allyLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  _detectionInterval: 0.2
 --- !u!4 &1793304800465136074
 Transform:
   m_ObjectHideFlags: 0
@@ -350633,7 +350607,6 @@ GameObject:
   - component: {fileID: 2032720486128074319}
   - component: {fileID: 4443437990343577782}
   - component: {fileID: 2175395237303270923}
-  - component: {fileID: 1788947183467825173}
   - component: {fileID: 7957362010653742994}
   m_Layer: 7
   m_Name: MonsterActor_Training_Dummy
@@ -384749,7 +384722,6 @@ MonoBehaviour:
   _footLiftThreshold: 0.15
   _footWeightSpeed: 10
   _globalFadeSpeed: 15
-  ForceDisabled: 0
 --- !u!4 &8783603964635822402
 Transform:
   m_ObjectHideFlags: 0

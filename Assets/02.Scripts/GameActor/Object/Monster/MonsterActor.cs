@@ -110,7 +110,7 @@ namespace UPlayGround
             
             Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
             
-            _detection.AcquireTarget(attackData.attacker?.transform);
+            _detection?.AcquireTarget(attackData.attacker?.transform);
             
             OnDamaged(attackData);
             
@@ -251,5 +251,26 @@ namespace UPlayGround
         }
         
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
+
+        /// <summary>
+        /// 플레이어 패리에 의해 공격이 무효화됐을 때 호출.
+        /// Brain에 패리 알림 후 경직 상태로 강제 전환한다.
+        /// </summary>
+        public void OnParried()
+        {
+            Debug.Log($"[MonsterActor] {gameObject.name} 패리당함!");
+
+            _brain?.OnParried();
+
+            // 패리 경직: Light 반응 타입으로 EnemyHitState 전환
+            var staggerData = new AttackData
+            {
+                reactionType   = AttackReactionType.Light,
+                damage         = 0f,
+                poiseDamage    = 0f,
+                knockbackForce = 0f,
+            };
+            MovementController.TransitionToState(new EnemyHitState(MovementController, staggerData));
+        }
     }
 }

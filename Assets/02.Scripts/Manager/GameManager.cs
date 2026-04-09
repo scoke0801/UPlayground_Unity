@@ -62,8 +62,9 @@ namespace UPlayGround.Manager
             RegisterManager(DialogueManager.Instance);
             RegisterManager(StoryManager.Instance);
             RegisterManager(GameTimeManager.Instance);
-            
+
             RegisterManager(SceneManager.Instance);
+            RegisterManager(CheatManager.Instance);
 
             // Init이후에 후처리 필요한 경우 
             AfterInit();

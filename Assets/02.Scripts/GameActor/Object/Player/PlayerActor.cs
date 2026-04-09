@@ -40,6 +40,10 @@ namespace UPlayGround
         [Tooltip("사망 쉐이크")]
         [SerializeField] private string _shakeKeyDeath    = "PlayerDeath";
 
+        [Header("Parry")]
+        [Tooltip("패리 성공 시 재생할 VFX 이름")]
+        [SerializeField] private string _parryFxName = "ParryFX";
+
         public event Action<float, float> OnHpChanged;
         public event Action<float, float> OnSkillGaugeChanged;
 
@@ -327,6 +331,10 @@ namespace UPlayGround
                 }
             }
 
+            // 패리: Attack / Charge 상태에서 히트박스가 활성화된 동안 피격 시 발동
+            if (TryParry(attackData))
+                return;
+
             if (!CanTakeDamage())
             {
                 Debug.Log($"[PlayerActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
@@ -385,6 +393,50 @@ namespace UPlayGround
         }
 
         public void HealPercent(float ratio) => Heal(ratio * _maxHealth);
+
+        /// <summary>
+        /// Attack / Charge 상태에서 히트박스가 활성 상태일 때 피격되면 패리를 시도한다.
+        /// CheatManager.IsAlwaysParryEnabled가 켜져 있으면 조건 없이 패리한다.
+        /// </summary>
+        private bool TryParry(AttackData attackData)
+        {
+            bool alwaysParry = CheatManager.Instance?.IsAlwaysParryEnabled ?? false;
+
+            if (!alwaysParry)
+            {
+                string stateName = MovementController.CurrentState.StateName;
+                if (stateName != "Attack" && stateName != "Charge")
+                    return false;
+                if (!_combat.IsPossibleCollide)
+                    return false;
+            }
+
+            OnParrySuccess(attackData);
+            return true;
+        }
+
+        private void OnParrySuccess(AttackData attackData)
+        {
+            Debug.Log("[PlayerActor] 패리 성공!");
+
+            // 히트스톱
+            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
+
+            // 카메라 피드백
+            CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
+            if (attackData?.attackDirection != Vector3.zero)
+                CameraManager.Instance.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.15f, 0.2f);
+
+            // 패리 VFX
+            Vector3 fxPos = (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
+                ? attackData.hitPoint
+                : transform.position;
+            GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
+
+            // 공격자(몬스터) 경직
+            if (attackData?.attacker is MonsterActor monster)
+                monster.OnParried();
+        }
 
         /// <summary>
         /// 가드 브레이크 시 호출.

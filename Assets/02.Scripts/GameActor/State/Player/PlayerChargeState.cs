@@ -53,6 +53,8 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+
             _combat             = playerActor.GetCombat();
             _chargeTime         = 0f;
             _chargeRatio        = 0f;
@@ -87,6 +89,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
+
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimEnd;
 
             // 피격 등 강제 전환 시 남은 모든 InfiniteLoop 차단

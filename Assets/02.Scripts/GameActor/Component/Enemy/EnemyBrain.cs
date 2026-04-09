@@ -145,14 +145,20 @@ namespace UPlayGround.Component
             var actor = GetComponent<GameActor>();
             _hasGuardMotion = actor?.Animator?.HasMotion(AnimKey.Guard) ?? false;
 
-            _detection.OnTargetAcquiredExternally += OnTargetInjected;
+            if (_detection != null)
+            {
+                _detection.OnTargetAcquiredExternally += OnTargetInjected;
+            }
 
             RollNextActionDelay();
         }
 
         protected virtual void OnDestroy()
         {
-            _detection.OnTargetAcquiredExternally -= OnTargetInjected;
+            if (_detection != null)
+            {
+                _detection.OnTargetAcquiredExternally -= OnTargetInjected;
+            }
         }
 
         /// <summary>
@@ -186,9 +192,11 @@ namespace UPlayGround.Component
                 MakeDecision();
             }
 
-            // 플레이어 타겟 추적 연동
-            if (_detection.HasTarget && _memory != null)
-                _memory.SetPlayerTarget(_detection.CurrentTarget);
+            if (_detection != null)
+            {
+                if(_detection.HasTarget && _memory != null)
+                    _memory.SetPlayerTarget(_detection.CurrentTarget);
+            }
         }
 
         #endregion
@@ -244,7 +252,7 @@ namespace UPlayGround.Component
                 if (TryNonCombatSkill()) return;
             }
 
-            if (_detection.HasTarget)
+            if (_detection != null && _detection.HasTarget)
                 HandleCombatBehavior(state);
             else
                 HandleIdleBehavior(state);
@@ -749,6 +757,18 @@ namespace UPlayGround.Component
             float max = Mathf.Lerp(MIN_ACTION_DELAY, MAX_ACTION_DELAY, AggressionFactor);
             _nextActionDelay = Random.Range(MIN_ACTION_DELAY, max);
             _actionCooldownTimer = 0f;
+        }
+
+        /// <summary>
+        /// 플레이어 패리로 공격이 무효화됐을 때 호출.
+        /// 다음 행동까지 대기 시간을 늘려 플레이어에게 반격 창을 열어준다.
+        /// </summary>
+        public void OnParried()
+        {
+            _actionCooldownTimer = 0f;
+            _nextActionDelay     = Mathf.Max(_nextActionDelay, UnityEngine.Random.Range(1.0f, 2.0f));
+            _memory?.NotifyAttackMissed();
+            Debug.Log($"[EnemyBrain] {gameObject.name} 패리 처리 - 다음 행동까지 {_nextActionDelay:F2}초 대기");
         }
 
         public float GetMaxAttackRange() => _maxAttackRange;

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7161cef1eb36d5645a44f66173564eab, type: 3}
-  m_Name: DropTable_
+  m_Name: DropTable_ChildPlant
   m_EditorClassIdentifier: 
   dropItems:
-  - itemData: {fileID: 11400000, guid: 426dbc436f8596a4084fb158ff11a548, type: 2}
-    rate: 50
-    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
+    rate: 100
+    maximumDropCount: 3

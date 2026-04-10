@@ -19,31 +19,34 @@ namespace UPlayGround.Component
     /// </summary>
     public class FootIKController : MonoBehaviour
     {
-        [Header("Raycast")]
-        [SerializeField] private LayerMask _groundLayers;
+        [Header("Raycast")] [SerializeField] private LayerMask _groundLayers;
         [SerializeField] private float _rayOriginHeight = 0.5f;
-        [SerializeField] private float _rayLength       = 1.5f;
+        [SerializeField] private float _rayLength = 1.5f;
 
-        [Header("IK")]
-        [SerializeField] private float _footBottomHeight = 0.08f;
-        [SerializeField] private float _smoothSpeed      = 12f;
-        [SerializeField] private float _maxHipDrop       = 0.5f;
+        [Header("IK")] [SerializeField] private float _footBottomHeight = 0.08f;
+        [SerializeField] private float _smoothSpeed = 12f;
+        [SerializeField] private float _maxHipDrop = 0.5f;
+
         [SerializeField, Tooltip("상체 기울기 최대 각도 (도)")]
         private float _maxBodyTiltAngle = 15f;
+
         [SerializeField, Tooltip("두 발 법선 차이가 이 각도 이하일 때만 상체 기울기 적용 (뾰족한 장애물/급경사 필터링)")]
         private float _maxNormalDiffAngle = 30f;
+
         [SerializeField, Tooltip("발 회전 보정 최소 법선 Y (미만이면 수직 사용)")]
         private float _minNormalY = 0.5f;
 
         [Header("Per-Foot Weight")]
         [SerializeField, Tooltip("발이 지면 목표보다 이 높이(m) 이상 들리면 IK weight=0.\n보행 중 swing phase를 자동으로 비활성화하는 임계값.")]
         private float _footLiftThreshold = 0.15f;
-        [SerializeField, Tooltip("per-foot weight 변화 속도.")]
-        private float _footWeightSpeed   = 10f;
-        [SerializeField, Tooltip("ForceDisabled 시 전체 weight 페이드 속도.")]
-        private float _globalFadeSpeed   = 15f;
 
-        private Animator                _animator;
+        [SerializeField, Tooltip("per-foot weight 변화 속도.")]
+        private float _footWeightSpeed = 10f;
+
+        [SerializeField, Tooltip("ForceDisabled 시 전체 weight 페이드 속도.")]
+        private float _globalFadeSpeed = 15f;
+
+        private Animator _animator;
         private KinematicCharacterMotor _motor;
 
         // 외부(상태머신 등)에서 IK를 강제 비활성화.
@@ -58,41 +61,42 @@ namespace UPlayGround.Component
                 if (value)
                 {
                     // 즉시 비활성화 + 내부 상태 리셋
-                    _globalWeight    = 0f;
-                    _leftFootWeight  = 0f;
+                    _globalWeight = 0f;
+                    _leftFootWeight = 0f;
                     _rightFootWeight = 0f;
-                    _hipOffset       = 0f;
-                    _bodyRotOffset   = Quaternion.identity;
-                    _initialized     = false; // 재활성 시 깨끗한 시작
+                    _hipOffset = 0f;
+                    _bodyRotOffset = Quaternion.identity;
+                    _initialized = false; // 재활성 시 깨끗한 시작
                     if (_animator != null)
                     {
-                        SetFootWeight(AvatarIKGoal.LeftFoot,  0f);
+                        SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
                         SetFootWeight(AvatarIKGoal.RightFoot, 0f);
                     }
                 }
                 // false로 돌아갈 땐 _globalWeight 0에서 _globalFadeSpeed로 자연스럽게 페이드 인
             }
         }
+
         private bool _forceDisabled;
 
-        private float      _globalWeight = 1f; // ForceDisabled 페이드용
-        private bool       _initialized;
+        private float _globalWeight = 1f; // ForceDisabled 페이드용
+        private bool _initialized;
 
-        private float      _leftFootWeight;
-        private float      _rightFootWeight;
+        private float _leftFootWeight;
+        private float _rightFootWeight;
 
-        private float      _hipOffset;
+        private float _hipOffset;
         private Quaternion _bodyRotOffset = Quaternion.identity;
 
-        private float   _leftFootY,  _rightFootY;
-        private Vector3 _leftNormal  = Vector3.up;
+        private float _leftFootY, _rightFootY;
+        private Vector3 _leftNormal = Vector3.up;
         private Vector3 _rightNormal = Vector3.up;
 
         // 디버그
-        private bool    _ikCalled;
-        private Vector3 _dbgLeftOrigin,  _dbgRightOrigin;
-        private Vector3 _dbgLeftHit,     _dbgRightHit;
-        private bool    _dbgLeftDidHit,  _dbgRightDidHit;
+        private bool _ikCalled;
+        private Vector3 _dbgLeftOrigin, _dbgRightOrigin;
+        private Vector3 _dbgLeftHit, _dbgRightHit;
+        private bool _dbgLeftDidHit, _dbgRightDidHit;
 
         private void Awake()
         {
@@ -139,49 +143,49 @@ namespace UPlayGround.Component
             // 완전 비활성 상태: 모든 계산/레이캐스트 스킵 (stale 누적 방지 + CPU 절약)
             if (_forceDisabled && _globalWeight <= 0f)
             {
-                SetFootWeight(AvatarIKGoal.LeftFoot,  0f);
+                SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
                 SetFootWeight(AvatarIKGoal.RightFoot, 0f);
                 return;
             }
 
-            float smoothT      = 1f - Mathf.Exp(-_smoothSpeed    * dt);
+            float smoothT = 1f - Mathf.Exp(-_smoothSpeed * dt);
             float footWeightDt = _footWeightSpeed * dt;
 
             // ─── 1) 발 애니메이션 위치 & 레이캐스트 ───
-            Vector3 leftAnimPos  = _animator.GetIKPosition(AvatarIKGoal.LeftFoot);
+            Vector3 leftAnimPos = _animator.GetIKPosition(AvatarIKGoal.LeftFoot);
             Vector3 rightAnimPos = _animator.GetIKPosition(AvatarIKGoal.RightFoot);
-            float   rootY        = transform.position.y;
+            float rootY = transform.position.y;
 
-            bool leftHit  = FootRay(leftAnimPos,  rootY, out float leftGroundY,  out Vector3 leftNorm);
+            bool leftHit = FootRay(leftAnimPos, rootY, out float leftGroundY, out Vector3 leftNorm);
             bool rightHit = FootRay(rightAnimPos, rootY, out float rightGroundY, out Vector3 rightNorm);
 
 #if UNITY_EDITOR
-            _dbgLeftOrigin  = new Vector3(leftAnimPos.x,  rootY + _rayOriginHeight, leftAnimPos.z);
+            _dbgLeftOrigin = new Vector3(leftAnimPos.x, rootY + _rayOriginHeight, leftAnimPos.z);
             _dbgRightOrigin = new Vector3(rightAnimPos.x, rootY + _rayOriginHeight, rightAnimPos.z);
-            _dbgLeftDidHit  = leftHit;
+            _dbgLeftDidHit = leftHit;
             _dbgRightDidHit = rightHit;
-            if (leftHit)  _dbgLeftHit  = new Vector3(leftAnimPos.x,  leftGroundY,  leftAnimPos.z);
+            if (leftHit) _dbgLeftHit = new Vector3(leftAnimPos.x, leftGroundY, leftAnimPos.z);
             if (rightHit) _dbgRightHit = new Vector3(rightAnimPos.x, rightGroundY, rightAnimPos.z);
 #endif
 
-            float leftTargetY  = leftHit  ? leftGroundY  + _footBottomHeight : leftAnimPos.y;
+            float leftTargetY = leftHit ? leftGroundY + _footBottomHeight : leftAnimPos.y;
             float rightTargetY = rightHit ? rightGroundY + _footBottomHeight : rightAnimPos.y;
 
             // ─── 2) 발 위치·법선 항상 추적 (IK 비활성 중에도) ───
             if (!_initialized)
             {
-                _leftFootY   = leftTargetY;
-                _rightFootY  = rightTargetY;
-                _leftNormal  = leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up;
+                _leftFootY = leftTargetY;
+                _rightFootY = rightTargetY;
+                _leftNormal = leftHit && leftNorm.y >= _minNormalY ? leftNorm : Vector3.up;
                 _rightNormal = rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up;
                 _initialized = true;
             }
             else
             {
-                _leftFootY  = Mathf.Lerp(_leftFootY,  leftTargetY,  smoothT);
+                _leftFootY = Mathf.Lerp(_leftFootY, leftTargetY, smoothT);
                 _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, smoothT);
-                _leftNormal  = Vector3.Slerp(_leftNormal,
-                    leftHit  && leftNorm.y  >= _minNormalY ? leftNorm  : Vector3.up, smoothT);
+                _leftNormal = Vector3.Slerp(_leftNormal,
+                    leftHit && leftNorm.y >= _minNormalY ? leftNorm : Vector3.up, smoothT);
                 _rightNormal = Vector3.Slerp(_rightNormal,
                     rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up, smoothT);
             }
@@ -190,16 +194,16 @@ namespace UPlayGround.Component
             // swing 판정은 "루트 대비 들림량"으로 측정 — 지면 기준이 아님!
             // 지면이 발보다 낮은 경우(단차/경계면)에도 IK가 살아있어야 발이 늘어가 부착됨.
             // 오직 애니메이터가 발을 stance 위로 실제로 들어올렸을 때만 weight를 낮춘다.
-            float leftLift  = leftAnimPos.y  - rootY - _footBottomHeight;
+            float leftLift = leftAnimPos.y - rootY - _footBottomHeight;
             float rightLift = rightAnimPos.y - rootY - _footBottomHeight;
-            float targetLeftWeight  = leftHit
-                ? Mathf.Clamp01(1f - Mathf.Max(0f, leftLift)  / _footLiftThreshold)
+            float targetLeftWeight = leftHit
+                ? Mathf.Clamp01(1f - Mathf.Max(0f, leftLift) / _footLiftThreshold)
                 : 0f;
             float targetRightWeight = rightHit
                 ? Mathf.Clamp01(1f - Mathf.Max(0f, rightLift) / _footLiftThreshold)
                 : 0f;
 
-            _leftFootWeight  = Mathf.MoveTowards(_leftFootWeight,  targetLeftWeight,  footWeightDt);
+            _leftFootWeight = Mathf.MoveTowards(_leftFootWeight, targetLeftWeight, footWeightDt);
             _rightFootWeight = Mathf.MoveTowards(_rightFootWeight, targetRightWeight, footWeightDt);
 
             // ─── 4) ForceDisabled 해제 시 글로벌 weight 페이드 인 ───
@@ -207,18 +211,18 @@ namespace UPlayGround.Component
             if (!_forceDisabled)
                 _globalWeight = Mathf.MoveTowards(_globalWeight, 1f, _globalFadeSpeed * dt);
 
-            float appliedLeft  = _leftFootWeight  * _globalWeight;
+            float appliedLeft = _leftFootWeight * _globalWeight;
             float appliedRight = _rightFootWeight * _globalWeight;
 
             // ─── 5) 골반 오프셋 추적 ───
             // 지면 자체가 루트보다 낮을 때만 내림 (평지에서 가라앉음 방지)
-            float leftGroundDelta  = leftHit  ? Mathf.Min(leftGroundY  + _footBottomHeight - rootY, 0f) : 0f;
+            float leftGroundDelta = leftHit ? Mathf.Min(leftGroundY + _footBottomHeight - rootY, 0f) : 0f;
             float rightGroundDelta = rightHit ? Mathf.Min(rightGroundY + _footBottomHeight - rootY, 0f) : 0f;
             float hipTarget = 0f;
-            if      (leftHit && rightHit) hipTarget = Mathf.Min(leftGroundDelta, rightGroundDelta);
-            else if (leftHit)             hipTarget = leftGroundDelta;
-            else if (rightHit)            hipTarget = rightGroundDelta;
-            hipTarget  = Mathf.Max(hipTarget, -_maxHipDrop);
+            if (leftHit && rightHit) hipTarget = Mathf.Min(leftGroundDelta, rightGroundDelta);
+            else if (leftHit) hipTarget = leftGroundDelta;
+            else if (rightHit) hipTarget = rightGroundDelta;
+            hipTarget = Mathf.Max(hipTarget, -_maxHipDrop);
             _hipOffset = Mathf.Lerp(_hipOffset, hipTarget, smoothT);
 
             // ─── 6) 상체 기울기 오프셋 추적 ───
@@ -234,15 +238,15 @@ namespace UPlayGround.Component
             if (avgWeight > 0.001f)
             {
                 _animator.bodyPosition += Vector3.up * _hipOffset * avgWeight;
-                _animator.bodyRotation  = Quaternion.Slerp(Quaternion.identity, _bodyRotOffset, avgWeight)
-                                          * _animator.bodyRotation;
+                _animator.bodyRotation = Quaternion.Slerp(Quaternion.identity, _bodyRotOffset, avgWeight)
+                                         * _animator.bodyRotation;
             }
 
-            SetFootWeight(AvatarIKGoal.LeftFoot,  appliedLeft);
+            SetFootWeight(AvatarIKGoal.LeftFoot, appliedLeft);
             SetFootWeight(AvatarIKGoal.RightFoot, appliedRight);
 
-            if (appliedLeft  > 0.001f)
-                ApplyFootPosition(AvatarIKGoal.LeftFoot,  leftAnimPos,  _leftFootY,  _leftNormal);
+            if (appliedLeft > 0.001f)
+                ApplyFootPosition(AvatarIKGoal.LeftFoot, leftAnimPos, _leftFootY, _leftNormal);
             if (appliedRight > 0.001f)
                 ApplyFootPosition(AvatarIKGoal.RightFoot, rightAnimPos, _rightFootY, _rightNormal);
         }
@@ -254,11 +258,12 @@ namespace UPlayGround.Component
                     _groundLayers, QueryTriggerInteraction.Ignore))
             {
                 groundY = hit.point.y;
-                normal  = hit.normal;
+                normal = hit.normal;
                 return true;
             }
+
             groundY = 0f;
-            normal  = Vector3.up;
+            normal = Vector3.up;
             return false;
         }
 
@@ -274,8 +279,8 @@ namespace UPlayGround.Component
         {
             _animator.SetIKPosition(goal, new Vector3(animPos.x, targetY, animPos.z));
 
-            Quaternion rot  = _animator.GetIKRotation(goal);
-            Vector3    axis = Vector3.Cross(rot * Vector3.up, normal);
+            Quaternion rot = _animator.GetIKRotation(goal);
+            Vector3 axis = Vector3.Cross(rot * Vector3.up, normal);
             if (axis.sqrMagnitude > 1e-6f)
                 _animator.SetIKRotation(goal,
                     Quaternion.AngleAxis(Vector3.Angle(rot * Vector3.up, normal), axis) * rot);
@@ -286,50 +291,6 @@ namespace UPlayGround.Component
             _animator.SetIKPositionWeight(goal, w);
             _animator.SetIKRotationWeight(goal, w);
         }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            if (!Application.isPlaying || _animator == null) return;
-
-            if (!_ikCalled)
-            {
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawWireSphere(transform.position + Vector3.up * 1.5f, 0.3f);
-                UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
-                    "[FootIK] OnAnimatorIK 미호출!\nAnimator Layer에서 IK Pass를 확인하세요.");
-                return;
-            }
-
-            Gizmos.color = _dbgLeftDidHit ? Color.green : Color.red;
-            Gizmos.DrawLine(_dbgLeftOrigin, _dbgLeftOrigin + Vector3.down * _rayLength);
-            if (_dbgLeftDidHit)
-            {
-                Gizmos.DrawWireSphere(_dbgLeftHit, 0.04f);
-                Gizmos.DrawLine(_dbgLeftHit, _dbgLeftHit + _leftNormal * 0.2f);
-            }
-
-            Gizmos.color = _dbgRightDidHit ? new Color(0f, 0.8f, 1f) : Color.red;
-            Gizmos.DrawLine(_dbgRightOrigin, _dbgRightOrigin + Vector3.down * _rayLength);
-            if (_dbgRightDidHit)
-            {
-                Gizmos.DrawWireSphere(_dbgRightHit, 0.04f);
-                Gizmos.DrawLine(_dbgRightHit, _dbgRightHit + _rightNormal * 0.2f);
-            }
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(_animator.bodyPosition, 0.05f);
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(_animator.bodyPosition,
-                _animator.bodyPosition + (_leftNormal + _rightNormal).normalized * 0.3f);
-
-            UnityEditor.Handles.Label(transform.position + Vector3.up * 2f,
-                $"[FootIK] global={_globalWeight:F2} hip={_hipOffset:F3}\n" +
-                $"L={_leftFootWeight:F2} ({(_dbgLeftDidHit ? _dbgLeftHit.y.ToString("F3") : "miss")})  " +
-                $"R={_rightFootWeight:F2} ({(_dbgRightDidHit ? _dbgRightHit.y.ToString("F3") : "miss")})");
-        }
-#endif
     }
 
     /// <summary>

@@ -20,3 +20,4 @@ MonoBehaviour:
   prefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
   stats: {fileID: 11400000, guid: 655d564b102b10d4991b0db344594a60, type: 2}
   poiseData: {fileID: 11400000, guid: b6b96b1e43c398e45972d295a2b340d7, type: 2}
+  dropTable: {fileID: 11400000, guid: f12bd99238414804d944c338bac438f2, type: 2}

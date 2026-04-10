@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -81,14 +82,17 @@ namespace UPlayGround.MovementController
         public KinematicCharacterMotor Motor { get; private set; }
         public GameActor Actor { get; private set; }
 
-
-        protected virtual void Start()
+        protected void Awake()
         {
             Motor = GetComponent<KinematicCharacterMotor>();
             Actor = GetComponent<GameActor>();
             
             // Assign to motor
             Motor.CharacterController = this;
+        }
+
+        protected virtual void Start()
+        {
         }
 
         protected virtual void Update()

@@ -15129,6 +15129,7 @@ MonoBehaviour:
   _freeSnapSearchAngle: 80
   _warpMinDistance: 0.3
   _warpMaxDistance: 15
+  _warpMaxSpeed: 18
   _finishAttackSearchRange: 2
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
@@ -15138,8 +15139,8 @@ MonoBehaviour:
   _punchDurationLight: 0.12
   _punchDurationHeavy: 0.18
   _punchDurationSkill: 0.2
-  _shakeKeyLight: LiteHit
-  _shakeKeyHeavy: HeavyHit
+  _shakeKeyLight: 0
+  _shakeKeyHeavy: 0
   IsGuarding: 0
   _maxGuardCount: 3
   _guardResetDelay: 3
@@ -15195,9 +15196,9 @@ MonoBehaviour:
   _combat: {fileID: 128408074}
   _skillGauge: {fileID: 0}
   _footIK: {fileID: 0}
-  _shakeKeyHit: PlayerHit
-  _shakeKeyHeavyHit: PlayerHeavyHit
-  _shakeKeyDeath: PlayerDeath
+  _shakeKeyHit: 0
+  _shakeKeyHeavyHit: 0
+  _shakeKeyDeath: 0
   _parryFxName: ParryFX
 --- !u!114 &128408077
 MonoBehaviour:
@@ -16704,6 +16705,10 @@ PrefabInstance:
     - target: {fileID: 1844697684467198324, guid: b8216384564475946ae6a95e6536222f, type: 3}
       propertyPath: m_Name
       value: Monster_Dryad
+      objectReference: {fileID: 0}
+    - target: {fileID: 1844697684467198324, guid: b8216384564475946ae6a95e6536222f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3764645433079767606, guid: b8216384564475946ae6a95e6536222f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -22378,7 +22383,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &208736798
 Transform:
   m_ObjectHideFlags: 0
@@ -42501,7 +42506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &452275600
 Transform:
   m_ObjectHideFlags: 0
@@ -53720,6 +53725,10 @@ PrefabInstance:
     - target: {fileID: 4288469885832810656, guid: a7fc4eaf91b3c444fa8649fe7384572d, type: 3}
       propertyPath: m_Name
       value: MonsterActor_Training_Dummy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4288469885832810656, guid: a7fc4eaf91b3c444fa8649fe7384572d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -124231,7 +124240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1210250206
 Transform:
   m_ObjectHideFlags: 0
@@ -132641,7 +132650,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1284319255
 Transform:
   m_ObjectHideFlags: 0
@@ -156676,6 +156685,8 @@ MonoBehaviour:
   _isInvincible: 0
   _lockOnDecal: {fileID: 657542331}
   _poiseStat: {fileID: 0}
+  _dropTable: {fileID: 0}
+  _itemActorPrefab: {fileID: 0}
   _detection: {fileID: 0}
   _brain: {fileID: 0}
   _combat: {fileID: 0}
@@ -217312,6 +217323,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster_ChildPlant_V2
       objectReference: {fileID: 0}
+    - target: {fileID: 8823580157644977130, guid: 3005218b1fcf5ae4c952b24c0a04dfaa, type: 3}
+      propertyPath: _itemActorPrefab
+      value: 
+      objectReference: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -217472,6 +217487,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1210250206}
     m_Modifications:
+    - target: {fileID: 442419723728278338, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+      propertyPath: _itemActorPrefab
+      value: 
+      objectReference: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
     - target: {fileID: 875032344510964279, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.37
@@ -269359,6 +269378,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster_ChildPlant_V3
       objectReference: {fileID: 0}
+    - target: {fileID: 6273722030380778935, guid: 61a62e5d27dea7b4396459339f8ab824, type: 3}
+      propertyPath: _itemActorPrefab
+      value: 
+      objectReference: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Path;
 using UPlayGround.Group;
 
 namespace UPlayGround.Manager
@@ -11,8 +14,11 @@ namespace UPlayGround.Manager
     /// </summary>
     public class ActorSpawnManager : BaseManager<ActorSpawnManager>, IManager
     {
-        [SerializeField] private ActorDatabase _database;
-
+        private const string DATABASE_KEY = "ActorDatabase";
+        private ActorDatabase _database;
+        
+        public bool IsDBLoaded { get; private set; } = false;
+        
         // instanceID → 스폰 정보
         private readonly Dictionary<int, SpawnedActorInfo> _spawnedActors = new();
 
@@ -23,17 +29,67 @@ namespace UPlayGround.Manager
 
         /// <summary>현재 살아있는 스폰 정보 맵 (읽기 전용)</summary>
         public IReadOnlyDictionary<int, SpawnedActorInfo> SpawnedActors => _spawnedActors;
-
+        
+        // DB 로드 전 들어온 등록 요청을 임시 보관하는 리스트
+        private readonly List<GameActor> _pendingRegistrationQueue = new();
+       
         // ── IManager 구현 ────────────────────────────────────────────
 
         public void Init()
         {
+            LoadDatabaseAsync();
             _spawnedActors.Clear();
             if (_database != null)
                 _database.Initialize();
             else
                 Debug.LogWarning("[ActorSpawnManager] ActorDatabase가 할당되지 않았습니다. Inspector에서 연결하세요.");
         }
+        #region 데이터베이스 로드
+
+        private async void LoadDatabaseAsync()
+        {
+            var handle = Addressables.LoadAssetAsync<ActorDatabase>(DATABASE_KEY);
+            try
+            {
+                _database = await handle.Task;
+
+                if (_database == null)
+                {
+                    Debug.LogError($"[ActorSpawnManager] '{DATABASE_KEY}' Addressable을 찾을 수 없습니다.");
+                    return;
+                }
+
+                _database.Initialize();
+                IsDBLoaded = true;
+                
+                // DB 로드가 완료되었으므로 대기 중인 Actor들을 처리합니다.
+                ProcessPendingActors();
+                
+                Debug.Log("[ActorSpawnManager] Database 로드 완료");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ActorSpawnManager] Database 로드 실패: {e.Message}");
+            }
+        }
+        /// <summary>
+        /// DB 로드 완료 후, 대기 리스트에 있던 Actor들에게 데이터를 주입하고 정식 등록합니다.
+        /// </summary>
+        private void ProcessPendingActors()
+        {
+            if (_pendingRegistrationQueue.Count == 0) return;
+
+            foreach (var actor in _pendingRegistrationQueue)
+            {
+                if (actor != null)
+                {
+                    RegisterActor(actor);
+                }
+            }
+
+            _pendingRegistrationQueue.Clear();
+        }
+        #endregion
 
         public void AfterInit()
         {
@@ -155,7 +211,16 @@ namespace UPlayGround.Manager
         public void RegisterActor(GameActor actor, string actorIdOverride = null)
         {
             if (actor == null) return;
-
+            
+            if (!IsDBLoaded)
+            {
+                if (!_pendingRegistrationQueue.Contains(actor))
+                {
+                    _pendingRegistrationQueue.Add(actor);
+                }
+                return;
+            }
+            
             int instanceId = actor.gameObject.GetInstanceID();
             if (_spawnedActors.ContainsKey(instanceId)) return;
 

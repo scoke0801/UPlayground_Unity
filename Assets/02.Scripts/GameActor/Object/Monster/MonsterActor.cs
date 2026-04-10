@@ -21,6 +21,10 @@ namespace UPlayGround
         [SerializeField] private GameObject _lockOnDecal = null;
         [SerializeField] private PoiseStat _poiseStat = null;
         
+        [Header("Drop")]
+        [SerializeField] private EnemyDropTableSO _dropTable;
+        [SerializeField] private ItemActor _itemActorPrefab;
+
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyBrain _brain;
@@ -28,6 +32,7 @@ namespace UPlayGround
 
         protected float _maxHealth = 0.0f;
         protected float _currentHealth = 0.0f;
+        protected bool _isDead = false;
         
         protected UI_ActorHpBar _uiHpBar;
         
@@ -231,10 +236,15 @@ namespace UPlayGround
         
         protected virtual void OnDeath(AttackData attackData)
         {
+            if (_isDead) return;
+            _isDead = true;
+
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
             _brain?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
+
+            SpawnDropItems();
 
             if (_uiHpBar != null)
             {
@@ -243,6 +253,18 @@ namespace UPlayGround
             }
             
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
+        }
+
+        private void SpawnDropItems()
+        {
+            if (_dropTable == null || _itemActorPrefab == null) return;
+
+            var items = ItemManager.Instance.GetDropItemList(_dropTable.dropItems);
+            foreach (var item in items)
+            {
+                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
+                go.Init(item);
+            }
         }
 
         public void PlayDissolveAndDestroy(float duration)
@@ -265,14 +287,18 @@ namespace UPlayGround
 
             if (definition.stats != null)
             {
-                _stats = definition.stats;
-                _maxHealth = _stats.maxHealth;
+                _stats         = definition.stats;
+                _maxHealth     = _stats.maxHealth;
                 _currentHealth = _maxHealth;
+                _isDead        = false; // 체력 재초기화 시 사망 가드도 함께 해제
                 OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             }
 
             if (definition.poiseData != null && _poiseStat != null)
                 _poiseStat.Init(definition.poiseData);
+
+            if (definition.dropTable != null)
+                _dropTable = definition.dropTable;
         }
 
         /// <summary>

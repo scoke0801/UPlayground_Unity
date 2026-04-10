@@ -69,9 +69,12 @@ namespace UPlayGround.Component
         [SerializeField] private float _warpMinDistance = 0.3f;
         [Tooltip("워프 최대 거리. 이 거리를 초과한 적에게는 워프 미적용")]
         [SerializeField] private float _warpMaxDistance = 4f;
+        [Tooltip("워프 최대 속도. 클램프 후 남은 시간 내 도달 불가 거리면 워프 자체를 미적용")]
+        [SerializeField] private float _warpMaxSpeed    = 18f;
 
-        public float WarpMinDistance    => _warpMinDistance;
-        public float WarpMaxDistance    => _warpMaxDistance;
+        public float WarpMinDistance => _warpMinDistance;
+        public float WarpMaxDistance => _warpMaxDistance;
+        public float WarpMaxSpeed    => _warpMaxSpeed;
 
         [Header("Finish Attack Settings")]
         [SerializeField] private float _finishAttackSearchRange     = 0.5f;
@@ -116,10 +119,13 @@ namespace UPlayGround.Component
         // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이(endTime-startTime)를 주입.
         // 매 프레임 deltaTime만큼 소모하며, 0 이하가 되면 워프 비활성.
         private float _warpRemainingTime;
+        private float _warpTotalDuration;
 
         /// <summary> 워프 이벤트 구간 내 남은 시간. PlayerAttackState의 속력 역산에 사용. </summary>
-        public float  WarpRemainingTime => _warpRemainingTime;
-        public bool   IsMotionWarping   => _warpRemainingTime > 0f;
+        public float WarpRemainingTime => _warpRemainingTime;
+        /// <summary> BeginMotionWarp 시 주입된 전체 워프 구간 길이. EaseOut 진행도 계산에 사용. </summary>
+        public float WarpDuration      => _warpTotalDuration;
+        public bool  IsMotionWarping   => _warpRemainingTime > 0f;
         // ──────────────────────────────────────────────────────────────
 
         public bool IsGuarding    = false;
@@ -247,7 +253,11 @@ namespace UPlayGround.Component
         /// MotionEvent_MotionWarp.Execute()에서 호출.
         /// warpDuration = 이벤트의 endTime - startTime.
         /// </summary>
-        public void BeginMotionWarp(float warpDuration) => _warpRemainingTime = warpDuration;
+        public void BeginMotionWarp(float warpDuration)
+        {
+            _warpRemainingTime = warpDuration;
+            _warpTotalDuration = warpDuration;
+        }
 
         /// <summary>
         /// MotionEvent_MotionWarp.OnCompleteEvent()에서 호출.

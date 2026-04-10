@@ -39,6 +39,10 @@ namespace UPlayGround.State
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
 
+        // Motion Warp 보조
+        private Vector3 _warpTargetPosition; // 워프 시작 시 스냅샷한 목표 위치 (타겟 이동에 의한 경로 흔들림 방지)
+        private float   _warpBlendWeight;    // 루트모션 ↔ 워프 속도 블렌딩 가중치 (0=루트모션, 1=워프)
+
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -85,7 +89,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            _homingTarget = FindHomingTarget();
+            _homingTarget    = FindHomingTarget();
+            _warpBlendWeight = 0f;
+            SnapshotWarpTarget();
         }
 
         public override void OnExit(GameActorState toState)
@@ -97,7 +103,8 @@ namespace UPlayGround.State
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
-            _homingTarget = null;
+            _homingTarget    = null;
+            _warpBlendWeight = 0f;
             base.OnExit(toState);
         }
 
@@ -170,8 +177,10 @@ namespace UPlayGround.State
                 gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
-                _comboInputted = false;
-                _homingTarget  = FindHomingTarget();
+                _comboInputted   = false;
+                _warpBlendWeight = 0f;
+                _homingTarget    = FindHomingTarget();
+                SnapshotWarpTarget();
             }
             else
             {
@@ -231,51 +240,99 @@ namespace UPlayGround.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
 
-            Vector3 rootMotionDelta = gameActor.Animator.DeltaPosition;
+            Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
 
-            // 워프 비활성 구간 → 루트모션 원본
+            // 워프 비활성 구간 → 루트모션 원본으로 부드럽게 복귀
             if (_homingTarget == null || !_combat.IsMotionWarping)
             {
-                currentVelocity = rootMotionDelta / deltaTime;
+                _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
+                currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
                 return;
             }
 
-            Vector3 toTarget = _homingTarget.position - gameActor.transform.position;
-            toTarget.y = 0f;
-            float remainingDist = toTarget.magnitude;
+            Vector3 toTarget      = _warpTargetPosition - gameActor.transform.position;
+            toTarget.y            = 0f;
+            float remainingDist   = toTarget.magnitude;
+            float remainingTime   = _combat.WarpRemainingTime;
 
-            // 최소/최대 거리 범위 밖 → 루트모션 원본
+            // ── 적용 불가 조건: 루트모션으로 복귀 ──────────────────────
+
+            // 1) 최소/최대 거리 범위 밖
             if (remainingDist < _combat.WarpMinDistance || remainingDist > _combat.WarpMaxDistance)
             {
-                currentVelocity = rootMotionDelta / deltaTime;
+                _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
+                currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
                 return;
             }
 
-            // 워프 이벤트 구간의 남은 시간으로 속력 역산
-            // → GetRemainingTime()이 아닌 WarpRemainingTime을 써서
-            //    이벤트 endTime에 정확히 타겟에 도달
-            float remainingTime = _combat.WarpRemainingTime;
-            float warpSpeed = remainingTime > 0.01f
+            // 2) 최대 속도로 클램프해도 남은 시간 내 도달 불가능한 거리
+            //    requiredSpeed > WarpMaxSpeed  →  maxReachableDist < remainingDist
+            if (remainingTime > 0.01f &&
+                remainingDist > _combat.WarpMaxSpeed * remainingTime)
+            {
+                _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
+                currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
+                return;
+            }
+
+            // ── 워프 적용 ───────────────────────────────────────────────
+
+            // 워프 가중치를 1로 빠르게 진입
+            _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 1f, deltaTime * 15f);
+
+            // 진행도 t (0=워프 시작, 1=워프 종료)로 EaseOut Quad 적용
+            // → 초반 빠르게 출발, 후반 자연스럽게 감속
+            float totalDuration = _combat.WarpDuration;
+            float t             = totalDuration > 0f ? 1f - (remainingTime / totalDuration) : 1f;
+            t                   = Mathf.Clamp01(t);
+            float eased         = 1f - (1f - t) * (1f - t);
+
+            float baseSpeed  = remainingTime > 0.01f
                 ? remainingDist / remainingTime
-                : remainingDist / deltaTime; // 시간이 거의 없으면 이번 프레임에 즉시 도달
+                : remainingDist / deltaTime;
 
-            Vector3 warpVelocity = toTarget.normalized * warpSpeed;
+            // EaseOut에 따라 초반에 살짝 빠르게, 후반에 감속
+            float warpSpeed  = Mathf.Lerp(baseSpeed * 1.3f, baseSpeed * 0.7f, eased);
+            warpSpeed        = Mathf.Clamp(warpSpeed, 0f, _combat.WarpMaxSpeed);
 
+            Vector3 warpVelocity   = toTarget.normalized * warpSpeed;
             // Y는 루트모션 원본 유지 (중력/점프 보존)
-            currentVelocity = new Vector3(warpVelocity.x, rootMotionDelta.y / deltaTime, warpVelocity.z);
+            Vector3 targetVelocity = new Vector3(warpVelocity.x, rootVelocity.y, warpVelocity.z);
+
+            currentVelocity = Vector3.Lerp(rootVelocity, targetVelocity, _warpBlendWeight);
+        }
+
+        /// <summary>
+        /// 워프 시작 시 목표 위치를 스냅샷.
+        /// 타겟이 움직여도 워프 경로가 흔들리지 않도록 고정한다.
+        /// </summary>
+        private void SnapshotWarpTarget()
+        {
+            if (_homingTarget != null)
+                _warpTargetPosition = _homingTarget.position;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // 호밍: 워프 구간에서 타겟 방향으로 회전 보정
+            // UpdateVelocity와 동일한 조건(스냅샷 거리 + 도달 가능 여부)으로만 적용해
+            // 이동 방향과 회전 방향이 일치하도록 한다.
             if (_homingTarget != null && _combat.IsMotionWarping)
             {
-                Vector3 dirToTarget = _homingTarget.position - gameActor.transform.position;
-                dirToTarget.y = 0f;
+                // 스냅샷 위치 기준 방향 (UpdateVelocity와 동일 기준)
+                Vector3 toTarget    = _warpTargetPosition - gameActor.transform.position;
+                toTarget.y          = 0f;
+                float dist          = toTarget.magnitude;
+                float remainingTime = _combat.WarpRemainingTime;
 
-                if (dirToTarget.sqrMagnitude > 0.01f)
+                bool isWarpApplicable =
+                    dist >= _combat.WarpMinDistance &&
+                    dist <= _combat.WarpMaxDistance &&
+                    !(remainingTime > 0.01f && dist > _combat.WarpMaxSpeed * remainingTime);
+
+                if (isWarpApplicable && toTarget.sqrMagnitude > 0.01f)
                 {
-                    Quaternion targetRot = Quaternion.LookRotation(dirToTarget.normalized);
+                    Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized);
                     // Startup 0.15초: 빠르게 보정 → 이후: 무게감 있게 감속
                     float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
                     currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);

@@ -36,6 +36,10 @@ namespace UPlayGround.Data.Actor
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;
 
+        [Header("드랍 데이터")]
+        [Tooltip("사망 시 드랍 테이블. null이면 프리팹에 설정된 값 사용.")]
+        public EnemyDropTableSO dropTable;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

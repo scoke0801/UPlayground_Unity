@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Data.Path
 {
@@ -31,6 +32,8 @@ namespace UPlayGround.Data.Path
                 }
             }
         }
+
+        public ItemSO GetItemById(ItemIdType itemId) => GetItemById((int)itemId);
 
         // ID로 아이템 검색
         public ItemSO GetItemById(int itemId)

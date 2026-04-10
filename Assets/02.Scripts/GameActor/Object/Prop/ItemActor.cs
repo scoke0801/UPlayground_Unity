@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using Random = UnityEngine.Random;
 
@@ -106,7 +107,7 @@ namespace UPlayGround
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
 
-            var ui = UIManager.Instance.ShowUI("ItemAcquisitionList");
+            var ui = UIManager.Instance.ShowUI(UIKeyType.ItemAcquisitionList);
             if (ui != null)
             {
                 ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemInstance.data);

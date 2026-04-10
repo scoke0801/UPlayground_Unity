@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.Data;
@@ -34,11 +35,11 @@ namespace UPlayGround
 
         [Header("Hit Shake Keys")]
         [Tooltip("일반 피격 쉐이크")]
-        [SerializeField] private string _shakeKeyHit      = "PlayerHit";
+        [SerializeField] private CameraShakeIdType _shakeKeyHit      = CameraShakeIdType.PlayerHit;
         [Tooltip("Heavy / KnockBack / Airborne 피격 쉐이크")]
-        [SerializeField] private string _shakeKeyHeavyHit = "PlayerHeavyHit";
+        [SerializeField] private CameraShakeIdType _shakeKeyHeavyHit = CameraShakeIdType.PlayerHeavyHit;
         [Tooltip("사망 쉐이크")]
-        [SerializeField] private string _shakeKeyDeath    = "PlayerDeath";
+        [SerializeField] private CameraShakeIdType _shakeKeyDeath    = CameraShakeIdType.PlayerDeath;
 
         [Header("Parry")]
         [Tooltip("패리 성공 시 재생할 VFX 이름")]
@@ -473,7 +474,11 @@ namespace UPlayGround
         /// </summary>
         protected virtual void OnDamaged(AttackData attackData)
         {
-            if (attackData != null)
+            // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
+            bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
+                                  chargeState.HasChargedAtLeastOneStage;
+
+            if (!hasSuperArmor && attackData != null)
             {
                 switch (attackData.reactionType)
                 {
@@ -564,7 +569,7 @@ namespace UPlayGround
             Vector3 pos = actor.transform.position;
             var col = actor.GetComponent<Collider>();
             if (col != null) pos.y += col.bounds.extents.y * 0.5f;
-            GameObjectManager.Instance.ShowFX("InteractionObjectHitFX", pos);
+            GameObjectManager.Instance.ShowFX(FXKeyType.InteractionObjectHitFX, pos);
         }
 
         public void CatchFish()
@@ -576,7 +581,7 @@ namespace UPlayGround
 
             GameActor actor = target.GetActor();
             if (actor == null) return;
-            GameObjectManager.Instance.ShowFX("InteractionObjectHitFX", actor.transform.position);
+            GameObjectManager.Instance.ShowFX(FXKeyType.InteractionObjectHitFX, actor.transform.position);
         }
     }
 }

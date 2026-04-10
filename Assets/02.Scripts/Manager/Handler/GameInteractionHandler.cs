@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UPlayGround.Data.Path;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround.Manager.Handler
@@ -89,7 +90,7 @@ namespace UPlayGround.Manager.Handler
             
             _currentClosestInteractable.StopInteract();
             
-            UIManager.Instance.HideUI("InteractionHPBoard");
+            UIManager.Instance.HideUI(UIKeyType.InteractionHPBoard);
         }
         
         private void FindClosestInteractable(Vector3 playerPosition)
@@ -152,7 +153,7 @@ namespace UPlayGround.Manager.Handler
                 return;
             }
 
-            GameObject iconObject = UIManager.Instance.ShowUI("InteractionKeyUI");
+            GameObject iconObject = UIManager.Instance.ShowUI(UIKeyType.InteractionKeyUI);
             if (iconObject != null)
             {
                 _activeIcon = iconObject.GetComponentInChildren<UI_Base>();

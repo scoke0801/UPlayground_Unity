@@ -1,12 +1,9 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
-// UPlayGround/Actor/Actor Database Editor → [Enum 생성] 버튼으로 재생성하세요.
-// Generated: 2026-04-10 15:08
+// UPlayGround/ID Enum Generator 창에서 재생성하세요.
+// Generated: 2026-04-10 15:47
 namespace UPlayGround.Data.Actor
 {
-    /// <summary>
-    /// ActorDatabase에 등록된 모든 Actor의 타입 열거형.
-    /// ActorSpawnManager.SpawnActor(ActorIdType, ...) 호출에 사용한다.
-    /// </summary>
+    /// <summary>ActorIdType — Actor 키 열거형 (자동 생성)</summary>
     public enum ActorIdType
     {
         None = 0,
@@ -46,7 +43,7 @@ namespace UPlayGround.Data.Actor
 
     public static class ActorIdTypeExtensions
     {
-        /// <summary>enum 값을 ActorDatabase의 actorId 문자열로 변환한다.</summary>
+        /// <summary>enum 값을 Actor 키 문자열로 변환한다.</summary>
         public static string ToActorId(this ActorIdType type) => type switch
         {
             ActorIdType.SkeletonCommon => "SkeletonCommon",

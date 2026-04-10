@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround;
+using UPlayGround.Tool.Editor;
 
 namespace UPlayGround.Actor.Editor
 {
@@ -643,32 +643,26 @@ namespace UPlayGround.Actor.Editor
 
         /// <summary>
         /// ActorDatabase의 모든 actorId를 읽어 ActorIdType.cs를 덮어씁니다.
+        /// 공통 IdEnumGeneratorUtility를 사용합니다.
         /// </summary>
         private void GenerateActorIdEnum()
         {
-            var all = _database.All;
+            var raw = new List<(string, string)>();
+            bool hasDuplicate = false;
 
-            // ── 중복 식별자 검출 ──────────────────────────────────────
-            var identifierToId  = new Dictionary<string, string>();
-            var entries         = new List<(string identifier, string originalId)>();
-            bool hasDuplicate   = false;
-
-            foreach (var def in all)
+            foreach (var def in _database.All)
             {
                 if (def == null || string.IsNullOrEmpty(def.actorId)) continue;
-
-                string identifier = SanitizeToIdentifier(def.actorId);
-                if (identifierToId.TryGetValue(identifier, out var existing))
+                string id = IdEnumGeneratorUtility.SanitizeToIdentifier(def.actorId);
+                if (raw.Exists(e => e.Item1 == id))
                 {
-                    Debug.LogWarning(
-                        $"[ActorIdEnum] 식별자 충돌: '{def.actorId}'와 '{existing}' 모두 '{identifier}'로 변환됩니다. " +
-                        $"actorId를 수정하거나 Database Editor에서 확인하세요.");
+                    Debug.LogWarning($"[ActorIdEnum] 식별자 충돌: '{def.actorId}' → '{id}'. 중복 항목은 제외됩니다.");
                     hasDuplicate = true;
-                    continue;
                 }
-
-                identifierToId[identifier] = def.actorId;
-                entries.Add((identifier, def.actorId));
+                else
+                {
+                    raw.Add((def.actorId, def.actorId));
+                }
             }
 
             if (hasDuplicate &&
@@ -678,73 +672,20 @@ namespace UPlayGround.Actor.Editor
                     "계속", "취소"))
                 return;
 
-            // ── 코드 생성 ─────────────────────────────────────────────
-            var sb = new StringBuilder();
-            string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            var entries = IdEnumGeneratorUtility.DeduplicateEntries(raw);
 
-            sb.AppendLine("// 자동 생성 파일입니다. 직접 수정하지 마세요.");
-            sb.AppendLine("// UPlayGround/Actor/Actor Database Editor → [Enum 생성] 버튼으로 재생성하세요.");
-            sb.AppendLine($"// Generated: {timestamp}");
-            sb.AppendLine("namespace UPlayGround.Data.Actor");
-            sb.AppendLine("{");
-            sb.AppendLine("    /// <summary>");
-            sb.AppendLine("    /// ActorDatabase에 등록된 모든 Actor의 타입 열거형.");
-            sb.AppendLine("    /// ActorSpawnManager.SpawnActor(ActorIdType, ...) 호출에 사용한다.");
-            sb.AppendLine("    /// </summary>");
-            sb.AppendLine("    public enum ActorIdType");
-            sb.AppendLine("    {");
-            sb.AppendLine("        None = 0,");
+            bool ok = IdEnumGeneratorUtility.GenerateStringKeyEnum(
+                "ActorIdType", "ToActorId", "Actor",
+                EnumOutputPath, "UPlayGround.Data.Actor", entries);
 
-            for (int i = 0; i < entries.Count; i++)
-                sb.AppendLine($"        {entries[i].identifier} = {i + 1},");
-
-            sb.AppendLine("    }");
-            sb.AppendLine();
-            sb.AppendLine("    public static class ActorIdTypeExtensions");
-            sb.AppendLine("    {");
-            sb.AppendLine("        /// <summary>enum 값을 ActorDatabase의 actorId 문자열로 변환한다.</summary>");
-            sb.AppendLine("        public static string ToActorId(this ActorIdType type) => type switch");
-            sb.AppendLine("        {");
-
-            foreach (var (identifier, originalId) in entries)
-                sb.AppendLine($"            ActorIdType.{identifier} => \"{EscapeString(originalId)}\",");
-
-            sb.AppendLine("            _ => string.Empty,");
-            sb.AppendLine("        };");
-            sb.AppendLine("    }");
-            sb.AppendLine("}");
-
-            File.WriteAllText(
-                Path.GetFullPath(EnumOutputPath),
-                sb.ToString(),
-                new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-
-            AssetDatabase.ImportAsset(EnumOutputPath);
-            AssetDatabase.Refresh();
-
-            Debug.Log($"[ActorIdEnum] {EnumOutputPath} 생성 완료 ({entries.Count}개 항목)");
-            EditorUtility.DisplayDialog("Enum 생성 완료",
-                $"{entries.Count}개 항목으로 ActorIdType.cs가 생성되었습니다.\n{EnumOutputPath}",
-                "확인");
+            if (ok)
+            {
+                AssetDatabase.Refresh();
+                EditorUtility.DisplayDialog("Enum 생성 완료",
+                    $"{entries.Count}개 항목으로 ActorIdType.cs가 생성되었습니다.\n{EnumOutputPath}",
+                    "확인");
+            }
         }
-
-        /// <summary>actorId 문자열을 유효한 C# 식별자로 변환한다.</summary>
-        private static string SanitizeToIdentifier(string id)
-        {
-            if (string.IsNullOrEmpty(id)) return "_Empty";
-
-            var sb = new StringBuilder(id.Length);
-            foreach (char c in id)
-                sb.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
-
-            // 숫자로 시작하면 앞에 _ 추가
-            if (char.IsDigit(sb[0]))
-                sb.Insert(0, '_');
-
-            return sb.ToString();
-        }
-
-        private static string EscapeString(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
         private void InitStyles()
         {

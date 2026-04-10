@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UPlayGround.Data.Path;
 using UPlayGround.Enum;
 
 namespace UPlayGround.Manager
@@ -52,21 +53,21 @@ namespace UPlayGround.Manager
 
             if (sceneType == SceneType.GamePlay)
             {
-                UIManager.Instance.HideUI("TitleMenu");
-                UIManager.Instance.HideUI("PauseMenu");
-                UIManager.Instance.ShowUI("GamePlay");
+                UIManager.Instance.HideUI(UIKeyType.TitleMenu);
+                UIManager.Instance.HideUI(UIKeyType.PauseMenu);
+                UIManager.Instance.ShowUI(UIKeyType.GamePlay);
             }
             else if (sceneType == SceneType.Title)
             {
-                UIManager.Instance.HideUI("PauseMenu");
-                UIManager.Instance.HideUI("GamePlay");
-                UIManager.Instance.ShowUI("TitleMenu");
+                UIManager.Instance.HideUI(UIKeyType.PauseMenu);
+                UIManager.Instance.HideUI(UIKeyType.GamePlay);
+                UIManager.Instance.ShowUI(UIKeyType.TitleMenu);
             }
             else
             {
-                UIManager.Instance.HideUI("PauseMenu");
-                UIManager.Instance.HideUI("GamePlay");
-                UIManager.Instance.HideUI("TitleMenu");
+                UIManager.Instance.HideUI(UIKeyType.PauseMenu);
+                UIManager.Instance.HideUI(UIKeyType.GamePlay);
+                UIManager.Instance.HideUI(UIKeyType.TitleMenu);
             }
         }
 

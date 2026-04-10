@@ -46,8 +46,23 @@ namespace UPlayGround.State
 
         public PlayerChargeState(ActorMovementController controller) : base(controller) { }
 
-        // 피격은 차지를 끊음, 그 외 전환 허용
-        public override bool CanTransitionState(string stateName) => true;
+        /// <summary>
+        /// 한 단계 이상 차징 완료 여부.
+        /// InfiniteLoopStageIndex >= 1 이면 첫 번째 임계값을 넘어 슈퍼아머 조건 충족.
+        /// </summary>
+        public bool HasChargedAtLeastOneStage =>
+            _isInLoop && gameActor != null &&
+            gameActor.Animator.InfiniteLoopStageIndex >= 1;
+
+        // 한 단계 이상 차징 중이면 Hit/Airborne/Grabbed 전환 차단 (슈퍼아머)
+        // 그 외(Dodge 등)는 항상 허용
+        public override bool CanTransitionState(string stateName)
+        {
+            if (HasChargedAtLeastOneStage &&
+                (stateName == "Hit" || stateName == "Airborne" || stateName == "Grabbed"))
+                return false;
+            return true;
+        }
 
         public override void OnEnter(GameActorState fromState)
         {

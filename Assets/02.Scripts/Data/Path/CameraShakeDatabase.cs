@@ -33,6 +33,8 @@ namespace UPlayGround.Data.Path
             }
         }
 
+        public CameraShakeData GetShakeData(CameraShakeIdType key) => GetShakeData(key.ToKey());
+
         public CameraShakeData GetShakeData(string key)
         {
             if (itemDictionary == null)

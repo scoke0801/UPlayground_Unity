@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
@@ -186,7 +187,7 @@ namespace UPlayGround.State
                 VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
-                CameraManager.Instance?.StartShake("CriticalHit");
+                CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
                 CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
 
                 if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
@@ -201,7 +202,7 @@ namespace UPlayGround.State
             else
             {
                 var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
-                GameObjectManager.Instance.ShowFX("playerGuardFX", socketTM.position);
+                GameObjectManager.Instance.ShowFX(FXKeyType.playerGuardFX, socketTM.position);
             }
         }
 

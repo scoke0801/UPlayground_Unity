@@ -38,6 +38,7 @@ namespace UPlayGround.CameraSystem
         {
             public Transform transform;
             public float distanceSq;
+            public float sortScore; // 거리 + 카메라 방향 가중치 합산
         }
 
         public CameraLockOn(CameraSettings settings, Transform player, UnityEngine.Camera camera, LayerMask lockOnLayer)
@@ -250,6 +251,21 @@ namespace UPlayGround.CameraSystem
             Collider[] hits = Physics.OverlapSphere(origin, _settings.lockOnRange, _lockOnLayer);
             _targets.Clear();
 
+            // 카메라 정면 방향 (XZ 평면 기준)
+            Vector3 camForwardXZ = Vector3.forward;
+            if (_camera != null)
+            {
+                camForwardXZ = _camera.transform.forward;
+                camForwardXZ.y = 0f;
+                if (camForwardXZ.sqrMagnitude > 0.001f)
+                    camForwardXZ.Normalize();
+            }
+
+            float maxRange = Mathf.Max(_settings.lockOnRange, 0.001f);
+            // 카메라 방향 가중치: 같은 거리라도 정면에 있는 대상이 먼저 선택됨
+            // 0~1 사이 값. 높을수록 카메라 방향 우선순위 강화
+            const float cameraWeight = 0.5f;
+
             var infos = new List<TargetInfo>();
 
             foreach (var hit in hits)
@@ -262,11 +278,25 @@ namespace UPlayGround.CameraSystem
                     continue;
 
                 Vector3 p = hit.transform.position;
-                float dSq = (new Vector3(p.x, 0, p.z) - new Vector3(origin.x, 0, origin.z)).sqrMagnitude;
-                infos.Add(new TargetInfo { transform = hit.transform, distanceSq = dSq });
+                Vector3 toTargetXZ = new Vector3(p.x - origin.x, 0f, p.z - origin.z);
+                float distXZ = toTargetXZ.magnitude;
+                float dSq = distXZ * distXZ;
+
+                // distScore: 0(바로 옆) ~ 1(최대 사거리)
+                float distScore = distXZ / maxRange;
+
+                // angleScore: 0(카메라 정면) ~ 1(카메라 뒤쪽)
+                float dot = distXZ > 0.001f
+                    ? Vector3.Dot(camForwardXZ, toTargetXZ / distXZ)
+                    : 1f;
+                float angleScore = (1f - dot) * 0.5f;
+
+                float sortScore = distScore + angleScore * cameraWeight;
+
+                infos.Add(new TargetInfo { transform = hit.transform, distanceSq = dSq, sortScore = sortScore });
             }
 
-            infos.Sort((a, b) => a.distanceSq.CompareTo(b.distanceSq));
+            infos.Sort((a, b) => a.sortScore.CompareTo(b.sortScore));
             foreach (var info in infos)
                 _targets.Add(info.transform);
         }

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.InputDefine;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 class UI_GamePlay : UI_Base
@@ -18,7 +19,7 @@ class UI_GamePlay : UI_Base
 
     protected override void OnShow()
     {
-        _hudPlayerInfo = UIManager.Instance.ShowUI("HudPlayerInfo")?.GetComponent<UI_HudPlayerInfo>();
+        _hudPlayerInfo = UIManager.Instance.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HudPlayerInfo>();
 
         if (GameObjectManager.Instance != null)
         {
@@ -64,11 +65,11 @@ class UI_GamePlay : UI_Base
         UI_Inventory inventory = UIManager.Instance.GetActiveUI("Inventory")?.GetComponent<UI_Inventory>();
         if (inventory == null || inventory.IsVisible == false)
         {
-            UIManager.Instance.ShowUI("Inventory");
+            UIManager.Instance.ShowUI(UIKeyType.Inventory);
         }
         else
         {
-            UIManager.Instance.HideUI("Inventory");
+            UIManager.Instance.HideUI(UIKeyType.Inventory);
         }
     }
 

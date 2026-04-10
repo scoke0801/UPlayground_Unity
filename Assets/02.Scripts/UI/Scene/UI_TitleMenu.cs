@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround.Enum;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -59,6 +60,6 @@ public class UI_TitleMenu : UI_Base
     
     private void OnClickOptionButton()
     {
-        UIManager.Instance.ShowUI("SettingMenu");
+        UIManager.Instance.ShowUI(UIKeyType.SettingMenu);
     }
 }

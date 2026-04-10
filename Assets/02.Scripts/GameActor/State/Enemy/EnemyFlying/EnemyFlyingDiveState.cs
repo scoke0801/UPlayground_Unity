@@ -2,6 +2,7 @@
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -353,7 +354,7 @@ namespace UPlayGround.State
             Vector3 impactPos = motor.TransientPosition;
             impactPos.y = GetGroundY(impactPos);
 
-            GameObjectManager.Instance.ShowFX("GriffinDiveImpact", impactPos);
+            GameObjectManager.Instance.ShowFX(FXKeyType.GriffinDiveImpact, impactPos);
 
             LayerMask targetLayer = LayerMask.GetMask("Player");
             Collider[] hits = Physics.OverlapSphere(impactPos, radius, targetLayer);

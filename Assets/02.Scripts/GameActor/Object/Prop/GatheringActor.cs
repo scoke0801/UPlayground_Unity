@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -69,7 +70,7 @@ namespace UPlayGround
 
             if (_interactableData.showInfoUI)
             { 
-                UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>("InteractionHPBoard");
+                UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>(UIKeyType.InteractionHPBoard);
                 if (ui != null)
                 {
                     ui.BoardFill(_currentHp, _interactableData.hp);
@@ -91,7 +92,7 @@ namespace UPlayGround
                     go.Init(itemInstance: items[i]);
                 }
             
-                GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
+                GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             
                 Destroy(gameObject);
             }
@@ -107,7 +108,7 @@ namespace UPlayGround
                 go.Init(itemInstance: items[i]);
             }
             
-            GameObjectManager.Instance.ShowFX("ItemArrivedToPlayerPos", transform.position);
+            GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
         }
         
         public bool CanInteract()
@@ -132,7 +133,7 @@ namespace UPlayGround
 
         private void ShowInteractionBoard()
         {
-            UI_InteractionHPBoard ui = UIManager.Instance.ShowUI("InteractionHPBoard")?.GetComponent<UI_InteractionHPBoard>();
+            UI_InteractionHPBoard ui = UIManager.Instance.ShowUI(UIKeyType.InteractionHPBoard)?.GetComponent<UI_InteractionHPBoard>();
             if (ui != null)
             {
                 ui.BoardFill(_currentHp,_interactableData.hp);

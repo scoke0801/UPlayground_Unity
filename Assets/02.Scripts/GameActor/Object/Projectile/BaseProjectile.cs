@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 
 namespace UPlayGround
 {
@@ -140,7 +141,7 @@ namespace UPlayGround
                 if (owner.HasActorType(ActorType.Player))
                 {
                     CameraManager.Instance.Punch(transform.forward, 0.12f, 0.12f);
-                    CameraManager.Instance.StartShake("LiteHit");
+                    CameraManager.Instance.StartShake(CameraShakeIdType.LiteHit);
                 }
                 // 이펙트 표시
                 // GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);

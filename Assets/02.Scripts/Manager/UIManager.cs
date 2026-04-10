@@ -104,9 +104,9 @@ namespace UPlayGround.Manager
             _uiPrefabDatabase.Initialize();
             IsInitialized = true;
 
-            _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry("ActorHpBar"));
+            _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry(UIKeyType.ActorHpBar.ToKey()));
 
-            var floaterPrefab = GetUIPrefabEntry("DamageFloater");
+            var floaterPrefab = GetUIPrefabEntry(UIKeyType.DamageFloater.ToKey());
             if (floaterPrefab != null)
                 _worldSpaceHudLayer.SetupFloaterPool(floaterPrefab, _floaterConfig);
             else
@@ -229,6 +229,8 @@ namespace UPlayGround.Manager
             return ShowUI(entry.prefab, layer ?? entry.defaultLayer, uiKey);
         }
 
+        public GameObject ShowUI(UIKeyType uiKey, CanvasLayer? layer = null) => ShowUI(uiKey.ToKey(), layer);
+
         public GameObject GetUIPrefabEntry(string uiKey)
         {
             return _uiPrefabDatabase?.GetPrefabEntry(uiKey)?.prefab;
@@ -249,6 +251,8 @@ namespace UPlayGround.Manager
                 uiObj.SetActive(false);
             }
         }
+
+        public void HideUI(UIKeyType uiKey) => HideUI(uiKey.ToKey());
 
         public void CloseUI(string uiName)
         {
@@ -325,6 +329,8 @@ namespace UPlayGround.Manager
             _activeUIComponents.TryGetValue(uiName, out UI_Base uiBase);
             return uiBase as T;
         }
+
+        public T GetUI<T>(UIKeyType uiKey) where T : UI_Base => GetUI<T>(uiKey.ToKey());
 
         public T GetUI<T>() where T : UI_Base
         {
@@ -424,8 +430,8 @@ namespace UPlayGround.Manager
             if (SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
             {
                 UI_Base ui = GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
-                if (ui == null || !ui.IsVisible) ShowUI("PauseMenu");
-                else HideUI("PauseMenu");
+                if (ui == null || !ui.IsVisible) ShowUI(UIKeyType.PauseMenu);
+                else HideUI(UIKeyType.PauseMenu);
             }
         }
 

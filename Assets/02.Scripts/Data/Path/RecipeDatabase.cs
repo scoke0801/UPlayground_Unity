@@ -50,6 +50,10 @@ namespace UPlayGround.Data.Path
             Debug.Log($"[RecipeDatabase] 초기화 완료 — 레시피 {recipes.Count}개");
         }
 
+        public RecipeData                GetRecipe(RecipeIdType recipeID)          => GetRecipe((int)recipeID);
+        public List<IngredientData>     GetIngredients(RecipeIdType recipeID)     => GetIngredients((int)recipeID);
+        public RecipeUnlockCondition    GetUnlockCondition(RecipeIdType recipeID) => GetUnlockCondition((int)recipeID);
+
         public RecipeData GetRecipe(int recipeID)
         {
             return _recipeDict != null && _recipeDict.TryGetValue(recipeID, out var r) ? r : null;

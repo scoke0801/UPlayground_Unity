@@ -1,0 +1,52 @@
+// 자동 생성 파일입니다. 직접 수정하지 마세요.
+// UPlayGround/ID Enum Generator 창에서 재생성하세요.
+// Generated: 2026-04-10 15:47
+namespace UPlayGround.Data.Path
+{
+    /// <summary>UIKeyType — UI Prefab 키 열거형 (자동 생성)</summary>
+    public enum UIKeyType
+    {
+        None = 0,
+        InteractionKeyUI = 1,
+        InteractionHPBoard = 2,
+        PauseMenu = 3,
+        Inventory = 4,
+        Cursor = 5,
+        ItemAcquisitionList = 6,
+        GamePlay = 7,
+        ItemPopup = 8,
+        HudPlayerInfo = 9,
+        ActorHpBar = 10,
+        TitleMenu = 11,
+        MainDialogue = 12,
+        SystemDialogue = 13,
+        MonologueDialogue = 14,
+        SettingMenu = 15,
+        DamageFloater = 16,
+    }
+
+    public static class UIKeyTypeExtensions
+    {
+        /// <summary>enum 값을 UI Prefab 키 문자열로 변환한다.</summary>
+        public static string ToKey(this UIKeyType type) => type switch
+        {
+            UIKeyType.InteractionKeyUI => "InteractionKeyUI",
+            UIKeyType.InteractionHPBoard => "InteractionHPBoard",
+            UIKeyType.PauseMenu => "PauseMenu",
+            UIKeyType.Inventory => "Inventory",
+            UIKeyType.Cursor => "Cursor",
+            UIKeyType.ItemAcquisitionList => "ItemAcquisitionList",
+            UIKeyType.GamePlay => "GamePlay",
+            UIKeyType.ItemPopup => "ItemPopup",
+            UIKeyType.HudPlayerInfo => "HudPlayerInfo",
+            UIKeyType.ActorHpBar => "ActorHpBar",
+            UIKeyType.TitleMenu => "TitleMenu",
+            UIKeyType.MainDialogue => "MainDialogue",
+            UIKeyType.SystemDialogue => "SystemDialogue",
+            UIKeyType.MonologueDialogue => "MonologueDialogue",
+            UIKeyType.SettingMenu => "SettingMenu",
+            UIKeyType.DamageFloater => "DamageFloater",
+            _ => string.Empty,
+        };
+    }
+}

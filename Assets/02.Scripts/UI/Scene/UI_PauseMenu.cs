@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Enum;
 using UPlayGround.InputDefine;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -46,7 +47,7 @@ public class UI_PauseMenu : UI_Base
 
     private void OnResumeClicked()
     {
-        UIManager.Instance.HideUI("PauseMenu");
+        UIManager.Instance.HideUI(UIKeyType.PauseMenu);
     }
     
     private void OnGoToTitleClicked()

@@ -50,6 +50,9 @@ namespace UPlayGround.Data.Path
             Debug.Log($"[FXPrefabDatabase] {_prefabDictionary.Count}개의 UI 프리팹 로드 완료");
         }
 
+        public FXPrefabEntry GetPrefabEntry(FXKeyType key) => GetPrefabEntry(key.ToKey());
+        public GameObject    GetPrefab(FXKeyType key)      => GetPrefab(key.ToKey());
+
         /// <summary>
         /// 키로 프리팹 엔트리 가져오기
         /// </summary>

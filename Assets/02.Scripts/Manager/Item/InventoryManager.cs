@@ -3,6 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {
@@ -48,6 +49,14 @@ namespace UPlayGround.Manager
         }
 
         public void OnSceneChanged(string sceneType) { }
+
+        public void          AddItem(ItemIdType itemId, int count)         => AddItem((int)itemId, count);
+        public bool          RemoveItem(ItemIdType itemId, int count)      => RemoveItem((int)itemId, count);
+        public void          RemoveItem(ItemIdType itemId)                 => RemoveItem((int)itemId);
+        public int           GetItemCount(ItemIdType itemId)               => GetItemCount((int)itemId);
+        public bool          HasItem(ItemIdType itemId)                    => HasItem((int)itemId);
+        public ItemInstance  GetItem(ItemIdType itemId)                    => GetItem((int)itemId);
+        public float         GetItemWeight(ItemIdType itemId)              => GetItemWeight((int)itemId);
 
         public void AddItem(int itemId, ItemInstance itemInstance)
         {

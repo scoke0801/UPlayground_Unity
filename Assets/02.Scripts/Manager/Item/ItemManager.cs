@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {
@@ -69,6 +70,8 @@ namespace UPlayGround.Manager
 
             return itemInstance;
         }
+
+        public ItemSO GetItemData(ItemIdType itemKey) => GetItemData((int)itemKey);
 
         public ItemSO GetItemData(int itemKey)
         {

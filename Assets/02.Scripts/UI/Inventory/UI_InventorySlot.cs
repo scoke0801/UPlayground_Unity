@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -73,7 +74,7 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        UI_ItemPopup itemPopup = UIManager.Instance.ShowUI("ItemPopup")?.GetComponent<UI_ItemPopup>();
+        UI_ItemPopup itemPopup = UIManager.Instance.ShowUI(UIKeyType.ItemPopup)?.GetComponent<UI_ItemPopup>();
         if (itemPopup != null)
         {
             itemPopup.Init(_itemData, _itemCount);

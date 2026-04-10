@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
@@ -89,8 +90,8 @@ namespace UPlayGround.Component
         [SerializeField] private float _punchDurationSkill = 0.20f;
 
         [Header("Hit Feedback — Shake Keys")]
-        [SerializeField] private string _shakeKeyLight = "LiteHit";
-        [SerializeField] private string _shakeKeyHeavy = "HeavyHit";
+        [SerializeField] private CameraShakeIdType _shakeKeyLight = CameraShakeIdType.LiteHit;
+        [SerializeField] private CameraShakeIdType _shakeKeyHeavy = CameraShakeIdType.HeavyHit;
         // ──────────────────────────────────────────────────────────────
 
         public float GetSnapSearchRange(bool isLockedOn) =>

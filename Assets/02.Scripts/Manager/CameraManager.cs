@@ -564,6 +564,8 @@ namespace UPlayGround.Manager
                 StartShake(_cameraShakeDatabase.GetShakeData(key));
         }
 
+        public void StartShake(CameraShakeIdType key) => StartShake(key.ToKey());
+
         public void StopShake() => _shaker?.StopShake();
 
         public void Punch(Vector3 direction, float strength, float duration = 0.15f) =>

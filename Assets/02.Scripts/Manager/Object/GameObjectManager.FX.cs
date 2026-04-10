@@ -59,6 +59,9 @@ namespace UPlayGround.Manager
             _pendingDestroyFXList.Add((instance, Time.time + lifeTime));
         }
         
+        public GameObject ShowFX(FXKeyType key, Vector3 position, Quaternion rotation = default, Transform parent = null, float duration = 5f)
+            => ShowFX(key.ToKey(), position, rotation, parent, duration);
+
         public GameObject ShowFX(string key, Vector3 position, Quaternion rotation = default, Transform parent = null, float duration = 5f)
         {
             if (_fxPrefabDatabase == null)

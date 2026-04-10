@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: SpiderMinion_2
+  m_EditorClassIdentifier: 
+  actorId: SpiderMinion_2
+  displayName: "\uC0C8\uB07C\uAC70\uBBF8"
+  description: 
+  actorType: 2
+  characterType: 0
+  prefab: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
+  stats: {fileID: 11400000, guid: 1d638cd2a544a464a8145a585e1d8ae9, type: 2}
+  poiseData: {fileID: 11400000, guid: 41b2a809b9969bb489611b75c98075ee, type: 2}

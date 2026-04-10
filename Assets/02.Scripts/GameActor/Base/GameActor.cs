@@ -1,5 +1,6 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Component;
@@ -12,6 +13,10 @@ namespace UPlayGround
     {
         [SerializeField] protected ActorType _actorType = ActorType.None;
         [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
+
+        [Header("Actor Identity")]
+        [SerializeField] private string _actorId = "";
+        private ActorDefinitionSO _definition;
 
         [SerializeField] protected SerializedDictionary<ActorSocketType, Transform> _socketDict;
 
@@ -50,10 +55,27 @@ namespace UPlayGround
         public ActorType ActorType => _actorType;
         public CharacterActorType CharacterType => _characterActorType;
 
+        /// <summary>런타임 고유 ID. 스폰 시 ActorDefinitionSO에서 주입되거나 Inspector에서 직접 설정.</summary>
+        public string ActorId => _actorId;
+
+        /// <summary>이 액터를 정의하는 ScriptableObject. 런타임 스폰 시 주입됨.</summary>
+        public ActorDefinitionSO Definition => _definition;
+
         /// <summary>
         /// 플래그 조합 체크. 예: actor.HasActorType(ActorType.Talkable)
         /// </summary>
         public bool HasActorType(ActorType flag) => (_actorType & flag) != 0;
+
+        /// <summary>
+        /// ActorDefinitionSO를 주입한다. ActorSpawnManager가 스폰 직후 호출.
+        /// 서브클래스에서 오버라이드해 스탯 등 추가 적용 가능.
+        /// </summary>
+        public virtual void SetDefinition(ActorDefinitionSO definition)
+        {
+            _definition = definition;
+            if (definition != null && !string.IsNullOrEmpty(definition.actorId))
+                _actorId = definition.actorId;
+        }
 
         public ActorMovementController ActorController => MovementController;
         
@@ -81,7 +103,10 @@ namespace UPlayGround
         
         protected virtual void Start()
         {
-            
+            // SpawnActor를 거치지 않고 생성된 Actor(스킬 소환 등)를 추적 목록에 등록.
+            // AfterInit 스캔 또는 SpawnActor에서 이미 등록된 경우 무시된다.
+            if (!string.IsNullOrEmpty(_actorId))
+                ActorSpawnManager.Instance?.RegisterActor(this);
         }
 
         public bool HasSocket(ActorSocketType socketType)

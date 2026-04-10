@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager;
+using UPlayGround.Data.Save;
 
 namespace UPlayGround.Story
 {
@@ -17,18 +18,19 @@ namespace UPlayGround.Story
     /// - TryTriggerStory: 완료 여부 + 진행도 조건을 확인 후 DialogueManager에 전달
     /// - SetProgress: 진행도 변경 (보스 처치, 구역 진입 등 외부에서 호출)
     /// </summary>
-    public class StoryManager : BaseManager<StoryManager>, IManager
+    public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable
     {
         [SerializeField] private int _currentProgress;
 
         // 완료된 storyId 집합. 세이브/로드 시 이 데이터를 직렬화.
         private readonly HashSet<string> _completedStories = new();
-        
+
         public int CurrentProgress => _currentProgress;
 
         #region IManager
         public void Init()
         {
+            SaveManager.Instance.RegisterSaveable(this);
         }
 
         public void AfterInit()
@@ -107,6 +109,24 @@ namespace UPlayGround.Story
             foreach (var id in state.completedStories)
                 _completedStories.Add(id);
         }
+
+        #region ISaveable
+
+        public void ExportSaveData(GameSaveData saveData)
+        {
+            saveData.story.progress = _currentProgress;
+            saveData.story.completedStories = new List<string>(_completedStories);
+        }
+
+        public void ImportSaveData(GameSaveData saveData)
+        {
+            _currentProgress = saveData.story.progress;
+            _completedStories.Clear();
+            foreach (var id in saveData.story.completedStories ?? new List<string>())
+                _completedStories.Add(id);
+        }
+
+        #endregion
 
         // ── 내부 ────────────────────────────────────────────────────
 

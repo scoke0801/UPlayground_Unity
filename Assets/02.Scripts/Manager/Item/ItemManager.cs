@@ -98,8 +98,9 @@ namespace UPlayGround.Manager
                 IsItemDBLoaded = true;
                 _itemDatabase.Initialize();
 
-                InventoryManager.Instance.MakeTestItems();
-                
+                // 세이브 데이터가 있으면 복원, 없으면 테스트 아이템 생성
+                InventoryManager.Instance.OnItemDatabaseReady();
+
                 Debug.Log($"[ItemManager] ItemDatabase 로드 완료");
             }
             catch (System.Exception e)

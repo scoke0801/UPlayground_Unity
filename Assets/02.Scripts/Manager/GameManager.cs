@@ -46,6 +46,7 @@ namespace UPlayGround.Manager
             Debug.Log("[GameManager] 매니저 초기화 시작");
 
             // 초기화 순서대로 등록
+            RegisterManager(SaveManager.Instance);  // 세이브/로드 (다른 매니저보다 먼저)
             RegisterManager(InputManager.Instance); // 입력 시스템
 
             RegisterManager(SettingsManager.Instance); // 설정 (Addressable 로드 → 시스템 반영)
@@ -63,8 +64,10 @@ namespace UPlayGround.Manager
             RegisterManager(StoryManager.Instance);
             RegisterManager(GameTimeManager.Instance);
 
+            RegisterManager(ActorSpawnManager.Instance);
             RegisterManager(SceneManager.Instance);
             RegisterManager(CheatManager.Instance);
+            RegisterManager(RecipeManager.Instance);
 
             // Init이후에 후처리 필요한 경우 
             AfterInit();

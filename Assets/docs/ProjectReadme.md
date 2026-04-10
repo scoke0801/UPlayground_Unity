@@ -157,6 +157,18 @@ Assets/
 
 ## 📖 주요 시스템 가이드
 
+### 시스템별 상세 가이드 문서
+
+| 문서 | 설명 |
+|------|------|
+| [ACTOR_ID_SYSTEM_GUIDE.md](ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
+| [CRAFTING_SYSTEM_GUIDE.md](CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
+| [SAVE_SYSTEM_GUIDE.md](SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
+| [UI_Base_Guide.md](UI_Base_Guide.md) | UI 베이스 시스템 — 레이어 구조, UI 생성/제거 |
+| [GAMEMANAGER_README.md](GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |
+
+---
+
 ### 1. 새로운 캐릭터 만들기
 
 #### Character 상속 클래스 작성

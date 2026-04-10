@@ -1,18 +1,20 @@
 ﻿using System.Collections.Generic;
 using UPlayGround.Manager;
+using UPlayGround.Data.Save;
 
 namespace UPlayGround.Dialogue
 {
     // 대화/퀘스트 플래그 단일 저장소
-    // 세이브 시 이 딕셔너리 전체를 직렬화하면 됩니다
-    public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager
+    public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager, ISaveable
     {
         public static GlobalFlagManager Instance { get; private set; }
 
         private readonly Dictionary<string, bool> _flags = new();
+
         #region IManager
         public void Init()
         {
+            SaveManager.Instance.RegisterSaveable(this);
         }
 
         public void AfterInit()
@@ -51,5 +53,19 @@ namespace UPlayGround.Dialogue
         }
 
         public Dictionary<string, bool> GetAllFlags() => new(_flags);
+
+        #region ISaveable
+
+        public void ExportSaveData(GameSaveData saveData)
+        {
+            saveData.flags.flags = GetAllFlags();
+        }
+
+        public void ImportSaveData(GameSaveData saveData)
+        {
+            LoadFlags(saveData.flags.flags ?? new Dictionary<string, bool>());
+        }
+
+        #endregion
     }
 }

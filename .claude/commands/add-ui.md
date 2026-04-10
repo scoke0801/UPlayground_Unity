@@ -14,7 +14,7 @@
   - 이름에 `Interaction` 포함 → `Interaction`
   - 이름에 `World` 포함 → `WorldSpace`
   - 그 외 → `Scene`
-- `Layer` — 선택. `CanvasLayer` 값 (`HUD`, `Scene`, `Popup`, `System`). 없으면 Category에서 추론:
+- `Layer` — 선택. `CanvasLayer` 값 (`HUD`, `Scene`, `Popup`, `System`, `WorldSpace`). 없으면 Category에서 추론:
   - `HUD` → `HUD`
   - `WorldSpace` → `WorldSpace`
   - `Scene` → `Scene`
@@ -33,6 +33,10 @@ using UPlayGround.Manager;
 public class UI_<UIName> : UI_Base
 {
     #region UI_Base
+
+    protected override void OnInit()
+    {
+    }
 
     protected override void OnShow()
     {

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: RootPlant_2
+  m_EditorClassIdentifier: 
+  actorId: RootPlant_2
+  displayName: "\uC2DD\uC778 \uC2DD\uBB3C \uC904\uAE30"
+  description: 
+  actorType: 2
+  characterType: 0
+  prefab: {fileID: 1340163909804459715, guid: f008328dcd34c8a4f9e69fe8ab333b70, type: 3}
+  stats: {fileID: 11400000, guid: 3d8294c619a68ff448cd5a4e22a50aba, type: 2}
+  poiseData: {fileID: 11400000, guid: b6b96b1e43c398e45972d295a2b340d7, type: 2}

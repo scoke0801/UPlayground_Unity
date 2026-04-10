@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterBokusei
+  m_EditorClassIdentifier: 
+  actorId: MonsterBokusei
+  displayName: "\uBCF4\uCFE0\uC138\uC774"
+  description: 
+  actorType: 2
+  characterType: 0
+  prefab: {fileID: 2089861745958360655, guid: a554ba721240c7448996a42af3f30d52, type: 3}
+  stats: {fileID: 11400000, guid: 1f50c9e8f93793d4fbb9788469651ccf, type: 2}
+  poiseData: {fileID: 11400000, guid: 0d643157c9de7664ea10e87e298e7e8e, type: 2}

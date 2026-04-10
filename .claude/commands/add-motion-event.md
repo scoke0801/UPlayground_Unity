@@ -16,6 +16,7 @@
   - 이름에 `Force`, `Velocity`, `Move`, `Warp` 포함 → `Movement`
   - 이름에 `Particle`, `VFX`, `Effect`, `Spawn` 포함 → `Particle`
   - 이름에 `Invincible`, `Guard`, `Poise`, `Status` 포함 → `Status`
+  - 이름에 `LookAt`, `Socket`, `Target` 포함 → `LookAt`
   - 그 외 → `Misc`
 
 ## 카테고리별 색상/아이콘 매핑 (MotionEventStyle 등록용)
@@ -31,6 +32,7 @@
 | Status     | COL_INVINCIBLE| 🛡  |
 | Sound      | COL_SOUND     | ♪   |
 | Movement   | COL_MOVEMENT  | ↗   |
+| LookAt     | COL_LOOKAT    | 🎯  |
 | Misc       | COL_MISC      | ▸   |
 
 ## 실행 단계

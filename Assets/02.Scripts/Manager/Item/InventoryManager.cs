@@ -2,10 +2,11 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Save;
 
 namespace UPlayGround.Manager
 {
-    public class InventoryManager : BaseManager<InventoryManager>, IManager
+    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable
     {
         private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
 
@@ -14,13 +15,20 @@ namespace UPlayGround.Manager
         // [TODO] Config 데이터로 별도 분리 필요
         public float MaxWeight => 3000.0f;
 
+        /// <summary> 보유 골드 </summary>
+        public int Gold { get; set; } = 0;
+
+        // ItemDatabase 로드 완료 전에 LoadGame()이 호출될 경우 보관
+        private InventorySaveData _pendingLoad;
+
         public void Init()
         {
+            SaveManager.Instance.RegisterSaveable(this);
         }
 
         public void AfterInit()
         {
-            
+
         }
 
         public void Dispose()
@@ -51,13 +59,58 @@ namespace UPlayGround.Manager
             }
             else
             {
-                _itemPair[itemId].count += 1;
+                _itemPair[itemId].count += itemInstance.count;
             }
         }
 
         public void RemoveItem(int itemId)
         {
             _itemPair.Remove(itemId);
+        }
+
+        /// <summary>
+        /// 아이템을 count만큼 차감한다.
+        /// count 이후 수량이 0 이하가 되면 인벤토리에서 제거한다.
+        /// 재고 부족 시 false 반환 (차감 없음).
+        /// </summary>
+        public bool RemoveItem(int itemId, int count)
+        {
+            if (!_itemPair.TryGetValue(itemId, out var item))
+                return false;
+
+            if (item.count < count)
+                return false;
+
+            item.count -= count;
+
+            if (item.count <= 0)
+                _itemPair.Remove(itemId);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 아이템을 count만큼 추가한다.
+        /// ItemManager에서 ItemSO를 조회하므로 ItemDatabase 로드 이후에 호출해야 한다.
+        /// </summary>
+        public void AddItem(int itemId, int count)
+        {
+            if (count <= 0) return;
+
+            if (_itemPair.TryGetValue(itemId, out var existing))
+            {
+                existing.count += count;
+                return;
+            }
+
+            var itemData = ItemManager.Instance.GetItemData(itemId);
+            if (itemData == null)
+            {
+                Debug.LogWarning($"[InventoryManager] AddItem 실패 — ItemID {itemId}를 ItemDatabase에서 찾을 수 없습니다.");
+                return;
+            }
+
+            _itemPair[itemId] = new ItemInstance { data = itemData, count = count };
         }
 
         public int GetItemCount(int itemId)
@@ -115,5 +168,59 @@ namespace UPlayGround.Manager
                 });
             }
         }
+
+        // ──────────────────────────────────────────────────────────
+        #region ISaveable
+
+        public void ExportSaveData(GameSaveData saveData)
+        {
+            saveData.inventory.gold = Gold;
+            saveData.inventory.items.Clear();
+            foreach (var kv in _itemPair)
+            {
+                saveData.inventory.items.Add(new ItemSaveEntry
+                {
+                    itemId = kv.Key,
+                    count = kv.Value.count,
+                    slotKey = kv.Value.inventorySlotKey
+                });
+            }
+        }
+
+        public void ImportSaveData(GameSaveData saveData)
+        {
+            Gold = saveData.inventory.gold;
+            _pendingLoad = saveData.inventory;
+
+            // ItemDatabase가 이미 로드된 경우 즉시 복원
+            if (ItemManager.Instance.IsItemDBLoaded)
+                ApplyPendingLoad();
+        }
+
+        /// <summary>
+        /// ItemManager가 DB 로드 완료 후 호출한다.
+        /// pending 세이브 데이터가 있으면 복원하고, 없으면 테스트 아이템을 채운다.
+        /// </summary>
+        public void OnItemDatabaseReady()
+        {
+            if (_pendingLoad != null)
+                ApplyPendingLoad();
+            else
+                MakeTestItems();
+        }
+
+        private void ApplyPendingLoad()
+        {
+            _itemPair.Clear();
+            foreach (var entry in _pendingLoad.items ?? new System.Collections.Generic.List<ItemSaveEntry>())
+            {
+                AddItem(entry.itemId, entry.count);
+                if (_itemPair.TryGetValue(entry.itemId, out var instance))
+                    instance.inventorySlotKey = entry.slotKey;
+            }
+            _pendingLoad = null;
+        }
+
+        #endregion
     }
 }

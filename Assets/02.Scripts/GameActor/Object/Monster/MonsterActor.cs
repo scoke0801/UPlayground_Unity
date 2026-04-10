@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
@@ -251,6 +252,28 @@ namespace UPlayGround
         }
         
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
+
+        /// <summary>
+        /// ActorDefinitionSO 주입 시 stats/poiseData를 재적용한다.
+        /// Awake 이후 ActorSpawnManager가 호출하므로 HP도 함께 갱신.
+        /// </summary>
+        public override void SetDefinition(ActorDefinitionSO definition)
+        {
+            base.SetDefinition(definition);
+
+            if (definition == null) return;
+
+            if (definition.stats != null)
+            {
+                _stats = definition.stats;
+                _maxHealth = _stats.maxHealth;
+                _currentHealth = _maxHealth;
+                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+
+            if (definition.poiseData != null && _poiseStat != null)
+                _poiseStat.Init(definition.poiseData);
+        }
 
         /// <summary>
         /// 플레이어 패리에 의해 공격이 무효화됐을 때 호출.

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Skeleton_Common
+  m_EditorClassIdentifier: 
+  actorId: SkeletonCommon
+  displayName: "\uC2A4\uCF08\uB808\uD1A4"
+  description: 
+  actorType: 2
+  characterType: 0
+  prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
+  stats: {fileID: 11400000, guid: 16964d20fc8a7eb4295010aa70db94ee, type: 2}
+  poiseData: {fileID: 11400000, guid: 876157c6a32f968498948c1120a773b9, type: 2}

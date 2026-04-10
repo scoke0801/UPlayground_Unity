@@ -23,15 +23,23 @@ MonoBehaviour:
       events:
       - rid: 7399917011524124810
       - rid: 7399917132123210069
+      - rid: 5351031959771152521
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 5351031959771152521
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 1.175
+        globalStartTimeOffset: 0
     - rid: 7399917011524124810
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.3109589
         endTime: 1.4767122
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128
@@ -41,6 +49,7 @@ MonoBehaviour:
       data:
         startTime: 1.3291913
         endTime: 2.4125
+        globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
         offset: {x: 0, y: 0, z: 0}

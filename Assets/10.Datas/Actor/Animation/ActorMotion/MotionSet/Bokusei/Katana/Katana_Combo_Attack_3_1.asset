@@ -24,10 +24,17 @@ MonoBehaviour:
       - rid: 7399917168494117010
       - rid: 7399917168494117011
       - rid: 7399917168494117012
+      - rid: 5351031959771152511
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 5351031959771152511
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.1850728
+        globalStartTimeOffset: 0
     - rid: 7399917168494117010
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Component;
@@ -42,6 +42,11 @@ namespace UPlayGround.State
         // Motion Warp 보조
         private Vector3 _warpTargetPosition; // 워프 시작 시 스냅샷한 목표 위치 (타겟 이동에 의한 경로 흔들림 방지)
         private float   _warpBlendWeight;    // 루트모션 ↔ 워프 속도 블렌딩 가중치 (0=루트모션, 1=워프)
+
+        // 워프 시작 시 도달 가능 여부를 1회만 판정하는 플래그.
+        // false: 아직 판정 전 (워프가 막 시작됐거나 비활성 상태)
+        // true:  이미 판정 완료 — 같은 워프 구간에서 재판정하지 않음
+        private bool _warpFeasibilityChecked;
 
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
@@ -89,8 +94,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            _homingTarget    = FindHomingTarget();
-            _warpBlendWeight = 0f;
+            _homingTarget           = FindHomingTarget();
+            _warpBlendWeight        = 0f;
+            _warpFeasibilityChecked = false;
             SnapshotWarpTarget();
         }
 
@@ -177,9 +183,10 @@ namespace UPlayGround.State
                 gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
-                _comboInputted   = false;
-                _warpBlendWeight = 0f;
-                _homingTarget    = FindHomingTarget();
+                _comboInputted          = false;
+                _warpBlendWeight        = 0f;
+                _warpFeasibilityChecked = false;
+                _homingTarget           = FindHomingTarget();
                 SnapshotWarpTarget();
             }
             else
@@ -245,8 +252,9 @@ namespace UPlayGround.State
             // 워프 비활성 구간 → 루트모션 원본으로 부드럽게 복귀
             if (_homingTarget == null || !_combat.IsMotionWarping)
             {
-                _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
-                currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
+                _warpFeasibilityChecked = false; // 다음 워프를 위해 판정 초기화
+                _warpBlendWeight        = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
+                currentVelocity         = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
                 return;
             }
 
@@ -255,20 +263,36 @@ namespace UPlayGround.State
             float remainingDist   = toTarget.magnitude;
             float remainingTime   = _combat.WarpRemainingTime;
 
-            // ── 적용 불가 조건: 루트모션으로 복귀 ──────────────────────
-
-            // 1) 최소/최대 거리 범위 밖
-            if (remainingDist < _combat.WarpMinDistance || remainingDist > _combat.WarpMaxDistance)
+            // ── 워프 시작 시 도달 가능 여부 1회 판정 ─────────────────────
+            // 이미 판정했으면 스킵, 아니면 이번 워프 구간이 시작된 첫 프레임에 판정.
+            // 불가능하면 EndMotionWarp()로 워프 자체를 취소 — 타이머 낭비 없음.
+            if (!_warpFeasibilityChecked)
             {
-                _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
-                currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
-                return;
+                float warpDuration = _combat.WarpDuration;
+                bool  outOfRange   = remainingDist < _combat.WarpMinDistance
+                                  || remainingDist > _combat.WarpMaxDistance;
+                // 전체 워프 구간 동안 최대 속도로 이동해도 도달 불가능한 거리인지 확인
+                bool  unreachable  = remainingDist > _combat.WarpMaxSpeed * warpDuration;
+
+                if (outOfRange || unreachable)
+                {
+                    _combat.EndMotionWarp();
+                    // IsMotionWarping이 false가 됐으므로 다음 프레임부터 비활성 분기 진입.
+                    // _warpFeasibilityChecked는 false인 채로 유지 — 비활성 분기에서 다음 워프를 위해 초기화됨.
+                    // 이번 프레임은 루트모션으로 즉시 복귀.
+                    _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
+                    currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
+                    return;
+                }
+
+                // 도달 가능 판정 통과 — 같은 워프 구간에서 재판정하지 않음
+                _warpFeasibilityChecked = true;
             }
 
-            // 2) 최대 속도로 클램프해도 남은 시간 내 도달 불가능한 거리
-            //    requiredSpeed > WarpMaxSpeed  →  maxReachableDist < remainingDist
-            if (remainingTime > 0.01f &&
-                remainingDist > _combat.WarpMaxSpeed * remainingTime)
+            // ── 적용 불가 조건 (매 프레임): 거리 범위 이탈 ──────────────
+            // 도달 가능 판정은 통과했지만 이동 중 거리가 범위를 벗어난 경우 루트모션 복귀.
+            // (도달 불가 조건은 시작 시 이미 취소됐으므로 여기서 재확인 불필요)
+            if (remainingDist < _combat.WarpMinDistance || remainingDist > _combat.WarpMaxDistance)
             {
                 _warpBlendWeight = Mathf.MoveTowards(_warpBlendWeight, 0f, deltaTime * 12f);
                 currentVelocity  = Vector3.Lerp(rootVelocity, currentVelocity, _warpBlendWeight);
@@ -287,13 +311,13 @@ namespace UPlayGround.State
             t                   = Mathf.Clamp01(t);
             float eased         = 1f - (1f - t) * (1f - t);
 
-            float baseSpeed  = remainingTime > 0.01f
+            float baseSpeed = remainingTime > 0.01f
                 ? remainingDist / remainingTime
                 : remainingDist / deltaTime;
 
             // EaseOut에 따라 초반에 살짝 빠르게, 후반에 감속
-            float warpSpeed  = Mathf.Lerp(baseSpeed * 1.3f, baseSpeed * 0.7f, eased);
-            warpSpeed        = Mathf.Clamp(warpSpeed, 0f, _combat.WarpMaxSpeed);
+            float warpSpeed = Mathf.Lerp(baseSpeed * 1.3f, baseSpeed * 0.7f, eased);
+            warpSpeed       = Mathf.Clamp(warpSpeed, 0f, _combat.WarpMaxSpeed);
 
             Vector3 warpVelocity   = toTarget.normalized * warpSpeed;
             // Y는 루트모션 원본 유지 (중력/점프 보존)

@@ -22,15 +22,23 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5792125035945394303
+      - rid: 5351031959771152515
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 5351031959771152515
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.117932014
+        globalStartTimeOffset: 0
     - rid: 5792125035945394303
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.12899339
         endTime: 0.26147312
+        globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2
           m_Bits: 128

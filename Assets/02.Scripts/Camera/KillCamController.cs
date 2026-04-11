@@ -127,23 +127,23 @@ namespace UPlayGround
 
             // ② FOV 줌인 (0.15s EaseIn) + 카메라 오프셋 전환
             float elapsed = 0f;
-            float zoomInTime = 0.15f;
-            float targetFOV = originalFOV - 5f;
-
-            while (elapsed < zoomInTime)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / zoomInTime));
-
-                float dist = Mathf.Lerp(originalDistance, _data.zoomDistance, t);
-                Vector3 offset = Vector3.Lerp(originalOffset, _data.killCamOffset, t);
-
-                cameraManager.SetDistance(dist);
-                cameraManager.SetCameraOffset(offset);
-                cameraManager.GetMainCamera().fieldOfView = Mathf.Lerp(originalFOV, targetFOV, t);
-
-                yield return null;
-            }
+            // float zoomInTime = 0.15f;
+            // float targetFOV = originalFOV - 5f;
+            //
+            // while (elapsed < zoomInTime)
+            // {
+            //     elapsed += Time.unscaledDeltaTime;
+            //     float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / zoomInTime));
+            //
+            //     float dist = Mathf.Lerp(originalDistance, _data.zoomDistance, t);
+            //     Vector3 offset = Vector3.Lerp(originalOffset, _data.killCamOffset, t);
+            //
+            //     cameraManager.SetDistance(dist);
+            //     cameraManager.SetCameraOffset(offset);
+            //     cameraManager.GetMainCamera().fieldOfView = Mathf.Lerp(originalFOV, targetFOV, t);
+            //
+            //     yield return null;
+            // }
 
             // ③ KillCam 쉐이크 시작 (슬로우 구간 미진동)
             if (!string.IsNullOrEmpty(_data.cameraShakeKey))
@@ -154,24 +154,24 @@ namespace UPlayGround
             yield return new WaitForSecondsRealtime(holdTime);
 
             // ④ FOV 원복 + 줌아웃 (0.6s EaseOut)
-            float zoomOutTime = _data.zoomOutDuration;
-            elapsed = 0f;
-
-            float startFOV = cameraManager.GetCurrentFOV();
-            float startDist = cameraManager.GetCurrentDistance();
-            Vector3 startOffset = cameraManager.GetCurrentOffset();
-
-            while (elapsed < zoomOutTime)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / zoomOutTime));
-
-                cameraManager.SetDistance(Mathf.Lerp(startDist, originalDistance, t));
-                cameraManager.SetCameraOffset(Vector3.Lerp(startOffset, originalOffset, t));
-                cameraManager.GetMainCamera().fieldOfView = Mathf.Lerp(startFOV, originalFOV, t);
-
-                yield return null;
-            }
+            // float zoomOutTime = _data.zoomOutDuration;
+            // elapsed = 0f;
+            //
+            // float startFOV = cameraManager.GetCurrentFOV();
+            // float startDist = cameraManager.GetCurrentDistance();
+            // Vector3 startOffset = cameraManager.GetCurrentOffset();
+            //
+            // while (elapsed < zoomOutTime)
+            // {
+            //     elapsed += Time.unscaledDeltaTime;
+            //     float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / zoomOutTime));
+            //
+            //     cameraManager.SetDistance(Mathf.Lerp(startDist, originalDistance, t));
+            //     cameraManager.SetCameraOffset(Vector3.Lerp(startOffset, originalOffset, t));
+            //     cameraManager.GetMainCamera().fieldOfView = Mathf.Lerp(startFOV, originalFOV, t);
+            //
+            //     yield return null;
+            // }
 
             // ⑤ 상태 복원
             RestoreState(originalDistance, originalOffset, originalFOV);

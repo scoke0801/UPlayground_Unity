@@ -261,11 +261,13 @@ namespace UPlayGround.State
             {
                 _landStarted = true;
                 _dragSpeed = controller.LandDrag;
-                
-                state.OwnedEvents.OnEnd += () =>
-                {
-                    _hasLanded = true;
-                };
+        
+                state.OwnedEvents.OnEnd += ChangeToNextState;
+            }
+            else
+            {
+                // 애니메이션이 없거나 찾을 수 없는 경우 즉시 다음 상태로
+                ChangeToNextState();
             }
         }
 

@@ -3898,7 +3898,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: f05c6139e9070454291cd3dfd2e65142, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!136 &45551115
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -29339,7 +29338,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &281295521
 GameObject:
   m_ObjectHideFlags: 0
@@ -29558,7 +29556,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &282393318
 GameObject:
   m_ObjectHideFlags: 0
@@ -37741,7 +37738,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &365651465
 GameObject:
   m_ObjectHideFlags: 0
@@ -39222,10 +39218,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 440606361390421467, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
-      propertyPath: _targetSceneName
-      value: Title
-      objectReference: {fileID: 0}
     - target: {fileID: 3694103045463306722, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
       propertyPath: m_Name
       value: Portal_ChainGate
@@ -102502,7 +102494,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1007268124
 GameObject:
   m_ObjectHideFlags: 0
@@ -110537,7 +110528,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1113487520
 GameObject:
   m_ObjectHideFlags: 0
@@ -121842,7 +121832,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1173079051
 GameObject:
   m_ObjectHideFlags: 0
@@ -153642,7 +153631,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1468284172
 GameObject:
   m_ObjectHideFlags: 0
@@ -156686,7 +156674,6 @@ MonoBehaviour:
   _lockOnDecal: {fileID: 657542331}
   _poiseStat: {fileID: 0}
   _dropTable: {fileID: 0}
-  _itemActorPrefab: {fileID: 0}
   _detection: {fileID: 0}
   _brain: {fileID: 0}
   _combat: {fileID: 0}
@@ -157678,61 +157665,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 578303290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
---- !u!1 &1499888272
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1499888274}
-  - component: {fileID: 1499888273}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1499888273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1499888272}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af59ecc579768a74ca8e33562a6f3c1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testForces:
-  - 5
-  - 8
-  - 10
-  - 15
-  - 20
-  drag: 8
-  gridSize: 20
-  gridColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.5}
-  originColor: {r: 1, g: 0.8, b: 0, a: 0.9}
-  showGUI: 1
---- !u!4 &1499888274
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1499888272}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.28, y: 2.3971386, z: 29.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1500818654
 GameObject:
   m_ObjectHideFlags: 0
@@ -198734,7 +198666,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: dd5c38621c6670540aaa92ee6342b633, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &1936652587
 GameObject:
   m_ObjectHideFlags: 0
@@ -206241,7 +206172,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1804438728566749654, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+    - {fileID: 5081165286152435785, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -206305,7 +206238,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 5978ad34091316944a0d9d12694c1acc, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &2011232258
 GameObject:
   m_ObjectHideFlags: 0
@@ -214009,7 +213941,6 @@ MonoBehaviour:
   _interactableData: {fileID: 11400000, guid: 2c406c0eb09c5c24a84d6b56ec2e2ada, type: 2}
   _shakeAmount: 5
   _shakeDuration: 0.5
-  _itemActorPrefab: {fileID: 140434058241006662, guid: 1c3c29c2005e9a14fbad8a3bd2feb5aa, type: 3}
 --- !u!1 &2121374792
 GameObject:
   m_ObjectHideFlags: 0
@@ -249803,14 +249734,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 440606361390421467, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
-      propertyPath: _isActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 440606361390421467, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
-      propertyPath: _targetSceneName
-      value: KccTest
-      objectReference: {fileID: 0}
     - target: {fileID: 3694103045463306722, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
       propertyPath: m_Name
       value: Portal
@@ -257955,10 +257878,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 440606361390421467, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
-      propertyPath: _targetSceneName
-      value: Title
-      objectReference: {fileID: 0}
     - target: {fileID: 3694103045463306722, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
       propertyPath: m_Name
       value: Portal_OnlyGate
@@ -305868,4 +305787,3 @@ SceneRoots:
   - {fileID: 1813756738}
   - {fileID: 520717117}
   - {fileID: 7413222797807735804}
-  - {fileID: 1499888274}

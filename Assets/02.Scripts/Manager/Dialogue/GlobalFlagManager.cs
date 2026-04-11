@@ -7,8 +7,6 @@ namespace UPlayGround.Dialogue
     // 대화/퀘스트 플래그 단일 저장소
     public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager, ISaveable
     {
-        public static GlobalFlagManager Instance { get; private set; }
-
         private readonly Dictionary<string, bool> _flags = new();
 
         #region IManager

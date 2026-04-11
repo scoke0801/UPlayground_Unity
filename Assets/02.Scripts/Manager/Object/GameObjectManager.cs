@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Manager.Handler;
 
@@ -10,6 +11,10 @@ namespace UPlayGround.Manager
         private List<GameActor> _allActors = new List<GameActor>();
 
         public PlayerActor Player => _player;
+        public IReadOnlyList<GameActor> AllActors => _allActors;
+
+        public event Action<GameActor> OnActorRegistered;
+        public event Action<GameActor> OnActorUnregistered;
 
         private GameInteractionHandler _interactionHandler;
         
@@ -30,17 +35,22 @@ namespace UPlayGround.Manager
                 _handlerList[i].Init();
             }
             LoadFXPrefabDatabase();
+            LoadItemActorPrefab();
         }
 
         public void RegisterActor(GameActor actor)
         {
             if (!_allActors.Contains(actor))
+            {
                 _allActors.Add(actor);
+                OnActorRegistered?.Invoke(actor);
+            }
         }
 
         public void UnregisterActor(GameActor actor)
         {
-            _allActors.Remove(actor);
+            if (_allActors.Remove(actor))
+                OnActorUnregistered?.Invoke(actor);
         }
 
         /// <summary>
@@ -91,6 +101,7 @@ namespace UPlayGround.Manager
             }
 
             _handlerList.Clear();
+            DisposeItemActorPrefab();
         }
 
         public void OnUpdate()

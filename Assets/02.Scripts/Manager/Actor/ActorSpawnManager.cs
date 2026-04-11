@@ -39,10 +39,6 @@ namespace UPlayGround.Manager
         {
             LoadDatabaseAsync();
             _spawnedActors.Clear();
-            if (_database != null)
-                _database.Initialize();
-            else
-                Debug.LogWarning("[ActorSpawnManager] ActorDatabase가 할당되지 않았습니다. Inspector에서 연결하세요.");
         }
         #region 데이터베이스 로드
 

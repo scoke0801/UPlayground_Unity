@@ -29,8 +29,9 @@ public class UI_Dialogue : UI_Base
     private readonly List<UI_DialogueChoiceButton> _choiceButtons = new();
     private Coroutine _typingCoroutine;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         advanceButton.onClick.AddListener(() => DialogueManager.Instance.Advance());
     }
 

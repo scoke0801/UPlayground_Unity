@@ -12,6 +12,7 @@ namespace UPlayGround.Data.Save
         public StorySaveData story = new StorySaveData();
         public FlagSaveData flags = new FlagSaveData();
         public RecipeSaveData recipe = new RecipeSaveData();
+        public QuestSaveData quest = new QuestSaveData();
     }
 
     [Serializable]
@@ -51,5 +52,26 @@ namespace UPlayGround.Data.Save
         public Dictionary<int, int> craftCounts = new Dictionary<int, int>();
         // monsterID → 처치 횟수
         public Dictionary<int, int> monsterKills = new Dictionary<int, int>();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // Quest
+
+    [Serializable]
+    public class QuestSaveData
+    {
+        /// <summary> 완료된 퀘스트 ID 목록 </summary>
+        public List<string> completedQuestIds = new List<string>();
+
+        /// <summary> 현재 진행 중인 퀘스트 상태 목록 </summary>
+        public List<ActiveQuestSaveEntry> activeQuests = new List<ActiveQuestSaveEntry>();
+    }
+
+    [Serializable]
+    public class ActiveQuestSaveEntry
+    {
+        public string questId;
+        /// <summary> objectiveId → 현재 진행 카운트 </summary>
+        public Dictionary<string, int> objectiveProgress = new Dictionary<string, int>();
     }
 }

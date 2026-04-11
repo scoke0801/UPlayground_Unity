@@ -55,6 +55,7 @@ GameManager  ─  BaseManager<GameManager> (최상위 싱글톤)
     │  [18] SceneManager         씬 전환 & 로딩 화면
     │  [19] CheatManager         개발용 치트 콘솔
     │  [20] RecipeManager        제작 레시피 관리
+    │  [21] QuestManager         퀘스트 목표 추적 & 보상
 ```
 
 모든 매니저는 `BaseManager<T>` (MonoBehaviour 싱글톤) 상속 + `IManager` 인터페이스 구현.
@@ -303,6 +304,8 @@ Assets/
 | [UI_Base_Guide.md](UI_Base_Guide.md) | UI 베이스 시스템 — 레이어 구조, UI 생성/제거 |
 | [GAMEMANAGER_README.md](GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |
 | [ITEM_DROP_SYSTEM_GUIDE.md](ITEM_DROP_SYSTEM_GUIDE.md) | 아이템 드랍 시스템 — 몬스터/인터랙션 드랍 테이블, 픽업 오브젝트, 에디터 도구 |
+| [QUEST_SYSTEM_GUIDE.md](QUEST_SYSTEM_GUIDE.md) | 퀘스트 시스템 — 목표 추적·보상·Enum 자동생성·에디터 도구 |
+| [MINIMAP_SYSTEM_GUIDE.md](MINIMAP_SYSTEM_GUIDE.md) | 미니맵 시스템 — 플레이어·적·퀘스트 마커 표시, 씬 캡처 에디터 |
 
 ---
 
@@ -316,6 +319,9 @@ Assets/
 | `UPlayGround/Actor/Actor Database Editor` | ActorDatabaseEditorWindow | ActorDefinitionSO DB 관리 |
 | `Window/MotionSet Editor` | MotionSetWindow | 애니메이션 타임라인 편집 |
 | `UPlayGround/Cheat Console` | CheatConsoleWindow | 개발용 치트 명령 실행 |
+| `UPlayGround/Quest/Quest Editor` | QuestEditorWindow | 퀘스트 SO 생성·편집, DB 갱신, QuestIdType Enum 생성 |
+| `UPlayGround/ID Enum Generator` | IdEnumGeneratorWindow | FX/UI/Actor/Quest 등 ID Enum 일괄 생성 |
+| `UPlayGround/Minimap/Minimap Capture Editor` | MinimapCaptureEditorWindow | 씬 탑다운 촬영 → PNG 저장 → MinimapIconConfigSO 자동 할당 |
 
 ---
 

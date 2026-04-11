@@ -12,8 +12,6 @@ namespace UPlayGround
         [SerializeField] private InteractableActorSO _interactableData;
         [SerializeField] private float _shakeAmount = 5.0f;
         [SerializeField] private float _shakeDuration = 0.5f;
-        [SerializeField] private ItemActor _itemActorPrefab;
-        
         private Quaternion _originalRotation = Quaternion.identity;
         
         private bool _isGathering = false;
@@ -85,11 +83,9 @@ namespace UPlayGround
                 }
                 
                 var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
-                for (int i = 0; i <items.Count; ++i)
+                for (int i = 0; i < items.Count; ++i)
                 {
-                    var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                
-                    go.Init(itemInstance: items[i]);
+                    GameObjectManager.Instance.SpawnItem(items[i], transform.position);
                 }
             
                 GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
@@ -101,11 +97,9 @@ namespace UPlayGround
         private void OnCatchFishEvent(PlayerInteractionEvent eventData)
         {
             var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
-            for (int i = 0; i <items.Count; ++i)
+            for (int i = 0; i < items.Count; ++i)
             {
-                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                
-                go.Init(itemInstance: items[i]);
+                GameObjectManager.Instance.SpawnItem(items[i], transform.position);
             }
             
             GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);

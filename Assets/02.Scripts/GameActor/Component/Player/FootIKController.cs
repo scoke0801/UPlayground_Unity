@@ -67,11 +67,11 @@ namespace UPlayGround.Component
                     _hipOffset = 0f;
                     _bodyRotOffset = Quaternion.identity;
                     _initialized = false; // 재활성 시 깨끗한 시작
-                    if (_animator != null)
-                    {
-                        SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
-                        SetFootWeight(AvatarIKGoal.RightFoot, 0f);
-                    }
+                    // if (_animator != null)
+                    // {
+                    //     SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
+                    //     SetFootWeight(AvatarIKGoal.RightFoot, 0f);
+                    // }
                 }
                 // false로 돌아갈 땐 _globalWeight 0에서 _globalFadeSpeed로 자연스럽게 페이드 인
             }

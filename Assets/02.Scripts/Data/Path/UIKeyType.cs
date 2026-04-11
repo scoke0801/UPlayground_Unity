@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-04-10 15:47
+// Generated: 2026-04-11 09:39
 namespace UPlayGround.Data.Path
 {
     /// <summary>UIKeyType — UI Prefab 키 열거형 (자동 생성)</summary>
@@ -23,6 +23,7 @@ namespace UPlayGround.Data.Path
         MonologueDialogue = 14,
         SettingMenu = 15,
         DamageFloater = 16,
+        Minimap = 17,
     }
 
     public static class UIKeyTypeExtensions
@@ -46,6 +47,7 @@ namespace UPlayGround.Data.Path
             UIKeyType.MonologueDialogue => "MonologueDialogue",
             UIKeyType.SettingMenu => "SettingMenu",
             UIKeyType.DamageFloater => "DamageFloater",
+            UIKeyType.Minimap => "Minimap",
             _ => string.Empty,
         };
     }

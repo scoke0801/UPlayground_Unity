@@ -20,6 +20,7 @@ class UI_GamePlay : UI_Base
     protected override void OnShow()
     {
         _hudPlayerInfo = UIManager.Instance.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HudPlayerInfo>();
+        UIManager.Instance.ShowUI(UIKeyType.Minimap);
 
         if (GameObjectManager.Instance != null)
         {
@@ -34,6 +35,8 @@ class UI_GamePlay : UI_Base
 
     protected override void OnHide()
     {
+        UIManager.Instance.HideUI(UIKeyType.Minimap);
+
         if (_playerCombat == null)
         {
             return;

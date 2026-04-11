@@ -68,6 +68,7 @@ namespace UPlayGround.Manager
             RegisterManager(SceneManager.Instance);
             RegisterManager(CheatManager.Instance);
             RegisterManager(RecipeManager.Instance);
+            RegisterManager(QuestManager.Instance);
 
             // Init이후에 후처리 필요한 경우 
             AfterInit();

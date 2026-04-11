@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 092777d72f642bc46b5bf7eab365f3b7, type: 3}
+  m_Name: InGame_MinimapConfig
+  m_EditorClassIdentifier: 
+  player:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  enemy:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  enemyDetected:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  npc:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  gathering:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  questTarget:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 8
+  questNpc:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  customMarker:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  showQuestMarkers: 1
+  showEnemies: 1
+  showOnlyDetectedEnemies: 0
+  showNpcs: 1
+  showGathering: 1
+  displayMode: 1
+  worldToMinimapScale: 0.05
+  minimapRadius: 100
+  rotateWithPlayer: 1
+  backgroundSprite: {fileID: 21300000, guid: 9cad81b2a9cb31c4886aaf89f6897bad, type: 3}
+  captureCenter: {x: 394.83392, y: 385.22858}
+  captureWorldSize: 800

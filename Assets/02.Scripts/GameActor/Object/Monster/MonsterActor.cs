@@ -23,7 +23,6 @@ namespace UPlayGround
         
         [Header("Drop")]
         [SerializeField] private EnemyDropTableSO _dropTable;
-        [SerializeField] private ItemActor _itemActorPrefab;
 
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
@@ -257,13 +256,12 @@ namespace UPlayGround
 
         private void SpawnDropItems()
         {
-            if (_dropTable == null || _itemActorPrefab == null) return;
+            if (_dropTable == null) return;
 
             var items = ItemManager.Instance.GetDropItemList(_dropTable.dropItems);
             foreach (var item in items)
             {
-                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                go.Init(item);
+                GameObjectManager.Instance.SpawnItem(item, transform.position);
             }
         }
 

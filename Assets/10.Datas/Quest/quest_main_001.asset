@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_001
+  m_EditorClassIdentifier: 
+  questId: main_001
+  questName: "\uBA54\uC778 \uD018\uC2A4\uD2B8 1"
+  questDescription: 
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  objectives: []
+  reward:
+    gold: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 0

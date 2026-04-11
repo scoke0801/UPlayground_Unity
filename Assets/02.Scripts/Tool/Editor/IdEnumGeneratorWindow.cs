@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Crafting;
+using UPlayGround.Data.Quest;
 using UPlayGround.Tool.Editor;
 
 namespace UPlayGround.Editor
@@ -66,6 +67,7 @@ namespace UPlayGround.Editor
                 BuildItemConfig(),
                 BuildRecipeConfig(),
                 BuildActorConfig(),
+                BuildQuestConfig(),
             };
         }
 
@@ -322,6 +324,35 @@ namespace UPlayGround.Editor
                     return IdEnumGeneratorUtility.GenerateStringKeyEnum(
                         "ActorIdType", "ToActorId", "Actor",
                         outputPath, "UPlayGround.Data.Actor", entries);
+                },
+            };
+        }
+
+        private static DbConfig BuildQuestConfig()
+        {
+            const string outputPath = "Assets/02.Scripts/Data/Quest/QuestIdType.cs";
+            var db  = FindDb<QuestDatabase>();
+            var raw = new List<(string, string)>();
+            if (db != null)
+                foreach (var quest in db.QuestList)
+                {
+                    if (quest == null || string.IsNullOrEmpty(quest.questId)) continue;
+                    raw.Add((quest.questId, quest.questId));
+                }
+            return new DbConfig
+            {
+                label       = "Quest",
+                enumName    = "QuestIdType",
+                outputPath  = outputPath,
+                isFound     = db != null,
+                cachedCount = db != null ? raw.Count : -1,
+                Generate = () =>
+                {
+                    if (db == null) return false;
+                    var entries = IdEnumGeneratorUtility.DeduplicateEntries(raw);
+                    return IdEnumGeneratorUtility.GenerateStringKeyEnum(
+                        "QuestIdType", "ToQuestId", "Quest ID",
+                        outputPath, "UPlayGround.Data.Quest", entries);
                 },
             };
         }

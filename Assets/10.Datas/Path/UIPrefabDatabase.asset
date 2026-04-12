@@ -85,3 +85,7 @@ MonoBehaviour:
     prefab: {fileID: 2061351792792607043, guid: 5dd905cc8111b544980ed3c19b408b63, type: 3}
     defaultLayer: 0
     description: 
+  - key: Map
+    prefab: {fileID: 2061351792792607043, guid: ecfef36e9f5f7e44587bab966e453802, type: 3}
+    defaultLayer: 1000
+    description: 

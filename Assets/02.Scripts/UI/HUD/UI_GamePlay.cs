@@ -12,9 +12,9 @@ class UI_GamePlay : UI_Base
     private PlayerActor _playerActor;
 
     private PlayerCombat _playerCombat;
-    
+
     private UI_HudPlayerInfo _hudPlayerInfo;
-    
+
     #region UI_Base
 
     protected override void OnShow()
@@ -50,6 +50,8 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
             null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
        
+        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
+            null, OnPerformedMap, null, null, null, InputLayer.Level_0);
     }
 
     protected override void UnRegisterInputEvents()
@@ -57,11 +59,23 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
             null, OnPerformedInventory,null);
         
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map,
+            null, OnPerformedMap,null);
     }
 
     #endregion
 
     #region InputCallback
+
+    private void ToggleMap()
+    {
+        var mapObj = UIManager.Instance.GetActiveUI(UIKeyType.Map.ToKey());
+        var map    = mapObj?.GetComponent<UI_Map>();
+        if (map != null && map.IsVisible)
+            UIManager.Instance.HideUI(UIKeyType.Map);
+        else
+            UIManager.Instance.ShowUI(UIKeyType.Map);
+    }
 
     private void OnPerformedInventory(InputAction.CallbackContext obj)
     {
@@ -76,6 +90,11 @@ class UI_GamePlay : UI_Base
         }
     }
 
+
+    private void OnPerformedMap(InputAction.CallbackContext obj)
+    {
+        ToggleMap();
+    }
     #endregion
 
     #region EventCallback

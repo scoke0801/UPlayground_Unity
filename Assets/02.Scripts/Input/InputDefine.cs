@@ -54,10 +54,12 @@
     {   
         public const string Inventory = "Inventory";
         public const string EquipInventory = "EquipInventory";
+        public const string Map = "Map";
         
         public const string Submit = "Submit";
         public const string Cancel = "Cancel";
         public const string DialogueNext = "DialogueNext";
+        
     }
 
     public static class GamepadAction

@@ -8,8 +8,10 @@ namespace UPlayGround.Manager
     public partial class SceneManager : BaseManager<SceneManager>, IManager
     {
         private string _currentSceneType;
+        private string _currentMapID;
 
         public string CurrentSceneType => _currentSceneType;
+        public string CurrentMapID     => _currentMapID;
 
         public void Init() { }
 
@@ -30,6 +32,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public void OnSceneContextReady(SceneContext context)
         {
+            _currentMapID = context.MapID;
             ChangeSceneType(context.SceneType);
         }
 

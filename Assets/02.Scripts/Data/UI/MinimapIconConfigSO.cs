@@ -52,24 +52,8 @@ namespace UPlayGround.Data.UI
         [Tooltip("채집 오브젝트 아이콘 표시")]
         public bool showGathering = true;
 
-        // ── 미니맵 표시 모드 ─────────────────────────────────────
-        [Header("표시 모드")]
-        [Tooltip("아이콘 전용 모드: 플레이어 중심\n맵 이미지 모드: 촬영된 배경 이미지 위에 아이콘")]
-        public MinimapDisplayMode displayMode = MinimapDisplayMode.IconOnly;
-
-        [Header("아이콘 전용 모드 (IconOnly)")]
-        [Tooltip("월드 1유닛 = 미니맵 N픽셀 (클수록 확대)")]
-        [Range(0.01f, 1f)]
-        public float worldToMinimapScale = 0.05f;
-
-        [Tooltip("미니맵 원형 반지름 (픽셀)")]
-        [Range(50f, 300f)]
-        public float minimapRadius = 100f;
-
-        [Tooltip("플레이어 방향이 항상 위를 향하도록 회전")]
-        public bool rotateWithPlayer = true;
-
-        [Header("맵 이미지 모드 (MapImage)")]
+        // ── 맵 이미지 설정 ───────────────────────────────────────
+        [Header("맵 이미지 (MapImage)")]
         [Tooltip("MinimapCaptureEditor로 촬영한 배경 스프라이트")]
         public Sprite backgroundSprite;
 
@@ -79,10 +63,28 @@ namespace UPlayGround.Data.UI
         [Tooltip("캡처 범위 (월드 유닛, 정사각형 기준 한 변 길이)")]
         public float captureWorldSize = 200f;
 
+        [Tooltip("미니맵 이미지 줌 배율. 클수록 플레이어 주변을 확대해서 표시.")]
+        [Range(0.5f, 100f)]
+        public float mapZoom = 1f;
+
+        // ── 확대 맵 모드 (M키 토글) ──────────────────────────────
+        [Header("확대 맵 모드 (M키 토글)")]
+        [Tooltip("확대 맵 시 마스크 크기 (픽셀)")]
+        [Range(100f, 800f)]
+        public float expandedMapSize = 500f;
+
+        [Tooltip("확대 맵 시 이미지 줌 배율")]
+        [Range(0.5f, 100f)]
+        public float expandedMapZoom = 3f;
+
+        [Tooltip("확대/축소 전환 애니메이션 시간 (초)")]
+        [Range(0f, 0.5f)]
+        public float expandTransitionDuration = 0.2f;
+
         // ── 좌표 변환 ────────────────────────────────────────────
 
         /// <summary>
-        /// 맵 이미지 모드에서 월드 XZ 좌표를 미니맵 UI 픽셀 좌표로 변환합니다.
+        /// 월드 XZ 좌표를 미니맵 UI 픽셀 좌표로 변환합니다.
         /// </summary>
         public Vector2 WorldToMapImagePos(Vector3 worldPos, float minimapDisplaySize)
         {
@@ -100,11 +102,5 @@ namespace UPlayGround.Data.UI
             if ((actorType & ActorType.NPC)     != 0) return npc;
             return gathering;
         }
-    }
-
-    public enum MinimapDisplayMode
-    {
-        IconOnly,
-        MapImage,
     }
 }

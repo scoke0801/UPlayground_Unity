@@ -414,6 +414,8 @@ namespace UPlayGround.Manager
         private void OnPerformedBack(InputAction.CallbackContext obj)
         {
             var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
+            bool handled = false;
+
             for (int i = layers.Length - 1; i >= 0; i--)
             {
                 if (!_canvasDictionary.TryGetValue(layers[i], out Canvas canvas)) continue;
@@ -424,10 +426,12 @@ namespace UPlayGround.Manager
                     if (uiBase == null || !uiBase.IsVisible || !uiBase.IsCanCloseWithEsc) continue;
 
                     if (!uiBase.PerformBackFunction()) return;
+                    handled = true;
                 }
             }
 
-            if (SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
+            // 열린 UI가 없을 때만 PauseMenu 토글
+            if (!handled && SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
             {
                 UI_Base ui = GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
                 if (ui == null || !ui.IsVisible) ShowUI(UIKeyType.PauseMenu);

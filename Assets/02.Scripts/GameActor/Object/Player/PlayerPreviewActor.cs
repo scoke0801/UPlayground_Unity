@@ -118,6 +118,8 @@ namespace UPlayGround
         {
             // "Female" 하위의 모든 Armor_XXX를 탐색하며 부위별로 분류
             Transform meshRoot = transform.Find("Mesh/Female");
+            if (meshRoot == null)
+                return;
             
             // Enum 순회하며 딕셔너리 초기화
             foreach (EquipArmorType type in System.Enum.GetValues(typeof(EquipArmorType)))

@@ -12,6 +12,9 @@ namespace UPlayGround
     {
         public string SceneType;
 
+        [Tooltip("미니맵·전체맵 Config를 조회할 맵 식별자 (MapConfigDatabaseSO의 mapId와 일치해야 함)")]
+        public string MapID;
+
         private IEnumerator Start()
         {
             EnsureGameManagerInitialized();

@@ -109,23 +109,26 @@ namespace UPlayGround.Manager
 
         private void OnInputEventPerformed(InputAction.CallbackContext context)
         {
-            // 전투 관련 입력은 버퍼에 추가
-            string actionName = context.action.name;
-            switch (actionName)
+            // 전투 관련 입력은 Level_0(HUD)일 때만 버퍼에 추가
+            if (CurrentLayer == InputLayer.Level_0)
             {
-                case InputDefine.PlayerAction.Attack:
-                case InputDefine.PlayerAction.HeavyAttack:
-                case InputDefine.PlayerAction.Dodge:
-                case InputDefine.PlayerAction.Skill_1:
-                case InputDefine.PlayerAction.Skill_2:
-                case InputDefine.PlayerAction.Skill_3:
-                case InputDefine.PlayerAction.Skill_4: 
-                case InputDefine.PlayerAction.Jump:
-                case InputDefine.PlayerAction.Dash:
-                    _inputBuffer.AddInput(actionName);
-                    break;
+                string actionName = context.action.name;
+                switch (actionName)
+                {
+                    case InputDefine.PlayerAction.Attack:
+                    case InputDefine.PlayerAction.HeavyAttack:
+                    case InputDefine.PlayerAction.Dodge:
+                    case InputDefine.PlayerAction.Skill_1:
+                    case InputDefine.PlayerAction.Skill_2:
+                    case InputDefine.PlayerAction.Skill_3:
+                    case InputDefine.PlayerAction.Skill_4:
+                    case InputDefine.PlayerAction.Jump:
+                    case InputDefine.PlayerAction.Dash:
+                        _inputBuffer.AddInput(actionName);
+                        break;
+                }
             }
-            
+
             ExecuteCallbacks(context, performCallbackDict);
         }
 

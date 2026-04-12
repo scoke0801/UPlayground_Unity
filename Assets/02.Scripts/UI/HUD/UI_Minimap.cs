@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,19 +11,22 @@ using UPlayGround.Manager;
 using UPlayGround.UI;
 
 /// <summary>
-/// 아이콘 기반 미니맵 HUD.
+/// 미니맵 HUD (MapImage 전용).
 ///
 /// ■ 표시 항목
 ///   · 플레이어 — 항상 중심, 방향 화살표 회전
 ///   · 적       — 비전투(dimmed) / 전투(강조색) 구분 표시, 설정에 따라 감지된 적만 표시
 ///   · 퀘스트   — 활성 퀘스트의 ReachLocation 목표 지점을 "!" 마커로 표시
-///                (씬에 MinimapMarkerRegistrar 배치 + locationId = QuestObjectiveData.targetStringId)
+///
+/// ■ Config 로드
+///   SceneContext.MapID → MapConfigDatabaseSO → MinimapIconConfigSO
+///   씬 전환마다 OnShow() 시점에 자동으로 해당 맵 Config를 조회한다.
 ///
 /// ■ 프리팹 구조 (필수)
 /// <code>
 /// UI_Minimap (Canvas, CanvasLayer = HUD)
 ///   └─ MinimapMask (Image — 원형 스프라이트, Mask 컴포넌트)
-///        ├─ MapBackground (Image) ← _mapBackground  [MapImage 모드]
+///        ├─ MapBackground (Image) ← _mapBackground
 ///        ├─ QuestContainer  (RectTransform) ← _questContainer
 ///        ├─ IconContainer   (RectTransform) ← _iconContainer
 ///        └─ PlayerIcon      (Image) ← _playerIcon
@@ -32,42 +36,64 @@ using UPlayGround.UI;
 public class UI_Minimap : UI_Base
 {
     [Header("컴포넌트")]
-    [SerializeField] private RectTransform _iconContainer;    // 액터 아이콘 부모
-    [SerializeField] private RectTransform _questContainer;   // 퀘스트 마커 부모 (아이콘 컨테이너와 동일 부모도 가능)
-    [SerializeField] private RectTransform _playerIcon;       // 플레이어 방향 화살표
-    [SerializeField] private Image         _mapBackground;    // MapImage 모드 배경
+    [SerializeField] private RectTransform _iconContainer;
+    [SerializeField] private RectTransform _questContainer;
+    [SerializeField] private RectTransform _playerIcon;
+    [SerializeField] private Image         _mapBackground;
+    [SerializeField] private RectTransform _minimapMask;
 
     [Header("설정")]
-    [SerializeField] private MinimapIconConfigSO _config;
+    [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
     // MapImage 모드 마스크 영역 픽셀 크기 (MinimapMask RectTransform.sizeDelta.x 와 일치)
     [SerializeField] private float _maskDisplaySize = 200f;
 
     // ── 런타임 ───────────────────────────────────────────────
-    private PlayerActor _player;
+    private PlayerActor         _player;
+    private MinimapIconConfigSO _config;
 
-    // 섹션 1: 적 아이콘 (MonsterActor → icon)
+    // ── 확대 맵 상태 ─────────────────────────────────────────
+    private bool      _isExpanded;
+    private float     _currentMaskSize;
+    private float     _currentMapZoom;
+    private Coroutine _expandCoroutine;
+
+    // 섹션 1: 적 아이콘
     private readonly Dictionary<MonsterActor, MinimapEntityIcon> _enemyIconMap = new();
-
     // 섹션 2: 일반 액터 아이콘 (NPC·채집 등)
-    private readonly Dictionary<GameActor, MinimapEntityIcon> _actorIconMap = new();
-
-    // 섹션 3: 퀘스트 마커 (locationId → icon)
-    private readonly Dictionary<string, MinimapEntityIcon> _questIconMap = new();
+    private readonly Dictionary<GameActor, MinimapEntityIcon>    _actorIconMap = new();
+    // 섹션 3: 퀘스트 마커
+    private readonly Dictionary<string, MinimapEntityIcon>       _questIconMap = new();
 
     // ── UI_Base ──────────────────────────────────────────────
 
     protected override void OnShow()
     {
+        // SceneContext.MapID 기반으로 Config 동적 로드
+        if (_mapConfigDB == null)
+        {
+            Debug.LogError("[UI_Minimap] MapConfigDatabaseSO가 할당되지 않았습니다.");
+            return;
+        }
+
+        string mapId = SceneManager.Instance?.CurrentMapID;
+        _config = _mapConfigDB.GetConfig(mapId);
+
         if (_config == null)
         {
-            Debug.LogError("[UI_Minimap] MinimapIconConfigSO가 할당되지 않았습니다.");
+            Debug.LogError($"[UI_Minimap] MapID '{mapId}'에 대한 MinimapIconConfigSO를 찾을 수 없습니다.");
             return;
         }
 
         _player = GameObjectManager.Instance?.Player;
 
-        SetupDisplayMode();
+        // 상태 초기화
+        _isExpanded      = false;
+        _currentMaskSize = _maskDisplaySize;
+        _currentMapZoom  = _config.mapZoom;
+        ApplyMaskSize(_currentMaskSize);
+
+        SetupMapBackground();
 
         // 씬에 이미 존재하는 액터 등록
         if (GameObjectManager.Instance?.AllActors != null)
@@ -76,10 +102,8 @@ public class UI_Minimap : UI_Base
                 RegisterActor(actor);
         }
 
-        // 퀘스트 마커 초기 설정
         RefreshAllQuestMarkers();
 
-        // 이벤트 구독
         var gom = GameObjectManager.Instance;
         if (gom != null)
         {
@@ -118,6 +142,14 @@ public class UI_Minimap : UI_Base
             ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
         }
 
+        if (_expandCoroutine != null)
+        {
+            StopCoroutine(_expandCoroutine);
+            _expandCoroutine = null;
+        }
+        _isExpanded = false;
+        ApplyMaskSize(_maskDisplaySize);
+
         ClearAllIcons();
     }
 
@@ -127,28 +159,79 @@ public class UI_Minimap : UI_Base
     {
         if (!IsVisible || _player == null || _config == null) return;
 
-        bool isMapImageMode = _config.displayMode == MinimapDisplayMode.MapImage;
-
-        UpdateContainerLayout(isMapImageMode);
-        UpdatePlayerIcon(isMapImageMode);
-        UpdateEnemyIcons(isMapImageMode);
-        UpdateActorIcons(isMapImageMode);
-        UpdateQuestMarkers(isMapImageMode);
+        UpdateContainerLayout();
+        UpdatePlayerIcon();
+        UpdateEnemyIcons();
+        UpdateActorIcons();
+        UpdateQuestMarkers();
     }
 
-    // ── 모드 초기화 ──────────────────────────────────────────
+    // ── 확대 맵 토글 ─────────────────────────────────────────
 
-    private void SetupDisplayMode()
+    public void ToggleExpandedMap()
     {
-        if (_config.displayMode == MinimapDisplayMode.MapImage
-            && _mapBackground != null
-            && _config.backgroundSprite != null)
+        if (_config == null) return;
+
+        _isExpanded = !_isExpanded;
+
+        if (_expandCoroutine != null)
+            StopCoroutine(_expandCoroutine);
+        _expandCoroutine = StartCoroutine(TransitionZoom(_isExpanded));
+    }
+
+    private IEnumerator TransitionZoom(bool toExpanded)
+    {
+        float targetMaskSize = toExpanded ? _config.expandedMapSize  : _maskDisplaySize;
+        float targetMapZoom  = toExpanded ? _config.expandedMapZoom  : _config.mapZoom;
+
+        float startMaskSize = _currentMaskSize;
+        float startMapZoom  = _currentMapZoom;
+
+        float duration = _config.expandTransitionDuration;
+        float elapsed  = 0f;
+
+        while (elapsed < duration)
         {
+            elapsed += Time.unscaledDeltaTime;
+            float t = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            _currentMaskSize = Mathf.Lerp(startMaskSize, targetMaskSize, t);
+            _currentMapZoom  = Mathf.Lerp(startMapZoom,  targetMapZoom,  t);
+
+            ApplyMaskSize(_currentMaskSize);
+            yield return null;
+        }
+
+        _currentMaskSize = targetMaskSize;
+        _currentMapZoom  = targetMapZoom;
+        ApplyMaskSize(_currentMaskSize);
+        _expandCoroutine = null;
+    }
+
+    private void ApplyMaskSize(float size)
+    {
+        if (_minimapMask != null)
+            _minimapMask.sizeDelta = new Vector2(size, size);
+    }
+
+    // ── 초기 설정 ────────────────────────────────────────────
+
+    private void SetupMapBackground()
+    {
+        if (_mapBackground == null) return;
+
+        if (_config.backgroundSprite != null)
+        {
+            _mapBackground.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            _mapBackground.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _mapBackground.rectTransform.pivot     = new Vector2(0.5f, 0.5f);
+            _mapBackground.rectTransform.sizeDelta = new Vector2(_maskDisplaySize, _maskDisplaySize);
+
             _mapBackground.sprite  = _config.backgroundSprite;
             _mapBackground.enabled = true;
-            _mapBackground.rectTransform.sizeDelta = new Vector2(_maskDisplaySize, _maskDisplaySize);
         }
-        else if (_mapBackground != null)
+        else
         {
             _mapBackground.enabled = false;
         }
@@ -156,59 +239,38 @@ public class UI_Minimap : UI_Base
 
     // ── 컨테이너 레이아웃 ────────────────────────────────────
 
-    private void UpdateContainerLayout(bool isMapImageMode)
+    private void UpdateContainerLayout()
     {
-        if (isMapImageMode)
-        {
-            // 맵 이미지 모드: 배경·아이콘 컨테이너를 플레이어 위치로 오프셋
-            Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, _maskDisplaySize);
-            Vector2 offset       = -playerMapPos;
+        Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, _currentMaskSize);
+        Vector2 offset       = -playerMapPos * _currentMapZoom;
 
-            if (_mapBackground != null)
-                _mapBackground.rectTransform.anchoredPosition = offset;
-            if (_iconContainer != null)
-                _iconContainer.anchoredPosition = offset;
-            if (_questContainer != null)
-                _questContainer.anchoredPosition = offset;
-        }
-        else
+        // 마스크 영역이 항상 맵 이미지로 채워지도록 offset 제한
+        float maxOffset = Mathf.Max(0f, _currentMaskSize * (_currentMapZoom - 1f) / 2f);
+        offset.x = Mathf.Clamp(offset.x, -maxOffset, maxOffset);
+        offset.y = Mathf.Clamp(offset.y, -maxOffset, maxOffset);
+
+        if (_mapBackground != null)
         {
-            // IconOnly 모드: 플레이어 방향이 위가 되도록 컨테이너 회전
-            if (_config.rotateWithPlayer)
-            {
-                float yaw = _player.transform.eulerAngles.y;
-                Quaternion rot = Quaternion.Euler(0f, 0f, yaw);
-                if (_iconContainer  != null) _iconContainer.localRotation  = rot;
-                if (_questContainer != null) _questContainer.localRotation = rot;
-            }
-            else
-            {
-                if (_iconContainer  != null) _iconContainer.localRotation  = Quaternion.identity;
-                if (_questContainer != null) _questContainer.localRotation = Quaternion.identity;
-            }
+            _mapBackground.rectTransform.sizeDelta        = new Vector2(_currentMaskSize, _currentMaskSize);
+            _mapBackground.rectTransform.localScale       = Vector3.one * _currentMapZoom;
+            _mapBackground.rectTransform.anchoredPosition = offset;
         }
+        if (_iconContainer  != null) _iconContainer.anchoredPosition  = offset;
+        if (_questContainer != null) _questContainer.anchoredPosition = offset;
     }
 
-    // ── 섹션 1: 플레이어 아이콘 ──────────────────────────────
+    // ── 플레이어 아이콘 ──────────────────────────────────────
 
-    private void UpdatePlayerIcon(bool isMapImageMode)
+    private void UpdatePlayerIcon()
     {
         if (_playerIcon == null) return;
-
-        if (isMapImageMode)
-        {
-            // 맵 이미지 모드: 플레이어 아이콘은 뷰 중심에 고정
-            _playerIcon.anchoredPosition = Vector2.zero;
-        }
-
-        // 방향 화살표 회전 — 컨테이너 회전과 역방향으로 보정
-        float yaw = _player.transform.eulerAngles.y;
-        _playerIcon.localRotation = Quaternion.Euler(0f, 0f, -yaw);
+        _playerIcon.anchoredPosition = Vector2.zero;
+        _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -_player.transform.eulerAngles.y);
     }
 
-    // ── 섹션 2: 적 아이콘 ────────────────────────────────────
+    // ── 적 아이콘 ────────────────────────────────────────────
 
-    private void UpdateEnemyIcons(bool isMapImageMode)
+    private void UpdateEnemyIcons()
     {
         var toRemove = new List<MonsterActor>();
 
@@ -218,45 +280,37 @@ public class UI_Minimap : UI_Base
 
             bool isDetected = monster.Detection != null && monster.Detection.HasTarget;
 
-            // 감지된 적만 표시 옵션
             if (_config.showOnlyDetectedEnemies && !isDetected)
             {
                 icon.UpdateIcon(Vector2.zero, false);
                 continue;
             }
 
-            // 감지 상태에 따라 아이콘 색상 전환
             icon.SetColor(isDetected ? _config.enemyDetected.color : _config.enemy.color);
-
-            Vector2 pos       = CalcMinimapPos(monster.transform.position, isMapImageMode);
-            bool    inBounds  = isMapImageMode || pos.magnitude <= _config.minimapRadius;
-            icon.UpdateIcon(pos, inBounds);
+            icon.UpdateIcon(CalcMinimapPos(monster.transform.position), true);
         }
 
         CleanupDeadEntries(toRemove, _enemyIconMap);
     }
 
-    // ── 섹션 3: 일반 액터 아이콘 (NPC·채집 등) ───────────────
+    // ── 일반 액터 아이콘 ─────────────────────────────────────
 
-    private void UpdateActorIcons(bool isMapImageMode)
+    private void UpdateActorIcons()
     {
         var toRemove = new List<GameActor>();
 
         foreach (var (actor, icon) in _actorIconMap)
         {
             if (actor == null || icon == null) { toRemove.Add(actor); continue; }
-
-            Vector2 pos      = CalcMinimapPos(actor.transform.position, isMapImageMode);
-            bool    inBounds = isMapImageMode || pos.magnitude <= _config.minimapRadius;
-            icon.UpdateIcon(pos, inBounds);
+            icon.UpdateIcon(CalcMinimapPos(actor.transform.position), true);
         }
 
         CleanupDeadEntries(toRemove, _actorIconMap);
     }
 
-    // ── 섹션 4: 퀘스트 마커 ──────────────────────────────────
+    // ── 퀘스트 마커 ──────────────────────────────────────────
 
-    private void UpdateQuestMarkers(bool isMapImageMode)
+    private void UpdateQuestMarkers()
     {
         if (!_config.showQuestMarkers) return;
 
@@ -264,18 +318,12 @@ public class UI_Minimap : UI_Base
         {
             if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar) || icon == null)
                 continue;
-
-            Vector2 pos      = CalcMinimapPos(registrar.WorldPosition, isMapImageMode);
-            bool    inBounds = isMapImageMode || pos.magnitude <= _config.minimapRadius;
-            icon.UpdateIcon(pos, inBounds);
+            icon.UpdateIcon(CalcMinimapPos(registrar.WorldPosition), true);
         }
     }
 
-    // ── 퀘스트 마커 관리 ─────────────────────────────────────
-
     private void RefreshAllQuestMarkers()
     {
-        // 기존 퀘스트 마커 전체 제거 후 재구성
         foreach (var icon in _questIconMap.Values)
             if (icon != null) Destroy(icon.gameObject);
         _questIconMap.Clear();
@@ -286,13 +334,8 @@ public class UI_Minimap : UI_Base
         if (questManager == null || !questManager.IsDBLoaded) return;
 
         foreach (var runtime in questManager.GetActiveQuests())
-        {
             foreach (var obj in runtime.QuestSO.objectives)
-            {
-                if (runtime.IsObjectiveComplete(obj)) continue;
-                TryAddQuestMarker(obj);
-            }
-        }
+                if (!runtime.IsObjectiveComplete(obj)) TryAddQuestMarker(obj);
     }
 
     private void TryAddQuestMarker(QuestObjectiveData objective)
@@ -320,60 +363,36 @@ public class UI_Minimap : UI_Base
         if (icon != null) Destroy(icon.gameObject);
     }
 
-    /// <summary>
-    /// 퀘스트 목표 타입에 따라 미니맵 locationId를 반환합니다.
-    /// · ReachLocation: targetStringId 를 그대로 사용
-    /// · ItemDeliver  : "npc_{npcId}" 형식으로 NPC 마커를 찾음
-    /// · 그 외        : locationId 없음 (마커 표시 안 함)
-    /// </summary>
-    private static string ResolveQuestLocationId(QuestObjectiveData obj)
+    private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch
     {
-        return obj.type switch
-        {
-            QuestObjectiveType.ReachLocation => obj.targetStringId,
-            QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
-            _                               => null,
-        };
-    }
+        QuestObjectiveType.ReachLocation => obj.targetStringId,
+        QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
+        _                               => null,
+    };
 
     private MinimapIconConfigSO.IconEntry GetQuestMarkerEntry(QuestObjectiveData obj)
     {
-        return obj.type == QuestObjectiveType.ItemDeliver
-            ? _config.questNpc
-            : _config.questTarget;
+        return obj.type == QuestObjectiveType.ItemDeliver ? _config.questNpc : _config.questTarget;
     }
 
     // ── 이벤트 핸들러 ────────────────────────────────────────
 
-    private void OnQuestStateChanged(QuestStateEventData data)
-    {
-        // 퀘스트 수락/완료/실패 시 마커 전체 재구성
-        RefreshAllQuestMarkers();
-    }
+    private void OnQuestStateChanged(QuestStateEventData data) => RefreshAllQuestMarkers();
 
     private void OnMarkerAdded(MinimapMarkerRegistrar registrar)
     {
-        // 새로운 마커 등록 시 해당 locationId에 퀘스트가 있으면 즉시 표시
         if (!_config.showQuestMarkers) return;
 
         var questManager = QuestManager.Instance;
         if (questManager == null) return;
 
         foreach (var runtime in questManager.GetActiveQuests())
-        {
             foreach (var obj in runtime.QuestSO.objectives)
-            {
-                if (runtime.IsObjectiveComplete(obj)) continue;
-                if (ResolveQuestLocationId(obj) == registrar.LocationId)
+                if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
                     TryAddQuestMarker(obj);
-            }
-        }
     }
 
-    private void OnMarkerRemoved(MinimapMarkerRegistrar registrar)
-    {
-        TryRemoveQuestMarker(registrar.LocationId);
-    }
+    private void OnMarkerRemoved(MinimapMarkerRegistrar registrar) => TryRemoveQuestMarker(registrar.LocationId);
 
     // ── 액터 등록 / 해제 ─────────────────────────────────────
 
@@ -386,34 +405,24 @@ public class UI_Minimap : UI_Base
         {
             if (!_config.showEnemies) return;
             if (_enemyIconMap.ContainsKey(monster)) return;
-
             var entry = _config.enemy;
-            if (entry.sprite == null) return;
-            if (_iconContainer == null) return;
-
+            if (entry.sprite == null || _iconContainer == null) return;
             _enemyIconMap[monster] = MinimapEntityIcon.Create(_iconContainer, monster, entry);
             return;
         }
 
-        // NPC / 채집 등 일반 액터
-        if (actor.HasActorType(ActorType.NPC) && !_config.showNpcs) return;
+        if (actor.HasActorType(ActorType.NPC)  && !_config.showNpcs)      return;
         if (!actor.HasActorType(ActorType.NPC) && !_config.showGathering) return;
         if (_actorIconMap.ContainsKey(actor)) return;
 
         var actorEntry = _config.GetActorIconEntry(actor.ActorType);
-        if (actorEntry.sprite == null) return;
-        if (_iconContainer == null) return;
-
+        if (actorEntry.sprite == null || _iconContainer == null) return;
         _actorIconMap[actor] = MinimapEntityIcon.Create(_iconContainer, actor, actorEntry);
     }
 
     private void UnregisterActor(GameActor actor)
     {
-        if (actor is MonsterActor monster)
-        {
-            RemoveFromMap(monster, _enemyIconMap);
-            return;
-        }
+        if (actor is MonsterActor monster) { RemoveFromMap(monster, _enemyIconMap); return; }
         RemoveFromMap(actor, _actorIconMap);
     }
 
@@ -436,13 +445,10 @@ public class UI_Minimap : UI_Base
 
     // ── 좌표 변환 ────────────────────────────────────────────
 
-    private Vector2 CalcMinimapPos(Vector3 worldPos, bool isMapImageMode)
+    /// <summary>월드 좌표 → 미니맵 컨테이너 내 픽셀 좌표 (줌 적용)</summary>
+    private Vector2 CalcMinimapPos(Vector3 worldPos)
     {
-        if (isMapImageMode)
-            return _config.WorldToMapImagePos(worldPos, _maskDisplaySize);
-
-        Vector3 offset = worldPos - _player.transform.position;
-        return new Vector2(offset.x, offset.z) * _config.worldToMinimapScale;
+        return _config.WorldToMapImagePos(worldPos, _currentMaskSize) * _currentMapZoom;
     }
 
     // ── 유틸 ─────────────────────────────────────────────────

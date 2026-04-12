@@ -52,12 +52,19 @@ public class MinimapCaptureEditorWindow : EditorWindow
     private bool _showGizmo = true;
 
     // ── 해상도 프리셋 ─────────────────────────────────────────
-    private static readonly int[] ResolutionPresets = { 256, 512, 1024, 2048, 4096 };
+    private static readonly int[] ResolutionPresetsStandard  = { 256, 512, 1024, 2048, 4096 };
+    private static readonly int[] ResolutionPresetsHighEnd   = { 8192, 16384 };
+    private bool _useCustomResolution = false;
+    private int  _customResolution    = 4096;
 
     // ── 스타일 캐시 ──────────────────────────────────────────
     private GUIStyle _headerStyle;
     private GUIStyle _sectionStyle;
     private bool     _stylesInitialized;
+
+    // ── LOD 강제 설정 ─────────────────────────────────────────
+    private bool  _forceLOD         = true;   // 캡처 중 최고 LOD 강제
+    private float _lodBiasOverride  = 1000f;  // 강제 적용할 lodBias 값
 
     // ─────────────────────────────────────────────────────────
 
@@ -207,22 +214,99 @@ public class MinimapCaptureEditorWindow : EditorWindow
     {
         DrawSectionLabel("해상도");
 
+        // ── 표준 해상도 행 ────────────────────────────────────
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.PrefixLabel("텍스처 해상도");
-        foreach (int res in ResolutionPresets)
+        EditorGUILayout.PrefixLabel("표준");
+        foreach (int res in ResolutionPresetsStandard)
         {
-            bool selected = _textureResolution == res;
+            bool selected = !_useCustomResolution && _textureResolution == res;
             GUI.backgroundColor = selected ? new Color(0.4f, 0.8f, 0.4f) : Color.white;
-            if (GUILayout.Button($"{res}", GUILayout.Width(50f)))
-                _textureResolution = res;
+            if (GUILayout.Button(res >= 1024 ? $"{res/1024}K" : $"{res}", GUILayout.Width(46f)))
+            {
+                _textureResolution  = res;
+                _useCustomResolution = false;
+            }
         }
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndHorizontal();
 
-        EditorGUILayout.HelpBox(
-            $"출력 해상도: {_textureResolution} × {_textureResolution} px\n" +
-            $"월드 1유닛 = {_textureResolution / _captureWorldSize:F2} px",
-            MessageType.None);
+        // ── 고해상도 행 ───────────────────────────────────────
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("고해상도");
+        foreach (int res in ResolutionPresetsHighEnd)
+        {
+            bool selected = !_useCustomResolution && _textureResolution == res;
+            GUI.backgroundColor = selected ? new Color(1f, 0.7f, 0.3f) : Color.white;
+            if (GUILayout.Button($"{res/1024}K", GUILayout.Width(46f)))
+            {
+                _textureResolution   = res;
+                _useCustomResolution = false;
+            }
+        }
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+
+        // ── 직접 입력 행 ──────────────────────────────────────
+        EditorGUILayout.BeginHorizontal();
+        _useCustomResolution = EditorGUILayout.Toggle("직접 입력", _useCustomResolution, GUILayout.Width(150f));
+        EditorGUI.BeginDisabledGroup(!_useCustomResolution);
+        _customResolution = EditorGUILayout.IntField(_customResolution);
+        if (_useCustomResolution)
+        {
+            // 2의 거듭제곱으로 스냅
+            if (GUILayout.Button("2^n 스냅", GUILayout.Width(60f)))
+                _customResolution = NextPowerOfTwo(_customResolution);
+            _textureResolution = Mathf.Clamp(_customResolution, 64, 16384);
+        }
+        EditorGUI.EndDisabledGroup();
+        EditorGUILayout.EndHorizontal();
+
+        // ── 경고 / 정보 ───────────────────────────────────────
+        if (_textureResolution >= 8192)
+        {
+            long memMB = (long)_textureResolution * _textureResolution * (_transparentBg ? 4 : 3) / (1024 * 1024);
+            EditorGUILayout.HelpBox(
+                $"⚠ {_textureResolution}px 캡처 — 메모리 약 {memMB} MB 필요. GPU에 따라 실패할 수 있습니다.",
+                MessageType.Warning);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                $"출력 해상도: {_textureResolution} × {_textureResolution} px\n" +
+                $"월드 1유닛 = {_textureResolution / _captureWorldSize:F2} px",
+                MessageType.None);
+        }
+        // ── LOD 강제 ─────────────────────────────────────────
+        EditorGUILayout.BeginHorizontal();
+        _forceLOD = EditorGUILayout.Toggle(
+            new GUIContent("LOD 강제 (권장)",
+                "캡처 중에만 QualitySettings.lodBias를 높여 모든 오브젝트를 LOD 0으로 고정.\n" +
+                "캡처 후 자동 복원됩니다."),
+            _forceLOD);
+        EditorGUI.BeginDisabledGroup(!_forceLOD);
+        EditorGUILayout.LabelField("lodBias 값", GUILayout.Width(70f));
+        _lodBiasOverride = EditorGUILayout.FloatField(_lodBiasOverride, GUILayout.Width(60f));
+        EditorGUI.EndDisabledGroup();
+        EditorGUILayout.EndHorizontal();
+
+        if (_forceLOD)
+        {
+            int lodCount = Object.FindObjectsByType<LODGroup>(FindObjectsSortMode.None).Length;
+            int terrainCount = Object.FindObjectsByType<Terrain>(FindObjectsSortMode.None).Length;
+            EditorGUILayout.HelpBox(
+                $"씬 내 LODGroup {lodCount}개 / Terrain {terrainCount}개 → 캡처 중 최고 품질 강제",
+                MessageType.Info);
+        }
+
+        EditorGUILayout.Space(4f);
+    }
+
+    private static int NextPowerOfTwo(int v)
+    {
+        if (v <= 0) return 64;
+        v--;
+        v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16;
+        return v + 1;
     }
 
     private void DrawOutputSettings()
@@ -454,6 +538,25 @@ public class MinimapCaptureEditorWindow : EditorWindow
             _captureCamera.backgroundColor  = _clearColor;
         }
 
+        // ── LOD 강제 (캡처 중만 적용, 렌더 후 즉시 복원) ──────
+        float savedLodBias      = QualitySettings.lodBias;
+        int   savedMaxLodLevel  = QualitySettings.maximumLODLevel;
+        var   terrains          = Object.FindObjectsByType<Terrain>(FindObjectsSortMode.None);
+        var   savedTerrainError = new float[terrains.Length];
+
+        if (_forceLOD)
+        {
+            QualitySettings.lodBias         = _lodBiasOverride;
+            QualitySettings.maximumLODLevel = 0;
+
+            for (int i = 0; i < terrains.Length; i++)
+            {
+                savedTerrainError[i]              = terrains[i].heightmapPixelError;
+                terrains[i].heightmapPixelError   = 1f;
+                terrains[i].basemapDistance       = float.MaxValue;
+            }
+        }
+        
         // RenderTexture 생성 및 렌더
         var format = _transparentBg ? RenderTextureFormat.ARGB32 : RenderTextureFormat.Default;
         RenderTexture rt  = RenderTexture.GetTemporary(resolution, resolution, 24, format);
@@ -472,7 +575,16 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
         RenderTexture.active = prev;
         RenderTexture.ReleaseTemporary(rt);
+        
+        if (_forceLOD)
+        {
+            QualitySettings.lodBias         = savedLodBias;
+            QualitySettings.maximumLODLevel = savedMaxLodLevel;
 
+            for (int i = 0; i < terrains.Length; i++)
+                terrains[i].heightmapPixelError = savedTerrainError[i];
+        }
+        
         return result;
     }
 
@@ -483,7 +595,8 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
         importer.textureType         = TextureImporterType.Sprite;
         importer.spriteImportMode    = SpriteImportMode.Single;
-        importer.maxTextureSize      = _textureResolution;
+        // Unity 지원 최대 텍스처 크기(16384) 범위 내에서 해상도에 맞게 설정
+        importer.maxTextureSize      = Mathf.Min(_textureResolution, 16384);
         importer.mipmapEnabled       = false;
         importer.filterMode          = FilterMode.Bilinear;
         importer.alphaIsTransparency = _transparentBg;
@@ -509,7 +622,6 @@ public class MinimapCaptureEditorWindow : EditorWindow
         _targetConfig.backgroundSprite  = sprite;
         _targetConfig.captureCenter     = new Vector2(_captureCenter.x, _captureCenter.z);
         _targetConfig.captureWorldSize  = _captureWorldSize;
-        _targetConfig.displayMode       = MinimapDisplayMode.MapImage;
 
         EditorUtility.SetDirty(_targetConfig);
         AssetDatabase.SaveAssets();
@@ -665,11 +777,13 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
     private void ResetToDefaults()
     {
-        _captureCenter    = Vector3.zero;
-        _captureWorldSize = 200f;
-        _cameraHeight     = 150f;
-        _textureResolution = 1024;
-        _layerMask        = ~0;
+        _captureCenter       = Vector3.zero;
+        _captureWorldSize    = 200f;
+        _cameraHeight        = 150f;
+        _textureResolution   = 1024;
+        _useCustomResolution = false;
+        _customResolution    = 4096;
+        _layerMask           = ~0;
         _clearColor       = new Color(0.1f, 0.1f, 0.1f, 1f);
         _transparentBg    = false;
         _savePath         = "Assets/10.Datas/UI/Minimap";

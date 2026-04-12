@@ -76,7 +76,7 @@ namespace UPlayGround.Manager
 
         #region 유틸리티
 
-        private void ShowCursor(bool isShow, bool isForce = false)
+        public void ShowCursor(bool isShow, bool isForce = false)
         {
             if (isForce)
             {

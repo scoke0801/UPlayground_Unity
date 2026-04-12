@@ -93,7 +93,7 @@ public class DialogueGraphEditor : EditorWindow
 
     // ── 메뉴 / 오픈 에셋 ─────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Dialogue Graph Editor")]
+    [MenuItem("UPlayGround/Story/Dialogue Graph Editor")]
     public static void Open() => GetWindow<DialogueGraphEditor>("Dialogue Editor");
 
     [UnityEditor.Callbacks.OnOpenAsset]

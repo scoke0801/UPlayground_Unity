@@ -78,7 +78,24 @@ public class RecipeEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        LoadAllDatabases();
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+        // 플레이모드 중에는 AssetDatabase 접근을 피한다
+        // (씬 전환 시 OnEnable이 재호출되어 ArgumentException 발생 방지)
+        if (!EditorApplication.isPlayingOrWillChangePlaymode)
+            LoadAllDatabases();
+    }
+
+    private void OnDisable()
+    {
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+    }
+
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        // 플레이모드 종료 후 에디트모드로 돌아왔을 때 DB 재로드
+        if (state == PlayModeStateChange.EnteredEditMode)
+            LoadAllDatabases();
     }
 
     private void LoadAllDatabases()
@@ -96,9 +113,14 @@ public class RecipeEditorWindow : EditorWindow
             if (_itemDb != null)
             {
                 _itemDb.Initialize();
-                _itemCache = _itemDb.AllItems
-                    .Where(i => i != null)
-                    .ToDictionary(i => i.itemId, i => i);
+                _itemCache = new Dictionary<int, ItemSO>();
+                foreach (var item in _itemDb.AllItems.Where(i => i != null))
+                {
+                    if (!_itemCache.ContainsKey(item.itemId))
+                        _itemCache[item.itemId] = item;
+                    else
+                        Debug.LogWarning($"[RecipeEditorWindow] 중복 itemId 발견: {item.itemId} ({item.name}) — 첫 번째 항목이 사용됩니다.");
+                }
             }
         }
 

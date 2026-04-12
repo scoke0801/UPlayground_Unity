@@ -14,7 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   recipes:
   - recipeID: 1
-    recipeName: "\uC0C8 \uB808\uC2DC\uD53C 1"
+    recipeName: "\uD558\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
+    description: 
+    resultItemID: 206
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 0
+    isDebugUnlocked: 0
+  - recipeID: 2
+    recipeName: "\uC911\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
     description: 
     resultItemID: 0
     resultQuantity: 1
@@ -23,5 +33,24 @@ MonoBehaviour:
     castTimeSeconds: 2
     category: 0
     isDebugUnlocked: 0
-  ingredients: []
+  - recipeID: 3
+    recipeName: "\uACE0\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
+    description: 
+    resultItemID: 0
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 0
+    isDebugUnlocked: 0
+  ingredients:
+  - recipeID: 1
+    ingredientItemID: 100005
+    requiredQuantity: 3
+  - recipeID: 2
+    ingredientItemID: 100005
+    requiredQuantity: 3
+  - recipeID: 3
+    ingredientItemID: 100005
+    requiredQuantity: 5
   unlockConditions: []

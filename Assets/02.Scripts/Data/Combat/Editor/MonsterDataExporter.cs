@@ -29,7 +29,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string  _log;
 
-        [MenuItem("Tools/UPlayGround/Export Monster Data")]
+        [MenuItem("UPlayGround/Actor/Data/Export Monster Data")]
         public static void Open() => GetWindow<MonsterDataExporter>("Monster Data Exporter");
 
         private void OnGUI()

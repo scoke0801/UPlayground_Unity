@@ -72,7 +72,7 @@ namespace UPlayGround.Editor
 
         // ─────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Drop Table Editor")]
+        [MenuItem("UPlayGround/Item/Drop Table Editor")]
         public static void ShowWindow()
         {
             var win = GetWindow<DropTableEditorWindow>("Drop Table Editor");
@@ -446,7 +446,7 @@ namespace UPlayGround.Editor
                 if (item?.icon != null)
                 {
                     Rect iconRect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
-                    GUI.DrawTexture(iconRect, item.icon.texture, ScaleMode.ScaleToFit);
+                    DrawSprite(iconRect, item.icon);
                 }
                 else
                 {
@@ -599,7 +599,7 @@ namespace UPlayGround.Editor
                 if (item.icon != null)
                 {
                     Rect r = GUILayoutUtility.GetRect(18, 18, GUILayout.Width(18), GUILayout.Height(18));
-                    GUI.DrawTexture(r, item.icon.texture, ScaleMode.ScaleToFit);
+                    DrawSprite(r, item.icon);
                 }
 
                 // 선택 버튼
@@ -731,6 +731,19 @@ namespace UPlayGround.Editor
             foreach (var d in list)
                 total += (d.rate / 100f) * Mathf.Max(1, d.maximumDropCount);
             return total;
+        }
+
+        // 스프라이트 아틀라스 대응: textureRect UV로 잘라서 그림
+        private static void DrawSprite(Rect rect, Sprite sprite)
+        {
+            Texture2D tex = sprite.texture;
+            Rect tr = sprite.textureRect;
+            Rect uv = new Rect(
+                tr.x      / tex.width,
+                tr.y      / tex.height,
+                tr.width  / tex.width,
+                tr.height / tex.height);
+            GUI.DrawTextureWithTexCoords(rect, tex, uv);
         }
 
         #endregion

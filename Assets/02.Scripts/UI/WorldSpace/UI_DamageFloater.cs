@@ -66,9 +66,16 @@ namespace UPlayGround.UI
             gameObject.SetActive(true);
         }
 
+        /// <summary>씬 전환 후 카메라 레퍼런스를 갱신할 때 사용</summary>
+        public void UpdateCamera(Camera cam) => _camera = cam;
+
         private void LateUpdate()
         {
             if (!_isPlaying) return;
+
+            // 카메라가 파괴/미초기화 상태면 Camera.main으로 재시도
+            if (_camera == null) _camera = Camera.main;
+            if (_camera == null) return;
 
             _elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(_elapsed / _config.lifetime);

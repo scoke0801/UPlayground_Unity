@@ -46,7 +46,7 @@ public class JsonTextViewer : EditorWindow
     private const float SPLITTER_HEIGHT = 5f;
     private const float TOOLBAR_HEIGHT = 25f;
 
-    [MenuItem("Tools/JSON Table Viewer")]
+    [MenuItem("UPlayGround/Util/Viewer/JSON Table Viewer")]
     public static void ShowWindow()
     {
         GetWindow<JsonTextViewer>("JSON 테이블 뷰어");

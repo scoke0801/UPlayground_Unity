@@ -80,8 +80,15 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     public void ReturnFloaterToPool(UI_DamageFloater floater) => _floaterPool.Enqueue(floater);
 
-    private UI_DamageFloater GetFloaterFromPool() =>
-        _floaterPool.Count > 0 ? _floaterPool.Dequeue() : CreateFloater();
+    private UI_DamageFloater GetFloaterFromPool()
+    {
+        // 카메라가 null이면 여기서 재취득 (씬 전환 후 복구)
+        if (_mainCamera == null) _mainCamera = Camera.main;
+
+        var floater = _floaterPool.Count > 0 ? _floaterPool.Dequeue() : CreateFloater();
+        floater.UpdateCamera(_mainCamera);
+        return floater;
+    }
 
     private UI_DamageFloater CreateFloater()
     {

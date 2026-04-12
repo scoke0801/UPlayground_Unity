@@ -134,6 +134,14 @@ namespace UPlayGround.Manager
             _killCamController?.ForceStop();
             _isInputLocked = false;
 
+            StartCoroutine(CoInitializeCameraOnSceneChanged());
+        }
+
+        private System.Collections.IEnumerator CoInitializeCameraOnSceneChanged()
+        {
+            // Camera.main은 씬 전환 직후 한 프레임 늦게 등록되는 경우가 있어 1프레임 대기
+            yield return null;
+
             InitializeCamera();
 
             if (_target != null)
@@ -397,7 +405,7 @@ namespace UPlayGround.Manager
             _mainCamera = UnityEngine.Camera.main;
             if (_mainCamera == null)
             {
-                Debug.LogError("[CameraManager] 메인 카메라를 찾을 수 없습니다!");
+                Debug.LogWarning("[CameraManager] 메인 카메라를 찾을 수 없습니다. 카메라가 없는 씬이거나 아직 초기화 전입니다.");
                 return;
             }
 

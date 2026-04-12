@@ -88,7 +88,7 @@ public class URPMaterialConverter : EditorWindow
         { "_Cutoff",            "_Cutoff" },
     };
 
-    [MenuItem("Tools/URP/URP 머티리얼 변환기")]
+    [MenuItem("UPlayGround/Util/Converter/URP 머티리얼 변환기")]
     public static void ShowWindow()
     {
         GetWindow<URPMaterialConverter>("URP 머티리얼 변환기");

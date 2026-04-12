@@ -113,8 +113,6 @@ namespace UPlayGround
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             _brain?.UpdatePhase(GetHealthPercent());
             
-            Debug.Log($"[MonsterActor] {gameObject.name}가 {finalDamage} 데미지를 받았습니다! (남은 체력: {_currentHealth}/{_maxHealth})");
-            
             _detection?.AcquireTarget(attackData.attacker?.transform);
             
             OnDamaged(attackData);
@@ -183,17 +181,18 @@ namespace UPlayGround
         {
             bool poiseBroken = true;
             if (_poiseStat != null)
-            { 
+            {
                 _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
                 poiseBroken = _poiseStat.IsPoiseBroken;
             }
-            
+
             if (attackData != null && poiseBroken)
             {
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce, attackData.knockbackDrag);
+                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce,
+                            attackData.knockbackDrag);
                         break;
 
                     case AttackReactionType.Pull:
@@ -203,13 +202,16 @@ namespace UPlayGround
                             pullDir.y = 0f;
                             MovementController.AddVelocity(pullDir * attackData.pullForce);
                         }
+
                         break;
 
                     case AttackReactionType.Airborne:
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce, attackData.knockbackDrag);
+                        MovementController.AddImpulse(
+                            launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce,
+                            attackData.knockbackDrag);
                         MovementController.Motor.ForceUnground();
                         break;
                     }
@@ -230,9 +232,8 @@ namespace UPlayGround
             }
 
             _colorChanger.OnHit();
-            Debug.Log($"[MonsterActor] 피격! PoiseBroken={poiseBroken}, HitPoint: {attackData?.hitPoint}");
         }
-        
+
         protected virtual void OnDeath(AttackData attackData)
         {
             if (_isDead) return;

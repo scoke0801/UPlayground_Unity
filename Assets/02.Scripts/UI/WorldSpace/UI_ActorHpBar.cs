@@ -85,6 +85,9 @@ public class UI_ActorHpBar : MonoBehaviour
 
         if (_isShowing && (Time.time > _lastDisplayedTime + _displayTime))
         {
+            if (_detection == null)
+                return;
+            
             bool hasTarget = (_target != null) && _detection.HasTarget;
             if (hasTarget == false)
             {

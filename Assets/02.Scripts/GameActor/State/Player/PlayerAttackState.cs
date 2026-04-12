@@ -6,6 +6,7 @@ using UPlayGround.Data;
 using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.State
 {
@@ -61,6 +62,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            gameActor.Tags?.AddTag(GameplayTags.State_Combat_Attack);
 
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
@@ -102,6 +104,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
 
             _combat.ClearHitTargets();
@@ -143,14 +146,14 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
-                    if (_isHeavyAttack) _combat.ResetCombo();
+                    // 시퀀스 히스토리를 유지해야 하므로 타입 전환 시 ResetCombo 호출 제거.
+                    // 시퀀스 미매칭 시 Execute*Attack 내부에서 타입 전환을 감지해 ResetCombo를 처리한다.
                     _comboInputted = true;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
                 }
                 else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
-                    if (!_isHeavyAttack) _combat.ResetCombo();
                     _comboInputted = true;
                     _isHeavyAttack = true;
                     _combat.CloseComboWindow();
@@ -166,7 +169,11 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _attackTimer = 0f;
 
-            _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+            // _comboInputted가 이미 설정된 경우 _isHeavyAttack은 UpdateState에서 버퍼 소비와 함께 결정됐다.
+            // 여기서 다시 ConsumeInput을 호출하면 이미 소비된 Heavy 입력이 null로 읽혀 _isHeavyAttack이
+            // 강제로 false가 되어 H→H, L→H 시퀀스 매칭이 깨진다.
+            if (!_comboInputted)
+                _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             if (_isHeavyAttack)
             {
@@ -203,6 +210,7 @@ namespace UPlayGround.State
         {
             var skillGauge = playerActor.SkillGauge;
 
+            // 1순위: 숫자 키 스킬
             for (int i = 0; i < 10; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;
@@ -217,6 +225,32 @@ namespace UPlayGround.State
                 return _currentAttack?.animKey ?? AnimKey.None;
             }
 
+            // 2순위: 입력 패턴 콤보 시퀀스 매칭
+            var nextInput = _isHeavyAttack
+                ? Data.Combat.ComboInputType.HeavyAttack
+                : Data.Combat.ComboInputType.LightAttack;
+
+            var matchedSequence = _combat.FindMatchingSequence(nextInput);
+            if (matchedSequence != null)
+            {
+                // 스킬 게이지 슬롯이 지정된 경우 차감 시도. 부족하면 시퀀스 스킵 → 기본 콤보로 폴백.
+                if (matchedSequence.skillGaugeIndex >= 0)
+                {
+                    if (skillGauge == null || !skillGauge.ConsumeSkill(matchedSequence.skillGaugeIndex))
+                    {
+                        Debug.Log($"[PlayerAttackState] 시퀀스 '{matchedSequence.sequenceName}' 게이지 부족 (슬롯 {matchedSequence.skillGaugeIndex + 1})");
+                        matchedSequence = null;
+                    }
+                }
+            }
+
+            if (matchedSequence != null)
+            {
+                _currentAttack = _combat.ExecuteComboSequence(matchedSequence, _comboInputted);
+                return _currentAttack?.animKey ?? AnimKey.None;
+            }
+
+            // 3순위: 기본 약/강 콤보
             _currentAttack = _isHeavyAttack
                 ? _combat.ExecuteHeavyAttack(_comboInputted)
                 : _combat.ExecuteAttack(_comboInputted);

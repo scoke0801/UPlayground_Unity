@@ -38,6 +38,13 @@ namespace UPlayGround.Data.Combat
         [Tooltip("차지 단계 전환 비율 임계값 (0~1).\n요소 수 = chargeStages.Count - 1.\n예) 3단계 → { 0.35, 0.70 }\n비워두면 단계 수에 맞게 균등 분배된다.")]
         public List<float> chargeStageThresholds = new List<float>();
 
+        [Header("Combo Sequences")]
+        [Tooltip(
+            "입력 패턴 기반 콤보 시퀀스.\n" +
+            "패턴과 태그 조건이 일치하면 일반 liteCombo / heavyCombo보다 우선 실행된다.\n" +
+            "같은 길이의 시퀀스가 여럿이면 priority가 높은 것을 먼저 체크한다.")]
+        public List<ComboSequenceEntry> comboSequences = new();
+
         [Header("Full Charge VFX")]
         [Tooltip("풀 차지 도달 시 재생할 VFX 키 (GameObjectManager FX Pool)")]
         public string fullChargeVfxKey;

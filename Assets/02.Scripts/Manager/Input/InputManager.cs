@@ -96,7 +96,7 @@ namespace UPlayGround.Manager
 
             RefreshCursorState();
 
-            Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
+            // Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
         }
 
         private void OnStartedShowCursor(InputAction.CallbackContext obj)

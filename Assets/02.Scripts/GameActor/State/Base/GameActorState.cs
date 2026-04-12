@@ -34,7 +34,7 @@ namespace UPlayGround.State
         /// </summary>
         public virtual void OnEnter(GameActorState fromState)
         {
-            Debug.Log($"[State] Enter: {StateName} (from {fromState?.StateName ?? "None"})");
+           // Debug.Log($"[State] Enter: {StateName} (from {fromState?.StateName ?? "None"})");
         }
         
         /// <summary>
@@ -42,7 +42,7 @@ namespace UPlayGround.State
         /// </summary>
         public virtual void OnExit(GameActorState toState)
         {
-            Debug.Log($"[State] Exit: {StateName} (to {toState?.StateName ?? "None"})");
+           // Debug.Log($"[State] Exit: {StateName} (to {toState?.StateName ?? "None"})");
         }
         
         /// <summary>

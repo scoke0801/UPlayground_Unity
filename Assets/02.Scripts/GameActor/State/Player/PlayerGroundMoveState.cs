@@ -4,6 +4,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.State
 {
@@ -31,6 +32,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            gameActor.Tags?.AddTag(GameplayTags.State_Move);
 
             _runTimer = Time.realtimeSinceStartup;
 
@@ -42,7 +44,9 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.MoveAnimType =  BaseMoveAnimType.Run;
+            gameActor.Tags?.RemoveTag(GameplayTags.State_Move);
+            gameActor.Tags?.RemoveTag(GameplayTags.State_Sprint);
+            gameActor.MoveAnimType = BaseMoveAnimType.Run;
             base.OnExit(toState);
         }
         public override void UpdateState(float deltaTime)
@@ -161,6 +165,7 @@ namespace UPlayGround.State
             if (_runTimer + _sprintAutoChangeDealy < Time.realtimeSinceStartup)
             {
                 gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
+                gameActor.Tags?.AddTag(GameplayTags.State_Sprint);
                 _runTimer = float.MaxValue; // 자동 전환은 상태 진입 후 1회만 발동
             }
         }

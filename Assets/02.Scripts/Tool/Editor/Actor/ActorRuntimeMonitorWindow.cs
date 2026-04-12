@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Actor.Editor
 {
@@ -39,13 +40,14 @@ namespace UPlayGround.Actor.Editor
         private static readonly Color ColorHpBg     = new(0.12f, 0.12f, 0.14f);
 
         // ── 컬럼 너비 ────────────────────────────────────────────────
-        private const float ColActorId   = 160f;
-        private const float ColName      = 140f;
-        private const float ColType      = 80f;
-        private const float ColHp        = 120f;
-        private const float ColState     = 140f;
-        private const float ColGroup     = 110f;
-        private const float ColSpawnTime = 72f;
+        private const float ColActorId   = 140f;
+        private const float ColName      = 120f;
+        private const float ColType      = 75f;
+        private const float ColHp        = 110f;
+        private const float ColState     = 130f;
+        private const float ColTags      = 220f;
+        private const float ColGroup     = 90f;
+        private const float ColSpawnTime = 65f;
         private const float RowH         = 22f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
@@ -144,6 +146,7 @@ namespace UPlayGround.Actor.Editor
             DrawHeaderCell(ref x, y, ColType,      "타입");
             DrawHeaderCell(ref x, y, ColHp,        "HP");
             DrawHeaderCell(ref x, y, ColState,     "현재 상태");
+            DrawHeaderCell(ref x, y, ColTags,      "GameplayTags");
             DrawHeaderCell(ref x, y, ColGroup,     "그룹");
             DrawHeaderCell(ref x, y, ColSpawnTime, "스폰 경과");
         }
@@ -206,6 +209,9 @@ namespace UPlayGround.Actor.Editor
             // 현재 상태
             DrawCell(ref x, y, ColState, row.stateName, EditorStyles.miniLabel);
 
+            // GameplayTags
+            DrawTagsCell(ref x, y, row.tags);
+
             // 그룹
             DrawCell(ref x, y, ColGroup, row.groupName, EditorStyles.miniLabel);
 
@@ -220,6 +226,24 @@ namespace UPlayGround.Actor.Editor
         {
             GUI.Label(new Rect(x, y, width - 4, RowH - 4), text, style);
             x += width;
+        }
+
+        private void DrawTagsCell(ref float x, float y, string tagsText)
+        {
+            var rect = new Rect(x + 2, y, ColTags - 4, RowH - 4);
+            if (!string.IsNullOrEmpty(tagsText))
+            {
+                // 태그가 있으면 살짝 강조
+                var old = GUI.contentColor;
+                GUI.contentColor = new Color(0.70f, 0.95f, 0.70f);
+                GUI.Label(rect, tagsText, EditorStyles.miniLabel);
+                GUI.contentColor = old;
+            }
+            else
+            {
+                GUI.Label(rect, "-", EditorStyles.miniLabel);
+            }
+            x += ColTags;
         }
 
         private void DrawHpBar(ref float x, float y, float current, float max)
@@ -320,6 +344,11 @@ namespace UPlayGround.Actor.Editor
                 else if (actor is MonsterActor m && m.Brain?.Group != null)
                     groupName = m.Brain.Group.name;
 
+                // 태그 정보 수집
+                string tagsText = "-";
+                if (actor.Tags != null && actor.Tags.AllTags.Count > 0)
+                    tagsText = actor.Tags.ToString();
+
                 _rows.Add(new ActorRow
                 {
                     actor      = actor,
@@ -329,6 +358,7 @@ namespace UPlayGround.Actor.Editor
                     hpCurrent  = hpCurrent,
                     hpMax      = hpMax,
                     stateName  = stateName,
+                    tags       = tagsText,
                     groupName  = groupName,
                     spawnTime  = info != null ? info.spawnTime : -1f,
                 });
@@ -370,6 +400,7 @@ namespace UPlayGround.Actor.Editor
             public float  hpCurrent;
             public float  hpMax;
             public string stateName;
+            public string tags;      // GameplayTag 목록 (쉼표 구분)
             public string groupName;
             public float  spawnTime; // -1이면 스폰 기록 없음
         }

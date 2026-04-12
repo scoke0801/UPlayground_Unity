@@ -87,8 +87,6 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
-            Debug.Log("Landed on ground");
-            
             var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
             if (state != null)
             {

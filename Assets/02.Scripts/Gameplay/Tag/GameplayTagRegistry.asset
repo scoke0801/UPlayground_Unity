@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d6660b4509bb2429cd82e631496167, type: 3}
+  m_Name: GameplayTagRegistry
+  m_EditorClassIdentifier: 
+  tags:
+  - tagName: State.Move
+    enumName: State_Move
+    description: "\uC774\uB3D9 \uC911"
+    color: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  - tagName: State.Sprint
+    enumName: State_Sprint
+    description: "\uC804\uB825 \uC9C8\uC8FC \uC911"
+    color: {r: 0.2, g: 1, b: 0.2, a: 1}
+  - tagName: State.Dash
+    enumName: State_Dash
+    description: "\uB300\uC2DC \uC911"
+    color: {r: 0.3, g: 0.7, b: 1, a: 1}
+  - tagName: State.Jump
+    enumName: State_Jump
+    description: "\uC810\uD504 \uC785\uB825 \uC9C4\uC785"
+    color: {r: 0.5, g: 0.8, b: 1, a: 1}
+  - tagName: State.Airborne
+    enumName: State_Airborne
+    description: "\uACF5\uC911 \uC0C1\uD0DC"
+    color: {r: 0.6, g: 0.9, b: 1, a: 1}
+  - tagName: State.Crouching
+    enumName: State_Crouching
+    description: "\uC6C5\uD06C\uB9AC\uB294 \uC911"
+    color: {r: 0.8, g: 0.7, b: 0.3, a: 1}
+  - tagName: State.Dodge
+    enumName: State_Dodge
+    description: "\uD68C\uD53C \uC911"
+    color: {r: 0.9, g: 0.6, b: 0.2, a: 1}
+  - tagName: State.Combat
+    enumName: State_Combat
+    description: "\uC804\uD22C \uC0C1\uD0DC (\uBD80\uBAA8)"
+    color: {r: 1, g: 0.4, b: 0.4, a: 1}
+  - tagName: State.Combat.Attack
+    enumName: State_Combat_Attack
+    description: "\uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.3, b: 0.3, a: 1}
+  - tagName: State.Combat.Guard
+    enumName: State_Combat_Guard
+    description: "\uAC00\uB4DC \uC911"
+    color: {r: 0.9, g: 0.5, b: 0.2, a: 1}
+  - tagName: State.Combat.Charge
+    enumName: State_Combat_Charge
+    description: "\uCC28\uC9C0 \uC911"
+    color: {r: 1, g: 0.8, b: 0.1, a: 1}
+  - tagName: State.Combat.DashAttack
+    enumName: State_Combat_DashAttack
+    description: "\uB300\uC2DC \uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.5, b: 0.5, a: 1}
+  - tagName: State.Combat.JumpAttack
+    enumName: State_Combat_JumpAttack
+    description: "\uC810\uD504 \uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.5, b: 0.7, a: 1}
+  - tagName: State.Hit
+    enumName: State_Hit
+    description: "\uD53C\uACA9 \uC911"
+    color: {r: 1, g: 0.2, b: 0.2, a: 1}
+  - tagName: State.Death
+    enumName: State_Death
+    description: "\uC0AC\uB9DD"
+    color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - tagName: State.Grabbed
+    enumName: State_Grabbed
+    description: "\uC7A1\uD78C \uC0C1\uD0DC"
+    color: {r: 0.7, g: 0.3, b: 0.7, a: 1}
+  - tagName: State.Interaction
+    enumName: State_Interaction
+    description: "\uC0C1\uD638\uC791\uC6A9 \uC911"
+    color: {r: 0.4, g: 0.9, b: 0.7, a: 1}
+  - tagName: Combo.Light
+    enumName: Combo_Light
+    description: "\uCF64\uBCF4: \uC57D \uACF5\uACA9 \uC785\uB825\uB428"
+    color: {r: 0.3, g: 0.6, b: 1, a: 1}
+  - tagName: Combo.Heavy
+    enumName: Combo_Heavy
+    description: "\uCF64\uBCF4: \uAC15 \uACF5\uACA9 \uC785\uB825\uB428"
+    color: {r: 1, g: 0.5, b: 0.2, a: 1}

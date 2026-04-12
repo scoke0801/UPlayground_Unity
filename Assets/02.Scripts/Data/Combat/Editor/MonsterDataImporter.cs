@@ -124,7 +124,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string _log;
 
-        [MenuItem("UPlayGround/Actor/DataImport Monster Data")]
+        [MenuItem("UPlayGround/Actor/Data/Import Monster Data")]
         public static void Open() => GetWindow<MonsterDataImporter>("Monster Data Importer");
 
         private void OnGUI()

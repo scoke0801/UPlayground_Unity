@@ -6,6 +6,7 @@ using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround
 {
@@ -27,6 +28,9 @@ namespace UPlayGround
         protected DissolveController _dissolveController;
 
         private float _localTimeScale = 1.0f;
+
+        /// <summary>런타임 태그 컨테이너. 상태 진입/이탈 시 태그를 추가/제거한다.</summary>
+        public GameplayTagContainer Tags { get; private set; }
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)
@@ -81,6 +85,7 @@ namespace UPlayGround
         
         protected virtual void Awake()
         {
+            Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponent<ActorAnimator>();
             if (_animator != null)

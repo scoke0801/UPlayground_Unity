@@ -10,6 +10,8 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.UI;
+using UPlayGround.Input;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Component
 {
@@ -153,6 +155,9 @@ namespace UPlayGround.Component
         public event Action<AttackData> OnAttackHit;
         public event Action             OnComboReset;
 
+        // ── 콤보 시퀀스 추적기 ────────────────────────────────────────
+        private readonly InputSequenceTracker _sequenceTracker = new();
+
         private void Awake()
         {
             if (_equipment == null)
@@ -271,6 +276,8 @@ namespace UPlayGround.Component
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
             _attackState      = AttackState.NormalAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _sequenceTracker.Record(ComboInputType.LightAttack);
+            _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -283,11 +290,78 @@ namespace UPlayGround.Component
             if (_attackState == AttackState.NormalAttack) ResetCombo();
             _attackState      = AttackState.HeavyAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _sequenceTracker.Record(ComboInputType.HeavyAttack);
+            _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
+        }
+
+        /// <summary>
+        /// 콤보 시퀀스 엔트리로 공격을 실행한다.
+        /// PlayerAttackState.GetAnimKey()에서 시퀀스 매칭 후 호출한다.
+        /// </summary>
+        public AttackData ExecuteComboSequence(ComboSequenceEntry entry, bool isCombo)
+        {
+            // 시퀀스 마지막 스텝 입력 종류로 상태와 히스토리를 결정
+            var lastStep      = entry.inputSequence != null && entry.inputSequence.Count > 0
+                                    ? entry.inputSequence[^1]
+                                    : null;
+            var lastInputType = lastStep?.inputType ?? ComboInputType.LightAttack;
+            var attackKind    = lastInputType == ComboInputType.HeavyAttack
+                                    ? AttackKind.HeavyAttack
+                                    : AttackKind.NormalAttack;
+
+            _attackState      = lastInputType == ComboInputType.HeavyAttack
+                                    ? AttackState.HeavyAttack
+                                    : AttackState.NormalAttack;
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _sequenceTracker.Record(lastInputType);
+            _currentAttackData = ConvertToAttackData(entry.attackInfo, attackKind);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            Debug.Log($"[PlayerCombat] 콤보 시퀀스 '{entry.sequenceName}' 실행 | 히스토리: {_sequenceTracker.ToDebugString()}");
+            return _currentAttackData;
+        }
+
+        /// <summary>
+        /// 현재 입력 히스토리와 Actor 태그를 기반으로 매칭되는 콤보 시퀀스를 반환한다.
+        /// 매칭되는 시퀀스가 없으면 null 반환.
+        /// </summary>
+        public ComboSequenceEntry FindMatchingSequence(ComboInputType nextInput)
+        {
+            if (_attackData.comboSequences == null || _attackData.comboSequences.Count == 0)
+                return null;
+
+            // 다음 입력까지 포함한 예비 히스토리로 매칭 판정을 위해 임시 추가
+            // try/finally로 예외 시에도 반드시 롤백한다.
+            _sequenceTracker.Record(nextInput);
+
+            var tags = _playerActor.Tags;
+            ComboSequenceEntry best = null;
+
+            try
+            {
+                foreach (var entry in _attackData.comboSequences)
+                {
+                    if (entry.IsEmpty) continue;
+                    if (!_sequenceTracker.Matches(entry.inputSequence)) continue;
+                    if (!entry.CheckTagConditions(tags)) continue;
+
+                    if (best == null || entry.priority > best.priority)
+                        best = entry;
+                }
+            }
+            finally
+            {
+                // 실제 기록은 Execute*에서 하므로 임시 추가분을 반드시 되돌린다.
+                _sequenceTracker.RemoveLast();
+            }
+
+            return best;
         }
 
         public float[] GetChargeStageThresholds()
@@ -475,24 +549,22 @@ namespace UPlayGround.Component
                 }
 
                 IDamageable damageable = hit.GetComponent<IDamageable>()
-                                      ?? hit.GetComponentInParent<IDamageable>();
+                                         ?? hit.GetComponentInParent<IDamageable>();
 
                 if (damageable == null || !damageable.CanTakeDamage() || _hitTargets.Contains(damageable))
                     continue;
 
                 _hitTargets.Add(damageable);
-                _currentAttackData.hitTarget       = hit.gameObject;
-                _currentAttackData.hitPoint        = hit.ClosestPoint(origin);
+                _currentAttackData.hitTarget = hit.gameObject;
+                _currentAttackData.hitPoint = hit.ClosestPoint(origin);
                 _currentAttackData.attackDirection = (hit.transform.position - transform.position).normalized;
-                _currentAttackData.attacker        = _playerActor;
+                _currentAttackData.attacker = _playerActor;
 
                 damageable.TakeDamage(_currentAttackData);
                 ShowDamageFloater(_currentAttackData);
                 GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, _currentAttackData.hitPoint);
                 OnAttackHit?.Invoke(_currentAttackData);
                 hitOccurred = true;
-
-                Debug.Log($"[PlayerCombat] 히트! Target: {hit.gameObject.name}, Damage: {_currentAttackData.damage}");
             }
 
             if (hitOccurred)
@@ -612,9 +684,15 @@ namespace UPlayGround.Component
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
             CanCombo          = false;
+            _sequenceTracker.Clear();
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Heavy);
             OnComboReset?.Invoke();
             InputManager.Instance.InputBuffer.Clear();
         }
+
+        /// <summary>입력 시퀀스 히스토리를 디버그 문자열로 반환한다.</summary>
+        public string GetSequenceDebugString() => _sequenceTracker.ToDebugString();
 
         #endregion
 

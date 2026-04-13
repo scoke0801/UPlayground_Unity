@@ -12,7 +12,7 @@ namespace UPlayGround.Data.UI
         {
             public Sprite sprite;
             public Color  color;
-            [Range(8f, 40f)]
+            [Range(1f, 40f)]
             public float size;
         }
 

@@ -28,6 +28,9 @@ namespace UPlayGround.Input
 
         public int Count => _history.Count;
 
+        /// <summary>현재 히스토리 전체를 읽기 전용으로 노출한다.</summary>
+        public IReadOnlyList<ComboInputType> History => _history;
+
         // ── 매칭 ───────────────────────────────────────────────────────
 
         /// <summary>
@@ -46,13 +49,26 @@ namespace UPlayGround.Input
 
         // ── 디버그 ─────────────────────────────────────────────────────
 
-        /// <summary>현재 히스토리를 "LLHR..." 형식 문자열로 반환한다.</summary>
+        /// <summary>현재 히스토리를 "L H D S J..." 형식 문자열로 반환한다.</summary>
         public string ToDebugString()
         {
             var sb = new StringBuilder();
             foreach (var t in _history)
-                sb.Append(t == ComboInputType.LightAttack ? 'L' : 'H');
+            {
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append(GetAbbrev(t));
+            }
             return sb.Length > 0 ? sb.ToString() : "(없음)";
+
+            static char GetAbbrev(ComboInputType t) => t switch
+            {
+                ComboInputType.LightAttack => 'L',
+                ComboInputType.HeavyAttack => 'H',
+                ComboInputType.Dodge       => 'D',
+                ComboInputType.Skill       => 'S',
+                ComboInputType.Jump        => 'J',
+                _                          => '?',
+            };
         }
     }
 }

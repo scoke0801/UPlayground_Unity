@@ -5,11 +5,17 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Combat
 {
-    /// <summary>콤보 입력 종류 — LMB(좌클릭) = LightAttack, RMB(우클릭) = HeavyAttack</summary>
+    /// <summary>
+    /// 콤보 시퀀스에서 인식하는 입력 종류.
+    /// 기존 ScriptableObject 직렬화 값 보존을 위해 enum 정수값을 고정한다.
+    /// </summary>
     public enum ComboInputType
     {
-        LightAttack = 0,
-        HeavyAttack = 1,
+        LightAttack = 0,   // L — 약공격 (좌클릭)
+        HeavyAttack = 1,   // H — 강공격 (우클릭)
+        Dodge       = 2,   // D — 회피
+        Skill       = 3,   // S — 스킬
+        Jump        = 4,   // J — 점프
     }
 
     /// <summary>콤보 시퀀스의 단일 입력 스텝</summary>

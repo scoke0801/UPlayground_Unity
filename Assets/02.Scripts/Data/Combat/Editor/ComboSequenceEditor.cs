@@ -17,6 +17,9 @@ namespace UPlayGround.Data.Editor
         // ── 색상 ─────────────────────────────────────────────────────
         private static readonly Color ColorLight    = new(0.25f, 0.55f, 1.00f);
         private static readonly Color ColorHeavy    = new(1.00f, 0.45f, 0.20f);
+        private static readonly Color ColorDodge    = new(0.25f, 0.85f, 0.45f);
+        private static readonly Color ColorSkill    = new(0.80f, 0.30f, 1.00f);
+        private static readonly Color ColorJump     = new(1.00f, 0.85f, 0.10f);
         private static readonly Color ColorHeader   = new(0.13f, 0.13f, 0.18f);
         private static readonly Color ColorRowEven  = new(0.20f, 0.20f, 0.22f);
         private static readonly Color ColorRowOdd   = new(0.24f, 0.24f, 0.26f);
@@ -210,8 +213,8 @@ namespace UPlayGround.Data.Editor
             {
                 var step      = seqProp.GetArrayElementAtIndex(i);
                 var inputType = (ComboInputType)step.FindPropertyRelative("inputType").enumValueIndex;
-                Color  c     = inputType == ComboInputType.LightAttack ? ColorLight : ColorHeavy;
-                string label = inputType == ComboInputType.LightAttack ? "L" : "H";
+                Color  c     = GetStepColor(inputType);
+                string label = GetStepLabel(inputType);
 
                 var old = GUI.backgroundColor;
                 GUI.backgroundColor = c;
@@ -226,6 +229,26 @@ namespace UPlayGround.Data.Editor
             }
             x += 4f;
         }
+
+        private static Color GetStepColor(ComboInputType t) => t switch
+        {
+            ComboInputType.LightAttack => ColorLight,
+            ComboInputType.HeavyAttack => ColorHeavy,
+            ComboInputType.Dodge       => ColorDodge,
+            ComboInputType.Skill       => ColorSkill,
+            ComboInputType.Jump        => ColorJump,
+            _                          => Color.grey,
+        };
+
+        private static string GetStepLabel(ComboInputType t) => t switch
+        {
+            ComboInputType.LightAttack => "L",
+            ComboInputType.HeavyAttack => "H",
+            ComboInputType.Dodge       => "D",
+            ComboInputType.Skill       => "S",
+            ComboInputType.Jump        => "J",
+            _                          => "?",
+        };
 
         // ── 오른쪽 패널 (디테일) ─────────────────────────────────────
         private void DrawRightPanel()
@@ -281,8 +304,8 @@ namespace UPlayGround.Data.Editor
 
             EditorGUILayout.LabelField("입력 패턴", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "L = 좌클릭(약공격)   H = 우클릭(강공격)\n" +
-                "버튼 클릭 = L↔H 토글   [×] = 삭제   [+L] / [+H] = 스텝 추가",
+                "L = 약공격   H = 강공격   D = 회피   S = 스킬   J = 점프\n" +
+                "버튼 클릭 = 타입 순환 (L→H→D→S→J→L)   [×] = 삭제   [+?] = 스텝 추가",
                 MessageType.None);
 
             EditorGUILayout.BeginHorizontal();
@@ -292,19 +315,15 @@ namespace UPlayGround.Data.Editor
                 var step      = seqProp.GetArrayElementAtIndex(i);
                 var inputProp = step.FindPropertyRelative("inputType");
                 var current   = (ComboInputType)inputProp.enumValueIndex;
-                bool isLight  = current == ComboInputType.LightAttack;
 
-                // 토글 버튼
+                // 타입 순환 버튼 (클릭 시 다음 타입으로)
                 var oldBg = GUI.backgroundColor;
-                GUI.backgroundColor = isLight ? ColorLight : ColorHeavy;
+                GUI.backgroundColor = GetStepColor(current);
                 if (GUILayout.Button(
-                    new GUIContent(isLight ? "L" : "H",
-                                   isLight ? "좌클릭 (약공격)" : "우클릭 (강공격)"),
+                    new GUIContent(GetStepLabel(current), current.ToString()),
                     GUILayout.Width(StepBtnW), GUILayout.Height(StepBtnH)))
                 {
-                    inputProp.enumValueIndex = isLight
-                        ? (int)ComboInputType.HeavyAttack
-                        : (int)ComboInputType.LightAttack;
+                    inputProp.enumValueIndex = CycleInputType(current);
                 }
 
                 // 삭제 버튼
@@ -323,19 +342,28 @@ namespace UPlayGround.Data.Editor
 
             GUILayout.Space(8);
 
+            // 스텝 추가 버튼 (각 타입별)
             var addBg = GUI.backgroundColor;
-            GUI.backgroundColor = ColorLight;
-            if (GUILayout.Button("+L", GUILayout.Width(StepBtnW), GUILayout.Height(StepBtnH)))
-                AddStep(seqProp, ComboInputType.LightAttack);
-            GUI.backgroundColor = ColorHeavy;
-            if (GUILayout.Button("+H", GUILayout.Width(StepBtnW), GUILayout.Height(StepBtnH)))
-                AddStep(seqProp, ComboInputType.HeavyAttack);
+            foreach (ComboInputType t in System.Enum.GetValues(typeof(ComboInputType)))
+            {
+                GUI.backgroundColor = GetStepColor(t);
+                if (GUILayout.Button($"+{GetStepLabel(t)}", GUILayout.Width(StepBtnW), GUILayout.Height(StepBtnH)))
+                    AddStep(seqProp, t);
+            }
             GUI.backgroundColor = addBg;
 
             EditorGUILayout.EndHorizontal();
 
             if (seqProp.arraySize == 0)
-                EditorGUILayout.HelpBox("입력 스텝이 없습니다. [+L] 또는 [+H]로 추가하세요.", MessageType.Warning);
+                EditorGUILayout.HelpBox("입력 스텝이 없습니다. [+L] / [+H] 등으로 추가하세요.", MessageType.Warning);
+        }
+
+        /// <summary>입력 타입을 L→H→D→S→J→L 순으로 순환한다.</summary>
+        private static int CycleInputType(ComboInputType current)
+        {
+            var values = (ComboInputType[])System.Enum.GetValues(typeof(ComboInputType));
+            int idx    = System.Array.IndexOf(values, current);
+            return (int)values[(idx + 1) % values.Length];
         }
 
         private void AddStep(SerializedProperty seqProp, ComboInputType type)

@@ -405,8 +405,9 @@ public class UI_Minimap : UI_Base
         {
             if (!_config.showEnemies) return;
             if (_enemyIconMap.ContainsKey(monster)) return;
+            if (_iconContainer == null) return;
             var entry = _config.enemy;
-            if (entry.sprite == null || _iconContainer == null) return;
+            // sprite 미설정 시 MinimapEntityIcon이 자동으로 원형 점 스프라이트를 생성
             _enemyIconMap[monster] = MinimapEntityIcon.Create(_iconContainer, monster, entry);
             return;
         }

@@ -20,7 +20,8 @@
       "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Data/Crafting/Editor\")",
       "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Manager/Crafting\")",
       "Bash(gh pr:*)",
-      "mcp__plugin_code-review-graph_code-review-graph__query_graph_tool"
+      "mcp__plugin_code-review-graph_code-review-graph__query_graph_tool",
+      "Bash(python -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(k, '->', v.get\\('path',''\\)\\) for k,v in data.items\\(\\)]\")"
     ]
   }
 }

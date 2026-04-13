@@ -39,15 +39,42 @@ namespace UPlayGround.UI
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
 
-            var icon          = go.AddComponent<MinimapEntityIcon>();
-            icon._rectTransform = go.GetComponent<RectTransform>();
-            icon._image       = go.AddComponent<Image>();
+            var icon        = go.AddComponent<MinimapEntityIcon>();
+            icon._image         = go.AddComponent<Image>();   // Image RequireComponent → RectTransform 자동 생성
+            icon._rectTransform = icon._image.rectTransform;  // 생성된 RectTransform 획득
 
-            icon._image.sprite = entry.sprite;
+            icon._image.sprite = entry.sprite != null ? entry.sprite : CreateDotSprite();
             icon._image.color  = entry.color;
             icon._rectTransform.sizeDelta = new Vector2(entry.size, entry.size);
 
             return icon;
+        }
+
+        // ── 원형 점 스프라이트 생성 ──────────────────────────────────
+
+        private static Sprite _cachedDotSprite;
+
+        /// <summary>스프라이트가 없을 때 사용하는 16×16 안티앨리어싱 원형 점 스프라이트. 최초 1회만 생성하고 이후 캐시를 반환한다.</summary>
+        private static Sprite CreateDotSprite()
+        {
+            if (_cachedDotSprite != null)
+                return _cachedDotSprite;
+
+            const int size   = 16;              // 텍스처 해상도 고정 — 실제 표시 크기는 entry.size(sizeDelta)로 제어
+            float     center = size * 0.5f;
+            float     radius = size * 0.5f - 1f;
+
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dist  = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(center, center));
+                float alpha = Mathf.Clamp01(radius - dist + 0.5f);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+            tex.Apply();
+            _cachedDotSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+            return _cachedDotSprite;
         }
 
         // ── 위치·가시성 갱신 ─────────────────────────────────────

@@ -225,32 +225,7 @@ namespace UPlayGround.State
                 return _currentAttack?.animKey ?? AnimKey.None;
             }
 
-            // 2순위: 입력 패턴 콤보 시퀀스 매칭
-            var nextInput = _isHeavyAttack
-                ? Data.Combat.ComboInputType.HeavyAttack
-                : Data.Combat.ComboInputType.LightAttack;
-
-            var matchedSequence = _combat.FindMatchingSequence(nextInput);
-            if (matchedSequence != null)
-            {
-                // 스킬 게이지 슬롯이 지정된 경우 차감 시도. 부족하면 시퀀스 스킵 → 기본 콤보로 폴백.
-                if (matchedSequence.skillGaugeIndex >= 0)
-                {
-                    if (skillGauge == null || !skillGauge.ConsumeSkill(matchedSequence.skillGaugeIndex))
-                    {
-                        Debug.Log($"[PlayerAttackState] 시퀀스 '{matchedSequence.sequenceName}' 게이지 부족 (슬롯 {matchedSequence.skillGaugeIndex + 1})");
-                        matchedSequence = null;
-                    }
-                }
-            }
-
-            if (matchedSequence != null)
-            {
-                _currentAttack = _combat.ExecuteComboSequence(matchedSequence, _comboInputted);
-                return _currentAttack?.animKey ?? AnimKey.None;
-            }
-
-            // 3순위: 기본 약/강 콤보
+            // 2순위: 기본 약/강 콤보
             _currentAttack = _isHeavyAttack
                 ? _combat.ExecuteHeavyAttack(_comboInputted)
                 : _combat.ExecuteAttack(_comboInputted);

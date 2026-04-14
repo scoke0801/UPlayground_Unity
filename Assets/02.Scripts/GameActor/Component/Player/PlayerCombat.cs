@@ -154,38 +154,7 @@ namespace UPlayGround.Component
         public event Action<AttackData>                        OnAttackStarted;
         public event Action<AttackData>                        OnAttackHit;
         public event Action                                    OnComboReset;
-        /// <summary>시퀀스 히스토리가 변경될 때마다 발행. 인수는 현재 히스토리 스냅샷.</summary>
-        public event Action<IReadOnlyList<ComboInputType>>     OnSequenceUpdated;
-
-        // ── 콤보 힌트 ─────────────────────────────────────────────────
-        /// <summary>다음 가능한 콤보 입력 힌트. GetNextComboHints()의 반환 단위.</summary>
-        public readonly struct NextComboHint
-        {
-            /// <summary>다음에 입력해야 하는 버튼 종류</summary>
-            public readonly ComboInputType NextInput;
-            /// <summary>이어지는 콤보의 이름</summary>
-            public readonly string ComboName;
-            /// <summary>이 입력 하나로 시퀀스가 완성되는지 여부</summary>
-            public readonly bool IsComplete;
-            /// <summary>우선순위 (동일 NextInput 중 최고값만 노출)</summary>
-            public readonly int Priority;
-
-            public NextComboHint(ComboInputType nextInput, string comboName, bool isComplete, int priority)
-            {
-                NextInput  = nextInput;
-                ComboName  = comboName;
-                IsComplete = isComplete;
-                Priority   = priority;
-            }
-        }
-
-        // ── 콤보 시퀀스 추적기 ────────────────────────────────────────
-        private readonly InputSequenceTracker _sequenceTracker = new();
-
-        // ── 콤보 힌트 버퍼 (GetNextComboHints GC 방지용 재사용) ──────
-        private readonly List<NextComboHint>                       _comboHintsBuffer = new();
-        private readonly Dictionary<ComboInputType, NextComboHint> _comboHintsBest   = new();
-
+        
         private void Awake()
         {
             if (_equipment == null)
@@ -304,9 +273,7 @@ namespace UPlayGround.Component
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
             _attackState      = AttackState.NormalAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-            _sequenceTracker.Record(ComboInputType.LightAttack);
-            _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
-            OnSequenceUpdated?.Invoke(new List<ComboInputType>(_sequenceTracker.History));
+             _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -318,83 +285,15 @@ namespace UPlayGround.Component
         {
             if (_attackState == AttackState.NormalAttack) ResetCombo();
             _attackState      = AttackState.HeavyAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-            _sequenceTracker.Record(ComboInputType.HeavyAttack);
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
             _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
-            OnSequenceUpdated?.Invoke(new List<ComboInputType>(_sequenceTracker.History));
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
-
-        /// <summary>
-        /// 콤보 시퀀스 엔트리로 공격을 실행한다.
-        /// PlayerAttackState.GetAnimKey()에서 시퀀스 매칭 후 호출한다.
-        /// </summary>
-        public AttackData ExecuteComboSequence(ComboSequenceEntry entry, bool isCombo)
-        {
-            // 시퀀스 마지막 스텝 입력 종류로 상태와 히스토리를 결정
-            var lastStep      = entry.inputSequence != null && entry.inputSequence.Count > 0
-                                    ? entry.inputSequence[^1]
-                                    : null;
-            var lastInputType = lastStep?.inputType ?? ComboInputType.LightAttack;
-            var attackKind    = lastInputType == ComboInputType.HeavyAttack
-                                    ? AttackKind.HeavyAttack
-                                    : AttackKind.NormalAttack;
-
-            _attackState      = lastInputType == ComboInputType.HeavyAttack
-                                    ? AttackState.HeavyAttack
-                                    : AttackState.NormalAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-            _sequenceTracker.Record(lastInputType);
-            OnSequenceUpdated?.Invoke(new List<ComboInputType>(_sequenceTracker.History));
-            _currentAttackData = ConvertToAttackData(entry.attackInfo, attackKind);
-            LastAttackTime = Time.time;
-            RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
-            Debug.Log($"[PlayerCombat] 콤보 시퀀스 '{entry.sequenceName}' 실행 | 히스토리: {_sequenceTracker.ToDebugString()}");
-            return _currentAttackData;
-        }
-
-        /// <summary>
-        /// 현재 입력 히스토리와 Actor 태그를 기반으로 매칭되는 콤보 시퀀스를 반환한다.
-        /// 매칭되는 시퀀스가 없으면 null 반환.
-        /// </summary>
-        public ComboSequenceEntry FindMatchingSequence(ComboInputType nextInput)
-        {
-            if (_attackData.comboSequences == null || _attackData.comboSequences.Count == 0)
-                return null;
-
-            // 다음 입력까지 포함한 예비 히스토리로 매칭 판정을 위해 임시 추가
-            // try/finally로 예외 시에도 반드시 롤백한다.
-            _sequenceTracker.Record(nextInput);
-
-            var tags = _playerActor.Tags;
-            ComboSequenceEntry best = null;
-
-            try
-            {
-                foreach (var entry in _attackData.comboSequences)
-                {
-                    if (entry.IsEmpty) continue;
-                    if (!_sequenceTracker.Matches(entry.inputSequence)) continue;
-                    if (!entry.CheckTagConditions(tags)) continue;
-
-                    if (best == null || entry.priority > best.priority)
-                        best = entry;
-                }
-            }
-            finally
-            {
-                // 실제 기록은 Execute*에서 하므로 임시 추가분을 반드시 되돌린다.
-                _sequenceTracker.RemoveLast();
-            }
-
-            return best;
-        }
-
+        
         public float[] GetChargeStageThresholds()
         {
             int stageCount = _attackData.chargeStageThresholds?.Count ?? 0;
@@ -715,72 +614,11 @@ namespace UPlayGround.Component
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
             CanCombo          = false;
-            _sequenceTracker.Clear();
             _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
             _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Heavy);
-            OnSequenceUpdated?.Invoke(new List<ComboInputType>(_sequenceTracker.History)); // 빈 리스트 → HUD 페이드 아웃
             OnComboReset?.Invoke();
             InputManager.Instance.InputBuffer.Clear();
         }
-
-        /// <summary>
-        /// 약/강공격 외 입력(회피, 스킬, 점프 등)을 시퀀스 히스토리에 기록하고 이벤트를 발행한다.
-        /// 해당 액션을 처리하는 State에서 콤보 시퀀스 연계가 필요할 때 호출한다.
-        /// </summary>
-        public void RecordSequenceInput(ComboInputType inputType)
-        {
-            _sequenceTracker.Record(inputType);
-            OnSequenceUpdated?.Invoke(new List<ComboInputType>(_sequenceTracker.History));
-        }
-
-        /// <summary>
-        /// 현재 히스토리를 prefix로 가지는 콤보 시퀀스에서, 다음으로 가능한 입력 힌트 목록을 반환한다.
-        /// 태그 조건을 통과하는 시퀀스만 포함하며, 동일한 다음 입력에는 priority가 높은 시퀀스 하나만 남긴다.
-        /// 반환값은 내부 버퍼이므로 캐싱하지 말 것 — 다음 호출 전까지만 유효하다.
-        /// </summary>
-        public List<NextComboHint> GetNextComboHints()
-        {
-            _comboHintsBuffer.Clear();
-            _comboHintsBest.Clear();
-
-            if (_attackData?.comboSequences == null || _attackData.comboSequences.Count == 0)
-                return _comboHintsBuffer;
-
-            var tags    = _playerActor.Tags;
-            var history = _sequenceTracker.History;
-
-            foreach (var entry in _attackData.comboSequences)
-            {
-                if (entry.IsEmpty) continue;
-                if (!entry.CheckTagConditions(tags)) continue;
-
-                var seq = entry.inputSequence;
-                if (seq.Count <= history.Count) continue; // 현재 히스토리가 이미 이 시퀀스 길이를 넘음
-
-                // 현재 히스토리가 이 시퀀스의 prefix인지 확인
-                bool isPrefix = true;
-                for (int i = 0; i < history.Count; i++)
-                {
-                    if (history[i] != seq[i].inputType) { isPrefix = false; break; }
-                }
-                if (!isPrefix) continue;
-
-                var  nextInput  = seq[history.Count].inputType;
-                bool isComplete = seq.Count == history.Count + 1; // 이 입력 하나로 시퀀스 완성
-                var  hint       = new NextComboHint(nextInput, entry.sequenceName, isComplete, entry.priority);
-
-                if (!_comboHintsBest.TryGetValue(nextInput, out var existing) || entry.priority > existing.Priority)
-                    _comboHintsBest[nextInput] = hint;
-            }
-
-            _comboHintsBuffer.AddRange(_comboHintsBest.Values);
-            _comboHintsBuffer.Sort((a, b) => (int)a.NextInput - (int)b.NextInput);
-            return _comboHintsBuffer;
-        }
-
-        /// <summary>입력 시퀀스 히스토리를 디버그 문자열로 반환한다.</summary>
-        public string GetSequenceDebugString() => _sequenceTracker.ToDebugString();
-
         #endregion
 
         #region Finish Attack

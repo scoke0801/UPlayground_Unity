@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround;
-using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Quest;
@@ -79,7 +78,6 @@ public class UI_Map : UI_Base
     private PlayerActor         _player;
     private MinimapIconConfigSO _config;
     private MapInputReceiver    _inputReceiver;
-    private Canvas              _canvas;
     private float               _currentZoom = 1f;
     private Vector2             _panOffset;
 

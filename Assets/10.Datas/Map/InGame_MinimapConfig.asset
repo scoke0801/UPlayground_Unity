@@ -39,11 +39,11 @@ MonoBehaviour:
   questNpc:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
-    size: 0
+    size: 1
   customMarker:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
-    size: 0
+    size: 1
   showQuestMarkers: 1
   showEnemies: 1
   showOnlyDetectedEnemies: 0

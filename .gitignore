@@ -524,3 +524,5 @@ Assets/Resources/PerformanceTestRunSettings.json.meta
 ProjectSettings/ScriptableBuildPipeline.json
 ProjectSettings/ScriptableBuildPipeline.json
 .code-review-graph/graph.db
+Assets/01.Scenes/GameLogic/InGame_Old.unity
+Assets/01.Scenes/GameLogic/InGame_Old.unity.meta

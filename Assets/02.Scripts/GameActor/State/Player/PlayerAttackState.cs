@@ -34,6 +34,7 @@ namespace UPlayGround.State
 
         private bool _comboInputted;
         private bool _isHeavyAttack;
+        private bool _isCounter;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -62,9 +63,13 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Tags?.AddTag(GameplayTags.State_Combat_Attack);
+            gameActor.Tags?.AddTag(GameplayTagId.State_Combat_Attack);
 
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+
+            _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+            if (_isCounter)
+                gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
 
             _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
@@ -104,7 +109,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
+            gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
 
             _combat.ClearHitTargets();
@@ -187,6 +192,7 @@ namespace UPlayGround.State
 
             if (_comboInputted)
             {
+                _isCounter              = false;
                 gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
@@ -208,6 +214,13 @@ namespace UPlayGround.State
 
         private AnimKey GetAnimKey()
         {
+            // 0순위: 퍼펙트 가드 반격
+            if (_isCounter)
+            {
+                _currentAttack = _combat.ExecuteCounterAttack();
+                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
             var skillGauge = playerActor.SkillGauge;
 
             // 1순위: 숫자 키 스킬

@@ -17,7 +17,14 @@ MonoBehaviour:
   questDescription: 
   requiredQuestIds: []
   requiredStoryProgress: 0
-  objectives: []
+  objectives:
+  - objectiveId: obj_1
+    description: 
+    type: 0
+    targetId: 0
+    npcId: 0
+    targetStringId: 
+    requiredCount: 1
   reward:
     gold: 0
     items: []

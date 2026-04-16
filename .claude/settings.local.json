@@ -28,7 +28,9 @@
       "WebFetch(domain:gamedevwithoutacause.com)",
       "WebFetch(domain:seung-cha.github.io)",
       "WebFetch(domain:wilhelman.github.io)",
-      "WebFetch(domain:critpoints.net)"
+      "WebFetch(domain:critpoints.net)",
+      "mcp__plugin_code-review-graph_code-review-graph__get_architecture_overview_tool",
+      "Bash(grep -i \"\\\\.cs$\")"
     ]
   }
 }

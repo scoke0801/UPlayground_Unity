@@ -15163,6 +15163,7 @@ MonoBehaviour:
   _finishAttackSearchRange: 2
   _finishAttackSearchAngle: 90
   _finishAttackDamageThreshold: 50
+  _perfectDodgeWindow: 0.25
   _punchStrengthLight: 0.08
   _punchStrengthHeavy: 0.18
   _punchStrengthSkill: 0.22
@@ -15174,6 +15175,7 @@ MonoBehaviour:
   IsGuarding: 0
   _maxGuardCount: 3
   _guardResetDelay: 3
+  _perfectGuardCounterWindow: 1.5
 --- !u!114 &128408075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16738,7 +16740,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1844697684467198324, guid: b8216384564475946ae6a95e6536222f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3764645433079767606, guid: b8216384564475946ae6a95e6536222f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -161018,7 +161020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1552642839
 Transform:
   m_ObjectHideFlags: 0
@@ -226142,7 +226144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1477439938586096490, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1911356209915110278, guid: efa51d5b850aa5a4e821961bde3e5646, type: 3}
       propertyPath: StableGroundLayers.m_Bits
@@ -230302,7 +230304,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2089861745958360655, guid: a554ba721240c7448996a42af3f30d52, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2116611337680499286, guid: a554ba721240c7448996a42af3f30d52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -255358,7 +255360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1575261604019275437, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
       propertyPath: m_LocalPosition.x
@@ -288935,7 +288937,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5459037177643049782, guid: 379ea5c47068eb743b5945c3b25cad49, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7735030604733530373, guid: 379ea5c47068eb743b5945c3b25cad49, type: 3}
       propertyPath: m_IsActive

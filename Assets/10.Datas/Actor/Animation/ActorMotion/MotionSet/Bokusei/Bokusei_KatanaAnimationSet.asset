@@ -136,6 +136,8 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: e0da123c168e2e04c93fede76369595e, type: 2}
     - Key: 5121
       Value: {fileID: 11400000, guid: af034442790e6d54ebdac83910aea675, type: 2}
+    - Key: 530
+      Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key: 5122
       Value: {fileID: 11400000, guid: 4b302132fd00cfe4c8420ed9cbb0c524, type: 2}
     - Key: 5123

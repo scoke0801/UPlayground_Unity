@@ -6,6 +6,7 @@ using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Combat;
+using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
@@ -89,14 +90,17 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (GameHitStopManager.Instance.IsHitStopping &&
+            // 퍼펙트 가드 반격 창이 열려 있을 때 Attack 입력 → 반격 전환
+            if (_combat.IsPerfectGuardCounterAvailable &&
                 InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
+                _combat.ClosePerfectGuardCounterWindow();
                 GameHitStopManager.Instance.Stop();
+                playerActor.Tags?.AddTag(GameplayTagId.State_Combat_Counter);
+                playerController.TransitionToState(new PlayerAttackState(playerController));
                 return;
             }
-            
+
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
@@ -190,14 +194,14 @@ namespace UPlayGround.State
                 CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
                 CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
 
+                // 공격자 경직 + 반격 창 열기
                 if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
                 {
-                    var attackerController = incomingAttack.attacker.ActorController;
-                    if (attackerController != null)
-                    {
-                        Debug.Log($"[PerfectGuard] {incomingAttack.attacker.name}의 공격을 끊었습니다!");
-                    }
+                    var brain = incomingAttack.attacker.GetComponent<EnemyBrain>();
+                    brain?.OnParried();
                 }
+
+                _combat.OpenPerfectGuardCounterWindow();
             }
             else
             {

@@ -2,7 +2,7 @@
 // AUTO-GENERATED — GameplayTagRegistry Editor
 // UPlayGround/GameplayTag/Tag Registry Editor 에서 관리하세요.
 // 직접 편집하지 마세요. 저장 후 에디터에서 "코드 생성"을 눌러야 반영됩니다.
-// Generated: 2026-04-12 16:44
+// Generated: 2026-04-16 20:47
 // ============================================================
 
 namespace UPlayGround.Gameplay.Tag
@@ -34,6 +34,7 @@ namespace UPlayGround.Gameplay.Tag
         State_Interaction       = 17,
         Combo_Light             = 18,
         Combo_Heavy             = 19,
+        State_Combat_Counter    = 20,
     }
 
     /// <summary>
@@ -63,6 +64,7 @@ namespace UPlayGround.Gameplay.Tag
             "State.Interaction",          // State_Interaction = 17  (상호작용 중)
             "Combo.Light",                // Combo_Light = 18  (콤보: 약 공격 입력됨)
             "Combo.Heavy",                // Combo_Heavy = 19  (콤보: 강 공격 입력됨)
+            "State.Combat.Counter",       // State_Combat_Counter = 20
         };
 
         /// <summary>GameplayTagId를 GameplayTag 구조체로 변환한다.</summary>

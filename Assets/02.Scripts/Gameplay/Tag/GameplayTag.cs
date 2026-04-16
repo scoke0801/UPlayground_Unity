@@ -42,41 +42,4 @@ namespace UPlayGround.Gameplay.Tag
 
         public static implicit operator GameplayTag(string tagName) => new(tagName);
     }
-
-    /// <summary>
-    /// 프로젝트 전역 GameplayTag 상수 모음.
-    /// 새 태그 추가 시 여기에 등록하고 에디터에서도 동일 문자열 사용.
-    /// </summary>
-    public static class GameplayTags
-    {
-        // ── 이동 상태 ──────────────────────────────────────────────────
-        public static readonly GameplayTag State_Move      = new("State.Move");
-        public static readonly GameplayTag State_Sprint    = new("State.Sprint");
-        public static readonly GameplayTag State_Dash      = new("State.Dash");
-        public static readonly GameplayTag State_Jump      = new("State.Jump");
-        public static readonly GameplayTag State_Airborne  = new("State.Airborne");
-        public static readonly GameplayTag State_Crouching = new("State.Crouching");
-        public static readonly GameplayTag State_Dodge     = new("State.Dodge");
-
-        // ── 전투 상태 ──────────────────────────────────────────────────
-        public static readonly GameplayTag State_Combat         = new("State.Combat");
-        public static readonly GameplayTag State_Combat_Attack  = new("State.Combat.Attack");
-        public static readonly GameplayTag State_Combat_Guard   = new("State.Combat.Guard");
-        public static readonly GameplayTag State_Combat_Charge  = new("State.Combat.Charge");
-        public static readonly GameplayTag State_Combat_DashAtk = new("State.Combat.DashAttack");
-        public static readonly GameplayTag State_Combat_JumpAtk = new("State.Combat.JumpAttack");
-
-        // ── 피격 / 사망 ────────────────────────────────────────────────
-        public static readonly GameplayTag State_Hit     = new("State.Hit");
-        public static readonly GameplayTag State_Death   = new("State.Death");
-        public static readonly GameplayTag State_Grabbed = new("State.Grabbed");
-
-        // ── 인터랙션 ───────────────────────────────────────────────────
-        public static readonly GameplayTag State_Interaction = new("State.Interaction");
-
-        // ── 콤보 입력 추적 ─────────────────────────────────────────────
-        // PlayerCombat이 콤보 체인에서 각 히트마다 추가/제거
-        public static readonly GameplayTag Combo_Light = new("Combo.Light");
-        public static readonly GameplayTag Combo_Heavy = new("Combo.Heavy");
-    }
 }

@@ -89,3 +89,7 @@ MonoBehaviour:
     enumName: Combo_Heavy
     description: "\uCF64\uBCF4: \uAC15 \uACF5\uACA9 \uC785\uB825\uB428"
     color: {r: 1, g: 0.5, b: 0.2, a: 1}
+  - tagName: State.Combat.Counter
+    enumName: State_Combat_Counter
+    description: 
+    color: {r: 0.4, g: 0.8, b: 1, a: 1}

@@ -515,6 +515,25 @@ MonoBehaviour:
         grabDuration: 0
     canBeInterrupted: 1
     hitAngle: 60
+  counterAttack:
+    baseInfo:
+      animKey: 530
+      attackType: 0
+      hitPhases:
+      - damage: 123
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 60
   chargeAnimKey: 620
   chargeStages:
   - hitPhases:
@@ -560,117 +579,6 @@ MonoBehaviour:
   - 0.3
   - 0.3
   - 0.3
-  comboSequences:
-  - sequenceName: Skill_1
-    inputSequence:
-    - inputType: 0
-    - inputType: 1
-    requiredTagIds: 
-    blockedTagIds: 
-    skillGaugeIndex: 0
-    attackInfo:
-      baseInfo:
-        animKey: 500
-        attackType: 0
-        hitPhases:
-        - damage: 120
-          poiseDamage: 30
-          reactionType: 4
-          attackOffset: {x: 0, y: 1, z: 1.5}
-          attackRadius: 1.5
-          hitHeightRange: 1.2
-          hitParticleName: DefaultCombatHit
-          pullForce: 0
-          airborneForce: 0
-          knockBackForce: 0
-          knockBackDrag: 20
-          grabDuration: 0
-      canBeInterrupted: 1
-      hitAngle: 60
-    priority: 0
-  - sequenceName: New Combo 2
-    inputSequence:
-    - inputType: 0
-    - inputType: 0
-    - inputType: 1
-    requiredTagIds: 
-    blockedTagIds: 
-    skillGaugeIndex: 1
-    attackInfo:
-      baseInfo:
-        animKey: 500
-        attackType: 0
-        hitPhases:
-        - damage: 120
-          poiseDamage: 30
-          reactionType: 4
-          attackOffset: {x: 0, y: 1, z: 1.5}
-          attackRadius: 1.5
-          hitHeightRange: 1.2
-          hitParticleName: DefaultCombatHit
-          pullForce: 0
-          airborneForce: 0
-          knockBackForce: 0
-          knockBackDrag: 20
-          grabDuration: 0
-      canBeInterrupted: 1
-      hitAngle: 60
-    priority: 1
-  - sequenceName: New Combo 3
-    inputSequence:
-    - inputType: 0
-    - inputType: 1
-    - inputType: 1
-    requiredTagIds: 
-    blockedTagIds: 
-    skillGaugeIndex: 2
-    attackInfo:
-      baseInfo:
-        animKey: 500
-        attackType: 0
-        hitPhases:
-        - damage: 120
-          poiseDamage: 30
-          reactionType: 4
-          attackOffset: {x: 0, y: 1, z: 1.5}
-          attackRadius: 1.5
-          hitHeightRange: 1.2
-          hitParticleName: DefaultCombatHit
-          pullForce: 0
-          airborneForce: 0
-          knockBackForce: 0
-          knockBackDrag: 20
-          grabDuration: 0
-      canBeInterrupted: 1
-      hitAngle: 60
-    priority: 2
-  - sequenceName: New Combo 4
-    inputSequence:
-    - inputType: 2
-    - inputType: 1
-    requiredTagIds: 
-    blockedTagIds: 
-    skillGaugeIndex: 3
-    attackInfo:
-      baseInfo:
-        animKey: 500
-        attackType: 0
-        hitPhases:
-        - damage: 120
-          poiseDamage: 30
-          reactionType: 4
-          attackOffset: {x: 0, y: 1, z: 1.5}
-          attackRadius: 1.5
-          hitHeightRange: 1.2
-          hitParticleName: DefaultCombatHit
-          pullForce: 0
-          airborneForce: 0
-          knockBackForce: 0
-          knockBackDrag: 20
-          grabDuration: 0
-      canBeInterrupted: 1
-      hitAngle: 60
-    priority: 0
   fullChargeVfxKey: playerFullChargeFX
   fullChargeVfxSocket: 0
   fullChargeVfxOffset: {x: 0, y: 0, z: 0}

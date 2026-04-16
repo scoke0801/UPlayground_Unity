@@ -83,7 +83,25 @@ namespace UPlayGround.Component
         [SerializeField] private float _finishAttackSearchAngle     = 90f;
         [SerializeField] private float _finishAttackDamageThreshold = 30f;
 
-        // ── 히트 피드백 설정 ──────────────────────────────────────────
+        // ── 퍼펙트 도지 ──────────────────────────────────────────────
+        [Header("Perfect Dodge Settings")]
+        [Tooltip("도지 시작 후 이 시간(초) 내에 피격 시도가 감지되면 퍼펙트 도지로 판정")]
+        [SerializeField] private float _perfectDodgeWindow = 0.25f;
+
+        private float _perfectDodgeWindowEnd = -999f;
+
+        /// <summary> 퍼펙트 도지 판정 창이 열려 있는지 여부 </summary>
+        public bool IsPerfectDodgeWindow => Time.time <= _perfectDodgeWindowEnd;
+
+        /// <summary> PlayerDodgeState.OnEnter에서 호출. 퍼펙트 도지 판정 창을 연다. </summary>
+        public void OpenPerfectDodgeWindow()
+            => _perfectDodgeWindowEnd = Time.time + _perfectDodgeWindow;
+
+        /// <summary> 퍼펙트 도지 발동 후 중복 방지를 위해 창을 즉시 닫는다. </summary>
+        public void ClosePerfectDodgeWindow()
+            => _perfectDodgeWindowEnd = -999f;
+        // ──────────────────────────────────────────────────────────────
+
         [Header("Hit Feedback — Punch Strength")]
         [SerializeField] private float _punchStrengthLight = 0.08f;
         [SerializeField] private float _punchStrengthHeavy = 0.18f;
@@ -138,13 +156,27 @@ namespace UPlayGround.Component
         [Header("Guard Settings")]
         [SerializeField] private int   _maxGuardCount   = 3;
         [SerializeField] private float _guardResetDelay = 3f;
+        [Tooltip("퍼펙트 가드 후 반격 입력을 받는 창 길이 (초)")]
+        [SerializeField] private float _perfectGuardCounterWindow = 1.5f;
 
         private int   _guardHitCount;
         private float _guardEndTime = -999f;
+        private float _perfectGuardCounterEndTime = -999f;
 
         public bool IsGuardBroken { get; private set; }
         public int  GuardHitCount => _guardHitCount;
         public int  MaxGuardCount => _maxGuardCount;
+
+        /// <summary> 퍼펙트 가드 반격 창이 열려 있는지 여부 </summary>
+        public bool IsPerfectGuardCounterAvailable => Time.time <= _perfectGuardCounterEndTime;
+
+        /// <summary> 퍼펙트 가드 성공 시 호출. 반격 입력 창을 연다. </summary>
+        public void OpenPerfectGuardCounterWindow()
+            => _perfectGuardCounterEndTime = Time.time + _perfectGuardCounterWindow;
+
+        /// <summary> 반격 창을 즉시 닫는다 (반격 실행 후 중복 방지) </summary>
+        public void ClosePerfectGuardCounterWindow()
+            => _perfectGuardCounterEndTime = -999f;
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int        CurrentComboIndex { get; private set; }
@@ -273,7 +305,7 @@ namespace UPlayGround.Component
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
             _attackState      = AttackState.NormalAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-             _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
+             _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -286,7 +318,7 @@ namespace UPlayGround.Component
             if (_attackState == AttackState.NormalAttack) ResetCombo();
             _attackState      = AttackState.HeavyAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
-            _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
+            _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -322,11 +354,12 @@ namespace UPlayGround.Component
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
 
-            int count = _attackData.chargeStages[0].hitPhases.Count;
-            Debug.Log($"StageIndex: {stageIndex}, count: {count}");
-            int index = Mathf.Clamp(stageIndex, 0, count - 1);
+            // stageIndex = InfiniteLoopStageIndex (0 = 1단계 차지, 1 = 2단계 차지 ...)
+            // chargeStages 배열에서 해당 단계의 데이터를 사용한다.
+            // hitPhaseIndex는 항상 0으로 시작 (각 스테이지의 첫 번째 히트 페이즈)
+            int clampedStage = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
 
-            _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[0], chargeRatio, index);
+            _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[clampedStage], chargeRatio, 0);
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -359,6 +392,23 @@ namespace UPlayGround.Component
             };
             data.damage *= Mathf.Lerp(1.0f, 1.5f, chargeRatio);
             return data;
+        }
+
+        public AttackData ExecuteCounterAttack()
+        {
+            var source = _attackData.counterAttack?.baseInfo != null
+                ? _attackData.counterAttack
+                : (_attackData.heavyComboAttackList.Count > 0 ? _attackData.heavyComboAttackList[0] : null);
+
+            if (source == null) return null;
+
+            _attackState = AttackState.HeavyAttack;
+            ResetCombo();
+            _currentAttackData = ConvertToAttackData(source, AttackKind.HeavyAttack);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
         }
 
         public AttackData ExecuteSkillAttack(int skillIndex)
@@ -614,8 +664,8 @@ namespace UPlayGround.Component
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
             CanCombo          = false;
-            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
-            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Heavy);
+            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
+            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Heavy);
             OnComboReset?.Invoke();
             InputManager.Instance.InputBuffer.Clear();
         }

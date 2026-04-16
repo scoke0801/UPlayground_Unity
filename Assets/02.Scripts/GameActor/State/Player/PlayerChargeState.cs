@@ -165,7 +165,6 @@ namespace UPlayGround.State
                     _chargeTime  += deltaTime;
                     _chargeRatio  = Mathf.Clamp01(_chargeTime / MaxChargeTime);
 
-                    Debug.Log($"Charge: {_chargeRatio}");
                     // ── 스테이지 전환: 홀드 중 임계값 도달 시 다음 InfiniteLoop로 진행 ──
                     int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
                     if (isHeld
@@ -210,7 +209,6 @@ namespace UPlayGround.State
             if (_isFired) return;
             _isFired = true;
 
-            Debug.Log("FireChargeAttack");
             // 현재 InfiniteLoop 단계로 공격 데이터 확정
             int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
             var attackData = _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);

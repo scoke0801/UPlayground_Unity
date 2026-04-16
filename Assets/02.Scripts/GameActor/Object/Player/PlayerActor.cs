@@ -7,6 +7,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Event;
 using UPlayGround.MovementController;
 using UPlayGround.Input;
@@ -338,7 +339,9 @@ namespace UPlayGround
 
             if (!CanTakeDamage())
             {
-                Debug.Log($"[PlayerActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
+                // 도지 중 피격 시도 → 퍼펙트 도지 창 내면 보상 효과 발동
+                if (MovementController.CurrentState.StateName == "Dodge")
+                    TryPerfectDodge(attackData);
                 return;
             }
 
@@ -437,6 +440,30 @@ namespace UPlayGround
             // 공격자(몬스터) 경직
             if (attackData?.attacker is MonsterActor monster)
                 monster.OnParried();
+        }
+
+        /// <summary>
+        /// 도지 중 피격 시도 시 호출. 퍼펙트 도지 판정 창 내면 보상 효과를 발동한다.
+        /// </summary>
+        private void TryPerfectDodge(AttackData attackData)
+        {
+            if (!_combat.IsPerfectDodgeWindow) return;
+
+            // 퍼펙트 도지 성공 — 창 즉시 닫아 중복 발동 방지
+            _combat.ClosePerfectDodgeWindow();
+
+            // VitalOrb 보상 스폰
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Dodge, transform.position);
+
+            // 히트스탑
+            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+
+            // 카메라 피드백
+            CameraManager.Instance.StartShake(_shakeKeyHit);
+            if (attackData?.attackDirection != Vector3.zero)
+                CameraManager.Instance.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.06f, 0.1f);
+
+            Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }
 
         /// <summary>

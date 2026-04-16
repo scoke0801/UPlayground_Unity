@@ -31,21 +31,17 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
-            // [TODO] 퍼펙트 구르기 때 스폰하도록 수정 필요 구르기 시작 위치에서 드롭 스폰 시도
-            // VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Dodge, gameActor.transform.position);
-            
+
+            // 도지 시작 즉시 퍼펙트 도지 판정 창 열기
+            playerActor.GetCombat()?.OpenPerfectDodgeWindow();
+
             IgnoreMonsterColliders();
-            
+
             gameActor.Animator.ApplyRootMotion(true);
-            //controller.AddVelocity(motor.CharacterForward * controller.DodgePower);
-            
+
             var animState = gameActor.Animator.PlayMotion(AnimKey.Dodge, 0.25f);
             if (animState != null)
-            {
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
-                //animState.OwnedEvents.OnEnd = ChangeToNextState;
-            }
         }
 
         public override void OnExit(GameActorState toState)

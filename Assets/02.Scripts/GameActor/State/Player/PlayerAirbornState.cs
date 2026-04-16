@@ -39,7 +39,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Tags?.AddTag(GameplayTags.State_Airborne);
+            gameActor.Tags?.AddTag(GameplayTagId.State_Airborne);
 
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
@@ -55,7 +55,7 @@ namespace UPlayGround.State
             }
             else
             {
-                gameActor.Tags?.AddTag(GameplayTags.State_Jump);
+                gameActor.Tags?.AddTag(GameplayTagId.State_Jump);
                 // 점프 입력으로 진입: UpdateVelocity(HandleJump) 실행을 기다리지 않고 즉시 재생
                 PlayJumpAnimation(true);
                 _jumpAnimPlayed = true;
@@ -64,8 +64,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState state)
         {
-            gameActor.Tags?.RemoveTag(GameplayTags.State_Airborne);
-            gameActor.Tags?.RemoveTag(GameplayTags.State_Jump);
+            gameActor.Tags?.RemoveTag(GameplayTagId.State_Airborne);
+            gameActor.Tags?.RemoveTag(GameplayTagId.State_Jump);
             playerActor.ClearJumpInput();
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
 

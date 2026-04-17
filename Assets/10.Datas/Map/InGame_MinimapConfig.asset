@@ -49,9 +49,9 @@ MonoBehaviour:
   showOnlyDetectedEnemies: 0
   showNpcs: 1
   showGathering: 1
-  backgroundSprite: {fileID: 21300000, guid: 9cad81b2a9cb31c4886aaf89f6897bad, type: 3}
-  captureCenter: {x: 409.5201, y: 394.57242}
-  captureWorldSize: 780
+  backgroundSprite: {fileID: 21300000, guid: f2641757fd840a949bba04f2f523e34c, type: 3}
+  captureCenter: {x: 910.54895, y: 901.2028}
+  captureWorldSize: 1800
   mapZoom: 20
   expandedMapSize: 500
   expandedMapZoom: 3

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Bokuse_Katana_JumpAttack_3
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Bokusei_Move_Stop_Sprinting_R45
+    motionSetName: Bokusei_Katana_JumaAttack_3
     motions:
     - motionName: Sprint_F_R45_To_Idle
       motionClip: {fileID: 7400000, guid: bc48905dae8519a46ae0a98e19f53f62, type: 3}
@@ -22,7 +22,6 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5351032134217498883
-      - rid: 5351032134217498885
       - rid: 5351032134217498884
     globalEvents: []
   references:
@@ -41,16 +40,6 @@ MonoBehaviour:
     - rid: 5351032134217498884
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.809729
-        endTime: 0.8373514
+        startTime: 0.35158652
+        endTime: 0.53796977
         globalStartTimeOffset: 0
-    - rid: 5351032134217498885
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
-      data:
-        startTime: 0.77072453
-        endTime: 0.7955746
-        globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
-        hitPhaseIndex: 0

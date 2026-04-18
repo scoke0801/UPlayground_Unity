@@ -16,9 +16,6 @@ namespace UPlayGround.MovementController
         public float StableMovementSharpness = 15;
         public float OrientationSharpness = 10;
         
-        [Header("Crouching Movement")]
-        public float MaxCrouchingMoveSpeed = 3f;
-        
         [Header("Air Movement")]
         public float MaxAirMoveSpeed = 3f;
         public float AirAccelerationSpeed = 5f;
@@ -34,16 +31,11 @@ namespace UPlayGround.MovementController
         public float FallGravityMultiplier = 2.5f;   // 하강 시 중력 배율
         public float RiseGravityMultiplier = 1.5f;   // 상승 시 중력 배율 (감속 강화)
         
-        [Header("Dodge")] 
-        public float DodgePower = 7.5f;
         
         [Header("Dash")]
         public float DashSpeed = 18f;
-        public float DashDuration = 0.3f;
-        public float DashCollisionSearchRadius = 5f; // 대시 시작 시 주변 몬스터 탐색 반경
         
         [Header("Misc")]
-        public bool RotationObstruction;
         public Vector3 Gravity = new Vector3(0, -30f, 0);
 
         protected List<Collider> IgnoredColliders = new List<Collider>();

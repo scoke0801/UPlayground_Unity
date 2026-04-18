@@ -433,9 +433,12 @@ namespace UPlayGround
                 CameraManager.Instance?.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.15f, 0.2f);
 
             // 패리 VFX
-            Vector3 fxPos = (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
-                ? attackData.hitPoint
-                : transform.position;
+            Vector3 fxPos = TryGetSocket(ActorSocketType.Weapon, out var center)
+                ? center.position
+                : (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
+                    ? attackData.hitPoint
+                    : transform.position;
+           
             GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
 
             // 바이탈 오브

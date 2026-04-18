@@ -61,6 +61,8 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= OnAnimationEnd;
             playerController.StartDashCooldown();
 
+            // Dash하면 Sprint
+            gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
             base.OnExit(toState);
         }
 

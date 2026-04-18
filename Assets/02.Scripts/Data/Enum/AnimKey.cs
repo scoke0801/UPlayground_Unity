@@ -62,6 +62,8 @@ namespace UPlayGround.Data.EnumType
         DashAttack_4,
         DashAttack_5,
         
+        JumpDashAttack_1 = 310,
+        
         JumpAttack_1 = 400,
         JumpAttack_2,
         JumpAttack_3,

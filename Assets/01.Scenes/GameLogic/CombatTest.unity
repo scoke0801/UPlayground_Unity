@@ -7760,6 +7760,25 @@ Transform:
   - {fileID: 531440716}
   m_Father: {fileID: 1416273802}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &96042789 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7220837921904583888, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
+  m_PrefabInstance: {fileID: 1073601904}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &96042795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96042789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8fc3d64282f45b1520e8bb606788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locationId: portal_gate_2
+  _markerType: 3
 --- !u!1 &96754705
 GameObject:
   m_ObjectHideFlags: 0
@@ -16001,6 +16020,7 @@ MonoBehaviour:
   _maxGuardCount: 3
   _guardResetDelay: 3
   _perfectGuardCounterWindow: 1.5
+  _parryCounterWindow: 1.5
 --- !u!114 &128408075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16040,6 +16060,8 @@ MonoBehaviour:
     _serializedList:
     - Key: 3
       Value: {fileID: 619540741}
+    - Key: 6
+      Value: {fileID: 8719863575699524548}
     - Key: 7
       Value: {fileID: 1752305737}
   _interactionRadius: 3
@@ -16154,7 +16176,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -16164,11 +16185,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 1.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
-  DashSpeed: 10
-  DashDuration: 0.5
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
+  DashSpeed: 20
   Gravity: {x: 0, y: -30, z: 0}
   _dashCooldown: 1.5
   MaxJumpCount: 2
@@ -16285,7 +16302,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -16295,11 +16311,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &129714587
 MonoBehaviour:
@@ -16351,7 +16363,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -16361,11 +16372,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &129714590
 MonoBehaviour:
@@ -28503,7 +28510,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -28513,11 +28519,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &266743523
 MonoBehaviour:
@@ -28569,7 +28571,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -28579,11 +28580,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &266743526
 MonoBehaviour:
@@ -43629,7 +43626,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7220837921904583888, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954643184}
   m_SourcePrefab: {fileID: 100100000, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
 --- !u!1 &391060893
 GameObject:
@@ -46781,7 +46781,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -46791,11 +46790,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &446802770
 MonoBehaviour:
@@ -46847,7 +46842,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -46857,11 +46851,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &446802773
 MonoBehaviour:
@@ -55546,6 +55536,68 @@ RotationConstraint:
   m_Sources:
   - sourceTransform: {fileID: 803438590}
     weight: 1
+--- !u!1001 &551307670
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1558177493729986390}
+    m_Modifications:
+    - target: {fileID: 1207145758441076341, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_Name
+      value: Spear1H_Epic
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+--- !u!4 &551307671 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1984807636101475535, guid: c8f328ffdc9cd3646ab8b4c340edbbba, type: 3}
+  m_PrefabInstance: {fileID: 551307670}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &551520985
 GameObject:
   m_ObjectHideFlags: 0
@@ -75668,6 +75720,90 @@ Transform:
   - {fileID: 1378135731}
   m_Father: {fileID: 264260689}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &666463998
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1571168025}
+    m_Modifications:
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -66.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8985758193467603154, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      propertyPath: m_Name
+      value: Bakery
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8985758193467603154, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 666464001}
+  m_SourcePrefab: {fileID: 100100000, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+--- !u!4 &666463999 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4481878324337615729, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+  m_PrefabInstance: {fileID: 666463998}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &666464000 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8985758193467603154, guid: 6a72c3a8ab9e4e246bb95090c148dbcc, type: 3}
+  m_PrefabInstance: {fileID: 666463998}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &666464001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666464000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8fc3d64282f45b1520e8bb606788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locationId: Town
+  _markerType: 2
 --- !u!1 &668500479
 GameObject:
   m_ObjectHideFlags: 0
@@ -95300,6 +95436,84 @@ Transform:
   - {fileID: 250880041}
   m_Father: {fileID: 1409297162}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &830145022
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4275552449138082846}
+    m_Modifications:
+    - target: {fileID: 3676379699232972619, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_Name
+      value: Staff_Medium
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.00000166893
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.17760839
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.18326122
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+--- !u!4 &830145023 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4057408425029354993, guid: 340f8fecb7a9daa4bb72c4d06454e3c6, type: 3}
+  m_PrefabInstance: {fileID: 830145022}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &830375415
 GameObject:
   m_ObjectHideFlags: 0
@@ -104885,7 +105099,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -104895,11 +105108,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &941422709
 MonoBehaviour:
@@ -104951,7 +105160,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -104961,11 +105169,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &941422712
 MonoBehaviour:
@@ -105811,6 +106015,25 @@ Transform:
   - {fileID: 1145822013}
   m_Father: {fileID: 966335935}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &954643178 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7220837921904583888, guid: 13177c994d60cb94f8b93b79b25d7d92, type: 3}
+  m_PrefabInstance: {fileID: 390060633}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &954643184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954643178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8fc3d64282f45b1520e8bb606788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locationId: portal_gate_3
+  _markerType: 3
 --- !u!1 &955868909
 GameObject:
   m_ObjectHideFlags: 0
@@ -121603,7 +121826,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7365625505960910116, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 865032527}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7220837921904583888, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 96042795}
   m_SourcePrefab: {fileID: 100100000, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
 --- !u!4 &1073601905 stripped
 Transform:
@@ -122271,7 +122497,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -122281,11 +122506,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1087052318
 MonoBehaviour:
@@ -122337,7 +122558,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -122347,11 +122567,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1087052321
 MonoBehaviour:
@@ -129697,7 +129913,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -129707,11 +129922,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1117638104
 MonoBehaviour:
@@ -129763,7 +129974,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -129773,11 +129983,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1117638107
 MonoBehaviour:
@@ -132722,7 +132928,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1156089049
 Transform:
   m_ObjectHideFlags: 0
@@ -151817,6 +152023,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 333905097}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1312472296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1312472297}
+  m_Layer: 0
+  m_Name: '------------------------------------------- '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1312472297
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312472296}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.1433601, y: 2.5722466, z: -0.15985885}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1312566003
 GameObject:
@@ -182107,7 +182344,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -182117,11 +182353,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1478419747
 MonoBehaviour:
@@ -187836,6 +188068,25 @@ ParentConstraint:
     weight: 0
   - sourceTransform: {fileID: 585884762}
     weight: 1
+--- !u!1 &1524128239 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7220837921904583888, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
+  m_PrefabInstance: {fileID: 3468711976018045428}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1524128245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1524128239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8fc3d64282f45b1520e8bb606788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locationId: portal
+  _markerType: 3
 --- !u!1 &1524597711
 GameObject:
   m_ObjectHideFlags: 0
@@ -191421,6 +191672,38 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 992099326}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1571168024
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1571168025}
+  m_Layer: 0
+  m_Name: Env
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1571168025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571168024}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 666463999}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1571219930
 GameObject:
@@ -201147,7 +201430,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -201157,11 +201439,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1708105217
 MonoBehaviour:
@@ -201213,7 +201491,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -201223,11 +201500,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &1708105220
 MonoBehaviour:
@@ -244033,6 +244306,25 @@ Transform:
   - {fileID: 1138214823}
   m_Father: {fileID: 674924899}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2025134122 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7220837921904583888, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
+  m_PrefabInstance: {fileID: 4531818882524588132}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2025134128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025134122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8fc3d64282f45b1520e8bb606788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _locationId: portal_gate
+  _markerType: 3
 --- !u!1 &2025678547
 GameObject:
   m_ObjectHideFlags: 0
@@ -250727,7 +251019,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -250737,11 +251028,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &2107408846
 MonoBehaviour:
@@ -250793,7 +251080,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -250803,11 +251089,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &2107408849
 MonoBehaviour:
@@ -260719,14 +261001,12 @@ ParentConstraint:
   m_Enabled: 1
   serializedVersion: 2
   m_Weight: 1
-  m_TranslationAtRest: {x: 0.6600003, y: 1.2199999, z: 0.50000215}
-  m_RotationAtRest: {x: -1.6000117, y: -168.87999, z: -177.6}
+  m_TranslationAtRest: {x: 0.5500003, y: 1.03, z: 0.38}
+  m_RotationAtRest: {x: 6.800001, y: -168.46985, z: -102.57}
   m_TranslationOffsets:
-  - {x: 0.03200555, y: 0.12087631, z: 0.51853275}
-  - {x: 0.12087631, y: -0.08692455, z: 0.51219654}
+  - {x: -0.04894924, y: 0.016593933, z: 0.41075182}
   m_RotationOffsets:
-  - {x: 11.115607, y: 179.72957, z: 92.71443}
-  - {x: -5.719695, y: -168.82806, z: -178.41315}
+  - {x: -3.7999108, y: 179.0454, z: 30.728853}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1
@@ -260736,10 +261016,8 @@ ParentConstraint:
   m_Active: 1
   m_IsLocked: 0
   m_Sources:
-  - sourceTransform: {fileID: 0}
+  - sourceTransform: {fileID: 1912015177}
     weight: 1
-  - sourceTransform: {fileID: 0}
-    weight: 0
 --- !u!4 &379397742988903614
 Transform:
   m_ObjectHideFlags: 0
@@ -263913,7 +264191,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -263923,11 +264200,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &592946068874536450
 GameObject:
@@ -270828,14 +271101,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6975778919468020041}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.99495167, y: -0.022194413, z: -0.097148396, w: -0.011864674}
-  m_LocalPosition: {x: 0.6600003, y: 1.2199999, z: 0.50000215}
+  m_LocalRotation: {x: 0.77867967, y: -0.61654, z: -0.041334327, w: 0.108756214}
+  m_LocalPosition: {x: 0.5500003, y: 1.03, z: 0.38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3950247217384187193}
+  - {fileID: 551307671}
   m_Father: {fileID: 801937216252889476}
-  m_LocalEulerAnglesHint: {x: -1.6000118, y: -168.88, z: -177.6}
+  m_LocalEulerAnglesHint: {x: 6.800001, y: -168.46985, z: -102.57}
 --- !u!4 &1563448574447268891
 Transform:
   m_ObjectHideFlags: 0
@@ -271789,92 +272062,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7561957210567622625}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1736149245390158417
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1736149245390317169}
-  - component: {fileID: 1736149245393184337}
-  - component: {fileID: 1736149245392086161}
-  m_Layer: 0
-  m_Name: axe1_2h 1
-  m_TagString: Weapon
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1736149245390317169
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736149245390158417}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.08, y: 0.08, z: 0.08}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4275552449138082846}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &1736149245392086161
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736149245390158417}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 020e010fd9f145d4bb17050862ea093b, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1736149245393184337
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736149245390158417}
-  m_Mesh: {fileID: 4300000, guid: 96245070722d37946a34f363e2a6ae07, type: 3}
 --- !u!4 &1736442166858877348
 Transform:
   m_ObjectHideFlags: 0
@@ -276287,7 +276474,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -276297,11 +276483,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &2158447526572373027
 GameObject:
@@ -284582,14 +284764,12 @@ ParentConstraint:
   m_Enabled: 1
   serializedVersion: 2
   m_Weight: 1
-  m_TranslationAtRest: {x: 0.6600003, y: 1.2199999, z: 0.50000215}
-  m_RotationAtRest: {x: -1.6000117, y: -168.87999, z: -177.6}
+  m_TranslationAtRest: {x: 0.65999854, y: 1.09, z: 0.35}
+  m_RotationAtRest: {x: -1.5999907, y: -171.44002, z: -177.59996}
   m_TranslationOffsets:
-  - {x: 0.03200555, y: 0.12087631, z: 0.51853275}
-  - {x: 0.12087631, y: -0.08692455, z: 0.51219654}
+  - {x: 0.37031126, y: 0.1030159, z: -0.20179176}
   m_RotationOffsets:
-  - {x: 11.115607, y: 179.72957, z: 92.71443}
-  - {x: -5.719695, y: -168.82806, z: -178.41315}
+  - {x: 9.182755, y: -88.111046, z: 93.06944}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1
@@ -284599,10 +284779,8 @@ ParentConstraint:
   m_Active: 1
   m_IsLocked: 0
   m_Sources:
-  - sourceTransform: {fileID: 0}
+  - sourceTransform: {fileID: 543642424}
     weight: 1
-  - sourceTransform: {fileID: 0}
-    weight: 0
 --- !u!4 &3138027777925749931
 Transform:
   m_ObjectHideFlags: 0
@@ -288532,7 +288710,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7220837921904583888, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1524128245}
   m_SourcePrefab: {fileID: 100100000, guid: c6a08434fca9ab74fb68db761acca5b4, type: 3}
 --- !u!1 &3470155714440764384
 GameObject:
@@ -289814,7 +289995,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -289824,11 +290004,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!4 &3694372279532465699
 Transform:
@@ -291094,92 +291270,6 @@ GameObject:
   m_Layer: 0
   m_Name: Hair_Tail_Right.001
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!23 &3950247217382418393
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3950247217384618265}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 020e010fd9f145d4bb17050862ea093b, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &3950247217383384345
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3950247217384618265}
-  m_Mesh: {fileID: 4300000, guid: 96245070722d37946a34f363e2a6ae07, type: 3}
---- !u!4 &3950247217384187193
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3950247217384618265}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.08, y: 0.08, z: 0.08}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1558177493729986390}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &3950247217384618265
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3950247217384187193}
-  - component: {fileID: 3950247217383384345}
-  - component: {fileID: 3950247217382418393}
-  m_Layer: 0
-  m_Name: axe1_2h 1
-  m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -293096,7 +293186,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -293106,11 +293195,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &3991700439478606927
 GameObject:
@@ -294900,14 +294985,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5621868475517055489}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.99495167, y: -0.022194413, z: -0.097148396, w: -0.011864674}
-  m_LocalPosition: {x: 0.6600003, y: 1.2199999, z: 0.50000215}
+  m_LocalRotation: {x: 0.99687356, y: -0.021924198, z: -0.0748985, w: -0.012357289}
+  m_LocalPosition: {x: 0.65999854, y: 1.09, z: 0.35}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1736149245390317169}
+  - {fileID: 830145023}
   m_Father: {fileID: 2732312535357115084}
-  m_LocalEulerAnglesHint: {x: -1.6000118, y: -168.88, z: -177.6}
+  m_LocalEulerAnglesHint: {x: -1.5999907, y: -171.44002, z: -177.59996}
 --- !u!4 &4285871189164143711
 Transform:
   m_ObjectHideFlags: 0
@@ -297018,7 +297103,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7365625505960910116, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 102601373}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7220837921904583888, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2025134128}
   m_SourcePrefab: {fileID: 100100000, guid: ebfb37c5e2390334796640568b1a79a0, type: 3}
 --- !u!1 &4535125480021793254
 GameObject:
@@ -309298,7 +309386,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -309308,11 +309395,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &5823640385111252851
 GameObject:
@@ -334500,7 +334583,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -334510,11 +334592,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &8052180690030331197
 GameObject:
@@ -334750,7 +334828,6 @@ MonoBehaviour:
   MaxSprintMoveSpeed: 10
   StableMovementSharpness: 15
   OrientationSharpness: 10
-  MaxCrouchingMoveSpeed: 3
   MaxAirMoveSpeed: 3
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -334760,11 +334837,7 @@ MonoBehaviour:
   LandDrag: 1.5
   FallGravityMultiplier: 2.5
   RiseGravityMultiplier: 1.5
-  DodgePower: 7.5
   DashSpeed: 18
-  DashDuration: 0.3
-  DashCollisionSearchRadius: 5
-  RotationObstruction: 0
   Gravity: {x: 0, y: -30, z: 0}
 --- !u!114 &8071243918329699915
 MonoBehaviour:
@@ -345096,6 +345169,8 @@ SceneRoots:
   - {fileID: 309235016}
   - {fileID: 1562486007}
   - {fileID: 672325121}
+  - {fileID: 1571168025}
+  - {fileID: 1312472297}
   - {fileID: 123782735}
   - {fileID: 1219420740}
   - {fileID: 1834866245}

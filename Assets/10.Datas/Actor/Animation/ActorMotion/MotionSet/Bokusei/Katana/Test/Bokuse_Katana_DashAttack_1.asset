@@ -15,22 +15,22 @@ MonoBehaviour:
   motionSet:
     motionSetName: Bokusei_Move_Stop_Sprinting_R45
     motions:
-    - motionName: DashAttack_ver_1
-      motionClip: {fileID: 7400000, guid: 35b2926bc0946d74a86943c6ee00f78c, type: 3}
+    - motionName: Sprint_F_R45_To_Idle
+      motionClip: {fileID: 7400000, guid: c9882739488c4a44cb25e41defe55455, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 5351032134217498893
+      - rid: 5351032134217498894
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 5351032134217498893
+    - rid: 5351032134217498894
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.47499996
-        endTime: 0.9375
+        startTime: 0.38383996
+        endTime: 0.7730263
         globalStartTimeOffset: 0
         targetLayers:
           serializedVersion: 2

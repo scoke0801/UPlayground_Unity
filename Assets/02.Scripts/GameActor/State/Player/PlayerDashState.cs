@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Tag;
 
@@ -65,7 +67,7 @@ namespace UPlayGround.State
             gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
             base.OnExit(toState);
         }
-
+        
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             currentVelocity = _dashDirection * controller.DashSpeed;
@@ -74,6 +76,11 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (!motor.GroundingStatus.IsStableOnGround &&
+                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            {
+                playerController.TransitionToState(new PlayerJumpDashAttackState(playerController));
+            }
         }
 
         private void IgnoreMonsterColliders()

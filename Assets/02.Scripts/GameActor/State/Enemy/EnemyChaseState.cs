@@ -38,14 +38,6 @@ namespace UPlayGround.State
             _strafeSign = Random.value > 0.5f ? 1f : -1f;
             _lastLocoKey = AnimKey.Run;
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
-            
-            Debug.Log("[EnemyChaseState] 추적 시작");
-        }
-
-        public override void OnExit(GameActorState toState)
-        {
-            base.OnExit(toState);
-            Debug.Log("[EnemyChaseState] 추적 종료");
         }
 
         public override void UpdateState(float deltaTime)

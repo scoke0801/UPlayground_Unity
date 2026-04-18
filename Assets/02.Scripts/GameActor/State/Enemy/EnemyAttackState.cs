@@ -105,8 +105,6 @@ namespace UPlayGround.State
 
         private void OnAttackAnimationEnd()
         {
-            Debug.Log("OnAttackAnimationEnd");
-
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));

@@ -70,6 +70,7 @@ namespace UPlayGround.Data.EnumType
         JumpAttack_4,
         JumpAttack_5,
         JumpAttack_6,
+        JumpAttack_7,
         
         Skill_1 = 500,
         Skill_2,

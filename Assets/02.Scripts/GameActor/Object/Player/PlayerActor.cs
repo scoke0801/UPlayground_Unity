@@ -350,13 +350,11 @@ namespace UPlayGround
             if (attackData.criticalMultiplier > 1.0f)
             {
                 finalDamage *= attackData.criticalMultiplier;
-                Debug.Log($"[PlayerActor] 크리티컬 히트! 데미지: {finalDamage}");
             }
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-            Debug.Log($"[PlayerActor] {gameObject.name}가 {finalDamage} 데미지 (남은 HP: {_currentHealth}/{_maxHealth})");
-
+           
             Vector3 floaterPos = attackData.hitPoint != Vector3.zero
                 ? attackData.hitPoint
                 : transform.position;
@@ -399,7 +397,7 @@ namespace UPlayGround
         public void HealPercent(float ratio) => Heal(ratio * _maxHealth);
 
         /// <summary>
-        /// Attack / Charge 상태에서 히트박스가 활성 상태일 때 피격되면 패리를 시도한다.
+        /// Attack 상태에서 히트박스가 활성 상태이고 약공격(NormalAttack) 중일 때 피격되면 패리를 시도한다.
         /// CheatManager.IsAlwaysParryEnabled가 켜져 있으면 조건 없이 패리한다.
         /// </summary>
         private bool TryParry(AttackData attackData)
@@ -409,9 +407,12 @@ namespace UPlayGround
             if (!alwaysParry)
             {
                 string stateName = MovementController.CurrentState.StateName;
-                if (stateName != "Attack" && stateName != "Charge")
+                if (stateName != "Attack")
                     return false;
                 if (!_combat.IsPossibleCollide)
+                    return false;
+                // 약공격(NormalAttack)만 패리 가능 — 강공격·차지·스킬은 패리 불가
+                if (_combat.CurrentAttackData?.attackKind != AttackKind.NormalAttack)
                     return false;
             }
 
@@ -422,6 +423,15 @@ namespace UPlayGround
         private void OnParrySuccess(AttackData attackData)
         {
             Debug.Log("[PlayerActor] 패리 성공!");
+
+            // 패리 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다
+            _combat.OpenParryCounterWindow();
+
+            // 히트 감지를 즉시 비활성화해 이후 PerformHitDetection이 HitStop을 덮어쓰지 않도록 한다
+            _combat.SetEnableCollision(false);
+
+            // 공격 상태를 중단하고 Idle로 복귀 (패리 반격 창은 이미 열려 있으므로 다음 공격 입력 시 반격 발동)
+            MovementController.TransitionToState(new PlayerIdleState(MovementController));
 
             // 히트스톱 (퍼펙트 가드와 동일한 슬로우 연출)
             GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
@@ -438,7 +448,7 @@ namespace UPlayGround
                 : (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
                     ? attackData.hitPoint
                     : transform.position;
-           
+
             GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
 
             // 바이탈 오브
@@ -447,9 +457,6 @@ namespace UPlayGround
             // 공격자(몬스터) 경직
             if (attackData?.attacker is MonsterActor monster)
                 monster.OnParried();
-
-            // 패리 반격 창 열기
-            _combat.OpenParryCounterWindow();
         }
 
         /// <summary>
@@ -513,14 +520,15 @@ namespace UPlayGround
         {
             // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
             bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
-                                  chargeState.HasChargedAtLeastOneStage;
+                                 chargeState.HasChargedAtLeastOneStage;
 
             if (!hasSuperArmor && attackData != null)
             {
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce, attackData.knockbackDrag);
+                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce,
+                            attackData.knockbackDrag);
                         break;
 
                     case AttackReactionType.Pull:
@@ -530,13 +538,16 @@ namespace UPlayGround
                             pullDir.y = 0f;
                             MovementController.AddVelocity(pullDir * attackData.pullForce);
                         }
+
                         break;
 
                     case AttackReactionType.Airborne:
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
-                        MovementController.AddImpulse(launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce, attackData.knockbackDrag);
+                        MovementController.AddImpulse(
+                            launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce,
+                            attackData.knockbackDrag);
                         MovementController.Motor.ForceUnground();
                         break;
                     }
@@ -560,9 +571,9 @@ namespace UPlayGround
                 }
 
                 bool isHeavyReaction = attackData?.reactionType is
-                    AttackReactionType.Heavy    or
+                    AttackReactionType.Heavy or
                     AttackReactionType.KnockBack or
-                    AttackReactionType.Airborne  or
+                    AttackReactionType.Airborne or
                     AttackReactionType.Knockdown or
                     AttackReactionType.Stun;
 
@@ -575,7 +586,6 @@ namespace UPlayGround
             GameObjectManager.Instance.ShowFX(attackData?.hitParticleName, fxPos);
 
             _colorChanger.OnHit();
-            Debug.Log($"[PlayerActor] 피격! HitPoint: {attackData?.hitPoint}");
         }
 
         /// <summary>

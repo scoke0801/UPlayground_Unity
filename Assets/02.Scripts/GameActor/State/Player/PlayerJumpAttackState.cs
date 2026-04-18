@@ -17,10 +17,13 @@ namespace UPlayGround.State
         private AttackData   _attackData;
         private float        _timer;
         private bool         _comboInputted;
+        private bool         _comboIsFinish;   // 강공격 콤보 입력 → 피니시로 처리
         private bool         _changingState;
+        private readonly bool _startAsFinish;  // 공중에서 강공격으로 진입 시 true
 
-        public PlayerJumpAttackState(ActorMovementController controller) : base(controller)
+        public PlayerJumpAttackState(ActorMovementController controller, bool startAsFinish = false) : base(controller)
         {
+            _startAsFinish = startAsFinish;
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -29,10 +32,13 @@ namespace UPlayGround.State
 
             _timer         = 0f;
             _comboInputted = false;
+            _comboIsFinish = false;
             _changingState = false;
 
-            _combat     = playerActor.GetCombat();
-            _attackData = _combat?.ExecuteJumpAttack(false);
+            _combat = playerActor.GetCombat();
+            _attackData = _startAsFinish
+                ? _combat?.ExecuteJumpFinishAttack()
+                : _combat?.ExecuteJumpAttack(false);
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
             var state = gameActor.Animator.PlayMotion(animKey, 0.25f);
@@ -60,10 +66,16 @@ namespace UPlayGround.State
 
             if (_combat != null && _combat.CanCombo)
             {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null ||
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
                     _comboInputted = true;
+                    _comboIsFinish = false;
+                    _combat.CloseComboWindow();
+                }
+                else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                {
+                    _comboInputted = true;
+                    _comboIsFinish = true;
                     _combat.CloseComboWindow();
                 }
             }
@@ -96,7 +108,10 @@ namespace UPlayGround.State
 
             if (_comboInputted)
             {
-                _attackData = _combat?.ExecuteJumpAttack(true);
+                _attackData = _comboIsFinish
+                    ? _combat?.ExecuteJumpFinishAttack()
+                    : _combat?.ExecuteJumpAttack(true);
+
                 AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
                 var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
                 if (state == null)
@@ -109,6 +124,7 @@ namespace UPlayGround.State
                     return;
                 }
                 _comboInputted = false;
+                _comboIsFinish = false;
                 _timer         = 0f;
                 _changingState = false;
             }

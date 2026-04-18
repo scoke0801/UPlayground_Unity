@@ -409,6 +409,7 @@ namespace UPlayGround.Editor
         private void DrawCounterAttack(Color accent)
         {
             EnsureFoldLists("counter", 1);
+            EnsureFoldLists("parryCounter", 1);
 
             DrawSectionHeader("퍼펙트 가드 반격", accent);
             EditorGUILayout.HelpBox("비워두면 강공격 첫 번째 데이터로 대체됩니다.", MessageType.Info);

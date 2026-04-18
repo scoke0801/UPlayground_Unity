@@ -468,10 +468,35 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        // jumpAttackList의 마지막 항목을 피니시 공격으로 실행
+        public AttackData ExecuteJumpFinishAttack()
+        {
+            if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
+            _attackState      = AttackState.JumpAttack;
+            CurrentComboIndex = _attackData.jumpAttackList.Count - 1;
+            _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[CurrentComboIndex], AttackKind.JumpAttack);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
         public AttackData ExecuteDashAttack()
         {
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
+            ResetCombo();
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
+        public AttackData ExecuteJumpDashAttack()
+        {
+            if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
+            _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
+            _currentAttackData.animKey = AnimKey.JumpDashAttack_1;
             ResetCombo();
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -601,6 +626,10 @@ namespace UPlayGround.Component
 
         private void ApplyHitFeedback()
         {
+            // 패리 반격 창이 열려 있으면 Execute(PlayerGuard) 슬로우를 보호한다.
+            // foreach 도중 패리가 발동됐거나 실행 순서상 뒤늦게 호출되는 경우 모두 차단.
+            if (IsParryCounterAvailable) return;
+
             GameHitStopManager.Instance.ResetActorTimeScale();
 
             bool isKillHit = _currentAttackData.hitTarget != null

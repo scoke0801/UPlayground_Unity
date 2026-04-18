@@ -55,8 +55,6 @@ namespace UPlayGround.Component
 
             if (wasWithoutTarget)
                 OnTargetAcquiredExternally?.Invoke();
-
-            Debug.Log($"[EnemyDetection] 타겟 획득: {target.name}");
         }
 
         /// <summary>

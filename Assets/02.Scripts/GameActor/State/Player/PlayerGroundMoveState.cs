@@ -111,15 +111,8 @@ namespace UPlayGround.State
 
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
-                if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
-                {
-                    playerController.TransitionToState(new PlayerDashAttackState(playerController));
-                }
-                else
-                {
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
-                }
-
+                playerController.TransitionToState(new PlayerAttackState(playerController));
+                
                 return;
             }
 

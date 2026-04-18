@@ -22,6 +22,8 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5351032134217498893
+      - rid: 5351032140248121475
+      - rid: 5351032140248121476
     globalEvents: []
   references:
     version: 2
@@ -36,3 +38,19 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 128
         hitPhaseIndex: 0
+    - rid: 5351032140248121475
+      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.43119305
+        globalStartTimeOffset: 0
+        direction: {x: 0, y: 0, z: 1}
+        force: 20
+    - rid: 5351032140248121476
+      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.45228624
+        endTime: 0.8834793
+        globalStartTimeOffset: 0
+        direction: {x: 0, y: 0, z: 1}
+        force: 20

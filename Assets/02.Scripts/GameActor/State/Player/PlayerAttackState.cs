@@ -7,6 +7,7 @@ using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.State
 {
@@ -83,7 +84,11 @@ namespace UPlayGround.State
 
             _isParryCounter = _combat.IsParryCounterAvailable;
             if (_isParryCounter)
+            {
                 _combat.CloseParryCounterWindow();
+                GameHitStopManager.Instance.Stop();
+                Debug.Log("[ParryCounter] 패리 반격 진입");
+            }
 
             _combat.ResetCombo();
             _attackTimer = 0f;
@@ -98,7 +103,11 @@ namespace UPlayGround.State
                 }
             }
 
-            var animState = gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
+            var animKey   = GetAnimKey();
+            var animState = gameActor.Animator.PlayMotion(animKey, 0.25f);
+            if (_isParryCounter)
+                Debug.Log($"[ParryCounter] PlayMotion({animKey}) → {(animState != null ? "성공" : "실패(모션셋 없음)")}");
+
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
             else

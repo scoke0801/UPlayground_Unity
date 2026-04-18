@@ -152,7 +152,6 @@ namespace UPlayGround
                 // // 히트 스탑
                 // GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Light);
                 //
-                Debug.Log($"[Projectile] 히트! Target: {hitObject.name}, Damage: {attackData.damage}");
             }
 
             if (destroyOnHit)

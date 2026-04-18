@@ -30,19 +30,27 @@ public class MinimapMarkerRegistrar : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        Gizmos.color = _markerType == MinimapMarkerType.QuestTarget
-            ? new Color(1f, 0.9f, 0f, 0.8f)
-            : new Color(0.4f, 0.8f, 1f, 0.8f);
+        Gizmos.color = _markerType switch
+        {
+            MinimapMarkerType.QuestTarget => new Color(1f, 0.9f, 0f,  0.8f),
+            MinimapMarkerType.Town        => new Color(0.4f, 1f,  0.4f, 0.8f),
+            MinimapMarkerType.Portal      => new Color(0.6f, 0.4f, 1f, 0.8f),
+            MinimapMarkerType.Npc         => new Color(0.4f, 0.8f, 1f, 0.8f),
+            _                             => new Color(1f,   1f,  1f,  0.8f),
+        };
 
         Gizmos.DrawWireSphere(transform.position, 1f);
         UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f,
-            $"[Minimap] {_locationId}");
+            $"[{_markerType}] {_locationId}");
     }
 #endif
 }
 
 public enum MinimapMarkerType
 {
-    QuestTarget, // 퀘스트 목표 지점 (노란 "!" 아이콘)
-    Custom,      // 커스텀 마커 (config의 customMarker 아이콘 사용)
+    QuestTarget, // 퀘스트 목표 지점 ("!" 아이콘, 활성 퀘스트 조건 충족 시에만 표시)
+    Custom,      // 커스텀 정적 마커 (config의 customMarker 아이콘)
+    Town,        // 마을 입구 / 거점 마커
+    Portal,      // 포탈 / 워프 지점 마커
+    Npc,         // 고정 NPC 마커 (액터 시스템과 별개로 항상 표시)
 }

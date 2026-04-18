@@ -30,7 +30,9 @@
       "WebFetch(domain:wilhelman.github.io)",
       "WebFetch(domain:critpoints.net)",
       "mcp__plugin_code-review-graph_code-review-graph__get_architecture_overview_tool",
-      "Bash(grep -i \"\\\\.cs$\")"
+      "Bash(grep -i \"\\\\.cs$\")",
+      "Read(//c/Users/scoke/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/**)",
+      "Read(//c/Users/scoke/.claude/plugins\" 2>/dev/**)"
     ]
   }
 }

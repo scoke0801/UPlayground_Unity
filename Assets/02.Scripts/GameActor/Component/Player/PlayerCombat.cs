@@ -421,11 +421,14 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
-        public AttackData ExecuteJumpAttack()
+        public AttackData ExecuteJumpAttack(bool isCombo = false)
         {
             if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
-            _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[0], AttackKind.JumpAttack);
-            ResetCombo();
+            if (_attackState != AttackState.JumpAttack) ResetCombo();
+            _attackState      = AttackState.JumpAttack;
+            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            CurrentComboIndex = Mathf.Clamp(CurrentComboIndex, 0, _attackData.jumpAttackList.Count - 1);
+            _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[CurrentComboIndex], AttackKind.JumpAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);

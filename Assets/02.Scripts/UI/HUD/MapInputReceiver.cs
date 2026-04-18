@@ -9,14 +9,22 @@ namespace UPlayGround.UI
     /// </summary>
     [RequireComponent(typeof(UnityEngine.UI.Graphic))]
     public class MapInputReceiver : MonoBehaviour,
-        IBeginDragHandler, IDragHandler, IScrollHandler
+        IBeginDragHandler, IDragHandler, IScrollHandler, IPointerClickHandler
     {
         public event System.Action<PointerEventData> OnBeginDragEvent;
         public event System.Action<PointerEventData> OnDragEvent;
         public event System.Action<PointerEventData> OnScrollEvent;
-        
+        /// <summary>우클릭 (PointerEventData.InputButton.Right) 시 발행.</summary>
+        public event System.Action<PointerEventData> OnRightClickEvent;
+
         void IBeginDragHandler.OnBeginDrag(PointerEventData e) => OnBeginDragEvent?.Invoke(e);
         void IDragHandler.OnDrag(PointerEventData e)           => OnDragEvent?.Invoke(e);
         void IScrollHandler.OnScroll(PointerEventData e)       => OnScrollEvent?.Invoke(e);
+
+        void IPointerClickHandler.OnPointerClick(PointerEventData e)
+        {
+            if (e.button == PointerEventData.InputButton.Right)
+                OnRightClickEvent?.Invoke(e);
+        }
     }
 }

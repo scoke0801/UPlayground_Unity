@@ -12,9 +12,11 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
 - **HUD 미니맵 + 전체 맵 분리**: `UI_Minimap`은 항상 표시되는 소형 HUD, `UI_Map`은 M키로 토글하는 전체 맵 뷰입니다.
 - **미니맵 오프셋 클램핑**: 플레이어가 맵 가장자리로 이동해도 마스크 영역이 항상 맵 이미지로 채워집니다.
 - **확대 맵 전환**: `UI_Minimap.ToggleExpandedMap()`으로 미니맵을 확대 뷰로 부드럽게 전환합니다.
-- **3-채널 아이콘 시스템**: 플레이어 방향 화살표 / 적 감지 상태 구분 / 퀘스트 마커를 독립 딕셔너리로 관리합니다.
+- **5-채널 아이콘 시스템**: 적 / 일반 액터 / 퀘스트 마커 / 정적 마커 / 사용자 마커를 독립 딕셔너리로 관리합니다.
 - **GameObjectManager 이벤트 연동**: `OnActorRegistered` / `OnActorUnregistered`로 액터 스폰·사망 자동 반영
 - **QuestManager 이벤트 연동**: `QuestAccepted` / `QuestCompleted` / `QuestFailed` 구독으로 퀘스트 마커 자동 갱신
+- **정적 마커 지원**: `MinimapMarkerRegistrar`의 `Town` / `Portal` / `Npc` / `Custom` 타입으로 씬 배치 마커를 표시합니다.
+- **사용자 마커 지원**: 전체 맵에서 우클릭으로 핀 마커를 추가·제거합니다. `MinimapUserMarkerSystem`이 런타임 마커를 관리합니다.
 - **에디터 캡처 도구**: `MinimapCaptureEditorWindow`로 씬 탑다운 촬영 → PNG 저장 → Config 자동 할당
 
 ---
@@ -40,12 +42,14 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
              │                              │
              ▼                              ▼
       GameObjectManager              MapInputReceiver
-      .OnActorRegistered             (드래그·스크롤 중계)
+      .OnActorRegistered             (드래그·스크롤·우클릭 중계)
       .OnActorUnregistered
              │
       MinimapMarkerRegistry ◄── MinimapMarkerRegistrar (씬 배치)
-             │
+             │                   (QuestTarget / Town / Portal / Npc / Custom)
       QuestManager (EventManager)
+             │
+      MinimapUserMarkerSystem ◄── UI_Map.OnMapRightClick (우클릭 핀 마커)
 ```
 
 ### 클래스 의존 관계
@@ -64,10 +68,12 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
 UI 계층 (Assets/02.Scripts/UI/HUD/)
 ├── UI_Minimap                 — HUD 미니맵 (UI_Base 상속)
 ├── UI_Map                     — 전체 맵 뷰 (UI_Base 상속, Popup 레이어)
-├── MapInputReceiver           — UI_Map 드래그·스크롤 입력 중계
+├── MapInputReceiver           — UI_Map 드래그·스크롤·우클릭 입력 중계
 ├── MinimapEntityIcon          — 개별 아이콘 컴포넌트 (팩토리 패턴)
 ├── MinimapMarkerRegistrar     — 씬 배치 위치 등록 컴포넌트
-└── MinimapMarkerRegistry      — 정적 레지스트리 (static class)
+├── MinimapMarkerRegistry      — 정적 레지스트리 (static class)
+├── MinimapUserMarkerSystem    — 런타임 사용자 마커 관리 (static class)
+└── UserMapMarker              — 사용자 마커 데이터 클래스
 
 에디터 도구 (Assets/02.Scripts/Tool/Editor/Minimap/)
 └── MinimapCaptureEditorWindow — 탑다운 씬 캡처 & PNG 저장
@@ -84,10 +90,11 @@ Assets/
 │   │   └── HUD/
 │   │       ├── UI_Minimap.cs               — HUD 미니맵 메인 클래스
 │   │       ├── UI_Map.cs                   — 전체 맵 뷰 클래스
-│   │       ├── MapInputReceiver.cs         — 전체 맵 드래그·스크롤 입력 중계
+│   │       ├── MapInputReceiver.cs         — 전체 맵 드래그·스크롤·우클릭 입력 중계
 │   │       ├── MinimapEntityIcon.cs        — 개별 아이콘 컴포넌트
 │   │       ├── MinimapMarkerRegistrar.cs   — 씬 마커 등록 컴포넌트
-│   │       └── MinimapMarkerRegistry.cs    — 마커 정적 레지스트리
+│   │       ├── MinimapMarkerRegistry.cs    — 마커 정적 레지스트리
+│   │       ├── MinimapUserMarkerSystem.cs  — 런타임 사용자 마커 정적 시스템 (신규)
 │   │
 │   ├── Data/
 │   │   ├── UI/
@@ -164,7 +171,7 @@ MinimapIconConfigSO GetConfig(string mapId)
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `_iconContainer` | `RectTransform` | 적·NPC·채집 아이콘 부모 |
+| `_iconContainer` | `RectTransform` | 적·NPC·채집·정적·사용자 마커 아이콘 부모 |
 | `_questContainer` | `RectTransform` | 퀘스트 마커 부모 (`null`이면 `_iconContainer` 대체) |
 | `_playerIcon` | `RectTransform` | 플레이어 방향 화살표 (항상 마스크 중심에 고정) |
 | `_mapBackground` | `Image` | 맵 배경 이미지 |
@@ -172,13 +179,15 @@ MinimapIconConfigSO GetConfig(string mapId)
 | `_mapConfigDB` | `MapConfigDatabaseSO` | MapID→Config 조회 테이블 |
 | `_maskDisplaySize` | `float` | 기본 마스크 픽셀 크기 (MinimapMask sizeDelta.x와 일치) |
 
-**런타임 상태**
+**런타임 아이콘 채널 (5개)**
 
-| 필드 | 설명 |
-|------|------|
-| `_config` | `OnShow()`에서 MapID로 조회한 현재 Config |
-| `_currentMaskSize` | 현재 마스크 크기 (확대 전환 중 보간값) |
-| `_currentMapZoom` | 현재 맵 줌 배율 (확대 전환 중 보간값) |
+| 딕셔너리 | 키 | 대상 |
+|----------|-----|------|
+| `_enemyIconMap` | `MonsterActor` | 적 |
+| `_actorIconMap` | `GameActor` | NPC·채집 등 일반 액터 |
+| `_questIconMap` | `string` (locationId) | 활성 퀘스트 마커 |
+| `_staticMarkerIconMap` | `string` (locationId) | 정적 마커 (Town/Portal/Npc/Custom) |
+| `_userMarkerIconMap` | `int` (marker.Id) | 사용자 핀 마커 |
 
 **주요 메서드**
 
@@ -210,7 +219,7 @@ offset.x, offset.y ∈ [−maxOffset, +maxOffset]
 | `_mapViewport` | `RectTransform` | 입력 수신 영역 (MapInputReceiver 부착) |
 | `_mapContainer` | `RectTransform` | 줌·패닝 대상 컨테이너 |
 | `_mapBackground` | `Image` | 전체 맵 이미지 |
-| `_iconContainer` | `RectTransform` | 적·NPC 마커 부모 |
+| `_iconContainer` | `RectTransform` | 적·NPC·정적·사용자 마커 부모 |
 | `_questContainer` | `RectTransform` | 퀘스트 마커 부모 |
 | `_playerIcon` | `RectTransform` | 플레이어 위치 마커 (맵 상 절대 위치) |
 | `_mapConfigDB` | `MapConfigDatabaseSO` | MapID→Config 조회 테이블 |
@@ -226,19 +235,21 @@ offset.x, offset.y ∈ [−maxOffset, +maxOffset]
 - 마우스 드래그 패닝, 스크롤 줌 (마우스 포인터 기준), ±버튼 줌 (뷰 중심 기준)
 - "나 찾기" 버튼(`_findMeButton`)으로 언제든 플레이어 위치로 재이동
 - `ClampPan`으로 맵 이미지 경계 밖으로 패닝 불가
+- **우클릭**: 해당 위치에 사용자 마커 추가. 근처(`20px × zoom` 이내)에 이미 마커가 있으면 제거
 
 ---
 
 ### `MapInputReceiver`
 
 `UI_Map`의 `MapViewport`에 부착하는 경량 입력 중계 컴포넌트.  
-`IBeginDragHandler`, `IDragHandler`, `IScrollHandler`를 구현하여 이벤트를 `UI_Map`에 전달합니다.
+`IBeginDragHandler`, `IDragHandler`, `IScrollHandler`, `IPointerClickHandler`를 구현하여 이벤트를 `UI_Map`에 전달합니다.
 
 ```csharp
 // 이벤트 (UI_Map에서 구독)
 event Action<PointerEventData> OnBeginDragEvent
 event Action<PointerEventData> OnDragEvent
 event Action<PointerEventData> OnScrollEvent
+event Action<PointerEventData> OnRightClickEvent  // 우클릭 시 발행
 ```
 
 > `[RequireComponent(typeof(Graphic))]` — `MapViewport`에 `Image` 컴포넌트(alpha=0, raycastTarget=true)가 있어야 합니다.
@@ -264,21 +275,39 @@ event Action<PointerEventData> OnScrollEvent
 | `player` | 플레이어 방향 화살표 |
 | `enemy` | 적 (비전투 상태) |
 | `enemyDetected` | 적 (플레이어 감지·전투 상태) |
-| `npc` | NPC |
+| `npc` | 씬의 NpcActor |
 | `gathering` | 채집 오브젝트 |
 | `questTarget` | ReachLocation 목표 마커 |
 | `questNpc` | ItemDeliver NPC 마커 |
 | `customMarker` | MinimapMarkerType.Custom 마커 |
+| `town` | 마을 입구 / 거점 마커 |
+| `portal` | 포탈 / 워프 지점 마커 |
+| `staticNpc` | 고정 NPC 마커 (액터 시스템과 별개로 항상 표시) |
+| `userMarker` | 플레이어가 맵에 직접 찍는 핀 마커 |
 
-**표시 옵션**
+**표시 옵션 — 퀘스트 / 적**
 
 | 필드 | 기본값 | 설명 |
 |------|--------|------|
 | `showQuestMarkers` | `true` | 퀘스트 마커 표시 여부 |
 | `showEnemies` | `true` | 적 아이콘 표시 여부 |
 | `showOnlyDetectedEnemies` | `false` | `true` = 플레이어를 감지한 적만 표시 |
-| `showNpcs` | `true` | NPC 아이콘 표시 여부 |
+
+**표시 옵션 — 액터**
+
+| 필드 | 기본값 | 설명 |
+|------|--------|------|
+| `showNpcs` | `true` | NpcActor 아이콘 표시 여부 |
 | `showGathering` | `true` | 채집 오브젝트 아이콘 표시 여부 |
+
+**표시 옵션 — 정적 마커**
+
+| 필드 | 기본값 | 설명 |
+|------|--------|------|
+| `showTowns` | `true` | 마을 마커 표시 여부 |
+| `showPortals` | `true` | 포탈 마커 표시 여부 |
+| `showStaticNpcs` | `true` | 고정 NPC 마커 표시 여부 |
+| `showUserMarkers` | `true` | 사용자 핀 마커 표시 여부 |
 
 **맵 이미지 설정**
 
@@ -297,14 +326,20 @@ event Action<PointerEventData> OnScrollEvent
 | `expandedMapZoom` | 확대 시 맵 줌 배율 (0.5~100, 기본 3) |
 | `expandTransitionDuration` | 전환 애니메이션 시간 초 (0~0.5, 기본 0.2) |
 
-**좌표 변환 메서드**
+**메서드**
 
 ```csharp
 // 월드 XZ 좌표 → 미니맵 UI 픽셀 좌표
-// nx = (worldPos.x - captureCenter.x) / captureWorldSize  → -0.5~0.5
-// ny = (worldPos.z - captureCenter.y) / captureWorldSize
-// return = new Vector2(nx * displaySize, ny * displaySize)
 Vector2 WorldToMapImagePos(Vector3 worldPos, float minimapDisplaySize)
+
+// 액터 타입에 해당하는 IconEntry 반환
+IconEntry GetActorIconEntry(ActorType actorType)
+
+// 정적 마커 타입에 해당하는 IconEntry 반환
+IconEntry GetStaticMarkerEntry(MinimapMarkerType type)
+
+// 정적 마커 타입의 표시 여부 반환
+bool IsStaticMarkerVisible(MinimapMarkerType type)
 ```
 
 ---
@@ -317,7 +352,7 @@ Vector2 WorldToMapImagePos(Vector3 worldPos, float minimapDisplaySize)
 // 액터 추적 아이콘 생성 (actor.transform을 매 프레임 추적)
 MinimapEntityIcon.Create(Transform parent, GameActor actor, MinimapIconConfigSO.IconEntry entry)
 
-// 정적 마커 생성 (퀘스트 목표 등 위치 고정)
+// 정적 마커 생성 (퀘스트 목표·정적 마커·사용자 마커 등 위치 고정)
 MinimapEntityIcon.CreateStatic(Transform parent, string label, MinimapIconConfigSO.IconEntry entry)
 
 // 위치·가시성 갱신
@@ -334,19 +369,83 @@ void SetEntry(MinimapIconConfigSO.IconEntry entry)
 
 ### `MinimapMarkerRegistrar` / `MinimapMarkerRegistry`
 
-씬 오브젝트에 `MinimapMarkerRegistrar`를 부착해 퀘스트 목표 위치를 등록합니다.
+씬 오브젝트에 `MinimapMarkerRegistrar`를 부착해 위치를 등록합니다.
 
 | 직렬화 필드 | 설명 |
 |-------------|------|
-| `_locationId` | 퀘스트 목표와 매핑되는 문자열 ID |
-| `_markerType` | `QuestTarget` (노란 "!") 또는 `Custom` |
+| `_locationId` | 마커를 식별하는 문자열 ID (퀘스트 목표와 매핑 시 동일 ID 사용) |
+| `_markerType` | `QuestTarget` / `Town` / `Portal` / `Npc` / `Custom` |
 
-`MinimapMarkerRegistry`는 정적 클래스로 씬 내 모든 등록된 마커를 관리합니다.
+**`MinimapMarkerType` 열거형**
+
+| 값 | 설명 |
+|----|------|
+| `QuestTarget` | 활성 퀘스트 조건 충족 시에만 표시되는 "!" 마커 |
+| `Town` | 마을 입구 / 거점. `showTowns` 옵션으로 제어 |
+| `Portal` | 포탈 / 워프 지점. `showPortals` 옵션으로 제어 |
+| `Npc` | 고정 NPC 마커 (액터 시스템과 별개). `showStaticNpcs` 옵션으로 제어 |
+| `Custom` | 커스텀 마커. 항상 표시 |
+
+에디터 Gizmo에서 마커 타입별 색상으로 구분 표시됩니다 (노랑=QuestTarget, 초록=Town, 보라=Portal, 파랑=Npc, 흰색=Custom).
 
 ```csharp
+// MinimapMarkerRegistry API
 static event Action<MinimapMarkerRegistrar> OnMarkerAdded
 static event Action<MinimapMarkerRegistrar> OnMarkerRemoved
 static bool TryGet(string locationId, out MinimapMarkerRegistrar registrar)
+static IEnumerable<MinimapMarkerRegistrar> GetAll()
+```
+
+---
+
+### `MinimapUserMarkerSystem` / `UserMapMarker`
+
+플레이어가 전체 맵에서 우클릭으로 찍는 런타임 핀 마커를 관리하는 **정적 시스템**입니다.  
+씬 전환 시 `RemoveAll()`을 호출해 초기화합니다.
+
+**`UserMapMarker` 클래스**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `Id` | `int` | 자동 증가 고유 ID |
+| `WorldPosition` | `Vector3` | 월드 좌표 |
+| `Label` | `string` | 선택적 레이블 (기본값 `""`) |
+
+**`MinimapUserMarkerSystem` API**
+
+```csharp
+// 월드 좌표에 마커 추가 → 추가된 마커 반환
+static UserMapMarker AddMarker(Vector3 worldPos, string label = "")
+
+// ID로 마커 제거 → 성공 여부 반환
+static bool RemoveMarker(int id)
+
+// 모든 마커 제거 (씬 전환 시 호출)
+static void RemoveAll()
+
+// 전체 마커 읽기
+static IReadOnlyList<UserMapMarker> GetAll()
+static bool TryGet(int id, out UserMapMarker marker)
+static int Count { get; }
+
+// 이벤트 (UI에서 구독)
+static event Action<UserMapMarker> OnMarkerAdded
+static event Action<UserMapMarker> OnMarkerRemoved
+static event Action               OnAllMarkersCleared
+```
+
+**사용자 마커 입력 흐름**
+
+```
+UI_Map 열림
+    └── MapInputReceiver.OnRightClickEvent
+            └── UI_Map.OnMapRightClick(PointerEventData e)
+                    ├── 근처(20px) 마커 있음 → MinimapUserMarkerSystem.RemoveMarker(id)
+                    └── 없음 → MapLocalPosToWorld(localPoint) → MinimapUserMarkerSystem.AddMarker(worldPos)
+                                                                          │
+                                    OnMarkerAdded ──────────────────────►│
+                                    UI_Minimap.AddUserMarker ◄───────────┘
+                                    UI_Map.AddUserMarker    ◄────────────┘
 ```
 
 ---
@@ -438,6 +537,16 @@ UI_Map (GameObject)
 | `ReachLocation` | `QuestObjectiveData.targetStringId`와 동일하게 설정 |
 | `ItemDeliver` (NPC 전달) | `"npc_{npcId}"` 형식 (예: npcId=101 → `"npc_101"`) |
 
+### 8단계: 정적 마커 배치 (Town / Portal / Npc)
+
+마을 입구, 포탈, 고정 NPC 등 항상 표시될 지점의 GameObject에 `MinimapMarkerRegistrar`를 추가합니다.
+
+| 마커 타입 | `_markerType` 설정 | `_locationId` 예시 |
+|-----------|--------------------|--------------------|
+| 마을 입구 | `Town` | `"town_village01"` |
+| 포탈 | `Portal` | `"portal_dungeon01"` |
+| 고정 NPC | `Npc` | `"shop_blacksmith"` |
+
 ---
 
 ## 사용 예시
@@ -480,11 +589,24 @@ minimap?.ToggleExpandedMap();
 
 ```csharp
 // 씬의 목표 지점 GameObject에 MinimapMarkerRegistrar 부착
-// Inspector: LocationId = "dungeon_entrance"
+// Inspector: LocationId = "dungeon_entrance", MarkerType = QuestTarget
 
 // QuestSO의 objectives 중 ReachLocation 목표:
 //   targetStringId = "dungeon_entrance"
 // → 퀘스트 수락 시 미니맵·전체 맵에 자동으로 "!" 마커 표시
+```
+
+### 코드로 사용자 마커 추가/제거
+
+```csharp
+// 특정 월드 좌표에 마커 추가
+var marker = MinimapUserMarkerSystem.AddMarker(new Vector3(100f, 0f, 50f), "보스 스폰 지점");
+
+// ID로 마커 제거
+MinimapUserMarkerSystem.RemoveMarker(marker.Id);
+
+// 씬 전환 시 전체 초기화 (SceneManager.OnSceneChanged 등에서 호출)
+MinimapUserMarkerSystem.RemoveAll();
 ```
 
 ### 월드 → 미니맵 좌표 변환
@@ -509,7 +631,8 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 1. MinimapCaptureEditor로 씬 이미지 캡처 → MinimapIconConfigSO 생성
 2. MapConfigDatabase.asset의 Entries에 mapId + config 추가
 3. 씬의 SceneContext.MapID = 추가한 mapId
-4. 끝. UI_Minimap / UI_Map은 씬 전환 시 자동으로 Config를 조회
+4. 정적 마커(Town/Portal/Npc) 지점에 MinimapMarkerRegistrar 배치
+5. 끝. UI_Minimap / UI_Map은 씬 전환 시 자동으로 Config를 조회
 ```
 
 ---
@@ -561,7 +684,8 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 플레이어 위치 추적이 동작하지 않으므로 `mapZoom`은 **1 이상**을 권장합니다.
 
 ### 아이콘 스프라이트 미설정
-`IconEntry.sprite`가 `null`인 타입은 아이콘이 **생성되지 않습니다**. 모든 항목에 스프라이트를 할당하세요.
+`IconEntry.sprite`가 `null`인 타입은 아이콘이 **생성되지 않습니다**. 모든 항목에 스프라이트를 할당하세요.  
+신규 추가된 `town`, `portal`, `staticNpc`, `userMarker` 항목도 반드시 스프라이트를 지정하세요.
 
 ### 퀘스트 마커가 표시되지 않는 경우
 - `MinimapMarkerRegistrar.LocationId`와 `QuestObjectiveData.targetStringId` (또는 `"npc_{npcId}"`)가 정확히 일치해야 합니다.
@@ -576,7 +700,14 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 - `captureWorldSize`가 실제 맵보다 작으면 범위 밖 아이콘 좌표가 마스크를 벗어날 수 있습니다.
 
 ### UI_Map MapInputReceiver
-`MapViewport`에 **반드시 Image 컴포넌트**(alpha=0, raycastTarget=true)와 `MapInputReceiver` 컴포넌트가 모두 있어야 드래그·스크롤 입력이 동작합니다.
+`MapViewport`에 **반드시 Image 컴포넌트**(alpha=0, raycastTarget=true)와 `MapInputReceiver` 컴포넌트가 모두 있어야 드래그·스크롤·우클릭 입력이 동작합니다.
+
+### 사용자 마커 씬 전환 초기화
+`MinimapUserMarkerSystem`은 정적 클래스이므로 씬 전환 후에도 마커가 유지됩니다.  
+씬 전환 시 초기화가 필요하면 `SceneManager.OnSceneChanged` 시점에 `MinimapUserMarkerSystem.RemoveAll()`을 호출하세요.
+
+### 정적 마커 타입 추가 시
+새 `MinimapMarkerType` 값을 추가하면 `MinimapIconConfigSO.GetStaticMarkerEntry` / `IsStaticMarkerVisible` 두 메서드에 분기를 추가해야 합니다.
 
 ---
 
@@ -599,6 +730,13 @@ public IconEntry GetActorIconEntry(ActorType actorType)
 }
 ```
 
+### 새로운 정적 마커 타입 추가
+
+1. `MinimapMarkerType` enum에 값 추가 (예: `Dungeon`)
+2. `MinimapIconConfigSO`에 아이콘 필드 및 표시 옵션 필드 추가
+3. `GetStaticMarkerEntry` / `IsStaticMarkerVisible` switch에 분기 추가
+4. `MinimapMarkerRegistrar.OnDrawGizmos`에 Gizmo 색상 추가
+
 ### 새로운 퀘스트 목표 타입 마커 지원
 
 `UI_Minimap.ResolveQuestLocationId()` (및 `UI_Map`의 동명 메서드)에 타입 분기를 추가합니다.
@@ -613,9 +751,10 @@ private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type
 };
 ```
 
-### 커스텀 마커 프로그래밍 등록
+### 사용자 마커 라벨 UI 연동
 
-`MinimapMarkerRegistrar`를 컴포넌트로 부착하지 않고 코드로 직접 등록하려면, 별도 `RuntimeMinimapMarker` 래퍼 클래스를 만들어 `MinimapMarkerRegistry.Register()`를 호출합니다.
+`MinimapUserMarkerSystem.AddMarker(worldPos, label)` 호출 시 `label` 인자를 전달하면  
+`UserMapMarker.Label` 필드에 저장됩니다. 아이콘 위에 텍스트를 표시하려면 `MinimapEntityIcon`에 TMP 텍스트 컴포넌트를 추가하고 `CreateStatic` 후 `label`을 적용하세요.
 
 ### 아이콘 애니메이션 효과
 

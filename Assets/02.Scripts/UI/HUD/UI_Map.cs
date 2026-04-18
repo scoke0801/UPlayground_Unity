@@ -25,6 +25,10 @@ using UPlayGround.UI;
 ///   SceneContext.MapID → MapConfigDatabaseSO → MinimapIconConfigSO
 ///   씬 전환마다 OnShow() 시점에 자동으로 해당 맵 Config를 조회한다.
 ///
+/// ■ 사용자 마커
+///   MapViewport 위에서 우클릭하면 해당 월드 좌표에 사용자 마커를 추가합니다.
+///   이미 마커가 있는 위치를 우클릭하면 가장 가까운 마커를 제거합니다.
+///
 /// ■ 프리팹 구조 (필수)
 /// <code>
 /// UI_Map (Canvas, CanvasLayer = Popup)
@@ -81,9 +85,15 @@ public class UI_Map : UI_Base
     private float               _currentZoom = 1f;
     private Vector2             _panOffset;
 
-    private readonly Dictionary<MonsterActor, MinimapEntityIcon> _enemyIconMap = new();
-    private readonly Dictionary<GameActor,    MinimapEntityIcon> _actorIconMap = new();
-    private readonly Dictionary<string,       MinimapEntityIcon> _questIconMap = new();
+    private readonly Dictionary<MonsterActor, MinimapEntityIcon> _enemyIconMap        = new();
+    private readonly Dictionary<GameActor,    MinimapEntityIcon> _actorIconMap        = new();
+    private readonly List<string> _tempRemoveIds = new();
+    private readonly Dictionary<string,       MinimapEntityIcon> _questIconMap        = new();
+    private readonly Dictionary<string,       MinimapEntityIcon> _staticMarkerIconMap = new();
+    private readonly Dictionary<int,          MinimapEntityIcon> _userMarkerIconMap   = new();
+
+    // 우클릭으로 마커를 제거할 때 사용하는 픽셀 거리 임계값
+    private const float UserMarkerRemoveThresholdPx = 20f;
 
     // ── UI_Base ──────────────────────────────────────────────
 
@@ -103,9 +113,10 @@ public class UI_Map : UI_Base
             _inputReceiver = _mapViewport.GetComponent<MapInputReceiver>();
             if (_inputReceiver != null)
             {
-                _inputReceiver.OnBeginDragEvent += OnBeginDrag;
-                _inputReceiver.OnDragEvent      += OnDrag;
-                _inputReceiver.OnScrollEvent    += OnScroll;
+                _inputReceiver.OnBeginDragEvent  += OnBeginDrag;
+                _inputReceiver.OnDragEvent       += OnDrag;
+                _inputReceiver.OnScrollEvent     += OnScroll;
+                _inputReceiver.OnRightClickEvent += OnMapRightClick;
             }
         }
     }
@@ -148,6 +159,10 @@ public class UI_Map : UI_Base
         MinimapMarkerRegistry.OnMarkerAdded   += OnMarkerAdded;
         MinimapMarkerRegistry.OnMarkerRemoved += OnMarkerRemoved;
 
+        MinimapUserMarkerSystem.OnMarkerAdded      += AddUserMarker;
+        MinimapUserMarkerSystem.OnMarkerRemoved    += RemoveUserMarker;
+        MinimapUserMarkerSystem.OnAllMarkersCleared += ClearUserMarkers;
+
         var ev = EventManager.Instance;
         if (ev != null)
         {
@@ -170,6 +185,10 @@ public class UI_Map : UI_Base
 
         MinimapMarkerRegistry.OnMarkerAdded   -= OnMarkerAdded;
         MinimapMarkerRegistry.OnMarkerRemoved -= OnMarkerRemoved;
+
+        MinimapUserMarkerSystem.OnMarkerAdded      -= AddUserMarker;
+        MinimapUserMarkerSystem.OnMarkerRemoved    -= RemoveUserMarker;
+        MinimapUserMarkerSystem.OnAllMarkersCleared -= ClearUserMarkers;
 
         if (EventManager.Instance != null)
         {
@@ -202,6 +221,8 @@ public class UI_Map : UI_Base
         UpdateEnemyIcons();
         UpdateActorIcons();
         UpdateQuestMarkers();
+        UpdateStaticMarkers();
+        UpdateUserMarkers();
     }
 
     // ── 초기 설정 ────────────────────────────────────────────
@@ -234,6 +255,10 @@ public class UI_Map : UI_Base
                 RegisterActor(actor);
 
         RefreshAllQuestMarkers();
+        RefreshAllStaticMarkers();
+
+        foreach (var marker in MinimapUserMarkerSystem.GetAll())
+            AddUserMarker(marker);
     }
 
     // ── 줌 / 패닝 ────────────────────────────────────────────
@@ -413,26 +438,177 @@ public class UI_Map : UI_Base
         _                               => null,
     };
 
+    // ── 정적 마커 (마을·포탈·고정 NPC·Custom) ────────────────
+
+    private void RefreshAllStaticMarkers()
+    {
+        foreach (var icon in _staticMarkerIconMap.Values) if (icon) Destroy(icon.gameObject);
+        _staticMarkerIconMap.Clear();
+
+        if (_config == null) return;
+
+        foreach (var registrar in MinimapMarkerRegistry.GetAll())
+        {
+            if (registrar.MarkerType != MinimapMarkerType.QuestTarget)
+                AddStaticMarker(registrar);
+        }
+    }
+
+    private void AddStaticMarker(MinimapMarkerRegistrar registrar)
+    {
+        if (_config == null) return;
+        if (!_config.IsStaticMarkerVisible(registrar.MarkerType)) return;
+        if (_staticMarkerIconMap.ContainsKey(registrar.LocationId)) return;
+        if (_iconContainer == null) return;
+
+        var entry = _config.GetStaticMarkerEntry(registrar.MarkerType);
+        _staticMarkerIconMap[registrar.LocationId] =
+            MinimapEntityIcon.CreateStatic(_iconContainer, registrar.LocationId, entry);
+    }
+
+    private void UpdateStaticMarkers()
+    {
+        _tempRemoveIds.Clear();
+
+        foreach (var (locationId, icon) in _staticMarkerIconMap)
+        {
+            if (icon == null) { _tempRemoveIds.Add(locationId); continue; }
+            if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar))
+            { _tempRemoveIds.Add(locationId); continue; }
+            icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, true);
+        }
+
+        foreach (var id in _tempRemoveIds)
+        {
+            if (_staticMarkerIconMap.TryGetValue(id, out var icon) && icon != null) Destroy(icon.gameObject);
+            _staticMarkerIconMap.Remove(id);
+        }
+    }
+
+    // ── 사용자 마커 ──────────────────────────────────────────
+
+    private void AddUserMarker(UserMapMarker marker)
+    {
+        if (_config == null || !_config.showUserMarkers) return;
+        if (_userMarkerIconMap.ContainsKey(marker.Id)) return;
+        if (_iconContainer == null) return;
+
+        var entry = _config.userMarker;
+        _userMarkerIconMap[marker.Id] =
+            MinimapEntityIcon.CreateStatic(_iconContainer, $"user_{marker.Id}", entry);
+    }
+
+    private void RemoveUserMarker(UserMapMarker marker)
+    {
+        if (!_userMarkerIconMap.TryGetValue(marker.Id, out var icon)) return;
+        _userMarkerIconMap.Remove(marker.Id);
+        if (icon != null) Destroy(icon.gameObject);
+    }
+
+    private void ClearUserMarkers()
+    {
+        foreach (var icon in _userMarkerIconMap.Values) if (icon) Destroy(icon.gameObject);
+        _userMarkerIconMap.Clear();
+    }
+
+    private void UpdateUserMarkers()
+    {
+        if (_config == null || !_config.showUserMarkers) return;
+
+        foreach (var (id, icon) in _userMarkerIconMap)
+        {
+            if (icon == null) continue;
+            if (!MinimapUserMarkerSystem.TryGet(id, out var marker)) continue;
+            icon.UpdateIcon(_config.WorldToMapImagePos(marker.WorldPosition, _mapDisplaySize) * _currentZoom, true);
+        }
+    }
+
+    /// <summary>
+    /// 맵 위에서 우클릭하면 해당 위치에 사용자 마커를 추가하거나, 근처 마커를 제거합니다.
+    /// </summary>
+    private void OnMapRightClick(PointerEventData e)
+    {
+        if (_config == null || !_config.showUserMarkers) return;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _iconContainer, e.position, _canvas.worldCamera, out Vector2 localPoint)) return;
+
+        // 근처 사용자 마커가 있으면 제거
+        float threshold = UserMarkerRemoveThresholdPx * _currentZoom;
+        int   nearest   = FindNearestUserMarker(localPoint, threshold);
+        if (nearest >= 0)
+        {
+            MinimapUserMarkerSystem.RemoveMarker(nearest);
+            return;
+        }
+
+        // 없으면 해당 위치에 새 마커 추가
+        Vector3 worldPos = MapLocalPosToWorld(localPoint);
+        MinimapUserMarkerSystem.AddMarker(worldPos);
+    }
+
+    private int FindNearestUserMarker(Vector2 localPoint, float threshold)
+    {
+        int   bestId   = -1;
+        float bestDist = threshold;
+
+        foreach (var (id, icon) in _userMarkerIconMap)
+        {
+            if (icon == null) continue;
+            float dist = Vector2.Distance(icon.GetComponent<RectTransform>().anchoredPosition, localPoint);
+            if (dist < bestDist) { bestDist = dist; bestId = id; }
+        }
+        return bestId;
+    }
+
+    /// <summary>iconContainer 로컬 좌표 → 월드 XZ 좌표 (Y = 0)</summary>
+    private Vector3 MapLocalPosToWorld(Vector2 localPoint)
+    {
+        Vector2 mapPos = localPoint / _currentZoom;
+        float   nx     = mapPos.x / _mapDisplaySize;
+        float   ny     = mapPos.y / _mapDisplaySize;
+        return new Vector3(
+            nx * _config.captureWorldSize + _config.captureCenter.x,
+            0f,
+            ny * _config.captureWorldSize + _config.captureCenter.y);
+    }
+
     // ── 이벤트 핸들러 ────────────────────────────────────────
 
     private void OnQuestStateChanged(QuestStateEventData data) => RefreshAllQuestMarkers();
 
     private void OnMarkerAdded(MinimapMarkerRegistrar registrar)
     {
-        if (!_config.showQuestMarkers) return;
-        var questManager = QuestManager.Instance;
-        if (questManager == null) return;
-        foreach (var runtime in questManager.GetActiveQuests())
-            foreach (var obj in runtime.QuestSO.objectives)
-                if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
-                    TryAddQuestMarker(obj);
+        if (registrar.MarkerType == MinimapMarkerType.QuestTarget)
+        {
+            if (!_config.showQuestMarkers) return;
+            var questManager = QuestManager.Instance;
+            if (questManager == null) return;
+            foreach (var runtime in questManager.GetActiveQuests())
+                foreach (var obj in runtime.QuestSO.objectives)
+                    if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
+                        TryAddQuestMarker(obj);
+        }
+        else
+        {
+            AddStaticMarker(registrar);
+        }
     }
 
     private void OnMarkerRemoved(MinimapMarkerRegistrar registrar)
     {
-        if (!_questIconMap.TryGetValue(registrar.LocationId, out var icon)) return;
-        _questIconMap.Remove(registrar.LocationId);
-        if (icon != null) Destroy(icon.gameObject);
+        if (registrar.MarkerType == MinimapMarkerType.QuestTarget)
+        {
+            if (!_questIconMap.TryGetValue(registrar.LocationId, out var icon)) return;
+            _questIconMap.Remove(registrar.LocationId);
+            if (icon != null) Destroy(icon.gameObject);
+        }
+        else
+        {
+            if (!_staticMarkerIconMap.TryGetValue(registrar.LocationId, out var icon)) return;
+            _staticMarkerIconMap.Remove(registrar.LocationId);
+            if (icon != null) Destroy(icon.gameObject);
+        }
     }
 
     // ── 액터 등록/해제 ───────────────────────────────────────
@@ -475,12 +651,16 @@ public class UI_Map : UI_Base
 
     private void ClearAllIcons()
     {
-        foreach (var icon in _enemyIconMap.Values) if (icon) Destroy(icon.gameObject);
-        foreach (var icon in _actorIconMap.Values)  if (icon) Destroy(icon.gameObject);
-        foreach (var icon in _questIconMap.Values)  if (icon) Destroy(icon.gameObject);
+        foreach (var icon in _enemyIconMap.Values)        if (icon) Destroy(icon.gameObject);
+        foreach (var icon in _actorIconMap.Values)         if (icon) Destroy(icon.gameObject);
+        foreach (var icon in _questIconMap.Values)         if (icon) Destroy(icon.gameObject);
+        foreach (var icon in _staticMarkerIconMap.Values)  if (icon) Destroy(icon.gameObject);
+        foreach (var icon in _userMarkerIconMap.Values)    if (icon) Destroy(icon.gameObject);
         _enemyIconMap.Clear();
         _actorIconMap.Clear();
         _questIconMap.Clear();
+        _staticMarkerIconMap.Clear();
+        _userMarkerIconMap.Clear();
     }
 
     // ── 유틸 ─────────────────────────────────────────────────

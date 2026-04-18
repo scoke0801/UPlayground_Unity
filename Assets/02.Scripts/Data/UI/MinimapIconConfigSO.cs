@@ -32,11 +32,25 @@ namespace UPlayGround.Data.UI
         public IconEntry questTarget;
         [Tooltip("NPC 전달/대화 목표 마커")]
         public IconEntry questNpc;
+
+        // ── 정적 마커 아이콘 ──────────────────────────────────────
+        [Header("정적 마커 아이콘")]
+        [Tooltip("마을 입구 / 거점 마커")]
+        public IconEntry town;
+        [Tooltip("포탈 / 워프 지점 마커")]
+        public IconEntry portal;
+        [Tooltip("고정 NPC 마커 (액터 시스템과 별개)")]
+        public IconEntry staticNpc;
         [Tooltip("MinimapMarkerType.Custom 마커")]
         public IconEntry customMarker;
 
+        // ── 사용자 마커 아이콘 ────────────────────────────────────
+        [Header("사용자 마커 아이콘")]
+        [Tooltip("플레이어가 맵에 직접 찍는 핀 마커")]
+        public IconEntry userMarker;
+
         // ── 표시 옵션 ────────────────────────────────────────────
-        [Header("표시 옵션")]
+        [Header("표시 옵션 — 퀘스트 / 적")]
         [Tooltip("활성 퀘스트 목표 마커 표시")]
         public bool showQuestMarkers = true;
 
@@ -46,11 +60,22 @@ namespace UPlayGround.Data.UI
         [Tooltip("true: 플레이어를 인식한 적만 표시 / false: 모든 적 표시")]
         public bool showOnlyDetectedEnemies = false;
 
-        [Tooltip("NPC 아이콘 표시")]
+        [Header("표시 옵션 — 액터")]
+        [Tooltip("NPC 액터 아이콘 표시 (씬에 배치된 NpcActor)")]
         public bool showNpcs = true;
 
         [Tooltip("채집 오브젝트 아이콘 표시")]
         public bool showGathering = true;
+
+        [Header("표시 옵션 — 정적 마커")]
+        [Tooltip("마을 마커 표시")]
+        public bool showTowns = true;
+        [Tooltip("포탈 마커 표시")]
+        public bool showPortals = true;
+        [Tooltip("고정 NPC 마커 표시 (MinimapMarkerType.Npc)")]
+        public bool showStaticNpcs = true;
+        [Tooltip("사용자가 직접 찍은 마커 표시")]
+        public bool showUserMarkers = true;
 
         // ── 맵 이미지 설정 ───────────────────────────────────────
         [Header("맵 이미지 (MapImage)")]
@@ -102,5 +127,24 @@ namespace UPlayGround.Data.UI
             if ((actorType & ActorType.NPC)     != 0) return npc;
             return gathering;
         }
+
+        /// <summary>정적 마커 타입에 해당하는 IconEntry를 반환합니다.</summary>
+        public IconEntry GetStaticMarkerEntry(MinimapMarkerType type) => type switch
+        {
+            MinimapMarkerType.Town   => town,
+            MinimapMarkerType.Portal => portal,
+            MinimapMarkerType.Npc    => staticNpc,
+            _                        => customMarker,
+        };
+
+        /// <summary>정적 마커 타입의 표시 여부를 반환합니다.</summary>
+        public bool IsStaticMarkerVisible(MinimapMarkerType type) => type switch
+        {
+            MinimapMarkerType.Town   => showTowns,
+            MinimapMarkerType.Portal => showPortals,
+            MinimapMarkerType.Npc    => showStaticNpcs,
+            MinimapMarkerType.Custom => true,
+            _                        => false,
+        };
     }
 }

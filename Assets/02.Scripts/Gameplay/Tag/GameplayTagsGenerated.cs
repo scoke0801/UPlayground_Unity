@@ -34,7 +34,8 @@ namespace UPlayGround.Gameplay.Tag
         State_Interaction       = 17,
         Combo_Light             = 18,
         Combo_Heavy             = 19,
-        State_Combat_Counter    = 20,
+        State_Combat_Counter      = 20,
+        State_Combat_ParryCounter = 21,
     }
 
     /// <summary>
@@ -65,6 +66,7 @@ namespace UPlayGround.Gameplay.Tag
             "Combo.Light",                // Combo_Light = 18  (콤보: 약 공격 입력됨)
             "Combo.Heavy",                // Combo_Heavy = 19  (콤보: 강 공격 입력됨)
             "State.Combat.Counter",       // State_Combat_Counter = 20
+            "State.Combat.ParryCounter",  // State_Combat_ParryCounter = 21
         };
 
         /// <summary>GameplayTagId를 GameplayTag 구조체로 변환한다.</summary>

@@ -72,6 +72,11 @@ namespace UPlayGround.Animation
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
 
+        /// <summary>
+        /// fallbackMotionSet이 연결되어 있으면 공통 Humanoid 모션(8방향 등)을 사용할 수 있음.
+        /// </summary>
+        public bool HasFallbackMotionSet => _motionSet != null && _motionSet.fallbackMotionSet != null;
+
         private void Awake()
         {
             _animator = GetComponent<AnimancerComponent>();

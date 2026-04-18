@@ -158,10 +158,13 @@ namespace UPlayGround.Component
         [SerializeField] private float _guardResetDelay = 3f;
         [Tooltip("퍼펙트 가드 후 반격 입력을 받는 창 길이 (초)")]
         [SerializeField] private float _perfectGuardCounterWindow = 1.5f;
+        [Tooltip("패리 후 반격 입력을 받는 창 길이 (초)")]
+        [SerializeField] private float _parryCounterWindow = 1.5f;
 
         private int   _guardHitCount;
         private float _guardEndTime = -999f;
         private float _perfectGuardCounterEndTime = -999f;
+        private float _parryCounterEndTime = -999f;
 
         public bool IsGuardBroken { get; private set; }
         public int  GuardHitCount => _guardHitCount;
@@ -177,6 +180,17 @@ namespace UPlayGround.Component
         /// <summary> 반격 창을 즉시 닫는다 (반격 실행 후 중복 방지) </summary>
         public void ClosePerfectGuardCounterWindow()
             => _perfectGuardCounterEndTime = -999f;
+
+        /// <summary> 패리 반격 창이 열려 있는지 여부 </summary>
+        public bool IsParryCounterAvailable => Time.time <= _parryCounterEndTime;
+
+        /// <summary> 패리 성공 시 호출. 반격 입력 창을 연다. </summary>
+        public void OpenParryCounterWindow()
+            => _parryCounterEndTime = Time.time + _parryCounterWindow;
+
+        /// <summary> 패리 반격 창을 즉시 닫는다 </summary>
+        public void CloseParryCounterWindow()
+            => _parryCounterEndTime = -999f;
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int        CurrentComboIndex { get; private set; }
@@ -399,6 +413,25 @@ namespace UPlayGround.Component
             var source = _attackData.counterAttack?.baseInfo != null
                 ? _attackData.counterAttack
                 : (_attackData.heavyComboAttackList.Count > 0 ? _attackData.heavyComboAttackList[0] : null);
+
+            if (source == null) return null;
+
+            _attackState = AttackState.HeavyAttack;
+            ResetCombo();
+            _currentAttackData = ConvertToAttackData(source, AttackKind.HeavyAttack);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
+        public AttackData ExecuteParryCounterAttack()
+        {
+            var source = _attackData.parryCounterAttack?.baseInfo != null
+                ? _attackData.parryCounterAttack
+                : (_attackData.counterAttack?.baseInfo != null
+                    ? _attackData.counterAttack
+                    : (_attackData.heavyComboAttackList.Count > 0 ? _attackData.heavyComboAttackList[0] : null));
 
             if (source == null) return null;
 

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Bokusei_KatanaAnimationSet
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -87,7 +88,7 @@ MonoBehaviour:
     - Key: 400
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
     - Key: 300
-      Value: {fileID: 11400000, guid: 32e282e6008b3ec4caede57f0901a5d8, type: 2}
+      Value: {fileID: 11400000, guid: 824078455799b2b4aafb754be55ba3b6, type: 2}
     - Key: 301
       Value: {fileID: 11400000, guid: 32e282e6008b3ec4caede57f0901a5d8, type: 2}
     - Key: 690
@@ -154,3 +155,13 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: e8d75e7955ea51843b6cf2d2fdf36602, type: 2}
     - Key: 5134
       Value: {fileID: 11400000, guid: 1df1577cc84f38d4dab5d6f01e62a8d6, type: 2}
+    - Key: 401
+      Value: {fileID: 11400000, guid: 8197c51581015674e99d9c1568348f4c, type: 2}
+    - Key: 402
+      Value: {fileID: 11400000, guid: 48007febcca4faa4ea77830813b92c49, type: 2}
+    - Key: 403
+      Value: {fileID: 11400000, guid: 659869d5b82fd6d45a5d905ab827567c, type: 2}
+    - Key: 404
+      Value: {fileID: 11400000, guid: 4d78233644281664eb15486dd2cd5510, type: 2}
+    - Key: 405
+      Value: {fileID: 11400000, guid: d4d6e7604c6a7c2409cfad0550e6a418, type: 2}

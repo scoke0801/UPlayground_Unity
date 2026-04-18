@@ -35,6 +35,7 @@ namespace UPlayGround.State
         private bool _comboInputted;
         private bool _isHeavyAttack;
         private bool _isCounter;
+        private bool _isParryCounter;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -67,10 +68,6 @@ namespace UPlayGround.State
 
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
-            _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
-            if (_isCounter)
-                gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
-
             _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             playerActor.Animator.ApplyRootMotion(true);
@@ -79,6 +76,15 @@ namespace UPlayGround.State
             _combat    = playerActor.GetCombat();
             _equipment = playerActor.GetPlayerEquipment();
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+
+            _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+            if (_isCounter)
+                gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+
+            _isParryCounter = _combat.IsParryCounterAvailable;
+            if (_isParryCounter)
+                _combat.CloseParryCounterWindow();
+
             _combat.ResetCombo();
             _attackTimer = 0f;
 
@@ -193,6 +199,7 @@ namespace UPlayGround.State
             if (_comboInputted)
             {
                 _isCounter              = false;
+                _isParryCounter         = false;
                 gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
@@ -214,7 +221,14 @@ namespace UPlayGround.State
 
         private AnimKey GetAnimKey()
         {
-            // 0순위: 퍼펙트 가드 반격
+            // 0순위: 패리 반격
+            if (_isParryCounter)
+            {
+                _currentAttack = _combat.ExecuteParryCounterAttack();
+                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
+            // 1순위: 퍼펙트 가드 반격
             if (_isCounter)
             {
                 _currentAttack = _combat.ExecuteCounterAttack();

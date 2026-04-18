@@ -28,7 +28,7 @@ namespace UPlayGround.Editor
         // ─── SerializedObject / Property ────────────────────────────────
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
-        private SerializedProperty _counter;
+        private SerializedProperty _counter, _parryCounter;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
 
@@ -69,6 +69,7 @@ namespace UPlayGround.Editor
             _dashList         = so.FindProperty("dashAttackList");
             _skillList        = so.FindProperty("skillAttackList");
             _counter          = so.FindProperty("counterAttack");
+            _parryCounter     = so.FindProperty("parryCounterAttack");
             _chargeAnimKey    = so.FindProperty("chargeAnimKey");
             _chargeStages     = so.FindProperty("chargeStages");
             _chargeThresholds = so.FindProperty("chargeStageThresholds");
@@ -413,12 +414,24 @@ namespace UPlayGround.Editor
             EditorGUILayout.HelpBox("비워두면 강공격 첫 번째 데이터로 대체됩니다.", MessageType.Info);
             EditorGUILayout.Space(4);
 
-            SerializedProperty baseInfo   = _counter.FindPropertyRelative("baseInfo");
+            DrawCounterAttackField(_counter, "counter", accent);
+
+            EditorGUILayout.Space(12);
+            DrawSectionHeader("패리 반격", accent);
+            EditorGUILayout.HelpBox("비워두면 퍼펙트 가드 반격 데이터로 대체됩니다.", MessageType.Info);
+            EditorGUILayout.Space(4);
+
+            DrawCounterAttackField(_parryCounter, "parryCounter", accent);
+        }
+
+        private void DrawCounterAttackField(SerializedProperty prop, string key, Color accent)
+        {
+            SerializedProperty baseInfo   = prop.FindPropertyRelative("baseInfo");
             SerializedProperty animKeyP   = baseInfo.FindPropertyRelative("animKey");
             SerializedProperty typeP      = baseInfo.FindPropertyRelative("attackType");
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
-            SerializedProperty interruptP = _counter.FindPropertyRelative("canBeInterrupted");
-            SerializedProperty angleP     = _counter.FindPropertyRelative("hitAngle");
+            SerializedProperty interruptP = prop.FindPropertyRelative("canBeInterrupted");
+            SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             EditorGUILayout.BeginVertical(_cardStyle);
 
@@ -432,7 +445,7 @@ namespace UPlayGround.Editor
             }
 
             EditorGUILayout.Space(4);
-            DrawHitPhaseList(phasesP, "counter", 0, accent);
+            DrawHitPhaseList(phasesP, key, 0, accent);
 
             EditorGUILayout.EndVertical();
         }

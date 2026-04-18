@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -43,12 +42,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             EditorGUILayout.Space(4);
             EditorGUILayout.LabelField("공용 모션 (Fallback)", EditorStyles.boldLabel);
 
-            EditorGUI.BeginChangeCheck();
             var fallbackProp = serializedObject.FindProperty("fallbackMotionSet");
             EditorGUILayout.PropertyField(fallbackProp, new GUIContent("Fallback MotionSet",
                 "이 SO에 없는 AnimKey는 Fallback에서 탐색 (최대 8단계 체인)"));
-            if (EditorGUI.EndChangeCheck())
-                serializedObject.ApplyModifiedProperties();
 
             DrawDivider();
 
@@ -89,6 +85,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                 ShowAddKeyMenu(so);
 
             EditorGUILayout.Space(4);
+            serializedObject.ApplyModifiedProperties();
         }
 
         // ─────────────────────────────────────────────
@@ -124,6 +121,22 @@ namespace UPlayGround.Data.Actor.Animation.Editor
         }
 
         // ─────────────────────────────────────────────
+        // SerializedDictionary의 실제 직렬화 배킹 필드: _serializedList (List<SerializedKeyValuePair>)
+        // 각 원소: Key(int/enum), Value(ObjectReference)
+        SerializedProperty GetSerializedList(SerializedObject sObj)
+            => sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
+
+        int FindKeyIndex(SerializedProperty listProp, AnimKey key)
+        {
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                if ((AnimKey)listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Key").intValue == key)
+                    return i;
+            }
+            return -1;
+        }
+
+        // ─────────────────────────────────────────────
         void DrawEntryRow(ActorAnimationMotionSet so, ChainEntry entry)
         {
             bool isOwn = entry.source == so;
@@ -147,15 +160,20 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             if (isOwn)
             {
                 // ObjectField
-                float fieldW = rem - KEY_W - 80f;
+                float fieldW = rem - KEY_W - 100f;
                 EditorGUI.BeginChangeCheck();
                 var newAsset = (MotionSetAsset)EditorGUI.ObjectField(
                     new Rect(x, y, fieldW, 18f), entry.asset, typeof(MotionSetAsset), false);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    Undo.RecordObject(so, "MotionSet 변경");
-                    so.motionSets[entry.key] = newAsset;
-                    EditorUtility.SetDirty(so);
+                    var listProp = GetSerializedList(serializedObject);
+                    int idx = FindKeyIndex(listProp, entry.key);
+                    if (idx >= 0)
+                    {
+                        listProp.GetArrayElementAtIndex(idx)
+                            .FindPropertyRelative("Value").objectReferenceValue = newAsset;
+                        serializedObject.ApplyModifiedProperties();
+                    }
                 }
                 x += fieldW + 2f;
 
@@ -181,9 +199,17 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                     if (EditorUtility.DisplayDialog("키 삭제",
                         $"'{entry.key}' 항목을 삭제하시겠습니까?", "삭제", "취소"))
                     {
-                        Undo.RecordObject(so, "모션 키 삭제");
-                        so.motionSets.Remove(entry.key);
-                        EditorUtility.SetDirty(so);
+                        var listProp = GetSerializedList(serializedObject);
+                        int idx = FindKeyIndex(listProp, entry.key);
+                        if (idx >= 0)
+                        {
+                            // ObjectReference는 null 처리 후 삭제해야 원소가 실제로 제거됨
+                            var valProp = listProp.GetArrayElementAtIndex(idx).FindPropertyRelative("Value");
+                            if (valProp.propertyType == SerializedPropertyType.ObjectReference)
+                                valProp.objectReferenceValue = null;
+                            listProp.DeleteArrayElementAtIndex(idx);
+                            serializedObject.ApplyModifiedProperties();
+                        }
                     }
                 }
                 GUI.contentColor = Color.white;
@@ -210,9 +236,8 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             string soPath  = AssetDatabase.GetAssetPath(so);
             string dir     = System.IO.Path.GetDirectoryName(soPath);
             string sugName = $"{so.name}_{key}.asset";
-            string path    = AssetDatabase.GenerateUniqueAssetPath($"{dir}/{sugName}");
 
-            path = EditorUtility.SaveFilePanelInProject(
+            string path = EditorUtility.SaveFilePanelInProject(
                 "Override MotionSetAsset 저장", sugName, "asset", "저장 위치를 선택하세요.", dir);
             if (string.IsNullOrEmpty(path)) return;
 
@@ -221,9 +246,22 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.SaveAssets();
 
-            Undo.RecordObject(so, "Override 생성");
-            so.motionSets[key] = asset;
-            EditorUtility.SetDirty(so);
+            // 기존 키가 있으면 값 변경, 없으면 추가
+            serializedObject.Update();
+            var listProp = GetSerializedList(serializedObject);
+            int idx = FindKeyIndex(listProp, key);
+            if (idx >= 0)
+            {
+                listProp.GetArrayElementAtIndex(idx).FindPropertyRelative("Value").objectReferenceValue = asset;
+            }
+            else
+            {
+                listProp.InsertArrayElementAtIndex(listProp.arraySize);
+                var newElem = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
+                newElem.FindPropertyRelative("Key").intValue = (int)key;
+                newElem.FindPropertyRelative("Value").objectReferenceValue = asset;
+            }
+            serializedObject.ApplyModifiedProperties();
 
             EditorGUIUtility.PingObject(asset);
             OpenInMotionEditor(asset);
@@ -240,11 +278,13 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                 AnimKey captured = key;
                 menu.AddItem(new GUIContent(GroupLabel(key) + "/" + key), false, () =>
                 {
-                    Undo.RecordObject(so, "모션 키 추가");
-                    if (so.motionSets == null)
-                        so.motionSets = new AYellowpaper.SerializedCollections.SerializedDictionary<AnimKey, MotionSetAsset>();
-                    so.motionSets[captured] = null;
-                    EditorUtility.SetDirty(so);
+                    serializedObject.Update();
+                    var listProp = GetSerializedList(serializedObject);
+                    listProp.InsertArrayElementAtIndex(listProp.arraySize);
+                    var newElem = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
+                    newElem.FindPropertyRelative("Key").intValue = (int)captured;
+                    newElem.FindPropertyRelative("Value").objectReferenceValue = null;
+                    serializedObject.ApplyModifiedProperties();
                 });
             }
 

@@ -27,6 +27,7 @@ namespace UPlayGround.State
         private float _flankSpeed;
         private float _flankTimer;
         private bool _hasReachedFlank;
+        private AnimKey _lastLocoKey = AnimKey.None;
 
         private const float FLANK_SPEED_RATIO   = 1.1f;
         private const float ARRIVAL_THRESHOLD   = 1.2f;
@@ -56,6 +57,7 @@ namespace UPlayGround.State
             _flankSpeed      = controller.MaxRunMoveSpeed * FLANK_SPEED_RATIO;
 
             CalculateFlankTarget();
+            _lastLocoKey = AnimKey.Run;
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.2f);
         }
 
@@ -118,10 +120,13 @@ namespace UPlayGround.State
 
             if (_flankTimer >= MAX_FLANK_DURATION)
             {
-                // 시간 초과 → 추격
                 controller.TransitionToState(
                     new EnemyChaseState(controller, _brain, _detection));
+                return;
             }
+
+            EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                EnemyLocomotionHelper.LocoStyle.Run);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

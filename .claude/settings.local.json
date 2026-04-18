@@ -32,7 +32,8 @@
       "mcp__plugin_code-review-graph_code-review-graph__get_architecture_overview_tool",
       "Bash(grep -i \"\\\\.cs$\")",
       "Read(//c/Users/scoke/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/**)",
-      "Read(//c/Users/scoke/.claude/plugins\" 2>/dev/**)"
+      "Read(//c/Users/scoke/.claude/plugins\" 2>/dev/**)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('skills', d.get\\('projectSettings', {}\\)\\), indent=2\\)\\)\")"
     ]
   }
 }

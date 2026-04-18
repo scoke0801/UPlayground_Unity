@@ -35,6 +35,7 @@ namespace UPlayGround.State
         // 방향 전환
         private float _directionChangeTimer;
         private float _nextDirectionChangeTime;
+        private AnimKey _lastLocoKey = AnimKey.None;
 
         private const float BASE_SPEED_RATIO = 0.5f;
         private const float NOISE_SPEED = 0.8f;            // 노이즈 변화 속도
@@ -81,6 +82,7 @@ namespace UPlayGround.State
             _directionChangeTimer = 0f;
             ScheduleNextDirectionChange();
 
+            _lastLocoKey = AnimKey.Walk;
             gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
         }
 
@@ -122,11 +124,15 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 간헐적 정지 처리
             UpdatePause(deltaTime);
-
-            // 간헐적 방향 전환 처리
             UpdateDirectionChange(deltaTime);
+
+            // 정지 중이 아닐 때만 방향성 로코모션 갱신
+            if (!_isPaused)
+            {
+                EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                    EnemyLocomotionHelper.LocoStyle.Walk);
+            }
         }
 
         private void UpdatePause(float deltaTime)
@@ -138,8 +144,8 @@ namespace UPlayGround.State
                 {
                     _isPaused = false;
                     _pauseTimer = 0f;
+                    _lastLocoKey = AnimKey.None; // 재개 시 방향 재평가 강제
                     ScheduleNextPause();
-                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);
                 }
             }
             else

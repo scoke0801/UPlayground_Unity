@@ -20,6 +20,7 @@ namespace UPlayGround.State
         private float _retreatSpeed;
         private float _targetDistance;
         private float _retreatTimer;
+        private AnimKey _lastLocoKey = AnimKey.None;
 
         private const float RETREAT_TIMEOUT = 2.0f;
         private const float RETREAT_SPEED_RATIO = 0.65f;
@@ -46,8 +47,8 @@ namespace UPlayGround.State
 
             _retreatTimer = 0f;
             _retreatSpeed = controller.MaxRunMoveSpeed * RETREAT_SPEED_RATIO;
-
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);
+            _lastLocoKey  = AnimKey.Walk_B;
+            gameActor.Animator.PlayMotion(AnimKey.Walk_B, 0.2f);
         }
 
         public override void OnExit(GameActorState toState)
@@ -75,6 +76,9 @@ namespace UPlayGround.State
                 controller.TransitionToState(new EnemyIdleState(controller));
                 return;
             }
+
+            EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                EnemyLocomotionHelper.LocoStyle.Walk);
 
             if (reachedDistance || timedOut)
             {

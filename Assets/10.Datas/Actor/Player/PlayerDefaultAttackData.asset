@@ -327,6 +327,96 @@ MonoBehaviour:
         grabDuration: 1.5
     canBeInterrupted: 0
     hitAngle: 360
+  - baseInfo:
+      animKey: 401
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 360
+  - baseInfo:
+      animKey: 402
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 360
+  - baseInfo:
+      animKey: 403
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 360
+  - baseInfo:
+      animKey: 404
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 360
+  - baseInfo:
+      animKey: 405
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 30
+        reactionType: 4
+        attackOffset: {x: 0, y: 1, z: 0}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+    canBeInterrupted: 0
+    hitAngle: 360
   dashAttackList:
   - baseInfo:
       animKey: 300

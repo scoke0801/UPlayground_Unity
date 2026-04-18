@@ -24,7 +24,7 @@ namespace UPlayGround.State
         private const float PERFECT_GUARD_WINDOW = 0.3f;
 
         // 퍼펙트 가드 FOV 연출용 SO - CameraManager.SetPerfectGuardFOVData()로 주입받음
-        private static FOVCameraEffectData _perfectGuardFOVData;
+        public static FOVCameraEffectData PerfectGuardFOVData { get; private set; }
 
         /// <summary>
         /// CameraManager 초기화 시 Addressables로 로드한 SO를 주입.
@@ -32,7 +32,7 @@ namespace UPlayGround.State
         /// </summary>
         public static void SetPerfectGuardFOVData(FOVCameraEffectData data)
         {
-            _perfectGuardFOVData = data;
+            PerfectGuardFOVData = data;
         }
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
@@ -192,7 +192,7 @@ namespace UPlayGround.State
                 GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
                 CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
-                CameraManager.Instance?.PlayEffect(_perfectGuardFOVData);
+                CameraManager.Instance?.PlayEffect(PerfectGuardFOVData);
 
                 // 공격자 경직 + 반격 창 열기
                 if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))

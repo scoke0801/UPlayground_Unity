@@ -67,6 +67,7 @@ namespace UPlayGround.Data.EnumType
         JumpAttack_3,
         JumpAttack_4,
         JumpAttack_5,
+        JumpAttack_6,
         
         Skill_1 = 500,
         Skill_2,
@@ -192,6 +193,38 @@ namespace UPlayGround.Data.EnumType
 
 
         Mixer_Locomotion,
+
+        #region 방향성 이동 (몬스터 로코모션)
+
+        // Walk Slow (순찰·경계 속도) — Walk_Slow_F = 전진
+        Walk_Slow       = 6000,
+        Walk_Slow_B,
+        Walk_Slow_B_L45,
+        Walk_Slow_B_R45,
+        Walk_Slow_F_L45,
+        Walk_Slow_F_R45,
+        Walk_Slow_F_L90,
+        Walk_Slow_F_R90,
+
+        // Walk (전투 보행) — Walk(기존) = 전진, 이하 나머지 방향
+        Walk_B          = 6010,
+        Walk_B_L45,
+        Walk_B_R45,
+        Walk_F_L45,
+        Walk_F_R45,
+        Walk_F_L90,
+        Walk_F_R90,
+
+        // Run (전투 질주) — Run(기존) = 전진, 이하 나머지 방향
+        Run_B           = 6020,
+        Run_B_L45,
+        Run_B_R45,
+        Run_F_L45,
+        Run_F_R45,
+        Run_F_L90,
+        Run_F_R90,
+
+        #endregion
     }
 
     /// <summary>

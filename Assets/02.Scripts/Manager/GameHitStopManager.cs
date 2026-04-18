@@ -158,12 +158,11 @@ namespace UPlayGround.Manager.Handler
         /// </summary>
         public void ResetActorTimeScale()
         {
-            // 의도적으로 비워둠:
-            // 이전에는 이 시점에 timeScale을 1.0으로 강제 복구했으나
             // 요청 큐 모델에서는 각 요청이 duration 종료 후 스스로 Release한다.
-            // Volume 시각 효과만 즉시 끈다.
+            // Volume 시각 효과와 PlayerGuard로 걸린 액터 타임스케일을 즉시 복원한다.
             _targetWeight   = 0f;
             _transitionTime = 0f;
+            GameObjectManager.Instance?.ResetTimeScale();
         }
 
         #endregion

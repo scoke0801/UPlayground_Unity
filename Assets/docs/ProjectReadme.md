@@ -306,6 +306,8 @@ Assets/
 | [ITEM_DROP_SYSTEM_GUIDE.md](ITEM_DROP_SYSTEM_GUIDE.md) | 아이템 드랍 시스템 — 몬스터/인터랙션 드랍 테이블, 픽업 오브젝트, 에디터 도구 |
 | [QUEST_SYSTEM_GUIDE.md](QUEST_SYSTEM_GUIDE.md) | 퀘스트 시스템 — 목표 추적·보상·Enum 자동생성·에디터 도구 |
 | [MINIMAP_SYSTEM_GUIDE.md](MINIMAP_SYSTEM_GUIDE.md) | 미니맵 시스템 — 플레이어·적·퀘스트 마커 표시, 씬 캡처 에디터 |
+| [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
+| [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 
 ---
 

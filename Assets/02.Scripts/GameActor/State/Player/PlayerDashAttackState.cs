@@ -26,6 +26,8 @@ namespace UPlayGround.State
 
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
 
+            SnapToLockOnTarget();
+
             playerActor.GetCombat()?.ExecuteDashAttack();
 
             var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);
@@ -41,6 +43,17 @@ namespace UPlayGround.State
             
             base.OnExit(toState);
         }
+        private void SnapToLockOnTarget()
+        {
+            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+            if (lockOnTarget == null) return;
+
+            Vector3 dir = (lockOnTarget.position - gameActor.transform.position);
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.01f)
+                motor.SetRotation(Quaternion.LookRotation(dir.normalized));
+        }
+
         private void OnAttackAnimationEnd()
         {
             if (playerController.HasMoveInput())
@@ -71,23 +84,23 @@ namespace UPlayGround.State
             }
         }
 
-        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
-        {
-            // Lock-On 타겟이 있으면 스냅과 무관하게 항상 타겟 쪽을 바라보도록 보정
-            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            if (lockOnTarget != null)
-            {
-                Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
-                directionToTarget.y = 0f;
-                
-                if (directionToTarget.sqrMagnitude > 0.01f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-                    currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
-                }
-            }
-            currentRotation = currentRotation.normalized;
-        }
+        // public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        // {
+        //     // Lock-On 타겟이 있으면 스냅과 무관하게 항상 타겟 쪽을 바라보도록 보정
+        //     Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+        //     if (lockOnTarget != null)
+        //     {
+        //         Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
+        //         directionToTarget.y = 0f;
+        //         
+        //         if (directionToTarget.sqrMagnitude > 0.01f)
+        //         {
+        //             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+        //             currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
+        //         }
+        //     }
+        //     currentRotation = currentRotation.normalized;
+        // }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {

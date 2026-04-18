@@ -423,13 +423,14 @@ namespace UPlayGround
         {
             Debug.Log("[PlayerActor] 패리 성공!");
 
-            // 히트스톱
-            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
+            // 히트스톱 (퍼펙트 가드와 동일한 슬로우 연출)
+            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
 
             // 카메라 피드백
-            CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
+            CameraManager.Instance?.StartShake(_shakeKeyHeavyHit);
+            CameraManager.Instance?.PlayEffect(PlayerGuardState.PerfectGuardFOVData);
             if (attackData?.attackDirection != Vector3.zero)
-                CameraManager.Instance.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.15f, 0.2f);
+                CameraManager.Instance?.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.15f, 0.2f);
 
             // 패리 VFX
             Vector3 fxPos = (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
@@ -437,9 +438,15 @@ namespace UPlayGround
                 : transform.position;
             GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
 
+            // 바이탈 오브
+            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, fxPos);
+
             // 공격자(몬스터) 경직
             if (attackData?.attacker is MonsterActor monster)
                 monster.OnParried();
+
+            // 패리 반격 창 열기
+            _combat.OpenParryCounterWindow();
         }
 
         /// <summary>

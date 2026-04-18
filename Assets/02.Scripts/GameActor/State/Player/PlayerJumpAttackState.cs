@@ -35,7 +35,7 @@ namespace UPlayGround.State
             _attackData = _combat?.ExecuteJumpAttack(false);
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
-            var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
+            var state = gameActor.Animator.PlayMotion(animKey, 0.25f);
             if (state != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
         }

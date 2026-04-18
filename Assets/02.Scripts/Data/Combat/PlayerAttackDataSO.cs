@@ -32,6 +32,9 @@ namespace UPlayGround.Data.Combat
         [Tooltip("퍼펙트 가드 반격 공격 데이터. 비어 있으면 강 공격 첫 번째로 대체된다.")]
         public PlayerAttackInfo counterAttack;
 
+        [Tooltip("패리 반격 공격 데이터. 비어 있으면 counterAttack으로 대체된다.")]
+        public PlayerAttackInfo parryCounterAttack;
+
         [Tooltip("차지 공격 MotionSet AnimKey.\nMotionSet 내 InfiniteLoop 개수 = chargeStages.Count 와 일치시켜야 한다.")]
         public AnimKey chargeAnimKey = AnimKey.None;
 

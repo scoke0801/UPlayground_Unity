@@ -271,8 +271,11 @@ namespace UPlayGround.Animation.Editor
                 fontSize  = 10
             });
             y += 19f;
+            EditorGUI.BeginChangeCheck();
             y = DrawInspectorTimingRow(rect, y, "Start", ref selEvt.startTime);
             y = DrawInspectorTimingRow(rect, y, "End",   ref selEvt.endTime);
+            if (EditorGUI.EndChangeCheck())
+                MarkDirty();
             float dur = selEvt.endTime - selEvt.startTime;
             DrawInspectorReadOnly(rect, ref y, "Duration", $"{dur:F3}s");
             y += 2f;
@@ -454,7 +457,10 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             {
                 EditorGUILayout.LabelField("애니메이션 셋", EditorStyles.boldLabel, GUILayout.Width(80));
+                EditorGUI.BeginChangeCheck();
                 set.motionSetName = EditorGUILayout.TextField(set.motionSetName);
+                if (EditorGUI.EndChangeCheck())
+                    MarkDirty();
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField($"{set.TotalDuration:F2}s", EditorStyles.miniLabel, GUILayout.Width(50));
             }
@@ -484,9 +490,12 @@ namespace UPlayGround.Animation.Editor
 
                         GUI.backgroundColor = Color.white;
 
+                        EditorGUI.BeginChangeCheck();
                         motion.motionName = EditorGUILayout.TextField(motion.motionName);
                         motion.motionClip = (AnimationClip)EditorGUILayout.ObjectField(
                             motion.motionClip, typeof(AnimationClip), false, GUILayout.Width(180));
+                        if (EditorGUI.EndChangeCheck())
+                            MarkDirty();
 
                         if (motion.IsValid())
                             EditorGUILayout.LabelField($"{motion.Duration:F2}s",
@@ -666,10 +675,13 @@ namespace UPlayGround.Animation.Editor
                         GUILayout.FlexibleSpace();
 
                         GUILayout.Label("Start", GUILayout.Width(35));
+                        EditorGUI.BeginChangeCheck();
                         evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
                         GUILayout.Space(4);
                         GUILayout.Label("End", GUILayout.Width(30));
                         evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
+                        if (EditorGUI.EndChangeCheck())
+                            MarkDirty();
 
                         if (GUILayout.Button("⋮", GUILayout.Width(22)))
                             ShowEventContextMenu(motion.events, i, false, motionIdx);
@@ -1051,10 +1063,13 @@ namespace UPlayGround.Animation.Editor
                         GUILayout.FlexibleSpace();
 
                         GUILayout.Label("Start", GUILayout.Width(35));
+                        EditorGUI.BeginChangeCheck();
                         evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
                         GUILayout.Space(4);
                         GUILayout.Label("End", GUILayout.Width(30));
                         evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
+                        if (EditorGUI.EndChangeCheck())
+                            MarkDirty();
 
                         if (GUILayout.Button("⋮", GUILayout.Width(22)))
                             ShowEventContextMenu(set.globalEvents, i, true, -1);

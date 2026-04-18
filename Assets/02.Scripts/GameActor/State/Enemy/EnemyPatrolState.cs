@@ -19,6 +19,7 @@ namespace UPlayGround.State
         private float _patrolSpeed;
         private float _waitTimer;
         private bool _isWaiting;
+        private AnimKey _lastLocoKey = AnimKey.None;
         
         // 충돌/정체 감지
         private float _stuckTimer;
@@ -78,8 +79,8 @@ namespace UPlayGround.State
                     _isWaiting = false;
                     _waitTimer = 0f;
                     _retryCount = 0;
-                    
-                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+                    _lastLocoKey = AnimKey.Walk_Slow;
+                    gameActor.Animator.PlayMotion(AnimKey.Walk_Slow, 0.25f);
                 }
             }
             else
@@ -94,15 +95,15 @@ namespace UPlayGround.State
                 }
                 else
                 {
-                    // 정체 감지
                     _stuckTimer += deltaTime;
                     if (_stuckTimer >= STUCK_CHECK_INTERVAL)
                     {
                         CheckStuck();
                         _stuckTimer = 0f;
                     }
-                    
-                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+
+                    EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                        EnemyLocomotionHelper.LocoStyle.WalkSlow);
                 }
             }
         }

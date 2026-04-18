@@ -17,6 +17,7 @@ namespace UPlayGround.State
         
         private float _chaseSpeed;
         private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
+        private AnimKey _lastLocoKey = AnimKey.None;
         
         public EnemyChaseState(ActorMovementController controller, EnemyBrain brain, EnemyDetection detection) : base(controller)
         {
@@ -34,8 +35,8 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _chaseSpeed = controller.MaxRunMoveSpeed * _brain.ChaseSpeedMultiplier;
-            _strafeSign = Random.value > 0.5f ? 1f : -1f; // 진입마다 측면 방향 랜덤
-            
+            _strafeSign = Random.value > 0.5f ? 1f : -1f;
+            _lastLocoKey = AnimKey.Run;
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
             
             Debug.Log("[EnemyChaseState] 추적 시작");
@@ -49,19 +50,19 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;
             }
-            
-            // 타겟이 없으면 Idle로 복귀 (Brain이 판단하지만 안전장치)
             if (!_detection.HasTarget)
             {
                 controller.TransitionToState(new EnemyIdleState(controller));
                 return;
             }
+
+            EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                EnemyLocomotionHelper.LocoStyle.Run);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

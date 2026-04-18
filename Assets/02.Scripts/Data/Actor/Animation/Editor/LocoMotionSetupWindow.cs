@@ -19,6 +19,33 @@ namespace UPlayGround.Animation.Editor
         // _InPlace 접미사는 스캔 시 자동으로 제거한 뒤 비교한다.
         private static readonly Dictionary<string, AnimKey> PatternToKey = new()
         {
+            // ── Base — Walk Slow (8방향) ──────────────────────────────────────
+            { "Walk_Slow_F",        AnimKey.Walk_Slow       },
+            { "Walk_Slow_B",        AnimKey.Walk_Slow_B     },
+            { "Walk_Slow_B_L45",    AnimKey.Walk_Slow_B_L45 },
+            { "Walk_Slow_B_R45",    AnimKey.Walk_Slow_B_R45 },
+            { "Walk_Slow_F_L45",    AnimKey.Walk_Slow_F_L45 },
+            { "Walk_Slow_F_R45",    AnimKey.Walk_Slow_F_R45 },
+            { "Walk_Slow_F_L90_A",  AnimKey.Walk_Slow_F_L90 },  // A 버전 우선
+            { "Walk_Slow_F_R90_A",  AnimKey.Walk_Slow_F_R90 },
+            // ── Base — Walk (8방향) ───────────────────────────────────────────
+            { "Walk_F",             AnimKey.Walk            },
+            { "Walk_B",             AnimKey.Walk_B          },
+            { "Walk_B_L45",         AnimKey.Walk_B_L45      },
+            { "Walk_B_R45",         AnimKey.Walk_B_R45      },
+            { "Walk_F_L45",         AnimKey.Walk_F_L45      },
+            { "Walk_F_R45",         AnimKey.Walk_F_R45      },
+            { "Walk_F_L90_A",       AnimKey.Walk_F_L90      },
+            { "Walk_F_R90_A",       AnimKey.Walk_F_R90      },
+            // ── Base — Run (8방향) ────────────────────────────────────────────
+            { "Run_F",              AnimKey.Run             },
+            { "Run_B",              AnimKey.Run_B           },
+            { "Run_B_L45",          AnimKey.Run_B_L45       },
+            { "Run_B_R45",          AnimKey.Run_B_R45       },
+            { "Run_F_L45",          AnimKey.Run_F_L45       },
+            { "Run_F_R45",          AnimKey.Run_F_R45       },
+            { "Run_F_L90_A",        AnimKey.Run_F_L90       },
+            { "Run_F_R90_A",        AnimKey.Run_F_R90       },
             // ── Stop — Run ────────────────────────────────────────────────────
             { "Run_F_To_Idle",     AnimKey.Move_Stop_Running     },
             { "Run_F_L45_To_Idle", AnimKey.Move_Stop_Running_L45 },

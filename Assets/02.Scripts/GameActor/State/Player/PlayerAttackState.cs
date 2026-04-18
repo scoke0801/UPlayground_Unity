@@ -166,8 +166,6 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
-                    // 시퀀스 히스토리를 유지해야 하므로 타입 전환 시 ResetCombo 호출 제거.
-                    // 시퀀스 미매칭 시 Execute*Attack 내부에서 타입 전환을 감지해 ResetCombo를 처리한다.
                     _comboInputted = true;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
@@ -189,9 +187,6 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _attackTimer = 0f;
 
-            // _comboInputted가 이미 설정된 경우 _isHeavyAttack은 UpdateState에서 버퍼 소비와 함께 결정됐다.
-            // 여기서 다시 ConsumeInput을 호출하면 이미 소비된 Heavy 입력이 null로 읽혀 _isHeavyAttack이
-            // 강제로 false가 되어 H→H, L→H 시퀀스 매칭이 깨진다.
             if (!_comboInputted)
                 _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
@@ -209,7 +204,10 @@ namespace UPlayGround.State
             {
                 _isCounter              = false;
                 _isParryCounter         = false;
-                gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
+               
+                var animState =  gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
+                if (animState != null)
+                    gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
                 _comboInputted          = false;

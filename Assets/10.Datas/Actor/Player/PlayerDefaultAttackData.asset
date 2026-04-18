@@ -644,7 +644,7 @@ MonoBehaviour:
     hitAngle: 60
   parryCounterAttack:
     baseInfo:
-      animKey: 530
+      animKey: 531
       attackType: 0
       hitPhases:
       - damage: 123

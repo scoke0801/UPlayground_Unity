@@ -71,6 +71,24 @@ namespace UPlayGround.Data
         public float lockOnPitchMax = 80f;
         public float lockOnPitchSpeed = 8f;
 
+        [Header("락온 오비탈 각도 오프셋")]
+        [Tooltip("거리에 따른 카메라 오프셋 각도 (x=거리, y=각도)")]
+        public AnimationCurve lockOnOffsetAngleByDistance = new AnimationCurve(
+            new Keyframe(0f, 15f), new Keyframe(8f, 25f), new Keyframe(15f, 15f));
+        [Tooltip("최소 오프셋 각도 (가까운 거리에서 유지할 최소 각)")]
+        public float lockOnMinOffsetAngle = 5f;
+        [Tooltip("최대 오프셋 각도 (화면 이탈 방지 상한)")]
+        public float lockOnMaxOffsetAngle = 40f;
+        [Tooltip("자유 궤도 시작 거리 (이 거리부터 freeFactor 증가)")]
+        public float freeOrbitStartDistance = 6f;
+        [Tooltip("완전 자유 궤도 거리 (이 거리에서 freeFactor=1)")]
+        public float freeOrbitFullDistance = 14f;
+        [Tooltip("적 이동 시 오프셋이 따라가는 민감도 커브 (x=거리, y=0~1)")]
+        public AnimationCurve lockOnOvercomeSensitivity = new AnimationCurve(
+            new Keyframe(0f, 0.2f), new Keyframe(20f, 1f));
+        [Tooltip("오비탈 오프셋 수렴 스무딩 시간")]
+        public float lockOnOrbitSmoothTime = 0.15f;
+
         [Header("=== 다수 적 줌아웃 ===")]
         public float crowdZoomOutDistance = 7f;
         public float crowdDetectRadius = 10f;

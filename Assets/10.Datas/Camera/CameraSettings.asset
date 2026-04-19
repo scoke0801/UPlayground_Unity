@@ -21,6 +21,9 @@ MonoBehaviour:
   rotationSpeed: 20
   minVerticalAngle: 0
   maxVerticalAngle: 50
+  slopeCheckDistance: 1.5
+  slopePitchCorrectionStrength: 0.5
+  slopeCorrectionSmoothTime: 0.3
   zoomSpeed: 0.5
   positionSmoothTime: 0.1
   rotationSmoothTime: 0.1
@@ -45,6 +48,68 @@ MonoBehaviour:
   lockOnPitchMin: 15
   lockOnPitchMax: 80
   lockOnPitchSpeed: 8
+  lockOnOffsetAngleByDistance:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 80
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 8
+      value: 25
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 15
+      value: 15
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lockOnMinOffsetAngle: 5
+  lockOnMaxOffsetAngle: 40
+  freeOrbitStartDistance: 6
+  freeOrbitFullDistance: 14
+  lockOnOvercomeSensitivity:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 20
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lockOnOrbitSmoothTime: 0.15
   crowdZoomOutDistance: 7
   crowdDetectRadius: 10
   crowdEnemyThreshold: 3

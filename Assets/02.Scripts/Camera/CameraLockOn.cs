@@ -28,6 +28,22 @@ namespace UPlayGround.CameraSystem
         private float _smoothY;
         private float _yVelocity;
 
+        // 오비탈 오프셋
+        private float _signedOffsetAngle;
+        private float _offsetAngleVelocity;
+        private float _lastEnemyYaw;
+        private float _freeFactor;
+        private float _freeFactorVelocity;
+        private bool _orbitInitialized;
+        private bool _wasSkipping; // skip→active 전환 감지 (복귀 시 부드러운 재보간)
+
+        private const float FREE_FACTOR_SMOOTH_TIME = 0.15f;
+        private const float ORBIT_FREE_PULL_MAX_SMOOTH = 5f;
+        private const float SIGN_DEAD_ZONE_DEG = 0.5f;
+        private const float OVERCOME_DEADZONE_DEG = 0.5f;
+        private const float ORBIT_SMOOTH_MIN_MULT = 0.3f;
+        private const float ORBIT_OFFSET_MAX_DELTA = 45f;
+
         // 해제 전환 연출
         private bool _isTransitioning;
         private float _transitionTimer;
@@ -75,6 +91,12 @@ namespace UPlayGround.CameraSystem
             _currentIndex = -1;
             _yVelocity = 0f;
             _isTransitioning = false;
+            _orbitInitialized = false;
+            _wasSkipping = false;
+            _signedOffsetAngle = 0f;
+            _offsetAngleVelocity = 0f;
+            _freeFactor = 0f;
+            _freeFactorVelocity = 0f;
         }
 
         // ── 대상 전환 ──
@@ -112,7 +134,19 @@ namespace UPlayGround.CameraSystem
             }
 
             if (skipRotation || !IsActive || CurrentTarget == null)
+            {
+                if (IsActive && CurrentTarget != null)
+                    _wasSkipping = true;
                 return false;
+            }
+
+            // skip→active 복귀 첫 프레임: 현재 yaw에서 부드럽게 재보간
+            if (_wasSkipping)
+            {
+                _wasSkipping = false;
+                _orbitInitialized = false;
+                _offsetAngleVelocity = 0f;
+            }
 
             if (_isTransitioning)
                 return false;
@@ -143,24 +177,88 @@ namespace UPlayGround.CameraSystem
             float rawY = CurrentTarget.position.y - heightOffset;
             _smoothY = Mathf.SmoothDamp(_smoothY, rawY, ref _yVelocity, _settings.lockOnYSmoothTime);
 
-            Vector3 targetPos = new Vector3(CurrentTarget.position.x, _smoothY, CurrentTarget.position.z);
-
-            // Mid-Point Camera
-            Vector3 midPoint = Vector3.Lerp(_player.position, targetPos, _settings.lockOnMidPointWeight);
-
-            // Yaw (XZ 평면)
-            Vector3 dirXZ = new Vector3(midPoint.x - _player.position.x, 0f, midPoint.z - _player.position.z);
-            float targetYaw = dirXZ.sqrMagnitude > 0.001f
-                ? Mathf.Atan2(dirXZ.x, dirXZ.z) * Mathf.Rad2Deg
+            // XZ 방향
+            Vector3 toTargetXZ = new Vector3(
+                CurrentTarget.position.x - _player.position.x, 0f,
+                CurrentTarget.position.z - _player.position.z);
+            float flatDist = toTargetXZ.magnitude;
+            float enemyYaw = flatDist > 0.001f
+                ? Mathf.Atan2(toTargetXZ.x, toTargetXZ.z) * Mathf.Rad2Deg
                 : yaw;
 
-            // Pitch (고저차 감쇠)
-            float heightDiff = midPoint.y - _player.position.y;
-            float hDist = dirXZ.magnitude;
-            float rawPitch = 0f;
-            if (hDist > 0.5f)
+            // 첫 프레임 초기화
+            if (!_orbitInitialized)
             {
-                rawPitch = Mathf.Atan2(-heightDiff * _settings.lockOnHeightDampFactor, hDist) * Mathf.Rad2Deg;
+                _lastEnemyYaw = enemyYaw;
+                _signedOffsetAngle = Mathf.DeltaAngle(enemyYaw, yaw);
+                _offsetAngleVelocity = 0f;
+                _freeFactor = 0f;
+                _freeFactorVelocity = 0f;
+                _orbitInitialized = true;
+            }
+
+            // FreeFactor (거리 기반, smoothstep)
+            float rawFreeFactor = Mathf.InverseLerp(_settings.freeOrbitStartDistance, _settings.freeOrbitFullDistance, flatDist);
+            rawFreeFactor = rawFreeFactor * rawFreeFactor * (3f - 2f * rawFreeFactor);
+            _freeFactor = Mathf.SmoothDamp(_freeFactor, rawFreeFactor, ref _freeFactorVelocity, FREE_FACTOR_SMOOTH_TIME);
+            float freeFactor = Mathf.Clamp01(_freeFactor);
+
+            // Overcome 로직: 적이 이동하면 오프셋 각도가 자연스럽게 따라감
+            float overcomeSensitivity = (_settings.lockOnOvercomeSensitivity != null && _settings.lockOnOvercomeSensitivity.length > 0)
+                ? _settings.lockOnOvercomeSensitivity.Evaluate(flatDist) : 1f;
+            overcomeSensitivity *= (1f - freeFactor);
+            float deltaYaw = Mathf.DeltaAngle(_lastEnemyYaw, enemyYaw);
+            if (Mathf.Abs(deltaYaw) > OVERCOME_DEADZONE_DEG)
+            {
+                float prevOffset = _signedOffsetAngle;
+                _signedOffsetAngle -= deltaYaw * overcomeSensitivity;
+                // 부호 반전 방지: Overcome이 0을 넘어가면 0으로 클램핑
+                if (prevOffset > 0f && _signedOffsetAngle < 0f) _signedOffsetAngle = 0f;
+                if (prevOffset < 0f && _signedOffsetAngle > 0f) _signedOffsetAngle = 0f;
+            }
+
+            // 목표 오프셋 각도 (거리 커브)
+            float curveMag = (_settings.lockOnOffsetAngleByDistance != null && _settings.lockOnOffsetAngleByDistance.length > 0)
+                ? _settings.lockOnOffsetAngleByDistance.Evaluate(flatDist) : 15f;
+
+            // FOV 기반 화면 이탈 방지 최대 안전 각도
+            float maxSafeMag = _settings.lockOnMaxOffsetAngle;
+            if (_camera != null)
+            {
+                float camDist = _settings.lockOnDistance;
+                float hFovRad = 2f * Mathf.Atan(Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * _camera.aspect);
+                float frustumHalfWidth = camDist * Mathf.Tan(hFovRad * 0.5f);
+                float sinAngle = frustumHalfWidth * 0.35f / Mathf.Max(flatDist, 0.1f);
+                maxSafeMag = Mathf.Min(Mathf.Asin(Mathf.Clamp(sinAngle, 0f, 1f)) * Mathf.Rad2Deg, _settings.lockOnMaxOffsetAngle);
+            }
+
+            float currentMinAngle = Mathf.Lerp(_settings.lockOnMinOffsetAngle, 0f, freeFactor);
+            float targetMag = Mathf.Clamp(curveMag, currentMinAngle, maxSafeMag);
+
+            // 부호 결정 (데드존 안에선 현재 부호 유지)
+            float sign = _signedOffsetAngle > SIGN_DEAD_ZONE_DEG ? 1f :
+                         _signedOffsetAngle < -SIGN_DEAD_ZONE_DEG ? -1f :
+                         _signedOffsetAngle >= 0f ? 1f : -1f;
+            float targetSignedAngle = targetMag * sign;
+            _lastEnemyYaw = enemyYaw;
+
+            // 적응형 SmoothDamp: 차이가 클수록 빠르게 수렴
+            float offsetDelta = Mathf.Abs(targetSignedAngle - _signedOffsetAngle);
+            float adaptiveSmoothTime = Mathf.Lerp(
+                _settings.lockOnOrbitSmoothTime * ORBIT_SMOOTH_MIN_MULT,
+                _settings.lockOnOrbitSmoothTime,
+                1f - Mathf.Clamp01(offsetDelta / ORBIT_OFFSET_MAX_DELTA));
+            float pullSmoothTime = Mathf.Lerp(adaptiveSmoothTime, ORBIT_FREE_PULL_MAX_SMOOTH, freeFactor);
+            _signedOffsetAngle = Mathf.SmoothDamp(
+                _signedOffsetAngle, targetSignedAngle, ref _offsetAngleVelocity, pullSmoothTime);
+            yaw = enemyYaw + _signedOffsetAngle;
+
+            // Pitch (고저차 감쇠, target 직접 기준)
+            float heightDiff = _smoothY - _player.position.y;
+            float rawPitch = 0f;
+            if (flatDist > 0.5f)
+            {
+                rawPitch = Mathf.Atan2(-heightDiff * _settings.lockOnHeightDampFactor, flatDist) * Mathf.Rad2Deg;
             }
 
             float targetPitch = Mathf.Clamp(rawPitch, _settings.lockOnPitchMin, _settings.lockOnPitchMax);
@@ -170,8 +268,6 @@ namespace UPlayGround.CameraSystem
                 Mathf.Clamp01((dist - 3f) / 7f));
             targetPitch = Mathf.Clamp(targetPitch, _settings.lockOnPitchMin, pitchLimit);
 
-            // 보간
-            yaw = Mathf.LerpAngle(yaw, targetYaw, Time.deltaTime * _settings.rotationSpeed);
             pitch = Mathf.Lerp(pitch, targetPitch, Time.deltaTime * _settings.lockOnPitchSpeed);
             pitch = Mathf.Clamp(pitch, _settings.minVerticalAngle, _settings.maxVerticalAngle);
 
@@ -216,6 +312,7 @@ namespace UPlayGround.CameraSystem
             _targetCollider = t.GetComponent<CapsuleCollider>();
             t.GetComponent<IDamageable>()?.LockOn();
             InitSmoothY();
+            _orbitInitialized = false;
         }
 
         private void InitSmoothY()

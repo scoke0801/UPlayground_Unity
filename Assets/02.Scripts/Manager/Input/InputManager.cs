@@ -28,8 +28,8 @@ namespace UPlayGround.Manager
 
             Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");
             ;
-
-            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+            Vector2 hotspot = new Vector2(cursorTexture.width * 0.27f, 0f);
+            Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
 
             // Actions 초기화
             InitInputAction();

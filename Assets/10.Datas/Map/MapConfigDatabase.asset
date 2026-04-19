@@ -17,3 +17,5 @@ MonoBehaviour:
     config: {fileID: 11400000, guid: 2adbc7c0994db3141aafd40c533b392e, type: 2}
   - mapId: InGame
     config: {fileID: 11400000, guid: 8c408310883bac44088943404da13e58, type: 2}
+  - mapId: Dungeon
+    config: {fileID: 11400000, guid: 4ea18d7c2873d6a4fa4c45845370fab3, type: 2}

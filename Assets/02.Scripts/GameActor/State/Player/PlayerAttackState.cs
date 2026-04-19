@@ -204,7 +204,8 @@ namespace UPlayGround.State
             {
                 _isCounter              = false;
                 _isParryCounter         = false;
-               
+
+                gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
                 var animState =  gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;

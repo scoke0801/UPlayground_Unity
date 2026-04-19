@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.UI;
 
@@ -8,14 +9,22 @@ namespace UPlayGround.UI
     /// 미니맵 위에 표시되는 개별 아이콘.
     /// 액터 아이콘과 정적 마커(퀘스트 목표 등) 모두 이 클래스를 사용합니다.
     /// </summary>
-    public class MinimapEntityIcon : MonoBehaviour
+    public class MinimapEntityIcon : MonoBehaviour, IPointerClickHandler
     {
         private Image         _image;
         private RectTransform _rectTransform;
         private GameActor     _trackedActor;  // 정적 마커는 null
 
-        public GameActor TrackedActor => _trackedActor;
+        public GameActor TrackedActor  => _trackedActor;
         public bool      IsStaticMarker => _trackedActor == null;
+
+        public event System.Action<MinimapEntityIcon> OnClickEvent;
+
+        void IPointerClickHandler.OnPointerClick(PointerEventData e)
+        {
+            if (e.button == PointerEventData.InputButton.Left)
+                OnClickEvent?.Invoke(this);
+        }
 
         // ── 팩토리: 액터 아이콘 ─────────────────────────────────
         public static MinimapEntityIcon Create(Transform parent, GameActor actor,

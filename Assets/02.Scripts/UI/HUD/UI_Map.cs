@@ -78,6 +78,9 @@ public class UI_Map : UI_Base
     [Tooltip("미니맵 설정과 무관하게 맵에서 모든 적 표시")]
     [SerializeField] private bool _showAllEnemiesOnMap = false;
 
+    [Tooltip("몬스터·NPC 아이콘을 표시할 플레이어 기준 반경 (월드 단위). 0 이하면 전체 표시.")]
+    [SerializeField] private float _entityProximityRadius = 50f;
+
     // ── 런타임 ───────────────────────────────────────────────
     private PlayerActor         _player;
     private MinimapIconConfigSO _config;
@@ -370,8 +373,8 @@ public class UI_Map : UI_Base
             if (monster == null || icon == null) { toRemove.Add(monster); continue; }
             bool isDetected = monster.Detection?.HasTarget == true;
             icon.SetColor(isDetected ? _config.enemyDetected.color : _config.enemy.color);
-            // 아이콘은 IconContainer 자식 → 컨테이너 로컬 좌표에서 mapPos * zoom
-            icon.UpdateIcon(_config.WorldToMapImagePos(monster.transform.position, _mapDisplaySize) * _currentZoom, true);
+            bool inRange = IsInProximity(monster.transform.position);
+            icon.UpdateIcon(_config.WorldToMapImagePos(monster.transform.position, _mapDisplaySize) * _currentZoom, inRange);
         }
         CleanupDeadEntries(toRemove, _enemyIconMap);
     }
@@ -384,7 +387,8 @@ public class UI_Map : UI_Base
         foreach (var (actor, icon) in _actorIconMap)
         {
             if (actor == null || icon == null) { toRemove.Add(actor); continue; }
-            icon.UpdateIcon(_config.WorldToMapImagePos(actor.transform.position, _mapDisplaySize) * _currentZoom, true);
+            bool inRange = IsInProximity(actor.transform.position);
+            icon.UpdateIcon(_config.WorldToMapImagePos(actor.transform.position, _mapDisplaySize) * _currentZoom, inRange);
         }
         CleanupDeadEntries(toRemove, _actorIconMap);
     }
@@ -462,8 +466,25 @@ public class UI_Map : UI_Base
         if (_iconContainer == null) return;
 
         var entry = _config.GetStaticMarkerEntry(registrar.MarkerType);
-        _staticMarkerIconMap[registrar.LocationId] =
-            MinimapEntityIcon.CreateStatic(_iconContainer, registrar.LocationId, entry);
+        var icon  = MinimapEntityIcon.CreateStatic(_iconContainer, registrar.LocationId, entry);
+        _staticMarkerIconMap[registrar.LocationId] = icon;
+
+        if (registrar.MarkerType == MinimapMarkerType.Portal)
+        {
+            string locationId = registrar.LocationId;
+            icon.OnClickEvent += _ => TeleportToPortal(locationId);
+        }
+    }
+
+    private void TeleportToPortal(string locationId)
+    {
+        if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar)) return;
+        var portal = registrar.GetComponent<PortalActor>();
+        if (portal == null) return;
+        var player = GameObjectManager.Instance?.Player;
+        if (player == null) return;
+        portal.TeleportPlayerHere(player);
+        UIManager.Instance.HideUI(UIKeyType.Map);
     }
 
     private void UpdateStaticMarkers()
@@ -664,6 +685,13 @@ public class UI_Map : UI_Base
     }
 
     // ── 유틸 ─────────────────────────────────────────────────
+
+    private bool IsInProximity(Vector3 worldPos)
+    {
+        if (_entityProximityRadius <= 0f || _player == null) return true;
+        float sqDist = (worldPos - _player.transform.position).sqrMagnitude;
+        return sqDist <= _entityProximityRadius * _entityProximityRadius;
+    }
 
     private static void CleanupDeadEntries<T>(List<T> toRemove, Dictionary<T, MinimapEntityIcon> map)
         where T : class

@@ -265,22 +265,24 @@ public class UI_Minimap : UI_Base
 
     private void UpdateContainerLayout()
     {
+        // 배경 이미지: captureCenter 기준 오프셋 (맵 이미지가 화면을 벗어나지 않도록 클램핑)
         Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, _currentMaskSize);
-        Vector2 offset       = -playerMapPos * _currentMapZoom;
+        Vector2 bgOffset     = -playerMapPos * _currentMapZoom;
 
-        // 마스크 영역이 항상 맵 이미지로 채워지도록 offset 제한
         float maxOffset = Mathf.Max(0f, _currentMaskSize * (_currentMapZoom - 1f) / 2f);
-        offset.x = Mathf.Clamp(offset.x, -maxOffset, maxOffset);
-        offset.y = Mathf.Clamp(offset.y, -maxOffset, maxOffset);
+        bgOffset.x = Mathf.Clamp(bgOffset.x, -maxOffset, maxOffset);
+        bgOffset.y = Mathf.Clamp(bgOffset.y, -maxOffset, maxOffset);
 
         if (_mapBackground != null)
         {
             _mapBackground.rectTransform.sizeDelta        = new Vector2(_currentMaskSize, _currentMaskSize);
             _mapBackground.rectTransform.localScale       = Vector3.one * _currentMapZoom;
-            _mapBackground.rectTransform.anchoredPosition = offset;
+            _mapBackground.rectTransform.anchoredPosition = bgOffset;
         }
-        if (_iconContainer  != null) _iconContainer.anchoredPosition  = offset;
-        if (_questContainer != null) _questContainer.anchoredPosition = offset;
+
+        // 아이콘·퀘스트 컨테이너: 플레이어가 항상 원점이므로 오프셋 불필요
+        if (_iconContainer  != null) _iconContainer.anchoredPosition  = Vector2.zero;
+        if (_questContainer != null) _questContainer.anchoredPosition = Vector2.zero;
     }
 
     // ── 플레이어 아이콘 ──────────────────────────────────────
@@ -578,10 +580,12 @@ public class UI_Minimap : UI_Base
 
     // ── 좌표 변환 ────────────────────────────────────────────
 
-    /// <summary>월드 좌표 → 미니맵 컨테이너 내 픽셀 좌표 (줌 적용)</summary>
+    /// <summary>월드 좌표 → 미니맵 컨테이너 내 픽셀 좌표 (플레이어 기준 상대 좌표, captureCenter 무관)</summary>
     private Vector2 CalcMinimapPos(Vector3 worldPos)
     {
-        return _config.WorldToMapImagePos(worldPos, _currentMaskSize) * _currentMapZoom;
+        float scale = _currentMaskSize * _currentMapZoom / _config.captureWorldSize;
+        Vector3 delta = worldPos - _player.transform.position;
+        return new Vector2(delta.x * scale, delta.z * scale);
     }
 
     // ── 유틸 ─────────────────────────────────────────────────

@@ -23,6 +23,7 @@
         public const string Title           = "Title";
         public const string Loading         = "Loading";   // 로딩 전용 씬
         public const string InGame          = "InGame";
+        public const string InGame_Dungeon   = "InGame_Dungeon";
         public const string InteractionTest = "InteractionTest";
         public const string CameraTest      = "CameraTest";
         public const string KccTest         = "KccTest";

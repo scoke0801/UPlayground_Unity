@@ -523,6 +523,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
         _captureCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
         _captureCamera.orthographic      = true;
         _captureCamera.orthographicSize  = _captureWorldSize * 0.5f;
+        _captureCamera.aspect            = 1f;  // 정사각형 캡처 보장 (게임뷰 비율 무시)
         _captureCamera.nearClipPlane     = _cameraNear;
         _captureCamera.farClipPlane      = _cameraFar;
         _captureCamera.cullingMask       = _layerMask;
@@ -611,22 +612,22 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
     private void AssignToConfig(string assetPath)
     {
-        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-        if (sprite == null)
-        {
-            Debug.LogWarning($"[MinimapCapture] Sprite 로드 실패: {assetPath}");
-            return;
-        }
-
         Undo.RecordObject(_targetConfig, "Minimap Config 자동 할당");
-        _targetConfig.backgroundSprite  = sprite;
-        _targetConfig.captureCenter     = new Vector2(_captureCenter.x, _captureCenter.z);
-        _targetConfig.captureWorldSize  = _captureWorldSize;
+
+        // 좌표 데이터는 스프라이트 로드 성공 여부와 무관하게 항상 저장
+        _targetConfig.captureCenter    = new Vector2(_captureCenter.x, _captureCenter.z);
+        _targetConfig.captureWorldSize = _captureWorldSize;
+
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+        if (sprite != null)
+            _targetConfig.backgroundSprite = sprite;
+        else
+            Debug.LogWarning($"[MinimapCapture] Sprite 로드 실패 (좌표 데이터는 저장됨): {assetPath}");
 
         EditorUtility.SetDirty(_targetConfig);
         AssetDatabase.SaveAssets();
 
-        Debug.Log($"[MinimapCapture] MinimapIconConfigSO 할당 완료 → {assetPath}");
+        Debug.Log($"[MinimapCapture] MinimapIconConfigSO 할당 완료 → center=({_captureCenter.x:F2}, {_captureCenter.z:F2}), size={_captureWorldSize}");
     }
 
     // ── 카메라 관리 ──────────────────────────────────────────

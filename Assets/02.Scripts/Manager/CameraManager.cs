@@ -519,6 +519,25 @@ namespace UPlayGround.Manager
             }
         }
 
+        /// <summary>
+        /// 순간이동 시 카메라를 지정 위치로 즉시 스냅한다. SmoothDamp 속도를 초기화해 튐 현상을 방지.
+        /// </summary>
+        public void SnapToTarget(Vector3 snappedPosition)
+        {
+            if (_cameraPivot == null) return;
+            Vector3 pivotBase     = snappedPosition + _cameraOffset;
+            _cameraPivot.position = pivotBase;
+            _smoothPosition       = pivotBase;
+            _positionVelocity     = Vector3.zero;
+            _offsetVelocity       = Vector3.zero;
+            if (_mainCamera != null)
+            {
+                Quaternion rot = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
+                _mainCamera.transform.position = _cameraPivot.position + rot * new Vector3(0f, 0f, -_currentDistance);
+                _mainCamera.transform.rotation = rot;
+            }
+        }
+
         public Transform           GetTarget()         => _target;
         public float               GetCurrentYaw()     => _currentYaw;
         public float               GetCurrentPitch()   => _currentPitch;

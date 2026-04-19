@@ -96,6 +96,17 @@ namespace UPlayGround
         }
 
         /// <summary>
+        /// 플레이어가 이 포탈에서 스폰될 때 사용할 위치/회전을 반환한다.
+        /// _mapArrivalPoint가 설정되어 있으면 그 위치를, 없으면 포탈 자체 위치를 반환한다.
+        /// </summary>
+        public (Vector3 position, Quaternion rotation) GetArrivalPoint()
+        {
+            if (_mapArrivalPoint != null)
+                return (_mapArrivalPoint.position, _mapArrivalPoint.rotation);
+            return (transform.position, transform.rotation);
+        }
+
+        /// <summary>
         /// 외부(이벤트, 스토리 트리거 등)에서 포탈 활성 상태를 제어한다.
         /// </summary>
         public void SetPortalActive(bool active)

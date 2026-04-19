@@ -29,8 +29,9 @@ namespace UPlayGround.Component
         private EnemyDetection _detection;
 
         private EnemyAttackInfo _currentSkill;
-        private readonly List<Collider> _hitTargets = new List<Collider>();
+        private readonly HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private readonly Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
+        private readonly List<EnemyAttackInfo> _expiredCooldowns = new List<EnemyAttackInfo>();
         private int _currentHitPhaseIndex = 0;
 
         private SkillType _reservedSkillType = SkillType.None;
@@ -78,13 +79,15 @@ namespace UPlayGround.Component
 
         private void UpdateCooldowns()
         {
-            var keysToUpdate = new List<EnemyAttackInfo>(_skillCooldowns.Keys);
-            foreach (var skill in keysToUpdate)
+            _expiredCooldowns.Clear();
+            foreach (var kv in _skillCooldowns)
             {
-                _skillCooldowns[skill] -= Time.deltaTime;
-                if (_skillCooldowns[skill] <= 0)
-                    _skillCooldowns.Remove(skill);
+                _skillCooldowns[kv.Key] = kv.Value - Time.deltaTime;
+                if (_skillCooldowns[kv.Key] <= 0f)
+                    _expiredCooldowns.Add(kv.Key);
             }
+            foreach (var skill in _expiredCooldowns)
+                _skillCooldowns.Remove(skill);
         }
 
         /// <summary> MotionEvent_MotionWarp.Execute()에서 호출. warpDuration = endTime - startTime. </summary>
@@ -261,39 +264,39 @@ namespace UPlayGround.Component
 
             foreach (var hitCollider in hitColliders)
             {
-                if (_hitTargets.Contains(hitCollider)) continue;
+                IDamageable damageable = hitCollider.GetComponent<IDamageable>()
+                                      ?? hitCollider.GetComponentInParent<IDamageable>();
+                if (damageable == null || !damageable.CanTakeDamage()) continue;
+                if (_hitTargets.Contains(damageable)) continue;
 
                 if (phase.hitHeightRange > 0f)
                 {
-                    float heightDiff = Mathf.Abs(hitCollider.transform.position.y - attackPosition.y);
+                    float closestY   = hitCollider.ClosestPoint(attackPosition).y;
+                    float heightDiff = Mathf.Abs(closestY - attackPosition.y);
                     if (heightDiff > phase.hitHeightRange) continue;
                 }
 
-                IDamageable damageable = hitCollider.GetComponent<IDamageable>();
-                if (damageable != null && damageable.CanTakeDamage())
+                var attackData = new AttackData
                 {
-                    var attackData = new AttackData
-                    {
-                        damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
-                        poiseDamage        = phase.poiseDamage,
-                        criticalMultiplier = 1.0f,
-                        hitPoint           = hitCollider.ClosestPoint(attackPosition),
-                        attackDirection    = _attackOrigin.forward,
-                        reactionType       = phase.reactionType,
-                        hitParticleName    = phase.hitParticleName,
-                        pullForce          = phase.pullForce,
-                        airborneForce      = phase.airborneForce,
-                        hitPhaseIndex      = _currentHitPhaseIndex,
-                        knockbackForce     = phase.knockBackForce,
-                        knockbackDrag      = phase.knockBackDrag,
-                        grabDuration       = phase.grabDuration,
-                        hitHeightRange     = phase.hitHeightRange,
-                        attacker           = _ownerActor,
-                    };
+                    damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
+                    poiseDamage        = phase.poiseDamage,
+                    criticalMultiplier = 1.0f,
+                    hitPoint           = hitCollider.ClosestPoint(attackPosition),
+                    attackDirection    = _attackOrigin.forward,
+                    reactionType       = phase.reactionType,
+                    hitParticleName    = phase.hitParticleName,
+                    pullForce          = phase.pullForce,
+                    airborneForce      = phase.airborneForce,
+                    hitPhaseIndex      = _currentHitPhaseIndex,
+                    knockbackForce     = phase.knockBackForce,
+                    knockbackDrag      = phase.knockBackDrag,
+                    grabDuration       = phase.grabDuration,
+                    hitHeightRange     = phase.hitHeightRange,
+                    attacker           = _ownerActor,
+                };
 
-                    damageable.TakeDamage(attackData);
-                    _hitTargets.Add(hitCollider);
-                }
+                _hitTargets.Add(damageable);
+                damageable.TakeDamage(attackData);
             }
         }
 

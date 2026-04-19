@@ -317,7 +317,20 @@ namespace UPlayGround.Manager
                 ? _collision.Evaluate(_cameraPivot.position, camDir, desiredDistance)
                 : desiredDistance;
 
-            _mainCamera.transform.position = _cameraPivot.position + camDir * finalDist;
+            Vector3 camPos = _cameraPivot.position + camDir * finalDist;
+
+            // 지형 관통 방지: 카메라 XZ 위치에서 위→아래 레이캐스트로 지형 Y를 구하고 클램프
+            const float CHECK_HEIGHT = 20f;
+            const float CHECK_DIST   = 40f;
+            Vector3 checkOrigin = new Vector3(camPos.x, camPos.y + CHECK_HEIGHT, camPos.z);
+            if (Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, _collisionLayers))
+            {
+                float minY = groundHit.point.y + settings.collisionOffset;
+                if (camPos.y < minY)
+                    camPos.y = minY;
+            }
+
+            _mainCamera.transform.position = camPos;
         }
 
         private void UpdateCameraRotation(float smoothTime)

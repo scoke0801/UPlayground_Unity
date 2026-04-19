@@ -15,6 +15,7 @@ namespace UPlayGround.State
     public class PlayerFinishAttackState : PlayerActorState
     {
         public override string StateName => "FinishAttack";
+        public override bool GrantsInvincibility => true;
 
         [Header("Freeze Settings")]
         private const float FREEZE_RADIUS = 15f;

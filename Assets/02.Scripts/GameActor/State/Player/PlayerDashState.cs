@@ -17,6 +17,7 @@ namespace UPlayGround.State
     public class PlayerDashState : PlayerActorState
     {
         public override string StateName => "Dash";
+        public override bool GrantsInvincibility => true;
 
         private Vector3 _dashDirection;
         

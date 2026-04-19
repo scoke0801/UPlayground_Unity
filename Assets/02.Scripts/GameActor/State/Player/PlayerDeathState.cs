@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -24,16 +24,57 @@ namespace UPlayGround.State
             return true;
         }
 
+        private Vector3    _deathPosition;
+        private Quaternion _deathRotation;
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            _deathPosition = gameActor.transform.position;
+            _deathRotation = gameActor.transform.rotation;
+
             var state = gameActor.Animator.PlayMotion(AnimKey.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () =>
+                state.OwnedEvents.OnEnd = () => ShowRespawnUI();
+            }
+        }
+
+        private void ShowRespawnUI()
+        {
+            // 가장 가까운 포탈 위치 계산
+            var portals    = UnityEngine.Object.FindObjectsByType<PortalActor>(FindObjectsSortMode.None);
+            var portalPos  = _deathPosition;
+            var portalRot  = _deathRotation;
+
+            if (portals.Length > 0)
+            {
+                PortalActor nearest = null;
+                float       minDist = float.MaxValue;
+
+                foreach (var portal in portals)
                 {
-                    
-                };
+                    float dist = Vector3.Distance(_deathPosition, portal.transform.position);
+                    if (dist < minDist) { minDist = dist; nearest = portal; }
+                }
+
+                if (nearest != null)
+                    (portalPos, portalRot) = nearest.GetArrivalPoint();
+            }
+
+            var actor = playerActor ?? gameActor as PlayerActor;
+
+            var uiObj = UIManager.Instance?.ShowUI(UIKeyType.RespawnPopup);
+            var popup = uiObj?.GetComponentInChildren<UI_RespawnPopup>();
+
+            popup?.Setup(
+                onSpotRevive:   () => actor?.Respawn(_deathPosition, _deathRotation, 0.5f),
+                onPortalRevive: () => actor?.Respawn(portalPos, portalRot, 1f)
+            );
+            
+            if (popup == null)
+            {
+                actor?.Respawn(portalPos, portalRot, 1f);
             }
         }
 

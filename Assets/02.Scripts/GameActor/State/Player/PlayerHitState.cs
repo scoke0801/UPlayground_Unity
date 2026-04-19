@@ -211,8 +211,7 @@ namespace UPlayGround.State
 
             if (_attackData == null) return AnimKey.Hit_F;
 
-            Vector3 localDir = playerActor.transform.InverseTransformDirection(
-                (_attackData.attackDirection - playerActor.transform.position).normalized);
+            Vector3 localDir = playerActor.transform.InverseTransformDirection(_attackData.attackDirection);
 
             if (Mathf.Abs(localDir.x) > Mathf.Abs(localDir.z))
                 return localDir.x > 0 ? AnimKey.Hit_R : AnimKey.Hit_L;

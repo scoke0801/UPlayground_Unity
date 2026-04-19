@@ -14,6 +14,11 @@ namespace UPlayGround.State
         protected KinematicCharacterMotor motor;
 
         public virtual bool AdjustGravity { get; protected set; } = true;
+
+        /// <summary>
+        /// true이면 이 상태 동안 피격 무적. PlayerActor.CanTakeDamage()에서 참조.
+        /// </summary>
+        public virtual bool GrantsInvincibility => false;
         
         public GameActorState(ActorMovementController controller)
         {

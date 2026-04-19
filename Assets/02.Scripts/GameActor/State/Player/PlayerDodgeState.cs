@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class PlayerDodgeState : PlayerActorState
     {
         public override string StateName => "Dodge";
+        public override bool GrantsInvincibility => true;
         
         private readonly List<Collider> _ignoredOnDodge = new();
         private readonly List<EnemyMovementController> _enemyControllers = new();

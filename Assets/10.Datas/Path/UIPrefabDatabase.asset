@@ -89,3 +89,7 @@ MonoBehaviour:
     prefab: {fileID: 2061351792792607043, guid: ecfef36e9f5f7e44587bab966e453802, type: 3}
     defaultLayer: 1000
     description: 
+  - key: RespawnPopup
+    prefab: {fileID: 909020946507988054, guid: 030b827621155b049961daf7b191ac12, type: 3}
+    defaultLayer: 2000
+    description: 

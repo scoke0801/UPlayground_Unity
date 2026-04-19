@@ -340,7 +340,7 @@ namespace UPlayGround
             if (!CanTakeDamage())
             {
                 // 도지 중 피격 시도 → 퍼펙트 도지 창 내면 보상 효과 발동
-                if (MovementController.CurrentState.StateName == "Dodge")
+                if (MovementController.CurrentState is PlayerDodgeState)
                     TryPerfectDodge(attackData);
                 return;
             }
@@ -376,11 +376,7 @@ namespace UPlayGround
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
 
         public bool CanTakeDamage()
-        {
-            string s = MovementController.CurrentState.StateName;
-            if (s == "Dodge" || s == "Dash" || s == "FinishAttack") return false;
-            return IsAlive() && !_isInvincible;
-        }
+            => IsAlive() && !_isInvincible && !MovementController.CurrentState.GrantsInvincibility;
 
         public void Heal(float amount)
         {
@@ -597,6 +593,27 @@ namespace UPlayGround
             GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerDie);
             CameraManager.Instance.StartShake(_shakeKeyDeath);
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
+        }
+
+        /// <summary>
+        /// 지정 위치/회전으로 부활한다.
+        /// healPercent: 회복할 HP 비율 (0~1). 기본값 1 = 최대 HP 전체 회복.
+        /// </summary>
+        public void Respawn(Vector3 position, Quaternion rotation, float healPercent = 1f)
+        {
+            _currentHealth = _maxHealth * Mathf.Clamp01(healPercent);
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+
+            var motor = ActorController?.Motor;
+            if (motor != null)
+                motor.SetPositionAndRotation(position, rotation);
+            else
+                transform.SetPositionAndRotation(position, rotation);
+
+            MovementController.TransitionToState(new PlayerIdleState(MovementController));
+            CameraManager.Instance?.SnapToTarget(position);
+
+            Debug.Log($"[PlayerActor] {gameObject.name} 부활 — 위치: {position}");
         }
     }
 

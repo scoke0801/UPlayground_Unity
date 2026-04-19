@@ -131,7 +131,7 @@ namespace UPlayGround.Component
         private float             _lastCombatEventTime = -999f;
         private bool              _isCollideCollisionEnable;
         private PlayerActor       _playerActor;
-        private List<IDamageable> _hitTargets = new List<IDamageable>();
+        private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private bool              _cachedCombatState;
         private float             _threatCheckTimer;
 
@@ -568,7 +568,13 @@ namespace UPlayGround.Component
             Vector3    origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
             Collider[] hits   = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
 
-            bool hitOccurred = false;
+            // 첫 번째 히트 정보만 피드백(킬캠 등)에 사용
+            bool    hitOccurred   = false;
+            Vector3 firstHitPoint = Vector3.zero;
+            Vector3 firstHitDir   = Vector3.zero;
+            GameObject firstHitTarget = null;
+
+            _currentAttackData.attacker = _playerActor;
 
             foreach (var hit in hits)
             {
@@ -585,7 +591,8 @@ namespace UPlayGround.Component
 
                 if (_currentAttackData.hitHeightRange > 0f)
                 {
-                    if (Mathf.Abs(hit.transform.position.y - origin.y) > _currentAttackData.hitHeightRange)
+                    float closestY = hit.ClosestPoint(origin).y;
+                    if (Mathf.Abs(closestY - origin.y) > _currentAttackData.hitHeightRange)
                         continue;
                 }
 
@@ -595,21 +602,37 @@ namespace UPlayGround.Component
                 if (damageable == null || !damageable.CanTakeDamage() || _hitTargets.Contains(damageable))
                     continue;
 
-                _hitTargets.Add(damageable);
-                _currentAttackData.hitTarget = hit.gameObject;
-                _currentAttackData.hitPoint = hit.ClosestPoint(origin);
-                _currentAttackData.attackDirection = (hit.transform.position - transform.position).normalized;
-                _currentAttackData.attacker = _playerActor;
+                Vector3 hitPoint   = hit.ClosestPoint(origin);
+                Vector3 attackDir  = (hit.transform.position - transform.position).normalized;
 
+                // 공유 AttackData에 퍼-타겟 정보 기록 (TakeDamage 및 이벤트 수신자 참조용)
+                _currentAttackData.hitTarget       = hit.gameObject;
+                _currentAttackData.hitPoint        = hitPoint;
+                _currentAttackData.attackDirection = attackDir;
+
+                _hitTargets.Add(damageable);
                 damageable.TakeDamage(_currentAttackData);
                 ShowDamageFloater(_currentAttackData);
-                GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, _currentAttackData.hitPoint);
+                GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, hitPoint);
                 OnAttackHit?.Invoke(_currentAttackData);
-                hitOccurred = true;
+
+                if (!hitOccurred)
+                {
+                    hitOccurred      = true;
+                    firstHitPoint    = hitPoint;
+                    firstHitDir      = attackDir;
+                    firstHitTarget   = hit.gameObject;
+                }
             }
 
             if (hitOccurred)
+            {
+                // 피드백(킬캠, 히트스톱)은 첫 번째 히트 기준으로 적용
+                _currentAttackData.hitTarget       = firstHitTarget;
+                _currentAttackData.hitPoint        = firstHitPoint;
+                _currentAttackData.attackDirection = firstHitDir;
                 ApplyHitFeedback();
+            }
         }
 
         private void ShowDamageFloater(AttackData attackData)

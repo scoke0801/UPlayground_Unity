@@ -11,7 +11,7 @@ namespace UPlayGround.State
     public class PlayerJumpAttackState : PlayerActorState
     {
         public override string StateName => "JumpAttack";
-        public override bool AdjustGravity => false;
+        public override bool AdjustGravity => true;
 
         private PlayerCombat _combat;
         private AttackData   _attackData;

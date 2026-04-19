@@ -484,7 +484,6 @@ public class UI_Map : UI_Base
         var player = GameObjectManager.Instance?.Player;
         if (player == null) return;
         portal.TeleportPlayerHere(player);
-        UIManager.Instance.HideUI(UIKeyType.Map);
     }
 
     private void UpdateStaticMarkers()

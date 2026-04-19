@@ -9,11 +9,15 @@ namespace UPlayGround.State
     public class PlayerJumpDashAttackState : PlayerActorState
     {
         public override string StateName  => "JumpDashAttack";
-        public override bool AdjustGravity => false;
+        public override bool AdjustGravity => true;
+
+        private float _decelerationDuration = 0.5f;
 
         private PlayerCombat _combat;
         private AttackData   _attackData;
         private bool         _changingState;
+        private Vector3      _attackDirection;
+        private float        _elapsed;
 
         public PlayerJumpDashAttackState(ActorMovementController controller) : base(controller) { }
 
@@ -27,14 +31,19 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            _changingState = false;
-            _combat        = playerActor.GetCombat();
-            _attackData    = _combat?.ExecuteJumpDashAttack();
+            _changingState   = false;
+            _elapsed         = 0f;
+            _attackDirection = motor.CharacterForward;
+            _combat          = playerActor.GetCombat();
+            _attackData      = _combat?.ExecuteJumpDashAttack();
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpDashAttack_1;
             var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
             if (state != null)
+            {
+                _decelerationDuration = state.Duration;
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
+            }
             else
                 ChangeToNextState();
         }
@@ -50,8 +59,9 @@ namespace UPlayGround.State
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
 
-            Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
-            currentVelocity = rootMotionVel;
+            _elapsed += deltaTime;
+            float t = Mathf.Clamp01(_elapsed / _decelerationDuration);
+            currentVelocity = _attackDirection * (controller.DashSpeed * (1f - t));
 
             if (!motor.GroundingStatus.IsStableOnGround)
                 currentVelocity += controller.Gravity * controller.FallGravityMultiplier * deltaTime;

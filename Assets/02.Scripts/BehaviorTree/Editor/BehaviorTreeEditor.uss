@@ -1,0 +1,140 @@
+/* ======================================================
+   BehaviorTree Editor Stylesheet
+   ====================================================== */
+
+/* ── 노드 기본 ─────────────────────────────────────── */
+.bt-node {
+    min-width: 140px;
+    border-radius: 6px;
+    border-width: 2px;
+    border-color: rgba(255,255,255,0.15);
+}
+
+.bt-node > #title {
+    border-radius: 4px 4px 0 0;
+    padding: 4px 8px;
+}
+
+.bt-node > #title > #title-label {
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+.bt-node > #title > #title-button-container {
+    display: none;
+}
+
+/* ── 노드 타입별 타이틀 색상 ─────────────────────── */
+.bt-node--composite > #title    { background-color: rgb(30, 80, 140); }
+.bt-node--decorator > #title    { background-color: rgb(80, 50, 120); }
+.bt-node--action > #title       { background-color: rgb(30, 100, 50); }
+.bt-node--condition > #title    { background-color: rgb(20, 100, 110); }
+.bt-node--root > #title         { background-color: rgb(130, 60, 20); }
+
+/* ── 런타임 상태 하이라이트 ───────────────────────── */
+.bt-node--running {
+    border-color: rgb(255, 200, 50);
+    border-width: 3px;
+}
+
+.bt-node--success {
+    border-color: rgb(50, 200, 80);
+    border-width: 3px;
+}
+
+.bt-node--failure {
+    border-color: rgb(200, 60, 60);
+    border-width: 2px;
+}
+
+/* ── 타입 라벨 (노드 본문 상단) ────────────────────── */
+.bt-type-label {
+    font-size: 9px;
+    color: rgba(180,180,180,0.7);
+    padding: 2px 8px 0 8px;
+    -unity-font-style: italic;
+}
+
+/* ── 설명 라벨 ──────────────────────────────────────── */
+.bt-desc-label {
+    font-size: 11px;
+    color: rgb(200, 200, 200);
+    padding: 2px 8px 4px 8px;
+    white-space: normal;
+}
+
+/* ── 상태 아이콘 ────────────────────────────────────── */
+.bt-status-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    margin: 4px;
+    background-color: rgba(100,100,100,0.5);
+}
+
+.bt-status-icon--running  { background-color: rgb(255, 200, 50); }
+.bt-status-icon--success  { background-color: rgb(50, 200, 80); }
+.bt-status-icon--failure  { background-color: rgb(200, 60, 60); }
+
+/* ── Blackboard 패널 ────────────────────────────────── */
+.bt-blackboard {
+    background-color: rgba(30,30,30,0.9);
+    padding: 8px;
+    border-top-width: 1px;
+    border-color: rgba(255,255,255,0.1);
+}
+
+.bt-blackboard-title {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 200);
+    margin-bottom: 4px;
+}
+
+.bt-blackboard-row {
+    flex-direction: row;
+    margin-bottom: 2px;
+}
+
+.bt-blackboard-key {
+    min-width: 150px;
+    font-size: 11px;
+    color: rgba(180,180,180,0.8);
+}
+
+.bt-blackboard-value {
+    font-size: 11px;
+    color: rgb(140, 200, 240);
+    -unity-font-style: bold;
+}
+
+/* ── 툴바 ───────────────────────────────────────────── */
+.bt-toolbar-label {
+    -unity-font-style: bold;
+    color: rgb(200,200,200);
+    margin-left: 8px;
+    margin-right: 8px;
+    align-self: center;
+}
+
+.bt-runtime-badge {
+    background-color: rgb(200, 80, 30);
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: white;
+    font-size: 10px;
+    -unity-font-style: bold;
+    align-self: center;
+    margin-left: 4px;
+}
+
+.bt-editmode-badge {
+    background-color: rgb(60, 100, 160);
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: white;
+    font-size: 10px;
+    -unity-font-style: bold;
+    align-self: center;
+    margin-left: 4px;
+}

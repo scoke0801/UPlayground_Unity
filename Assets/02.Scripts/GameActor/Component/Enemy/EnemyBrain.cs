@@ -28,12 +28,12 @@ namespace UPlayGround.Component
         [SerializeField] private float _decisionInterval = 0.1f;
 
         private float         _decisionTimer;
-        private float         _lastAttackTime;
+        protected float       _lastAttackTime;
         private float         _lastSkillCheckTime;
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
         private bool          _hasGuardMotion;
-        private BehaviorPhase _currentPhase;
+        protected BehaviorPhase _currentPhase;
 
         // 전투 리듬 제어
         /// <summary> 다음 공격까지 기다리는 '의도적 지연 시간'. 매번 랜덤으로 변한다. </summary>
@@ -41,7 +41,7 @@ namespace UPlayGround.Component
         /// <summary> 현재 전투 행동 후 경과 타이머 </summary>
         private float _actionCooldownTimer;
         /// <summary> 연속 후퇴 방지 카운터 </summary>
-        private int   _consecutiveDefensiveCount;
+        protected int _consecutiveDefensiveCount;
 
         private const float SKILL_CHECK_INTERVAL = 0.5f;
         private const float MIN_ACTION_DELAY     = 0.5f;  // 최소 행동 간 대기 (0.3 -> 0.5)
@@ -541,7 +541,7 @@ namespace UPlayGround.Component
 
         
         //  공격 후 다음 행동 판단
-        public void DecidePostAttack(bool attackHit)
+        public virtual void DecidePostAttack(bool attackHit)
         {
             if (attackHit) _memory?.NotifyAttackLanded();
             else           _memory?.NotifyAttackMissed();
@@ -706,7 +706,7 @@ namespace UPlayGround.Component
 
         #region 기타
         
-        protected void ExecuteAttack()
+        protected virtual void ExecuteAttack()
         {
             // 그룹 슬롯 요청 — 거절당하면 공격하지 않고 Circle로 대기
             if (_groupController != null)
@@ -732,13 +732,13 @@ namespace UPlayGround.Component
                 new EnemyAttackState(_movementController, _combat, this, _detection));
         }
 
-        protected bool CanUseSkill()
+        public bool CanUseSkill()
         {
             if (_combat?.AttackData == null) return false;
             return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
         }
 
-        private void TransitionRetreating()
+        protected virtual void TransitionRetreating()
         {
             _memory?.NotifyRetreated();
             OnDefensiveAction();
@@ -746,7 +746,7 @@ namespace UPlayGround.Component
                 new EnemyRetreatState(_movementController, this, _detection, RetreatDistance));
         }
 
-        private void OnDefensiveAction()
+        protected virtual void OnDefensiveAction()
         {
             _consecutiveDefensiveCount++;
         }

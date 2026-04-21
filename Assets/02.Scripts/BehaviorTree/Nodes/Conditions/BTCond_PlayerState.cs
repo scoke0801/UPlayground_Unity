@@ -9,7 +9,7 @@ namespace UPlayGround.BehaviorTree
     {
         public PlayerStateQuery query = PlayerStateQuery.IsAttacking;
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var q = query;
             return new BTLeaf(nodeName, b =>

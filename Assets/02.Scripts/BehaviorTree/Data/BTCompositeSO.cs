@@ -8,7 +8,7 @@ namespace UPlayGround.BehaviorTree
     {
         public List<BTNodeSO> children = new();
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var runtimeChildren = new List<BTNode>(children.Count);
             foreach (var child in children)
@@ -23,7 +23,7 @@ namespace UPlayGround.BehaviorTree
     {
         public List<BTNodeSO> children = new();
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var runtimeChildren = new List<BTNode>(children.Count);
             foreach (var child in children)
@@ -40,7 +40,7 @@ namespace UPlayGround.BehaviorTree
         [Tooltip("children과 같은 인덱스의 가중치. 비어있으면 균등 가중치.")]
         public List<float> weights = new();
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var runtimeChildren = new List<BTNode>(children.Count);
             foreach (var child in children)

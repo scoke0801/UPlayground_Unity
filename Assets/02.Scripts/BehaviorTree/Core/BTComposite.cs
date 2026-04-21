@@ -13,9 +13,9 @@ namespace UPlayGround.BehaviorTree
             _children = children;
         }
 
-        public override void OnEnter(EnemyBlackboard bb) => _runningIndex = 0;
+        public override void OnEnter(RuntimeBlackboard bb) => _runningIndex = 0;
 
-        protected override NodeStatus TickInternal(EnemyBlackboard bb)
+        protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
             for (int i = _runningIndex; i < _children.Count; i++)
             {
@@ -39,9 +39,9 @@ namespace UPlayGround.BehaviorTree
             _children = children;
         }
 
-        public override void OnEnter(EnemyBlackboard bb) => _runningIndex = 0;
+        public override void OnEnter(RuntimeBlackboard bb) => _runningIndex = 0;
 
-        protected override NodeStatus TickInternal(EnemyBlackboard bb)
+        protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
             for (int i = _runningIndex; i < _children.Count; i++)
             {
@@ -66,7 +66,7 @@ namespace UPlayGround.BehaviorTree
             _weights  = weights;
         }
 
-        protected override NodeStatus TickInternal(EnemyBlackboard bb)
+        protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
             float total = 0f;
             foreach (var w in _weights) total += w;

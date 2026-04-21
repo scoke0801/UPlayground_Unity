@@ -290,9 +290,10 @@ namespace UPlayGround.Component
                     hitPhaseIndex      = _currentHitPhaseIndex,
                     knockbackForce     = phase.knockBackForce,
                     knockbackDrag      = phase.knockBackDrag,
-                    grabDuration       = phase.grabDuration,
-                    hitHeightRange     = phase.hitHeightRange,
-                    attacker           = _ownerActor,
+                    grabDuration          = phase.grabDuration,
+                    hitHeightRange        = phase.hitHeightRange,
+                    attacker              = _ownerActor,
+                    victimForcedAnimKey   = phase.victimForcedAnimKey,
                 };
 
                 _hitTargets.Add(damageable);

@@ -10,13 +10,13 @@ namespace UPlayGround.BehaviorTree
         [Tooltip("true면 stateName과 다를 때 Success (Not 조건)")]
         public bool invert = false;
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             string sn  = stateName;
             bool   inv = invert;
             return new BTLeaf(nodeName, b =>
             {
-                bool match = b.CurrentStateName == sn;
+                bool match = b.GetString(BBKey.CurrentStateName) == sn;
                 return (match != inv) ? NodeStatus.Success : NodeStatus.Failure;
             });
         }

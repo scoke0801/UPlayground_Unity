@@ -5,11 +5,11 @@ namespace UPlayGround.BehaviorTree
     [CreateAssetMenu(menuName = "BehaviorTree/Condition/HasAvailableSkill", fileName = "BTCond_HasAvailableSkill")]
     public class BTCond_HasAvailableSkillSO : BTNodeSO
     {
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
             => new BTLeaf(nodeName, b =>
             {
                 if (b.Combat == null) return NodeStatus.Failure;
-                return b.Combat.HasAvailableSkillAtDistance(b.DistanceToTarget)
+                return b.Combat.HasAvailableSkillAtDistance(b.GetFloat(BBKey.DistanceToTarget))
                     ? NodeStatus.Success
                     : NodeStatus.Failure;
             });

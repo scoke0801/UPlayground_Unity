@@ -16,12 +16,12 @@ namespace UPlayGround.Component
         [Header("Behavior Tree")]
         [SerializeField] private BehaviorTreeSO _behaviorTreeSO;
 
-        private BTNode          _runtimeTree;
-        private EnemyBlackboard _bb;
+        private BTNode            _runtimeTree;
+        private RuntimeBlackboard _bb;
 
         /// <summary> 에디터에서 런타임 하이라이트에 사용 </summary>
-        public BTNode           RuntimeTree => _runtimeTree;
-        public EnemyBlackboard  Blackboard  => _bb;
+        public BTNode             RuntimeTree => _runtimeTree;
+        public RuntimeBlackboard  Blackboard  => _bb;
 
         // 캐시 — base의 private 필드에 접근 불가하므로 별도 캐싱
         private EnemyDetection         _detectionCache;
@@ -64,7 +64,7 @@ namespace UPlayGround.Component
                 return;
             }
 
-            _bb = new EnemyBlackboard
+            _bb = new RuntimeBlackboard
             {
                 Runner    = this,
                 Detection = _detectionCache,
@@ -72,6 +72,8 @@ namespace UPlayGround.Component
                 Memory    = GetComponent<EnemyTacticalMemory>(),
                 Movement  = _movementCache,
             };
+
+            _behaviorTreeSO.blackboard?.InitializeBlackboard(_bb);
 
             _runtimeTree = _behaviorTreeSO.CreateRuntimeTree(_bb);
         }
@@ -85,22 +87,22 @@ namespace UPlayGround.Component
             }
 
             // Blackboard 갱신
-            _bb.HasTarget        = _detectionCache?.HasTarget        ?? false;
-            _bb.DistanceToTarget = _detectionCache?.DistanceToTarget ?? float.MaxValue;
-            _bb.CurrentStateName = _movementCache?.CurrentState?.StateName ?? "";
+            _bb.Set(BBKey.HasTarget,        _detectionCache?.HasTarget        ?? false);
+            _bb.Set(BBKey.DistanceToTarget, _detectionCache?.DistanceToTarget ?? float.MaxValue);
+            _bb.Set(BBKey.CurrentStateName, _movementCache?.CurrentState?.StateName ?? "");
 
-            _bb.PhaseAllowCharge           = PhaseAllowCharge;
-            _bb.PhaseAllowFlank            = PhaseAllowFlank;
-            _bb.PhaseChargeChance          = PhaseChargeChance;
-            _bb.PhaseFlankChance           = PhaseFlankChance;
-            _bb.PhaseMaxConsecutiveAttacks  = PhaseMaxConsecutiveAttacks;
+            _bb.Set(BBKey.PhaseAllowCharge,           PhaseAllowCharge);
+            _bb.Set(BBKey.PhaseAllowFlank,            PhaseAllowFlank);
+            _bb.Set(BBKey.PhaseChargeChance,          PhaseChargeChance);
+            _bb.Set(BBKey.PhaseFlankChance,           PhaseFlankChance);
+            _bb.Set(BBKey.PhaseMaxConsecutiveAttacks, PhaseMaxConsecutiveAttacks);
 
-            _bb.OptimalCombatDistance = OptimalCombatDistance;
-            _bb.MaxAttackRange        = GetMaxAttackRange();
-            _bb.PersonalSpaceDistance = PersonalSpaceDistance;
-            _bb.MinCombatDistance     = MinCombatDistance;
-            _bb.RetreatDistance       = RetreatDistance;
-            _bb.HasGuardMotion        = HasGuardMotion;
+            _bb.Set(BBKey.OptimalCombatDistance, OptimalCombatDistance);
+            _bb.Set(BBKey.MaxAttackRange,        GetMaxAttackRange());
+            _bb.Set(BBKey.PersonalSpaceDistance, PersonalSpaceDistance);
+            _bb.Set(BBKey.MinCombatDistance,     MinCombatDistance);
+            _bb.Set(BBKey.RetreatDistance,       RetreatDistance);
+            _bb.Set(BBKey.HasGuardMotion,        HasGuardMotion);
 
             _runtimeTree.Tick(_bb);
         }
@@ -108,25 +110,38 @@ namespace UPlayGround.Component
         protected override void OnDefensiveAction()
         {
             base.OnDefensiveAction();
-            if (_bb != null) _bb.ConsecutiveDefensiveCount++;
+            if (_bb != null)
+                _bb.Set(BBKey.ConsecutiveDefensiveCount, _bb.GetInt(BBKey.ConsecutiveDefensiveCount) + 1);
         }
 
         // ── 액션 노드가 호출하는 트리거 메서드 ──────────────────────
         public void TriggerAttack()
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY, MAX_DELAY); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY, MAX_DELAY));
+            }
             ExecuteAttack();
         }
 
         public void TriggerRetreat()
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY, MAX_DELAY); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY, MAX_DELAY));
+            }
             TransitionRetreating();
         }
 
         public void TriggerCircle(float duration)
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY * 0.5f, MAX_DELAY * 0.5f); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY * 0.5f, MAX_DELAY * 0.5f));
+            }
             _movementCache.TransitionToState(new EnemyCircleState(_movementCache, this, _detectionCache, duration));
         }
 
@@ -142,7 +157,11 @@ namespace UPlayGround.Component
 
         public void TriggerCharge()
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY, MAX_DELAY); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY, MAX_DELAY));
+            }
             _bb?.Memory?.NotifyCombatAction();
             _movementCache.TransitionToState(
                 new EnemyChargeState(_movementCache, _bb?.Combat, this, _detectionCache, _bb?.Memory));
@@ -150,7 +169,11 @@ namespace UPlayGround.Component
 
         public void TriggerFlank()
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY * 0.5f, MAX_DELAY * 0.5f); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY * 0.5f, MAX_DELAY * 0.5f));
+            }
             _bb?.Memory?.NotifyCombatAction();
             _movementCache.TransitionToState(
                 new EnemyFlankState(_movementCache, _bb?.Combat, this, _detectionCache));
@@ -158,7 +181,11 @@ namespace UPlayGround.Component
 
         public void TriggerGuard(float duration)
         {
-            if (_bb != null) { _bb.LastActionTime = Time.time; _bb.NextActionDelay = Random.Range(MIN_DELAY, MAX_DELAY); }
+            if (_bb != null)
+            {
+                _bb.Set(BBKey.LastActionTime,  Time.time);
+                _bb.Set(BBKey.NextActionDelay, Random.Range(MIN_DELAY, MAX_DELAY));
+            }
             OnDefensiveAction();
             _movementCache.TransitionToState(
                 new EnemyGuardState(_movementCache, this, _detectionCache, duration));
@@ -171,7 +198,8 @@ namespace UPlayGround.Component
 
         public void TriggerConsecutiveDefensiveReset()
         {
-            if (_bb != null) _bb.ConsecutiveDefensiveCount = 0;
+            if (_bb != null)
+                _bb.Set(BBKey.ConsecutiveDefensiveCount, 0);
         }
     }
 }

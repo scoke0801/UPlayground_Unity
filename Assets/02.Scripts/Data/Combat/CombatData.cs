@@ -39,6 +39,10 @@ namespace UPlayGround.Data
         [Header("Grab")]
         [Tooltip("Grab 지속 시간 (초)")]
         public float grabDuration = 1.5f;
+
+        [Header("Forced Motion")]
+        [Tooltip("Grab 리액션 시 피격자에게 강제할 애니메이션. None이면 AnimKey.Grabbed 폴백.")]
+        public AnimKey victimForcedAnimKey = AnimKey.None;
     }
 
     /// <summary>
@@ -184,6 +188,9 @@ namespace UPlayGround.Data
 
         // Grab
         public float grabDuration = 1.5f;
+
+        // Forced Motion
+        public AnimKey victimForcedAnimKey = AnimKey.None;
 
         // 멀티 히트
         public int hitPhaseIndex = 0;

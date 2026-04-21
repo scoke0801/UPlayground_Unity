@@ -546,8 +546,9 @@ namespace UPlayGround.Component
                 knockbackForce   = phase0.knockBackForce,
                 knockbackDrag    = phase0.knockBackDrag,
                 airborneForce    = phase0.airborneForce,
-                hitPhaseIndex    = 0,
-                attackKind       = attackKind,
+                hitPhaseIndex          = 0,
+                attackKind             = attackKind,
+                victimForcedAnimKey    = phase0.victimForcedAnimKey,
             };
         }
 

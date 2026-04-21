@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -8,7 +8,8 @@ namespace UPlayGround.State
     /// <summary>
     /// 적 잡힘 상태.
     /// Grab 공격에 피격 시 진입. 일정 시간 행동 불능.
-    /// 적은 연타 탈출이 없고, 지속 시간이 끝나면 자동 해제.
+    /// 공격자가 FireForcedMotionReleased()를 호출하면 즉시 해제되며,
+    /// 호출 없이 grabDuration이 만료되면 자동 탈출한다.
     /// </summary>
     public class EnemyGrabbedState : GameActorState
     {
@@ -25,7 +26,6 @@ namespace UPlayGround.State
 
         public override bool CanTransitionState(string stateName)
         {
-            // 잡힌 동안은 Hit으로도 전환 불가 (추가 경직 무시)
             return stateName is "Death";
         }
 
@@ -35,11 +35,27 @@ namespace UPlayGround.State
 
             _remainingDuration = _attackData?.grabDuration ?? 1.5f;
 
-            AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Grabbed)
-                ? AnimKey.Grabbed
-                : AnimKey.Hit_F;
+            if (_attackData?.attacker != null)
+                _attackData.attacker.OnForcedMotionReleased += Escape;
+
+            AnimKey animKey;
+            if (_attackData?.victimForcedAnimKey != AnimKey.None &&
+                gameActor.Animator.HasMotion(_attackData.victimForcedAnimKey))
+                animKey = _attackData.victimForcedAnimKey;
+            else if (gameActor.Animator.HasMotion(AnimKey.Grabbed))
+                animKey = AnimKey.Grabbed;
+            else
+                animKey = AnimKey.Hit_F;
 
             gameActor.Animator.PlayMotion(animKey, 0.1f);
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            base.OnExit(toState);
+
+            if (_attackData?.attacker != null)
+                _attackData.attacker.OnForcedMotionReleased -= Escape;
         }
 
         public override void UpdateState(float deltaTime)
@@ -47,9 +63,7 @@ namespace UPlayGround.State
             _remainingDuration -= deltaTime;
 
             if (_remainingDuration <= 0f)
-            {
                 Escape();
-            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -69,6 +83,9 @@ namespace UPlayGround.State
 
         private void Escape()
         {
+            if (_remainingDuration < -99f) return;
+            _remainingDuration = float.MinValue;
+
             if (gameActor.Animator.HasMotion(AnimKey.Grabbed_End))
             {
                 var state = gameActor.Animator.PlayMotion(AnimKey.Grabbed_End, 0.1f);

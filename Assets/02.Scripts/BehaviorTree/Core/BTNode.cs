@@ -11,16 +11,16 @@ namespace UPlayGround.BehaviorTree
         public BTNodeSO SourceSO { get; set; }
 
         /// <summary> 외부에서 호출하는 진입점. LastStatus를 갱신한 뒤 반환. </summary>
-        public NodeStatus Tick(EnemyBlackboard bb)
+        public NodeStatus Tick(RuntimeBlackboard bb)
         {
             LastStatus = TickInternal(bb);
             return LastStatus;
         }
 
         /// <summary> 서브클래스에서 실행 로직을 구현 </summary>
-        protected abstract NodeStatus TickInternal(EnemyBlackboard bb);
+        protected abstract NodeStatus TickInternal(RuntimeBlackboard bb);
 
-        public virtual void OnEnter(EnemyBlackboard bb) { }
-        public virtual void OnExit(EnemyBlackboard bb)  { }
+        public virtual void OnEnter(RuntimeBlackboard bb) { }
+        public virtual void OnExit(RuntimeBlackboard bb)  { }
     }
 }

@@ -7,7 +7,7 @@ namespace UPlayGround.BehaviorTree
     {
         public BTNodeSO child;
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var runtimeChild = child != null
                 ? child.CreateAndBindNode(bb)
@@ -22,7 +22,7 @@ namespace UPlayGround.BehaviorTree
         [Min(0f)] public float cooldown = 1f;
         public BTNodeSO child;
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             var runtimeChild = child != null
                 ? child.CreateAndBindNode(bb)

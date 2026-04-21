@@ -1,4 +1,5 @@
-﻿using AYellowpaper.SerializedCollections;
+﻿using System;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
@@ -112,6 +113,21 @@ namespace UPlayGround
             // AfterInit 스캔 또는 SpawnActor에서 이미 등록된 경우 무시된다.
             if (!string.IsNullOrEmpty(_actorId))
                 ActorSpawnManager.Instance?.RegisterActor(this);
+        }
+
+        /// <summary>
+        /// Grab 공격으로 피격자를 잡고 있는 동안, 공격자가 모션 해제를 알릴 때 발화.
+        /// 피격자의 GrabbedState가 구독하여 즉시 탈출한다.
+        /// </summary>
+        public event Action OnForcedMotionReleased;
+
+        /// <summary>
+        /// 공격자가 모션 종료 시점에 호출. MotionEvent 또는 AttackState.OnExit에서 호출한다.
+        /// </summary>
+        public void FireForcedMotionReleased()
+        {
+            OnForcedMotionReleased?.Invoke();
+            OnForcedMotionReleased = null;
         }
 
         public bool HasSocket(ActorSocketType socketType)

@@ -12,7 +12,7 @@ namespace UPlayGround.BehaviorTree
             _child   = child;
         }
 
-        protected override NodeStatus TickInternal(EnemyBlackboard bb)
+        protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
             var status = _child.Tick(bb);
             return status switch
@@ -37,7 +37,7 @@ namespace UPlayGround.BehaviorTree
             _cooldown = cooldown;
         }
 
-        protected override NodeStatus TickInternal(EnemyBlackboard bb)
+        protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
             if (Time.time - _lastSuccessTime < _cooldown)
                 return NodeStatus.Failure;

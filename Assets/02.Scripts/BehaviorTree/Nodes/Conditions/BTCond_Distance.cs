@@ -11,14 +11,14 @@ namespace UPlayGround.BehaviorTree
         [Min(0f)] public float minDistance = 0f;
         [Min(0f)] public float maxDistance = 3f;
 
-        protected override BTNode CreateRuntimeNode(EnemyBlackboard bb)
+        protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
             float min = minDistance;
             float max = maxDistance;
             var   c   = check;
             return new BTLeaf(nodeName, b =>
             {
-                float d = b.DistanceToTarget;
+                float d = b.GetFloat(BBKey.DistanceToTarget);
                 bool pass = c switch
                 {
                     DistanceCheck.LessThan    => d < max,

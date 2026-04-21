@@ -286,6 +286,14 @@ namespace UPlayGround.Editor
         private void DrawHitPhaseList(SerializedProperty phases, string key, int cardIdx, Color accent)
         {
             var folds = _phaseFold[key][cardIdx];
+            DrawHitPhaseListShared(phases, folds, accent);
+        }
+
+        // ─── 공유 Phase 목록 (EnemyAttackDataSODrawer에서도 호출) ──────
+
+        internal static void DrawHitPhaseListShared(SerializedProperty phases, List<bool> folds, Color accent)
+        {
+            EnsureStyles();
             while (folds.Count < phases.arraySize) folds.Add(true);
 
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
@@ -323,8 +331,10 @@ namespace UPlayGround.Editor
 
         // ─── Hit Phase 카드 ───────────────────────────────────────────
 
-        private bool DrawHitPhaseCard(SerializedProperty phase, int index, List<bool> folds, Color accent)
+        internal static bool DrawHitPhaseCard(SerializedProperty phase, int index, List<bool> folds, Color accent)
         {
+            EnsureStyles();
+
             SerializedProperty damageP   = phase.FindPropertyRelative("damage");
             SerializedProperty poiseP    = phase.FindPropertyRelative("poiseDamage");
             SerializedProperty reactionP = phase.FindPropertyRelative("reactionType");
@@ -391,8 +401,9 @@ namespace UPlayGround.Editor
                 {
                     using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                     {
-                        EditorGUILayout.LabelField("그랩", EditorStyles.miniBoldLabel);
-                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("grabDuration"), new GUIContent("지속 시간 (초)"));
+                        EditorGUILayout.LabelField("그랩 / Forced Motion", EditorStyles.miniBoldLabel);
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("grabDuration"),        new GUIContent("지속 시간 (초)"));
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("victimForcedAnimKey"), new GUIContent("피격자 강제 애니 (None = Grabbed 폴백)"));
                     }
                 }
             }

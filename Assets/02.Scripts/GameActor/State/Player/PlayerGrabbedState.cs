@@ -1,8 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
-using UPlayGround.InputDefine;
-using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -10,6 +8,8 @@ namespace UPlayGround.State
     /// <summary>
     /// 플레이어 잡힘 상태.
     /// Grab 공격에 피격 시 진입. 일정 시간 행동 불능.
+    /// 공격자가 FireForcedMotionReleased()를 호출하면 즉시 해제되며,
+    /// 호출 없이 grabDuration이 만료되면 자동 탈출한다.
     /// </summary>
     public class PlayerGrabbedState : PlayerActorState
     {
@@ -17,7 +17,6 @@ namespace UPlayGround.State
 
         private readonly AttackData _attackedData;
         private float _remainingDuration;
-        private float _elapsedTime;
 
         public PlayerGrabbedState(ActorMovementController controller, AttackData attackedData)
             : base(controller)
@@ -32,51 +31,58 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _remainingDuration = _attackedData?.grabDuration ?? 1.5f;
-            _elapsedTime = 0f;
 
             playerActor.GetCombat()?.RefreshCombatState();
 
-            // Grabbed 애니메이션이 있으면 재생, 없으면 Hit_F 폴백
-            AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Grabbed)
-                ? AnimKey.Grabbed
-                : AnimKey.Hit_F;
+            // 공격자가 있으면 릴리즈 이벤트 구독
+            if (_attackedData?.attacker != null)
+                _attackedData.attacker.OnForcedMotionReleased += Escape;
+
+            // victimForcedAnimKey > Grabbed > Hit_F 순으로 폴백
+            AnimKey animKey;
+            if (_attackedData?.victimForcedAnimKey != AnimKey.None &&
+                gameActor.Animator.HasMotion(_attackedData.victimForcedAnimKey))
+                animKey = _attackedData.victimForcedAnimKey;
+            else if (gameActor.Animator.HasMotion(AnimKey.Grabbed))
+                animKey = AnimKey.Grabbed;
+            else
+                animKey = AnimKey.Hit_F;
 
             gameActor.Animator.PlayMotion(animKey, 0.1f);
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            base.OnExit(toState);
+
+            if (_attackedData?.attacker != null)
+                _attackedData.attacker.OnForcedMotionReleased -= Escape;
+        }
+
         public override void UpdateState(float deltaTime)
         {
-            _elapsedTime += deltaTime;
             _remainingDuration -= deltaTime;
 
             if (_remainingDuration <= 0f)
-            {
                 Escape();
-            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 잡힌 동안 회전 불가
             currentRotation = currentRotation.normalized;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // 잡힌 동안 이동 불가
             currentVelocity = Vector3.zero;
         }
 
-        private readonly AttackData _attackData;
-        private bool _isDescending;
-        private bool _hasLanded;
-        private float _airTimer;
-
-        private const float FORCE_DESCEND_TIME = 0.5f;
-        private const float SLAM_DOWN_SPEED    = 28f;
         private void Escape()
         {
-            // 탈출 애니가 있으면 재생
+            // 중복 호출 방지
+            if (_remainingDuration < -99f) return;
+            _remainingDuration = float.MinValue;
+
             if (gameActor.Animator.HasMotion(AnimKey.Grabbed_End))
             {
                 var state = gameActor.Animator.PlayMotion(AnimKey.Grabbed_End, 0.1f);
@@ -89,13 +95,6 @@ namespace UPlayGround.State
             {
                 TransitionOut();
             }
-            //
-            // // 탈출 시 공격자 반대 방향으로 밀림
-            // if (_attackedData?.attacker != null)
-            // {
-            //     Vector3 escapeDir = (motor.TransientPosition - _attackedData.attacker.transform.position).normalized;
-            //     escapeDir.y = 0f;
-            // }
         }
 
         private void TransitionOut()

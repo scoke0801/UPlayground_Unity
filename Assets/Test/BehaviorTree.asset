@@ -1,5 +1,22 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5311711522220910531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: BTSelector
+  m_EditorClassIdentifier: 
+  nodeName: BTSelector
+  editorPosition: {x: 481, y: 328}
+  children:
+  - {fileID: 3122810607006079008}
+  - {fileID: 1894417847256848008}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,4 +29,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd5e82b5bccecd74490c4fb63b98adaf, type: 3}
   m_Name: BehaviorTree
   m_EditorClassIdentifier: 
-  rootNode: {fileID: 0}
+  rootNode: {fileID: 3122810607006079008}
+--- !u!114 &1894417847256848008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a37677a7647bff40ac2ab5bc59ad588, type: 3}
+  m_Name: Guard
+  m_EditorClassIdentifier: 
+  nodeName: Guard
+  editorPosition: {x: 687, y: 657}
+  minDuration: 0.8
+  maxDuration: 1.5
+--- !u!114 &3122810607006079008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d87b45a3241ef42a46d084314237f8, type: 3}
+  m_Name: Attack
+  m_EditorClassIdentifier: 
+  nodeName: Attack
+  editorPosition: {x: 266, y: 657}

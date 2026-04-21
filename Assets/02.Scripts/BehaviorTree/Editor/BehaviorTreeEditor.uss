@@ -1,140 +1,263 @@
-/* ======================================================
-   BehaviorTree Editor Stylesheet
-   ====================================================== */
+/* ═══════════════════════════════════════════════════════════
+   BehaviorTree Editor  —  Unreal Engine Style
+   ═══════════════════════════════════════════════════════════ */
 
-/* ── 노드 기본 ─────────────────────────────────────── */
-.bt-node {
-    min-width: 140px;
-    border-radius: 6px;
-    border-width: 2px;
-    border-color: rgba(255,255,255,0.15);
+/* ── 그래프 배경 ─────────────────────────────────────────── */
+GridBackground {
+    --grid-background-color: #1b1b1b;
+    --line-color:             #252525;
+    --thick-line-color:       #303030;
+    --spacing:                20;
 }
 
-.bt-node > #title {
-    border-radius: 4px 4px 0 0;
-    padding: 4px 8px;
-}
-
-.bt-node > #title > #title-label {
-    font-size: 12px;
-    -unity-font-style: bold;
-}
-
-.bt-node > #title > #title-button-container {
-    display: none;
-}
-
-/* ── 노드 타입별 타이틀 색상 ─────────────────────── */
-.bt-node--composite > #title    { background-color: rgb(30, 80, 140); }
-.bt-node--decorator > #title    { background-color: rgb(80, 50, 120); }
-.bt-node--action > #title       { background-color: rgb(30, 100, 50); }
-.bt-node--condition > #title    { background-color: rgb(20, 100, 110); }
-.bt-node--root > #title         { background-color: rgb(130, 60, 20); }
-
-/* ── 런타임 상태 하이라이트 ───────────────────────── */
-.bt-node--running {
-    border-color: rgb(255, 200, 50);
-    border-width: 3px;
-}
-
-.bt-node--success {
-    border-color: rgb(50, 200, 80);
-    border-width: 3px;
-}
-
-.bt-node--failure {
-    border-color: rgb(200, 60, 60);
-    border-width: 2px;
-}
-
-/* ── 타입 라벨 (노드 본문 상단) ────────────────────── */
-.bt-type-label {
-    font-size: 9px;
-    color: rgba(180,180,180,0.7);
-    padding: 2px 8px 0 8px;
-    -unity-font-style: italic;
-}
-
-/* ── 설명 라벨 ──────────────────────────────────────── */
-.bt-desc-label {
-    font-size: 11px;
-    color: rgb(200, 200, 200);
-    padding: 2px 8px 4px 8px;
-    white-space: normal;
-}
-
-/* ── 상태 아이콘 ────────────────────────────────────── */
-.bt-status-icon {
-    width: 12px;
-    height: 12px;
-    border-radius: 6px;
-    margin: 4px;
-    background-color: rgba(100,100,100,0.5);
-}
-
-.bt-status-icon--running  { background-color: rgb(255, 200, 50); }
-.bt-status-icon--success  { background-color: rgb(50, 200, 80); }
-.bt-status-icon--failure  { background-color: rgb(200, 60, 60); }
-
-/* ── Blackboard 패널 ────────────────────────────────── */
-.bt-blackboard {
-    background-color: rgba(30,30,30,0.9);
-    padding: 8px;
-    border-top-width: 1px;
-    border-color: rgba(255,255,255,0.1);
-}
-
-.bt-blackboard-title {
-    font-size: 12px;
-    -unity-font-style: bold;
-    color: rgb(200, 200, 200);
-    margin-bottom: 4px;
-}
-
-.bt-blackboard-row {
-    flex-direction: row;
-    margin-bottom: 2px;
-}
-
-.bt-blackboard-key {
-    min-width: 150px;
-    font-size: 11px;
-    color: rgba(180,180,180,0.8);
-}
-
-.bt-blackboard-value {
-    font-size: 11px;
-    color: rgb(140, 200, 240);
-    -unity-font-style: bold;
-}
-
-/* ── 툴바 ───────────────────────────────────────────── */
+/* ── 툴바 ───────────────────────────────────────────────── */
 .bt-toolbar-label {
+    color: #bbbbbb;
     -unity-font-style: bold;
-    color: rgb(200,200,200);
+    margin-right: 12px;
+    font-size: 12px;
+    align-self: center;
+}
+
+.bt-editmode-badge {
+    background-color: #3a3a3a;
+    color: #aaaaaa;
+    border-radius: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
     margin-left: 8px;
-    margin-right: 8px;
+    font-size: 10px;
+    -unity-font-style: bold;
     align-self: center;
 }
 
 .bt-runtime-badge {
-    background-color: rgb(200, 80, 30);
-    border-radius: 4px;
-    padding: 2px 6px;
-    color: white;
+    background-color: #c84800;
+    color: #ffffff;
+    border-radius: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-left: 8px;
     font-size: 10px;
     -unity-font-style: bold;
     align-self: center;
-    margin-left: 4px;
 }
 
-.bt-editmode-badge {
-    background-color: rgb(60, 100, 160);
-    border-radius: 4px;
-    padding: 2px 6px;
-    color: white;
-    font-size: 10px;
+/* ══════════════════════════════════════════════════════════
+   노드 기본 구조
+   ══════════════════════════════════════════════════════════ */
+
+.bt-ue-node {
+    min-width: 190px;
+}
+
+/* 노드 외곽 테두리 + 배경 */
+.bt-ue-node #node-border {
+    background-color: #252526;
+    border-radius: 6px;
+    border-width: 2px;
+    border-color: #3c3c3c;
+    overflow: hidden;
+}
+
+/* 선택 시 흰 테두리 */
+.bt-ue-node:selected #node-border {
+    border-color: #dddddd;
+    border-width: 2px;
+}
+
+/* ── 입력 포트 행 (최상단) ─────────────────────────────── */
+.bt-ue-portrow-top {
+    align-items: center;
+    justify-content: center;
+    background-color: #1b1b1b;
+    min-height: 18px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+/* ── 헤더 (titleContainer) ─────────────────────────────── */
+.bt-ue-node #title {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    background-color: transparent;
+    border-bottom-width: 0px;
+}
+
+.bt-ue-header-row {
+    flex-direction: row;
+    align-items: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.bt-ue-icon {
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
     -unity-font-style: bold;
-    align-self: center;
-    margin-left: 4px;
+    margin-right: 6px;
+    -unity-text-align: middle-center;
+    width: 16px;
+}
+
+.bt-ue-typename {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.bt-ue-spacer {
+    flex-grow: 1;
+}
+
+.bt-ue-status-dot {
+    font-size: 9px;
+    color: rgba(0,0,0,0);
+    width: 10px;
+    height: 10px;
+    -unity-text-align: middle-center;
+}
+
+/* ── 타입별 헤더 색상 ──────────────────────────────────── */
+.bt-type-selector  #title { background-color: #1a55a8; }
+.bt-type-sequence  #title { background-color: #1a6b30; }
+.bt-type-random    #title { background-color: #8c6015; }
+.bt-type-action    #title { background-color: #5c1a8a; }
+.bt-type-condition #title { background-color: #1a6060; }
+.bt-type-inverter  #title { background-color: #7a6200; }
+.bt-type-cooldown  #title { background-color: #1a5050; }
+
+/* ── 바디 (extensionContainer) ─────────────────────────── */
+.bt-ue-body {
+    padding-top: 8px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-top-width: 1px;
+    border-top-color: #1a1a1a;
+    background-color: #2d2d2d;
+}
+
+.bt-ue-nodename {
+    font-size: 12px;
+    color: #e8e8e8;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.bt-ue-desc {
+    font-size: 10px;
+    color: #888888;
+    margin-top: 3px;
+}
+
+/* ── 출력 포트 행 (최하단) ─────────────────────────────── */
+.bt-ue-portrow-bottom {
+    align-items: center;
+    justify-content: center;
+    background-color: #1b1b1b;
+    min-height: 18px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-top-width: 1px;
+    border-top-color: #1a1a1a;
+}
+
+/* ── 포트 공통 ─────────────────────────────────────────── */
+.bt-ue-node Port {
+    background-color: transparent;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+/* 포트 라벨 숨김 */
+.bt-ue-node .port-label {
+    display: none;
+}
+
+/* 포트 커넥터 (사각형 핀 스타일) */
+.bt-ue-node .port__connector {
+    width: 16px;
+    height: 7px;
+    border-radius: 2px;
+    background-color: #505050;
+    border-width: 1px;
+    border-color: #888888;
+}
+
+.bt-ue-node .port__connector:hover {
+    background-color: #aaaaaa;
+    border-color: #ffffff;
+}
+
+.bt-ue-node Port.connected .port__connector {
+    background-color: #c8c8c8;
+    border-color: #eeeeee;
+}
+
+/* ── 런타임 상태 — 테두리 색 ──────────────────────────── */
+.bt-running #node-border { border-color: #f5c518; border-width: 2px; }
+.bt-success #node-border { border-color: #4caf50; border-width: 2px; }
+.bt-failure #node-border { border-color: #f44336; border-width: 2px; }
+
+/* 상태 도트 색상 */
+.bt-dot-running { color: #f5c518; }
+.bt-dot-success { color: #4caf50; }
+.bt-dot-failure { color: #f44336; }
+
+/* ══════════════════════════════════════════════════════════
+   Blackboard 패널
+   ══════════════════════════════════════════════════════════ */
+
+.bt-blackboard {
+    background-color: #1e1e1e;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.bt-blackboard-title {
+    color: #cccccc;
+    font-size: 11px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: #3a3a3a;
+}
+
+.bt-blackboard-row {
+    flex-direction: row;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-bottom-width: 1px;
+    border-bottom-color: #282828;
+}
+
+.bt-blackboard-key {
+    color: #888888;
+    font-size: 10px;
+    width: 130px;
+}
+
+.bt-blackboard-value {
+    color: #88c8f0;
+    font-size: 10px;
+    flex-grow: 1;
+    -unity-font-style: bold;
 }

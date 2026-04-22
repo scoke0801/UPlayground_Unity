@@ -151,7 +151,10 @@ namespace UPlayGround.Editor
             EditorGUI.BeginChangeCheck();
             var newObj = EditorGUI.ObjectField(
                 new Rect(fieldX, fieldY, fieldW, 18),
-                current, typeof(ScriptableObject), false);
+                current, 
+                typeof(AttackDataSO), // 필터링할 타입을 공통 부모로 지정
+                false
+            );
             if (EditorGUI.EndChangeCheck())
             {
                 if (newObj is PlayerAttackDataSO p && p != _playerTarget) BindPlayer(p);

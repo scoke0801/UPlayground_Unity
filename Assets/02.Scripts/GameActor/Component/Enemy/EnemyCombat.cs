@@ -39,6 +39,7 @@ namespace UPlayGround.Component
 
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
+        private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이를 주입.
@@ -79,13 +80,26 @@ namespace UPlayGround.Component
 
         private void UpdateCooldowns()
         {
-            _expiredCooldowns.Clear();
-            foreach (var kv in _skillCooldowns)
+            // 1. 순회할 키들을 별도의 리스트에 복사합니다. (딕셔너리 변경에 안전함)
+            _keysToProcess.Clear();
+            foreach (var key in _skillCooldowns.Keys)
             {
-                _skillCooldowns[kv.Key] = kv.Value - Time.deltaTime;
-                if (_skillCooldowns[kv.Key] <= 0f)
-                    _expiredCooldowns.Add(kv.Key);
+                _keysToProcess.Add(key);
             }
+
+            _expiredCooldowns.Clear();
+
+            // 2. 복사된 리스트를 순회하며 쿨타임을 갱신합니다.
+            foreach (var skill in _keysToProcess)
+            {
+                _skillCooldowns[skill] -= Time.deltaTime;
+        
+                // 3. 만료된 경우 삭제 리스트에 추가
+                if (_skillCooldowns[skill] <= 0f)
+                    _expiredCooldowns.Add(skill);
+            }
+
+            // 4. 만료된 스킬을 실제 딕셔너리에서 제거
             foreach (var skill in _expiredCooldowns)
                 _skillCooldowns.Remove(skill);
         }

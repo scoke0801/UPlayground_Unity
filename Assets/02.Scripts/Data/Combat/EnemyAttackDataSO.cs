@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Combat
     /// 적 공격 데이터 ScriptableObject
     /// </summary>
     [CreateAssetMenu(fileName = "EnemyAttackData", menuName = "UPlayGround/Enemy/Attack Data")]
-    public class EnemyAttackDataSO : ScriptableObject
+    public class EnemyAttackDataSO : AttackDataSO
     {
         [Header("Attack Pool")]
         [Tooltip("사용 가능한 공격 리스트 (가중치 기반 선택)")]

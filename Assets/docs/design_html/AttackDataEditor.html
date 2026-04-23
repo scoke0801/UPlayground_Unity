@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Attack Data Editor</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#1a1a1a;--bg1:#242424;--bg2:#2c2c2c;--bg3:#363636;--bg4:#404040;
+  --border:#4a4a4a;--border-subtle:#333;
+  --t0:#e8e8e8;--t1:#b0b0b0;--t2:#787878;
+  --player:#4a9eff;--player-dim:#1e3a5f;
+  --enemy:#ff7c42;--enemy-dim:#5c2e10;
+  --hit:#5ec97a;--hit-dim:#1a3d24;
+  --warn:#f5c542;--warn-dim:#4a3a00;
+  --err:#ff5c5c;--err-dim:#5c1a1a;
+  --sel:#2a4875;--sel-border:#4a9eff;
+  --radius:3px;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+html,body,#root{height:100%;overflow:hidden;background:var(--bg0);color:var(--t0);font-family:var(--font);font-size:13px}
+button{font-family:var(--font);font-size:12px;cursor:pointer;border:none;background:none;color:var(--t0)}
+input[type=text],input[type=number],select{font-family:var(--mono);font-size:12px;background:var(--bg0);border:1px solid var(--border);color:var(--t0);border-radius:var(--radius);padding:2px 6px;width:100%;outline:none}
+input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--player)}
+input[type=range]{width:100%;accent-color:var(--player);cursor:pointer}
+select option{background:var(--bg2)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+/* LAYOUT */
+.editor{display:flex;flex-direction:column;height:100%}
+.topbar{display:flex;align-items:center;gap:10px;padding:0 12px;height:36px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-path{font-size:11px;color:var(--t2);font-family:var(--mono)}
+.tbtn{padding:3px 10px;border-radius:var(--radius);background:var(--bg4);color:var(--t0);font-size:11px;transition:background .15s}
+.tbtn:hover{filter:brightness(1.2)}
+.tbtn.primary{background:var(--player);color:#fff}
+.tabs{display:flex;align-items:center;height:30px;background:var(--bg1);border-bottom:1px solid var(--border);flex-shrink:0;padding:0 8px;gap:2px}
+.tab{padding:0 14px;height:26px;display:flex;align-items:center;gap:6px;border-radius:var(--radius) var(--radius) 0 0;font-size:12px;color:var(--t1);border:1px solid transparent;cursor:pointer}
+.tab:hover{background:var(--bg3);color:var(--t0)}
+.tab.active{background:var(--bg2);color:var(--t0);border-color:var(--border);border-bottom-color:var(--bg2)}
+.main{display:flex;flex:1;overflow:hidden}
+
+/* LEFT */
+.attack-list{width:270px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--bg1)}
+.panel-hdr{padding:5px 10px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--t1);text-transform:uppercase;letter-spacing:.06em}
+.iBtn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);font-size:13px;color:var(--t1);transition:all .15s}
+.iBtn:hover{background:var(--bg4);color:var(--t0)}
+.iBtn.danger:hover{background:var(--err-dim);color:var(--err)}
+.search-bar{padding:5px 8px;border-bottom:1px solid var(--border)}
+.search-bar input{width:100%;background:var(--bg0);border:1px solid var(--border);border-radius:var(--radius);padding:4px 8px;font-size:12px;color:var(--t0);outline:none}
+.search-bar input:focus{border-color:var(--player)}
+.list-scroll{flex:1;overflow-y:auto}
+.grp-hdr{padding:4px 10px;background:var(--bg0);border-bottom:1px solid var(--border-subtle);font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--t2);text-transform:uppercase;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+.grp-hdr:hover{background:var(--bg1)}
+.grp-count{background:var(--bg3);border-radius:10px;padding:1px 6px;font-size:10px}
+.atk-row{display:flex;align-items:center;padding:0 6px 0 8px;height:34px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background .1s;gap:5px;position:relative}
+.atk-row:hover{background:var(--bg3)}
+.atk-row.sel{background:var(--sel);border-left:2px solid var(--sel-border)}
+.atk-row.cmp-sel{background:#1a3020;border-left:2px solid var(--hit)}
+.drag-h{color:var(--t2);cursor:grab;font-size:11px;flex-shrink:0;user-select:none}
+.atk-name{flex:1;font-family:var(--mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phase-pips{display:flex;gap:2px;flex-shrink:0}
+.pip{width:6px;height:6px;border-radius:1px}
+.atk-dmg{font-family:var(--mono);font-size:11px;color:var(--t2);flex-shrink:0;width:28px;text-align:right}
+
+/* VALIDATION BADGE */
+.vbadge{width:14px;height:14px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:default}
+.vbadge.warn{background:var(--warn-dim);color:var(--warn)}
+.vbadge.err{background:var(--err-dim);color:var(--err)}
+
+/* RIGHT */
+.right{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* MINIMAP */
+.mm-hdr{padding:5px 12px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:var(--t1);text-transform:uppercase;letter-spacing:.06em}
+.mm-body{padding:10px 16px 6px;overflow-x:auto}
+.mm-row{display:flex;align-items:center;gap:8px}
+.mm-label{font-size:10px;color:var(--t2);font-family:var(--mono);width:56px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mm-track{flex:1;background:var(--bg0);border-radius:4px;position:relative;display:flex;min-width:380px;border:1px solid var(--border-subtle);overflow:visible;user-select:none}
+.phase-block{height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:filter .15s;font-size:10px;font-weight:600;font-family:var(--mono);overflow:hidden}
+.phase-block:hover{filter:brightness(1.2)}
+.phase-block.active{outline:2px solid #fff;outline-offset:-2px;z-index:1}
+.hit-mk{position:absolute;top:4px;bottom:4px;width:1px;background:rgba(255,255,255,0.55);pointer-events:none;border-radius:1px}
+.resize-handle{position:absolute;top:0;right:-4px;width:8px;height:100%;cursor:col-resize;z-index:10;display:flex;align-items:center;justify-content:center}
+.resize-handle::after{content:'';width:2px;height:60%;background:rgba(255,255,255,0.3);border-radius:1px}
+.resize-handle:hover::after{background:rgba(255,255,255,0.8)}
+.mm-legend{display:flex;gap:10px;padding:4px 72px 8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2);cursor:pointer}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.mm-total{width:70px;flex-shrink:0;font-size:10px;color:var(--t2);font-family:var(--mono);padding-left:8px}
+
+/* DETAIL */
+.detail{flex:1;overflow-y:auto}
+.section{border-bottom:1px solid var(--border-subtle)}
+.sec-hdr{padding:6px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--t1);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:7px}
+.sec-body{padding:10px 14px;display:flex;flex-direction:column;gap:7px}
+.frow{display:flex;align-items:center;gap:8px;min-height:24px}
+.flabel{width:120px;flex-shrink:0;color:var(--t1);font-size:12px;position:relative}
+.fval{flex:1;display:flex;align-items:center;gap:5px;min-width:0}
+.funit{color:var(--t2);font-size:11px;font-family:var(--mono);flex-shrink:0}
+.srow{display:flex;align-items:center;gap:6px;flex:1}
+.sval{width:50px;flex-shrink:0}
+
+/* PROGRESS BAR */
+.pbar-wrap{width:100%;height:3px;background:var(--bg3);border-radius:2px;margin-top:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:2px;transition:width .2s}
+
+/* PHASE TABS */
+.phase-tabs{display:flex;gap:2px;padding:7px 14px 0;background:var(--bg1);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.ptab{padding:4px 10px;border-radius:var(--radius) var(--radius) 0 0;font-size:11px;font-family:var(--mono);cursor:pointer;border:1px solid transparent;display:flex;align-items:center;gap:4px;transition:all .1s}
+.ptab:hover{background:var(--bg3);border-color:var(--border)}
+.ptab.active{background:var(--bg2);border-color:var(--border);color:var(--t0)}
+.ptab-add{padding:4px 8px;border-radius:var(--radius);color:var(--t2);font-size:16px;line-height:1;margin-left:2px}
+.ptab-add:hover{background:var(--bg3);color:var(--t0)}
+
+/* BADGE */
+.badge{padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.badge-blue{background:var(--player-dim);color:var(--player)}
+.badge-orange{background:var(--enemy-dim);color:var(--enemy)}
+.badge-green{background:var(--hit-dim);color:var(--hit)}
+.badge-warn{background:var(--warn-dim);color:var(--warn)}
+
+/* TOOLTIP */
+.tip-wrap{position:relative;display:inline-flex;align-items:center}
+.tip-icon{width:13px;height:13px;border-radius:50%;background:var(--bg4);color:var(--t2);font-size:9px;display:flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0;margin-left:3px}
+.tip-wrap:hover .tip-box{display:block}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 4px);left:0;min-width:180px;max-width:260px;background:#111;border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:11px;color:var(--t1);line-height:1.5;z-index:999;pointer-events:none;white-space:normal;font-family:var(--font);font-weight:400}
+
+/* VALIDATION PANEL */
+.val-panel{margin:8px 14px;background:var(--bg0);border-radius:4px;overflow:hidden}
+.val-row{display:flex;align-items:flex-start;gap:7px;padding:5px 8px;font-size:11px;border-bottom:1px solid var(--border-subtle)}
+.val-row:last-child{border:none}
+.val-row.err{border-left:2px solid var(--err)}
+.val-row.warn{border-left:2px solid var(--warn)}
+
+/* COMPARE VIEW */
+.cmp-view{flex:1;overflow:auto;padding:12px 16px}
+.cmp-table{border-collapse:collapse;width:100%;font-size:12px}
+.cmp-table th{padding:6px 10px;background:var(--bg2);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--t1);text-align:left;white-space:nowrap}
+.cmp-table td{padding:5px 10px;border:1px solid var(--border-subtle);font-family:var(--mono);vertical-align:top}
+.cmp-table tr:hover td{background:var(--bg1)}
+.cmp-field-hdr{background:var(--bg3)!important;color:var(--t2)!important;font-family:var(--font)!important;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+
+/* CLIPBOARD BAR */
+.clip-bar{padding:4px 14px;background:#1a2a1a;border-bottom:1px solid var(--hit-dim);font-size:11px;color:var(--hit);display:flex;align-items:center;gap:8px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;z-index:999;pointer-events:none}
+.toast{background:#1e1e1e;border:1px solid var(--border);border-radius:5px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.5);pointer-events:all;animation:slideUp .2s ease;position:relative;overflow:hidden}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toast-undo{color:var(--player);font-weight:600;cursor:pointer;padding:2px 6px;border-radius:3px}
+.toast-undo:hover{background:var(--player-dim)}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--t2);font-size:13px}
+.empty-icon{font-size:30px;opacity:.25}
+
+/* CMP BANNER */
+.cmp-banner{background:var(--hit-dim);border-bottom:1px solid var(--hit);padding:4px 14px;font-size:11px;color:var(--hit);display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* INPUT ERROR */
+input.field-err{border-color:var(--err)!important}
+input.field-warn{border-color:var(--warn)!important}
+
+/* TWEAKS */
+.tweaks-panel{position:fixed;bottom:16px;right:16px;width:210px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:100}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"accentColor":"#4a9eff","minimapH":38}/*EDITMODE-END*/;
+
+const PC = ['#4a9eff','#a06bff','#ff7c42','#ffca42','#5ec97a'];
+const HTYPES = ['Melee','Ranged','AoE','Projectile'];
+const ATYPES = ['None','Slash','Thrust','Overhead','Spin','Dash','Jump','Special'];
+const ATTYPES = ['Melee','Ranged','AoE'];
+
+const TIPS = {
+  damage:'피격 시 입히는 기본 대미지 수치',
+  pointDamage:'방어 포인트를 깎는 별도 대미지 (포인트 = 실드/가드)',
+  hitboxType:'판정 발생 방식. Melee=근접 Trigger, Ranged=투사체',
+  hitCount:'단일 Phase 내 히트 반복 횟수',
+  hitstopSelf:'공격자가 정지하는 시간 (타격감 연출)',
+  hitstopTarget:'피격자가 정지하는 시간 (경직 연출)',
+  staggerTime:'피격자 경직(Stagger) 지속 시간',
+  knockback:'넉백 이동 거리 강도',
+  reactionPushForce:'피격자를 밀어내는 힘 (수평)',
+  reactionLiftForce:'피격자를 들어올리는 힘 (수직)',
+  reactionFallSpeed:'공중 상태일 때 적용되는 낙하 속도 배율',
+  fxKey:'GameObjectManager FX Pool에서 재생할 이펙트 키',
+  duration:'이 Phase의 총 재생 시간',
+  selectionWeight:'AI가 이 스킬을 선택할 가중치. 0이면 절대 선택되지 않음',
+  minRange:'이 스킬을 사용할 수 있는 최소 거리 (m)',
+  maxRange:'이 스킬을 사용할 수 있는 최대 거리 (m)',
+  isAerialSkill:'공중 상태일 때만 사용하는 스킬 여부',
+  comboable:'이 공격 후 콤보 입력을 이어받을 수 있는지 여부',
+};
+
+function makePhase(idx) {
+  return {
+    id: Date.now() + idx + Math.random(),
+    label: `Phase ${idx}`,
+    duration: +(0.25 + Math.random()*0.35).toFixed(2),
+    damage: Math.floor(Math.random()*30 + 10),
+    pointDamage: Math.floor(Math.random()*8),
+    hitboxType: HTYPES[Math.floor(Math.random()*2)],
+    hitstopSelf: +(Math.random()*0.2 + 0.05).toFixed(2),
+    hitstopTarget: +(Math.random()*0.3 + 0.1).toFixed(2),
+    knockback: +(Math.random()*2 + 0.5).toFixed(1),
+    staggerTime: +(Math.random()*1.2 + 0.5).toFixed(2),
+    fxKey: 'DefaultCombatHit',
+    hitCount: Math.floor(Math.random()*3) + 1,
+    reactionPushForce: 0,
+    reactionLiftForce: 0,
+    reactionFallSpeed: 0,
+  };
+}
+
+function mkP(id, name, type) {
+  const pc = Math.floor(Math.random()*2) + 1;
+  return { id, identifier: name, animType: ATYPES[Math.floor(Math.random()*ATYPES.length)], motionType: type, comboable: Math.random() > 0.3, phases: Array.from({length: pc}, (_, i) => makePhase(i)) };
+}
+function mkE(id, name) {
+  const pc = Math.floor(Math.random()*2) + 1;
+  return { id, identifier: name, animType: ATYPES[Math.floor(Math.random()*ATYPES.length)], attackType: ATTYPES[Math.floor(Math.random()*2)], selectionWeight: +(Math.random()*3 + 0.5).toFixed(1), minRange: +(Math.random()*2).toFixed(1), maxRange: +(Math.random()*5 + 2).toFixed(1), isAerialSkill: Math.random() > 0.7, aerialSkillWeight: +(Math.random()*2).toFixed(1), phases: Array.from({length: pc}, (_, i) => makePhase(i)) };
+}
+
+const INIT_P = {
+  liteCombo:  ['ATTACK_1','ATTACK_2','ATTACK_3'].map((n,i) => mkP(100+i, n, '약 콤보')),
+  heavyCombo: ['HEAVY_1','HEAVY_2'].map((n,i) => mkP(200+i, n, '강 콤보')),
+  jump:       ['JUMP_ATK'].map((n,i) => mkP(300+i, n, '점프')),
+  dash:       ['DASH_ATK'].map((n,i) => mkP(400+i, n, '대쉬')),
+  skill:      ['SKILL_1','SKILL_2'].map((n,i) => mkP(500+i, n, '스킬')),
+};
+const INIT_E = { skills: ['SLASH_L','THRUST_1','AERIAL_COMBO','RANGE_SHOT','SPIN_ATK'].map((n,i) => mkE(600+i, n)) };
+const GRP_LABELS = { liteCombo:'약 콤보', heavyCombo:'강 콤보', jump:'점프 공격', dash:'대쉬 공격', skill:'스킬 공격' };
+
+// ── Validation ──
+function validate(attack, isEnemy) {
+  const warns = [], errs = [];
+  if (isEnemy) {
+    if (attack.selectionWeight === 0) warns.push('선택 가중치 0 — AI가 절대 선택하지 않음');
+    if (+attack.minRange > +attack.maxRange) errs.push('minRange > maxRange: 사거리 범위가 역전됨');
+  }
+  attack.phases.forEach((p, i) => {
+    const totalStop = p.hitCount * p.hitstopTarget;
+    if (totalStop > 1.5) warns.push(`Phase ${i}: 총 Hitstop ${totalStop.toFixed(2)}s 초과 (hit×target)`);
+    if (p.damage === 0) warns.push(`Phase ${i}: 대미지 0`);
+    if (p.duration < 0.05) errs.push(`Phase ${i}: 지속시간 너무 짧음 (<0.05s)`);
+  });
+  return { warns, errs };
+}
+
+// ── Components ──
+function TLabel({ label, tip }) {
+  return (
+    <div className="flabel">
+      {label}
+      {tip && <span className="tip-wrap">
+        <span className="tip-icon">?</span>
+        <div className="tip-box">{tip}</div>
+      </span>}
+    </div>
+  );
+}
+
+function PBar({ value, max, color }) {
+  const pct = Math.min(100, Math.max(0, (value / max) * 100));
+  return <div className="pbar-wrap"><div className="pbar-fill" style={{width: pct + '%', background: color || 'var(--player)'}}/></div>;
+}
+
+function SliderField({ label, tip, value, min = 0, max, step = 1, onChange, unit, warn, err, color, showBar = true }) {
+  return (
+    <div className="frow">
+      <TLabel label={label} tip={tip}/>
+      <div className="fval" style={{flexDirection:'column', alignItems:'stretch', gap:2}}>
+        <div style={{display:'flex', alignItems:'center', gap:6}}>
+          <div className="srow">
+            <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(+e.target.value)}/>
+            <input type="number" className={`sval${err ? ' field-err' : warn ? ' field-warn' : ''}`} value={value} min={min} max={max} step={step} onChange={e => onChange(+e.target.value)}/>
+          </div>
+          {unit && <span className="funit">{unit}</span>}
+        </div>
+        {showBar && <PBar value={value} max={max} color={color || 'var(--player)'}/>}
+      </div>
+    </div>
+  );
+}
+
+// ── Minimap ──
+function Minimap({ attack, selectedPhaseIdx, onSelectPhase, onResizePhase, minimapH }) {
+  if (!attack) return (
+    <div className="mm-body" style={{height:70, display:'flex', alignItems:'center', justifyContent:'center'}}>
+      <span style={{color:'var(--t2)', fontSize:12}}>← 공격을 선택하면 Phase 구조가 표시됩니다</span>
+    </div>
+  );
+  const total = attack.phases.reduce((s, p) => s + p.duration, 0) || 1;
+
+  function startResize(e, idx) {
+    e.stopPropagation(); e.preventDefault();
+    const startX = e.clientX;
+    const origLeft = attack.phases[idx].duration;
+    const origRight = attack.phases[idx + 1]?.duration;
+    if (origRight === undefined) return;
+    const trackW = e.currentTarget.closest('.mm-track').getBoundingClientRect().width;
+    const pxPerSec = trackW / total;
+    function onMove(me) {
+      const dx = (me.clientX - startX) / pxPerSec;
+      onResizePhase(idx, Math.max(0.05, +(origLeft + dx).toFixed(2)), Math.max(0.05, +(origRight - dx).toFixed(2)));
+    }
+    function onUp() { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); }
+    window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
+  }
+
+  return (
+    <div className="mm-body">
+      <div className="mm-row">
+        <div className="mm-label">{attack.identifier}</div>
+        <div className="mm-track" style={{height: minimapH}}>
+          {attack.phases.map((ph, i) => {
+            const w = (ph.duration / total * 100).toFixed(2) + '%';
+            return (
+              <div key={ph.id} className={`phase-block${selectedPhaseIdx === i ? ' active' : ''}`}
+                style={{width: w, background: PC[i % PC.length] + '95', color:'#fff', borderRight:'1px solid rgba(0,0,0,.25)'}}
+                onClick={() => onSelectPhase(i)}
+                title={`${ph.label} | ${ph.duration.toFixed(2)}s | DMG ${ph.damage} | Hit×${ph.hitCount}`}
+              >
+                <span style={{padding:'0 3px', textShadow:'0 1px 2px rgba(0,0,0,.8)', pointerEvents:'none', fontSize:9}}>{ph.label}</span>
+                {Array.from({length: ph.hitCount}).map((_, hi) => (
+                  <div key={hi} className="hit-mk" style={{left: `${(hi + 1) / (ph.hitCount + 1) * 100}%`}}/>
+                ))}
+                {i < attack.phases.length - 1 && (
+                  <div className="resize-handle" onMouseDown={e => startResize(e, i)} title="드래그하여 Phase 길이 조절"/>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="mm-total">{total.toFixed(2)}s</div>
+      </div>
+      <div className="mm-legend">
+        {attack.phases.map((ph, i) => (
+          <div key={ph.id} className="leg-item" onClick={() => onSelectPhase(i)} style={{opacity: selectedPhaseIdx === i ? 1 : 0.6}}>
+            <div className="leg-dot" style={{background: PC[i % PC.length]}}/>
+            <span>{ph.label}</span>
+            <span style={{color:'var(--t2)'}}>DMG {ph.damage} · Hit×{ph.hitCount} · {ph.duration.toFixed(2)}s</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Compare View ──
+function CompareView({ attacks, isEnemy }) {
+  if (attacks.length < 2) return (
+    <div className="cmp-view empty">
+      <div className="empty-icon">⟺</div>
+      <div>2개 이상 선택하면 비교 표가 나타납니다</div>
+    </div>
+  );
+  function cellStyle(val, arr, hiIsBetter = true) {
+    const max = Math.max(...arr), min = Math.min(...arr);
+    if (max === min) return {};
+    if (hiIsBetter && val === max) return {background:'#1f3a1f', color:'var(--hit)'};
+    if (!hiIsBetter && val === min) return {background:'#1f3a1f', color:'var(--hit)'};
+    if (hiIsBetter && val === min) return {background:'#3a1f1f', color:'var(--err)'};
+    if (!hiIsBetter && val === max) return {background:'#3a1f1f', color:'var(--err)'};
+    return {};
+  }
+  const totalDmgs = attacks.map(a => a.phases.reduce((s, p) => s + p.damage, 0));
+  const totalHits  = attacks.map(a => a.phases.reduce((s, p) => s + p.hitCount, 0));
+  const durations  = attacks.map(a => a.phases.reduce((s, p) => s + p.duration, 0));
+  const avgStop    = attacks.map(a => a.phases.length ? +(a.phases.reduce((s, p) => s + p.hitstopTarget, 0) / a.phases.length).toFixed(2) : 0);
+  return (
+    <div className="cmp-view">
+      <table className="cmp-table">
+        <thead>
+          <tr>
+            <th style={{width:120}}>항목</th>
+            {attacks.map(a => <th key={a.id}>{a.identifier}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td className="cmp-field-hdr" colSpan={attacks.length + 1}>기본</td></tr>
+          <tr><td>Phase 수</td>{attacks.map(a => <td key={a.id}>{a.phases.length}</td>)}</tr>
+          <tr>
+            <td>총 대미지</td>
+            {attacks.map((a, i) => <td key={a.id} style={cellStyle(totalDmgs[i], totalDmgs)}>
+              {totalDmgs[i]}
+              <PBar value={totalDmgs[i]} max={Math.max(...totalDmgs) || 1} color={PC[i % PC.length]}/>
+            </td>)}
+          </tr>
+          <tr><td>총 히트 수</td>{attacks.map((a, i) => <td key={a.id} style={cellStyle(totalHits[i], totalHits)}>{totalHits[i]}</td>)}</tr>
+          <tr><td>총 지속시간</td>{attacks.map((a, i) => <td key={a.id} style={cellStyle(durations[i], durations, false)}>{durations[i].toFixed(2)}s</td>)}</tr>
+          <tr><td>평균 Hitstop</td>{attacks.map((a, i) => <td key={a.id} style={cellStyle(avgStop[i], avgStop)}>{avgStop[i]}s</td>)}</tr>
+          {isEnemy && <>
+            <tr><td className="cmp-field-hdr" colSpan={attacks.length + 1}>적 전용</td></tr>
+            <tr><td>선택 가중치</td>{attacks.map(a => <td key={a.id} style={a.selectionWeight === 0 ? {color:'var(--err)'} : {}}>{a.selectionWeight}</td>)}</tr>
+            <tr><td>사거리</td>{attacks.map(a => <td key={a.id}>{a.minRange}~{a.maxRange}m</td>)}</tr>
+          </>}
+          <tr><td className="cmp-field-hdr" colSpan={attacks.length + 1}>Phase별 대미지</td></tr>
+          {Array.from({length: Math.max(...attacks.map(a => a.phases.length))}).map((_, pi) => (
+            <tr key={pi}>
+              <td style={{color: PC[pi % PC.length]}}>Phase {pi}</td>
+              {attacks.map((a) => {
+                const ph = a.phases[pi];
+                const dmgs = attacks.map(x => x.phases[pi]?.damage || 0);
+                return <td key={a.id} style={ph ? cellStyle(ph.damage, dmgs) : {color:'var(--t2)'}}>
+                  {ph ? `DMG ${ph.damage} / Hit×${ph.hitCount}` : '—'}
+                </td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Detail Panel ──
+function DetailPanel({ attack, isEnemy, selectedPhaseIdx, setSelectedPhaseIdx, onUpdateAttack, clipboard, onCopyPhase, onPastePhase }) {
+  if (!attack) return <div className="empty"><div className="empty-icon">⚔</div><div>공격을 선택하세요</div></div>;
+  const phase = attack.phases[selectedPhaseIdx];
+  const { warns, errs } = validate(attack, isEnemy);
+
+  function upd(key, val) { onUpdateAttack({ ...attack, [key]: val }); }
+  function updP(key, val) {
+    const phases = attack.phases.map((p, i) => i === selectedPhaseIdx ? { ...p, [key]: val } : p);
+    onUpdateAttack({ ...attack, phases });
+  }
+  function addPhase() {
+    const np = makePhase(attack.phases.length);
+    np.label = `Phase ${attack.phases.length}`;
+    onUpdateAttack({ ...attack, phases: [...attack.phases, np] });
+    setSelectedPhaseIdx(attack.phases.length);
+  }
+  function delPhase(idx) {
+    if (attack.phases.length <= 1) return;
+    const phases = attack.phases.filter((_, i) => i !== idx);
+    onUpdateAttack({ ...attack, phases });
+    setSelectedPhaseIdx(Math.min(selectedPhaseIdx, phases.length - 1));
+  }
+
+  return (
+    <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
+      {/* Validation */}
+      {(errs.length > 0 || warns.length > 0) && (
+        <div className="section">
+          <div className="sec-hdr" style={{color: errs.length ? 'var(--err)' : 'var(--warn)'}}>
+            {errs.length ? '⚠ 오류' : '⚠ 경고'} <span style={{color:'var(--t2)', fontWeight:400, fontSize:10}}>{errs.length + warns.length}건</span>
+          </div>
+          <div className="val-panel">
+            {errs.map((e, i) => <div key={i} className="val-row err"><span style={{color:'var(--err)', fontSize:12}}>✕</span>{e}</div>)}
+            {warns.map((w, i) => <div key={i} className="val-row warn"><span style={{color:'var(--warn)', fontSize:12}}>!</span>{w}</div>)}
+          </div>
+        </div>
+      )}
+
+      {/* Basic Info */}
+      <div className="section">
+        <div className="sec-hdr">⚙ 기본 정보 <span style={{flex:1}}/><span className={`badge ${isEnemy ? 'badge-orange' : 'badge-blue'}`}>{isEnemy ? 'Enemy' : 'Player'}</span></div>
+        <div className="sec-body">
+          <div className="frow"><TLabel label="식별자"/><div className="fval"><input type="text" value={attack.identifier} onChange={e => upd('identifier', e.target.value)}/></div></div>
+          <div className="frow"><TLabel label="애니메이션 타입"/><div className="fval"><select value={attack.animType} onChange={e => upd('animType', e.target.value)}>{ATYPES.map(t => <option key={t}>{t}</option>)}</select></div></div>
+          {!isEnemy && <div className="frow"><TLabel label="콤보 연계" tip={TIPS.comboable}/><div className="fval"><input type="checkbox" checked={attack.comboable} onChange={e => upd('comboable', e.target.checked)}/></div></div>}
+          {isEnemy && <>
+            <div className="frow"><TLabel label="공격 유형"/><div className="fval"><select value={attack.attackType} onChange={e => upd('attackType', e.target.value)}>{ATTYPES.map(t => <option key={t}>{t}</option>)}</select></div></div>
+            <SliderField label="선택 가중치" tip={TIPS.selectionWeight} value={attack.selectionWeight} min={0} max={5} step={0.1}
+              warn={attack.selectionWeight === 0} onChange={v => upd('selectionWeight', v)} color="var(--enemy)"/>
+            <div className="frow">
+              <TLabel label="사거리" tip="최소~최대 (m)"/>
+              <div className="fval" style={{gap:4}}>
+                <input type="number" value={attack.minRange} style={{width:55}} step={0.1} className={+attack.minRange > +attack.maxRange ? 'field-err' : ''} onChange={e => upd('minRange', +e.target.value)}/>
+                <span style={{color:'var(--t2)'}}>~</span>
+                <input type="number" value={attack.maxRange} style={{width:55}} step={0.1} className={+attack.minRange > +attack.maxRange ? 'field-err' : ''} onChange={e => upd('maxRange', +e.target.value)}/>
+                <span className="funit">m</span>
+              </div>
+            </div>
+            <div className="frow"><TLabel label="공중 전용" tip={TIPS.isAerialSkill}/><div className="fval"><input type="checkbox" checked={attack.isAerialSkill} onChange={e => upd('isAerialSkill', e.target.checked)}/></div></div>
+          </>}
+        </div>
+      </div>
+
+      {/* Phase Tabs */}
+      <div className="phase-tabs">
+        {attack.phases.map((ph, i) => (
+          <div key={ph.id} className={`ptab${i === selectedPhaseIdx ? ' active' : ''}`}
+            style={{borderTop: `2px solid ${i === selectedPhaseIdx ? PC[i % PC.length] : 'transparent'}`}}
+            onClick={() => setSelectedPhaseIdx(i)}>
+            <div style={{width:7, height:7, borderRadius:2, background:PC[i % PC.length], flexShrink:0}}/>
+            {ph.label}
+            <button className="iBtn danger" style={{width:14, height:14, fontSize:10, marginLeft:1}} onClick={e => {e.stopPropagation(); delPhase(i);}} title="Phase 삭제">×</button>
+          </div>
+        ))}
+        <button className="ptab-add" onClick={addPhase} title="Phase 추가">+</button>
+        {phase && <>
+          <button className="iBtn" style={{marginLeft:'auto'}} onClick={() => onCopyPhase(phase)} title="Phase 복사 (Ctrl+C)">⎘</button>
+          {clipboard && <button className="iBtn" style={{color:'var(--hit)'}} onClick={() => onPastePhase(selectedPhaseIdx)} title="Phase 붙여넣기 (Ctrl+V)">⬇</button>}
+        </>}
+      </div>
+
+      {/* Phase Detail */}
+      {phase && (
+        <div className="detail">
+          {/* 라벨 편집 */}
+          <div className="section">
+            <div className="sec-hdr"><span style={{color: PC[selectedPhaseIdx % PC.length]}}>●</span> {phase.label}</div>
+            <div className="sec-body">
+              <div className="frow"><TLabel label="Phase 이름"/><div className="fval"><input type="text" value={phase.label} onChange={e => updP('label', e.target.value)}/></div></div>
+            </div>
+          </div>
+
+          {/* 피해 */}
+          <div className="section">
+            <div className="sec-hdr">⚔ 피해 (Damage)</div>
+            <div className="sec-body">
+              <SliderField label="대미지" tip={TIPS.damage} value={phase.damage} min={0} max={200} onChange={v => updP('damage', v)} warn={phase.damage === 0}/>
+              <SliderField label="포인트 대미지" tip={TIPS.pointDamage} value={phase.pointDamage} min={0} max={50} onChange={v => updP('pointDamage', v)} color="var(--enemy)"/>
+              <div className="frow"><TLabel label="히트박스 타입" tip={TIPS.hitboxType}/><div className="fval"><select value={phase.hitboxType} onChange={e => updP('hitboxType', e.target.value)}>{HTYPES.map(t => <option key={t}>{t}</option>)}</select></div></div>
+              <div className="frow">
+                <TLabel label="히트 횟수" tip={TIPS.hitCount}/>
+                <div className="fval" style={{flexDirection:'column', gap:2}}>
+                  <input type="number" value={phase.hitCount} min={1} max={20} style={{width:70}} onChange={e => updP('hitCount', +e.target.value)}/>
+                  <PBar value={phase.hitCount} max={20} color="var(--hit)"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Hitstop */}
+          <div className="section">
+            <div className="sec-hdr">⏱ Hitstop</div>
+            <div className="sec-body">
+              <SliderField label="자신 (Self)" tip={TIPS.hitstopSelf} value={phase.hitstopSelf} min={0} max={0.5} step={0.01} onChange={v => updP('hitstopSelf', +v.toFixed(2))} unit="s"/>
+              <SliderField label="대상 (Target)" tip={TIPS.hitstopTarget} value={phase.hitstopTarget} min={0} max={0.5} step={0.01} onChange={v => updP('hitstopTarget', +v.toFixed(2))} unit="s"
+                warn={phase.hitCount * phase.hitstopTarget > 1.5}/>
+              <SliderField label="경직 시간" tip={TIPS.staggerTime} value={phase.staggerTime} min={0} max={3} step={0.05} onChange={v => updP('staggerTime', +v.toFixed(2))} unit="s" color="#a06bff"/>
+              {phase.hitCount * phase.hitstopTarget > 1.5 && (
+                <div style={{fontSize:11, color:'var(--warn)', paddingLeft:128}}>⚠ 총 Hitstop {(phase.hitCount * phase.hitstopTarget).toFixed(2)}s — 과도할 수 있음</div>
+              )}
+            </div>
+          </div>
+
+          {/* Knockback */}
+          <div className="section">
+            <div className="sec-hdr">↗ 넉백 (Knockback)</div>
+            <div className="sec-body">
+              <SliderField label="넉백 강도" tip={TIPS.knockback} value={phase.knockback} min={0} max={10} step={0.1} onChange={v => updP('knockback', +v.toFixed(1))} color="var(--enemy)"/>
+              <div className="frow"><TLabel label="밀기 힘" tip={TIPS.reactionPushForce}/><div className="fval"><input type="number" value={phase.reactionPushForce} step={0.1} onChange={e => updP('reactionPushForce', +e.target.value)}/></div></div>
+              <div className="frow"><TLabel label="들어올리기 힘" tip={TIPS.reactionLiftForce}/><div className="fval"><input type="number" value={phase.reactionLiftForce} step={0.1} onChange={e => updP('reactionLiftForce', +e.target.value)}/></div></div>
+              <div className="frow"><TLabel label="낙하 속도 배율" tip={TIPS.reactionFallSpeed}/><div className="fval"><input type="number" value={phase.reactionFallSpeed} step={0.1} onChange={e => updP('reactionFallSpeed', +e.target.value)}/></div></div>
+            </div>
+          </div>
+
+          {/* FX / 타이밍 */}
+          <div className="section">
+            <div className="sec-hdr">✦ FX / 타이밍</div>
+            <div className="sec-body">
+              <div className="frow"><TLabel label="FX 키" tip={TIPS.fxKey}/><div className="fval"><input type="text" value={phase.fxKey} onChange={e => updP('fxKey', e.target.value)}/></div></div>
+              <SliderField label="지속 시간" tip={TIPS.duration} value={phase.duration} min={0.05} max={2} step={0.05} onChange={v => updP('duration', +v.toFixed(2))} unit="s"
+                err={phase.duration < 0.05} color="var(--warn)"/>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Attack Row ──
+function AtkRow({ attack, isSelected, isCmpSel, onClick, compareMode, isEnemy }) {
+  const { warns, errs } = validate(attack, isEnemy);
+  const totalDmg = attack.phases.reduce((s, p) => s + p.damage, 0);
+  return (
+    <div className={`atk-row${isSelected ? ' sel' : ''}${isCmpSel ? ' cmp-sel' : ''}`} onClick={onClick}>
+      {compareMode && <input type="checkbox" checked={isCmpSel} onChange={() => {}} onClick={e => e.stopPropagation()} style={{flexShrink:0}}/>}
+      <span className="drag-h">⠿</span>
+      <span className="atk-name">{attack.identifier}</span>
+      <div className="phase-pips">{attack.phases.map((p, i) => <div key={p.id} className="pip" style={{background: PC[i % PC.length]}}/>)}</div>
+      {errs.length > 0 && <div className="vbadge err" title={errs.join('\n')}>!</div>}
+      {errs.length === 0 && warns.length > 0 && <div className="vbadge warn" title={warns.join('\n')}>!</div>}
+      <span className="atk-dmg">{totalDmg}</span>
+    </div>
+  );
+}
+
+// ── Toast ──
+function Toasts({ toasts, onUndo, onDismiss }) {
+  return (
+    <div className="toast-wrap">
+      {toasts.map(t => (
+        <div key={t.id} className="toast">
+          <span>{t.msg}</span>
+          {t.canUndo && <button className="toast-undo" onClick={() => onUndo(t.id)}>되돌리기</button>}
+          <button className="iBtn" onClick={() => onDismiss(t.id)}>×</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── App ──
+function App() {
+  const [tab, setTab] = React.useState('player');
+  const [pData, setPData] = React.useState(INIT_P);
+  const [eData, setEData] = React.useState(INIT_E);
+  const [selId, setSelId] = React.useState(null);
+  const [selPhase, setSelPhase] = React.useState(0);
+  const [search, setSearch] = React.useState('');
+  const [compareMode, setCompareMode] = React.useState(false);
+  const [cmpIds, setCmpIds] = React.useState(new Set());
+  const [clipboard, setClipboard] = React.useState(null);
+  const [toasts, setToasts] = React.useState([]);
+  const [tweaks, setTweaks] = React.useState(TWEAK_DEFAULTS);
+  const [tweaksVis, setTweaksVis] = React.useState(false);
+
+  const isEnemy = tab === 'enemy';
+  const allAttacks = isEnemy ? eData.skills : Object.values(pData).flat();
+  const selAttack = allAttacks.find(a => a.id === selId) || null;
+  const cmpAttacks = allAttacks.filter(a => cmpIds.has(a.id));
+
+  function addToast(msg, canUndo = false, undoFn = null, ttl = 3000) {
+    const id = Date.now();
+    setToasts(t => [...t, { id, msg, canUndo, undoFn, ttl }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), ttl + 200);
+  }
+  function undoToast(id) { const t = toasts.find(x => x.id === id); if (t?.undoFn) { t.undoFn(); setToasts(ts => ts.filter(x => x.id !== id)); } }
+  function dismissToast(id) { setToasts(t => t.filter(x => x.id !== id)); }
+
+  function updateAttack(updated) {
+    if (isEnemy) setEData(d => ({ ...d, skills: d.skills.map(a => a.id === updated.id ? updated : a) }));
+    else setPData(d => { const n = { ...d }; for (const g of Object.keys(n)) n[g] = n[g].map(a => a.id === updated.id ? updated : a); return n; });
+  }
+
+  function deleteAttack(id) {
+    const deleted = allAttacks.find(a => a.id === id);
+    let groupKey = null;
+    if (!isEnemy) for (const g of Object.keys(pData)) if (pData[g].find(a => a.id === id)) groupKey = g;
+    if (isEnemy) setEData(d => ({ ...d, skills: d.skills.filter(a => a.id !== id) }));
+    else setPData(d => { const n = { ...d }; for (const g of Object.keys(n)) n[g] = n[g].filter(a => a.id !== id); return n; });
+    if (selId === id) setSelId(null);
+    addToast(`'${deleted?.identifier}' 삭제됨`, true, () => {
+      if (isEnemy) setEData(d => ({ ...d, skills: [...d.skills, deleted] }));
+      else setPData(d => ({ ...d, [groupKey]: [...(d[groupKey] || []), deleted] }));
+    });
+  }
+
+  function addAttack(group) {
+    const id = Date.now();
+    const a = isEnemy ? mkE(id, `NEW_SKILL_${id % 1000}`) : mkP(id, `NEW_ATK_${id % 1000}`, GRP_LABELS[group] || group);
+    if (isEnemy) setEData(d => ({ ...d, skills: [...d.skills, a] }));
+    else setPData(d => ({ ...d, [group]: [...(d[group] || []), a] }));
+  }
+
+  function resizePhase(atkId, idx, newLeft, newRight) {
+    const updated = allAttacks.find(a => a.id === atkId);
+    if (!updated) return;
+    const phases = updated.phases.map((p, i) => i === idx ? { ...p, duration: newLeft } : i === idx + 1 ? { ...p, duration: newRight } : p);
+    updateAttack({ ...updated, phases });
+  }
+
+  function copyPhase(phase) { setClipboard({ ...phase }); addToast(`Phase '${phase.label}' 복사됨`); }
+  function pastePhase(idx) {
+    if (!clipboard || !selAttack) return;
+    const phases = selAttack.phases.map((p, i) => i === idx ? { ...clipboard, id: p.id, label: p.label } : p);
+    updateAttack({ ...selAttack, phases });
+    addToast('Phase 붙여넣기 완료');
+  }
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    function onKey(e) {
+      const el = document.activeElement;
+      const inInput = el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA';
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !inInput && selAttack?.phases[selPhase]) copyPhase(selAttack.phases[selPhase]);
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !inInput && clipboard && selAttack) pastePhase(selPhase);
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [clipboard, selAttack, selPhase]);
+
+  // Tweaks bridge
+  React.useEffect(() => {
+    function h(e) {
+      if (e.data?.type === '__activate_edit_mode') setTweaksVis(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksVis(false);
+    }
+    window.addEventListener('message', h);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', h);
+  }, []);
+  function setTweak(k, v) { const n = { ...tweaks, [k]: v }; setTweaks(n); window.parent.postMessage({ type: '__edit_mode_set_keys', edits: n }, '*'); }
+
+  function filterList(list) { return search ? list.filter(a => a.identifier.toLowerCase().includes(search.toLowerCase())) : list; }
+
+  function selectAttack(id) {
+    setSelId(id);
+    setSelPhase(0);
+    if (compareMode) setCmpIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
+  function toggleCompare() { setCompareMode(m => !m); setCmpIds(new Set()); setSelId(null); }
+
+  const showCmp = compareMode && cmpIds.size >= 1;
+  const tabStyle = t => ({
+    background: tab === t ? 'var(--bg2)' : 'transparent',
+    borderBottom: tab === t ? `2px solid var(--${t === 'player' ? 'player' : 'enemy'})` : '2px solid transparent',
+  });
+
+  return (
+    <div className="editor" style={{'--player': tweaks.accentColor}}>
+      {/* TOPBAR */}
+      <div className="topbar">
+        <span style={{fontSize:12, color:'var(--t1)', fontFamily:'var(--mono)'}}>공격 데이터 에디터</span>
+        <span style={{color:'var(--border)'}}>|</span>
+        <span className="topbar-path">{isEnemy ? 'EnemyAttackDataSO' : 'PlayerAttackDataSO'} · Assets/10.Datas/Combat/</span>
+        <span style={{flex:1}}/>
+        <button className="tbtn" onClick={toggleCompare} style={{color: compareMode ? 'var(--hit)' : 'inherit', background: compareMode ? 'var(--hit-dim)' : 'var(--bg4)'}}>
+          {compareMode ? `비교 중 (${cmpIds.size})` : '⟺ 비교'}
+        </button>
+        <button className="tbtn">되돌리기</button>
+        <button className="tbtn primary">저장</button>
+      </div>
+
+      {/* TABS */}
+      <div className="tabs">
+        <button className="tab" style={tabStyle('player')} onClick={() => { setTab('player'); setSelId(null); setCompareMode(false); setCmpIds(new Set()); }}>
+          <span style={{width:7, height:7, borderRadius:'50%', background:'var(--player)', display:'inline-block'}}/>
+          PlayerAttackDataSO
+        </button>
+        <button className="tab" style={tabStyle('enemy')} onClick={() => { setTab('enemy'); setSelId(null); setCompareMode(false); setCmpIds(new Set()); }}>
+          <span style={{width:7, height:7, borderRadius:'50%', background:'var(--enemy)', display:'inline-block'}}/>
+          EnemyAttackDataSO
+        </button>
+      </div>
+
+      {compareMode && (
+        <div className="cmp-banner">
+          ⟺ 비교 모드 — 목록에서 공격을 선택하여 추가하세요 ({cmpIds.size}개 선택됨)
+          <button className="iBtn" style={{color:'var(--hit)'}} onClick={toggleCompare}>✕ 종료</button>
+        </div>
+      )}
+
+      {/* MAIN */}
+      <div className="main">
+        {/* LEFT */}
+        <div className="attack-list">
+          <div className="panel-hdr">공격 목록<span style={{flex:1}}/><span style={{fontFamily:'var(--mono)', fontSize:10, color:'var(--t2)'}}>{allAttacks.length}개</span></div>
+          <div className="search-bar"><input placeholder="검색..." value={search} onChange={e => setSearch(e.target.value)}/></div>
+          <div className="list-scroll">
+            {isEnemy ? (
+              <div>
+                <div className="grp-hdr" style={{cursor:'default'}}>
+                  <span>스킬 풀</span><span className="grp-count">{filterList(eData.skills).length}</span>
+                  <span style={{flex:1}}/><button className="iBtn" onClick={() => addAttack('skills')} title="추가">+</button>
+                </div>
+                {filterList(eData.skills).map(a => (
+                  <div key={a.id} style={{position:'relative', display:'flex', alignItems:'center'}}>
+                    <AtkRow attack={a} isSelected={selId === a.id} isCmpSel={cmpIds.has(a.id)} compareMode={compareMode} onClick={() => selectAttack(a.id)} isEnemy/>
+                    {selId === a.id && !compareMode && <button className="iBtn danger" style={{position:'absolute', right:4}} onClick={() => deleteAttack(a.id)}>×</button>}
+                  </div>
+                ))}
+              </div>
+            ) : Object.entries(GRP_LABELS).map(([g, label]) => {
+              const [open, setOpen] = React.useState(true);
+              return (
+                <div key={g}>
+                  <div className="grp-hdr" onClick={() => setOpen(o => !o)}>
+                    <span>{open ? '▾' : '▸'}</span><span>{label}</span>
+                    <span className="grp-count">{filterList(pData[g]).length}</span>
+                    <span style={{flex:1}}/><button className="iBtn" onClick={e => { e.stopPropagation(); addAttack(g); }} title="추가">+</button>
+                  </div>
+                  {open && filterList(pData[g]).map(a => (
+                    <div key={a.id} style={{position:'relative', display:'flex', alignItems:'center'}}>
+                      <AtkRow attack={a} isSelected={selId === a.id} isCmpSel={cmpIds.has(a.id)} compareMode={compareMode} onClick={() => selectAttack(a.id)} isEnemy={false}/>
+                      {selId === a.id && !compareMode && <button className="iBtn danger" style={{position:'absolute', right:4}} onClick={() => deleteAttack(a.id)}>×</button>}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="right">
+          {/* MINIMAP */}
+          <div style={{borderBottom:'1px solid var(--border)', background:'var(--bg1)', flexShrink:0}}>
+            <div className="mm-hdr">
+              Phase 구조 미니맵
+              {selAttack && <>
+                <span style={{color:'var(--t2)', fontFamily:'var(--mono)'}}>—</span>
+                <span style={{fontFamily:'var(--mono)'}}>{selAttack.identifier}</span>
+              </>}
+              <span style={{flex:1}}/>
+              <span style={{fontSize:10, color:'var(--t2)'}}>경계 드래그로 Phase 길이 조절</span>
+            </div>
+            <Minimap attack={selAttack} selectedPhaseIdx={selPhase} onSelectPhase={setSelPhase}
+              onResizePhase={(idx, l, r) => selAttack && resizePhase(selAttack.id, idx, l, r)}
+              minimapH={tweaks.minimapH}/>
+          </div>
+
+          {/* CLIPBOARD BAR */}
+          {clipboard && (
+            <div className="clip-bar">
+              ⎘ 클립보드: <strong>{clipboard.label}</strong> (DMG {clipboard.damage} · Hit×{clipboard.hitCount})
+              <span style={{color:'var(--t2)'}}>— Ctrl+V로 현재 Phase에 붙여넣기</span>
+            </div>
+          )}
+
+          {/* DETAIL or COMPARE */}
+          {showCmp
+            ? <CompareView attacks={cmpAttacks} isEnemy={isEnemy}/>
+            : <DetailPanel attack={selAttack} isEnemy={isEnemy} selectedPhaseIdx={selPhase} setSelectedPhaseIdx={setSelPhase}
+                onUpdateAttack={updateAttack} clipboard={clipboard} onCopyPhase={copyPhase} onPastePhase={pastePhase}/>
+          }
+        </div>
+      </div>
+
+      {/* TOASTS */}
+      <Toasts toasts={toasts} onUndo={undoToast} onDismiss={dismissToast}/>
+
+      {/* TWEAKS */}
+      <div className="tweaks-panel" style={{display: tweaksVis ? 'block' : 'none'}}>
+        <div style={{padding:'7px 12px', borderBottom:'1px solid var(--border)', fontSize:11, fontWeight:600, color:'var(--t1)', textTransform:'uppercase', letterSpacing:'.08em'}}>Tweaks</div>
+        <div style={{padding:'10px 12px', display:'flex', flexDirection:'column', gap:10}}>
+          <div>
+            <div style={{fontSize:11, color:'var(--t1)', marginBottom:4}}>강조 색상</div>
+            <input type="color" value={tweaks.accentColor} onChange={e => setTweak('accentColor', e.target.value)} style={{width:'100%', height:26, border:'1px solid var(--border)', borderRadius:3, background:'none', cursor:'pointer'}}/>
+          </div>
+          <div>
+            <div style={{fontSize:11, color:'var(--t1)', marginBottom:4}}>미니맵 높이: {tweaks.minimapH}px</div>
+            <input type="range" min={24} max={56} step={2} value={tweaks.minimapH} onChange={e => setTweak('minimapH', +e.target.value)}/>
+          </div>
+        </div>
+      </div>
+
+      <style>{`@keyframes shrink{from{width:100%}to{width:0}}`}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

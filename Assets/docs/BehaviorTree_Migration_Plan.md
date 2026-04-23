@@ -340,8 +340,9 @@ Assets/02.Scripts/BehaviorTree/
 │   ├── BTComposite.cs             — Selector, Sequence, RandomSelector
 │   ├── BTDecorator.cs             — Inverter, Cooldown
 │   ├── BTLeaf.cs                  — Condition, Action 추상 클래스
-│   ├── BTRunner.cs                — EnemyBrain 대체 MonoBehaviour
-│   └── EnemyBlackboard.cs        — 런타임 컨텍스트
+│   ├── BTRunner.cs                — EnemyBrain 상속, MakeDecision BT로 대체
+│   ├── RuntimeBlackboard.cs       — 키-값 런타임 컨텍스트 (EnemyBlackboard 대체)
+│   └── BBKey.cs                   — 문자열 키 상수 모음
 │
 ├── Nodes/
 │   ├── Conditions/
@@ -350,11 +351,15 @@ Assets/02.Scripts/BehaviorTree/
 │   │   ├── BTCond_PlayerState.cs
 │   │   ├── BTCond_CurrentState.cs
 │   │   ├── BTCond_CanAttack.cs
+│   │   ├── BTCond_ActionReady.cs
 │   │   ├── BTCond_HasAvailableSkill.cs
 │   │   ├── BTCond_OverAttacking.cs
+│   │   ├── BTCond_PersonalSpace.cs
+│   │   ├── BTCond_ConsecutiveDefense.cs
 │   │   ├── BTCond_RandomChance.cs
 │   │   ├── BTCond_HPPercent.cs
-│   │   └── BTCond_ConsecutiveDefense.cs
+│   │   ├── BTCond_BBBool.cs       — 범용: BB bool 키 체크 (key + invert)
+│   │   └── BTCond_DistanceBB.cs   — 범용: BB 키 기반 거리 비교 (thresholdKey + multiplier)
 │   └── Actions/
 │       ├── BTAction_Chase.cs
 │       ├── BTAction_Attack.cs
@@ -368,25 +373,25 @@ Assets/02.Scripts/BehaviorTree/
 │
 ├── Data/                          — ScriptableObject SO 클래스
 │   ├── BTNodeSO.cs                — abstract base SO
-│   ├── BTSelectorSO.cs
-│   ├── BTSequenceSO.cs
-│   ├── BTRandomSelectorSO.cs
-│   ├── BTInverterSO.cs
-│   ├── BTCooldownSO.cs
-│   ├── Conditions/                — 조건 노드 SO 클래스들
-│   └── Actions/                   — 액션 노드 SO 클래스들
+│   ├── BTCompositeSO.cs           — BTSelectorSO, BTSequenceSO, BTRandomSelectorSO
+│   ├── BTDecoratorSO.cs           — BTInverterSO, BTCooldownSO
+│   ├── BehaviorTreeSO.cs          — rootNode + blackboard 참조
+│   ├── BlackboardKeyDefinition.cs — 키 정의 데이터 클래스 + BlackboardKeyType enum
+│   └── BTBlackboardSO.cs          — 키 정의 ScriptableObject
 │
 └── Editor/
     ├── BehaviorTreeEditorWindow.cs — GraphView 기반 에디터 윈도우
+    ├── BehaviorTreeGraphView.cs    — GraphView (PopulateView, AutoLayout, RuntimeBind)
     ├── BTNodeView.cs               — 노드 시각화 엘리먼트
-    ├── BTEdgeView.cs               — 연결선
-    └── BTBlackboardView.cs         — 런타임 Blackboard 표시 패널
+    ├── BTBlackboardView.cs         — 편집/런타임 Blackboard 패널
+    ├── BTJsonSerializer.cs         — BT 에셋 JSON 내보내기/불러오기
+    └── BTDefaultEnemyBuilder.cs    — DefaultEnemy BT 에셋 코드 빌더
+                                      (Window > BehaviorTree > Build DefaultEnemy Asset)
 
-Assets/10.Datas/BehaviorTree/      — 실제 BT 에셋
-├── BT_DefaultEnemy.asset
-├── BT_DefaultEnemy_PostAttack.asset
-├── BT_FlyingEnemy.asset
-└── Nodes/                         — 공유 노드 SO 인스턴스들
+Assets/10.Datas/BT/               — 실제 BT 에셋 (저장 경로)
+├── BT_DefaultEnemy.asset          ← 미생성 (BTDefaultEnemyBuilder로 생성 예정)
+├── BT_DefaultEnemy_PostAttack.asset ← 미생성
+└── BT_FlyingEnemy.asset           ← 미생성 (Step 4)
 ```
 
 ---
@@ -470,17 +475,19 @@ BehaviorTree/Editor/
 | 노드 | 상태 | 비고 |
 |---|---|---|
 | `BTCond_HasTarget` | ✅ | Step 1 완료 |
-| `BTCond_Distance` | ✅ | Step 1 완료 (LessThan/GreaterThan/Between) |
+| `BTCond_Distance` | ✅ | Step 1 완료 (LessThan/GreaterThan/Between, 하드코딩 threshold) |
 | `BTCond_PlayerState` | ✅ | Step 1 완료 (Attacking/Guarding/Staggered/Recovering/DodgingFrequently) |
 | `BTCond_CurrentState` | ✅ | Step 1 완료 (invert 플래그 포함) |
 | `BTCond_CanAttack` | ✅ | Step 1 완료 |
 | `BTCond_ActionReady` | ✅ | Step 1 완료 |
-| `BTCond_HasAvailableSkill` | ✅ | **이번 세션 추가** |
-| `BTCond_OverAttacking` | ✅ | **이번 세션 추가** |
-| `BTCond_PersonalSpace` | ✅ | **이번 세션 추가** |
-| `BTCond_ConsecutiveDefense` | ✅ | **이번 세션 추가** |
-| `BTCond_RandomChance` | ❌ | 미구현 — Circle/Guard 확률 분기에 필요 |
-| `BTCond_HPPercent` | ❌ | 미구현 — HP 기반 조건 분기에 필요 |
+| `BTCond_HasAvailableSkill` | ✅ | Step 3 추가 |
+| `BTCond_OverAttacking` | ✅ | Step 3 추가 |
+| `BTCond_PersonalSpace` | ✅ | Step 3 추가 |
+| `BTCond_ConsecutiveDefense` | ✅ | Step 3 추가 |
+| `BTCond_RandomChance` | ✅ | Step 3 추가 |
+| `BTCond_HPPercent` | ✅ | Step 3 추가 |
+| `BTCond_BBBool` | ✅ | **Step 3 추가 — 범용**: BB의 임의 bool 키 체크. `key`+`invert` 설정 |
+| `BTCond_DistanceBB` | ✅ | **Step 3 추가 — 범용**: BB 키 기반 거리 비교. `thresholdKey`+`multiplier` 설정 |
 
 **액션 노드 (Actions):**
 
@@ -491,32 +498,43 @@ BehaviorTree/Editor/
 | `BTAction_Retreat` | ✅ | Step 1 완료 |
 | `BTAction_Circle` | ✅ | Step 1 완료 (min/maxDuration 설정 가능) |
 | `BTAction_Idle` | ✅ | Step 1 완료 |
-| `BTAction_Guard` | ✅ | **이번 세션 추가** (min/maxDuration 설정 가능) |
-| `BTAction_Charge` | ✅ | **이번 세션 추가** |
-| `BTAction_Flank` | ✅ | **이번 세션 추가** |
-| `BTAction_Patrol` | ✅ | **이번 세션 추가** |
+| `BTAction_Guard` | ✅ | Step 3 추가 (min/maxDuration 설정 가능) |
+| `BTAction_Charge` | ✅ | Step 3 추가 |
+| `BTAction_Flank` | ✅ | Step 3 추가 |
+| `BTAction_Patrol` | ✅ | Step 3 추가 |
 
-#### 3-1. 이번 세션 추가 변경 사항 (BTRunner / Blackboard)
+#### 3-1. Step 3 Blackboard / BTRunner 변경 사항
 
-**`EnemyBlackboard` 확장:**
-- 거리 임계값 필드 5종 추가: `OptimalCombatDistance`, `MaxAttackRange`, `PersonalSpaceDistance`, `MinCombatDistance`, `RetreatDistance`
-- 방어 상태 필드 추가: `ConsecutiveDefensiveCount`, `HasGuardMotion`
-- BTRunner가 매 틱 `MakeDecision()` 에서 이 값들을 최신화
+**`EnemyBlackboard` → `RuntimeBlackboard` 교체 완료:**
+- `EnemyBlackboard.cs` 삭제
+- `RuntimeBlackboard.cs` + `BBKey.cs` + `BTBlackboardSO.cs` + `BlackboardKeyDefinition.cs` 신규 생성
+- 모든 노드가 `EnemyBlackboard` 대신 `RuntimeBlackboard` + BBKey 패턴 사용
 
-**`BTRunner` 확장:**
-- Trigger 메서드 4종 추가: `TriggerCharge()`, `TriggerFlank()`, `TriggerGuard(float)`, `TriggerPatrol()`
-- `TriggerConsecutiveDefensiveReset()` 추가
-- `OnDefensiveAction()` 오버라이드 → `_bb.ConsecutiveDefensiveCount` 동기화
-- Blackboard 갱신 블록에 거리/가드모션 필드 추가
+**`BTRunner.MakeDecision()` Blackboard 갱신 목록:**
+- Perception: `HasTarget`, `DistanceToTarget`, `CurrentStateName`
+- Phase: `PhaseAllowCharge`, `PhaseAllowFlank`, `PhaseChargeChance`, `PhaseFlankChance`, `PhaseMaxConsecutiveAttacks`
+- Combat Distance: `OptimalCombatDistance`, `MaxAttackRange`, `PersonalSpaceDistance`, `MinCombatDistance`, `RetreatDistance`
+- State: `HasGuardMotion`
+- Self Stats: `SelfHPPercent` (MonsterActor.CurrentHealth / MaxHealth)
 
-**`BTBlackboardView` 확장:**
-- 런타임 패널에 거리 임계값, HasGuardMotion, ConsecDefenseCount 행 추가
+**`BTRunner` Trigger 메서드 전체 목록:**
+- `TriggerAttack()`, `TriggerRetreat()`, `TriggerCircle(float)`, `TriggerChase()`, `TriggerIdle()`
+- `TriggerCharge()`, `TriggerFlank()`, `TriggerGuard(float)`, `TriggerPatrol()`
+- `TriggerConsecutiveDefensiveReset()`
+- `OnDefensiveAction()` 오버라이드 → BB `ConsecutiveDefensiveCount` 동기화
+
+**신규 에디터 도구:**
+- `BTJsonSerializer.cs` — BT 에셋을 JSON으로 내보내기/불러오기. `ExportTree()` / `ImportTree()` 제공
+- `BTDefaultEnemyBuilder.cs` — DefaultEnemy BT 에셋을 코드로 빌드하는 MenuItem 도구  
+  (`Window > BehaviorTree > Build DefaultEnemy Asset`)  
+  전체 전투 트리 구조(PersonalSpaceGuard, OverAttackGuard, ReactToPlayer, InterruptIdleState, AttackIfReady, ChaseIfFar, DistanceBehavior + IdleBehavior)와 PostAttack 트리를 코드로 생성
 
 #### 3-2. BT 에셋 생성 및 테스트
 
-- [ ] `BTCond_RandomChance`, `BTCond_HPPercent` 구현 (나머지 2종)
-- [ ] `Assets/10.Datas/BehaviorTree/` 폴더에 `BT_DefaultEnemy.asset` 트리 에셋 생성 (위 매핑 구조 그대로)
-- [ ] `BT_DefaultEnemy_PostAttack.asset` 생성 (`DecidePostAttack` 매핑)
+- [x] `BTCond_RandomChance`, `BTCond_HPPercent` 구현 (나머지 2종)
+- [x] `BTDefaultEnemyBuilder.cs` 구현 — `Window > BehaviorTree > Build DefaultEnemy Asset` MenuItem
+- [ ] MenuItem 실행하여 `Assets/10.Datas/BT/BT_DefaultEnemy.asset` 생성
+- [ ] `Assets/10.Datas/BT/BT_DefaultEnemy_PostAttack.asset` 생성
 - [ ] DefaultEnemy 프리팹에서 `EnemyBrain` → `BTRunner` 교체 후 BehaviorTreeSO 연결
 - [ ] 플레이 테스트 — 기본 전투 루프 (Chase → Attack → Retreat/Circle) 정상 동작 확인
 - [ ] 페이즈 전환 시 행동 변화 검증

@@ -1,9 +1,10 @@
 # BehaviorTree — Dynamic Blackboard 설계
 
+> **✅ 구현 완료** — 설계에서 다루는 모든 항목이 적용되어 있다.
+
 ## 개요
 
-현재 `EnemyBlackboard`는 C# 프로퍼티가 하드코딩된 타입 고정 클래스다.  
-이를 **UE 스타일의 동적 키-값 저장소**로 교체하여:
+기존 `EnemyBlackboard`(C# 프로퍼티 하드코딩)를 **UE 스타일의 동적 키-값 저장소**로 교체하여:
 
 - 에디터에서 키 정의를 **ScriptableObject로 관리**
 - 노드들이 문자열 키로 값을 읽고 씀
@@ -167,6 +168,7 @@ public class RuntimeBlackboard
 | | RetreatDistance | Float |
 | **State** | ConsecutiveDefensiveCount | Int |
 | | HasGuardMotion | Bool |
+| **Self Stats** | SelfHPPercent | Float |
 
 ---
 
@@ -253,17 +255,26 @@ Blackboard: EnemyBlackboard (런타임)
 
 ## 구현 단계
 
+> **모든 단계 완료 ✅**
+
 | 순서 | 파일 | 작업 |
 |---|---|---|
-| 1 | `BBKey.cs` | 신규 — 키 상수 |
-| 2 | `BlackboardKeyDefinition.cs` | 신규 — 키 정의 데이터 |
-| 3 | `BTBlackboardSO.cs` | 신규 — 키 정의 SO |
-| 4 | `RuntimeBlackboard.cs` | 신규 — 키-값 런타임 |
-| 5 | `BTNode.cs` | 수정 — 시그니처 교체 |
-| 6 | `BTLeaf/Composite/Decorator.cs` | 수정 — 시그니처 교체 |
-| 7 | `BehaviorTreeSO.cs` | 수정 — blackboard 필드 추가 |
-| 8 | `BTRunner.cs` | 수정 — RuntimeBlackboard 사용 |
-| 9 | 모든 노드 (19개) | 수정 — BBKey 패턴으로 변경 |
-| 10 | `EnemyBlackboard.cs` | 삭제 |
-| 11 | `BTBlackboardView.cs` | 수정 — 편집 모드 키 목록 표시 |
-| 12 | `BehaviorTreeEditorWindow.cs` | 수정 — Blackboard SO 연동 |
+| 1 | `BBKey.cs` | ✅ 신규 — 키 상수 (`SelfHPPercent` 포함 18개) |
+| 2 | `BlackboardKeyDefinition.cs` | ✅ 신규 — 키 정의 데이터 |
+| 3 | `BTBlackboardSO.cs` | ✅ 신규 — 키 정의 SO |
+| 4 | `RuntimeBlackboard.cs` | ✅ 신규 — 키-값 런타임 (`EnemyBlackboard` 대체) |
+| 5 | `BTNode.cs` | ✅ 수정 — 시그니처 교체 |
+| 6 | `BTLeaf/Composite/Decorator.cs` | ✅ 수정 — 시그니처 교체 |
+| 7 | `BehaviorTreeSO.cs` | ✅ 수정 — `blackboard` 필드 추가 |
+| 8 | `BTRunner.cs` | ✅ 수정 — `RuntimeBlackboard` 사용, `SelfHPPercent` 갱신 포함 |
+| 9 | 모든 노드 (21개) | ✅ 수정 — BBKey 패턴으로 변경 (`BTCond_BBBool`, `BTCond_DistanceBB` 신규 포함) |
+| 10 | `EnemyBlackboard.cs` | ✅ 삭제 완료 |
+| 11 | `BTBlackboardView.cs` | ✅ 수정 — 편집/런타임 모드 키 목록 표시 |
+| 12 | `BehaviorTreeEditorWindow.cs` | ✅ 수정 — Blackboard SO 연동 |
+
+### 구현 중 추가된 파일
+
+| 파일 | 설명 |
+|---|---|
+| `BTCond_BBBoolSO` | BB의 임의 bool 키를 확인하는 범용 조건 노드. `key` + `invert` 설정으로 어떤 bool 키든 사용 가능 |
+| `BTCond_DistanceBBSO` | BB의 임의 거리 키를 임계값으로 사용하는 범용 거리 조건. `thresholdKey` + `multiplier` 설정 |

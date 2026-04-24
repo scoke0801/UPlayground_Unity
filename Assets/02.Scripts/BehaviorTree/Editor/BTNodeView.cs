@@ -184,6 +184,43 @@ namespace UPlayGround.Editor.BehaviorTree
             }
         }
 
+        // ── 데코레이터 뱃지 (Unreal식 인라인 표시) ────
+        public void AddDecoratorBadge(BTNodeSO decorator)
+        {
+            var badge = new VisualElement();
+            badge.AddToClassList("bt-decorator-badge");
+
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems    = Align.Center;
+
+            var icon = new Label(decorator is BTCooldownSO ? "⏱" : "!");
+            icon.AddToClassList("bt-dec-icon");
+            row.Add(icon);
+
+            string text = decorator switch
+            {
+                BTCooldownSO cd => $"Cooldown  {cd.cooldown:F1}s",
+                _               => "Inverter"
+            };
+            var lbl = new Label(text);
+            lbl.AddToClassList("bt-dec-label");
+            row.Add(lbl);
+
+            badge.Add(row);
+            extensionContainer.Insert(0, badge);
+        }
+
+        public void ClearDecoratorBadges()
+        {
+            var toRemove = new System.Collections.Generic.List<VisualElement>();
+            foreach (var child in extensionContainer.Children())
+                if (child.ClassListContains("bt-decorator-badge"))
+                    toRemove.Add(child);
+            foreach (var e in toRemove)
+                e.RemoveFromHierarchy();
+        }
+
         // ── 유틸 ──────────────────────────────────────
         private static string GetTypeClass(BTNodeSO so) => so switch
         {
@@ -223,11 +260,30 @@ namespace UPlayGround.Editor.BehaviorTree
 
         private static string GetDescText(BTNodeSO so) => so switch
         {
+            // ── 컴포짓/데코레이터 ───────────────────────
             BTSelectorSO       s => $"{s.children.Count} children",
             BTSequenceSO       s => $"{s.children.Count} children",
             BTRandomSelectorSO s => $"{s.children.Count} children",
             BTCooldownSO       c => $"Cooldown  {c.cooldown:F1}s",
-            _                    => ""
+
+            // ── 조건 노드 ────────────────────────────────
+            BTCond_DistanceSO d => d.check switch {
+                DistanceCheck.LessThan    => $"dist < {d.maxDistance:F1}",
+                DistanceCheck.GreaterThan => $"dist > {d.minDistance:F1}",
+                _                         => $"{d.minDistance:F1} ≤ dist ≤ {d.maxDistance:F1}",
+            },
+            BTCond_PlayerStateSO  p => p.query.ToString().Replace("Is", ""),
+            BTCond_CurrentStateSO c => c.invert ? $"NOT {c.stateName}" : c.stateName,
+            BTCond_RandomChanceSO r => $"{r.probability * 100f:F0}%",
+            BTCond_HPPercentSO    h => h.check == HPCheck.LessThan
+                ? $"HP < {h.threshold * 100f:F0}%"
+                : $"HP > {h.threshold * 100f:F0}%",
+
+            // ── 액션 노드 ────────────────────────────────
+            BTAction_CircleSO c => $"{c.minDuration:F1} ~ {c.maxDuration:F1}s",
+            BTAction_GuardSO  g => $"{g.minDuration:F1} ~ {g.maxDuration:F1}s",
+
+            _ => ""
         };
     }
 }

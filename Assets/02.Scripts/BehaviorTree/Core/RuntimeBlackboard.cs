@@ -8,11 +8,12 @@ namespace UPlayGround.BehaviorTree
     public class RuntimeBlackboard
     {
         // ── 컴포넌트 참조 ─────────────────────────────────────────────
-        public BTRunner                Runner    { get; set; }
-        public EnemyDetection          Detection { get; set; }
-        public EnemyCombat             Combat    { get; set; }
-        public EnemyTacticalMemory     Memory    { get; set; }
-        public ActorMovementController  Movement  { get; set; }
+        public BTRunner                Runner        { get; set; }
+        public BTRunnerFlying          FlyingRunner  { get; set; }
+        public EnemyDetection          Detection     { get; set; }
+        public EnemyCombat             Combat        { get; set; }
+        public EnemyTacticalMemory     Memory        { get; set; }
+        public ActorMovementController  Movement      { get; set; }
 
         // ── 키-값 저장소 ───────────────────────────────────────────────
         private readonly Dictionary<string, bool>   _bools   = new();

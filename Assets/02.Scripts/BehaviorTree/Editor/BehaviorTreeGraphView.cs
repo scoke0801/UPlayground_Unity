@@ -22,6 +22,11 @@ namespace UPlayGround.Editor.BehaviorTree
         private const float H_SPACING   = 30f;
         private const float V_SPACING   = 60f;
 
+        // ── Decorator 추적 ─────────────────────────────
+        private readonly Dictionary<BTNodeSO, BTNodeSO>                              _parentMap      = new();
+        private readonly Dictionary<BTNodeSO, List<BTNodeSO>>                        _decoratorMap   = new();
+        private readonly Dictionary<Edge, (BTNodeSO topDecorator, BTNodeSO visible)> _edgeDecorators = new();
+
         public BehaviorTreeGraphView()
         {
             SetupZoom(0.2f, 2.5f);
@@ -46,6 +51,8 @@ namespace UPlayGround.Editor.BehaviorTree
             _isPopulating = false;
 
             if (tree?.rootNode == null) return;
+
+            BuildParentMap(tree.rootNode, null);
 
             bool hasPositions = tree.rootNode.editorPosition != Vector2.zero;
             BuildNodeViews(tree.rootNode);
@@ -82,7 +89,16 @@ namespace UPlayGround.Editor.BehaviorTree
 
         private void BuildNodeViews(BTNodeSO so)
         {
-            if (so == null || _nodeViews.ContainsKey(so)) return;
+            if (so == null) return;
+
+            // 흡수 가능한 데코레이터는 별도 노드뷰 없이 자식으로 포워드
+            if (IsAbsorbableDecorator(so))
+            {
+                BuildNodeViews(GetDecoratorChild(so));
+                return;
+            }
+
+            if (_nodeViews.ContainsKey(so)) return;
             CreateNodeView(so);
             foreach (var child in GetSOChildren(so))
                 BuildNodeViews(child);
@@ -100,15 +116,49 @@ namespace UPlayGround.Editor.BehaviorTree
         private void ConnectEdges(BTNodeSO so)
         {
             if (so == null) return;
-            foreach (var child in GetSOChildren(so))
+
+            // 흡수된 데코레이터: 자식으로만 포워드
+            if (IsAbsorbableDecorator(so))
             {
-                if (child == null) continue;
-                ConnectEdges(child);
+                ConnectEdges(GetDecoratorChild(so));
+                return;
+            }
 
-                if (!_nodeViews.TryGetValue(so,    out var parentView)) continue;
-                if (!_nodeViews.TryGetValue(child,  out var childView))  continue;
+            foreach (var rawChild in GetSOChildren(so))
+            {
+                if (rawChild == null) continue;
 
-                var edge = parentView.OutputPort.ConnectTo(childView.InputPort);
+                // 데코레이터 체인을 해소해서 실제 노드(target)와 뱃지 목록(decorators)을 분리
+                var decorators = new List<BTNodeSO>();
+                var target = rawChild;
+                while (IsAbsorbableDecorator(target))
+                {
+                    decorators.Add(target);
+                    target = GetDecoratorChild(target);
+                }
+
+                if (target == null) continue;
+
+                ConnectEdges(target);
+
+                if (!_nodeViews.TryGetValue(so,     out var parentView)) continue;
+                if (!_nodeViews.TryGetValue(target, out var targetView)) continue;
+
+                // 뱃지 추가 (데코레이터가 있을 때)
+                if (decorators.Count > 0)
+                {
+                    foreach (var dec in decorators)
+                        targetView.AddDecoratorBadge(dec);
+
+                    if (!_decoratorMap.ContainsKey(target))
+                        _decoratorMap[target] = new List<BTNodeSO>();
+                    _decoratorMap[target].AddRange(decorators);
+                }
+
+                // 에지: 부모 → target (데코레이터 바이패스)
+                var edge = parentView.OutputPort.ConnectTo(targetView.InputPort);
+                if (decorators.Count > 0)
+                    _edgeDecorators[edge] = (rawChild, target);  // rawChild = 최상단 데코레이터
                 AddElement(edge);
             }
         }
@@ -116,7 +166,13 @@ namespace UPlayGround.Editor.BehaviorTree
         // ── 자동 레이아웃 ─────────────────────────────
         private float AutoLayout(BTNodeSO so, Vector2 origin)
         {
-            if (so == null || !_nodeViews.TryGetValue(so, out var view)) return 0f;
+            if (so == null) return 0f;
+
+            // 흡수된 데코레이터 → 자식 노드가 실제 레이아웃 대상
+            if (IsAbsorbableDecorator(so))
+                return AutoLayout(GetDecoratorChild(so), origin);
+
+            if (!_nodeViews.TryGetValue(so, out var view)) return 0f;
 
             var children = GetSOChildren(so);
             if (children.Count == 0)
@@ -163,13 +219,31 @@ namespace UPlayGround.Editor.BehaviorTree
             evt.menu.AppendAction("Create/Composite/Selector",       _ => CreateNode(typeof(BTSelectorSO),       mousePos));
             evt.menu.AppendAction("Create/Composite/Sequence",       _ => CreateNode(typeof(BTSequenceSO),       mousePos));
             evt.menu.AppendAction("Create/Composite/RandomSelector", _ => CreateNode(typeof(BTRandomSelectorSO), mousePos));
-            evt.menu.AppendAction("Create/Decorator/Inverter",       _ => CreateNode(typeof(BTInverterSO),       mousePos));
-            evt.menu.AppendAction("Create/Decorator/Cooldown",       _ => CreateNode(typeof(BTCooldownSO),       mousePos));
 
+            // 단일 노드 선택 시 노드별 액션
             if (selection.Count == 1 && selection[0] is BTNodeView sv)
             {
                 evt.menu.AppendSeparator();
                 evt.menu.AppendAction("Set as Root Node", _ => SetAsRoot(sv.NodeSO));
+
+                // 부모가 있으면 데코레이터 추가 가능
+                if (_parentMap.TryGetValue(sv.NodeSO, out var parentSO) && parentSO != null)
+                {
+                    evt.menu.AppendSeparator();
+                    evt.menu.AppendAction("Add Decorator/! Inverter",  _ => AddDecorator(typeof(BTInverterSO), sv));
+                    evt.menu.AppendAction("Add Decorator/⏱ Cooldown",  _ => AddDecorator(typeof(BTCooldownSO), sv));
+                }
+
+                // 데코레이터가 있으면 제거 가능
+                if (_decoratorMap.TryGetValue(sv.NodeSO, out var decs) && decs.Count > 0)
+                {
+                    for (int i = 0; i < decs.Count; i++)
+                    {
+                        var dec   = decs[i];
+                        string nm = dec is BTCooldownSO cd ? $"⏱ Cooldown ({cd.cooldown:F1}s)" : "! Inverter";
+                        evt.menu.AppendAction($"Remove Decorator/{i + 1}. {nm}", _ => RemoveDecorator(dec, sv));
+                    }
+                }
             }
         }
 
@@ -228,12 +302,29 @@ namespace UPlayGround.Editor.BehaviorTree
 
             if (change.elementsToRemove != null)
             {
+                bool needsRepopulate = false;
                 foreach (var elem in change.elementsToRemove)
                 {
                     if (elem is Edge edge)
                     {
                         if (edge.output.node is BTNodeView parent && edge.input.node is BTNodeView child)
-                            RemoveChildFromSO(parent.NodeSO, child.NodeSO);
+                        {
+                            if (_edgeDecorators.TryGetValue(edge, out var decInfo))
+                            {
+                                // 흡수된 에지 제거: 데코레이터 체인 삭제 후 부모 → 자식 직결
+                                Undo.RecordObject(parent.NodeSO, "Remove Decorator");
+                                ReplaceChild(parent.NodeSO, decInfo.topDecorator, child.NodeSO);
+                                DeleteDecoratorChain(decInfo.topDecorator, child.NodeSO);
+                                EditorUtility.SetDirty(parent.NodeSO);
+                                AssetDatabase.SaveAssets();
+                                _edgeDecorators.Remove(edge);
+                                needsRepopulate = true;
+                            }
+                            else
+                            {
+                                RemoveChildFromSO(parent.NodeSO, child.NodeSO);
+                            }
+                        }
                     }
                     else if (elem is BTNodeView nodeView)
                     {
@@ -241,6 +332,9 @@ namespace UPlayGround.Editor.BehaviorTree
                         _nodeViews.Remove(nodeView.NodeSO);
                     }
                 }
+
+                if (needsRepopulate)
+                    EditorApplication.delayCall += () => { if (_currentTree != null) PopulateView(_currentTree); };
             }
 
             if (change.movedElements != null)
@@ -365,7 +459,110 @@ namespace UPlayGround.Editor.BehaviorTree
         private void ClearAll()
         {
             _nodeViews.Clear();
+            _parentMap.Clear();
+            _decoratorMap.Clear();
+            _edgeDecorators.Clear();
             DeleteElements(graphElements.ToList());
+        }
+
+        // ── 데코레이터 헬퍼 ──────────────────────────
+        private static bool IsAbsorbableDecorator(BTNodeSO so) => so switch
+        {
+            BTInverterSO inv => inv.child != null,
+            BTCooldownSO cd  => cd.child  != null,
+            _                => false
+        };
+
+        private static BTNodeSO GetDecoratorChild(BTNodeSO so) => so switch
+        {
+            BTInverterSO inv => inv.child,
+            BTCooldownSO cd  => cd.child,
+            _                => null
+        };
+
+        private void BuildParentMap(BTNodeSO so, BTNodeSO parent)
+        {
+            if (so == null || _parentMap.ContainsKey(so)) return;
+            _parentMap[so] = parent;
+            foreach (var child in GetSOChildren(so))
+                BuildParentMap(child, so);
+        }
+
+        private void AddDecorator(Type decoratorType, BTNodeView targetView)
+        {
+            var so = targetView.NodeSO;
+            if (!_parentMap.TryGetValue(so, out var parentSO) || parentSO == null) return;
+
+            var dec = ScriptableObject.CreateInstance(decoratorType) as BTNodeSO;
+            dec.name = dec.nodeName = decoratorType == typeof(BTInverterSO) ? "Inverter" : "Cooldown";
+
+            Undo.RecordObjects(new UnityEngine.Object[] { parentSO, dec }, "Add Decorator");
+            AssetDatabase.AddObjectToAsset(dec, _currentTree);
+
+            if (dec is BTInverterSO inv) inv.child = so;
+            else if (dec is BTCooldownSO cd) cd.child = so;
+
+            ReplaceChild(parentSO, so, dec);
+
+            EditorUtility.SetDirty(parentSO);
+            EditorUtility.SetDirty(dec);
+            AssetDatabase.SaveAssets();
+
+            PopulateView(_currentTree);
+        }
+
+        private void RemoveDecorator(BTNodeSO decorator, BTNodeView targetView)
+        {
+            if (!_parentMap.TryGetValue(decorator, out var grandParent) || grandParent == null) return;
+
+            var so = targetView.NodeSO;
+            Undo.RecordObjects(new UnityEngine.Object[] { grandParent, decorator }, "Remove Decorator");
+
+            ReplaceChild(grandParent, decorator, so);
+
+            AssetDatabase.RemoveObjectFromAsset(decorator);
+            UnityEngine.Object.DestroyImmediate(decorator, true);
+            AssetDatabase.SaveAssets();
+            EditorUtility.SetDirty(grandParent);
+
+            PopulateView(_currentTree);
+        }
+
+        private static void ReplaceChild(BTNodeSO parent, BTNodeSO oldChild, BTNodeSO newChild)
+        {
+            switch (parent)
+            {
+                case BTSelectorSO s:
+                    for (int i = 0; i < s.children.Count; i++)
+                        if (s.children[i] == oldChild) { s.children[i] = newChild; break; }
+                    break;
+                case BTSequenceSO s:
+                    for (int i = 0; i < s.children.Count; i++)
+                        if (s.children[i] == oldChild) { s.children[i] = newChild; break; }
+                    break;
+                case BTRandomSelectorSO s:
+                    for (int i = 0; i < s.children.Count; i++)
+                        if (s.children[i] == oldChild) { s.children[i] = newChild; break; }
+                    break;
+                case BTInverterSO i:
+                    if (i.child == oldChild) i.child = newChild;
+                    break;
+                case BTCooldownSO c:
+                    if (c.child == oldChild) c.child = newChild;
+                    break;
+            }
+        }
+
+        private void DeleteDecoratorChain(BTNodeSO topDecorator, BTNodeSO stopAt)
+        {
+            var current = topDecorator;
+            while (current != null && current != stopAt)
+            {
+                var next = GetDecoratorChild(current);
+                AssetDatabase.RemoveObjectFromAsset(current);
+                UnityEngine.Object.DestroyImmediate(current, true);
+                current = next;
+            }
         }
 
         private static List<BTNodeSO> GetSOChildren(BTNodeSO so)

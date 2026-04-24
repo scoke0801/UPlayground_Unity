@@ -220,6 +220,37 @@ GridBackground {
 .bt-dot-failure { color: #f44336; }
 
 /* ══════════════════════════════════════════════════════════
+   Decorator 뱃지 (Unreal식 인라인 — extensionContainer 상단)
+   ══════════════════════════════════════════════════════════ */
+
+.bt-decorator-badge {
+    background-color: #2e2200;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: #7a6200;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 5px;
+}
+
+.bt-dec-icon {
+    font-size: 11px;
+    color: #f5c518;
+    -unity-font-style: bold;
+    margin-right: 5px;
+    width: 12px;
+    -unity-text-align: middle-center;
+}
+
+.bt-dec-label {
+    font-size: 10px;
+    color: #e8c040;
+    -unity-font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════════
    Blackboard 패널
    ══════════════════════════════════════════════════════════ */
 
@@ -247,6 +278,13 @@ GridBackground {
     padding-bottom: 2px;
     border-bottom-width: 1px;
     border-bottom-color: #282828;
+}
+
+.bt-blackboard-type {
+    color: #f5a623;
+    font-size: 10px;
+    width: 52px;
+    -unity-font-style: bold;
 }
 
 .bt-blackboard-key {

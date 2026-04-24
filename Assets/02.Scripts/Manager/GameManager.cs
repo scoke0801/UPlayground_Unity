@@ -42,7 +42,12 @@ namespace UPlayGround.Manager
         {
             if (IsInitialized)
                 return;
+            int width = PlayerPrefs.GetInt("ResWidth", 2560);
+            int height = PlayerPrefs.GetInt("ResHeight", 1440);
+            FullScreenMode mode = (FullScreenMode)PlayerPrefs.GetInt("FullscreenMode", (int)FullScreenMode.FullScreenWindow);
 
+            Screen.SetResolution(width, height, mode);
+            
             Debug.Log("[GameManager] 매니저 초기화 시작");
 
             // 초기화 순서대로 등록

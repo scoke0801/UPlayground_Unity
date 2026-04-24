@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround;
 using UPlayGround.State;
 using UPlayGround.Component;
 using UPlayGround.MovementController;
@@ -26,6 +27,7 @@ namespace UPlayGround.Component
         // 캐시 — base의 private 필드에 접근 불가하므로 별도 캐싱
         private EnemyDetection         _detectionCache;
         private ActorMovementController _movementCache;
+        private MonsterActor            _monsterCache;
 
         public EnemyDetection         BtDetection => _detectionCache;
         public ActorMovementController BtMovement  => _movementCache;
@@ -48,6 +50,7 @@ namespace UPlayGround.Component
             base.Awake();
             _detectionCache = GetComponent<EnemyDetection>();
             _movementCache  = GetComponent<ActorMovementController>();
+            _monsterCache   = GetComponent<MonsterActor>();
         }
 
         protected override void Start()
@@ -102,7 +105,12 @@ namespace UPlayGround.Component
             _bb.Set(BBKey.PersonalSpaceDistance, PersonalSpaceDistance);
             _bb.Set(BBKey.MinCombatDistance,     MinCombatDistance);
             _bb.Set(BBKey.RetreatDistance,       RetreatDistance);
-            _bb.Set(BBKey.HasGuardMotion,        HasGuardMotion);
+            _bb.Set(BBKey.HasGuardMotion, HasGuardMotion);
+
+            float hpPct = (_monsterCache != null && _monsterCache.MaxHealth > 0f)
+                ? _monsterCache.CurrentHealth / _monsterCache.MaxHealth
+                : 1f;
+            _bb.Set(BBKey.SelfHPPercent, hpPct);
 
             _runtimeTree.Tick(_bb);
         }

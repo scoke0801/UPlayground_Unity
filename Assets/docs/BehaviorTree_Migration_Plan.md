@@ -539,12 +539,38 @@ BehaviorTree/Editor/
 - [ ] 플레이 테스트 — 기본 전투 루프 (Chase → Attack → Retreat/Circle) 정상 동작 확인
 - [ ] 페이즈 전환 시 행동 변화 검증
 
-### Step 4 — Flying Brain 이전 및 전체 적용
+### Step 4 — Flying Brain 이전 및 전체 적용 🔄 진행 중
 
-- [ ] Flying 전용 조건/액션 노드 (TakeOff, AirCircle, Dive, Land 등)
-- [ ] `BT_FlyingEnemy.asset` 생성
-- [ ] `EnemyFlyingBrain` → `BTRunner` 교체
-- [ ] 모든 기존 몬스터 프리팹 마이그레이션
+#### 4-1. Flying 전용 코드 구현
+
+- [x] `EnemyFlyingBrain` — 핵심 필드/메서드 `protected virtual` 노출 (Awake/Start 포함)
+- [x] `BTRunnerFlying.cs` — `EnemyFlyingBrain` 상속, 지상 의사결정을 BT로 대체  
+  - Awake/Start 상속 정상화 (`base.Awake()`, `base.Start()` 호출)  
+  - `MakeDecision()` 오버라이드 → `_mainTree.Tick(_bb)` 위임  
+  - `OnGroundAttackFinished()` 오버라이드 → `_postAttackTree.Tick(_bb)` 위임  
+  - 공중 루프 (TakeOff → AirCircle → Descend) 콜백은 `EnemyFlyingBrain` 원본 흐름 유지
+- [x] `BBKey.cs` — Flying 전용 키 추가 (`ShouldTakeOff`, `ShouldDescend`, `IsAirState`, `GroundAttackCount`, `AirAttackCount`)
+- [x] `RuntimeBlackboard.cs` — `FlyingRunner` 참조 추가
+- [x] Flying 액션 노드 8종:
+  - `BTAction_TakeOff.cs` — TriggerTakeOff()
+  - `BTAction_Descend.cs` — TriggerDescend()
+  - `BTAction_FlyingChase.cs` — TriggerFlyingChase()
+  - `BTAction_FlyingGroundAttack.cs` — TriggerFlyingGroundAttack()
+  - `BTAction_FlyingRetreat.cs` — TriggerFlyingRetreat()
+  - `BTAction_FlyingCircle.cs` — TriggerFlyingCircle(duration)
+  - `BTAction_FlyingPatrol.cs` — TriggerFlyingPatrol()
+  - `BTAction_FlyingIdle.cs` — TriggerFlyingIdle()
+- [x] `BTFlyingEnemyBuilder.cs` — `Window > BehaviorTree > Build FlyingEnemy Asset` MenuItem  
+  - 메인 트리: BlockedStates → Recovery → NoTarget → PatrolToChase → ChaseToTakeOff → GroundIdleToTakeOff → AirCircleToDescend  
+  - 포스트 지상 공격 트리: NoTarget/TooClose/Circle/Retreat/Chase 가중치 분기  
+  - `ShouldDescend` BB 키로 공중 공격 한도 초과 → 하강 분기
+
+#### 4-2. 에셋 생성 및 프리팹 교체
+
+- [ ] MenuItem 실행하여 `Assets/10.Datas/BT/BT_FlyingEnemy.asset` 생성
+- [ ] `Assets/10.Datas/BT/BT_FlyingEnemy_PostGroundAttack.asset` 생성
+- [ ] FlyingEnemy 프리팹에서 `EnemyFlyingBrain` → `BTRunnerFlying` 교체 후 BehaviorTreeSO 연결
+- [ ] 플레이 테스트 — 지상 전투(Chase → GroundAttack → Circle/Retreat) + 공중 루프(TakeOff → AirCircle → Descend) 정상 동작 확인
 
 ---
 

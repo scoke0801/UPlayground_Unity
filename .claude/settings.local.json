@@ -16,9 +16,6 @@
       "Bash(sed 's/MotionEvent_//g')",
       "Bash(sed 's/\\\\.cs//g')",
       "mcp__plugin_code-review-graph_code-review-graph__semantic_search_nodes_tool",
-      "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Data/Crafting\")",
-      "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Data/Crafting/Editor\")",
-      "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Manager/Crafting\")",
       "Bash(gh pr:*)",
       "mcp__plugin_code-review-graph_code-review-graph__query_graph_tool",
       "Bash(python -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(k, '->', v.get\\('path',''\\)\\) for k,v in data.items\\(\\)]\")",
@@ -34,9 +31,16 @@
       "Read(//c/Users/scoke/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/**)",
       "Read(//c/Users/scoke/.claude/plugins\" 2>/dev/**)",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('skills', d.get\\('projectSettings', {}\\)\\), indent=2\\)\\)\")",
-      "Bash(sed -n '37,45p' \"/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/State/Enemy/EnemyChargeState.cs\")",
-      "Bash(sed -n '38,46p' \"/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlankState.cs\")",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:gist.githubusercontent.com)",
+      "Bash(gh gist *)",
+      "Bash(curl -s \"https://api.github.com/gists/c468cbf1ed0ffc91100f813aabdcd520\")",
+      "Bash(python -c \"import sys, json; data=json.load\\(sys.stdin\\); files=data.get\\('files',{}\\); [print\\(k, '---', v.get\\('raw_url',''\\)\\) for k,v in files.items\\(\\)]\")",
+      "Bash(curl *)",
+      "Bash(env)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(python -c ' *)"
     ]
   }
 }

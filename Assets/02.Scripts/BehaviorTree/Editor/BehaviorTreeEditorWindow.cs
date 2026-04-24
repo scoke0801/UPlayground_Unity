@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -104,8 +105,7 @@ namespace UPlayGround.Editor.BehaviorTree
             // ── 에셋 선택 필드 + 탐색 버튼 ───────────
             _treeField = new ObjectField
             {
-                objectType        = typeof(BehaviorTreeSO),
-                //allowSceneObjects = false,
+                objectType = typeof(BehaviorTreeSO),
             };
             _treeField.style.minWidth = 200;
             _treeField.RegisterValueChangedCallback(e =>
@@ -279,21 +279,22 @@ namespace UPlayGround.Editor.BehaviorTree
         {
 #if UNITY_6000_0_OR_NEWER
             var ctx = SearchService.CreateContext("adb", "t:BehaviorTreeSO");
-            // SearchService.ShowPicker(
-            //     ctx,
-            //     item =>
-            //     {
-            //         var path = AssetDatabase.GUIDToAssetPath(item.id);
-            //         var so   = AssetDatabase.LoadAssetAtPath<BehaviorTreeSO>(path);
-            //         if (so == null) return;
-            //         _currentTreeSO = so;
-            //         _treeField.SetValueWithoutNotify(so);
-            //         _graphView.PopulateView(so);
-            //         _blackboardView.SetBlackboardSO(so.blackboard);
-            //     },
-            //     null,
-            //     "BehaviorTreeSO 선택",
-            //     typeof(BehaviorTreeSO));
+            SearchService.ShowPicker(
+                ctx,
+                (item, cancelled) =>
+                {
+                    if (cancelled) return;
+                    var path = AssetDatabase.GUIDToAssetPath(item.id);
+                    var so   = AssetDatabase.LoadAssetAtPath<BehaviorTreeSO>(path);
+                    if (so == null) return;
+                    _currentTreeSO = so;
+                    _treeField.SetValueWithoutNotify(so);
+                    _graphView.PopulateView(so);
+                    _blackboardView.SetBlackboardSO(so.blackboard);
+                },
+                (Action<SearchItem>)null,
+                (Func<SearchItem, bool>)null,
+                (System.Collections.Generic.IEnumerable<SearchItem>)null);
 #else
             var path = EditorUtility.OpenFilePanelWithFilters(
                 "BehaviorTreeSO 선택", "Assets", new[] { "BehaviorTreeSO", "asset" });

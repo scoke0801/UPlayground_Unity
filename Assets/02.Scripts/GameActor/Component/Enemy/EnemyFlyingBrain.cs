@@ -23,17 +23,17 @@ namespace UPlayGround.Component
     public class EnemyFlyingBrain : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private EnemyDetection _detection;
-        [SerializeField] private EnemyCombat _combat;
-        [SerializeField] private ActorMovementController _movementController;
-        [SerializeField] private EnemyFlyingSettingsSO _flyingSettings;
+        [SerializeField] protected EnemyDetection _detection;
+        [SerializeField] protected EnemyCombat _combat;
+        [SerializeField] protected ActorMovementController _movementController;
+        [SerializeField] protected EnemyFlyingSettingsSO _flyingSettings;
 
         [Header("Ground Combat")]
-        [SerializeField] private float _chaseStopDistance = 2f;
+        [SerializeField] protected float _chaseStopDistance = 2f;
         [SerializeField] private float _chaseSpeedMultiplier = 1.2f;
         [SerializeField] private float _optimalCombatDistance = 1.5f;
-        [SerializeField] private float _minCombatDistance = 1.5f;
-        [SerializeField] private float _personalSpaceDistance = 0.8f;
+        [SerializeField] protected float _minCombatDistance = 1.5f;
+        [SerializeField] protected float _personalSpaceDistance = 0.8f;
 
         [Header("Ground Post-Attack Behavior")]
         [Range(0f, 1f)] [SerializeField] private float _circleChance = 0.3f;
@@ -49,7 +49,7 @@ namespace UPlayGround.Component
         [SerializeField] private int _groundAttackLimit = 2;
 
         [Header("Patrol")]
-        [SerializeField] private bool _enablePatrol = true;
+        [SerializeField] protected bool _enablePatrol = true;
         [SerializeField] private float _patrolRadius = 5f;
         [SerializeField] private float _patrolWaitTime = 2f;
 
@@ -72,17 +72,17 @@ namespace UPlayGround.Component
         [SerializeField] private float _decisionInterval = 0.15f;
 
         // ── 런타임 ──
-        private float _groundTimer;
-        private float _currentGroundStayLimit; // 매 루프마다 랜덤 결정
-        private int _currentAirAttackLimit;     // 매 공중 루프마다 랜덤 결정
-        private int _groundAttackCount;
-        private int _airAttackCount;
-        private float _decisionTimer;
-        private float _lastAttackTime;
-        private float _maxAttackRange;
-        private Vector3 _spawnPosition;
+        protected float _groundTimer;
+        protected float _currentGroundStayLimit; // 매 루프마다 랜덤 결정
+        protected int _currentAirAttackLimit;     // 매 공중 루프마다 랜덤 결정
+        protected int _groundAttackCount;
+        protected int _airAttackCount;
+        protected float _decisionTimer;
+        protected float _lastAttackTime;
+        protected float _maxAttackRange;
+        protected Vector3 _spawnPosition;
 
-        private MonsterActor _monster;
+        protected MonsterActor _monster;
 
         // ── 프로퍼티 (State에서 접근) ──
         public EnemyDetection Detection => _detection;
@@ -113,7 +113,7 @@ namespace UPlayGround.Component
 
         #region Mono
 
-        private void Awake()
+        protected virtual void Awake()
         {
             _detection ??= GetComponent<EnemyDetection>();
             _combat ??= GetComponent<EnemyCombat>();
@@ -122,7 +122,7 @@ namespace UPlayGround.Component
             _spawnPosition = transform.position;
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             _maxAttackRange = _combat?.AttackData?.GetMaxAttackRange() ?? 3f;
             _lastAttackTime = -(_combat?.AttackData?.globalCooldown ?? 1f);
@@ -158,7 +158,7 @@ namespace UPlayGround.Component
 
         #region Decision Loop
 
-        private void MakeDecision(string stateName)
+        protected virtual void MakeDecision(string stateName)
         {
             // ── 개입 금지 ──
             if (stateName is "Flying_GroundAttack" or "Flying_TakeOff"
@@ -225,7 +225,7 @@ namespace UPlayGround.Component
             }
         }
 
-        private void ReenterLoop()
+        protected virtual void ReenterLoop()
         {
             if (!_detection.HasTarget)
             {
@@ -249,7 +249,7 @@ namespace UPlayGround.Component
 
         #region State 콜백 — 공중 루프
 
-        public void OnAirAttackFinished()
+        public virtual void OnAirAttackFinished()
         {
             _airAttackCount++;
             if (_airAttackCount >= _currentAirAttackLimit)
@@ -260,12 +260,12 @@ namespace UPlayGround.Component
         /// AirCircle 안전장치(체류 시간 초과/공격 횟수 소진)에서 호출.
         /// TransitionToDescend를 통해 데이터 기반 Dive/Land 분기를 탄다.
         /// </summary>
-        public void OnAirCircleForceDescend()
+        public virtual void OnAirCircleForceDescend()
         {
             TransitionToDescend();
         }
 
-        public void OnDiveLanded()
+        public virtual void OnDiveLanded()
         {
             ResetAllCounters();
             _movementController.TransitionToState(new EnemyFlyingChaseState(_movementController, this));
@@ -279,7 +279,7 @@ namespace UPlayGround.Component
         /// 지상 공격 완료 후 다음 행동 결정.
         /// EnemyBrain.DecidePostAttack와 유사하나 비행 루프와 연동.
         /// </summary>
-        public void OnGroundAttackFinished()
+        public virtual void OnGroundAttackFinished()
         {
             _groundAttackCount++;
             _lastAttackTime = Time.time;
@@ -331,7 +331,7 @@ namespace UPlayGround.Component
         /// 공격 후 지상 행동 가중치 분기.
         /// Chase(기본) / Circle(선회) / Retreat(후퇴) 중 선택.
         /// </summary>
-        private void DecidePostGroundAttack()
+        protected virtual void DecidePostGroundAttack()
         {
             if (!_detection.HasTarget)
             {
@@ -375,19 +375,19 @@ namespace UPlayGround.Component
 
         #region 내부 헬퍼
 
-        private bool ShouldTakeOff()
+        protected virtual bool ShouldTakeOff()
         {
             return _groundAttackCount >= _groundAttackLimit
                    || _groundTimer >= _currentGroundStayLimit;
         }
 
-        private bool CanUseSkill()
+        protected bool CanUseSkill()
         {
             if (_combat?.AttackData == null) return false;
             return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
         }
 
-        private void TransitionToTakeOff()
+        protected virtual void TransitionToTakeOff()
         {
             _movementController.TransitionToState(new EnemyFlyingTakeOffState(_movementController, this));
         }
@@ -397,7 +397,7 @@ namespace UPlayGround.Component
         /// isDiveAttack 스킬이 있으면 가중치 확률로 Dive, 없으면 Land.
         /// Dive 스킬이 선택되면 해당 스킬을 Combat에 설정하여 DiveState가 참조.
         /// </summary>
-        private void TransitionToDescend()
+        protected virtual void TransitionToDescend()
         {
             if (!_detection.HasTarget || _combat?.AttackData == null)
             {
@@ -462,8 +462,8 @@ namespace UPlayGround.Component
             return _spawnPosition + new Vector3(c.x, 0, c.y);
         }
 
-        private bool IsAirState(string s) => s is "Flying_AirCircle" or "Flying_TakeOff";
-        private bool IsGroundCombatState(string s) => s is "Flying_Chase" or "Flying_GroundAttack" or "Flying_Circle" or "Flying_Retreat";
+        protected bool IsAirState(string s) => s is "Flying_AirCircle" or "Flying_TakeOff";
+        protected bool IsGroundCombatState(string s) => s is "Flying_Chase" or "Flying_GroundAttack" or "Flying_Circle" or "Flying_Retreat";
 
         public void Freeze()
         {

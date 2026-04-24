@@ -1,5 +1,19 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8867063878722835880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d87b45a3241ef42a46d084314237f8, type: 3}
+  m_Name: Attack
+  m_EditorClassIdentifier: 
+  nodeName: Attack
+  editorPosition: {x: 106, y: 911}
 --- !u!114 &-6403839196872999450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,6 +107,21 @@ MonoBehaviour:
   editorPosition: {x: 687, y: 657}
   minDuration: 0.8
   maxDuration: 1.5
+--- !u!114 &2047020329908179891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9a6abab2867b24abcfaa8fc117faef, type: 3}
+  m_Name: BTInverter
+  m_EditorClassIdentifier: 
+  nodeName: BTInverter
+  editorPosition: {x: 527, y: 494}
+  child: {fileID: 0}
 --- !u!114 &3122810607006079008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,3 +136,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeName: Attack
   editorPosition: {x: 337, y: 758}
+--- !u!114 &5034126440955044889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: BBBool
+  m_EditorClassIdentifier: 
+  nodeName: BBBool
+  editorPosition: {x: 392, y: 495}
+  key: HasGuardMotion
+  invert: 0
+--- !u!114 &6019108201341569376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: BTSelector
+  m_EditorClassIdentifier: 
+  nodeName: BTSelector
+  editorPosition: {x: 322, y: 399}
+  children:
+  - {fileID: 3122810607006079008}
+--- !u!114 &7471132341796234265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: BTSequence
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: BTSequence
+  editorPosition: {x: 593, y: 550}
+  children: []

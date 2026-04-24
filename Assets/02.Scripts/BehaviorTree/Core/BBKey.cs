@@ -28,5 +28,15 @@ namespace UPlayGround.BehaviorTree
         // ── State ───────────────────────────────────
         public const string ConsecutiveDefensiveCount = "ConsecutiveDefensiveCount";
         public const string HasGuardMotion            = "HasGuardMotion";
+
+        // ── Self Stats ──────────────────────────────
+        public const string SelfHPPercent = "SelfHPPercent";
+
+        // ── Flying ──────────────────────────────────
+        public const string ShouldTakeOff    = "ShouldTakeOff";     // Bool: 지상 공격 한도/체류 초과
+        public const string ShouldDescend    = "ShouldDescend";     // Bool: 공중 공격 한도 초과
+        public const string IsAirState       = "IsAirState";        // Bool
+        public const string GroundAttackCount = "GroundAttackCount"; // Int
+        public const string AirAttackCount   = "AirAttackCount";    // Int
     }
 }

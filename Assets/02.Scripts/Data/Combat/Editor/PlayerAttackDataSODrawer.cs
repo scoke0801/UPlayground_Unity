@@ -25,6 +25,16 @@ namespace UPlayGround.Editor
         };
         private int _tab;
 
+        // Phase 색상 (미니맵용)
+        private static readonly Color[] PhaseColors =
+        {
+            new Color(0.29f, 0.61f, 1.00f),
+            new Color(0.63f, 0.42f, 1.00f),
+            new Color(1.00f, 0.49f, 0.26f),
+            new Color(1.00f, 0.79f, 0.26f),
+            new Color(0.37f, 0.79f, 0.48f),
+        };
+
         // ─── SerializedObject / Property ────────────────────────────────
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
@@ -32,15 +42,17 @@ namespace UPlayGround.Editor
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
 
-        // ─── 폴드아웃 상태 ───────────────────────────────────────────────
-        private readonly Dictionary<string, List<bool>>       _cardFold  = new();
-        private readonly Dictionary<string, List<List<bool>>> _phaseFold = new();
+        // ─── 폴드아웃 / 검색 상태 ───────────────────────────────────────
+        private readonly Dictionary<string, List<bool>>       _cardFold    = new();
+        private readonly Dictionary<string, List<List<bool>>> _phaseFold   = new();
+        private readonly Dictionary<string, string>           _searchFilter = new();
 
         // ─── 스타일 (지연 초기화) ────────────────────────────────────────
         private static GUIStyle _cardStyle;
         private static GUIStyle _phaseStyle;
         private static GUIStyle _tabStyleActive;
         private static GUIStyle _tabStyleNormal;
+        private static GUIStyle _minimapLabelStyle;  // 미니맵 텍스트용 (루프 밖 캐시)
 
         private static void EnsureStyles()
         {
@@ -55,8 +67,65 @@ namespace UPlayGround.Editor
                 padding = new RectOffset(8, 8, 4, 4),
                 margin  = new RectOffset(4, 4, 2, 2),
             };
-            _tabStyleActive = new GUIStyle(EditorStyles.miniButtonMid) { fontStyle = FontStyle.Bold, fontSize = 11, fixedHeight = 26 };
-            _tabStyleNormal = new GUIStyle(EditorStyles.miniButtonMid) { fontSize = 11, fixedHeight = 26 };
+            _tabStyleActive    = new GUIStyle(EditorStyles.miniButtonMid) { fontStyle = FontStyle.Bold, fontSize = 11, fixedHeight = 26 };
+            _tabStyleNormal    = new GUIStyle(EditorStyles.miniButtonMid) { fontSize = 11, fixedHeight = 26 };
+            _minimapLabelStyle = new GUIStyle(EditorStyles.whiteMiniLabel) { alignment = TextAnchor.MiddleCenter, fontSize = 9 };
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  Phase 클립보드 (static → 탭·에셋 교체 후에도 유지)
+        // ═══════════════════════════════════════════════════════════════
+        private static class PhaseClipboard
+        {
+            public static bool   HasData    { get; private set; }
+            public static string DisplayStr { get; private set; } = "";
+
+            private static float   _damage, _poiseDamage;
+            private static float   _pullForce, _airborneForce, _knockBackForce, _knockBackDrag;
+            private static float   _attackRadius, _hitHeightRange, _grabDuration;
+            private static Vector3 _attackOffset;
+            private static int     _reactionType, _victimForcedAnimKey;
+            private static string  _hitParticleName;
+
+            public static void Copy(SerializedProperty phase)
+            {
+                _damage              = phase.FindPropertyRelative("damage").floatValue;
+                _poiseDamage         = phase.FindPropertyRelative("poiseDamage").floatValue;
+                _reactionType        = phase.FindPropertyRelative("reactionType").enumValueIndex;
+                _attackOffset        = phase.FindPropertyRelative("attackOffset").vector3Value;
+                _attackRadius        = phase.FindPropertyRelative("attackRadius").floatValue;
+                _hitHeightRange      = phase.FindPropertyRelative("hitHeightRange").floatValue;
+                _hitParticleName     = phase.FindPropertyRelative("hitParticleName").stringValue;
+                _pullForce           = phase.FindPropertyRelative("pullForce").floatValue;
+                _airborneForce       = phase.FindPropertyRelative("airborneForce").floatValue;
+                _knockBackForce      = phase.FindPropertyRelative("knockBackForce").floatValue;
+                _knockBackDrag       = phase.FindPropertyRelative("knockBackDrag").floatValue;
+                _grabDuration        = phase.FindPropertyRelative("grabDuration").floatValue;
+                _victimForcedAnimKey = phase.FindPropertyRelative("victimForcedAnimKey").enumValueIndex;
+
+                HasData    = true;
+                DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  반경 {_attackRadius:F1}";
+            }
+
+            public static void Paste(SerializedProperty phase)
+            {
+                if (!HasData) return;
+                phase.FindPropertyRelative("damage").floatValue              = _damage;
+                phase.FindPropertyRelative("poiseDamage").floatValue         = _poiseDamage;
+                phase.FindPropertyRelative("reactionType").enumValueIndex    = _reactionType;
+                phase.FindPropertyRelative("attackOffset").vector3Value      = _attackOffset;
+                phase.FindPropertyRelative("attackRadius").floatValue        = _attackRadius;
+                phase.FindPropertyRelative("hitHeightRange").floatValue      = _hitHeightRange;
+                phase.FindPropertyRelative("hitParticleName").stringValue    = _hitParticleName;
+                phase.FindPropertyRelative("pullForce").floatValue           = _pullForce;
+                phase.FindPropertyRelative("airborneForce").floatValue       = _airborneForce;
+                phase.FindPropertyRelative("knockBackForce").floatValue      = _knockBackForce;
+                phase.FindPropertyRelative("knockBackDrag").floatValue       = _knockBackDrag;
+                phase.FindPropertyRelative("grabDuration").floatValue        = _grabDuration;
+                phase.FindPropertyRelative("victimForcedAnimKey").enumValueIndex = _victimForcedAnimKey;
+            }
+
+            public static void Clear() => HasData = false;
         }
 
         // ─── 생성자 ──────────────────────────────────────────────────────
@@ -81,12 +150,15 @@ namespace UPlayGround.Editor
         // ═══════════════════════════════════════════════════════════════
         //  진입점
         // ═══════════════════════════════════════════════════════════════
-
         public void DrawGUI()
         {
             EnsureStyles();
             DrawTabBar();
-            EditorGUILayout.Space(6);
+
+            if (PhaseClipboard.HasData)
+                DrawClipboardBanner();
+
+            EditorGUILayout.Space(4);
 
             Color accent = TabAccents[_tab];
             switch (_tab)
@@ -101,10 +173,24 @@ namespace UPlayGround.Editor
             }
         }
 
+        // ─── 클립보드 배너 ────────────────────────────────────────────
+        private static void DrawClipboardBanner()
+        {
+            Rect rect = GUILayoutUtility.GetRect(0, 22, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(rect, new Color(0.08f, 0.22f, 0.10f, 1f));
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 3, rect.height), new Color(0.37f, 0.79f, 0.48f));
+            var labelStyle = new GUIStyle(EditorStyles.miniLabel)
+                { normal = { textColor = new Color(0.6f, 0.95f, 0.65f) } };
+            EditorGUI.LabelField(
+                new Rect(rect.x + 8, rect.y, rect.width - 68, rect.height),
+                $"⎘ 클립보드 — {PhaseClipboard.DisplayStr}", labelStyle);
+            if (GUI.Button(new Rect(rect.xMax - 62, rect.y + 2, 58, 18), "지우기", EditorStyles.miniButton))
+                PhaseClipboard.Clear();
+        }
+
         // ═══════════════════════════════════════════════════════════════
         //  ① 탭 바 — 공격 수 배지 + 빈 탭 흐리게
         // ═══════════════════════════════════════════════════════════════
-
         private int GetTabCount(int tabIndex) => tabIndex switch
         {
             0 => _liteList.arraySize,
@@ -112,7 +198,7 @@ namespace UPlayGround.Editor
             2 => _jumpList.arraySize,
             3 => _dashList.arraySize,
             4 => _skillList.arraySize,
-            5 => 1,                        // 카운터는 단일 구조
+            5 => 1,
             6 => _chargeStages.arraySize,
             _ => 0,
         };
@@ -124,7 +210,7 @@ namespace UPlayGround.Editor
             {
                 bool active = i == _tab;
                 int  count  = GetTabCount(i);
-                bool empty  = count == 0 && i != 5; // 카운터는 항상 표시
+                bool empty  = count == 0 && i != 5;
 
                 Color prev = GUI.backgroundColor;
                 GUI.backgroundColor = active
@@ -134,8 +220,6 @@ namespace UPlayGround.Editor
                         : new Color(0.25f, 0.25f, 0.25f, 0.8f);
 
                 var style = active ? _tabStyleActive : _tabStyleNormal;
-
-                // 카운터(5)·차지(6)는 단일 구조라 숫자 불필요
                 string label = (i == 5 || i == 6) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
 
                 Color prevContent = GUI.contentColor;
@@ -154,40 +238,170 @@ namespace UPlayGround.Editor
         }
 
         // ═══════════════════════════════════════════════════════════════
+        //  ② 검증 헬퍼
+        // ═══════════════════════════════════════════════════════════════
+        private struct ValidationResult
+        {
+            public List<string> Errors;
+            public List<string> Warnings;
+            public bool HasIssues => (Errors?.Count > 0) || (Warnings?.Count > 0);
+        }
+
+        // attackProp = PlayerAttackInfo 또는 ChargeStageData의 SerializedProperty
+        private static ValidationResult ValidateAttack(SerializedProperty attackProp)
+        {
+            var result = new ValidationResult
+            {
+                Errors   = new List<string>(),
+                Warnings = new List<string>(),
+            };
+
+            // PlayerAttackInfo → baseInfo.hitPhases / ChargeStageData → hitPhases 폴백
+            SerializedProperty phasesP = attackProp.FindPropertyRelative("baseInfo.hitPhases")
+                                      ?? attackProp.FindPropertyRelative("hitPhases");
+            if (phasesP == null) return result;
+
+            if (phasesP.arraySize == 0)
+            {
+                result.Errors.Add("HitPhase가 없습니다.");
+                return result;
+            }
+
+            for (int i = 0; i < phasesP.arraySize; i++)
+            {
+                SerializedProperty ph     = phasesP.GetArrayElementAtIndex(i);
+                float  damage             = ph.FindPropertyRelative("damage").floatValue;
+                float  radius             = ph.FindPropertyRelative("attackRadius").floatValue;
+                float  af                 = ph.FindPropertyRelative("airborneForce").floatValue;
+                float  kf                 = ph.FindPropertyRelative("knockBackForce").floatValue;
+                SerializedProperty rxProp = ph.FindPropertyRelative("reactionType");
+                string rxName             = rxProp.enumDisplayNames[rxProp.enumValueIndex];
+
+                if (damage == 0f)  result.Warnings.Add($"Phase {i}: 대미지 0");
+                if (radius <= 0f)  result.Errors.Add($"Phase {i}: 히트박스 반경 0 이하");
+                if ((rxName == "Airborne" || rxName == "KnockBack") && af == 0f && kf == 0f)
+                    result.Warnings.Add($"Phase {i}: {rxName} 타입이지만 반응 힘이 모두 0");
+            }
+            return result;
+        }
+
+        private static void DrawValidationPanel(ValidationResult v)
+        {
+            EditorGUILayout.Space(2);
+            foreach (string err in v.Errors)
+            {
+                Rect r = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
+                EditorGUI.DrawRect(r, new Color(0.5f, 0f, 0f, 0.25f));
+                EditorGUI.DrawRect(new Rect(r.x, r.y, 3, r.height), Color.red);
+                EditorGUI.LabelField(new Rect(r.x + 7, r.y, r.width, r.height), "✕  " + err,
+                    new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = new Color(1f, 0.45f, 0.45f) } });
+            }
+            foreach (string warn in v.Warnings)
+            {
+                Rect r = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
+                EditorGUI.DrawRect(r, new Color(0.5f, 0.4f, 0f, 0.25f));
+                EditorGUI.DrawRect(new Rect(r.x, r.y, 3, r.height), Color.yellow);
+                EditorGUI.LabelField(new Rect(r.x + 7, r.y, r.width, r.height), "!  " + warn,
+                    new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = new Color(1f, 0.85f, 0.3f) } });
+            }
+            EditorGUILayout.Space(2);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  ③ Phase 미니맵 (duration 없으므로 등폭 블록, 대미지 크기로 채우기)
+        // ═══════════════════════════════════════════════════════════════
+        private static void DrawPhasesMinimap(SerializedProperty phases, Color accent)
+        {
+            EnsureStyles();
+            int count = phases.arraySize;
+            if (count == 0) return;
+
+            // 최대 대미지 파악
+            float maxDmg = 0f;
+            for (int i = 0; i < count; i++)
+            {
+                float d = phases.GetArrayElementAtIndex(i).FindPropertyRelative("damage").floatValue;
+                if (d > maxDmg) maxDmg = d;
+            }
+            if (maxDmg <= 0f) maxDmg = 1f;
+
+            Rect bar = GUILayoutUtility.GetRect(0, 32, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(bar, new Color(0.07f, 0.07f, 0.07f, 0.85f));
+
+            float blockW = bar.width / count;
+            for (int i = 0; i < count; i++)
+            {
+                SerializedProperty ph  = phases.GetArrayElementAtIndex(i);
+                float dmg              = ph.FindPropertyRelative("damage").floatValue;
+                Color col              = PhaseColors[i % PhaseColors.Length];
+
+                Rect blockRect = new Rect(bar.x + i * blockW + 1, bar.y + 1, blockW - 2, bar.height - 2);
+
+                // 배경 (반투명)
+                EditorGUI.DrawRect(blockRect, col * new Color(1f, 1f, 1f, 0.35f));
+
+                // 대미지 채우기 바 (하단부터)
+                float fillH = (dmg / maxDmg) * (bar.height - 6f);
+                if (fillH > 0f)
+                    EditorGUI.DrawRect(new Rect(blockRect.x, blockRect.yMax - fillH,
+                                                blockRect.width, fillH), col * new Color(1f, 1f, 1f, 0.8f));
+
+                // 텍스트 라벨
+                EditorGUI.LabelField(blockRect, $"P{i}  {dmg:F0}", _minimapLabelStyle);
+
+                // 구분선
+                if (i < count - 1)
+                    EditorGUI.DrawRect(new Rect(blockRect.xMax, bar.y, 1, bar.height), new Color(0f, 0f, 0f, 0.5f));
+            }
+            EditorGUILayout.Space(2);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
         //  공격 리스트
         // ═══════════════════════════════════════════════════════════════
-
         private void DrawAttackList(SerializedProperty list, string title, string key, Color accent)
         {
             EnsureFoldLists(key, list.arraySize);
+            if (!_searchFilter.ContainsKey(key)) _searchFilter[key] = "";
 
             DrawSectionHeader(title, accent);
 
-            // ④ 전체 펼치기 / 접기
+            // 검색 필드 + 전체 펼치기/접기
+            EditorGUILayout.BeginHorizontal();
+            _searchFilter[key] = EditorGUILayout.TextField(_searchFilter[key],
+                EditorStyles.toolbarSearchField, GUILayout.MinWidth(80));
             if (list.arraySize > 0)
             {
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("▼ 전체 펼치기", EditorStyles.miniButton, GUILayout.Width(92)))
+                if (GUILayout.Button("▼ 전체 펼치기", EditorStyles.miniButton, GUILayout.Width(90)))
                     for (int i = 0; i < _cardFold[key].Count; i++) _cardFold[key][i] = true;
-                if (GUILayout.Button("▶ 전체 접기", EditorStyles.miniButton, GUILayout.Width(78)))
+                if (GUILayout.Button("▶ 전체 접기", EditorStyles.miniButton, GUILayout.Width(76)))
                     for (int i = 0; i < _cardFold[key].Count; i++) _cardFold[key][i] = false;
-                EditorGUILayout.EndHorizontal();
             }
-
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space(4);
 
             if (list.arraySize == 0)
                 EditorGUILayout.HelpBox("공격 데이터가 없습니다. 아래 버튼으로 추가하세요.", MessageType.Info);
 
-            int removeAt    = -1;
-            int duplicateAt = -1;
+            string filter    = _searchFilter[key].ToLower();
+            int    removeAt  = -1;
+            int    dupAt     = -1;
 
             for (int i = 0; i < list.arraySize; i++)
             {
-                var (del, dup) = DrawAttackCard(list.GetArrayElementAtIndex(i), i, list.arraySize, key, accent);
-                if (del) removeAt    = i;
-                if (dup) duplicateAt = i;
+                SerializedProperty prop = list.GetArrayElementAtIndex(i);
+
+                // 검색 필터 — 폴드 인덱스 접근은 실제 배열 인덱스 기준이라 안전
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    SerializedProperty animKeyP = prop.FindPropertyRelative("baseInfo.animKey");
+                    string animLabel = animKeyP.enumDisplayNames[animKeyP.enumValueIndex].ToLower();
+                    if (!animLabel.Contains(filter)) continue;
+                }
+
+                var (del, dup) = DrawAttackCard(prop, i, list.arraySize, key, accent);
+                if (del) removeAt = i;
+                if (dup) dupAt    = i;
             }
 
             if (removeAt >= 0)
@@ -196,14 +410,12 @@ namespace UPlayGround.Editor
                 _cardFold[key].RemoveAt(removeAt);
                 _phaseFold[key].RemoveAt(removeAt);
             }
-            else if (duplicateAt >= 0)
+            else if (dupAt >= 0)
             {
-                // InsertArrayElementAtIndex: 해당 인덱스에 복사본 삽입 (원본은 +1로 밀림)
-                // MoveArrayElement로 원본/복사본 위치를 교환 → 원본 유지, 복사본이 바로 뒤에
-                list.InsertArrayElementAtIndex(duplicateAt);
-                list.MoveArrayElement(duplicateAt, duplicateAt + 1);
-                _cardFold[key].Insert(duplicateAt + 1, true);
-                _phaseFold[key].Insert(duplicateAt + 1, new List<bool>());
+                list.InsertArrayElementAtIndex(dupAt);
+                list.MoveArrayElement(dupAt, dupAt + 1);
+                _cardFold[key].Insert(dupAt + 1, true);
+                _phaseFold[key].Insert(dupAt + 1, new List<bool>());
             }
 
             EditorGUILayout.Space(4);
@@ -221,7 +433,6 @@ namespace UPlayGround.Editor
         }
 
         // ─── 공격 카드 ─────────────────────────────────────────────────
-
         private (bool deleted, bool duplicated) DrawAttackCard(
             SerializedProperty prop, int index, int total, string key, Color accent)
         {
@@ -232,10 +443,13 @@ namespace UPlayGround.Editor
             SerializedProperty interruptP = prop.FindPropertyRelative("canBeInterrupted");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
-            // ② 헤더에 Phase 0 데미지 표시
-            float phase0Dmg = phasesP.arraySize > 0
-                ? phasesP.GetArrayElementAtIndex(0).FindPropertyRelative("damage").floatValue
-                : 0f;
+            // 총 대미지 (모든 Phase 합산)
+            float totalDmg = 0f;
+            for (int p = 0; p < phasesP.arraySize; p++)
+                totalDmg += phasesP.GetArrayElementAtIndex(p).FindPropertyRelative("damage").floatValue;
+
+            // 검증
+            ValidationResult validation = ValidateAttack(prop);
 
             bool fold      = _cardFold[key][index];
             bool deleted   = false;
@@ -244,8 +458,14 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_cardStyle);
 
             string animLabel = animKeyP.enumDisplayNames[animKeyP.enumValueIndex];
-            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   DMG {phase0Dmg:F0}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.boolValue ? "캔슬 O" : "캔슬 X")}";
-            Color  bgColor   = new Color(accent.r, accent.g, accent.b, 0.18f);
+            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   총DMG {totalDmg:F0}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.boolValue ? "캔슬 O" : "캔슬 X")}";
+
+            // 오류=붉은, 경고=노랑, 정상=accent 배경
+            Color bgColor = validation.Errors.Count > 0
+                ? new Color(0.80f, 0.15f, 0.15f, 0.25f)
+                : validation.Warnings.Count > 0
+                    ? new Color(0.90f, 0.75f, 0.00f, 0.20f)
+                    : new Color(accent.r, accent.g, accent.b, 0.18f);
 
             bool newFold = DrawCardHeaderRow(summary, bgColor, fold, index > 0, index < total - 1,
                                              out bool clickedUp, out bool clickedDown,
@@ -259,8 +479,15 @@ namespace UPlayGround.Editor
 
             if (newFold)
             {
-                EditorGUILayout.Space(4);
+                // Phase 미니맵
+                if (phasesP.arraySize > 0)
+                    DrawPhasesMinimap(phasesP, accent);
 
+                // 검증 패널
+                if (validation.HasIssues)
+                    DrawValidationPanel(validation);
+
+                EditorGUILayout.Space(4);
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
                     EditorGUILayout.LabelField("기본 정보", EditorStyles.miniBoldLabel);
@@ -282,15 +509,12 @@ namespace UPlayGround.Editor
         // ═══════════════════════════════════════════════════════════════
         //  Hit Phase 리스트
         // ═══════════════════════════════════════════════════════════════
-
         private void DrawHitPhaseList(SerializedProperty phases, string key, int cardIdx, Color accent)
         {
-            var folds = _phaseFold[key][cardIdx];
-            DrawHitPhaseListShared(phases, folds, accent);
+            DrawHitPhaseListShared(phases, _phaseFold[key][cardIdx], accent);
         }
 
-        // ─── 공유 Phase 목록 (EnemyAttackDataSODrawer에서도 호출) ──────
-
+        // EnemyAttackDataSODrawer에서도 호출
         internal static void DrawHitPhaseListShared(SerializedProperty phases, List<bool> folds, Color accent)
         {
             EnsureStyles();
@@ -330,7 +554,6 @@ namespace UPlayGround.Editor
         }
 
         // ─── Hit Phase 카드 ───────────────────────────────────────────
-
         internal static bool DrawHitPhaseCard(SerializedProperty phase, int index, List<bool> folds, Color accent)
         {
             EnsureStyles();
@@ -348,10 +571,8 @@ namespace UPlayGround.Editor
             string summary = $"  Phase {index}  |  데미지 {damageP.floatValue:F0}  |  포이즈 {poiseP.floatValue:F0}  |  {reactionLabel}";
             Color  phBg    = new Color(accent.r * 0.5f, accent.g * 0.5f, accent.b * 0.5f, 0.20f);
 
-            bool newFold = DrawCardHeaderRow(summary, phBg, fold, false, false,
-                                             out _, out _, out bool clickedDel, out _,
-                                             showMoveButtons: false, showDuplicateButton: false,
-                                             showDeleteButton: index > 0);
+            // 헤더 (복사/붙여넣기 버튼 포함)
+            bool newFold = DrawPhaseCardHeaderRow(summary, phBg, fold, index > 0, phase, out bool clickedDel);
             folds[index] = newFold;
             if (clickedDel) deleted = true;
 
@@ -368,6 +589,9 @@ namespace UPlayGround.Editor
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.PropertyField(reactionP, new GUIContent("반응 타입"));
                 }
+
+                // 대미지 시각화 바
+                DrawDamageBar(damageP.floatValue, accent);
 
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
@@ -413,26 +637,103 @@ namespace UPlayGround.Editor
             return deleted;
         }
 
+        // ─── 대미지 시각화 바 ─────────────────────────────────────────
+        private static void DrawDamageBar(float damage, Color accent)
+        {
+            const float kMax = 200f;
+            float t = Mathf.Clamp01(damage / kMax);
+            Rect outer = GUILayoutUtility.GetRect(0, 5, GUILayout.ExpandWidth(true));
+            outer = new Rect(outer.x + 2, outer.y, outer.width - 4, outer.height);
+            EditorGUI.DrawRect(outer, new Color(0.12f, 0.12f, 0.12f, 0.8f));
+            if (t > 0f)
+                EditorGUI.DrawRect(new Rect(outer.x, outer.y, outer.width * t, outer.height),
+                                   accent * new Color(1f, 1f, 1f, 0.85f));
+            EditorGUILayout.Space(2);
+        }
+
+        // ─── Phase 카드 헤더 (복사/붙여넣기 버튼 포함) ───────────────
+        private static bool DrawPhaseCardHeaderRow(
+            string text, Color bgColor, bool fold, bool canDelete,
+            SerializedProperty phase, out bool clickedDel)
+        {
+            clickedDel = false;
+
+            const float btnW = 22f, btnH = 22f, gap = 2f, margin = 4f;
+            Rect row  = GUILayoutUtility.GetRect(0, 28, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(row, bgColor);
+
+            float rx   = row.xMax - margin;
+            float btnY = row.y + (row.height - btnH) * 0.5f;
+
+            // 삭제 버튼
+            Rect delRect = Rect.zero;
+            if (canDelete)
+            {
+                rx -= btnW;
+                delRect = new Rect(rx, btnY, btnW, btnH);
+                rx -= gap;
+            }
+
+            // 붙여넣기 버튼
+            rx -= btnW;
+            Rect pasteRect = new Rect(rx, btnY, btnW, btnH);
+            rx -= gap;
+
+            // 복사 버튼
+            rx -= btnW;
+            Rect copyRect = new Rect(rx, btnY, btnW, btnH);
+            rx -= gap;
+
+            // 폴드 버튼
+            Rect foldRect = new Rect(row.x + margin, row.y, rx - row.x - margin, row.height);
+            if (GUI.Button(foldRect, (fold ? "▼" : "▶") + text, EditorStyles.boldLabel))
+                fold = !fold;
+
+            // 복사
+            Color prev = GUI.backgroundColor;
+            GUI.backgroundColor = new Color(0.3f, 0.55f, 0.9f, 1f);
+            if (GUI.Button(copyRect, "⎘", EditorStyles.miniButton))
+                PhaseClipboard.Copy(phase);
+            GUI.backgroundColor = prev;
+
+            // 붙여넣기
+            EditorGUI.BeginDisabledGroup(!PhaseClipboard.HasData);
+            GUI.backgroundColor = PhaseClipboard.HasData
+                ? new Color(0.3f, 0.7f, 0.3f, 1f)
+                : new Color(0.3f, 0.3f, 0.3f, 1f);
+            if (GUI.Button(pasteRect, "⬇", EditorStyles.miniButton) && PhaseClipboard.HasData)
+                PhaseClipboard.Paste(phase);
+            GUI.backgroundColor = Color.white;
+            EditorGUI.EndDisabledGroup();
+
+            // 삭제
+            if (canDelete)
+            {
+                GUI.backgroundColor = new Color(0.8f, 0.2f, 0.2f, 1f);
+                if (GUI.Button(delRect, "✕", EditorStyles.miniButton)) clickedDel = true;
+                GUI.backgroundColor = Color.white;
+            }
+
+            return fold;
+        }
+
         // ═══════════════════════════════════════════════════════════════
         //  카운터 공격 탭
         // ═══════════════════════════════════════════════════════════════
-
         private void DrawCounterAttack(Color accent)
         {
-            EnsureFoldLists("counter", 1);
+            EnsureFoldLists("counter",      1);
             EnsureFoldLists("parryCounter", 1);
 
             DrawSectionHeader("퍼펙트 가드 반격", accent);
             EditorGUILayout.HelpBox("비워두면 강공격 첫 번째 데이터로 대체됩니다.", MessageType.Info);
             EditorGUILayout.Space(4);
-
             DrawCounterAttackField(_counter, "counter", accent);
 
             EditorGUILayout.Space(12);
             DrawSectionHeader("패리 반격", accent);
             EditorGUILayout.HelpBox("비워두면 퍼펙트 가드 반격 데이터로 대체됩니다.", MessageType.Info);
             EditorGUILayout.Space(4);
-
             DrawCounterAttackField(_parryCounter, "parryCounter", accent);
         }
 
@@ -445,8 +746,17 @@ namespace UPlayGround.Editor
             SerializedProperty interruptP = prop.FindPropertyRelative("canBeInterrupted");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
+            ValidationResult validation = ValidateAttack(prop);
+
             EditorGUILayout.BeginVertical(_cardStyle);
 
+            if (phasesP.arraySize > 0)
+                DrawPhasesMinimap(phasesP, accent);
+
+            if (validation.HasIssues)
+                DrawValidationPanel(validation);
+
+            EditorGUILayout.Space(4);
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
                 EditorGUILayout.LabelField("기본 정보", EditorStyles.miniBoldLabel);
@@ -465,7 +775,6 @@ namespace UPlayGround.Editor
         // ═══════════════════════════════════════════════════════════════
         //  차지 탭
         // ═══════════════════════════════════════════════════════════════
-
         private void DrawChargeSection(Color accent)
         {
             EnsureFoldLists("charge", _chargeStages.arraySize);
@@ -494,7 +803,6 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(6);
             DrawSectionHeader("차지 단계 데이터", accent);
 
-            // ④ 전체 펼치기 / 접기
             if (_chargeStages.arraySize > 0)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -508,14 +816,14 @@ namespace UPlayGround.Editor
 
             EditorGUILayout.Space(4);
 
-            int removeAt    = -1;
-            int duplicateAt = -1;
+            int removeAt = -1;
+            int dupAt    = -1;
 
             for (int i = 0; i < _chargeStages.arraySize; i++)
             {
                 var (del, dup) = DrawChargeStageCard(_chargeStages.GetArrayElementAtIndex(i), i, _chargeStages.arraySize, accent);
-                if (del) removeAt    = i;
-                if (dup) duplicateAt = i;
+                if (del) removeAt = i;
+                if (dup) dupAt    = i;
             }
 
             if (removeAt >= 0)
@@ -524,12 +832,12 @@ namespace UPlayGround.Editor
                 _cardFold["charge"].RemoveAt(removeAt);
                 _phaseFold["charge"].RemoveAt(removeAt);
             }
-            else if (duplicateAt >= 0)
+            else if (dupAt >= 0)
             {
-                _chargeStages.InsertArrayElementAtIndex(duplicateAt);
-                _chargeStages.MoveArrayElement(duplicateAt, duplicateAt + 1);
-                _cardFold["charge"].Insert(duplicateAt + 1, true);
-                _phaseFold["charge"].Insert(duplicateAt + 1, new List<bool>());
+                _chargeStages.InsertArrayElementAtIndex(dupAt);
+                _chargeStages.MoveArrayElement(dupAt, dupAt + 1);
+                _cardFold["charge"].Insert(dupAt + 1, true);
+                _phaseFold["charge"].Insert(dupAt + 1, new List<bool>());
             }
 
             GUI.backgroundColor = new Color(accent.r * 0.6f, accent.g * 0.6f, accent.b * 0.6f, 1f);
@@ -545,7 +853,6 @@ namespace UPlayGround.Editor
             GUI.backgroundColor = Color.white;
 
             EditorGUILayout.Space(8);
-
             DrawSectionHeader("풀 차지 VFX", accent);
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
@@ -556,7 +863,6 @@ namespace UPlayGround.Editor
         }
 
         // ─── 임계값 바 시각화 ─────────────────────────────────────────
-
         private void DrawThresholdBar(Color accent, int stageCount)
         {
             EditorGUILayout.LabelField("단계 분포 미리보기", EditorStyles.miniBoldLabel);
@@ -590,12 +896,14 @@ namespace UPlayGround.Editor
         }
 
         // ─── 차지 단계 카드 ───────────────────────────────────────────
-
-        private (bool deleted, bool duplicated) DrawChargeStageCard(SerializedProperty stage, int index, int total, Color accent)
+        private (bool deleted, bool duplicated) DrawChargeStageCard(
+            SerializedProperty stage, int index, int total, Color accent)
         {
             SerializedProperty phasesP    = stage.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = stage.FindPropertyRelative("canBeInterrupted");
             SerializedProperty angleP     = stage.FindPropertyRelative("hitAngle");
+
+            ValidationResult validation = ValidateAttack(stage);
 
             bool fold      = _cardFold["charge"][index];
             bool deleted   = false;
@@ -604,7 +912,11 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_cardStyle);
 
             string summary = $"  [{index + 1}단계]  Phase {phasesP.arraySize}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.boolValue ? "캔슬 O" : "캔슬 X")}";
-            Color  bgColor = new Color(accent.r, accent.g, accent.b, 0.18f);
+            Color  bgColor = validation.Errors.Count > 0
+                ? new Color(0.80f, 0.15f, 0.15f, 0.25f)
+                : validation.Warnings.Count > 0
+                    ? new Color(0.90f, 0.75f, 0.00f, 0.20f)
+                    : new Color(accent.r, accent.g, accent.b, 0.18f);
 
             bool newFold = DrawCardHeaderRow(summary, bgColor, fold, index > 0, index < total - 1,
                                              out bool cu, out bool cd, out bool cDel, out bool cDup);
@@ -617,6 +929,9 @@ namespace UPlayGround.Editor
 
             if (newFold)
             {
+                if (phasesP.arraySize > 0) DrawPhasesMinimap(phasesP, accent);
+                if (validation.HasIssues)  DrawValidationPanel(validation);
+
                 EditorGUILayout.Space(4);
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
@@ -636,7 +951,7 @@ namespace UPlayGround.Editor
         private void SwapChargeStages(int a, int b)
         {
             _chargeStages.MoveArrayElement(a, b);
-            SwapList(_cardFold["charge"], a, b);
+            SwapList(_cardFold["charge"],  a, b);
             SwapList(_phaseFold["charge"], a, b);
         }
 
@@ -645,8 +960,7 @@ namespace UPlayGround.Editor
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// 전체 폭을 하나의 Rect로 차지하는 카드 헤더 행.
-        /// 버튼 순서 (우→좌): 삭제[✕] — 복사[⧉] — 아래[↓] — 위[↑]
+        /// 카드 헤더 행. 버튼 순서 (우→좌): 삭제[✕] — 복사[⧉] — 아래[↓] — 위[↑]
         /// </summary>
         private static bool DrawCardHeaderRow(
             string text, Color bgColor, bool fold,

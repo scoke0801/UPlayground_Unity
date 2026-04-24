@@ -131,9 +131,9 @@ namespace UPlayGround.Editor.BehaviorTree
             var list = new List<BTNodeSO>();
             switch (so)
             {
-                case BTSelectorSO       sel: list.AddRange(sel.children);                break;
-                case BTSequenceSO       seq: list.AddRange(seq.children);                break;
-                case BTRandomSelectorSO rnd: list.AddRange(rnd.children);                break;
+                case BTSelectorSO       sel: foreach (var c in sel.children) if (c != null) list.Add(c); break;
+                case BTSequenceSO       seq: foreach (var c in seq.children) if (c != null) list.Add(c); break;
+                case BTRandomSelectorSO rnd: foreach (var c in rnd.children) if (c != null) list.Add(c); break;
                 case BTInverterSO       inv: if (inv.child != null) list.Add(inv.child); break;
                 case BTCooldownSO       cd:  if (cd.child  != null) list.Add(cd.child);  break;
             }

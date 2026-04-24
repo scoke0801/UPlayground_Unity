@@ -1,0 +1,102 @@
+{
+    "treeName": "BT_FlyingEnemy_PostGroundAttack",
+    "rootGuid": "pgr0",
+    "nodes": [
+        {
+            "guid": "pgr0",
+            "typeName": "BTSelectorSO",
+            "soJson": "{\"nodeName\":\"PostGroundAttack_Root\"}",
+            "childGuids": ["pg01", "pg02", "pg03", "pg04", "pg05"]
+        },
+        {
+            "guid": "pg01",
+            "typeName": "BTSequenceSO",
+            "soJson": "{\"nodeName\":\"PostAttack_NoTarget\"}",
+            "childGuids": ["inv1", "fi01"]
+        },
+        {
+            "guid": "inv1",
+            "typeName": "BTInverterSO",
+            "soJson": "{\"nodeName\":\"Inv_HasTarget_PA\"}",
+            "childGuids": ["ht05"]
+        },
+        {
+            "guid": "ht05",
+            "typeName": "BTCond_HasTargetSO",
+            "soJson": "{\"nodeName\":\"HasTarget_PA\"}",
+            "childGuids": []
+        },
+        {
+            "guid": "fi01",
+            "typeName": "BTAction_FlyingIdleSO",
+            "soJson": "{\"nodeName\":\"Idle_PostAttack\"}",
+            "childGuids": []
+        },
+        {
+            "guid": "pg02",
+            "typeName": "BTSequenceSO",
+            "soJson": "{\"nodeName\":\"PostAttack_TooClose\"}",
+            "childGuids": ["dbb1", "rcl1", "frt1"]
+        },
+        {
+            "guid": "dbb1",
+            "typeName": "BTCond_DistanceBBSO",
+            "soJson": "{\"nodeName\":\"TooClose_PA\",\"check\":0,\"thresholdKey\":\"MinCombatDistance\",\"multiplier\":1.0,\"minKey\":\"MinCombatDistance\"}",
+            "childGuids": []
+        },
+        {
+            "guid": "rcl1",
+            "typeName": "BTCond_RandomChanceSO",
+            "soJson": "{\"nodeName\":\"RetreatChance_Close\",\"probability\":0.4}",
+            "childGuids": []
+        },
+        {
+            "guid": "frt1",
+            "typeName": "BTAction_FlyingRetreatSO",
+            "soJson": "{\"nodeName\":\"Retreat_TooClose\"}",
+            "childGuids": []
+        },
+        {
+            "guid": "pg03",
+            "typeName": "BTSequenceSO",
+            "soJson": "{\"nodeName\":\"PostAttack_Circle\"}",
+            "childGuids": ["rcc1", "fcr1"]
+        },
+        {
+            "guid": "rcc1",
+            "typeName": "BTCond_RandomChanceSO",
+            "soJson": "{\"nodeName\":\"CircleChance_PA\",\"probability\":0.3}",
+            "childGuids": []
+        },
+        {
+            "guid": "fcr1",
+            "typeName": "BTAction_FlyingCircleSO",
+            "soJson": "{\"nodeName\":\"Circle_PostAttack\",\"durationMin\":0.8,\"durationMax\":2.0}",
+            "childGuids": []
+        },
+        {
+            "guid": "pg04",
+            "typeName": "BTSequenceSO",
+            "soJson": "{\"nodeName\":\"PostAttack_Retreat\"}",
+            "childGuids": ["rcp1", "frt2"]
+        },
+        {
+            "guid": "rcp1",
+            "typeName": "BTCond_RandomChanceSO",
+            "soJson": "{\"nodeName\":\"RetreatChance_PA\",\"probability\":0.2}",
+            "childGuids": []
+        },
+        {
+            "guid": "frt2",
+            "typeName": "BTAction_FlyingRetreatSO",
+            "soJson": "{\"nodeName\":\"Retreat_PostAttack\"}",
+            "childGuids": []
+        },
+        {
+            "guid": "pg05",
+            "typeName": "BTAction_FlyingChaseSO",
+            "soJson": "{\"nodeName\":\"Chase_PostAttack\"}",
+            "childGuids": []
+        }
+    ]
+}

@@ -341,8 +341,9 @@ Assets/02.Scripts/BehaviorTree/
 │   ├── BTDecorator.cs             — Inverter, Cooldown
 │   ├── BTLeaf.cs                  — Condition, Action 추상 클래스
 │   ├── BTRunner.cs                — EnemyBrain 상속, MakeDecision BT로 대체
-│   ├── RuntimeBlackboard.cs       — 키-값 런타임 컨텍스트 (EnemyBlackboard 대체)
-│   └── BBKey.cs                   — 문자열 키 상수 모음
+│   ├── BTRunnerFlying.cs          — EnemyFlyingBrain 상속, 지상 전투 BT 대체
+│   ├── RuntimeBlackboard.cs       — 키-값 런타임 컨텍스트 (FlyingRunner 참조 포함)
+│   └── BBKey.cs                   — 문자열 키 상수 (Flying 5종 포함 총 23개)
 │
 ├── Nodes/
 │   ├── Conditions/
@@ -369,7 +370,16 @@ Assets/02.Scripts/BehaviorTree/
 │       ├── BTAction_Charge.cs
 │       ├── BTAction_Flank.cs
 │       ├── BTAction_Patrol.cs
-│       └── BTAction_Idle.cs
+│       ├── BTAction_Idle.cs
+│       └── Flying/                — 비행 적 전용 액션 (BTRunnerFlying 전용)
+│           ├── BTAction_TakeOff.cs
+│           ├── BTAction_Descend.cs
+│           ├── BTAction_FlyingChase.cs
+│           ├── BTAction_FlyingGroundAttack.cs
+│           ├── BTAction_FlyingRetreat.cs
+│           ├── BTAction_FlyingCircle.cs
+│           ├── BTAction_FlyingPatrol.cs
+│           └── BTAction_FlyingIdle.cs
 │
 ├── Data/                          — ScriptableObject SO 클래스
 │   ├── BTNodeSO.cs                — abstract base SO
@@ -380,18 +390,25 @@ Assets/02.Scripts/BehaviorTree/
 │   └── BTBlackboardSO.cs          — 키 정의 ScriptableObject
 │
 └── Editor/
-    ├── BehaviorTreeEditorWindow.cs — GraphView 기반 에디터 윈도우
-    ├── BehaviorTreeGraphView.cs    — GraphView (PopulateView, AutoLayout, RuntimeBind)
-    ├── BTNodeView.cs               — 노드 시각화 엘리먼트
+    ├── BehaviorTreeEditorWindow.cs — GraphView 기반 에디터 윈도우 (JSON 내보내기/불러오기 버튼 포함)
+    ├── BehaviorTreeGraphView.cs    — GraphView (Unreal식 Decorator 흡수, Add/Remove Decorator 컨텍스트 메뉴)
+    ├── BTNodeView.cs               — 노드 시각화 (AddDecoratorBadge 메서드 포함)
+    ├── BehaviorTreeEditor.uss      — USS 스타일시트 (.bt-decorator-badge 스타일 포함)
     ├── BTBlackboardView.cs         — 편집/런타임 Blackboard 패널
     ├── BTJsonSerializer.cs         — BT 에셋 JSON 내보내기/불러오기
-    └── BTDefaultEnemyBuilder.cs    — DefaultEnemy BT 에셋 코드 빌더
-                                      (Window > BehaviorTree > Build DefaultEnemy Asset)
+    ├── BTDefaultEnemyBuilder.cs    — DefaultEnemy BT 에셋 코드 빌더
+    │                                 (Window > BehaviorTree > Build DefaultEnemy Asset)
+    └── BTFlyingEnemyBuilder.cs     — FlyingEnemy BT 에셋 코드 빌더
+                                      (Window > BehaviorTree > Build FlyingEnemy Asset)
+                                      (Window > BehaviorTree > Generate FlyingEnemy JSON)
 
-Assets/10.Datas/BT/               — 실제 BT 에셋 (저장 경로)
-├── BT_DefaultEnemy.asset          ← 미생성 (BTDefaultEnemyBuilder로 생성 예정)
-├── BT_DefaultEnemy_PostAttack.asset ← 미생성
-└── BT_FlyingEnemy.asset           ← 미생성 (Step 4)
+Assets/10.Datas/BT/               — 실제 BT 에셋 및 테스트 JSON
+├── BT_DefaultEnemy.asset                         ← 미생성 (BTDefaultEnemyBuilder로 생성 예정)
+├── BT_DefaultEnemy_PostAttack.asset              ← 미생성
+├── BT_FlyingEnemy.asset                          ← 미생성 (BTFlyingEnemyBuilder로 생성)
+├── BT_FlyingEnemy_PostGroundAttack.asset         ← 미생성
+├── BT_FlyingEnemy_PostGroundAttack_Test.json     ← ✅ 생성 완료 (16노드 수기 작성)
+└── BT_FlyingEnemy_Test.json                      ← Generate FlyingEnemy JSON 실행 후 생성
 ```
 
 ---
@@ -560,17 +577,70 @@ BehaviorTree/Editor/
   - `BTAction_FlyingCircle.cs` — TriggerFlyingCircle(duration)
   - `BTAction_FlyingPatrol.cs` — TriggerFlyingPatrol()
   - `BTAction_FlyingIdle.cs` — TriggerFlyingIdle()
-- [x] `BTFlyingEnemyBuilder.cs` — `Window > BehaviorTree > Build FlyingEnemy Asset` MenuItem  
+- [x] `BTFlyingEnemyBuilder.cs` — MenuItem 2종  
+  - `Window > BehaviorTree > Build FlyingEnemy Asset` — .asset 생성  
+  - `Window > BehaviorTree > Generate FlyingEnemy JSON` — 에셋 빌드 후 JSON 2개 내보내기  
   - 메인 트리: BlockedStates → Recovery → NoTarget → PatrolToChase → ChaseToTakeOff → GroundIdleToTakeOff → AirCircleToDescend  
   - 포스트 지상 공격 트리: NoTarget/TooClose/Circle/Retreat/Chase 가중치 분기  
   - `ShouldDescend` BB 키로 공중 공격 한도 초과 → 하강 분기
 
 #### 4-2. 에셋 생성 및 프리팹 교체
 
-- [ ] MenuItem 실행하여 `Assets/10.Datas/BT/BT_FlyingEnemy.asset` 생성
-- [ ] `Assets/10.Datas/BT/BT_FlyingEnemy_PostGroundAttack.asset` 생성
+- [x] `BT_FlyingEnemy_PostGroundAttack_Test.json` — 16노드 수기 작성 완료  
+  에디터 창 `JSON 불러오기` 버튼으로 즉시 임포트 가능
+- [ ] `Window > BehaviorTree > Generate FlyingEnemy JSON` 실행 → `BT_FlyingEnemy_Test.json` 생성
+- [ ] `Window > BehaviorTree > Build FlyingEnemy Asset` 실행 → `.asset` 2개 생성
 - [ ] FlyingEnemy 프리팹에서 `EnemyFlyingBrain` → `BTRunnerFlying` 교체 후 BehaviorTreeSO 연결
 - [ ] 플레이 테스트 — 지상 전투(Chase → GroundAttack → Circle/Retreat) + 공중 루프(TakeOff → AirCircle → Descend) 정상 동작 확인
+
+---
+
+## 에디터 개선 이력
+
+### Unreal식 Decorator 흡수 ✅
+
+**배경:** `BTInverterSO`, `BTCooldownSO`가 별도 그래프 노드+에지로 연결되어 트리가 복잡해 보이는 문제.
+
+**구현 내용:**
+
+| 항목 | 변경 파일 | 내용 |
+|---|---|---|
+| 데코레이터 뱃지 렌더링 | `BTNodeView.cs` | `AddDecoratorBadge()` — extensionContainer 상단에 황금색 뱃지 삽입 |
+| 데코레이터 흡수 렌더링 | `BehaviorTreeGraphView.cs` | `IsAbsorbableDecorator()` — child != null인 데코레이터를 별도 노드 없이 자식 카드에 흡수 |
+| 에지 라우팅 | `BehaviorTreeGraphView.cs` | `ConnectEdges()` 수정 — 부모→데코레이터→자식 체인을 부모→자식 직결 에지로 표시 |
+| 자동 레이아웃 | `BehaviorTreeGraphView.cs` | `AutoLayout()` 수정 — 데코레이터 노드는 투명 처리, 자식이 실제 레이아웃 위치 점유 |
+| 에지 삭제 시 복구 | `BehaviorTreeGraphView.cs` | `_edgeDecorators` 추적 — 흡수 에지 삭제 시 데코레이터 체인 삭제 + 부모↔자식 직결 복구 |
+| 데코레이터 추가 | `BehaviorTreeGraphView.cs` | 우클릭 → `Add Decorator / Inverter|Cooldown` — 부모↔노드 사이 자동 삽입 |
+| 데코레이터 제거 | `BehaviorTreeGraphView.cs` | 우클릭 → `Remove Decorator / N. ...` — SO 에셋 삭제 + 부모↔자식 직결 복구 |
+| 스타일 | `BehaviorTreeEditor.uss` | `.bt-decorator-badge`, `.bt-dec-icon`, `.bt-dec-label` 클래스 추가 |
+
+**동작 방식:**
+```
+[선택 노드] 우클릭 → Add Decorator / ! Inverter
+  → BTInverterSO 생성
+  → parent.children[i] = inverter;  inverter.child = 선택 노드
+  → PopulateView 재렌더링
+
+렌더링 결과:
+  [Parent Selector]
+       │ (edge)
+  ┌────┴─────────────────────────────────┐
+  │  [! Inverter]   ← 황금색 뱃지          │
+  │  HasTarget                            │  ← 실제 노드 카드
+  └───────────────────────────────────────┘
+```
+
+**제약:**
+- 데코레이터 연결/해제를 에지 드래그로 직접 수행하는 경우 `Refresh` 버튼으로 뷰 재렌더링 필요
+- `child == null`인 독립 데코레이터 노드는 기존 방식(별도 그래프 노드)으로 표시
+
+### JSON 임포트/익스포트
+
+에디터 창 툴바에 이미 구현되어 있음:
+- `JSON 내보내기` — 현재 선택 트리를 .json 파일로 저장 (`BTJsonSerializer.ExportTree`)
+- `JSON 불러오기` — .json 파일 → BehaviorTreeSO .asset 생성 (`BTJsonSerializer.ImportTree`)
+
+테스트 파일: `Assets/10.Datas/BT/BT_FlyingEnemy_PostGroundAttack_Test.json` (16노드)
 
 ---
 
@@ -583,3 +653,4 @@ BehaviorTree/Editor/
 | Running 상태 지원 | 공중 루프처럼 여러 프레임에 걸친 행동 표현 가능 (선택적) |
 | PostAttack 별도 트리 | 공격 후 분기가 복잡해 메인 트리와 분리하면 가독성 향상 |
 | 페이즈별 동일 트리 사용 | 트리 에셋 관리 부담 감소. Blackboard의 CurrentPhase로 가중치 동적 조절 |
+| Decorator 흡수 방식 | SO 데이터 모델 변경 없이 시각적으로 UE 스타일 구현. `_edgeDecorators`로 데이터-뷰 불일치 방지 |

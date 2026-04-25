@@ -134,8 +134,14 @@ namespace UPlayGround.Editor.BehaviorTree
                 case BTSelectorSO       sel: foreach (var c in sel.children) if (c != null) list.Add(c); break;
                 case BTSequenceSO       seq: foreach (var c in seq.children) if (c != null) list.Add(c); break;
                 case BTRandomSelectorSO rnd: foreach (var c in rnd.children) if (c != null) list.Add(c); break;
-                case BTInverterSO       inv: if (inv.child != null) list.Add(inv.child); break;
-                case BTCooldownSO       cd:  if (cd.child  != null) list.Add(cd.child);  break;
+                case BTInverterSO       inv: if (inv.child  != null) list.Add(inv.child);  break;
+                case BTCooldownSO       cd:  if (cd.child   != null) list.Add(cd.child);   break;
+                case BTForceSuccessSO   fs:  if (fs.child   != null) list.Add(fs.child);   break;
+                case BTLoopSO           lp:  if (lp.child   != null) list.Add(lp.child);   break;
+                case BTGuardSO          g:
+                    if (g.condition != null) list.Add(g.condition);
+                    if (g.child     != null) list.Add(g.child);
+                    break;
             }
             return list;
         }
@@ -167,6 +173,16 @@ namespace UPlayGround.Editor.BehaviorTree
                     break;
                 case BTCooldownSO cd:
                     cd.child = resolved.Count > 0 ? resolved[0] : null;
+                    break;
+                case BTForceSuccessSO fs:
+                    fs.child = resolved.Count > 0 ? resolved[0] : null;
+                    break;
+                case BTLoopSO lp:
+                    lp.child = resolved.Count > 0 ? resolved[0] : null;
+                    break;
+                case BTGuardSO g:
+                    g.condition = resolved.Count > 0 ? resolved[0] : null;
+                    g.child     = resolved.Count > 1 ? resolved[1] : null;
                     break;
             }
         }

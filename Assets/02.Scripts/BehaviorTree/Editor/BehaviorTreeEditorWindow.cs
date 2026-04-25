@@ -114,6 +114,18 @@ namespace UPlayGround.Editor.BehaviorTree
                 _graphView.PopulateView(_currentTreeSO);
                 _blackboardView.SetBlackboardSO(_currentTreeSO?.blackboard);
             });
+
+            // ObjectField 내장 셀렉터 버튼도 커스텀 메뉴로 인터셉트 (Unity 6 SearchService 버그 우회)
+            _treeField.RegisterCallback<GeometryChangedEvent>(_ =>
+            {
+                var selector = _treeField.Q<VisualElement>(className: "unity-object-field__selector");
+                selector?.RegisterCallback<ClickEvent>(e =>
+                {
+                    e.StopImmediatePropagation();
+                    OnBrowseClicked();
+                }, TrickleDown.TrickleDown);
+            });
+
             toolbar.Add(_treeField);
 
             var browseBtn = new Button(OnBrowseClicked) { text = "…" };
@@ -277,36 +289,34 @@ namespace UPlayGround.Editor.BehaviorTree
         // ── 버튼 ──────────────────────────────────────
         private void OnBrowseClicked()
         {
-#if UNITY_6000_0_OR_NEWER
-            var ctx = SearchService.CreateContext("adb", "t:BehaviorTreeSO");
-            SearchService.ShowPicker(
-                ctx,
-                (item, cancelled) =>
-                {
-                    if (cancelled) return;
-                    var path = AssetDatabase.GUIDToAssetPath(item.id);
-                    var so   = AssetDatabase.LoadAssetAtPath<BehaviorTreeSO>(path);
-                    if (so == null) return;
-                    _currentTreeSO = so;
-                    _treeField.SetValueWithoutNotify(so);
-                    _graphView.PopulateView(so);
-                    _blackboardView.SetBlackboardSO(so.blackboard);
-                },
-                (Action<SearchItem>)null,
-                (Func<SearchItem, bool>)null,
-                (System.Collections.Generic.IEnumerable<SearchItem>)null);
-#else
-            var path = EditorUtility.OpenFilePanelWithFilters(
-                "BehaviorTreeSO 선택", "Assets", new[] { "BehaviorTreeSO", "asset" });
-            if (string.IsNullOrEmpty(path)) return;
-            path = "Assets" + path.Substring(Application.dataPath.Length);
-            var asset = AssetDatabase.LoadAssetAtPath<BehaviorTreeSO>(path);
-            if (asset == null) return;
-            _currentTreeSO = asset;
-            _treeField.SetValueWithoutNotify(asset);
-            _graphView.PopulateView(asset);
-            _blackboardView.SetBlackboardSO(asset.blackboard);
-#endif
+            // SearchService 대신 AssetDatabase.FindAssets 사용 — Unity 6 검색 인덱스 미빌드 시 SearchService가 0건 반환하는 문제 회피
+            var guids = AssetDatabase.FindAssets("t:BehaviorTreeSO");
+            if (guids.Length == 0)
+            {
+                EditorUtility.DisplayDialog("BehaviorTree 에셋 없음",
+                    "프로젝트에서 BehaviorTreeSO 에셋을 찾을 수 없습니다.\n\nAssets > Create > BehaviorTree > BehaviorTree SO로 먼저 생성하세요.",
+                    "확인");
+                return;
+            }
+
+            var menu = new GenericMenu();
+            foreach (var guid in guids)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                var label     = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+                var captured  = assetPath;
+                menu.AddItem(new GUIContent(label), _currentTreeSO != null && AssetDatabase.GetAssetPath(_currentTreeSO) == assetPath,
+                    () =>
+                    {
+                        var so = AssetDatabase.LoadAssetAtPath<BehaviorTreeSO>(captured);
+                        if (so == null) return;
+                        _currentTreeSO = so;
+                        _treeField.SetValueWithoutNotify(so);
+                        _graphView.PopulateView(so);
+                        _blackboardView.SetBlackboardSO(so.blackboard);
+                    });
+            }
+            menu.ShowAsContext();
         }
 
         private void OnSaveClicked()

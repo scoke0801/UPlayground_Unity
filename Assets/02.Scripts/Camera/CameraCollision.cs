@@ -4,9 +4,8 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// 멀티레이 카메라 충돌 감지 + 거리 스무딩.
-    /// SphereCast의 시작점 겹침 문제를 회피하기 위해
-    /// 5개 Ray(center + 사각 4모서리)를 사용한다.
+    /// 카메라 충돌 감지 + 거리 스무딩.
+    /// SphereCast로 카메라 반경 전체를 고려해 경사면도 정확히 감지한다.
     /// </summary>
     public class CameraCollision
     {
@@ -54,36 +53,17 @@ namespace UPlayGround.CameraSystem
 
         private float GetRaycastDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
-            Vector3 right = Vector3.Cross(Vector3.up, camDir).normalized;
-            Vector3 up = Vector3.Cross(camDir, right).normalized;
             float r = _settings.cameraRadius;
 
-            // center + 사각 4모서리
-            Vector3[] offsets =
+            if (Physics.SphereCast(pivot, r, camDir, out RaycastHit hit, desiredDistance, _collisionLayers))
             {
-                Vector3.zero,
-                (right + up) * r,
-                (-right + up) * r,
-                (right - up) * r,
-                (-right - up) * r,
-            };
+                if (hit.transform == _target || hit.transform.IsChildOf(_target))
+                    return desiredDistance;
 
-            float minDist = desiredDistance;
-
-            foreach (Vector3 offset in offsets)
-            {
-                if (Physics.Raycast(pivot + offset, camDir, out RaycastHit hit, desiredDistance, _collisionLayers))
-                {
-                    if (hit.transform == _target || hit.transform.IsChildOf(_target))
-                        continue;
-
-                    float safe = Mathf.Max(hit.distance - _settings.collisionOffset, 0f);
-                    if (safe < minDist)
-                        minDist = safe;
-                }
+                return Mathf.Max(hit.distance - _settings.collisionOffset, 0f);
             }
 
-            return minDist;
+            return desiredDistance;
         }
     }
 }

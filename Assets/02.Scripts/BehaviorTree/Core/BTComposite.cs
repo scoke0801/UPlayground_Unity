@@ -4,19 +4,24 @@ namespace UPlayGround.BehaviorTree
 {
     public class BTSequence : BTNode
     {
-        private readonly List<BTNode> _children;
+        private readonly List<BTNode>          _children;
+        private readonly List<BTServiceRuntime> _services;
         private int _runningIndex;
 
-        public BTSequence(string name, List<BTNode> children)
+        public BTSequence(string name, List<BTNode> children, List<BTServiceRuntime> services = null)
         {
             NodeName  = name;
             _children = children;
+            _services = services;
         }
 
         public override void OnEnter(RuntimeBlackboard bb) => _runningIndex = 0;
 
         protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
+            if (_services != null)
+                foreach (var svc in _services) svc.TryTick(bb);
+
             for (int i = _runningIndex; i < _children.Count; i++)
             {
                 var status = _children[i].Tick(bb);
@@ -30,19 +35,24 @@ namespace UPlayGround.BehaviorTree
 
     public class BTSelector : BTNode
     {
-        private readonly List<BTNode> _children;
+        private readonly List<BTNode>          _children;
+        private readonly List<BTServiceRuntime> _services;
         private int _runningIndex;
 
-        public BTSelector(string name, List<BTNode> children)
+        public BTSelector(string name, List<BTNode> children, List<BTServiceRuntime> services = null)
         {
             NodeName  = name;
             _children = children;
+            _services = services;
         }
 
         public override void OnEnter(RuntimeBlackboard bb) => _runningIndex = 0;
 
         protected override NodeStatus TickInternal(RuntimeBlackboard bb)
         {
+            if (_services != null)
+                foreach (var svc in _services) svc.TryTick(bb);
+
             for (int i = _runningIndex; i < _children.Count; i++)
             {
                 var status = _children[i].Tick(bb);

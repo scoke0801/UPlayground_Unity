@@ -1,0 +1,1100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8872888053876182647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: AirborneRecovery
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: AirborneRecovery
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 5103585374922369403}
+  - {fileID: -7033772417920914996}
+  services: []
+--- !u!114 &-8616403246056515814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsDiving
+  m_EditorClassIdentifier: 
+  nodeName: IsDiving
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Dive
+  invert: 0
+--- !u!114 &-8421986225656863524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsFlyingPatrol
+  m_EditorClassIdentifier: 
+  nodeName: IsFlyingPatrol
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Patrol
+  invert: 0
+--- !u!114 &-7654267235255276469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldTakeOff_Chase
+  m_EditorClassIdentifier: 
+  nodeName: ShouldTakeOff_Chase
+  editorPosition: {x: 0, y: 0}
+  key: ShouldTakeOff
+  invert: 0
+--- !u!114 &-7577932038352385973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147d4a372ade45e47a572dd0c2eab172, type: 3}
+  m_Name: Descend_NoTarget
+  m_EditorClassIdentifier: 
+  nodeName: Descend_NoTarget
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-7156135419850086833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldDescend_Air
+  m_EditorClassIdentifier: 
+  nodeName: ShouldDescend_Air
+  editorPosition: {x: 0, y: 0}
+  key: ShouldDescend
+  invert: 0
+--- !u!114 &-7033772417920914996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: ReenterDecision
+  m_EditorClassIdentifier: 
+  nodeName: ReenterDecision
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: -4924418156921024261}
+  services: []
+--- !u!114 &-6934382349942865657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d63cc7786c4ac459584611c9807ef6, type: 3}
+  m_Name: TakeOff_Chase
+  m_EditorClassIdentifier: 
+  nodeName: TakeOff_Chase
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-6875845420191015294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsLanding
+  m_EditorClassIdentifier: 
+  nodeName: IsLanding
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Land
+  invert: 0
+--- !u!114 &-6745607786443997398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsIdle
+  m_EditorClassIdentifier: 
+  nodeName: IsIdle
+  editorPosition: {x: 0, y: 0}
+  stateName: Idle
+  invert: 0
+--- !u!114 &-6629003038437943141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: IsPatrolling
+  m_EditorClassIdentifier: 
+  nodeName: IsPatrolling
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -8421986225656863524}
+  - {fileID: 4106003262938249417}
+  services: []
+--- !u!114 &-6433106010909222882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9a6abab2867b24abcfaa8fc117faef, type: 3}
+  m_Name: Inv_HasNoTarget
+  m_EditorClassIdentifier: 
+  nodeName: Inv_HasNoTarget
+  editorPosition: {x: 0, y: 0}
+  child: {fileID: -5451166570944816558}
+--- !u!114 &-6010698195981863741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: Recovery
+  m_EditorClassIdentifier: 
+  nodeName: Recovery
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  - {fileID: 0}
+  services: []
+--- !u!114 &-5603367008982520646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d63cc7786c4ac459584611c9807ef6, type: 3}
+  m_Name: TakeOff_Circle
+  m_EditorClassIdentifier: 
+  nodeName: TakeOff_Circle
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-5451166570944816558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f48467f34acbf60468d3cbe3cc662bb0, type: 3}
+  m_Name: HasNoTarget
+  m_EditorClassIdentifier: 
+  nodeName: HasNoTarget
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-5447218195584194397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsAttacking
+  m_EditorClassIdentifier: 
+  nodeName: IsAttacking
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_GroundAttack
+  invert: 0
+--- !u!114 &-4938606957135933288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsAirCircle
+  m_EditorClassIdentifier: 
+  nodeName: IsAirCircle
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_AirCircle
+  invert: 0
+--- !u!114 &-4924418156921024261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4845dff260af9741bd0b78d167d2dc9, type: 3}
+  m_Name: Patrol_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: Patrol_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-4915219693540928223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: BlockedStates
+  m_EditorClassIdentifier: 
+  nodeName: BlockedStates
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -5447218195584194397}
+  - {fileID: 638206195083021842}
+  - {fileID: 3396231980752458194}
+  - {fileID: -6875845420191015294}
+  - {fileID: -1041882047850382692}
+  - {fileID: 3218935484081526613}
+  - {fileID: -1114817738772894592}
+  services: []
+--- !u!114 &-4558741081623249829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: CircleToTakeOff
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: CircleToTakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -2535387507788822094}
+  - {fileID: 4097002448167420543}
+  - {fileID: -5603367008982520646}
+  services: []
+--- !u!114 &-4542495995320417216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed0383b4f9627d4ab4025d792133aef, type: 3}
+  m_Name: Chase_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: Chase_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-3255324162362219475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4845dff260af9741bd0b78d167d2dc9, type: 3}
+  m_Name: Patrol_NoTarget
+  m_EditorClassIdentifier: 
+  nodeName: Patrol_NoTarget
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-2949270220277516550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: NoTargetBehavior
+  m_EditorClassIdentifier: 
+  nodeName: NoTargetBehavior
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  - {fileID: 0}
+  services: []
+--- !u!114 &-2535387507788822094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsCircle
+  m_EditorClassIdentifier: 
+  nodeName: IsCircle
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Circle
+  invert: 0
+--- !u!114 &-1987104069359274574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed0383b4f9627d4ab4025d792133aef, type: 3}
+  m_Name: Chase_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: Chase_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-1835005969349988071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: IsAirState_NoTgt
+  m_EditorClassIdentifier: 
+  nodeName: IsAirState_NoTgt
+  editorPosition: {x: 0, y: 0}
+  key: IsAirState
+  invert: 0
+--- !u!114 &-1616423928161309764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: NoTarget
+  m_EditorClassIdentifier: 
+  nodeName: NoTarget
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  services: []
+--- !u!114 &-1134717608309153639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: GroundIdleToTakeOff
+  m_EditorClassIdentifier: 
+  nodeName: GroundIdleToTakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  - {fileID: 0}
+  services: []
+--- !u!114 &-1114817738772894592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsDead
+  m_EditorClassIdentifier: 
+  nodeName: IsDead
+  editorPosition: {x: 0, y: 0}
+  stateName: Death
+  invert: 0
+--- !u!114 &-1041882047850382692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsHit
+  m_EditorClassIdentifier: 
+  nodeName: IsHit
+  editorPosition: {x: 0, y: 0}
+  stateName: Hit
+  invert: 0
+--- !u!114 &-1035724807426603913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d63cc7786c4ac459584611c9807ef6, type: 3}
+  m_Name: TakeOff_Retreat
+  m_EditorClassIdentifier: 
+  nodeName: TakeOff_Retreat
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-669326122653039807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: ReenterDecision
+  m_EditorClassIdentifier: 
+  nodeName: ReenterDecision
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 2449908983326138616}
+  services: []
+--- !u!114 &-215066808469439832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f753629d453df2146b10ede1c5188e18, type: 3}
+  m_Name: Root
+  m_EditorClassIdentifier: 
+  nodeName: Root
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -4915219693540928223}
+  - {fileID: -6010698195981863741}
+  - {fileID: -1616423928161309764}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: -1134717608309153639}
+  - {fileID: 0}
+  services: []
+--- !u!114 &-44742322286323263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d63cc7786c4ac459584611c9807ef6, type: 3}
+  m_Name: TakeOff_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: TakeOff_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd5e82b5bccecd74490c4fb63b98adaf, type: 3}
+  m_Name: BT_FlyingEnemy
+  m_EditorClassIdentifier: 
+  rootNode: {fileID: -215066808469439832}
+  blackboard: {fileID: 0}
+--- !u!114 &638206195083021842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsTakingOff
+  m_EditorClassIdentifier: 
+  nodeName: IsTakingOff
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_TakeOff
+  invert: 0
+--- !u!114 &645686568229832802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsFlying_Chase
+  m_EditorClassIdentifier: 
+  nodeName: IsFlying_Chase
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Chase
+  invert: 0
+--- !u!114 &703933014758468958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Ground_ToPatrol
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Ground_ToPatrol
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 3544997970241150905}
+  - {fileID: 4826963564623470047}
+  - {fileID: -3255324162362219475}
+  services: []
+--- !u!114 &951079761240753988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldTakeOff_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: ShouldTakeOff_Reenter
+  editorPosition: {x: 0, y: 0}
+  key: ShouldTakeOff
+  invert: 0
+--- !u!114 &1005769114720871222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f48467f34acbf60468d3cbe3cc662bb0, type: 3}
+  m_Name: HasTarget_Patrol
+  m_EditorClassIdentifier: 
+  nodeName: HasTarget_Patrol
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &1279190825411849843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d63cc7786c4ac459584611c9807ef6, type: 3}
+  m_Name: TakeOff_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: TakeOff_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &2031181416986849337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: IdleRecovery
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: IdleRecovery
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -6745607786443997398}
+  - {fileID: -669326122653039807}
+  services: []
+--- !u!114 &2449908983326138616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4845dff260af9741bd0b78d167d2dc9, type: 3}
+  m_Name: Patrol_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: Patrol_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &3105399908858050585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: RetreatToTakeOff
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: RetreatToTakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 7953905503127785456}
+  - {fileID: 8924335911564548135}
+  - {fileID: -1035724807426603913}
+  services: []
+--- !u!114 &3218935484081526613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsGrabbed
+  m_EditorClassIdentifier: 
+  nodeName: IsGrabbed
+  editorPosition: {x: 0, y: 0}
+  stateName: Grabbed
+  invert: 0
+--- !u!114 &3304268465655375826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f48467f34acbf60468d3cbe3cc662bb0, type: 3}
+  m_Name: HasTarget_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: HasTarget_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &3396231980752458194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Cooldown
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTCooldownSO
+  nodeName: Cooldown
+  editorPosition: {x: 0, y: 0}
+  cooldown: 1
+  child: {fileID: -8616403246056515814}
+--- !u!114 &3544997970241150905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: NotPatrol
+  m_EditorClassIdentifier: 
+  nodeName: NotPatrol
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Patrol
+  invert: 1
+--- !u!114 &4097002448167420543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldTakeOff_Circle
+  m_EditorClassIdentifier: 
+  nodeName: ShouldTakeOff_Circle
+  editorPosition: {x: 0, y: 0}
+  key: ShouldTakeOff
+  invert: 0
+--- !u!114 &4106003262938249417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsGroundPatrol
+  m_EditorClassIdentifier: 
+  nodeName: IsGroundPatrol
+  editorPosition: {x: 0, y: 0}
+  stateName: Patrol
+  invert: 0
+--- !u!114 &4232585116510012661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147d4a372ade45e47a572dd0c2eab172, type: 3}
+  m_Name: Descend_AirCircle
+  m_EditorClassIdentifier: 
+  nodeName: Descend_AirCircle
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &4322514646495876178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: PatrolToChase
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: PatrolToChase
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -6629003038437943141}
+  - {fileID: 1005769114720871222}
+  - {fileID: 7062997152098479561}
+  services: []
+--- !u!114 &4371904050451293979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: NoTargetCheck
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: NoTargetCheck
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -6433106010909222882}
+  - {fileID: -2949270220277516550}
+  services: []
+--- !u!114 &4826963564623470047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: NotIdle
+  m_EditorClassIdentifier: 
+  nodeName: NotIdle
+  editorPosition: {x: 0, y: 0}
+  stateName: Idle
+  invert: 1
+--- !u!114 &5008454075545472198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: AirCircleToDescend
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: AirCircleToDescend
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -4938606957135933288}
+  - {fileID: -7156135419850086833}
+  - {fileID: 4232585116510012661}
+  services: []
+--- !u!114 &5103585374922369403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsAirborne
+  m_EditorClassIdentifier: 
+  nodeName: IsAirborne
+  editorPosition: {x: 0, y: 0}
+  stateName: Airborne
+  invert: 0
+--- !u!114 &7000460144360723558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Air_Descend
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Air_Descend
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: -1835005969349988071}
+  - {fileID: -7577932038352385973}
+  services: []
+--- !u!114 &7062997152098479561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed0383b4f9627d4ab4025d792133aef, type: 3}
+  m_Name: Chase_FromPatrol
+  m_EditorClassIdentifier: 
+  nodeName: Chase_FromPatrol
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &7127213670001094012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Reenter_TakeOff
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Reenter_TakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 951079761240753988}
+  - {fileID: 1279190825411849843}
+  services: []
+--- !u!114 &7228117839437585335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: ChaseToTakeOff
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: ChaseToTakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 645686568229832802}
+  - {fileID: -7654267235255276469}
+  - {fileID: -6934382349942865657}
+  services: []
+--- !u!114 &7821343097051528392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Reenter_Chase
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Reenter_Chase
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 3304268465655375826}
+  - {fileID: -1987104069359274574}
+  services: []
+--- !u!114 &7877921594622307656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldTakeOff_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: ShouldTakeOff_Reenter
+  editorPosition: {x: 0, y: 0}
+  key: ShouldTakeOff
+  invert: 0
+--- !u!114 &7953905503127785456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22384871459bc454e9cf7a730ed46b5e, type: 3}
+  m_Name: IsRetreat
+  m_EditorClassIdentifier: 
+  nodeName: IsRetreat
+  editorPosition: {x: 0, y: 0}
+  stateName: Flying_Retreat
+  invert: 0
+--- !u!114 &8185773186332299018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Reenter_Chase
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Reenter_Chase
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 8341999495941799231}
+  - {fileID: -4542495995320417216}
+  services: []
+--- !u!114 &8341999495941799231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f48467f34acbf60468d3cbe3cc662bb0, type: 3}
+  m_Name: HasTarget_Reenter
+  m_EditorClassIdentifier: 
+  nodeName: HasTarget_Reenter
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &8534388017117901311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Reenter_TakeOff
+  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
+  nodeName: Reenter_TakeOff
+  editorPosition: {x: 0, y: 0}
+  children:
+  - {fileID: 7877921594622307656}
+  - {fileID: -44742322286323263}
+  services: []
+--- !u!114 &8924335911564548135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adddf5aa67929c4f8ee9622346710f9, type: 3}
+  m_Name: ShouldTakeOff_Retreat
+  m_EditorClassIdentifier: 
+  nodeName: ShouldTakeOff_Retreat
+  editorPosition: {x: 0, y: 0}
+  key: ShouldTakeOff
+  invert: 0

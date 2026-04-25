@@ -10,8 +10,6 @@ public class UI_ItemAcquisitionEntry : UI_Base
     [SerializeField] private Image _rarityIcon;
     [SerializeField] private Image _itemIcon;
 
-    private Animator _animator;
-
     private void Awake()
     {
         _animator = GetComponent<Animator>();

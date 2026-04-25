@@ -48,15 +48,21 @@ namespace UPlayGround.Editor.BehaviorTree
             _isPopulating = true;
             _currentTree  = tree;
             ClearAll();
-            _isPopulating = false;
 
-            if (tree?.rootNode == null) return;
+            if (tree?.rootNode == null)
+            {
+                _isPopulating = false;
+                return;
+            }
 
             BuildParentMap(tree.rootNode, null);
 
             bool hasPositions = tree.rootNode.editorPosition != Vector2.zero;
             BuildNodeViews(tree.rootNode);
             ConnectEdges(tree.rootNode);
+
+            // ConnectEdges 완료 후 해제 — 그 사이 graphViewChanged가 AddChildToSO를 호출하지 않도록 보호
+            _isPopulating = false;
 
             if (hasPositions)
                 ApplySavedPositions();
@@ -124,8 +130,12 @@ namespace UPlayGround.Editor.BehaviorTree
                 return;
             }
 
-            foreach (var rawChild in GetSOChildren(so))
+            bool showIndex = so is BTSelectorSO or BTSequenceSO or BTRandomSelectorSO;
+            var  soChildren = GetSOChildren(so);
+
+            for (int idx = 0; idx < soChildren.Count; idx++)
             {
+                var rawChild = soChildren[idx];
                 if (rawChild == null) continue;
 
                 // 데코레이터 체인을 해소해서 실제 노드(target)와 뱃지 목록(decorators)을 분리
@@ -155,10 +165,14 @@ namespace UPlayGround.Editor.BehaviorTree
                     _decoratorMap[target].AddRange(decorators);
                 }
 
+                // 실행 순서 인덱스 배지
+                if (showIndex)
+                    targetView.SetChildIndex(idx);
+
                 // 에지: 부모 → target (데코레이터 바이패스)
                 var edge = parentView.OutputPort.ConnectTo(targetView.InputPort);
                 if (decorators.Count > 0)
-                    _edgeDecorators[edge] = (rawChild, target);  // rawChild = 최상단 데코레이터
+                    _edgeDecorators[edge] = (rawChild, target);
                 AddElement(edge);
             }
         }
@@ -230,8 +244,11 @@ namespace UPlayGround.Editor.BehaviorTree
                 if (_parentMap.TryGetValue(sv.NodeSO, out var parentSO) && parentSO != null)
                 {
                     evt.menu.AppendSeparator();
-                    evt.menu.AppendAction("Add Decorator/! Inverter",  _ => AddDecorator(typeof(BTInverterSO), sv));
-                    evt.menu.AppendAction("Add Decorator/⏱ Cooldown",  _ => AddDecorator(typeof(BTCooldownSO), sv));
+                    evt.menu.AppendAction("Add Decorator/! Inverter",      _ => AddDecorator(typeof(BTInverterSO),     sv));
+                    evt.menu.AppendAction("Add Decorator/⏱ Cooldown",      _ => AddDecorator(typeof(BTCooldownSO),     sv));
+                    evt.menu.AppendAction("Add Decorator/✓ ForceSuccess",  _ => AddDecorator(typeof(BTForceSuccessSO), sv));
+                    evt.menu.AppendAction("Add Decorator/↺ Loop",           _ => AddDecorator(typeof(BTLoopSO),         sv));
+                    evt.menu.AppendAction("Add Decorator/◉ Guard",         _ => AddDecorator(typeof(BTGuardSO),        sv));
                 }
 
                 // 데코레이터가 있으면 제거 가능
@@ -240,7 +257,14 @@ namespace UPlayGround.Editor.BehaviorTree
                     for (int i = 0; i < decs.Count; i++)
                     {
                         var dec   = decs[i];
-                        string nm = dec is BTCooldownSO cd ? $"⏱ Cooldown ({cd.cooldown:F1}s)" : "! Inverter";
+                        string nm = dec switch
+                        {
+                            BTCooldownSO     cd => $"⏱ Cooldown ({cd.cooldown:F1}s)",
+                            BTLoopSO         lp => $"↺ Loop ×{(lp.loopCount < 0 ? "∞" : lp.loopCount.ToString())}",
+                            BTForceSuccessSO    => "✓ ForceSuccess",
+                            BTGuardSO        g  => $"◉ Guard{(string.IsNullOrEmpty(g.observeKey) ? "" : $" ({g.observeKey})")}",
+                            _                   => "! Inverter"
+                        };
                         evt.menu.AppendAction($"Remove Decorator/{i + 1}. {nm}", _ => RemoveDecorator(dec, sv));
                     }
                 }
@@ -366,11 +390,13 @@ namespace UPlayGround.Editor.BehaviorTree
                 case BTRandomSelectorSO s:
                     if (!s.children.Contains(child)) { s.children.Add(child); s.weights.Add(1f); }
                     break;
-                case BTInverterSO i:
-                    i.child = child;
-                    break;
-                case BTCooldownSO c:
-                    c.child = child;
+                case BTInverterSO     i:  i.child  = child; break;
+                case BTCooldownSO     c:  c.child  = child; break;
+                case BTForceSuccessSO fs: fs.child = child; break;
+                case BTLoopSO         lp: lp.child = child; break;
+                case BTGuardSO g:
+                    if (g.condition == null) g.condition = child;
+                    else                     g.child     = child;
                     break;
             }
             EditorUtility.SetDirty(parent);
@@ -391,11 +417,13 @@ namespace UPlayGround.Editor.BehaviorTree
                     int idx = s.children.IndexOf(child);
                     if (idx >= 0) { s.children.RemoveAt(idx); if (idx < s.weights.Count) s.weights.RemoveAt(idx); }
                     break;
-                case BTInverterSO i:
-                    if (i.child == child) i.child = null;
-                    break;
-                case BTCooldownSO c:
-                    if (c.child == child) c.child = null;
+                case BTInverterSO     i:  if (i.child  == child) i.child  = null; break;
+                case BTCooldownSO     c:  if (c.child  == child) c.child  = null; break;
+                case BTForceSuccessSO fs: if (fs.child    == child) fs.child    = null; break;
+                case BTLoopSO         lp: if (lp.child    == child) lp.child    = null; break;
+                case BTGuardSO        g:
+                    if (g.condition == child) g.condition = null;
+                    else if (g.child == child) g.child    = null;
                     break;
             }
             EditorUtility.SetDirty(parent);
@@ -468,16 +496,23 @@ namespace UPlayGround.Editor.BehaviorTree
         // ── 데코레이터 헬퍼 ──────────────────────────
         private static bool IsAbsorbableDecorator(BTNodeSO so) => so switch
         {
-            BTInverterSO inv => inv.child != null,
-            BTCooldownSO cd  => cd.child  != null,
-            _                => false
+            BTInverterSO     inv => inv.child != null,
+            BTCooldownSO     cd  => cd.child  != null,
+            BTForceSuccessSO fs  => fs.child  != null,
+            BTLoopSO         lp  => lp.child  != null,
+            // BTGuardSO: condition이 없을 때(AlwaysTrue 용도)만 흡수. condition이 있으면 독립 노드로 표시
+            BTGuardSO        g   => g.child != null && g.condition == null,
+            _                    => false
         };
 
         private static BTNodeSO GetDecoratorChild(BTNodeSO so) => so switch
         {
-            BTInverterSO inv => inv.child,
-            BTCooldownSO cd  => cd.child,
-            _                => null
+            BTInverterSO     inv => inv.child,
+            BTCooldownSO     cd  => cd.child,
+            BTForceSuccessSO fs  => fs.child,
+            BTLoopSO         lp  => lp.child,
+            BTGuardSO        g   => g.child,
+            _                    => null
         };
 
         private void BuildParentMap(BTNodeSO so, BTNodeSO parent)
@@ -494,13 +529,23 @@ namespace UPlayGround.Editor.BehaviorTree
             if (!_parentMap.TryGetValue(so, out var parentSO) || parentSO == null) return;
 
             var dec = ScriptableObject.CreateInstance(decoratorType) as BTNodeSO;
-            dec.name = dec.nodeName = decoratorType == typeof(BTInverterSO) ? "Inverter" : "Cooldown";
+            dec.name = dec.nodeName = decoratorType switch
+            {
+                _ when decoratorType == typeof(BTInverterSO)     => "Inverter",
+                _ when decoratorType == typeof(BTCooldownSO)     => "Cooldown",
+                _ when decoratorType == typeof(BTForceSuccessSO) => "ForceSuccess",
+                _ when decoratorType == typeof(BTLoopSO)         => "Loop",
+                _                                                => decoratorType.Name.Replace("SO", "").Replace("BT", "")
+            };
 
             Undo.RecordObjects(new UnityEngine.Object[] { parentSO, dec }, "Add Decorator");
             AssetDatabase.AddObjectToAsset(dec, _currentTree);
 
-            if (dec is BTInverterSO inv) inv.child = so;
-            else if (dec is BTCooldownSO cd) cd.child = so;
+            if      (dec is BTInverterSO     inv) inv.child = so;
+            else if (dec is BTCooldownSO     cd)  cd.child  = so;
+            else if (dec is BTForceSuccessSO fs)  fs.child  = so;
+            else if (dec is BTLoopSO         lp)  lp.child  = so;
+            else if (dec is BTGuardSO        g)   g.child   = so;
 
             ReplaceChild(parentSO, so, dec);
 
@@ -544,11 +589,13 @@ namespace UPlayGround.Editor.BehaviorTree
                     for (int i = 0; i < s.children.Count; i++)
                         if (s.children[i] == oldChild) { s.children[i] = newChild; break; }
                     break;
-                case BTInverterSO i:
-                    if (i.child == oldChild) i.child = newChild;
-                    break;
-                case BTCooldownSO c:
-                    if (c.child == oldChild) c.child = newChild;
+                case BTInverterSO     i:  if (i.child  == oldChild) i.child  = newChild; break;
+                case BTCooldownSO     c:  if (c.child  == oldChild) c.child  = newChild; break;
+                case BTForceSuccessSO fs: if (fs.child    == oldChild) fs.child    = newChild; break;
+                case BTLoopSO         lp: if (lp.child    == oldChild) lp.child    = newChild; break;
+                case BTGuardSO g:
+                    if (g.condition == oldChild) g.condition = newChild;
+                    else if (g.child == oldChild) g.child    = newChild;
                     break;
             }
         }
@@ -573,8 +620,22 @@ namespace UPlayGround.Editor.BehaviorTree
                 case BTSelectorSO       sel: list.AddRange(sel.children);                    break;
                 case BTSequenceSO       seq: list.AddRange(seq.children);                    break;
                 case BTRandomSelectorSO rnd: list.AddRange(rnd.children);                    break;
-                case BTInverterSO       inv: if (inv.child != null) list.Add(inv.child);     break;
-                case BTCooldownSO       cd:  if (cd.child  != null) list.Add(cd.child);      break;
+                case BTInverterSO       inv: if (inv.child  != null) list.Add(inv.child);  break;
+                case BTCooldownSO       cd:  if (cd.child   != null) list.Add(cd.child);   break;
+                case BTForceSuccessSO   fs:  if (fs.child   != null) list.Add(fs.child);   break;
+                case BTLoopSO           lp:  if (lp.child   != null) list.Add(lp.child);   break;
+                case BTGuardSO g:
+                    // 흡수된 BTGuardSO(condition == null)는 child만 반환. 독립 노드는 양쪽 모두 반환
+                    if (IsAbsorbableDecorator(g))
+                    {
+                        if (g.child != null) list.Add(g.child);
+                    }
+                    else
+                    {
+                        if (g.condition != null) list.Add(g.condition);
+                        if (g.child     != null) list.Add(g.child);
+                    }
+                    break;
             }
             return list;
         }
@@ -584,15 +645,26 @@ namespace UPlayGround.Editor.BehaviorTree
             var list = new List<BTNode>();
             const System.Reflection.BindingFlags NP =
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+
             switch (node)
             {
                 case BTSelector or BTSequence or BTRandomSelector:
                     if (node.GetType().GetField("_children", NP)?.GetValue(node) is List<BTNode> ch)
                         list.AddRange(ch);
                     break;
-                case BTInverter or BTCooldown:
+
+                // 단일 _child 노드 — 흡수 여부와 무관하게 런타임 탐색에 포함
+                case BTInverter or BTCooldown or BTForceSuccess or BTLoop:
                     if (node.GetType().GetField("_child", NP)?.GetValue(node) is BTNode c)
                         list.Add(c);
+                    break;
+
+                // BTGuard: _condNode + _child 두 자식
+                case BTGuard:
+                    if (node.GetType().GetField("_condNode", NP)?.GetValue(node) is BTNode cond)
+                        list.Add(cond);
+                    if (node.GetType().GetField("_child", NP)?.GetValue(node) is BTNode guardChild)
+                        list.Add(guardChild);
                     break;
             }
             return list;

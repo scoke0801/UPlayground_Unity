@@ -115,11 +115,12 @@ public class BTBlackboardSO : ScriptableObject
 public class RuntimeBlackboard
 {
     // ── 컴포넌트 참조 (타입 안전 캐시) ─────────────────
-    public BTRunner              Runner    { get; set; }
-    public EnemyDetection        Detection { get; set; }
-    public EnemyCombat           Combat    { get; set; }
-    public EnemyTacticalMemory   Memory    { get; set; }
-    public ActorMovementController Movement { get; set; }
+    public BTRunner               Runner       { get; set; }
+    public BTRunnerFlying         FlyingRunner { get; set; }  // Flying BT 전용
+    public EnemyDetection         Detection    { get; set; }
+    public EnemyCombat            Combat       { get; set; }
+    public EnemyTacticalMemory    Memory       { get; set; }
+    public ActorMovementController Movement    { get; set; }
 
     // ── 키-값 API ───────────────────────────────────────
     public bool   GetBool  (string key, bool   def = false)
@@ -169,6 +170,11 @@ public class RuntimeBlackboard
 | **State** | ConsecutiveDefensiveCount | Int |
 | | HasGuardMotion | Bool |
 | **Self Stats** | SelfHPPercent | Float |
+| **Flying** | ShouldTakeOff | Bool — 지상 공격 한도/체류 시간 초과 |
+| | ShouldDescend | Bool — 공중 공격 한도 초과 |
+| | IsAirState | Bool — 현재 상태가 공중 루프 |
+| | GroundAttackCount | Int |
+| | AirAttackCount | Int |
 
 ---
 
@@ -259,10 +265,10 @@ Blackboard: EnemyBlackboard (런타임)
 
 | 순서 | 파일 | 작업 |
 |---|---|---|
-| 1 | `BBKey.cs` | ✅ 신규 — 키 상수 (`SelfHPPercent` 포함 18개) |
+| 1 | `BBKey.cs` | ✅ 신규 — 키 상수 (Flying 5종 추가, 총 23개) |
 | 2 | `BlackboardKeyDefinition.cs` | ✅ 신규 — 키 정의 데이터 |
 | 3 | `BTBlackboardSO.cs` | ✅ 신규 — 키 정의 SO |
-| 4 | `RuntimeBlackboard.cs` | ✅ 신규 — 키-값 런타임 (`EnemyBlackboard` 대체) |
+| 4 | `RuntimeBlackboard.cs` | ✅ 신규 — 키-값 런타임 (`EnemyBlackboard` 대체, `FlyingRunner` 참조 추가) |
 | 5 | `BTNode.cs` | ✅ 수정 — 시그니처 교체 |
 | 6 | `BTLeaf/Composite/Decorator.cs` | ✅ 수정 — 시그니처 교체 |
 | 7 | `BehaviorTreeSO.cs` | ✅ 수정 — `blackboard` 필드 추가 |

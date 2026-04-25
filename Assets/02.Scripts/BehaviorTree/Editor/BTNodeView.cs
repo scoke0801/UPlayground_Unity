@@ -28,13 +28,23 @@ namespace UPlayGround.Editor.BehaviorTree
             BuildHeader();
             BuildBody();
             RearrangeLayout();
+
+            RegisterCallback<MouseDownEvent>(OnMouseDown);
+        }
+
+        private void OnMouseDown(MouseDownEvent e)
+        {
+            if (e.clickCount != 2 || _runtimeNode == null) return;
+            _runtimeNode.BreakpointEnabled = !_runtimeNode.BreakpointEnabled;
+            EnableInClassList("bt-breakpoint", _runtimeNode.BreakpointEnabled);
+            e.StopPropagation();
         }
 
         // ── 포트 생성 ─────────────────────────────────
         private void CreatePorts()
         {
-            bool isMultiOutput = NodeSO is BTSelectorSO or BTSequenceSO or BTRandomSelectorSO;
-            bool hasOutput     = isMultiOutput || NodeSO is BTInverterSO or BTCooldownSO;
+            bool isMultiOutput = NodeSO is BTSelectorSO or BTSequenceSO or BTRandomSelectorSO or BTGuardSO;
+            bool hasOutput     = isMultiOutput || NodeSO is BTInverterSO or BTCooldownSO or BTForceSuccessSO or BTLoopSO;
 
             InputPort = Port.Create<Edge>(
                 Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
@@ -97,6 +107,33 @@ namespace UPlayGround.Editor.BehaviorTree
                 descLabel.AddToClassList("bt-ue-desc");
                 extensionContainer.Add(descLabel);
             }
+
+            // 서비스 스트립 (Selector / Sequence에 서비스가 있을 때)
+            var svcList = NodeSO switch
+            {
+                BTSelectorSO sel => sel.services,
+                BTSequenceSO seq => seq.services,
+                _                => null
+            };
+            if (svcList != null)
+                foreach (var svc in svcList)
+                    if (svc != null) BuildServiceStrip(svc);
+        }
+
+        private void BuildServiceStrip(BTServiceSO svc)
+        {
+            var strip = new VisualElement();
+            strip.AddToClassList("bt-service-strip");
+
+            var icon = new Label("★");
+            icon.AddToClassList("bt-svc-icon");
+            strip.Add(icon);
+
+            var lbl = new Label($"{svc.serviceName}  {svc.tickInterval:F2}s");
+            lbl.AddToClassList("bt-svc-label");
+            strip.Add(lbl);
+
+            extensionContainer.Add(strip);
         }
 
         // ── UE 레이아웃 재배치 ─────────────────────────
@@ -158,9 +195,25 @@ namespace UPlayGround.Editor.BehaviorTree
             OnSelectionChanged?.Invoke(this, false);
         }
 
+        // ── 실행 순서 인덱스 배지 ──────────────────────
+        public void SetChildIndex(int index)
+        {
+            var existing = inputContainer.Q<Label>("bt-child-index");
+            existing?.RemoveFromHierarchy();
+
+            var badge = new Label(index.ToString());
+            badge.name = "bt-child-index";
+            badge.AddToClassList("bt-child-index");
+            inputContainer.Add(badge);
+        }
+
         // ── 런타임 상태 ───────────────────────────────
-        public void BindRuntimeNode(BTNode node)   => _runtimeNode = node;
-        public void UnbindRuntimeNode()            { _runtimeNode = null; ApplyStatus(null); }
+        public void BindRuntimeNode(BTNode node)
+        {
+            _runtimeNode = node;
+            EnableInClassList("bt-breakpoint", node?.BreakpointEnabled ?? false);
+        }
+        public void UnbindRuntimeNode()            { _runtimeNode = null; ApplyStatus(null); RemoveFromClassList("bt-breakpoint"); }
         public void RefreshRuntimeStatus()         => ApplyStatus(_runtimeNode?.LastStatus);
 
         private void ApplyStatus(NodeStatus? status)
@@ -190,25 +243,65 @@ namespace UPlayGround.Editor.BehaviorTree
             var badge = new VisualElement();
             badge.AddToClassList("bt-decorator-badge");
 
+            // 타입별 색상 클래스
+            badge.AddToClassList(decorator switch
+            {
+                BTGuardSO        => "bt-dec-guard",
+                BTCooldownSO     => "bt-dec-cooldown",
+                BTForceSuccessSO => "bt-dec-forcesuccess",
+                BTLoopSO         => "bt-dec-loop",
+                _                => "bt-dec-inverter"
+            });
+
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
             row.style.alignItems    = Align.Center;
 
-            var icon = new Label(decorator is BTCooldownSO ? "⏱" : "!");
-            icon.AddToClassList("bt-dec-icon");
-            row.Add(icon);
+            string icon = decorator switch
+            {
+                BTGuardSO        => "◉",
+                BTCooldownSO     => "⏱",
+                BTForceSuccessSO => "✓",
+                BTLoopSO         => "↺",
+                _                => "!"
+            };
+            var iconLbl = new Label(icon);
+            iconLbl.AddToClassList("bt-dec-icon");
+            row.Add(iconLbl);
 
             string text = decorator switch
             {
-                BTCooldownSO cd => $"Cooldown  {cd.cooldown:F1}s",
-                _               => "Inverter"
+                BTGuardSO        g  => BuildGuardText(g),
+                BTCooldownSO     cd => $"Cooldown  {cd.cooldown:F1}s",
+                BTLoopSO         lp => $"Loop  ×{(lp.loopCount < 0 ? "∞" : lp.loopCount.ToString())}",
+                BTForceSuccessSO    => "ForceSuccess",
+                _                   => "Inverter"
             };
             var lbl = new Label(text);
             lbl.AddToClassList("bt-dec-label");
             row.Add(lbl);
 
             badge.Add(row);
+
+            // Guard: abortType 표시
+            if (decorator is BTGuardSO grd && grd.abortType != AbortType.None)
+            {
+                var abortRow = new VisualElement();
+                abortRow.style.flexDirection = FlexDirection.Row;
+                var abortLbl = new Label($"aborts: {grd.abortType.ToString().ToLower()}");
+                abortLbl.AddToClassList("bt-dec-abort");
+                abortRow.Add(abortLbl);
+                badge.Add(abortRow);
+            }
+
             extensionContainer.Insert(0, badge);
+            RefreshExpandedState();
+        }
+
+        private static string BuildGuardText(BTGuardSO g)
+        {
+            string key = string.IsNullOrEmpty(g.observeKey) ? "" : $": {g.observeKey}";
+            return string.IsNullOrEmpty(g.nodeName) ? $"Guard{key}" : $"{g.nodeName}{key}";
         }
 
         public void ClearDecoratorBadges()
@@ -229,6 +322,9 @@ namespace UPlayGround.Editor.BehaviorTree
             BTRandomSelectorSO                                    => "bt-type-random",
             BTInverterSO                                          => "bt-type-inverter",
             BTCooldownSO                                          => "bt-type-cooldown",
+            BTForceSuccessSO                                      => "bt-type-forcesuccess",
+            BTLoopSO                                              => "bt-type-loop",
+            BTGuardSO                                             => "bt-type-guard",
             _ when so.GetType().Name.Contains("Action")          => "bt-type-action",
             _ when so.GetType().Name.Contains("Cond")            => "bt-type-condition",
             _                                                     => "bt-type-action"
@@ -241,6 +337,9 @@ namespace UPlayGround.Editor.BehaviorTree
             BTRandomSelectorSO => "⟳",
             BTInverterSO       => "!",
             BTCooldownSO       => "⏱",
+            BTForceSuccessSO   => "✓",
+            BTLoopSO           => "↺",
+            BTGuardSO          => "◉",
             _ when so.GetType().Name.Contains("Action") => "▶",
             _                                            => "◆"
         };
@@ -252,6 +351,9 @@ namespace UPlayGround.Editor.BehaviorTree
             BTRandomSelectorSO => "Random Selector",
             BTInverterSO       => "Inverter",
             BTCooldownSO       => "Cooldown",
+            BTForceSuccessSO   => "ForceSuccess",
+            BTLoopSO           => "Loop",
+            BTGuardSO          => "Guard",
             _ => so.GetType().Name
                     .Replace("SO", "")
                     .Replace("BTAction_", "")
@@ -264,7 +366,14 @@ namespace UPlayGround.Editor.BehaviorTree
             BTSelectorSO       s => $"{s.children.Count} children",
             BTSequenceSO       s => $"{s.children.Count} children",
             BTRandomSelectorSO s => $"{s.children.Count} children",
-            BTCooldownSO       c => $"Cooldown  {c.cooldown:F1}s",
+            BTCooldownSO       c  => $"Cooldown  {c.cooldown:F1}s",
+            BTLoopSO           lp => lp.loopCount < 0 ? "∞  반복" : $"×{lp.loopCount}  반복",
+            BTGuardSO           g => g.abortType == AbortType.None
+                                        ? (g.condition != null ? $"if  {g.condition.nodeName}" : "no condition")
+                                        : (g.condition != null ? $"if  {g.condition.nodeName}  [{g.abortType}]" : $"[{g.abortType}]"),
+            BTAction_WaitSO    w  => w.randomDeviation > 0f
+                                        ? $"{w.duration:F1}s ± {w.randomDeviation:F1}s"
+                                        : $"{w.duration:F1}s",
 
             // ── 조건 노드 ────────────────────────────────
             BTCond_DistanceSO d => d.check switch {

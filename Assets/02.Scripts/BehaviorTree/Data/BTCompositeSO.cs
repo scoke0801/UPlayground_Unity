@@ -6,7 +6,9 @@ namespace UPlayGround.BehaviorTree
     [CreateAssetMenu(menuName = "BehaviorTree/Selector", fileName = "BTSelector")]
     public class BTSelectorSO : BTNodeSO
     {
-        public List<BTNodeSO> children = new();
+        public List<BTNodeSO>    children = new();
+        [Tooltip("이 컴포짓이 Tick될 때마다 지정 간격으로 실행되는 서비스 목록")]
+        public List<BTServiceSO> services = new();
 
         protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
@@ -14,14 +16,20 @@ namespace UPlayGround.BehaviorTree
             foreach (var child in children)
                 if (child != null) runtimeChildren.Add(child.CreateAndBindNode(bb));
 
-            return new BTSelector(nodeName, runtimeChildren);
+            var runtimeServices = new List<BTServiceRuntime>(services.Count);
+            foreach (var svc in services)
+                if (svc != null) runtimeServices.Add(svc.CreateRuntime());
+
+            return new BTSelector(nodeName, runtimeChildren, runtimeServices);
         }
     }
 
     [CreateAssetMenu(menuName = "BehaviorTree/Sequence", fileName = "BTSequence")]
     public class BTSequenceSO : BTNodeSO
     {
-        public List<BTNodeSO> children = new();
+        public List<BTNodeSO>    children = new();
+        [Tooltip("이 컴포짓이 Tick될 때마다 지정 간격으로 실행되는 서비스 목록")]
+        public List<BTServiceSO> services = new();
 
         protected override BTNode CreateRuntimeNode(RuntimeBlackboard bb)
         {
@@ -29,7 +37,11 @@ namespace UPlayGround.BehaviorTree
             foreach (var child in children)
                 if (child != null) runtimeChildren.Add(child.CreateAndBindNode(bb));
 
-            return new BTSequence(nodeName, runtimeChildren);
+            var runtimeServices = new List<BTServiceRuntime>(services.Count);
+            foreach (var svc in services)
+                if (svc != null) runtimeServices.Add(svc.CreateRuntime());
+
+            return new BTSequence(nodeName, runtimeChildren, runtimeServices);
         }
     }
 

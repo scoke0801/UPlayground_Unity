@@ -133,8 +133,11 @@ GridBackground {
 .bt-type-random    #title { background-color: #8c6015; }
 .bt-type-action    #title { background-color: #5c1a8a; }
 .bt-type-condition #title { background-color: #1a6060; }
-.bt-type-inverter  #title { background-color: #7a6200; }
-.bt-type-cooldown  #title { background-color: #1a5050; }
+.bt-type-inverter      #title { background-color: #7a6200; }
+.bt-type-cooldown      #title { background-color: #1a5050; }
+.bt-type-forcesuccess  #title { background-color: #1a5080; }
+.bt-type-loop          #title { background-color: #4a1a6a; }
+.bt-type-guard         #title { background-color: #6b1a1a; }
 
 /* ── 바디 (extensionContainer) ─────────────────────────── */
 .bt-ue-body {
@@ -210,44 +213,108 @@ GridBackground {
 }
 
 /* ── 런타임 상태 — 테두리 색 ──────────────────────────── */
-.bt-running #node-border { border-color: #f5c518; border-width: 2px; }
-.bt-success #node-border { border-color: #4caf50; border-width: 2px; }
-.bt-failure #node-border { border-color: #f44336; border-width: 2px; }
+.bt-running    #node-border { border-color: #f5c518; border-width: 2px; }
+.bt-success    #node-border { border-color: #4caf50; border-width: 2px; }
+.bt-failure    #node-border { border-color: #f44336; border-width: 2px; }
+.bt-breakpoint #node-border { border-color: #ff2020; border-width: 3px; }
 
 /* 상태 도트 색상 */
 .bt-dot-running { color: #f5c518; }
 .bt-dot-success { color: #4caf50; }
 .bt-dot-failure { color: #f44336; }
 
+/* ── 실행 순서 인덱스 배지 ─────────────────────────────── */
+.bt-child-index {
+    position:         absolute;
+    top:              2px;
+    left:             4px;
+    font-size:        9px;
+    color:            #f5c518;
+    -unity-font-style: bold;
+    background-color: rgba(0,0,0,0.55);
+    border-radius:    3px;
+    padding-top:      1px;
+    padding-bottom:   1px;
+    padding-left:     3px;
+    padding-right:    3px;
+}
+
 /* ══════════════════════════════════════════════════════════
-   Decorator 뱃지 (Unreal식 인라인 — extensionContainer 상단)
+   Service 스트립 (extensionContainer 하단)
    ══════════════════════════════════════════════════════════ */
 
-.bt-decorator-badge {
-    background-color: #2e2200;
-    border-radius: 3px;
-    border-width: 1px;
-    border-color: #7a6200;
+.bt-service-strip {
+    flex-direction: row;
+    align-items: center;
+    background-color: #1a3a1a;
+    border-top-width: 1px;
+    border-top-color: #2a5a2a;
     padding-top: 3px;
     padding-bottom: 3px;
     padding-left: 8px;
     padding-right: 8px;
-    margin-bottom: 5px;
+    margin-top: 4px;
 }
 
-.bt-dec-icon {
-    font-size: 11px;
-    color: #f5c518;
-    -unity-font-style: bold;
+.bt-svc-icon {
+    font-size: 10px;
+    color: #6ec06e;
     margin-right: 5px;
     width: 12px;
     -unity-text-align: middle-center;
 }
 
+.bt-svc-label {
+    font-size: 10px;
+    color: #5aaa5a;
+    -unity-font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Decorator 뱃지 (Unreal식 인라인 — extensionContainer 상단)
+   ══════════════════════════════════════════════════════════ */
+
+.bt-decorator-badge {
+    background-color: #2a2a2a;
+    border-radius: 3px;
+    border-width: 0px;
+    border-left-width: 3px;
+    border-left-color: #888888;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 4px;
+}
+
+/* 타입별 왼쪽 강조색 */
+.bt-dec-guard       { border-left-color: #2a7aaf; background-color: #1a2a38; }
+.bt-dec-cooldown    { border-left-color: #5ab0a8; background-color: #1a2e2d; }
+.bt-dec-inverter    { border-left-color: #c8a020; background-color: #2a2000; }
+.bt-dec-forcesuccess{ border-left-color: #4caf50; background-color: #1a2a1a; }
+.bt-dec-loop        { border-left-color: #9b59b6; background-color: #24182e; }
+
+.bt-dec-icon {
+    font-size: 11px;
+    color: #dddddd;
+    -unity-font-style: bold;
+    margin-right: 5px;
+    width: 13px;
+    -unity-text-align: middle-center;
+}
+
 .bt-dec-label {
     font-size: 10px;
-    color: #e8c040;
+    color: #cccccc;
+    -unity-font-style: bold;
+}
+
+.bt-dec-abort {
+    font-size: 9px;
+    color: #888888;
     -unity-font-style: italic;
+    padding-left: 18px;
+    margin-top: 1px;
 }
 
 /* ══════════════════════════════════════════════════════════

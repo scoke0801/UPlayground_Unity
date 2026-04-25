@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
-using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using Image = UnityEngine.UI.Image;
 
 /// <summary>
 /// 인벤토리 UI

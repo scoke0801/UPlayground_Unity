@@ -330,6 +330,24 @@ namespace UPlayGround.Manager
                     camPos.y = minY;
             }
 
+            // 안전장치: 스무딩된 pivot이 지형 내부로 밀릴 때 SphereCast가 실패할 수 있으므로
+            // KCC가 보장하는 pivotBase에서 다시 SphereCast로 경로를 재확인한다.
+            Vector3 toCam    = camPos - pivotBase;
+            float   toCamDist = toCam.magnitude;
+            if (toCamDist > 0.01f)
+            {
+                Vector3 toCamDir = toCam / toCamDist;
+                if (Physics.SphereCast(pivotBase, settings.cameraRadius, toCamDir,
+                        out RaycastHit safeHit, toCamDist, _collisionLayers))
+                {
+                    if (safeHit.transform != _target && !safeHit.transform.IsChildOf(_target))
+                    {
+                        float safeDist = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
+                        camPos = pivotBase + toCamDir * safeDist;
+                    }
+                }
+            }
+
             _mainCamera.transform.position = camPos;
         }
 

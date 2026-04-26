@@ -13,6 +13,15 @@ namespace UPlayGround.Manager
         public PlayerActor Player => _player;
         public IReadOnlyList<GameActor> AllActors => _allActors;
 
+        /// <summary>
+        /// PartyManager가 활성 캐릭터를 교체할 때 호출.
+        /// 기존 Player 프로퍼티가 항상 현재 조작 가능한 캐릭터를 가리키도록 갱신.
+        /// </summary>
+        public void SetActivePartyPlayer(PlayerActor newActivePlayer)
+        {
+            _player = newActivePlayer;
+        }
+
         public event Action<GameActor> OnActorRegistered;
         public event Action<GameActor> OnActorUnregistered;
 

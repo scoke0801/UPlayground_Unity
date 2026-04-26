@@ -421,3 +421,447 @@ public class PartyConfigSO : ScriptableObject
 | 4 | `CharacterActorType` enum 정책 — **사용자 직접 수정** (Reine/LianLian 네이밍 포함) |
 | 5 | 쿨다운 중 입력 버퍼링 **지원** — InputBuffer + OnUpdate 재시도 |
 | 6 | HP 0 대기 캐릭터 교체 **불가**, 부활 **없음** |
+
+---
+
+## 12. 아키텍처 재설계: 단일 PlayerActor + Model 교체 방식
+
+> 작성일: 2026-04-26  
+> Phase 1의 "다중 PlayerActor" 방식에서 "단일 PlayerActor + Model 서브루트 교체" 방식으로 전환한다.
+
+### 12.1 변경 전/후 비교
+
+| 구분 | Phase 1 (다중 Actor) | Phase 2 (단일 Actor) |
+|------|---------------------|---------------------|
+| 씬의 PlayerActor 수 | 캐릭터마다 1개 (최대 3) | 1개 고정 |
+| 교체 메커니즘 | PlayerActor 전체 enable/disable | Model 자식 SetActive 전환 |
+| 컴포넌트 공유 | 각 Actor 독립 | 단일 PlayerActor에 부착, 교체 시 갱신 |
+| 위치·회전 전달 | outgoing → incoming motor 위치 복사 | 불필요 (root 고정) |
+| KCC / 물리 | 활성 Actor만 enable | 항상 enable (단일 root) |
+
+### 12.2 씬 계층 구조
+
+```
+Player (PlayerActor, 단일 고정)
+├── Model_Bokusei  (CharacterModelData) ← 활성 시 SetActive(true)
+│   ├── Armature
+│   └── [SkinnedMeshRenderers, MagicaCloth2...]
+├── Model_Honoka   (CharacterModelData) ← 비활성 시 SetActive(false)
+│   ├── Armature
+│   └── [SkinnedMeshRenderers, MagicaCloth2...]
+├── Model_LianLian (CharacterModelData)
+│   ├── Armature
+│   └── [SkinnedMeshRenderers, MagicaCloth2...]
+├── Weapon
+└── Magica cloth2 (공유 천 시뮬레이션이 있다면)
+```
+
+### 12.3 컴포넌트 변경 필요성 분류
+
+#### 변경 불필요 (공통 — 단일 root에 그대로 유지)
+
+| 컴포넌트 / 필드 | 이유 |
+|----------------|------|
+| `PlayerMovementController` | 이동·물리는 캐릭터와 무관 |
+| `KinematicCharacterMotor` | root 고정이므로 항상 동작 |
+| Input 등록/해제 | PlayerActor.OnEnable/OnDisable 그대로 |
+| `PlayerSkillGauge` (컴포넌트 자체) | 구조는 유지, 값만 캐릭터별 저장·복원 |
+| `_actorType` | 항상 `Player \| Combat` |
+| Camera / LockOn 타깃 | 항상 동일한 root transform |
+
+#### 변경 필요 (캐릭터별 — 교체 시 갱신)
+
+| 컴포넌트 / 필드 | 변경 내용 | 갱신 방법 |
+|----------------|-----------|-----------|
+| `GameActor._characterActorType` | 현재 활성 캐릭터 타입 | 직접 대입 |
+| `PlayerActorAnimator._playerActorAnimationMotionSet` | 캐릭터별 애니메이션 세트 SO | `CharacterModelData`에서 주입 |
+| `ActorAnimator._animator` (AnimancerComponent) | 활성 Model의 AnimancerComponent 참조 | `GetComponentInChildren` 재획득 |
+| `Animator` (UnityAnimator) | Avatar가 다르면 `Rebind()` 필요 | CharacterModelData에서 Animator 제공 |
+| `PlayerCombat._attackData` | 캐릭터별 공격 데이터 SO | `CharacterModelData`에서 주입 |
+| `PlayerEquipment` 무기 타입 + Constraint 본 | 캐릭터마다 장착 무기 다름 | `CharacterModelData`에서 Constraint 제공 |
+| `GameActor._socketDict` | 소켓 Transform = Model 내부 본 | `CharacterModelData`에서 소켓 맵 제공 |
+| `ActorColorChanger` | 렌더러 목록이 Model에 종속 | `InitializeRendererData()` 재호출 |
+| `DissolveController` | 렌더러 목록이 Model에 종속 | `InitializeRendererData()` 재호출 |
+| `FootIKController` | Animator, 발·골반 본이 Model에 종속 | `Refresh(Animator, hip, lFoot, rFoot)` |
+
+#### 저장·복원 필요 (캐릭터별 독립 상태)
+
+| 상태 | 저장 시점 | 복원 시점 |
+|------|-----------|-----------|
+| `_currentHealth` | 교체 직전 (outgoing) | 교체 직후 (incoming) |
+| `_maxHealth` | — | `CharacterModelData.maxHealth` 로 갱신 |
+| `PlayerSkillGauge` 게이지 값 | 교체 직전 | 교체 직후 |
+| 콤보 진행도 | 교체 시 리셋 (설계 결정 #5와 동일) | — |
+
+---
+
+### 12.4 신규 파일: `CharacterModelData`
+
+각 Model 자식 루트에 부착하는 **데이터 컨테이너 컴포넌트**.  
+PlayerSwapBehaviour가 이 컴포넌트를 읽어 PlayerActor를 갱신한다.
+
+```
+Assets/02.Scripts/GameActor/Component/Player/CharacterModelData.cs
+```
+
+```csharp
+public class CharacterModelData : MonoBehaviour
+{
+    [Header("Identity")]
+    public CharacterActorType characterType;
+
+    [Header("Animation")]
+    public PlayerActorAnimationMotionSet motionSet;  // AnimKey → Clip 매핑 SO
+    public Animator characterAnimator;               // 이 Model의 Unity Animator
+
+    [Header("Combat")]
+    public PlayerAttackDataSO attackData;
+    public WeaponType weaponType;
+
+    [Header("Stats")]
+    public float maxHealth = 100f;
+
+    [Header("Sockets — Model 내부 본 직접 할당")]
+    public Transform rightHandSocket;
+    public Transform leftHandSocket;
+    public Transform rightFootSocket;
+    public Transform leftFootSocket;
+    // ... 필요 소켓 추가
+
+    [Header("Equipment Constraints — Model 내부 본")]
+    public ParentConstraint swordConstraint;
+    public ParentConstraint doubleAxeConstraint;
+    // ... 무기 타입별 Constraint 추가
+
+    [Header("Foot IK Bones")]
+    public Transform hipBone;
+    public Transform leftFootBone;
+    public Transform rightFootBone;
+}
+```
+
+---
+
+### 12.5 수정 파일 목록 및 변경 내용
+
+#### ① `PlayerSwapBehaviour.cs` — 전면 개편
+
+**현재:** Model 서브루트 단일 참조 + SetActive  
+**변경 후:** 전체 Model 목록 관리 + 컴포넌트 갱신 오케스트레이션
+
+```csharp
+public class PlayerSwapBehaviour : MonoBehaviour
+{
+    private List<CharacterModelData> _models;   // 모든 Model 자식 목록
+    private CharacterModelData       _active;   // 현재 활성 Model
+
+    // 초기화: 자식에서 CharacterModelData 전부 수집
+    void Awake()  →  _models = GetComponentsInChildren<CharacterModelData>(true).ToList()
+
+    // 교체 진입점
+    public void SwapTo(CharacterActorType type)
+    {
+        _active?.gameObject.SetActive(false);               // 기존 Model 비활성화
+        _active = _models.Find(m => m.characterType == type);
+        _active.gameObject.SetActive(true);                 // 새 Model 활성화
+        _playerActor.RefreshForCharacter(_active);          // 컴포넌트 갱신
+    }
+
+    // EnterStandby / EnterActive는 삭제 또는 빈 메서드 유지 (단일 Actor 방식에서 불필요)
+}
+```
+
+#### ② `PlayerActor.cs` — `RefreshForCharacter()` 추가
+
+```csharp
+// PlayerActor.base 파일에 추가
+private Dictionary<CharacterActorType, float> _characterHealthMap = new();
+private Dictionary<CharacterActorType, float> _characterSkillMap  = new();
+
+public void RefreshForCharacter(CharacterModelData data)
+{
+    // 현재 캐릭터 상태 저장
+    _characterHealthMap[_characterActorType] = _currentHealth;
+    _characterSkillMap[_characterActorType]  = _skillGauge.CurrentValue;
+
+    // Identity
+    _characterActorType = data.characterType;
+
+    // Health
+    _maxHealth     = data.maxHealth;
+    _currentHealth = _characterHealthMap.GetValueOrDefault(data.characterType, data.maxHealth);
+
+    // Skill Gauge
+    _skillGauge.SetValue(_characterSkillMap.GetValueOrDefault(data.characterType, 0f));
+
+    // Animation
+    _playerActorAnimator.RefreshMotionSet(data.motionSet, data.characterAnimator);
+
+    // Combat
+    _combat.RefreshAttackData(data.attackData);
+
+    // Equipment
+    _equipment.RefreshForModel(data);
+
+    // Sockets
+    RefreshSockets(data);
+
+    // Visual effects — 새 Model 렌더러로 재초기화
+    _colorChanger.InitializeRendererData();  // 기존 public 메서드 재호출로 충분
+    _dissolveController.RefreshRenderers();  // 인스턴스 머티리얼 해제 후 재초기화
+
+    // Foot IK
+    _footIK.Refresh(data.characterAnimator, data.hipBone, data.leftFootBone, data.rightFootBone);
+
+    // 무기 타입별 초기 장착 처리
+    _equipment.SetWeaponType(data.weaponType);
+
+    // HP 변경 이벤트 발송 (UI 갱신)
+    OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+}
+
+private void RefreshSockets(CharacterModelData data)
+{
+    // _socketDict를 data의 소켓 Transform으로 갱신
+    if (data.rightHandSocket) _socketDict[ActorSocketType.RightHand] = data.rightHandSocket;
+    if (data.leftHandSocket)  _socketDict[ActorSocketType.LeftHand]  = data.leftHandSocket;
+    // ... 기타 소켓
+}
+```
+
+**Awake의 WeaponType 분기 제거:**  
+현재 `Awake()`에 있는 `switch(_characterActorType)` → `RefreshForCharacter`에서 처리하므로 제거.
+
+#### ③ `PlayerActorAnimator.cs` — `RefreshMotionSet()` 추가
+
+**확정 방향:** AnimancerComponent를 각 Model로 이동.  
+Avatar가 캐릭터별로 다르기 때문에 하나의 AnimancerComponent로 공유 불가.  
+각 Model이 자신의 AnimancerComponent + Animator(고유 Avatar)를 소유하고,  
+Model SetActive 전환만으로 AnimancerComponent도 함께 활성/비활성된다.
+
+**씬 구조 변경:**
+```
+Player
+├── ActorAnimator (PlayerActorAnimator) — AnimancerComponent 필드 동적 참조
+├── Model_Bokusei
+│   ├── AnimancerComponent  ← Bokusei Avatar
+│   ├── Animator            ← Bokusei Avatar
+│   └── Armature / Meshes
+├── Model_Honoka
+│   ├── AnimancerComponent  ← Honoka Avatar
+│   └── ...
+```
+
+**`ActorAnimator.Awake()` 변경:**
+```csharp
+// 기존: _animator = GetComponent<AnimancerComponent>();
+// 변경: 활성 Model의 AnimancerComponent를 가져옴
+_animator = GetComponentInChildren<AnimancerComponent>();
+```
+
+**`PlayerActorAnimator.RefreshMotionSet()` 구현:**
+```csharp
+public void RefreshMotionSet(PlayerActorAnimationMotionSet newSet, AnimancerComponent newAnimancer)
+{
+    _playerActorAnimationMotionSet = newSet;
+    _animator = newAnimancer;  // ActorAnimator의 protected 필드 직접 교체
+    // 진행 중인 모션 상태 초기화
+    _isPlayingMotionSet = false;
+    _currentMotionSet   = null;
+}
+```
+
+**`CharacterModelData` 필드 변경:**
+```csharp
+// 기존: public Animator characterAnimator;
+// 변경:
+public AnimancerComponent animancerComponent;  // 이 Model의 AnimancerComponent
+```
+
+**`PlayerActor.RefreshForCharacter()` 내 호출 변경:**
+```csharp
+// 기존: _playerActorAnimator.RefreshMotionSet(data.motionSet, data.characterAnimator);
+// 변경:
+_playerActorAnimator.RefreshMotionSet(data.motionSet, data.animancerComponent);
+```
+
+#### ④ `PlayerCombat.cs` — `RefreshAttackData()` 추가
+
+```csharp
+public void RefreshAttackData(PlayerAttackDataSO newData)
+{
+    _attackData = newData;
+    // 진행 중인 공격 콤보 초기화
+    ResetCombo();
+}
+```
+
+#### ⑤ `PlayerEquipment.cs` — `RefreshForModel()` 추가
+
+ParentConstraint의 **소스 본**이 Model 내부 본이므로, Model 교체 시 소스를 새 본으로 교체해야 한다.  
+Constraint 컴포넌트 자체(무기 오브젝트에 붙은 것)는 유지, **소스 Transform만** 교체.
+
+```csharp
+public void RefreshForModel(CharacterModelData data)
+{
+    // Constraint 소스 본 교체
+    UpdateConstraintSource(swordConstraint,     data.swordAttachBone);
+    UpdateConstraintSource(doubleAxeConstraint, data.doubleAxeAttachBone);
+    // ... 무기 타입별 추가
+
+    // WeaponType 변경
+    SetWeaponType(data.weaponType);
+}
+
+private void UpdateConstraintSource(ParentConstraint constraint, Transform newBone)
+{
+    if (constraint == null || newBone == null) return;
+    var sources = new List<ConstraintSource>();
+    constraint.GetSources(sources);
+    if (sources.Count == 0) return;
+    sources[0] = new ConstraintSource { sourceTransform = newBone, weight = sources[0].weight };
+    constraint.SetSources(sources);
+}
+```
+
+**`CharacterModelData`에 추가할 필드:**
+```csharp
+[Header("Weapon Attach Bones — Constraint 소스")]
+public Transform swordAttachBone;      // 예: 오른손 본
+public Transform doubleAxeAttachBone;  // 예: 오른손 본
+// WeaponType에 따라 필요한 본 추가
+```
+
+#### ⑥ `ActorColorChanger.cs` — `InitializeRendererData()` public 확인
+
+현재 `InitializeRendererData()`는 `public`이고 `GetComponentsInChildren<Renderer>()` 방식.  
+Model 교체 후 재호출하면 새 Model의 렌더러를 자동 탐색하므로 **메서드 시그니처 변경 불필요**.
+
+#### ⑦ `DissolveController.cs` — `RefreshRenderers()` 보완
+
+`InitializeRendererData()`는 이미 `public`이고 `RefreshRenderers()` 래퍼도 존재.  
+단, 재호출 시 **이전 인스턴스 머티리얼이 해제되지 않아 메모리 누수** 발생.  
+`RefreshRenderers()`를 아래와 같이 보완한다.
+
+```csharp
+public void RefreshRenderers()
+{
+    // 1. 진행 중인 Dissolve 중단
+    StopAllCoroutines();
+
+    // 2. 기존 인스턴스 머티리얼 해제
+    foreach (var mat in _instancedMaterials)
+        if (mat != null) Destroy(mat);
+    _instancedMaterials.Clear();
+
+    // 3. 새 Model의 렌더러로 재초기화
+    InitializeRendererData();
+}
+```
+
+`PlayerActor.RefreshForCharacter()`에서는 `_dissolveController.InitializeRendererData()` 대신  
+`_dissolveController.RefreshRenderers()`를 호출한다.
+
+#### ⑧ `FootIKController.cs` — `Refresh()` 추가
+
+```csharp
+public void Refresh(Animator animator, Transform hip, Transform leftFoot, Transform rightFoot)
+{
+    _animator  = animator;
+    _hipBone   = hip;
+    _leftFoot  = leftFoot;
+    _rightFoot = rightFoot;
+    _initialized = false; // 다음 OnAnimatorIK에서 재초기화
+}
+```
+
+#### ⑨ `PartyManager.cs` — 단일 PlayerActor 기반으로 개편
+
+```csharp
+// 변경 전: List<PlayerActor> _partyMembers
+// 변경 후:
+private PlayerActor _player;                     // 씬의 단일 PlayerActor
+private List<CharacterActorType> _partyOrder;    // 파티 순서
+private int _activeIndex;
+
+// BuildPartyFromScene 변경
+private void BuildPartyFromScene()
+{
+    _player = Object.FindFirstObjectByType<PlayerActor>();
+    _partyOrder = _config?.partyOrder ?? new List<CharacterActorType>();
+}
+
+// RequestSwapTo 변경
+public bool RequestSwapTo(int targetIndex)
+{
+    if (!CanSwap()) return false;
+    var targetType = _partyOrder[targetIndex];
+    _player.GetComponent<PlayerSwapBehaviour>().SwapTo(targetType);
+    _activeIndex = targetIndex;
+    ...
+}
+
+// CanSwap: ActiveCharacter → _player
+public bool CanSwap() { ... _player?.PlayerController?.CurrentState ... }
+```
+
+---
+
+### 12.6 교체 흐름 (신규)
+
+```
+[입력] SwapNext/SwapPrev
+  ↓
+PartyManager.RequestSwapTo(index)
+  ├─ CanSwap() 실패 → 버퍼 저장, OnUpdate 재시도
+  └─ CanSwap() 성공
+       ↓
+PlayerSwapBehaviour.SwapTo(CharacterActorType)
+  ├─ [1] _active.gameObject.SetActive(false)   ← 이전 Model 비활성화
+  ├─ [2] _active = 새 CharacterModelData
+  ├─ [3] _active.gameObject.SetActive(true)    ← 새 Model 활성화
+  └─ [4] _playerActor.RefreshForCharacter(_active)
+           ├─ 이전 캐릭터 HP/스킬 저장
+           ├─ _characterActorType 갱신
+           ├─ HP/스킬 복원
+           ├─ Animator / MotionSet 갱신
+           ├─ AttackData 갱신
+           ├─ Equipment(Constraint + WeaponType) 갱신
+           ├─ SocketDict 갱신
+           ├─ ColorChanger / DissolveController 재초기화
+           └─ FootIK 재초기화
+  ↓
+PartyManager: NotifyActivePlayerChanged() → CameraManager, GameObjectManager
+  ↓
+OnSwapCompleted 이벤트 발생 → UI 갱신
+```
+
+---
+
+### 12.7 구현 순서
+
+| 순서 | 작업 | 파일 |
+|------|------|------|
+| 1 | `CharacterModelData` 신규 생성 | `Component/Player/CharacterModelData.cs` |
+| 2 | `ActorAnimator` — `_animator` 초기화를 `GetComponentInChildren`으로 변경 | `Animation/ActorAnimator.cs` |
+| 3 | `PlayerActorAnimator` — `RefreshMotionSet(motionSet, AnimancerComponent)` 추가 | `Animation/PlayerActorAnimator.cs` |
+| 4 | `PlayerSwapBehaviour` 개편 | `Component/Player/PlayerSwapBehaviour.cs` |
+| 5 | `PlayerActor` — `RefreshForCharacter` + 체력맵 추가, Awake `switch` 제거 | `Object/Player/PlayerActor.cs` |
+| 6 | `PlayerCombat` — `RefreshAttackData` 추가 | `Component/Player/PlayerCombat.cs` |
+| 7 | `PlayerEquipment` — `RefreshForModel` 추가 | `Component/Player/PlayerEquipment.cs` |
+| 8 | `DissolveController` — `InitializeRendererData` public 변경 | `Component/Common/DissolveController.cs` |
+| 9 | `FootIKController` — `Refresh` 추가 | `Component/Player/FootIKController.cs` |
+| 10 | `PartyManager` 개편 | `Manager/Party/PartyManager.cs` |
+| 11 | 씬 셋업: AnimancerComponent를 각 Model로 이동 + CharacterModelData 할당 | Unity Editor |
+
+---
+
+### 12.8 검토 결과
+
+| # | 항목 | 결정 |
+|---|------|------|
+| 1 | **Animator Avatar 공유 여부** | ✅ 확정 — **공유하지 않음**. 각 Model이 고유 Avatar 보유. AnimancerComponent를 Model로 이동하여 해결. |
+| 2 | **AnimancerComponent 위치** | ✅ 확정 — **각 Model로 이동**. Avatar가 다르므로 root 공유 불가. Model SetActive와 함께 자동 활성/비활성. |
+| 3 | **MagicaCloth2 재시뮬레이션** | ✅ 확정 — **별도 처리 불필요**. Model이 비활성화되면 애니메이션 정지와 함께 시뮬레이션도 자동 정지. |
+| 4 | **Weapon Constraint 소스** | ✅ 확정 — **Model 내부 본 사용 확인. 교체 필요.** `CharacterModelData`에 무기 부착 본 추가. `PlayerEquipment.RefreshForModel()`에서 `ParentConstraint` 소스를 새 본으로 교체. |
+| 5 | **DissolveController 머티리얼 인스턴스 해제** | ✅ 확정 — **재초기화 필요.** `InitializeRendererData()`는 이미 public이나, 재호출 전 `_instancedMaterials` 해제 + 진행 중 Dissolve 중단 로직을 `RefreshRenderers()`에 추가. |

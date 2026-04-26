@@ -89,7 +89,8 @@ namespace UPlayGround.MovementController
 
         protected virtual void Update()
         {
-            if (_currentState != null)
+            // Motor가 비활성화된 경우(파티 대기 상태) 상태 머신을 멈춰 InputBuffer를 공유 소비하지 않도록 함
+            if (_currentState != null && (Motor == null || Motor.enabled))
             {
                 // 로컬 타임스케일이 적용된 시간을 사용
                 float deltaTime = Actor.DeltaTime;

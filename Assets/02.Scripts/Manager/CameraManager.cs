@@ -51,7 +51,8 @@ namespace UPlayGround.Manager
         private float            _frontCameraBlend;
         private float            _frontCameraBlendVel;
         private CapsuleCollider  _characterCapsule;
-        private const float      FRONT_BLEND_SPEED = 0.12f;
+        private const float      FRONT_BLEND_RETURN_SPEED = 0.12f; // 복귀: 부드럽게
+        private const float      FRONT_BLEND_PULL_SPEED   = 0f;    // 당김: 즉시
 
         // 경사 지형 피치 보정
         private float _slopePitchOffset;
@@ -372,8 +373,12 @@ namespace UPlayGround.Manager
 
             float backDist    = Vector3.Distance(_cameraPivot.position, backPos);
             float targetBlend = backDist < backClearance ? 1f : 0f;
-            _frontCameraBlend = Mathf.SmoothDamp(_frontCameraBlend, targetBlend,
-                ref _frontCameraBlendVel, FRONT_BLEND_SPEED);
+            float blendSpeed  = targetBlend > _frontCameraBlend
+                ? FRONT_BLEND_PULL_SPEED
+                : FRONT_BLEND_RETURN_SPEED;
+            _frontCameraBlend = blendSpeed > 0f
+                ? Mathf.SmoothDamp(_frontCameraBlend, targetBlend, ref _frontCameraBlendVel, blendSpeed)
+                : targetBlend;
 
             float   frontDist = Mathf.Max(frontClearance, 0.3f);
             Vector3 frontPos  = _cameraPivot.position + (-camDir) * frontDist;

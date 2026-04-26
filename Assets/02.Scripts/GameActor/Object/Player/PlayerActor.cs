@@ -63,6 +63,9 @@ namespace UPlayGround
         private InputCondition _heavyInputCondition;
         private InputCondition _equipInputCondition;
 
+        // 교체 어시스트
+        private bool _swapAssistQueued = false;
+
         // 차지 공격 입력 추적
         private bool  _chargeAttackHeld;
         private float _chargeHoldTime;
@@ -103,7 +106,6 @@ namespace UPlayGround
             _playerActorAnimator           = _animator as PlayerActorAnimator;
 
             InitComponents();
-            RegisterInputEvents();
 
             switch (_characterActorType)
             {
@@ -112,8 +114,22 @@ namespace UPlayGround
             }
         }
 
+        private void OnEnable()
+        {
+            RegisterInputEvents();
+            CameraManager.Instance?.SetCombatStateProvider(() => _combat != null && _combat.IsInCombat);
+        }
+
+        private void OnDisable()
+        {
+            UnRegisterInputEvents();
+            CameraManager.Instance?.SetCombatStateProvider(null);
+            ClearAllInputState();
+        }
+
         private void OnDestroy()
         {
+            // OnDisable이 먼저 호출되므로 여기서는 추가 정리만 담당
             UnRegisterInputEvents();
             CameraManager.Instance?.SetCombatStateProvider(null);
         }
@@ -124,6 +140,13 @@ namespace UPlayGround
 
             if (_chargeAttackHeld)
                 _chargeHoldTime += Time.deltaTime;
+
+            // 교체 어시스트 공격 주입: PartyManager가 설정하면 다음 프레임 공격 입력으로 처리
+            if (_swapAssistQueued)
+            {
+                _attackInputCondition = InputCondition.Pressed;
+                _swapAssistQueued = false;
+            }
 
             Quaternion cameraRotation = _camera != null ? _camera.transform.rotation : Quaternion.identity;
 
@@ -167,9 +190,12 @@ namespace UPlayGround
     // Input 처리
     public partial class PlayerActor : GameActor, IDamageable
     {
+        private bool _isInputRegistered;
+
         private void RegisterInputEvents()
         {
-            if (!InputManager.Instance) return;
+            if (!InputManager.Instance || _isInputRegistered) return;
+            _isInputRegistered = true;
 
             InputLayer layer = InputLayer.Level_0;
             var I = InputManager.Instance;
@@ -199,7 +225,8 @@ namespace UPlayGround
 
         private void UnRegisterInputEvents()
         {
-            if (!InputManager.Instance) return;
+            if (!InputManager.Instance || !_isInputRegistered) return;
+            _isInputRegistered = false;
 
             var I = InputManager.Instance;
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove);
@@ -222,6 +249,7 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                    OnInputPerformedSkill_9,     null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard);
         }
 
         #region Input Callbacks
@@ -293,6 +321,30 @@ namespace UPlayGround
         }
 
         private bool CanInputInteract() => GameObjectManager.Instance.CanInteract();
+
+        private void ClearAllInputState()
+        {
+            _currentMoveInput          = Vector2.zero;
+            _jumpInputCondition        = InputCondition.None;
+            _crouchInputCondition      = InputCondition.None;
+            _dodgeInputCondition       = InputCondition.None;
+            _dashInputCondition        = InputCondition.None;
+            _attackInputCondition      = InputCondition.None;
+            _heavyInputCondition       = InputCondition.None;
+            _equipInputCondition       = InputCondition.None;
+            _interactionInputCondition = InputCondition.None;
+            _guardInputCondition       = InputCondition.None;
+            _chargeAttackHeld          = false;
+            _chargeHoldTime            = 0f;
+            for (int i = 0; i < _skillInputCondition.Count; ++i)
+                _skillInputCondition[i] = InputCondition.None;
+        }
+
+        /// <summary>
+        /// 교체 어시스트 공격을 다음 Update()에서 실행하도록 예약한다.
+        /// PartyManager가 교체 성공 시 incoming 캐릭터에 호출.
+        /// </summary>
+        public void QueueSwapAssist() => _swapAssistQueued = true;
     }
 
     // Component
@@ -310,8 +362,7 @@ namespace UPlayGround
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
-
-            CameraManager.Instance?.SetCombatStateProvider(() => _combat != null && _combat.IsInCombat);
+            // SetCombatStateProvider는 OnEnable/OnDisable에서 관리
         }
     }
 

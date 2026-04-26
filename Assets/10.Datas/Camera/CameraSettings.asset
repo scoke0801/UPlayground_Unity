@@ -53,7 +53,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 80
+      value: 90
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 5.0258894
-      value: 65.57143
+      value: 73.25
       inSlope: -0.09317494
       outSlope: -0.09317494
       tangentMode: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
       outWeight: 0.42957792
     - serializedVersion: 3
       time: 8
-      value: 50
+      value: 59.107147
       inSlope: -0.29137886
       outSlope: -0.29137886
       tangentMode: 0
@@ -79,8 +79,8 @@ MonoBehaviour:
       inWeight: 0.26296976
       outWeight: 0.32858744
     - serializedVersion: 3
-      time: 11.481474
-      value: 32.638943
+      time: 11.481504
+      value: 39.246075
       inSlope: -0.0035864199
       outSlope: -0.0035864199
       tangentMode: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lockOnOrbitSmoothTime: 0.15
-  crowdZoomOutDistance: 7
+  crowdZoomOutDistance: 5
   crowdDetectRadius: 10
   crowdEnemyThreshold: 3
   crowdZoomSmoothTime: 0.4

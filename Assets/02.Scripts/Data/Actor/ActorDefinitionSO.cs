@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Data.Actor
 {
@@ -32,6 +33,9 @@ namespace UPlayGround.Data.Actor
         [Header("스탯 데이터")]
         [Tooltip("몬스터 스탯 (체력, 이동속도 등). MonsterActor에만 적용됨.")]
         public EnemyStatsSO stats;
+
+        [Tooltip("통합 스탯 SO. 설정 시 ActorStatContainer로 적용되며, MaxHealth는 EnemyStatsSO보다 우선한다.")]
+        public ActorStatSO statData;
 
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;

@@ -33,6 +33,9 @@ namespace UPlayGround
         /// <summary>런타임 태그 컨테이너. 상태 진입/이탈 시 태그를 추가/제거한다.</summary>
         public GameplayTagContainer Tags { get; private set; }
 
+        /// <summary>런타임 스탯 컨테이너. ActorStatSO로 초기화하고 StatModifier로 버프/장비 효과를 적용한다.</summary>
+        public ActorStatContainer Stats { get; private set; }
+
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)
         /// </summary>
@@ -87,6 +90,7 @@ namespace UPlayGround
         protected virtual void Awake()
         {
             Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
+            Stats = gameObject.GetOrAddComponent<ActorStatContainer>();
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponentInChildren<ActorAnimator>();
             if (_animator != null)

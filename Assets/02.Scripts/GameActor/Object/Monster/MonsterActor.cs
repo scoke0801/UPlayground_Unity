@@ -6,6 +6,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -55,7 +56,10 @@ namespace UPlayGround
 
             _maxHealth = _stats.maxHealth;
             _currentHealth = _maxHealth;
-            
+
+            // EnemyStatsSO 기본값을 ActorStatContainer에 동기화 (statData가 없을 때의 폴백)
+            Stats.SetBase(StatType.MaxHealth, _maxHealth);
+
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
             if (_brain     == null) _brain     = GetComponent<EnemyBrain>();
             if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
@@ -102,14 +106,18 @@ namespace UPlayGround
                 return;
             }
             
-            float finalDamage = attackData.damage;
-            
+            // 공격력·방어율 적용. 둘 다 기본값(1.0/0.0)일 때는 공격 데이터 그대로 통과한다.
+            float attackerPower = attackData.attacker != null ? attackData.attacker.Stats.AttackPower : 1f;
+            float defenseRate   = Mathf.Clamp01(Stats.Defense);
+
+            float finalDamage = attackData.damage * attackerPower * (1f - defenseRate);
+
             if (attackData.criticalMultiplier > 1.0f)
             {
                 finalDamage *= attackData.criticalMultiplier;
                 Debug.Log($"[MonsterActor] 크리티컬 히트! 데미지: {finalDamage}");
             }
-            
+
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
 
             if (_uiHpBar == null) AttachHpUI();
@@ -307,6 +315,17 @@ namespace UPlayGround
                 _maxHealth     = _stats.maxHealth;
                 _currentHealth = _maxHealth;
                 _isDead        = false; // 체력 재초기화 시 사망 가드도 함께 해제
+                Stats.SetBase(StatType.MaxHealth, _maxHealth);
+                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+
+            // statData가 있으면 통합 스탯 컨테이너로 덮어쓰고 MaxHealth도 재동기화
+            if (definition.statData != null)
+            {
+                Stats.Init(definition.statData);
+                _maxHealth     = Stats.MaxHealth;
+                _currentHealth = _maxHealth;
+                _isDead        = false;
                 OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             }
 

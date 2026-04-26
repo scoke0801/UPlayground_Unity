@@ -19,4 +19,6 @@ MonoBehaviour:
   characterType: 0
   prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
   stats: {fileID: 11400000, guid: 16964d20fc8a7eb4295010aa70db94ee, type: 2}
+  statData: {fileID: 11400000, guid: 5e30fbc8a5b704b4daeeb5b9eecf548b, type: 2}
   poiseData: {fileID: 11400000, guid: 876157c6a32f968498948c1120a773b9, type: 2}
+  dropTable: {fileID: 0}

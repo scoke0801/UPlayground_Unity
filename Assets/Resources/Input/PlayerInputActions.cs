@@ -325,6 +325,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PlayerSwap"",
+                    ""type"": ""Button"",
+                    ""id"": ""c1a2b3d4-e5f6-7890-abcd-ef1234567890"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -677,6 +686,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Skill_9"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e3c4d5f6-a7b8-9012-cdef-012345678902"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlayerSwap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1298,6 +1318,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Skill_7 = m_PlayerAction.FindAction("Skill_7", throwIfNotFound: true);
         m_PlayerAction_Skill_8 = m_PlayerAction.FindAction("Skill_8", throwIfNotFound: true);
         m_PlayerAction_Skill_9 = m_PlayerAction.FindAction("Skill_9", throwIfNotFound: true);
+        m_PlayerAction_PlayerSwap = m_PlayerAction.FindAction("PlayerSwap", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1438,6 +1459,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Skill_7;
     private readonly InputAction m_PlayerAction_Skill_8;
     private readonly InputAction m_PlayerAction_Skill_9;
+    private readonly InputAction m_PlayerAction_PlayerSwap;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1554,6 +1576,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Skill_9 => m_Wrapper.m_PlayerAction_Skill_9;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/PlayerSwap".
+        /// </summary>
+        public InputAction @PlayerSwap => m_Wrapper.m_PlayerAction_PlayerSwap;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -1657,6 +1683,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_9.started += instance.OnSkill_9;
             @Skill_9.performed += instance.OnSkill_9;
             @Skill_9.canceled += instance.OnSkill_9;
+            @PlayerSwap.started += instance.OnPlayerSwap;
+            @PlayerSwap.performed += instance.OnPlayerSwap;
+            @PlayerSwap.canceled += instance.OnPlayerSwap;
         }
 
         /// <summary>
@@ -1746,6 +1775,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_9.started -= instance.OnSkill_9;
             @Skill_9.performed -= instance.OnSkill_9;
             @Skill_9.canceled -= instance.OnSkill_9;
+            @PlayerSwap.started -= instance.OnPlayerSwap;
+            @PlayerSwap.performed -= instance.OnPlayerSwap;
+            @PlayerSwap.canceled -= instance.OnPlayerSwap;
         }
 
         /// <summary>
@@ -2511,6 +2543,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill_9(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PlayerSwap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPlayerSwap(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

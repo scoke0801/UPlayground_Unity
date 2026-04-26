@@ -23,11 +23,13 @@
     public enum CharacterActorType
     {
         None = 0,
-        
-        // 비싼 친구들 부터
         Bokusei,
         Honoka,
         Reine,
+        LianLian,
+        Nenmir,
+        Sera,
+        Inori,
         
         H09,
     }

@@ -47,6 +47,12 @@ namespace UPlayGround.Manager
         private bool  _isAligning;
         private float _alignTimer;
 
+        // 전방 카메라 블렌딩 (충돌로 후방이 막힐 때 앞으로 전환)
+        private float            _frontCameraBlend;
+        private float            _frontCameraBlendVel;
+        private CapsuleCollider  _characterCapsule;
+        private const float      FRONT_BLEND_SPEED = 0.12f;
+
         // 경사 지형 피치 보정
         private float _slopePitchOffset;
         private float _slopePitchVelocity;
@@ -317,22 +323,11 @@ namespace UPlayGround.Manager
                 ? _collision.Evaluate(_cameraPivot.position, camDir, desiredDistance)
                 : desiredDistance;
 
-            Vector3 camPos = _cameraPivot.position + camDir * finalDist;
-
-            // 지형 관통 방지: 카메라 XZ 위치에서 위→아래 레이캐스트로 지형 Y를 구하고 클램프
-            const float CHECK_HEIGHT = 20f;
-            const float CHECK_DIST   = 40f;
-            Vector3 checkOrigin = new Vector3(camPos.x, camPos.y + CHECK_HEIGHT, camPos.z);
-            if (Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, _collisionLayers))
-            {
-                float minY = groundHit.point.y + settings.collisionOffset;
-                if (camPos.y < minY)
-                    camPos.y = minY;
-            }
+            Vector3 backPos = _cameraPivot.position + camDir * finalDist;
 
             // 안전장치: 스무딩된 pivot이 지형 내부로 밀릴 때 SphereCast가 실패할 수 있으므로
             // KCC가 보장하는 pivotBase에서 다시 SphereCast로 경로를 재확인한다.
-            Vector3 toCam    = camPos - pivotBase;
+            Vector3 toCam     = backPos - pivotBase;
             float   toCamDist = toCam.magnitude;
             if (toCamDist > 0.01f)
             {
@@ -343,12 +338,47 @@ namespace UPlayGround.Manager
                     if (safeHit.transform != _target && !safeHit.transform.IsChildOf(_target))
                     {
                         float safeDist = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
-                        camPos = pivotBase + toCamDir * safeDist;
+                        backPos = pivotBase + toCamDir * safeDist;
                     }
                 }
             }
 
-            _mainCamera.transform.position = camPos;
+            // 지형 관통 방지: camDir 직선 위에서 minY를 만족하는 거리로 클램프
+            const float CHECK_HEIGHT = 20f;
+            const float CHECK_DIST   = 40f;
+            Vector3 checkOrigin = new Vector3(backPos.x, backPos.y + CHECK_HEIGHT, backPos.z);
+            if (Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, _collisionLayers))
+            {
+                float minY = groundHit.point.y + settings.collisionOffset;
+                if (backPos.y < minY)
+                {
+                    if (Mathf.Abs(camDir.y) > 0.001f)
+                    {
+                        float groundDist = (minY - _cameraPivot.position.y) / camDir.y;
+                        float curDist    = Vector3.Distance(_cameraPivot.position, backPos);
+                        if (groundDist >= settings.minDistance && groundDist <= curDist)
+                            backPos = _cameraPivot.position + camDir * groundDist;
+                    }
+                    else
+                    {
+                        backPos.y = minY;
+                    }
+                }
+            }
+
+            // 캡슐 콜라이더 기반: 카메라가 몸 안으로 들어가는 임계 거리 / 전방 배치 거리 계산
+            ComputeCapsuleClearance(_cameraPivot.position, camDir,
+                out float backClearance, out float frontClearance);
+
+            float backDist    = Vector3.Distance(_cameraPivot.position, backPos);
+            float targetBlend = backDist < backClearance ? 1f : 0f;
+            _frontCameraBlend = Mathf.SmoothDamp(_frontCameraBlend, targetBlend,
+                ref _frontCameraBlendVel, FRONT_BLEND_SPEED);
+
+            float   frontDist = Mathf.Max(frontClearance, 0.3f);
+            Vector3 frontPos  = _cameraPivot.position + (-camDir) * frontDist;
+
+            _mainCamera.transform.position = Vector3.Lerp(backPos, frontPos, _frontCameraBlend);
         }
 
         private void UpdateCameraRotation(float smoothTime)
@@ -360,6 +390,85 @@ namespace UPlayGround.Manager
                     1f - Mathf.Exp(-10f / smoothTime));
             else
                 _mainCamera.transform.rotation = targetRot;
+        }
+
+        #endregion
+
+        #region 전방 카메라 (충돌 회피)
+
+        private void CacheCapsule()
+        {
+            _characterCapsule = _target != null
+                ? _target.GetComponentInChildren<CapsuleCollider>()
+                : null;
+        }
+
+        /// <summary>
+        /// 캡슐 콜라이더 기하학으로 후방/전방 클리어런스를 계산.
+        /// backClearance  : 카메라가 캡슐 밖에 있으려면 pivot에서 camDir 방향으로 필요한 최소 거리
+        /// frontClearance : 전방 카메라가 캡슐 밖에 있으려면 pivot에서 -camDir 방향으로 필요한 최소 거리
+        /// 캡슐의 중심선 위 가장 가까운 점을 구(球)로 근사해 직선-구 교점 공식으로 계산.
+        /// </summary>
+        private void ComputeCapsuleClearance(Vector3 pivotPos, Vector3 camDir,
+            out float backClearance, out float frontClearance)
+        {
+            backClearance  = 0f;
+            frontClearance = 0f;
+
+            if (_characterCapsule == null) return;
+
+            Transform t           = _characterCapsule.transform;
+            Vector3   worldCenter = t.TransformPoint(_characterCapsule.center);
+            Vector3   scale       = t.lossyScale;
+
+            // 캡슐 방향 축과 스케일
+            Vector3 axisLocal;
+            float   rScale, hScale;
+            switch (_characterCapsule.direction)
+            {
+                case 0:  // X
+                    axisLocal = Vector3.right;
+                    rScale    = Mathf.Max(Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+                    hScale    = Mathf.Abs(scale.x);
+                    break;
+                case 2:  // Z
+                    axisLocal = Vector3.forward;
+                    rScale    = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
+                    hScale    = Mathf.Abs(scale.z);
+                    break;
+                default: // Y (캐릭터 기본)
+                    axisLocal = Vector3.up;
+                    rScale    = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+                    hScale    = Mathf.Abs(scale.y);
+                    break;
+            }
+
+            Vector3 axisWorld = t.TransformDirection(axisLocal).normalized;
+            float   radius    = _characterCapsule.radius * rScale;
+            float   halfCyl   = Mathf.Max(0f, _characterCapsule.height * hScale * 0.5f - radius);
+
+            // pivot에서 캡슐 중심선 위의 가장 가까운 점 → 구(球) 근사 중심
+            Vector3 p2c           = pivotPos - worldCenter;
+            float   tOnAxis       = Mathf.Clamp(Vector3.Dot(p2c, axisWorld), -halfCyl, halfCyl);
+            Vector3 nearestCenter = worldCenter + tOnAxis * axisWorld;
+
+            // 직선-구 교점 (구 반지름 = 캡슐 radius + 카메라 SphereCast radius)
+            float   effectiveR = radius + settings.cameraRadius;
+            Vector3 oc         = pivotPos - nearestCenter;
+            float   halfB      = Vector3.Dot(oc, camDir);
+            float   cVal       = oc.sqrMagnitude - effectiveR * effectiveR;
+            float   disc       = halfB * halfB - cVal;
+
+            if (disc < 0f) return;  // 피벗이 캡슐과 완전히 동떨어진 경우
+
+            float sqrtDisc = Mathf.Sqrt(disc);
+            float t1       = -halfB - sqrtDisc;  // camDir 방향 진입점
+            float t2       = -halfB + sqrtDisc;  // camDir 방향 탈출점
+
+            // 카메라(후방)는 t2 이상이어야 캡슐 밖
+            backClearance  = Mathf.Max(t2, 0f);
+            // 전방 카메라는 -camDir 방향으로 -t1 이상이어야 캡슐 밖
+            frontClearance = Mathf.Max(-t1, 0f);
         }
 
         #endregion
@@ -431,7 +540,7 @@ namespace UPlayGround.Manager
         private void InitializeCamera()
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) _target = player.transform;
+            if (player != null) { _target = player.transform; CacheCapsule(); }
 
             _mainCamera = UnityEngine.Camera.main;
             if (_mainCamera == null)
@@ -537,6 +646,7 @@ namespace UPlayGround.Manager
         public void SetTarget(Transform newTarget)
         {
             _target = newTarget;
+            CacheCapsule();
             if (_target == null || _cameraPivot == null) return;
 
             _cameraPivot.position = _target.position + _cameraOffset;

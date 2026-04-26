@@ -42,6 +42,8 @@
         public const string LockOnSwitchRight = "LockOnSwitchRight";
         
         public const string Guard = "Guard";
+
+        public const string PlayerSwap = "PlayerSwap";
     }
 
     public static class SystemAction

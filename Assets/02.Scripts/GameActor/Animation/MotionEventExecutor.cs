@@ -11,14 +11,30 @@ namespace UPlayGround.Animation
     public class MotionEventExecutor : MonoBehaviour
     {
         [SerializeField] GameObject _targetObject;
-        
+
         private MotionSet _currentMotionSet;
         private float _currentTime;
         private float _lastTime; // 이전 프레임 시간 저장
         private HashSet<MotionEventBase> _activeEvents = new HashSet<MotionEventBase>();
         private HashSet<MotionEventBase> _executedEvents = new HashSet<MotionEventBase>();
 
-        public GameObject TargetObject => _targetObject != null ? _targetObject : gameObject;
+        // 인스펙터에서 _targetObject를 지정하지 않은 경우, 부모의 GameActor를 자동 탐색해 캐싱한다.
+        // 모션 이벤트들은 target.GetComponent<GameActor>() 로 액터를 찾으므로,
+        // Executor가 모델(GameActor의 자식)에 붙은 경우 반드시 부모의 GameActor.gameObject로 해석되어야 한다.
+        private GameObject _resolvedTarget;
+
+        public GameObject TargetObject
+        {
+            get
+            {
+                if (_targetObject != null) return _targetObject;
+                if (_resolvedTarget != null) return _resolvedTarget;
+
+                var actor = GetComponentInParent<GameActor>();
+                _resolvedTarget = actor != null ? actor.gameObject : gameObject;
+                return _resolvedTarget;
+            }
+        }
 
         /// <summary>
         /// 모션 셋 재생 시작

@@ -406,7 +406,10 @@ namespace UPlayGround
             _footIK.Refresh(data.AnimancerComponent?.Animator);
 
             // 새 AnimancerComponent에 즉시 애니메이션 적용: Idle로 강제 전환
+            // 현재 상태가 이미 PlayerIdleState인 경우 TransitionToState의 같은 타입 가드(ActorMovementController.cs:149)
+            // 때문에 OnEnter가 호출되지 않아 새 애니메이터에 PlayMotion이 안 걸린다. 직접 한 번 더 재생한다.
             PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
+            _playerActorAnimator?.PlayMotion(AnimKey.Idle, 0f);
 
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
         }

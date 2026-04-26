@@ -1,5 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
-using KinematicCharacterController;
+﻿using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
@@ -19,7 +18,14 @@ public class UICharacterPreviewRenderer : MonoBehaviour
     [SerializeField] private Vector3 _cameraOffset = new Vector3(0, 1.5f, 2.5f);
     [SerializeField] private float _rotationSpeed = 100f;
 
-    [SerializeField] private SerializedDictionary<CharacterActorType, GameObject> _actorPrefabDict;
+    [System.Serializable]
+    private struct CharacterPrefabEntry
+    {
+        public CharacterActorType type;
+        public GameObject prefab;
+    }
+
+    [SerializeField] private CharacterPrefabEntry[] _actorPrefabs;
     
     private GameObject _currentPreviewCharacter;
     private float _currentRotation = 0f;
@@ -28,6 +34,7 @@ public class UICharacterPreviewRenderer : MonoBehaviour
     {
         // 카메라 초기 설정
         _previewCamera.enabled = false;
+        _previewCamera.targetTexture = _renderTexture;
         _previewCamera.cullingMask = 1 << LayerMask.NameToLayer("CharacterPreview");
         _previewCamera.clearFlags = CameraClearFlags.SolidColor;
         _previewCamera.backgroundColor = new Color(0, 0, 0, 0);
@@ -52,7 +59,19 @@ public class UICharacterPreviewRenderer : MonoBehaviour
             return;
         }
 
-        if (_actorPrefabDict.TryGetValue(player.CharacterType, out GameObject targetPrefab) == false)
+        GameObject targetPrefab = null;
+        if (_actorPrefabs != null)
+        {
+            foreach (var entry in _actorPrefabs)
+            {
+                if (entry.type == player.CharacterType)
+                {
+                    targetPrefab = entry.prefab;
+                    break;
+                }
+            }
+        }
+        if (targetPrefab == null)
         {
             return;
         }

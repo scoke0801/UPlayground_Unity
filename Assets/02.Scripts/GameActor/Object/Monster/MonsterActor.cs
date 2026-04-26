@@ -24,6 +24,10 @@ namespace UPlayGround
         [Header("Drop")]
         [SerializeField] private EnemyDropTableSO _dropTable;
 
+        [Header("Recruit")]
+        [Tooltip("처치 시 파티에 합류시킬 캐릭터 타입. None이면 합류 없음.")]
+        [SerializeField] private CharacterActorType _recruitableAs = CharacterActorType.None;
+
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [SerializeField] private EnemyBrain _brain;
@@ -245,6 +249,7 @@ namespace UPlayGround
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             SpawnDropItems();
+            TryRecruitToParty();
 
             if (_uiHpBar != null)
             {
@@ -253,6 +258,12 @@ namespace UPlayGround
             }
             
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
+        }
+
+        private void TryRecruitToParty()
+        {
+            if (_recruitableAs == CharacterActorType.None) return;
+            PartyManager.Instance?.UnlockCharacter(_recruitableAs);
         }
 
         private void SpawnDropItems()

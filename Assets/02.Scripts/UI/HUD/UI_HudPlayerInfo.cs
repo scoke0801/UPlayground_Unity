@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using AYellowpaper.SerializedCollections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +22,14 @@ public class UI_HudPlayerInfo : UI_Base
     [SerializeField] private float _hpFillSpeed         = 5.0f;
     [SerializeField] private float _skillFillSpeed      = 8.0f;
 
-    [SerializeField] private SerializedDictionary<CharacterActorType, Sprite> _actorIconDict;
+    [System.Serializable]
+    private struct CharacterIconEntry
+    {
+        public CharacterActorType type;
+        public Sprite icon;
+    }
+
+    [SerializeField] private CharacterIconEntry[] _actorIcons;
 
     private Coroutine _hpFillCoroutine;
     private Coroutine _skillGaugeCoroutine;
@@ -150,9 +156,14 @@ public class UI_HudPlayerInfo : UI_Base
             return;
         }
 
-        if (_actorIconDict.TryGetValue(player.CharacterType, out Sprite icon))
+        if (_actorIcons == null) return;
+        foreach (var entry in _actorIcons)
         {
-            _characterIcon.sprite = icon;
+            if (entry.type == player.CharacterType)
+            {
+                _characterIcon.sprite = entry.icon;
+                break;
+            }
         }
     }
 }

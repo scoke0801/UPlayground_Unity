@@ -32,6 +32,7 @@ namespace UPlayGround.Manager
 
         public event Action<PlayerActor, PlayerActor> OnSwapStarted;
         public event Action<PlayerActor>              OnSwapCompleted;
+        public event Action<CharacterActorType>       OnCharacterUnlocked;
 
         public PlayerActor               ActiveCharacter     => _player;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
@@ -154,6 +155,27 @@ namespace UPlayGround.Manager
 
             Debug.Log($"[PartyManager] 교체 → {targetType}{(isAssist ? " [어시스트]" : "")}");
             return true;
+        }
+
+        /// <summary>
+        /// 처치 보상으로 파티 슬롯을 개방한다.
+        /// 이미 파티에 있거나 PlayerSwapBehaviour에 모델이 없으면 무시.
+        /// </summary>
+        public void UnlockCharacter(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None)    return;
+            if (_partyOrder.Contains(type))         return;
+
+            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null || swap.GetModelData(type) == null)
+            {
+                Debug.LogWarning($"[PartyManager] UnlockCharacter: {type} 모델이 PlayerActor 하위에 없습니다.");
+                return;
+            }
+
+            _partyOrder.Add(type);
+            OnCharacterUnlocked?.Invoke(type);
+            Debug.Log($"[PartyManager] {type} 파티 합류!");
         }
 
         public bool CanSwap()

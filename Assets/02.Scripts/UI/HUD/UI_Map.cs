@@ -64,7 +64,7 @@ public class UI_Map : UI_Base
     [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
     [Tooltip("MapBackground 프리팹 sizeDelta와 일치시킬 것 (픽셀). 좌표 변환 기준값.")]
-    [SerializeField] private float _mapDisplaySize = 1000f;
+    [SerializeField] private Vector2 _mapDisplaySize = new(1000f, 1000f);
 
     [Header("줌")]
     [Tooltip("맵이 열릴 때 초기 줌 배율")]
@@ -238,7 +238,10 @@ public class UI_Map : UI_Base
         {
             _mapBackground.sprite  = _config.backgroundSprite;
             _mapBackground.enabled = true;
-            // sizeDelta는 코드에서 건드리지 않음 — 프리팹에서 설정한 크기 유지
+
+            RectTransform bgRect = _mapBackground.rectTransform;
+            float width = bgRect.rect.width > 0f ? bgRect.rect.width : _mapDisplaySize.x;
+            bgRect.sizeDelta = _config.GetMapDisplaySizeByHeight(width / _config.GetBackgroundAspect());
         }
         else
         {
@@ -246,7 +249,7 @@ public class UI_Map : UI_Base
         }
         
         // 프리팹 sizeDelta 기준으로 좌표 변환 크기를 동기화
-        _mapDisplaySize = _mapBackground.rectTransform.rect.width;
+        _mapDisplaySize = _mapBackground.rectTransform.rect.size;
     }
 
     private void SetupMarkers()
@@ -321,11 +324,12 @@ public class UI_Map : UI_Base
     {
         if (_mapViewport == null) return pos;
 
-        float mapHalf   = _mapDisplaySize * _currentZoom * 0.5f;
+        float mapHalfX  = _mapDisplaySize.x * _currentZoom * 0.5f;
+        float mapHalfY  = _mapDisplaySize.y * _currentZoom * 0.5f;
         float viewHalfX = _mapViewport.rect.width  * 0.5f;
         float viewHalfY = _mapViewport.rect.height * 0.5f;
-        float maxX = Mathf.Max(0f, mapHalf - viewHalfX);
-        float maxY = Mathf.Max(0f, mapHalf - viewHalfY);
+        float maxX = Mathf.Max(0f, mapHalfX - viewHalfX);
+        float maxY = Mathf.Max(0f, mapHalfY - viewHalfY);
 
         return new Vector2(Mathf.Clamp(pos.x, -maxX, maxX), Mathf.Clamp(pos.y, -maxY, maxY));
     }
@@ -585,12 +589,7 @@ public class UI_Map : UI_Base
     private Vector3 MapLocalPosToWorld(Vector2 localPoint)
     {
         Vector2 mapPos = localPoint / _currentZoom;
-        float   nx     = mapPos.x / _mapDisplaySize;
-        float   ny     = mapPos.y / _mapDisplaySize;
-        return new Vector3(
-            nx * _config.captureWorldSize + _config.captureCenter.x,
-            0f,
-            ny * _config.captureWorldSize + _config.captureCenter.y);
+        return _config.MapImagePosToWorld(mapPos, _mapDisplaySize);
     }
 
     // ── 이벤트 핸들러 ────────────────────────────────────────

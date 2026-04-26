@@ -61,6 +61,7 @@ public class UI_Minimap : UI_Base
     private bool      _isExpanded;
     private float     _currentMaskSize;
     private float     _currentMapZoom;
+    private Vector2   _contentOffset;
     private Coroutine _expandCoroutine;
 
     // 섹션 1: 적 아이콘
@@ -103,6 +104,7 @@ public class UI_Minimap : UI_Base
         _currentMapZoom  = _config.mapZoom;
         ApplyMaskSize(_currentMaskSize);
 
+        NormalizeRectTransforms();
         SetupMapBackground();
 
         // 씬에 이미 존재하는 액터 등록
@@ -239,6 +241,24 @@ public class UI_Minimap : UI_Base
             _minimapMask.sizeDelta = new Vector2(size, size);
     }
 
+    private void NormalizeRectTransforms()
+    {
+        SetupCenteredRect(_mapBackground != null ? _mapBackground.rectTransform : null);
+        SetupCenteredRect(_iconContainer);
+        SetupCenteredRect(_questContainer);
+        SetupCenteredRect(_playerIcon);
+    }
+
+    private static void SetupCenteredRect(RectTransform rect)
+    {
+        if (rect == null) return;
+
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot     = new Vector2(0.5f, 0.5f);
+        rect.localScale = Vector3.one;
+    }
+
     // ── 초기 설정 ────────────────────────────────────────────
 
     private void SetupMapBackground()
@@ -247,10 +267,7 @@ public class UI_Minimap : UI_Base
 
         if (_config.backgroundSprite != null)
         {
-            _mapBackground.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            _mapBackground.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _mapBackground.rectTransform.pivot     = new Vector2(0.5f, 0.5f);
-            _mapBackground.rectTransform.sizeDelta = new Vector2(_maskDisplaySize, _maskDisplaySize);
+            _mapBackground.rectTransform.sizeDelta = _config.GetMapDisplaySizeByHeight(_maskDisplaySize);
 
             _mapBackground.sprite  = _config.backgroundSprite;
             _mapBackground.enabled = true;
@@ -265,24 +282,21 @@ public class UI_Minimap : UI_Base
 
     private void UpdateContainerLayout()
     {
-        // 배경 이미지: captureCenter 기준 오프셋 (맵 이미지가 화면을 벗어나지 않도록 클램핑)
-        Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, _currentMaskSize);
-        Vector2 bgOffset     = -playerMapPos * _currentMapZoom;
-
-        float maxOffset = Mathf.Max(0f, _currentMaskSize * (_currentMapZoom - 1f) / 2f);
-        bgOffset.x = Mathf.Clamp(bgOffset.x, -maxOffset, maxOffset);
-        bgOffset.y = Mathf.Clamp(bgOffset.y, -maxOffset, maxOffset);
+        // HUD 미니맵은 플레이어를 항상 중심에 둔다.
+        Vector2 mapDisplaySize = GetCurrentMapDisplaySize();
+        Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, mapDisplaySize);
+        Vector2 bgOffset = -playerMapPos * _currentMapZoom;
+        _contentOffset = Vector2.zero;
 
         if (_mapBackground != null)
         {
-            _mapBackground.rectTransform.sizeDelta        = new Vector2(_currentMaskSize, _currentMaskSize);
+            _mapBackground.rectTransform.sizeDelta        = mapDisplaySize;
             _mapBackground.rectTransform.localScale       = Vector3.one * _currentMapZoom;
             _mapBackground.rectTransform.anchoredPosition = bgOffset;
         }
 
-        // 아이콘·퀘스트 컨테이너: 플레이어가 항상 원점이므로 오프셋 불필요
-        if (_iconContainer  != null) _iconContainer.anchoredPosition  = Vector2.zero;
-        if (_questContainer != null) _questContainer.anchoredPosition = Vector2.zero;
+        if (_iconContainer  != null) _iconContainer.anchoredPosition  = _contentOffset;
+        if (_questContainer != null) _questContainer.anchoredPosition = _contentOffset;
     }
 
     // ── 플레이어 아이콘 ──────────────────────────────────────
@@ -290,7 +304,7 @@ public class UI_Minimap : UI_Base
     private void UpdatePlayerIcon()
     {
         if (_playerIcon == null) return;
-        _playerIcon.anchoredPosition = Vector2.zero;
+        _playerIcon.anchoredPosition = _contentOffset;
         _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -_player.transform.eulerAngles.y);
     }
 
@@ -580,12 +594,20 @@ public class UI_Minimap : UI_Base
 
     // ── 좌표 변환 ────────────────────────────────────────────
 
-    /// <summary>월드 좌표 → 미니맵 컨테이너 내 픽셀 좌표 (플레이어 기준 상대 좌표, captureCenter 무관)</summary>
+    /// <summary>월드 좌표 → 미니맵 컨테이너 내 픽셀 좌표 (플레이어 기준 상대 좌표)</summary>
     private Vector2 CalcMinimapPos(Vector3 worldPos)
     {
-        float scale = _currentMaskSize * _currentMapZoom / _config.captureWorldSize;
-        Vector3 delta = worldPos - _player.transform.position;
-        return new Vector2(delta.x * scale, delta.z * scale);
+        Vector2 mapDisplaySize = GetCurrentMapDisplaySize();
+        Vector2 mapPos       = _config.WorldToMapImagePos(worldPos, mapDisplaySize);
+        Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, mapDisplaySize);
+        return (mapPos - playerMapPos) * _currentMapZoom;
+    }
+
+    private Vector2 GetCurrentMapDisplaySize()
+    {
+        return _config != null
+            ? _config.GetMapDisplaySizeByHeight(_currentMaskSize)
+            : new Vector2(_currentMaskSize, _currentMaskSize);
     }
 
     // ── 유틸 ─────────────────────────────────────────────────

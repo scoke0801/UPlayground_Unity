@@ -92,6 +92,16 @@ namespace UPlayGround.Data.UI
         [Range(0.5f, 100f)]
         public float mapZoom = 1f;
 
+        [Header("맵 이미지 좌표 보정")]
+        [Tooltip("배경 스프라이트가 월드 X축과 좌우 반대로 보일 때 사용")]
+        public bool flipX;
+
+        [Tooltip("배경 스프라이트가 월드 Z축과 상하 반대로 보일 때 사용")]
+        public bool flipY;
+
+        [Tooltip("배경 스프라이트가 월드 축과 어긋난 경우 중심 기준으로 회전 보정합니다.")]
+        public float rotationDegrees;
+
         // ── 확대 맵 모드 (M키 토글) ──────────────────────────────
         [Header("확대 맵 모드 (M키 토글)")]
         [Tooltip("확대 맵 시 마스크 크기 (픽셀)")]
@@ -112,10 +122,94 @@ namespace UPlayGround.Data.UI
         /// 월드 XZ 좌표를 미니맵 UI 픽셀 좌표로 변환합니다.
         /// </summary>
         public Vector2 WorldToMapImagePos(Vector3 worldPos, float minimapDisplaySize)
+            => WorldToMapImagePos(worldPos, new Vector2(minimapDisplaySize, minimapDisplaySize));
+
+        /// <summary>
+        /// 월드 XZ 좌표를 맵 이미지 UI 픽셀 좌표로 변환합니다.
+        /// </summary>
+        public Vector2 WorldToMapImagePos(Vector3 worldPos, Vector2 mapDisplaySize)
         {
-            float nx = (worldPos.x - captureCenter.x) / captureWorldSize;
-            float ny = (worldPos.z - captureCenter.y) / captureWorldSize;
-            return new Vector2(nx * minimapDisplaySize, ny * minimapDisplaySize);
+            Vector2 normalized = WorldToNormalizedMapPos(worldPos);
+            return Vector2.Scale(normalized, mapDisplaySize);
+        }
+
+        /// <summary>
+        /// 미니맵 UI 픽셀 좌표를 월드 XZ 좌표로 되돌립니다.
+        /// </summary>
+        public Vector3 MapImagePosToWorld(Vector2 mapImagePos, float minimapDisplaySize, float worldY = 0f)
+            => MapImagePosToWorld(mapImagePos, new Vector2(minimapDisplaySize, minimapDisplaySize), worldY);
+
+        /// <summary>
+        /// 맵 이미지 UI 픽셀 좌표를 월드 XZ 좌표로 되돌립니다.
+        /// </summary>
+        public Vector3 MapImagePosToWorld(Vector2 mapImagePos, Vector2 mapDisplaySize, float worldY = 0f)
+        {
+            Vector2 normalized = new(
+                Mathf.Abs(mapDisplaySize.x) > Mathf.Epsilon ? mapImagePos.x / mapDisplaySize.x : 0f,
+                Mathf.Abs(mapDisplaySize.y) > Mathf.Epsilon ? mapImagePos.y / mapDisplaySize.y : 0f);
+            Vector2 worldXZ = NormalizedMapPosToWorld(normalized);
+            return new Vector3(worldXZ.x, worldY, worldXZ.y);
+        }
+
+        public float GetBackgroundAspect()
+        {
+            if (backgroundSprite == null || backgroundSprite.rect.height <= Mathf.Epsilon)
+                return 1f;
+
+            return backgroundSprite.rect.width / backgroundSprite.rect.height;
+        }
+
+        public Vector2 GetMapDisplaySizeByHeight(float displayHeight)
+            => new(displayHeight * GetBackgroundAspect(), displayHeight);
+
+        private Vector2 WorldToNormalizedMapPos(Vector3 worldPos)
+        {
+            Vector2 safeWorldSize = GetCaptureWorldSize();
+            Vector2 normalized = new(
+                (worldPos.x - captureCenter.x) / safeWorldSize.x,
+                (worldPos.z - captureCenter.y) / safeWorldSize.y);
+
+            normalized = ApplyAxisFlip(normalized);
+            return Rotate(normalized, rotationDegrees);
+        }
+
+        private Vector2 NormalizedMapPosToWorld(Vector2 normalized)
+        {
+            Vector2 safeWorldSize = GetCaptureWorldSize();
+
+            normalized = Rotate(normalized, -rotationDegrees);
+            normalized = ApplyAxisFlip(normalized);
+
+            return new Vector2(
+                normalized.x * safeWorldSize.x + captureCenter.x,
+                normalized.y * safeWorldSize.y + captureCenter.y);
+        }
+
+        private Vector2 GetCaptureWorldSize()
+        {
+            float size = Mathf.Max(Mathf.Abs(captureWorldSize), Mathf.Epsilon);
+            return new Vector2(size, size);
+        }
+
+        private Vector2 ApplyAxisFlip(Vector2 value)
+        {
+            if (flipX) value.x = -value.x;
+            if (flipY) value.y = -value.y;
+            return value;
+        }
+
+        private static Vector2 Rotate(Vector2 value, float degrees)
+        {
+            if (Mathf.Abs(degrees) <= Mathf.Epsilon)
+                return value;
+
+            float radians = degrees * Mathf.Deg2Rad;
+            float sin = Mathf.Sin(radians);
+            float cos = Mathf.Cos(radians);
+
+            return new Vector2(
+                value.x * cos - value.y * sin,
+                value.x * sin + value.y * cos);
         }
 
         // ── 아이콘 조회 ──────────────────────────────────────────

@@ -308,6 +308,7 @@ Assets/
 | [MINIMAP_SYSTEM_GUIDE.md](MINIMAP_SYSTEM_GUIDE.md) | 미니맵 시스템 — 플레이어·적·퀘스트 마커 표시, 씬 캡처 에디터 |
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
+| [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 
 ---
 

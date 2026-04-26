@@ -174,8 +174,14 @@ namespace UPlayGround
         
         public void SetHealth(float health)
         {
+            bool wasAlive = IsAlive();
             _currentHealth = Mathf.Clamp(health, 0f, _maxHealth);
-            if (_currentHealth <= 0 && IsAlive())
+
+            if (_uiHpBar == null) AttachHpUI();
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            _brain?.UpdatePhase(GetHealthPercent());
+
+            if (wasAlive && _currentHealth <= 0f)
                 OnDeath(null);
         }
         

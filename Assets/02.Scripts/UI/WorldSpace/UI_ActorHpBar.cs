@@ -168,7 +168,8 @@ public class UI_ActorHpBar : MonoBehaviour
         _targetHpFill = Mathf.Clamp01(current / max);
         _fillHpImage.fillAmount = _targetHpFill;
 
-        _textHp.text = $"{(int)current}/{(int)max}";
+        int displayCurrent = current > 0f ? Mathf.CeilToInt(current) : 0;
+        _textHp.text = $"{displayCurrent}/{Mathf.CeilToInt(max)}";
         
         _lastDisplayedTime = Time.time;
     }

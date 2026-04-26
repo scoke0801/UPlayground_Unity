@@ -88,12 +88,10 @@ namespace UPlayGround
         {
             Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
             MovementController = GetComponent<ActorMovementController>();
-            _animator = GetComponent<ActorAnimator>();
+            _animator = GetComponentInChildren<ActorAnimator>();
             if (_animator != null)
-            {
                 _animator.Init(this);
-            }
-
+            
             _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
             _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
             
@@ -101,6 +99,7 @@ namespace UPlayGround
             GameObjectManager.Instance?.RegisterActor(this);
         }
 
+        
         protected virtual void OnDestroy()
         {
             // 매니저에서 제거

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaed2788113ac845b3df18c68f6854a, type: 3}
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
-  partyOrder: 0100000005000000
+  partyOrder: 010000000500000004000000
   startActiveIndex: 0

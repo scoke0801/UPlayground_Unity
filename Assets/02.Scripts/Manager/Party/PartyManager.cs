@@ -4,95 +4,91 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UPlayGround.Component;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
-using UPlayGround.Dialogue;
 using UPlayGround.InputDefine;
 
 namespace UPlayGround.Manager
 {
     /// <summary>
-    /// 파티 캐릭터 교체 시스템 매니저.
-    /// 씬 참조 없이 Resources/Data/PartyConfig.asset 의 SO 데이터와
-    /// FindObjectsByType 으로 파티를 구성한다.
+    /// 파티 캐릭터 교체 시스템 매니저 (단일 PlayerActor + Model 교체 방식).
     ///
     /// 교체 규칙
-    /// - 쿨다운 중에도 입력 버퍼에 보관했다가 쿨다운 해제 즉시 실행
-    /// - 대기 캐릭터 HP 0 이면 교체 불가 (부활 없음)
+    /// - 쿨다운 중 입력 버퍼에 보관, 쿨다운 해제 즉시 실행
+    /// - 대기 캐릭터 HP 0이면 교체 불가
     /// - Death / Grabbed 상태에서는 교체 불가
     /// - 교체 어시스트: PerfectDodgeWindow 중 교체 성공 시 incoming 캐릭터 공격 자동 발동
     /// </summary>
     public class PartyManager : BaseManager<PartyManager>, IManager
     {
-        private PartyConfigSO     _config;
-        private List<PlayerActor> _partyMembers = new();
-        private int               _activeIndex  = 0;
-        private float             _lastSwapTime = -999f;
-        private bool              _isSwapping   = false;
+        private PartyConfigSO          _config;
+        private PlayerActor            _player;
+        private List<CharacterActorType> _partyOrder = new();
+        private int                    _activeIndex  = 0;
+        private float                  _lastSwapTime = -999f;
+        private bool                   _isSwapping   = false;
 
         [SerializeField] private float _swapCooldown = 0.5f;
 
         public event Action<PlayerActor, PlayerActor> OnSwapStarted;
         public event Action<PlayerActor>              OnSwapCompleted;
 
-        public PlayerActor                ActiveCharacter => _partyMembers.Count > 0 ? _partyMembers[_activeIndex] : null;
-        public int                        ActiveIndex     => _activeIndex;
-        public IReadOnlyList<PlayerActor> PartyMembers    => _partyMembers;
+        public PlayerActor               ActiveCharacter     => _player;
+        public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
+        public int                       ActiveIndex         => _activeIndex;
+        public IReadOnlyList<CharacterActorType> PartyOrder  => _partyOrder;
 
         private const string AddressableKey = "PartyConfig";
+
         // ─── IManager 구현 ────────────────────────────────────────────────
 
         public void Init()
         {
             LoadConfigSO();
-            
             RegisterSwapInputs();
         }
-        
+
         private async void LoadConfigSO()
         {
             try
             {
                 var handle = Addressables.LoadAssetAsync<PartyConfigSO>(AddressableKey);
-
-                try
-                {
-                    _config = await handle.Task;
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[PartyManager] ConfigSO 로드 실패: {e.Message}");
-                }
+                _config = await handle.Task;
             }
             catch (Exception e)
             {
-                throw; // TODO 예외 처리
+                Debug.LogError($"[PartyManager] ConfigSO 로드 실패: {e.Message}");
             }
         }
+
         public void AfterInit()
         {
             BuildPartyFromScene();
 
-            if (_partyMembers.Count == 0)
+            if (_player == null)
             {
-                Debug.LogWarning("[PartyManager] 파티에 포함할 PlayerActor가 씬에 없습니다.");
+                Debug.LogWarning("[PartyManager] 씬에 PlayerActor가 없습니다.");
+                return;
+            }
+
+            if (_partyOrder.Count == 0)
+            {
+                Debug.LogWarning("[PartyManager] 파티 순서가 비어있습니다.");
                 return;
             }
 
             InitializePartyStates();
             NotifyActivePlayerChanged();
 
-            Debug.Log($"[PartyManager] 파티 구성 완료: {_partyMembers.Count}명, 활성={ActiveCharacter?.name}");
+            Debug.Log($"[PartyManager] 파티 구성 완료: {_partyOrder.Count}명, 활성={ActiveCharacterType}");
         }
 
         public void Dispose()
         {
             UnregisterSwapInputs();
-            _partyMembers.Clear();
+            _partyOrder.Clear();
         }
 
-        /// <summary>
-        /// 매 프레임: 쿨다운 중 눌렸던 교체 입력을 버퍼에서 재시도한다.
-        /// </summary>
         public void OnUpdate()
         {
             if (!CanSwap()) return;
@@ -113,7 +109,7 @@ namespace UPlayGround.Manager
         public void OnSceneChanged(string sceneType)
         {
             BuildPartyFromScene();
-            if (_partyMembers.Count > 0)
+            if (_player != null && _partyOrder.Count > 0)
             {
                 InitializePartyStates();
                 NotifyActivePlayerChanged();
@@ -122,43 +118,41 @@ namespace UPlayGround.Manager
 
         // ─── 교체 요청 ────────────────────────────────────────────────────
 
-        public bool RequestSwapNext() => RequestSwapTo((_activeIndex + 1) % _partyMembers.Count);
-       
+        public bool RequestSwapNext() => RequestSwapTo((_activeIndex + 1) % _partyOrder.Count);
+
         public bool RequestSwapTo(int targetIndex)
         {
-            if (!CanSwap())                                             return false;
-            if (targetIndex == _activeIndex)                            return false;
-            if (targetIndex < 0 || targetIndex >= _partyMembers.Count) return false;
+            if (!CanSwap())                                            return false;
+            if (targetIndex == _activeIndex)                           return false;
+            if (targetIndex < 0 || targetIndex >= _partyOrder.Count)  return false;
 
-            var incoming = _partyMembers[targetIndex];
-            if (incoming == null)                    return false;
-            if (incoming.CurrentHealth <= 0f)        return false;  // HP 0: 부활 없음, 교체 불가
+            var targetType = _partyOrder[targetIndex];
 
-            var outgoing = _partyMembers[_activeIndex];
+            if (_player.GetHealthForCharacter(targetType) <= 0f)      return false;
 
-            // 어시스트 조건: 교체 시점에 PerfectDodgeWindow 가 열려 있으면 카운터 발동
-            bool isAssist = outgoing.GetCombat()?.IsPerfectDodgeWindow == true;
+            bool isAssist = _player.GetCombat()?.IsPerfectDodgeWindow == true;
 
             _isSwapping = true;
-            OnSwapStarted?.Invoke(outgoing, incoming);
+            OnSwapStarted?.Invoke(_player, _player);
 
-            Vector3    pos = outgoing.transform.position;
-            Quaternion rot = outgoing.transform.rotation;
-
-            outgoing.GetComponent<PlayerSwapBehaviour>()?.EnterStandby();
-            incoming.GetComponent<PlayerSwapBehaviour>()?.EnterActive(pos, rot);
+            var swap = _player.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null || !swap.SwapTo(targetType))
+            {
+                _isSwapping = false;
+                return false;
+            }
 
             if (isAssist)
-                incoming.QueueSwapAssist();
+                _player.QueueSwapAssist();
 
             _activeIndex  = targetIndex;
             _lastSwapTime = Time.time;
             _isSwapping   = false;
 
             NotifyActivePlayerChanged();
-            OnSwapCompleted?.Invoke(incoming);
+            OnSwapCompleted?.Invoke(_player);
 
-            Debug.Log($"[PartyManager] 교체: {outgoing.name} → {incoming.name}{(isAssist ? " [어시스트]" : "")}");
+            Debug.Log($"[PartyManager] 교체 → {targetType}{(isAssist ? " [어시스트]" : "")}");
             return true;
         }
 
@@ -166,9 +160,9 @@ namespace UPlayGround.Manager
         {
             if (_isSwapping)                                return false;
             if (Time.time - _lastSwapTime < _swapCooldown) return false;
-            if (_partyMembers.Count < 2)                   return false;
+            if (_partyOrder.Count < 2)                     return false;
 
-            var state = ActiveCharacter?.PlayerController?.CurrentState?.StateName;
+            var state = _player?.PlayerController?.CurrentState?.StateName;
             if (state == "Death")   return false;
             if (state == "Grabbed") return false;
 
@@ -179,59 +173,45 @@ namespace UPlayGround.Manager
 
         private void BuildPartyFromScene()
         {
-            var allActors = UnityEngine.Object.FindObjectsByType<PlayerActor>(FindObjectsSortMode.None);
-            _partyMembers.Clear();
+            _player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
+            _partyOrder.Clear();
 
             if (_config != null && _config.partyOrder.Count > 0)
             {
-                foreach (var type in _config.partyOrder)
-                {
-                    PlayerActor found = null;
-                    foreach (var actor in allActors)
-                    {
-                        if (actor.CharacterType == type) { found = actor; break; }
-                    }
-
-                    if (found != null)
-                        _partyMembers.Add(found);
-                    else
-                        Debug.LogWarning($"[PartyManager] CharacterType={type} 인 PlayerActor를 씬에서 찾을 수 없습니다.");
-                }
-
-                _activeIndex = Mathf.Clamp(_config.startActiveIndex, 0, Mathf.Max(0, _partyMembers.Count - 1));
+                _partyOrder.AddRange(_config.partyOrder);
+                _activeIndex = Mathf.Clamp(_config.startActiveIndex, 0, _partyOrder.Count - 1);
+                return;
             }
-            else
+
+            // SO 없으면 PlayerSwapBehaviour에서 폴백
+            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
+            if (swap != null)
             {
-                _partyMembers.AddRange(allActors);
+                _partyOrder = swap.GetAllCharacterTypes();
                 _activeIndex = 0;
             }
         }
 
         private void InitializePartyStates()
         {
-            for (int i = 0; i < _partyMembers.Count; i++)
+            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null)
             {
-                var member = _partyMembers[i];
-                if (member == null) continue;
-
-                var swap = member.GetComponent<PlayerSwapBehaviour>();
-                if (swap == null)
-                {
-                    Debug.LogWarning($"[PartyManager] {member.name} 에 PlayerSwapBehaviour 가 없습니다.");
-                    continue;
-                }
-
-                if (i == _activeIndex)
-                    swap.EnterActive(member.transform.position, member.transform.rotation);
-                else
-                    swap.EnterStandby();
+                Debug.LogWarning("[PartyManager] PlayerActor에 PlayerSwapBehaviour가 없습니다.");
+                return;
             }
+
+            var initialType = _partyOrder.Count > _activeIndex
+                ? _partyOrder[_activeIndex]
+                : _partyOrder[0];
+
+            swap.InitializeTo(initialType);
         }
 
         private void NotifyActivePlayerChanged()
         {
-            GameObjectManager.Instance?.SetActivePartyPlayer(ActiveCharacter);
-            CameraManager.Instance?.SetTarget(ActiveCharacter?.transform);
+            GameObjectManager.Instance?.SetActivePartyPlayer(_player);
+            CameraManager.Instance?.SetTarget(_player?.transform);
         }
 
         // ─── 입력 등록 ────────────────────────────────────────────────────
@@ -257,7 +237,6 @@ namespace UPlayGround.Manager
 
         private void OnPlayerSwapPerformed(InputAction.CallbackContext ctx)
         {
-            // 즉시 실행 시도: 성공하면 버퍼에서 제거, 실패하면 OnUpdate()에서 재시도
             if (RequestSwapNext())
                 InputManager.Instance?.InputBuffer.ConsumeInput(PlayerAction.PlayerSwap);
         }

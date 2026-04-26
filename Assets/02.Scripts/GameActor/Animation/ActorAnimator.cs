@@ -14,7 +14,7 @@ namespace UPlayGround.Animation
         [Header("Actor Setting")]
         [SerializeField] private ActorAnimationMotionSet _motionSet;
 
-        [SerializeField] private AvatarMask _upperBodyMask;
+        [SerializeField] protected AvatarMask _upperBodyMask;
         
         [Header("SubAnimator Setting")]
         [Tooltip("애니메이션에 종속적으로 실행되는 애니메이터, 무기 등")]
@@ -79,17 +79,26 @@ namespace UPlayGround.Animation
 
         private void Awake()
         {
-            _animator = GetComponent<AnimancerComponent>();
+            _animator      = GetComponentInChildren<AnimancerComponent>();
             _eventExecutor = GetComponent<MotionEventExecutor>();
 
-            _animator.Layers[0].ApplyFootIK = true;
-            _animator.Layers[0].ApplyAnimatorIK = true;
+            if (_animator != null)
+                ApplyAnimancerSetup(_animator);
+        }
+
+        /// <summary>
+        /// AnimancerComponent에 공통 레이어 설정을 적용한다.
+        /// 모델 교체 시 새 AnimancerComponent에도 재호출된다.
+        /// </summary>
+        protected void ApplyAnimancerSetup(AnimancerComponent animancer)
+        {
+            animancer.Layers[0].ApplyFootIK    = true;
+            animancer.Layers[0].ApplyAnimatorIK = true;
 
             if (_upperBodyMask != null)
-            {
-                _animator.Layers.SetMask(1, _upperBodyMask);
-            }
+                animancer.Layers.SetMask(1, _upperBodyMask);
         }
+
 
         public virtual void Init(GameActor actor)
         {

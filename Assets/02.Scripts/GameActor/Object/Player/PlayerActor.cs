@@ -29,6 +29,10 @@ namespace UPlayGround
         [SerializeField] private float _currentHealth = 100f;
         [SerializeField] private bool  _isInvincible  = false;
 
+        // 교체 시 캐릭터별 체력·스킬 게이지 저장소
+        private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
+        private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
+
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
         [SerializeField] private PlayerSkillGauge _skillGauge;
@@ -106,12 +110,6 @@ namespace UPlayGround
             _playerActorAnimator           = _animator as PlayerActorAnimator;
 
             InitComponents();
-
-            switch (_characterActorType)
-            {
-                case CharacterActorType.Bokusei: _equipment?.SetWeaponType(WeaponType.Katana);    break;
-                case CharacterActorType.Honoka:  _equipment?.SetWeaponType(WeaponType.DoubleAxe); break;
-            }
         }
 
         private void OnEnable()
@@ -353,12 +351,89 @@ namespace UPlayGround
         public PlayerEquipment GetPlayerEquipment() => _equipment;
         public PlayerCombat    GetCombat()          => _combat;
 
+        /// <summary>
+        /// 모델 교체 시 PlayerSwapBehaviour가 호출.
+        /// 이전 캐릭터 상태를 저장하고 새 캐릭터 데이터로 컴포넌트를 일괄 갱신한다.
+        /// </summary>
+        public void RefreshForCharacter(CharacterModelData data)
+        {
+            // 현재 캐릭터 상태 저장 (최초 호출 시에는 None이므로 스킵)
+            if (_characterActorType != CharacterActorType.None)
+            {
+                _characterHealthMap[_characterActorType] = _currentHealth;
+                _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
+            }
+
+            _characterActorType = data.characterType;
+
+            // 체력 복원 (처음 등장 시 최대치)
+            _maxHealth     = data.maxHealth;
+            _currentHealth = _characterHealthMap.TryGetValue(data.characterType, out var hp)
+                             ? hp : data.maxHealth;
+
+            // 스킬 게이지 복원
+            _skillGauge.SetGauge(
+                _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
+
+            // 활성 Model의 컴포넌트 참조 갱신
+            _animator            = GetComponentInChildren<ActorAnimator>();
+            
+            _playerActorAnimator = _animator as PlayerActorAnimator;
+            _equipment           = GetComponentInChildren<PlayerEquipment>();
+
+            if(_characterActorType == CharacterActorType.Bokusei)
+                _equipment.SetWeaponType(WeaponType.Katana);
+            else
+            {
+                _equipment.SetWeaponType(WeaponType.NoWeapon);
+            }
+            
+            // 애니메이터에 Actor 재주입 (PlayerEquipment 참조 포함)
+            _playerActorAnimator?.Init(this);
+
+            // 전투 컴포넌트 참조 갱신 + 공격 데이터 교체
+            _combat.RefreshComponentReferences();
+            _combat.RefreshAttackData(data.attackData);
+
+            // 소켓
+            RefreshSockets(data);
+
+            // 비주얼 효과 컴포넌트 재초기화
+            _colorChanger.InitializeRendererData();
+            _dissolveController.RefreshRenderers();
+
+            // Foot IK
+            _footIK.Refresh(data.AnimancerComponent?.Animator);
+
+            // 새 AnimancerComponent에 즉시 애니메이션 적용: Idle로 강제 전환
+            PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
+
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        private void RefreshSockets(CharacterModelData data)
+        {
+            if (data.RightHandSocket != null) _socketDict[ActorSocketType.RightHand] = data.RightHandSocket;
+            if (data.LeftHandSocket  != null) _socketDict[ActorSocketType.LeftHand]  = data.LeftHandSocket;
+            if (data.CenterSocket    != null) _socketDict[ActorSocketType.Center]    = data.CenterSocket;
+            if (data.HeadSocket      != null) _socketDict[ActorSocketType.Head]      = data.HeadSocket;
+        }
+
+        /// <summary>
+        /// 지정 캐릭터의 현재 체력 반환. 한 번도 활성화된 적 없으면 1f(살아있음) 반환.
+        /// </summary>
+        public float GetHealthForCharacter(CharacterActorType type)
+        {
+            if (type == _characterActorType) return _currentHealth;
+            return _characterHealthMap.TryGetValue(type, out var hp) ? hp : 1f;
+        }
+
         private void InitComponents()
         {
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
-            if (_equipment  == null) _equipment  = GetComponent<PlayerEquipment>();
+            if (_equipment  == null) _equipment  = GetComponentInChildren<PlayerEquipment>();
             if (_skillGauge == null) _skillGauge = GetComponent<PlayerSkillGauge>();
-            if (_footIK    == null) _footIK    = GetComponent<FootIKController>();
+            if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);

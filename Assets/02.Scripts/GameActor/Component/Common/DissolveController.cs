@@ -87,7 +87,19 @@ namespace UPlayGround.Component
             }
         }
         
-        public void RefreshRenderers() => InitializeRendererData();
+        /// <summary>
+        /// 모델 교체 시 호출. 기존 인스턴스 머티리얼을 해제하고 새 Model의 렌더러로 재초기화한다.
+        /// </summary>
+        public void RefreshRenderers()
+        {
+            StopAllCoroutines();
+
+            foreach (var mat in _instancedMaterials)
+                if (mat != null) Destroy(mat);
+            _instancedMaterials.Clear();
+
+            InitializeRendererData();
+        }
         
         public void StartDissolve(float duration)
         {

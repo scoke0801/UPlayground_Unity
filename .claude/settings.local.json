@@ -41,7 +41,8 @@
       "Bash(env)",
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(python -c ' *)",
-      "Bash(xargs wc *)"
+      "Bash(xargs wc *)",
+      "Bash(git *)"
     ]
   }
 }

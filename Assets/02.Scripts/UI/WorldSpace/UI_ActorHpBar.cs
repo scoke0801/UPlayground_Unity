@@ -20,7 +20,7 @@ public class UI_ActorHpBar : MonoBehaviour
     [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 1.2f, 0f);
 
     [SerializeField] private float _displayTime = 5f;
-    
+
     private EnemyDetection _detection;
     private Transform _target;
     private Transform _headSocket;         // 소켓 우선, 없으면 _worldOffset 사용

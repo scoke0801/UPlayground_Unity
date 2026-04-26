@@ -77,34 +77,30 @@ namespace UPlayGround.Component
         {
             _mainWeaponType = type;
         }
-        
+
+        private void OnEnable()
+        {
+            if (EventManager.Instance == null) return;
+            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
+            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
+        }
+
+        private void OnDisable()
+        {
+            if (EventManager.Instance == null) return;
+            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
+            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
+        }
+
         private void Start()
         {
-            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
-                PlayerEvent.ChangeWeapon, 
-                OnWeaponChanged
-            );
-            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
-                PlayerEvent.EquipItem, 
-                OnEquipItem
-            );
             InitPartLibrary();
-
             StartCoroutine(CoEquipStartItem());
         }
+
         private void OnDestroy()
         {
-            if (EventManager.Instance == null)
-                return;
-            
-            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
-                PlayerEvent.ChangeWeapon, 
-                OnWeaponChanged
-            );
-            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
-                PlayerEvent.EquipItem, 
-                OnEquipItem
-            );
+            // OnDisable에서 이미 해제되므로 추가 처리 불필요
         }
 
         public int GetActiveEquipment(EquipArmorType type)

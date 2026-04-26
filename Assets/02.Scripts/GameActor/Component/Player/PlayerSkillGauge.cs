@@ -112,5 +112,14 @@ namespace UPlayGround.Component
             _currentGauge = Mathf.Min(_currentGauge + amount, _maxGauge);
             OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
         }
+
+        /// <summary>
+        /// 캐릭터 교체 복원 시 게이지 값을 직접 설정한다.
+        /// </summary>
+        public void SetGauge(float value)
+        {
+            _currentGauge = Mathf.Clamp(value, 0f, _maxGauge);
+            OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+        }
     }
 }

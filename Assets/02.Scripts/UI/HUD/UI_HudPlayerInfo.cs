@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
+using AYellowpaper.SerializedCollections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 public class UI_HudPlayerInfo : UI_Base
@@ -21,6 +22,8 @@ public class UI_HudPlayerInfo : UI_Base
     [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
     [SerializeField] private float _hpFillSpeed         = 5.0f;
     [SerializeField] private float _skillFillSpeed      = 8.0f;
+
+    [SerializeField] private SerializedDictionary<CharacterActorType, Sprite> _actorIconDict;
 
     private Coroutine _hpFillCoroutine;
     private Coroutine _skillGaugeCoroutine;
@@ -51,6 +54,12 @@ public class UI_HudPlayerInfo : UI_Base
         float cur = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
         float max = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
         SetSkillGauge(cur, max);
+        
+        var partyManager = PartyManager.Instance;
+        if (partyManager != null)
+        {
+            partyManager.OnSwapCompleted += OnPlayerSwapCompleted;
+        }
     }
 
     protected override void OnHide()
@@ -58,6 +67,12 @@ public class UI_HudPlayerInfo : UI_Base
         if (_playerActor == null) return;
         _playerActor.OnHpChanged         -= SetHp;
         _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+        
+        var partyManager = PartyManager.Instance;
+        if (partyManager != null)
+        {
+            partyManager.OnSwapCompleted -= OnPlayerSwapCompleted;
+        }
     }
 
     protected override void OnClose() { }
@@ -126,6 +141,19 @@ public class UI_HudPlayerInfo : UI_Base
         }
 
         _skillGuageFill.fillAmount = _skillTargetRatio;
+    }
+
+    private void OnPlayerSwapCompleted(PlayerActor player)
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        if (_actorIconDict.TryGetValue(player.CharacterType, out Sprite icon))
+        {
+            _characterIcon.sprite = icon;
+        }
     }
 }
 

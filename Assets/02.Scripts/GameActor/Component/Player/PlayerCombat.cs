@@ -203,11 +203,21 @@ namespace UPlayGround.Component
         
         private void Awake()
         {
-            if (_equipment == null)
-                _equipment = GetComponent<PlayerEquipment>();
-            if (_actorAnimator == null)
-                _actorAnimator = GetComponent<ActorAnimator>();
-            _playerActor = GetComponent<PlayerActor>();
+            _playerActor   = GetComponent<PlayerActor>();
+            // PlayerEquipment / ActorAnimator는 Model 하위에 있으므로 GetComponentInChildren 사용.
+            // 최초에는 인스펙터 직렬화 값이 있으면 유지, 없으면 자동 탐색한다.
+            if (_equipment     == null) _equipment     = GetComponentInChildren<PlayerEquipment>();
+            if (_actorAnimator == null) _actorAnimator = GetComponentInChildren<ActorAnimator>();
+        }
+
+        /// <summary>
+        /// 캐릭터 교체 시 PlayerActor.RefreshForCharacter에서 호출.
+        /// 활성 Model의 PlayerEquipment / ActorAnimator를 재탐색한다.
+        /// </summary>
+        public void RefreshComponentReferences()
+        {
+            _equipment     = GetComponentInChildren<PlayerEquipment>();
+            _actorAnimator = GetComponentInChildren<ActorAnimator>();
         }
 
         private void Update()
@@ -747,6 +757,15 @@ namespace UPlayGround.Component
 
         public void OpenComboWindow()  => CanCombo = true;
         public void CloseComboWindow() => CanCombo = false;
+
+        /// <summary>
+        /// 캐릭터 교체 시 공격 데이터 SO를 교체하고 콤보를 초기화한다.
+        /// </summary>
+        public void RefreshAttackData(PlayerAttackDataSO newData)
+        {
+            _attackData = newData;
+            ResetCombo();
+        }
 
         public void ResetCombo()
         {

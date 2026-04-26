@@ -131,6 +131,37 @@ namespace UPlayGround.Component
                 animancer.Layers[0].ApplyFootIK = false;
         }
 
+        /// <summary>
+        /// 모델 교체 시 호출. 이전 Relay를 정리하고 새 Animator에 Relay를 재등록한다.
+        /// </summary>
+        public void Refresh(Animator newAnimator)
+        {
+            if (newAnimator == null)
+            {
+                enabled = false;
+                return;
+            }
+
+            // 기존 Relay 소유권 해제
+            if (_animator != null && _animator.gameObject != gameObject)
+            {
+                var oldRelay = _animator.gameObject.GetComponent<FootIKRelay>();
+                if (oldRelay != null) oldRelay.Owner = null;
+            }
+
+            _animator     = newAnimator;
+            _initialized  = false;
+
+            if (_animator.gameObject != gameObject)
+            {
+                var relay = _animator.gameObject.GetComponent<FootIKRelay>();
+                if (relay == null) relay = _animator.gameObject.AddComponent<FootIKRelay>();
+                relay.Owner = this;
+            }
+
+            enabled = true;
+        }
+
         private void OnAnimatorIK(int layerIndex) => ProcessFootIK();
 
         internal void ProcessFootIK()

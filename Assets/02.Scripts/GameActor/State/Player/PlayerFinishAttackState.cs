@@ -52,6 +52,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _combat = playerActor.GetCombat();
+            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _stateTimer = 0f;
             _combat.SetupFinishAttackData();
 

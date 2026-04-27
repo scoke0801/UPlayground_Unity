@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Animations;
+using UPlayGround.Animation;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -18,24 +20,6 @@ namespace UPlayGround.Component
     /// </summary>
     public class PlayerEquipment : PlayerActorComponent
     {
-        [Header("Sword")]
-        [SerializeField]  private ParentConstraint swordConstraint;
-        
-        [Header("Shield")]
-        [SerializeField]  private ParentConstraint shieldLeftConstraint;
-        
-        [Header("GreatSword")]
-        [SerializeField]  private ParentConstraint greatSwordRightConstraint;
-
-        [Header("Staff")]
-        [SerializeField]  private ParentConstraint staffRightConstraint;
-
-        [Header("Bow")]
-        [SerializeField]  private ParentConstraint bowRightConstraint;
-        
-        [Header("Arrow")]
-        [SerializeField]  private ParentConstraint arrowLeftConstraint;
-        
         [Header("underwear")]
         [SerializeField] private GameObject _underwear_chest;
 
@@ -47,6 +31,11 @@ namespace UPlayGround.Component
         
         private ParentConstraint _subWeaponConstraint = null;
         private ParentConstraint _mainWeaponConstraint = null;
+        private bool? _requestedMainWeaponDrawn = null;
+        private bool? _requestedSubWeaponDrawn = null;
+        private int _mainWeaponDrawRequestVersion = 0;
+        private readonly List<ParentConstraint> _weaponConstraints = new List<ParentConstraint>();
+        private Transform _weaponRoot;
 
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
@@ -75,7 +64,7 @@ namespace UPlayGround.Component
         // [TODO] 테스트 기능
         public void SetWeaponType(WeaponType type)
         {
-            _mainWeaponType = type;
+            SetRightWeaponType(type);
         }
 
         private void OnEnable()
@@ -94,6 +83,7 @@ namespace UPlayGround.Component
 
         private void Start()
         {
+            RefreshWeaponConstraintsFromModel();
             InitPartLibrary();
             StartCoroutine(CoEquipStartItem());
         }
@@ -247,10 +237,27 @@ namespace UPlayGround.Component
             
             if (newWeapon != null)
             {
-                // 1. 부모 설정: swordConstraint가 붙은 오브젝트의 자식으로 설정
+                if (constraint == null)
+                {
+                    Debug.LogWarning($"[PlayerEquipment] {equipPosition}/{weaponType}에 매핑된 ParentConstraint가 없습니다.");
+                    Destroy(newWeapon);
+                    if (equipPosition == EquipPosition.LeftHand)
+                    {
+                        _currentSubWeaponObj = null;
+                        SubWeaponKey = -1;
+                    }
+                    else if (equipPosition == EquipPosition.RightHand)
+                    {
+                        _currentMainWeaponObj = null;
+                        MainWeaponKey = -1;
+                    }
+                    return;
+                }
+
+                // 1. 부모 설정: constraint가 붙은 오브젝트의 자식으로 설정
                 newWeapon.transform.SetParent(constraint.transform, false);
 
-                // 2. 위치 및 회전 초기화: 부모 오브젝트(Sword)의 위치에 딱 맞게 정렬
+                // 2. 위치 및 회전 초기화: 부모 오브젝트의 위치에 맞게 정렬
                 newWeapon.transform.localPosition = Vector3.zero;
                 //newWeapon.transform.localRotation = Quaternion.identity;
                 //newWeapon.transform.localScale = Vector3.one; // 크기도 1,1,1로 초기화 (필요시)
@@ -258,90 +265,259 @@ namespace UPlayGround.Component
         }
         public void SetRightWeaponType(WeaponType type)
         {
+            if (_weaponConstraints.Count == 0)
+                RefreshWeaponConstraintsFromModel();
+
             _mainWeaponType = type;
-            switch (type)
-            {
-                case WeaponType.Sword: _mainWeaponConstraint = swordConstraint; break;
-                case WeaponType.GreatSword: _mainWeaponConstraint = greatSwordRightConstraint; break;
-                case WeaponType.Staff: _mainWeaponConstraint = staffRightConstraint; break;
-                case WeaponType.Bow: _mainWeaponConstraint = bowRightConstraint; break;
-            }
+            _mainWeaponConstraint = GetWeaponConstraint(EquipPosition.RightHand, type);
         }
 
         public void SetLeftWeaponType(WeaponType type)
         {
-            switch (type)
-            {
-                case WeaponType.Shield: _subWeaponConstraint = shieldLeftConstraint; break;
-                case WeaponType.Arrow: _subWeaponConstraint = arrowLeftConstraint; break;
-                default:
-                    _subWeaponType = WeaponType.NoWeapon;
-                    return;
-            }
+            if (_weaponConstraints.Count == 0)
+                RefreshWeaponConstraintsFromModel();
 
             _subWeaponType = type;
+            _subWeaponConstraint = GetWeaponConstraint(EquipPosition.LeftHand, type);
         }
-        // 애니메이션 이벤트 콜백
-        private void OnEquipRightWeapon()
+
+        public void RefreshWeaponConstraintsFromModel()
         {
-            if (_mainWeaponConstraint == null)
+            _weaponConstraints.Clear();
+            _mainWeaponConstraint = null;
+            _subWeaponConstraint = null;
+
+            _weaponRoot = FindChildRecursive(transform, "Weapon");
+            if (_weaponRoot == null)
+                return;
+
+            _weaponRoot.GetComponentsInChildren(true, _weaponConstraints);
+        }
+
+        private ParentConstraint GetWeaponConstraint(EquipPosition equipPosition, WeaponType weaponType)
+        {
+            if (weaponType == WeaponType.NoWeapon)
+                return null;
+
+            ParentConstraint alias = null;
+            ParentConstraint fallback = null;
+
+            for (int i = 0; i < _weaponConstraints.Count; i++)
+            {
+                var constraint = _weaponConstraints[i];
+                if (constraint == null) continue;
+                if (GuessEquipPosition(constraint, weaponType) != equipPosition) continue;
+
+                if (MatchesExactWeaponType(constraint, weaponType))
+                    return constraint;
+
+                if (alias == null && MatchesWeaponAlias(constraint, weaponType))
+                    alias = constraint;
+
+                if (fallback == null && IsGenericWeaponConstraint(constraint))
+                    fallback = constraint;
+            }
+
+            return alias ?? fallback ?? GetSingleConstraintForPosition(equipPosition, weaponType);
+        }
+
+        private static Transform FindChildRecursive(Transform root, string childName)
+        {
+            if (root == null)
+                return null;
+
+            if (root.name == childName)
+                return root;
+
+            foreach (Transform child in root)
+            {
+                Transform found = FindChildRecursive(child, childName);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private EquipPosition GuessEquipPosition(ParentConstraint constraint, WeaponType weaponType)
+        {
+            if (weaponType == WeaponType.Shield || weaponType == WeaponType.Arrow)
+                return EquipPosition.LeftHand;
+
+            string normalizedName = NormalizeName(constraint.name);
+            if (normalizedName.Contains("left") || normalizedName.EndsWith("l"))
+                return EquipPosition.LeftHand;
+
+            return EquipPosition.RightHand;
+        }
+
+        private static bool MatchesExactWeaponType(ParentConstraint constraint, WeaponType weaponType)
+        {
+            string constraintName = NormalizeName(constraint.name);
+            string typeName = NormalizeName(weaponType.ToString());
+
+            return constraintName.Contains(typeName);
+        }
+
+        private static bool MatchesWeaponAlias(ParentConstraint constraint, WeaponType weaponType)
+        {
+            string constraintName = NormalizeName(constraint.name);
+            return weaponType switch
+            {
+                WeaponType.Katana => constraintName.Contains("sword"),
+                WeaponType.DoubleAxe => constraintName.Contains("axe"),
+                _ => false,
+            };
+        }
+
+        private bool IsGenericWeaponConstraint(ParentConstraint constraint)
+        {
+            return constraint.transform == _weaponRoot ||
+                   NormalizeName(constraint.name) == "weapon";
+        }
+
+        private ParentConstraint GetSingleConstraintForPosition(EquipPosition equipPosition, WeaponType weaponType)
+        {
+            ParentConstraint result = null;
+            for (int i = 0; i < _weaponConstraints.Count; i++)
+            {
+                var constraint = _weaponConstraints[i];
+                if (constraint == null) continue;
+                if (GuessEquipPosition(constraint, weaponType) != equipPosition) continue;
+
+                if (result != null)
+                    return null;
+
+                result = constraint;
+            }
+
+            return result;
+        }
+
+        private static string NormalizeName(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            return value
+                .Replace(" ", string.Empty)
+                .Replace("_", string.Empty)
+                .Replace("-", string.Empty)
+                .Replace("(", string.Empty)
+                .Replace(")", string.Empty)
+                .ToLowerInvariant();
+        }
+
+        public bool CanToggleMainWeapon()
+        {
+            return _mainWeaponType != WeaponType.NoWeapon &&
+                   _mainWeaponConstraint != null &&
+                   _mainWeaponConstraint.sourceCount >= 2;
+        }
+
+        public void SetMainWeaponDrawn(bool drawn)
+        {
+            if (!CanToggleMainWeapon() || IsMainWeaponEquipped == drawn)
             {
                 return;
             }
-            var rightHand = _mainWeaponConstraint.GetSource(0);
-            var back = _mainWeaponConstraint.GetSource(1);
-    
-            if (IsMainWeaponEquipped)
-            {
-                // UnEquip - 등으로
-                rightHand.weight = 0;
-                back.weight = 1;
-                
-                IsMainWeaponEquipped = false;
-            }
-            else
-            {
-                // Equip - 손으로
-                rightHand.weight = 1;
-                back.weight = 0;
 
-                IsMainWeaponEquipped = true;
+            SetWeaponDrawn(_mainWeaponConstraint, drawn);
+            IsMainWeaponEquipped = drawn;
+        }
+
+        public void SetSubWeaponDrawn(bool drawn)
+        {
+            if (_subWeaponConstraint == null ||
+                _subWeaponConstraint.sourceCount < 2 ||
+                IsSubWeaponEquipped == drawn)
+            {
+                return;
             }
-    
-            // weight 수정 후 다시 설정
-            _mainWeaponConstraint.SetSource(0, rightHand);
-            _mainWeaponConstraint.SetSource(1, back);
+
+            SetWeaponDrawn(_subWeaponConstraint, drawn);
+            IsSubWeaponEquipped = drawn;
+        }
+
+        public bool TryPlayMainWeaponDrawMotion(bool drawn, ActorAnimator animator, Action onComplete = null)
+        {
+            if (!CanToggleMainWeapon())
+            {
+                return false;
+            }
+
+            if (IsMainWeaponEquipped == drawn)
+            {
+                onComplete?.Invoke();
+                return true;
+            }
+
+            AnimKey animKey = drawn ? AnimKey.Equip_Weapon : AnimKey.UnEquip_Weapon;
+            int requestVersion = ++_mainWeaponDrawRequestVersion;
+            _requestedMainWeaponDrawn = drawn;
+            var animState = animator != null ? animator.PlayMotion(animKey, 0.25f) : null;
+            if (animState == null)
+            {
+                SetMainWeaponDrawn(drawn);
+                _requestedMainWeaponDrawn = null;
+                onComplete?.Invoke();
+                return false;
+            }
+
+            void OnCompleted()
+            {
+                animator.OnMotionSetCompleted -= OnCompleted;
+                if (requestVersion != _mainWeaponDrawRequestVersion)
+                {
+                    return;
+                }
+
+                SetMainWeaponDrawn(drawn);
+                _requestedMainWeaponDrawn = null;
+                onComplete?.Invoke();
+            }
+
+            animator.OnMotionSetCompleted += OnCompleted;
+            return true;
+        }
+
+        public void CancelMainWeaponDrawMotionRequest()
+        {
+            _mainWeaponDrawRequestVersion++;
+            _requestedMainWeaponDrawn = null;
+        }
+
+        private void SetWeaponDrawn(ParentConstraint constraint, bool drawn)
+        {
+            var rightHand = constraint.GetSource(0);
+            var back = constraint.GetSource(1);
+
+            rightHand.weight = drawn ? 1 : 0;
+            back.weight = drawn ? 0 : 1;
+
+            constraint.SetSource(0, rightHand);
+            constraint.SetSource(1, back);
+        }
+
+        // 애니메이션 이벤트 콜백
+        private void OnEquipRightWeapon()
+        {
+            if (!CanToggleMainWeapon())
+            {
+                return;
+            }
+
+            SetMainWeaponDrawn(_requestedMainWeaponDrawn ?? !IsMainWeaponEquipped);
         }
         // 애니메이션 이벤트 콜백
         private void OnEquipLeftWeapon()
         {           
-            if (_subWeaponConstraint == null)
+            if (_subWeaponConstraint == null || _subWeaponConstraint.sourceCount < 2)
             {
                 return;
             }
-            var rightHand = _subWeaponConstraint.GetSource(0);
-            var back = _subWeaponConstraint.GetSource(1);
-    
-            if (IsSubWeaponEquipped)
-            {
-                // UnEquip - 등으로
-                rightHand.weight = 0;
-                back.weight = 1;
-                
-                IsSubWeaponEquipped = false;
-            }
-            else
-            {
-                // Equip - 손으로
-                rightHand.weight = 1;
-                back.weight = 0;
 
-                IsSubWeaponEquipped = true;
-            }
-    
-            // weight 수정 후 다시 설정
-            _subWeaponConstraint.SetSource(0, rightHand);
-            _subWeaponConstraint.SetSource(1, back);
+            SetSubWeaponDrawn(_requestedSubWeaponDrawn ?? !IsSubWeaponEquipped);
         }
 
         private void DestroyEquippedWeapon(EquipPosition equipPosition)

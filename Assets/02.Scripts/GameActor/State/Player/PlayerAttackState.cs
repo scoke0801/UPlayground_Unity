@@ -76,6 +76,7 @@ namespace UPlayGround.State
 
             _combat    = playerActor.GetCombat();
             _equipment = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
             _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;

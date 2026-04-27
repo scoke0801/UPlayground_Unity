@@ -28,6 +28,7 @@ namespace UPlayGround.State
 
             SnapToLockOnTarget();
 
+            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             playerActor.GetCombat()?.ExecuteDashAttack();
 
             var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);

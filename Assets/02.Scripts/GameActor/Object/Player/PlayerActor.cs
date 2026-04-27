@@ -36,6 +36,7 @@ namespace UPlayGround
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
         [SerializeField] private PlayerSkillGauge _skillGauge;
+        [SerializeField] private PlayerCombatWeaponStateController _combatWeaponStateController;
         [SerializeField] private FootIKController _footIK;
 
         [Header("Hit Shake Keys")]
@@ -380,6 +381,7 @@ namespace UPlayGround
             
             _playerActorAnimator = _animator as PlayerActorAnimator;
             _equipment           = GetComponentInChildren<PlayerEquipment>();
+            _equipment?.RefreshWeaponConstraintsFromModel();
 
             if(_characterActorType == CharacterActorType.Bokusei)
                 _equipment.SetWeaponType(WeaponType.Katana);
@@ -394,6 +396,7 @@ namespace UPlayGround
             // 전투 컴포넌트 참조 갱신 + 공격 데이터 교체
             _combat.RefreshComponentReferences();
             _combat.RefreshAttackData(data.attackData);
+            _combatWeaponStateController?.RefreshReferences();
 
             // 소켓
             RefreshSockets(data);
@@ -436,6 +439,8 @@ namespace UPlayGround
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
             if (_equipment  == null) _equipment  = GetComponentInChildren<PlayerEquipment>();
             if (_skillGauge == null) _skillGauge = GetComponent<PlayerSkillGauge>();
+            if (_combatWeaponStateController == null)
+                _combatWeaponStateController = gameObject.GetOrAddComponent<PlayerCombatWeaponStateController>();
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
 
             if (_skillGauge != null)

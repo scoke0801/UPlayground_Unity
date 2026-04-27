@@ -5,7 +5,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 ## 프로젝트 개요
 
 Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP 렌더링 파이프라인.
-플레이어블 캐릭터 3종: Bokusei(카타나), Honoka(쌍도끼), LianLian(채찍).
+Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `CharacterActorType`에 정의된 타입을 플레이어블 대상으로 확장할 수 있는 구조. 적 처치 시 `MonsterActor._recruitableAs`에 지정된 타입을 `PartyManager.UnlockCharacter`로 파티에 합류시키는 방향.
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 
@@ -23,7 +23,7 @@ Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)�
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-매니저 목록: InputManager, AssetManager, UIManager, CameraManager, GameObjectManager, ItemManager, InventoryManager, EventManager, GameHitStopManager, VitalOrbManager, DialogueManager, GlobalFlagManager, StoryManager, GameTimeManager, SceneManager, SettingsManager.
+매니저 목록: InputManager, AssetManager, UIManager, CameraManager, GameObjectManager, ItemManager, InventoryManager, EventManager, GameHitStopManager, VitalOrbManager, DialogueManager, GlobalFlagManager, StoryManager, GameTimeManager, PartyManager, SceneManager, SettingsManager.
 
 ### GameActor 계층 구조
 
@@ -53,7 +53,7 @@ GameActorState (추상)
 - **전투:** `PlayerCombat`, `EnemyCombat` — 공격 로직, 데미지, 스킬
 - **AI:** `EnemyBrain`(의사결정), `EnemyFlyingBrain`, `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`
 - **스탯:** `PoiseStat`(강인도/경직 저항)
-- **장비:** `PlayerEquipment`, `PlayerSkillGauge`
+- **장비/파티:** `PlayerEquipment`, `PlayerSkillGauge`, `PlayerSwapBehaviour`, `CharacterModelData`
 - **VFX:** `ActorColorChanger`(피격 플래시), `DissolveController`(사망 디졸브)
 - **IK:** `FootIKController`
 
@@ -77,13 +77,14 @@ Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene
 - `EnemyBehaviorSO` — 페이즈 기반 AI 프로필 (HP 임계값에 따른 행동 전환)
 - `EnemyStatsSO`, `EnemyFlyingSettingsSO`, `PoiseSO`
 - `PlayerAttackDataSO`, `EnemyAttackDataSO` — 다단 `HitPhaseData`를 포함한 공격 데이터
+- `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
 - `CameraShakeData`, 카메라 이펙트 SO
 - `MotionSetAsset` — 애니메이션 타임라인 정의
 
 ### 주요 Enum
 
 - `ActorType` [Flags] — Player, Monster, Obstacle, NPC, Combat, Talkable
-- `CharacterActorType` — Bokusei, Honoka, Reine, H09
+- `CharacterActorType` — Bokusei, Honoka, Reine, LianLian, Nenmir, Sera, Inori, H09
 - `AttackReactionType` — Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab
 - `EnemyCombatStyle` — Melee, Ranged, Balanced, Support
 

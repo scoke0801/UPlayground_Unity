@@ -36,6 +36,7 @@ namespace UPlayGround.State
             _changingState = false;
 
             _combat = playerActor.GetCombat();
+            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _attackData = _startAsFinish
                 ? _combat?.ExecuteJumpFinishAttack()
                 : _combat?.ExecuteJumpAttack(false);

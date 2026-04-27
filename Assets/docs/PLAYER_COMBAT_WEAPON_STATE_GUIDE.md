@@ -7,7 +7,7 @@
 
 ## 개요
 
-플레이어의 전투 상태(`PlayerCombat.IsInCombat`) 변화에 맞춰 무기를 자연스럽게 손에 들거나 등에 넣는 처리 추가를 위한 분석 문서.
+플레이어의 전투 상태(`PlayerCombat.IsInCombat`) 변화에 맞춰 무기를 자연스럽게 손에 들거나 등에 넣는 처리에 대한 구현 가이드.
 
 요구 동작은 다음 흐름으로 해석한다.
 
@@ -15,7 +15,7 @@
 - 전투 상태 해제 시: 들고 있던 무기를 자연스럽게 해제하는 애니메이션 재생
 - 공격/피격/가드 등 즉시 반응이 필요한 상태에서는 무기 토글 애니메이션이 전투 액션을 끊지 않도록 지연 처리
 
-현재 프로젝트에는 전투 상태 이벤트와 무기 토글용 애니메이션 키가 이미 존재하지만, 둘을 연결하는 런타임 제어층이 없다.
+현재 프로젝트에는 `PlayerCombatWeaponStateController`가 추가되어 전투 상태 이벤트와 무기 장착/해제 모션을 런타임에서 연결한다.
 
 ---
 
@@ -29,12 +29,22 @@ PlayerCombat
 └── OnChangeCombatState(bool)
         │
         ├── UI_GamePlay: HUD 표시/숨김에 사용 중
-        └── 신규 연동 필요: PlayerEquipment 또는 별도 컴포넌트
+        └── PlayerCombatWeaponStateController: 무기 장착/해제 모션 제어
+
+PlayerCombatWeaponStateController
+├── PlayerCombat.OnChangeCombatState 구독
+├── 안전 상태에서 Equip_Weapon / UnEquip_Weapon 재생
+├── 공격/피격/가드 등 블로킹 상태에서는 pending 처리
+└── RefreshReferences()로 캐릭터 교체 후 참조 갱신
 
 PlayerEquipment
 ├── GetMainWeaponType()
 ├── SetWeaponType(WeaponType)
 ├── IsMainWeaponEquipped
+├── CanToggleMainWeapon()
+├── SetMainWeaponDrawn(bool)
+├── SetSubWeaponDrawn(bool)
+├── TryPlayMainWeaponDrawMotion(bool, ActorAnimator, Action)
 ├── OnEquipRightWeapon()  ← 애니메이션 이벤트 콜백
 └── OnEquipLeftWeapon()   ← 애니메이션 이벤트 콜백
 
@@ -48,8 +58,10 @@ PlayerActorAnimator
 |------|------|
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` | 전투 상태 타이머와 `OnChangeCombatState` 이벤트 발화 |
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerEquipment.cs` | 무기 프리팹 생성, `ParentConstraint` weight 토글, 장착 상태 보관 |
+| `Assets/02.Scripts/GameActor/Component/Player/PlayerCombatWeaponStateController.cs` | 전투 상태 변화와 무기 장착/해제 모션 연동 |
 | `Assets/02.Scripts/GameActor/Object/Player/PlayerActor.cs` | `PlayerCombat`, `PlayerEquipment`, 입력, 캐릭터 교체 참조 갱신 |
 | `Assets/02.Scripts/GameActor/State/Player/PlayerIdleState.cs` | 기존 수동 장착/해제 테스트 코드가 주석 처리되어 있음 |
+| `Assets/02.Scripts/GameActor/State/Player/PlayerAttackState.cs` 외 공격 상태 | 첫 공격/차지/공중 공격 진입 시 무기를 즉시 손에 들도록 보정 |
 | `Assets/02.Scripts/GameActor/Animation/PlayerActorAnimator.cs` | `WeaponType`별 `MotionSet` 선택 |
 | `Assets/02.Scripts/Data/Actor/Animation/PlayerActorAnimationMotionSet.cs` | 무기별 MotionSet 탐색, 없으면 `NoWeapon` fallback |
 
@@ -80,13 +92,30 @@ PlayerActorAnimator
 |------|------|
 | `PlayerEquipment.cs:57` | `IsMainWeaponEquipped`로 손에 들고 있는지 기록 |
 | `PlayerEquipment.cs:73` | `GetMainWeaponType()`으로 현재 무기 타입 반환 |
-| `PlayerEquipment.cs:76` | `SetWeaponType()` 테스트용 타입 변경 |
+| `PlayerEquipment.cs:80` | `SetWeaponType()`이 `SetRightWeaponType()`을 통해 무기 타입과 constraint를 함께 갱신 |
 | `PlayerEquipment.cs:224` | `EquipWeapon()`이 무기 프리팹을 생성하고 제약 오브젝트 아래에 배치 |
-| `PlayerEquipment.cs:259` | `SetRightWeaponType()`이 오른손 무기 제약을 선택 |
-| `PlayerEquipment.cs:285` | `OnEquipRightWeapon()`이 constraint source weight를 토글 |
-| `PlayerEquipment.cs:316` | `OnEquipLeftWeapon()`이 왼손 무기 constraint source weight를 토글 |
+| `PlayerEquipment.cs:264` | `SetRightWeaponType()`이 오른손 무기 제약을 선택 |
+| `PlayerEquipment.cs:298` | `CanToggleMainWeapon()`으로 주 무기 토글 가능 여부 확인 |
+| `PlayerEquipment.cs:305` | `SetMainWeaponDrawn(bool)`으로 주 무기 손/등 위치를 목표 상태로 지정 |
+| `PlayerEquipment.cs:329` | `TryPlayMainWeaponDrawMotion()`으로 장착/해제 모션 재생 및 완료 콜백 처리 |
+| `PlayerEquipment.cs:389` | `OnEquipRightWeapon()`이 애니메이션 이벤트 시 목표 상태 기반으로 weight 적용 |
+| `PlayerEquipment.cs:400` | `OnEquipLeftWeapon()`이 왼손 무기 weight를 목표 상태 기반으로 적용 |
 
-현재 `OnEquipRightWeapon()` / `OnEquipLeftWeapon()`은 토글 함수라서 외부에서 "장착으로 맞춰라" 또는 "해제로 맞춰라"를 명시할 수 없다. 전투 상태 자동 연동에는 명령형 API가 추가되어야 한다.
+`OnEquipRightWeapon()` / `OnEquipLeftWeapon()`은 애니메이션 이벤트 콜백으로 유지하되, 자동 연동에서는 `_requestedMainWeaponDrawn` 같은 요청 상태를 기준으로 목표 상태를 맞춘다. 직접 토글 호출이 중복되어도 같은 목표 상태로 수렴하도록 `SetMainWeaponDrawn(bool)`을 사용한다.
+
+### PlayerCombatWeaponStateController
+
+`PlayerCombatWeaponStateController`는 전투 상태 이벤트를 무기 모션으로 변환하는 런타임 제어층이다.
+
+| 위치 | 내용 |
+|------|------|
+| `PlayerCombatWeaponStateController.cs:12` | `PlayerActorComponent` 기반 신규 컴포넌트 |
+| `PlayerCombatWeaponStateController.cs:55` | `RefreshReferences()`에서 `PlayerCombat`, `PlayerEquipment`, `ActorAnimator` 재조회 |
+| `PlayerCombatWeaponStateController.cs:76` | `PlayerCombat.OnChangeCombatState` 구독 |
+| `PlayerCombatWeaponStateController.cs:89` | 전투 상태 변화 시 장착/해제 요청 |
+| `PlayerCombatWeaponStateController.cs:101` | 안전 상태가 아니면 `_pendingDrawn`으로 예약 |
+| `PlayerCombatWeaponStateController.cs:118` | `TryPlayMainWeaponDrawMotion()` 호출 |
+| `PlayerCombatWeaponStateController.cs:134` | `Idle`, `GroundMove`, `Stop`, `TurnInPlace`에서만 즉시 재생 |
 
 ### PlayerActor
 
@@ -102,14 +131,16 @@ PlayerActorAnimator
 | `PlayerActor.cs:358` | `RefreshForCharacter()`에서 모델/장비/전투 데이터 갱신 |
 | `PlayerActor.cs:385` | Bokusei 교체 시 `WeaponType.Katana` 설정 |
 | `PlayerActor.cs:388` | 그 외 캐릭터는 `WeaponType.NoWeapon` 설정 |
+| `PlayerActor.cs:398` | 캐릭터 교체 후 `PlayerCombatWeaponStateController.RefreshReferences()` 호출 |
+| `PlayerActor.cs:442` | 컨트롤러가 없으면 `GetOrAddComponent<PlayerCombatWeaponStateController>()`로 보장 |
 
 캐릭터 교체가 있는 구조이므로 전투 상태 이벤트 구독은 모델 교체 후에도 현재 `PlayerEquipment`를 다시 참조해야 한다.
 
 ---
 
-## 수정 필요 사항
+## 구현 반영 사항
 
-### 1. 무기 타입과 손에 든 상태를 분리
+### 1. 무기 타입과 손에 든 상태 분리
 
 현재 `WeaponType`은 `PlayerActorAnimator.PlayMotion()`의 MotionSet 선택에도 사용된다. 따라서 전투 해제 시 `SetWeaponType(WeaponType.NoWeapon)`으로 처리하면 공격/장비 데이터의 무기 타입까지 사라져 전투 모션 선택이 꼬일 수 있다.
 
@@ -120,9 +151,11 @@ PlayerActorAnimator
 
 전투 해제는 `WeaponType.NoWeapon`으로 바꾸는 것이 아니라 constraint source weight만 손에서 등으로 이동해야 한다.
 
+구현에서는 `SetMainWeaponDrawn(bool)`이 `IsMainWeaponEquipped`와 `ParentConstraint` source weight만 변경한다. `WeaponType`은 장착 데이터와 MotionSet 선택용으로 유지한다.
+
 ### 2. PlayerEquipment에 명령형 API 추가
 
-`OnEquipRightWeapon()`은 현재 토글만 수행한다. 자동 연동에서는 목표 상태가 명확해야 하므로 다음 API를 추가하는 것이 좋다.
+자동 연동에서는 목표 상태가 명확해야 하므로 다음 API를 추가했다.
 
 ```csharp
 public bool CanToggleMainWeapon();
@@ -131,16 +164,18 @@ public void SetSubWeaponDrawn(bool drawn);
 public bool TryPlayMainWeaponDrawMotion(bool drawn, ActorAnimator animator, Action onComplete = null);
 ```
 
-구현 방향:
+구현 내용:
 
 - `drawn == true`이고 이미 `IsMainWeaponEquipped == true`면 아무것도 하지 않는다.
 - `drawn == false`이고 이미 `IsMainWeaponEquipped == false`면 아무것도 하지 않는다.
-- 실제 weight 변경은 기존 `OnEquipRightWeapon()`의 로직을 재사용하되, 토글이 아닌 목표 상태 기반으로 분리한다.
+- 실제 weight 변경은 `SetWeaponDrawn()`으로 분리하고, 토글이 아닌 목표 상태 기반으로 적용한다.
 - `AnimKey.Equip_Weapon`, `AnimKey.UnEquip_Weapon` 재생 중 지정 프레임에서 애니메이션 이벤트가 기존 콜백을 호출하도록 유지한다.
+- 모션이 없거나 재생 실패 시에는 weight를 즉시 목표 상태로 보정한다.
+- 장착/해제 모션 요청 중 공격 등 다른 상태가 끼어들면 `CancelMainWeaponDrawMotionRequest()`로 완료 콜백의 후속 처리를 무효화한다.
 
 ### 3. 전투 상태 이벤트를 받을 연동 컴포넌트 추가
 
-`PlayerCombat`이나 `PlayerEquipment`에 직접 섞기보다, 역할을 분리한 `PlayerCombatWeaponStateController` 신규 컴포넌트를 권장한다.
+`PlayerCombat`이나 `PlayerEquipment`에 직접 섞지 않고, 역할을 분리한 `PlayerCombatWeaponStateController` 신규 컴포넌트를 추가했다.
 
 ```
 Assets/02.Scripts/GameActor/Component/Player/PlayerCombatWeaponStateController.cs
@@ -165,37 +200,45 @@ Assets/02.Scripts/GameActor/Component/Player/PlayerCombatWeaponStateController.c
 | `Guard`, `Dodge`, `Dash` | 필요 시 예약. 즉시 재생은 조작감 저하 가능 |
 | `Idle`, `GroundMove`, `Stop`, `TurnInPlace` | 즉시 재생 가능 |
 
-이를 위해 `PlayerCombatWeaponStateController.Update()`에서 pending 요청을 검사하거나, `PlayerActorState.OnEnter()`에서 공통 훅을 호출하는 방식을 선택할 수 있다. 침범 범위가 작은 쪽은 컨트롤러의 `Update()` 폴링 방식이다.
+구현은 침범 범위가 작은 `PlayerCombatWeaponStateController.Update()` 폴링 방식을 사용한다. 전투 상태 변경 요청은 `_pendingDrawn`에 보관하고, `Idle`, `GroundMove`, `Stop`, `TurnInPlace`에서만 장착/해제 모션을 재생한다.
 
-### 5. WeaponType별 constraint 매핑 보완
+첫 공격 진입 시에는 전투 상태 이벤트보다 공격 상태 전환이 먼저 일어날 수 있으므로, 다음 공격 상태의 `OnEnter()`에서 `SetMainWeaponDrawn(true)`를 직접 호출한다.
 
-`SetRightWeaponType()`은 현재 `Sword`, `GreatSword`, `Staff`, `Bow`만 처리한다. 그런데 `PlayerActor.RefreshForCharacter()`는 Bokusei에 `WeaponType.Katana`를 직접 넣는다.
+- `PlayerAttackState`
+- `PlayerChargeState`
+- `PlayerDashAttackState`
+- `PlayerFinishAttackState`
+- `PlayerJumpAttackState`
+- `PlayerJumpDashAttackState`
 
-수정 필요:
+### 5. Model 하위 `Weapon` 루트 기반 constraint 자동 탐색
 
-```csharp
-case WeaponType.Sword:
-case WeaponType.Katana:
-    _mainWeaponConstraint = swordConstraint;
-    break;
-```
+기존 구조는 `swordConstraint`, `greatSwordRightConstraint`, `staffRightConstraint`, `bowRightConstraint`, `shieldLeftConstraint`, `arrowLeftConstraint`처럼 무기별 필드를 직접 들고 있었다. 이 구조는 사용하지 않는다. 또한 에디터에서 사용자가 매핑 데이터를 직접 입력하지 않도록, 활성 Model 하위의 `Weapon` 오브젝트를 런타임에 스캔한다.
 
-Honoka(`DoubleAxe`)와 LianLian(`Whip`)은 프리팹 구조에 맞는 별도 constraint가 필요하다. 현재 `PlayerEquipment`에는 쌍도끼/채찍 전용 필드가 없으므로 데이터 또는 필드 추가가 필요하다.
+자동 탐색 규칙:
+
+- `PlayerEquipment.RefreshWeaponConstraintsFromModel()`이 자신의 하위에서 이름이 정확히 `Weapon`인 Transform을 재귀 탐색한다.
+- 찾은 `Weapon` 루트 하위의 모든 `ParentConstraint`를 수집한다.
+- `SetRightWeaponType()` / `SetLeftWeaponType()`은 현재 `WeaponType`과 constraint 오브젝트 이름을 비교해 사용할 constraint를 선택한다.
+- `Katana (1)`처럼 괄호/공백/언더스코어가 섞인 이름은 정규화해서 비교한다.
+- `Shield`, `Arrow`는 기본적으로 `LeftHand`로 분류하고, 그 외 무기는 `RightHand`로 분류한다.
+- 정확한 이름 매칭이 없으면 `Weapon` 루트 자체에 붙은 generic constraint 또는 해당 손에 해당하는 단일 constraint를 fallback으로 사용한다.
 
 ---
 
-## 권장 구현 흐름
+## 구현 완료 흐름
 
-1. `PlayerEquipment`에 목표 상태 기반 메서드를 추가한다.
-2. `SetRightWeaponType()`에 `Katana`, `DoubleAxe`, `Whip` 매핑을 보완한다.
-3. `PlayerCombatWeaponStateController`를 추가하고 `PlayerCombat.OnChangeCombatState`를 구독한다.
-4. 전투 진입 시 `Equip_Weapon`, 전투 해제 시 `UnEquip_Weapon`을 재생하도록 연결한다.
+1. `PlayerEquipment`에 목표 상태 기반 메서드를 추가했다.
+2. `SetRightWeaponType()` / `SetLeftWeaponType()`이 활성 Model 하위 `Weapon` 루트의 `ParentConstraint`를 자동 탐색해 constraint를 찾도록 변경했다.
+3. `PlayerCombatWeaponStateController`를 추가하고 `PlayerCombat.OnChangeCombatState`를 구독했다.
+4. 전투 진입 시 `Equip_Weapon`, 전투 해제 시 `UnEquip_Weapon`을 재생하도록 연결했다.
 5. 공격/피격 등 블로킹 상태에서는 pending 플래그만 저장하고, 안전 상태에서 처리한다.
-6. `PlayerActor.RefreshForCharacter()` 이후에도 새 모델의 `PlayerEquipment`를 다시 참조하도록 컨트롤러에 `RefreshReferences()`를 제공한다.
+6. 첫 공격이 전투 이벤트보다 먼저 시작되는 케이스를 위해 공격 상태 진입 시 `SetMainWeaponDrawn(true)`를 호출한다.
+7. `PlayerActor.RefreshForCharacter()` 이후에도 새 모델의 `PlayerEquipment`를 다시 참조하도록 컨트롤러에 `RefreshReferences()`를 제공했다.
 
 ---
 
-## 예시 코드 구조
+## 현재 구현 구조
 
 ```csharp
 namespace UPlayGround.Component
@@ -205,7 +248,9 @@ namespace UPlayGround.Component
         private PlayerActor _player;
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;
+        private ActorAnimator _animator;
         private bool? _pendingDrawn;
+        private bool _isPlayingDrawMotion;
 
         private void Awake()
         {
@@ -215,8 +260,8 @@ namespace UPlayGround.Component
 
         private void OnEnable()
         {
-            if (_combat != null)
-                _combat.OnChangeCombatState += OnCombatStateChanged;
+            RefreshReferences();
+            SubscribeCombat();
         }
 
         private void OnDisable()
@@ -227,8 +272,11 @@ namespace UPlayGround.Component
 
         public void RefreshReferences()
         {
+            UnsubscribeCombat();
             _combat = _player.GetCombat();
             _equipment = _player.GetPlayerEquipment();
+            _animator = _player.Animator;
+            SubscribeCombat();
         }
 
         private void OnCombatStateChanged(bool isInCombat)
@@ -256,11 +304,18 @@ namespace UPlayGround.Component
                 PlayDrawMotion(drawn);
             }
         }
+
+        private bool CanPlayNow()
+        {
+            string stateName = _player.PlayerController.CurrentState?.StateName;
+            return !_isPlayingDrawMotion &&
+                   stateName is "Idle" or "GroundMove" or "Stop" or "TurnInPlace";
+        }
     }
 }
 ```
 
-위 코드는 구조 예시다. 실제 구현 시 `CanPlayNow()`와 `PlayDrawMotion()`은 현재 상태명, `ActorAnimator.PlayMotion()`, `PlayerEquipment.SetMainWeaponDrawn()` API에 맞춰 작성한다.
+위 코드는 현재 구현의 핵심 흐름을 요약한 것이다. 실제 파일에는 구독 중복 방지, 모션 중 상태 변경 시 요청 취소, 모션 완료 후 현재 안전 상태 모션 복귀 처리가 포함되어 있다.
 
 ---
 
@@ -281,11 +336,14 @@ namespace UPlayGround.Component
 ## 주의 사항
 
 - 전투 해제 시 `SetWeaponType(WeaponType.NoWeapon)`을 호출하지 않는다. 장착 아이템 타입과 전투 모션셋 선택이 함께 사라진다.
-- `OnEquipRightWeapon()`은 현재 토글 방식이므로 같은 이벤트가 중복 호출되면 의도와 반대로 다시 손에 들 수 있다.
+- `OnEquipRightWeapon()`은 애니메이션 이벤트 콜백으로 유지한다. 자동 연동 중에는 `_requestedMainWeaponDrawn`을 우선 사용하므로 목표 상태 기반으로 동작하지만, 수동 호출 시에는 기존 호환성을 위해 현재 상태 반전으로 처리된다.
 - `ParentConstraint.GetSource(0)`과 `GetSource(1)` 순서가 오른손/등이라는 전제를 갖고 있다. 프리팹별 source 순서를 검증해야 한다.
 - `PlayerCombat.ForceExitCombat()`은 다음 프레임 `UpdateCombatState()`에서 이벤트를 발화한다. 즉시 모션이 필요하면 별도 강제 알림 API가 필요하다.
-- 캐릭터 교체는 `PlayerActor.RefreshForCharacter()`에서 모델과 장비 참조를 바꾼다. 전투 무기 연동 컴포넌트가 이전 모델의 `PlayerEquipment`를 들고 있지 않도록 갱신 경로가 필요하다.
+- 캐릭터 교체는 `PlayerActor.RefreshForCharacter()`에서 모델과 장비 참조를 바꾼다. 현재는 `PlayerCombatWeaponStateController.RefreshReferences()`를 호출해 이전 모델의 `PlayerEquipment`를 계속 들고 있지 않도록 갱신한다.
 - `PlayerIdleState`의 `PlayEquipItem()`은 테스트 코드 성격이고 현재 입력 처리도 주석 처리되어 있다. 이 코드를 그대로 복구하기보다 `PlayerEquipment`/신규 컨트롤러로 역할을 이동하는 것이 좋다.
+- 기존 `swordConstraint`, `greatSwordRightConstraint`, `staffRightConstraint`, `bowRightConstraint`, `shieldLeftConstraint`, `arrowLeftConstraint` 필드는 제거했다. 캐릭터/무기별 constraint는 활성 Model 하위 `Weapon` 루트에서 자동 수집한다.
+- `Weapon` 루트를 찾지 못하거나 현재 `WeaponType`에 맞는 constraint를 찾지 못하면 무기 프리팹은 생성 직후 제거되고 warning 로그가 출력된다.
+- 자동 매핑은 constraint 오브젝트 이름을 사용한다. 신규 무기 constraint를 만들 때는 `Katana`, `DoubleAxe`, `Whip`, `Shield`, `Arrow`처럼 `WeaponType` 이름이 들어가도록 이름을 맞추는 것이 가장 안전하다.
 
 ---
 
@@ -298,12 +356,12 @@ namespace UPlayGround.Component
 | 전투 해제 타이밍에 이동 중 | 이동을 과도하게 끊지 않고 해제 모션 또는 예약 처리 |
 | 공격 콤보 중 전투 상태 변화 | 공격 모션이 중단되지 않음 |
 | 피격/사망 중 전투 상태 변화 | 무기 토글이 피격/사망 모션을 덮지 않음 |
-| 캐릭터 교체 후 전투 진입 | 새 모델의 장비 constraint를 사용 |
-| Bokusei Katana | `Katana`가 올바른 constraint에 매핑 |
-| Honoka DoubleAxe / LianLian Whip | 전용 constraint와 MotionSet 등록 후 정상 장착/해제 |
+| 캐릭터 교체 후 전투 진입 | 새 모델 하위 `Weapon` 루트의 constraint를 사용 |
+| Bokusei Katana | `Weapon` 하위 `Katana` 또는 `Sword` 계열 constraint를 자동 사용 |
+| Honoka DoubleAxe / LianLian Whip | `Weapon` 하위 `DoubleAxe`, `Whip` 이름의 constraint와 MotionSet 등록 후 정상 장착/해제 |
 
 ---
 
 ## 결론
 
-수정의 핵심은 `PlayerCombat.OnChangeCombatState`를 활용해 전투 상태 변화는 이벤트로 받고, `PlayerEquipment`에는 토글이 아닌 목표 상태 기반 API를 추가하는 것이다. `WeaponType`은 장착 데이터와 MotionSet 선택에 쓰이므로 전투 해제 표현을 위해 `NoWeapon`으로 바꾸면 안 된다. 실제 손/등 이동은 `IsMainWeaponEquipped`와 `ParentConstraint` weight만 조정하는 별도 상태로 관리해야 한다.
+구현의 핵심은 `PlayerCombat.OnChangeCombatState`를 활용해 전투 상태 변화는 이벤트로 받고, `PlayerEquipment`에는 토글이 아닌 목표 상태 기반 API를 둔 것이다. `WeaponType`은 장착 데이터와 MotionSet 선택에 쓰이므로 전투 해제 표현을 위해 `NoWeapon`으로 바꾸지 않는다. 실제 손/등 이동은 `IsMainWeaponEquipped`와 `ParentConstraint` weight만 조정하는 별도 상태로 관리한다.

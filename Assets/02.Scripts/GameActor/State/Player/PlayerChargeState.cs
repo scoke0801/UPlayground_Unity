@@ -71,6 +71,7 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
             _combat             = playerActor.GetCombat();
+            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _chargeTime         = 0f;
             _chargeRatio        = 0f;
             _isInLoop           = false;

@@ -21,7 +21,7 @@ namespace UPlayGround.Manager
             {
                 if (_applicationIsQuitting)
                 {
-                    Debug.LogWarning($"[{typeof(T)}] 애플리케이션 종료 중에는 인스턴스에 접근할 수 없습니다.");
+//                    Debug.LogWarning($"[{typeof(T)}] 애플리케이션 종료 중에는 인스턴스에 접근할 수 없습니다.");
                     return null;
                 }
 

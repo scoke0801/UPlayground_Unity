@@ -6,13 +6,19 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 ## 📋 프로젝트 개요
 
-### 플레이어블 캐릭터
+### 플레이어블 캐릭터 / 파티 확장 구조
 
-| 캐릭터 | 무기 | CharacterActorType |
-|--------|------|--------------------|
-| Bokusei | 카타나 | `Bokusei` |
-| Honoka  | 쌍도끼 | `Honoka` |
-| LianLian | 채찍  | (미정) |
+Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지 캐릭터는 `CharacterActorType`을 기준으로 플레이어블 대상으로 확장 가능한 구조를 지향한다.
+
+적 처치 시 `MonsterActor`의 합류 설정(`_recruitableAs`)에 지정된 `CharacterActorType`이 있으면 `PartyManager.UnlockCharacter`를 통해 파티 슬롯에 추가된다. 실제 조작 캐릭터는 단일 `PlayerActor`를 유지하고, `PlayerSwapBehaviour`가 하위 모델(`CharacterModelData`)을 교체한 뒤 `PlayerActor.RefreshForCharacter()`로 캐릭터별 상태를 갱신한다.
+
+| 구분 | 설명 |
+|------|------|
+| 기본 캐릭터 | `Bokusei` — 게임 시작 기준 고정 플레이어블 |
+| 확장 대상 | `CharacterActorType`에 정의된 타입 중 `CharacterModelData`와 데이터가 준비된 캐릭터 |
+| 합류 조건 | 처치한 `MonsterActor._recruitableAs`가 `None`이 아닐 때 파티에 합류 |
+| 교체 방식 | 단일 `PlayerActor` + 모델 서브루트 활성/비활성 전환 |
+| 현재 타입 | `Bokusei`, `Honoka`, `Reine`, `LianLian`, `Nenmir`, `Sera`, `Inori`, `H09` |
 
 ### 핵심 플러그인
 
@@ -52,10 +58,11 @@ GameManager  ─  BaseManager<GameManager> (최상위 싱글톤)
     │  [15] StoryManager         스토리 진행 관리
     │  [16] GameTimeManager      인게임 시간 흐름
     │  [17] ActorSpawnManager    ActorDatabase 기반 런타임 스폰
-    │  [18] SceneManager         씬 전환 & 로딩 화면
-    │  [19] CheatManager         개발용 치트 콘솔
-    │  [20] RecipeManager        제작 레시피 관리
-    │  [21] QuestManager         퀘스트 목표 추적 & 보상
+    │  [18] PartyManager         파티 구성, 캐릭터 해금, 교체 입력 처리
+    │  [19] SceneManager         씬 전환 & 로딩 화면
+    │  [20] CheatManager         개발용 치트 콘솔
+    │  [21] RecipeManager        제작 레시피 관리
+    │  [22] QuestManager         퀘스트 목표 추적 & 보상
 ```
 
 모든 매니저는 `BaseManager<T>` (MonoBehaviour 싱글톤) 상속 + `IManager` 인터페이스 구현.
@@ -135,6 +142,8 @@ GameActorState (추상)
 | `PlayerCombat` | 플레이어 | 공격, 패리, 데미지 처리 |
 | `PlayerEquipment` | 플레이어 | 무기 장착 / 교체 |
 | `PlayerSkillGauge` | 플레이어 | 스킬 게이지 관리 |
+| `PlayerSwapBehaviour` | 플레이어 | 단일 PlayerActor 하위 모델 교체, 캐릭터별 갱신 |
+| `CharacterModelData` | 플레이어 | 모델 서브루트와 CharacterActorType 연결 |
 | `FootIKController` | 플레이어 | 발 IK |
 | `EnemyCombat` | 몬스터 | 공격 로직, 가드 |
 | `EnemyBrain` | 지상 몬스터 | AI 의사결정, 페이즈 전환 |
@@ -222,6 +231,7 @@ UIManager
 | `PlayerAttackDataSO` | — | 플레이어 공격 데이터 |
 | `ActorDefinitionSO` | — | 액터 정의 (prefab + stats + dropTable) |
 | `ActorDatabase` | — | 전체 ActorDefinitionSO 조회 테이블 |
+| `PartyConfigSO` | — | 시작 파티 순서와 초기 활성 캐릭터 인덱스 |
 | `InteractableActorSO` | `10.Datas/Actor/Interaction` | 채집 오브젝트 데이터 |
 | `NpcActorSO` | — | NPC 데이터 (InteractableActorSO 상속) |
 | `MotionSetAsset` | `10.Datas/Actor/Animation` | 애니메이션 타임라인 |
@@ -236,7 +246,7 @@ UIManager
 | Enum | 설명 |
 |------|------|
 | `ActorType` [Flags] | Player, Monster, Obstacle, NPC, Combat, Talkable |
-| `CharacterActorType` | None, Bokusei, Honoka, Reine, H09 |
+| `CharacterActorType` | None, Bokusei, Honoka, Reine, LianLian, Nenmir, Sera, Inori, H09 |
 | `AttackReactionType` | Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab |
 | `MonsterActorGrade` | Normal, Elite, Boss |
 | `EnemyCombatStyle` | Melee, Ranged, Balanced, Support |
@@ -258,6 +268,7 @@ Assets/
 │   │   ├── Base/                BaseManager<T>, IManager
 │   │   ├── Item/                ItemManager, InventoryManager
 │   │   ├── Actor/               ActorSpawnManager
+│   │   ├── Party/               PartyManager
 │   │   ├── Crafting/            RecipeManager
 │   │   ├── Save/                SaveManager, ISaveable
 │   │   ├── Cheat/               CheatManager + 에디터 콘솔
@@ -279,6 +290,7 @@ Assets/
 │       ├── Item/                ItemSO, EquipmentSO, ItemDropList
 │       ├── Combat/              EnemyAttackDataSO, PlayerAttackDataSO, VitalOrbDataSO
 │       ├── Crafting/            RecipeData, RecipeDatabase
+│       ├── Party/               PartyConfigSO
 │       ├── Dialogue/            DialogueGraphSO, DialogueNodeSO
 │       ├── Camera/              CameraShakeData, CameraSettings
 │       └── Enum/                프로젝트 전역 열거형

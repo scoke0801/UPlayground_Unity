@@ -35,6 +35,7 @@ namespace UPlayGround.State
             _elapsed         = 0f;
             _attackDirection = motor.CharacterForward;
             _combat          = playerActor.GetCombat();
+            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _attackData      = _combat?.ExecuteJumpDashAttack();
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpDashAttack_1;

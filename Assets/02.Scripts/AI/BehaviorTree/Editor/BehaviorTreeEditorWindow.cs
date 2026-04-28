@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -15,6 +14,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private BehaviorTreeInspectorView _inspectorView;
         private BehaviorTreeBlackboardView _blackboardView;
         private VisualElement _validationBox;
+        private Label _graphTitleLabel;
+        private Label _graphSubtitleLabel;
         private ObjectField _treeField;
         private ObjectField _runnerField;
 
@@ -53,8 +54,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private void ConstructLayout()
         {
             rootVisualElement.Clear();
+            rootVisualElement.style.backgroundColor = new Color(0.12f, 0.12f, 0.12f);
 
             var toolbar = new Toolbar();
+            toolbar.style.height = 28f;
+            toolbar.style.backgroundColor = new Color(0.16f, 0.16f, 0.16f);
 
             _treeField = new ObjectField
             {
@@ -67,14 +71,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             toolbar.Add(new Label("Tree"));
             toolbar.Add(_treeField);
 
-            var createButton = new ToolbarButton(CreateTreeAsset) { text = "New" };
-            toolbar.Add(createButton);
-
-            var saveButton = new ToolbarButton(SaveTree) { text = "Save" };
-            toolbar.Add(saveButton);
-
-            var validateButton = new ToolbarButton(ValidateTree) { text = "Validate" };
-            toolbar.Add(validateButton);
+            toolbar.Add(new ToolbarButton(CreateTreeAsset) { text = "New" });
+            toolbar.Add(new ToolbarButton(SaveTree) { text = "Save" });
+            toolbar.Add(new ToolbarButton(ValidateTree) { text = "Validate" });
+            toolbar.Add(new ToolbarButton(BehaviorTreeJsonUtility.ImportJson) { text = "Import Json" });
+            toolbar.Add(new ToolbarButton(BehaviorTreeJsonUtility.ExportSelected) { text = "Export Json" });
 
             toolbar.Add(new ToolbarSpacer { style = { flexGrow = 1 } });
 
@@ -91,32 +92,122 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             rootVisualElement.Add(toolbar);
 
-            var content = new TwoPaneSplitView(0, 640, TwoPaneSplitViewOrientation.Horizontal);
+            var content = new TwoPaneSplitView(0, 330, TwoPaneSplitViewOrientation.Horizontal);
+            content.style.flexGrow = 1;
             rootVisualElement.Add(content);
 
-            _graphView = new BehaviorTreeGraphView(this);
-            content.Add(_graphView);
-
-            var sidePanel = new TwoPaneSplitView(1, 260, TwoPaneSplitViewOrientation.Vertical);
+            var sidePanel = CreateSidePanel();
             content.Add(sidePanel);
 
-            _inspectorView = new BehaviorTreeInspectorView();
-            sidePanel.Add(_inspectorView);
+            var graphShell = CreateGraphShell();
+            content.Add(graphShell);
 
-            var bottomPanel = new VisualElement();
-            bottomPanel.style.flexGrow = 1;
-            sidePanel.Add(bottomPanel);
+            _graphView = new BehaviorTreeGraphView(this);
+            graphShell.Add(_graphView);
+
+            var graphHeader = CreateGraphHeader();
+            graphShell.Add(graphHeader);
+
+            var inspectorScroll = new ScrollView();
+            inspectorScroll.style.flexGrow = 1;
+            _inspectorView = new BehaviorTreeInspectorView();
+            inspectorScroll.Add(_inspectorView);
+            sidePanel.Add(CreateSection("Node Inspector", inspectorScroll, 260f));
 
             _blackboardView = new BehaviorTreeBlackboardView();
-            bottomPanel.Add(_blackboardView);
+            sidePanel.Add(CreateSection("Shared Variables", _blackboardView, 260f));
 
             _validationBox = new VisualElement();
-            _validationBox.style.marginTop = 6f;
-            bottomPanel.Add(_validationBox);
+            _validationBox.style.flexGrow = 1;
+            sidePanel.Add(CreateSection("Errors", _validationBox, 120f));
 
             _graphView.PopulateView(_tree);
             _blackboardView.Bind(_tree);
+            RefreshGraphTitle();
             ValidateTree();
+        }
+
+        private static VisualElement CreateSidePanel()
+        {
+            var sidePanel = new VisualElement();
+            sidePanel.style.flexGrow = 1;
+            sidePanel.style.minWidth = 280f;
+            sidePanel.style.backgroundColor = new Color(0.17f, 0.17f, 0.17f);
+            sidePanel.style.borderRightColor = new Color(0.05f, 0.05f, 0.05f);
+            sidePanel.style.borderRightWidth = 1f;
+            return sidePanel;
+        }
+
+        private static VisualElement CreateGraphShell()
+        {
+            var graphShell = new VisualElement();
+            graphShell.style.flexGrow = 1;
+            graphShell.style.position = Position.Relative;
+            return graphShell;
+        }
+
+        private VisualElement CreateGraphHeader()
+        {
+            var header = new VisualElement();
+            header.pickingMode = PickingMode.Ignore;
+            header.style.position = Position.Absolute;
+            header.style.left = 14f;
+            header.style.top = 12f;
+            header.style.paddingLeft = 12f;
+            header.style.paddingRight = 12f;
+            header.style.paddingTop = 8f;
+            header.style.paddingBottom = 8f;
+            header.style.backgroundColor = new Color(0.10f, 0.10f, 0.10f, 0.78f);
+            header.style.borderTopLeftRadius = 4f;
+            header.style.borderTopRightRadius = 4f;
+            header.style.borderBottomLeftRadius = 4f;
+            header.style.borderBottomRightRadius = 4f;
+
+            _graphTitleLabel = new Label();
+            _graphTitleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _graphTitleLabel.style.fontSize = 14f;
+            _graphTitleLabel.style.color = new Color(0.88f, 0.88f, 0.88f);
+            header.Add(_graphTitleLabel);
+
+            _graphSubtitleLabel = new Label();
+            _graphSubtitleLabel.style.fontSize = 10f;
+            _graphSubtitleLabel.style.color = new Color(0.55f, 0.68f, 0.78f);
+            header.Add(_graphSubtitleLabel);
+
+            return header;
+        }
+
+        private static VisualElement CreateSection(string title, VisualElement content, float minHeight)
+        {
+            var section = new VisualElement();
+            section.style.minHeight = minHeight;
+            section.style.flexGrow = 1;
+            section.style.marginLeft = 6f;
+            section.style.marginRight = 6f;
+            section.style.marginTop = 6f;
+            section.style.marginBottom = 2f;
+            section.style.backgroundColor = new Color(0.20f, 0.20f, 0.20f);
+            section.style.borderTopLeftRadius = 4f;
+            section.style.borderTopRightRadius = 4f;
+            section.style.borderBottomLeftRadius = 4f;
+            section.style.borderBottomRightRadius = 4f;
+
+            var header = new Label(title);
+            header.style.height = 24f;
+            header.style.paddingLeft = 8f;
+            header.style.paddingTop = 4f;
+            header.style.unityFontStyleAndWeight = FontStyle.Bold;
+            header.style.color = new Color(0.82f, 0.82f, 0.82f);
+            header.style.backgroundColor = new Color(0.13f, 0.13f, 0.13f);
+            section.Add(header);
+
+            content.style.flexGrow = 1;
+            content.style.marginLeft = 4f;
+            content.style.marginRight = 4f;
+            content.style.marginTop = 4f;
+            content.style.marginBottom = 4f;
+            section.Add(content);
+            return section;
         }
 
         public void SetTree(BehaviorTreeAsset tree)
@@ -128,6 +219,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _graphView?.PopulateView(_tree);
             _blackboardView?.Bind(_tree);
             _inspectorView?.UpdateSelection(null);
+            RefreshGraphTitle();
             ValidateTree();
         }
 
@@ -203,17 +295,61 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _validationBox.Clear();
             foreach (var message in BehaviorTreeAssetValidator.Validate(_tree))
             {
-                var label = new Label($"{message.Level}: {message.Message}");
-                label.style.whiteSpace = WhiteSpace.Normal;
-                label.style.marginBottom = 2f;
-                label.style.color = message.Level switch
+                var row = new VisualElement();
+                row.style.flexDirection = FlexDirection.Row;
+                row.style.marginBottom = 4f;
+                row.style.paddingLeft = 6f;
+                row.style.paddingRight = 6f;
+                row.style.paddingTop = 4f;
+                row.style.paddingBottom = 4f;
+                row.style.backgroundColor = new Color(0.14f, 0.14f, 0.14f);
+                row.style.borderTopLeftRadius = 3f;
+                row.style.borderTopRightRadius = 3f;
+                row.style.borderBottomLeftRadius = 3f;
+                row.style.borderBottomRightRadius = 3f;
+
+                var icon = new Label(message.Level switch
                 {
-                    BehaviorTreeValidationLevel.Error => new Color(0.95f, 0.35f, 0.35f),
-                    BehaviorTreeValidationLevel.Warning => new Color(0.95f, 0.72f, 0.22f),
-                    _ => new Color(0.55f, 0.85f, 0.55f)
+                    BehaviorTreeValidationLevel.Error => "!",
+                    BehaviorTreeValidationLevel.Warning => "?",
+                    _ => "i"
+                });
+                icon.style.width = 18f;
+                icon.style.unityTextAlign = TextAnchor.MiddleCenter;
+                icon.style.unityFontStyleAndWeight = FontStyle.Bold;
+                icon.style.color = Color.white;
+                icon.style.backgroundColor = message.Level switch
+                {
+                    BehaviorTreeValidationLevel.Error => new Color(0.82f, 0.18f, 0.18f),
+                    BehaviorTreeValidationLevel.Warning => new Color(0.88f, 0.58f, 0.12f),
+                    _ => new Color(0.18f, 0.55f, 0.82f)
                 };
-                _validationBox.Add(label);
+                icon.style.borderTopLeftRadius = 8f;
+                icon.style.borderTopRightRadius = 8f;
+                icon.style.borderBottomLeftRadius = 8f;
+                icon.style.borderBottomRightRadius = 8f;
+                row.Add(icon);
+
+                var label = new Label(message.Message);
+                label.style.whiteSpace = WhiteSpace.Normal;
+                label.style.flexGrow = 1;
+                label.style.marginLeft = 6f;
+                label.style.color = new Color(0.82f, 0.82f, 0.82f);
+                row.Add(label);
+
+                _validationBox.Add(row);
             }
+        }
+
+        private void RefreshGraphTitle()
+        {
+            if (_graphTitleLabel == null || _graphSubtitleLabel == null)
+                return;
+
+            _graphTitleLabel.text = _tree != null ? _tree.name : "No Behavior Tree";
+            _graphSubtitleLabel.text = _tree != null
+                ? $"Nodes {_tree.Nodes.Count}  |  Root {(_tree.RootNode != null ? _tree.RootNode.DisplayName : "None")}"
+                : "Select or import a BehaviorTreeAsset";
         }
     }
 }

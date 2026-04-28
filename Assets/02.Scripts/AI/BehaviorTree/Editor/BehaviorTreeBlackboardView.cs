@@ -13,6 +13,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public BehaviorTreeBlackboardView()
         {
             style.flexGrow = 1;
+            style.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
         }
 
         public void Bind(BehaviorTreeAsset tree)
@@ -40,8 +41,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var blackboard = _serializedTree.FindProperty("_blackboard");
             var entries = blackboard.FindPropertyRelative("_entries");
 
-            EditorGUILayout.LabelField("Blackboard", EditorStyles.boldLabel);
-
             for (var i = 0; i < entries.arraySize; i++)
             {
                 var entry = entries.GetArrayElementAtIndex(i);
@@ -55,7 +54,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 }
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.PropertyField(entry.FindPropertyRelative("_valueType"));
+                EditorGUILayout.PropertyField(entry.FindPropertyRelative("_valueType"), new GUIContent("Type"));
                 DrawValueField(entry);
                 EditorGUILayout.EndVertical();
             }

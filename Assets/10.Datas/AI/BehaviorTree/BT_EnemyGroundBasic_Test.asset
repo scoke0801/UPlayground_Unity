@@ -122,7 +122,6 @@ MonoBehaviour:
   _editorPosition: {x: -852.8001, y: 836.2502}
   _children:
   - {fileID: 6928455814388444325}
-  - {fileID: 924933733775013235}
   _abortType: 0
 --- !u!114 &-1847582369555403117
 MonoBehaviour:

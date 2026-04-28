@@ -9,6 +9,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     public class BehaviorTreeNodeView : Node
     {
         private readonly VisualElement _statusBar;
+        private readonly Color _baseBorderColor;
 
         public BehaviorTreeNodeView(BTNode node)
         {
@@ -19,6 +20,24 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             style.left = Node.EditorPosition.x;
             style.top = Node.EditorPosition.y;
+            style.width = 170f;
+            style.borderTopWidth = 1f;
+            style.borderRightWidth = 1f;
+            style.borderBottomWidth = 1f;
+            style.borderLeftWidth = 1f;
+            style.borderTopLeftRadius = 5f;
+            style.borderTopRightRadius = 5f;
+            style.borderBottomLeftRadius = 5f;
+            style.borderBottomRightRadius = 5f;
+            style.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
+
+            _baseBorderColor = GetCategoryColor(Node);
+            SetBorderColor(_baseBorderColor);
+
+            titleContainer.style.backgroundColor = GetTitleColor(Node);
+            titleContainer.style.minHeight = 26f;
+            titleContainer.style.paddingLeft = 6f;
+            titleContainer.style.paddingRight = 6f;
 
             Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
             Input.portName = "";
@@ -37,12 +56,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _statusBar = new VisualElement();
             _statusBar.style.height = 4;
-            _statusBar.style.backgroundColor = new Color(0.25f, 0.25f, 0.25f);
+            _statusBar.style.backgroundColor = _baseBorderColor;
             mainContainer.Insert(0, _statusBar);
 
             var typeLabel = new Label(Node.GetType().Name);
             typeLabel.style.fontSize = 10;
-            typeLabel.style.color = new Color(0.62f, 0.62f, 0.62f);
+            typeLabel.style.color = new Color(0.66f, 0.66f, 0.66f);
+            typeLabel.style.paddingLeft = 6f;
+            typeLabel.style.paddingBottom = 4f;
             extensionContainer.Add(typeLabel);
 
             RefreshExpandedState();
@@ -64,17 +85,20 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             if (runtimeNode == null || !runtimeNode.IsStarted)
             {
-                _statusBar.style.backgroundColor = new Color(0.25f, 0.25f, 0.25f);
+                _statusBar.style.backgroundColor = _baseBorderColor;
+                SetBorderColor(_baseBorderColor);
                 return;
             }
 
-            _statusBar.style.backgroundColor = runtimeNode.LastStatus switch
+            var stateColor = runtimeNode.LastStatus switch
             {
                 BTStatus.Running => new Color(0.95f, 0.72f, 0.18f),
                 BTStatus.Success => new Color(0.20f, 0.75f, 0.32f),
                 BTStatus.Failure => new Color(0.88f, 0.22f, 0.22f),
-                _ => new Color(0.25f, 0.25f, 0.25f)
+                _ => _baseBorderColor
             };
+            _statusBar.style.backgroundColor = stateColor;
+            SetBorderColor(stateColor);
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -84,6 +108,31 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         }
 
         public event Action<BehaviorTreeNodeView> OnSetRoot;
+
+        private void SetBorderColor(Color color)
+        {
+            style.borderTopColor = color;
+            style.borderRightColor = color;
+            style.borderBottomColor = color;
+            style.borderLeftColor = color;
+        }
+
+        private static Color GetCategoryColor(BTNode node)
+        {
+            if (node is BTCompositeNode)
+                return new Color(0.20f, 0.58f, 0.30f);
+            if (node is BTDecoratorNode)
+                return new Color(0.50f, 0.48f, 0.76f);
+            if (node is BTConditionNode)
+                return new Color(0.70f, 0.52f, 0.20f);
+            return new Color(0.32f, 0.48f, 0.68f);
+        }
+
+        private static Color GetTitleColor(BTNode node)
+        {
+            var color = GetCategoryColor(node);
+            return new Color(color.r * 0.45f, color.g * 0.45f, color.b * 0.45f, 1f);
+        }
     }
 }
 #endif

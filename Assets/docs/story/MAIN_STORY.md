@@ -455,16 +455,518 @@ Lich는 야외 필드의 최종 보스지만 전체 세계관의 최종 원흉�
 
 ```text
 UPlayGround/Story/Main Story Generator
+UPlayGround/Story/Sub Story Generator
 ```
 
 기능:
 
 - 메인 스토리 퀘스트 5종 생성/갱신
+- 서브 스토리 퀘스트 6종 생성/갱신
 - 필드 발견용 `StoryEntrySO` 생성/갱신
 - 기본 대화 그래프 생성/갱신
 - 프로젝트의 `QuestDatabase`가 있으면 `Assets/10.Datas/Quest` 기준으로 DB 갱신
 
 생성 툴은 같은 ID의 에셋이 있으면 새로 만들지 않고 값을 갱신한다. 따라서 초안 생성 후 문구를 코드에서 수정해 다시 생성할 수 있지만, Unity Inspector에서 수동 수정한 텍스트는 덮어써질 수 있다. 수동으로 다듬은 뒤에는 생성 버튼을 다시 누르기 전에 백업하거나 별도 폴더로 복제한다.
+
+서브 스토리 생성 경로:
+
+- 퀘스트: `Assets/10.Datas/Quest/Generated/SubStory`
+- 대화: `Assets/10.Datas/Dialogue/Generated/SubStory`
+- 스토리 엔트리: `Assets/10.Datas/Story/Generated/SubStory`
+
+### 생성기 데이터 블록
+
+아래 marker 사이 JSON은 Unity 에디터 생성기가 직접 읽는다. 문서의 일반 설명을 바꿔도 생성 결과는 바뀌지 않으며, 자동 생성 데이터를 바꾸려면 이 JSON을 함께 갱신한다.
+
+작성자가 스토리 내용을 갱신할 때 지켜야 할 기준:
+
+- 퀘스트 ID, 스토리 ID, 대화 그래프 ID는 저장 데이터와 연결되므로 한번 생성한 뒤에는 함부로 변경하지 않는다.
+- 사람이 읽는 본문과 생성기 JSON의 내용이 달라지면 생성기 JSON을 실제 데이터 기준으로 본다.
+- 본문을 수정해 새 퀘스트나 대화를 추가했다면 같은 변경을 아래 JSON 블록에도 반영한다.
+- Main Story Generator는 `STORY_GENERATOR_MAIN` 블록만 읽는다.
+- Sub Story Generator는 `STORY_GENERATOR_SUB` 블록만 읽는다.
+- JSON 블록이 깨지면 에디터는 내장 기본값으로 fallback할 수 있으므로, 생성 전 에디터 창의 “문서 데이터 사용” 표시를 확인한다.
+
+<!-- STORY_GENERATOR_MAIN_BEGIN -->
+```json
+{
+  "quests": [
+    {
+      "questId": "quest_main_001",
+      "questName": "끊긴 길",
+      "description": "마을 밖 길이 끊기기 시작했다. 중앙 호수 주변을 조사해 원인을 확인한다.",
+      "requiredProgress": 0,
+      "rewardGold": 100,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_reach_lake",
+          "description": "중앙 호수 주변을 조사한다.",
+          "type": "ReachLocation",
+          "targetStringId": "loc_central_lake",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_quest_main_001_start",
+          "graphName": "끊긴 길 - 시작",
+          "channel": "Main",
+          "speakerId": "촌장",
+          "text": "마을 밖 길이 하나씩 끊기고 있네.\n호수 근처에서 돌아오지 못한 사람들이 있어. 먼저 그 길이 아직 살아 있는지 확인해 주게."
+        },
+        {
+          "graphId": "dlg_field_lake_first_arrive",
+          "graphName": "중앙 호수 발견",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "호수 가운데 붉은 나무가 보인다.\n저걸 기준으로 삼으면 어느 길에서든 돌아올 수 있겠어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "field_lake_first_arrive",
+          "requiredProgress": 0,
+          "dialogueGraphId": "dlg_field_lake_first_arrive"
+        }
+      ]
+    },
+    {
+      "questId": "quest_main_002",
+      "questName": "거미줄에 막힌 숲",
+      "description": "거미 숲 깊은 곳의 Spider Queen을 처치해 막힌 숲길을 연다.",
+      "requiredProgress": 10,
+      "rewardGold": 180,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_spider_queen",
+          "description": "거미 숲 깊은 곳의 Spider Queen을 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "SpiderQueen_1",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_quest_main_002_start",
+          "graphName": "거미줄에 막힌 숲 - 시작",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "작은 거미가 문제가 아니야.\n숲 안쪽에 둥지를 튼 큰 놈이 길을 완전히 막고 있어."
+        },
+        {
+          "graphId": "dlg_field_spider_queen_defeat",
+          "graphName": "Spider Queen 처치",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "숲 안쪽 길이 보인다.\n이제 이쪽으로도 호수 반대편에 갈 수 있겠어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "monster_spider_queen_defeat",
+          "requiredProgress": 10,
+          "dialogueGraphId": "dlg_field_spider_queen_defeat"
+        }
+      ]
+    },
+    {
+      "questId": "quest_main_003",
+      "questName": "움직이는 바위",
+      "description": "바위 고지대나 숲 경계의 중형 몬스터를 처치하고 던전 방향 단서를 확보한다.",
+      "requiredProgress": 10,
+      "rewardGold": 180,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_highland_guardian",
+          "description": "바위 고지대의 Golem을 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "Golem_Normal",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_quest_main_003_start",
+          "graphName": "움직이는 바위 - 시작",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "고지대에서 돌이 움직이는 소리가 난다고들 하지.\n그쪽을 정리하면 던전 방향도 내려다볼 수 있을 거야."
+        },
+        {
+          "graphId": "dlg_field_highland_guardian_defeat",
+          "graphName": "고지대 강적 처치",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "고지대가 조용해졌다.\n저 아래, 석등이 이어지는 길 끝에 입구 같은 게 보인다."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "monster_highland_guardian_defeat",
+          "requiredProgress": 10,
+          "dialogueGraphId": "dlg_field_highland_guardian_defeat"
+        }
+      ]
+    },
+    {
+      "questId": "quest_main_004",
+      "questName": "등롱이 가리키는 곳",
+      "description": "석등과 목조 등롱이 이어지는 길 끝을 조사해 던전 입구의 위치를 확인한다.",
+      "requiredProgress": 10,
+      "rewardGold": 150,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_reach_lantern_path_end",
+          "description": "석등 길 끝을 조사한다.",
+          "type": "ReachLocation",
+          "targetStringId": "loc_lantern_path_end",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_quest_main_004_start",
+          "graphName": "등롱이 가리키는 곳 - 시작",
+          "channel": "Main",
+          "speakerId": "길잡이",
+          "text": "호수 가운데 붉은 나무가 보이면 아직 길을 잃은 건 아니야.\n던전 쪽 길은 석등이 이어지는 방향을 보면 된다."
+        },
+        {
+          "graphId": "dlg_field_lantern_path_end",
+          "graphName": "석등 길 끝",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "등롱과 석등이 같은 방향으로 이어져 있다.\n길을 숨기려던 게 아니라, 잊지 않으려고 세워 둔 표식 같아."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "field_lantern_path_end",
+          "requiredProgress": 20,
+          "dialogueGraphId": "dlg_field_lantern_path_end"
+        }
+      ]
+    },
+    {
+      "questId": "quest_main_005",
+      "questName": "던전 입구의 Lich",
+      "description": "던전 입구를 막고 있는 Lich를 처치하고 내부로 진입할 길을 연다.",
+      "requiredProgress": 30,
+      "rewardGold": 300,
+      "isRepeatable": false,
+      "requiredQuestIds": ["quest_main_001"],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_lich",
+          "description": "던전 입구의 Lich를 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "Lich_Normal",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_quest_main_005_start",
+          "graphName": "던전 입구의 Lich - 시작",
+          "channel": "Main",
+          "speakerId": "촌장",
+          "text": "그자는 입구 앞에 서 있었다고 했네.\n뼈들이 그 뒤를 따랐고, 아무도 안으로 들어가지 못했다고 하더군."
+        },
+        {
+          "graphId": "dlg_dungeon_entrance_arrive",
+          "graphName": "던전 입구 도달",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "던전 입구가 맞다.\n여길 지나가려면 저걸 먼저 쓰러뜨려야 해."
+        },
+        {
+          "graphId": "dlg_dungeon_entrance_open",
+          "graphName": "던전 입구 개방",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "입구를 막던 기운이 사라졌다.\n이제 안으로 들어갈 수 있다."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "dungeon_entrance_arrive",
+          "requiredProgress": 30,
+          "dialogueGraphId": "dlg_dungeon_entrance_arrive"
+        },
+        {
+          "storyId": "dungeon_entrance_open",
+          "requiredProgress": 40,
+          "dialogueGraphId": "dlg_dungeon_entrance_open"
+        }
+      ]
+    }
+  ]
+}
+```
+<!-- STORY_GENERATOR_MAIN_END -->
+
+<!-- STORY_GENERATOR_SUB_BEGIN -->
+```json
+{
+  "quests": [
+    {
+      "questId": "quest_sub_hunter_skeleton_patrol",
+      "questName": "길목의 뼈 무리",
+      "description": "마을과 호수 사이 길목에 모인 Skeleton 무리를 정리한다.",
+      "requiredProgress": 0,
+      "rewardGold": 80,
+      "isRepeatable": true,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_skeleton_patrol",
+          "description": "길목의 Skeleton을 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "SkeletonCommon",
+          "requiredCount": 5
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_hunter_skeleton_patrol_start",
+          "graphName": "길목의 뼈 무리 - 시작",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "호수로 가는 길목에 뼈들이 다시 모이고 있어.\n큰 위협은 아니지만 방치하면 마을 사람이 지나갈 수 없게 된다."
+        },
+        {
+          "graphId": "dlg_sub_hunter_skeleton_patrol_done",
+          "graphName": "길목의 뼈 무리 - 완료",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "길목이 조용해졌군.\n이 정도면 당분간 보급길은 쓸 수 있겠어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_hunter_skeleton_patrol_done",
+          "requiredProgress": 0,
+          "dialogueGraphId": "dlg_sub_hunter_skeleton_patrol_done"
+        }
+      ]
+    },
+    {
+      "questId": "quest_sub_hunter_spider_web",
+      "questName": "숲가의 거미줄",
+      "description": "거미 숲 바깥쪽의 Spider를 처치해 주민들이 우회로를 쓸 수 있게 한다.",
+      "requiredProgress": 10,
+      "rewardGold": 120,
+      "isRepeatable": true,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_spider_web",
+          "description": "거미 숲 바깥쪽의 Spider를 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "SpiderMinion_1",
+          "requiredCount": 6
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_hunter_spider_web_start",
+          "graphName": "숲가의 거미줄 - 시작",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "숲 깊은 곳은 네가 아니면 무리겠지만, 바깥쪽 거미줄부터 줄여야 해.\n우회로라도 살아 있어야 사람이 움직일 수 있다."
+        },
+        {
+          "graphId": "dlg_sub_spider_web_clear",
+          "graphName": "숲가의 거미줄 정리",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "바깥쪽 거미줄이 줄었다.\n깊은 숲은 여전히 위험하지만, 이 길은 다시 쓸 수 있겠어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_spider_web_clear",
+          "requiredProgress": 10,
+          "dialogueGraphId": "dlg_sub_spider_web_clear"
+        }
+      ]
+    },
+    {
+      "questId": "quest_sub_herbalist_lake_herb",
+      "questName": "호수의 약초 자리",
+      "description": "중앙 호수 근처의 약초 자리를 확인하고 약초상이 다시 채집할 수 있는지 살핀다.",
+      "requiredProgress": 10,
+      "rewardGold": 90,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_reach_lake_herb_patch",
+          "description": "중앙 호수 근처 약초 자리를 확인한다.",
+          "type": "ReachLocation",
+          "targetStringId": "loc_lake_herb_patch",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_herbalist_lake_herb_start",
+          "graphName": "호수의 약초 자리 - 시작",
+          "channel": "Main",
+          "speakerId": "약초상",
+          "text": "호수 근처 낮은 풀밭에 약초가 자라.\n몬스터가 너무 많아 직접 갈 수 없으니, 자리만이라도 남아 있는지 확인해 줘."
+        },
+        {
+          "graphId": "dlg_sub_lake_herb_patch_found",
+          "graphName": "호수 약초 자리 확인",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "약초가 아직 남아 있다.\n길만 정리되면 마을에서도 다시 채집하러 올 수 있겠어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_lake_herb_patch_found",
+          "requiredProgress": 10,
+          "dialogueGraphId": "dlg_sub_lake_herb_patch_found"
+        }
+      ]
+    },
+    {
+      "questId": "quest_sub_guide_broken_lantern",
+      "questName": "쓰러진 등롱",
+      "description": "석등 길 초입의 쓰러진 등롱을 확인해 길잡이에게 위치 정보를 전한다.",
+      "requiredProgress": 10,
+      "rewardGold": 90,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_reach_broken_lantern",
+          "description": "석등 길 초입의 쓰러진 등롱을 확인한다.",
+          "type": "ReachLocation",
+          "targetStringId": "loc_broken_lantern",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_guide_broken_lantern_start",
+          "graphName": "쓰러진 등롱 - 시작",
+          "channel": "Main",
+          "speakerId": "길잡이",
+          "text": "석등 길 초입의 등롱 하나가 쓰러졌다는 말이 있어.\n그 표식이 사라지면 던전 쪽 길을 헷갈리는 사람이 생긴다."
+        },
+        {
+          "graphId": "dlg_sub_broken_lantern_found",
+          "graphName": "쓰러진 등롱 확인",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "등롱이 쓰러져 있다.\n누군가 지나간 길이라면, 몬스터도 그 길을 알고 있겠지."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_broken_lantern_found",
+          "requiredProgress": 10,
+          "dialogueGraphId": "dlg_sub_broken_lantern_found"
+        }
+      ]
+    },
+    {
+      "questId": "quest_sub_highland_golem_trace",
+      "questName": "고지대의 발자국",
+      "description": "바위 고지대의 Golem을 처치하고 고지대 길의 위험도를 낮춘다.",
+      "requiredProgress": 20,
+      "rewardGold": 160,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_kill_highland_golem",
+          "description": "바위 고지대의 Golem을 처치한다.",
+          "type": "MonsterKill",
+          "actorId": "Golem_Normal",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_highland_golem_trace_start",
+          "graphName": "고지대의 발자국 - 시작",
+          "channel": "Main",
+          "speakerId": "사냥꾼",
+          "text": "고지대 길에 커다란 발자국이 새로 생겼어.\n돌이 움직인 흔적이라면 그냥 지나칠 수 없지."
+        },
+        {
+          "graphId": "dlg_sub_highland_golem_trace_done",
+          "graphName": "고지대 Golem 처치",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "바위가 멈췄다.\n이 길은 아직 거칠지만, 적어도 등 뒤에서 무너질 걱정은 줄었어."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_highland_golem_trace_done",
+          "requiredProgress": 20,
+          "dialogueGraphId": "dlg_sub_highland_golem_trace_done"
+        }
+      ]
+    },
+    {
+      "questId": "quest_sub_survivor_lost_pack",
+      "questName": "도망친 자의 짐",
+      "description": "던전 입구 근처에서 생존자가 잃어버린 짐을 확인한다.",
+      "requiredProgress": 30,
+      "rewardGold": 140,
+      "isRepeatable": false,
+      "requiredQuestIds": [],
+      "objectives": [
+        {
+          "objectiveId": "obj_reach_survivor_pack",
+          "description": "던전 입구 근처의 잃어버린 짐을 확인한다.",
+          "type": "ReachLocation",
+          "targetStringId": "loc_survivor_lost_pack",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [
+        {
+          "graphId": "dlg_sub_survivor_lost_pack_start",
+          "graphName": "도망친 자의 짐 - 시작",
+          "channel": "Main",
+          "speakerId": "떠돌이 생존자",
+          "text": "도망치면서 짐을 버렸어.\n중요한 건 아니지만, 그 안에 누가 같이 갔는지 적힌 쪽지가 있다."
+        },
+        {
+          "graphId": "dlg_sub_survivor_lost_pack_found",
+          "graphName": "생존자의 짐 확인",
+          "channel": "Monologue",
+          "speakerId": "Bokusei",
+          "text": "찢어진 짐이 남아 있다.\n안쪽으로 들어간 사람이 더 있었다는 뜻이다."
+        }
+      ],
+      "stories": [
+        {
+          "storyId": "sub_survivor_lost_pack_found",
+          "requiredProgress": 30,
+          "dialogueGraphId": "dlg_sub_survivor_lost_pack_found"
+        }
+      ]
+    }
+  ]
+}
+```
+<!-- STORY_GENERATOR_SUB_END -->
 
 ---
 

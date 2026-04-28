@@ -222,18 +222,19 @@ UIManager
 | SO | 경로 | 용도 |
 |----|------|------|
 | `ItemDatabase` | `10.Datas/Item` | 전체 아이템 DB (Addressables 키: `ItemDatabase`) |
-| `EnemyStatsSO` | `10.Datas/Actor/Enemy/StatData` | 몬스터 스탯 |
+| `ActorStatSO` | `10.Datas/Stat` | 액터 공통 전투/생존/이동 배율 스탯 |
+| `EnemyStatsSO` | `10.Datas/Actor/Enemy/StatData` | 레거시 몬스터 튜닝 및 `ActorStatSO` 생성 입력 |
 | `EnemyBehaviorSO` | — | 페이즈 기반 AI 프로필 |
 | `EnemyAttackDataSO` | `10.Datas/Actor/Enemy/AttackData` | 다단 `HitPhaseData` 공격 데이터 |
 | `EnemyFlyingSettingsSO` | — | 비행 몬스터 설정 |
 | `EnemyDropTableSO` | `10.Datas/Actor/Enemy/DropTables` | 몬스터 드랍 테이블 |
 | `PoiseSO` | — | 강인도 데이터 |
 | `PlayerAttackDataSO` | — | 플레이어 공격 데이터 |
-| `ActorDefinitionSO` | — | 액터 정의 (prefab + stats + dropTable) |
+| `ActorDefinitionSO` | — | 액터 정의 (prefab + 필수 statData + 레거시 stats + npcData + dropTable) |
 | `ActorDatabase` | — | 전체 ActorDefinitionSO 조회 테이블 |
 | `PartyConfigSO` | — | 시작 파티 순서와 초기 활성 캐릭터 인덱스 |
 | `InteractableActorSO` | `10.Datas/Actor/Interaction` | 채집 오브젝트 데이터 |
-| `NpcActorSO` | — | NPC 데이터 (InteractableActorSO 상속) |
+| `NpcActorSO` | — | NPC 데이터 (InteractableActorSO 상속). `ActorDefinitionSO.npcData`에 연결하면 `NpcActor.SetDefinition()`에서 주입 |
 | `MotionSetAsset` | `10.Datas/Actor/Animation` | 애니메이션 타임라인 |
 | `CameraShakeData` | — | 카메라 쉐이크 프리셋 |
 | `RecipeDatabase` | — | 제작 레시피 DB (Addressables 키: `RecipeDatabase`) |
@@ -316,11 +317,15 @@ Assets/
 | [UI_Base_Guide.md](UI_Base_Guide.md) | UI 베이스 시스템 — 레이어 구조, UI 생성/제거 |
 | [GAMEMANAGER_README.md](GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |
 | [ITEM_DROP_SYSTEM_GUIDE.md](ITEM_DROP_SYSTEM_GUIDE.md) | 아이템 드랍 시스템 — 몬스터/인터랙션 드랍 테이블, 픽업 오브젝트, 에디터 도구 |
+| [ITEM_DATA_SYSTEM_GUIDE.md](Complete/ITEM_DATA_SYSTEM_GUIDE.md) | 아이템 데이터 시스템 — ItemSO/EquipmentSO 구조, ItemDatabase 흐름, 데이터 자동 발급기 정의 |
 | [QUEST_SYSTEM_GUIDE.md](QUEST_SYSTEM_GUIDE.md) | 퀘스트 시스템 — 목표 추적·보상·Enum 자동생성·에디터 도구 |
 | [MINIMAP_SYSTEM_GUIDE.md](MINIMAP_SYSTEM_GUIDE.md) | 미니맵 시스템 — 플레이어·적·퀘스트 마커 표시, 씬 캡처 에디터 |
+| [MAP_PLACEMENT_TOOL_GUIDE.md](MAP_PLACEMENT_TOOL_GUIDE.md) | 맵 배치 툴 — 씬 클릭 기반 적·NPC·포탈 프리팹 배치 |
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
+| [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
+| [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 
 ---
 
@@ -329,14 +334,41 @@ Assets/
 | 메뉴 경로 | 도구 | 기능 |
 |-----------|------|------|
 | `UPlayGround/Item/Item Editor` | ItemEditorWindow | ItemSO 생성·편집, ID 중복 감지 |
+| `UPlayGround/Item/Item Data Generator` | ItemDataGeneratorWindow | ID 대역 기반 ItemSO/EquipmentSO 자동 발급, ItemDatabase/ItemIdType 갱신 |
 | `UPlayGround/Crafting/Recipe Editor` | RecipeEditorWindow | 레시피 시각 편집, 아이템 피커, CSV 내보내기 |
+| `UPlayGround/Crafting/Recipe Data Generator` | RecipeDataGeneratorWindow | ItemDatabase 아이템 기반 레시피/재료/언락 조건 생성 및 RecipeIdType 갱신 |
 | `UPlayGround/Drop Table Editor` | DropTableEditorWindow | 몬스터/인터랙션 드랍 테이블 통합 편집 |
 | `UPlayGround/Actor/Actor Database Editor` | ActorDatabaseEditorWindow | ActorDefinitionSO DB 관리 |
+| `UPlayGround/NPC/NPC Data Generator` | NpcDataGeneratorWindow | NpcActorSO 생성 및 NPC용 ActorDefinitionSO.npcData 자동 연결 |
 | `Window/MotionSet Editor` | MotionSetWindow | 애니메이션 타임라인 편집 |
 | `UPlayGround/Cheat Console` | CheatConsoleWindow | 개발용 치트 명령 실행 |
 | `UPlayGround/Quest/Quest Editor` | QuestEditorWindow | 퀘스트 SO 생성·편집, DB 갱신, QuestIdType Enum 생성 |
 | `UPlayGround/ID Enum Generator` | IdEnumGeneratorWindow | FX/UI/Actor/Quest 등 ID Enum 일괄 생성 |
 | `UPlayGround/Minimap/Minimap Capture Editor` | MinimapCaptureEditorWindow | 씬 탑다운 촬영 → PNG 저장 → MinimapIconConfigSO 자동 할당 |
+| `UPlayGround/Map/Map Placement Tool` | MapPlacementEditorWindow | 씬 클릭 기반 적·NPC·포탈 프리팹 배치 |
+| `UPlayGround/Stat/Stat Database Editor` | StatDatabaseEditorWindow | ActorStatSO 검색·편집·비교·CSV 내보내기 |
+| `UPlayGround/Stat/Stat Data Generator` | StatDataGeneratorWindow | EnemyStatsSO/PoiseSO 기반 ActorStatSO 생성, 연결, 전체 보정 |
+| `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
+| `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
+
+---
+
+## 🧰 Generator Tool 목록
+
+자동 생성/발급 도구는 기존 카테고리 메뉴를 유지하면서 `UPlayGround/Generator Tool/` 아래에서도 한 번에 접근할 수 있다.
+
+| Generator Tool 메뉴 | 원래 메뉴 | 기능 |
+|---------------------|-----------|------|
+| `UPlayGround/Generator Tool/ID Enum Generator` | `UPlayGround/Util/ID Enum Generator` | FX/UI/CameraShake/Item/Recipe/Actor/Quest ID enum 생성 |
+| `UPlayGround/Generator Tool/Item Data Generator` | `UPlayGround/Item/Item Data Generator` | ID 대역 기반 ItemSO/EquipmentSO 자동 발급 |
+| `UPlayGround/Generator Tool/Recipe Data Generator` | `UPlayGround/Crafting/Recipe Data Generator` | ItemDatabase 기반 제작 레시피/재료/언락 조건 생성 |
+| `UPlayGround/Generator Tool/Stat Data Generator` | `UPlayGround/Stat/Stat Data Generator` | EnemyStatsSO/PoiseSO 기반 ActorStatSO 생성 및 연결 |
+| `UPlayGround/Generator Tool/Validate Stat Data Coverage` | `UPlayGround/Stat/Validate Stat Data Coverage` | ActorDefinitionSO의 statData/StatType 누락 검증 |
+| `UPlayGround/Generator Tool/NPC Data Generator` | `UPlayGround/NPC/NPC Data Generator` | NpcActorSO와 NPC용 ActorDefinitionSO 생성 및 연결 |
+| `UPlayGround/Generator Tool/Main Story Generator` | `UPlayGround/Story/Main Story Generator` | 메인 스토리 Quest/Dialogue/StoryEntry 생성 |
+| `UPlayGround/Generator Tool/Sub Story Generator` | `UPlayGround/Story/Sub Story Generator` | 서브 스토리 Quest/Dialogue/StoryEntry 생성 |
+| `UPlayGround/Generator Tool/Locomotion Motion Setup` | `UPlayGround/Util/Locomotion Motion Setup` | FBX 클립 기반 MotionSetAsset 일괄 생성/등록 |
+| `UPlayGround/Generator Tool/Camera Shake Presets` | `UPlayGround/Camera/Generate Shake Presets` | 기본 카메라 쉐이크 프리셋 생성 |
 
 ---
 

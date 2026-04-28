@@ -45,11 +45,13 @@ PlayerEquipment
 ├── SetMainWeaponDrawn(bool)
 ├── SetSubWeaponDrawn(bool)
 ├── TryPlayMainWeaponDrawMotion(bool, ActorAnimator, Action)
+├── ForceSyncMainWeaponState(bool)  ← 시작/캐릭터 교체 시 weight↔플래그 강제 동기화
 ├── OnEquipRightWeapon()  ← 애니메이션 이벤트 콜백
 └── OnEquipLeftWeapon()   ← 애니메이션 이벤트 콜백
 
 PlayerActorAnimator
-└── PlayMotion(AnimKey)   ← 현재 WeaponType 기준 MotionSet 탐색
+├── PlayMotion(AnimKey)              ← IsMainWeaponEquipped에 따라 WeaponType / NoWeapon MotionSet 분기
+└── GetActiveWeaponTypeForMotion()   ← 발도/납도 키는 WeaponType 그대로 사용
 ```
 
 ### 관련 파일
@@ -362,6 +364,60 @@ namespace UPlayGround.Component
 
 ---
 
+## 후속 수정 (2026-04-27)
+
+초기 구현 후, 시작 시 `IsMainWeaponEquipped` 플래그가 prefab의 `ParentConstraint` weight 상태와 어긋나 발도/납도 가드가 잘못 동작하고, 등에 메인 상태에서도 무기 모션셋이 선택되는 두 가지 문제가 발견되어 다음과 같이 보정했다.
+
+### 6. 시작/장착 시 weight↔플래그 강제 동기화 (B안)
+
+`EquipWeapon()`은 무기 GameObject 생성과 `ParentConstraint` 부모 설정만 수행하고 `IsMainWeaponEquipped`를 갱신하지 않았다. 그 결과 prefab이 손 weight=1로 시작해도 `IsMainWeaponEquipped`는 `false`로 출발해, 비전투 진입 시 `PlayerCombatWeaponStateController.cs:115`의 `IsMainWeaponEquipped == drawn` 가드와 `PlayerEquipment.SetMainWeaponDrawn()`의 동일 가드(`PlayerEquipment.cs:420`)에 모두 막혀 sheath 모션이 재생되지 않았다.
+
+해결: `EquipWeapon()` 끝에서 weight와 플래그를 모두 sheath 상태로 강제 동기화한다.
+
+| 위치 | 내용 |
+|------|------|
+| `PlayerEquipment.cs:268` | `EquipWeapon()` 마지막에서 `ForceSyncWeaponState(equipPosition, false)` 호출 |
+| `PlayerEquipment.cs:509` | `ForceSyncMainWeaponState(bool drawn)` public 진입점 |
+| `PlayerEquipment.cs:514` | `ForceSyncWeaponState(EquipPosition, bool)` 가드 없이 weight + 플래그를 함께 set |
+
+이로써 `CoEquipStartItem()` 흐름에서 시작 무기가 등록된 직후 항상 "등에 멘 상태 + `IsMainWeaponEquipped=false`"로 정렬되어, 첫 전투 진입에서 발도 모션이, 첫 전투 이탈에서 납도 모션이 정상 재생된다.
+
+### 7. 캐릭터 교체 시 전투 상태 기반 동기화
+
+캐릭터 교체 시점에 새 모델의 `ParentConstraint` 기본 weight는 prefab 세팅에 의존하므로, 현재 `PlayerCombat.IsInCombat` 값에 맞춰 새 `PlayerEquipment`의 weight와 플래그를 강제 정렬한다.
+
+| 위치 | 내용 |
+|------|------|
+| `PlayerActor.cs:403` | `RefreshForCharacter()`에서 `_combat.IsInCombat`을 인자로 `ForceSyncMainWeaponState()` 호출 |
+
+비전투 중 교체면 등에 멘 상태로, 전투 중 교체면 손에 든 상태로 자동 동기화된다.
+
+### 8. MotionSet 선택을 IsMainWeaponEquipped 기준으로 분기
+
+기존 `PlayerActorAnimator.PlayMotion()`은 `_playerEquipment.GetMainWeaponType()`만 보고 MotionSet을 선택했기 때문에, 무기를 등에 메고 있어도 `WeaponType=Katana`인 한 카타나 모션이 재생되었다.
+
+해결: 모션 선택 분기 헬퍼 `GetActiveWeaponTypeForMotion(AnimKey)`를 도입하고 `PlayMotion`/`GetMotionSetDuration`이 이를 통하도록 변경했다.
+
+선택 규칙:
+
+- `IsMainWeaponEquipped == true` → `WeaponType` 모션셋
+- `IsMainWeaponEquipped == false` → `WeaponType.NoWeapon` 모션셋
+- 단, `AnimKey.Equip_Weapon` / `AnimKey.UnEquip_Weapon` / `AnimKey.Equip_LeftWeapon`은 발도/납도 모션 자체가 무기에 정의된 것이므로 `WeaponType`을 그대로 사용한다 (전투 진입/이탈 모션이 정상 재생되도록 보장).
+
+| 위치 | 내용 |
+|------|------|
+| `PlayerActorAnimator.cs:62` | `PlayMotion()`이 `GetActiveWeaponTypeForMotion(key)` 결과로 MotionSet 조회 |
+| `PlayerActorAnimator.cs:87` | `GetMotionSetDuration()`도 동일 헬퍼 사용 |
+| `PlayerActorAnimator.cs:93` | `GetActiveWeaponTypeForMotion(AnimKey)` 헬퍼 정의 |
+
+`HasMotion(key, checkWeapon: true)`은 "현재 장비 무기 데이터에 이 키가 있는가?"라는 데이터 존재 확인 용도라 `IsMainWeaponEquipped`와 무관하므로 기존 동작을 유지한다.
+
+### 데이터 측 추가 요구
+
+`PlayerActorAnimationMotionSet` ScriptableObject의 `WeaponType.NoWeapon` 슬롯에 비전투 기본 모션(Idle, Run, Walk, Sprint, Stop, TurnInPlace, Jump, Land 등)이 등록되어 있어야 한다. 등록되지 않은 키는 `PlayMotion`이 null을 반환해 모션이 재생되지 않으므로, 등에 멘 상태에서 캐릭터가 멈춘 자세로 보일 수 있다.
+
+---
+
 ## 결론
 
-구현의 핵심은 `PlayerCombat.OnChangeCombatState`를 활용해 전투 상태 변화는 이벤트로 받고, `PlayerEquipment`에는 토글이 아닌 목표 상태 기반 API를 둔 것이다. `WeaponType`은 장착 데이터와 MotionSet 선택에 쓰이므로 전투 해제 표현을 위해 `NoWeapon`으로 바꾸지 않는다. 실제 손/등 이동은 `IsMainWeaponEquipped`와 `ParentConstraint` weight만 조정하는 별도 상태로 관리한다.
+구현의 핵심은 `PlayerCombat.OnChangeCombatState`를 활용해 전투 상태 변화는 이벤트로 받고, `PlayerEquipment`에는 토글이 아닌 목표 상태 기반 API를 둔 것이다. `WeaponType`은 장착 데이터와 MotionSet 후보 선택에 쓰이므로 전투 해제 표현을 위해 `NoWeapon`으로 바꾸지 않는다. 실제 손/등 이동은 `IsMainWeaponEquipped`와 `ParentConstraint` weight를 함께 조정하는 별도 상태로 관리하며, MotionSet 최종 선택은 `IsMainWeaponEquipped`에 따라 무기/맨손 슬롯으로 분기한다. 시작 시점과 캐릭터 교체 시점에는 `ForceSyncMainWeaponState()`로 weight와 플래그가 어긋나지 않도록 강제 정렬한다.

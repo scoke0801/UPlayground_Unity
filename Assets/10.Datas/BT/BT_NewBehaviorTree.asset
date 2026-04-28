@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4829983587205056421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1d742166fa12214f8d2058a163dacf7, type: 3}
+  m_Name: LogNode
+  m_EditorClassIdentifier: 
+  _guid: 2f0772d54bd54809bc99c13792977c62
+  _displayName: LogNode
+  _comment: 
+  _editorPosition: {x: 696.615, y: 437.2225}
+  _children: []
+  _message: Behavior Tree Log
+  _logEveryTick: 0
+--- !u!114 &-644112686567625784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: SelectorNode
+  m_EditorClassIdentifier: 
+  _guid: 2588cf4f41f443448334ec43467bc58c
+  _displayName: SelectorNode
+  _comment: 
+  _editorPosition: {x: 506.61502, y: 188.22247}
+  _children:
+  - {fileID: -4829983587205056421}
+  _abortType: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
+  m_Name: BT_NewBehaviorTree
+  m_EditorClassIdentifier: 
+  _rootNode: {fileID: 3442120667474451343}
+  _nodes:
+  - {fileID: -4829983587205056421}
+  - {fileID: -644112686567625784}
+  - {fileID: 3442120667474451343}
+  _blackboard:
+    _entries: []
+--- !u!114 &3442120667474451343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: SequenceNode
+  m_EditorClassIdentifier: 
+  _guid: 9788db8cf4aa4a61a9bb5adacbdd269e
+  _displayName: SequenceNode
+  _comment: 
+  _editorPosition: {x: 353.615, y: -52.77752}
+  _children:
+  - {fileID: -644112686567625784}
+  _abortType: 0

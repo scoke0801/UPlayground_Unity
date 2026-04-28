@@ -31,14 +31,18 @@ namespace UPlayGround.Data.Actor
         public GameObject prefab;
 
         [Header("스탯 데이터")]
-        [Tooltip("몬스터 스탯 (체력, 이동속도 등). MonsterActor에만 적용됨.")]
+        [Tooltip("레거시 몬스터 튜닝 데이터. 체력은 런타임에 사용하지 않고 ActorStatSO 생성 입력으로만 사용됨.")]
         public EnemyStatsSO stats;
 
-        [Tooltip("통합 스탯 SO. 설정 시 ActorStatContainer로 적용되며, MaxHealth는 EnemyStatsSO보다 우선한다.")]
+        [Tooltip("통합 스탯 SO. 자동 생성기로 모든 ActorDefinitionSO에 연결되어 있어야 한다.")]
         public ActorStatSO statData;
 
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;
+
+        [Header("NPC 데이터")]
+        [Tooltip("NpcActor에 주입할 NPC 전용 대화/상호작용 데이터. NPC가 아니면 비워둔다.")]
+        public NpcActorSO npcData;
 
         [Header("드랍 데이터")]
         [Tooltip("사망 시 드랍 테이블. null이면 프리팹에 설정된 값 사용.")]

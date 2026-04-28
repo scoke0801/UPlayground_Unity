@@ -86,13 +86,13 @@ namespace UPlayGround.State
             }
             if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
             {
-                playerController.TransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: false));
-                return;
+                if (playerController.TryTransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: false)))
+                    return;
             }
             if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
             {
-                playerController.TransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: true));
-                return;
+                if (playerController.TryTransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: true)))
+                    return;
             }
             
             if (_hasLanded)

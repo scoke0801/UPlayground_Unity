@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.Path;
-using UPlayGround.Enum;
+using UPlayGround.UREnum;
 
 namespace UPlayGround.Manager
 {

@@ -398,6 +398,10 @@ namespace UPlayGround
             _combat.RefreshAttackData(data.attackData);
             _combatWeaponStateController?.RefreshReferences();
 
+            // 새 모델의 ParentConstraint 기본 weight는 prefab 세팅에 의존하므로,
+            // 현재 전투 상태에 맞춰 weight + 플래그를 강제 동기화한다.
+            _equipment?.ForceSyncMainWeaponState(_combat != null && _combat.IsInCombat);
+
             // 소켓
             RefreshSockets(data);
 

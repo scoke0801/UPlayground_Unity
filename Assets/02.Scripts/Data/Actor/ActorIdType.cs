@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-04-19 20:07
+// Generated: 2026-04-27 23:18
 namespace UPlayGround.Data.Actor
 {
     /// <summary>ActorIdType — Actor 키 열거형 (자동 생성)</summary>

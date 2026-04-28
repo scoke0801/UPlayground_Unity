@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using UPlayGround.Enum;
+using UPlayGround.UREnum;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 

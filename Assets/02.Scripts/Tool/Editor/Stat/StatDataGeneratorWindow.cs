@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor;
@@ -128,6 +129,12 @@ namespace UPlayGround.Tool.Editor.Stat
 
             if (GUILayout.Button("새로고침", EditorStyles.toolbarButton, GUILayout.Width(70)))
                 RefreshMigrationRows();
+
+            if (GUILayout.Button("전체 보정", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                RepairAllDefinitions();
+
+            if (GUILayout.Button("검증", EditorStyles.toolbarButton, GUILayout.Width(50)))
+                ValidateStatDataCoverage(showDialog: true);
 
             GUILayout.Space(6);
 
@@ -265,8 +272,8 @@ namespace UPlayGround.Tool.Editor.Stat
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.HelpBox(
-                "EnemyStatsSO.maxHealth → MaxHealth, PoiseSO 값 → MaxPoise/Recovery* 로 매핑됩니다.\n" +
-                "생성된 ActorStatSO는 자동으로 ActorDefinitionSO.statData에 연결됩니다.",
+                "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
+                "EnemyStatsSO.maxHealth → MaxHealth, PoiseSO 값 → MaxPoise/Recovery* 로 초기 마이그레이션됩니다.",
                 MessageType.Info);
         }
 
@@ -290,7 +297,7 @@ namespace UPlayGround.Tool.Editor.Stat
                     SourceStats = def.stats,
                     SourcePoise = def.poiseData,
                     ExistingStat = def.statData,
-                    PlannedAssetName = $"ActorStat_{(string.IsNullOrEmpty(def.actorId) ? def.name : def.actorId)}",
+                    PlannedAssetName = MakePlannedAssetName(def),
                     Selected = def.statData == null,
                 });
             }
@@ -337,6 +344,7 @@ namespace UPlayGround.Tool.Editor.Stat
             AssetDatabase.Refresh();
             Debug.Log($"[StatDataGenerator] {count}개 ActorStatSO 생성 완료");
             RefreshMigrationRows();
+            ValidateStatDataCoverage(showDialog: false);
         }
 
         private void GenerateAllMissing()
@@ -354,7 +362,7 @@ namespace UPlayGround.Tool.Editor.Stat
                     Definition = def,
                     SourceStats = def.stats,
                     SourcePoise = def.poiseData,
-                    PlannedAssetName = $"ActorStat_{(string.IsNullOrEmpty(def.actorId) ? def.name : def.actorId)}",
+                    PlannedAssetName = MakePlannedAssetName(def),
                 };
 
                 var so = BuildFromDefinition(row);
@@ -370,6 +378,57 @@ namespace UPlayGround.Tool.Editor.Stat
             AssetDatabase.Refresh();
             Debug.Log($"[StatDataGenerator] 누락분 {count}개 일괄 생성 완료");
             RefreshMigrationRows();
+            ValidateStatDataCoverage(showDialog: false);
+        }
+
+        private void RepairAllDefinitions()
+        {
+            EnsureFolder(_savePath);
+
+            string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
+            int created = 0;
+            int filled = 0;
+
+            foreach (var guid in guids)
+            {
+                var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (def == null) continue;
+
+                if (def.statData == null)
+                {
+                    var row = new MigrationRow
+                    {
+                        Definition = def,
+                        SourceStats = def.stats,
+                        SourcePoise = def.poiseData,
+                        PlannedAssetName = MakePlannedAssetName(def),
+                    };
+
+                    var so = BuildFromDefinition(row);
+                    string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
+                    AssetDatabase.CreateAsset(so, assetPath);
+
+                    var sObj = new SerializedObject(def);
+                    sObj.FindProperty("statData").objectReferenceValue = so;
+                    sObj.ApplyModifiedProperties();
+                    created++;
+                    continue;
+                }
+
+                if (HasMissingStats(def.statData))
+                {
+                    Undo.RecordObject(def.statData, "Fill Missing Actor Stats");
+                    def.statData.EditorFillMissing();
+                    EditorUtility.SetDirty(def.statData);
+                    filled++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / 누락 StatType 채움 {filled}개");
+            RefreshMigrationRows();
+            ValidateStatDataCoverage(showDialog: true);
         }
 
         private static ActorStatSO BuildFromDefinition(MigrationRow row)
@@ -868,6 +927,79 @@ namespace UPlayGround.Tool.Editor.Stat
         // ──────────────────────────────────────────────────────────
         // 공통 유틸
         // ──────────────────────────────────────────────────────────
+
+        [MenuItem("UPlayGround/Stat/Validate Stat Data Coverage")]
+        public static void ValidateStatDataCoverageMenu()
+            => ValidateStatDataCoverage(showDialog: true);
+
+        private static bool ValidateStatDataCoverage(bool showDialog)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
+            var sb = new StringBuilder();
+            int missingStatData = 0;
+            int missingEntries = 0;
+
+            foreach (var guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (def == null) continue;
+
+                if (def.statData == null)
+                {
+                    missingStatData++;
+                    sb.AppendLine($"[statData 없음] {def.name} ({path})");
+                    continue;
+                }
+
+                foreach (StatType type in System.Enum.GetValues(typeof(StatType)))
+                {
+                    if (def.statData.TryGetExplicit(type, out _)) continue;
+                    missingEntries++;
+                    sb.AppendLine($"[StatType 누락] {def.name} → {def.statData.name}.{type}");
+                }
+            }
+
+            bool ok = missingStatData == 0 && missingEntries == 0;
+            if (ok)
+            {
+                const string message = "[StatDataGenerator] 모든 ActorDefinitionSO에 statData가 있고 모든 StatType이 명시되어 있습니다.";
+                Debug.Log(message);
+                if (showDialog)
+                    EditorUtility.DisplayDialog("Stat Data 검증", "검증 완료: 누락된 statData/StatType이 없습니다.", "확인");
+                return true;
+            }
+
+            string report = $"[StatDataGenerator] 검증 실패: statData 없음 {missingStatData}개 / StatType 누락 {missingEntries}개\n{sb}";
+            Debug.LogError(report);
+            if (showDialog)
+                EditorUtility.DisplayDialog("Stat Data 검증 실패", report, "확인");
+            return false;
+        }
+
+        private static bool HasMissingStats(ActorStatSO stat)
+        {
+            if (stat == null) return true;
+
+            foreach (StatType type in System.Enum.GetValues(typeof(StatType)))
+            {
+                if (!stat.TryGetExplicit(type, out _))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string MakePlannedAssetName(ActorDefinitionSO def)
+        {
+            string rawName = def != null && !string.IsNullOrEmpty(def.actorId) ? def.actorId : def != null ? def.name : "Unknown";
+            string assetName = $"ActorStat_{rawName}";
+
+            foreach (char invalid in Path.GetInvalidFileNameChars())
+                assetName = assetName.Replace(invalid, '_');
+
+            return assetName.Replace('/', '_').Replace('\\', '_');
+        }
 
         private void BrowseSavePath(ref string targetPath)
         {

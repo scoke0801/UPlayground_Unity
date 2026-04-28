@@ -67,10 +67,12 @@ namespace UPlayGround.State
             }
         }
         
+        protected override AnimKey? RequiredMotionKey => AnimKey.DashAttack_1;
+
         public override bool CanTransitionState(string stateName)
         {
-            if (stateName == "Hit")
-                return false;
+            if (HasRequiredMotion() == false) return false;
+            if (stateName == "Hit") return false;
             return true;
         }
 

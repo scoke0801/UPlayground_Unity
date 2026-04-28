@@ -1,7 +1,7 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UPlayGround.Enum;
+using UPlayGround.UREnum;
 
 namespace UPlayGround.Manager
 {

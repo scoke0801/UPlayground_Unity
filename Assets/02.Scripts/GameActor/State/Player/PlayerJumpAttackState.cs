@@ -54,10 +54,12 @@ namespace UPlayGround.State
             base.OnExit(toState);
         }
 
+        protected override AnimKey? RequiredMotionKey => AnimKey.JumpAttack_1;
+
         public override bool CanTransitionState(string stateName)
         {
-            if (stateName == "Hit")
-                return false;
+            if (HasRequiredMotion() == false) return false;
+            if (stateName == "Hit") return false;
             return true;
         }
 

@@ -38,7 +38,7 @@ namespace UPlayGround
             if (string.IsNullOrEmpty(SceneManager.PendingSceneName))
             {
                 Debug.LogWarning("[LoadingSceneController] PendingSceneName 없음. Title로 fallback.");
-                SceneManager.Instance.LoadScene(Enum.SceneName.Title);
+                SceneManager.Instance.LoadScene(UREnum.SceneName.Title);
                 yield break;
             }
 

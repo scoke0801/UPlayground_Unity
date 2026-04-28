@@ -11,156 +11,177 @@ using UPlayGround.Story;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// Assets/docs/story의 메인 스토리 초안을 기준으로 기본 Quest/Dialogue/StoryEntry 에셋을 생성한다.
-    /// 생성 결과는 초안 데이터이므로 배치, Addressables, 트리거 연결은 씬에서 별도로 처리한다.
+    /// 야외 필드의 반복/보조 의뢰용 Quest/Dialogue/StoryEntry 에셋을 생성한다.
+    /// 메인 진행도는 큰 잠금 조건으로만 사용하고, 실제 완료 여부는 퀘스트와 플래그에서 관리한다.
     /// </summary>
-    public class MainStoryGeneratorWindow : EditorWindow
+    public class SubStoryGeneratorWindow : EditorWindow
     {
-        private const string QUEST_ROOT = "Assets/10.Datas/Quest/Generated/MainStory";
-        private const string DIALOGUE_ROOT = "Assets/10.Datas/Dialogue/Generated/MainStory";
-        private const string STORY_ROOT = "Assets/10.Datas/Story/Generated/MainStory";
+        private const string QUEST_ROOT = "Assets/10.Datas/Quest/Generated/SubStory";
+        private const string DIALOGUE_ROOT = "Assets/10.Datas/Dialogue/Generated/SubStory";
+        private const string STORY_ROOT = "Assets/10.Datas/Story/Generated/SubStory";
         private const string QUEST_DB_SCAN_ROOT = "Assets/10.Datas/Quest";
 
         private Vector2 _scroll;
         private bool _overwriteExisting = true;
         private bool _refreshQuestDatabase = true;
 
-        private static readonly StorySeed[] Seeds =
+        private static readonly SubStorySeed[] Seeds =
         {
-            new StorySeed
+            new SubStorySeed
             {
-                QuestId = "quest_main_001",
-                QuestName = "끊긴 길",
-                Description = "마을 밖 길이 끊기기 시작했다. 중앙 호수 주변을 조사해 원인을 확인한다.",
+                QuestId = "quest_sub_hunter_skeleton_patrol",
+                QuestName = "길목의 뼈 무리",
+                Description = "마을과 호수 사이 길목에 모인 Skeleton 무리를 정리한다.",
                 RequiredProgress = 0,
-                RewardGold = 100,
+                RewardGold = 80,
+                IsRepeatable = true,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Reach("obj_reach_lake", "중앙 호수 주변을 조사한다.", "loc_central_lake")
+                    ObjectiveSeed.Kill("obj_kill_skeleton_patrol", "길목의 Skeleton을 처치한다.", ActorIdType.SkeletonCommon, 5)
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_001_start", "끊긴 길 - 시작", "촌장",
-                        "마을 밖 길이 하나씩 끊기고 있네.\n호수 근처에서 돌아오지 못한 사람들이 있어. 먼저 그 길이 아직 살아 있는지 확인해 주게."),
-                    DialogueSeed.Monologue("dlg_field_lake_first_arrive", "중앙 호수 발견",
-                        "호수 가운데 붉은 나무가 보인다.\n저걸 기준으로 삼으면 어느 길에서든 돌아올 수 있겠어.")
+                    DialogueSeed.Main("dlg_sub_hunter_skeleton_patrol_start", "길목의 뼈 무리 - 시작", "사냥꾼",
+                        "호수로 가는 길목에 뼈들이 다시 모이고 있어.\n큰 위협은 아니지만 방치하면 마을 사람이 지나갈 수 없게 된다."),
+                    DialogueSeed.Main("dlg_sub_hunter_skeleton_patrol_done", "길목의 뼈 무리 - 완료", "사냥꾼",
+                        "길목이 조용해졌군.\n이 정도면 당분간 보급길은 쓸 수 있겠어.")
                 },
                 Stories = new[]
                 {
-                    StoryEntrySeed.Basic("field_lake_first_arrive", 0, "dlg_field_lake_first_arrive")
+                    StoryEntrySeed.Basic("sub_hunter_skeleton_patrol_done", 0, "dlg_sub_hunter_skeleton_patrol_done")
                 }
             },
-            new StorySeed
+            new SubStorySeed
             {
-                QuestId = "quest_main_002",
-                QuestName = "거미줄에 막힌 숲",
-                Description = "거미 숲 깊은 곳의 Spider Queen을 처치해 막힌 숲길을 연다.",
+                QuestId = "quest_sub_hunter_spider_web",
+                QuestName = "숲가의 거미줄",
+                Description = "거미 숲 바깥쪽의 Spider를 처치해 주민들이 우회로를 쓸 수 있게 한다.",
                 RequiredProgress = 10,
-                RewardGold = 180,
+                RewardGold = 120,
+                IsRepeatable = true,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Kill("obj_kill_spider_queen", "거미 숲 깊은 곳의 Spider Queen을 처치한다.", ActorIdType.SpiderQueen_1)
+                    ObjectiveSeed.Kill("obj_kill_spider_web", "거미 숲 바깥쪽의 Spider를 처치한다.", ActorIdType.SpiderMinion_1, 6)
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_002_start", "거미줄에 막힌 숲 - 시작", "사냥꾼",
-                        "작은 거미가 문제가 아니야.\n숲 안쪽에 둥지를 튼 큰 놈이 길을 완전히 막고 있어."),
-                    DialogueSeed.Monologue("dlg_field_spider_queen_defeat", "Spider Queen 처치",
-                        "숲 안쪽 길이 보인다.\n이제 이쪽으로도 호수 반대편에 갈 수 있겠어.")
+                    DialogueSeed.Main("dlg_sub_hunter_spider_web_start", "숲가의 거미줄 - 시작", "사냥꾼",
+                        "숲 깊은 곳은 네가 아니면 무리겠지만, 바깥쪽 거미줄부터 줄여야 해.\n우회로라도 살아 있어야 사람이 움직일 수 있다."),
+                    DialogueSeed.Monologue("dlg_sub_spider_web_clear", "숲가의 거미줄 정리",
+                        "바깥쪽 거미줄이 줄었다.\n깊은 숲은 여전히 위험하지만, 이 길은 다시 쓸 수 있겠어.")
                 },
                 Stories = new[]
                 {
-                    StoryEntrySeed.Basic("monster_spider_queen_defeat", 10, "dlg_field_spider_queen_defeat")
+                    StoryEntrySeed.Basic("sub_spider_web_clear", 10, "dlg_sub_spider_web_clear")
                 }
             },
-            new StorySeed
+            new SubStorySeed
             {
-                QuestId = "quest_main_003",
-                QuestName = "움직이는 바위",
-                Description = "바위 고지대나 숲 경계의 중형 몬스터를 처치하고 던전 방향 단서를 확보한다.",
+                QuestId = "quest_sub_herbalist_lake_herb",
+                QuestName = "호수의 약초 자리",
+                Description = "중앙 호수 근처의 약초 자리를 확인하고 약초상이 다시 채집할 수 있는지 살핀다.",
                 RequiredProgress = 10,
-                RewardGold = 180,
+                RewardGold = 90,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Kill("obj_kill_highland_guardian", "바위 고지대의 Golem을 처치한다.", ActorIdType.Golem_Normal)
+                    ObjectiveSeed.Reach("obj_reach_lake_herb_patch", "중앙 호수 근처 약초 자리를 확인한다.", "loc_lake_herb_patch")
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_003_start", "움직이는 바위 - 시작", "사냥꾼",
-                        "고지대에서 돌이 움직이는 소리가 난다고들 하지.\n그쪽을 정리하면 던전 방향도 내려다볼 수 있을 거야."),
-                    DialogueSeed.Monologue("dlg_field_highland_guardian_defeat", "고지대 강적 처치",
-                        "고지대가 조용해졌다.\n저 아래, 석등이 이어지는 길 끝에 입구 같은 게 보인다.")
+                    DialogueSeed.Main("dlg_sub_herbalist_lake_herb_start", "호수의 약초 자리 - 시작", "약초상",
+                        "호수 근처 낮은 풀밭에 약초가 자라.\n몬스터가 너무 많아 직접 갈 수 없으니, 자리만이라도 남아 있는지 확인해 줘."),
+                    DialogueSeed.Monologue("dlg_sub_lake_herb_patch_found", "호수 약초 자리 확인",
+                        "약초가 아직 남아 있다.\n길만 정리되면 마을에서도 다시 채집하러 올 수 있겠어.")
                 },
                 Stories = new[]
                 {
-                    StoryEntrySeed.Basic("monster_highland_guardian_defeat", 10, "dlg_field_highland_guardian_defeat")
+                    StoryEntrySeed.Basic("sub_lake_herb_patch_found", 10, "dlg_sub_lake_herb_patch_found")
                 }
             },
-            new StorySeed
+            new SubStorySeed
             {
-                QuestId = "quest_main_004",
-                QuestName = "등롱이 가리키는 곳",
-                Description = "석등과 목조 등롱이 이어지는 길 끝을 조사해 던전 입구의 위치를 확인한다.",
+                QuestId = "quest_sub_guide_broken_lantern",
+                QuestName = "쓰러진 등롱",
+                Description = "석등 길 초입의 쓰러진 등롱을 확인해 길잡이에게 위치 정보를 전한다.",
                 RequiredProgress = 10,
-                RewardGold = 150,
+                RewardGold = 90,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Reach("obj_reach_lantern_path_end", "석등 길 끝을 조사한다.", "loc_lantern_path_end")
+                    ObjectiveSeed.Reach("obj_reach_broken_lantern", "석등 길 초입의 쓰러진 등롱을 확인한다.", "loc_broken_lantern")
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_004_start", "등롱이 가리키는 곳 - 시작", "길잡이",
-                        "호수 가운데 붉은 나무가 보이면 아직 길을 잃은 건 아니야.\n던전 쪽 길은 석등이 이어지는 방향을 보면 된다."),
-                    DialogueSeed.Monologue("dlg_field_lantern_path_end", "석등 길 끝",
-                        "등롱과 석등이 같은 방향으로 이어져 있다.\n길을 숨기려던 게 아니라, 잊지 않으려고 세워 둔 표식 같아.")
+                    DialogueSeed.Main("dlg_sub_guide_broken_lantern_start", "쓰러진 등롱 - 시작", "길잡이",
+                        "석등 길 초입의 등롱 하나가 쓰러졌다는 말이 있어.\n그 표식이 사라지면 던전 쪽 길을 헷갈리는 사람이 생긴다."),
+                    DialogueSeed.Monologue("dlg_sub_broken_lantern_found", "쓰러진 등롱 확인",
+                        "등롱이 쓰러져 있다.\n누군가 지나간 길이라면, 몬스터도 그 길을 알고 있겠지.")
                 },
                 Stories = new[]
                 {
-                    StoryEntrySeed.Basic("field_lantern_path_end", 20, "dlg_field_lantern_path_end")
+                    StoryEntrySeed.Basic("sub_broken_lantern_found", 10, "dlg_sub_broken_lantern_found")
                 }
             },
-            new StorySeed
+            new SubStorySeed
             {
-                QuestId = "quest_main_005",
-                QuestName = "던전 입구의 Lich",
-                Description = "던전 입구를 막고 있는 Lich를 처치하고 내부로 진입할 길을 연다.",
+                QuestId = "quest_sub_highland_golem_trace",
+                QuestName = "고지대의 발자국",
+                Description = "바위 고지대의 Golem을 처치하고 고지대 길의 위험도를 낮춘다.",
+                RequiredProgress = 20,
+                RewardGold = 160,
+                Objectives = new[]
+                {
+                    ObjectiveSeed.Kill("obj_kill_highland_golem", "바위 고지대의 Golem을 처치한다.", ActorIdType.Golem_Normal, 1)
+                },
+                Dialogues = new[]
+                {
+                    DialogueSeed.Main("dlg_sub_highland_golem_trace_start", "고지대의 발자국 - 시작", "사냥꾼",
+                        "고지대 길에 커다란 발자국이 새로 생겼어.\n돌이 움직인 흔적이라면 그냥 지나칠 수 없지."),
+                    DialogueSeed.Monologue("dlg_sub_highland_golem_trace_done", "고지대 Golem 처치",
+                        "바위가 멈췄다.\n이 길은 아직 거칠지만, 적어도 등 뒤에서 무너질 걱정은 줄었어.")
+                },
+                Stories = new[]
+                {
+                    StoryEntrySeed.Basic("sub_highland_golem_trace_done", 20, "dlg_sub_highland_golem_trace_done")
+                }
+            },
+            new SubStorySeed
+            {
+                QuestId = "quest_sub_survivor_lost_pack",
+                QuestName = "도망친 자의 짐",
+                Description = "던전 입구 근처에서 생존자가 잃어버린 짐을 확인한다.",
                 RequiredProgress = 30,
-                RewardGold = 300,
-                RequiredQuestIds = new[] { "quest_main_001" },
+                RewardGold = 140,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Kill("obj_kill_lich", "던전 입구의 Lich를 처치한다.", ActorIdType.Lich_Normal)
+                    ObjectiveSeed.Reach("obj_reach_survivor_pack", "던전 입구 근처의 잃어버린 짐을 확인한다.", "loc_survivor_lost_pack")
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_005_start", "던전 입구의 Lich - 시작", "촌장",
-                        "그자는 입구 앞에 서 있었다고 했네.\n뼈들이 그 뒤를 따랐고, 아무도 안으로 들어가지 못했다고 하더군."),
-                    DialogueSeed.Monologue("dlg_dungeon_entrance_arrive", "던전 입구 도달",
-                        "던전 입구가 맞다.\n여길 지나가려면 저걸 먼저 쓰러뜨려야 해."),
-                    DialogueSeed.Monologue("dlg_dungeon_entrance_open", "던전 입구 개방",
-                        "입구를 막던 기운이 사라졌다.\n이제 안으로 들어갈 수 있다.")
+                    DialogueSeed.Main("dlg_sub_survivor_lost_pack_start", "도망친 자의 짐 - 시작", "떠돌이 생존자",
+                        "도망치면서 짐을 버렸어.\n중요한 건 아니지만, 그 안에 누가 같이 갔는지 적힌 쪽지가 있다."),
+                    DialogueSeed.Monologue("dlg_sub_survivor_lost_pack_found", "생존자의 짐 확인",
+                        "찢어진 짐이 남아 있다.\n안쪽으로 들어간 사람이 더 있었다는 뜻이다.")
                 },
                 Stories = new[]
                 {
-                    StoryEntrySeed.Basic("dungeon_entrance_arrive", 30, "dlg_dungeon_entrance_arrive"),
-                    StoryEntrySeed.Basic("dungeon_entrance_open", 40, "dlg_dungeon_entrance_open")
+                    StoryEntrySeed.Basic("sub_survivor_lost_pack_found", 30, "dlg_sub_survivor_lost_pack_found")
                 }
             }
         };
 
-        [MenuItem("UPlayGround/Story/Main Story Generator")]
+        [MenuItem("UPlayGround/Story/Sub Story Generator")]
         public static void ShowWindow()
         {
-            var win = GetWindow<MainStoryGeneratorWindow>("Main Story Generator");
+            var win = GetWindow<SubStoryGeneratorWindow>("Sub Story Generator");
             win.minSize = new Vector2(760, 520);
         }
 
         private void OnGUI()
         {
             EditorGUILayout.Space(6);
-            EditorGUILayout.LabelField("메인 스토리 자동 생성", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("서브 스토리 자동 생성", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Assets/docs/story/MAIN_STORY.md의 STORY_GENERATOR_MAIN 블록을 기준으로 QuestSO, DialogueGraphSO, StoryEntrySO 초안을 생성합니다.",
+                "Assets/docs/story/MAIN_STORY.md의 STORY_GENERATOR_SUB 블록을 기준으로 NPC 반복 의뢰와 보조 단서용 에셋을 생성합니다.",
                 MessageType.Info);
 
             var seeds = GetSeeds(out var sourceMessage);
@@ -184,11 +205,11 @@ namespace UPlayGround.Editor
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawSeedPreview(StorySeed seed)
+        private void DrawSeedPreview(SubStorySeed seed)
         {
             EditorGUILayout.BeginVertical("helpBox");
             EditorGUILayout.LabelField($"{seed.QuestId}  {seed.QuestName}", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField($"Progress {seed.RequiredProgress} / 목표 {seed.Objectives.Length} / 대화 {seed.Dialogues.Length} / 스토리 {seed.Stories.Length}", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField($"Progress {seed.RequiredProgress} / 목표 {seed.Objectives.Length} / 대화 {seed.Dialogues.Length} / 반복 {seed.IsRepeatable}", EditorStyles.miniLabel);
             EditorGUILayout.LabelField(seed.Description, EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.EndVertical();
         }
@@ -197,7 +218,7 @@ namespace UPlayGround.Editor
         {
             EnsureFolders();
             var seeds = GetSeeds(out var sourceMessage);
-            Debug.Log($"[MainStoryGenerator] {sourceMessage}");
+            Debug.Log($"[SubStoryGenerator] {sourceMessage}");
 
             var dialogueMap = new Dictionary<string, DialogueGraphSO>();
             foreach (var seed in seeds)
@@ -225,15 +246,15 @@ namespace UPlayGround.Editor
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("생성 완료", "메인 스토리 기본 에셋 생성/갱신이 완료되었습니다.", "확인");
+            EditorUtility.DisplayDialog("생성 완료", "서브 스토리 기본 에셋 생성/갱신이 완료되었습니다.", "확인");
         }
 
-        private static StorySeed[] GetSeeds(out string sourceMessage)
+        private static SubStorySeed[] GetSeeds(out string sourceMessage)
         {
-            if (StoryGeneratorMarkdownLoader.TryLoadMain(out var document, out var error))
+            if (StoryGeneratorMarkdownLoader.TryLoadSub(out var document, out var error))
             {
                 sourceMessage = $"문서 데이터 사용: {StoryGeneratorMarkdownLoader.StoryDocPath} ({StoryGeneratorMarkdownLoader.Summary(document)})";
-                return document.quests.Select(StorySeed.FromDocument).ToArray();
+                return document.quests.Select(SubStorySeed.FromDocument).ToArray();
             }
 
             sourceMessage = $"내장 기본값 사용: {error}";
@@ -309,7 +330,7 @@ namespace UPlayGround.Editor
             return graph;
         }
 
-        private QuestSO CreateOrUpdateQuest(StorySeed seed)
+        private QuestSO CreateOrUpdateQuest(SubStorySeed seed)
         {
             var path = $"{QUEST_ROOT}/{seed.QuestId}.asset";
             var quest = AssetDatabase.LoadAssetAtPath<QuestSO>(path);
@@ -329,7 +350,7 @@ namespace UPlayGround.Editor
             quest.objectives = seed.Objectives.Select(x => x.ToData()).ToList();
             quest.reward.gold = seed.RewardGold;
             quest.reward.items.Clear();
-            quest.isRepeatable = false;
+            quest.isRepeatable = seed.IsRepeatable;
             quest.autoComplete = true;
 
             EditorUtility.SetDirty(quest);
@@ -362,7 +383,7 @@ namespace UPlayGround.Editor
             var dbGuid = AssetDatabase.FindAssets("t:QuestDatabase").FirstOrDefault();
             if (string.IsNullOrEmpty(dbGuid))
             {
-                Debug.LogWarning("[MainStoryGenerator] QuestDatabase asset을 찾을 수 없어 DB 갱신을 건너뜁니다.");
+                Debug.LogWarning("[SubStoryGenerator] QuestDatabase asset을 찾을 수 없어 DB 갱신을 건너뜁니다.");
                 return;
             }
 
@@ -380,25 +401,27 @@ namespace UPlayGround.Editor
             EditorGUIUtility.PingObject(folder);
         }
 
-        private class StorySeed
+        private class SubStorySeed
         {
             public string QuestId;
             public string QuestName;
             public string Description;
             public int RequiredProgress;
             public int RewardGold;
+            public bool IsRepeatable;
             public string[] RequiredQuestIds = System.Array.Empty<string>();
             public ObjectiveSeed[] Objectives;
             public DialogueSeed[] Dialogues;
             public StoryEntrySeed[] Stories;
 
-            public static StorySeed FromDocument(StoryGeneratorQuest quest) => new()
+            public static SubStorySeed FromDocument(StoryGeneratorQuest quest) => new()
             {
                 QuestId = quest.questId,
                 QuestName = quest.questName,
                 Description = quest.description,
                 RequiredProgress = quest.requiredProgress,
                 RewardGold = quest.rewardGold,
+                IsRepeatable = quest.isRepeatable,
                 RequiredQuestIds = quest.requiredQuestIds ?? System.Array.Empty<string>(),
                 Objectives = (quest.objectives ?? System.Array.Empty<StoryGeneratorObjective>())
                     .Select(ObjectiveSeed.FromDocument)
@@ -431,8 +454,8 @@ namespace UPlayGround.Editor
                 _requiredCount = requiredCount;
             }
 
-            public static ObjectiveSeed Kill(string objectiveId, string description, ActorIdType actorId)
-                => new(objectiveId, description, QuestObjectiveType.MonsterKill, (int)actorId, string.Empty, 1);
+            public static ObjectiveSeed Kill(string objectiveId, string description, ActorIdType actorId, int count)
+                => new(objectiveId, description, QuestObjectiveType.MonsterKill, (int)actorId, string.Empty, count);
 
             public static ObjectiveSeed Reach(string objectiveId, string description, string locationId)
                 => new(objectiveId, description, QuestObjectiveType.ReachLocation, 0, locationId, 1);

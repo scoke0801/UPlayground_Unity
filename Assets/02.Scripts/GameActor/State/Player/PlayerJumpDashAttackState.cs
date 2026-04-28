@@ -21,8 +21,11 @@ namespace UPlayGround.State
 
         public PlayerJumpDashAttackState(ActorMovementController controller) : base(controller) { }
 
+        protected override AnimKey? RequiredMotionKey => AnimKey.JumpDashAttack_1;
+
         public override bool CanTransitionState(string stateName)
         {
+            if (HasRequiredMotion() == false) return false;
             if (stateName == "Hit") return false;
             return true;
         }

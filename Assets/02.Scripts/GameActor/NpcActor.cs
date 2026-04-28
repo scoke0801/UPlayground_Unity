@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Dialogue;
@@ -58,6 +59,18 @@ namespace UPlayGround
         {
             DialogueManager.Instance.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
+        }
+
+        /// <summary>
+        /// ActorDefinitionSO에 연결된 NPC 데이터를 적용한다.
+        /// 씬 배치 NPC와 ActorSpawnManager 스폰 NPC가 동일한 데이터 흐름을 사용한다.
+        /// </summary>
+        public override void SetDefinition(ActorDefinitionSO definition)
+        {
+            base.SetDefinition(definition);
+
+            if (definition?.npcData != null)
+                _data = definition.npcData;
         }
 
         private void OnValidate()

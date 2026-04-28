@@ -80,7 +80,7 @@ namespace UPlayGround.State
             if (!motor.GroundingStatus.IsStableOnGround &&
                 InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
             {
-                playerController.TransitionToState(new PlayerJumpDashAttackState(playerController));
+                playerController.TryTransitionToState(new PlayerJumpDashAttackState(playerController));
             }
         }
 

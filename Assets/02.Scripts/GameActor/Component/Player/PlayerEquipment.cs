@@ -262,6 +262,10 @@ namespace UPlayGround.Component
                 //newWeapon.transform.localRotation = Quaternion.identity;
                 //newWeapon.transform.localScale = Vector3.one; // 크기도 1,1,1로 초기화 (필요시)
             }
+
+            // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
+            // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
+            ForceSyncWeaponState(equipPosition, false);
         }
         public void SetRightWeaponType(WeaponType type)
         {
@@ -497,6 +501,30 @@ namespace UPlayGround.Component
 
             constraint.SetSource(0, rightHand);
             constraint.SetSource(1, back);
+        }
+
+        /// <summary>
+        /// 캐릭터 교체 시 현재 전투 상태에 맞춰 메인 무기 weight와 플래그를 가드 없이 강제 동기화.
+        /// </summary>
+        public void ForceSyncMainWeaponState(bool drawn)
+        {
+            ForceSyncWeaponState(EquipPosition.RightHand, drawn);
+        }
+
+        private void ForceSyncWeaponState(EquipPosition equipPosition, bool drawn)
+        {
+            ParentConstraint constraint = equipPosition == EquipPosition.LeftHand
+                ? _subWeaponConstraint
+                : _mainWeaponConstraint;
+
+            if (constraint == null || constraint.sourceCount < 2)
+                return;
+
+            SetWeaponDrawn(constraint, drawn);
+            if (equipPosition == EquipPosition.RightHand)
+                IsMainWeaponEquipped = drawn;
+            else
+                IsSubWeaponEquipped = drawn;
         }
 
         // 애니메이션 이벤트 콜백

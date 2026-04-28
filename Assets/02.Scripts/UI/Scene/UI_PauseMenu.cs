@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UPlayGround.Enum;
+using UPlayGround.UREnum;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;

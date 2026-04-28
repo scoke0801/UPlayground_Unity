@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Manager;
-using UPlayGround.Enum;
+using UPlayGround.UREnum;
 
 /// <summary>
 /// Boot 씬 전용 스크립트.

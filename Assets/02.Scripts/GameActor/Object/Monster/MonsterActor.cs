@@ -6,7 +6,6 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -46,7 +45,7 @@ namespace UPlayGround
         public EnemyCombat Combat => _combat;
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
-        public MonsterActorGrade Grade => _stats.grade;
+        public MonsterActorGrade Grade => _stats != null ? _stats.grade : MonsterActorGrade.Normal;
         public EnemyStatsSO Stat => _stats;
         
         protected override void Awake()
@@ -54,11 +53,8 @@ namespace UPlayGround
             base.Awake();
             _actorType = ActorType.Monster | ActorType.Combat;
 
-            _maxHealth = _stats.maxHealth;
-            _currentHealth = _maxHealth;
-
-            // EnemyStatsSO 기본값을 ActorStatContainer에 동기화 (statData가 없을 때의 폴백)
-            Stats.SetBase(StatType.MaxHealth, _maxHealth);
+            Stats.Init(null);
+            ResetHealthFromStats();
 
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
             if (_brain     == null) _brain     = GetComponent<EnemyBrain>();
@@ -310,24 +306,19 @@ namespace UPlayGround
             if (definition == null) return;
 
             if (definition.stats != null)
-            {
                 _stats         = definition.stats;
-                _maxHealth     = _stats.maxHealth;
-                _currentHealth = _maxHealth;
-                _isDead        = false; // 체력 재초기화 시 사망 가드도 함께 해제
-                Stats.SetBase(StatType.MaxHealth, _maxHealth);
-                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
+            if (definition.statData != null)
+                Stats.Init(definition.statData);
+            else
+            {
+                Stats.Init(null);
+                Debug.LogError($"[MonsterActor] {definition.name}에 statData가 없습니다. UPlayGround/Stat/Stat Data Generator의 전체 보정을 실행하세요.", definition);
             }
 
-            // statData가 있으면 통합 스탯 컨테이너로 덮어쓰고 MaxHealth도 재동기화
-            if (definition.statData != null)
-            {
-                Stats.Init(definition.statData);
-                _maxHealth     = Stats.MaxHealth;
-                _currentHealth = _maxHealth;
-                _isDead        = false;
-                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            }
+            ResetHealthFromStats();
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
             if (definition.poiseData != null && _poiseStat != null)
                 _poiseStat.Init(definition.poiseData);
@@ -355,6 +346,13 @@ namespace UPlayGround
                 knockbackForce = 0f,
             };
             MovementController.TransitionToState(new EnemyHitState(MovementController, staggerData));
+        }
+
+        private void ResetHealthFromStats()
+        {
+            _maxHealth     = Stats.MaxHealth;
+            _currentHealth = _maxHealth;
+            _isDead        = false;
         }
     }
 }

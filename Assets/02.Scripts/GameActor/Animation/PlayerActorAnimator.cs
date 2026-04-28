@@ -42,8 +42,8 @@ namespace UPlayGround.Animation
             {
                 return _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key) != null;
             }
-            
-            return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);        
+
+            return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);
         }
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
         {
@@ -52,40 +52,55 @@ namespace UPlayGround.Animation
             {
                 return _currentState;
             }
-            
+
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
             if (_isPlayingMotionSet && _currentMotionSet != null)
             {
                 StopMotionSet();
             }
-            
-            _currentMotionSet = _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key);
+
+            _currentMotionSet = _playerActorAnimationMotionSet.GetMotionSet(GetActiveWeaponTypeForMotion(key), key);
             if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
             {
                 return null;
             }
-            
+
             _currentMotionIndex = 0;
             _globalTime = 0f;
             _isPlayingMotionSet = true;
             _lastPlayedKey = key;
-            
+
             // 이벤트 실행기 초기화
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
-            
+
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
             return _currentState;
         }
-        
+
         /// <summary>
         /// MotionSet의 총 재생 시간 가져오기
         /// </summary>
         public override float GetMotionSetDuration(AnimKey key)
         {
-            var motionSet = _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key);
+            var motionSet = _playerActorAnimationMotionSet.GetMotionSet(GetActiveWeaponTypeForMotion(key), key);
             return motionSet?.TotalDuration ?? 0f;
+        }
+
+        // 손에 들고 있을 때만 무기 모션셋, 등에 멘 상태에서는 NoWeapon 모션셋을 사용한다.
+        // 단 발도/납도 모션 자체는 무기에 정의된 모션이라 WeaponType 기준 그대로 사용.
+        private WeaponType GetActiveWeaponTypeForMotion(AnimKey key)
+        {
+            if (_playerEquipment == null)
+                return WeaponType.NoWeapon;
+
+            if (key == AnimKey.Equip_Weapon || key == AnimKey.UnEquip_Weapon || key == AnimKey.Equip_LeftWeapon)
+                return _playerEquipment.GetMainWeaponType();
+
+            return _playerEquipment.IsMainWeaponEquipped
+                ? _playerEquipment.GetMainWeaponType()
+                : WeaponType.NoWeapon;
         }
     }
 

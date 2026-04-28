@@ -1,5 +1,6 @@
 ﻿using KinematicCharacterController;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -11,6 +12,27 @@ namespace UPlayGround.State
     {
         protected PlayerMovementController playerController;
         protected PlayerActor playerActor;
+
+        /// <summary>
+        /// 이 상태가 진입 시 반드시 재생해야 하는 모션 키.
+        /// null 이면 모션 보유 여부와 무관하게 진입 가능.
+        /// DashAttack / JumpAttack 처럼 전용 모션이 없으면 의미가 없는 상태에서 오버라이드한다.
+        /// </summary>
+        protected virtual AnimKey? RequiredMotionKey => null;
+
+        /// <summary>
+        /// 액터가 RequiredMotionKey 에 해당하는 모션을 보유하고 있는지 확인.
+        /// 상태 전이 가드(<see cref="CanTransitionState"/>) 에서 호출.
+        /// </summary>
+        protected bool HasRequiredMotion()
+        {
+            if (RequiredMotionKey.HasValue == false) return true;
+
+            var animator = gameActor?.Animator;
+            if (animator == null) return false;
+
+            return animator.HasMotion(RequiredMotionKey.Value, true);
+        }
 
         // ── 자연 낙하 유예 시스템 ──
         // KCC의 SnappingPrevented(MaxVelocityForLedgeSnap=0) 시 프로브 거리가 0.005m로

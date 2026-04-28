@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_002
+  m_EditorClassIdentifier: 
+  questId: quest_main_002
+  questName: "\uAC70\uBBF8\uC904\uC5D0 \uB9C9\uD78C \uC232"
+  questDescription: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
+    \uCC98\uCE58\uD574 \uB9C9\uD78C \uC232\uAE38\uC744 \uC5F0\uB2E4."
+  requiredQuestIds: []
+  requiredStoryProgress: 10
+  objectives:
+  - objectiveId: obj_kill_spider_queen
+    description: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
+      \uCC98\uCE58\uD55C\uB2E4."
+    type: 3
+    targetId: 16
+    npcId: 0
+    targetStringId: 
+    requiredCount: 1
+  reward:
+    gold: 180
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

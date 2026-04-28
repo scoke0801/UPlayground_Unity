@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_003
+  m_EditorClassIdentifier: 
+  questId: quest_main_003
+  questName: "\uC6C0\uC9C1\uC774\uB294 \uBC14\uC704"
+  questDescription: "\uBC14\uC704 \uACE0\uC9C0\uB300\uB098 \uC232 \uACBD\uACC4\uC758
+    \uC911\uD615 \uBAAC\uC2A4\uD130\uB97C \uCC98\uCE58\uD558\uACE0 \uB358\uC804 \uBC29\uD5A5
+    \uB2E8\uC11C\uB97C \uD655\uBCF4\uD55C\uB2E4."
+  requiredQuestIds: []
+  requiredStoryProgress: 10
+  objectives:
+  - objectiveId: obj_kill_highland_guardian
+    description: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD55C\uB2E4."
+    type: 3
+    targetId: 4
+    npcId: 0
+    targetStringId: 
+    requiredCount: 1
+  reward:
+    gold: 180
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

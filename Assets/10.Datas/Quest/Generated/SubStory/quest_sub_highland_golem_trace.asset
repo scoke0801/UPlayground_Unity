@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_highland_golem_trace
+  m_EditorClassIdentifier: 
+  questId: quest_sub_highland_golem_trace
+  questName: "\uACE0\uC9C0\uB300\uC758 \uBC1C\uC790\uAD6D"
+  questDescription: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD558\uACE0
+    \uACE0\uC9C0\uB300 \uAE38\uC758 \uC704\uD5D8\uB3C4\uB97C \uB0AE\uCD98\uB2E4."
+  requiredQuestIds: []
+  requiredStoryProgress: 20
+  objectives:
+  - objectiveId: obj_kill_highland_golem
+    description: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD55C\uB2E4."
+    type: 3
+    targetId: 4
+    npcId: 0
+    targetStringId: 
+    requiredCount: 1
+  reward:
+    gold: 160
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

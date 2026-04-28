@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: dlg_sub_guide_broken_lantern_start
+  m_EditorClassIdentifier: 
+  graphId: dlg_sub_guide_broken_lantern_start
+  graphName: "\uC4F0\uB7EC\uC9C4 \uB4F1\uB871 - \uC2DC\uC791"
+  startNodeId: dlg_sub_guide_broken_lantern_start_talk
+  nodes:
+  - {fileID: 5464223712770850074}
+  - {fileID: 7156880254740239012}
+--- !u!114 &5464223712770850074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_Start
+  m_EditorClassIdentifier: 
+  nodeId: dlg_sub_guide_broken_lantern_start_talk
+  nodeType: 0
+  channel: 0
+  speakerId: "\uAE38\uC7A1\uC774"
+  dialogueText: "\uC11D\uB4F1 \uAE38 \uCD08\uC785\uC758 \uB4F1\uB871 \uD558\uB098\uAC00
+    \uC4F0\uB7EC\uC84C\uB2E4\uB294 \uB9D0\uC774 \uC788\uC5B4.\n\uADF8 \uD45C\uC2DD\uC774
+    \uC0AC\uB77C\uC9C0\uBA74 \uB358\uC804 \uCABD \uAE38\uC744 \uD5F7\uAC08\uB9AC\uB294
+    \uC0AC\uB78C\uC774 \uC0DD\uAE34\uB2E4."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_sub_guide_broken_lantern_start_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 120, y: 120}
+--- !u!114 &7156880254740239012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: dlg_sub_guide_broken_lantern_start_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}

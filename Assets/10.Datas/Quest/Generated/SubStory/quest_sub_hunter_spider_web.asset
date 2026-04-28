@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_hunter_spider_web
+  m_EditorClassIdentifier: 
+  questId: quest_sub_hunter_spider_web
+  questName: "\uC232\uAC00\uC758 \uAC70\uBBF8\uC904"
+  questDescription: "\uAC70\uBBF8 \uC232 \uBC14\uAE65\uCABD\uC758 Spider\uB97C \uCC98\uCE58\uD574
+    \uC8FC\uBBFC\uB4E4\uC774 \uC6B0\uD68C\uB85C\uB97C \uC4F8 \uC218 \uC788\uAC8C
+    \uD55C\uB2E4."
+  requiredQuestIds: []
+  requiredStoryProgress: 10
+  objectives:
+  - objectiveId: obj_kill_spider_web
+    description: "\uAC70\uBBF8 \uC232 \uBC14\uAE65\uCABD\uC758 Spider\uB97C \uCC98\uCE58\uD55C\uB2E4."
+    type: 3
+    targetId: 19
+    npcId: 0
+    targetStringId: 
+    requiredCount: 6
+  reward:
+    gold: 120
+    items: []
+  isRepeatable: 1
+  autoComplete: 1

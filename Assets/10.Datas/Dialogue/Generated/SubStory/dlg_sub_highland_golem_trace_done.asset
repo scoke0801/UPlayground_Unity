@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: dlg_sub_highland_golem_trace_done
+  m_EditorClassIdentifier: 
+  graphId: dlg_sub_highland_golem_trace_done
+  graphName: "\uACE0\uC9C0\uB300 Golem \uCC98\uCE58"
+  startNodeId: dlg_sub_highland_golem_trace_done_talk
+  nodes:
+  - {fileID: 8247222072479238511}
+  - {fileID: 3114367743372389671}
+--- !u!114 &3114367743372389671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: dlg_sub_highland_golem_trace_done_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}
+--- !u!114 &8247222072479238511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_Start
+  m_EditorClassIdentifier: 
+  nodeId: dlg_sub_highland_golem_trace_done_talk
+  nodeType: 0
+  channel: 2
+  speakerId: Bokusei
+  dialogueText: "\uBC14\uC704\uAC00 \uBA48\uCDC4\uB2E4.\n\uC774 \uAE38\uC740 \uC544\uC9C1
+    \uAC70\uCE60\uC9C0\uB9CC, \uC801\uC5B4\uB3C4 \uB4F1 \uB4A4\uC5D0\uC11C \uBB34\uB108\uC9C8
+    \uAC71\uC815\uC740 \uC904\uC5C8\uC5B4."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_sub_highland_golem_trace_done_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 120, y: 120}

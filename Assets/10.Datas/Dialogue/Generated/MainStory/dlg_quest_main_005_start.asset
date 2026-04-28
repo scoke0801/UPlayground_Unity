@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7882530440666870262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_Start
+  m_EditorClassIdentifier: 
+  nodeId: dlg_quest_main_005_start_talk
+  nodeType: 0
+  channel: 0
+  speakerId: "\uCD0C\uC7A5"
+  dialogueText: "\uADF8\uC790\uB294 \uC785\uAD6C \uC55E\uC5D0 \uC11C \uC788\uC5C8\uB2E4\uACE0
+    \uD588\uB124.\n\uBF08\uB4E4\uC774 \uADF8 \uB4A4\uB97C \uB530\uB790\uACE0, \uC544\uBB34\uB3C4
+    \uC548\uC73C\uB85C \uB4E4\uC5B4\uAC00\uC9C0 \uBABB\uD588\uB2E4\uACE0 \uD558\uB354\uAD70."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_quest_main_005_start_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 120, y: 120}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: dlg_quest_main_005_start
+  m_EditorClassIdentifier: 
+  graphId: dlg_quest_main_005_start
+  graphName: "\uB358\uC804 \uC785\uAD6C\uC758 Lich - \uC2DC\uC791"
+  startNodeId: dlg_quest_main_005_start_talk
+  nodes:
+  - {fileID: -7882530440666870262}
+  - {fileID: 4019574217442502389}
+--- !u!114 &4019574217442502389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: dlg_quest_main_005_start_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}

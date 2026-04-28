@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6145733770766600845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_Start
+  m_EditorClassIdentifier: 
+  nodeId: dlg_dungeon_entrance_arrive_talk
+  nodeType: 0
+  channel: 2
+  speakerId: Bokusei
+  dialogueText: "\uB358\uC804 \uC785\uAD6C\uAC00 \uB9DE\uB2E4.\n\uC5EC\uAE38 \uC9C0\uB098\uAC00\uB824\uBA74
+    \uC800\uAC78 \uBA3C\uC800 \uC4F0\uB7EC\uB728\uB824\uC57C \uD574."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_dungeon_entrance_arrive_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 120, y: 120}
+--- !u!114 &-2559515664191944751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: dlg_dungeon_entrance_arrive_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: dlg_dungeon_entrance_arrive
+  m_EditorClassIdentifier: 
+  graphId: dlg_dungeon_entrance_arrive
+  graphName: "\uB358\uC804 \uC785\uAD6C \uB3C4\uB2EC"
+  startNodeId: dlg_dungeon_entrance_arrive_talk
+  nodes:
+  - {fileID: -6145733770766600845}
+  - {fileID: -2559515664191944751}

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_001
+  m_EditorClassIdentifier: 
+  questId: quest_main_001
+  questName: "\uB04A\uAE34 \uAE38"
+  questDescription: "\uB9C8\uC744 \uBC16 \uAE38\uC774 \uB04A\uAE30\uAE30 \uC2DC\uC791\uD588\uB2E4.
+    \uC911\uC559 \uD638\uC218 \uC8FC\uBCC0\uC744 \uC870\uC0AC\uD574 \uC6D0\uC778\uC744
+    \uD655\uC778\uD55C\uB2E4."
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  objectives:
+  - objectiveId: obj_reach_lake
+    description: "\uC911\uC559 \uD638\uC218 \uC8FC\uBCC0\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    type: 7
+    targetId: 0
+    npcId: 0
+    targetStringId: loc_central_lake
+    requiredCount: 1
+  reward:
+    gold: 100
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

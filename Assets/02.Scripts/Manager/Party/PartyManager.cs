@@ -143,8 +143,17 @@ namespace UPlayGround.Manager
                 return false;
             }
 
+            // 어시스트와 등장 공격은 배타. 어시스트가 우선.
+            bool isEntryAttack = false;
             if (isAssist)
+            {
                 _player.QueueSwapAssist();
+            }
+            else if (TryFindEntryAttackTarget(swap.GetModelData(targetType), out var entryTarget))
+            {
+                _player.QueueEntryAttack(entryTarget);
+                isEntryAttack = true;
+            }
 
             _activeIndex  = targetIndex;
             _lastSwapTime = Time.time;
@@ -153,8 +162,54 @@ namespace UPlayGround.Manager
             NotifyActivePlayerChanged();
             OnSwapCompleted?.Invoke(_player);
 
-            Debug.Log($"[PartyManager] 교체 → {targetType}{(isAssist ? " [어시스트]" : "")}");
+            string tag = isAssist ? " [어시스트]" : (isEntryAttack ? " [등장공격]" : "");
+            Debug.Log($"[PartyManager] 교체 → {targetType}{tag}");
             return true;
+        }
+
+        /// <summary>
+        /// 교체 직후 incoming 위치 반경 내에 살아있는 MonsterActor가 있는지 검사.
+        /// CharacterModelData 우선, 없으면 PartyConfigSO 글로벌 폴백 사용.
+        /// </summary>
+        private bool TryFindEntryAttackTarget(CharacterModelData modelData, out MonsterActor nearest)
+        {
+            nearest = null;
+            if (_player == null) return false;
+
+            float     range  = _config != null ? _config.defaultEntryAttackRange : 6f;
+            LayerMask layer  = _config != null ? _config.entryAttackTargetLayer  : ~0;
+            LayerMask losBlk = _config != null ? _config.entryAttackLineOfSightBlocker : 0;
+            bool      requireLos = false;
+
+            if (modelData != null)
+            {
+                if (modelData.entryAttackRange > 0f) range = modelData.entryAttackRange;
+                requireLos = modelData.requireLineOfSight;
+            }
+
+            if (range <= 0f) return false;
+
+            Vector3 origin = _player.transform.position;
+            Collider[] hits = Physics.OverlapSphere(origin, range, layer);
+            float bestSqr = float.MaxValue;
+
+            for (int i = 0; i < hits.Length; ++i)
+            {
+                var monster = hits[i].GetComponentInParent<MonsterActor>();
+                if (monster == null || !monster.IsAlive()) continue;
+
+                if (requireLos && losBlk != 0)
+                {
+                    Vector3 to = monster.transform.position - origin;
+                    if (Physics.Raycast(origin, to.normalized, to.magnitude, losBlk))
+                        continue;
+                }
+
+                float sqr = (monster.transform.position - origin).sqrMagnitude;
+                if (sqr < bestSqr) { bestSqr = sqr; nearest = monster; }
+            }
+
+            return nearest != null;
         }
 
         /// <summary>

@@ -87,6 +87,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 runtimeByGuid.TryGetValue(pair.Key.Guid, out var runtimeNode);
                 pair.Value.UpdateStateColor(runtimeNode);
             }
+
+            MarkEdgesDirty();
+        }
+
+        public void FocusNode(BTNode node)
+        {
+            if (node == null || !_nodeViews.TryGetValue(node, out var nodeView))
+                return;
+
+            ClearSelection();
+            AddToSelection(nodeView);
+            FrameSelection();
+            _window.SelectNode(node);
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -157,7 +170,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private void AddNodeView(BTNode node)
         {
-            var nodeView = new BehaviorTreeNodeView(node);
+            var nodeView = new BehaviorTreeNodeView(node, _tree != null ? _tree.Nodes.IndexOf(node) : -1);
             nodeView.OnSetRoot += SetRoot;
             nodeView.RegisterCallback<MouseDownEvent>(_ => _window.SelectNode(nodeView.Node));
             _nodeViews[node] = nodeView;
@@ -213,6 +226,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 RemoveEdge(oldEdge);
                 RemoveElement(oldEdge);
             }
+        }
+
+        private void MarkEdgesDirty()
+        {
+            foreach (var edge in edges.ToList())
+                edge.MarkDirtyRepaint();
         }
 
         private void RemoveEdge(Edge edge)

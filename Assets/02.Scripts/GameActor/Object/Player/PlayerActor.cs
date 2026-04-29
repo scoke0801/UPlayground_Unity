@@ -71,6 +71,12 @@ namespace UPlayGround
         // 교체 어시스트
         private bool _swapAssistQueued = false;
 
+        // 등장 공격 (교체 직후 범위 내 적 존재 시 발동)
+        private bool         _entryAttackQueued = false;
+        private MonsterActor _entryAttackTarget;
+        // PlayerAttackState 가 OnEnter에서 1회 소비하여 ExecuteEntryAttack 라우팅을 트리거.
+        private bool         _isEntryAttackPending = false;
+
         // 차지 공격 입력 추적
         private bool  _chargeAttackHeld;
         private float _chargeHoldTime;
@@ -145,6 +151,11 @@ namespace UPlayGround
             {
                 _attackInputCondition = InputCondition.Pressed;
                 _swapAssistQueued = false;
+            }
+            // 등장 공격 주입: PartyManager가 교체 후 범위 내 적 존재 시 설정
+            else if (_entryAttackQueued)
+            {
+                ConsumeEntryAttackQueue();
             }
 
             Quaternion cameraRotation = _camera != null ? _camera.transform.rotation : Quaternion.identity;
@@ -344,6 +355,56 @@ namespace UPlayGround
         /// PartyManager가 교체 성공 시 incoming 캐릭터에 호출.
         /// </summary>
         public void QueueSwapAssist() => _swapAssistQueued = true;
+
+        /// <summary>
+        /// 등장 공격을 다음 Update()에서 실행하도록 예약한다.
+        /// PartyManager가 교체 성공 + 범위 내 적 존재 시 호출.
+        /// 어시스트와는 배타적으로만 동작한다 (PartyManager가 보장).
+        /// </summary>
+        public void QueueEntryAttack(MonsterActor target)
+        {
+            _entryAttackQueued = true;
+            _entryAttackTarget = target;
+        }
+
+        /// <summary>
+        /// 큐에 쌓인 등장 공격을 소비한다. 무력화 상태이면 폐기.
+        /// </summary>
+        private void ConsumeEntryAttackQueue()
+        {
+            string state = MovementController?.CurrentState?.StateName;
+            if (state == "Hit" || state == "Death" || state == "Grabbed" || state == "Knockdown")
+            {
+                _entryAttackQueued = false;
+                _entryAttackTarget = null;
+                return;
+            }
+
+            // 가장 가까운 적 방향으로 회전 스냅
+            if (_entryAttackTarget != null && _entryAttackTarget.IsAlive())
+            {
+                Vector3 toTarget = _entryAttackTarget.transform.position - transform.position;
+                toTarget.y = 0f;
+                if (toTarget.sqrMagnitude > 0.0001f)
+                    transform.rotation = Quaternion.LookRotation(toTarget);
+            }
+
+            _attackInputCondition  = InputCondition.Pressed;
+            _isEntryAttackPending  = true;
+            _entryAttackQueued     = false;
+            _entryAttackTarget     = null;
+        }
+
+        /// <summary>
+        /// PlayerAttackState.OnEnter 가 호출. true면 이번 공격을 등장 공격으로 처리.
+        /// 한 번 호출되면 자동으로 false로 리셋된다.
+        /// </summary>
+        public bool ConsumeEntryAttackPending()
+        {
+            if (!_isEntryAttackPending) return false;
+            _isEntryAttackPending = false;
+            return true;
+        }
     }
 
     // Component

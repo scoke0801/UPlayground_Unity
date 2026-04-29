@@ -435,6 +435,23 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        public AttackData ExecuteEntryAttack()
+        {
+            var source = _attackData.entryAttack?.baseInfo != null
+                ? _attackData.entryAttack
+                : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null);
+
+            if (source == null) return null;
+
+            _attackState = AttackState.NormalAttack;
+            ResetCombo();
+            _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
         public AttackData ExecuteParryCounterAttack()
         {
             var source = _attackData.parryCounterAttack?.baseInfo != null

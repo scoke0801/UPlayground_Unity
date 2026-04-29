@@ -19,7 +19,7 @@ namespace UPlayGround.AI.BehaviorTree
         public List<BTNode> Nodes => _nodes;
         public Blackboard Blackboard => _blackboard;
 
-        public BehaviorTreeAsset CloneRuntime()
+        public BehaviorTreeAsset CloneRuntime(Blackboard blackboardOverride = null)
         {
             var tree = Instantiate(this);
             var nodeMap = new Dictionary<BTNode, BTNode>();
@@ -52,7 +52,7 @@ namespace UPlayGround.AI.BehaviorTree
             tree._rootNode = _rootNode != null && nodeMap.TryGetValue(_rootNode, out var rootClone)
                 ? rootClone
                 : null;
-            tree._blackboard = _blackboard?.Clone() ?? new Blackboard();
+            tree._blackboard = blackboardOverride?.Clone() ?? _blackboard?.Clone() ?? new Blackboard();
             return tree;
         }
     }

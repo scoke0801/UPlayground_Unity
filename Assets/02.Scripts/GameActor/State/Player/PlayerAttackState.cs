@@ -37,6 +37,7 @@ namespace UPlayGround.State
         private bool _isHeavyAttack;
         private bool _isCounter;
         private bool _isParryCounter;
+        private bool _isEntryAttack;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -82,6 +83,8 @@ namespace UPlayGround.State
             _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
             if (_isCounter)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+
+            _isEntryAttack = playerActor.ConsumeEntryAttackPending();
 
             _isParryCounter = _combat.IsParryCounterAvailable;
             if (_isParryCounter)
@@ -241,6 +244,13 @@ namespace UPlayGround.State
             if (_isCounter)
             {
                 _currentAttack = _combat.ExecuteCounterAttack();
+                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
+            // 1순위: 교체 등장 공격
+            if (_isEntryAttack)
+            {
+                _currentAttack = _combat.ExecuteEntryAttack();
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
             }
 

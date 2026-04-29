@@ -11,6 +11,8 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] [TextArea] private string _comment;
         [SerializeField] private Vector2 _editorPosition;
         [SerializeField] private List<BTNode> _children = new();
+        [SerializeField] private bool _disabled;
+        [SerializeField] private bool _breakpoint;
 
         [NonSerialized] private bool _started;
         [NonSerialized] private BehaviorTreeContext _context;
@@ -46,6 +48,19 @@ namespace UPlayGround.AI.BehaviorTree
         public List<BTNode> Children => _children;
         public BTStatus LastStatus { get; private set; } = BTStatus.Failure;
         public bool IsStarted => _started;
+        public bool IsRunning => _started && LastStatus == BTStatus.Running;
+        public bool Disabled
+        {
+            get => _disabled;
+            set => _disabled = value;
+        }
+
+        public bool Breakpoint
+        {
+            get => _breakpoint;
+            set => _breakpoint = value;
+        }
+
         protected BehaviorTreeContext Context => _context;
 
         public void Initialize(BehaviorTreeContext context)
@@ -61,17 +76,34 @@ namespace UPlayGround.AI.BehaviorTree
 
         public BTStatus Tick()
         {
+            if (_disabled)
+            {
+                LastStatus = BTStatus.Success;
+                _context?.DebugTrace?.Record(this, "Disabled", LastStatus, "Disabled 노드는 Success로 건너뜁니다.");
+                return LastStatus;
+            }
+
             if (!_started)
             {
                 _started = true;
+                _context?.DebugTrace?.Record(this, "Start", BTStatus.Running);
+                if (_breakpoint)
+                    _context?.RequestPause(this);
+
                 OnStart();
             }
 
             LastStatus = OnUpdate();
+            if (this is BTConditionNode conditionNode)
+            {
+                conditionNode.SetAbortEvaluation(LastStatus);
+            }
+            _context?.DebugTrace?.Record(this, "Tick", LastStatus);
 
             if (LastStatus != BTStatus.Running)
             {
                 OnStop();
+                _context?.DebugTrace?.Record(this, "Stop", LastStatus);
                 _started = false;
             }
 
@@ -84,6 +116,7 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 OnAbort();
                 OnStop();
+                _context?.DebugTrace?.Record(this, "Abort", LastStatus);
                 _started = false;
             }
 

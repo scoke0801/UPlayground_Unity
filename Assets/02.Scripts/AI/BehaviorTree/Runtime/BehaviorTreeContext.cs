@@ -7,16 +7,24 @@ namespace UPlayGround.AI.BehaviorTree
     {
         private readonly Dictionary<System.Type, UnityEngine.Component> _componentCache = new();
 
-        public BehaviorTreeContext(GameObject owner, Blackboard blackboard)
+        public BehaviorTreeContext(GameObject owner, Blackboard blackboard, BehaviorTreeRunner runner = null)
         {
             Owner = owner;
             Transform = owner != null ? owner.transform : null;
             Blackboard = blackboard;
+            Runner = runner;
         }
 
         public GameObject Owner { get; }
         public Transform Transform { get; }
         public Blackboard Blackboard { get; }
+        public BehaviorTreeRunner Runner { get; }
+        public BehaviorTreeDebugTrace DebugTrace => Runner != null ? Runner.DebugTrace : null;
+
+        public void RequestPause(BTNode node)
+        {
+            Runner?.RequestPauseFromNode(node);
+        }
 
         public T GetComponentCached<T>() where T : UnityEngine.Component
         {

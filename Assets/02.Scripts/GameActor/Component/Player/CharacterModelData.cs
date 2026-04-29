@@ -20,6 +20,13 @@ namespace UPlayGround.Component
         [Header("Combat")]
         public PlayerAttackDataSO attackData;
 
+        [Header("Entry Attack")]
+        [Tooltip("교체 등장 시 자동 발동될 공격의 검출 반경. 0 이하이면 PartyConfigSO.defaultEntryAttackRange 사용.")]
+        public float entryAttackRange = 0f;
+
+        [Tooltip("벽 너머의 적은 무시. true 면 LOS(시야선) 검사를 통과한 적만 카운트.")]
+        public bool requireLineOfSight = false;
+
         [Header("Stats")]
         public float maxHealth = 100f;
 

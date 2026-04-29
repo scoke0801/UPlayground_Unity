@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BT 에디터 디자인 개선 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --bg2: #16161a;
+    --bg3: #1e1e24;
+    --bg4: #26262e;
+    --border: #2e2e38;
+    --border2: #3a3a48;
+    --text: #e8e8f0;
+    --text2: #9898b0;
+    --text3: #5a5a72;
+
+    /* Node type colors — proposed */
+    --c-composite: oklch(62% 0.14 255);   /* Sequence/Selector: blue */
+    --c-action:    oklch(62% 0.14 155);   /* Action: green */
+    --c-condition: oklch(62% 0.14 55);    /* Condition: amber */
+    --c-decorator: oklch(62% 0.14 310);   /* Decorator: violet */
+    --c-entry:     oklch(62% 0.14 200);   /* Entry: cyan */
+
+    --c-composite-bg: oklch(20% 0.04 255);
+    --c-action-bg:    oklch(20% 0.04 155);
+    --c-condition-bg: oklch(20% 0.04 55);
+    --c-decorator-bg: oklch(20% 0.04 310);
+
+    --status-running: oklch(72% 0.18 145);
+    --status-success: oklch(68% 0.18 145);
+    --status-failure: oklch(62% 0.18 25);
+    --status-idle:    #4a4a5e;
+
+    --accent: oklch(62% 0.14 255);
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 1280px; margin: 0 auto; padding: 48px 32px 120px; }
+
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 40px;
+    margin-bottom: 56px;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--accent);
+    background: oklch(20% 0.04 255);
+    border: 1px solid oklch(30% 0.08 255);
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .hero p { color: var(--text2); font-size: 15px; max-width: 640px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 72px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: .08em;
+  }
+  .section-header h2 { font-size: 22px; font-weight: 600; }
+  .section-sub { color: var(--text2); font-size: 13px; margin-top: 4px; font-weight: 400; }
+
+  /* ── Grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .card-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: 13px; line-height: 1.65; }
+
+  /* ── Problem chip ── */
+  .problem-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: oklch(18% 0.04 25);
+    border: 1px solid oklch(30% 0.10 25);
+    color: oklch(72% 0.14 25);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin: 3px 3px 3px 0;
+  }
+  .problem-chip::before { content: '!'; font-weight: 700; font-size: 10px; }
+
+  .improve-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: oklch(18% 0.04 145);
+    border: 1px solid oklch(30% 0.10 145);
+    color: oklch(72% 0.14 145);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin: 3px 3px 3px 0;
+  }
+  .improve-chip::before { content: '→'; font-weight: 700; font-size: 11px; }
+
+  /* ── Color swatch ── */
+  .swatch-row { display: flex; flex-direction: column; gap: 10px; }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+  }
+  .swatch-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .swatch-name { font-weight: 500; font-size: 13px; }
+  .swatch-use { font-size: 12px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── Node demos ── */
+  .node-demo-area {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .node-demo-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.3;
+  }
+  .nodes-flex {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ── BT Node (CURRENT) ── */
+  .node-current {
+    width: 160px;
+    background: #1a2830;
+    border: 1px solid #2a4040;
+    border-radius: 4px;
+    font-size: 10px;
+    overflow: hidden;
+  }
+  .node-current-header {
+    background: #1e7c5a;
+    padding: 4px 6px;
+    font-size: 9px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+  }
+  .node-current-body {
+    padding: 6px;
+    color: #a0c0b0;
+  }
+  .node-current-body .title { color: #d0f0e0; font-size: 10px; font-weight: bold; }
+  .node-current-footer {
+    background: #162020;
+    padding: 4px 6px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .node-status-badge {
+    font-size: 8px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: #2a8050;
+    color: #fff;
+  }
+
+  /* ── BT Node (PROPOSED) ── */
+  .node-new {
+    width: 180px;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'IBM Plex Mono', monospace;
+    box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  }
+  .node-new-header {
+    padding: 10px 12px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .node-type-pill {
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-weight: 600;
+  }
+  .node-new-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    padding: 10px 12px 6px;
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .node-new-category {
+    font-size: 10px;
+    color: var(--text3);
+    padding: 0 12px 8px;
+    letter-spacing: .04em;
+  }
+  .node-new-params {
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .param-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+  }
+  .param-key { color: rgba(255,255,255,.4); }
+  .param-val { color: rgba(255,255,255,.75); font-weight: 500; }
+  .node-new-footer {
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-label {
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .node-index { font-size: 9px; color: rgba(255,255,255,.25); }
+
+  /* color helpers */
+  .type-composite { background: oklch(62% 0.14 255); color: oklch(10% 0.04 255); }
+  .type-action    { background: oklch(62% 0.14 155); color: oklch(10% 0.04 155); }
+  .type-condition { background: oklch(62% 0.14 55);  color: oklch(10% 0.04 55);  }
+  .type-decorator { background: oklch(62% 0.14 310); color: oklch(10% 0.04 310); }
+
+  .bg-composite { background: var(--c-composite-bg); border: 1px solid oklch(30% 0.06 255); }
+  .bg-action    { background: var(--c-action-bg);    border: 1px solid oklch(30% 0.06 155); }
+  .bg-condition { background: var(--c-condition-bg); border: 1px solid oklch(30% 0.06 55);  }
+  .bg-decorator { background: var(--c-decorator-bg); border: 1px solid oklch(30% 0.06 310); }
+
+  .header-composite { background: oklch(18% 0.06 255); }
+  .header-action    { background: oklch(18% 0.06 155); }
+  .header-condition { background: oklch(18% 0.06 55);  }
+  .header-decorator { background: oklch(18% 0.06 310); }
+
+  .dot-running { background: var(--status-running); box-shadow: 0 0 6px var(--status-running); }
+  .dot-success { background: oklch(68% 0.18 145); }
+  .dot-failure { background: var(--status-failure); }
+  .dot-idle    { background: var(--status-idle); }
+
+  .label-running { color: var(--status-running); }
+  .label-success { color: oklch(68% 0.18 145); }
+  .label-failure { color: var(--status-failure); }
+  .label-idle    { color: var(--status-idle); }
+
+  /* ── Compare toggle ── */
+  .compare-toggle {
+    display: flex;
+    gap: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    width: fit-content;
+    margin-bottom: 20px;
+  }
+  .toggle-btn {
+    padding: 7px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    transition: all .15s;
+    letter-spacing: .03em;
+    font-family: 'IBM Plex Sans KR', sans-serif;
+  }
+  .toggle-btn.active {
+    background: var(--accent);
+    color: oklch(10% 0.04 255);
+  }
+
+  .compare-panel { display: none; }
+  .compare-panel.active { display: block; }
+
+  /* ── Connection line demo ── */
+  .conn-demo {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 32px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+  }
+  .conn-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .conn-label { font-size: 11px; color: var(--text3); text-align: center; font-family: 'IBM Plex Mono', monospace; }
+  svg.conn-svg { overflow: visible; }
+
+  /* ── Inspector mockup ── */
+  .inspector-demo {
+    background: #13131a;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    width: 260px;
+    font-size: 12px;
+  }
+  .insp-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .insp-tab {
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    letter-spacing: .04em;
+  }
+  .insp-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .insp-body { padding: 16px; }
+  .insp-section-title {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .insp-field { margin-bottom: 12px; }
+  .insp-field-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .insp-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 6px 8px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .insp-input-row { display: flex; gap: 6px; }
+  .insp-input-row .insp-input { flex: 1; }
+  .insp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: oklch(18% 0.06 255);
+    border: 1px solid oklch(30% 0.08 255);
+    color: oklch(70% 0.12 255);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .insp-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  /* ── Toolbar mockup ── */
+  .toolbar-demo {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0 16px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .tb-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tb-btn-primary {
+    background: var(--accent);
+    color: oklch(10% 0.04 255);
+  }
+  .tb-btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .tb-btn-danger {
+    background: oklch(18% 0.06 25);
+    border: 1px solid oklch(30% 0.10 25);
+    color: oklch(68% 0.14 25);
+  }
+  .tb-sep { width: 1px; height: 22px; background: var(--border2); margin: 0 4px; }
+  .tb-spacer { flex: 1; }
+  .tb-debug {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .tb-run-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--status-idle); }
+  .tb-run-dot.active { background: var(--status-running); box-shadow: 0 0 6px var(--status-running); }
+
+  /* ── Rule list ── */
+  .rule-list { display: flex; flex-direction: column; gap: 12px; }
+  .rule-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    align-items: flex-start;
+  }
+  .rule-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+    padding-top: 2px;
+    width: 24px;
+  }
+  .rule-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .rule-content p { color: var(--text2); font-size: 13px; }
+
+  /* ── UX scenario ── */
+  .scenario {
+    background: var(--bg2);
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 12px;
+  }
+  .scenario-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .scenario-desc { font-size: 13px; color: var(--text2); }
+
+  /* ── Annotation ── */
+  .annotation {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Design Review · BT 에디터</div>
+    <h1>커스텀 Behavior Tree 에디터<br>디자인 & 사용성 개선 방향</h1>
+    <p>Behavior Designer 레퍼런스를 기반으로, 현재 에디터의 6가지 핵심 문제를 분석하고 구체적인 개선안과 시각적 목업을 제시합니다.</p>
+  </div>
+
+  <!-- ═══ 01 PROBLEM ANALYSIS ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <div>
+        <h2>현재 에디터 문제 분석</h2>
+        <div class="section-sub">스크린샷 기반 6가지 핵심 이슈</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Node Readability</div>
+        <h3>노드 내 정보 과밀·가독성 저하</h3>
+        <p>카테고리명, 노드명, 파라미터 텍스트가 모두 비슷한 크기로 표시되어 시각적 위계가 없음. 텍스트가 10px 이하로 작아 줌아웃 상태에서 판독 불가.</p>
+        <br>
+        <div>
+          <span class="problem-chip">동일한 폰트 웨이트</span>
+          <span class="problem-chip">너무 작은 텍스트</span>
+          <span class="problem-chip">줄바꿈 없는 긴 이름</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Color System</div>
+        <h3>비체계적인 색상 코딩</h3>
+        <p>초록·파란·갈색 등 색상이 있지만 Hue·Chroma가 제각각이라 일관성 없음. 동일 노드 타입인데도 색이 다르게 보이는 경우 존재. 배경 대비가 낮아 색구분이 어려움.</p>
+        <br>
+        <div>
+          <span class="problem-chip">불규칙한 Hue</span>
+          <span class="problem-chip">낮은 배경 대비</span>
+          <span class="problem-chip">타입별 색 규칙 모호</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Connection Lines</div>
+        <h3>연결선 추적 어려움</h3>
+        <p>가는 검은 선이 어두운 배경 위에 그려져 복잡한 트리에서 선을 추적하기 매우 어려움. 부모-자식 관계의 시각적 흐름이 불명확.</p>
+        <br>
+        <div>
+          <span class="problem-chip">낮은 선 대비</span>
+          <span class="problem-chip">흐름 방향 불명확</span>
+          <span class="problem-chip">교차 시 혼란</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Inspector Panel</div>
+        <h3>인스펙터 정보 밀도 과잉</h3>
+        <p>좌측 패널이 섹션 구분 없이 작은 텍스트로 빽빽하게 채워져 있음. Inspect / Variables / Errors / Tasks 탭 전환이 시각적으로 불명확.</p>
+        <br>
+        <div>
+          <span class="problem-chip">섹션 구분 없음</span>
+          <span class="problem-chip">탭 상태 불명확</span>
+          <span class="problem-chip">입력 필드 구분 어려움</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Toolbar UX</div>
+        <h3>툴바 액션 계층 부재</h3>
+        <p>New, Save, Validate, Clean Nulls, Import, Export 등 중요도가 다른 버튼이 동등하게 배치. 위험한 액션(Clean Nulls)과 안전한 액션(Save)의 구분 없음.</p>
+        <br>
+        <div>
+          <span class="problem-chip">주/보조 액션 혼재</span>
+          <span class="problem-chip">위험 액션 미구분</span>
+          <span class="problem-chip">디버그 영역 혼재</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Runtime State</div>
+        <h3>런타임 상태 표현 약함</h3>
+        <p>Running / Success / Failure 상태를 나타내는 뱃지가 노드 하단에 작게 표시되어 실행 흐름 파악이 어려움. 어느 경로가 현재 실행 중인지 한눈에 파악 불가.</p>
+        <br>
+        <div>
+          <span class="problem-chip">상태 표시 너무 작음</span>
+          <span class="problem-chip">활성 경로 강조 없음</span>
+          <span class="problem-chip">연결선에 상태 없음</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 02 COLOR SYSTEM ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <div>
+        <h2>노드 타입 색상 시스템 재설계</h2>
+        <div class="section-sub">동일한 Chroma·Lightness, Hue만 변경 — OKLCH 기반</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card-label" style="margin-bottom:14px">제안 팔레트 — oklch(62% 0.14 [hue])</div>
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(62% 0.14 255); border-radius:6px"></div>
+            <div>
+              <div class="swatch-name">Composite <span style="font-weight:400;color:var(--text3)">Sequence / Selector / Parallel</span></div>
+              <div class="swatch-use">oklch(62% 0.14 255) · hue 255° Blue</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(62% 0.14 155); border-radius:6px"></div>
+            <div>
+              <div class="swatch-name">Action <span style="font-weight:400;color:var(--text3)">Move, Attack, Patrol…</span></div>
+              <div class="swatch-use">oklch(62% 0.14 155) · hue 155° Green</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(62% 0.14 55); border-radius:6px"></div>
+            <div>
+              <div class="swatch-name">Condition <span style="font-weight:400;color:var(--text3)">HasTarget, CanSee…</span></div>
+              <div class="swatch-use">oklch(62% 0.14 55) · hue 55° Amber</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(62% 0.14 310); border-radius:6px"></div>
+            <div>
+              <div class="swatch-name">Decorator <span style="font-weight:400;color:var(--text3)">Inverter, Repeater…</span></div>
+              <div class="swatch-use">oklch(62% 0.14 310) · hue 310° Violet</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(72% 0.18 145); border-radius:6px; box-shadow: 0 0 8px oklch(72% 0.18 145)"></div>
+            <div>
+              <div class="swatch-name">Runtime: Running</div>
+              <div class="swatch-use">oklch(72% 0.18 145) · glow effect</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background: oklch(62% 0.18 25); border-radius:6px"></div>
+            <div>
+              <div class="swatch-name">Runtime: Failure</div>
+              <div class="swatch-use">oklch(62% 0.18 25) · hue 25° Red-Orange</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:14px">설계 원칙</div>
+        <div class="rule-list">
+          <div class="rule-item">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>Chroma 일관성</h4>
+              <p>모든 타입 색상이 chroma=0.14로 동일해 채도가 균일하게 느껴지고, 어두운 배경에서도 서로 충돌하지 않음.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>배경은 동일 Hue의 어두운 버전</h4>
+              <p>노드 배경 = oklch(20% 0.04 [hue]). 헤더 강조색과 같은 Hue를 공유해 자연스러운 색 연관성을 가짐.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>런타임 색상은 분리</h4>
+              <p>Running/Failure는 노드 타입 색상과 완전히 다른 채도(0.18)로 설정해 편집 모드와 런타임 모드를 즉각 구분 가능.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 03 NODE REDESIGN ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <div>
+        <h2>노드 해부학적 재설계</h2>
+        <div class="section-sub">정보 위계 · 타입 식별 · 런타임 상태를 구조적으로 분리</div>
+      </div>
+    </div>
+
+    <!-- Before / After Toggle -->
+    <div class="compare-toggle">
+      <button class="toggle-btn active" onclick="showCompare('before', this)">현재 (Before)</button>
+      <button class="toggle-btn" onclick="showCompare('after', this)">제안 (After)</button>
+    </div>
+
+    <!-- BEFORE -->
+    <div id="compare-before" class="compare-panel active">
+      <div class="node-demo-area">
+        <div class="nodes-flex">
+          <!-- Composite - current -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-current" style="border-color:#2a4060;background:#1a2030">
+              <div class="node-current-header" style="background:#1e4080">NAMESPACE · 0</div>
+              <div class="node-current-body">
+                <div class="title">Sequence</div>
+                <div style="font-size:8px;color:#708090;margin-top:2px">CHILDREN: 3</div>
+              </div>
+              <div class="node-current-footer">
+                <span class="node-status-badge" style="background:#333">IDLE</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Composite</div>
+          </div>
+          <!-- Action - current -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-current" style="border-color:#2a4030;background:#1a2820">
+              <div class="node-current-header" style="background:#1e7c5a">ACTION · 2</div>
+              <div class="node-current-body">
+                <div class="title">Action_Move</div>
+                <div style="font-size:8px;color:#80a090;margin-top:2px">EnemyDetection: HasTarget == true<br>MoveSpeed: 3.5<br>Destination: target.pos</div>
+              </div>
+              <div class="node-current-footer">
+                <span class="node-status-badge" style="background:#2a8050">RUNNING</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Action</div>
+          </div>
+          <!-- Condition - current -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-current" style="border-color:#4a3a20;background:#281e10">
+              <div class="node-current-header" style="background:#7a5010">CONDITION · 4</div>
+              <div class="node-current-body">
+                <div class="title">Condition_HasTarget</div>
+                <div style="font-size:8px;color:#b09060;margin-top:2px">cond_has_target<br>Expected Value: True</div>
+              </div>
+              <div class="node-current-footer">
+                <span class="node-status-badge" style="background:#804000">FAIL</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Condition</div>
+          </div>
+          <!-- Decorator - current -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-current" style="border-color:#3a2a50;background:#201828">
+              <div class="node-current-header" style="background:#4a2a80">NAMESPACE · 6</div>
+              <div class="node-current-body">
+                <div class="title">Inverter</div>
+                <div style="font-size:8px;color:#9080b0;margin-top:2px">Aborttype: None</div>
+              </div>
+              <div class="node-current-footer">
+                <span class="node-status-badge" style="background:#333">IDLE</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Decorator</div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">현재: 타입·이름·파라미터 간 위계 없음, 상태 표시 미흡, 색상 불규칙</div>
+    </div>
+
+    <!-- AFTER -->
+    <div id="compare-after" class="compare-panel">
+      <div class="node-demo-area">
+        <div class="nodes-flex">
+          <!-- Composite -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-new bg-composite">
+              <div class="node-new-header header-composite">
+                <span class="node-type-pill type-composite">Composite</span>
+              </div>
+              <div class="node-new-title">Sequence</div>
+              <div class="node-new-category">Composites · #0</div>
+              <div class="node-new-params">
+                <div class="param-row"><span class="param-key">children</span><span class="param-val">3</span></div>
+              </div>
+              <div class="node-new-footer">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="status-dot dot-idle"></div>
+                  <span class="status-label label-idle">idle</span>
+                </div>
+                <span class="node-index">#0</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Composite</div>
+          </div>
+          <!-- Action Running -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-new bg-action" style="box-shadow: 0 0 0 1.5px oklch(72% 0.18 145), 0 6px 32px oklch(20% 0.12 145);">
+              <div class="node-new-header header-action">
+                <span class="node-type-pill type-action">Action</span>
+              </div>
+              <div class="node-new-title">Action_Move</div>
+              <div class="node-new-category">Movement · #2</div>
+              <div class="node-new-params">
+                <div class="param-row"><span class="param-key">speed</span><span class="param-val">3.5</span></div>
+                <div class="param-row"><span class="param-key">target</span><span class="param-val">EnemyTarget</span></div>
+              </div>
+              <div class="node-new-footer">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="status-dot dot-running"></div>
+                  <span class="status-label label-running">running</span>
+                </div>
+                <span class="node-index">#2</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Action (Running)</div>
+          </div>
+          <!-- Condition Failure -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-new bg-condition">
+              <div class="node-new-header header-condition">
+                <span class="node-type-pill type-condition">Condition</span>
+              </div>
+              <div class="node-new-title">Condition_HasTarget</div>
+              <div class="node-new-category">Detection · #4</div>
+              <div class="node-new-params">
+                <div class="param-row"><span class="param-key">variable</span><span class="param-val">cond_has_target</span></div>
+                <div class="param-row"><span class="param-key">expected</span><span class="param-val">true</span></div>
+              </div>
+              <div class="node-new-footer">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="status-dot dot-failure"></div>
+                  <span class="status-label label-failure">failure</span>
+                </div>
+                <span class="node-index">#4</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Condition (Failure)</div>
+          </div>
+          <!-- Decorator Idle -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="node-new bg-decorator">
+              <div class="node-new-header header-decorator">
+                <span class="node-type-pill type-decorator">Decorator</span>
+              </div>
+              <div class="node-new-title">Inverter</div>
+              <div class="node-new-category">Decorators · #6</div>
+              <div class="node-new-params">
+                <div class="param-row"><span class="param-key">abort type</span><span class="param-val">None</span></div>
+              </div>
+              <div class="node-new-footer">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="status-dot dot-idle"></div>
+                  <span class="status-label label-idle">idle</span>
+                </div>
+                <span class="node-index">#6</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Decorator</div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">제안: 타입 pill → 이름(large) → 카테고리/인덱스 → 파라미터 → 상태 — 명확한 5단 위계</div>
+    </div>
+  </div>
+
+  <!-- ═══ 04 CONNECTION LINES ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <div>
+        <h2>연결선 개선</h2>
+        <div class="section-sub">흐름 방향성, 런타임 하이라이트, 두께 및 색상</div>
+      </div>
+    </div>
+
+    <div class="conn-demo">
+      <!-- Current -->
+      <div class="conn-item">
+        <svg class="conn-svg" width="80" height="80" viewBox="0 0 80 80">
+          <line x1="40" y1="0" x2="40" y2="80" stroke="#222" stroke-width="1.5"/>
+          <circle cx="40" cy="0" r="4" fill="#1a2830"/>
+          <circle cx="40" cy="80" r="4" fill="#1a2830"/>
+        </svg>
+        <div class="conn-label">현재<br>검은 직선, 구분 어려움</div>
+      </div>
+      <!-- Proposed normal -->
+      <div class="conn-item">
+        <svg class="conn-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="oklch(62% 0.14 255)" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="oklch(62% 0.14 255)" stop-opacity="0.3"/>
+            </linearGradient>
+          </defs>
+          <path d="M40 0 C40 30 40 50 40 80" stroke="url(#g1)" stroke-width="2" fill="none"/>
+          <circle cx="40" cy="0" r="5" fill="oklch(62% 0.14 255)" fill-opacity="0.8"/>
+          <polygon points="34,72 40,82 46,72" fill="oklch(62% 0.14 255)" fill-opacity="0.6"/>
+        </svg>
+        <div class="conn-label">제안: 기본<br>방향성 그라디언트 + 화살표</div>
+      </div>
+      <!-- Running -->
+      <div class="conn-item">
+        <svg class="conn-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="oklch(72% 0.18 145)" stop-opacity="1"/>
+              <stop offset="100%" stop-color="oklch(72% 0.18 145)" stop-opacity="0.2"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <path d="M40 0 C40 30 40 50 40 80" stroke="url(#g2)" stroke-width="2.5" fill="none" filter="url(#glow)"/>
+          <circle cx="40" cy="0" r="5" fill="oklch(72% 0.18 145)" filter="url(#glow)"/>
+          <polygon points="34,72 40,82 46,72" fill="oklch(72% 0.18 145)" filter="url(#glow)"/>
+          <circle cx="40" cy="40" r="3" fill="oklch(72% 0.18 145)" opacity="0.9">
+            <animate attributeName="cy" values="5;75;5" dur="1.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0.1;0.9" dur="1.6s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <div class="conn-label">제안: Running<br>글로우 + 펄스 애니메이션</div>
+      </div>
+      <!-- Failure -->
+      <div class="conn-item">
+        <svg class="conn-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="oklch(62% 0.18 25)" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="oklch(62% 0.18 25)" stop-opacity="0.2"/>
+            </linearGradient>
+          </defs>
+          <path d="M40 0 C40 30 40 50 40 80" stroke="url(#g3)" stroke-width="2" fill="none" stroke-dasharray="5 3"/>
+          <circle cx="40" cy="0" r="5" fill="oklch(62% 0.18 25)" fill-opacity="0.8"/>
+          <polygon points="34,72 40,82 46,72" fill="oklch(62% 0.18 25)" fill-opacity="0.5"/>
+        </svg>
+        <div class="conn-label">제안: Failure<br>빨강 점선으로 즉각 구분</div>
+      </div>
+    </div>
+
+    <br>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">구현 포인트</div>
+        <h3>Bezier Curve 사용</h3>
+        <p>수직 직선 대신 Cubic Bezier를 사용하면 노드가 좌우로 이동해도 자연스럽게 연결됨. Control point를 수직 방향으로만 설정하면 트리 구조를 유지하면서 유기적인 선을 만들 수 있음.</p>
+        <br>
+        <div><span class="improve-chip">M x1 y1 C x1 my x2 my x2 y2</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">런타임 시각화</div>
+        <h3>활성 경로 하이라이트</h3>
+        <p>현재 실행 중인 경로의 연결선에만 Running 색상 + glow를 적용. 펄스 애니메이션으로 데이터가 흐르는 방향을 직관적으로 표현. 실행 종료된 경로는 즉시 dimmed 처리.</p>
+        <br>
+        <div><span class="improve-chip">빠른 디버깅</span><span class="improve-chip">실행 흐름 추적</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 05 INSPECTOR ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <div>
+        <h2>인스펙터 패널 재설계</h2>
+        <div class="section-sub">섹션 분리, 타입 정보 강조, 입력 필드 명확화</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card-label" style="margin-bottom:14px">제안 인스펙터 목업</div>
+        <div class="inspector-demo">
+          <div class="insp-tabs">
+            <div class="insp-tab active">Inspector</div>
+            <div class="insp-tab">Variables</div>
+            <div class="insp-tab">Tasks</div>
+            <div class="insp-tab">Errors</div>
+          </div>
+          <div class="insp-body">
+            <!-- Node identity -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+              <div style="width:10px;height:10px;border-radius:2px;background:oklch(62% 0.14 55);flex-shrink:0"></div>
+              <div>
+                <div style="font-size:13px;font-weight:600">Condition_HasTarget</div>
+                <div style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Condition · Detection · #4</div>
+              </div>
+            </div>
+
+            <div class="insp-section-title">
+              <span>노드 설정</span>
+            </div>
+            <div class="insp-field">
+              <div class="insp-field-label">Display Name</div>
+              <input class="insp-input" value="Condition_HasTarget" readonly>
+            </div>
+            <div class="insp-field">
+              <div class="insp-field-label">Comment</div>
+              <input class="insp-input" value="타겟이 있는지 확인" readonly>
+            </div>
+
+            <div class="insp-divider"></div>
+            <div class="insp-section-title"><span>파라미터</span></div>
+            <div class="insp-field">
+              <div class="insp-field-label">Variable</div>
+              <span class="insp-chip">cond_has_target</span>
+            </div>
+            <div class="insp-field">
+              <div class="insp-field-label">Expected Value</div>
+              <div class="insp-input-row">
+                <input class="insp-input" value="true" readonly>
+              </div>
+            </div>
+
+            <div class="insp-divider"></div>
+            <div class="insp-section-title"><span>Actor Position</span></div>
+            <div class="insp-field">
+              <div class="insp-input-row">
+                <div style="flex:1">
+                  <div class="insp-field-label">X</div>
+                  <input class="insp-input" value="-208" readonly>
+                </div>
+                <div style="flex:1">
+                  <div class="insp-field-label">Y</div>
+                  <input class="insp-input" value="387" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:14px">개선 포인트</div>
+        <div class="rule-list">
+          <div class="rule-item">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>노드 아이덴티티 헤더</h4>
+              <p>패널 상단에 선택된 노드의 색상 도트 + 이름 + 타입/카테고리를 고정 헤더로 표시. 어느 노드를 편집 중인지 항상 명확.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>섹션 구분자 도입</h4>
+              <p>노드 설정 / 파라미터 / 포지션 섹션을 가로 디바이더로 분리. 섹션 타이틀은 10px 대문자로 구분.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>변수 참조 Chip 표시</h4>
+              <p>공유 변수(Shared Variable)는 일반 텍스트가 아닌 파란색 Chip으로 표시해 "값"이 아닌 "참조"임을 즉각 구분.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>탭 Active 상태 명확화</h4>
+              <p>현재 활성 탭은 accent 색상 언더라인으로 강조. 비활성 탭은 dimmed 처리해 선택 상태를 명확히.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 06 TOOLBAR ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <div>
+        <h2>툴바 액션 계층화</h2>
+        <div class="section-sub">주요 액션 / 보조 액션 / 위험 액션 / 디버그 영역 분리</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div class="card-label" style="margin-bottom:10px">현재 툴바</div>
+        <div class="toolbar-demo" style="background:#1a1a20;border-color:#2a2a35">
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">New</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">Save</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">Validate</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">Clean Nulls</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">Import Json</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">Export Json</div>
+          <div class="tb-spacer"></div>
+          <div class="tb-btn" style="background:#1a3820;color:#50c080;border:1px solid #2a5030;font-size:11px">▶ Run</div>
+          <div class="tb-btn" style="background:#2a3040;color:#8090a0;border:none;font-size:11px">No Runner</div>
+        </div>
+        <div class="annotation" style="text-align:left;margin-top:8px">모든 버튼이 동일한 스타일 — 주요 액션과 위험 액션, 디버그가 구분되지 않음</div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:10px">제안 툴바</div>
+        <div class="toolbar-demo">
+          <div class="tb-btn tb-btn-primary">Save</div>
+          <div class="tb-btn tb-btn-ghost">New</div>
+          <div class="tb-sep"></div>
+          <div class="tb-btn tb-btn-ghost">Import</div>
+          <div class="tb-btn tb-btn-ghost">Export</div>
+          <div class="tb-btn tb-btn-ghost">Validate</div>
+          <div class="tb-sep"></div>
+          <div class="tb-btn tb-btn-danger">Clean Nulls</div>
+          <div class="tb-spacer"></div>
+          <div class="tb-debug">
+            <div class="tb-run-dot"></div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px">None (Behavior Runner)</span>
+          </div>
+          <div class="tb-btn" style="background:oklch(18% 0.06 145);border:1px solid oklch(30% 0.10 145);color:oklch(68% 0.14 145);font-size:12px;padding:5px 14px;border-radius:5px">▶ Play</div>
+        </div>
+        <div class="annotation" style="text-align:left;margin-top:8px">Save = 프라이머리 파란색 / Clean Nulls = 주의 빨강 / 디버그 컨트롤은 우측 그룹으로 분리</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 07 UX SCENARIOS ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <div>
+        <h2>UX 개선 시나리오</h2>
+        <div class="section-sub">인터랙션 패턴 및 생산성 향상 기능</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="scenario">
+          <div class="scenario-title">① 스페이스바 Quick Search 개선</div>
+          <div class="scenario-desc">현재 방식을 유지하되, 검색 결과에 타입별 색상 도트를 추가. 최근 사용한 노드를 상단에 고정 표시. 키보드만으로 추가 완료 가능하도록.</div>
+        </div>
+        <div class="scenario">
+          <div class="scenario-title">② 노드 그룹핑 (Comment Box)</div>
+          <div class="scenario-desc">여러 노드를 드래그 선택 후 G키로 그룹박스 생성. 박스에 레이블(예: "전투 로직")을 붙여 대형 트리의 구역 분리 가능. Behavior Designer에도 있는 기능.</div>
+        </div>
+        <div class="scenario">
+          <div class="scenario-title">③ 노드 접기 (Collapse)</div>
+          <div class="scenario-desc">Composite 노드 우상단 아이콘 클릭으로 서브트리 전체를 단일 노드로 접기. 복잡한 트리에서 집중할 영역만 펼치는 포커스 모드.</div>
+        </div>
+      </div>
+      <div>
+        <div class="scenario">
+          <div class="scenario-title">④ 미니맵 오버레이</div>
+          <div class="scenario-desc">우하단 오버레이 미니맵으로 대형 트리에서 현재 뷰포트 위치 파악. 미니맵에서 클릭하면 그 위치로 즉시 이동. 드래그 가능한 뷰포트 박스 표시.</div>
+        </div>
+        <div class="scenario">
+          <div class="scenario-title">⑤ 런타임 오버레이 분리</div>
+          <div class="scenario-desc">Play 모드 진입 시 상단에 "RUNTIME MODE" 배너 표시 + 그래프 영역 테두리를 Running 색상으로 전환. 편집 모드와 런타임 모드를 혼동하지 않도록.</div>
+        </div>
+        <div class="scenario">
+          <div class="scenario-title">⑥ 컨텍스트 메뉴 리디자인</div>
+          <div class="scenario-desc">우클릭 메뉴를 타입별 섹션으로 그룹화 (Composite / Action / Condition / Decorator). 각 항목에 색상 도트 + 단축키 표시. 검색 필터 입력란 상단 고정.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 08 SUMMARY ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <div>
+        <h2>우선순위별 구현 로드맵</h2>
+        <div class="section-sub">임팩트 대비 구현 비용 기준</div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card" style="border-color: oklch(30% 0.10 145)">
+        <div class="card-label" style="color: oklch(62% 0.14 145)">PHASE 1 · 즉시 적용</div>
+        <h3 style="color: oklch(72% 0.14 145)">비용 낮음 / 효과 높음</h3>
+        <br>
+        <div class="rule-list">
+          <p style="font-size:13px;color:var(--text2)">✦ OKLCH 색상 시스템 통일</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 노드 타입 Pill 배지 추가</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 툴바 버튼 계층 구분</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 인스펙터 섹션 디바이더</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 노드 내 폰트 크기/웨이트 조정</p>
+        </div>
+      </div>
+      <div class="card" style="border-color: oklch(30% 0.10 55)">
+        <div class="card-label" style="color: oklch(62% 0.14 55)">PHASE 2 · 단기</div>
+        <h3 style="color: oklch(72% 0.14 55)">비용 중간 / 효과 높음</h3>
+        <br>
+        <div class="rule-list">
+          <p style="font-size:13px;color:var(--text2)">✦ Bezier 연결선 전환</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 런타임 연결선 하이라이트</p>
+          <p style="font-size:13px;color:var(--text2)">✦ Running 노드 glow 효과</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 인스펙터 변수 Chip 표시</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 런타임 모드 시각 구분 배너</p>
+        </div>
+      </div>
+      <div class="card" style="border-color: oklch(30% 0.10 310)">
+        <div class="card-label" style="color: oklch(62% 0.14 310)">PHASE 3 · 중기</div>
+        <h3 style="color: oklch(72% 0.14 310)">비용 높음 / 생산성 향상</h3>
+        <br>
+        <div class="rule-list">
+          <p style="font-size:13px;color:var(--text2)">✦ 미니맵 오버레이</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 노드 서브트리 Collapse</p>
+          <p style="font-size:13px;color:var(--text2)">✦ Comment Box 그룹핑</p>
+          <p style="font-size:13px;color:var(--text2)">✦ Quick Search 개선</p>
+          <p style="font-size:13px;color:var(--text2)">✦ 컨텍스트 메뉴 리디자인</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showCompare(which, btn) {
+  document.querySelectorAll('.compare-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('compare-' + which).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

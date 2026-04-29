@@ -1,7 +1,7 @@
 # 전투 캐릭터 교체 시스템 설계
 
 > 작성일: 2026-04-25  
-> 최종 수정: 2026-04-25 (Phase 1 구현 완료)  
+> 최종 수정: 2026-04-29 (등장 공격 + PlayerAttackDataSO 에디터 통합 구현 완료)  
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 
 ---
@@ -865,3 +865,320 @@ OnSwapCompleted 이벤트 발생 → UI 갱신
 | 3 | **MagicaCloth2 재시뮬레이션** | ✅ 확정 — **별도 처리 불필요**. Model이 비활성화되면 애니메이션 정지와 함께 시뮬레이션도 자동 정지. |
 | 4 | **Weapon Constraint 소스** | ✅ 확정 — **Model 내부 본 사용 확인. 교체 필요.** `CharacterModelData`에 무기 부착 본 추가. `PlayerEquipment.RefreshForModel()`에서 `ParentConstraint` 소스를 새 본으로 교체. |
 | 5 | **DissolveController 머티리얼 인스턴스 해제** | ✅ 확정 — **재초기화 필요.** `InitializeRendererData()`는 이미 public이나, 재호출 전 `_instancedMaterials` 해제 + 진행 중 Dissolve 중단 로직을 `RefreshRenderers()`에 추가. |
+
+---
+
+## 13. 등장 공격 (Entry Attack on Swap)
+
+> 추가일: 2026-04-29  
+> 최종 수정: 2026-04-29 (구현 완료)  
+> 상태: ✅ 구현 완료
+
+### 13.1 개요
+
+캐릭터 교체가 성공한 직후, **incoming 캐릭터의 일정 반경 안에 살아있는 `MonsterActor`가 1체 이상 존재하면** 자동으로 등장 공격을 발동한다. 적이 없으면 평범한 교체로 끝나며, 입장 모션 없이 Idle로 진입한다.
+
+기존 **교체 어시스트(5.2)** 와는 트리거 조건이 다르다.
+
+| 구분 | 교체 어시스트 (Swap Assist) | 등장 공격 (Entry Attack) |
+|------|----------------------------|--------------------------|
+| 트리거 | outgoing의 `IsPerfectDodgeWindow == true` | incoming 위치 기준 반경 내 적 존재 |
+| 의미 | 적 공격 풍선에 도지 대신 교체 → 보상성 카운터 | 일반 교체 → 컨텍스트 기반 자동 진입 공격 |
+| 보장 | 가까운 적이 있을 가능성 매우 높음 | 명시적 `Physics.OverlapSphere` 검사로 보장 |
+| 발동 시 | 일반 1번 콤보 공격 | 일반 1번 콤보 공격 (회전 스냅 후) |
+
+두 메커니즘은 **상호 배제**로 동작한다. 동시 만족 시 **교체 어시스트가 우선**하며 등장 공격은 스킵된다.
+
+### 13.2 발동 조건
+
+다음을 **모두** 만족해야 한다 (`PartyManager.RequestSwapTo` 내부에서 검사).
+
+1. `PartyManager.RequestSwapTo()` 가 `swap.SwapTo()` 단계까지 성공
+2. 교체 어시스트(`isAssist`)가 발동되지 않음
+3. `_player.transform.position` 주변 반경(아래 13.4) 내에 `MonsterActor` 1체 이상 존재
+4. 검출된 적이 살아있음 (`MonsterActor.IsAlive() == true`)
+5. (선택) `requireLineOfSight = true` 인 캐릭터의 경우, `entryAttackLineOfSightBlocker` 레이어를 향한 Raycast가 막히지 않음
+
+### 13.3 범위 검사 구현
+
+`PartyManager.TryFindEntryAttackTarget()` (private 헬퍼) 가 담당한다. 락온/공격과 동일한 `Physics.OverlapSphere` 패턴을 재사용하며, 새 레이어를 도입하지 않는다.
+
+```csharp
+// Manager/Party/PartyManager.cs
+private bool TryFindEntryAttackTarget(CharacterModelData modelData, out MonsterActor nearest)
+{
+    nearest = null;
+    if (_player == null) return false;
+
+    float     range  = _config != null ? _config.defaultEntryAttackRange : 6f;
+    LayerMask layer  = _config != null ? _config.entryAttackTargetLayer  : ~0;
+    LayerMask losBlk = _config != null ? _config.entryAttackLineOfSightBlocker : 0;
+    bool      requireLos = false;
+
+    if (modelData != null)
+    {
+        if (modelData.entryAttackRange > 0f) range = modelData.entryAttackRange;
+        requireLos = modelData.requireLineOfSight;
+    }
+
+    if (range <= 0f) return false;
+
+    Vector3 origin = _player.transform.position;
+    Collider[] hits = Physics.OverlapSphere(origin, range, layer);
+    float bestSqr = float.MaxValue;
+
+    for (int i = 0; i < hits.Length; ++i)
+    {
+        var monster = hits[i].GetComponentInParent<MonsterActor>();
+        if (monster == null || !monster.IsAlive()) continue;
+
+        if (requireLos && losBlk != 0)
+        {
+            Vector3 to = monster.transform.position - origin;
+            if (Physics.Raycast(origin, to.normalized, to.magnitude, losBlk))
+                continue;
+        }
+
+        float sqr = (monster.transform.position - origin).sqrMagnitude;
+        if (sqr < bestSqr) { bestSqr = sqr; nearest = monster; }
+    }
+    return nearest != null;
+}
+```
+
+### 13.4 데이터 모델
+
+등장 공격은 **세 군데**에 흩어져 정의된다.
+
+| 자산 | 담당 | 편집 위치 |
+|------|------|-----------|
+| `PlayerAttackDataSO.entryAttack` (PlayerAttackInfo) | 공격 데이터 (모션·히트박스·VFX) | PlayerAttackDataSO 인스펙터 / 전용 에디터 창의 **"등장" 탭** |
+| `CharacterModelData.entryAttackRange / requireLineOfSight` | 캐릭터별 검출 반경·LOS | 각 Model 프리팹 인스펙터 |
+| `PartyConfigSO.defaultEntryAttackRange / entryAttackTargetLayer / entryAttackLineOfSightBlocker` | 글로벌 폴백·검출 레이어 | `Resources/Data/PartyConfig.asset` |
+
+#### 13.4.1 공격 데이터 — `PlayerAttackDataSO.entryAttack`
+
+```csharp
+// Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs
+[Tooltip("교체 등장 공격 데이터. 비어 있으면 약 공격 첫 번째로 대체된다.")]
+public PlayerAttackInfo entryAttack;
+```
+
+기존 `counterAttack` / `parryCounterAttack` 와 같은 패턴. `baseInfo.animKey`, `baseInfo.hitPhases` (다단 공격), `canBeInterrupted`, `hitAngle` 모두 동일하게 설정 가능.  
+비워두면 `liteComboAttackList[0]` 으로 폴백한다 (`PlayerCombat.ExecuteEntryAttack`).
+
+**에디터 통합:** `PlayerAttackDataSOEditor` 와 `PlayerAttackDataSOWindow` 가 공유하는 `PlayerAttackDataSODrawer` 에 **"등장" 탭**(시안 색 액센트)을 추가했다. 카운터 탭과 동일하게 단일 `PlayerAttackInfo` 카드 + HitPhase 미니맵을 제공한다.
+
+#### 13.4.2 캐릭터별 검출 설정 — `CharacterModelData`
+
+```csharp
+// Assets/02.Scripts/GameActor/Component/Player/CharacterModelData.cs
+[Header("Entry Attack")]
+[Tooltip("교체 등장 시 자동 발동될 공격의 검출 반경. 0 이하이면 PartyConfigSO.defaultEntryAttackRange 사용.")]
+public float entryAttackRange = 0f;
+
+[Tooltip("벽 너머의 적은 무시. true 면 LOS(시야선) 검사를 통과한 적만 카운트.")]
+public bool requireLineOfSight = false;
+```
+
+#### 13.4.3 글로벌 폴백 — `PartyConfigSO`
+
+```csharp
+// Assets/02.Scripts/Data/Party/PartyConfigSO.cs
+[Header("Entry Attack Defaults")]
+[Tooltip("CharacterModelData.entryAttackRange 가 0 이하일 때 사용할 기본 검출 반경.")]
+[Min(0f)]
+public float defaultEntryAttackRange = 6f;
+
+[Tooltip("등장 공격의 적 검출 레이어. 락온/공격 레이어와 동일 권장.")]
+public LayerMask entryAttackTargetLayer = ~0;
+
+[Tooltip("LOS 검사 시 시야를 가로막는 레이어 (지형 등). requireLineOfSight=true 인 캐릭터에만 사용.")]
+public LayerMask entryAttackLineOfSightBlocker = 0;
+```
+
+해석 우선순위:
+- 반경: `CharacterModelData.entryAttackRange (>0)` → `PartyConfigSO.defaultEntryAttackRange`
+- 검출 레이어: `PartyConfigSO.entryAttackTargetLayer` (캐릭터별 차이가 무의미해서 글로벌만 둠)
+- LOS 차단 레이어: `PartyConfigSO.entryAttackLineOfSightBlocker` (모델이 LOS를 요구할 때만 사용)
+
+### 13.5 흐름 (Swap Flow 확장)
+
+```
+PartyManager.RequestSwapTo(targetIndex)
+  ├─ 1) CanSwap() 검사
+  ├─ 2) isAssist = outgoing.IsPerfectDodgeWindow
+  ├─ 3) PlayerSwapBehaviour.SwapTo(targetType) → RefreshForCharacter
+  ├─ 4) 어시스트/등장공격 분기 (배타):
+  │     if isAssist:
+  │         _player.QueueSwapAssist();
+  │     else if TryFindEntryAttackTarget(swap.GetModelData(targetType), out target):
+  │         _player.QueueEntryAttack(target);
+  │
+  └─ 5) Notify: _activeIndex 갱신, _lastSwapTime, OnSwapCompleted 발생
+
+다음 프레임 PlayerActor.Update():
+  if _swapAssistQueued:
+      _attackInputCondition = Pressed;        ← 기존
+  else if _entryAttackQueued:
+      ConsumeEntryAttackQueue():
+        - state == Hit/Death/Grabbed/Knockdown → 큐 폐기
+        - target 살아있으면 회전 스냅 (transform.rotation = LookRotation(toTarget.WithY=0))
+        - _attackInputCondition  = Pressed
+        - _isEntryAttackPending  = true       ← AttackState 가 OnEnter에서 1회 소비
+
+PlayerAttackState.OnEnter (다음 프레임 상태 진입 시):
+  _isEntryAttack = playerActor.ConsumeEntryAttackPending();
+
+PlayerAttackState.GetAnimKey:
+  if _isParryCounter → ExecuteParryCounterAttack()        (0순위)
+  if _isCounter      → ExecuteCounterAttack()             (1순위)
+  if _isEntryAttack  → ExecuteEntryAttack()               (1순위, 등장)
+  if SkillInput      → ExecuteSkillAttack(i)              (1순위)
+  else               → ExecuteAttack / ExecuteHeavyAttack (2순위)
+```
+
+`_swapAssistQueued`와 `_entryAttackQueued`는 **동시에 true가 되지 않는다** (PartyManager가 `if/else if`로 보장).  
+`_isEntryAttackPending` 은 PlayerActor → PlayerAttackState 의 1회성 핸드오프이며 `ConsumeEntryAttackPending()` 에서 자동 리셋된다 (`PlayerAttackState.OnEnter`).
+
+### 13.6 PlayerActor API
+
+```csharp
+// Object/Player/PlayerActor.cs (lifecycle partial)
+private bool         _entryAttackQueued    = false;
+private MonsterActor _entryAttackTarget;
+private bool         _isEntryAttackPending = false;  // PlayerAttackState 핸드오프용
+
+/// <summary>
+/// 등장 공격을 다음 Update()에서 실행하도록 예약한다.
+/// PartyManager가 교체 성공 + 범위 내 적 존재 시 호출.
+/// 어시스트와는 배타적으로만 동작한다 (PartyManager가 보장).
+/// </summary>
+public void QueueEntryAttack(MonsterActor target)
+{
+    _entryAttackQueued = true;
+    _entryAttackTarget = target;
+}
+
+/// <summary>
+/// PlayerAttackState.OnEnter 가 호출. true면 이번 공격을 등장 공격으로 처리.
+/// 한 번 호출되면 자동으로 false로 리셋된다.
+/// </summary>
+public bool ConsumeEntryAttackPending()
+{
+    if (!_isEntryAttackPending) return false;
+    _isEntryAttackPending = false;
+    return true;
+}
+
+private void ConsumeEntryAttackQueue()
+{
+    string state = MovementController?.CurrentState?.StateName;
+    if (state == "Hit" || state == "Death" || state == "Grabbed" || state == "Knockdown")
+    {
+        _entryAttackQueued = false;
+        _entryAttackTarget = null;
+        return;
+    }
+
+    if (_entryAttackTarget != null && _entryAttackTarget.IsAlive())
+    {
+        Vector3 toTarget = _entryAttackTarget.transform.position - transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude > 0.0001f)
+            transform.rotation = Quaternion.LookRotation(toTarget);
+    }
+
+    _attackInputCondition  = InputCondition.Pressed;
+    _isEntryAttackPending  = true;
+    _entryAttackQueued     = false;
+    _entryAttackTarget     = null;
+}
+```
+
+`_swapAssistQueued` 처리 직후에 `else if (_entryAttackQueued) ConsumeEntryAttackQueue();` 분기가 위치한다 (PlayerActor.cs `Update()`).
+
+### 13.6.1 PlayerCombat — `ExecuteEntryAttack`
+
+```csharp
+// Component/Player/PlayerCombat.cs (ExecuteCounterAttack 옆)
+public AttackData ExecuteEntryAttack()
+{
+    var source = _attackData.entryAttack?.baseInfo != null
+        ? _attackData.entryAttack
+        : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null);
+
+    if (source == null) return null;
+
+    _attackState = AttackState.NormalAttack;
+    ResetCombo();
+    _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
+    LastAttackTime = Time.time;
+    RefreshCombatState();
+    OnAttackStarted?.Invoke(_currentAttackData);
+    return _currentAttackData;
+}
+```
+
+### 13.7 어시스트와의 우선순위 / 상호 배제
+
+| 상황 | outgoing PerfectDodge | 범위 내 적 | 결과 |
+|------|----------------------|-----------|------|
+| A | true  | true  | **어시스트 발동** (등장 공격 스킵) |
+| B | true  | false | 어시스트 발동 (적 없어도 유지 — 기존 동작) |
+| C | false | true  | **등장 공격 발동** |
+| D | false | false | 일반 교체 (Idle 진입) |
+
+어시스트가 적 없이도 발동되는 이유: `IsPerfectDodgeWindow == true` 시점에는 적이 막 공격 중이었으므로 사실상 가까이 있다고 간주. 별도 범위 검사를 추가하지 않는다.
+
+### 13.8 제약 / 코너 케이스
+
+- **쿨다운 공유 안 함:** 등장 공격 발동 후에도 일반 공격 콤보 입력은 평소처럼 받는다. 다음 교체는 `_swapCooldown` 적용.
+- **무력화 상태에서 큐 폐기:** `RefreshForCharacter` 직후 incoming의 `MovementController.CurrentState.StateName` 이 `Hit`/`Death`/`Grabbed`/`Knockdown` 이면 `ConsumeEntryAttackQueue()` 가 큐를 폐기한다. (PartyManager 단의 `CanSwap()`이 이미 Death/Grabbed를 차단하지만 큐 처리 시점의 안전장치로 한 번 더 검사.)
+- **타깃 사망:** 큐 소비 시점에 target이 이미 사망(`!IsAlive()`)이면 회전 스냅만 건너뛰고 공격은 그대로 발동 (다른 적이 가까이 있을 수 있으므로).
+- **공중 교체:** incoming은 outgoing 위치를 그대로 이어받으므로 공중에서 교체가 일어나면 등장 공격이 공중에서 시작된다. 일반 1번 콤보를 재사용하므로 공중 호환은 캐릭터별 일반 공격의 공중 호환에 종속된다 — 별도 가드 없음.
+- **다중 적:** 가장 가까운 1체로 회전 스냅. 실제 히트는 1번 콤보의 `HitPhaseData` OverlapSphere 결과를 따른다 (다단·광역 모두 자연 처리).
+- **InputBuffer 충돌:** 큐 소비 시 `_attackInputCondition = Pressed`만 설정하므로 같은 프레임에 사용자 공격 입력이 들어와도 한 번만 처리된다.
+
+### 13.9 구현 매핑
+
+| 항목 | 파일 / 위치 | 상태 |
+|------|------------|------|
+| `PlayerAttackInfo entryAttack` 필드 | `Data/Combat/PlayerAttackDataSO.cs` | ✅ |
+| `ExecuteEntryAttack()` (lite[0] 폴백) | `GameActor/Component/Player/PlayerCombat.cs` | ✅ |
+| `entryAttackRange`, `requireLineOfSight` 필드 | `Component/Player/CharacterModelData.cs` | ✅ |
+| `defaultEntryAttackRange`, `entryAttackTargetLayer`, `entryAttackLineOfSightBlocker` | `Data/Party/PartyConfigSO.cs` | ✅ |
+| `_entryAttackQueued`, `_entryAttackTarget`, `_isEntryAttackPending`, `QueueEntryAttack`, `ConsumeEntryAttackPending`, `ConsumeEntryAttackQueue` | `GameActor/Object/Player/PlayerActor.cs` | ✅ |
+| `_isEntryAttack` 라우팅 (`OnEnter` + `GetAnimKey` 1순위 분기) | `GameActor/State/Player/PlayerAttackState.cs` | ✅ |
+| `RequestSwapTo` 분기, `TryFindEntryAttackTarget` 헬퍼 | `Manager/Party/PartyManager.cs` | ✅ |
+| **"등장" 탭** (`DrawEntryAttack` + `_entry` SerializedProperty) | `Data/Combat/Editor/PlayerAttackDataSODrawer.cs` | ✅ |
+| 캐릭터별 `entryAttack` 데이터 (PlayerAttackInfo 채우기) | 각 캐릭터의 `PlayerAttackDataSO` | ⚠️ 에디터 작업 필요 |
+| 글로벌 폴백 `PartyConfig.asset` 의 기본값 (반경/레이어) | `Assets/Resources/Data/PartyConfig.asset` | ⚠️ 에디터 작업 필요 |
+| 모델별 `entryAttackRange` (캐릭터 튜닝값) | 각 `CharacterModelData` 인스펙터 | ⚠️ 에디터 작업 필요 |
+
+### 13.10 결정 사항 (구현 시점)
+
+| 항목 | 결정 |
+|------|------|
+| 전용 `PlayerEntryAttackState` 도입 여부 | ❌ **재사용**. `_attackInputCondition = Pressed` 로 일반 `PlayerAttackState` 진입 후, `_isEntryAttackPending` 플래그로 `GetAnimKey()` 가 `ExecuteEntryAttack()` 로 라우팅. 이유: MotionSet 타임라인 이벤트(히트박스/VFX/SFX) 인프라와 카운터/스킬 라우팅 패턴을 그대로 활용 가능. |
+| 등장 공격 데이터 위치 | ✅ **`PlayerAttackDataSO.entryAttack` (PlayerAttackInfo)** 로 통일. `counterAttack` / `parryCounterAttack` 와 동일 패턴. 비어 있으면 `liteComboAttackList[0]` 폴백. PlayerAttackDataSO 에디터의 **"등장" 탭**에서 편집. |
+| 등장 공격이 적 `Poise` 무시 여부 | ❌ **일반 공격과 동일**. 보상성이 아닌 컨텍스트 자동 발동이므로 특수 처리 안 함. |
+| LOS 차단 레이어 | ✅ **`PartyConfigSO.entryAttackLineOfSightBlocker`로 인스펙터 노출**. 기본값 0 (LOS 검사 비활성). `requireLineOfSight = true` 인 캐릭터에 한해 적용. |
+| 어시스트 vs 등장 공격 우선순위 | ✅ **어시스트 우선**, 배타. PartyManager `if/else if`로 강제. AttackState 라우팅 우선순위는 `ParryCounter > Counter > Entry > Skill > 일반`. |
+
+### 13.11 에디터 사용법 (작업 절차)
+
+1. **PlayerAttackDataSO 자산 열기** — Project 창에서 캐릭터별 PlayerAttackData 자산 선택.
+2. 인스펙터의 탭 바에서 **"등장"** 탭 클릭 (시안 색 액센트).
+   - 또는 인스펙터 하단 "에디터 창에서 열기" 버튼 → `PlayerAttackDataSOWindow` 에서 동일 탭 사용.
+3. AnimKey, 공격 타입, 캔슬 가능 여부, 판정 각도 설정.
+4. HitPhase 카드를 추가해 다단 히트박스/데미지/리액션/VFX 설정 (다른 공격 데이터와 동일 UI).
+5. 비워두면 자동으로 약 공격 1번이 사용된다 (Helpbox로 안내됨).
+6. 캐릭터별 검출 반경은 해당 캐릭터의 `CharacterModelData.entryAttackRange` 인스펙터 필드에서 조정.
+7. 글로벌 기본 반경/레이어는 `Assets/Resources/Data/PartyConfig.asset` 에서 조정.
+
+### 13.12 후속 검토 (선택)
+
+- UI 피드백: 등장 공격 발동 시 짧은 카메라 셰이크/줌, HUD 콤보 게이지 보너스 등.
+- 검출 결과 디버그 시각화 (`OnDrawGizmosSelected` 에 reach radius 원 표시) 를 PartyManager에 추가할지 여부.
+- 등장 공격이 1번 콤보를 재사용하므로, 등장 공격 발동이 incoming 캐릭터의 콤보 카운터에 영향을 줄지 결정 (`ResetCombo()` 가 호출되지만 후속 입력으로 이어지는 콤보 동작 자체는 막지 않음).

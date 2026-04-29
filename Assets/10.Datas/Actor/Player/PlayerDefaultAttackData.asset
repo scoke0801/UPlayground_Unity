@@ -700,6 +700,26 @@ MonoBehaviour:
         victimForcedAnimKey: 0
     canBeInterrupted: 0
     hitAngle: 60
+  entryAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 60
+        poiseDamage: 30
+        reactionType: 2
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    canBeInterrupted: 0
+    hitAngle: 60
   chargeAnimKey: 620
   chargeStages:
   - hitPhases:

@@ -122,6 +122,7 @@ MonoBehaviour:
   _editorPosition: {x: -852.8001, y: 836.2502}
   _children:
   - {fileID: 6928455814388444325}
+  - {fileID: 924933733775013235}
   _abortType: 0
 --- !u!114 &-1847582369555403117
 MonoBehaviour:
@@ -257,6 +258,8 @@ MonoBehaviour:
   - {fileID: 3415640705049045034}
   - {fileID: -3681586728207117700}
   - {fileID: -8037258016860720280}
+  - {fileID: 0}
+  - {fileID: 0}
   _blackboard:
     _entries:
     - _key: HasTarget
@@ -307,7 +310,7 @@ MonoBehaviour:
   _displayName: Action_ExecuteAttack
   _comment: "EnemyAttackState\uB85C \uC804\uD658\uD55C\uB2E4. Attack \uC911\uC5D0\uB294
     Running\uC744 \uBC18\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -732.8001, y: 1016.25024}
+  _editorPosition: {x: -730, y: 1016}
   _children: []
 --- !u!114 &2733662606038583687
 MonoBehaviour:

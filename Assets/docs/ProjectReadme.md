@@ -326,6 +326,7 @@ Assets/
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
+| [BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md](BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md) | Behavior Tree 레퍼런스 누락 기능 구현 — Conditional Abort, Runner 제어, Decorator 확장, 디버그 기능 보강 계획 |
 
 ---
 

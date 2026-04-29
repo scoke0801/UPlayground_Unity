@@ -181,9 +181,38 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 edge.input?.node is not BehaviorTreeNodeView childView)
                 return;
 
+            RemoveConflictingEdges(edge, parentView, childView);
+
             Undo.RecordObject(parentView.Node, "Connect BT Nodes");
+            foreach (var node in _tree.Nodes)
+            {
+                if (node == null || node == parentView.Node)
+                    continue;
+
+                Undo.RecordObject(node, "Connect BT Nodes");
+                node.Children.Remove(childView.Node);
+            }
+
+            if (parentView.Node is BTDecoratorNode)
+                parentView.Node.Children.Clear();
+
             if (!parentView.Node.Children.Contains(childView.Node))
                 parentView.Node.Children.Add(childView.Node);
+        }
+
+        private void RemoveConflictingEdges(Edge newEdge, BehaviorTreeNodeView parentView, BehaviorTreeNodeView childView)
+        {
+            var oldEdges = edges
+                .Where(edge => edge != newEdge &&
+                    (edge.input == childView.Input ||
+                     (parentView.Node is BTDecoratorNode && edge.output == parentView.Output)))
+                .ToList();
+
+            foreach (var oldEdge in oldEdges)
+            {
+                RemoveEdge(oldEdge);
+                RemoveElement(oldEdge);
+            }
         }
 
         private void RemoveEdge(Edge edge)

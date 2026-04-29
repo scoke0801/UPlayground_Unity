@@ -85,8 +85,11 @@ namespace UPlayGround.Data.UI
         [Tooltip("캡처 당시 월드 중심 좌표 (XZ 평면)")]
         public Vector2 captureCenter;
 
-        [Tooltip("캡처 범위 (월드 유닛, 정사각형 기준 한 변 길이)")]
+        [Tooltip("캡처 범위 (월드 유닛, 정사각형 기준 한 변 길이). 기존 Config 호환용입니다.")]
         public float captureWorldSize = 200f;
+
+        [Tooltip("캡처 범위 (월드 유닛, X=가로, Y=세로). 0 이하면 captureWorldSize를 사용합니다.")]
+        public Vector2 captureWorldSizeXY;
 
         [Tooltip("미니맵 이미지 줌 배율. 클수록 플레이어 주변을 확대해서 표시.")]
         [Range(0.5f, 100f)]
@@ -187,6 +190,14 @@ namespace UPlayGround.Data.UI
 
         private Vector2 GetCaptureWorldSize()
         {
+            if (Mathf.Abs(captureWorldSizeXY.x) > Mathf.Epsilon &&
+                Mathf.Abs(captureWorldSizeXY.y) > Mathf.Epsilon)
+            {
+                return new Vector2(
+                    Mathf.Max(Mathf.Abs(captureWorldSizeXY.x), Mathf.Epsilon),
+                    Mathf.Max(Mathf.Abs(captureWorldSizeXY.y), Mathf.Epsilon));
+            }
+
             float size = Mathf.Max(Mathf.Abs(captureWorldSize), Mathf.Epsilon);
             return new Vector2(size, size);
         }

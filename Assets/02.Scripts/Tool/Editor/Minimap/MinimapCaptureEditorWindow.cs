@@ -22,9 +22,10 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
     // ── 캡처 파라미터 ────────────────────────────────────────
     private Vector3 _captureCenter     = Vector3.zero;
-    private float   _captureWorldSize  = 200f;   // 캡처할 월드 범위 (한 변 길이)
+    private Vector2 _captureWorldSize  = new(200f, 200f); // 캡처할 월드 범위 (X=가로, Y=세로)
     private float   _cameraHeight      = 150f;   // 캡처 카메라 높이
-    private int     _textureResolution = 1024;   // 출력 해상도
+    private int     _textureWidth      = 1024;   // 출력 가로 해상도
+    private int     _textureHeight     = 1024;   // 출력 세로 해상도
     private LayerMask _layerMask       = ~0;     // 캡처할 레이어
     private Color   _clearColor        = new Color(0.1f, 0.1f, 0.1f, 1f);
     private bool    _transparentBg     = false;
@@ -55,7 +56,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
     private static readonly int[] ResolutionPresetsStandard  = { 256, 512, 1024, 2048, 4096 };
     private static readonly int[] ResolutionPresetsHighEnd   = { 8192, 16384 };
     private bool _useCustomResolution = false;
-    private int  _customResolution    = 4096;
+    private Vector2Int _customResolution = new(4096, 4096);
 
     // ── 스타일 캐시 ──────────────────────────────────────────
     private GUIStyle _headerStyle;
@@ -172,7 +173,13 @@ public class MinimapCaptureEditorWindow : EditorWindow
             SceneView.RepaintAll();
 
         EditorGUILayout.BeginHorizontal();
-        _captureWorldSize = EditorGUILayout.FloatField("캡처 크기 (월드 유닛)", _captureWorldSize);
+        EditorGUI.BeginChangeCheck();
+        _captureWorldSize = EditorGUILayout.Vector2Field("캡처 크기 W/H (월드)", _captureWorldSize);
+        _captureWorldSize.x = Mathf.Max(1f, _captureWorldSize.x);
+        _captureWorldSize.y = Mathf.Max(1f, _captureWorldSize.y);
+        if (EditorGUI.EndChangeCheck())
+            SceneView.RepaintAll();
+
         if (GUILayout.Button("씬 뷰 중심", GUILayout.Width(80f)))
         {
             if (SceneView.lastActiveSceneView != null)
@@ -187,7 +194,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
         _showGizmo = EditorGUILayout.Toggle("씬 뷰 Gizmo 표시", _showGizmo);
 
         EditorGUILayout.HelpBox(
-            $"캡처 범위: {_captureWorldSize} × {_captureWorldSize} 월드 유닛\n" +
+            $"캡처 범위: {_captureWorldSize.x} × {_captureWorldSize.y} 월드 유닛\n" +
             $"중심: ({_captureCenter.x:F1}, {_captureCenter.z:F1})",
             MessageType.None);
     }
@@ -219,11 +226,11 @@ public class MinimapCaptureEditorWindow : EditorWindow
         EditorGUILayout.PrefixLabel("표준");
         foreach (int res in ResolutionPresetsStandard)
         {
-            bool selected = !_useCustomResolution && _textureResolution == res;
+            bool selected = !_useCustomResolution && _textureWidth == res && _textureHeight == res;
             GUI.backgroundColor = selected ? new Color(0.4f, 0.8f, 0.4f) : Color.white;
             if (GUILayout.Button(res >= 1024 ? $"{res/1024}K" : $"{res}", GUILayout.Width(46f)))
             {
-                _textureResolution  = res;
+                SetTextureSize(res, res);
                 _useCustomResolution = false;
             }
         }
@@ -235,11 +242,11 @@ public class MinimapCaptureEditorWindow : EditorWindow
         EditorGUILayout.PrefixLabel("고해상도");
         foreach (int res in ResolutionPresetsHighEnd)
         {
-            bool selected = !_useCustomResolution && _textureResolution == res;
+            bool selected = !_useCustomResolution && _textureWidth == res && _textureHeight == res;
             GUI.backgroundColor = selected ? new Color(1f, 0.7f, 0.3f) : Color.white;
             if (GUILayout.Button($"{res/1024}K", GUILayout.Width(46f)))
             {
-                _textureResolution   = res;
+                SetTextureSize(res, res);
                 _useCustomResolution = false;
             }
         }
@@ -250,30 +257,35 @@ public class MinimapCaptureEditorWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         _useCustomResolution = EditorGUILayout.Toggle("직접 입력", _useCustomResolution, GUILayout.Width(150f));
         EditorGUI.BeginDisabledGroup(!_useCustomResolution);
-        _customResolution = EditorGUILayout.IntField(_customResolution);
+        _customResolution = EditorGUILayout.Vector2IntField("W/H", _customResolution);
         if (_useCustomResolution)
         {
             // 2의 거듭제곱으로 스냅
             if (GUILayout.Button("2^n 스냅", GUILayout.Width(60f)))
-                _customResolution = NextPowerOfTwo(_customResolution);
-            _textureResolution = Mathf.Clamp(_customResolution, 64, 16384);
+                _customResolution = new Vector2Int(
+                    NextPowerOfTwo(_customResolution.x),
+                    NextPowerOfTwo(_customResolution.y));
+            SetTextureSize(_customResolution.x, _customResolution.y);
+            _customResolution = new Vector2Int(_textureWidth, _textureHeight);
         }
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndHorizontal();
 
         // ── 경고 / 정보 ───────────────────────────────────────
-        if (_textureResolution >= 8192)
+        int maxResolution = Mathf.Max(_textureWidth, _textureHeight);
+        long memMB = (long)_textureWidth * _textureHeight * (_transparentBg ? 4 : 3) / (1024 * 1024);
+
+        if (maxResolution >= 8192)
         {
-            long memMB = (long)_textureResolution * _textureResolution * (_transparentBg ? 4 : 3) / (1024 * 1024);
             EditorGUILayout.HelpBox(
-                $"⚠ {_textureResolution}px 캡처 — 메모리 약 {memMB} MB 필요. GPU에 따라 실패할 수 있습니다.",
+                $"⚠ {_textureWidth} × {_textureHeight}px 캡처 — 메모리 약 {memMB} MB 필요. GPU에 따라 실패할 수 있습니다.",
                 MessageType.Warning);
         }
         else
         {
             EditorGUILayout.HelpBox(
-                $"출력 해상도: {_textureResolution} × {_textureResolution} px\n" +
-                $"월드 1유닛 = {_textureResolution / _captureWorldSize:F2} px",
+                $"출력 해상도: {_textureWidth} × {_textureHeight} px\n" +
+                $"월드 1유닛 = X {_textureWidth / _captureWorldSize.x:F2} px / Y {_textureHeight / _captureWorldSize.y:F2} px",
                 MessageType.None);
         }
         // ── LOD 강제 ─────────────────────────────────────────
@@ -307,6 +319,24 @@ public class MinimapCaptureEditorWindow : EditorWindow
         v--;
         v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16;
         return v + 1;
+    }
+
+    private void SetTextureSize(int width, int height)
+    {
+        _textureWidth  = Mathf.Clamp(width, 64, 16384);
+        _textureHeight = Mathf.Clamp(height, 64, 16384);
+    }
+
+    private Vector2Int GetPreviewTextureSize(int maxLongSide)
+    {
+        int longest = Mathf.Max(_textureWidth, _textureHeight);
+        if (longest <= maxLongSide)
+            return new Vector2Int(_textureWidth, _textureHeight);
+
+        float scale = (float)maxLongSide / longest;
+        return new Vector2Int(
+            Mathf.Max(1, Mathf.RoundToInt(_textureWidth * scale)),
+            Mathf.Max(1, Mathf.RoundToInt(_textureHeight * scale)));
     }
 
     private void DrawOutputSettings()
@@ -377,9 +407,13 @@ public class MinimapCaptureEditorWindow : EditorWindow
         _showFullPreview = EditorGUILayout.Toggle("전체 크기 표시", _showFullPreview);
 
         float maxW = position.width - 20f;
-        float displaySize = _showFullPreview ? maxW : Mathf.Min(maxW, 300f);
+        float displayW = _showFullPreview ? maxW : Mathf.Min(maxW, 300f);
+        float aspect = _previewTexture.height > 0
+            ? (float)_previewTexture.width / _previewTexture.height
+            : 1f;
+        float displayH = displayW / Mathf.Max(aspect, 0.01f);
 
-        Rect rect = GUILayoutUtility.GetRect(displaySize, displaySize);
+        Rect rect = GUILayoutUtility.GetRect(displayW, displayH);
 
         if (_transparentBg)
             DrawCheckerboard(rect);
@@ -433,7 +467,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
             "■ 주의사항\n" +
             "· URP 프로젝트에서는 카메라가 URP Renderer를 사용합니다.\n" +
             "· 투명 배경은 PNG 알파 채널로 저장됩니다.\n" +
-            "· 캡처 범위(captureWorldSize)는 MinimapIconConfigSO 에도 저장됩니다.",
+            "· 캡처 범위(captureWorldSizeXY)는 MinimapIconConfigSO 에도 저장됩니다.",
             MessageType.Info);
 
         EditorGUILayout.Space(8f);
@@ -450,14 +484,14 @@ public class MinimapCaptureEditorWindow : EditorWindow
     private void CapturePreview()
     {
         DestroyPreviewTexture();
-        _previewTexture = RenderToTexture(_textureResolution);
+        _previewTexture = RenderToTexture(_textureWidth, _textureHeight);
         Repaint();
     }
 
     private void CaptureAndSave()
     {
         // 1. 렌더
-        Texture2D tex = RenderToTexture(_textureResolution);
+        Texture2D tex = RenderToTexture(_textureWidth, _textureHeight);
         if (tex == null)
         {
             EditorUtility.DisplayDialog("오류", "렌더링에 실패했습니다.", "확인");
@@ -494,7 +528,8 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
         // 5. 프리뷰 갱신
         DestroyPreviewTexture();
-        _previewTexture = RenderToTexture(Mathf.Min(_textureResolution, 512));
+        Vector2Int previewSize = GetPreviewTextureSize(512);
+        _previewTexture = RenderToTexture(previewSize.x, previewSize.y);
         Repaint();
 
         // 6. 자동 할당
@@ -509,8 +544,11 @@ public class MinimapCaptureEditorWindow : EditorWindow
             $"미니맵 캡처 저장 완료!\n{assetPath}", "확인");
     }
 
-    private Texture2D RenderToTexture(int resolution)
+    private Texture2D RenderToTexture(int width, int height)
     {
+        width  = Mathf.Clamp(width, 1, 16384);
+        height = Mathf.Clamp(height, 1, 16384);
+
         if (_captureCamera == null)
         {
             InitCaptureCamera();
@@ -522,8 +560,8 @@ public class MinimapCaptureEditorWindow : EditorWindow
             _captureCenter.x, _captureCenter.y + _cameraHeight, _captureCenter.z);
         _captureCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
         _captureCamera.orthographic      = true;
-        _captureCamera.orthographicSize  = _captureWorldSize * 0.5f;
-        _captureCamera.aspect            = 1f;  // 정사각형 캡처 보장 (게임뷰 비율 무시)
+        _captureCamera.orthographicSize  = _captureWorldSize.y * 0.5f;
+        _captureCamera.aspect            = _captureWorldSize.x / _captureWorldSize.y;
         _captureCamera.nearClipPlane     = _cameraNear;
         _captureCamera.farClipPlane      = _cameraFar;
         _captureCamera.cullingMask       = _layerMask;
@@ -560,7 +598,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
         
         // RenderTexture 생성 및 렌더
         var format = _transparentBg ? RenderTextureFormat.ARGB32 : RenderTextureFormat.Default;
-        RenderTexture rt  = RenderTexture.GetTemporary(resolution, resolution, 24, format);
+        RenderTexture rt  = RenderTexture.GetTemporary(width, height, 24, format);
         RenderTexture prev = RenderTexture.active;
 
         _captureCamera.targetTexture = rt;
@@ -570,8 +608,8 @@ public class MinimapCaptureEditorWindow : EditorWindow
         // Texture2D 복사
         RenderTexture.active = rt;
         var texFmt = _transparentBg ? TextureFormat.RGBA32 : TextureFormat.RGB24;
-        Texture2D result = new Texture2D(resolution, resolution, texFmt, false);
-        result.ReadPixels(new Rect(0, 0, resolution, resolution), 0, 0);
+        Texture2D result = new Texture2D(width, height, texFmt, false);
+        result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         result.Apply();
 
         RenderTexture.active = prev;
@@ -597,7 +635,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
         importer.textureType         = TextureImporterType.Sprite;
         importer.spriteImportMode    = SpriteImportMode.Single;
         // Unity 지원 최대 텍스처 크기(16384) 범위 내에서 해상도에 맞게 설정
-        importer.maxTextureSize      = Mathf.Min(_textureResolution, 16384);
+        importer.maxTextureSize      = Mathf.Min(Mathf.Max(_textureWidth, _textureHeight), 16384);
         importer.mipmapEnabled       = false;
         importer.filterMode          = FilterMode.Bilinear;
         importer.alphaIsTransparency = _transparentBg;
@@ -616,7 +654,8 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
         // 좌표 데이터는 스프라이트 로드 성공 여부와 무관하게 항상 저장
         _targetConfig.captureCenter    = new Vector2(_captureCenter.x, _captureCenter.z);
-        _targetConfig.captureWorldSize = _captureWorldSize;
+        _targetConfig.captureWorldSize = Mathf.Max(_captureWorldSize.x, _captureWorldSize.y);
+        _targetConfig.captureWorldSizeXY = _captureWorldSize;
 
         var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
         if (sprite != null)
@@ -627,7 +666,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
         EditorUtility.SetDirty(_targetConfig);
         AssetDatabase.SaveAssets();
 
-        Debug.Log($"[MinimapCapture] MinimapIconConfigSO 할당 완료 → center=({_captureCenter.x:F2}, {_captureCenter.z:F2}), size={_captureWorldSize}");
+        Debug.Log($"[MinimapCapture] MinimapIconConfigSO 할당 완료 → center=({_captureCenter.x:F2}, {_captureCenter.z:F2}), size={_captureWorldSize.x}x{_captureWorldSize.y}");
     }
 
     // ── 카메라 관리 ──────────────────────────────────────────
@@ -663,7 +702,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
     {
         if (!_showGizmo) return;
 
-        float half = _captureWorldSize * 0.5f;
+        float halfW = _captureWorldSize.x * 0.5f;
         Vector3 c  = new Vector3(_captureCenter.x, _captureCenter.y, _captureCenter.z);
 
         // 캡처 영역 테두리
@@ -690,17 +729,18 @@ public class MinimapCaptureEditorWindow : EditorWindow
         }
 
         // 라벨
-        Handles.Label(c + Vector3.right * (half + 2f),
-            $"캡처: {_captureWorldSize}×{_captureWorldSize}\n해상도: {_textureResolution}px");
+        Handles.Label(c + Vector3.right * (halfW + 2f),
+            $"캡처: {_captureWorldSize.x}×{_captureWorldSize.y}\n해상도: {_textureWidth}×{_textureHeight}px");
     }
 
-    private static void DrawRect(Vector3 center, float size)
+    private static void DrawRect(Vector3 center, Vector2 size)
     {
-        float h = size * 0.5f;
-        Vector3 bl = center + new Vector3(-h, 0,  h);
-        Vector3 br = center + new Vector3( h, 0,  h);
-        Vector3 tr = center + new Vector3( h, 0, -h);
-        Vector3 tl = center + new Vector3(-h, 0, -h);
+        float halfW = size.x * 0.5f;
+        float halfH = size.y * 0.5f;
+        Vector3 bl = center + new Vector3(-halfW, 0,  halfH);
+        Vector3 br = center + new Vector3( halfW, 0,  halfH);
+        Vector3 tr = center + new Vector3( halfW, 0, -halfH);
+        Vector3 tl = center + new Vector3(-halfW, 0, -halfH);
         Handles.DrawPolyLine(bl, br, tr, tl, bl);
     }
 
@@ -779,11 +819,11 @@ public class MinimapCaptureEditorWindow : EditorWindow
     private void ResetToDefaults()
     {
         _captureCenter       = Vector3.zero;
-        _captureWorldSize    = 200f;
+        _captureWorldSize    = new Vector2(200f, 200f);
         _cameraHeight        = 150f;
-        _textureResolution   = 1024;
+        SetTextureSize(1024, 1024);
         _useCustomResolution = false;
-        _customResolution    = 4096;
+        _customResolution    = new Vector2Int(4096, 4096);
         _layerMask           = ~0;
         _clearColor       = new Color(0.1f, 0.1f, 0.1f, 1f);
         _transparentBg    = false;

@@ -42,6 +42,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
             Input.portName = "";
             inputContainer.Add(Input);
+            ConfigurePortContainer(inputContainer);
 
             if (Node is BTCompositeNode)
                 Output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Multi, typeof(bool));
@@ -52,7 +53,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             {
                 Output.portName = "";
                 outputContainer.Add(Output);
+                ConfigurePortContainer(outputContainer);
             }
+
+            topContainer.style.flexDirection = FlexDirection.Column;
+            topContainer.style.alignItems = Align.Stretch;
+            topContainer.Insert(0, inputContainer);
+            topContainer.Add(titleContainer);
+            if (Output != null)
+                topContainer.Add(outputContainer);
 
             _statusBar = new VisualElement();
             _statusBar.style.height = 4;
@@ -132,6 +141,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             var color = GetCategoryColor(node);
             return new Color(color.r * 0.45f, color.g * 0.45f, color.b * 0.45f, 1f);
+        }
+
+        private static void ConfigurePortContainer(VisualElement container)
+        {
+            container.style.flexDirection = FlexDirection.Row;
+            container.style.justifyContent = Justify.Center;
+            container.style.alignItems = Align.Center;
+            container.style.height = 16f;
+            container.style.minHeight = 16f;
+            container.style.width = Length.Percent(100);
+            container.style.flexGrow = 0f;
         }
     }
 }

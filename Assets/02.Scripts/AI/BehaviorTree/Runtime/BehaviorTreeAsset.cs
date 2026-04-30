@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private BTNode _rootNode;
         [SerializeField] private List<BTNode> _nodes = new();
         [SerializeField] private Blackboard _blackboard = new();
+        [SerializeField] private List<BehaviorTreeEditorGroup> _editorGroups = new();
 
         public BTNode RootNode
         {
@@ -18,6 +20,7 @@ namespace UPlayGround.AI.BehaviorTree
 
         public List<BTNode> Nodes => _nodes;
         public Blackboard Blackboard => _blackboard;
+        public List<BehaviorTreeEditorGroup> EditorGroups => _editorGroups;
 
         public BehaviorTreeAsset CloneRuntime(Blackboard blackboardOverride = null)
         {
@@ -54,6 +57,45 @@ namespace UPlayGround.AI.BehaviorTree
                 : null;
             tree._blackboard = blackboardOverride?.Clone() ?? _blackboard?.Clone() ?? new Blackboard();
             return tree;
+        }
+    }
+
+    [Serializable]
+    public class BehaviorTreeEditorGroup
+    {
+        [SerializeField] private string _guid = System.Guid.NewGuid().ToString("N");
+        [SerializeField] private string _title = "Group";
+        [SerializeField] private Rect _rect = new(0f, 0f, 420f, 280f);
+        [SerializeField] private Color _color = new(0.12f, 0.30f, 0.12f, 0.38f);
+
+        public string Guid
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_guid))
+                    _guid = System.Guid.NewGuid().ToString("N");
+
+                return _guid;
+            }
+            set => _guid = value;
+        }
+
+        public string Title
+        {
+            get => string.IsNullOrWhiteSpace(_title) ? "Group" : _title;
+            set => _title = value;
+        }
+
+        public Rect Rect
+        {
+            get => _rect;
+            set => _rect = value;
+        }
+
+        public Color Color
+        {
+            get => _color;
+            set => _color = value;
         }
     }
 }

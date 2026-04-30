@@ -314,7 +314,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var inspectorScroll = new ScrollView();
             inspectorScroll.style.flexGrow = 1;
-            _inspectorView = new BehaviorTreeInspectorView(OnInspectorNodeChanged);
+            _inspectorView = new BehaviorTreeInspectorView(OnInspectorNodeChanged, OnInspectorGroupChanged);
             inspectorScroll.Add(_inspectorView);
             _inspectorPanel = inspectorScroll;
 
@@ -380,14 +380,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _graphView?.PopulateView(_tree);
             _blackboardView?.Bind(_tree);
-            _inspectorView?.UpdateSelection(null);
+            _inspectorView?.ClearSelection();
             RefreshGraphTitle();
             ValidateTree();
         }
 
         public void RefreshInspector()
         {
-            _inspectorView?.UpdateSelection(null);
+            _inspectorView?.ClearSelection();
             ValidateTree();
         }
 
@@ -397,11 +397,27 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             SelectPropertyTab(PropertyTab.Inspector);
         }
 
+        public void SelectGroup(BehaviorTreeEditorGroup group)
+        {
+            _inspectorView?.UpdateSelection(group);
+            SelectPropertyTab(PropertyTab.Inspector);
+        }
+
         private void OnInspectorNodeChanged(BTNode node)
         {
             _graphView?.RefreshNodeView(node);
             RefreshGraphTitle();
             ValidateTree();
+        }
+
+        private void OnInspectorGroupChanged(BehaviorTreeEditorGroup group)
+        {
+            if (group == null || _tree == null)
+                return;
+
+            _graphView?.RefreshGroupView(group);
+            EditorUtility.SetDirty(_tree);
+            AssetDatabase.SaveAssets();
         }
 
         private void OnSelectionChanged()
@@ -419,7 +435,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 ? _debugRunner.RuntimeTree
                 : null;
 
-            _graphView.UpdateDebugState(runtimeTree);
+            _graphView.UpdateDebugState(runtimeTree, _debugRunner?.DebugTrace);
             _miniMapView?.MarkDirtyRepaint();
             RefreshDebugState();
             RefreshTraceView();
@@ -850,11 +866,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         private const float HeaderHeight = 20f;
         private readonly BehaviorTreeGraphView _graphView;
+        private bool _isDraggingViewport;
 
         public BehaviorTreeMiniMapView(BehaviorTreeGraphView graphView)
         {
             _graphView = graphView;
-            pickingMode = PickingMode.Ignore;
+            pickingMode = PickingMode.Position;
             style.position = Position.Absolute;
             style.right = 12f;
             style.bottom = 12f;
@@ -885,6 +902,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             EditorGUI.DrawRect(rect, BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Panel, 0.94f));
             EditorGUI.DrawRect(new Rect(0f, 0f, rect.width, HeaderHeight), BehaviorTreeEditorStyles.PanelAlt);
             GUI.Label(new Rect(8f, 2f, rect.width - 16f, 16f), "MINIMAP", MiniMapLabelStyle());
+            var fitButtonRect = new Rect(rect.width - 42f, 3f, 34f, 14f);
+            GUI.Label(fitButtonRect, "FIT", MiniMapButtonStyle());
 
             var treeBounds = _graphView.GetTreeBounds();
             if (treeBounds.width <= 1f || treeBounds.height <= 1f)
@@ -897,7 +916,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 treeBounds.width + 160f,
                 treeBounds.height + 160f);
 
+            HandleInput(mapRect, fitButtonRect, paddedBounds);
+
             Handles.BeginGUI();
+            foreach (var group in _graphView.GetMiniMapGroups())
+            {
+                var mini = ToMini(group.Rect, paddedBounds, mapRect);
+                EditorGUI.DrawRect(mini, BehaviorTreeEditorStyles.WithAlpha(group.Color, 0.52f));
+                Handles.DrawSolidRectangleWithOutline(
+                    mini,
+                    Color.clear,
+                    BehaviorTreeEditorStyles.WithAlpha(group.Color, 0.95f));
+            }
+
             foreach (var edge in _graphView.GetMiniMapEdges())
             {
                 var from = ToMini(edge.From, paddedBounds, mapRect);
@@ -917,7 +948,71 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 var mini = ToMini(node.Rect, paddedBounds, mapRect);
                 EditorGUI.DrawRect(mini, node.Running ? BehaviorTreeEditorStyles.Running : BehaviorTreeEditorStyles.WithAlpha(node.Color, 0.82f));
             }
+
+            DrawViewportRect(paddedBounds, mapRect);
             Handles.EndGUI();
+        }
+
+        private void HandleInput(Rect mapRect, Rect fitButtonRect, Rect bounds)
+        {
+            var evt = Event.current;
+            if (evt == null)
+                return;
+
+            if (evt.type == EventType.MouseDown && evt.button == 0)
+            {
+                if (fitButtonRect.Contains(evt.mousePosition))
+                {
+                    _graphView.FrameAllNodes();
+                    evt.Use();
+                    return;
+                }
+
+                if (mapRect.Contains(evt.mousePosition))
+                {
+                    _isDraggingViewport = true;
+                    MoveGraphToMiniMapPoint(evt.mousePosition, bounds, mapRect);
+                    evt.Use();
+                }
+            }
+            else if (evt.type == EventType.MouseDrag && _isDraggingViewport && evt.button == 0)
+            {
+                MoveGraphToMiniMapPoint(evt.mousePosition, bounds, mapRect);
+                evt.Use();
+            }
+            else if (evt.type == EventType.MouseUp && evt.button == 0)
+            {
+                _isDraggingViewport = false;
+            }
+            else if (evt.type == EventType.ScrollWheel && mapRect.Contains(evt.mousePosition))
+            {
+                var contentPosition = FromMini(evt.mousePosition, bounds, mapRect);
+                _graphView.ZoomAroundContentPosition(contentPosition, -evt.delta.y);
+                evt.Use();
+            }
+        }
+
+        private void MoveGraphToMiniMapPoint(Vector2 miniMapPosition, Rect bounds, Rect mapRect)
+        {
+            var contentPosition = FromMini(miniMapPosition, bounds, mapRect);
+            _graphView.CenterOnContentPosition(contentPosition);
+            MarkDirtyRepaint();
+        }
+
+        private void DrawViewportRect(Rect bounds, Rect mapRect)
+        {
+            var visible = _graphView.GetVisibleContentBounds();
+            var mini = ToMini(visible, bounds, mapRect);
+            mini.xMin = Mathf.Clamp(mini.xMin, mapRect.xMin, mapRect.xMax);
+            mini.yMin = Mathf.Clamp(mini.yMin, mapRect.yMin, mapRect.yMax);
+            mini.xMax = Mathf.Clamp(mini.xMax, mapRect.xMin, mapRect.xMax);
+            mini.yMax = Mathf.Clamp(mini.yMax, mapRect.yMin, mapRect.yMax);
+
+            EditorGUI.DrawRect(mini, BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Composite, 0.14f));
+            Handles.DrawSolidRectangleWithOutline(
+                mini,
+                Color.clear,
+                BehaviorTreeEditorStyles.Composite);
         }
 
         private static Rect ToMini(Rect source, Rect bounds, Rect mapRect)
@@ -936,12 +1031,31 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 Mathf.Lerp(mapRect.yMin, mapRect.yMax, y));
         }
 
+        private static Vector2 FromMini(Vector2 source, Rect bounds, Rect mapRect)
+        {
+            var x = Mathf.InverseLerp(mapRect.xMin, mapRect.xMax, Mathf.Clamp(source.x, mapRect.xMin, mapRect.xMax));
+            var y = Mathf.InverseLerp(mapRect.yMin, mapRect.yMax, Mathf.Clamp(source.y, mapRect.yMin, mapRect.yMax));
+            return new Vector2(
+                Mathf.Lerp(bounds.xMin, bounds.xMax, x),
+                Mathf.Lerp(bounds.yMin, bounds.yMax, y));
+        }
+
         private static GUIStyle MiniMapLabelStyle()
         {
             return new GUIStyle(EditorStyles.miniBoldLabel)
             {
                 normal = { textColor = BehaviorTreeEditorStyles.TextMuted },
                 alignment = TextAnchor.MiddleLeft,
+                fontSize = 9
+            };
+        }
+
+        private static GUIStyle MiniMapButtonStyle()
+        {
+            return new GUIStyle(EditorStyles.miniBoldLabel)
+            {
+                normal = { textColor = BehaviorTreeEditorStyles.Composite },
+                alignment = TextAnchor.MiddleCenter,
                 fontSize = 9
             };
         }

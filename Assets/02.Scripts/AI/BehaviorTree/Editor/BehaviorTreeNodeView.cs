@@ -27,6 +27,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public static readonly Color Running = new(0.36f, 0.95f, 0.52f);
         public static readonly Color Success = new(0.30f, 0.82f, 0.42f);
         public static readonly Color Failure = new(0.92f, 0.28f, 0.22f);
+        public static readonly Color Paused = new(0.96f, 0.68f, 0.25f);
         public static readonly Color Idle = new(0.29f, 0.29f, 0.37f);
 
         public static Color WithAlpha(Color color, float alpha)
@@ -182,30 +183,25 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MarkDirtyRepaint();
         }
 
-        public void UpdateStateColor(BTNode runtimeNode)
+        public void UpdateStateColor(BTNode runtimeNode, bool wasTickedThisFrame = false, BTStatus tickStatus = BTStatus.Failure)
         {
             if (runtimeNode == null || !runtimeNode.IsStarted)
             {
-                _statusBar.style.backgroundColor = Node.Disabled
-                    ? BehaviorTreeEditorStyles.Idle
-                    : _baseBorderColor;
-                SetBorderColor(Node.Disabled ? BehaviorTreeEditorStyles.Idle : _baseBorderColor);
-                SetRuntimeState("IDLE", new Color(0.29f, 0.29f, 0.37f));
+                if (wasTickedThisFrame)
+                {
+                    var tickColor = GetStatusColor(tickStatus);
+                    ApplyRuntimeVisual(tickStatus.ToString().ToUpperInvariant(), tickColor, true);
+                    return;
+                }
+
+                ApplyIdleVisual();
+                SetRuntimeState("IDLE", BehaviorTreeEditorStyles.Idle);
                 style.opacity = Node.Disabled ? 0.45f : 1f;
                 return;
             }
 
-            var stateColor = runtimeNode.LastStatus switch
-            {
-                BTStatus.Running => BehaviorTreeEditorStyles.Running,
-                BTStatus.Success => BehaviorTreeEditorStyles.Success,
-                BTStatus.Failure => BehaviorTreeEditorStyles.Failure,
-                _ => _baseBorderColor
-            };
-            _statusBar.style.backgroundColor = stateColor;
-            SetBorderColor(stateColor);
-            SetRuntimeState(runtimeNode.LastStatus.ToString().ToUpperInvariant(), stateColor);
-            style.opacity = Node.Disabled ? 0.45f : 1f;
+            var stateColor = GetStatusColor(runtimeNode.LastStatus);
+            ApplyRuntimeVisual(runtimeNode.LastStatus.ToString().ToUpperInvariant(), stateColor, true);
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -228,6 +224,41 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             style.borderRightColor = color;
             style.borderBottomColor = color;
             style.borderLeftColor = color;
+        }
+
+        private void ApplyIdleVisual()
+        {
+            var color = Node.Disabled ? BehaviorTreeEditorStyles.Idle : _baseBorderColor;
+            _statusBar.style.height = 3f;
+            _statusBar.style.backgroundColor = color;
+            SetBorderColor(color);
+            titleContainer.style.backgroundColor = GetHeaderColor(Node);
+            extensionContainer.style.backgroundColor = GetBodyColor(Node);
+            style.backgroundColor = GetBodyColor(Node);
+            style.opacity = Node.Disabled ? 0.45f : 1f;
+        }
+
+        private void ApplyRuntimeVisual(string label, Color color, bool emphasized)
+        {
+            _statusBar.style.height = emphasized ? 7f : 3f;
+            _statusBar.style.backgroundColor = color;
+            SetBorderColor(color);
+            SetRuntimeState(label, color);
+            titleContainer.style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.42f);
+            extensionContainer.style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.20f);
+            style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.16f);
+            style.opacity = Node.Disabled ? 0.45f : 1f;
+        }
+
+        private Color GetStatusColor(BTStatus status)
+        {
+            return status switch
+            {
+                BTStatus.Running => BehaviorTreeEditorStyles.Running,
+                BTStatus.Success => BehaviorTreeEditorStyles.Success,
+                BTStatus.Failure => BehaviorTreeEditorStyles.Failure,
+                _ => _baseBorderColor
+            };
         }
 
         private static Color GetCategoryColor(BTNode node)

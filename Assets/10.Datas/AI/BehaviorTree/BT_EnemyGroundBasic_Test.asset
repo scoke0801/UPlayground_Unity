@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Root_EnemyGroundBasic
   m_EditorClassIdentifier: 
   _guid: root_enemy_ground_basic
-  _displayName: "\uB545\uC5D0\uC788\uB294\uAC00"
+  _displayName: "\uB545\uC5D0 \uC788\uB294\uAC00?"
   _comment: 
   _editorPosition: {x: 12.000026, y: -183.33333}
   _children:
@@ -21,7 +21,7 @@ MonoBehaviour:
   - {fileID: 6096042406183419737}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 2
+  _abortType: 0
 --- !u!114 &-8037258016860720280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
   _displayName: Action_Idle_NoPatrol
   _comment: "\uC21C\uCC30\uC774 \uAEBC\uC838 \uC788\uC73C\uBA74 Idle State\uB85C
     \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 863, y: 776}
+  _editorPosition: {x: 1099.9583, y: 800.4791}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -59,13 +59,13 @@ MonoBehaviour:
   _guid: seq_patrol_when_enabled
   _displayName: "\uC21C\uCC30\uD560\uAE4C"
   _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 570, y: 764}
+  _editorPosition: {x: 778.95825, y: 776.4791}
   _children:
   - {fileID: 3415640705049045034}
   - {fileID: -3681586728207117700}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 1
+  _abortType: 0
 --- !u!114 &-3864159759119073498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,14 +82,14 @@ MonoBehaviour:
   _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00?"
   _comment: "\uD0C0\uAC9F\uC774 \uC788\uC73C\uBA74 \uC804\uD22C \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: -344.00003, y: -1.5999756}
+  _editorPosition: {x: -344, y: -4}
   _children:
   - {fileID: 4987458986752680403}
   - {fileID: 2733662606038583687}
   - {fileID: 4546674035571993911}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 1
+  _abortType: 0
 --- !u!114 &-3681586728207117700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,7 +105,7 @@ MonoBehaviour:
   _guid: act_patrol
   _displayName: Action_Patrol
   _comment: "EnemyPatrolState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 765, y: 1058}
+  _editorPosition: {x: 918.95825, y: 1201.4791}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -127,13 +127,13 @@ MonoBehaviour:
   _displayName: "\uACF5\uACA9 \uBC94\uC704 \uCC98\uB9AC"
   _comment: "EnemyCombat.HasAvailableSkillAtDistance\uAC00 true\uBA74 Attack State\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: -852.8001, y: 836.2502}
+  _editorPosition: {x: -862, y: 846.6775}
   _children:
   - {fileID: 6928455814388444325}
   - {fileID: 924933733775013235}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 1
+  _abortType: 0
 --- !u!114 &-1847582369555403117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,13 +150,13 @@ MonoBehaviour:
   _displayName: "\uB108\uBB34 \uAC00\uAE4C\uC6B4\uAC00"
   _comment: "personalSpaceDistance\uC640 \uAC19\uC740 0.8m \uC774\uB0B4\uBA74 Retreat
     State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -344, y: 788}
+  _editorPosition: {x: -343, y: 786.6775}
   _children:
   - {fileID: 3706937085472763614}
   - {fileID: -827829528935278752}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 1
+  _abortType: 0
 --- !u!114 &-1576442525147340075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
   _comment: "\uACF5\uACA9/\uD6C4\uD1F4/\uCD94\uACA9 \uC870\uAC74\uC774 \uBAA8\uB450
     \uC544\uB2C8\uBA74 Idle\uB85C \uB450\uACE0 \uB2E4\uC74C Tick \uD310\uB2E8\uC744
     \uAE30\uB2E4\uB9B0\uB2E4."
-  _editorPosition: {x: 252, y: 764}
+  _editorPosition: {x: 253, y: 762.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -195,7 +195,7 @@ MonoBehaviour:
   _guid: act_chase
   _displayName: Action_Chase
   _comment: "EnemyChaseState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 265, y: 1057}
+  _editorPosition: {x: 266, y: 1055.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -216,7 +216,7 @@ MonoBehaviour:
   _guid: act_retreat
   _displayName: Action_Retreat
   _comment: "EnemyRetreatState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -234, y: 1148}
+  _editorPosition: {x: -233, y: 1146.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -237,7 +237,7 @@ MonoBehaviour:
   _guid: cond_no_target
   _displayName: Condition_NoTarget
   _comment: EnemyDetection.HasTarget == false
-  _editorPosition: {x: 335, y: 421}
+  _editorPosition: {x: 749.95825, y: 570.4791}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -312,6 +312,25 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
+  _editorGroups:
+  - _guid: 824f6c93d0d74db686c3a02c7afeddba
+    _title: "\uADF8\uB8E8\uD551 \uD14C\uC2A4\uD2B82"
+    _rect:
+      serializedVersion: 2
+      x: 626.86096
+      y: 204.58992
+      width: 680
+      height: 1244
+    _color: {r: 1, g: 0.5458693, b: 0, a: 0.42}
+  - _guid: 28d90c9f5c0a4db295e945a487386d4b
+    _title: "\uADF8\uB8E8\uD551 \uD14C\uC2A4\uD2B8"
+    _rect:
+      serializedVersion: 2
+      x: -1069.6775
+      y: 686.6775
+      width: 1594
+      height: 790
+    _color: {r: 0.5283019, g: 0.05233179, b: 0.05233179, a: 0.42}
 --- !u!114 &924933733775013235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,7 +347,7 @@ MonoBehaviour:
   _displayName: Action_ExecuteAttack
   _comment: "EnemyAttackState\uB85C \uC804\uD658\uD55C\uB2E4. Attack \uC911\uC5D0\uB294
     Running\uC744 \uBC18\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -743, y: 1182}
+  _editorPosition: {x: -742, y: 1180.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -347,7 +366,7 @@ MonoBehaviour:
   _guid: cond_has_target
   _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00"
   _comment: EnemyDetection.HasTarget == true
-  _editorPosition: {x: -344.00003, y: 267.73343}
+  _editorPosition: {x: -344, y: 266}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -368,7 +387,7 @@ MonoBehaviour:
   _displayName: Condition_PatrolEnabled
   _comment: "EnemyBrain.EnablePatrol \uD655\uC778. Brain\uC740 \uD14C\uC2A4\uD2B8
     \uCC38\uC870\uC6A9\uC73C\uB85C\uB9CC \uC0AC\uC6A9\uD55C\uB2E4."
-  _editorPosition: {x: 494, y: 1065}
+  _editorPosition: {x: 647.95825, y: 1208.4791}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -387,7 +406,7 @@ MonoBehaviour:
   _guid: cond_target_too_close
   _displayName: Condition_TargetTooClose
   _comment: "EnemyBehaviorSO.personalSpaceDistance \uAE30\uBCF8\uAC12 0.8m \uAE30\uC900."
-  _editorPosition: {x: -486, y: 1135.5}
+  _editorPosition: {x: -485, y: 1134.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -409,7 +428,7 @@ MonoBehaviour:
   _guid: cond_target_far
   _displayName: Condition_TargetFar
   _comment: "EnemyBehaviorSO.chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uAE30\uC900."
-  _editorPosition: {x: 4, y: 1045}
+  _editorPosition: {x: 5, y: 1043.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -440,7 +459,7 @@ MonoBehaviour:
   - {fileID: -1576442525147340075}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 2
+  _abortType: 0
 --- !u!114 &4987458986752680403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,7 +476,7 @@ MonoBehaviour:
   _displayName: "\uBE14\uB799\uBCF4\uB4DC \uB3D9\uAE30\uD654"
   _comment: "EnemyDetection\uACFC ActorMovementController \uAC12\uC744 Blackboard\uC5D0
     \uBCF5\uC0AC\uD55C\uB2E4."
-  _editorPosition: {x: -585.3334, y: 240.40002}
+  _editorPosition: {x: -585, y: 238}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -481,7 +500,7 @@ MonoBehaviour:
   _displayName: NonCombat_NoTarget
   _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
     \uBCF4\uACE0 Patrol/Idle\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 427, y: 161}
+  _editorPosition: {x: 842.95825, y: 310.47913}
   _children:
   - {fileID: -158394763614966633}
   - {fileID: 8340599277679366890}
@@ -504,7 +523,7 @@ MonoBehaviour:
   _displayName: Condition_CanUseEnemySkill
   _comment: "\uD604\uC7AC \uAC70\uB9AC\uC5D0\uC11C \uC0AC\uC6A9 \uAC00\uB2A5\uD55C
     EnemyAttackInfo\uAC00 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
-  _editorPosition: {x: -1023, y: 1182}
+  _editorPosition: {x: -1022, y: 1180.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -525,13 +544,13 @@ MonoBehaviour:
   _displayName: "\uB108\uBB34 \uBA3C\uAC00"
   _comment: "chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uC774\uC0C1\uC774\uBA74 Chase
     State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 15, y: 760}
+  _editorPosition: {x: 16, y: 758.6775}
   _children:
   - {fileID: 4069653426073757580}
   - {fileID: -1067967090654950255}
   _disabled: 0
   _breakpoint: 0
-  _abortType: 1
+  _abortType: 0
 --- !u!114 &8340599277679366890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,7 +566,7 @@ MonoBehaviour:
   _guid: sel_non_combat_decision
   _displayName: NonCombat_Decision
   _comment: "Patrol \uAC00\uB2A5\uD558\uBA74 Patrol, \uC544\uB2C8\uBA74 Idle."
-  _editorPosition: {x: 703, y: 341.47916}
+  _editorPosition: {x: 1117.9583, y: 490.47913}
   _children:
   - {fileID: -4687848252655193683}
   - {fileID: -8037258016860720280}

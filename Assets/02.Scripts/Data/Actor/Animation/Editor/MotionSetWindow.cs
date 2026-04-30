@@ -2,14 +2,20 @@ using UnityEditor;
 using UnityEngine;
 using Animancer;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Animation.Editor
 {
     public class MotionSetEditorWindow : EditorWindow
     {
         MotionSetAsset  _asset;
+        ActorAnimationMotionSet _actorAnimationSet;
+        AnimKey         _selectedActorMotionKey = AnimKey.None;
         MotionSetDrawer _drawer;
         Vector2         _scrollPos;
+        Vector2         _actorMotionListScroll;
+        string          _actorMotionSearch = "";
         
         // 테스트 씬 설정
         string          _testScenePath = "Assets/01.Scenes/Test/MotionTestMap.unity"; // 기본 경로
@@ -38,12 +44,43 @@ namespace UPlayGround.Animation.Editor
         MotionSet       _temporarySet;
 
         [MenuItem("UPlayGround/애니메이션 에디터")]
-        static void Open()
+        static void OpenWindow()
         {
             var window = GetWindow<MotionSetEditorWindow>();
             window.titleContent = new GUIContent("애니메이션 에디터");
             window.minSize      = new Vector2(600, 400);
             window.Show();
+        }
+
+        public static void Open(MotionSetAsset asset)
+        {
+            var window = GetWindow<MotionSetEditorWindow>();
+            window.titleContent = new GUIContent("애니메이션 에디터");
+            window.minSize      = new Vector2(600, 400);
+            window.Show();
+            window.SetAsset(asset);
+            window._useTemporarySet = false;
+        }
+
+        public static void Open(ActorAnimationMotionSet actorAnimationSet)
+        {
+            var window = GetWindow<MotionSetEditorWindow>();
+            window.titleContent = new GUIContent("애니메이션 에디터");
+            window.minSize      = new Vector2(600, 400);
+            window.Show();
+            window.SetActorAnimationSet(actorAnimationSet);
+        }
+
+        public static void Open(ActorAnimationMotionSet actorAnimationSet, AnimKey key, MotionSetAsset asset)
+        {
+            var window = GetWindow<MotionSetEditorWindow>();
+            window.titleContent = new GUIContent("애니메이션 에디터");
+            window.minSize      = new Vector2(600, 400);
+            window.Show();
+            window.SetActorAnimationSet(actorAnimationSet);
+            window._selectedActorMotionKey = key;
+            window.SetAsset(asset);
+            window._useTemporarySet = false;
         }
 
         // ⑤ EditorPrefs 키
@@ -448,10 +485,15 @@ namespace UPlayGround.Animation.Editor
 
         void TryBindFromSelection()
         {
-            if (Selection.activeObject is MotionSetAsset selected)
+            if (Selection.activeObject is ActorAnimationMotionSet actorSet)
+            {
+                SetActorAnimationSet(actorSet);
+            }
+            else if (Selection.activeObject is MotionSetAsset selected)
             {
                 SetAsset(selected);
                 _useTemporarySet = false;
+                SelectActorMotionKeyForAsset(selected);
             }
         }
 
@@ -460,6 +502,205 @@ namespace UPlayGround.Animation.Editor
             if (_asset == asset) return;
             _asset  = asset;
             _drawer = new MotionSetDrawer(() => _asset, Repaint);
+        }
+
+        void SetActorAnimationSet(ActorAnimationMotionSet actorSet)
+        {
+            if (_actorAnimationSet == actorSet && _asset != null) return;
+
+            _actorAnimationSet = actorSet;
+            _useTemporarySet = false;
+
+            if (_actorAnimationSet == null)
+            {
+                _selectedActorMotionKey = AnimKey.None;
+                return;
+            }
+
+            if (_asset != null && SelectActorMotionKeyForAsset(_asset))
+                return;
+
+            var first = GetActorMotionEntries(_actorAnimationSet, true)
+                .Find(e => e.asset != null);
+
+            _selectedActorMotionKey = first.key;
+            SetAsset(first.asset);
+        }
+
+        struct ActorMotionEntry
+        {
+            public AnimKey key;
+            public ActorAnimationMotionSet source;
+            public MotionSetAsset asset;
+            public bool isOwn;
+        }
+
+        static readonly (string label, int min, int max)[] ACTOR_KEY_RANGES =
+        {
+            ("이동",       0,   29),
+            ("공격",       100, 199),
+            ("강공격",     200, 299),
+            ("대시 공격",  300, 399),
+            ("점프 공격",  400, 499),
+            ("스킬",       500, 619),
+            ("차지/피니시",620, 699),
+            ("피격/사망",  700, 919),
+            ("기타",       920, int.MaxValue),
+        };
+
+        static AnimKey[] _allAnimKeys;
+        static AnimKey[] AllAnimKeys => _allAnimKeys ??= (AnimKey[])System.Enum.GetValues(typeof(AnimKey));
+
+        static System.Collections.Generic.List<ActorMotionEntry> GetActorMotionEntries(
+            ActorAnimationMotionSet root, bool includeFallback)
+        {
+            var result = new System.Collections.Generic.List<ActorMotionEntry>();
+            var seen = new System.Collections.Generic.HashSet<AnimKey>();
+            var visited = new System.Collections.Generic.HashSet<ActorAnimationMotionSet>();
+            var current = root;
+
+            while (current != null && !visited.Contains(current))
+            {
+                visited.Add(current);
+
+                if (current.motionSets != null)
+                {
+                    foreach (var kv in current.motionSets)
+                    {
+                        if (!seen.Add(kv.Key)) continue;
+                        result.Add(new ActorMotionEntry
+                        {
+                            key = kv.Key,
+                            source = current,
+                            asset = kv.Value,
+                            isOwn = current == root
+                        });
+                    }
+                }
+
+                if (!includeFallback) break;
+                current = current.fallbackMotionSet;
+            }
+
+            result.Sort((a, b) => ((int)a.key).CompareTo((int)b.key));
+            return result;
+        }
+
+        bool SelectActorMotionKeyForAsset(MotionSetAsset asset)
+        {
+            if (_actorAnimationSet == null || asset == null) return false;
+
+            var entries = GetActorMotionEntries(_actorAnimationSet, true);
+            foreach (var entry in entries)
+            {
+                if (entry.asset != asset) continue;
+                _selectedActorMotionKey = entry.key;
+                return true;
+            }
+            return false;
+        }
+
+        void ShowAddActorMotionMenu()
+        {
+            if (_actorAnimationSet == null) return;
+
+            var existing = new System.Collections.Generic.HashSet<AnimKey>();
+            if (_actorAnimationSet.motionSets != null)
+            {
+                foreach (var key in _actorAnimationSet.motionSets.Keys)
+                    existing.Add(key);
+            }
+
+            var menu = new GenericMenu();
+            foreach (var key in AllAnimKeys)
+            {
+                if (key == AnimKey.None || existing.Contains(key)) continue;
+
+                AnimKey captured = key;
+                menu.AddItem(new GUIContent(GetActorKeyGroupLabel(key) + "/" + key), false, () =>
+                {
+                    var asset = CreateActorMotionSetAsset(captured);
+                    if (asset == null) return;
+
+                    AddOrAssignActorMotionAsset(captured, asset);
+                    _selectedActorMotionKey = captured;
+                    SetAsset(asset);
+                    _useTemporarySet = false;
+                    Selection.activeObject = _actorAnimationSet;
+                    EditorGUIUtility.PingObject(asset);
+                    Repaint();
+                });
+            }
+
+            menu.ShowAsContext();
+        }
+
+        MotionSetAsset CreateActorMotionSetAsset(AnimKey key)
+        {
+            string actorSetPath = AssetDatabase.GetAssetPath(_actorAnimationSet);
+            string dir = string.IsNullOrEmpty(actorSetPath)
+                ? "Assets"
+                : System.IO.Path.GetDirectoryName(actorSetPath)?.Replace("\\", "/");
+            string suggestedName = $"{_actorAnimationSet.name}_{key}.asset";
+
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Actor MotionSet 에셋 생성", suggestedName, "asset", "저장 위치를 선택하세요.", dir);
+            if (string.IsNullOrEmpty(path)) return null;
+
+            var asset = CreateInstance<MotionSetAsset>();
+            asset.motionSet = new MotionSet
+            {
+                motionSetName = System.IO.Path.GetFileNameWithoutExtension(path),
+                motions = new System.Collections.Generic.List<Motion>()
+            };
+
+            AssetDatabase.CreateAsset(asset, path);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            return asset;
+        }
+
+        void AddOrAssignActorMotionAsset(AnimKey key, MotionSetAsset asset)
+        {
+            var sObj = new SerializedObject(_actorAnimationSet);
+            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
+            int idx = FindActorMotionKeyIndex(listProp, key);
+
+            if (idx < 0)
+            {
+                listProp.InsertArrayElementAtIndex(listProp.arraySize);
+                idx = listProp.arraySize - 1;
+            }
+
+            var elem = listProp.GetArrayElementAtIndex(idx);
+            elem.FindPropertyRelative("Key").intValue = (int)key;
+            elem.FindPropertyRelative("Value").objectReferenceValue = asset;
+
+            sObj.ApplyModifiedProperties();
+            EditorUtility.SetDirty(_actorAnimationSet);
+            AssetDatabase.SaveAssets();
+        }
+
+        static int FindActorMotionKeyIndex(SerializedProperty listProp, AnimKey key)
+        {
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                if ((AnimKey)listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Key").intValue == key)
+                    return i;
+            }
+            return -1;
+        }
+
+        static string GetActorKeyGroupLabel(AnimKey key)
+        {
+            int value = (int)key;
+            foreach (var range in ACTOR_KEY_RANGES)
+            {
+                if (value >= range.min && value <= range.max)
+                    return range.label;
+            }
+            return "기타";
         }
         
         MotionSet GetCurrentMotionSet()
@@ -472,8 +713,20 @@ namespace UPlayGround.Animation.Editor
         void OnGUI()
         {
             DrawToolbar();
+            DrawActorAnimationSetBar();
             DrawPlaybackControls();
 
+            if (_actorAnimationSet != null)
+            {
+                DrawActorSetEditorLayout();
+                return;
+            }
+
+            DrawMotionSetEditorBody();
+        }
+
+        void DrawMotionSetEditorBody()
+        {
             var currentSet = GetCurrentMotionSet();
             if (currentSet == null)
             {
@@ -495,6 +748,21 @@ namespace UPlayGround.Animation.Editor
             
             // 타임라인 클릭으로 재생 위치 조절 처리
             HandleTimelineScrubbing();
+        }
+
+        void DrawActorSetEditorLayout()
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                DrawActorMotionSidebar();
+
+                EditorGUILayout.BeginVertical();
+                {
+                    DrawMotionSetEditorBody();
+                }
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         // ── 상단 툴바 ──
@@ -547,6 +815,174 @@ namespace UPlayGround.Animation.Editor
                     CreateTemporarySet();
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        void DrawActorAnimationSetBar()
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField("Actor Set", GUILayout.Width(70));
+
+                var newSet = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                    _actorAnimationSet, typeof(ActorAnimationMotionSet), false, GUILayout.Width(220));
+
+                if (newSet != _actorAnimationSet)
+                    SetActorAnimationSet(newSet);
+
+                if (_actorAnimationSet == null)
+                {
+                    EditorGUILayout.LabelField("ActorAnimationMotionSet을 선택하면 좌측 목록에서 모션을 전환할 수 있습니다.", EditorStyles.miniLabel);
+                    EditorGUILayout.EndHorizontal();
+                    return;
+                }
+
+                EditorGUILayout.LabelField(
+                    _asset != null
+                        ? $"{_selectedActorMotionKey} / {_asset.name}"
+                        : "좌측 목록에서 MotionSet을 선택하세요.",
+                    EditorStyles.miniBoldLabel);
+
+                EditorGUI.BeginDisabledGroup(_asset == null);
+                if (GUILayout.Button("에셋 선택", GUILayout.Width(70)))
+                {
+                    Selection.activeObject = _asset;
+                    EditorGUIUtility.PingObject(_asset);
+                }
+                EditorGUI.EndDisabledGroup();
+
+                if (GUILayout.Button("+ 키/에셋 추가", GUILayout.Width(100)))
+                    ShowAddActorMotionMenu();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void DrawActorMotionSidebar()
+        {
+            const float sidebarWidth = 300f;
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(sidebarWidth));
+            {
+                EditorGUILayout.LabelField("모션 목록", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                {
+                    _actorMotionSearch = EditorGUILayout.TextField(_actorMotionSearch, GUI.skin.FindStyle("ToolbarSearchTextField") ?? EditorStyles.textField);
+                    if (GUILayout.Button("×", EditorStyles.miniButton, GUILayout.Width(22)))
+                    {
+                        _actorMotionSearch = "";
+                        GUI.FocusControl(null);
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+
+                var entries = GetActorMotionEntries(_actorAnimationSet, true);
+                if (entries.Count == 0)
+                {
+                    EditorGUILayout.HelpBox("등록된 모션 키가 없습니다. 아래 버튼으로 추가하세요.", MessageType.Info);
+                }
+
+                _actorMotionListScroll = EditorGUILayout.BeginScrollView(_actorMotionListScroll, GUILayout.MinHeight(260));
+                {
+                    string currentGroup = null;
+                    foreach (var entry in entries)
+                    {
+                        if (!MatchesActorMotionSearch(entry)) continue;
+
+                        string group = GetActorKeyGroupLabel(entry.key);
+                        if (group != currentGroup)
+                        {
+                            currentGroup = group;
+                            DrawActorMotionGroupHeader(group);
+                        }
+
+                        DrawActorMotionListRow(entry);
+                    }
+                }
+                EditorGUILayout.EndScrollView();
+
+                GUILayout.FlexibleSpace();
+
+                if (GUILayout.Button("+ 키/에셋 추가", GUILayout.Height(26)))
+                    ShowAddActorMotionMenu();
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        bool MatchesActorMotionSearch(ActorMotionEntry entry)
+        {
+            if (string.IsNullOrWhiteSpace(_actorMotionSearch)) return true;
+
+            string search = _actorMotionSearch.Trim();
+            if (entry.key.ToString().IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+
+            if (entry.asset != null && entry.asset.name.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+
+            if (entry.source != null && entry.source.name.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+
+            return false;
+        }
+
+        void DrawActorMotionGroupHeader(string group)
+        {
+            Rect rect = EditorGUILayout.GetControlRect(false, 20f);
+            EditorGUI.DrawRect(rect, new Color(0.18f, 0.19f, 0.21f));
+            GUI.Label(new Rect(rect.x + 6f, rect.y + 2f, rect.width - 12f, 16f), group, EditorStyles.miniBoldLabel);
+        }
+
+        void DrawActorMotionListRow(ActorMotionEntry entry)
+        {
+            bool selected = entry.key == _selectedActorMotionKey && entry.asset == _asset;
+            Rect row = EditorGUILayout.GetControlRect(false, 36f);
+
+            Color bg = selected
+                ? new Color(0.24f, 0.43f, 0.68f, 0.75f)
+                : entry.isOwn
+                    ? new Color(0.16f, 0.17f, 0.18f, 0.65f)
+                    : new Color(0.12f, 0.12f, 0.13f, 0.55f);
+
+            EditorGUI.DrawRect(row, bg);
+
+            Rect buttonRect = new Rect(row.x, row.y, row.width - 46f, row.height);
+            if (GUI.Button(buttonRect, GUIContent.none, GUIStyle.none))
+                SelectActorMotionEntry(entry);
+
+            string keyText = entry.key.ToString();
+            string assetText = entry.asset != null ? entry.asset.name : "(MotionSet 없음)";
+            string sourceText = entry.isOwn ? "" : $"상속: {entry.source.name}";
+
+            var keyStyle = new GUIStyle(EditorStyles.miniBoldLabel)
+            {
+                normal = { textColor = selected ? Color.white : new Color(0.86f, 0.88f, 0.92f) },
+                clipping = TextClipping.Clip
+            };
+            var assetStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                normal = { textColor = selected ? new Color(0.90f, 0.95f, 1f) : new Color(0.62f, 0.65f, 0.70f) },
+                clipping = TextClipping.Clip
+            };
+
+            GUI.Label(new Rect(row.x + 8f, row.y + 3f, row.width - 58f, 16f), keyText, keyStyle);
+            GUI.Label(new Rect(row.x + 8f, row.y + 18f, row.width - 58f, 14f),
+                string.IsNullOrEmpty(sourceText) ? assetText : $"{assetText}  ·  {sourceText}",
+                assetStyle);
+
+            EditorGUI.BeginDisabledGroup(entry.asset == null);
+            if (GUI.Button(new Rect(row.xMax - 42f, row.y + 8f, 36f, 20f), "Ping", EditorStyles.miniButton))
+            {
+                Selection.activeObject = entry.asset;
+                EditorGUIUtility.PingObject(entry.asset);
+            }
+            EditorGUI.EndDisabledGroup();
+        }
+
+        void SelectActorMotionEntry(ActorMotionEntry entry)
+        {
+            _selectedActorMotionKey = entry.key;
+            SetAsset(entry.asset);
+            _useTemporarySet = false;
+            Repaint();
         }
         
         // ── 플레이백 컨트롤 ──

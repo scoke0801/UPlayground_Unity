@@ -46,6 +46,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             EditorGUILayout.PropertyField(fallbackProp, new GUIContent("Fallback MotionSet",
                 "이 SO에 없는 AnimKey는 Fallback에서 탐색 (최대 8단계 체인)"));
 
+            if (GUILayout.Button("애니메이션 에디터에서 열기", GUILayout.Height(24)))
+                UPlayGround.Animation.Editor.MotionSetEditorWindow.Open(so);
+
             DrawDivider();
 
             // ── 체인 전체 키 수집 ──
@@ -188,7 +191,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
 
                 // 열기 버튼
                 if (GUI.Button(new Rect(x, y, 36f, 18f), "열기", EditorStyles.miniButton))
-                    OpenInMotionEditor(entry.asset);
+                    OpenInMotionEditor(so, entry.key, entry.asset);
                 EditorGUI.EndDisabledGroup();
 
                 // 삭제 버튼 (×)
@@ -264,7 +267,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             serializedObject.ApplyModifiedProperties();
 
             EditorGUIUtility.PingObject(asset);
-            OpenInMotionEditor(asset);
+            OpenInMotionEditor(so, key, asset);
         }
 
         void ShowAddKeyMenu(ActorAnimationMotionSet so)
@@ -291,14 +294,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             menu.ShowAsContext();
         }
 
-        static void OpenInMotionEditor(MotionSetAsset asset)
+        static void OpenInMotionEditor(ActorAnimationMotionSet actorSet, AnimKey key, MotionSetAsset asset)
         {
-            var window = EditorWindow.GetWindow<UPlayGround.Animation.Editor.MotionSetEditorWindow>();
-            window.titleContent = new GUIContent("애니메이션 에디터");
-            window.minSize      = new Vector2(600, 400);
-            window.Show();
-            if (asset != null)
-                Selection.activeObject = asset;
+            UPlayGround.Animation.Editor.MotionSetEditorWindow.Open(actorSet, key, asset);
         }
 
         string GroupLabel(AnimKey key)

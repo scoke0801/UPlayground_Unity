@@ -102,6 +102,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _window.SelectNode(node);
         }
 
+        public void RefreshNodeView(BTNode node)
+        {
+            if (node == null || !_nodeViews.TryGetValue(node, out var nodeView))
+                return;
+
+            nodeView.RefreshView();
+        }
+
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             if (_tree == null)

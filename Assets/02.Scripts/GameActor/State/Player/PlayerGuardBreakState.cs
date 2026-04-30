@@ -18,7 +18,6 @@ namespace UPlayGround.State
         // 애니메이션이 없는 경우의 강제 경직 시간 (폴백용)
         private const float FALLBACK_STUN_DURATION = 1.2f;
 
-        private float _elapsedTime;
         private bool  _animFinished;
 
         public PlayerGuardBreakState(ActorMovementController controller) : base(controller) { }
@@ -30,7 +29,6 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            _elapsedTime  = 0f;
             _animFinished = false;
 
             // GuardBreak 전용 모션이 있으면 재생, 없으면 Knockback으로 폴백
@@ -46,7 +44,7 @@ namespace UPlayGround.State
             else
             {
                 // 애니메이션 자체가 없으면 폴백 타이머로 처리
-                _elapsedTime = -FALLBACK_STUN_DURATION;
+                controller.StartCoroutine(ReturnToIdleAfterDelay(FALLBACK_STUN_DURATION));
             }
         }
 
@@ -74,6 +72,12 @@ namespace UPlayGround.State
                 currentVelocity,
                 Vector3.zero,
                 1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+        }
+
+        private System.Collections.IEnumerator ReturnToIdleAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            controller.TransitionToState(new PlayerIdleState(controller));
         }
     }
 }

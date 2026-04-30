@@ -10,12 +10,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     public class BehaviorTreeNodeView : Node
     {
         private readonly VisualElement _statusBar;
-        private readonly Label _statusLabel;
-        private readonly VisualElement _statusDot;
+        private Label _statusLabel;
+        private VisualElement _statusDot;
         private readonly Label _issueLabel;
         private readonly Color _baseBorderColor;
         private readonly int _nodeIndex;
         private VisualElement _flagsRow;
+        private Label _displayNameLabel;
+        private Label _categoryLabel;
+        private VisualElement _paramBlock;
+        private Label _commentLabel;
+        private VisualElement _footer;
 
         public BehaviorTreeNodeView(BTNode node, int nodeIndex)
         {
@@ -89,8 +94,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             extensionContainer.style.backgroundColor = GetBodyColor(Node);
             extensionContainer.style.paddingTop = 6f;
             extensionContainer.style.paddingBottom = 6f;
-            extensionContainer.Add(CreateTitleBlock(Node, _nodeIndex));
-            extensionContainer.Add(CreateParamBlock(Node));
+            extensionContainer.Add(CreateTitleBlock(Node, _nodeIndex, out _displayNameLabel, out _categoryLabel));
+            _paramBlock = CreateParamBlock(Node);
+            extensionContainer.Add(_paramBlock);
             _flagsRow = CreateEditorFlags(Node);
             extensionContainer.Add(_flagsRow);
 
@@ -98,11 +104,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (!string.IsNullOrWhiteSpace(_issueLabel.text))
                 extensionContainer.Add(_issueLabel);
 
-            if (!string.IsNullOrWhiteSpace(Node.Comment))
-                extensionContainer.Add(CreateCommentPreview(Node.Comment));
+            _commentLabel = CreateCommentPreview(Node.Comment);
+            _commentLabel.style.display = string.IsNullOrWhiteSpace(Node.Comment) ? DisplayStyle.None : DisplayStyle.Flex;
+            extensionContainer.Add(_commentLabel);
 
-            var footer = CreateRuntimeFooter(_nodeIndex, out _statusDot, out _statusLabel);
-            extensionContainer.Add(footer);
+            _footer = CreateRuntimeFooter(_nodeIndex, out _statusDot, out _statusLabel);
+            extensionContainer.Add(_footer);
 
             RefreshExpandedState();
             RefreshPorts();
@@ -117,6 +124,23 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             base.SetPosition(newPos);
             Node.EditorPosition = new Vector2(newPos.xMin, newPos.yMin);
+        }
+
+        public void RefreshView()
+        {
+            _displayNameLabel.text = Node.DisplayName;
+            _categoryLabel.text = $"{Node.GetType().Name} · #{_nodeIndex}";
+            RefreshParamBlock(_paramBlock, Node);
+            RefreshEditorFlags(_flagsRow, Node);
+
+            var issue = GetStructuralIssue(Node);
+            _issueLabel.text = issue;
+            _issueLabel.style.display = string.IsNullOrWhiteSpace(issue) ? DisplayStyle.None : DisplayStyle.Flex;
+
+            _commentLabel.text = Node.Comment;
+            _commentLabel.style.display = string.IsNullOrWhiteSpace(Node.Comment) ? DisplayStyle.None : DisplayStyle.Flex;
+            RefreshExpandedState();
+            MarkDirtyRepaint();
         }
 
         public void UpdateStateColor(BTNode runtimeNode)
@@ -262,7 +286,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return pill;
         }
 
-        private static VisualElement CreateTitleBlock(BTNode node, int index)
+        private static VisualElement CreateTitleBlock(BTNode node, int index, out Label displayName, out Label category)
         {
             var block = new VisualElement();
             block.style.flexGrow = 1;
@@ -272,7 +296,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             block.style.paddingTop = 8f;
             block.style.paddingBottom = 5f;
 
-            var displayName = new Label(node.DisplayName);
+            displayName = new Label(node.DisplayName);
             displayName.style.fontSize = 13f;
             displayName.style.unityFontStyleAndWeight = FontStyle.Bold;
             displayName.style.color = new Color(0.92f, 0.92f, 0.92f);
@@ -281,7 +305,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             displayName.style.textOverflow = TextOverflow.Ellipsis;
             block.Add(displayName);
 
-            var category = new Label($"{node.GetType().Name} · #{index}");
+            category = new Label($"{node.GetType().Name} · #{index}");
             category.style.fontSize = 10f;
             category.style.color = new Color(0.42f, 0.42f, 0.52f);
             category.style.marginTop = 3f;
@@ -300,14 +324,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             block.style.borderTopColor = new Color(1f, 1f, 1f, 0.06f);
             block.style.borderTopWidth = 1f;
 
+            RefreshParamBlock(block, node);
+            return block;
+        }
+
+        private static void RefreshParamBlock(VisualElement block, BTNode node)
+        {
+            block.Clear();
             block.Add(CreateParamRow("guid", GetShortGuid(node)));
             block.Add(CreateParamRow("role", GetChildSummary(node)));
             if (node is SequenceNode sequence)
                 block.Add(CreateParamRow("abort", sequence.AbortType.ToString()));
             else if (node is SelectorNode selector)
                 block.Add(CreateParamRow("abort", selector.AbortType.ToString()));
-
-            return block;
         }
 
         private static VisualElement CreateParamRow(string key, string value)

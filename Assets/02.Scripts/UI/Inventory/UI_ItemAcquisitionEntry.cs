@@ -10,8 +10,9 @@ public class UI_ItemAcquisitionEntry : UI_Base
     [SerializeField] private Image _rarityIcon;
     [SerializeField] private Image _itemIcon;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _animator = GetComponent<Animator>();
     }
 

@@ -67,8 +67,10 @@ namespace UPlayGround.State
             var uiObj = UIManager.Instance?.ShowUI(UIKeyType.RespawnPopup);
             var popup = uiObj?.GetComponentInChildren<UI_RespawnPopup>();
 
+            float spotHealPercent = popup != null ? popup.SpotHealPercent : 0.5f;
+
             popup?.Setup(
-                onSpotRevive:   () => actor?.Respawn(_deathPosition, _deathRotation, 0.5f),
+                onSpotRevive:   () => actor?.Respawn(_deathPosition, _deathRotation, spotHealPercent),
                 onPortalRevive: () => actor?.Respawn(portalPos, portalRot, 1f)
             );
             

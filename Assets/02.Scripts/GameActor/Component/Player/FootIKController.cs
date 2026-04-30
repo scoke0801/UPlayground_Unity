@@ -93,7 +93,6 @@ namespace UPlayGround.Component
         private Vector3 _rightNormal = Vector3.up;
 
         // 디버그
-        private bool _ikCalled;
         private Vector3 _dbgLeftOrigin, _dbgRightOrigin;
         private Vector3 _dbgLeftHit, _dbgRightHit;
         private bool _dbgLeftDidHit, _dbgRightDidHit;
@@ -168,8 +167,6 @@ namespace UPlayGround.Component
         {
             float dt = Time.deltaTime;
             if (dt < Mathf.Epsilon || _animator == null) return;
-
-            _ikCalled = true;
 
             // 완전 비활성 상태: 모든 계산/레이캐스트 스킵 (stale 누적 방지 + CPU 절약)
             if (_forceDisabled && _globalWeight <= 0f)

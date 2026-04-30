@@ -16,9 +16,6 @@ namespace UPlayGround.State
         private bool _groundSnapRestored;
         private bool _landAnimDone;
 
-        // MotionEvent_LandImpact에서 토글
-        private bool _impactTriggered;
-
         private const float GroundProximity = 0.9f;
 
         public EnemyLandState(ActorMovementController controller)
@@ -34,7 +31,6 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _groundSnapRestored = false;
             _landAnimDone       = false;
-            _impactTriggered    = false;
 
             motor.SetGroundSolvingActivation(false);
         }

@@ -1254,6 +1254,922 @@
 
 </div>
 
+
+  <!-- ═══ 09 NODE GROUP BOX ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <div>
+        <h2>노드 그룹박스 (Comment Box)</h2>
+        <div class="section-sub">Defense / Offense처럼 서브트리를 구역별로 묶는 기능 — 시각적 설계</div>
+      </div>
+    </div>
+
+    <!-- Interactive group box demo -->
+    <div style="margin-bottom:20px">
+      <div class="card-label" style="margin-bottom:12px">인터랙티브 목업 — 그룹 레이블 더블클릭으로 편집, 색상 버튼으로 변경</div>
+      <div id="group-canvas" style="position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);height:460px;overflow:hidden;">
+        <!-- Grid bg -->
+        <canvas id="grid-bg" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+
+        <!-- Group box: Combat -->
+        <div class="group-box" id="gb-combat" style="
+          position:absolute; left:40px; top:30px; width:520px; height:380px;
+          border:1.5px solid oklch(45% 0.10 255);
+          background: oklch(14% 0.03 255 / 0.55);
+          border-radius:12px;
+        ">
+          <div class="gb-header" style="
+            display:flex;align-items:center;gap:8px;
+            padding:7px 12px 6px;
+            background:oklch(18% 0.06 255 / 0.9);
+            border-radius:10px 10px 0 0;
+            border-bottom:1px solid oklch(30% 0.08 255);
+            cursor:grab;
+            user-select:none;
+          ">
+            <div class="gb-color-dot" style="width:10px;height:10px;border-radius:50%;background:oklch(62% 0.14 255);flex-shrink:0;cursor:pointer;" title="색상 변경" onclick="cycleGroupColor('gb-combat', this)"></div>
+            <span class="gb-label" style="font-size:12px;font-weight:600;color:oklch(80% 0.10 255);letter-spacing:.04em;flex:1;" ondblclick="editLabel(this)">Combat Logic</span>
+            <span style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">6 nodes</span>
+          </div>
+
+          <!-- Inner group: Defense -->
+          <div class="group-box" id="gb-defense" style="
+            position:absolute; left:16px; top:52px; width:200px; height:270px;
+            border:1.5px solid oklch(45% 0.10 155);
+            background: oklch(14% 0.03 155 / 0.55);
+            border-radius:10px;
+          ">
+            <div class="gb-header" style="
+              display:flex;align-items:center;gap:8px;
+              padding:6px 10px 5px;
+              background:oklch(18% 0.06 155 / 0.9);
+              border-radius:8px 8px 0 0;
+              border-bottom:1px solid oklch(30% 0.08 155);
+              cursor:grab;user-select:none;
+            ">
+              <div class="gb-color-dot" style="width:9px;height:9px;border-radius:50%;background:oklch(62% 0.14 155);flex-shrink:0;cursor:pointer;" onclick="cycleGroupColor('gb-defense', this)"></div>
+              <span class="gb-label" style="font-size:11px;font-weight:600;color:oklch(80% 0.10 155);flex:1;" ondblclick="editLabel(this)">Defense</span>
+              <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">3 nodes</span>
+            </div>
+            <!-- mini nodes inside -->
+            <div style="padding:14px 12px;display:flex;flex-direction:column;gap:10px">
+              <div class="mini-node bg-composite" style="border-radius:7px;padding:7px 10px;">
+                <div style="font-size:9px;color:oklch(62% 0.14 255);font-weight:600;letter-spacing:.06em;margin-bottom:2px">COMPOSITE</div>
+                <div style="font-size:11px;font-weight:600;">Sequence</div>
+              </div>
+              <div class="mini-node bg-condition" style="border-radius:7px;padding:7px 10px;">
+                <div style="font-size:9px;color:oklch(62% 0.14 55);font-weight:600;letter-spacing:.06em;margin-bottom:2px">CONDITION</div>
+                <div style="font-size:11px;font-weight:600;">IsUnderAttack</div>
+              </div>
+              <div class="mini-node bg-action" style="border-radius:7px;padding:7px 10px;">
+                <div style="font-size:9px;color:oklch(62% 0.14 155);font-weight:600;letter-spacing:.06em;margin-bottom:2px">ACTION</div>
+                <div style="font-size:11px;font-weight:600;">PlayDefenseAnim</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inner group: Offense -->
+          <div class="group-box" id="gb-offense" style="
+            position:absolute; left:234px; top:52px; width:270px; height:270px;
+            border:1.5px solid oklch(45% 0.10 25);
+            background: oklch(14% 0.03 25 / 0.55);
+            border-radius:10px;
+          ">
+            <div class="gb-header" style="
+              display:flex;align-items:center;gap:8px;
+              padding:6px 10px 5px;
+              background:oklch(18% 0.06 25 / 0.9);
+              border-radius:8px 8px 0 0;
+              border-bottom:1px solid oklch(30% 0.08 25);
+              cursor:grab;user-select:none;
+            ">
+              <div class="gb-color-dot" style="width:9px;height:9px;border-radius:50%;background:oklch(62% 0.14 25);flex-shrink:0;cursor:pointer;" onclick="cycleGroupColor('gb-offense', this)"></div>
+              <span class="gb-label" style="font-size:11px;font-weight:600;color:oklch(80% 0.10 25);flex:1;" ondblclick="editLabel(this)">Offense</span>
+              <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">3 nodes</span>
+            </div>
+            <div style="padding:14px 12px;display:flex;flex-direction:column;gap:10px">
+              <div class="mini-node bg-composite" style="border-radius:7px;padding:7px 10px;">
+                <div style="font-size:9px;color:oklch(62% 0.14 255);font-weight:600;letter-spacing:.06em;margin-bottom:2px">COMPOSITE</div>
+                <div style="font-size:11px;font-weight:600;">Selector</div>
+              </div>
+              <div class="mini-node bg-condition" style="border-radius:7px;padding:7px 10px;">
+                <div style="font-size:9px;color:oklch(62% 0.14 55);font-weight:600;letter-spacing:.06em;margin-bottom:2px">CONDITION</div>
+                <div style="font-size:11px;font-weight:600;">HasTarget</div>
+              </div>
+              <div class="mini-node bg-action" style="border-radius:7px;padding:7px 10px;box-shadow:0 0 0 1.5px oklch(72% 0.18 145),0 4px 16px oklch(20% 0.12 145)">
+                <div style="font-size:9px;color:oklch(62% 0.14 155);font-weight:600;letter-spacing:.06em;margin-bottom:2px">ACTION · <span style="color:oklch(72% 0.18 145)">RUNNING</span></div>
+                <div style="font-size:11px;font-weight:600;">MoveToTarget</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /gb-combat -->
+
+        <!-- Floating hint -->
+        <div style="position:absolute;right:16px;bottom:16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;line-height:1.7">
+          더블클릭 → 레이블 편집<br>
+          색상 도트 클릭 → 색상 순환<br>
+          G키 → 선택 노드를 그룹으로
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card-label" style="margin-bottom:14px">그룹박스 해부학</div>
+        <div class="rule-list">
+          <div class="rule-item">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>헤더 고정 높이 28px</h4>
+              <p>색상 도트 + 레이블 + 노드 카운트. 헤더를 드래그해 그룹 전체를 이동. 노드들은 그룹과 함께 일괄 이동.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>배경은 반투명 (opacity 0.55)</h4>
+              <p>그룹 배경이 불투명하면 연결선이 가려짐. 반투명으로 처리해 뒤쪽 연결선과 캔버스 격자가 비쳐보이도록.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>중첩 그룹 허용</h4>
+              <p>Combat > Defense / Offense처럼 그룹 안에 그룹 가능. 중첩 깊이는 최대 2단계로 제한해 복잡도 방지.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>Collapse 토글</h4>
+              <p>헤더 더블클릭으로 그룹 내부 노드를 접어 단일 박스로 표시. 접힌 상태에서 노드 수와 런타임 상태 요약 표시.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card-label" style="margin-bottom:14px">그룹 색상 팔레트</div>
+        <div class="swatch-row">
+          <div class="swatch"><div class="swatch-dot" style="background:oklch(62% 0.14 255);border-radius:6px"></div><div><div class="swatch-name">Blue — 전체 구조 / 루트 그룹</div><div class="swatch-use">oklch(62% 0.14 255)</div></div></div>
+          <div class="swatch"><div class="swatch-dot" style="background:oklch(62% 0.14 155);border-radius:6px"></div><div><div class="swatch-name">Green — 행동 / 공격</div><div class="swatch-use">oklch(62% 0.14 155)</div></div></div>
+          <div class="swatch"><div class="swatch-dot" style="background:oklch(62% 0.14 25);border-radius:6px"></div><div><div class="swatch-name">Red-Orange — 방어 / 위험 상태</div><div class="swatch-use">oklch(62% 0.14 25)</div></div></div>
+          <div class="swatch"><div class="swatch-dot" style="background:oklch(62% 0.14 55);border-radius:6px"></div><div><div class="swatch-name">Amber — 조건 / 감지</div><div class="swatch-use">oklch(62% 0.14 55)</div></div></div>
+          <div class="swatch"><div class="swatch-dot" style="background:oklch(62% 0.14 310);border-radius:6px"></div><div><div class="swatch-name">Violet — 유틸 / 데코레이터 묶음</div><div class="swatch-use">oklch(62% 0.14 310)</div></div></div>
+        </div>
+        <div class="card" style="margin-top:14px;border-color:oklch(30% 0.08 255)">
+          <div class="card-label">Unity 구현 메모</div>
+          <p style="font-size:13px;color:var(--text2)">그룹박스는 <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(70% 0.12 255)">GroupBox</code> ScriptableObject로 직렬화. 각 노드는 <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(70% 0.12 255)">groupId</code> 필드를 갖고, 저장 시 그룹 메타(위치·크기·색상·레이블)는 별도 리스트로 관리.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 11 BREAKPOINT & DISABLED ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <div>
+        <h2>중단점 &amp; 비활성화 상태 UX</h2>
+        <div class="section-sub">디버깅 워크플로우의 핵심 — 상태가 즉각 판독 가능해야 함</div>
+      </div>
+    </div>
+
+    <!-- State toggle bar -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="state-tab active" onclick="setNodeState('normal', this)">Normal</button>
+      <button class="state-tab" onclick="setNodeState('breakpoint', this)">Breakpoint</button>
+      <button class="state-tab" onclick="setNodeState('hit', this)">Breakpoint Hit</button>
+      <button class="state-tab" onclick="setNodeState('disabled', this)">Disabled</button>
+      <button class="state-tab" onclick="setNodeState('disabled-subtree', this)">Disabled (서브트리)</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+      <!-- Live node demo -->
+      <div>
+        <div class="card-label" style="margin-bottom:12px">노드 상태 목업 — 탭으로 전환</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:28px;position:relative;overflow:hidden;">
+          <canvas id="bp-grid" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+
+          <!-- parent composite -->
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;">
+            <div class="demo-node-wrap bg-composite" id="demo-parent" style="border-radius:10px;overflow:hidden;width:168px;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:all .25s;">
+              <div style="padding:9px 12px 7px;display:flex;align-items:center;gap:7px;background:oklch(18% 0.06 255);border-bottom:1px solid rgba(255,255,255,.07);">
+                <span style="font-size:9px;font-weight:700;letter-spacing:.07em;background:oklch(62% 0.14 255);color:oklch(10% 0.04 255);padding:2px 7px;border-radius:100px;">Composite</span>
+              </div>
+              <div style="padding:9px 12px 5px;font-size:13px;font-weight:600;">Selector</div>
+              <div style="padding:0 12px 8px;font-size:10px;color:var(--text3);">Root · #0</div>
+              <div style="padding:6px 10px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:6px;">
+                <div class="status-dot dot-idle"></div><span class="status-label label-idle" style="font-size:9px;letter-spacing:.08em;">idle</span>
+              </div>
+            </div>
+
+            <!-- connector -->
+            <svg width="2" height="32" style="display:block;overflow:visible;">
+              <line id="demo-conn" x1="1" y1="0" x2="1" y2="32" stroke="oklch(35% 0.06 255)" stroke-width="2"/>
+            </svg>
+
+            <!-- target node — state changes here -->
+            <div style="position:relative;">
+              <!-- breakpoint badge -->
+              <div id="bp-badge" style="
+                position:absolute; top:-10px; right:-10px; z-index:10;
+                width:20px; height:20px; border-radius:50%;
+                background: oklch(62% 0.18 25);
+                border: 2px solid var(--bg3);
+                display:none; align-items:center; justify-content:center;
+                font-size:9px; font-weight:700; color:#fff;
+                box-shadow: 0 0 8px oklch(62% 0.18 25);
+              ">●</div>
+              <!-- disabled badge -->
+              <div id="dis-badge" style="
+                position:absolute; top:-10px; right:-10px; z-index:10;
+                width:20px; height:20px; border-radius:50%;
+                background: oklch(35% 0.05 255);
+                border: 2px solid var(--bg3);
+                display:none; align-items:center; justify-content:center;
+                font-size:10px; color:oklch(55% 0.08 255);
+              ">⊘</div>
+
+              <div class="demo-node-wrap" id="demo-node" style="
+                border-radius:10px;overflow:hidden;width:168px;
+                background:var(--c-action-bg);
+                border:1px solid oklch(30% 0.06 155);
+                box-shadow:0 4px 16px rgba(0,0,0,.4);
+                transition:all .3s;
+              ">
+                <div id="demo-header" style="padding:9px 12px 7px;display:flex;align-items:center;gap:7px;background:oklch(18% 0.06 155);border-bottom:1px solid rgba(255,255,255,.07);transition:background .3s;">
+                  <span id="demo-type-pill" style="font-size:9px;font-weight:700;letter-spacing:.07em;background:oklch(62% 0.14 155);color:oklch(10% 0.04 155);padding:2px 7px;border-radius:100px;transition:all .3s;">Action</span>
+                </div>
+                <div id="demo-title" style="padding:9px 12px 5px;font-size:13px;font-weight:600;transition:all .3s;">Action_Move</div>
+                <div style="padding:0 12px 8px;font-size:10px;color:var(--text3);">Movement · #2</div>
+                <div style="padding:5px 12px 8px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:3px;">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:rgba(255,255,255,.35)">speed</span><span id="demo-param" style="color:rgba(255,255,255,.75);font-family:'IBM Plex Mono',monospace;">3.5</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:rgba(255,255,255,.35)">target</span><span style="color:rgba(255,255,255,.75);font-family:'IBM Plex Mono',monospace;">EnemyTarget</span></div>
+                </div>
+                <div id="demo-footer" style="padding:6px 10px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:6px;transition:all .3s;">
+                  <div id="demo-dot" class="status-dot dot-idle"></div>
+                  <span id="demo-status" class="status-label label-idle" style="font-size:9px;letter-spacing:.08em;">idle</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- state label -->
+          <div id="state-label" style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:3px 10px;">
+            Normal — 기본 상태
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtree disabled demo -->
+      <div>
+        <div class="card-label" style="margin-bottom:12px">비활성화 서브트리 전파 규칙</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:28px 20px;position:relative;overflow:hidden;">
+          <canvas id="sub-grid" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;">
+
+            <!-- Root -->
+            <div style="background:var(--c-composite-bg);border:1px solid oklch(30% 0.06 255);border-radius:9px;width:150px;padding:8px 11px 7px;margin-bottom:0;">
+              <div style="font-size:9px;font-weight:700;color:oklch(62% 0.14 255);letter-spacing:.07em;margin-bottom:3px;">COMPOSITE</div>
+              <div style="font-size:12px;font-weight:600;">Sequence</div>
+            </div>
+            <svg width="120" height="28" style="overflow:visible;display:block;">
+              <line x1="60" y1="0" x2="20" y2="28" stroke="oklch(35% 0.06 255)" stroke-width="1.5"/>
+              <line x1="60" y1="0" x2="100" y2="28" stroke="oklch(35% 0.06 255)" stroke-width="1.5"/>
+            </svg>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <!-- Normal child -->
+              <div style="background:var(--c-condition-bg);border:1px solid oklch(30% 0.06 55);border-radius:9px;width:120px;padding:8px 11px 7px;">
+                <div style="font-size:9px;font-weight:700;color:oklch(62% 0.14 55);letter-spacing:.07em;margin-bottom:3px;">CONDITION</div>
+                <div style="font-size:11px;font-weight:600;">HasTarget</div>
+                <div style="font-size:9px;color:var(--text3);margin-top:4px;">✓ 활성</div>
+              </div>
+
+              <!-- Disabled subtree root -->
+              <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+                <div style="
+                  background:oklch(14% 0.02 255);
+                  border:1.5px dashed oklch(28% 0.05 255);
+                  border-radius:9px;width:120px;padding:8px 11px 7px;
+                  opacity:0.55;
+                  position:relative;
+                ">
+                  <div style="position:absolute;top:-8px;right:-8px;width:17px;height:17px;border-radius:50%;background:oklch(35% 0.05 255);border:2px solid var(--bg3);display:flex;align-items:center;justify-content:center;font-size:10px;color:oklch(55% 0.08 255);opacity:1;">⊘</div>
+                  <div style="font-size:9px;font-weight:700;color:oklch(40% 0.06 255);letter-spacing:.07em;margin-bottom:3px;">COMPOSITE</div>
+                  <div style="font-size:11px;font-weight:600;color:oklch(45% 0.06 255);">Selector</div>
+                  <div style="font-size:9px;color:oklch(35% 0.05 255);margin-top:4px;">⊘ 비활성</div>
+                </div>
+                <svg width="80" height="24" style="overflow:visible;display:block;opacity:0.35;">
+                  <line x1="40" y1="0" x2="16" y2="24" stroke="oklch(35% 0.06 255)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                  <line x1="40" y1="0" x2="64" y2="24" stroke="oklch(35% 0.06 255)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                </svg>
+                <div style="display:flex;gap:8px;">
+                  <div style="background:oklch(13% 0.01 155);border:1px dashed oklch(25% 0.04 155);border-radius:7px;width:56px;padding:6px 8px;opacity:0.45;">
+                    <div style="font-size:8px;color:oklch(35% 0.05 155);font-weight:700;margin-bottom:2px;">ACTION</div>
+                    <div style="font-size:10px;font-weight:600;color:oklch(40% 0.06 255);">Attack</div>
+                  </div>
+                  <div style="background:oklch(13% 0.01 55);border:1px dashed oklch(25% 0.04 55);border-radius:7px;width:56px;padding:6px 8px;opacity:0.45;">
+                    <div style="font-size:8px;color:oklch(35% 0.05 55);font-weight:700;margin-bottom:2px;">ACTION</div>
+                    <div style="font-size:10px;font-weight:600;color:oklch(40% 0.06 255);">Idle</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation">부모 비활성화 시 자식 노드 전체가 dashed border + opacity 0.45 로 전파</div>
+      </div>
+    </div>
+
+    <!-- Spec cards -->
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div>
+        <div class="card-label" style="margin-bottom:14px">중단점 (Breakpoint) 상태 스펙</div>
+        <div class="rule-list">
+          <div class="rule-item" style="border-left:2px solid oklch(62% 0.18 25);">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>시각 — 빨간 원형 배지 (우상단)</h4>
+              <p>노드 우상단에 지름 20px 빨간 원. 배지 자체에 약한 glow 추가. 노드 테두리는 평소 색 유지 — 배지만으로 충분히 구분됨.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(62% 0.18 25);">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>중단점 Hit — 테두리 펄스 + 일시정지</h4>
+              <p>런타임 중 해당 노드에 실행이 도달하면 노드 테두리가 빨간 glow로 펄스. 에디터 상단에 "⏸ Breakpoint Hit — Action_Move #2" 배너 표시.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(62% 0.18 25);">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>조건부 중단점 지원</h4>
+              <p>배지 우클릭 → "조건 설정" 팝업. 예: speed &gt; 5.0일 때만 중단. 조건이 설정된 배지는 내부에 "?" 표시로 구분.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(62% 0.18 25);">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>F9 토글 / 우클릭 컨텍스트 메뉴</h4>
+              <p>노드 선택 후 F9로 즉시 중단점 토글. 우클릭 메뉴에도 "중단점 추가/제거" 항목. 툴바에 전체 중단점 목록 버튼.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:14px">비활성화 (Disabled) 상태 스펙</div>
+        <div class="rule-list">
+          <div class="rule-item" style="border-left:2px solid oklch(40% 0.06 255);">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>시각 — ⊘ 배지 + opacity 0.45 + 점선 테두리</h4>
+              <p>Disabled 노드는 테두리를 dashed로 변경, opacity 0.45 적용, 우상단 ⊘ 회색 배지 표시. 연결선도 동일하게 dimmed + dashed 처리.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(40% 0.06 255);">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>서브트리 전파</h4>
+              <p>Composite 노드를 비활성화하면 자식 전체에 Inherited-Disabled 상태 전파. 자식은 직접 비활성화와 달리 배지 없이 opacity만 적용 — 출처 구분.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(40% 0.06 255);">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>D키 토글 / 인스펙터 체크박스</h4>
+              <p>노드 선택 후 D키로 즉시 토글. 인스펙터 상단에 "Enabled" 체크박스 상시 노출. 비활성 노드는 런타임에 완전히 스킵, 부모는 해당 자식이 없는 것처럼 동작.</p>
+            </div>
+          </div>
+          <div class="rule-item" style="border-left:2px solid oklch(40% 0.06 255);">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>비활성 노드 필터 뷰</h4>
+              <p>툴바 "⊘ Show Disabled" 토글로 비활성 노드만 강조 표시. 대형 트리에서 비활성 노드를 빠르게 감사하거나 일괄 활성화 가능.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakpoint hit banner mockup -->
+    <div>
+      <div class="card-label" style="margin-bottom:12px">중단점 Hit 배너 목업</div>
+      <div style="position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <!-- editor area (dimmed) -->
+        <div style="background:oklch(10% 0.02 255 / 0.8);height:64px;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:12px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">… 에디터 캔버스 (실행 일시정지 중) …</span>
+        </div>
+        <!-- banner overlay -->
+        <div style="
+          position:absolute;top:0;left:0;right:0;
+          background:oklch(18% 0.08 25);
+          border-bottom:2px solid oklch(55% 0.18 25);
+          padding:10px 20px;
+          display:flex;align-items:center;gap:14px;
+        ">
+          <div style="width:10px;height:10px;border-radius:50%;background:oklch(62% 0.18 25);box-shadow:0 0 8px oklch(62% 0.18 25);flex-shrink:0;animation:bpPulse 1s ease-in-out infinite;"></div>
+          <span style="font-size:13px;font-weight:600;color:oklch(80% 0.14 25);">⏸ Breakpoint Hit</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(60% 0.10 25);">Action_Move · #2 · frame 1482</span>
+          <div style="flex:1;"></div>
+          <div style="display:flex;gap:8px;">
+            <div style="padding:4px 14px;border-radius:5px;background:oklch(62% 0.18 25);color:oklch(10% 0.04 25);font-size:12px;font-weight:600;cursor:pointer;">▶ Continue</div>
+            <div style="padding:4px 14px;border-radius:5px;background:oklch(18% 0.06 255);border:1px solid oklch(35% 0.10 255);color:oklch(70% 0.12 255);font-size:12px;cursor:pointer;">Step Over</div>
+            <div style="padding:4px 14px;border-radius:5px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;">✕ Stop</div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">중단점 도달 시 캔버스 위 고정 배너 — Continue / Step Over / Stop 액션 제공</div>
+    </div>
+  </div>
+
+  <!-- ═══ 12 COMPACT NODE SIZE ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <div>
+        <h2>노드 크기 최적화 — Compact Design</h2>
+        <div class="section-sub">Behavior Designer 레퍼런스 기준 · Unity IMGUI 환경 특화</div>
+      </div>
+    </div>
+
+    <!-- Size comparison interactive -->
+    <div style="margin-bottom:24px;">
+      <div class="card-label" style="margin-bottom:12px">크기 단계 비교 — 슬라이더로 조절</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px 24px;position:relative;overflow:hidden;">
+        <canvas id="sz-grid" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+        <div style="position:relative;z-index:1;">
+
+          <!-- Size slider -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;">
+            <span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap;">Compact</span>
+            <input id="size-slider" type="range" min="0" max="2" step="1" value="1" style="flex:1;accent-color:oklch(62% 0.14 255);cursor:pointer;" oninput="updateNodeSize(this.value)">
+            <span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap;">Full Detail</span>
+            <span id="size-label" style="font-size:11px;color:var(--accent);font-family:'IBM Plex Mono',monospace;width:100px;text-align:right;">Medium</span>
+          </div>
+
+          <!-- Node row -->
+          <div style="display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;">
+
+            <!-- Composite node -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div id="sz-composite" class="sz-node" style="
+                background:var(--c-composite-bg);
+                border:1px solid oklch(30% 0.06 255);
+                border-radius:8px;
+                width:120px;
+                transition:all .25s cubic-bezier(.4,0,.2,1);
+                overflow:hidden;
+              ">
+                <div id="sz-composite-header" style="
+                  background:oklch(18% 0.06 255);
+                  border-bottom:1px solid rgba(255,255,255,.07);
+                  display:flex;align-items:center;gap:6px;
+                  padding:6px 9px;
+                  transition:all .25s;
+                ">
+                  <div id="sz-composite-icon" style="
+                    width:16px;height:16px;border-radius:3px;
+                    background:oklch(62% 0.14 255);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:9px;font-weight:700;color:oklch(10% 0.04 255);
+                    flex-shrink:0;transition:all .25s;
+                  ">→</div>
+                  <span id="sz-composite-pill" style="font-size:9px;font-weight:700;letter-spacing:.06em;color:oklch(62% 0.14 255);transition:all .25s;">SEQ</span>
+                </div>
+                <div id="sz-composite-body" style="padding:7px 9px 6px;transition:all .25s;">
+                  <div id="sz-composite-name" style="font-size:12px;font-weight:600;transition:all .25s;">Sequence</div>
+                  <div id="sz-composite-meta" style="font-size:9px;color:var(--text3);margin-top:2px;font-family:'IBM Plex Mono',monospace;transition:all .25s;">Composite · #0</div>
+                </div>
+                <div id="sz-composite-params" style="display:none;padding:6px 9px 7px;border-top:1px solid rgba(255,255,255,.06);">
+                  <div style="display:flex;justify-content:space-between;font-size:9px;"><span style="color:rgba(255,255,255,.35)">children</span><span style="color:rgba(255,255,255,.7);font-family:'IBM Plex Mono',monospace;">3</span></div>
+                </div>
+                <div id="sz-composite-status" style="padding:4px 9px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px;transition:all .25s;">
+                  <div style="width:5px;height:5px;border-radius:50%;background:var(--status-idle);"></div>
+                  <span style="font-size:8px;letter-spacing:.07em;color:var(--status-idle);">IDLE</span>
+                </div>
+              </div>
+              <span style="font-size:10px;color:var(--text3)">Composite</span>
+            </div>
+
+            <!-- Action node -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div id="sz-action" class="sz-node" style="
+                background:var(--c-action-bg);
+                border:1px solid oklch(30% 0.06 155);
+                border-radius:8px;width:120px;
+                transition:all .25s cubic-bezier(.4,0,.2,1);overflow:hidden;
+                box-shadow:0 0 0 1.5px oklch(72% 0.18 145),0 4px 20px oklch(20% 0.12 145);
+              ">
+                <div id="sz-action-header" style="
+                  background:oklch(18% 0.06 155);border-bottom:1px solid rgba(255,255,255,.07);
+                  display:flex;align-items:center;gap:6px;padding:6px 9px;transition:all .25s;
+                ">
+                  <div id="sz-action-icon" style="
+                    width:16px;height:16px;border-radius:3px;background:oklch(62% 0.14 155);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:9px;font-weight:700;color:oklch(10% 0.04 155);flex-shrink:0;transition:all .25s;
+                  ">▶</div>
+                  <span id="sz-action-pill" style="font-size:9px;font-weight:700;letter-spacing:.06em;color:oklch(62% 0.14 155);transition:all .25s;">ACT</span>
+                </div>
+                <div id="sz-action-body" style="padding:7px 9px 6px;transition:all .25s;">
+                  <div id="sz-action-name" style="font-size:12px;font-weight:600;transition:all .25s;">Action_Move</div>
+                  <div id="sz-action-meta" style="font-size:9px;color:var(--text3);margin-top:2px;font-family:'IBM Plex Mono',monospace;transition:all .25s;">Action · #2</div>
+                </div>
+                <div id="sz-action-params" style="display:none;padding:6px 9px 7px;border-top:1px solid rgba(255,255,255,.06);">
+                  <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:3px;"><span style="color:rgba(255,255,255,.35)">speed</span><span style="color:rgba(255,255,255,.7);font-family:'IBM Plex Mono',monospace;">3.5</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:9px;"><span style="color:rgba(255,255,255,.35)">target</span><span style="color:rgba(255,255,255,.7);font-family:'IBM Plex Mono',monospace;">EnemyTarget</span></div>
+                </div>
+                <div id="sz-action-status" style="padding:4px 9px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px;transition:all .25s;">
+                  <div style="width:5px;height:5px;border-radius:50%;background:var(--status-running);box-shadow:0 0 5px var(--status-running);"></div>
+                  <span style="font-size:8px;letter-spacing:.07em;color:var(--status-running);">RUNNING</span>
+                </div>
+              </div>
+              <span style="font-size:10px;color:var(--text3)">Action (Running)</span>
+            </div>
+
+            <!-- Condition node -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div id="sz-condition" class="sz-node" style="
+                background:var(--c-condition-bg);border:1px solid oklch(30% 0.06 55);
+                border-radius:8px;width:120px;
+                transition:all .25s cubic-bezier(.4,0,.2,1);overflow:hidden;
+              ">
+                <div id="sz-condition-header" style="
+                  background:oklch(18% 0.06 55);border-bottom:1px solid rgba(255,255,255,.07);
+                  display:flex;align-items:center;gap:6px;padding:6px 9px;transition:all .25s;
+                ">
+                  <div id="sz-condition-icon" style="
+                    width:16px;height:16px;border-radius:3px;background:oklch(62% 0.14 55);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:10px;font-weight:700;color:oklch(10% 0.04 55);flex-shrink:0;transition:all .25s;
+                  ">?</div>
+                  <span id="sz-condition-pill" style="font-size:9px;font-weight:700;letter-spacing:.06em;color:oklch(62% 0.14 55);transition:all .25s;">CND</span>
+                </div>
+                <div id="sz-condition-body" style="padding:7px 9px 6px;transition:all .25s;">
+                  <div id="sz-condition-name" style="font-size:12px;font-weight:600;transition:all .25s;">HasTarget</div>
+                  <div id="sz-condition-meta" style="font-size:9px;color:var(--text3);margin-top:2px;font-family:'IBM Plex Mono',monospace;transition:all .25s;">Condition · #4</div>
+                </div>
+                <div id="sz-condition-params" style="display:none;padding:6px 9px 7px;border-top:1px solid rgba(255,255,255,.06);">
+                  <div style="display:flex;justify-content:space-between;font-size:9px;"><span style="color:rgba(255,255,255,.35)">expected</span><span style="color:rgba(255,255,255,.7);font-family:'IBM Plex Mono',monospace;">true</span></div>
+                </div>
+                <div id="sz-condition-status" style="padding:4px 9px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px;transition:all .25s;">
+                  <div style="width:5px;height:5px;border-radius:50%;background:var(--status-failure);"></div>
+                  <span style="font-size:8px;letter-spacing:.07em;color:var(--status-failure);">FAILURE</span>
+                </div>
+              </div>
+              <span style="font-size:10px;color:var(--text3)">Condition (Failure)</span>
+            </div>
+
+            <!-- Decorator node -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div id="sz-decorator" class="sz-node" style="
+                background:var(--c-decorator-bg);border:1px solid oklch(30% 0.06 310);
+                border-radius:8px;width:120px;
+                transition:all .25s cubic-bezier(.4,0,.2,1);overflow:hidden;
+              ">
+                <div id="sz-decorator-header" style="
+                  background:oklch(18% 0.06 310);border-bottom:1px solid rgba(255,255,255,.07);
+                  display:flex;align-items:center;gap:6px;padding:6px 9px;transition:all .25s;
+                ">
+                  <div id="sz-decorator-icon" style="
+                    width:16px;height:16px;border-radius:3px;background:oklch(62% 0.14 310);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:10px;font-weight:700;color:oklch(10% 0.04 310);flex-shrink:0;transition:all .25s;
+                  ">↺</div>
+                  <span id="sz-decorator-pill" style="font-size:9px;font-weight:700;letter-spacing:.06em;color:oklch(62% 0.14 310);transition:all .25s;">DEC</span>
+                </div>
+                <div id="sz-decorator-body" style="padding:7px 9px 6px;transition:all .25s;">
+                  <div id="sz-decorator-name" style="font-size:12px;font-weight:600;transition:all .25s;">Inverter</div>
+                  <div id="sz-decorator-meta" style="font-size:9px;color:var(--text3);margin-top:2px;font-family:'IBM Plex Mono',monospace;transition:all .25s;">Decorator · #6</div>
+                </div>
+                <div id="sz-decorator-params" style="display:none;padding:6px 9px 7px;border-top:1px solid rgba(255,255,255,.06);">
+                  <div style="display:flex;justify-content:space-between;font-size:9px;"><span style="color:rgba(255,255,255,.35)">abort</span><span style="color:rgba(255,255,255,.7);font-family:'IBM Plex Mono',monospace;">None</span></div>
+                </div>
+                <div id="sz-decorator-status" style="padding:4px 9px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px;transition:all .25s;">
+                  <div style="width:5px;height:5px;border-radius:50%;background:var(--status-idle);"></div>
+                  <span style="font-size:8px;letter-spacing:.07em;color:var(--status-idle);">IDLE</span>
+                </div>
+              </div>
+              <span style="font-size:10px;color:var(--text3)">Decorator</span>
+            </div>
+
+          </div><!-- /node row -->
+
+          <!-- Dimension readout -->
+          <div style="display:flex;justify-content:center;gap:32px;margin-top:24px;">
+            <div style="text-align:center;">
+              <div id="sz-readout-w" style="font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--accent);">120</div>
+              <div style="font-size:10px;color:var(--text3)">Width (px)</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="sz-readout-h" style="font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--accent);">~52</div>
+              <div style="font-size:10px;color:var(--text3)">Height (px, est.)</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="sz-readout-params" style="font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--accent);">off</div>
+              <div style="font-size:10px;color:var(--text3)">Params 표시</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="sz-readout-meta" style="font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--accent);">on</div>
+              <div style="font-size:10px;color:var(--text3)">카테고리/인덱스</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOD tiers spec -->
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="card" style="border-color:oklch(30% 0.08 255)">
+        <div class="card-label" style="color:oklch(62% 0.14 255)">Tier 0 — Chip (줌 &lt; 50%)</div>
+        <h3>100 × 28px</h3>
+        <br>
+        <p style="font-size:13px;color:var(--text2);">타입 아이콘 심볼 + 이름만 표시. 모든 상세 정보 숨김. 색상 배경으로만 타입 구분. 트리 전체 구조 파악용.</p>
+        <br>
+        <!-- chip preview -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:5px;background:var(--c-composite-bg);border:1px solid oklch(30% 0.06 255);border-radius:5px;padding:4px 8px;width:fit-content;">
+            <span style="font-size:10px;color:oklch(62% 0.14 255);font-weight:700;">→</span>
+            <span style="font-size:10px;font-weight:600;">Sequence</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;background:var(--c-action-bg);border:1px solid oklch(30% 0.06 155);border-radius:5px;padding:4px 8px;width:fit-content;box-shadow:0 0 0 1px oklch(72% 0.18 145);">
+            <span style="font-size:10px;color:oklch(62% 0.14 155);font-weight:700;">▶</span>
+            <span style="font-size:10px;font-weight:600;">Action_Move</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;background:var(--c-condition-bg);border:1px solid oklch(30% 0.06 55);border-radius:5px;padding:4px 8px;width:fit-content;">
+            <span style="font-size:10px;color:oklch(62% 0.14 55);font-weight:700;">?</span>
+            <span style="font-size:10px;font-weight:600;">HasTarget</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:oklch(30% 0.08 155)">
+        <div class="card-label" style="color:oklch(62% 0.14 155)">Tier 1 — Default (줌 50–150%) ★</div>
+        <h3>120 × 52px</h3>
+        <br>
+        <p style="font-size:13px;color:var(--text2);">아이콘 + 약어 타입 + 이름 + 카테고리/인덱스 + 상태바. 파라미터 없음 — 인스펙터 패널에 위임. <strong>기본 작업 단위.</strong></p>
+        <br>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+          header: 28px<br>
+          name: 20px<br>
+          meta: 16px<br>
+          status: 16px<br>
+          <span style="color:var(--accent)">total: ~80px</span>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:oklch(30% 0.08 55)">
+        <div class="card-label" style="color:oklch(62% 0.14 55)">Tier 2 — Expanded (줌 &gt; 150%)</div>
+        <h3>160 × auto</h3>
+        <br>
+        <p style="font-size:13px;color:var(--text2);">Tier 1 + 파라미터 영역 추가. 파라미터는 key/value 쌍으로 최대 4개. 이상은 "…+N more" 로 접기. 고해상도 모니터나 세부 편집 시.</p>
+        <br>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+          + params: 14px × N<br>
+          max params shown: 4<br>
+          <span style="color:var(--accent)">total: ~100–130px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMGUI implementation -->
+    <div class="grid-2">
+      <div>
+        <div class="card-label" style="margin-bottom:14px">Unity IMGUI 구현 — 핵심 치수</div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+          <div style="padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">NodeLayout.cs · GUIStyle 정의</div>
+          <div style="padding:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.9;color:var(--text2);">
+            <div><span style="color:oklch(62% 0.14 255)">// Tier 1 기본 치수</span></div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">NodeWidth</span>   = <span style="color:oklch(62% 0.14 155)">120</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">HeaderH</span>    = <span style="color:oklch(62% 0.14 155)">26</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">BodyH</span>       = <span style="color:oklch(62% 0.14 155)">34</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">StatusBarH</span>  = <span style="color:oklch(62% 0.14 155)">16</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">ParamRowH</span>   = <span style="color:oklch(62% 0.14 155)">14</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const int</span> <span style="color:var(--text)">IconSize</span>    = <span style="color:oklch(62% 0.14 155)">14</span>;</div>
+            <div>&nbsp;</div>
+            <div><span style="color:oklch(62% 0.14 255)">// LOD 전환 줌 임계값</span></div>
+            <div><span style="color:oklch(62% 0.14 55)">const float</span> <span style="color:var(--text)">ZoomChip</span>    = <span style="color:oklch(62% 0.14 155)">0.5f</span>;</div>
+            <div><span style="color:oklch(62% 0.14 55)">const float</span> <span style="color:var(--text)">ZoomExpanded</span>= <span style="color:oklch(62% 0.14 155)">1.5f</span>;</div>
+            <div>&nbsp;</div>
+            <div><span style="color:oklch(62% 0.14 255)">// 현재 줌에 따라 높이 계산</span></div>
+            <div><span style="color:oklch(62% 0.14 55)">int</span> <span style="color:var(--text)">GetNodeHeight</span>(<span style="color:oklch(62% 0.14 55)">float</span> zoom, <span style="color:oklch(62% 0.14 55)">int</span> paramCount) {</div>
+            <div>&nbsp;&nbsp;<span style="color:oklch(62% 0.14 255)">if</span> (zoom &lt; ZoomChip) <span style="color:oklch(62% 0.14 255)">return</span> <span style="color:oklch(62% 0.14 155)">26</span>;</div>
+            <div>&nbsp;&nbsp;<span style="color:oklch(62% 0.14 55)">var</span> h = HeaderH + BodyH + StatusBarH;</div>
+            <div>&nbsp;&nbsp;<span style="color:oklch(62% 0.14 255)">if</span> (zoom &gt; ZoomExpanded)</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;h += Mathf.Min(paramCount, <span style="color:oklch(62% 0.14 155)">4</span>) * ParamRowH + <span style="color:oklch(62% 0.14 155)">8</span>;</div>
+            <div>&nbsp;&nbsp;<span style="color:oklch(62% 0.14 255)">return</span> h;</div>
+            <div>}</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:14px">설계 원칙 — 왜 Compact인가</div>
+        <div class="rule-list">
+          <div class="rule-item">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>파라미터는 인스펙터 전담</h4>
+              <p>노드 클릭 시 좌측 인스펙터에 전체 파라미터 표시. 노드 자체엔 파라미터 없이 이름만 — 캔버스 밀도를 극적으로 줄임.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>타입은 심볼로, 텍스트 최소화</h4>
+              <p>→ Sequence, ? Condition, ▶ Action, ↺ Decorator. 3자리 약어(SEQ/ACT/CND/DEC)와 함께 사용. 폰트 크기 9px로 최소화.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>줌 기반 LOD (Level of Detail)</h4>
+              <p>줌 50% 미만 → Chip 모드(이름만). 50–150% → Default(아이콘+이름+상태). 150% 이상 → Expanded(파라미터 추가). IMGUI Matrix.TRS로 전체 캔버스 스케일.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>고정 너비, 가변 높이</h4>
+              <p>노드 너비는 고정(Tier별 100/120/160px). 높이만 LOD와 파라미터 수에 따라 자동 계산. IMGUI Rect 레이아웃이 예측 가능해짐.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 10 MINIMAP ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <div>
+        <h2>미니맵 오버레이</h2>
+        <div class="section-sub">대형 트리 탐색 — 뷰포트 위치 파악 + 클릭 이동</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card-label" style="margin-bottom:12px">인터랙티브 미니맵 목업</div>
+        <!-- Full editor mockup with minimap -->
+        <div style="position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);height:380px;overflow:hidden;">
+          <canvas id="editor-grid" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+
+          <!-- Dummy tree nodes scattered around -->
+          <div style="position:absolute;left:120px;top:40px" class="dummy-node bg-composite">Entry</div>
+          <div style="position:absolute;left:80px;top:120px" class="dummy-node bg-composite">Selector</div>
+          <div style="position:absolute;left:220px;top:120px" class="dummy-node bg-decorator">Inverter</div>
+          <div style="position:absolute;left:30px;top:200px" class="dummy-node bg-condition">HasHP</div>
+          <div style="position:absolute;left:130px;top:200px" class="dummy-node bg-action">Flee</div>
+          <div style="position:absolute;left:200px;top:200px" class="dummy-node bg-condition">HasTarget</div>
+          <div style="position:absolute;left:300px;top:200px" class="dummy-node bg-action">Attack</div>
+          <div style="position:absolute;left:60px;top:290px" class="dummy-node bg-action">PlayHurt</div>
+          <div style="position:absolute;left:180px;top:290px" class="dummy-node bg-action" style="box-shadow:0 0 0 1.5px oklch(72% 0.18 145)">MoveToTarget</div>
+
+          <!-- SVG connections -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+            <path d="M148 58 C148 88 108 100 108 122" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <path d="M148 58 C148 88 248 100 248 122" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <path d="M108 140 C108 165 58 182 58 202" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <path d="M108 140 C108 165 158 182 158 202" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <path d="M248 140 C248 165 228 182 228 202" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <path d="M248 140 C248 165 328 182 328 202" stroke="oklch(40% 0.08 255)" stroke-width="1.5" fill="none"/>
+            <!-- running path -->
+            <path d="M228 220 C228 250 208 272 208 292" stroke="oklch(72% 0.18 145)" stroke-width="2" fill="none" filter="url(#mm-glow)"/>
+            <defs><filter id="mm-glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+          </svg>
+
+          <!-- Viewport indicator on canvas -->
+          <div id="viewport-box" style="
+            position:absolute; left:60px; top:100px; width:220px; height:150px;
+            border:1.5px solid oklch(62% 0.14 255);
+            background:oklch(62% 0.14 255 / 0.06);
+            border-radius:4px;
+            pointer-events:none;
+          "></div>
+
+          <!-- ── MINIMAP ── -->
+          <div id="minimap" style="
+            position:absolute; right:12px; bottom:12px;
+            width:160px; height:110px;
+            background:oklch(10% 0.02 255 / 0.92);
+            border:1px solid oklch(35% 0.08 255);
+            border-radius:8px;
+            overflow:hidden;
+            cursor:crosshair;
+            box-shadow: 0 4px 24px rgba(0,0,0,.6);
+          " onmousemove="moveMiniViewport(event)" onclick="jumpToPos(event)">
+            <!-- Minimap title -->
+            <div style="padding:4px 8px;background:oklch(14% 0.04 255 / 0.9);border-bottom:1px solid oklch(25% 0.06 255);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:oklch(50% 0.08 255);font-family:'IBM Plex Mono',monospace;">Minimap</span>
+              <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">Q</span>
+            </div>
+            <!-- Minimap content: scaled-down tree -->
+            <div style="position:relative;width:100%;height:calc(100% - 22px);overflow:hidden;">
+              <svg width="160" height="88" viewBox="0 0 420 360" style="position:absolute;inset:0;">
+                <!-- connections -->
+                <path d="M148 58 C148 88 108 100 108 122" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M148 58 C148 88 248 100 248 122" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M108 140 C108 165 58 182 58 202" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M108 140 C108 165 158 182 158 202" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M248 140 C248 165 228 182 228 202" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M248 140 C248 165 328 182 328 202" stroke="oklch(35% 0.06 255)" stroke-width="3" fill="none"/>
+                <path d="M228 220 C228 250 208 272 208 292" stroke="oklch(72% 0.18 145)" stroke-width="4" fill="none" opacity="0.9"/>
+                <!-- nodes as dots -->
+                <rect x="128" y="46" width="40" height="22" rx="3" fill="oklch(30% 0.06 255)"/>
+                <rect x="88" y="110" width="40" height="22" rx="3" fill="oklch(30% 0.06 255)"/>
+                <rect x="228" y="110" width="40" height="22" rx="3" fill="oklch(28% 0.05 310)"/>
+                <rect x="38" y="190" width="40" height="22" rx="3" fill="oklch(28% 0.05 55)"/>
+                <rect x="138" y="190" width="40" height="22" rx="3" fill="oklch(28% 0.05 155)"/>
+                <rect x="208" y="190" width="40" height="22" rx="3" fill="oklch(28% 0.05 55)"/>
+                <rect x="308" y="190" width="40" height="22" rx="3" fill="oklch(28% 0.05 155)"/>
+                <rect x="40" y="280" width="40" height="22" rx="3" fill="oklch(28% 0.05 155)"/>
+                <rect x="188" y="280" width="40" height="22" rx="3" fill="oklch(28% 0.12 145)" filter="url(#mm-glow)"/>
+                <!-- group boxes -->
+                <rect x="10" y="170" width="200" height="150" rx="6" fill="oklch(14% 0.03 155 / 0.4)" stroke="oklch(35% 0.08 155)" stroke-width="2"/>
+                <rect x="220" y="170" width="160" height="150" rx="6" fill="oklch(14% 0.03 25 / 0.4)" stroke="oklch(35% 0.08 25)" stroke-width="2"/>
+                <!-- viewport rect on minimap -->
+                <rect id="mm-viewport" x="50" y="88" width="130" height="108" rx="3" fill="oklch(62% 0.14 255 / 0.12)" stroke="oklch(62% 0.14 255)" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Minimap toggle hint -->
+          <div style="position:absolute;right:12px;top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">
+            Q — 미니맵 토글
+          </div>
+        </div>
+        <div class="annotation">미니맵 클릭/드래그로 뷰포트 이동 · 파란 사각형 = 현재 뷰포트 영역</div>
+      </div>
+
+      <div>
+        <div class="card-label" style="margin-bottom:14px">미니맵 설계 원칙</div>
+        <div class="rule-list">
+          <div class="rule-item">
+            <div class="rule-num">①</div>
+            <div class="rule-content">
+              <h4>고정 오버레이 — 우하단</h4>
+              <p>160×110px 고정 크기. 에디터 레이아웃과 무관하게 항상 캔버스 우하단에 위치. Q키 또는 툴바 버튼으로 토글. 드래그로 위치 변경 가능.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">②</div>
+            <div class="rule-content">
+              <h4>뷰포트 박스</h4>
+              <p>현재 에디터 뷰포트에 해당하는 영역을 파란 반투명 사각형으로 표시. 미니맵 클릭 시 그 위치로 캔버스 즉시 이동.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">③</div>
+            <div class="rule-content">
+              <h4>그룹박스도 미니맵에 표시</h4>
+              <p>그룹 영역을 미니맵에서도 반투명 사각형으로 렌더. 그룹 색상을 그대로 사용해 어느 구역인지 즉각 파악.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">④</div>
+            <div class="rule-content">
+              <h4>런타임 경로 강조</h4>
+              <p>Running 상태 연결선은 미니맵에서도 초록 glow로 표시. 대형 트리에서 현재 실행 중인 구역을 미니맵만으로 파악 가능.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-num">⑤</div>
+            <div class="rule-content">
+              <h4>Fit All 버튼</h4>
+              <p>미니맵 또는 툴바의 [ ] 버튼 클릭 시 전체 트리가 뷰포트에 맞게 자동 줌/이동. 방향을 잃었을 때 즉각 복귀.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;border-color:oklch(30% 0.08 255)">
+          <div class="card-label">Unity 구현 메모</div>
+          <p style="font-size:13px;color:var(--text2);line-height:1.7">미니맵은 별도 <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(70% 0.12 255)">IMGUIContainer</code> 또는 UI Toolkit의 <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(70% 0.12 255)">VisualElement</code>로 구현. 전체 트리의 AABB(Axis-Aligned Bounding Box)를 계산해 미니맵 크기에 맞게 스케일. 클릭 이벤트로 <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:oklch(70% 0.12 255)">graphView.viewTransform</code>을 직접 조작.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<style>
+  .dummy-node {
+    position:absolute;
+    padding:5px 9px;
+    border-radius:7px;
+    font-size:10px;
+    font-weight:600;
+    white-space:nowrap;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .mini-node {
+    font-family:'IBM Plex Sans KR',sans-serif;
+  }
+</style>
+
 <script>
 function showCompare(which, btn) {
   document.querySelectorAll('.compare-panel').forEach(p => p.classList.remove('active'));
@@ -1261,6 +2177,268 @@ function showCompare(which, btn) {
   document.getElementById('compare-' + which).classList.add('active');
   btn.classList.add('active');
 }
+
+// ── Node size slider ──
+const SIZE_TIERS = [
+  {
+    label: 'Compact  (Tier 0 · Chip)',
+    w: 100, h: '~28', params: 'off', meta: 'off',
+    nodeW: '100px', headerPad: '4px 7px', bodyPad: '5px 7px 4px',
+    nameFz: '10px', metaDisplay: 'none', paramsDisplay: 'none',
+    statusPad: '3px 7px', iconW: '13px', iconH: '13px', iconFz: '8px',
+    pillFz: '8px',
+  },
+  {
+    label: 'Default  (Tier 1 · 120px) ★',
+    w: 120, h: '~76', params: 'off', meta: 'on',
+    nodeW: '120px', headerPad: '6px 9px', bodyPad: '7px 9px 6px',
+    nameFz: '12px', metaDisplay: 'block', paramsDisplay: 'none',
+    statusPad: '4px 9px', iconW: '16px', iconH: '16px', iconFz: '9px',
+    pillFz: '9px',
+  },
+  {
+    label: 'Expanded  (Tier 2 · 160px)',
+    w: 160, h: '~110', params: 'on', meta: 'on',
+    nodeW: '160px', headerPad: '8px 12px', bodyPad: '9px 12px 7px',
+    nameFz: '13px', metaDisplay: 'block', paramsDisplay: 'flex',
+    statusPad: '6px 12px', iconW: '18px', iconH: '18px', iconFz: '10px',
+    pillFz: '10px',
+  },
+];
+
+function updateNodeSize(val) {
+  const t = SIZE_TIERS[val];
+  document.getElementById('size-label').textContent = t.label;
+  document.getElementById('sz-readout-w').textContent = t.w;
+  document.getElementById('sz-readout-h').textContent = t.h;
+  document.getElementById('sz-readout-params').textContent = t.params;
+  document.getElementById('sz-readout-meta').textContent = t.meta;
+
+  ['composite','action','condition','decorator'].forEach(type => {
+    const node   = document.getElementById('sz-' + type);
+    const header = document.getElementById('sz-' + type + '-header');
+    const icon   = document.getElementById('sz-' + type + '-icon');
+    const pill   = document.getElementById('sz-' + type + '-pill');
+    const body   = document.getElementById('sz-' + type + '-body');
+    const name   = document.getElementById('sz-' + type + '-name');
+    const meta   = document.getElementById('sz-' + type + '-meta');
+    const params = document.getElementById('sz-' + type + '-params');
+    const status = document.getElementById('sz-' + type + '-status');
+    if (!node) return;
+    node.style.width = t.nodeW;
+    if (header) header.style.padding = t.headerPad;
+    if (icon)   { icon.style.width = t.iconW; icon.style.height = t.iconH; icon.style.fontSize = t.iconFz; }
+    if (pill)   pill.style.fontSize = t.pillFz;
+    if (body)   body.style.padding = t.bodyPad;
+    if (name)   name.style.fontSize = t.nameFz;
+    if (meta)   meta.style.display = t.metaDisplay;
+    if (params) params.style.display = t.paramsDisplay;
+    if (status) status.style.padding = t.statusPad;
+  });
+}
+
+// State tab styling
+const stateTabStyle = document.createElement('style');
+stateTabStyle.textContent = `
+  .state-tab {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text3);
+    transition: all .15s;
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    letter-spacing: .03em;
+  }
+  .state-tab:hover { color: var(--text); border-color: var(--text3); }
+  .state-tab.active { background: var(--accent); color: oklch(10% 0.04 255); border-color: var(--accent); }
+  @keyframes bpPulse {
+    0%,100% { box-shadow: 0 0 6px oklch(62% 0.18 25); }
+    50% { box-shadow: 0 0 16px oklch(72% 0.18 25), 0 0 32px oklch(62% 0.18 25 / 0.5); }
+  }
+  @keyframes bpBorderPulse {
+    0%,100% { box-shadow: 0 0 0 2px oklch(62% 0.18 25), 0 6px 32px rgba(0,0,0,.5); }
+    50% { box-shadow: 0 0 0 3px oklch(72% 0.18 25), 0 0 24px oklch(62% 0.18 25 / 0.6); }
+  }
+`;
+document.head.appendChild(stateTabStyle);
+
+// Node state switcher
+const NODE_STATES = {
+  normal: {
+    label: 'Normal — 기본 상태',
+    nodeStyle: { opacity:'1', border:'1px solid oklch(30% 0.06 155)', background:'var(--c-action-bg)', animation:'none' },
+    headerStyle: { background:'oklch(18% 0.06 155)' },
+    pillStyle: { background:'oklch(62% 0.14 155)', color:'oklch(10% 0.04 155)' },
+    pillText: 'Action',
+    titleStyle: { color:'var(--text)' },
+    dot: 'dot-idle', status: 'idle', statusClass: 'label-idle',
+    bpBadge: false, disBadge: false,
+    connStroke: 'oklch(35% 0.06 255)',
+  },
+  breakpoint: {
+    label: 'Breakpoint — 중단점 설정됨',
+    nodeStyle: { opacity:'1', border:'1px solid oklch(30% 0.06 155)', background:'var(--c-action-bg)', animation:'none' },
+    headerStyle: { background:'oklch(18% 0.06 155)' },
+    pillStyle: { background:'oklch(62% 0.14 155)', color:'oklch(10% 0.04 155)' },
+    pillText: 'Action',
+    titleStyle: { color:'var(--text)' },
+    dot: 'dot-idle', status: 'idle', statusClass: 'label-idle',
+    bpBadge: true, disBadge: false,
+    connStroke: 'oklch(35% 0.06 255)',
+  },
+  hit: {
+    label: 'Breakpoint Hit — 실행 일시정지',
+    nodeStyle: { opacity:'1', border:'2px solid oklch(62% 0.18 25)', background:'oklch(16% 0.05 25)', animation:'bpBorderPulse 1s ease-in-out infinite' },
+    headerStyle: { background:'oklch(20% 0.08 25)' },
+    pillStyle: { background:'oklch(62% 0.18 25)', color:'oklch(10% 0.04 25)' },
+    pillText: 'Action ⏸',
+    titleStyle: { color:'oklch(85% 0.12 25)' },
+    dot: 'dot-failure', status: 'paused', statusClass: 'label-failure',
+    bpBadge: true, disBadge: false,
+    connStroke: 'oklch(50% 0.12 25)',
+  },
+  disabled: {
+    label: 'Disabled — 이 노드만 비활성화',
+    nodeStyle: { opacity:'0.45', border:'1.5px dashed oklch(28% 0.05 255)', background:'oklch(14% 0.02 255)', animation:'none' },
+    headerStyle: { background:'oklch(14% 0.03 255)' },
+    pillStyle: { background:'oklch(35% 0.06 255)', color:'oklch(55% 0.08 255)' },
+    pillText: 'Action',
+    titleStyle: { color:'oklch(50% 0.08 255)' },
+    dot: 'dot-idle', status: 'disabled', statusClass: 'label-idle',
+    bpBadge: false, disBadge: true,
+    connStroke: 'oklch(28% 0.04 255)',
+  },
+  'disabled-subtree': {
+    label: 'Disabled (서브트리) — 부모에 의해 비활성화',
+    nodeStyle: { opacity:'0.38', border:'1px dashed oklch(25% 0.04 255)', background:'oklch(13% 0.01 255)', animation:'none' },
+    headerStyle: { background:'oklch(12% 0.02 255)' },
+    pillStyle: { background:'oklch(28% 0.04 255)', color:'oklch(45% 0.06 255)' },
+    pillText: 'Action',
+    titleStyle: { color:'oklch(42% 0.06 255)' },
+    dot: 'dot-idle', status: 'inherited', statusClass: 'label-idle',
+    bpBadge: false, disBadge: false,
+    connStroke: 'oklch(22% 0.03 255)',
+  },
+};
+
+function setNodeState(state, btn) {
+  document.querySelectorAll('.state-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const s = NODE_STATES[state];
+  if (!s) return;
+
+  const node = document.getElementById('demo-node');
+  const header = document.getElementById('demo-header');
+  const pill = document.getElementById('demo-type-pill');
+  const title = document.getElementById('demo-title');
+  const dot = document.getElementById('demo-dot');
+  const status = document.getElementById('demo-status');
+  const bpBadge = document.getElementById('bp-badge');
+  const disBadge = document.getElementById('dis-badge');
+  const conn = document.getElementById('demo-conn');
+  const lbl = document.getElementById('state-label');
+
+  Object.assign(node.style, s.nodeStyle);
+  Object.assign(header.style, s.headerStyle);
+  Object.assign(pill.style, s.pillStyle);
+  pill.textContent = s.pillText;
+  Object.assign(title.style, s.titleStyle);
+
+  dot.className = 'status-dot ' + s.dot;
+  status.textContent = s.status;
+  status.className = 'status-label ' + s.statusClass;
+
+  bpBadge.style.display = s.bpBadge ? 'flex' : 'none';
+  disBadge.style.display = s.disBadge ? 'flex' : 'none';
+  if (conn) conn.setAttribute('stroke', s.connStroke);
+  if (lbl) lbl.textContent = s.label;
+}
+
+// Draw grid on canvases
+function drawGrid(canvasId, w, h) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 32) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 32) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+}
+
+// Group color cycle
+const GROUP_HUES = [255, 155, 25, 55, 310, 200];
+const hueState = {};
+function cycleGroupColor(id, dot) {
+  hueState[id] = ((hueState[id] || 0) + 1) % GROUP_HUES.length;
+  const h = GROUP_HUES[hueState[id]];
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = `oklch(45% 0.10 ${h})`;
+  el.style.background = `oklch(14% 0.03 ${h} / 0.55)`;
+  const hdr = el.querySelector('.gb-header');
+  if (hdr) { hdr.style.background = `oklch(18% 0.06 ${h} / 0.9)`; hdr.style.borderBottomColor = `oklch(30% 0.08 ${h})`; }
+  const lbl = el.querySelector('.gb-label');
+  if (lbl) lbl.style.color = `oklch(80% 0.10 ${h})`;
+  dot.style.background = `oklch(62% 0.14 ${h})`;
+}
+
+// Edit label
+function editLabel(span) {
+  const old = span.textContent;
+  const inp = document.createElement('input');
+  inp.value = old;
+  inp.style.cssText = 'font-size:inherit;font-weight:inherit;font-family:inherit;background:transparent;border:none;border-bottom:1px solid currentColor;outline:none;color:inherit;width:120px;';
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+  function done() {
+    const s = document.createElement('span');
+    s.className = 'gb-label';
+    s.style.cssText = span.style.cssText;
+    s.setAttribute('ondblclick','editLabel(this)');
+    s.textContent = inp.value || old;
+    inp.replaceWith(s);
+    s.addEventListener('dblclick', () => editLabel(s));
+  }
+  inp.addEventListener('blur', done);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+}
+
+// Minimap interaction
+function moveMiniViewport(e) {
+  // just visual feedback on hover — viewport box tracks mouse loosely
+}
+function jumpToPos(e) {
+  const mm = document.getElementById('minimap');
+  const rect = mm.getBoundingClientRect();
+  const rx = (e.clientX - rect.left) / rect.width;
+  const ry = (e.clientY - rect.top - 22) / (rect.height - 22);
+  // Move viewport box on main canvas
+  const vp = document.getElementById('viewport-box');
+  if (vp) {
+    const canvas = vp.parentElement;
+    const cw = canvas.offsetWidth, ch = canvas.offsetHeight;
+    vp.style.left = Math.max(0, Math.min(cw - 220, rx * cw - 110)) + 'px';
+    vp.style.top  = Math.max(0, Math.min(ch - 150, ry * ch - 75)) + 'px';
+    // Also update minimap viewport rect
+    const mmvp = document.getElementById('mm-viewport');
+    if (mmvp) {
+      mmvp.setAttribute('x', Math.max(0, rx * 420 - 65));
+      mmvp.setAttribute('y', Math.max(0, ry * 360 - 54));
+    }
+  }
+}
+
+window.addEventListener('load', () => {
+  const gc = document.getElementById('group-canvas');
+  if (gc) drawGrid('grid-bg', gc.offsetWidth, gc.offsetHeight);
+  const eg = document.getElementById('editor-grid');
+  if (eg) { const p = eg.parentElement; drawGrid('editor-grid', p.offsetWidth, p.offsetHeight); }
+});
 </script>
 </body>
 </html>

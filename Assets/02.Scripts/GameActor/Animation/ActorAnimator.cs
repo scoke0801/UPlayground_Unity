@@ -484,6 +484,10 @@ namespace UPlayGround.Animation
 
                 Debug.Log($"InfiniteLoopStageIndex: {_infiniteLoopStageIndex}");
             }
+            else
+            {
+                _infiniteLoopElapsed += _actor != null ? _actor.DeltaTime : Time.deltaTime;
+            }
 
             float duration = loopEvt.endTime - loopEvt.startTime;
             if (duration <= 0.0001f)

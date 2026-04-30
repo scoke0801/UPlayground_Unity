@@ -34,8 +34,9 @@ namespace UPlayGround
         {
             base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
             _previousPosition = startPos;
-            _currentSpeed = speed;
+            _currentSpeed = speed > 0f ? speed : _speed;
             _elapsedTime = 0f;
+            _initialScale = transform.localScale;
         }
 
         public void InitLinearProjectile()
@@ -55,6 +56,12 @@ namespace UPlayGround
 
             // 위치 업데이트
             transform.position += finalSpeed * Time.deltaTime * direction;
+
+            if (useSizeCurve)
+            {
+                float scaleRatio = speedCurve.Evaluate(_elapsedTime / lifeTime);
+                transform.localScale = _initialScale * Mathf.Max(0.01f, scaleRatio);
+            }
             
             // 회전 효과
             transform.Rotate(_rotationSpeed * Time.deltaTime, Space.Self);

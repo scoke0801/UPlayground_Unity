@@ -2,21 +2,27 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public class BehaviorTreeInspectorView : VisualElement
     {
         private UnityEditor.Editor _editor;
+        private BTNode _node;
 
-        public BehaviorTreeInspectorView()
+        public BehaviorTreeInspectorView(Action<BTNode> onNodeChanged = null)
         {
+            OnNodeChanged = onNodeChanged;
             style.flexGrow = 1;
         }
+
+        public Action<BTNode> OnNodeChanged { get; set; }
 
         public void UpdateSelection(BTNode node)
         {
             Clear();
+            _node = node;
             if (_editor != null)
                 UnityEngine.Object.DestroyImmediate(_editor);
 
@@ -38,7 +44,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 if (_editor == null)
                     return;
 
+                EditorGUI.BeginChangeCheck();
                 _editor.OnInspectorGUI();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    EditorUtility.SetDirty(_node);
+                    OnNodeChanged?.Invoke(_node);
+                }
             }));
         }
 

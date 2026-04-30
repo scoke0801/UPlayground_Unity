@@ -24,9 +24,6 @@ namespace UPlayGround.Data.Event
         public override string GetDisplayName() => "TimeScale";
         public override string GetShortLabel()  => $"TimeScale: ×{targetTimeScale:F2}";
 
-        // Execute → Release 쌍을 맞추기 위해 id 보관
-        private int _requestId = -1;
-
         public override void Execute(GameObject target)
         {
             float duration = endTime - startTime;

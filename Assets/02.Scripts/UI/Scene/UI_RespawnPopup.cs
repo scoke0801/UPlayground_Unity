@@ -29,6 +29,8 @@ public class UI_RespawnPopup : UI_Base
     private Action _onSpotRevive;
     private Action _onPortalRevive;
 
+    public float SpotHealPercent => _spotHealPercent;
+
     protected override void Awake()
     {
         base.Awake();

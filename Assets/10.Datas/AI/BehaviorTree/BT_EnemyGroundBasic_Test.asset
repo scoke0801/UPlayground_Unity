@@ -13,16 +13,14 @@ MonoBehaviour:
   m_Name: Root_EnemyGroundBasic
   m_EditorClassIdentifier: 
   _guid: root_enemy_ground_basic
-  _displayName: Root_EnemyGroundBasic
-  _comment: "\uD604\uC7AC EnemyBrain\uC758 \uAE30\uBCF8 \uC758\uC0AC\uACB0\uC815\uC744
-    \uD14C\uC2A4\uD2B8\uC6A9 BT\uB85C \uC62E\uAE34 \uB8E8\uD2B8. \uAE30\uC874 Brain\uC744
-    \uB300\uCCB4\uD558\uC9C0 \uC54A\uB294\uB2E4."
-  _editorPosition: {x: 12, y: -181}
+  _displayName: "\uB545\uC5D0\uC788\uB294\uAC00"
+  _comment: 
+  _editorPosition: {x: 12.000026, y: -183.33333}
   _children:
   - {fileID: -3864159759119073498}
   - {fileID: 6096042406183419737}
   _disabled: 0
-  _breakpoint: 0
+  _breakpoint: 1
   _abortType: 2
 --- !u!114 &-8037258016860720280
 MonoBehaviour:
@@ -59,7 +57,7 @@ MonoBehaviour:
   m_Name: Branch_Patrol_WhenEnabled
   m_EditorClassIdentifier: 
   _guid: seq_patrol_when_enabled
-  _displayName: Branch_Patrol_WhenEnabled
+  _displayName: "\uC21C\uCC30\uD560\uAE4C"
   _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
   _editorPosition: {x: 570, y: 764}
   _children:
@@ -81,16 +79,16 @@ MonoBehaviour:
   m_Name: Combat_HasTarget
   m_EditorClassIdentifier: 
   _guid: seq_combat_has_target
-  _displayName: Combat_HasTarget
+  _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00?"
   _comment: "\uD0C0\uAC9F\uC774 \uC788\uC73C\uBA74 \uC804\uD22C \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: -319, y: 118}
+  _editorPosition: {x: -344.00003, y: -1.5999756}
   _children:
   - {fileID: 4987458986752680403}
   - {fileID: 2733662606038583687}
   - {fileID: 4546674035571993911}
   _disabled: 0
-  _breakpoint: 0
+  _breakpoint: 1
   _abortType: 1
 --- !u!114 &-3681586728207117700
 MonoBehaviour:
@@ -126,7 +124,7 @@ MonoBehaviour:
   m_Name: Branch_Attack_WhenSkillAvailable
   m_EditorClassIdentifier: 
   _guid: seq_attack_when_skill_available
-  _displayName: Branch_Attack_WhenSkillAvailable
+  _displayName: "\uACF5\uACA9 \uBC94\uC704 \uCC98\uB9AC"
   _comment: "EnemyCombat.HasAvailableSkillAtDistance\uAC00 true\uBA74 Attack State\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
   _editorPosition: {x: -852.8001, y: 836.2502}
@@ -149,7 +147,7 @@ MonoBehaviour:
   m_Name: Branch_Retreat_WhenTooClose
   m_EditorClassIdentifier: 
   _guid: seq_retreat_when_too_close
-  _displayName: Branch_Retreat_WhenTooClose
+  _displayName: "\uB108\uBB34 \uAC00\uAE4C\uC6B4\uAC00"
   _comment: "personalSpaceDistance\uC640 \uAC19\uC740 0.8m \uC774\uB0B4\uBA74 Retreat
     State\uB85C \uC804\uD658\uD55C\uB2E4."
   _editorPosition: {x: -344.00003, y: 788.50006}
@@ -347,9 +345,9 @@ MonoBehaviour:
   m_Name: Condition_HasTarget
   m_EditorClassIdentifier: 
   _guid: cond_has_target
-  _displayName: Condition_HasTarget
+  _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00"
   _comment: EnemyDetection.HasTarget == true
-  _editorPosition: {x: -319, y: 387}
+  _editorPosition: {x: -344.00003, y: 267.73343}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -431,7 +429,7 @@ MonoBehaviour:
   m_Name: Combat_Decision
   m_EditorClassIdentifier: 
   _guid: sel_combat_decision
-  _displayName: Combat_Decision
+  _displayName: "\uACF5\uACA9 \uACB0\uC815"
   _comment: "\uACF5\uACA9 \uAC00\uB2A5, \uACFC\uADFC\uC811 \uD6C4\uD1F4, \uC6D0\uAC70\uB9AC
     \uCD94\uACA9, \uC804\uD22C Idle \uC21C\uC11C\uB85C \uD310\uB2E8\uD55C\uB2E4."
   _editorPosition: {x: -58, y: 376}
@@ -441,7 +439,7 @@ MonoBehaviour:
   - {fileID: 8124788763858576830}
   - {fileID: -1576442525147340075}
   _disabled: 0
-  _breakpoint: 0
+  _breakpoint: 1
   _abortType: 2
 --- !u!114 &4987458986752680403
 MonoBehaviour:
@@ -456,10 +454,10 @@ MonoBehaviour:
   m_Name: Sync_EnemyBlackboard
   m_EditorClassIdentifier: 
   _guid: act_sync_enemy_blackboard
-  _displayName: Sync_EnemyBlackboard
+  _displayName: "\uBE14\uB799\uBCF4\uB4DC \uB3D9\uAE30\uD654"
   _comment: "EnemyDetection\uACFC ActorMovementController \uAC12\uC744 Blackboard\uC5D0
     \uBCF5\uC0AC\uD55C\uB2E4."
-  _editorPosition: {x: -560, y: 360}
+  _editorPosition: {x: -585.3334, y: 240.40002}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -524,7 +522,7 @@ MonoBehaviour:
   m_Name: Branch_Chase_WhenFar
   m_EditorClassIdentifier: 
   _guid: seq_chase_when_far
-  _displayName: Branch_Chase_WhenFar
+  _displayName: "\uB108\uBB34 \uBA3C\uAC00"
   _comment: "chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uC774\uC0C1\uC774\uBA74 Chase
     State\uB85C \uC804\uD658\uD55C\uB2E4."
   _editorPosition: {x: 15, y: 760}

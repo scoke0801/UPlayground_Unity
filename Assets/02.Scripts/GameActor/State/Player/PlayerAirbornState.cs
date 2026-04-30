@@ -24,6 +24,8 @@ namespace UPlayGround.State
 
         private float _timeSinceJumpRequested = 0f;
         private float _timeSinceLastAbleToJump = 0f;
+        private float _landTimer = 0f;
+        private float _landDuration = 0f;
 
         private float _dragSpeed = 0.1f;
         
@@ -45,7 +47,15 @@ namespace UPlayGround.State
 
             _dragSpeed = controller.Drag;
             _remainingJumps = playerController.MaxJumpCount;
+            _hasLanded = false;
+            _landStarted = false;
+            _hasLeftGround = false;
             _jumpAnimPlayed = false;
+            _fallAnimPlayed = false;
+            _timeSinceJumpRequested = 0f;
+            _timeSinceLastAbleToJump = 0f;
+            _landTimer = 0f;
+            _landDuration = 0f;
 
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
@@ -76,6 +86,16 @@ namespace UPlayGround.State
         {
             _timeSinceLastAbleToJump += deltaTime;
             _timeSinceJumpRequested += deltaTime;
+
+            if (_landStarted)
+            {
+                _landTimer += deltaTime;
+                if (_landTimer >= _landDuration)
+                {
+                    ChangeToNextState();
+                }
+                return;
+            }
 
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
             {
@@ -262,6 +282,10 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
+            if (_hasLanded)
+                return;
+
+            _hasLanded = true;
             _remainingJumps  = 0;
             _timeSinceLastAbleToJump = 0f;
             
@@ -269,9 +293,9 @@ namespace UPlayGround.State
             if (state != null)
             {
                 _landStarted = true;
+                _landTimer = 0f;
+                _landDuration = Mathf.Max(gameActor.Animator.GetMotionSetDuration(AnimKey.Land), 0.01f);
                 _dragSpeed = controller.LandDrag;
-        
-                state.OwnedEvents.OnEnd += ChangeToNextState;
             }
             else
             {

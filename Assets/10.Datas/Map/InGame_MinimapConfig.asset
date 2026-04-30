@@ -33,13 +33,13 @@ MonoBehaviour:
     color: {r: 0, g: 0, b: 0, a: 0}
     size: 8
   questTarget:
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: bb3794a1832b0424fb040216348267d3, type: 3}
     color: {r: 0, g: 0, b: 0, a: 0}
-    size: 8
+    size: 22.4
   questNpc:
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: bb3794a1832b0424fb040216348267d3, type: 3}
     color: {r: 0, g: 0, b: 0, a: 0}
-    size: 1
+    size: 22.1
   town:
     sprite: {fileID: 0}
     color: {r: 1, g: 1, b: 1, a: 1}
@@ -72,6 +72,7 @@ MonoBehaviour:
   backgroundSprite: {fileID: 21300000, guid: f806677421d24864dac5b1301b181121, type: 3}
   captureCenter: {x: 914.76776, y: 905.1387}
   captureWorldSize: 1800
+  captureWorldSizeXY: {x: 0, y: 0}
   mapZoom: 20
   flipX: 0
   flipY: 0

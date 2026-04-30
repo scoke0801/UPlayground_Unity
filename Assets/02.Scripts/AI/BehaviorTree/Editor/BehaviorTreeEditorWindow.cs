@@ -299,7 +299,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var inspectorScroll = new ScrollView();
             inspectorScroll.style.flexGrow = 1;
-            _inspectorView = new BehaviorTreeInspectorView();
+            _inspectorView = new BehaviorTreeInspectorView(OnInspectorNodeChanged);
             inspectorScroll.Add(_inspectorView);
             _inspectorPanel = inspectorScroll;
 
@@ -380,6 +380,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             _inspectorView?.UpdateSelection(node);
             SelectPropertyTab(PropertyTab.Inspector);
+        }
+
+        private void OnInspectorNodeChanged(BTNode node)
+        {
+            _graphView?.RefreshNodeView(node);
+            RefreshGraphTitle();
+            ValidateTree();
         }
 
         private void OnSelectionChanged()

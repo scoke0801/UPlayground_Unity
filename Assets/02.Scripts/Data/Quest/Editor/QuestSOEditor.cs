@@ -127,7 +127,7 @@ namespace UPlayGround.Editor
             InitStyles();
             serializedObject.Update();
 
-            DrawHeader();
+            DrawQuestHeader();
             EditorGUILayout.Space(4);
             DrawBasicInfo();
             EditorGUILayout.Space(4);
@@ -149,7 +149,7 @@ namespace UPlayGround.Editor
 
         // ── 헤더 ─────────────────────────────────────────────────
 
-        private void DrawHeader()
+        private void DrawQuestHeader()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label($"  Quest  [{_questId.stringValue}]", EditorStyles.boldLabel);

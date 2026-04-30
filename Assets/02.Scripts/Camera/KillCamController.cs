@@ -126,10 +126,10 @@ namespace UPlayGround
             }
 
             // ② FOV 줌인 (0.15s EaseIn) + 카메라 오프셋 전환
-            float elapsed = 0f;
             // float zoomInTime = 0.15f;
             // float targetFOV = originalFOV - 5f;
             //
+            // float elapsed = 0f;
             // while (elapsed < zoomInTime)
             // {
             //     elapsed += Time.unscaledDeltaTime;

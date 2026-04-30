@@ -132,11 +132,12 @@ namespace UPlayGround
             ClearAllInputState();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
             // OnDisable이 먼저 호출되므로 여기서는 추가 정리만 담당
             UnRegisterInputEvents();
             CameraManager.Instance?.SetCombatStateProvider(null);
+            base.OnDestroy();
         }
 
         private void Update()

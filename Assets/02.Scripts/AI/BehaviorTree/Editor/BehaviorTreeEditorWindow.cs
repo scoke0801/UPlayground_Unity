@@ -29,6 +29,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private Label _graphTitleLabel;
         private Label _graphSubtitleLabel;
         private Label _runtimeBanner;
+        private BehaviorTreeMiniMapView _miniMapView;
+        private ToolbarToggle _miniMapToggle;
         private ObjectField _treeField;
         private ObjectField _runnerField;
         private PropertyTab _activeTab = PropertyTab.Inspector;
@@ -76,17 +78,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private void ConstructLayout()
         {
             rootVisualElement.Clear();
-            rootVisualElement.style.backgroundColor = new Color(0.06f, 0.06f, 0.07f);
+            rootVisualElement.style.backgroundColor = BehaviorTreeEditorStyles.Background;
 
             var toolbarRoot = new VisualElement();
-            toolbarRoot.style.backgroundColor = new Color(0.09f, 0.09f, 0.11f);
+            toolbarRoot.style.backgroundColor = BehaviorTreeEditorStyles.PanelAlt;
             rootVisualElement.Add(toolbarRoot);
 
             var operationsToolbar = new Toolbar();
             operationsToolbar.style.height = 44f;
             operationsToolbar.style.paddingLeft = 8f;
             operationsToolbar.style.paddingRight = 8f;
-            operationsToolbar.style.backgroundColor = new Color(0.09f, 0.09f, 0.11f);
+            operationsToolbar.style.backgroundColor = BehaviorTreeEditorStyles.PanelAlt;
 
             _treeField = new ObjectField
             {
@@ -105,6 +107,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             operationsToolbar.Add(CreateToolbarButton("Import", BehaviorTreeJsonUtility.ImportJson, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Export", BehaviorTreeJsonUtility.ExportSelected, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Validate", ValidateTree, ToolbarButtonStyle.Ghost));
+            operationsToolbar.Add(CreateToolbarButton("Fit All", () => _graphView?.FrameAllNodes(), ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarSeparator());
             operationsToolbar.Add(CreateToolbarButton("Clean Nulls", CleanNullReferences, ToolbarButtonStyle.Danger));
 
@@ -112,13 +115,23 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _errorCountLabel = CreateStatusBadge("Errors 0", new Color(0.30f, 0.30f, 0.30f));
             operationsToolbar.Add(_errorCountLabel);
+            _miniMapToggle = new ToolbarToggle { text = "Minimap" };
+            _miniMapToggle.value = true;
+            StyleToolbarToggle(_miniMapToggle, true);
+            _miniMapToggle.RegisterValueChangedCallback(evt =>
+            {
+                StyleToolbarToggle(_miniMapToggle, evt.newValue);
+                if (_miniMapView != null)
+                    _miniMapView.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+            });
+            operationsToolbar.Add(_miniMapToggle);
             toolbarRoot.Add(operationsToolbar);
 
             var debugToolbar = new Toolbar();
             debugToolbar.style.height = 36f;
             debugToolbar.style.paddingLeft = 8f;
             debugToolbar.style.paddingRight = 8f;
-            debugToolbar.style.backgroundColor = new Color(0.07f, 0.07f, 0.09f);
+            debugToolbar.style.backgroundColor = BehaviorTreeEditorStyles.Background;
 
             _runnerField = new ObjectField
             {
@@ -160,6 +173,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             graphShell.Add(graphHeader);
             _runtimeBanner = CreateRuntimeBanner();
             graphShell.Add(_runtimeBanner);
+            _miniMapView = new BehaviorTreeMiniMapView(_graphView);
+            graphShell.Add(_miniMapView);
 
             sidePanel.Add(CreatePropertiesPanel());
 
@@ -405,6 +420,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 : null;
 
             _graphView.UpdateDebugState(runtimeTree);
+            _miniMapView?.MarkDirtyRepaint();
             RefreshDebugState();
             RefreshTraceView();
         }
@@ -561,7 +577,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _graphTitleLabel.text = _tree != null ? _tree.name : "No Behavior Tree";
             _graphSubtitleLabel.text = _tree != null
-                ? $"Nodes {_tree.Nodes.Count}  |  Root {(_tree.RootNode != null ? _tree.RootNode.DisplayName : "None")}  |  Right-click graph to create nodes, drag siblings left/right to set execution order"
+                ? $"Nodes {_tree.Nodes.Count}  |  Root {(_tree.RootNode != null ? _tree.RootNode.DisplayName : "None")}  |  우클릭 생성 · 형제 노드 좌우 드래그로 실행 순서 정렬"
                 : "Select or import a BehaviorTreeAsset";
         }
 
@@ -571,7 +587,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             toggle.style.height = 30f;
             toggle.style.marginLeft = 2f;
             toggle.style.marginRight = 2f;
-            toggle.style.color = new Color(0.58f, 0.58f, 0.68f);
+            toggle.style.color = BehaviorTreeEditorStyles.TextMuted;
             toggle.style.borderBottomWidth = 2f;
             toggle.style.borderBottomColor = Color.clear;
             toggle.RegisterValueChangedCallback(evt =>
@@ -617,9 +633,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (toggle == null)
                 return;
 
-            toggle.style.color = active ? new Color(0.90f, 0.90f, 0.94f) : new Color(0.48f, 0.48f, 0.58f);
-            toggle.style.borderBottomColor = active ? new Color(0.34f, 0.48f, 0.86f) : Color.clear;
-            toggle.style.backgroundColor = active ? new Color(0.11f, 0.11f, 0.14f) : Color.clear;
+            toggle.style.color = active ? BehaviorTreeEditorStyles.Text : BehaviorTreeEditorStyles.TextMuted;
+            toggle.style.borderBottomColor = active ? BehaviorTreeEditorStyles.Composite : Color.clear;
+            toggle.style.backgroundColor = active ? BehaviorTreeEditorStyles.PanelRaised : Color.clear;
         }
 
         private enum ToolbarButtonStyle
@@ -646,16 +662,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var bg = style switch
             {
-                ToolbarButtonStyle.Primary => new Color(0.34f, 0.48f, 0.86f),
+                ToolbarButtonStyle.Primary => BehaviorTreeEditorStyles.Composite,
                 ToolbarButtonStyle.Danger => new Color(0.22f, 0.07f, 0.05f),
                 ToolbarButtonStyle.Success => new Color(0.05f, 0.18f, 0.09f),
-                _ => new Color(0.10f, 0.10f, 0.13f)
+                _ => BehaviorTreeEditorStyles.PanelRaised
             };
             var border = style switch
             {
                 ToolbarButtonStyle.Danger => new Color(0.48f, 0.16f, 0.12f),
                 ToolbarButtonStyle.Success => new Color(0.20f, 0.48f, 0.26f),
-                _ => new Color(0.22f, 0.22f, 0.28f)
+                _ => BehaviorTreeEditorStyles.BorderStrong
             };
             button.style.backgroundColor = bg;
             button.style.color = style switch
@@ -683,7 +699,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             separator.style.height = 22f;
             separator.style.marginLeft = 5f;
             separator.style.marginRight = 5f;
-            separator.style.backgroundColor = new Color(0.22f, 0.22f, 0.28f);
+            separator.style.backgroundColor = BehaviorTreeEditorStyles.BorderStrong;
             return separator;
         }
 
@@ -693,8 +709,31 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             label.style.marginLeft = 6f;
             label.style.marginRight = 4f;
             label.style.unityTextAlign = TextAnchor.MiddleLeft;
-            label.style.color = new Color(0.58f, 0.58f, 0.68f);
+            label.style.color = BehaviorTreeEditorStyles.TextMuted;
             return label;
+        }
+
+        private static void StyleToolbarToggle(ToolbarToggle toggle, bool active)
+        {
+            toggle.style.height = 24f;
+            toggle.style.marginLeft = 4f;
+            toggle.style.paddingLeft = 10f;
+            toggle.style.paddingRight = 10f;
+            toggle.style.unityFontStyleAndWeight = FontStyle.Bold;
+            toggle.style.borderTopLeftRadius = 5f;
+            toggle.style.borderTopRightRadius = 5f;
+            toggle.style.borderBottomLeftRadius = 5f;
+            toggle.style.borderBottomRightRadius = 5f;
+            toggle.style.backgroundColor = active ? BehaviorTreeEditorStyles.Composite : BehaviorTreeEditorStyles.PanelRaised;
+            toggle.style.color = active ? Color.white : BehaviorTreeEditorStyles.TextMuted;
+            toggle.style.borderTopColor = active ? BehaviorTreeEditorStyles.Composite : BehaviorTreeEditorStyles.BorderStrong;
+            toggle.style.borderRightColor = active ? BehaviorTreeEditorStyles.Composite : BehaviorTreeEditorStyles.BorderStrong;
+            toggle.style.borderBottomColor = active ? BehaviorTreeEditorStyles.Composite : BehaviorTreeEditorStyles.BorderStrong;
+            toggle.style.borderLeftColor = active ? BehaviorTreeEditorStyles.Composite : BehaviorTreeEditorStyles.BorderStrong;
+            toggle.style.borderTopWidth = 1f;
+            toggle.style.borderRightWidth = 1f;
+            toggle.style.borderBottomWidth = 1f;
+            toggle.style.borderLeftWidth = 1f;
         }
 
         private static Label CreateStatusBadge(string text, Color color)
@@ -803,6 +842,107 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 BTStatus.Failure => new Color(0.95f, 0.38f, 0.34f),
                 BTStatus.Running => new Color(0.95f, 0.72f, 0.24f),
                 _ => new Color(0.78f, 0.78f, 0.78f)
+            };
+        }
+    }
+
+    internal sealed class BehaviorTreeMiniMapView : IMGUIContainer
+    {
+        private const float HeaderHeight = 20f;
+        private readonly BehaviorTreeGraphView _graphView;
+
+        public BehaviorTreeMiniMapView(BehaviorTreeGraphView graphView)
+        {
+            _graphView = graphView;
+            pickingMode = PickingMode.Ignore;
+            style.position = Position.Absolute;
+            style.right = 12f;
+            style.bottom = 12f;
+            style.width = 170f;
+            style.height = 118f;
+            style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Panel, 0.94f);
+            style.borderTopColor = BehaviorTreeEditorStyles.Composite;
+            style.borderRightColor = BehaviorTreeEditorStyles.Composite;
+            style.borderBottomColor = BehaviorTreeEditorStyles.Composite;
+            style.borderLeftColor = BehaviorTreeEditorStyles.Composite;
+            style.borderTopWidth = 1f;
+            style.borderRightWidth = 1f;
+            style.borderBottomWidth = 1f;
+            style.borderLeftWidth = 1f;
+            style.borderTopLeftRadius = 8f;
+            style.borderTopRightRadius = 8f;
+            style.borderBottomLeftRadius = 8f;
+            style.borderBottomRightRadius = 8f;
+            onGUIHandler = DrawMiniMap;
+        }
+
+        private void DrawMiniMap()
+        {
+            if (_graphView == null)
+                return;
+
+            var rect = new Rect(0f, 0f, resolvedStyle.width, resolvedStyle.height);
+            EditorGUI.DrawRect(rect, BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Panel, 0.94f));
+            EditorGUI.DrawRect(new Rect(0f, 0f, rect.width, HeaderHeight), BehaviorTreeEditorStyles.PanelAlt);
+            GUI.Label(new Rect(8f, 2f, rect.width - 16f, 16f), "MINIMAP", MiniMapLabelStyle());
+
+            var treeBounds = _graphView.GetTreeBounds();
+            if (treeBounds.width <= 1f || treeBounds.height <= 1f)
+                return;
+
+            var mapRect = new Rect(8f, HeaderHeight + 8f, rect.width - 16f, rect.height - HeaderHeight - 16f);
+            var paddedBounds = new Rect(
+                treeBounds.xMin - 80f,
+                treeBounds.yMin - 80f,
+                treeBounds.width + 160f,
+                treeBounds.height + 160f);
+
+            Handles.BeginGUI();
+            foreach (var edge in _graphView.GetMiniMapEdges())
+            {
+                var from = ToMini(edge.From, paddedBounds, mapRect);
+                var to = ToMini(edge.To, paddedBounds, mapRect);
+                Handles.DrawBezier(
+                    from,
+                    to,
+                    new Vector2(from.x, Mathf.Lerp(from.y, to.y, 0.45f)),
+                    new Vector2(to.x, Mathf.Lerp(from.y, to.y, 0.55f)),
+                    edge.Running ? BehaviorTreeEditorStyles.Running : BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Composite, 0.58f),
+                    null,
+                    edge.Running ? 2f : 1f);
+            }
+
+            foreach (var node in _graphView.GetMiniMapNodes())
+            {
+                var mini = ToMini(node.Rect, paddedBounds, mapRect);
+                EditorGUI.DrawRect(mini, node.Running ? BehaviorTreeEditorStyles.Running : BehaviorTreeEditorStyles.WithAlpha(node.Color, 0.82f));
+            }
+            Handles.EndGUI();
+        }
+
+        private static Rect ToMini(Rect source, Rect bounds, Rect mapRect)
+        {
+            var min = ToMini(source.min, bounds, mapRect);
+            var max = ToMini(source.max, bounds, mapRect);
+            return new Rect(min.x, min.y, Mathf.Max(3f, max.x - min.x), Mathf.Max(3f, max.y - min.y));
+        }
+
+        private static Vector2 ToMini(Vector2 source, Rect bounds, Rect mapRect)
+        {
+            var x = Mathf.InverseLerp(bounds.xMin, bounds.xMax, source.x);
+            var y = Mathf.InverseLerp(bounds.yMin, bounds.yMax, source.y);
+            return new Vector2(
+                Mathf.Lerp(mapRect.xMin, mapRect.xMax, x),
+                Mathf.Lerp(mapRect.yMin, mapRect.yMax, y));
+        }
+
+        private static GUIStyle MiniMapLabelStyle()
+        {
+            return new GUIStyle(EditorStyles.miniBoldLabel)
+            {
+                normal = { textColor = BehaviorTreeEditorStyles.TextMuted },
+                alignment = TextAnchor.MiddleLeft,
+                fontSize = 9
             };
         }
     }

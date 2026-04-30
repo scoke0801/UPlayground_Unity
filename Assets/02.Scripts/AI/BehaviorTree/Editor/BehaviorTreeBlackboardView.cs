@@ -13,7 +13,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public BehaviorTreeBlackboardView()
         {
             style.flexGrow = 1;
-            style.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
+            style.backgroundColor = BehaviorTreeEditorStyles.Panel;
         }
 
         public void Bind(BehaviorTreeAsset tree)

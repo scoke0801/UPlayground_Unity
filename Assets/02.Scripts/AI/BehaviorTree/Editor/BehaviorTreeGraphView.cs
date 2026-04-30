@@ -19,6 +19,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             _window = window;
             style.flexGrow = 1;
+            style.backgroundColor = BehaviorTreeEditorStyles.Background;
 
             Insert(0, new GridBackground());
             this.AddManipulator(new ContentZoomer());
@@ -63,6 +64,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         continue;
 
                     var edge = parentView.Output.ConnectTo(childView.Input);
+                    StyleEdge(edge, false);
                     AddElement(edge);
                 }
             }
@@ -88,7 +90,34 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 pair.Value.UpdateStateColor(runtimeNode);
             }
 
+            foreach (var edge in edges.ToList())
+            {
+                if (edge.output?.node is not BehaviorTreeNodeView parentView ||
+                    edge.input?.node is not BehaviorTreeNodeView childView)
+                {
+                    continue;
+                }
+
+                runtimeByGuid.TryGetValue(parentView.Node.Guid, out var runtimeParent);
+                runtimeByGuid.TryGetValue(childView.Node.Guid, out var runtimeChild);
+                var active = runtimeParent is { IsStarted: true } || runtimeChild is { IsStarted: true };
+                StyleEdge(edge, active);
+            }
+
             MarkEdgesDirty();
+        }
+
+        public void FrameAllNodes()
+        {
+            if (_nodeViews.Count == 0)
+                return;
+
+            ClearSelection();
+            foreach (var nodeView in _nodeViews.Values)
+                AddToSelection(nodeView);
+
+            FrameSelection();
+            ClearSelection();
         }
 
         public void FocusNode(BTNode node)
@@ -219,6 +248,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             if (!parentView.Node.Children.Contains(childView.Node))
                 parentView.Node.Children.Add(childView.Node);
+
+            StyleEdge(edge, false);
         }
 
         private void RemoveConflictingEdges(Edge newEdge, BehaviorTreeNodeView parentView, BehaviorTreeNodeView childView)
@@ -240,6 +271,20 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             foreach (var edge in edges.ToList())
                 edge.MarkDirtyRepaint();
+        }
+
+        private static void StyleEdge(Edge edge, bool active)
+        {
+            if (edge?.edgeControl == null)
+                return;
+
+            var color = active
+                ? BehaviorTreeEditorStyles.Running
+                : BehaviorTreeEditorStyles.WithAlpha(BehaviorTreeEditorStyles.Composite, 0.72f);
+
+            edge.edgeControl.inputColor = color;
+            edge.edgeControl.outputColor = color;
+            edge.edgeControl.edgeWidth = active ? 3 : 2;
         }
 
         private void RemoveEdge(Edge edge)
@@ -315,6 +360,71 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (typeof(BTConditionNode).IsAssignableFrom(type))
                 return "Condition";
             return "Action";
+        }
+
+        public Rect GetTreeBounds()
+        {
+            var bounds = new Rect();
+            var first = true;
+            foreach (var nodeView in _nodeViews.Values)
+            {
+                var rect = nodeView.GetPosition();
+                if (first)
+                {
+                    bounds = rect;
+                    first = false;
+                }
+                else
+                {
+                    bounds.xMin = Mathf.Min(bounds.xMin, rect.xMin);
+                    bounds.yMin = Mathf.Min(bounds.yMin, rect.yMin);
+                    bounds.xMax = Mathf.Max(bounds.xMax, rect.xMax);
+                    bounds.yMax = Mathf.Max(bounds.yMax, rect.yMax);
+                }
+            }
+
+            return bounds;
+        }
+
+        public IEnumerable<(Rect Rect, Color Color, bool Running)> GetMiniMapNodes()
+        {
+            foreach (var nodeView in _nodeViews.Values)
+            {
+                yield return (
+                    nodeView.GetPosition(),
+                    GetNodeColor(nodeView.Node),
+                    nodeView.Node.IsStarted && nodeView.Node.LastStatus == BTStatus.Running);
+            }
+        }
+
+        public IEnumerable<(Vector2 From, Vector2 To, bool Running)> GetMiniMapEdges()
+        {
+            foreach (var edge in edges.ToList())
+            {
+                if (edge.output?.node is not BehaviorTreeNodeView parentView ||
+                    edge.input?.node is not BehaviorTreeNodeView childView)
+                {
+                    continue;
+                }
+
+                var parent = parentView.GetPosition();
+                var child = childView.GetPosition();
+                yield return (
+                    new Vector2(parent.center.x, parent.yMax),
+                    new Vector2(child.center.x, child.yMin),
+                    parentView.Node.IsStarted || childView.Node.IsStarted);
+            }
+        }
+
+        private static Color GetNodeColor(BTNode node)
+        {
+            if (node is BTCompositeNode)
+                return BehaviorTreeEditorStyles.Composite;
+            if (node is BTDecoratorNode)
+                return BehaviorTreeEditorStyles.Decorator;
+            if (node is BTConditionNode)
+                return BehaviorTreeEditorStyles.Condition;
+            return BehaviorTreeEditorStyles.Action;
         }
     }
 }

@@ -7,6 +7,45 @@ using UnityEngine.UIElements;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
+    internal static class BehaviorTreeEditorStyles
+    {
+        public static readonly Color Background = new(0.06f, 0.06f, 0.07f);
+        public static readonly Color Panel = new(0.075f, 0.075f, 0.10f);
+        public static readonly Color PanelAlt = new(0.09f, 0.09f, 0.11f);
+        public static readonly Color PanelRaised = new(0.12f, 0.12f, 0.15f);
+        public static readonly Color Border = new(0.18f, 0.18f, 0.22f);
+        public static readonly Color BorderStrong = new(0.23f, 0.23f, 0.29f);
+        public static readonly Color Text = new(0.90f, 0.90f, 0.94f);
+        public static readonly Color TextMuted = new(0.58f, 0.58f, 0.68f);
+        public static readonly Color TextDim = new(0.36f, 0.36f, 0.45f);
+
+        public static readonly Color Composite = new(0.34f, 0.48f, 0.86f);
+        public static readonly Color Action = new(0.34f, 0.78f, 0.52f);
+        public static readonly Color Condition = new(0.90f, 0.62f, 0.24f);
+        public static readonly Color Decorator = new(0.72f, 0.42f, 0.86f);
+
+        public static readonly Color Running = new(0.36f, 0.95f, 0.52f);
+        public static readonly Color Success = new(0.30f, 0.82f, 0.42f);
+        public static readonly Color Failure = new(0.92f, 0.28f, 0.22f);
+        public static readonly Color Idle = new(0.29f, 0.29f, 0.37f);
+
+        public static Color WithAlpha(Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
+        }
+
+        public static Color Darken(Color color, float amount)
+        {
+            return new Color(color.r * amount, color.g * amount, color.b * amount, color.a);
+        }
+
+        public static Color Body(Color color)
+        {
+            return new Color(color.r * 0.10f + 0.055f, color.g * 0.10f + 0.055f, color.b * 0.10f + 0.065f, 1f);
+        }
+    }
+
     public class BehaviorTreeNodeView : Node
     {
         private readonly VisualElement _statusBar;
@@ -32,7 +71,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             style.left = Node.EditorPosition.x;
             style.top = Node.EditorPosition.y;
-            style.width = 240f;
+            style.width = 160f;
             style.borderTopWidth = 1.5f;
             style.borderRightWidth = 1.5f;
             style.borderBottomWidth = 1.5f;
@@ -48,11 +87,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             titleContainer.Clear();
             titleContainer.style.backgroundColor = GetHeaderColor(Node);
-            titleContainer.style.minHeight = 40f;
-            titleContainer.style.paddingLeft = 10f;
-            titleContainer.style.paddingRight = 10f;
-            titleContainer.style.paddingTop = 8f;
-            titleContainer.style.paddingBottom = 7f;
+            titleContainer.style.minHeight = 30f;
+            titleContainer.style.paddingLeft = 9f;
+            titleContainer.style.paddingRight = 9f;
+            titleContainer.style.paddingTop = 6f;
+            titleContainer.style.paddingBottom = 5f;
             titleContainer.style.flexDirection = FlexDirection.Row;
             titleContainer.style.alignItems = Align.Center;
             titleContainer.Add(CreateTypePill(Node));
@@ -92,8 +131,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             mainContainer.Insert(0, _statusBar);
 
             extensionContainer.style.backgroundColor = GetBodyColor(Node);
-            extensionContainer.style.paddingTop = 6f;
-            extensionContainer.style.paddingBottom = 6f;
+            extensionContainer.style.paddingTop = 3f;
+            extensionContainer.style.paddingBottom = 4f;
             extensionContainer.Add(CreateTitleBlock(Node, _nodeIndex, out _displayNameLabel, out _categoryLabel));
             _paramBlock = CreateParamBlock(Node);
             extensionContainer.Add(_paramBlock);
@@ -147,22 +186,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             if (runtimeNode == null || !runtimeNode.IsStarted)
             {
-                _statusBar.style.backgroundColor = _baseBorderColor;
-                SetBorderColor(_baseBorderColor);
+                _statusBar.style.backgroundColor = Node.Disabled
+                    ? BehaviorTreeEditorStyles.Idle
+                    : _baseBorderColor;
+                SetBorderColor(Node.Disabled ? BehaviorTreeEditorStyles.Idle : _baseBorderColor);
                 SetRuntimeState("IDLE", new Color(0.29f, 0.29f, 0.37f));
+                style.opacity = Node.Disabled ? 0.45f : 1f;
                 return;
             }
 
             var stateColor = runtimeNode.LastStatus switch
             {
-                BTStatus.Running => new Color(0.95f, 0.72f, 0.18f),
-                BTStatus.Success => new Color(0.20f, 0.75f, 0.32f),
-                BTStatus.Failure => new Color(0.88f, 0.22f, 0.22f),
+                BTStatus.Running => BehaviorTreeEditorStyles.Running,
+                BTStatus.Success => BehaviorTreeEditorStyles.Success,
+                BTStatus.Failure => BehaviorTreeEditorStyles.Failure,
                 _ => _baseBorderColor
             };
             _statusBar.style.backgroundColor = stateColor;
             SetBorderColor(stateColor);
             SetRuntimeState(runtimeNode.LastStatus.ToString().ToUpperInvariant(), stateColor);
+            style.opacity = Node.Disabled ? 0.45f : 1f;
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -190,12 +233,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static Color GetCategoryColor(BTNode node)
         {
             if (node is BTCompositeNode)
-                return new Color(0.34f, 0.48f, 0.86f);
+                return BehaviorTreeEditorStyles.Composite;
             if (node is BTDecoratorNode)
-                return new Color(0.72f, 0.42f, 0.86f);
+                return BehaviorTreeEditorStyles.Decorator;
             if (node is BTConditionNode)
-                return new Color(0.90f, 0.62f, 0.24f);
-            return new Color(0.34f, 0.78f, 0.52f);
+                return BehaviorTreeEditorStyles.Condition;
+            return BehaviorTreeEditorStyles.Action;
         }
 
         private static string GetCategoryName(BTNode node)
@@ -212,13 +255,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static Color GetHeaderColor(BTNode node)
         {
             var color = GetCategoryColor(node);
-            return new Color(color.r * 0.22f, color.g * 0.22f, color.b * 0.22f, 1f);
+            return BehaviorTreeEditorStyles.Darken(color, 0.22f);
         }
 
         private static Color GetBodyColor(BTNode node)
         {
-            var color = GetCategoryColor(node);
-            return new Color(color.r * 0.12f + 0.06f, color.g * 0.12f + 0.06f, color.b * 0.12f + 0.07f, 1f);
+            return BehaviorTreeEditorStyles.Body(GetCategoryColor(node));
         }
 
         private static string GetShortGuid(BTNode node)
@@ -297,7 +339,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             block.style.paddingBottom = 5f;
 
             displayName = new Label(node.DisplayName);
-            displayName.style.fontSize = 13f;
+            displayName.style.fontSize = 12f;
             displayName.style.unityFontStyleAndWeight = FontStyle.Bold;
             displayName.style.color = new Color(0.92f, 0.92f, 0.92f);
             displayName.style.whiteSpace = WhiteSpace.NoWrap;
@@ -307,7 +349,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             category = new Label($"{node.GetType().Name} · #{index}");
             category.style.fontSize = 10f;
-            category.style.color = new Color(0.42f, 0.42f, 0.52f);
+            category.style.color = BehaviorTreeEditorStyles.TextDim;
             category.style.marginTop = 3f;
             block.Add(category);
 
@@ -319,8 +361,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var block = new VisualElement();
             block.style.paddingLeft = 10f;
             block.style.paddingRight = 10f;
-            block.style.paddingTop = 6f;
-            block.style.paddingBottom = 6f;
+            block.style.paddingTop = 5f;
+            block.style.paddingBottom = 4f;
             block.style.borderTopColor = new Color(1f, 1f, 1f, 0.06f);
             block.style.borderTopWidth = 1f;
 
@@ -331,12 +373,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static void RefreshParamBlock(VisualElement block, BTNode node)
         {
             block.Clear();
-            block.Add(CreateParamRow("guid", GetShortGuid(node)));
             block.Add(CreateParamRow("role", GetChildSummary(node)));
             if (node is SequenceNode sequence)
                 block.Add(CreateParamRow("abort", sequence.AbortType.ToString()));
             else if (node is SelectorNode selector)
                 block.Add(CreateParamRow("abort", selector.AbortType.ToString()));
+            else
+                block.style.display = DisplayStyle.None;
         }
 
         private static VisualElement CreateParamRow(string key, string value)
@@ -363,7 +406,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static Label CreatePill(string text, Color color)
         {
             var label = new Label(text);
-            label.style.fontSize = 9f;
+            label.style.fontSize = 8f;
             label.style.unityFontStyleAndWeight = FontStyle.Bold;
             label.style.color = Color.white;
             label.style.backgroundColor = color;
@@ -405,8 +448,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             label.style.whiteSpace = WhiteSpace.Normal;
             label.style.color = new Color(1f, 0.88f, 0.72f);
             label.style.backgroundColor = new Color(0.42f, 0.22f, 0.08f);
-            label.style.marginLeft = 8f;
-            label.style.marginRight = 8f;
+            label.style.marginLeft = 10f;
+            label.style.marginRight = 10f;
             label.style.marginBottom = 5f;
             label.style.paddingLeft = 6f;
             label.style.paddingRight = 6f;
@@ -457,8 +500,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             footer.style.alignItems = Align.Center;
             footer.style.paddingLeft = 10f;
             footer.style.paddingRight = 10f;
-            footer.style.paddingTop = 6f;
-            footer.style.paddingBottom = 6f;
+            footer.style.paddingTop = 4f;
+            footer.style.paddingBottom = 5f;
             footer.style.borderTopColor = new Color(1f, 1f, 1f, 0.06f);
             footer.style.borderTopWidth = 1f;
 

@@ -15,6 +15,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             OnNodeChanged = onNodeChanged;
             style.flexGrow = 1;
+            style.backgroundColor = BehaviorTreeEditorStyles.Panel;
         }
 
         public Action<BTNode> OnNodeChanged { get; set; }
@@ -31,15 +32,36 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 var empty = new Label("노드를 선택하세요.");
                 empty.style.marginLeft = 12f;
                 empty.style.marginTop = 12f;
-                empty.style.color = new Color(0.58f, 0.58f, 0.68f);
+                empty.style.color = BehaviorTreeEditorStyles.TextMuted;
                 Add(empty);
                 return;
             }
 
             Add(CreateIdentityHeader(node));
-            Add(CreateDivider());
+            Add(CreateInspectorSectionLabel("Properties"));
             _editor = UnityEditor.Editor.CreateEditor(node);
-            Add(new IMGUIContainer(() =>
+            var propertyBox = new VisualElement();
+            propertyBox.style.marginLeft = 10f;
+            propertyBox.style.marginRight = 10f;
+            propertyBox.style.marginBottom = 10f;
+            propertyBox.style.paddingLeft = 8f;
+            propertyBox.style.paddingRight = 8f;
+            propertyBox.style.paddingTop = 6f;
+            propertyBox.style.paddingBottom = 6f;
+            propertyBox.style.backgroundColor = BehaviorTreeEditorStyles.PanelAlt;
+            propertyBox.style.borderTopColor = BehaviorTreeEditorStyles.Border;
+            propertyBox.style.borderRightColor = BehaviorTreeEditorStyles.Border;
+            propertyBox.style.borderBottomColor = BehaviorTreeEditorStyles.Border;
+            propertyBox.style.borderLeftColor = BehaviorTreeEditorStyles.Border;
+            propertyBox.style.borderTopWidth = 1f;
+            propertyBox.style.borderRightWidth = 1f;
+            propertyBox.style.borderBottomWidth = 1f;
+            propertyBox.style.borderLeftWidth = 1f;
+            propertyBox.style.borderTopLeftRadius = 6f;
+            propertyBox.style.borderTopRightRadius = 6f;
+            propertyBox.style.borderBottomLeftRadius = 6f;
+            propertyBox.style.borderBottomRightRadius = 6f;
+            propertyBox.Add(new IMGUIContainer(() =>
             {
                 if (_editor == null)
                     return;
@@ -52,6 +74,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     OnNodeChanged?.Invoke(_node);
                 }
             }));
+            Add(propertyBox);
         }
 
         private static VisualElement CreateIdentityHeader(BTNode node)
@@ -81,12 +104,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var title = new Label(node.DisplayName);
             title.style.fontSize = 13f;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.color = new Color(0.90f, 0.90f, 0.94f);
+            title.style.color = BehaviorTreeEditorStyles.Text;
             textBlock.Add(title);
 
             var meta = new Label($"{GetCategoryName(node)} · {node.GetType().Name} · {ShortGuid(node.Guid)}");
             meta.style.fontSize = 10f;
-            meta.style.color = new Color(0.42f, 0.42f, 0.52f);
+            meta.style.color = BehaviorTreeEditorStyles.TextDim;
             textBlock.Add(meta);
             header.Add(textBlock);
 
@@ -102,6 +125,23 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             divider.style.marginBottom = 8f;
             divider.style.backgroundColor = new Color(0.18f, 0.18f, 0.22f);
             return divider;
+        }
+
+        private static Label CreateInspectorSectionLabel(string text)
+        {
+            var label = new Label(text.ToUpperInvariant());
+            label.style.marginLeft = 10f;
+            label.style.marginRight = 10f;
+            label.style.marginTop = 4f;
+            label.style.marginBottom = 7f;
+            label.style.paddingTop = 7f;
+            label.style.borderTopColor = BehaviorTreeEditorStyles.Border;
+            label.style.borderTopWidth = 1f;
+            label.style.fontSize = 10f;
+            label.style.letterSpacing = 1f;
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.color = BehaviorTreeEditorStyles.TextDim;
+            return label;
         }
 
         private static string ShortGuid(string guid)
@@ -126,12 +166,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static Color GetCategoryColor(BTNode node)
         {
             if (node is BTCompositeNode)
-                return new Color(0.34f, 0.48f, 0.86f);
+                return BehaviorTreeEditorStyles.Composite;
             if (node is BTDecoratorNode)
-                return new Color(0.72f, 0.42f, 0.86f);
+                return BehaviorTreeEditorStyles.Decorator;
             if (node is BTConditionNode)
-                return new Color(0.90f, 0.62f, 0.24f);
-            return new Color(0.34f, 0.78f, 0.52f);
+                return BehaviorTreeEditorStyles.Condition;
+            return BehaviorTreeEditorStyles.Action;
         }
     }
 }

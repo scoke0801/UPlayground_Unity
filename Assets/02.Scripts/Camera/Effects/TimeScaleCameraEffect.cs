@@ -2,13 +2,14 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 
 namespace UPlayGround
 {
     /// <summary>
     /// TimeScale 제어 이펙트.
     ///
-    /// useHitStopManager=true:  GameHitStopManager.Execute()에 위임
+    /// useHitStopManager=true:  GameCombatManager.HitStop.Execute()에 위임
     ///                          → 요청 큐에 올라가 다른 효과와 자동 강도 비교
     /// useHitStopManager=false: 직접 GameTimeManager.Request()/Release()로 관리
     ///                          → 블렌드 아웃 중 ForceDispose 시 즉시 해제
@@ -34,7 +35,7 @@ namespace UPlayGround
             if (_useHitStopManager)
             {
                 // HitStopManager 경로: duration 종료 후 자동 Release
-                GameHitStopManager.Instance?.Execute(Mathf.Max(0.01f, _duration), _targetTimeScale);
+                GameCombatManager.Instance?.GameHitStop?.Execute(Mathf.Max(0.01f, _duration), _targetTimeScale);
             }
             else
             {
@@ -56,7 +57,7 @@ namespace UPlayGround
         public override void ForceDispose()
         {
             if (_useHitStopManager)
-                GameHitStopManager.Instance?.Stop();
+                GameCombatManager.Instance?.GameHitStop?.Stop();
             else
                 ReleaseDirect();
 

@@ -10,7 +10,7 @@ namespace UPlayGround.Data
         [Range(0.01f, 1f)]
         public float targetTimeScale = 0.1f;
 
-        [Tooltip("true: GameHitStopManager에 위임, false: 직접 Time.timeScale 블렌딩")]
+        [Tooltip("true: GameCombatManager.HitStop에 위임, false: 직접 Time.timeScale 블렌딩")]
         public bool useHitStopManager = true;
 
         public override ICameraEffect CreateEffect() => new TimeScaleCameraEffect(this);

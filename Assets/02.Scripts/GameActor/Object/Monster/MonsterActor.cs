@@ -7,6 +7,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
+using UPlayGround.Manager.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
 using Random = System.Random;
@@ -136,7 +137,7 @@ namespace UPlayGround
             if (_uiHpBar == null) AttachHpUI();
 
             MovementController.AddVelocity(attackDirection.normalized * 30.0f);
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath(null);
         }
         

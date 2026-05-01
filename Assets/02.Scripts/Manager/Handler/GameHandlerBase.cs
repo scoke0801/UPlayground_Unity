@@ -3,13 +3,16 @@
     public abstract class GameHandlerBase
     {
         public virtual void Init(){}
-        
+
         public virtual void AfterInit(){}
         public virtual void Dispose(){}
-        
+
         public virtual void Update(){}
-        
+
         public virtual void FixedUpdate() {}
-        
+
+        public virtual void LateUpdate() {}
+
+        public virtual void OnSceneChanged(string sceneType) {}
     }
 }

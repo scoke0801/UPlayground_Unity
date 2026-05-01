@@ -12,13 +12,13 @@ namespace UPlayGround
     /// </summary>
     public class VitalOrbActor : MonoBehaviour
     {
-        // VitalOrbManager가 카운트 관리에 사용
+        // VitalOrbHandler가 카운트 관리에 사용
         public event Action OnExpired;
 
         private const float AttractDelay = 1.5f; // 1.5초 동안은 흡입되지 않음
         
         private VitalOrbDataSO _data;
-        private Action         _onCollect;   // 습득 시 콜백 (VitalOrbManager의 카운트 감소)
+        private Action         _onCollect;   // 습득 시 콜백 (VitalOrbHandler의 카운트 감소)
 
         private Transform _playerTransform;
         private State     _state = State.Idle;

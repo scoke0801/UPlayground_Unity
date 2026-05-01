@@ -5,7 +5,7 @@
 게임의 **시간 흐름 제어**를 담당하는 두 매니저입니다.
 
 - **`GameTimeManager`** — `Time.timeScale` 의 단일 소유권자. 동시에 여러 시스템이 감속을 요청해도 **가장 강한(scale이 가장 낮은) 요청**이 적용되도록 큐를 관리하고, 게임 일시정지(Pause), 누적 플레이 시간을 추적.
-- **`GameHitStopManager`** — 타격 정지(HitStop) 연출 전담. `GameTimeManager`에 id 기반 timeScale 요청을 등록하고, Post-Process Volume 페이드와 액터별 Animator 속도 조작을 함께 수행.
+- **`HitStopHandler`** — 타격 정지(HitStop) 연출 전담. `GameCombatManager` 산하 핸들러로 동작하며, `GameTimeManager`에 id 기반 timeScale 요청을 등록하고, Post-Process Volume 페이드와 액터별 Animator 속도 조작을 함께 수행. 외부 접근은 `GameCombatManager.Instance.HitStop`.
 
 핵심 특징:
 
@@ -35,20 +35,21 @@ GameTimeManager (BaseManager<T>, IManager)
 └── FormatPlayTime() → "HH:MM:SS"
 
 
-GameHitStopManager (BaseManager<T>, IManager)
-├── _globalCoroutines : Dictionary<int, Coroutine>    전역 HitStop 코루틴
-├── _actorCoroutines  : Dictionary<GameActor, Coroutine>  액터별 Animator 슬로우
-├── _volume : Volume                       Addressables: "SlowMoveVolume"
-│
-├── Execute(HitStopIntensity)              프리셋 기반
-├── Execute(duration, scale=0.1)           커스텀 + 강도 비교 후 약한 요청 정리
-├── ExecuteActorOnly(actor, duration, animSpeed)
-├── Stop() / StopActor() / StopAllActors() / ResetActorTimeScale()
-└── IsHitStopping (= GameTimeManager.IsSlowed), IsActorHitStopping(actor)
+GameCombatManager (BaseManager<T>, IManager)
+└── HitStopHandler (GameHandlerBase)
+    ├── _globalCoroutines : Dictionary<int, Coroutine>    전역 HitStop 코루틴
+    ├── _actorCoroutines  : Dictionary<GameActor, Coroutine>  액터별 Animator 슬로우
+    ├── _volume : Volume                       Addressables: "SlowMoveVolume"
+    │
+    ├── Execute(HitStopIntensity)              프리셋 기반
+    ├── Execute(duration, scale=0.1)           커스텀 + 강도 비교 후 약한 요청 정리
+    ├── ExecuteActorOnly(actor, duration, animSpeed)
+    ├── Stop() / StopActor() / StopAllActors() / ResetActorTimeScale()
+    └── IsHitStopping (= GameTimeManager.IsSlowed), IsActorHitStopping(actor)
 
 
 협력:
-   PlayerCombat / EnemyCombat / KillCam ──► GameHitStopManager.Execute(HitStopIntensity.X)
+   PlayerCombat / EnemyCombat / KillCam ──► GameCombatManager.Instance.HitStop.Execute(HitStopIntensity.X)
                                                  │
                                                  ▼
                               GameTimeManager.Request(scale)  ──► Time.timeScale 적용
@@ -64,8 +65,10 @@ GameHitStopManager (BaseManager<T>, IManager)
 
 ```
 Assets/02.Scripts/Manager/
-├── GameTimeManager.cs        timeScale 큐 + Pause + TotalPlaySeconds
-└── GameHitStopManager.cs     HitStop 프리셋 + Volume 페이드 + Actor Animator 슬로우
+├── GameTimeManager.cs              timeScale 큐 + Pause + TotalPlaySeconds
+└── Combat/
+    ├── GameCombatManager.cs        전투 핸들러 호스트
+    └── HitStopHandler.cs           HitStop 프리셋 + Volume 페이드 + Actor Animator 슬로우
 ```
 
 ---
@@ -115,7 +118,9 @@ if (!IsPaused) Time.timeScale = _activeScale;
 
 > **Note:** TotalPlaySeconds는 `unscaledDeltaTime` 기반이라 HitStop 중에도 정상 누적된다. 게임 외부 시계 기반의 진짜 플레이 시간.
 
-### GameHitStopManager
+### HitStopHandler
+
+> 외부 접근: `GameCombatManager.Instance.HitStop`
 
 #### HitStopIntensity 프리셋
 
@@ -193,21 +198,21 @@ GameTimeManager.OnPauseChanged += isPaused =>
 
 ```csharp
 // PlayerCombat.cs : 일반 히트
-GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Medium);
+GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Medium);
 
 // 강타 / 치명타
-GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
-GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Critical);
+GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Heavy);
+GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Critical);
 
 // 플레이어 사망 연출
-GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerDie);
+GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.PlayerDie);
 ```
 
 ### 3. 가드 성공 (PlayerGuard)
 
 ```csharp
 // PlayerGuardState — 퍼펙트 가드 성공 시
-GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.PlayerGuard);
 ```
 
 플레이어는 정상 속도, 적은 0.05배속 3초간 → 반격 창 형성.
@@ -216,10 +221,10 @@ GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGu
 
 ```csharp
 // 적의 Animator만 잠시 정지
-GameHitStopManager.Instance.ExecuteActorOnly(grabbedEnemy, duration: 1.5f, animSpeed: 0f);
+GameCombatManager.Instance.HitStop.ExecuteActorOnly(grabbedEnemy, duration: 1.5f, animSpeed: 0f);
 
 // 정리
-GameHitStopManager.Instance.StopActor(grabbedEnemy);
+GameCombatManager.Instance.HitStop.StopActor(grabbedEnemy);
 ```
 
 ### 5. 커스텀 timeScale 요청 (HitStop 외 용도)
@@ -255,7 +260,7 @@ GameTimeManager.Instance.SetTotalPlaySeconds(saveData.playSeconds);
 ## 셋업 방법
 
 1. **GameManager 등록 순서 확인**
-   - `[11] GameHitStopManager`는 `GameTimeManager` 이후에 초기화. (현재 GameManager 코드 기준 GameTimeManager는 다른 슬롯, 둘 다 IManager에 등록되어 있어야 함)
+   - `GameCombatManager`(산하 `HitStopHandler`)는 `GameTimeManager` 이후에 호출되어야 한다. 현재 GameManager 등록 순서에서 `GameTimeManager`가 더 늦게 등록되지만 `Request/Release`는 `Init` 단계가 아닌 런타임 호출이라 문제없음. 둘 다 IManager에 등록되어 있어야 함.
 2. **SlowMoveVolume 프리팹 등록**
    - URP Post-Process `Volume` 컴포넌트가 부착된 GameObject 프리팹 작성
    - Profile에 Vignette / Color Adjustment 등 슬로우 시각 효과 셋업

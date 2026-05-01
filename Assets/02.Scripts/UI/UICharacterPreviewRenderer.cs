@@ -45,9 +45,6 @@ public class UICharacterPreviewRenderer : MonoBehaviour
     /// </summary>
     public void ShowPreview()
     {
-        if (_currentPreviewCharacter != null)
-            Destroy(_currentPreviewCharacter);
-
         if(GameObjectManager.Instance == null)
         {
             return;
@@ -59,12 +56,20 @@ public class UICharacterPreviewRenderer : MonoBehaviour
             return;
         }
 
+        ShowPreview(player.CharacterType);
+    }
+
+    public void ShowPreview(CharacterActorType characterType)
+    {
+        if (_currentPreviewCharacter != null)
+            Destroy(_currentPreviewCharacter);
+
         GameObject targetPrefab = null;
         if (_actorPrefabs != null)
         {
             foreach (var entry in _actorPrefabs)
             {
-                if (entry.type == player.CharacterType)
+                if (entry.type == characterType)
                 {
                     targetPrefab = entry.prefab;
                     break;
@@ -87,7 +92,7 @@ public class UICharacterPreviewRenderer : MonoBehaviour
         SetLayerRecursively(_currentPreviewCharacter, "CharacterPreview");
         
         // KCC와 플레이어 스크립트 비활성화
-        //DisablePlayerComponents(_currentPreviewCharacter);
+        DisablePlayerComponents(_currentPreviewCharacter);
         
         _previewCamera.enabled = true;
     }

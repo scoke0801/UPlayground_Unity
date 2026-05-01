@@ -5,6 +5,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 
 namespace UPlayGround
 {
@@ -98,7 +99,7 @@ namespace UPlayGround
         private IEnumerator KillCamSequence(Transform victim)
         {
             var cameraManager = CameraManager.Instance;
-            var hitStopManager = GameHitStopManager.Instance;
+            var hitStopManager = GameCombatManager.Instance.GameHitStop;
 
             if (cameraManager == null)
             {
@@ -106,7 +107,7 @@ namespace UPlayGround
                 yield break;
             }
 
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
 
             float originalDistance = cameraManager.GetCurrentDistance();
             Vector3 originalOffset = cameraManager.GetCurrentOffset();
@@ -184,7 +185,7 @@ namespace UPlayGround
             cameraManager?.SetInputLock(false);
 
             if (Time.timeScale < 1f)
-                GameHitStopManager.Instance?.Stop();
+                GameCombatManager.Instance?.GameHitStop?.Stop();
         }
 
         private void RestoreState(float originalDistance, Vector3 originalOffset, float originalFOV)

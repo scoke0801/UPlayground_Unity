@@ -8,6 +8,7 @@ using UPlayGround.Manager;
 using UPlayGround.InputDefine;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 
 namespace UPlayGround.State
 {
@@ -90,7 +91,7 @@ namespace UPlayGround.State
             if (_isParryCounter)
             {
                 _combat.CloseParryCounterWindow();
-                GameHitStopManager.Instance.Stop();
+                GameCombatManager.Instance.GameHitStop.Stop();
                 Debug.Log("[ParryCounter] 패리 반격 진입");
             }
 

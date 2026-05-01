@@ -9,6 +9,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -95,7 +96,7 @@ namespace UPlayGround.State
                 InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
                 _combat.ClosePerfectGuardCounterWindow();
-                GameHitStopManager.Instance.Stop();
+                GameCombatManager.Instance.GameHitStop.Stop();
                 playerActor.Tags?.AddTag(GameplayTagId.State_Combat_Counter);
                 playerController.TransitionToState(new PlayerAttackState(playerController));
                 return;
@@ -163,7 +164,7 @@ namespace UPlayGround.State
         {
             // 일반 가드 드롭 스폰
             Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
 
             // 가드 브레이크 판정 (누적 횟수 초과 or 공격 자체가 GuardBreak)
             if (_combat.IsGuardBreak(incomingAttack))
@@ -188,8 +189,8 @@ namespace UPlayGround.State
             if (isPerfectGuard)
             {
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
-                VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
-                GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+                GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
+                GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
                 CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
                 CameraManager.Instance?.PlayEffect(PerfectGuardFOVData);

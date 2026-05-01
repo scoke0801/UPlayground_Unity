@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 
 namespace UPlayGround.Data.Event
 {
@@ -31,7 +32,7 @@ namespace UPlayGround.Data.Event
 
             // HitStopManager.Execute()를 통해 큐에 등록
             // → 내부에서 GameTimeManager.Request()가 id를 발급하고 코루틴이 Release 처리
-            GameHitStopManager.Instance?.Execute(duration, targetTimeScale);
+            GameCombatManager.Instance?.GameHitStop?.Execute(duration, targetTimeScale);
         }
 
         public override void OnCompleteEvent(GameObject target)

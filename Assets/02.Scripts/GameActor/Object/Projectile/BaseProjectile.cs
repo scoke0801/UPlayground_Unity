@@ -150,7 +150,7 @@ namespace UPlayGround
                 // CameraManager.Instance.StartShake("LiteHit");
                 //
                 // // 히트 스탑
-                // GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Light);
+                // GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Light);
                 //
             }
 

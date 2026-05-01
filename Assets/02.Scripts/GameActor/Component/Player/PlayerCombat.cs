@@ -9,6 +9,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
@@ -681,7 +682,7 @@ namespace UPlayGround.Component
             // foreach 도중 패리가 발동됐거나 실행 순서상 뒤늦게 호출되는 경우 모두 차단.
             if (IsParryCounterAvailable) return;
 
-            GameHitStopManager.Instance.ResetActorTimeScale();
+            GameCombatManager.Instance.GameHitStop.ResetActorTimeScale();
 
             bool isKillHit = _currentAttackData.hitTarget != null
                 && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
@@ -698,7 +699,7 @@ namespace UPlayGround.Component
             var orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
                 ? VitalOrbTrigger.HeavyAttackHit
                 : VitalOrbTrigger.LightAttackHit;
-            VitalOrbManager.Instance.TrySpawn(orbTrigger, _currentAttackData.hitPoint);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(orbTrigger, _currentAttackData.hitPoint);
 
             switch (kind)
             {
@@ -706,7 +707,7 @@ namespace UPlayGround.Component
                 case AttackKind.SkillAttack:
                     CameraManager.Instance.Punch(dir, _punchStrengthSkill, _punchDurationSkill);
                     CameraManager.Instance.StartShake(_shakeKeyHeavy);
-                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Critical);
+                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Critical);
                     break;
 
                 case AttackKind.HeavyAttack:
@@ -714,13 +715,13 @@ namespace UPlayGround.Component
                 case AttackKind.JumpAttack:
                     CameraManager.Instance.Punch(dir, _punchStrengthHeavy, _punchDurationHeavy);
                     CameraManager.Instance.StartShake(_shakeKeyHeavy);
-                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Heavy);
+                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Heavy);
                     break;
 
                 default:
                     CameraManager.Instance.Punch(dir, _punchStrengthLight, _punchDurationLight);
                     CameraManager.Instance.StartShake(_shakeKeyLight);
-                    GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.Light);
+                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Light);
                     break;
             }
         }

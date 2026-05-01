@@ -6,6 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 
 namespace UPlayGround.Manager
 {
@@ -63,8 +64,7 @@ namespace UPlayGround.Manager
             RegisterManager(ItemManager.Instance);
             RegisterManager(InventoryManager.Instance);
             RegisterManager(EventManager.Instance);
-            RegisterManager(GameHitStopManager.Instance);
-            RegisterManager(VitalOrbManager.Instance);
+            RegisterManager(GameCombatManager.Instance);
             RegisterManager(GlobalFlagManager.Instance);
             RegisterManager(DialogueManager.Instance);
             RegisterManager(StoryManager.Instance);

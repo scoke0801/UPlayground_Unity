@@ -14,6 +14,7 @@ using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Manager.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
@@ -500,6 +501,21 @@ namespace UPlayGround
             return _characterHealthMap.TryGetValue(type, out var hp) ? hp : 1f;
         }
 
+        public bool HasHealthRecordForCharacter(CharacterActorType type)
+            => type == _characterActorType || _characterHealthMap.ContainsKey(type);
+
+        /// <summary>
+        /// 지정 캐릭터의 최대 체력 반환. 현재 캐릭터가 아니면 PlayerSwapBehaviour의 모델 데이터에서 조회한다.
+        /// </summary>
+        public float GetMaxHealthForCharacter(CharacterActorType type)
+        {
+            if (type == _characterActorType) return _maxHealth;
+
+            var swap = GetComponent<PlayerSwapBehaviour>();
+            var modelData = swap != null ? swap.GetModelData(type) : null;
+            return modelData != null ? modelData.maxHealth : 1f;
+        }
+
         private void InitComponents()
         {
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
@@ -630,7 +646,7 @@ namespace UPlayGround
             MovementController.TransitionToState(new PlayerIdleState(MovementController));
 
             // 히트스톱 (퍼펙트 가드와 동일한 슬로우 연출)
-            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
             // 카메라 피드백
             CameraManager.Instance?.StartShake(_shakeKeyHeavyHit);
@@ -648,7 +664,7 @@ namespace UPlayGround
             GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
 
             // 바이탈 오브
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.PerfectGuard, fxPos);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.PerfectGuard, fxPos);
 
             // 공격자(몬스터) 경직
             if (attackData?.attacker is MonsterActor monster)
@@ -666,10 +682,10 @@ namespace UPlayGround
             _combat.ClosePerfectDodgeWindow();
 
             // VitalOrb 보상 스폰
-            VitalOrbManager.Instance.TrySpawn(VitalOrbTrigger.Dodge, transform.position);
+            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.Dodge, transform.position);
 
             // 히트스탑
-            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerGuard);
+            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
             // 카메라 피드백
             CameraManager.Instance.StartShake(_shakeKeyHit);
@@ -790,7 +806,7 @@ namespace UPlayGround
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
-            GameHitStopManager.Instance.Execute(GameHitStopManager.HitStopIntensity.PlayerDie);
+            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerDie);
             CameraManager.Instance.StartShake(_shakeKeyDeath);
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }

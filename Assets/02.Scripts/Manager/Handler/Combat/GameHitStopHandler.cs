@@ -1,11 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UPlayGround.Manager.Handler;
 
-namespace UPlayGround.Manager.Handler
+namespace UPlayGround.Manager.Combat
 {
     /// <summary>
     /// HitStop(타격 정지) 효과 관리.
@@ -16,10 +17,10 @@ namespace UPlayGround.Manager.Handler
     ///   timeScale은 그 효과의 값을 유지한다.
     ///
     ///   강도 비교:
-    ///   새 요청의 scale < 현재 활성 scale → 더 강한 효과이므로 현재 것을 교체
+    ///   새 요청의 scale &lt; 현재 활성 scale → 더 강한 효과이므로 현재 것을 교체
     ///   새 요청의 scale ≥ 현재 활성 scale → 더 약하므로 큐에만 추가 (현재 scale 유지)
     /// </summary>
-    public class GameHitStopManager : BaseManager<GameHitStopManager>, IManager
+    public class GameHitStopHandler : GameHandlerBase
     {
         public enum HitStopIntensity
         {
@@ -31,18 +32,17 @@ namespace UPlayGround.Manager.Handler
             PlayerGuard, // actor-only
         }
 
-        [Header("HitStop Settings")]
-        [SerializeField] private float _defaultHitStopDuration = 0.08f;
-        [SerializeField] private float _defaultTimeScale       = 0.1f;
+        private const float DefaultHitStopDuration = 0.08f;
+        private const float DefaultTimeScale = 0.1f;
 
         private AsyncOperationHandle<GameObject> _volumeHandle;
-        private Volume     _volume;
+        private Volume _volume;
         private GameObject _volumeInstance;
 
-        private float _transitionTime  = 0.05f;
-        private float _targetWeight    = 0f;
-        private float _currentWeight   = 0f;
-        private float _weightVelocity  = 0f;
+        private float _transitionTime = 0.05f;
+        private float _targetWeight = 0f;
+        private float _currentWeight = 0f;
+        private float _weightVelocity = 0f;
 
         // 전역 HitStop: id → 코루틴. 복수 요청이 동시에 살아있을 수 있다.
         private readonly Dictionary<int, Coroutine> _globalCoroutines = new Dictionary<int, Coroutine>();
@@ -52,32 +52,30 @@ namespace UPlayGround.Manager.Handler
 
         public bool IsHitStopping => GameTimeManager.Instance?.IsSlowed ?? false;
 
-        #region IManager
+        #region GameHandlerBase
 
-        public void Init()
+        public override void Init()
         {
             _actorCoroutines.Clear();
             _globalCoroutines.Clear();
             LoadVolume();
         }
 
-        public void AfterInit() { }
-
-        public void Dispose()
+        public override void Dispose()
         {
             Stop();
             StopAllActors();
 
             if (_volumeInstance != null)
             {
-                Destroy(_volumeInstance);
+                UnityEngine.Object.Destroy(_volumeInstance);
                 _volumeInstance = null;
             }
             if (_volumeHandle.IsValid())
                 Addressables.Release(_volumeHandle);
         }
 
-        public void OnUpdate()
+        public override void Update()
         {
             if (_volume == null) return;
 
@@ -89,10 +87,7 @@ namespace UPlayGround.Manager.Handler
             _volume.weight = _currentWeight;
         }
 
-        public void OnFixedUpdate() { }
-        public void OnLateUpdate()  { }
-
-        public void OnSceneChanged(string sceneType)
+        public override void OnSceneChanged(string sceneType)
         {
             Stop();
             StopAllActors();
@@ -102,7 +97,7 @@ namespace UPlayGround.Manager.Handler
 
         #region 전역 HitStop — 공개 API
 
-        public void Execute() => Execute(_defaultHitStopDuration, _defaultTimeScale);
+        public void Execute() => Execute(DefaultHitStopDuration, DefaultTimeScale);
 
         public void Execute(HitStopIntensity intensity)
         {
@@ -130,12 +125,11 @@ namespace UPlayGround.Manager.Handler
         /// </summary>
         public void Execute(float duration, float timeScale = 0.1f)
         {
-            // 현재 활성 scale보다 강한(더 낮은) 요청이면 기존 것을 중단해서 교체
             if (ShouldReplaceExisting(timeScale))
                 StopWeakerThan(timeScale);
 
-            int id  = GameTimeManager.Instance.Request(timeScale);
-            var co  = StartCoroutine(HitStopCoroutine(id, duration));
+            int id = GameTimeManager.Instance.Request(timeScale);
+            var co = GameCombatManager.Instance.StartCoroutine(HitStopCoroutine(id, duration));
             _globalCoroutines[id] = co;
         }
 
@@ -144,8 +138,9 @@ namespace UPlayGround.Manager.Handler
         /// </summary>
         public void Stop()
         {
+            var host = GameCombatManager.Instance;
             foreach (var co in _globalCoroutines.Values)
-                if (co != null) StopCoroutine(co);
+                if (co != null && host != null) host.StopCoroutine(co);
 
             _globalCoroutines.Clear();
             GameTimeManager.Instance?.ReleaseAll();
@@ -158,9 +153,7 @@ namespace UPlayGround.Manager.Handler
         /// </summary>
         public void ResetActorTimeScale()
         {
-            // 요청 큐 모델에서는 각 요청이 duration 종료 후 스스로 Release한다.
-            // Volume 시각 효과와 PlayerGuard로 걸린 액터 타임스케일을 즉시 복원한다.
-            _targetWeight   = 0f;
+            _targetWeight = 0f;
             _transitionTime = 0f;
             GameObjectManager.Instance?.ResetTimeScale();
         }
@@ -173,7 +166,7 @@ namespace UPlayGround.Manager.Handler
         {
             if (actor == null) return;
             StopActor(actor);
-            _actorCoroutines[actor] = StartCoroutine(ActorOnlyCoroutine(actor, duration, animSpeed));
+            _actorCoroutines[actor] = GameCombatManager.Instance.StartCoroutine(ActorOnlyCoroutine(actor, duration, animSpeed));
         }
 
         public void StopActor(GameActor actor)
@@ -181,7 +174,8 @@ namespace UPlayGround.Manager.Handler
             if (actor == null) return;
             if (!_actorCoroutines.TryGetValue(actor, out var co)) return;
 
-            if (co != null) StopCoroutine(co);
+            var host = GameCombatManager.Instance;
+            if (co != null && host != null) host.StopCoroutine(co);
             _actorCoroutines.Remove(actor);
 
             var anim = actor.Animator?.GetAnimator;
@@ -190,9 +184,10 @@ namespace UPlayGround.Manager.Handler
 
         public void StopAllActors()
         {
+            var host = GameCombatManager.Instance;
             foreach (var kvp in _actorCoroutines)
             {
-                if (kvp.Value != null) StopCoroutine(kvp.Value);
+                if (kvp.Value != null && host != null) host.StopCoroutine(kvp.Value);
                 if (kvp.Key != null)
                 {
                     var anim = kvp.Key.Animator?.GetAnimator;
@@ -209,9 +204,6 @@ namespace UPlayGround.Manager.Handler
 
         #region 내부
 
-        /// <summary>
-        /// 새 요청의 scale이 현재 활성 scale보다 낮으면(더 강하면) true.
-        /// </summary>
         private bool ShouldReplaceExisting(float newScale)
         {
             float current = GameTimeManager.Instance?.IsSlowed == true
@@ -220,20 +212,17 @@ namespace UPlayGround.Manager.Handler
             return newScale < current;
         }
 
-        /// <summary>
-        /// 등록된 요청 중 newScale보다 약한(scale이 높은) 것들을 모두 중단한다.
-        /// 더 강한 효과가 들어왔을 때 약한 요청의 잔여 시간을 정리하기 위함.
-        /// </summary>
         private void StopWeakerThan(float newScale)
         {
             var toRemove = new List<int>();
             foreach (var id in _globalCoroutines.Keys)
                 toRemove.Add(id);
 
+            var host = GameCombatManager.Instance;
             foreach (int id in toRemove)
             {
-                if (_globalCoroutines.TryGetValue(id, out var co) && co != null)
-                    StopCoroutine(co);
+                if (_globalCoroutines.TryGetValue(id, out var co) && co != null && host != null)
+                    host.StopCoroutine(co);
                 _globalCoroutines.Remove(id);
                 GameTimeManager.Instance?.Release(id);
             }
@@ -246,10 +235,9 @@ namespace UPlayGround.Manager.Handler
             _globalCoroutines.Remove(id);
             GameTimeManager.Instance?.Release(id);
 
-            // 남은 요청이 없을 때만 Volume 페이드 아웃
             if (_globalCoroutines.Count == 0)
             {
-                _targetWeight   = 0f;
+                _targetWeight = 0f;
                 _transitionTime = 0.05f;
             }
         }
@@ -279,17 +267,18 @@ namespace UPlayGround.Manager.Handler
             try
             {
                 GameObject go = await _volumeHandle.Task;
-                if (go == null) { Debug.LogError("[HitStopManager] SlowMoveVolume 로드 실패"); return; }
+                if (go == null) { Debug.LogError("[HitStopHandler] SlowMoveVolume 로드 실패"); return; }
 
-                _volumeInstance      = Instantiate(go, transform.position, Quaternion.identity, transform);
+                var hostTransform = GameCombatManager.Instance.transform;
+                _volumeInstance = UnityEngine.Object.Instantiate(go, hostTransform.position, Quaternion.identity, hostTransform);
                 _volumeInstance.name = "Action_SlowMo_Volume";
-                _volume              = _volumeInstance.GetComponent<Volume>();
+                _volume = _volumeInstance.GetComponent<Volume>();
 
                 if (_volume != null) _volume.weight = 0f;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"[HitStopManager] LoadVolume 실패: {e.Message}");
+                Debug.LogError($"[HitStopHandler] LoadVolume 실패: {e.Message}");
                 if (_volumeHandle.IsValid()) Addressables.Release(_volumeHandle);
             }
         }

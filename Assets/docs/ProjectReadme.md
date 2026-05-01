@@ -51,18 +51,17 @@ GameManager  ─  BaseManager<GameManager> (최상위 싱글톤)
     │  [8]  ItemManager          ItemDatabase 로드
     │  [9]  InventoryManager     인벤토리 CRUD
     │  [10] EventManager         타입 안전 이벤트 버스
-    │  [11] GameHitStopManager   히트 스탑 / 타임 스케일
-    │  [12] VitalOrbManager      바이탈 오브 스폰 규칙
-    │  [13] GlobalFlagManager    글로벌 플래그 (퀘스트 조건)
-    │  [14] DialogueManager      대화 그래프 실행
-    │  [15] StoryManager         스토리 진행 관리
-    │  [16] GameTimeManager      인게임 시간 흐름
-    │  [17] ActorSpawnManager    ActorDatabase 기반 런타임 스폰
-    │  [18] PartyManager         파티 구성, 캐릭터 해금, 교체 입력 처리
-    │  [19] SceneManager         씬 전환 & 로딩 화면
-    │  [20] CheatManager         개발용 치트 콘솔
-    │  [21] RecipeManager        제작 레시피 관리
-    │  [22] QuestManager         퀘스트 목표 추적 & 보상
+    │  [11] GameCombatManager    전투 핸들러 호스트 (HitStopHandler, VitalOrbHandler)
+    │  [12] GlobalFlagManager    글로벌 플래그 (퀘스트 조건)
+    │  [13] DialogueManager      대화 그래프 실행
+    │  [14] StoryManager         스토리 진행 관리
+    │  [15] GameTimeManager      인게임 시간 흐름
+    │  [16] ActorSpawnManager    ActorDatabase 기반 런타임 스폰
+    │  [17] PartyManager         파티 구성, 캐릭터 해금, 교체 입력 처리
+    │  [18] SceneManager         씬 전환 & 로딩 화면
+    │  [19] CheatManager         개발용 치트 콘솔
+    │  [20] RecipeManager        제작 레시피 관리
+    │  [21] QuestManager         퀘스트 목표 추적 & 보상
 ```
 
 모든 매니저는 `BaseManager<T>` (MonoBehaviour 싱글톤) 상속 + `IManager` 인터페이스 구현.

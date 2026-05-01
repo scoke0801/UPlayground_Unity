@@ -5,21 +5,35 @@ using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 
 /// <summary>
-/// 파티원 선택 화면의 캐릭터 슬롯.
+/// 파티원 선택 화면의 슬롯.
+/// 출전 슬롯(BattleOrder) / 후보 슬롯(Roster - BattleOrder) / 빈 슬롯 표시 모두 지원.
 /// </summary>
 public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
 {
+    public enum SlotKind
+    {
+        Battle,     // 출전 슬롯 — 캐릭터 있음
+        Empty,      // 출전 슬롯 — 비어있음 (편성 모드 전용)
+        Candidate,  // 후보 슬롯 — Roster - BattleOrder
+    }
+
     [SerializeField] private Button _button;
     [SerializeField] private Image _hpFill;
     [SerializeField] private Image _activeMark;
     [SerializeField] private Image _focusedMark;
     [SerializeField] private Image _deadOverlay;
+    [SerializeField] private GameObject _emptyOverlay;
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _hpText;
     [SerializeField] private TextMeshProUGUI _stateText;
 
     private UI_PartySelect _parent;
     private int _index;
+    private SlotKind _kind;
+    private CharacterActorType _characterType;
+
+    public CharacterActorType CharacterType => _characterType;
+    public SlotKind Kind => _kind;
 
     private void Awake()
     {
@@ -34,49 +48,66 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
         }
     }
 
-    public void Init(UI_PartySelect parent, int index, CharacterActorType characterType,
+    public void InitBattle(UI_PartySelect parent, int index, CharacterActorType characterType,
         float currentHp, float maxHp, bool isActive, bool canSelect)
     {
         _parent = parent;
         _index = index;
+        _kind = SlotKind.Battle;
+        _characterType = characterType;
 
         bool isDead = currentHp <= 0f;
         float hpRatio = maxHp > 0f ? Mathf.Clamp01(currentHp / maxHp) : 0f;
 
-        if (_hpFill != null)
-        {
-            _hpFill.fillAmount = hpRatio;
-        }
+        SetEmptyOverlay(false);
 
-        if (_activeMark != null)
-        {
-            _activeMark.gameObject.SetActive(isActive);
-        }
+        if (_hpFill != null)         _hpFill.fillAmount = hpRatio;
+        if (_activeMark != null)     _activeMark.gameObject.SetActive(isActive);
+        if (_deadOverlay != null)    _deadOverlay.gameObject.SetActive(isDead);
+        if (_nameText != null)       _nameText.text = characterType.ToString();
+        if (_hpText != null)         _hpText.text = $"{Mathf.CeilToInt(currentHp)}/{Mathf.CeilToInt(maxHp)}";
+        if (_stateText != null)      _stateText.text = isDead ? "전투 불능" : (isActive ? "출전 중" : string.Empty);
+        if (_button != null)         _button.interactable = canSelect;
+    }
 
-        if (_deadOverlay != null)
-        {
-            _deadOverlay.gameObject.SetActive(isDead);
-        }
+    public void InitCandidate(UI_PartySelect parent, int index, CharacterActorType characterType,
+        float currentHp, float maxHp, bool canSelect)
+    {
+        _parent = parent;
+        _index = index;
+        _kind = SlotKind.Candidate;
+        _characterType = characterType;
 
-        if (_nameText != null)
-        {
-            _nameText.text = characterType.ToString();
-        }
+        bool isDead = currentHp <= 0f;
+        float hpRatio = maxHp > 0f ? Mathf.Clamp01(currentHp / maxHp) : 0f;
 
-        if (_hpText != null)
-        {
-            _hpText.text = $"{Mathf.CeilToInt(currentHp)}/{Mathf.CeilToInt(maxHp)}";
-        }
+        SetEmptyOverlay(false);
 
-        if (_stateText != null)
-        {
-            _stateText.text = isDead ? "전투 불능" : (isActive ? "출전 중" : string.Empty);
-        }
+        if (_hpFill != null)         _hpFill.fillAmount = hpRatio;
+        if (_activeMark != null)     _activeMark.gameObject.SetActive(false);
+        if (_deadOverlay != null)    _deadOverlay.gameObject.SetActive(isDead);
+        if (_nameText != null)       _nameText.text = characterType.ToString();
+        if (_hpText != null)         _hpText.text = $"{Mathf.CeilToInt(currentHp)}/{Mathf.CeilToInt(maxHp)}";
+        if (_stateText != null)      _stateText.text = isDead ? "전투 불능" : "후보";
+        if (_button != null)         _button.interactable = canSelect;
+    }
 
-        if (_button != null)
-        {
-            _button.interactable = canSelect && !isActive && !isDead;
-        }
+    public void InitEmpty(UI_PartySelect parent, int index, bool canSelect)
+    {
+        _parent = parent;
+        _index = index;
+        _kind = SlotKind.Empty;
+        _characterType = CharacterActorType.None;
+
+        SetEmptyOverlay(true);
+
+        if (_hpFill != null)         _hpFill.fillAmount = 0f;
+        if (_activeMark != null)     _activeMark.gameObject.SetActive(false);
+        if (_deadOverlay != null)    _deadOverlay.gameObject.SetActive(false);
+        if (_nameText != null)       _nameText.text = string.Empty;
+        if (_hpText != null)         _hpText.text = string.Empty;
+        if (_stateText != null)      _stateText.text = "빈 슬롯";
+        if (_button != null)         _button.interactable = canSelect;
     }
 
     public void SetFocused(bool isFocused)
@@ -89,11 +120,28 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _parent?.PreviewMember(_index);
+        if (_kind == SlotKind.Battle)
+        {
+            _parent?.PreviewMember(_index);
+        }
+        else if (_kind == SlotKind.Candidate)
+        {
+            _parent?.PreviewCandidate(_index);
+        }
     }
 
     private void OnClicked()
     {
-        _parent?.SelectMember(_index);
+        switch (_kind)
+        {
+            case SlotKind.Battle: _parent?.OnBattleSlotClicked(_index); break;
+            case SlotKind.Empty:  _parent?.OnBattleSlotClicked(_index); break;
+            case SlotKind.Candidate: _parent?.OnCandidateClicked(_index); break;
+        }
+    }
+
+    private void SetEmptyOverlay(bool show)
+    {
+        if (_emptyOverlay != null) _emptyOverlay.SetActive(show);
     }
 }

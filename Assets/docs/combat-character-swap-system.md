@@ -1,8 +1,10 @@
 # 전투 캐릭터 교체 시스템 설계
 
 > 작성일: 2026-04-25  
-> 최종 수정: 2026-04-29 (등장 공격 + PlayerAttackDataSO 에디터 통합 구현 완료)  
+> 최종 수정: 2026-05-01 (Roster/BattleOrder 분리 — 별도 문서 분기)  
 > 대상 버전: Unity 6 (6000.0.60f1), URP
+>
+> 관련 문서: [party-formation-system.md](./party-formation-system.md) — 보유/출전 분리 및 UI 편성 설계
 
 ---
 
@@ -25,7 +27,7 @@
 - 교체 불가 상태: `Death`, `Grab`, `Knockdown`, 스토리 시네마틱
 - 대기 중인 캐릭터는 무적 (전투 타깃에서 제외)
 - 파티 인원 1명일 때 교체 불가
-- 한 번에 최대 3명 파티
+- 출전 인원은 데이터(`PartyConfigSO.maxBattleSize`, 기본 4)로 제어 — 자세한 편성 규칙은 [party-formation-system.md](./party-formation-system.md) 참조
 
 ---
 
@@ -421,6 +423,9 @@ public class PartyConfigSO : ScriptableObject
 | 4 | `CharacterActorType` enum 정책 — **사용자 직접 수정** (Reine/LianLian 네이밍 포함) |
 | 5 | 쿨다운 중 입력 버퍼링 **지원** — InputBuffer + OnUpdate 재시도 |
 | 6 | HP 0 대기 캐릭터 교체 **불가**, 부활 **없음** |
+| 7 | 보유(Roster)와 출전(BattleOrder) **분리** — [party-formation-system.md](./party-formation-system.md) |
+| 8 | 출전 인원 상한은 `PartyConfigSO.maxBattleSize` 로 데이터 제어 (기본 4) |
+| 9 | 신규 합류 시 출전 슬롯이 비어있으면 자동 편입, 가득이면 보유만 |
 
 ---
 

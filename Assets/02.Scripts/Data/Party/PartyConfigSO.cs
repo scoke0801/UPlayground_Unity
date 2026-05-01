@@ -11,10 +11,19 @@ namespace UPlayGround.Data.Party
     [CreateAssetMenu(fileName = "PartyConfig", menuName = "UPlayGround/Party/Party Config")]
     public class PartyConfigSO : ScriptableObject
     {
-        [Tooltip("파티 슬롯 순서. 씬에 해당 CharacterType의 PlayerActor가 있으면 자동으로 포함된다.")]
+        [Header("Roster")]
+        [Tooltip("게임 시작 시 보유한 캐릭터 전체 목록(=초기 Roster). 처치 보상으로 추가될 캐릭터는 런타임에 합류한다.")]
         public List<CharacterActorType> partyOrder = new();
 
-        [Tooltip("게임 시작 시 조작할 캐릭터의 슬롯 인덱스 (0부터 시작)")]
+        [Header("Battle Order")]
+        [Tooltip("출전(BattleOrder) 슬롯 상한. 신규 합류 시 이 수보다 적게 차있으면 자동 편입된다.")]
+        [Min(1)]
+        public int maxBattleSize = 4;
+
+        [Tooltip("게임 시작 시 출전 슬롯에 배치할 캐릭터. 비어있으면 partyOrder의 앞 maxBattleSize 명을 사용.")]
+        public List<CharacterActorType> defaultBattleOrder = new();
+
+        [Tooltip("게임 시작 시 조작할 캐릭터의 BattleOrder 인덱스 (0부터 시작)")]
         [Min(0)]
         public int startActiveIndex = 0;
 

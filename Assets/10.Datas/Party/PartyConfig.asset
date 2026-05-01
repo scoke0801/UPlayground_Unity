@@ -13,4 +13,13 @@ MonoBehaviour:
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
   partyOrder: 0100000005000000
+  maxBattleSize: 4
+  defaultBattleOrder: 
   startActiveIndex: 0
+  defaultEntryAttackRange: 6
+  entryAttackTargetLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  entryAttackLineOfSightBlocker:
+    serializedVersion: 2
+    m_Bits: 0

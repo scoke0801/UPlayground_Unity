@@ -45,7 +45,7 @@ GameManager  ─  BaseManager<GameManager> (최상위 싱글톤)
     │  [2]  InputManager         Unity Input System 래퍼
     │  [3]  SettingsManager      설정 SO 로드 & 반영
     │  [4]  AssetManager         Addressables 핸들 관리
-    │  [5]  UIManager            캔버스 레이어 & UI 풀
+    │  [5]  UIManager            UIRoot / 캔버스 레이어 / EventSystem / UI 풀
     │  [6]  CameraManager        카메라 이펙트 & 쉐이크
     │  [7]  GameObjectManager    플레이어 참조 & FX 스폰
     │  [8]  ItemManager          ItemDatabase 로드
@@ -203,14 +203,18 @@ Unity Input System 기반. 우선순위 레이어 구조.
 
 ```
 UIManager
-├── CanvasLayer.HUD        (SortOrder 0)      — 인게임 HUD
-├── CanvasLayer.Scene      (SortOrder 1000)   — 씬 오버레이 UI
-├── CanvasLayer.Popup      (SortOrder 2000)   — 팝업 / 인벤토리
-├── CanvasLayer.System     (SortOrder 3000)   — 시스템 / 설정
-└── CanvasLayer.WorldSpace (SortOrder 10000)  — 월드 스페이스 HP바 등
+├── UIRoot Addressable prefab (key: UIRoot)
+│   ├── CanvasLayer.HUD        (SortOrder 0)      — 인게임 HUD
+│   ├── CanvasLayer.Scene      (SortOrder 1000)   — 씬 오버레이 UI
+│   ├── CanvasLayer.Popup      (SortOrder 2000)   — 팝업 / 인벤토리
+│   ├── CanvasLayer.System     (SortOrder 3000)   — 시스템 / 설정
+│   ├── CanvasLayer.WorldSpace (SortOrder 10000)  — 월드 스페이스 HP바 등
+│   └── EventSystem + InputSystemUIInputModule
+├── UIPrefabDatabase (key: UIPrefabDatabase)
+└── DamageFloaterConfigSO (key: DamageFloaterConfig)
 ```
 
-모든 UI는 `UI_Base`를 상속. `UIKeyType` enum으로 ShowUI / 관리. Addressables 기반 `UIPrefabDatabase`에서 프리팹 로드.
+모든 UI는 `UI_Base`를 상속한다. `UIManager`는 `UIRoot` 프리팹을 생성한 뒤 캔버스 레이어를 등록하고, 씬에 `EventSystem`이 없어도 직접 보장한다. UI 프리팹은 Addressables 기반 `UIPrefabDatabase`와 `UIKeyType` enum으로 표시 / 관리한다.
 
 ---
 
@@ -313,7 +317,7 @@ Assets/
 | [ACTOR_ID_SYSTEM_GUIDE.md](ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
 | [CRAFTING_SYSTEM_GUIDE.md](CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
 | [SAVE_SYSTEM_GUIDE.md](SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
-| [UI_Base_Guide.md](UI_Base_Guide.md) | UI 베이스 시스템 — 레이어 구조, UI 생성/제거 |
+| [UI_Base_Guide.md](Complete/UI_Base_Guide.md) | UI 시스템 — UIRoot, EventSystem 자동 구성, 레이어 구조, UI 생성/제거 |
 | [GAMEMANAGER_README.md](GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |
 | [ITEM_DROP_SYSTEM_GUIDE.md](ITEM_DROP_SYSTEM_GUIDE.md) | 아이템 드랍 시스템 — 몬스터/인터랙션 드랍 테이블, 픽업 오브젝트, 에디터 도구 |
 | [ITEM_DATA_SYSTEM_GUIDE.md](Complete/ITEM_DATA_SYSTEM_GUIDE.md) | 아이템 데이터 시스템 — ItemSO/EquipmentSO 구조, ItemDatabase 흐름, 데이터 자동 발급기 정의 |
@@ -332,6 +336,7 @@ Assets/
 | [DIALOGUE_SYSTEM_GUIDE.md](DIALOGUE_SYSTEM_GUIDE.md) | Dialogue 시스템 — DialogueGraphSO/NodeSO, Main/System/Monologue 채널 Runner, ConditionSO/ActionSO 확장, GlobalFlagManager 세이브 연동 |
 | [STORY_SYSTEM_GUIDE.md](STORY_SYSTEM_GUIDE.md) | Story 시스템 — 진행도 단조 증가, storyId 1회 트리거, StoryEntrySO Variants, StoryTriggerZone, Markdown 일괄 생성 |
 | [CAMERA_SYSTEM_GUIDE.md](CAMERA_SYSTEM_GUIDE.md) | Camera 시스템 — CameraManager 오케스트레이터, LockOn/Collision/Distance/Effect/Shaker/KillCam 서브시스템, ICameraEffect 블렌딩 |
+| [CAMERA_MODE_ARCHITECTURE_DESIGN.md](CAMERA_MODE_ARCHITECTURE_DESIGN.md) | Camera Mode Architecture 설계 — InGame/Free/Dialogue 모드 분리, 스킬 카메라 시퀀스, Cinemachine 연동 검토 |
 | [TIME_HITSTOP_GUIDE.md](TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
 

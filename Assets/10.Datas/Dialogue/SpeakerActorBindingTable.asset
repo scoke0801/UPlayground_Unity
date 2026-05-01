@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2569625347a947e4a57c7740b368f995, type: 3}
+  m_Name: SpeakerActorBindingTable
+  m_EditorClassIdentifier: 
+  entries:
+  - speakerId: ???
+    actorId: NPC_Story_Guide
+  - speakerId: "\uAE38\uC7A1\uC774"
+    actorId: NPC_Story_Guide
+  - speakerId: "\uB2F9\uC2E0"
+    actorId: Player
+  - speakerId: "\uB8E8\uC2DC\uC544"
+    actorId: NPC_Lucia
+  - speakerId: "\uBAA8\uAC74"
+    actorId: NPC_Morgan
+  - speakerId: "\uBBF8\uC544"
+    actorId: NPC_Mia
+  - speakerId: "\uC870\uC548"
+    actorId: NPC_Joan
+  - speakerId: "\uC870\uC774"
+    actorId: NPC_Joy
+  - speakerId: "\uCE68\uC2DD\uC790"
+    actorId: NPC_Bokusei
+  - speakerId: "\uD398\uB2C8"
+    actorId: NPC_Penny
+  - speakerId: "\uD5E4\uC774\uC990"
+    actorId: NPC_Hazel
+  - speakerId: "\uD638\uB178\uCE74"
+    actorId: MonsterHonoka

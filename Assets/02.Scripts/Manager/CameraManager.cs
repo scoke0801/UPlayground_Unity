@@ -21,6 +21,7 @@ namespace UPlayGround.Manager
         private const string CAMERA_SHAKE_DB_KEY      = "CameraShakeDatabase";
         private const string KILL_CAM_DATA_KEY         = "KillCamData";
         private const string PERFECT_GUARD_FOV_KEY     = "PerfectGuardFOV";
+        private const string DIALOGUE_CAMERA_SETTINGS_KEY = "DialogueCameraSettings";
 
         private CameraLockOn             _lockOn;
         private CameraCollision          _collision;
@@ -29,6 +30,9 @@ namespace UPlayGround.Manager
         private CameraEffectManager      _effectManager;
         private CameraShaker             _shaker;
         private KillCamController        _killCamController;
+        private CameraRigState           _rigState = new CameraRigState();
+        private CameraRuntimeContext     _cameraContext;
+        private CameraModeController     _modeController;
 
         private Camera    _mainCamera;
         private Transform _target;
@@ -66,6 +70,7 @@ namespace UPlayGround.Manager
         private System.Func<bool> _combatStateProvider;
 
         private CameraShakeDatabase _cameraShakeDatabase;
+        private DialogueCameraSettingsSO _dialogueCameraSettings;
         private LayerMask           _lockOnLayerMask;
         private LayerMask           _collisionLayers;
 
@@ -80,6 +85,7 @@ namespace UPlayGround.Manager
 
             InitializeCamera();
             LoadCameraShakeDatabase();
+            LoadDialogueCameraSettings();
 
             _lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             _collisionLayers = CameraConfig.GetCollisionLayerMask();
@@ -93,6 +99,7 @@ namespace UPlayGround.Manager
 
             _rotTransition = new CameraRotationTransition();
             _effectManager = new CameraEffectManager(this);
+            InitializeCameraModes();
 
             LoadKillCamData();
             LoadPerfectGuardFOVData();
@@ -117,6 +124,11 @@ namespace UPlayGround.Manager
 
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
+            if (_dialogueCameraSettings != null)
+            {
+                Addressables.Release(_dialogueCameraSettings);
+                _dialogueCameraSettings = null;
+            }
 
             if (_cameraPivot != null) Destroy(_cameraPivot.gameObject);
 
@@ -140,6 +152,7 @@ namespace UPlayGround.Manager
             _effectManager?.StopAll(immediate: true);
             _killCamController?.ForceStop();
             _isInputLocked = false;
+            _modeController?.ForceMode(CameraModeType.InGame);
 
             StartCoroutine(CoInitializeCameraOnSceneChanged());
         }
@@ -157,6 +170,9 @@ namespace UPlayGround.Manager
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
             }
+
+            SyncCameraContext();
+            SyncRigStateFromFields();
         }
 
         public void OnUpdate()
@@ -166,8 +182,10 @@ namespace UPlayGround.Manager
             // HideAndDontSave 오브젝트는 Unity 업데이트 루프에서 제외되므로
             // CameraManager가 직접 매 프레임 호출해 Shake/Punch 타이머를 진행한다.
             _shaker?.ManualUpdate(Time.deltaTime);
-
-            HandleInput();
+            SyncCameraContext();
+            SyncRigStateFromFields();
+            _modeController?.HandleInput(Time.deltaTime);
+            SyncFieldsFromRigState();
         }
 
         public void OnFixedUpdate() { }
@@ -176,107 +194,22 @@ namespace UPlayGround.Manager
         {
             if (_target == null || _mainCamera == null || _cameraPivot == null) return;
 
-            bool isCombat = _combatStateProvider?.Invoke() ?? false;
-            bool skipAuto = _isInputLocked || _lookAtOverride != null;
-
-            _rotTransition.Update(Time.deltaTime, settings.minVerticalAngle, settings.maxVerticalAngle,
-                ref _currentYaw, ref _currentPitch);
-            if (!_rotTransition.IsActive && _rotTransition.UnlockOnComplete)
-            {
-                _isInputLocked = false;
-                _rotTransition.Cancel();
-            }
-
-            if (_lockOn != null)
-            {
-                bool needAlign = _lockOn.UpdateTransition(ref _currentYaw, ref _currentPitch, skipAuto);
-                if (needAlign) StartCameraAlign();
-                _lockOn.UpdateRotation(ref _currentYaw, ref _currentPitch, skipAuto);
-            }
-
-            UpdateCameraAlign(isCombat);
-
-            if (!_isInputLocked)
-            {
-                Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
-                _cameraOffset = Vector3.SmoothDamp(_cameraOffset, targetOffset, ref _offsetVelocity, settings.offsetSmoothTime);
-            }
-
-            if (!_isInputLocked && _distanceCtrl != null)
-            {
-                bool isLockOn = _lockOn?.IsActive ?? false;
-                _distanceCtrl.UpdateFOV(isLockOn, isCombat);
-                float dist = _distanceCtrl.EvaluateDistance(isLockOn, isCombat, _targetDistance);
-                if (dist >= 0f) _targetDistance = dist;
-            }
-
+            SyncCameraContext();
+            SyncRigStateFromFields();
             CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
+            CameraRigPose pose = _modeController != null
+                ? _modeController.EvaluatePose(Time.deltaTime, fx)
+                : CameraRigPose.FromCamera(_mainCamera, _cameraPivot, _currentYaw, _currentPitch, _targetDistance);
 
-            _currentYaw   += fx.yawDelta;
-            _currentPitch += fx.pitchDelta;
-
-            // 경사 보정: 경사각만큼 피치 하한을 동적으로 내려줘서 올려다보기 가능하게
-            float slopeOffset = ComputeSlopePitchOffset();
-            float dynamicMin  = settings.minVerticalAngle + slopeOffset;
-            _currentPitch = Mathf.Clamp(_currentPitch, dynamicMin, settings.maxVerticalAngle);
-
-            float effectDistance = Mathf.Clamp(_targetDistance, settings.minDistance, settings.maxDistance) + fx.distanceDelta;
-            _cameraOffset += fx.offsetDelta;
-
-            float posSmoothTime = fx.positionSmoothTimeOverride ?? settings.positionSmoothTime;
-            float rotSmoothTime = fx.rotationSmoothTimeOverride ?? settings.rotationSmoothTime;
-
-            UpdateCameraPosition(posSmoothTime, effectDistance);
-            UpdateCameraRotation(rotSmoothTime);
-
-            _mainCamera.transform.position += fx.positionDelta;
-
-            float baseFOV = _distanceCtrl?.BaseFOV ?? settings.fovExplore;
-            if (Mathf.Abs(fx.fovDelta) > 0.001f)
-                _mainCamera.fieldOfView = baseFOV + fx.fovDelta;
-            else if (!_effectManager.HasActiveEffects)
-                _mainCamera.fieldOfView = baseFOV;
+            SyncFieldsFromRigState();
+            SyncFieldsFromCameraContext();
+            ApplyCameraPose(pose);
+            SyncRigStateFromFields();
         }
 
         #endregion
 
         #region 입력
-
-        private void HandleInput()
-        {
-            if (InputManager.Instance.CurrentLayer != InputLayer.Level_0) return;
-            if (Cursor.visible || _isInputLocked) return;
-
-            var input = InputManager.Instance;
-            if (input == null) return;
-
-            bool isLockOn = _lockOn?.IsActive ?? false;
-
-            if (!isLockOn && !_isAligning)
-            {
-                if (input.GetAction(InputMapNames.PlayerAction, PlayerAction.Look, out InputAction lookAction))
-                {
-                    Vector2 look  = lookAction.ReadValue<Vector2>();
-                    _currentYaw  += look.x * settings.rotationSpeed * 0.01f;
-                    _currentPitch -= look.y * settings.rotationSpeed * 0.01f;
-
-                    // 입력 단계에서도 동적 하한 적용
-                    float slopeOffset = ComputeSlopePitchOffset();
-                    float dynamicMin  = settings.minVerticalAngle + slopeOffset;
-                    _currentPitch = Mathf.Clamp(_currentPitch, dynamicMin, settings.maxVerticalAngle);
-                }
-            }
-
-            if (input.GetAction(InputMapNames.PlayerAction, PlayerAction.Zoom, out InputAction zoomAction))
-            {
-                float scroll = zoomAction.ReadValue<Vector2>().y;
-                if (Mathf.Abs(scroll) > 0.01f)
-                {
-                    _targetDistance -= scroll * settings.zoomSpeed;
-                    _targetDistance  = Mathf.Clamp(_targetDistance, settings.minDistance, settings.maxDistance);
-                }
-            }
-        }
 
         private void OnLockOnPerformed(InputAction.CallbackContext ctx)
         {
@@ -595,6 +528,93 @@ namespace UPlayGround.Manager
             }
 
             _mainCamera.fieldOfView = settings.fovExplore;
+
+            SyncCameraContext();
+            SyncRigStateFromFields();
+        }
+
+        private void InitializeCameraModes()
+        {
+            if (_cameraContext == null)
+                _cameraContext = new CameraRuntimeContext(_rigState);
+
+            SyncCameraContext();
+
+            _modeController = new CameraModeController(_cameraContext);
+            _modeController.Register(new InGameCameraMode());
+            _modeController.Register(new DialogueCameraMode());
+            _modeController.SetMode(CameraModeType.InGame);
+        }
+
+        private void SyncCameraContext()
+        {
+            if (_cameraContext == null) return;
+
+            _cameraContext.MainCamera = _mainCamera;
+            _cameraContext.Target = _target;
+            _cameraContext.CameraPivot = _cameraPivot;
+            _cameraContext.Settings = settings;
+            _cameraContext.DialogueSettings = _dialogueCameraSettings;
+            _cameraContext.LockOn = _lockOn;
+            _cameraContext.Collision = _collision;
+            _cameraContext.DistanceController = _distanceCtrl;
+            _cameraContext.RotationTransition = _rotTransition;
+            _cameraContext.CombatStateProvider = _combatStateProvider;
+            _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
+            _cameraContext.StartCameraAlign = StartCameraAlign;
+            _cameraContext.LookAtOverride = _lookAtOverride;
+            _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
+            _cameraContext.CollisionLayers = _collisionLayers;
+            _cameraContext.CharacterCapsule = _characterCapsule;
+            _cameraContext.IsInputLocked = _isInputLocked;
+            _cameraContext.IsAligning = _isAligning;
+            _cameraContext.AlignTimer = _alignTimer;
+            _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
+        }
+
+        private void SyncRigStateFromFields()
+        {
+            _rigState.CurrentYaw = _currentYaw;
+            _rigState.CurrentPitch = _currentPitch;
+            _rigState.CurrentDistance = _currentDistance;
+            _rigState.TargetDistance = _targetDistance;
+            _rigState.CameraOffset = _cameraOffset;
+            _rigState.SmoothPosition = _smoothPosition;
+            _rigState.PositionVelocity = _positionVelocity;
+            _rigState.OffsetVelocity = _offsetVelocity;
+        }
+
+        private void SyncFieldsFromCameraContext()
+        {
+            if (_cameraContext == null) return;
+
+            _isInputLocked = _cameraContext.IsInputLocked;
+            _isAligning = _cameraContext.IsAligning;
+            _alignTimer = _cameraContext.AlignTimer;
+        }
+
+        private void SyncFieldsFromRigState()
+        {
+            _currentYaw = _rigState.CurrentYaw;
+            _currentPitch = _rigState.CurrentPitch;
+            _currentDistance = _rigState.CurrentDistance;
+            _targetDistance = _rigState.TargetDistance;
+            _cameraOffset = _rigState.CameraOffset;
+            _smoothPosition = _rigState.SmoothPosition;
+            _positionVelocity = _rigState.PositionVelocity;
+            _offsetVelocity = _rigState.OffsetVelocity;
+        }
+
+        private void ApplyCameraPose(CameraRigPose pose)
+        {
+            if (_cameraPivot != null)
+                _cameraPivot.position = pose.PivotPosition;
+
+            if (_mainCamera == null) return;
+
+            _mainCamera.transform.position = pose.CameraPosition;
+            _mainCamera.transform.rotation = pose.CameraRotation;
+            _mainCamera.fieldOfView = pose.FieldOfView;
         }
 
         private void LoadSettingsSync()
@@ -615,6 +635,19 @@ namespace UPlayGround.Manager
             catch (System.Exception e)
             {
                 Debug.LogError($"[CameraManager] CameraShakeDatabase 로드 실패: {e.Message}");
+            }
+        }
+
+        private async void LoadDialogueCameraSettings()
+        {
+            try
+            {
+                _dialogueCameraSettings = await Addressables.LoadAssetAsync<DialogueCameraSettingsSO>(DIALOGUE_CAMERA_SETTINGS_KEY).Task;
+                SyncCameraContext();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[CameraManager] DialogueCameraSettings 로드 실패 또는 미등록: {e.Message}");
             }
         }
 
@@ -652,6 +685,7 @@ namespace UPlayGround.Manager
         {
             _target = newTarget;
             CacheCapsule();
+            SyncCameraContext();
             if (_target == null || _cameraPivot == null) return;
 
             _cameraPivot.position = _target.position + _cameraOffset;
@@ -663,6 +697,8 @@ namespace UPlayGround.Manager
                 _mainCamera.transform.position = _cameraPivot.position + rot * new Vector3(0f, 0f, -_currentDistance);
                 _mainCamera.transform.rotation = rot;
             }
+
+            SyncRigStateFromFields();
         }
 
         /// <summary>
@@ -682,6 +718,44 @@ namespace UPlayGround.Manager
                 _mainCamera.transform.position = _cameraPivot.position + rot * new Vector3(0f, 0f, -_currentDistance);
                 _mainCamera.transform.rotation = rot;
             }
+
+            SyncRigStateFromFields();
+        }
+
+        public CameraModeType CurrentCameraMode => _modeController?.CurrentModeType ?? CameraModeType.InGame;
+
+        public bool SetCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
+        {
+            SyncCameraContext();
+            return _modeController != null && _modeController.SetMode(modeType, enterParams);
+        }
+
+        public bool PushCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
+        {
+            SyncCameraContext();
+            return _modeController != null && _modeController.PushMode(modeType, enterParams);
+        }
+
+        public bool PopCameraMode(CameraModeEnterParams enterParams = null)
+        {
+            SyncCameraContext();
+            return _modeController != null && _modeController.PopMode(enterParams);
+        }
+
+        public bool ForceCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
+        {
+            SyncCameraContext();
+            return _modeController != null && _modeController.ForceMode(modeType, enterParams);
+        }
+
+        public bool PushDialogueCamera(Transform speaker, Transform listener = null, Vector3 offset = default)
+        {
+            return PushCameraMode(CameraModeType.Dialogue, new CameraModeEnterParams
+            {
+                PrimaryTarget = speaker,
+                SecondaryTarget = listener,
+                Offset = offset
+            });
         }
 
         public Transform           GetTarget()         => _target;
@@ -721,7 +795,11 @@ namespace UPlayGround.Manager
 
         public void SetCameraOffset(Vector3 offset)            => _cameraOffset  = offset;
         public void SetInputLock(bool locked)                  => _isInputLocked = locked;
-        public void SetCombatStateProvider(System.Func<bool> p) => _combatStateProvider = p;
+        public void SetCombatStateProvider(System.Func<bool> p)
+        {
+            _combatStateProvider = p;
+            SyncCameraContext();
+        }
 
         // ── Shake / Punch ──────────────────────────────────────────────
         public void StartShake(CameraShakeData data)

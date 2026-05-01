@@ -11,6 +11,7 @@ ScriptableObject 기반의 그래프 대화 시스템입니다. **DialogueGraphS
 - **확장 가능한 Condition / Action** — `ConditionSO.Evaluate()`, `DialogueActionSO.Execute()` 추상 메서드만 구현하면 새 분기/효과 추가
 - **GlobalFlagManager** — 대화·퀘스트가 공유하는 string→bool 플래그 저장소. `ISaveable` 구현으로 세이브 자동 직렬화
 - **SpeakerColorTable** — Addressables로 로드되는 화자별 색상 테이블, UI 측에서 직접 참조
+- **SpeakerActorBindingTable** — Main 채널 대화 카메라가 사용할 `speakerId -> actorId` 매핑 테이블
 - **노드 진입 액션** — 노드 진입 시 `eventActions[]` 가 자동 실행되어 아이템 지급/플래그 설정 등 부수 효과 처리
 - **Choice 표시 조건** — 각 선택지에 `displayCondition`, `isGreyedOut` 으로 동적 표시 가능
 
@@ -41,7 +42,8 @@ DialogueManager (BaseManager<T>, IManager)
 │      ├── System    Runner — 단일 실행
 │      └── Monologue Runner — 큐 실행 (enableQueue=true)
 │
-├── ColorTable : SpeakerColorTableSO   (Addressables 비동기 로드)
+├── ColorTable : SpeakerColorTableSO                 (Addressables 비동기 로드)
+├── SpeakerActorBindings : SpeakerActorBindingTableSO (Addressables 비동기 로드)
 │
 └── 이벤트
        ├── OnMainNodeEnter / OnSystemNodeEnter / OnMonologueNodeEnter
@@ -80,6 +82,7 @@ Assets/02.Scripts/
 │   ├── ConditionSO.cs                  abstract Evaluate()
 │   ├── DialogueActionSO.cs             abstract Execute()
 │   ├── SpeakerColorTableSO.cs          화자 색상 테이블 (Addressables)
+│   ├── SpeakerActorBindingTableSO.cs   화자 ID와 ActorId 매핑 테이블 (Addressables)
 │   └── Editor/
 │       ├── DialogueGraphEditor.cs      메뉴: UPlayGround/Story/Dialogue Graph Editor
 │       └── DialogueJsonIO.cs           그래프 JSON Import/Export
@@ -102,7 +105,7 @@ Assets/02.Scripts/
 | `nodeId` | GUID. 에디터에서 자동 부여, 직접 편집 불가 |
 | `nodeType` | `Talk` / `Choice` / `Condition` / `Event` / `End` |
 | `channel` | `Main` / `System` / `Monologue` — UI 채널 결정 |
-| `speakerId` | SpeakerColorTable 키 |
+| `speakerId` | SpeakerColorTable 키. Main 채널 대화 카메라에서는 `SpeakerActorBindingTableSO`를 거쳐 ActorId로 해석 |
 | `dialogueText` | 대화 본문 |
 | `portrait` | 초상화 Sprite |
 | `typingSpeed` | 타이핑 속도(초/문자), 기본 0.04 |
@@ -164,6 +167,7 @@ public abstract class DialogueActionSO : ScriptableObject
 | `Advance(channel)` | `(DialogueChannel = Main)` | Talk 노드에서 다음으로 진행 (Choice 노드는 무시) |
 | `SelectChoice(int index)` | — | Main 채널 Choice 노드 선택지 결정 |
 | `ColorTable` | `SpeakerColorTableSO (get)` | UI에서 화자 색상 조회 (로드 전 null) |
+| `SpeakerActorBindings` | `SpeakerActorBindingTableSO (get)` | Main 채널 대화 카메라용 화자-Actor 매핑 조회 (로드 전 null) |
 
 이벤트:
 
@@ -216,6 +220,31 @@ ISaveable:
 | `GetColor(speakerId)` | 등록 키는 매핑 색, 미등록은 `defaultColor`(흰색) |
 
 `OnEnable` / `OnValidate`(에디터)에서 자동으로 Dictionary 빌드.
+
+### SpeakerActorBindingTableSO
+
+| 항목 | 값 |
+|------|-----|
+| 메뉴 | `Create → UPlayGround/Dialogue/Speaker Actor Binding Table` |
+| Addressables 키 | `SpeakerActorBindingTable` (`AddressableKey` 상수) |
+| `TryGetActorId(speakerId, out actorId)` | 화자 ID에 대응하는 ActorId 조회 |
+
+자동 생성/갱신 도구:
+
+- 메뉴: `UPlayGround/Dialogue/Speaker Actor Binding Generator`
+- 스캔 대상: `DialogueGraphSO.nodes`, 독립 `DialogueNodeSO`, `Assets/10.Datas/Dialogue` 하위 `.asset` YAML의 `speakerId:`
+- Actor 후보: `ActorDefinitionSO.actorId/displayName/asset name`, `NpcActorSO` 에셋명/actorName
+- 자동 판별: speakerId 직접 일치, `NpcActorSO.dialogueGraph` 소유자, `DLG_Npc_*`/`dlg_sub_guide*` 파일명 힌트, 부분 일치 순서
+- 기본 정책: Main 채널 노드만 스캔, 기존 매핑 보존, 기존 테이블의 비스캔 항목도 유지
+- 적용 시 `Assets/10.Datas/Dialogue/SpeakerActorBindingTable.asset` 생성 및 Addressables 주소 `SpeakerActorBindingTable` 등록
+
+Main 채널 대화 노드에 진입하면 `DialogueManager`가 다음 순서로 대화 카메라 타겟을 찾는다.
+
+1. `SpeakerActorBindingTableSO`에서 `speakerId -> actorId` 매핑 조회
+2. 테이블이 없거나 항목이 없으면 `speakerId == actorId`로 폴백
+3. `GameObjectManager.AllActors`에서 `ActorId`가 같은 `GameActor` 조회
+4. 없으면 `ActorSpawnManager.GetSpawnedActors(actorId)` 첫 항목으로 폴백
+5. 찾으면 `CameraManager.PushDialogueCamera(speaker, player)` 호출, 못 찾으면 현재 카메라 상태 유지
 
 ---
 
@@ -326,20 +355,25 @@ if (GlobalFlagManager.Instance.GetFlag("met_npc_1"))
    - `Create → UPlayGround/Dialogue/SpeakerColorTable` 로 SO 생성
    - 화자 ID + 색상 등록
    - Addressables 그룹에 추가 후 키를 `SpeakerColorTable` 로 설정 (`SpeakerColorTableSO.AddressableKey` 값과 일치)
-2. **DialogueGraph 생성**
+2. **SpeakerActorBindingTable 등록** *(Main 채널 대화 카메라 사용 시)*
+   - `UPlayGround/Dialogue/Speaker Actor Binding Generator` 실행
+   - `테이블 생성/로드` → `미리보기 갱신` → `매핑 적용`
+   - 자동 매핑되지 않은 `<미해결>` 항목은 생성된 테이블에서 수동 지정
+   - `speakerId`와 `ActorId`가 같다면 등록하지 않아도 폴백으로 동작
+3. **DialogueGraph 생성**
    - `Create → UPlayGround/Dialogue/Graph` → `DLG_*.asset`
-3. **노드 추가**
+4. **노드 추가**
    - 그래프 에셋 폴더 안에 `Create → UPlayGround/Dialogue/Node` 로 `Node_*.asset` 생성
    - 또는 Dialogue Graph Editor에서 시각 편집
-4. **그래프 연결**
+5. **그래프 연결**
    - `startNodeId` 와 각 노드의 `nextNodeId` / `trueNextNodeId` / `falseNextNodeId` / `choices[].nextNodeId` 설정
-5. **Condition / Action SO 작성**
+6. **Condition / Action SO 작성**
    - `ConditionSO` / `DialogueActionSO` 상속 클래스 + `[CreateAssetMenu]` 추가
    - 인스턴스 SO를 만들고 노드에 첨부
-6. **UI 프리팹 매칭**
+7. **UI 프리팹 매칭**
    - 채널별 UI Key는 매니저 내부에 `Main → "MainDialogue"`, `System → "SystemDialogue"`, `Monologue → "MonologueDialogue"` 로 고정
    - UIManager에 동일 키로 등록된 UI 프리팹이 있어야 자동 표시됨
-7. **GameManager 등록 확인**
+8. **GameManager 등록 확인**
    - `[14] DialogueManager`, `[13] GlobalFlagManager` 가 SaveManager 이후에 초기화되도록 순서 확인
 
 ---
@@ -352,6 +386,7 @@ if (GlobalFlagManager.Instance.GetFlag("met_npc_1"))
 - **그래프 캐시 무효화.** 에디터에서 노드를 추가/삭제하면 `DialogueGraphSO.InvalidateCache()`를 호출하거나 그래프 에셋을 다시 로드해야 `_nodeMap` 캐시가 갱신된다.
 - **Condition/Action은 SO 인스턴스 공유 가능.** 동일 SO를 여러 노드에 첨부 가능. 단, 인스턴스 상태(필드 변형)가 전역에 영향을 주지 않도록 stateless 또는 ScriptableObject 인스턴스별 격리를 유지.
 - **SpeakerColorTable 로드 race.** Addressables 비동기 로드이므로 `ColorTable`이 부팅 직후 null일 수 있다. UI는 null 체크 후 `defaultColor` 폴백.
+- **SpeakerActorBindingTable 로드 race.** Addressables 비동기 로드이므로 `SpeakerActorBindings`가 부팅 직후 null일 수 있다. 이 경우 Main 채널 대화 카메라는 `speakerId == actorId` 폴백을 사용한다.
 - **세이브 호환성.** 플래그 키는 `string`이므로 자유롭게 추가/제거 가능. 다만 같은 키를 다른 의미로 재사용하지 말 것 (구 세이브 데이터와 충돌). 키 명명 규칙(`metNpc_*`, `event_*`, `quest_*`)을 합의해 관리.
 - **eventActions 실행 순서.** 노드의 `eventActions[]` 는 리스트 순서대로 실행된다. 의존성이 있는 액션은 순서를 명시적으로 보장.
 

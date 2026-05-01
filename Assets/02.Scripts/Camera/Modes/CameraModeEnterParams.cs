@@ -1,0 +1,21 @@
+using UnityEngine;
+
+namespace UPlayGround.CameraSystem
+{
+    /// <summary>
+    /// 카메라 모드 진입 시 전달하는 선택 파라미터.
+    /// 모드별로 필요한 값만 사용한다.
+    /// </summary>
+    public class CameraModeEnterParams
+    {
+        public Transform PrimaryTarget;
+        public Transform SecondaryTarget;
+        public Vector3 WorldPosition;
+        public Vector3 Offset;
+        public float Duration;
+        public AnimationCurve BlendCurve;
+        public bool RestorePreviousOnExit = true;
+
+        public static readonly CameraModeEnterParams Empty = new CameraModeEnterParams();
+    }
+}

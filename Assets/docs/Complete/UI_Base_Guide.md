@@ -1,397 +1,258 @@
-# UI_Base 시스템 사용 가이드
+# UI 시스템 가이드
 
-## 📌 개요
+## 개요
 
-`UI_Base`는 모든 UI의 기반이 되는 추상 클래스입니다.
-- UIManager와 연동하여 생명주기 자동 관리
-- 페이드 효과, ESC 키 처리 등 기본 기능 제공
-- 간편한 상속으로 커스텀 UI 구현
+UPlayground의 UI 시스템은 `UIManager`가 런타임 UI 루트, 캔버스 레이어, EventSystem, UI 프리팹 생명주기를 관리하는 구조다.
 
----
-
-## 🏗️ 구조
-
-```
-UIManager (매니저)
-    ↓
-UI_Base (추상 기본 클래스)
-    ↓
-UI_Popup, UI_MainMenu, UI_Inventory... (실제 UI 클래스)
-```
+- `GameManager.InitializeManagers()`에서 `UIManager.Instance`가 등록되며 `Init()` 시점에 UI 루트를 구성한다.
+- `UIRoot` Addressable 프리팹이 있으면 해당 프리팹을 생성하고, 없으면 코드 생성 방식으로 캔버스 레이어를 만든다.
+- 씬에 `EventSystem`을 미리 배치하지 않아도 `UIManager`가 보장한다.
+- UI 프리팹은 `UIPrefabDatabase`에 등록된 키와 기본 `CanvasLayer`를 기준으로 표시한다.
+- 개별 UI는 `UI_Base`를 상속해 초기화, 표시, 숨김, 닫기, Back 동작을 구현한다.
 
 ---
 
-## 🔧 UI_Base 주요 기능
+## 아키텍처
 
-### 1. **생명주기 관리**
-
-```csharp
-Initialize()    // 최초 1회 초기화
-Show()          // UI 표시
-Hide()          // UI 숨김
-Close()         // UI 제거
+```
+GameManager
+└── UIManager
+    ├── UIRoot prefab (Addressables key: UIRoot)
+    │   ├── Canvas_HUD
+    │   ├── Canvas_Scene
+    │   ├── Canvas_Popup
+    │   ├── Canvas_System
+    │   ├── Canvas_WorldSpace
+    │   └── EventSystem
+    ├── UIPrefabDatabase (Addressables key: UIPrefabDatabase)
+    ├── DamageFloaterConfigSO (Addressables key: DamageFloaterConfig)
+    └── UI_Base instances
 ```
 
-### 2. **가상 메서드 (오버라이드 가능)**
+### 파일 구조
 
-```csharp
-OnInit()        // 초기화 로직 (버튼 바인딩 등)
-OnShow()        // 표시될 때 (애니메이션, 데이터 갱신)
-OnHide()        // 숨겨질 때
-OnClose()       // 닫힐 때 (저장, 정리)
-OnDispose()     // 파괴될 때 (이벤트 해제)
 ```
-
-### 3. **페이드 효과**
-
-```csharp
-FadeIn(duration, onComplete)    // 페이드 인
-FadeOut(duration, onComplete)   // 페이드 아웃
+Assets/
+├── 02.Scripts/
+│   ├── Manager/UIManager.cs
+│   ├── UI/UI_Base.cs
+│   ├── UI/UIManagerExtensions.cs
+│   └── Data/Path/
+│       ├── UIPrefabDatabase.cs
+│       └── UIKeyType.cs
+├── 03.Prefabs/UI/
+│   └── UIRoot.prefab
+└── 10.Datas/Path/
+    └── UIPrefabDatabase.asset
 ```
-
-### 4. **유틸리티**
-
-```csharp
-SetInteractable(bool)  // UI 상호작용 활성화/비활성화
-```
-
-### 5. **자동 기능**
-
-- ESC 키로 닫기 (선택적)
-- CanvasGroup 자동 추가 (페이드용)
-- 컴포넌트 자동 캐싱
 
 ---
 
-## 📝 커스텀 UI 만들기
+## 캔버스 레이어
 
-### Step 1: UI_Base 상속
+`CanvasLayer` 값은 정렬 순서와 입력 레이어 매핑의 기준이다.
+
+| 레이어 | SortOrder | 용도 |
+|--------|-----------|------|
+| `HUD` | `0` | 인게임 HUD |
+| `Scene` | `1000` | 씬 오버레이, 일반 메뉴 |
+| `Popup` | `2000` | 인벤토리, 팝업, 선택 창 |
+| `System` | `3000` | 설정, 로딩, 시스템 UI |
+| `WorldSpace` | `10000` | 월드 위치 기반 HUD, HP바, 데미지 플로터 |
+
+`UIManager`는 `UIRoot` 프리팹 안에서 다음 순서로 캔버스를 등록한다.
+
+1. 자식 Canvas에 `UICanvasLayerBinding`이 있으면 해당 `Layer` 값을 사용한다.
+2. 바인딩이 없으면 `Canvas_HUD`, `Canvas_Popup` 같은 오브젝트 이름으로 레이어를 추론한다.
+3. 누락된 레이어는 기존 코드 생성 방식으로 보완한다.
+
+---
+
+## UI 루트와 EventSystem
+
+`UIManager.Init()`은 다음 순서로 UI 환경을 만든다.
+
+```csharp
+CreateUIRoot();
+CreateCanvasLayers();
+EnsureEventSystem();
+LoadAssetsAsync();
+RegisterInputEvents();
+```
+
+`UIRoot` 프리팹을 수정할 때 지켜야 할 규칙:
+
+- Addressables 주소는 `UIRoot`로 유지한다.
+- 각 레이어 Canvas는 `Canvas_<CanvasLayer>` 이름을 쓰거나 `UICanvasLayerBinding`을 붙인다.
+- Canvas에는 `CanvasScaler`, `GraphicRaycaster`를 포함한다.
+- EventSystem은 프리팹 안에 둘 수 있다. 없으면 `UIManager`가 `EventSystem + InputSystemUIInputModule`을 생성한다.
+- 씬에 남아 있는 별도 EventSystem은 런타임에 중복 제거될 수 있으므로 새 씬에는 배치하지 않는다.
+
+---
+
+## UI_Base
+
+`UI_Base`는 모든 표시형 UI의 기본 클래스다.
+
+| 멤버 | 역할 |
+|------|------|
+| `_layer` / `Layer` | UI가 속한 기본 `CanvasLayer` |
+| `_canCloseWithEsc` / `IsCanCloseWithEsc` | Back 입력으로 닫을 수 있는지 여부 |
+| `IsVisible` | 현재 표시 상태 |
+| `IsInitialized` | 최초 초기화 완료 여부 |
+| `Initialize()` | 최초 1회 `OnInit()` 호출 |
+| `Show()` | 활성화, 입력 등록, `OnShow()` 호출 |
+| `Hide()` | 입력 해제, `OnHide()` 호출, 비활성화 |
+| `Close()` | `OnClose()` 호출. 실제 제거는 `UIManager.CloseUI()`가 담당 |
+| `PerformBackFunction()` | Back 입력 처리. 기본 구현은 `Hide()` 후 `true` 반환 |
+| `FadeIn()` / `FadeOut()` | `CanvasGroup` 기반 페이드 |
+| `SetInteractable()` | `CanvasGroup.interactable`, `blocksRaycasts` 제어 |
+
+`UI_Base`는 `[RequireComponent(typeof(Canvas))]`가 붙어 있으므로 UI 프리팹 루트에 Canvas가 필요하다. 루트가 레이어 Canvas 아래로 생성되더라도 개별 UI의 Canvas는 UI 내부 정렬과 raycast 제어에 사용된다.
+
+---
+
+## UI 표시 흐름
+
+### 키 기반 표시
+
+`UIPrefabDatabase`에 등록된 기본 레이어를 사용한다.
+
+```csharp
+UIManager.Instance.ShowUI(UIKeyType.Inventory);
+UIManager.Instance.ShowUI(UIKeyType.PauseMenu);
+```
+
+### 레이어를 명시해서 표시
+
+```csharp
+UIManager.Instance.ShowUI(UIKeyType.PauseMenu, CanvasLayer.System);
+```
+
+### 프리팹 직접 표시
+
+```csharp
+[SerializeField] private GameObject _popupPrefab;
+
+private void ShowPopup()
+{
+    UIManager.Instance.ShowUI(_popupPrefab, CanvasLayer.Popup, "CustomPopup");
+}
+```
+
+### 타입으로 가져오기
+
+```csharp
+var inventory = UIManager.Instance.GetUI<UI_Inventory>(UIKeyType.Inventory);
+if (inventory != null)
+{
+    inventory.SetInteractable(true);
+}
+```
+
+---
+
+## 커스텀 UI 작성
 
 ```csharp
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Manager;
 
-public class UI_MainMenu : UI_Base
+public class UI_SamplePopup : UI_Base
 {
-    [Header("UI 컴포넌트")]
-    [SerializeField] private Button _startButton;
-    [SerializeField] private Button _optionsButton;
-    [SerializeField] private Button _quitButton;
+    [SerializeField] private Button _closeButton;
 
     protected override void OnInit()
     {
         base.OnInit();
-
-        // 버튼 이벤트 바인딩
-        _startButton.onClick.AddListener(OnStartClicked);
-        _optionsButton.onClick.AddListener(OnOptionsClicked);
-        _quitButton.onClick.AddListener(OnQuitClicked);
-
-        Debug.Log("[UI_MainMenu] 초기화 완료");
+        _layer = CanvasLayer.Popup;
+        _closeButton.onClick.AddListener(Hide);
     }
 
     protected override void OnShow()
     {
         base.OnShow();
-
-        // 페이드 인 효과
-        FadeIn(0.3f);
+        FadeIn(0.2f);
     }
 
     protected override void OnDispose()
     {
+        _closeButton.onClick.RemoveAllListeners();
         base.OnDispose();
-
-        // 이벤트 해제
-        _startButton.onClick.RemoveAllListeners();
-        _optionsButton.onClick.RemoveAllListeners();
-        _quitButton.onClick.RemoveAllListeners();
     }
+}
+```
 
-    private void OnStartClicked()
+프리팹 설정:
+
+1. UI 루트 오브젝트에 Canvas와 `UI_Base` 상속 컴포넌트를 붙인다.
+2. Inspector에서 `Layer`와 `Can Close With Esc`를 설정한다.
+3. `UIPrefabDatabase.asset`에 key, prefab, defaultLayer를 등록한다.
+4. 필요하면 `UIKeyType`에 키를 추가하고 `ToKey()` 매핑을 갱신한다.
+
+---
+
+## Back 입력 처리
+
+`UIManager`는 `SystemAction.Back` 입력을 등록하고, 높은 `CanvasLayer`부터 표시 중인 `UI_Base`를 찾는다.
+
+- `IsVisible == true`
+- `IsCanCloseWithEsc == true`
+- `PerformBackFunction()`이 `true`를 반환
+
+열린 UI가 없고 현재 씬이 `SceneType.GamePlay`이면 `PauseMenu`를 토글한다.
+
+커스텀 Back 동작이 필요하면 `PerformBackFunction()`을 오버라이드한다.
+
+```csharp
+public override bool PerformBackFunction()
+{
+    if (_isConfirmDialogOpen)
     {
-        Debug.Log("게임 시작");
-        // 게임 씬 로드 등
+        CloseConfirmDialog();
+        return false;
     }
 
-    private void OnOptionsClicked()
-    {
-        Debug.Log("옵션 열기");
-        // 옵션 UI 표시
-    }
-
-    private void OnQuitClicked()
-    {
-        Debug.Log("게임 종료");
-        Application.Quit();
-    }
-}
-```
-
-### Step 2: 프리팹 설정
-
-1. Unity에서 Canvas 오브젝트 생성
-2. 위에서 만든 `UI_MainMenu` 스크립트 추가
-3. Inspector에서 설정:
-   - `Layer`: 적절한 캔버스 레이어 선택 (Normal, Popup 등)
-   - `Can Close With Esc`: ESC 키로 닫을지 여부
-4. UI 요소 배치 (버튼, 텍스트 등)
-5. 프리팹으로 저장
-
-### Step 3: 코드에서 사용
-
-```csharp
-using UnityEngine;
-
-public class GameController : MonoBehaviour
-{
-    [SerializeField] private GameObject _mainMenuPrefab;
-
-    void Start()
-    {
-        // 방법 1: 기본 사용
-        GameObject menuUI = UIManager.Instance.ShowUI(_mainMenuPrefab, CanvasLayer.Normal, "MainMenu");
-        UI_MainMenu menu = menuUI.GetComponent<UI_MainMenu>();
-        menu.Initialize();
-        menu.Show();
-
-        // 방법 2: 확장 메서드 사용 (더 간편!)
-        UI_MainMenu menu2 = UIManager.Instance.ShowUI<UI_MainMenu>(_mainMenuPrefab, CanvasLayer.Normal, "MainMenu");
-    }
+    Hide();
+    return true;
 }
 ```
 
 ---
 
-## 💡 사용 예시
+## WorldSpace HUD
 
-### 예시 1: 간단한 팝업
+`UIManager`는 HUD Canvas 아래에 `UI_WorldSpaceHudLayer`를 준비한다.
 
-```csharp
-// 확인 팝업 표시
-UI_Popup popup = UIManager.Instance.ShowUI<UI_Popup>(popupPrefab, CanvasLayer.Popup);
-popup.Setup(
-    title: "저장",
-    message: "진행 상황을 저장하시겠습니까?",
-    onConfirm: () => SaveGame(),
-    onCancel: () => Debug.Log("저장 취소")
-);
-```
+| API | 역할 |
+|-----|------|
+| `CreateHpBar(GameActor actor)` | 액터 HP바 생성 |
+| `ShowDamageFloater(Vector3, float, FloatStyle)` | 데미지 숫자 표시 |
+| `ShowDamageFloaterMiss(Vector3)` | Miss 표시 |
+| `ShowDamageFloaterHeal(Vector3, float, FloatStyle)` | 회복 숫자 표시 |
 
-### 예시 2: 인벤토리 토글
-
-```csharp
-void Update()
-{
-    if (Input.GetKeyDown(KeyCode.I))
-    {
-        if (UIManager.Instance.IsUIActive("Inventory"))
-        {
-            UIManager.Instance.HideUI("Inventory");
-        }
-        else
-        {
-            UIManager.Instance.ShowUI<UI_Inventory>(inventoryPrefab, CanvasLayer.Normal, "Inventory");
-        }
-    }
-}
-```
-
-### 예시 3: 페이드 효과
-
-```csharp
-UI_Base ui = UIManager.Instance.ShowUI<UI_Base>(uiPrefab, CanvasLayer.Normal);
-
-// 페이드 인
-ui.FadeIn(0.5f, () => Debug.Log("페이드 인 완료"));
-
-// 3초 후 페이드 아웃
-Invoke(() => 
-{
-    ui.FadeOut(0.5f, () => ui.Close());
-}, 3f);
-```
-
-### 예시 4: 알림 메시지
-
-```csharp
-void ShowNotification(string message)
-{
-    UI_Popup notification = UIManager.Instance.ShowUI<UI_Popup>(
-        notificationPrefab, 
-        CanvasLayer.Notification, 
-        "Notification"
-    );
-    
-    notification.Setup("알림", message);
-    
-    // 3초 후 자동으로 닫기
-    StartCoroutine(CloseAfterDelay(notification, 3f));
-}
-
-IEnumerator CloseAfterDelay(UI_Base ui, float delay)
-{
-    yield return new WaitForSeconds(delay);
-    ui.Close();
-}
-```
+`DamageFloaterConfigSO`와 관련 UI 프리팹은 Addressables 로드가 완료된 뒤 풀링 설정된다. `UIManager.IsInitialized`가 `true`가 되기 전에는 DB 기반 UI 호출이 실패할 수 있다.
 
 ---
 
-## 🎯 베스트 프랙티스
+## 주의 사항
 
-### 1. **항상 OnInit에서 초기화**
-
-```csharp
-protected override void OnInit()
-{
-    base.OnInit();
-    
-    // ✅ 좋은 예: 버튼 바인딩
-    _button.onClick.AddListener(OnButtonClicked);
-    
-    // ✅ 좋은 예: 데이터 로드
-    LoadInitialData();
-}
-```
-
-### 2. **OnDispose에서 정리**
-
-```csharp
-protected override void OnDispose()
-{
-    base.OnDispose();
-    
-    // ✅ 좋은 예: 이벤트 해제
-    _button.onClick.RemoveAllListeners();
-    
-    // ✅ 좋은 예: 코루틴 정지
-    StopAllCoroutines();
-}
-```
-
-### 3. **페이드 효과 활용**
-
-```csharp
-protected override void OnShow()
-{
-    base.OnShow();
-    
-    // ✅ 자연스러운 등장
-    FadeIn(0.3f);
-}
-
-public override void Close()
-{
-    // ✅ 자연스러운 퇴장
-    FadeOut(0.3f, () => base.Close());
-}
-```
-
-### 4. **레이어 적절히 사용**
-
-```csharp
-// ✅ 배경 이미지
-[SerializeField] protected CanvasLayer _layer = CanvasLayer.Background;
-
-// ✅ 일반 메뉴
-[SerializeField] protected CanvasLayer _layer = CanvasLayer.Normal;
-
-// ✅ 팝업 다이얼로그
-[SerializeField] protected CanvasLayer _layer = CanvasLayer.Popup;
-
-// ✅ 시스템 메시지
-[SerializeField] protected CanvasLayer _layer = CanvasLayer.System;
-
-// ✅ 알림
-[SerializeField] protected CanvasLayer _layer = CanvasLayer.Notification;
-```
+- 새 씬에는 EventSystem을 배치하지 않는다. UIManager가 `UIRoot` 또는 런타임 생성으로 보장한다.
+- `CanvasLayer.Normal`, `CanvasLayer.Notification`, `CanvasLayer.Background`는 현재 존재하지 않는다. `Scene`, `Popup`, `System` 중 하나를 사용한다.
+- `ShowUI()`는 `Initialize()`와 `Show()`를 내부에서 호출한다. 호출자가 다시 부를 필요가 없다.
+- `HideUI()`는 오브젝트를 제거하지 않고 숨긴다. 완전 제거가 필요하면 `CloseUI()`를 사용한다.
+- UI 프리팹 키를 문자열로 직접 쓰기보다 가능하면 `UIKeyType`을 사용한다.
+- `UIRoot` 프리팹의 레이어 Canvas가 누락되어도 코드가 보완하지만, 의도한 정렬/스케일을 유지하려면 프리팹에 명시해두는 편이 좋다.
 
 ---
 
-## ⚠️ 주의사항
+## 체크리스트
 
-### 1. **Initialize()는 자동 호출됨**
-
-```csharp
-// ❌ 나쁜 예
-UI_Base ui = UIManager.Instance.ShowUI<UI_Base>(prefab, layer);
-ui.Initialize(); // 불필요! ShowUI가 이미 호출함
-ui.Show();       // 불필요! ShowUI가 이미 호출함
-
-// ✅ 좋은 예
-UI_Base ui = UIManager.Instance.ShowUI<UI_Base>(prefab, layer);
-// 바로 사용 가능
-```
-
-### 2. **base 메서드 호출 잊지 않기**
-
-```csharp
-// ✅ 좋은 예
-protected override void OnInit()
-{
-    base.OnInit(); // 반드시 호출!
-    
-    // 커스텀 로직...
-}
-```
-
-### 3. **컴포넌트는 SerializeField로 할당**
-
-```csharp
-// ✅ 좋은 예
-[SerializeField] private Button _button;
-
-// ❌ 나쁜 예 (런타임에 찾는 것은 느림)
-private Button _button;
-void Start() 
-{
-    _button = GetComponentInChildren<Button>();
-}
-```
-
----
-
-## 📋 체크리스트
-
-UI를 만들 때 다음을 확인하세요:
-
-- [ ] UI_Base 상속
-- [ ] OnInit에서 초기화 (버튼 바인딩 등)
-- [ ] OnDispose에서 정리 (이벤트 해제 등)
-- [ ] 적절한 CanvasLayer 설정
-- [ ] ESC 키 처리 여부 설정
-- [ ] 프리팹으로 저장
-- [ ] UIManager를 통해 표시
-
----
-
-## 🔗 관련 문서
-
-- [UIManager 가이드](Manager_규칙.md)
-- [캔버스 레이어 시스템](UIManager.cs)
-- [애니메이션 시스템](애니메이션_관련.md)
-
----
-
-## 📁 파일 구조
-
-```
-Assets/Scripts/
-├── Core/
-│   └── UIManager.cs           # UI 매니저
-├── UI/
-│   ├── Base/
-│   │   ├── UI_Base.cs         # UI 기본 클래스
-│   │   └── UIManagerExtensions.cs
-│   ├── Popup/
-│   │   └── UI_Popup.cs        # 팝업 UI
-│   ├── Menu/
-│   │   ├── UI_MainMenu.cs     # 메인 메뉴
-│   │   └── UI_OptionsMenu.cs  # 옵션 메뉴
-│   └── Game/
-│       ├── UI_Inventory.cs    # 인벤토리
-│       └── UI_HUD.cs          # HUD
-└── Examples/
-    └── UIUsageExample.cs      # 사용 예시
-```
+- [ ] UI 클래스가 `UI_Base`를 상속한다.
+- [ ] UI 프리팹 루트에 Canvas가 있다.
+- [ ] `Layer`와 `Can Close With Esc`가 의도대로 설정되어 있다.
+- [ ] 버튼/이벤트 바인딩은 `OnInit()`에서 처리한다.
+- [ ] 이벤트 해제는 `OnDispose()`에서 처리한다.
+- [ ] `UIPrefabDatabase.asset`에 key, prefab, defaultLayer가 등록되어 있다.
+- [ ] 새 씬에 별도 EventSystem을 추가하지 않았다.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UPlayGround.Manager;
+using UPlayGround.CameraSystem;
 
 namespace UPlayGround.Dialogue
 {
@@ -24,6 +25,7 @@ namespace UPlayGround.Dialogue
 
         // UI가 직접 참조하는 색상 테이블 — 로드 완료 전에는 null
         public SpeakerColorTableSO ColorTable { get; private set; }
+        public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
 
         #region IManager
 
@@ -34,6 +36,7 @@ namespace UPlayGround.Dialogue
             _runners[DialogueChannel.Monologue] = new DialogueRunner(DialogueChannel.Monologue, this, enableQueue: true);
 
             LoadColorTable();
+            LoadSpeakerActorBindings();
         }
 
         public void AfterInit()  { }
@@ -47,6 +50,12 @@ namespace UPlayGround.Dialogue
             {
                 Addressables.Release(ColorTable);
                 ColorTable = null;
+            }
+
+            if (SpeakerActorBindings != null)
+            {
+                Addressables.Release(SpeakerActorBindings);
+                SpeakerActorBindings = null;
             }
         }
 
@@ -80,6 +89,8 @@ namespace UPlayGround.Dialogue
         internal void NotifyNodeEnter(DialogueChannel channel, DialogueNodeSO node)
         {
             OpenUIForChannel(channel);
+            UpdateDialogueCamera(channel, node);
+
             switch (channel)
             {
                 case DialogueChannel.Main:      OnMainNodeEnter?.Invoke(node);      break;
@@ -94,6 +105,9 @@ namespace UPlayGround.Dialogue
         internal void NotifyDialogueEnd(DialogueChannel channel)
         {
             HideUIForChannel(channel);
+            if (channel == DialogueChannel.Main)
+                CameraManager.Instance?.PopCameraMode();
+
             OnDialogueEnd?.Invoke();
         }
 
@@ -112,6 +126,80 @@ namespace UPlayGround.Dialogue
             {
                 Debug.LogError($"[DialogueManager] SpeakerColorTable 로드 실패: {e.Message}");
             }
+        }
+
+        private async void LoadSpeakerActorBindings()
+        {
+            var handle = Addressables.LoadAssetAsync<SpeakerActorBindingTableSO>(SpeakerActorBindingTableSO.AddressableKey);
+
+            try
+            {
+                SpeakerActorBindings = await handle.Task;
+                Debug.Log("[DialogueManager] SpeakerActorBindingTable 로드 완료");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[DialogueManager] SpeakerActorBindingTable 로드 실패 또는 미등록: {e.Message}");
+            }
+        }
+
+        private void UpdateDialogueCamera(DialogueChannel channel, DialogueNodeSO node)
+        {
+            if (channel != DialogueChannel.Main || node == null)
+                return;
+
+            Transform speaker = ResolveSpeakerTransform(node.speakerId);
+            if (speaker == null)
+                return;
+
+            Transform listener = GameObjectManager.Instance?.Player != null
+                ? GameObjectManager.Instance.Player.transform
+                : null;
+
+            CameraManager.Instance?.PushDialogueCamera(speaker, listener);
+        }
+
+        private Transform ResolveSpeakerTransform(string speakerId)
+        {
+            string actorId = ResolveActorId(speakerId);
+            if (string.IsNullOrEmpty(actorId))
+                return null;
+
+            GameActor actor = FindActorInstance(actorId);
+            return actor != null ? actor.transform : null;
+        }
+
+        private string ResolveActorId(string speakerId)
+        {
+            if (string.IsNullOrEmpty(speakerId))
+                return null;
+
+            if (SpeakerActorBindings != null &&
+                SpeakerActorBindings.TryGetActorId(speakerId, out string actorId))
+                return actorId;
+
+            return speakerId;
+        }
+
+        private static GameActor FindActorInstance(string actorId)
+        {
+            var objectManager = GameObjectManager.Instance;
+            if (objectManager != null)
+            {
+                IReadOnlyList<GameActor> actors = objectManager.AllActors;
+                for (int i = 0; i < actors.Count; i++)
+                {
+                    GameActor actor = actors[i];
+                    if (actor != null && actor.ActorId == actorId)
+                        return actor;
+                }
+            }
+
+            var spawned = ActorSpawnManager.Instance?.GetSpawnedActors(actorId);
+            if (spawned != null && spawned.Count > 0)
+                return spawned[0];
+
+            return null;
         }
 
         // ── UI 열기/닫기 ─────────────────────────────────────────────

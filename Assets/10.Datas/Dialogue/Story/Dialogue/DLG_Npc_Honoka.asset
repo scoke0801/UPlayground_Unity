@@ -15,7 +15,7 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uCE68\uC2DD\uC790"
+  speakerId: "\uD638\uB178\uCE74"
   dialogueText: "\uD14C\uC2A4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.04

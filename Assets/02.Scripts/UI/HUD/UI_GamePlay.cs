@@ -52,15 +52,17 @@ class UI_GamePlay : UI_Base
        
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
             null, OnPerformedMap, null, null, null, InputLayer.Level_0);
+        
+        
+        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
+            null, OnPerformedParty, null, null, null, InputLayer.Level_0);
     }
 
     protected override void UnRegisterInputEvents()
     {
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
-            null, OnPerformedInventory,null);
-        
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map,
-            null, OnPerformedMap,null);
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory,null);
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap,null);
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
     }
 
     #endregion
@@ -69,7 +71,7 @@ class UI_GamePlay : UI_Base
 
     private void ToggleMap()
     {
-        var mapObj = UIManager.Instance.GetActiveUI(UIKeyType.Map.ToKey());
+        var mapObj = UIManager.Instance.GetActiveUI(UIKeyType.Map);
         var map    = mapObj?.GetComponent<UI_Map>();
         if (map != null && map.IsVisible)
             UIManager.Instance.HideUI(UIKeyType.Map);
@@ -79,7 +81,7 @@ class UI_GamePlay : UI_Base
 
     private void OnPerformedInventory(InputAction.CallbackContext obj)
     {
-        UI_Inventory inventory = UIManager.Instance.GetActiveUI("Inventory")?.GetComponent<UI_Inventory>();
+        UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
         if (inventory == null || inventory.IsVisible == false)
         {
             UIManager.Instance.ShowUI(UIKeyType.Inventory);
@@ -94,6 +96,19 @@ class UI_GamePlay : UI_Base
     private void OnPerformedMap(InputAction.CallbackContext obj)
     {
         ToggleMap();
+    }
+    
+    private void OnPerformedParty(InputAction.CallbackContext obj)
+    {
+        UI_PartyMenu party = UIManager.Instance.GetActiveUI(UIKeyType.Party)?.GetComponent<UI_PartyMenu>();
+        if (party == null || party.IsVisible == false)
+        {
+            UIManager.Instance.ShowUI(UIKeyType.Party);
+        }
+        else
+        {
+            UIManager.Instance.HideUI(UIKeyType.Party);
+        }
     }
     #endregion
 

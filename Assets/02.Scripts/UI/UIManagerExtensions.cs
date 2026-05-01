@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -40,6 +41,18 @@ public static class UIManagerExtensions
     {
         GameObject uiObj = manager.GetActiveUI(uiName);
         
+        if (uiObj != null)
+        {
+            return uiObj.GetComponent<T>();
+        }
+
+        return null;
+    }
+
+    public static T GetUI<T>(this UIManager manager, UIKeyType uiKey) where T : UI_Base
+    {
+        GameObject uiObj = manager.GetActiveUI(uiKey);
+
         if (uiObj != null)
         {
             return uiObj.GetComponent<T>();

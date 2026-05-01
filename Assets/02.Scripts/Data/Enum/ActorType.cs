@@ -30,6 +30,7 @@
         Nenmir,
         Sera,
         Inori,
+        Hichi,
         
         H09,
     }

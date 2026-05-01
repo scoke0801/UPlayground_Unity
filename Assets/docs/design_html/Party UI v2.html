@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>파티 편성</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width:100%; height:100%; overflow:hidden; background:#111; }
+#root { width:100%; height:100%; }
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:2px; }
+
+@keyframes fadeSlideIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity:0; } to { opacity:1; }
+}
+@keyframes floatUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes ringPulse {
+  0%,100% { opacity:0.4; transform:scale(1); }
+  50%      { opacity:0.8; transform:scale(1.04); }
+}
+@keyframes borderGlow {
+  0%,100% { box-shadow: 0 0 0 2px rgba(255,220,0,0.6); }
+  50%      { box-shadow: 0 0 0 2px rgba(255,220,0,1), 0 0 16px rgba(255,220,0,0.4); }
+}
+@keyframes scanMove {
+  0% { transform:translateY(-100%); }
+  100% { transform:translateY(200%); }
+}
+@keyframes emptyPulse {
+  0%,100% { opacity:0.35; }
+  50%      { opacity:0.55; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+/* ══════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════ */
+const ELEMENTS = {
+  fire:    { label:'화염', icon:'🔥', color:'#ff6b35', dark:'#3a1008' },
+  water:   { label:'수력', icon:'💧', color:'#38b2f0', dark:'#082030' },
+  wind:    { label:'바람', icon:'🌿', color:'#4cd97a', dark:'#083018' },
+  earth:   { label:'대지', icon:'⛰', color:'#c4933a', dark:'#2a1e08' },
+  thunder: { label:'번개', icon:'⚡', color:'#b060f0', dark:'#200838' },
+  ice:     { label:'빙결', icon:'❄', color:'#60c8f0', dark:'#081828' },
+  light:   { label:'광명', icon:'✨', color:'#f0d840', dark:'#282808' },
+  dark:    { label:'암흑', icon:'🌑', color:'#9060c0', dark:'#180828' },
+};
+
+const GRADES = {
+  S: { color:'#ffe234', bg:'#3a2800' },
+  A: { color:'#ff8c42', bg:'#2a1400' },
+};
+
+// 팔레트 (bg, mid, hi) — 캐릭터별 색조
+const PALS = [
+  ['#1a1230','#7060c8','#c0b0f0'],
+  ['#0e2018','#40b870','#a0f0c0'],
+  ['#280c0c','#c85040','#f0c0b0'],
+  ['#0c1828','#4080c0','#a0c8f0'],
+  ['#281e08','#b09030','#f0e090'],
+  ['#220a28','#9840b0','#e0a8f0'],
+  ['#0c2820','#38a888','#90e8d0'],
+  ['#28180c','#b07838','#f0c898'],
+  ['#101038','#5058b8','#b0b8f0'],
+  ['#241028','#a04898','#e0a8e0'],
+  ['#0c280c','#48a048','#a8e0a8'],
+  ['#281010','#b04040','#f0a0a0'],
+  ['#1e1840','#6858c0','#c0b8e8'],
+  ['#0e2820','#40a880','#a0e8c8'],
+  ['#281808','#c07048','#f0c0a8'],
+  ['#0c1e28','#4878b0','#a8c8e8'],
+  ['#281e00','#a88000','#f0d060'],
+  ['#180828','#8040a8','#d0a8f0'],
+  ['#002828','#009898','#00e8e8'],
+  ['#280028','#a800a8','#f800f8'],
+];
+
+const ALL_CHARS = [
+  { id:1,  name:'아스카',   lv:80, element:'wind',    grade:'S', pal:0  },
+  { id:2,  name:'루나',     lv:75, element:'ice',     grade:'S', pal:1  },
+  { id:3,  name:'카이',     lv:70, element:'thunder', grade:'A', pal:2  },
+  { id:4,  name:'미라',     lv:65, element:'water',   grade:'S', pal:3  },
+  { id:5,  name:'레온',     lv:60, element:'fire',    grade:'A', pal:4  },
+  { id:6,  name:'실비아',   lv:55, element:'earth',   grade:'A', pal:5  },
+  { id:7,  name:'제로',     lv:80, element:'dark',    grade:'S', pal:6  },
+  { id:8,  name:'노바',     lv:72, element:'light',   grade:'A', pal:7  },
+  { id:9,  name:'테라',     lv:68, element:'earth',   grade:'S', pal:8  },
+  { id:10, name:'피닉스',   lv:63, element:'fire',    grade:'S', pal:9  },
+  { id:11, name:'크리스',   lv:58, element:'ice',     grade:'A', pal:10 },
+  { id:12, name:'드레이크', lv:77, element:'thunder', grade:'S', pal:11 },
+  { id:13, name:'이리스',   lv:82, element:'light',   grade:'S', pal:12 },
+  { id:14, name:'소라',     lv:69, element:'water',   grade:'A', pal:13 },
+  { id:15, name:'블레이즈', lv:74, element:'fire',    grade:'A', pal:14 },
+  { id:16, name:'아이기스', lv:88, element:'wind',    grade:'S', pal:15 },
+  { id:17, name:'루시퍼',   lv:90, element:'dark',    grade:'S', pal:16 },
+  { id:18, name:'세라핌',   lv:85, element:'light',   grade:'S', pal:17 },
+  { id:19, name:'티달',     lv:66, element:'water',   grade:'A', pal:18 },
+  { id:20, name:'볼카노',   lv:71, element:'fire',    grade:'A', pal:19 },
+];
+
+/* ══════════════════════════════════════════════
+   SVG 캐릭터 아트
+══════════════════════════════════════════════ */
+// 얼굴 클로즈업 (파티 슬롯용)
+function FaceArt({ char, size = 80, uid = '' }) {
+  const pal = PALS[char.pal % PALS.length];
+  const el  = ELEMENTS[char.element];
+  const pfx = `face_${char.id}_${uid}`;
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 80" style={{ display:'block', flexShrink:0 }}>
+      <defs>
+        <radialGradient id={`${pfx}_fg`} cx="50%" cy="60%" r="55%">
+          <stop offset="0%" stopColor={pal[1]} stopOpacity="0.5"/>
+          <stop offset="100%" stopColor={pal[0]} stopOpacity="1"/>
+        </radialGradient>
+        <radialGradient id={`${pfx}_gw`} cx="50%" cy="30%" r="40%">
+          <stop offset="0%" stopColor={el.color} stopOpacity="0.25"/>
+          <stop offset="100%" stopColor={el.color} stopOpacity="0"/>
+        </radialGradient>
+        <clipPath id={`${pfx}_fc`}><rect width="80" height="80"/></clipPath>
+      </defs>
+      <rect width="80" height="80" fill={`url(#${pfx}_fg)`} clipPath={`url(#${pfx}_fc)`}/>
+      <ellipse cx="40" cy="30" rx="28" ry="28" fill={`url(#${pfx}_gw)`}/>
+
+      {/* 헤어 뒤 */}
+      <ellipse cx="40" cy="32" rx="22" ry="26" fill={pal[1]} opacity="0.95"/>
+      <ellipse cx="20" cy="42" rx="9" ry="18" fill={pal[1]} opacity="0.9"/>
+      <ellipse cx="60" cy="42" rx="9" ry="18" fill={pal[1]} opacity="0.9"/>
+
+      {/* 얼굴 */}
+      <ellipse cx="40" cy="42" rx="17" ry="19" fill={pal[2]}/>
+
+      {/* 헤어 앞 */}
+      <ellipse cx="40" cy="24" rx="20" ry="12" fill={pal[1]}/>
+      <ellipse cx="25" cy="30" rx="7" ry="10" fill={pal[1]}/>
+      <ellipse cx="55" cy="30" rx="7" ry="10" fill={pal[1]}/>
+      {/* 앞머리 */}
+      <path d="M26,26 Q32,18 40,20 Q48,18 54,26 Q50,30 40,28 Q30,30 26,26Z" fill={pal[1]}/>
+
+      {/* 눈썹 */}
+      <path d="M30,38 Q33,35 36,37" stroke={pal[0]} strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      <path d="M44,37 Q47,35 50,38" stroke={pal[0]} strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {/* 눈 */}
+      <ellipse cx="33" cy="41" rx="4" ry="3" fill={el.color} opacity="0.9"/>
+      <ellipse cx="47" cy="41" rx="4" ry="3" fill={el.color} opacity="0.9"/>
+      <ellipse cx="33" cy="41" rx="2" ry="2" fill="#111"/>
+      <ellipse cx="47" cy="41" rx="2" ry="2" fill="#111"/>
+      <circle  cx="34" cy="40" r="0.8" fill="rgba(255,255,255,0.7)"/>
+      <circle  cx="48" cy="40" r="0.8" fill="rgba(255,255,255,0.7)"/>
+
+      {/* 입 */}
+      <path d="M36,50 Q40,53 44,50" stroke={pal[1]} strokeWidth="1" fill="none" strokeLinecap="round"/>
+
+      {/* 상의 */}
+      <ellipse cx="40" cy="76" rx="22" ry="14" fill={pal[1]} opacity="0.9"/>
+
+      {/* 목 */}
+      <rect x="36" y="59" width="8" height="10" rx="4" fill={pal[2]}/>
+    </svg>
+  );
+}
+
+// 풀바디 (메인 필드용)
+function BodyArt({ char, height = 240, uid = '' }) {
+  const pal = PALS[char.pal % PALS.length];
+  const el  = ELEMENTS[char.element];
+  const w   = Math.round(height * 0.55);
+  const h   = height;
+  const pfx = `body_${char.id}_${uid}`;
+  return (
+    <svg width={w} height={h} viewBox="0 0 110 200" style={{ display:'block', overflow:'visible' }}>
+      <defs>
+        <radialGradient id={`${pfx}_bg`} cx="50%" cy="80%" r="50%">
+          <stop offset="0%" stopColor={el.color} stopOpacity="0.18"/>
+          <stop offset="100%" stopColor={el.color} stopOpacity="0"/>
+        </radialGradient>
+        <radialGradient id={`${pfx}_sk`} cx="50%" cy="40%" r="40%">
+          <stop offset="0%" stopColor={pal[2]} stopOpacity="1"/>
+          <stop offset="100%" stopColor={pal[2]} stopOpacity="0.85"/>
+        </radialGradient>
+      </defs>
+
+      {/* 원소 글로우 발광 */}
+      <ellipse cx="55" cy="185" rx="36" ry="10" fill={el.color} opacity="0.2"/>
+
+      {/* 다리 */}
+      <rect x="38" y="140" width="13" height="52" rx="6" fill={pal[1]} opacity="0.95"/>
+      <rect x="59" y="140" width="13" height="52" rx="6" fill={pal[1]} opacity="0.95"/>
+      {/* 발 */}
+      <ellipse cx="44" cy="192" rx="9" ry="5" fill={pal[0]}/>
+      <ellipse cx="66" cy="192" rx="9" ry="5" fill={pal[0]}/>
+
+      {/* 치마/하의 */}
+      <path d="M30,132 Q40,150 55,148 Q70,150 80,132 L76,120 Q55,130 34,120Z" fill={pal[1]} opacity="0.9"/>
+
+      {/* 상체 */}
+      <rect x="33" y="88" width="44" height="38" rx="8" fill={pal[1]} opacity="0.95"/>
+
+      {/* 팔 */}
+      <rect x="16" y="90" width="14" height="36" rx="7" fill={pal[1]} opacity="0.9"/>
+      <rect x="80" y="90" width="14" height="36" rx="7" fill={pal[1]} opacity="0.9"/>
+      {/* 손 */}
+      <ellipse cx="23" cy="130" rx="7" ry="6" fill={pal[2]}/>
+      <ellipse cx="87" cy="130" rx="7" ry="6" fill={pal[2]}/>
+
+      {/* 목 */}
+      <rect x="48" y="74" width="14" height="16" rx="7" fill={pal[2]}/>
+
+      {/* 헤어 뒤 */}
+      <ellipse cx="55" cy="56" rx="26" ry="28" fill={pal[1]}/>
+      <ellipse cx="28" cy="68" rx="10" ry="22" fill={pal[1]} opacity="0.9"/>
+      <ellipse cx="82" cy="68" rx="10" ry="22" fill={pal[1]} opacity="0.9"/>
+
+      {/* 얼굴 */}
+      <ellipse cx="55" cy="58" rx="21" ry="23" fill={pal[2]}/>
+
+      {/* 헤어 앞 */}
+      <ellipse cx="55" cy="40" rx="24" ry="14" fill={pal[1]}/>
+      <path d="M33,44 Q42,28 55,30 Q68,28 77,44 Q70,50 55,46 Q40,50 33,44Z" fill={pal[1]}/>
+
+      {/* 눈썹 */}
+      <path d="M42,52 Q46,47 50,50" stroke={pal[0]} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M60,50 Q64,47 68,52" stroke={pal[0]} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      {/* 눈 */}
+      <ellipse cx="46" cy="56" rx="5" ry="3.5" fill={el.color}/>
+      <ellipse cx="64" cy="56" rx="5" ry="3.5" fill={el.color}/>
+      <ellipse cx="46" cy="56" rx="2.5" ry="2.5" fill="#111"/>
+      <ellipse cx="64" cy="56" rx="2.5" ry="2.5" fill="#111"/>
+      <circle  cx="47" cy="55" r="1" fill="rgba(255,255,255,0.75)"/>
+      <circle  cx="65" cy="55" r="1" fill="rgba(255,255,255,0.75)"/>
+      {/* 입 */}
+      <path d="M49,67 Q55,71 61,67" stroke={pal[1]} strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+
+      {/* 원소 파티클 */}
+      {[[-12,20],[14,-8],[-8,-20],[18,8]].map(([dx,dy],i) => (
+        <circle key={i} cx={55+dx} cy={55+dy} r={1.5+(i%2)*0.8} fill={el.color} opacity={0.5+(i%3)*0.15}/>
+      ))}
+    </svg>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   GROUND RING (발 아래 원형)
+══════════════════════════════════════════════ */
+function GroundRing({ color, active }) {
+  return (
+    <div style={{
+      position:'absolute', bottom:0, left:'50%', transform:'translateX(-50%)',
+      width:'110px', height:'30px', pointerEvents:'none',
+    }}>
+      <svg width="110" height="30" viewBox="0 0 110 30" style={{ animation: active ? 'ringPulse 2s infinite' : 'none' }}>
+        <ellipse cx="55" cy="20" rx="50" ry="12" fill="none" stroke={color} strokeWidth="1.5" opacity="0.5"/>
+        <ellipse cx="55" cy="20" rx="38" ry="8" fill={color} opacity="0.06"/>
+        {active && <ellipse cx="55" cy="20" rx="50" ry="12" fill="none" stroke={color} strokeWidth="2.5" opacity="0.3"/>}
+      </svg>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   PARTY SLOT (우측 그리드, 젠존제 스타일)
+══════════════════════════════════════════════ */
+function PartySlot({ char, index, isSelected, isActive, onClick }) {
+  const isEmpty = !char;
+  const el = char ? ELEMENTS[char.element] : null;
+  const grade = char ? GRADES[char.grade] : null;
+  const label = `${index + 1}P`;
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        position:'relative',
+        width:'100%', aspectRatio:'1.4/1',
+        borderRadius:'6px',
+        border: isSelected
+          ? '2px solid #ffe234'
+          : isActive
+          ? '2px solid rgba(255,255,255,0.5)'
+          : '1px solid rgba(255,255,255,0.08)',
+        background: isEmpty
+          ? 'rgba(255,255,255,0.03)'
+          : `linear-gradient(135deg, ${PALS[char.pal%PALS.length][0]} 0%, #1a1a1a 100%)`,
+        cursor:'pointer', overflow:'hidden',
+        transition:'border-color 0.15s, transform 0.12s, box-shadow 0.15s',
+        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+        boxShadow: isSelected ? '0 0 16px rgba(255,226,52,0.4)' : 'none',
+        animation: isSelected ? 'borderGlow 1.5s infinite' : 'none',
+      }}
+    >
+      {isEmpty ? (
+        /* 빈 슬롯 */
+        <div style={{
+          width:'100%', height:'100%',
+          display:'flex', flexDirection:'column',
+          alignItems:'center', justifyContent:'center',
+          gap:'4px', animation:'emptyPulse 2s infinite',
+        }}>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4 3"/>
+            <text x="12" y="22" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="6" fontFamily="Rajdhani" fontWeight="700" letterSpacing="0.5">EMPTY</text>
+          </svg>
+          <span style={{ fontSize:'8px', color:'rgba(255,255,255,0.18)', fontFamily:'Rajdhani', fontWeight:700, letterSpacing:'0.1em' }}>
+            CHARACTER
+          </span>
+        </div>
+      ) : (
+        <>
+          {/* 페이스컷 */}
+          <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+            <FaceArt char={char} size={90} uid="slot"/>
+          </div>
+
+          {/* 스캔라인 오버레이 */}
+          <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+            <div style={{
+              position:'absolute', left:0, right:0, height:'2px',
+              background:'linear-gradient(to bottom, transparent, rgba(255,255,255,0.04), transparent)',
+              animation:'scanMove 3s linear infinite',
+            }}/>
+          </div>
+
+          {/* 등급 뱃지 */}
+          <div style={{
+            position:'absolute', top:4, left:4,
+            width:'18px', height:'18px', borderRadius:'4px',
+            background: grade.bg,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            border:`1px solid ${grade.color}60`,
+          }}>
+            <span style={{ fontSize:'9px', fontFamily:'Rajdhani', fontWeight:700, color:grade.color }}>
+              {char.grade}
+            </span>
+          </div>
+
+          {/* 순서 레이블 */}
+          <div style={{
+            position:'absolute', top:4, right:4,
+            background: isActive ? '#ffe234' : 'rgba(0,0,0,0.6)',
+            borderRadius:'4px', padding:'1px 5px',
+          }}>
+            <span style={{ fontSize:'9px', fontFamily:'Rajdhani', fontWeight:700, color: isActive ? '#111' : 'rgba(255,255,255,0.7)', letterSpacing:'0.03em' }}>
+              {label}
+            </span>
+          </div>
+
+          {/* 하단 정보 */}
+          <div style={{
+            position:'absolute', bottom:0, left:0, right:0,
+            padding:'3px 6px',
+            background:'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
+            display:'flex', alignItems:'center', gap:'4px',
+          }}>
+            <div style={{
+              width:'10px', height:'10px', borderRadius:'50%',
+              background: el.dark, border:`1px solid ${el.color}`,
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+            }}>
+              <span style={{ fontSize:'5px', color:el.color }}>★</span>
+            </div>
+            <span style={{ fontSize:'8px', color:'rgba(255,255,255,0.85)', fontFamily:'Noto Sans KR', fontWeight:500, flex:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+              Lv.{char.lv}
+            </span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   ROSTER CARD (하단 후보 목록)
+══════════════════════════════════════════════ */
+function RosterCard({ char, inParty, onClick }) {
+  const el = ELEMENTS[char.element];
+  const grade = GRADES[char.grade];
+  const [hov, setHov] = React.useState(false);
+
+  return (
+    <div
+      onClick={() => !inParty && onClick(char.id)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        position:'relative', flexShrink:0,
+        width:'68px',
+        borderRadius:'6px',
+        border:`1px solid ${inParty ? el.color + '80' : hov ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
+        background:`linear-gradient(160deg, ${PALS[char.pal%PALS.length][0]} 0%, #111 100%)`,
+        cursor: inParty ? 'default' : 'pointer',
+        overflow:'hidden',
+        transition:'border-color 0.15s, transform 0.12s',
+        transform: hov && !inParty ? 'translateY(-3px)' : 'none',
+        opacity: inParty ? 0.5 : 1,
+      }}
+    >
+      {/* 얼굴 */}
+      <div style={{ height:'68px', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+        <FaceArt char={char} size={72} uid="roster"/>
+      </div>
+
+      {/* 등급 */}
+      <div style={{
+        position:'absolute', top:3, left:3,
+        background:grade.bg, borderRadius:'3px', padding:'0 4px',
+        border:`0.5px solid ${grade.color}50`,
+      }}>
+        <span style={{ fontSize:'8px', color:grade.color, fontFamily:'Rajdhani', fontWeight:700 }}>{char.grade}</span>
+      </div>
+
+      {/* 원소 */}
+      <div style={{
+        position:'absolute', top:3, right:3,
+        width:'14px', height:'14px', borderRadius:'50%',
+        background:el.dark, border:`1px solid ${el.color}70`,
+        display:'flex', alignItems:'center', justifyContent:'center',
+      }}>
+        <span style={{ fontSize:'7px', color:el.color }}>★</span>
+      </div>
+
+      {/* 이름 + 레벨 */}
+      <div style={{
+        padding:'3px 4px 4px',
+        background:'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%)',
+        borderTop:'1px solid rgba(255,255,255,0.05)',
+      }}>
+        <div style={{ fontSize:'8px', color:'rgba(255,255,255,0.85)', fontFamily:'Noto Sans KR', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:'1px' }}>
+          {char.name}
+        </div>
+        <div style={{ fontSize:'7px', color:'rgba(255,255,255,0.45)', fontFamily:'Rajdhani', fontWeight:500 }}>
+          Lv.{char.lv}
+        </div>
+      </div>
+
+      {/* 출전 중 오버레이 */}
+      {inParty && (
+        <div style={{
+          position:'absolute', inset:0,
+          background:'rgba(0,0,0,0.35)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>
+          <div style={{
+            background:'rgba(255,255,255,0.15)', borderRadius:'4px',
+            padding:'2px 6px', backdropFilter:'blur(4px)',
+          }}>
+            <span style={{ fontSize:'7px', color:'rgba(255,255,255,0.7)', fontFamily:'Rajdhani', fontWeight:700, letterSpacing:'0.05em' }}>출전 중</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   ELEMENT FILTER BUTTON
+══════════════════════════════════════════════ */
+function ElBtn({ elKey, active, onClick }) {
+  const el = ELEMENTS[elKey];
+  return (
+    <button onClick={() => onClick(elKey)} style={{
+      flexShrink:0, padding:'3px 10px', borderRadius:'20px',
+      background: active ? el.dark : 'transparent',
+      border:`1px solid ${active ? el.color : 'rgba(255,255,255,0.12)'}`,
+      color: active ? el.color : 'rgba(255,255,255,0.45)',
+      fontSize:'9px', fontFamily:'Rajdhani', fontWeight:600, letterSpacing:'0.05em',
+      cursor:'pointer', transition:'all 0.15s', whiteSpace:'nowrap',
+    }}>{el.label}</button>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   MAIN APP
+══════════════════════════════════════════════ */
+function App() {
+  const MAX_SLOTS = 4;
+  const [partyIds, setPartyIds]       = React.useState([1, 2, 3, 4]);
+  const [activeIdx, setActiveIdx]     = React.useState(1); // 0-based → 파티 내 index
+  const [selectedSlot, setSelectedSlot] = React.useState(null); // null or 0~3
+  const [previewId, setPreviewId]     = React.useState(1);
+  const [filterEl, setFilterEl]       = React.useState('all');
+  const [sortMode, setSortMode]       = React.useState('grade');
+  const [showRoster, setShowRoster]   = React.useState(false);
+  const [quickMode, setQuickMode]     = React.useState(false);
+
+  const getChar = id => ALL_CHARS.find(c => c.id === id) || null;
+  const partyChars = partyIds.map(id => getChar(id));
+  const previewChar = getChar(previewId);
+
+  // 슬롯 클릭
+  const onSlotClick = (i) => {
+    const c = partyChars[i];
+    if (c) setPreviewId(c.id);
+    if (showRoster) {
+      setSelectedSlot(selectedSlot === i ? null : i);
+    } else {
+      if (c) setActiveIdx(i);
+    }
+  };
+
+  // 로스터에서 캐릭터 선택
+  const onRosterPick = (charId) => {
+    if (partyIds.includes(charId)) return;
+    if (selectedSlot !== null) {
+      const next = [...partyIds];
+      next[selectedSlot] = charId;
+      setPartyIds(next);
+      setSelectedSlot(null);
+      setPreviewId(charId);
+    } else {
+      const emptyIdx = partyIds.indexOf(null);
+      if (emptyIdx >= 0) {
+        const next = [...partyIds];
+        next[emptyIdx] = charId;
+        setPartyIds(next);
+        setPreviewId(charId);
+      } else if (partyIds.length < MAX_SLOTS) {
+        setPartyIds([...partyIds, charId]);
+        setPreviewId(charId);
+      }
+    }
+  };
+
+  // 슬롯에서 제거
+  const onSlotRemove = (i) => {
+    const next = [...partyIds];
+    next.splice(i, 1);
+    setPartyIds(next);
+    if (activeIdx >= next.length) setActiveIdx(Math.max(0, next.length - 1));
+    setSelectedSlot(null);
+  };
+
+  // 로스터 필터 + 정렬
+  const sortedRoster = React.useMemo(() => {
+    let list = [...ALL_CHARS];
+    if (filterEl !== 'all') list = list.filter(c => c.element === filterEl);
+    if (sortMode === 'grade') {
+      list.sort((a,b) => {
+        if (a.grade !== b.grade) return a.grade === 'S' ? -1 : 1;
+        return b.lv - a.lv;
+      });
+    } else if (sortMode === 'lv') {
+      list.sort((a,b) => b.lv - a.lv);
+    } else {
+      list.sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+    }
+    return list;
+  }, [filterEl, sortMode]);
+
+  const activeEl = previewChar ? ELEMENTS[previewChar.element] : ELEMENTS.wind;
+
+  return (
+    <div style={{
+      width:'100%', height:'100%',
+      background:'#0e0e0e',
+      position:'relative', overflow:'hidden',
+      display:'flex', flexDirection:'column',
+      fontFamily:'Noto Sans KR, sans-serif',
+      color:'#fff',
+    }}>
+
+      {/* ── 배경 워터마크 타이포 (이환 스타일) ── */}
+      <div style={{
+        position:'absolute', top:'50%', left:'50%',
+        transform:'translate(-55%, -52%)',
+        fontSize:'220px', fontFamily:'Bebas Neue', fontWeight:400,
+        color:'transparent',
+        WebkitTextStroke:'1px rgba(255,255,255,0.04)',
+        pointerEvents:'none', userSelect:'none', lineHeight:0.85,
+        letterSpacing:'-0.02em', whiteSpace:'nowrap',
+      }}>
+        PARTY
+      </div>
+      <div style={{
+        position:'absolute', top:'55%', left:'48%',
+        transform:'translate(-50%, -40%)',
+        fontSize:'90px', fontFamily:'Bebas Neue',
+        color:'rgba(255,255,255,0.025)',
+        pointerEvents:'none', userSelect:'none', letterSpacing:'0.1em', whiteSpace:'nowrap',
+      }}>
+        FORMATION
+      </div>
+
+      {/* 원소 글로우 배경 */}
+      <div style={{
+        position:'absolute', top:'30%', left:'35%',
+        width:'500px', height:'500px',
+        borderRadius:'50%',
+        background:`radial-gradient(circle, ${activeEl.color}12 0%, transparent 70%)`,
+        pointerEvents:'none', transition:'background 0.6s ease',
+        transform:'translate(-50%,-50%)',
+      }}/>
+
+      {/* ── 상단 헤더 ── */}
+      <div style={{
+        display:'flex', alignItems:'center', gap:'12px',
+        padding:'10px 16px 8px',
+        borderBottom:'1px solid rgba(255,255,255,0.07)',
+        flexShrink:0, zIndex:10,
+      }}>
+        {/* 로고/아이콘 */}
+        <div style={{
+          width:'30px', height:'30px', borderRadius:'50%',
+          background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.2"/>
+            <circle cx="8" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+          </svg>
+        </div>
+
+        <span style={{ fontSize:'13px', fontWeight:700, letterSpacing:'0.04em' }}>파티 편성</span>
+
+        {/* 파티 이름 */}
+        <div style={{
+          padding:'4px 14px', borderRadius:'20px',
+          background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)',
+          display:'flex', alignItems:'center', gap:'6px',
+        }}>
+          <span style={{ fontSize:'12px', fontWeight:500 }}>파티 1</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" style={{ opacity:0.4 }}>
+            <path d="M2,2 L8,5 L2,8" fill="none" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div style={{ flex:1 }}/>
+
+        {/* 빠른 편성 토글 */}
+        <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+          <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.5)', letterSpacing:'0.05em' }}>빠른 편성</span>
+          <div
+            onClick={() => setQuickMode(p=>!p)}
+            style={{
+              width:'36px', height:'20px', borderRadius:'10px',
+              background: quickMode ? '#4cd97a' : 'rgba(255,255,255,0.1)',
+              border: quickMode ? '1px solid #4cd97a' : '1px solid rgba(255,255,255,0.2)',
+              position:'relative', cursor:'pointer', transition:'all 0.2s',
+            }}
+          >
+            <div style={{
+              position:'absolute', top:'2px',
+              left: quickMode ? '18px' : '2px',
+              width:'14px', height:'14px', borderRadius:'50%',
+              background:'white', transition:'left 0.2s',
+              boxShadow:'0 1px 4px rgba(0,0,0,0.4)',
+            }}/>
+          </div>
+          <span style={{ fontSize:'9px', fontFamily:'Rajdhani', fontWeight:700, color: quickMode ? '#4cd97a' : 'rgba(255,255,255,0.3)', letterSpacing:'0.08em' }}>
+            {quickMode ? 'ON' : 'OFF'}
+          </span>
+        </div>
+
+        {/* 닫기 */}
+        <button style={{
+          width:'28px', height:'28px', borderRadius:'50%',
+          background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+          color:'rgba(255,255,255,0.6)', cursor:'pointer', fontSize:'13px',
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>✕</button>
+      </div>
+
+      {/* ── 메인 레이아웃 ── */}
+      <div style={{ flex:1, display:'flex', overflow:'hidden', minHeight:0 }}>
+
+        {/* 왼쪽: 파티 번호 인덱스 (이환 스타일) */}
+        <div style={{
+          width:'44px', flexShrink:0,
+          display:'flex', flexDirection:'column',
+          alignItems:'center', paddingTop:'20px', gap:'10px',
+          borderRight:'1px solid rgba(255,255,255,0.05)',
+        }}>
+          {Array.from({length:6}).map((_,i) => {
+            const slotChar = partyChars[i];
+            const isOccupied = !!slotChar;
+            const isAct = i === activeIdx && isOccupied;
+            return (
+              <div
+                key={i}
+                onClick={() => isOccupied && onSlotClick(i)}
+                style={{
+                  width:'28px', height:'28px', borderRadius:'50%',
+                  border:`1.5px solid ${isAct ? activeEl.color : isOccupied ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.07)'}`,
+                  background: isAct ? activeEl.dark : 'transparent',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  cursor: isOccupied ? 'pointer' : 'default',
+                  transition:'all 0.2s',
+                  boxShadow: isAct ? `0 0 8px ${activeEl.color}50` : 'none',
+                }}
+              >
+                <span style={{
+                  fontSize:'10px', fontFamily:'Rajdhani', fontWeight:700,
+                  color: isAct ? activeEl.color : isOccupied ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)',
+                }}>
+                  {String(i+1).padStart(2,'0')}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 중앙: 캐릭터 필드 (이환 스타일 — 캐릭터들이 서있음) */}
+        <div style={{
+          flex:1, position:'relative',
+          display:'flex', alignItems:'flex-end', justifyContent:'center',
+          paddingBottom:'16px', gap:'0',
+          overflow:'hidden',
+        }}>
+          {partyChars.map((char, i) => {
+            if (!char) return null;
+            const el   = ELEMENTS[char.element];
+            const isAct = i === activeIdx;
+            const scale = isAct ? 1 : 0.82;
+            const z     = isAct ? 10 : 1;
+            return (
+              <div
+                key={char.id}
+                onClick={() => { setActiveIdx(i); setPreviewId(char.id); }}
+                style={{
+                  position:'relative',
+                  transform:`scale(${scale})`,
+                  transformOrigin:'bottom center',
+                  zIndex:z,
+                  cursor:'pointer',
+                  transition:'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), z-index 0s',
+                  marginLeft: i===0 ? 0 : '-12px',
+                  animation:`floatUp 0.35s ease ${i*0.07}s both`,
+                }}
+              >
+                <BodyArt char={char} height={isAct ? 220 : 190} uid={`field_${i}`}/>
+                <GroundRing color={el.color} active={isAct}/>
+
+                {/* 이름 라벨 (발 아래) */}
+                <div style={{
+                  position:'absolute', bottom:'-2px', left:'50%',
+                  transform:'translateX(-50%)',
+                  display:'flex', alignItems:'center', gap:'4px',
+                  whiteSpace:'nowrap',
+                }}>
+                  <div style={{
+                    width:'14px', height:'14px', borderRadius:'50%',
+                    background:el.dark, border:`1px solid ${el.color}`,
+                    display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+                  }}>
+                    <span style={{ fontSize:'6px', color:el.color }}>★</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:'7px', color:'rgba(255,255,255,0.5)', fontFamily:'Rajdhani' }}>Lv.{char.lv}</div>
+                    <div style={{ fontSize:'11px', fontWeight:700, color: isAct ? '#fff' : 'rgba(255,255,255,0.6)', marginTop:'-1px' }}>{char.name}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 오른쪽: 파티 슬롯 그리드 (젠존제 스타일) */}
+        <div style={{
+          width:'200px', flexShrink:0,
+          display:'flex', flexDirection:'column',
+          padding:'12px 8px', gap:'6px',
+          borderLeft:'1px solid rgba(255,255,255,0.05)',
+        }}>
+          {/* 필터/정렬 아이콘 */}
+          <div style={{ display:'flex', gap:'4px', justifyContent:'flex-end', marginBottom:'2px' }}>
+            <button style={{
+              width:'24px', height:'24px', borderRadius:'50%',
+              background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+              color:'rgba(255,255,255,0.4)', cursor:'pointer', fontSize:'10px',
+              display:'flex', alignItems:'center', justifyContent:'center',
+            }}>
+              <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1,2h10M2,6h8M4,10h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+            </button>
+            <button style={{
+              width:'24px', height:'24px', borderRadius:'50%',
+              background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+              color:'rgba(255,255,255,0.4)', cursor:'pointer',
+              display:'flex', alignItems:'center', justifyContent:'center',
+            }}>
+              <svg width="12" height="12" viewBox="0 0 12 12"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" fill="currentColor"/></svg>
+            </button>
+          </div>
+
+          {/* 2x2 슬롯 그리드 */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px', flex:1 }}>
+            {Array.from({length:MAX_SLOTS}).map((_,i) => (
+              <PartySlot
+                key={i}
+                char={partyChars[i] || null}
+                index={i}
+                isSelected={selectedSlot === i}
+                isActive={i === activeIdx}
+                onClick={() => {
+                  onSlotClick(i);
+                  if (showRoster) {
+                    setSelectedSlot(selectedSlot === i ? null : i);
+                  }
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 슬롯 제거 버튼 (선택된 슬롯이 있을 때) */}
+          {selectedSlot !== null && partyChars[selectedSlot] && (
+            <button
+              onClick={() => onSlotRemove(selectedSlot)}
+              style={{
+                padding:'5px', borderRadius:'5px', border:'1px solid rgba(224,80,80,0.4)',
+                background:'rgba(224,80,80,0.1)', color:'rgba(224,80,80,0.8)',
+                fontSize:'9px', fontFamily:'Rajdhani', fontWeight:700, letterSpacing:'0.06em',
+                cursor:'pointer',
+              }}
+            >
+              슬롯에서 제거
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── 하단 버튼 바 ── */}
+      <div style={{
+        display:'flex', alignItems:'center', gap:'8px',
+        padding:'8px 16px',
+        borderTop:'1px solid rgba(255,255,255,0.07)',
+        flexShrink:0,
+      }}>
+        <button
+          onClick={() => { setShowRoster(p=>!p); setSelectedSlot(null); }}
+          style={{
+            padding:'7px 24px', borderRadius:'6px',
+            background: showRoster ? 'rgba(76,217,122,0.2)' : 'rgba(255,255,255,0.08)',
+            border: showRoster ? '1px solid rgba(76,217,122,0.6)' : '1px solid rgba(255,255,255,0.15)',
+            color: showRoster ? '#4cd97a' : 'rgba(255,255,255,0.8)',
+            fontSize:'12px', fontWeight:700, cursor:'pointer',
+            transition:'all 0.2s',
+          }}
+        >
+          {showRoster ? '편성 완료' : '일괄 편성'}
+        </button>
+        <button style={{
+          padding:'7px 24px', borderRadius:'6px',
+          background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)',
+          color:'rgba(255,255,255,0.4)', fontSize:'12px', fontWeight:700, cursor:'not-allowed',
+        }}>
+          활성화팀
+        </button>
+
+        <div style={{ flex:1 }}/>
+
+        <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.2)', fontFamily:'Rajdhani', letterSpacing:'0.06em' }}>
+          UID: 2148080809137
+        </span>
+      </div>
+
+      {/* ══ 로스터 패널 (하단 슬라이딩 서랍) ══ */}
+      {showRoster && (
+        <div style={{
+          position:'absolute', bottom:0, left:0, right:0,
+          height:'210px',
+          background:'rgba(12,12,12,0.97)',
+          borderTop:'1px solid rgba(255,255,255,0.1)',
+          backdropFilter:'blur(12px)',
+          display:'flex', flexDirection:'column',
+          animation:'floatUp 0.25s ease',
+          zIndex:30,
+        }}>
+          {/* 헤더 */}
+          <div style={{
+            display:'flex', alignItems:'center', gap:'8px',
+            padding:'8px 14px 5px', borderBottom:'1px solid rgba(255,255,255,0.06)',
+            flexShrink:0,
+          }}>
+            <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', fontFamily:'Rajdhani', fontWeight:700, letterSpacing:'0.1em', flex:1 }}>
+              ROSTER — {ALL_CHARS.length} 캐릭터
+              {selectedSlot !== null && <span style={{ color:'#ffe234', marginLeft:'8px' }}>슬롯 {selectedSlot+1} 선택 중</span>}
+            </span>
+
+            {/* 정렬 */}
+            <div style={{ display:'flex', gap:'3px' }}>
+              {[{id:'grade',label:'등급'},{id:'lv',label:'레벨'},{id:'name',label:'이름'}].map(s => (
+                <button key={s.id} onClick={() => setSortMode(s.id)} style={{
+                  padding:'2px 8px', borderRadius:'4px', cursor:'pointer',
+                  background: sortMode===s.id ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  border:`1px solid ${sortMode===s.id ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  color: sortMode===s.id ? '#fff' : 'rgba(255,255,255,0.35)',
+                  fontSize:'9px', fontFamily:'Rajdhani', fontWeight:600, letterSpacing:'0.05em',
+                  transition:'all 0.15s',
+                }}>{s.label}</button>
+              ))}
+            </div>
+
+            {/* 닫기 */}
+            <button onClick={() => { setShowRoster(false); setSelectedSlot(null); }} style={{
+              background:'none', border:'none', color:'rgba(255,255,255,0.4)',
+              cursor:'pointer', fontSize:'14px', lineHeight:1, padding:'0 2px',
+            }}>✕</button>
+          </div>
+
+          {/* 원소 필터 */}
+          <div style={{
+            display:'flex', gap:'5px', padding:'6px 14px',
+            overflowX:'auto', flexShrink:0,
+          }}>
+            <button onClick={() => setFilterEl('all')} style={{
+              flexShrink:0, padding:'3px 10px', borderRadius:'20px',
+              background: filterEl==='all' ? 'rgba(255,255,255,0.12)' : 'transparent',
+              border:`1px solid ${filterEl==='all' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              color: filterEl==='all' ? '#fff' : 'rgba(255,255,255,0.4)',
+              fontSize:'9px', fontFamily:'Rajdhani', fontWeight:600, letterSpacing:'0.05em',
+              cursor:'pointer', transition:'all 0.15s',
+            }}>전체</button>
+            {Object.keys(ELEMENTS).map(key => (
+              <ElBtn key={key} elKey={key} active={filterEl===key} onClick={setFilterEl}/>
+            ))}
+          </div>
+
+          {/* 캐릭터 가로 스크롤 */}
+          <div style={{
+            flex:1, display:'flex', alignItems:'flex-start',
+            gap:'6px', padding:'4px 14px 10px',
+            overflowX:'auto', overflowY:'hidden',
+          }}>
+            {sortedRoster.map(char => (
+              <RosterCard
+                key={char.id}
+                char={char}
+                inParty={partyIds.includes(char.id)}
+                onClick={onRosterPick}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══ Tweaks 패널 ══ */}
+      <TweaksPanel/>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   TWEAKS (인라인)
+══════════════════════════════════════════════ */
+const TWEAK_CSS = `
+  .twk{position:fixed;right:14px;bottom:14px;z-index:9999;width:240px;
+    background:rgba(14,14,14,0.94);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.12);border-radius:10px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.7);
+    font:11px/1.4 'Rajdhani',sans-serif;color:#ddd;overflow:hidden;}
+  .twk-h{display:flex;align-items:center;justify-content:space-between;
+    padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:move;user-select:none;}
+  .twk-h b{font-size:11px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.6);}
+  .twk-x{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;}
+  .twk-x:hover{color:#fff;}
+  .twk-b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;}
+  .twk-s{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+    color:rgba(255,255,255,0.25);padding-top:4px;}
+  .twk-row{display:flex;flex-direction:column;gap:3px;}
+  .twk-rh{flex-direction:row;align-items:center;justify-content:space-between;}
+  .twk-l{font-size:10px;color:rgba(255,255,255,0.5);font-weight:500;}
+  .twk-seg{display:flex;padding:2px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);}
+  .twk-seg button{flex:1;border:none;background:transparent;color:rgba(255,255,255,0.35);
+    font:inherit;font-size:9px;font-weight:600;padding:3px 5px;border-radius:4px;cursor:pointer;transition:all .15s;letter-spacing:0.03em;}
+  .twk-seg button.on{background:rgba(255,255,255,0.1);color:#fff;}
+  .twk-tog{position:relative;width:30px;height:17px;border:none;border-radius:999px;
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+    transition:all .15s;cursor:pointer;padding:0;flex-shrink:0;}
+  .twk-tog.on{background:rgba(76,217,122,0.35);border-color:rgba(76,217,122,0.5);}
+  .twk-tog i{position:absolute;top:2px;left:2px;width:11px;height:11px;
+    border-radius:50%;background:rgba(255,255,255,0.5);transition:transform .15s;}
+  .twk-tog.on i{transform:translateX(13px);background:#4cd97a;}
+`;
+
+function TweaksPanel() {
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const fn = e => {
+      if (e?.data?.type === '__activate_edit_mode') setOpen(true);
+      else if (e?.data?.type === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', fn);
+    window.parent.postMessage({ type:'__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', fn);
+  }, []);
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{TWEAK_CSS}</style>
+      <div className="twk">
+        <div className="twk-h">
+          <b>TWEAKS</b>
+          <button className="twk-x" onClick={() => { setOpen(false); window.parent.postMessage({type:'__edit_mode_dismissed'},'*'); }}>✕</button>
+        </div>
+        <div className="twk-b">
+          <div className="twk-s">미리보기용 옵션</div>
+          <div className="twk-row">
+            <span className="twk-l">이 UI는 Tweaks로 실시간 수정이 지원됩니다.</span>
+            <span style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',lineHeight:1.5}}>파티 슬롯 클릭, 로스터 열기, 캐릭터 선택 등 모든 인터랙션이 작동합니다.</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

@@ -57,6 +57,7 @@
         public const string Inventory = "Inventory";
         public const string EquipInventory = "EquipInventory";
         public const string Map = "Map";
+        public const string Party = "Party";
         
         public const string Submit = "Submit";
         public const string Cancel = "Cancel";

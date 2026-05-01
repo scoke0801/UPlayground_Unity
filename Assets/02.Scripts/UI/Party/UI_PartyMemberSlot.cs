@@ -14,7 +14,7 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
     {
         Battle,     // 출전 슬롯 — 캐릭터 있음
         Empty,      // 출전 슬롯 — 비어있음 (편성 모드 전용)
-        Candidate,  // 후보 슬롯 — Roster - BattleOrder
+        Candidate,  // 로스터 슬롯 — Roster
     }
 
     [SerializeField] private Button _button;
@@ -26,6 +26,7 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _hpText;
     [SerializeField] private TextMeshProUGUI _stateText;
+    [SerializeField] private TextMeshProUGUI _orderText;
 
     private UI_PartySelect _parent;
     private int _index;
@@ -67,11 +68,18 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
         if (_nameText != null)       _nameText.text = characterType.ToString();
         if (_hpText != null)         _hpText.text = $"{Mathf.CeilToInt(currentHp)}/{Mathf.CeilToInt(maxHp)}";
         if (_stateText != null)      _stateText.text = isDead ? "전투 불능" : (isActive ? "출전 중" : string.Empty);
+        if (_orderText != null)      _orderText.text = $"{index + 1}P";
         if (_button != null)         _button.interactable = canSelect;
     }
 
     public void InitCandidate(UI_PartySelect parent, int index, CharacterActorType characterType,
         float currentHp, float maxHp, bool canSelect)
+    {
+        InitRoster(parent, index, characterType, currentHp, maxHp, false, canSelect);
+    }
+
+    public void InitRoster(UI_PartySelect parent, int index, CharacterActorType characterType,
+        float currentHp, float maxHp, bool inBattle, bool canSelect)
     {
         _parent = parent;
         _index = index;
@@ -84,11 +92,12 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
         SetEmptyOverlay(false);
 
         if (_hpFill != null)         _hpFill.fillAmount = hpRatio;
-        if (_activeMark != null)     _activeMark.gameObject.SetActive(false);
+        if (_activeMark != null)     _activeMark.gameObject.SetActive(inBattle);
         if (_deadOverlay != null)    _deadOverlay.gameObject.SetActive(isDead);
         if (_nameText != null)       _nameText.text = characterType.ToString();
         if (_hpText != null)         _hpText.text = $"{Mathf.CeilToInt(currentHp)}/{Mathf.CeilToInt(maxHp)}";
-        if (_stateText != null)      _stateText.text = isDead ? "전투 불능" : "후보";
+        if (_stateText != null)      _stateText.text = isDead ? "전투 불능" : (inBattle ? "출전 중" : "로스터");
+        if (_orderText != null)      _orderText.text = string.Empty;
         if (_button != null)         _button.interactable = canSelect;
     }
 
@@ -107,6 +116,7 @@ public class UI_PartyMemberSlot : MonoBehaviour, IPointerEnterHandler
         if (_nameText != null)       _nameText.text = string.Empty;
         if (_hpText != null)         _hpText.text = string.Empty;
         if (_stateText != null)      _stateText.text = "빈 슬롯";
+        if (_orderText != null)      _orderText.text = $"{index + 1}P";
         if (_button != null)         _button.interactable = canSelect;
     }
 

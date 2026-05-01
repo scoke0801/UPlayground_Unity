@@ -606,7 +606,7 @@
                 {
                     "name": "",
                     "id": "e3c4d5f6-a7b8-9012-cdef-012345678902",
-                    "path": "<Keyboard>/p",
+                    "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -797,6 +797,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Party",
+                    "type": "Button",
+                    "id": "b296e128-f205-4ee8-85de-c30ababc4cfb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -951,6 +960,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Map",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6c4e56a3-d96c-4884-9bae-4b612bd85d5f",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Party",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

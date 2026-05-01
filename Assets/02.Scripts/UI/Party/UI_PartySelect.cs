@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
@@ -20,10 +21,17 @@ public class UI_PartySelect : UI_Base
     [SerializeField] private UI_PartyMemberSlot _slotPrefab;
     [SerializeField] private Transform _slotRoot;
 
-    [Header("Candidate")]
-    [SerializeField] private UI_PartyMemberSlot _candidatePrefab;
-    [SerializeField] private Transform _candidateRoot;
-    [SerializeField] private GameObject _candidatePanel;
+    [Header("Roster Drawer")]
+    [FormerlySerializedAs("_candidatePrefab")]
+    [SerializeField] private UI_PartyMemberSlot _rosterSlotPrefab;
+    [FormerlySerializedAs("_candidateRoot")]
+    [SerializeField] private Transform _rosterRoot;
+    [FormerlySerializedAs("_candidatePanel")]
+    [SerializeField] private GameObject _rosterPanel;
+    [SerializeField] private Button _rosterToggleButton;
+    [SerializeField] private Button _rosterCloseButton;
+    [SerializeField] private TextMeshProUGUI _rosterToggleText;
+    [SerializeField] private TextMeshProUGUI _rosterCountText;
 
     [Header("Current")]
     [SerializeField] private RawImage _characterPreview;
@@ -34,20 +42,26 @@ public class UI_PartySelect : UI_Base
 
     [Header("Header")]
     [SerializeField] private TextMeshProUGUI _battleSizeText;
+    [SerializeField] private TextMeshProUGUI _selectedSlotText;
     [SerializeField] private Toggle _formationToggle;
+
+    [Header("Party Field")]
+    [SerializeField] private RawImage[] _fieldPreviews;
+    [SerializeField] private UICharacterPreviewRenderer[] _fieldPreviewRenderers;
 
     [Header("Button")]
     [SerializeField] private Button _closeButton;
+    [SerializeField] private Button _removeSlotButton;
 
     [Header("Option")]
     [SerializeField] private bool _pauseGameOnShow = true;
     [SerializeField] private bool _hideAfterSelect = true;
 
     private readonly List<UI_PartyMemberSlot> _slots = new();
-    private readonly List<UI_PartyMemberSlot> _candidateSlots = new();
+    private readonly List<UI_PartyMemberSlot> _rosterSlots = new();
     private int _previewBattleIndex = -1;
     private int _selectedBattleIndex = -1;
-    private bool _formationMode = false;
+    private bool _rosterOpen = false;
 
     protected override void Awake()
     {
@@ -60,6 +74,21 @@ public class UI_PartySelect : UI_Base
             _closeButton.onClick.AddListener(Hide);
         }
 
+        if (_rosterToggleButton != null)
+        {
+            _rosterToggleButton.onClick.AddListener(ToggleRosterDrawer);
+        }
+
+        if (_rosterCloseButton != null)
+        {
+            _rosterCloseButton.onClick.AddListener(CloseRosterDrawer);
+        }
+
+        if (_removeSlotButton != null)
+        {
+            _removeSlotButton.onClick.AddListener(RemoveSelectedBattleSlot);
+        }
+
         if (_formationToggle != null)
         {
             _formationToggle.onValueChanged.AddListener(SetFormationMode);
@@ -69,6 +98,8 @@ public class UI_PartySelect : UI_Base
         {
             _characterPreview.texture = _previewRenderer.GetRenderTexture();
         }
+
+        BindFieldPreviewTextures();
     }
 
     protected override void OnShow()
@@ -92,6 +123,7 @@ public class UI_PartySelect : UI_Base
         }
 
         _selectedBattleIndex = -1;
+        SetRosterDrawer(false);
         Refresh();
         PreviewMember(partyManager?.ActiveIndex ?? 0);
     }
@@ -117,6 +149,8 @@ public class UI_PartySelect : UI_Base
             _previewRenderer.HidePreview();
         }
 
+        HideFieldPreviews();
+
         InputManager.Instance?.SetInputLayer(InputLayer.None);
 
         base.OnHide();
@@ -130,15 +164,7 @@ public class UI_PartySelect : UI_Base
 
     public void SetFormationMode(bool on)
     {
-        _formationMode = on;
-        _selectedBattleIndex = -1;
-
-        if (_candidatePanel != null)
-        {
-            _candidatePanel.SetActive(on);
-        }
-
-        Refresh();
+        SetRosterDrawer(on);
     }
 
     public void Refresh()
@@ -150,8 +176,11 @@ public class UI_PartySelect : UI_Base
         {
             SetCurrentInfo(CharacterActorType.None, 0f, 0f);
             SetSlotCount(0);
-            SetCandidateCount(0);
+            SetRosterSlotCount(0);
             UpdateBattleSizeText(0, 0);
+            UpdateRosterHeader(0, 0);
+            UpdateSelectedSlotState();
+            HideFieldPreviews();
             return;
         }
 
@@ -160,10 +189,11 @@ public class UI_PartySelect : UI_Base
 
         IReadOnlyList<CharacterActorType> battleOrder = partyManager.BattleOrder;
         int maxBattle = partyManager.MaxBattleSize;
-        int slotCount = _formationMode ? maxBattle : battleOrder.Count;
+        int slotCount = maxBattle;
 
         SetSlotCount(slotCount);
         UpdateBattleSizeText(battleOrder.Count, maxBattle);
+        UpdateFieldPreviews(battleOrder);
 
         bool canSwap = partyManager.CanSwap();
 
@@ -178,70 +208,62 @@ public class UI_PartySelect : UI_Base
                     : maxHp;
                 bool isActive = (i == partyManager.ActiveIndex);
 
-                bool canSelect = _formationMode
-                    ? true                     // 편성 모드: 슬롯 선택용
-                    : canSwap && !isActive && currentHp > 0f;
+                bool canSelect = _rosterOpen || (canSwap && !isActive && currentHp > 0f);
 
                 _slots[i].InitBattle(this, i, type, currentHp, maxHp, isActive, canSelect);
             }
             else
             {
-                _slots[i].InitEmpty(this, i, _formationMode);
+                _slots[i].InitEmpty(this, i, _rosterOpen);
             }
 
-            _slots[i].SetFocused(_formationMode
+            _slots[i].SetFocused(_rosterOpen
                 ? i == _selectedBattleIndex
                 : i == _previewBattleIndex);
         }
 
-        RefreshCandidates(player);
+        RefreshRoster(player);
+        UpdateSelectedSlotState();
     }
 
-    private void RefreshCandidates(PlayerActor player)
+    private void RefreshRoster(PlayerActor player)
     {
         var partyManager = PartyManager.Instance;
         if (partyManager == null)
         {
-            SetCandidateCount(0);
+            SetRosterSlotCount(0);
             return;
         }
 
-        if (_candidatePanel != null)
+        if (_rosterPanel != null)
         {
-            _candidatePanel.SetActive(_formationMode);
+            _rosterPanel.SetActive(_rosterOpen);
         }
 
-        if (!_formationMode || _candidatePrefab == null || _candidateRoot == null)
+        if (!_rosterOpen || _rosterSlotPrefab == null || _rosterRoot == null)
         {
-            SetCandidateCount(0);
+            SetRosterSlotCount(0);
+            UpdateRosterHeader(partyManager.Roster.Count, partyManager.BattleOrder.Count);
             return;
         }
 
         IReadOnlyList<CharacterActorType> roster = partyManager.Roster;
         IReadOnlyList<CharacterActorType> battleOrder = partyManager.BattleOrder;
 
-        var candidateTypes = new List<CharacterActorType>(roster.Count);
+        SetRosterSlotCount(roster.Count);
+        UpdateRosterHeader(roster.Count, battleOrder.Count);
+
         for (int i = 0; i < roster.Count; ++i)
         {
-            if (!battleOrder.Contains(roster[i]))
-            {
-                candidateTypes.Add(roster[i]);
-            }
-        }
-
-        SetCandidateCount(candidateTypes.Count);
-
-        bool battleHasRoom = battleOrder.Count < partyManager.MaxBattleSize || _selectedBattleIndex >= 0;
-
-        for (int i = 0; i < candidateTypes.Count; ++i)
-        {
-            CharacterActorType type = candidateTypes[i];
+            CharacterActorType type = roster[i];
             float maxHp = player.GetMaxHealthForCharacter(type);
             float currentHp = player.HasHealthRecordForCharacter(type)
                 ? player.GetHealthForCharacter(type)
                 : maxHp;
+            bool inBattle = battleOrder.Contains(type);
+            bool canSelect = !inBattle && (battleOrder.Count < partyManager.MaxBattleSize || _selectedBattleIndex >= 0);
 
-            _candidateSlots[i].InitCandidate(this, i, type, currentHp, maxHp, battleHasRoom);
+            _rosterSlots[i].InitRoster(this, i, type, currentHp, maxHp, inBattle, canSelect);
         }
     }
 
@@ -260,7 +282,7 @@ public class UI_PartySelect : UI_Base
         CharacterActorType type = battleOrder[index];
         ShowPreviewFor(type);
 
-        if (!_formationMode)
+        if (!_rosterOpen)
         {
             for (int i = 0; i < _slots.Count; ++i)
             {
@@ -274,10 +296,10 @@ public class UI_PartySelect : UI_Base
         var partyManager = PartyManager.Instance;
         if (partyManager == null) return;
 
-        var candidates = GetCurrentCandidates();
-        if (candidateIndex < 0 || candidateIndex >= candidates.Count) return;
+        var roster = partyManager.Roster;
+        if (candidateIndex < 0 || candidateIndex >= roster.Count) return;
 
-        ShowPreviewFor(candidates[candidateIndex]);
+        ShowPreviewFor(roster[candidateIndex]);
     }
 
     /// <summary>
@@ -285,7 +307,7 @@ public class UI_PartySelect : UI_Base
     /// </summary>
     public void OnBattleSlotClicked(int slotIndex)
     {
-        if (!_formationMode)
+        if (!_rosterOpen)
         {
             // 스왑 모드: 즉시 교체
             SelectMember(slotIndex);
@@ -294,6 +316,7 @@ public class UI_PartySelect : UI_Base
 
         // 편성 모드: 슬롯 선택 토글 (다시 클릭하면 해제)
         _selectedBattleIndex = (_selectedBattleIndex == slotIndex) ? -1 : slotIndex;
+        PreviewMember(slotIndex);
         Refresh();
     }
 
@@ -303,17 +326,22 @@ public class UI_PartySelect : UI_Base
     /// </summary>
     public void OnCandidateClicked(int candidateIndex)
     {
-        if (!_formationMode) return;
+        if (!_rosterOpen) return;
 
         var partyManager = PartyManager.Instance;
         if (partyManager == null) return;
 
-        var candidates = GetCurrentCandidates();
-        if (candidateIndex < 0 || candidateIndex >= candidates.Count) return;
+        var roster = partyManager.Roster;
+        if (candidateIndex < 0 || candidateIndex >= roster.Count) return;
 
-        CharacterActorType type = candidates[candidateIndex];
+        CharacterActorType type = roster[candidateIndex];
+        if (partyManager.BattleOrder.Contains(type))
+        {
+            ShowPreviewFor(type);
+            return;
+        }
 
-        if (_selectedBattleIndex >= 0)
+        if (_selectedBattleIndex >= 0 && _selectedBattleIndex < partyManager.BattleOrder.Count)
         {
             partyManager.ReplaceBattleSlot(_selectedBattleIndex, type);
             _selectedBattleIndex = -1;
@@ -349,19 +377,54 @@ public class UI_PartySelect : UI_Base
         }
     }
 
-    private List<CharacterActorType> GetCurrentCandidates()
+    public void ToggleRosterDrawer()
+    {
+        SetRosterDrawer(!_rosterOpen);
+    }
+
+    public void CloseRosterDrawer()
+    {
+        SetRosterDrawer(false);
+    }
+
+    public void RemoveSelectedBattleSlot()
     {
         var partyManager = PartyManager.Instance;
-        var result = new List<CharacterActorType>();
-        if (partyManager == null) return result;
+        if (partyManager == null) return;
 
-        var roster = partyManager.Roster;
-        var battleOrder = partyManager.BattleOrder;
-        for (int i = 0; i < roster.Count; ++i)
+        IReadOnlyList<CharacterActorType> battleOrder = partyManager.BattleOrder;
+        if (_selectedBattleIndex < 0 || _selectedBattleIndex >= battleOrder.Count) return;
+
+        CharacterActorType type = battleOrder[_selectedBattleIndex];
+        if (partyManager.RemoveFromBattle(type))
         {
-            if (!battleOrder.Contains(roster[i])) result.Add(roster[i]);
+            _selectedBattleIndex = -1;
         }
-        return result;
+        else
+        {
+            Refresh();
+        }
+    }
+
+    private void SetRosterDrawer(bool open)
+    {
+        _rosterOpen = open;
+        if (!open)
+        {
+            _selectedBattleIndex = -1;
+        }
+
+        if (_formationToggle != null && _formationToggle.isOn != open)
+        {
+            _formationToggle.SetIsOnWithoutNotify(open);
+        }
+
+        if (_rosterPanel != null)
+        {
+            _rosterPanel.SetActive(open);
+        }
+
+        Refresh();
     }
 
     private void ShowPreviewFor(CharacterActorType type)
@@ -410,6 +473,35 @@ public class UI_PartySelect : UI_Base
         }
     }
 
+    private void UpdateRosterHeader(int rosterCount, int battleCount)
+    {
+        if (_rosterToggleText != null)
+        {
+            _rosterToggleText.text = _rosterOpen ? "편성 완료" : "일괄 편성";
+        }
+
+        if (_rosterCountText != null)
+        {
+            _rosterCountText.text = $"ROSTER - {rosterCount} 캐릭터";
+        }
+    }
+
+    private void UpdateSelectedSlotState()
+    {
+        bool hasSelection = _rosterOpen && _selectedBattleIndex >= 0;
+        if (_selectedSlotText != null)
+        {
+            _selectedSlotText.text = hasSelection ? $"슬롯 {_selectedBattleIndex + 1} 선택 중" : string.Empty;
+        }
+
+        if (_removeSlotButton != null)
+        {
+            var battleOrder = PartyManager.Instance?.BattleOrder;
+            bool canRemove = hasSelection && battleOrder != null && _selectedBattleIndex < battleOrder.Count;
+            _removeSlotButton.gameObject.SetActive(canRemove);
+        }
+    }
+
     private void SetSlotCount(int count)
     {
         if (_slotPrefab == null || _slotRoot == null) return;
@@ -426,21 +518,80 @@ public class UI_PartySelect : UI_Base
         }
     }
 
-    private void SetCandidateCount(int count)
+    private void SetRosterSlotCount(int count)
     {
-        Transform root = _candidateRoot;
-        UI_PartyMemberSlot prefab = _candidatePrefab != null ? _candidatePrefab : _slotPrefab;
+        Transform root = _rosterRoot;
+        UI_PartyMemberSlot prefab = _rosterSlotPrefab != null ? _rosterSlotPrefab : _slotPrefab;
         if (prefab == null || root == null) return;
 
-        while (_candidateSlots.Count < count)
+        while (_rosterSlots.Count < count)
         {
             UI_PartyMemberSlot slot = Instantiate(prefab, root);
-            _candidateSlots.Add(slot);
+            _rosterSlots.Add(slot);
         }
 
-        for (int i = 0; i < _candidateSlots.Count; ++i)
+        for (int i = 0; i < _rosterSlots.Count; ++i)
         {
-            _candidateSlots[i].gameObject.SetActive(i < count);
+            _rosterSlots[i].gameObject.SetActive(i < count);
+        }
+    }
+
+    private void BindFieldPreviewTextures()
+    {
+        if (_fieldPreviews == null || _fieldPreviewRenderers == null) return;
+
+        int count = Mathf.Min(_fieldPreviews.Length, _fieldPreviewRenderers.Length);
+        for (int i = 0; i < count; ++i)
+        {
+            if (_fieldPreviews[i] != null && _fieldPreviewRenderers[i] != null)
+            {
+                _fieldPreviews[i].texture = _fieldPreviewRenderers[i].GetRenderTexture();
+            }
+        }
+    }
+
+    private void UpdateFieldPreviews(IReadOnlyList<CharacterActorType> battleOrder)
+    {
+        if (_fieldPreviewRenderers == null || _fieldPreviewRenderers.Length == 0) return;
+
+        for (int i = 0; i < _fieldPreviewRenderers.Length; ++i)
+        {
+            if (_fieldPreviewRenderers[i] == null) continue;
+
+            if (battleOrder != null && i < battleOrder.Count)
+            {
+                _fieldPreviewRenderers[i].ShowPreview(battleOrder[i]);
+                if (_fieldPreviews != null && i < _fieldPreviews.Length && _fieldPreviews[i] != null)
+                {
+                    _fieldPreviews[i].gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                _fieldPreviewRenderers[i].HidePreview();
+                if (_fieldPreviews != null && i < _fieldPreviews.Length && _fieldPreviews[i] != null)
+                {
+                    _fieldPreviews[i].gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+
+    private void HideFieldPreviews()
+    {
+        if (_fieldPreviewRenderers == null) return;
+
+        for (int i = 0; i < _fieldPreviewRenderers.Length; ++i)
+        {
+            if (_fieldPreviewRenderers[i] != null)
+            {
+                _fieldPreviewRenderers[i].HidePreview();
+            }
+
+            if (_fieldPreviews != null && i < _fieldPreviews.Length && _fieldPreviews[i] != null)
+            {
+                _fieldPreviews[i].gameObject.SetActive(false);
+            }
         }
     }
 

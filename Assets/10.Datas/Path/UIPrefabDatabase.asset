@@ -93,3 +93,7 @@ MonoBehaviour:
     prefab: {fileID: 909020946507988054, guid: 030b827621155b049961daf7b191ac12, type: 3}
     defaultLayer: 2000
     description: 
+  - key: Party
+    prefab: {fileID: 9077875268615107089, guid: 86ef0c9a4afe873408a5e9862f1f37b4, type: 3}
+    defaultLayer: 1000
+    description: 

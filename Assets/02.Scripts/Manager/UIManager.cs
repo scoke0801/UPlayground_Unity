@@ -435,6 +435,8 @@ namespace UPlayGround.Manager
             return uiObj;
         }
 
+        public GameObject GetActiveUI(UIKeyType uiKey) => GetActiveUI(uiKey.ToKey());
+
         #endregion
 
         #region WorldSpace HUD
@@ -589,7 +591,7 @@ namespace UPlayGround.Manager
             // 열린 UI가 없을 때만 PauseMenu 토글
             if (!handled && SceneManager.Instance?.CurrentSceneType == SceneType.GamePlay)
             {
-                UI_Base ui = GetActiveUI("PauseMenu")?.GetComponent<UI_Base>();
+                UI_Base ui = GetActiveUI(UIKeyType.PauseMenu)?.GetComponent<UI_Base>();
                 if (ui == null || !ui.IsVisible) ShowUI(UIKeyType.PauseMenu);
                 else HideUI(UIKeyType.PauseMenu);
             }

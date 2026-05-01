@@ -115,7 +115,7 @@ namespace UPlayGround
             
             InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
 
-            UI_Inventory inventory = UIManager.Instance.GetActiveUI("Inventory")?.GetComponent<UI_Inventory>();
+            UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
             if(inventory && inventory.IsVisible)
             {
                 inventory.Show();

@@ -89,13 +89,13 @@ public class UI_RespawnPopup : UI_Base
         bool consumed = InventoryManager.Instance?.RemoveItem(_revivalItemId, 1) ?? false;
         if (!consumed) return;
 
-        UIManager.Instance.HideUI(UPlayGround.Data.Path.UIKeyType.RespawnPopup.ToKey());
+        UIManager.Instance.HideUI(UIKeyType.RespawnPopup);
         _onSpotRevive?.Invoke();
     }
 
     private void OnPortalReviveClicked()
     {
-        UIManager.Instance.HideUI(UPlayGround.Data.Path.UIKeyType.RespawnPopup.ToKey());
+        UIManager.Instance.HideUI(UIKeyType.RespawnPopup);
         _onPortalRevive?.Invoke();
     }
 }

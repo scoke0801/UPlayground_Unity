@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.UI;
@@ -25,11 +28,18 @@ namespace UPlayGround.Manager
     {
         private const string DATABASE_PATH       = "UIPrefabDatabase";
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
+        private const string UI_ROOT_PREFAB_PATH = "UIRoot";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
         private Dictionary<string, GameObject>   _activeUIObjects;
         private Dictionary<string, UI_Base>      _activeUIComponents;
         private Dictionary<System.Type, UI_Base> _uiByType;
+
+        [Header("UI Root")]
+        [SerializeField] private GameObject _uiRootPrefab;
+
+        private GameObject  _uiRootInstance;
+        private EventSystem _eventSystem;
 
         private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
 
@@ -48,7 +58,9 @@ namespace UPlayGround.Manager
             _activeUIComponents = new Dictionary<string, UI_Base>();
             _uiByType           = new Dictionary<System.Type, UI_Base>();
 
+            CreateUIRoot();
             CreateCanvasLayers();
+            EnsureEventSystem();
             LoadAssetsAsync();
             RegisterInputEvents();
         }
@@ -71,12 +83,21 @@ namespace UPlayGround.Manager
             _activeUIComponents.Clear();
             _uiByType.Clear();
             _canvasDictionary.Clear();
+
+            if (_uiRootInstance != null)
+                Destroy(_uiRootInstance);
+
+            _uiRootInstance = null;
+            _eventSystem    = null;
         }
 
         public void OnUpdate()      { }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
-        public void OnSceneChanged(string sceneType) { }
+        public void OnSceneChanged(string sceneType)
+        {
+            EnsureEventSystem();
+        }
 
         #endregion
 
@@ -117,21 +138,110 @@ namespace UPlayGround.Manager
 
         #region 캔버스 생성
 
+        private void CreateUIRoot()
+        {
+            GameObject rootPrefab = _uiRootPrefab != null ? _uiRootPrefab : LoadUIRootPrefab();
+            if (rootPrefab == null)
+                return;
+
+            _uiRootInstance      = Instantiate(rootPrefab, transform);
+            _uiRootInstance.name = rootPrefab.name;
+        }
+
+        private GameObject LoadUIRootPrefab()
+        {
+            AsyncOperationHandle<GameObject> handle = default;
+
+            try
+            {
+                handle = Addressables.LoadAssetAsync<GameObject>(UI_ROOT_PREFAB_PATH);
+                return handle.WaitForCompletion();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[UIManager] UI 루트 프리팹 '{UI_ROOT_PREFAB_PATH}' 로드 실패. 코드 생성 방식으로 대체합니다.\n{e.Message}");
+
+                if (handle.IsValid())
+                    Addressables.Release(handle);
+
+                return null;
+            }
+        }
+
         private void CreateCanvasLayers()
         {
+            RegisterCanvasLayersFromPrefab();
+
             foreach (CanvasLayer layer in System.Enum.GetValues(typeof(CanvasLayer)))
             {
-                Canvas canvas = CreateCanvas(layer);
+                _canvasDictionary.TryGetValue(layer, out Canvas canvas);
 
-                if (!_canvasDictionary.ContainsKey(layer))
+                if (canvas == null)
+                {
+                    canvas = CreateCanvas(layer);
                     _canvasDictionary.Add(layer, canvas);
+                }
 
                 if (layer == CanvasLayer.HUD)
                 {
-                    _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
+                    _worldSpaceHudLayer = canvas.GetComponentInChildren<UI_WorldSpaceHudLayer>(true);
+                    if (_worldSpaceHudLayer == null)
+                        _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
+
                     _worldSpaceHudLayer.Init(canvas);
                 }
             }
+        }
+
+        private void RegisterCanvasLayersFromPrefab()
+        {
+            if (_uiRootInstance == null)
+                return;
+
+            var bindings = _uiRootInstance.GetComponentsInChildren<UICanvasLayerBinding>(true);
+            foreach (var binding in bindings)
+                RegisterCanvas(binding.Layer, binding.Canvas);
+
+            if (bindings.Length > 0)
+                return;
+
+            var canvases = _uiRootInstance.GetComponentsInChildren<Canvas>(true);
+            foreach (var canvas in canvases)
+            {
+                if (TryGetLayerFromCanvasName(canvas.name, out CanvasLayer layer))
+                    RegisterCanvas(layer, canvas);
+            }
+        }
+
+        private void RegisterCanvas(CanvasLayer layer, Canvas canvas)
+        {
+            if (canvas == null)
+                return;
+
+            canvas.sortingOrder = (int)layer;
+
+            if (_canvasDictionary.ContainsKey(layer))
+            {
+                Debug.LogWarning($"[UIManager] {layer} 캔버스가 중복 등록되어 무시합니다: {canvas.name}");
+                return;
+            }
+
+            _canvasDictionary.Add(layer, canvas);
+        }
+
+        private bool TryGetLayerFromCanvasName(string canvasName, out CanvasLayer layer)
+        {
+            foreach (CanvasLayer candidate in System.Enum.GetValues(typeof(CanvasLayer)))
+            {
+                if (canvasName.Equals($"Canvas_{candidate}", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    layer = candidate;
+                    return true;
+                }
+            }
+
+            layer = default;
+            return false;
         }
 
         private UI_WorldSpaceHudLayer CreateWorldSpaceHudLayer(Canvas hudCanvas)
@@ -151,7 +261,7 @@ namespace UPlayGround.Manager
         private Canvas CreateCanvas(CanvasLayer layer)
         {
             GameObject canvasObj = new GameObject($"Canvas_{layer}");
-            canvasObj.transform.SetParent(transform);
+            canvasObj.transform.SetParent(_uiRootInstance != null ? _uiRootInstance.transform : transform);
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode   = RenderMode.ScreenSpaceOverlay;
@@ -174,6 +284,52 @@ namespace UPlayGround.Manager
 
             Debug.LogWarning($"[UIManager] {layer} 캔버스를 찾을 수 없습니다.");
             return null;
+        }
+
+        private void EnsureEventSystem()
+        {
+            if (_uiRootInstance != null)
+                _eventSystem = _uiRootInstance.GetComponentInChildren<EventSystem>(true);
+
+            if (_eventSystem == null)
+            {
+                _eventSystem = EventSystem.current;
+
+                if (_eventSystem != null && _uiRootInstance != null)
+                    _eventSystem.transform.SetParent(_uiRootInstance.transform, true);
+            }
+
+            if (_eventSystem == null)
+            {
+                GameObject eventSystemObj = new GameObject("EventSystem");
+                eventSystemObj.transform.SetParent(_uiRootInstance != null ? _uiRootInstance.transform : transform);
+
+                _eventSystem = eventSystemObj.AddComponent<EventSystem>();
+                InputSystemUIInputModule inputModule = eventSystemObj.AddComponent<InputSystemUIInputModule>();
+                inputModule.AssignDefaultActions();
+            }
+
+            _eventSystem.gameObject.SetActive(true);
+
+            if (_eventSystem.GetComponent<BaseInputModule>() == null)
+            {
+                InputSystemUIInputModule inputModule = _eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+                inputModule.AssignDefaultActions();
+            }
+
+            RemoveDuplicateEventSystems();
+        }
+
+        private void RemoveDuplicateEventSystems()
+        {
+            var eventSystems = FindObjectsByType<EventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var eventSystem in eventSystems)
+            {
+                if (eventSystem == null || eventSystem == _eventSystem)
+                    continue;
+
+                Destroy(eventSystem.gameObject);
+            }
         }
 
         #endregion
@@ -440,5 +596,18 @@ namespace UPlayGround.Manager
         }
 
         #endregion
+    }
+}
+
+namespace UPlayGround.UI
+{
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Canvas))]
+    public class UICanvasLayerBinding : MonoBehaviour
+    {
+        [SerializeField] private UPlayGround.Manager.CanvasLayer _layer = UPlayGround.Manager.CanvasLayer.Scene;
+
+        public UPlayGround.Manager.CanvasLayer Layer => _layer;
+        public Canvas Canvas => GetComponent<Canvas>();
     }
 }

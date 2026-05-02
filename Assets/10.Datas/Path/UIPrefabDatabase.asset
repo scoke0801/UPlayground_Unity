@@ -103,7 +103,7 @@ MonoBehaviour:
     description: 
   - key: MenuPanel
     prefab: {fileID: 4957169336068208073, guid: 0d71899e030444d439e3844dbf734bac, type: 3}
-    defaultLayer: 1000
+    defaultLayer: 0
     description: 
   - key: Config
     prefab: {fileID: 6723849809703534315, guid: f34656fb017f70f44b993a01ddb72657, type: 3}

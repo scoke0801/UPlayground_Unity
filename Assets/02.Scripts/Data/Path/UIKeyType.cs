@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-05-01 18:05
+// Generated: 2026-05-02 23:28
 namespace UPlayGround.Data.Path
 {
     /// <summary>UIKeyType — UI Prefab 키 열거형 (자동 생성)</summary>
@@ -21,12 +21,17 @@ namespace UPlayGround.Data.Path
         MainDialogue = 12,
         SystemDialogue = 13,
         MonologueDialogue = 14,
-        SettingMenu = 15,
-        DamageFloater = 16,
-        Minimap = 17,
-        Map = 18,
-        RespawnPopup = 19,
-        Party = 20,
+        DamageFloater = 15,
+        Minimap = 16,
+        Map = 17,
+        RespawnPopup = 18,
+        Party = 19,
+        Craft = 20,
+        Quest = 21,
+        MenuPanel = 22,
+        Config = 23,
+        HudParty = 24,
+        HudQuest = 25,
     }
 
     public static class UIKeyTypeExtensions
@@ -48,12 +53,17 @@ namespace UPlayGround.Data.Path
             UIKeyType.MainDialogue => "MainDialogue",
             UIKeyType.SystemDialogue => "SystemDialogue",
             UIKeyType.MonologueDialogue => "MonologueDialogue",
-            UIKeyType.SettingMenu => "SettingMenu",
             UIKeyType.DamageFloater => "DamageFloater",
             UIKeyType.Minimap => "Minimap",
             UIKeyType.Map => "Map",
             UIKeyType.RespawnPopup => "RespawnPopup",
             UIKeyType.Party => "Party",
+            UIKeyType.Craft => "Craft",
+            UIKeyType.Quest => "Quest",
+            UIKeyType.MenuPanel => "MenuPanel",
+            UIKeyType.Config => "Config",
+            UIKeyType.HudParty => "HudParty",
+            UIKeyType.HudQuest => "HudQuest",
             _ => string.Empty,
         };
     }

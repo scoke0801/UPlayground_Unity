@@ -73,10 +73,6 @@ MonoBehaviour:
     prefab: {fileID: 2239396806796856735, guid: 3e26e4b053ce1294a994c5dc666331ec, type: 3}
     defaultLayer: 1000
     description: 
-  - key: SettingMenu
-    prefab: {fileID: 6723849809703534315, guid: f34656fb017f70f44b993a01ddb72657, type: 3}
-    defaultLayer: 1000
-    description: 
   - key: DamageFloater
     prefab: {fileID: 6521251916219708486, guid: 690fda8ced93fb94f80fe6fa3341f3f8, type: 3}
     defaultLayer: 0
@@ -96,4 +92,28 @@ MonoBehaviour:
   - key: Party
     prefab: {fileID: 9077875268615107089, guid: 86ef0c9a4afe873408a5e9862f1f37b4, type: 3}
     defaultLayer: 1000
+    description: 
+  - key: Craft
+    prefab: {fileID: 2455850307769813366, guid: 46acecd2834d01a4ba6b1c1de76368cd, type: 3}
+    defaultLayer: 1000
+    description: 
+  - key: Quest
+    prefab: {fileID: 1264189882321688561, guid: c74790e75d2760147bb8f190ffa9a820, type: 3}
+    defaultLayer: 1000
+    description: 
+  - key: MenuPanel
+    prefab: {fileID: 4957169336068208073, guid: 0d71899e030444d439e3844dbf734bac, type: 3}
+    defaultLayer: 1000
+    description: 
+  - key: Config
+    prefab: {fileID: 6723849809703534315, guid: f34656fb017f70f44b993a01ddb72657, type: 3}
+    defaultLayer: 1000
+    description: 
+  - key: HudParty
+    prefab: {fileID: 3240283172675560104, guid: 46a3da1b0bc77414d844c948d4089415, type: 3}
+    defaultLayer: 0
+    description: 
+  - key: HudQuest
+    prefab: {fileID: 4067184472566723530, guid: 150e39bb24276cf4183b5a4c0af645c3, type: 3}
+    defaultLayer: 0
     description: 

@@ -31,8 +31,9 @@
         Sera,
         Inori,
         Hichi,
+        Siuha,
         
-        H09,
+        H09, // 안쓸거임
     }
 
     public enum ActorSocketType

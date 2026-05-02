@@ -806,6 +806,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MenuPanel",
+                    "type": "Button",
+                    "id": "741902e2-f3ea-42e7-9fde-4aa3dab332bd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -971,6 +980,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Party",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "152042c9-c829-4427-933a-df42d8610d85",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuPanel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

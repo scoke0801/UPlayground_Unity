@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.InputDefine;
@@ -9,19 +10,35 @@ using UPlayGround.Manager;
 
 class UI_GamePlay : UI_Base
 {
+    [SerializeField] Button _menuButton;
+
     private PlayerActor _playerActor;
 
     private PlayerCombat _playerCombat;
 
     private UI_HudPlayerInfo _hudPlayerInfo;
-
+    private UI_HudParty _hudParty;
+    private UI_HudQuest _hudQuest;
+    
     #region UI_Base
+
+    protected override void Awake()
+    {
+        base.Awake();
+        _menuButton.onClick.AddListener(OnClickedMenuButton);
+    }
 
     protected override void OnShow()
     {
         _hudPlayerInfo = UIManager.Instance.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HudPlayerInfo>();
         UIManager.Instance.ShowUI(UIKeyType.Minimap);
 
+        _hudParty = UIManager.Instance.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HudParty>();
+        UIManager.Instance.ShowUI(UIKeyType.HudParty);
+
+        _hudQuest = UIManager.Instance.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
+        UIManager.Instance.ShowUI(UIKeyType.HudQuest);
+        
         if (GameObjectManager.Instance != null)
         {
             _playerActor = GameObjectManager.Instance.Player;
@@ -36,6 +53,8 @@ class UI_GamePlay : UI_Base
     protected override void OnHide()
     {
         UIManager.Instance.HideUI(UIKeyType.Minimap);
+        UIManager.Instance.HideUI(UIKeyType.HudParty);
+        UIManager.Instance.HideUI(UIKeyType.HudQuest);
 
         if (_playerCombat == null)
         {
@@ -53,9 +72,11 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
             null, OnPerformedMap, null, null, null, InputLayer.Level_0);
         
-        
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
             null, OnPerformedParty, null, null, null, InputLayer.Level_0);
+        
+        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
+            null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_0);
     }
 
     protected override void UnRegisterInputEvents()
@@ -63,6 +84,7 @@ class UI_GamePlay : UI_Base
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory,null);
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap,null);
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
+        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
     }
 
     #endregion
@@ -108,6 +130,25 @@ class UI_GamePlay : UI_Base
         else
         {
             UIManager.Instance.HideUI(UIKeyType.Party);
+        }
+    }
+    
+    private void OnPerformedMenuPanel(InputAction.CallbackContext obj)
+    {
+        OnClickedMenuButton();
+    }
+    
+
+    private void OnClickedMenuButton()
+    {
+        UI_MenuPanel party = UIManager.Instance.GetActiveUI(UIKeyType.MenuPanel)?.GetComponent<UI_MenuPanel>();
+        if (party == null || party.IsVisible == false)
+        {
+            UIManager.Instance.ShowUI(UIKeyType.MenuPanel);
+        }
+        else
+        {
+            UIManager.Instance.HideUI(UIKeyType.MenuPanel);
         }
     }
     #endregion

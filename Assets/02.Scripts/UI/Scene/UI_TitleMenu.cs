@@ -60,6 +60,6 @@ public class UI_TitleMenu : UI_Base
     
     private void OnClickOptionButton()
     {
-        UIManager.Instance.ShowUI(UIKeyType.SettingMenu);
+        UIManager.Instance.ShowUI(UIKeyType.Config);
     }
 }

@@ -10,9 +10,9 @@ public class UI_HudPlayerInfo : UI_Base
 {
     [SerializeField] private Image _boardHpFill;
     [SerializeField] private Image _boardHpWhiteFill;
-    [SerializeField] private Image _characterIcon;
-    [SerializeField] private Image _characterIconBG;
-    [SerializeField] private Image _skillGuageFill;
+    //[SerializeField] private Image _characterIcon;
+    //[SerializeField] private Image _characterIconBG;
+    //[SerializeField] private Image _skillGuageFill;
 
     [SerializeField] private TextMeshProUGUI _hpText;
     [SerializeField] private GameObject _fxObject;
@@ -44,7 +44,7 @@ public class UI_HudPlayerInfo : UI_Base
         _boardHpFill.fillAmount      = 1.0f;
         _boardHpWhiteFill.fillAmount = 1.0f;
 
-        if (_skillGuageFill != null) _skillGuageFill.fillAmount = 0f;
+        // if (_skillGuageFill != null) _skillGuageFill.fillAmount = 0f;
         _skillTargetRatio = 0f;
 
         if (GameObjectManager.Instance == null) return;
@@ -122,31 +122,32 @@ public class UI_HudPlayerInfo : UI_Base
     
     public void SetSkillGauge(float current, float max)
     {
-        if (_skillGuageFill == null) return;
-
-        _skillTargetRatio = current / max;
-
-        bool isFullGauge = Mathf.Approximately(_skillTargetRatio, 1f);
-        _animator.SetBool("IsSkillGaugeFull", isFullGauge);
-        
-        _fxObject.SetActive(_isInCombat && isFullGauge);
-        
-        if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
-        _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());
+        // if (_skillGuageFill == null) return;
+        //
+        // _skillTargetRatio = current / max;
+        //
+        // bool isFullGauge = Mathf.Approximately(_skillTargetRatio, 1f);
+        // _animator.SetBool("IsSkillGaugeFull", isFullGauge);
+        //
+        // _fxObject.SetActive(_isInCombat && isFullGauge);
+        //
+        // if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
+        // _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());
     }
 
     private IEnumerator SkillGaugeLerpCoroutine()
     {
-        while (Mathf.Abs(_skillGuageFill.fillAmount - _skillTargetRatio) > 0.001f)
-        {
-            _skillGuageFill.fillAmount = Mathf.Lerp(
-                _skillGuageFill.fillAmount,
-                _skillTargetRatio,
-                Time.deltaTime * _skillFillSpeed);
-            yield return null;
-        }
-
-        _skillGuageFill.fillAmount = _skillTargetRatio;
+        // while (Mathf.Abs(_skillGuageFill.fillAmount - _skillTargetRatio) > 0.001f)
+        // {
+        //     _skillGuageFill.fillAmount = Mathf.Lerp(
+        //         _skillGuageFill.fillAmount,
+        //         _skillTargetRatio,
+        //         Time.deltaTime * _skillFillSpeed);
+        //     yield return null;
+        // }
+        //
+        // _skillGuageFill.fillAmount = _skillTargetRatio;
+        yield break;
     }
 
     private void OnPlayerSwapCompleted(PlayerActor player)
@@ -157,14 +158,14 @@ public class UI_HudPlayerInfo : UI_Base
         }
 
         if (_actorIcons == null) return;
-        foreach (var entry in _actorIcons)
-        {
-            if (entry.type == player.CharacterType)
-            {
-                _characterIcon.sprite = entry.icon;
-                break;
-            }
-        }
+        // foreach (var entry in _actorIcons)
+        // {
+        //     if (entry.type == player.CharacterType)
+        //     {
+        //         _characterIcon.sprite = entry.icon;
+        //         break;
+        //     }
+        // }
     }
 }
 

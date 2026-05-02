@@ -42,6 +42,13 @@ namespace UPlayGround.CameraSystem
             context.IsInputLocked = false;
         }
 
+        public bool IsSameSpeaker(Transform speaker, Transform listener)
+        {
+            if (_speaker != speaker)
+                return false;
+            return listener == null || _listener == listener;
+        }
+
         public void HandleInput(CameraRuntimeContext context, float deltaTime)
         {
         }
@@ -58,10 +65,17 @@ namespace UPlayGround.CameraSystem
             Quaternion baseRotation = Quaternion.LookRotation(baseForward, Vector3.up);
             Vector3 desiredOffset = _offset.sqrMagnitude > 0.001f ? _offset.normalized : settings.listenerShoulderOffset.normalized;
             float desiredDistance = settings.ClampDistance(_distance);
+
+            if (UseCollision && context.Collision != null)
+            {
+                Vector3 camDir = baseRotation * desiredOffset;
+                desiredDistance = Mathf.Max(0.1f, context.Collision.Evaluate(lookAt, camDir, desiredDistance));
+            }
+
             Vector3 desiredPosition = lookAt + baseRotation * desiredOffset * desiredDistance;
 
             Quaternion lookRotation = Quaternion.LookRotation(lookAt - desiredPosition, Vector3.up);
-            float blendTime = Mathf.Max(0.01f, settings.speakerCutBlendTime);
+            float blendTime = Mathf.Max(0.01f, settings.softBlendTime);
             float blendFactor = 1f - Mathf.Exp(-(1f / blendTime) * deltaTime);
             Vector3 cameraPosition = Vector3.Lerp(
                 context.MainCamera.transform.position,

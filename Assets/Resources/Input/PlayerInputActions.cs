@@ -892,6 +892,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MenuPanel"",
+                    ""type"": ""Button"",
+                    ""id"": ""741902e2-f3ea-42e7-9fde-4aa3dab332bd"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1057,6 +1066,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Party"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""152042c9-c829-4427-933a-df42d8610d85"",
+                    ""path"": ""<Keyboard>/backquote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuPanel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1358,6 +1378,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_DialogueNext = m_UI.FindAction("DialogueNext", throwIfNotFound: true);
         m_UI_Map = m_UI.FindAction("Map", throwIfNotFound: true);
         m_UI_Party = m_UI.FindAction("Party", throwIfNotFound: true);
+        m_UI_MenuPanel = m_UI.FindAction("MenuPanel", throwIfNotFound: true);
         // Gamepad
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_L1 = m_Gamepad.FindAction("L1", throwIfNotFound: true);
@@ -1976,6 +1997,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_DialogueNext;
     private readonly InputAction m_UI_Map;
     private readonly InputAction m_UI_Party;
+    private readonly InputAction m_UI_MenuPanel;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -2031,6 +2053,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/Party".
         /// </summary>
         public InputAction @Party => m_Wrapper.m_UI_Party;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/MenuPanel".
+        /// </summary>
+        public InputAction @MenuPanel => m_Wrapper.m_UI_MenuPanel;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2090,6 +2116,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Party.started += instance.OnParty;
             @Party.performed += instance.OnParty;
             @Party.canceled += instance.OnParty;
+            @MenuPanel.started += instance.OnMenuPanel;
+            @MenuPanel.performed += instance.OnMenuPanel;
+            @MenuPanel.canceled += instance.OnMenuPanel;
         }
 
         /// <summary>
@@ -2134,6 +2163,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Party.started -= instance.OnParty;
             @Party.performed -= instance.OnParty;
             @Party.canceled -= instance.OnParty;
+            @MenuPanel.started -= instance.OnMenuPanel;
+            @MenuPanel.performed -= instance.OnMenuPanel;
+            @MenuPanel.canceled -= instance.OnMenuPanel;
         }
 
         /// <summary>
@@ -2703,6 +2735,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnParty(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MenuPanel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMenuPanel(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gamepad" which allows adding and removing callbacks.

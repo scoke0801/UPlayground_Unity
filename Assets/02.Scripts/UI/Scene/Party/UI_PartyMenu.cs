@@ -34,6 +34,7 @@ public class UI_PartyMenu : UI_Base
 
         foreach (var preview in _characterPreviews)
         {
+            preview._previewImage.enabled = true;
             preview._previewImage.texture = preview._previewRenderer.GetRenderTexture();
         }
     }

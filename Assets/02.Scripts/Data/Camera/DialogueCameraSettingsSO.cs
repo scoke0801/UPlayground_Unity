@@ -19,7 +19,17 @@ namespace UPlayGround.Data
         [Min(0.1f)] public float minDistance = 2.2f;
         [Min(0.1f)] public float maxDistance = 5.5f;
 
-        [Header("블렌드")]
+        [Header("블렌드 시간")]
+        [Tooltip("화자 전환 등 hard cut에 가까운 즉시 전환 시간(초). 0이면 즉시 스냅.")]
+        [Min(0f)] public float cutInstantTime = 0f;
+
+        [Tooltip("같은 화자 내 부드러운 보정 시간(초). 일반 라인 전환 기본값.")]
+        [Min(0f)] public float softBlendTime = 0f;
+
+        [Tooltip("대화 진입/종료 establishing 블렌드 시간(초).")]
+        [Min(0.01f)] public float establishBlendTime = 0.6f;
+
+        [Tooltip("[Deprecated] softBlendTime을 사용하세요. 기존 에셋 호환을 위해 유지됩니다.")]
         [Min(0.01f)] public float speakerCutBlendTime = 0.35f;
 
         [Header("렌즈")]
@@ -37,6 +47,12 @@ namespace UPlayGround.Data
             float min = Mathf.Max(0.1f, minDistance);
             float max = Mathf.Max(min, maxDistance);
             return Mathf.Clamp(distance, min, max);
+        }
+
+        private void OnEnable()
+        {
+            if (softBlendTime <= 0f)
+                softBlendTime = speakerCutBlendTime > 0f ? speakerCutBlendTime : 0.3f;
         }
     }
 }

@@ -27,6 +27,9 @@ namespace UPlayGround.Dialogue
         public SpeakerColorTableSO ColorTable { get; private set; }
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
 
+        private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SpeakerColorTableSO> _colorTableHandle;
+        private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SpeakerActorBindingTableSO> _speakerBindingsHandle;
+
         #region IManager
 
         public void Init()
@@ -46,15 +49,15 @@ namespace UPlayGround.Dialogue
             foreach (var r in _runners.Values) r.Clear();
 
             // Addressables 핸들 해제
-            if (ColorTable != null)
+            if (_colorTableHandle.IsValid())
             {
-                Addressables.Release(ColorTable);
+                Addressables.Release(_colorTableHandle);
                 ColorTable = null;
             }
 
-            if (SpeakerActorBindings != null)
+            if (_speakerBindingsHandle.IsValid())
             {
-                Addressables.Release(SpeakerActorBindings);
+                Addressables.Release(_speakerBindingsHandle);
                 SpeakerActorBindings = null;
             }
         }
@@ -115,11 +118,11 @@ namespace UPlayGround.Dialogue
 
         private async void LoadColorTable()
         {
-            var handle = Addressables.LoadAssetAsync<SpeakerColorTableSO>(SpeakerColorTableSO.AddressableKey);
+            _colorTableHandle = Addressables.LoadAssetAsync<SpeakerColorTableSO>(SpeakerColorTableSO.AddressableKey);
 
             try
             {
-                ColorTable = await handle.Task;
+                ColorTable = await _colorTableHandle.Task;
                 Debug.Log("[DialogueManager] SpeakerColorTable 로드 완료");
             }
             catch (Exception e)
@@ -130,11 +133,11 @@ namespace UPlayGround.Dialogue
 
         private async void LoadSpeakerActorBindings()
         {
-            var handle = Addressables.LoadAssetAsync<SpeakerActorBindingTableSO>(SpeakerActorBindingTableSO.AddressableKey);
+            _speakerBindingsHandle = Addressables.LoadAssetAsync<SpeakerActorBindingTableSO>(SpeakerActorBindingTableSO.AddressableKey);
 
             try
             {
-                SpeakerActorBindings = await handle.Task;
+                SpeakerActorBindings = await _speakerBindingsHandle.Task;
                 Debug.Log("[DialogueManager] SpeakerActorBindingTable 로드 완료");
             }
             catch (Exception e)

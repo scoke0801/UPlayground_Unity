@@ -750,6 +750,14 @@ namespace UPlayGround.Manager
 
         public bool PushDialogueCamera(Transform speaker, Transform listener = null, Vector3 offset = default)
         {
+            // 동일 화자 재진입은 OnEnter 재호출로 보간 상태가 끊기지 않도록 no-op 처리
+            if (_modeController != null
+                && _modeController.CurrentMode is DialogueCameraMode currentDialogue
+                && currentDialogue.IsSameSpeaker(speaker, listener))
+            {
+                return true;
+            }
+
             return PushCameraMode(CameraModeType.Dialogue, new CameraModeEnterParams
             {
                 PrimaryTarget = speaker,

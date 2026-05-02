@@ -16,6 +16,7 @@ public class UICharacterPreviewRenderer : MonoBehaviour
     
     [Header("Settings")]
     [SerializeField] private Vector3 _cameraOffset = new Vector3(0, 1.5f, 2.5f);
+    [SerializeField] private Vector3 _cameraLookTarget = new Vector3(0, 1.0f, 0);
     [SerializeField] private float _rotationSpeed = 100f;
 
     [System.Serializable]
@@ -38,6 +39,14 @@ public class UICharacterPreviewRenderer : MonoBehaviour
         _previewCamera.cullingMask = 1 << LayerMask.NameToLayer("CharacterPreview");
         _previewCamera.clearFlags = CameraClearFlags.SolidColor;
         _previewCamera.backgroundColor = new Color(0, 0, 0, 0);
+
+        // 카메라를 root 자식으로 묶어 위치/스케일을 항상 root 기준으로 맞춘다.
+        // (UI Canvas 안에 root가 있어 lossyScale이 1이 아닌 경우에도 동작)
+        _previewCamera.transform.SetParent(_previewCharacterRoot, worldPositionStays: false);
+        _previewCamera.transform.localPosition = _cameraOffset;
+        _previewCamera.transform.localRotation = Quaternion.LookRotation(
+            (_cameraLookTarget - _cameraOffset).normalized,
+            Vector3.up);
     }
 
     /// <summary>

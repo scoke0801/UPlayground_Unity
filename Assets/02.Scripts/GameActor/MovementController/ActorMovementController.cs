@@ -73,11 +73,15 @@ namespace UPlayGround.MovementController
 
         public KinematicCharacterMotor Motor { get; private set; }
         public GameActor Actor { get; private set; }
+        public MotionWarpController MotionWarp { get; private set; }
 
         protected void Awake()
         {
             Motor = GetComponent<KinematicCharacterMotor>();
             Actor = GetComponent<GameActor>();
+            MotionWarp = GetComponent<MotionWarpController>();
+            if (MotionWarp == null)
+                MotionWarp = gameObject.AddComponent<MotionWarpController>();
             
             // Assign to motor
             Motor.CharacterController = this;
@@ -275,6 +279,340 @@ namespace UPlayGround.MovementController
         /// </summary>
         public virtual void OnDiscreteCollisionDetected(Collider hitCollider)
         {
+        }
+    }
+}
+
+namespace UPlayGround.MovementController
+{
+    public enum MotionWarpModifierType
+    {
+        Additive,
+        Scale,
+        Skew
+    }
+
+    public enum MotionWarpTargetPolicy
+    {
+        Snapshot,
+        Live
+    }
+
+    public enum MotionWarpPreset
+    {
+        Custom,
+        LightAttack,
+        HeavyAttack,
+        FinishAttack,
+        Grab
+    }
+
+    [Serializable]
+    public struct MotionWarpWindowSettings
+    {
+        public float duration;
+        public MotionWarpPreset preset;
+        public MotionWarpModifierType modifierType;
+        public MotionWarpTargetPolicy targetPolicy;
+        public float translationWeight;
+        public float rotationWeight;
+        public bool ignoreY;
+        public bool overrideDistance;
+        public float minDistance;
+        public float maxDistance;
+        public float maxSpeed;
+        public Vector3 targetOffset;
+
+        public static MotionWarpWindowSettings Default(float duration)
+        {
+            return new MotionWarpWindowSettings
+            {
+                duration = duration,
+                preset = MotionWarpPreset.Custom,
+                modifierType = MotionWarpModifierType.Additive,
+                targetPolicy = MotionWarpTargetPolicy.Snapshot,
+                translationWeight = 1f,
+                rotationWeight = 1f,
+                ignoreY = true,
+                overrideDistance = false,
+                minDistance = 0.3f,
+                maxDistance = 4f,
+                maxSpeed = 18f,
+                targetOffset = Vector3.zero
+            };
+        }
+    }
+
+    /// <summary>
+    /// MotionSet 이벤트로 열린 워프 구간에서 루트모션 속도를 타겟 방향으로 보정한다.
+    /// State는 타겟 선택과 Combat 타이머만 전달하고, 스냅샷/도달 가능성/블렌딩은 여기서 공통 처리한다.
+    /// </summary>
+    public class MotionWarpController : MonoBehaviour
+    {
+        private Transform _target;
+        private Vector3 _targetPosition;
+        private bool _useSnapshot = true;
+        private bool _feasibilityChecked;
+        private bool _isApplicable;
+        private float _blendWeight;
+        private MotionWarpWindowSettings _windowSettings = MotionWarpWindowSettings.Default(0f);
+        private bool _hasWindowSettings;
+        private string _lastFailureReason = string.Empty;
+        private float _lastArrivalError;
+
+        public bool HasTarget => _target != null;
+        public Vector3 TargetPosition => _targetPosition;
+        public bool IsApplicable => _isApplicable;
+        public string LastFailureReason => _lastFailureReason;
+        public float LastArrivalError => _lastArrivalError;
+
+        public void BeginWarpWindow(MotionWarpWindowSettings settings)
+        {
+            _windowSettings = settings;
+            _windowSettings.translationWeight = Mathf.Clamp01(_windowSettings.translationWeight);
+            _windowSettings.rotationWeight = Mathf.Clamp01(_windowSettings.rotationWeight);
+            _hasWindowSettings = true;
+            _useSnapshot = settings.targetPolicy == MotionWarpTargetPolicy.Snapshot;
+
+            if (_target != null && _useSnapshot)
+                _targetPosition = _target.position + settings.targetOffset;
+
+            _feasibilityChecked = false;
+            _isApplicable = false;
+            _lastFailureReason = string.Empty;
+        }
+
+        public void EndWarpWindow()
+        {
+            _hasWindowSettings = false;
+            _windowSettings = MotionWarpWindowSettings.Default(0f);
+            _feasibilityChecked = false;
+            _isApplicable = false;
+            _lastFailureReason = string.Empty;
+        }
+
+        public void SetTarget(Transform target, bool useSnapshot = true)
+        {
+            _target = target;
+            _useSnapshot = useSnapshot;
+            _targetPosition = target != null
+                ? target.position + (_hasWindowSettings ? _windowSettings.targetOffset : Vector3.zero)
+                : Vector3.zero;
+            _feasibilityChecked = false;
+            _isApplicable = false;
+            _blendWeight = 0f;
+            _lastFailureReason = string.Empty;
+        }
+
+        public void ClearTarget()
+        {
+            _target = null;
+            _targetPosition = Vector3.zero;
+            _feasibilityChecked = false;
+            _isApplicable = false;
+            _blendWeight = 0f;
+            EndWarpWindow();
+        }
+
+        public Vector3 EvaluateVelocity(
+            Vector3 rootVelocity,
+            Vector3 currentPosition,
+            bool isWarping,
+            float remainingTime,
+            float totalDuration,
+            float minDistance,
+            float maxDistance,
+            float maxSpeed,
+            float deltaTime,
+            Action cancelWarp = null)
+        {
+            if (deltaTime <= 0f)
+                return rootVelocity;
+
+            if (_target == null || !isWarping)
+            {
+                _feasibilityChecked = false;
+                _isApplicable = false;
+                _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
+                _lastFailureReason = _target == null ? "Target 없음" : "워프 비활성";
+                return rootVelocity;
+            }
+
+            MotionWarpWindowSettings settings = _hasWindowSettings
+                ? _windowSettings
+                : MotionWarpWindowSettings.Default(totalDuration);
+
+            if (settings.overrideDistance)
+            {
+                minDistance = settings.minDistance;
+                maxDistance = settings.maxDistance;
+                maxSpeed = settings.maxSpeed;
+            }
+
+            totalDuration = settings.duration > 0f ? settings.duration : totalDuration;
+
+            if (!_useSnapshot)
+                _targetPosition = _target.position + settings.targetOffset;
+
+            Vector3 toTarget = _targetPosition - currentPosition;
+            toTarget.y = 0f;
+
+            float remainingDist = toTarget.magnitude;
+            if (!_feasibilityChecked)
+            {
+                bool outOfRange = remainingDist < minDistance || remainingDist > maxDistance;
+                bool unreachable = totalDuration > 0f && remainingDist > maxSpeed * totalDuration;
+
+                if (outOfRange || unreachable)
+                {
+                    cancelWarp?.Invoke();
+                    _isApplicable = false;
+                    _lastFailureReason = outOfRange ? "거리 범위 이탈" : "최대 속도로 도달 불가";
+                    _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
+                    return rootVelocity;
+                }
+
+                _feasibilityChecked = true;
+            }
+
+            if (remainingDist < minDistance || remainingDist > maxDistance || toTarget.sqrMagnitude <= 0.0001f)
+            {
+                _isApplicable = false;
+                _lastFailureReason = toTarget.sqrMagnitude <= 0.0001f ? "타겟 거리 0" : "이동 중 거리 범위 이탈";
+                _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
+                return rootVelocity;
+            }
+
+            _isApplicable = true;
+            _lastFailureReason = string.Empty;
+            _lastArrivalError = remainingDist;
+            _blendWeight = Mathf.MoveTowards(_blendWeight, 1f, deltaTime * 15f);
+
+            float t = totalDuration > 0f ? 1f - (remainingTime / totalDuration) : 1f;
+            t = Mathf.Clamp01(t);
+            float eased = 1f - (1f - t) * (1f - t);
+
+            Vector3 targetVelocity = settings.modifierType switch
+            {
+                MotionWarpModifierType.Scale => EvaluateScaleVelocity(rootVelocity, toTarget, remainingDist, remainingTime, maxSpeed),
+                MotionWarpModifierType.Skew => EvaluateSkewVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased),
+                _ => EvaluateAdditiveVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased)
+            };
+
+            float translationWeight = settings.translationWeight;
+            Vector3 blended = Vector3.Lerp(rootVelocity, targetVelocity, _blendWeight * translationWeight);
+            if (settings.ignoreY)
+                blended.y = rootVelocity.y;
+
+            return blended;
+        }
+
+        private static Vector3 EvaluateAdditiveVelocity(
+            Vector3 rootVelocity,
+            Vector3 toTarget,
+            float remainingDist,
+            float remainingTime,
+            float deltaTime,
+            float maxSpeed,
+            float eased)
+        {
+            float baseSpeed = remainingTime > 0.01f
+                ? remainingDist / remainingTime
+                : remainingDist / deltaTime;
+
+            float warpSpeed = Mathf.Lerp(baseSpeed * 1.3f, baseSpeed * 0.7f, eased);
+            warpSpeed = Mathf.Clamp(warpSpeed, 0f, maxSpeed);
+
+            Vector3 warpVelocity = toTarget.normalized * warpSpeed;
+            return new Vector3(warpVelocity.x, rootVelocity.y, warpVelocity.z);
+        }
+
+        private static Vector3 EvaluateScaleVelocity(
+            Vector3 rootVelocity,
+            Vector3 toTarget,
+            float remainingDist,
+            float remainingTime,
+            float maxSpeed)
+        {
+            Vector3 rootHorizontal = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
+            float rootSpeed = rootHorizontal.magnitude;
+            float desiredSpeed = remainingTime > 0.01f ? remainingDist / remainingTime : maxSpeed;
+            desiredSpeed = Mathf.Clamp(desiredSpeed, 0f, maxSpeed);
+
+            if (rootSpeed <= 0.01f)
+            {
+                Vector3 fallback = toTarget.normalized * desiredSpeed;
+                return new Vector3(fallback.x, rootVelocity.y, fallback.z);
+            }
+
+            float scale = desiredSpeed / rootSpeed;
+            Vector3 scaled = toTarget.normalized * rootSpeed * scale;
+            return new Vector3(scaled.x, rootVelocity.y, scaled.z);
+        }
+
+        private static Vector3 EvaluateSkewVelocity(
+            Vector3 rootVelocity,
+            Vector3 toTarget,
+            float remainingDist,
+            float remainingTime,
+            float deltaTime,
+            float maxSpeed,
+            float eased)
+        {
+            Vector3 rootHorizontal = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
+            Vector3 targetDir = toTarget.normalized;
+
+            float desiredSpeed = remainingTime > 0.01f
+                ? remainingDist / remainingTime
+                : remainingDist / deltaTime;
+            desiredSpeed = Mathf.Clamp(desiredSpeed, 0f, maxSpeed);
+
+            float rootSpeed = rootHorizontal.magnitude;
+            float preservedSpeed = Mathf.Clamp(rootSpeed, 0f, maxSpeed);
+            float skewSpeed = Mathf.Lerp(preservedSpeed, desiredSpeed, Mathf.Lerp(0.55f, 0.95f, eased));
+            skewSpeed = Mathf.Clamp(skewSpeed, 0f, maxSpeed);
+
+            Vector3 skewVelocity = targetDir * skewSpeed;
+            return new Vector3(skewVelocity.x, rootVelocity.y, skewVelocity.z);
+        }
+
+        public bool TryGetFacingDirection(
+            Vector3 currentPosition,
+            bool isWarping,
+            float remainingTime,
+            float minDistance,
+            float maxDistance,
+            float maxSpeed,
+            out Vector3 direction)
+        {
+            direction = Vector3.zero;
+            if (_target == null || !isWarping || !_isApplicable)
+                return false;
+
+            MotionWarpWindowSettings settings = _hasWindowSettings
+                ? _windowSettings
+                : MotionWarpWindowSettings.Default(0f);
+
+            if (settings.rotationWeight <= 0f)
+                return false;
+
+            if (settings.overrideDistance)
+            {
+                minDistance = settings.minDistance;
+                maxDistance = settings.maxDistance;
+                maxSpeed = settings.maxSpeed;
+            }
+
+            Vector3 toTarget = _targetPosition - currentPosition;
+            toTarget.y = 0f;
+            float dist = toTarget.magnitude;
+
+            bool reachable = remainingTime <= 0.01f || dist <= maxSpeed * remainingTime;
+            if (dist < minDistance || dist > maxDistance || !reachable || toTarget.sqrMagnitude <= 0.01f)
+                return false;
+
+            direction = toTarget.normalized;
+            return true;
         }
     }
 }

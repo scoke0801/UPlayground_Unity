@@ -1,38 +1,45 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEngine.Rendering.Universal;
 
 public class ActorScreenshotTool : EditorWindow
 {
     private GameObject sourceActor;
     private GameObject previewInstance;
-    
     private Camera renderCamera;
-    
+
     // Actor Transform
     private Vector3 actorPosition = Vector3.zero;
     private Vector3 actorRotation = Vector3.zero;
     private Vector3 actorScale = Vector3.one;
-    
-    // Camera Settings
-    private Vector3 cameraPosition = new Vector3(0, 1, -3);
-    private Vector3 cameraRotation = new Vector3(10, 0, 0);
+
+    // Orbit Camera
+    private float _orbitYaw = 0f;
+    private float _orbitPitch = 15f;
+    private float _orbitDistance = 3f;
+    private Vector3 _orbitTarget = new Vector3(0f, 1f, 0f);
     private float cameraFOV = 60f;
-    
+
     // Screenshot Settings
     private int imageWidth = 512;
     private int imageHeight = 512;
     private Color backgroundColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-    private bool transparentBackground = true; // 투명 배경 옵션
+    private bool transparentBackground = true;
     private string savePath = "Assets/Screenshots";
-    
+
     // Preview
     private Texture2D previewTexture;
     private bool autoUpdate = true;
-    
+    private Rect _previewRect;
+
     // Lighting
     private Light previewLight;
-    
+
+    // 체커보드 텍스처 캐시
+    private Texture2D _checkerboardTex;
+    private const int CHECKER_SIZE = 16;
+
     // 격리용 레이어
     private const int PREVIEW_LAYER = 31;
 
@@ -54,47 +61,68 @@ public class ActorScreenshotTool : EditorWindow
 
     private void OnGUI()
     {
+        HandleOrbitInput();
+
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Actor Screenshot Tool", EditorStyles.boldLabel);
         EditorGUILayout.Space(10);
 
         DrawActorSelection();
-        
+
         if (sourceActor != null)
         {
             EditorGUILayout.Space(5);
             DrawTransformControls();
-            
+
             EditorGUILayout.Space(10);
             DrawCameraControls();
-            
+
             EditorGUILayout.Space(10);
             DrawScreenshotSettings();
-            
+
             EditorGUILayout.Space(10);
             DrawPreview();
-            
+
             EditorGUILayout.Space(10);
             DrawSaveButton();
         }
     }
 
+    // ── 오빗 마우스 입력 ────────────────────────────────────────────
+
+    private void HandleOrbitInput()
+    {
+        if (previewTexture == null) return;
+
+        Event e = Event.current;
+        if (!_previewRect.Contains(e.mousePosition)) return;
+
+        if (e.type == EventType.MouseDrag && e.button == 0)
+        {
+            _orbitYaw += e.delta.x * 0.5f;
+            _orbitPitch -= e.delta.y * 0.5f;
+            _orbitPitch = Mathf.Clamp(_orbitPitch, -89f, 89f);
+            if (autoUpdate) UpdatePreview();
+            e.Use();
+        }
+        else if (e.type == EventType.ScrollWheel)
+        {
+            _orbitDistance += e.delta.y * 0.1f;
+            _orbitDistance = Mathf.Clamp(_orbitDistance, 0.3f, 30f);
+            if (autoUpdate) UpdatePreview();
+            e.Use();
+        }
+    }
+
+    // ── 초기화 / 정리 ───────────────────────────────────────────────
+
     private void InitializeRenderCamera()
     {
-        GameObject camObj = GameObject.Find("_ActorScreenshotCamera");
-        if (camObj == null)
-        {
-            camObj = new GameObject("_ActorScreenshotCamera");
-            camObj.hideFlags = HideFlags.HideAndDontSave;
-            camObj.layer = PREVIEW_LAYER;
-        }
-        
-        renderCamera = camObj.GetComponent<Camera>();
-        if (renderCamera == null)
-        {
-            renderCamera = camObj.AddComponent<Camera>();
-        }
-        
+        var camObj = new GameObject("_ActorScreenshotCamera");
+        camObj.hideFlags = HideFlags.HideAndDontSave;
+        camObj.layer = PREVIEW_LAYER;
+
+        renderCamera = camObj.AddComponent<Camera>();
         renderCamera.enabled = false;
         renderCamera.fieldOfView = cameraFOV;
         renderCamera.clearFlags = CameraClearFlags.SolidColor;
@@ -102,40 +130,63 @@ public class ActorScreenshotTool : EditorWindow
         renderCamera.nearClipPlane = 0.01f;
         renderCamera.farClipPlane = 100f;
         renderCamera.cullingMask = 1 << PREVIEW_LAYER;
-        
-        // 라이트 추가
-        GameObject lightObj = GameObject.Find("_ActorScreenshotLight");
-        if (lightObj == null)
-        {
-            lightObj = new GameObject("_ActorScreenshotLight");
-            lightObj.hideFlags = HideFlags.HideAndDontSave;
-            lightObj.layer = PREVIEW_LAYER;
-        }
-        
-        previewLight = lightObj.GetComponent<Light>();
-        if (previewLight == null)
-        {
-            previewLight = lightObj.AddComponent<Light>();
-        }
-        
+
+        // URP 카메라 설정
+        var urpData = camObj.AddComponent<UniversalAdditionalCameraData>();
+        urpData.renderType = CameraRenderType.Base;
+        urpData.renderShadows = false;
+
+        var lightObj = new GameObject("_ActorScreenshotLight");
+        lightObj.hideFlags = HideFlags.HideAndDontSave;
+        lightObj.layer = PREVIEW_LAYER;
+
+        previewLight = lightObj.AddComponent<Light>();
         previewLight.type = LightType.Directional;
         previewLight.intensity = 1f;
         previewLight.transform.eulerAngles = new Vector3(50, -30, 0);
         previewLight.cullingMask = 1 << PREVIEW_LAYER;
     }
 
+    private void CleanupResources()
+    {
+        DestroyPreviewInstance();
+
+        if (renderCamera != null)
+        {
+            DestroyImmediate(renderCamera.gameObject);
+            renderCamera = null;
+        }
+        if (previewLight != null)
+        {
+            DestroyImmediate(previewLight.gameObject);
+            previewLight = null;
+        }
+        if (previewTexture != null)
+        {
+            DestroyImmediate(previewTexture);
+            previewTexture = null;
+        }
+        if (_checkerboardTex != null)
+        {
+            DestroyImmediate(_checkerboardTex);
+            _checkerboardTex = null;
+        }
+    }
+
+    // ── UI 섹션 ─────────────────────────────────────────────────────
+
     private void DrawActorSelection()
     {
         EditorGUI.BeginChangeCheck();
         sourceActor = (GameObject)EditorGUILayout.ObjectField("Target Actor", sourceActor, typeof(GameObject), true);
-        
+
         if (EditorGUI.EndChangeCheck())
         {
             if (sourceActor != null)
-            {   
+            {
                 CreatePreviewInstance();
                 ResetTransform();
-                UpdatePreview();
+                FrameActor();
             }
             else
             {
@@ -147,139 +198,107 @@ public class ActorScreenshotTool : EditorWindow
     private void DrawTransformControls()
     {
         EditorGUILayout.LabelField("Actor Transform", EditorStyles.boldLabel);
-        
+
         EditorGUI.BeginChangeCheck();
-        
         actorPosition = EditorGUILayout.Vector3Field("Position", actorPosition);
         actorRotation = EditorGUILayout.Vector3Field("Rotation", actorRotation);
         actorScale = EditorGUILayout.Vector3Field("Scale", actorScale);
-        
+
         if (EditorGUI.EndChangeCheck())
         {
             ApplyActorTransform();
             if (autoUpdate) UpdatePreview();
         }
-        
+
         if (GUILayout.Button("Reset Transform"))
-        {
             ResetTransform();
-        }
     }
 
     private void DrawCameraControls()
     {
         EditorGUILayout.LabelField("Camera Settings", EditorStyles.boldLabel);
-        
+
         EditorGUI.BeginChangeCheck();
-        
-        cameraPosition = EditorGUILayout.Vector3Field("Camera Position", cameraPosition);
-        cameraRotation = EditorGUILayout.Vector3Field("Camera Rotation", cameraRotation);
-        cameraFOV = EditorGUILayout.Slider("Field of View", cameraFOV, 10f, 120f);
-        
+        _orbitYaw      = EditorGUILayout.Slider("Yaw (수평)", _orbitYaw, -180f, 180f);
+        _orbitPitch    = EditorGUILayout.Slider("Pitch (수직)", _orbitPitch, -89f, 89f);
+        _orbitDistance = EditorGUILayout.Slider("Distance (거리)", _orbitDistance, 0.3f, 30f);
+        _orbitTarget   = EditorGUILayout.Vector3Field("Orbit Target", _orbitTarget);
+        cameraFOV      = EditorGUILayout.Slider("Field of View", cameraFOV, 10f, 120f);
+
         if (EditorGUI.EndChangeCheck())
         {
             if (autoUpdate) UpdatePreview();
         }
-        
+
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Front")) SetCameraPreset(new Vector3(0, 1, -3), new Vector3(10, 0, 0));
-        if (GUILayout.Button("Side")) SetCameraPreset(new Vector3(3, 1, 0), new Vector3(10, -90, 0));
-        if (GUILayout.Button("Top")) SetCameraPreset(new Vector3(0, 5, 0), new Vector3(90, 0, 0));
+        if (GUILayout.Button("Front")) SetOrbitPreset(0f, 15f);
+        if (GUILayout.Button("Side"))  SetOrbitPreset(90f, 15f);
+        if (GUILayout.Button("Back"))  SetOrbitPreset(180f, 15f);
+        if (GUILayout.Button("Top"))   SetOrbitPreset(0f, 89f);
+        if (GUILayout.Button("Frame")) FrameActor();
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.HelpBox("프리뷰에서 좌클릭 드래그로 회전 / 스크롤로 줌", MessageType.None);
     }
 
     private void DrawScreenshotSettings()
     {
         EditorGUILayout.LabelField("Screenshot Settings", EditorStyles.boldLabel);
-        
+
         EditorGUI.BeginChangeCheck();
-        
-        imageWidth = EditorGUILayout.IntField("Width", imageWidth);
+        imageWidth  = EditorGUILayout.IntField("Width", imageWidth);
         imageHeight = EditorGUILayout.IntField("Height", imageHeight);
-        
-        // 투명 배경 토글
+
         transparentBackground = EditorGUILayout.Toggle("Transparent Background", transparentBackground);
-        
-        // 투명 배경이 아닐 때만 배경색 설정
+
         EditorGUI.BeginDisabledGroup(transparentBackground);
         backgroundColor = EditorGUILayout.ColorField("Background Color", backgroundColor);
         EditorGUI.EndDisabledGroup();
-        
+
         if (EditorGUI.EndChangeCheck())
         {
-            imageWidth = Mathf.Clamp(imageWidth, 64, 8192);
+            imageWidth  = Mathf.Clamp(imageWidth, 64, 8192);
             imageHeight = Mathf.Clamp(imageHeight, 64, 8192);
-            
+
             if (renderCamera != null)
-            {
-                if (transparentBackground)
-                {
-                    renderCamera.backgroundColor = new Color(0, 0, 0, 0);
-                }
-                else
-                {
-                    renderCamera.backgroundColor = backgroundColor;
-                }
-            }
-            
+                renderCamera.backgroundColor = transparentBackground ? new Color(0, 0, 0, 0) : backgroundColor;
+
             if (autoUpdate) UpdatePreview();
         }
-        
+
         EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("512x512"))   SetResolution(512, 512);
+        if (GUILayout.Button("1024x1024")) SetResolution(1024, 1024);
         if (GUILayout.Button("1920x1080")) SetResolution(1920, 1080);
-        if (GUILayout.Button("1280x720")) SetResolution(1280, 720);
-        if (GUILayout.Button("2048x2048")) SetResolution(2048, 2048);
         EditorGUILayout.EndHorizontal();
-        
-        savePath = EditorGUILayout.TextField("Save Path", savePath);
+
+        savePath   = EditorGUILayout.TextField("Save Path", savePath);
         autoUpdate = EditorGUILayout.Toggle("Auto Update", autoUpdate);
     }
 
     private void DrawPreview()
     {
         EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
-        
+
         if (GUILayout.Button("Update Preview", GUILayout.Height(30)))
-        {
             UpdatePreview();
-        }
-        
+
         if (previewTexture != null)
         {
-            float aspectRatio = (float)imageWidth / imageHeight;
-            float previewWidth = position.width - 20;
-            float previewHeight = previewWidth / aspectRatio;
-            
-            previewHeight = Mathf.Min(previewHeight, 600);
-            previewWidth = previewHeight * aspectRatio;
-            
-            Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
-            
-            // 투명 배경일 때 체크보드 패턴 그리기
-            if (transparentBackground)
-            {
-                DrawCheckerboard(previewRect);
-            }
-            
-            EditorGUI.DrawPreviewTexture(previewRect, previewTexture, null, ScaleMode.ScaleToFit);
-        }
-    }
+            float aspect = (float)imageWidth / imageHeight;
+            float w = Mathf.Min(position.width - 20f, 600f * aspect);
+            float h = w / aspect;
 
-    private void DrawCheckerboard(Rect rect)
-    {
-        // 체크보드 패턴으로 투명 영역 표시
-        int checkSize = 10;
-        Color lightGray = new Color(0.7f, 0.7f, 0.7f);
-        Color darkGray = new Color(0.5f, 0.5f, 0.5f);
-        
-        for (int y = 0; y < rect.height; y += checkSize)
-        {
-            for (int x = 0; x < rect.width; x += checkSize)
-            {
-                bool isLight = ((x / checkSize) + (y / checkSize)) % 2 == 0;
-                EditorGUI.DrawRect(new Rect(rect.x + x, rect.y + y, checkSize, checkSize), 
-                    isLight ? lightGray : darkGray);
-            }
+            _previewRect = GUILayoutUtility.GetRect(w, h);
+            _previewRect.width = w;
+
+            if (transparentBackground)
+                DrawCheckerboard(_previewRect);
+
+            EditorGUI.DrawPreviewTexture(_previewRect, previewTexture, null, ScaleMode.ScaleToFit);
+            EditorGUILayout.HelpBox(
+                $"Yaw {_orbitYaw:F1}°  Pitch {_orbitPitch:F1}°  Dist {_orbitDistance:F2}",
+                MessageType.None);
         }
     }
 
@@ -287,32 +306,60 @@ public class ActorScreenshotTool : EditorWindow
     {
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button("Save Screenshot", GUILayout.Height(40)))
-        {
             SaveScreenshot();
-        }
         GUI.backgroundColor = Color.white;
     }
+
+    // ── 체커보드 ────────────────────────────────────────────────────
+
+    private void DrawCheckerboard(Rect rect)
+    {
+        if (_checkerboardTex == null)
+            _checkerboardTex = CreateCheckerboardTexture();
+
+        GUI.DrawTextureWithTexCoords(rect, _checkerboardTex,
+            new Rect(0, 0, rect.width / CHECKER_SIZE, rect.height / CHECKER_SIZE));
+    }
+
+    private Texture2D CreateCheckerboardTexture()
+    {
+        int size = CHECKER_SIZE * 2;
+        var tex = new Texture2D(size, size, TextureFormat.RGB24, false)
+        {
+            hideFlags  = HideFlags.HideAndDontSave,
+            wrapMode   = TextureWrapMode.Repeat,
+            filterMode = FilterMode.Point
+        };
+
+        Color light = new Color(0.72f, 0.72f, 0.72f);
+        Color dark  = new Color(0.48f, 0.48f, 0.48f);
+
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+                tex.SetPixel(x, y, ((x / CHECKER_SIZE + y / CHECKER_SIZE) % 2 == 0) ? light : dark);
+
+        tex.Apply();
+        return tex;
+    }
+
+    // ── 인스턴스 / 트랜스폼 ─────────────────────────────────────────
 
     private void CreatePreviewInstance()
     {
         DestroyPreviewInstance();
-        
-        if (sourceActor != null)
-        {
-            previewInstance = Instantiate(sourceActor);
-            previewInstance.hideFlags = HideFlags.HideAndDontSave;
-            
-            SetLayerRecursively(previewInstance, PREVIEW_LAYER);
-        }
+
+        if (sourceActor == null) return;
+
+        previewInstance = Instantiate(sourceActor);
+        previewInstance.hideFlags = HideFlags.HideAndDontSave;
+        SetLayerRecursively(previewInstance, PREVIEW_LAYER);
     }
 
     private void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;
         foreach (Transform child in obj.transform)
-        {
             SetLayerRecursively(child.gameObject, layer);
-        }
     }
 
     private void DestroyPreviewInstance()
@@ -326,97 +373,107 @@ public class ActorScreenshotTool : EditorWindow
 
     private void ApplyActorTransform()
     {
-        if (previewInstance != null)
-        {
-            previewInstance.transform.position = actorPosition;
-            previewInstance.transform.eulerAngles = actorRotation;
-            previewInstance.transform.localScale = actorScale;
-        }
+        if (previewInstance == null) return;
+        previewInstance.transform.position    = actorPosition;
+        previewInstance.transform.eulerAngles = actorRotation;
+        previewInstance.transform.localScale  = actorScale;
     }
 
     private void ResetTransform()
     {
         actorPosition = Vector3.zero;
         actorRotation = Vector3.zero;
-        actorScale = Vector3.one;
+        actorScale    = Vector3.one;
         ApplyActorTransform();
         if (autoUpdate) UpdatePreview();
     }
 
-    private void SetCameraPreset(Vector3 position, Vector3 rotation)
+    // ── 카메라 헬퍼 ─────────────────────────────────────────────────
+
+    private void SetOrbitPreset(float yaw, float pitch)
     {
-        cameraPosition = position;
-        cameraRotation = rotation;
+        _orbitYaw   = yaw;
+        _orbitPitch = pitch;
         if (autoUpdate) UpdatePreview();
+    }
+
+    private void FrameActor()
+    {
+        if (previewInstance == null) return;
+
+        var renderers = previewInstance.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return;
+
+        Bounds bounds = renderers[0].bounds;
+        foreach (var r in renderers)
+            bounds.Encapsulate(r.bounds);
+
+        _orbitTarget   = bounds.center;
+        _orbitDistance = Mathf.Max(bounds.extents.magnitude * 2.5f, 0.5f);
+        if (autoUpdate) UpdatePreview();
+    }
+
+    private Vector3 GetOrbitCameraPosition()
+    {
+        float pitch = _orbitPitch * Mathf.Deg2Rad;
+        float yaw   = _orbitYaw   * Mathf.Deg2Rad;
+        float cosP  = Mathf.Cos(pitch);
+        return _orbitTarget + new Vector3(
+            cosP * Mathf.Sin(yaw),
+            Mathf.Sin(pitch),
+            -cosP * Mathf.Cos(yaw)
+        ) * _orbitDistance;
     }
 
     private void SetResolution(int width, int height)
     {
-        imageWidth = width;
+        imageWidth  = width;
         imageHeight = height;
         if (autoUpdate) UpdatePreview();
     }
 
+    // ── 렌더링 ──────────────────────────────────────────────────────
+
     private void UpdatePreview()
     {
         if (previewInstance == null || renderCamera == null) return;
-        
-        // 기존 인스턴스 삭제하고 새로 생성
-        CreatePreviewInstance();
+
         ApplyActorTransform();
-        
         RenderToTexture(imageWidth, imageHeight, ref previewTexture);
         Repaint();
     }
 
     private void RenderToTexture(int width, int height, ref Texture2D targetTexture)
     {
-        // 투명 배경 지원을 위해 ARGB32 사용
-        RenderTexture renderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
-        RenderTexture previousRT = RenderTexture.active;
-        
-        // 카메라 설정
-        renderCamera.transform.position = cameraPosition;
-        renderCamera.transform.eulerAngles = cameraRotation;
-        renderCamera.fieldOfView = cameraFOV;
-        
-        // 투명 배경 설정
-        if (transparentBackground)
-        {
-            renderCamera.backgroundColor = new Color(0, 0, 0, 0);
-        }
-        else
-        {
-            renderCamera.backgroundColor = backgroundColor;
-        }
-        
-        renderCamera.targetTexture = renderTexture;
-        renderCamera.cullingMask = 1 << PREVIEW_LAYER;
-        
-        // 렌더링
+        RenderTexture rt          = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
+        RenderTexture previousRT  = RenderTexture.active;
+
+        renderCamera.transform.position = GetOrbitCameraPosition();
+        renderCamera.transform.LookAt(_orbitTarget);
+        renderCamera.fieldOfView   = cameraFOV;
+        renderCamera.backgroundColor = transparentBackground ? new Color(0, 0, 0, 0) : backgroundColor;
+        renderCamera.targetTexture = rt;
+        renderCamera.cullingMask   = 1 << PREVIEW_LAYER;
+
         renderCamera.Render();
-        
-        // Texture2D로 복사 (RGBA32로 알파 채널 지원)
-        RenderTexture.active = renderTexture;
-        
+
+        RenderTexture.active = rt;
+
         if (targetTexture == null || targetTexture.width != width || targetTexture.height != height)
         {
-            if (targetTexture != null)
-            {
-                DestroyImmediate(targetTexture);
-            }
-            // RGBA32로 알파 채널 포함
+            if (targetTexture != null) DestroyImmediate(targetTexture);
             targetTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
         }
-        
+
         targetTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         targetTexture.Apply();
-        
-        // 정리
-        RenderTexture.active = previousRT;
+
+        RenderTexture.active       = previousRT;
         renderCamera.targetTexture = null;
-        RenderTexture.ReleaseTemporary(renderTexture);
+        RenderTexture.ReleaseTemporary(rt);
     }
+
+    // ── 저장 ────────────────────────────────────────────────────────
 
     private void SaveScreenshot()
     {
@@ -425,61 +482,36 @@ public class ActorScreenshotTool : EditorWindow
             EditorUtility.DisplayDialog("Error", "Target Actor가 선택되지 않았습니다.", "OK");
             return;
         }
-        
         if (previewInstance == null)
         {
             EditorUtility.DisplayDialog("Error", "Preview Instance가 생성되지 않았습니다.", "OK");
             return;
         }
-        
-        // 고해상도로 렌더링
+
         Texture2D screenshot = null;
         RenderToTexture(imageWidth, imageHeight, ref screenshot);
-        
-        // 저장
-        if (!Directory.Exists(savePath))
-        {
-            Directory.CreateDirectory(savePath);
-        }
-        
-        string fileName = $"{sourceActor.name}.png";
-        string fullPath = Path.Combine(savePath, fileName);
-        
-        byte[] bytes = screenshot.EncodeToPNG();
-        File.WriteAllBytes(fullPath, bytes);
-        
-        DestroyImmediate(screenshot);
-        
-        AssetDatabase.Refresh();
-        
-        string message = transparentBackground 
-            ? $"투명 배경 스크린샷이 저장되었습니다.\n{fullPath}" 
-            : $"스크린샷이 저장되었습니다.\n{fullPath}";
-        
-        EditorUtility.DisplayDialog("Success", message, "OK");
-        EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(fullPath));
-    }
 
-    private void CleanupResources()
-    {
-        DestroyPreviewInstance();
-        
-        if (renderCamera != null)
+        if (!Directory.Exists(savePath))
+            Directory.CreateDirectory(savePath);
+
+        // 파일명 충돌 방지: 중복 시 자동 넘버링
+        string baseName = sourceActor.name;
+        int index = 0;
+        string fullPath;
+        do
         {
-            DestroyImmediate(renderCamera.gameObject);
-            renderCamera = null;
-        }
-        
-        if (previewLight != null)
-        {
-            DestroyImmediate(previewLight.gameObject);
-            previewLight = null;
-        }
-        
-        if (previewTexture != null)
-        {
-            DestroyImmediate(previewTexture);
-            previewTexture = null;
-        }
+            string suffix = index == 0 ? "" : $"_{index}";
+            fullPath = Path.Combine(savePath, $"{baseName}{suffix}.png");
+            index++;
+        } while (File.Exists(fullPath));
+
+        File.WriteAllBytes(fullPath, screenshot.EncodeToPNG());
+        DestroyImmediate(screenshot);
+
+        AssetDatabase.Refresh();
+
+        string label = transparentBackground ? "투명 배경 스크린샷" : "스크린샷";
+        EditorUtility.DisplayDialog("Success", $"{label}이 저장되었습니다.\n{fullPath}", "OK");
+        EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(fullPath));
     }
 }

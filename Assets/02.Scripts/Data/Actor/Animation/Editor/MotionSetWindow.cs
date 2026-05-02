@@ -4,6 +4,8 @@ using Animancer;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Debugging;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -38,6 +40,9 @@ namespace UPlayGround.Animation.Editor
         // 이벤트 재생 관리
         System.Collections.Generic.HashSet<MotionEventBase> _executedEvents;   
         System.Collections.Generic.HashSet<MotionEventBase> _activeEvents;
+        readonly System.Collections.Generic.List<string> _eventLog = new System.Collections.Generic.List<string>();
+        bool _showSceneEventOverlay = true;
+        bool _autoAttachDebugOverlay = true;
         
         // 임시 MotionSet (에셋이 없을 때)
         bool            _useTemporarySet;
@@ -92,6 +97,8 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_FPS         = "MotionSetWindow_Fps";
         const string PREFS_SPEED       = "MotionSetWindow_Speed";
         const string PREFS_LOOP        = "MotionSetWindow_Loop";
+        const string PREFS_EVENT_SCENE_OVERLAY = "MotionSetWindow_EventSceneOverlay";
+        const string PREFS_EVENT_AUTO_ATTACH   = "MotionSetWindow_EventAutoAttach";
 
         void OnEnable()
         {
@@ -108,6 +115,7 @@ namespace UPlayGround.Animation.Editor
 
             // 플레이 모드 변경 감지
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            SceneView.duringSceneGui += OnSceneGUI;
         }
 
         void OnDisable()
@@ -117,6 +125,7 @@ namespace UPlayGround.Animation.Editor
 
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            SceneView.duringSceneGui -= OnSceneGUI;
             StopPlayback();
         }
 
@@ -134,6 +143,8 @@ namespace UPlayGround.Animation.Editor
             EditorPrefs.SetString(PREFS_ACTOR_NAME, _testActorName);
             EditorPrefs.SetFloat (PREFS_SPEED,      _playbackSpeed);
             EditorPrefs.SetBool  (PREFS_LOOP,       _isLooping);
+            EditorPrefs.SetBool  (PREFS_EVENT_SCENE_OVERLAY, _showSceneEventOverlay);
+            EditorPrefs.SetBool  (PREFS_EVENT_AUTO_ATTACH,   _autoAttachDebugOverlay);
         }
 
         // ⑤ 상태 복원
@@ -150,6 +161,8 @@ namespace UPlayGround.Animation.Editor
             _testActorName = EditorPrefs.GetString(PREFS_ACTOR_NAME, _testActorName);
             _playbackSpeed = EditorPrefs.GetFloat (PREFS_SPEED,      1f);
             _isLooping     = EditorPrefs.GetBool  (PREFS_LOOP,       false);
+            _showSceneEventOverlay = EditorPrefs.GetBool(PREFS_EVENT_SCENE_OVERLAY, true);
+            _autoAttachDebugOverlay = EditorPrefs.GetBool(PREFS_EVENT_AUTO_ATTACH, true);
         }
         
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -179,6 +192,7 @@ namespace UPlayGround.Animation.Editor
                 {
                     _targetActor = actor;
                     _animancer = animancer;
+                    EnsureDebugOverlay();
                     Debug.Log($"대상 액터 자동 설정: {_testActorName}");
                     
                     // Idle 애니메이션 자동 재생
@@ -471,6 +485,7 @@ namespace UPlayGround.Animation.Editor
                 {
                     _targetActor = Selection.activeGameObject;
                     _animancer = animancer;
+                    EnsureDebugOverlay();
                     
                     // 대상 액터 변경 시 Idle 재생
                     if (!_isPlaying)
@@ -481,6 +496,41 @@ namespace UPlayGround.Animation.Editor
             }
             
             Repaint();
+        }
+
+        void OnSceneGUI(SceneView sceneView)
+        {
+            if (!_showSceneEventOverlay) return;
+            if (!_isPlaying || _targetActor == null) return;
+
+            string active = _activeEvents != null && _activeEvents.Count > 0
+                ? string.Join(", ", GetEventLabels(_activeEvents))
+                : "-";
+
+            string last = _eventLog.Count > 0 ? _eventLog[0] : "-";
+            string warpStatus = BuildWarpDebugText();
+            Handles.Label(
+                _targetActor.transform.position + Vector3.up * 2.25f,
+                $"MotionSet {_playbackTime:F2}s\n{warpStatus}\nActive: {active}\nLast: {last}");
+        }
+
+        string BuildWarpDebugText()
+        {
+            if (_targetActor == null) return "Warp: -";
+
+            var actorController = _targetActor.GetComponent<MotionWarpController>()
+                                ?? _targetActor.GetComponentInParent<MotionWarpController>()
+                                ?? _targetActor.GetComponentInChildren<MotionWarpController>();
+            if (actorController == null)
+                return "Warp: 컨트롤러 없음";
+
+            if (actorController.IsApplicable)
+                return $"Warp: 적용 / 오차 {actorController.LastArrivalError:F2}m";
+
+            if (!string.IsNullOrEmpty(actorController.LastFailureReason))
+                return $"Warp: {actorController.LastFailureReason}";
+
+            return "Warp: 대기";
         }
 
         void TryBindFromSelection()
@@ -715,6 +765,7 @@ namespace UPlayGround.Animation.Editor
             DrawToolbar();
             DrawActorAnimationSetBar();
             DrawPlaybackControls();
+            DrawEventDebugControls();
 
             if (_actorAnimationSet != null)
             {
@@ -763,6 +814,84 @@ namespace UPlayGround.Animation.Editor
                 EditorGUILayout.EndVertical();
             }
             EditorGUILayout.EndHorizontal();
+
+        }
+
+        void DrawEventDebugControls()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField("이벤트 디버그", EditorStyles.boldLabel, GUILayout.Width(90));
+                    _showSceneEventOverlay = EditorGUILayout.ToggleLeft("Scene 라벨", _showSceneEventOverlay, GUILayout.Width(90));
+                    _autoAttachDebugOverlay = EditorGUILayout.ToggleLeft("Game 오버레이 자동 부착", _autoAttachDebugOverlay, GUILayout.Width(150));
+
+                    EditorGUI.BeginDisabledGroup(_targetActor == null);
+                    if (GUILayout.Button("오버레이 부착", GUILayout.Width(90)))
+                        EnsureDebugOverlay(true);
+                    EditorGUI.EndDisabledGroup();
+
+                    if (GUILayout.Button("로그 지우기", GUILayout.Width(80)))
+                    {
+                        _eventLog.Clear();
+                        MotionSetEventDebugOverlay.Clear();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+
+                string activeText = _activeEvents != null && _activeEvents.Count > 0
+                    ? string.Join(", ", GetEventLabels(_activeEvents))
+                    : "-";
+                EditorGUILayout.LabelField(BuildWarpDebugText(), EditorStyles.miniLabel);
+                EditorGUILayout.LabelField($"Active: {activeText}", EditorStyles.miniLabel);
+
+                int count = Mathf.Min(5, _eventLog.Count);
+                for (int i = 0; i < count; i++)
+                    EditorGUILayout.LabelField(_eventLog[i], EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        static System.Collections.Generic.IEnumerable<string> GetEventLabels(
+            System.Collections.Generic.IEnumerable<MotionEventBase> events)
+        {
+            foreach (var evt in events)
+            {
+                if (evt == null) continue;
+                yield return evt.GetShortLabel();
+            }
+        }
+
+        void EnsureDebugOverlay(bool force = false)
+        {
+            if (_targetActor == null) return;
+            if (!force && !_autoAttachDebugOverlay) return;
+
+            if (_targetActor.GetComponent<MotionSetEventDebugOverlay>() == null)
+                _targetActor.AddComponent<MotionSetEventDebugOverlay>();
+        }
+
+        void RecordEventLog(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+
+            _eventLog.Insert(0, message);
+            while (_eventLog.Count > 30)
+                _eventLog.RemoveAt(_eventLog.Count - 1);
+
+            MotionSetEventDebugOverlay.RecordEvent(message);
+        }
+
+        void PublishEventDebugState()
+        {
+            if (_targetActor == null || GetCurrentMotionSet() == null) return;
+
+            MotionSetEventDebugOverlay.Publish(
+                _targetActor,
+                _playbackTime,
+                _activeEvents,
+                GetCurrentMotionSet().motionSetName);
         }
 
         // ── 상단 툴바 ──
@@ -1012,6 +1141,7 @@ namespace UPlayGround.Animation.Editor
                     }
                     else if (_animancer != null)
                     {
+                        EnsureDebugOverlay();
                         PlayIdleAnimation();
                     }
                 }
@@ -1026,6 +1156,7 @@ namespace UPlayGround.Animation.Editor
                         {
                             _targetActor = Selection.activeGameObject;
                             _animancer = animancer;
+                            EnsureDebugOverlay();
                             Debug.Log($"{_targetActor.name}을(를) 대상 액터로 설정했습니다.");
                             PlayIdleAnimation();
                         }
@@ -1294,6 +1425,9 @@ namespace UPlayGround.Animation.Editor
             // 이벤트 실행 기록 초기화
             _executedEvents = new System.Collections.Generic.HashSet<MotionEventBase>();
             _activeEvents   = new System.Collections.Generic.HashSet<MotionEventBase>();
+            _eventLog.Clear();
+            EnsureDebugOverlay();
+            PublishEventDebugState();
 
             // Animancer로 모션 셋 재생 시작
             if (motionSet.motions != null && motionSet.motions.Count > 0)
@@ -1345,6 +1479,8 @@ namespace UPlayGround.Animation.Editor
                 // MotionSet 재생 중지 후 Idle로 전환
                 PlayIdleAnimation();
             }
+
+            MotionSetEventDebugOverlay.Clear();
         }
         
         void PlayMotionSet(MotionSet motionSet)
@@ -1479,6 +1615,15 @@ namespace UPlayGround.Animation.Editor
         {
             if (_targetActor == null || motionSet == null) return;
 
+            if (motionSet.globalEvents != null)
+            {
+                foreach (var evt in motionSet.globalEvents)
+                {
+                    if (evt == null) continue;
+                    TryStartEvent(evt, evt.startTime);
+                }
+            }
+
             float tOff = 0f; // 현재 모션이 시작되는 절대 시간 오프셋
             foreach (var motion in motionSet.motions)
             {
@@ -1487,24 +1632,31 @@ namespace UPlayGround.Animation.Editor
                 foreach (var evt in motion.events)
                 {
                     if (evt == null) continue;
-
-                    // 이벤트의 절대 시작 시간 계산
-                    float eventGlobalStart = tOff + evt.startTime;
-
-                    // 이벤트의 '절대 시작 시간'이 '이전 프레임'과 '현재 프레임' 사이에 있는가?
-                    bool justStarted = eventGlobalStart > _previousTime && eventGlobalStart <= _playbackTime;
-
-                    if (justStarted && !_executedEvents.Contains(evt))
-                    {
-                        evt.Execute(_targetActor);
-                        _executedEvents.Add(evt);
-                        _activeEvents.Add(evt);
-                    }
+                    TryStartEvent(evt, tOff + evt.startTime);
                 }
                 tOff += motion.Duration; // 다음 모션을 위해 길이 누적
             }
     
             ProcessCompletedEvents(motionSet);
+            PublishEventDebugState();
+        }
+
+        void TryStartEvent(MotionEventBase evt, float eventGlobalStart)
+        {
+            bool justStarted = eventGlobalStart > _previousTime && eventGlobalStart <= _playbackTime;
+            if (!justStarted || _executedEvents.Contains(evt)) return;
+
+            try
+            {
+                evt.Execute(_targetActor);
+                _executedEvents.Add(evt);
+                _activeEvents.Add(evt);
+                RecordEventLog($"Start {evt.GetShortLabel()} @{_playbackTime:F2}s");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"이벤트 실행 중 오류: {evt.GetDisplayName()}\n{e.Message}");
+            }
         }
         
         void ProcessCompletedEvents(MotionSet motionSet)
@@ -1523,7 +1675,7 @@ namespace UPlayGround.Animation.Editor
                     {
                         evt.OnCompleteEvent(_targetActor);
                         toRemove.Add(evt);
-                        Debug.Log($"[MotionEvent] Complete: {evt.GetDisplayName()} at {_playbackTime:F2}s");
+                        RecordEventLog($"Complete {evt.GetShortLabel()} @{_playbackTime:F2}s");
                     }
                     catch (System.Exception e)
                     {
@@ -1551,7 +1703,7 @@ namespace UPlayGround.Animation.Editor
                     evt.Execute(_targetActor);
                     _executedEvents.Add(evt);
                     _activeEvents.Add(evt);
-                    Debug.Log($"[MotionEvent] Start: {evt.GetDisplayName()} at {currTime:F2}s");
+                    RecordEventLog($"Start {evt.GetShortLabel()} @{currTime:F2}s");
                 }
                 catch (System.Exception e)
                 {

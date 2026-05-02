@@ -24,6 +24,11 @@ namespace UPlayGround.CameraSystem
         private float _crowdDistance;
         private float _crowdVelocity;
 
+        // 락온 거리 스무딩
+        private bool _lockOnActive;
+        private float _lockOnDistance;
+        private float _lockOnVelocity;
+
         public CameraDistanceController(CameraSettings settings, Transform player, LayerMask lockOnLayer, float initialFOV)
         {
             _s = settings;
@@ -32,6 +37,7 @@ namespace UPlayGround.CameraSystem
             _baseFOV = initialFOV;
             _targetFOV = settings.fovExplore;
             _crowdDistance = settings.defaultDistance;
+            _lockOnDistance = settings.defaultDistance;
         }
 
         /// <summary>
@@ -59,7 +65,24 @@ namespace UPlayGround.CameraSystem
             UpdateCrowdZoom(isLockOn, isCombat);
 
             if (isLockOn)
-                return Mathf.Clamp(_s.lockOnDistance, _s.minDistance, _s.maxDistance);
+            {
+                // 락온 진입 시 현재 거리에서 출발하도록 초기화
+                if (!_lockOnActive)
+                {
+                    _lockOnDistance = currentTargetDist;
+                    _lockOnVelocity = 0f;
+                    _lockOnActive = true;
+                }
+                float target = Mathf.Clamp(_s.lockOnDistance, _s.minDistance, _s.maxDistance);
+                _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity, _s.lockOnTransitionDuration);
+                return _lockOnDistance;
+            }
+
+            if (_lockOnActive)
+            {
+                _lockOnActive = false;
+                _lockOnVelocity = 0f;
+            }
 
             if (_crowdActive)
                 return Mathf.Clamp(_crowdDistance, _s.minDistance, _s.maxDistance);

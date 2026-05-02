@@ -20,9 +20,12 @@ namespace UPlayGround.Component
         [SerializeField] private float _warpMinDistance = 0.3f;
         [Tooltip("워프 최대 거리. 이 거리를 초과한 타겟에게는 워프 미적용")]
         [SerializeField] private float _warpMaxDistance = 6f;
+        [Tooltip("워프 최대 속도. 남은 시간 내 도달 불가 거리면 워프 자체를 미적용")]
+        [SerializeField] private float _warpMaxSpeed = 18f;
 
         public float WarpMinDistance => _warpMinDistance;
         public float WarpMaxDistance => _warpMaxDistance;
+        public float WarpMaxSpeed    => _warpMaxSpeed;
 
         private MonsterActor _ownerActor;
         private IDamageable _ownerDamageable;
@@ -45,8 +48,10 @@ namespace UPlayGround.Component
         // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이를 주입.
         // 매 프레임 deltaTime만큼 소모하며 0 이하가 되면 워프 비활성.
         private float _warpRemainingTime;
+        private float _warpTotalDuration;
 
         public float WarpRemainingTime => _warpRemainingTime;
+        public float WarpDuration      => _warpTotalDuration;
         public bool  IsMotionWarping   => _warpRemainingTime > 0f;
         // ──────────────────────────────────────────────────────────────
 
@@ -105,7 +110,11 @@ namespace UPlayGround.Component
         }
 
         /// <summary> MotionEvent_MotionWarp.Execute()에서 호출. warpDuration = endTime - startTime. </summary>
-        public void BeginMotionWarp(float warpDuration) => _warpRemainingTime = warpDuration;
+        public void BeginMotionWarp(float warpDuration)
+        {
+            _warpRemainingTime = warpDuration;
+            _warpTotalDuration = warpDuration;
+        }
 
         /// <summary> MotionEvent_MotionWarp.OnCompleteEvent()에서 호출. </summary>
         public void EndMotionWarp() => _warpRemainingTime = 0f;

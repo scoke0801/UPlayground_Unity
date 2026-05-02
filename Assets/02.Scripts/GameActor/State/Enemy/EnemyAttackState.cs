@@ -31,6 +31,7 @@ namespace UPlayGround.State
 
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
+        private MotionWarpController _motionWarp;
 
         public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyBrain brain, EnemyDetection detection)
             : base(controller)
@@ -52,6 +53,7 @@ namespace UPlayGround.State
 
             _attackTimer    = 0f;
             _isAttackActive = true;
+            _motionWarp     = controller.MotionWarp;
 
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(true);
 
@@ -71,7 +73,10 @@ namespace UPlayGround.State
 
                 // 근접 공격에만 타겟 잠금
                 if (_currentSkill.baseInfo.attackType == AttackType.Melee)
+                {
                     _homingTarget = _detection.HasTarget ? _detection.CurrentTarget : null;
+                    _motionWarp.SetTarget(_homingTarget);
+                }
             }
             else
             {
@@ -86,6 +91,7 @@ namespace UPlayGround.State
 
             _isAttackActive = false;
             _homingTarget   = null;
+            _motionWarp?.ClearTarget();
             _combat.ClearHitTargets();
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
@@ -135,35 +141,18 @@ namespace UPlayGround.State
             }
             else
             {
-                Vector3 rootMotionDelta = gameActor.Animator.DeltaPosition;
-
-                // 워프 비활성 구간 → 루트모션 원본
-                if (_homingTarget == null || !_combat.IsMotionWarping)
-                {
-                    currentVelocity = rootMotionDelta / deltaTime;
-                }
-                else
-                {
-                    Vector3 toTarget = _homingTarget.position - motor.TransientPosition;
-                    toTarget.y = 0f;
-                    float remainingDist = toTarget.magnitude;
-
-                    if (remainingDist < _combat.WarpMinDistance || remainingDist > _combat.WarpMaxDistance)
-                    {
-                        // 범위 밖 → 루트모션 원본
-                        currentVelocity = rootMotionDelta / deltaTime;
-                    }
-                    else
-                    {
-                        // 워프 이벤트 구간의 남은 시간으로 속력 역산
-                        float remainingTime = _combat.WarpRemainingTime;
-                        float warpSpeed = remainingTime > 0.01f
-                            ? remainingDist / remainingTime
-                            : remainingDist / deltaTime;
-
-                        currentVelocity = toTarget.normalized * warpSpeed;
-                    }
-                }
+                Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+                currentVelocity = _motionWarp.EvaluateVelocity(
+                    rootVelocity,
+                    motor.TransientPosition,
+                    _combat.IsMotionWarping,
+                    _combat.WarpRemainingTime,
+                    _combat.WarpDuration,
+                    _combat.WarpMinDistance,
+                    _combat.WarpMaxDistance,
+                    _combat.WarpMaxSpeed,
+                    deltaTime,
+                    _combat.EndMotionWarp);
             }
 
             // Y축 복원 (중력/점프 보존)
@@ -182,19 +171,20 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // 워프 구간: 타겟 방향으로 회전 보정
-            if (_homingTarget != null && _combat.IsMotionWarping)
+            if (_motionWarp.TryGetFacingDirection(
+                    motor.TransientPosition,
+                    _combat.IsMotionWarping,
+                    _combat.WarpRemainingTime,
+                    _combat.WarpMinDistance,
+                    _combat.WarpMaxDistance,
+                    _combat.WarpMaxSpeed,
+                    out Vector3 warpDirection))
             {
-                Vector3 dirToTarget = _homingTarget.position - motor.TransientPosition;
-                dirToTarget.y = 0f;
-
-                if (dirToTarget.sqrMagnitude > 0.01f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(dirToTarget.normalized);
-                    float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
-                    currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
-                    currentRotation = currentRotation.normalized;
-                    return;
-                }
+                Quaternion targetRot = Quaternion.LookRotation(warpDirection);
+                float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
+                currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
+                currentRotation = currentRotation.normalized;
+                return;
             }
             else if (_detection.HasTarget && _attackTimer < 0.3f)
             {

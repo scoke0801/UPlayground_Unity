@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Humanoid_GreatSwordAnimationSet
+  m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
+  motionSets:
+    _serializedList:
+    - Key: 100
+      Value: {fileID: 11400000, guid: 7993f2313e245d446b4f098cfdd0d6f3, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 4ef2a9704662be6428989a439af69760, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: 38ead84fb17f12843a7a0a8420f9701f, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: d143d226e0f5fe346bc6dce437637fc7, type: 2}
+    - Key: 104
+      Value: {fileID: 11400000, guid: 2fe7d5bc68a55944294dd8ff532412f6, type: 2}
+    - Key: 105
+      Value: {fileID: 11400000, guid: 2edb38699b2b9524383dfcde4be704fa, type: 2}
+    - Key: 106
+      Value: {fileID: 11400000, guid: 70745d79b1a8107498f59484a1c462c2, type: 2}
+    - Key: 107
+      Value: {fileID: 11400000, guid: fb02be9c7c086b9438453ce8581248fb, type: 2}
+    - Key: 108
+      Value: {fileID: 11400000, guid: ae58eae636f976943a682328c4a54710, type: 2}
+    - Key: 109
+      Value: {fileID: 11400000, guid: 3a5cdcd1a944b504b9b74f7fe28df1a9, type: 2}
+    - Key: 200
+      Value: {fileID: 11400000, guid: a7159eba693ed844f8a6c57501b1dee5, type: 2}
+    - Key: 201
+      Value: {fileID: 11400000, guid: 38aa049516fe30046a2b50ddb3f652a3, type: 2}
+    - Key: 202
+      Value: {fileID: 11400000, guid: f487904af2b28bb409e17003966231bd, type: 2}
+    - Key: 203
+      Value: {fileID: 11400000, guid: 2a61e09f0a3d541458414bd5f7033e09, type: 2}
+    - Key: 204
+      Value: {fileID: 11400000, guid: 42fbedd0454b06f42a532abe7acb8dd5, type: 2}
+    - Key: 205
+      Value: {fileID: 11400000, guid: d357864807c4b2e4c98ae16cd208c858, type: 2}
+    - Key: 206
+      Value: {fileID: 11400000, guid: 0b60e636340e0ee4f8883fe72ff528b1, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: 65f7edc6c2057b9419a03a5b4e13b631, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 2e0624324bf7d9147afca75a6c731fbf, type: 2}
+    - Key: 502
+      Value: {fileID: 11400000, guid: b7e1a0d0ba302144fb5f09fd72172d1f, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: acab706cdd154c24e9e47ecbaabe50fa, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 2549d3a1f371b234390be3627d4b50b4, type: 2}
+    - Key: 1
+      Value: {fileID: 11400000, guid: 59557246c5570ba48b2152d453079748, type: 2}
+    - Key: 840
+      Value: {fileID: 11400000, guid: ee4f8b2cc07568c4abed9da49d5a969d, type: 2}
+    - Key: 820
+      Value: {fileID: 11400000, guid: c5f850e3eea4ca64f9f9f10fd6d614f4, type: 2}
+    - Key: 860
+      Value: {fileID: 11400000, guid: 77fd5841425c9d3439be8ac1c93e4f5a, type: 2}
+    - Key: 11
+      Value: {fileID: 11400000, guid: 6d822901fdad4f449bdbb936b6d0c9ba, type: 2}
+    - Key: 10
+      Value: {fileID: 11400000, guid: 8038265f8d9a7ca469961d532374d49b, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: 5ae056d95af6f5044b54412916dcc3f1, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: 0255515cda4e40f40a7ac2a5039fa106, type: 2}
+    - Key: 901
+      Value: {fileID: 11400000, guid: 4dd3a54ea2aa2244382cbf04d93832c8, type: 2}
+    - Key: 900
+      Value: {fileID: 11400000, guid: 38ebbddf9a369904f8b489642bd00a4e, type: 2}
+    - Key: 841
+      Value: {fileID: 11400000, guid: 87cc74c23268e6b44ae8010df23ae49c, type: 2}
+    - Key: 2110
+      Value: {fileID: 11400000, guid: 3614a67d04603a14a9f87c214ba4f553, type: 2}
+    - Key: 2112
+      Value: {fileID: 11400000, guid: 7229923ac9db90a428d1a7d08d3df5f4, type: 2}

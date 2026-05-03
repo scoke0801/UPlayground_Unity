@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Humanoid_DualBladeAnimationSet
+  m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
+  motionSets:
+    _serializedList:
+    - Key: 100
+      Value: {fileID: 11400000, guid: a0b452dab5e8d6a4cb3d16a62a9cdb77, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 215e263228b29cd46805dda1debdccc3, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: 1fe424e6181766d40abf1e5469464354, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: a74ef6db5e452a645b2a7024fa23477e, type: 2}
+    - Key: 104
+      Value: {fileID: 11400000, guid: 1cb0b382ff827e841827ae817663040a, type: 2}
+    - Key: 105
+      Value: {fileID: 11400000, guid: 2bd142cab4a2fd047aadabc23b796f8a, type: 2}
+    - Key: 106
+      Value: {fileID: 11400000, guid: 6d0fd8b1c0881dd4592568497b8bbe5e, type: 2}
+    - Key: 107
+      Value: {fileID: 11400000, guid: 1f91b43336d255149969d4542b41f2c4, type: 2}
+    - Key: 108
+      Value: {fileID: 11400000, guid: 8b437be70083145488fb4c517cba5fba, type: 2}
+    - Key: 109
+      Value: {fileID: 11400000, guid: 8e9e24a61da6f3a41b498e634da26875, type: 2}

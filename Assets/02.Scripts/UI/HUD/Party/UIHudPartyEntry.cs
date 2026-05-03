@@ -9,6 +9,7 @@ public class UIHudPartyEntry : MonoBehaviour
     [SerializeField] private Image _characterIcon;
     [SerializeField] private Image _characterIconBG;
     [SerializeField] private Image _skillGuageFill;
+    [SerializeField] private GameObject _glowObject;
 
     [SerializeField] private GameObject _fxObject;
     [SerializeField] private Animator _animator;

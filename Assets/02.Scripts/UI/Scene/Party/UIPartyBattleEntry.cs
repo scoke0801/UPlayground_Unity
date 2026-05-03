@@ -42,6 +42,8 @@ public class UIPartyBattleEntry : MonoBehaviour
         if (_characterNameText != null && memberData != null)
             _characterNameText.text = memberData.GetName(type);
 
+        RefreshLevelText();
+
         if (_weaponIcon != null && memberData != null)
             _weaponIcon.sprite = memberData.GetWeaponIcon(type);
 
@@ -61,6 +63,14 @@ public class UIPartyBattleEntry : MonoBehaviour
     {
         _boundType = CharacterActorType.None;
         gameObject.SetActive(false);
+    }
+
+    private void RefreshLevelText()
+    {
+        if (_characterLevelText == null) return;
+
+        int level = PartyManager.Instance?.GetLevel(_boundType) ?? 1;
+        _characterLevelText.text = $"Lv. {Mathf.Max(1, level)}";
     }
 
     private void OnSlotButtonClicked()

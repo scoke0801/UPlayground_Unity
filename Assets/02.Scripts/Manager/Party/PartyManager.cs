@@ -30,6 +30,8 @@ namespace UPlayGround.Manager
         private PlayerActor            _player;
         private List<CharacterActorType> _roster      = new();
         private List<CharacterActorType> _battleOrder = new();
+        private readonly Dictionary<CharacterActorType, PartyMemberGrowthSO> _growthLookup = new();
+        private readonly Dictionary<CharacterActorType, int> _levels = new();
         private int                    _activeIndex  = 0;
         private int                    _maxBattleSize = 4;
         private float                  _lastSwapTime = -999f;
@@ -42,6 +44,7 @@ namespace UPlayGround.Manager
         public event Action<CharacterActorType>       OnCharacterUnlocked;
         public event Action                           OnRosterChanged;
         public event Action                           OnBattleOrderChanged;
+        public event Action<CharacterActorType>       OnPartyProgressionChanged;
 
         public PlayerActor               ActiveCharacter     => _player;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
@@ -102,6 +105,8 @@ namespace UPlayGround.Manager
             UnregisterSwapInputs();
             _roster.Clear();
             _battleOrder.Clear();
+            _growthLookup.Clear();
+            _levels.Clear();
         }
 
         public void OnUpdate()
@@ -245,8 +250,10 @@ namespace UPlayGround.Manager
             }
 
             _roster.Add(type);
+            InitializeLevelIfMissing(type);
             OnRosterChanged?.Invoke();
             OnCharacterUnlocked?.Invoke(type);
+            OnPartyProgressionChanged?.Invoke(type);
             Debug.Log($"[PartyManager] {type} 보유 합류!");
 
             if (_battleOrder.Count < _maxBattleSize)
@@ -393,6 +400,59 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        public int GetLevel(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return 0;
+            if (_levels.TryGetValue(type, out int level)) return level;
+
+            InitializeLevelIfMissing(type);
+            return _levels.TryGetValue(type, out level) ? level : 1;
+        }
+
+        public bool SetLevelForDebug(CharacterActorType type, int level)
+        {
+            if (type == CharacterActorType.None) return false;
+
+            int levelCap = _growthLookup.TryGetValue(type, out var growth) && growth != null
+                ? Mathf.Max(1, growth.levelCap)
+                : 100;
+
+            _levels[type] = Mathf.Clamp(level, 1, levelCap);
+            OnPartyProgressionChanged?.Invoke(type);
+            return true;
+        }
+
+        public PartyCombatPowerResult GetCombatPower(CharacterActorType type)
+        {
+            int level = GetLevel(type);
+            _growthLookup.TryGetValue(type, out var growth);
+            return PartyPowerCalculator.Calculate(type, growth, level);
+        }
+
+        public long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null)
+        {
+            IReadOnlyList<CharacterActorType> targetOrder = order ?? _battleOrder;
+            if (targetOrder == null) return 0L;
+
+            long total = 0L;
+            for (int i = 0; i < targetOrder.Count; i++)
+            {
+                CharacterActorType type = targetOrder[i];
+                if (type == CharacterActorType.None) continue;
+                total += GetCombatPower(type).CombatPower;
+            }
+
+            return total;
+        }
+
+        public IReadOnlyList<PartyCombatPowerResult> GetBattleOrderCombatPowers()
+        {
+            var results = new List<PartyCombatPowerResult>(_battleOrder.Count);
+            for (int i = 0; i < _battleOrder.Count; i++)
+                results.Add(GetCombatPower(_battleOrder[i]));
+            return results;
+        }
+
         public bool CanSwap()
         {
             if (_isSwapping)                                return false;
@@ -449,6 +509,7 @@ namespace UPlayGround.Manager
             _battleOrder.Clear();
 
             _maxBattleSize = _config != null ? Mathf.Max(1, _config.maxBattleSize) : 4;
+            BuildGrowthLookup();
 
             if (_config != null && _config.partyOrder.Count > 0)
             {
@@ -487,8 +548,44 @@ namespace UPlayGround.Manager
                 ? Mathf.Clamp(startIdx, 0, _battleOrder.Count - 1)
                 : 0;
 
+            InitializeRosterLevels();
             OnRosterChanged?.Invoke();
             OnBattleOrderChanged?.Invoke();
+        }
+
+        private void BuildGrowthLookup()
+        {
+            _growthLookup.Clear();
+            if (_config == null || _config.growthData == null) return;
+
+            for (int i = 0; i < _config.growthData.Count; i++)
+            {
+                var growth = _config.growthData[i];
+                if (growth == null || growth.characterType == CharacterActorType.None) continue;
+                if (_growthLookup.ContainsKey(growth.characterType))
+                {
+                    Debug.LogWarning($"[PartyManager] 중복 성장 데이터가 있습니다: {growth.characterType}");
+                    continue;
+                }
+
+                _growthLookup.Add(growth.characterType, growth);
+            }
+        }
+
+        private void InitializeRosterLevels()
+        {
+            for (int i = 0; i < _roster.Count; i++)
+                InitializeLevelIfMissing(_roster[i]);
+        }
+
+        private void InitializeLevelIfMissing(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None || _levels.ContainsKey(type)) return;
+
+            int initialLevel = _growthLookup.TryGetValue(type, out var growth) && growth != null
+                ? Mathf.Clamp(growth.initialLevel, 1, Mathf.Max(1, growth.levelCap))
+                : 1;
+            _levels[type] = initialLevel;
         }
 
         private void InitializePartyStates()

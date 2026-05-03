@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UPlayGround.Animation.Editor;
+using UPlayGround.Tool.Editor.Party;
 using UPlayGround.Tool.Editor.Stat;
 
 namespace UPlayGround.Editor
@@ -30,6 +31,10 @@ namespace UPlayGround.Editor
         [MenuItem("UPlayGround/Generator Tool/Validate Stat Data Coverage", false, 31)]
         private static void ValidateStatDataCoverage()
             => StatDataGeneratorWindow.ValidateStatDataCoverageMenu();
+
+        [MenuItem("UPlayGround/Generator Tool/Party Growth Editor", false, 32)]
+        private static void OpenPartyGrowthEditor()
+            => PartyGrowthEditorWindow.Open();
 
         [MenuItem("UPlayGround/Generator Tool/NPC Data Generator", false, 35)]
         private static void OpenNpcDataGenerator()

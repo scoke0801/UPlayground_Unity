@@ -51,6 +51,7 @@ public class UIPartyMenuEntry : MonoBehaviour
 
         if (_weaponIcon != null)        _weaponIcon.sprite      = data.GetWeaponIcon(type);
         if (_characterNameText != null) _characterNameText.text = data.GetName(type);
+        RefreshLevelText(pm.Roster.Contains(type));
 
         bool isUnlocked = pm.Roster.Contains(type);
         _dimmedImage.SetActive(!isUnlocked);
@@ -61,6 +62,11 @@ public class UIPartyMenuEntry : MonoBehaviour
     /// <summary>초안 BattleOrder를 받아 뱃지·선택 상태를 갱신한다.</summary>
     public void RefreshBattleStatus(IReadOnlyList<CharacterActorType> pendingOrder)
     {
+        var pm = PartyManager.Instance;
+        bool isUnlocked = pm != null && pm.Roster.Contains(_type);
+        RefreshLevelText(isUnlocked);
+        _dimmedImage.SetActive(!isUnlocked);
+
         int battleIndex = -1;
         for (int i = 0; i < pendingOrder.Count; i++)
         {
@@ -73,6 +79,20 @@ public class UIPartyMenuEntry : MonoBehaviour
             _partyOrderText.text = (battleIndex + 1).ToString();
 
         _selectedImage.SetActive(isInBattle);
+    }
+
+    private void RefreshLevelText(bool isUnlocked)
+    {
+        if (_characterLevelText == null) return;
+
+        if (!isUnlocked)
+        {
+            _characterLevelText.text = string.Empty;
+            return;
+        }
+
+        int level = PartyManager.Instance?.GetLevel(_type) ?? 1;
+        _characterLevelText.text = $"Lv. {Mathf.Max(1, level)}";
     }
 
     private void OnClickedButton()

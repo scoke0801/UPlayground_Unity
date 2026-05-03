@@ -27,6 +27,10 @@ namespace UPlayGround.Data.Party
         [Min(0)]
         public int startActiveIndex = 0;
 
+        [Header("Growth")]
+        [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
+        public List<PartyMemberGrowthSO> growthData = new();
+
         [Header("Entry Attack Defaults")]
         [Tooltip("CharacterModelData.entryAttackRange 가 0 이하일 때 사용할 기본 검출 반경.")]
         [Min(0f)]

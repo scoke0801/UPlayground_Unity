@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround;
@@ -25,6 +27,9 @@ public class UI_PartyMenu : UI_Base
     [SerializeField] private Button _saveButton;
     [SerializeField] private Button _autoOrganizationButton;
 
+    [Header("텍스트")]
+    [SerializeField] private TextMeshProUGUI _partyCombatPowerText;
+    
     private readonly List<UIPartyMenuEntry> _menuEntries  = new();
     private readonly List<CharacterActorType> _pendingOrder = new();
 
@@ -60,7 +65,10 @@ public class UI_PartyMenu : UI_Base
         InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
 
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnSwapCompleted += OnSwapCompleted;
+            PartyManager.Instance.OnPartyProgressionChanged += OnPartyProgressionChanged;
+        }
 
         // 현재 BattleOrder를 초안으로 복사
         _pendingOrder.Clear();
@@ -74,7 +82,10 @@ public class UI_PartyMenu : UI_Base
     protected override void OnHide()
     {
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
+            PartyManager.Instance.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+        }
 
         InputManager.Instance.SetInputLayer(InputLayer.None);
     }
@@ -82,7 +93,10 @@ public class UI_PartyMenu : UI_Base
     protected override void OnDispose()
     {
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
+            PartyManager.Instance.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+        }
 
         foreach (var entry in _menuEntries)
             entry.OnToggleRequested -= OnEntryToggleRequested;
@@ -140,6 +154,7 @@ public class UI_PartyMenu : UI_Base
     }
 
     private void OnSwapCompleted(PlayerActor _) => RefreshBattleEntries();
+    private void OnPartyProgressionChanged(CharacterActorType _) => Refresh();
 
     // ─── 갱신 ────────────────────────────────────────────────────────
 
@@ -147,6 +162,7 @@ public class UI_PartyMenu : UI_Base
     {
         RefreshBattleEntries();
         RefreshMenuEntries();
+        RefreshPartyCombatPower();
     }
 
     private void RefreshBattleEntries()
@@ -167,6 +183,14 @@ public class UI_PartyMenu : UI_Base
     {
         foreach (var entry in _menuEntries)
             entry.RefreshBattleStatus(_pendingOrder);
+    }
+
+    private void RefreshPartyCombatPower()
+    {
+        if (_partyCombatPowerText == null) return;
+
+        long combatPower = PartyManager.Instance?.GetPartyCombatPower(_pendingOrder) ?? 0L;
+        _partyCombatPowerText.text = combatPower.ToString("#,0", CultureInfo.InvariantCulture);
     }
 
     /// <summary>보유(Roster) 캐릭터가 목록 상단에 오도록 sibling 순서 재정렬.</summary>

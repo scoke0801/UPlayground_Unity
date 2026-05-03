@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f541a8efbe4023ae48317d2e10e5a7, type: 3}
+  m_Name: PartyMemberGrowth_Bokusei
+  m_EditorClassIdentifier: 
+  characterType: 1
+  baseStat: {fileID: 11400000, guid: 4b9b7ee8642c9114282b8ec2757cb1b9, type: 2}
+  initialLevel: 1
+  levelCap: 100
+  growthRules: []

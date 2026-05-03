@@ -16,6 +16,16 @@ MonoBehaviour:
   maxBattleSize: 4
   defaultBattleOrder: 
   startActiveIndex: 0
+  growthData:
+  - {fileID: 11400000, guid: 6a9e249a46228914d8b03ca4d6ac6fc3, type: 2}
+  - {fileID: 11400000, guid: 5be62b1cc48ad814f9abf6f1295ce8e9, type: 2}
+  - {fileID: 11400000, guid: 6535e3c538d264d4d9fb147ade267454, type: 2}
+  - {fileID: 11400000, guid: efd102a4de7421b4dace080242d1debb, type: 2}
+  - {fileID: 11400000, guid: f074975a6a0e768438e8884923d97a58, type: 2}
+  - {fileID: 11400000, guid: a71ee59754fc2904b8c247fdf08106aa, type: 2}
+  - {fileID: 11400000, guid: ba9d7816dbe07e341aafd528ae5cd138, type: 2}
+  - {fileID: 11400000, guid: 697b89e9afe09854195b9dfea57e5cf1, type: 2}
+  - {fileID: 11400000, guid: a4d18acdd71dc1b44bad4e5a08c3b6e2, type: 2}
   defaultEntryAttackRange: 6
   entryAttackTargetLayer:
     serializedVersion: 2

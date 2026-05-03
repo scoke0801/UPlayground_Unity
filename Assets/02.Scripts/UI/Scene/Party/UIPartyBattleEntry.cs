@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,12 +19,20 @@ public class UIPartyBattleEntry : MonoBehaviour
 
     [SerializeField] private Image      _weaponIcon;
     [SerializeField] private GameObject _selectedImage;
+    [SerializeField] private Button     _slotButton;
+
+    public event Action<CharacterActorType> OnRemoveRequested;
 
     private CharacterActorType _boundType = CharacterActorType.None;
 
     public CharacterActorType BoundType => _boundType;
 
-    public void Bind(CharacterActorType type, PartyMemberDataSO memberData, int slotIndex)
+    private void Awake()
+    {
+        _slotButton?.onClick.AddListener(OnSlotButtonClicked);
+    }
+
+    public void Bind(CharacterActorType type, PartyMemberDataSO memberData, int slotIndex, bool canRemove)
     {
         _boundType = type;
 
@@ -43,6 +52,8 @@ public class UIPartyBattleEntry : MonoBehaviour
                         PartyManager.Instance.ActiveCharacterType == type;
         if (_selectedImage != null) _selectedImage.SetActive(isActive);
 
+        if (_slotButton != null) _slotButton.interactable = canRemove;
+
         gameObject.SetActive(true);
     }
 
@@ -50,5 +61,11 @@ public class UIPartyBattleEntry : MonoBehaviour
     {
         _boundType = CharacterActorType.None;
         gameObject.SetActive(false);
+    }
+
+    private void OnSlotButtonClicked()
+    {
+        if (_boundType != CharacterActorType.None)
+            OnRemoveRequested?.Invoke(_boundType);
     }
 }

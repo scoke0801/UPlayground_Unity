@@ -355,6 +355,44 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        /// <summary>
+        /// 편성 화면에서 BattleOrder 전체를 교체한다.
+        /// 활성 캐릭터가 newOrder에 없으면 newOrder[0]으로 전환.
+        /// </summary>
+        public bool SetBattleOrder(IReadOnlyList<CharacterActorType> newOrder)
+        {
+            if (newOrder == null || newOrder.Count == 0) return false;
+
+            var validated = new List<CharacterActorType>();
+            foreach (var t in newOrder)
+            {
+                if (t == CharacterActorType.None)  continue;
+                if (!_roster.Contains(t))          continue;
+                if (validated.Contains(t))         continue;
+                if (validated.Count >= _maxBattleSize) break;
+                validated.Add(t);
+            }
+            if (validated.Count == 0) return false;
+
+            CharacterActorType prevActive = ActiveCharacterType;
+            _battleOrder.Clear();
+            _battleOrder.AddRange(validated);
+
+            int newActiveIdx = _battleOrder.IndexOf(prevActive);
+            if (newActiveIdx >= 0)
+            {
+                _activeIndex = newActiveIdx;
+            }
+            else
+            {
+                _activeIndex = 0;
+                ApplyActiveSwitchInternal(_battleOrder[0]);
+            }
+
+            OnBattleOrderChanged?.Invoke();
+            return true;
+        }
+
         public bool CanSwap()
         {
             if (_isSwapping)                                return false;

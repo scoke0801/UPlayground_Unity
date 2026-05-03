@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -7,7 +9,7 @@ using UPlayGround.Manager;
 
 /// <summary>
 /// 파티 편성 화면의 보유 캐릭터 목록 엔트리.
-/// 클릭 시 BattleOrder 편입/제외를 토글한다.
+/// 클릭 시 OnToggleRequested 이벤트를 발행하고, UI_PartyMenu가 초안 상태를 관리한다.
 /// </summary>
 public class UIPartyMenuEntry : MonoBehaviour
 {
@@ -19,9 +21,13 @@ public class UIPartyMenuEntry : MonoBehaviour
     [SerializeField] private GameObject         _partyOrderRoot;
     [SerializeField] private TextMeshProUGUI    _partyOrderText;
     [SerializeField] private GameObject         _selectedImage;
+    [SerializeField] private Image              _weaponIcon;
 
-    [SerializeField] private Image _weaponIcon;
+    public event Action<CharacterActorType> OnToggleRequested;
+
     private CharacterActorType _type = CharacterActorType.None;
+
+    public CharacterActorType Type => _type;
 
     private void Awake()
     {
@@ -32,7 +38,7 @@ public class UIPartyMenuEntry : MonoBehaviour
         _button.onClick.AddListener(OnClickedButton);
     }
 
-    /// <summary>한 번만 호출 — 아이콘, 잠금 상태 세팅.</summary>
+    /// <summary>한 번만 호출 — 아이콘, 이름, 잠금 상태 세팅.</summary>
     public bool Init(CharacterActorType type)
     {
         _type = type;
@@ -49,21 +55,16 @@ public class UIPartyMenuEntry : MonoBehaviour
         bool isUnlocked = pm.Roster.Contains(type);
         _dimmedImage.SetActive(!isUnlocked);
 
-        RefreshBattleStatus();
         return true;
     }
 
-    /// <summary>BattleOrder 변경 시 뱃지·선택 상태를 갱신한다.</summary>
-    public void RefreshBattleStatus()
+    /// <summary>초안 BattleOrder를 받아 뱃지·선택 상태를 갱신한다.</summary>
+    public void RefreshBattleStatus(IReadOnlyList<CharacterActorType> pendingOrder)
     {
-        var pm = PartyManager.Instance;
-        if (pm == null) return;
-
-        var battleOrder = pm.BattleOrder;
         int battleIndex = -1;
-        for (int i = 0; i < battleOrder.Count; i++)
+        for (int i = 0; i < pendingOrder.Count; i++)
         {
-            if (battleOrder[i] == _type) { battleIndex = i; break; }
+            if (pendingOrder[i] == _type) { battleIndex = i; break; }
         }
 
         bool isInBattle = battleIndex >= 0;
@@ -76,17 +77,10 @@ public class UIPartyMenuEntry : MonoBehaviour
 
     private void OnClickedButton()
     {
-        var pm = PartyManager.Instance;
-        if (pm == null) return;
-
         // 미보유(잠금) 캐릭터는 클릭 무시
-        if (!pm.Roster.Contains(_type)) return;
+        var pm = PartyManager.Instance;
+        if (pm == null || !pm.Roster.Contains(_type)) return;
 
-        if (pm.BattleOrder.Contains(_type))
-            pm.RemoveFromBattle(_type);
-        else
-            pm.AddToBattle(_type);
-
-        // OnBattleOrderChanged → UI_PartyMenu.Refresh() → RefreshBattleStatus()
+        OnToggleRequested?.Invoke(_type);
     }
 }

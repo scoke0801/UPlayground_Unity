@@ -8,10 +8,10 @@ public class UIHudPartyEntry : MonoBehaviour
 {
     [SerializeField] private Image _characterIcon;
     [SerializeField] private Image _characterIconBG;
+    [SerializeField] private Image _hpFill;
     [SerializeField] private Image _skillGuageFill;
     [SerializeField] private GameObject _glowObject;
 
-    [SerializeField] private GameObject _fxObject;
     [SerializeField] private Animator _animator;
 
     [Header("Animation Settings")]
@@ -20,7 +20,6 @@ public class UIHudPartyEntry : MonoBehaviour
     private CharacterActorType _boundType = CharacterActorType.None;
     private Coroutine _skillGaugeCoroutine;
     private float _skillTargetRatio;
-    private bool _isInCombat;
 
     public CharacterActorType BoundType => _boundType;
 
@@ -32,10 +31,9 @@ public class UIHudPartyEntry : MonoBehaviour
             _characterIcon.sprite = memberData.GetHeadSprite(type);
 
         if (_skillGuageFill != null) _skillGuageFill.fillAmount = 0f;
+        if (_hpFill != null) _hpFill.fillAmount = 1f;
+        if (_glowObject != null) _glowObject.SetActive(false);
         _skillTargetRatio = 0f;
-        _isInCombat = false;
-
-        if (_fxObject != null) _fxObject.SetActive(false);
 
         gameObject.SetActive(true);
     }
@@ -50,6 +48,7 @@ public class UIHudPartyEntry : MonoBehaviour
             _skillGaugeCoroutine = null;
         }
 
+        if (_glowObject != null) _glowObject.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -57,24 +56,32 @@ public class UIHudPartyEntry : MonoBehaviour
 
     public void SetIsInCombat(bool isInCombat)
     {
-        _isInCombat = isInCombat;
-        if (!_isInCombat && _fxObject != null)
-            _fxObject.SetActive(false);
+    }
+
+    public void SetHealth(float current, float max)
+    {
+        if (_hpFill == null) return;
+
+        float ratio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        _hpFill.fillAmount = ratio;
     }
 
     public void SetSkillGauge(float current, float max)
     {
         if (_skillGuageFill == null) return;
 
-        _skillTargetRatio = current / max;
+        float nextRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
 
-        bool isFullGauge = Mathf.Approximately(_skillTargetRatio, 1f);
+        bool isFullGauge = Mathf.Approximately(nextRatio, 1f);
         if (_animator != null)
             _animator.SetBool("IsSkillGaugeFull", isFullGauge);
 
-        if (_fxObject != null)
-            _fxObject.SetActive(_isInCombat && isFullGauge);
+        if (_glowObject != null)
+            _glowObject.SetActive(isFullGauge);
 
+        if (Mathf.Approximately(_skillTargetRatio, nextRatio)) return;
+
+        _skillTargetRatio = nextRatio;
         if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
         _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());
     }

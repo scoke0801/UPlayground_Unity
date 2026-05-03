@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -9,20 +10,30 @@ public class UI_HudParty : UI_Base
 {
     [SerializeField] private List<UIHudPartyEntry> _entries = new();
 
+    private PlayerActor _subscribedPlayer;
+
     protected override void OnShow()
     {
         base.OnShow();
 
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnBattleOrderChanged += Refresh;
+            PartyManager.Instance.OnSwapCompleted      += OnSwapCompleted;
+        }
 
         Refresh();
     }
 
     protected override void OnHide()
     {
+        UnsubscribePlayer();
+
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnBattleOrderChanged -= Refresh;
+            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
+        }
 
         foreach (var entry in _entries)
             entry.Unbind();
@@ -30,8 +41,13 @@ public class UI_HudParty : UI_Base
 
     protected override void OnDispose()
     {
+        UnsubscribePlayer();
+
         if (PartyManager.Instance != null)
+        {
             PartyManager.Instance.OnBattleOrderChanged -= Refresh;
+            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
+        }
     }
 
     private void Refresh()
@@ -48,6 +64,82 @@ public class UI_HudParty : UI_Base
                 _entries[i].Bind(battleOrder[i], memberData);
             else
                 _entries[i].Unbind();
+        }
+
+        SubscribePlayer(pm.ActiveCharacter);
+        RefreshEntryValues();
+    }
+
+    private void SubscribePlayer(PlayerActor player)
+    {
+        UnsubscribePlayer();
+        if (player == null) return;
+        _subscribedPlayer                    = player;
+        player.OnHpChanged                  += OnActiveHpChanged;
+        player.OnSkillGaugeChanged          += OnActiveSkillGaugeChanged;
+    }
+
+    private void UnsubscribePlayer()
+    {
+        if (_subscribedPlayer == null) return;
+        _subscribedPlayer.OnHpChanged         -= OnActiveHpChanged;
+        _subscribedPlayer.OnSkillGaugeChanged -= OnActiveSkillGaugeChanged;
+        _subscribedPlayer = null;
+    }
+
+    private void OnSwapCompleted(PlayerActor player)
+    {
+        RefreshEntryValues();
+    }
+
+    private void OnActiveHpChanged(float current, float max)
+    {
+        var activeType = PartyManager.Instance?.ActiveCharacterType
+                         ?? UPlayGround.Data.EnumType.CharacterActorType.None;
+        foreach (var entry in _entries)
+        {
+            if (entry != null && entry.BoundType == activeType)
+            {
+                entry.SetHealth(current, max);
+                break;
+            }
+        }
+    }
+
+    private void OnActiveSkillGaugeChanged(float current, float max)
+    {
+        var activeType = PartyManager.Instance?.ActiveCharacterType
+                         ?? UPlayGround.Data.EnumType.CharacterActorType.None;
+        foreach (var entry in _entries)
+        {
+            if (entry != null && entry.BoundType == activeType)
+            {
+                entry.SetSkillGauge(current, max);
+                break;
+            }
+        }
+    }
+
+    private void RefreshEntryValues()
+    {
+        var pm = PartyManager.Instance;
+        var player = pm?.ActiveCharacter;
+        if (pm == null || player == null) return;
+
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var entry = _entries[i];
+            if (entry == null || entry.BoundType == UPlayGround.Data.EnumType.CharacterActorType.None)
+                continue;
+
+            var type = entry.BoundType;
+            entry.SetHealth(
+                player.GetHealthForCharacter(type),
+                player.GetMaxHealthForCharacter(type));
+
+            entry.SetSkillGauge(
+                player.GetSkillGaugeForCharacter(type),
+                player.GetMaxSkillGaugeForCharacter(type));
         }
     }
 }

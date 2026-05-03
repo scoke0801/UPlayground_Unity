@@ -39,6 +39,7 @@ namespace UPlayGround
         [SerializeField] private PlayerSkillGauge _skillGauge;
         [SerializeField] private PlayerCombatWeaponStateController _combatWeaponStateController;
         [SerializeField] private FootIKController _footIK;
+        private PlayerSwapBehaviour _swapBehaviour;
 
         [Header("Hit Shake Keys")]
         [Tooltip("일반 피격 쉐이크")]
@@ -493,12 +494,12 @@ namespace UPlayGround
         }
 
         /// <summary>
-        /// 지정 캐릭터의 현재 체력 반환. 한 번도 활성화된 적 없으면 1f(살아있음) 반환.
+        /// 지정 캐릭터의 현재 체력 반환. 한 번도 활성화된 적 없으면 최대 체력으로 취급한다.
         /// </summary>
         public float GetHealthForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _currentHealth;
-            return _characterHealthMap.TryGetValue(type, out var hp) ? hp : 1f;
+            return _characterHealthMap.TryGetValue(type, out var hp) ? hp : GetMaxHealthForCharacter(type);
         }
 
         public bool HasHealthRecordForCharacter(CharacterActorType type)
@@ -511,10 +512,19 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _maxHealth;
 
-            var swap = GetComponent<PlayerSwapBehaviour>();
-            var modelData = swap != null ? swap.GetModelData(type) : null;
+            if (_swapBehaviour == null) _swapBehaviour = GetComponent<PlayerSwapBehaviour>();
+            var modelData = _swapBehaviour?.GetModelData(type);
             return modelData != null ? modelData.maxHealth : 1f;
         }
+
+        public float GetSkillGaugeForCharacter(CharacterActorType type)
+        {
+            if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;
+            return _characterSkillMap.TryGetValue(type, out var gauge) ? gauge : 0f;
+        }
+
+        public float GetMaxSkillGaugeForCharacter(CharacterActorType type)
+            => _skillGauge != null ? _skillGauge.MaxGauge : 1f;
 
         private void InitComponents()
         {
@@ -524,6 +534,7 @@ namespace UPlayGround
             if (_combatWeaponStateController == null)
                 _combatWeaponStateController = gameObject.GetOrAddComponent<PlayerCombatWeaponStateController>();
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
+            if (_swapBehaviour == null) _swapBehaviour = GetComponent<PlayerSwapBehaviour>();
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);

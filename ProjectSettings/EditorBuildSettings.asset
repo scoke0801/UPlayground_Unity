@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/GameLogic/InGame_Dungeon.unity
     guid: 4680e52c9a0ccea4d9507c6ac37db28c
+  - enabled: 1
+    path: Assets/01.Scenes/GameLogic/InGame_FarmLand.unity
+    guid: d3c76cb45d73198479531be1a34bdd6d
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 0884584a1216f47478d5eea17b69884e, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 4cc2b0777ec6a914f9294f929b183011, type: 3}

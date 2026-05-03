@@ -16,11 +16,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uD398\uB2C8"
-  dialogueText: "\uC624\uB298\uC740 \uC5B4\uCA50\uC77C\uB85C \uC624\uC168\uB098\uC694?"
+  dialogueText: "필요한 물건이 있으면 천천히 둘러보세요. 먼 길을 나서기 전엔 회복 물품부터 챙기는 게 좋아요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nextNodeId: penny_player_reply
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -44,7 +44,63 @@ MonoBehaviour:
   startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodes:
   - {fileID: -7539864593923620332}
+  - {fileID: -602102001}
+  - {fileID: -602102002}
   - {fileID: 8090487291098517983}
+--- !u!114 &-602102001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_PlayerReply
+  m_EditorClassIdentifier: 
+  nodeId: penny_player_reply
+  nodeType: 0
+  channel: 0
+  speakerId: "당신"
+  dialogueText: "요즘 가장 많이 필요한 물건은 뭐야?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: penny_followup
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 460, y: 500}
+--- !u!114 &-602102002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Followup
+  m_EditorClassIdentifier: 
+  nodeId: penny_followup
+  nodeType: 0
+  channel: 0
+  speakerId: "\uD398\uB2C8"
+  dialogueText: "상처약이 제일 빨리 나가요. 숲에서 돌아온 사람들은 다들 긁힌 자국을 하나씩 달고 오거든요."
+  portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 460, y: 680}
 --- !u!114 &8090487291098517983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,4 +127,4 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 580}
+  editorPosition: {x: 460, y: 860}

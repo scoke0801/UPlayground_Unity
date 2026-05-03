@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC774"
-  dialogueText: "\uD14C\uC2A4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8"
+  dialogueText: "마을 사람들 표정이 조금 밝아졌어요. 당신이 돌아다니는 것만으로도 안심이 되나 봐요."
   portrait: {fileID: 21300000, guid: 82a706895070a5647b940d43e54f35ed, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

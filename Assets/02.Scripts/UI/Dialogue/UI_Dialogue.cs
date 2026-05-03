@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Dialogue;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
@@ -14,6 +15,9 @@ using UPlayGround.Manager;
 /// </summary>
 public class UI_Dialogue : UI_Base
 {
+    private const string PlayerSpeakerId = "당신";
+    private const string PlayerActorId = "Player";
+
     [Header("대화 패널")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI speakerNameText;
@@ -70,9 +74,10 @@ public class UI_Dialogue : UI_Base
         
         dialoguePanel?.SetActive(true);
 
-        speakerNameText.text = node.speakerId;
-        portraitImage.sprite = node.portrait;
-        portraitImage.gameObject.SetActive(node.portrait != null);
+        Sprite portrait = ResolvePortrait(node);
+        speakerNameText.text = ResolveSpeakerName(node);
+        portraitImage.sprite = portrait;
+        portraitImage.gameObject.SetActive(portrait != null);
 
         if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
         _typingCoroutine = StartCoroutine(TypeText(node.dialogueText, node.typingSpeed));
@@ -107,6 +112,41 @@ public class UI_Dialogue : UI_Base
         {
             choicePanel.SetActive(false);
         }
+    }
+
+    private static string ResolveSpeakerName(DialogueNodeSO node)
+    {
+        if (!IsPlayerSpeaker(node))
+        {
+            return node.speakerId;
+        }
+
+        var party = PartyManager.Instance;
+        var memberData = party != null ? party.PartyMemberDataSO : null;
+        CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
+        string activeName = memberData != null ? memberData.GetName(activeType) : string.Empty;
+
+        return string.IsNullOrEmpty(activeName) ? node.speakerId : activeName;
+    }
+
+    private static Sprite ResolvePortrait(DialogueNodeSO node)
+    {
+        if (!IsPlayerSpeaker(node))
+        {
+            return node.portrait;
+        }
+
+        var party = PartyManager.Instance;
+        var memberData = party != null ? party.PartyMemberDataSO : null;
+        CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
+        Sprite activePortrait = memberData != null ? memberData.GetFullBodySprite(activeType) : null;
+
+        return activePortrait != null ? activePortrait : node.portrait;
+    }
+
+    private static bool IsPlayerSpeaker(DialogueNodeSO node)
+    {
+        return node != null && (node.speakerId == PlayerSpeakerId || node.speakerId == PlayerActorId);
     }
 
     // ── 타이핑 이펙트 ────────────────────────────────────────────────

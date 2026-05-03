@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uD5E4\uC774\uC990"
-  dialogueText: "\uD14C\uC2A4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8"
+  dialogueText: "호숫가 바람이 달라졌어요. 숲 쪽으로 가실 거라면 약초 향이 진한 길을 따라가세요."
   portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

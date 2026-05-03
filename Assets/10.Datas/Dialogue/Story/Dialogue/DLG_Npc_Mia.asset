@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\uD14C\uC2A4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8"
+  dialogueText: "밭 근처 흙이 아직 젖어 있어요. 이상한 발자국을 보면 모건에게도 알려 주세요."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

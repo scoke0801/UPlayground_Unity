@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4c1d7c4f8a4266a5484e5a2f8f3a41, type: 3}
   m_Name: DialogueCameraSettings
   m_EditorClassIdentifier: 
-  speakerLookAtOffset: {x: 0, y: 1.45, z: 0}
-  listenerShoulderOffset: {x: 0.45, y: 1.55, z: -2.8}
+  speakerLookAtOffset: {x: 0, y: 1, z: 0}
+  listenerShoulderOffset: {x: 0.45, y: 1, z: -2.8}
   twoShotDistance: 3.2
   minDistance: 2.2
   maxDistance: 5.5
+  cutInstantTime: 0
+  softBlendTime: 0.35
+  establishBlendTime: 0.6
   speakerCutBlendTime: 0.35
   fieldOfView: 45

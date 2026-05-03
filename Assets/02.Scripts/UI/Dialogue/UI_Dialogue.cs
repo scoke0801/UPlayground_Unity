@@ -23,6 +23,7 @@ public class UI_Dialogue : UI_Base
     [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private TextMeshProUGUI dialogueBodyText;
     [SerializeField] private Image portraitImage;
+    [SerializeField] private Vector2 portraitMaxSize = new(160f, 160f);
     [SerializeField] private Button advanceButton;
 
     [Header("선택지 패널")]
@@ -76,8 +77,7 @@ public class UI_Dialogue : UI_Base
 
         Sprite portrait = ResolvePortrait(node);
         speakerNameText.text = ResolveSpeakerName(node);
-        portraitImage.sprite = portrait;
-        portraitImage.gameObject.SetActive(portrait != null);
+        ApplyPortrait(portrait);
 
         if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
         _typingCoroutine = StartCoroutine(TypeText(node.dialogueText, node.typingSpeed));
@@ -142,6 +142,32 @@ public class UI_Dialogue : UI_Base
         Sprite activePortrait = memberData != null ? memberData.GetFullBodySprite(activeType) : null;
 
         return activePortrait != null ? activePortrait : node.portrait;
+    }
+
+    private void ApplyPortrait(Sprite portrait)
+    {
+        portraitImage.sprite = portrait;
+        portraitImage.gameObject.SetActive(portrait != null);
+
+        if (portrait == null)
+        {
+            return;
+        }
+
+        portraitImage.preserveAspect = true;
+
+        float width = portrait.rect.width;
+        float height = portrait.rect.height;
+        if (width <= 0f || height <= 0f)
+        {
+            return;
+        }
+
+        float maxWidth = Mathf.Max(1f, portraitMaxSize.x);
+        float maxHeight = Mathf.Max(1f, portraitMaxSize.y);
+        float scale = Mathf.Min(maxWidth / width, maxHeight / height);
+
+        portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
     }
 
     private static bool IsPlayerSpeaker(DialogueNodeSO node)

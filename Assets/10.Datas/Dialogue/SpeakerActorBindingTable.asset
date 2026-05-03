@@ -25,6 +25,8 @@ MonoBehaviour:
     actorId: NPC_Morgan
   - speakerId: "\uBBF8\uC544"
     actorId: NPC_Mia
+  - speakerId: "\uC0C1\uC778"
+    actorId: NPC_Shop
   - speakerId: "\uC870\uC548"
     actorId: NPC_Joan
   - speakerId: "\uC870\uC774"

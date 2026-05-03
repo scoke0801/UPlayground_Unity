@@ -16,6 +16,10 @@ namespace UPlayGround.CameraSystem
         private float _fieldOfView;
         private DialogueCameraSettingsSO _fallbackSettings;
 
+        private Quaternion _currentRotation;
+        private bool _isFirstFrame;
+        private bool _wasInDialogue;
+
         public CameraModeType ModeType => CameraModeType.Dialogue;
         public int Priority => 50;
         public bool AllowsPlayerLookInput => false;
@@ -35,11 +39,15 @@ namespace UPlayGround.CameraSystem
 
             context.IsInputLocked = true;
             context.LockOn?.Release();
+            // 대화 중 화자 전환은 부드럽게 블렌딩, 초진입(InGame→Dialogue)만 즉시 스냅
+            _isFirstFrame = !_wasInDialogue;
+            _wasInDialogue = true;
         }
 
         public void OnExit(CameraRuntimeContext context)
         {
             context.IsInputLocked = false;
+            _wasInDialogue = false;
         }
 
         public bool IsSameSpeaker(Transform speaker, Transform listener)
@@ -77,14 +85,22 @@ namespace UPlayGround.CameraSystem
             Quaternion lookRotation = Quaternion.LookRotation(lookAt - desiredPosition, Vector3.up);
             float blendTime = Mathf.Max(0.01f, settings.softBlendTime);
             float blendFactor = 1f - Mathf.Exp(-(1f / blendTime) * deltaTime);
-            Vector3 cameraPosition = Vector3.Lerp(
-                context.MainCamera.transform.position,
-                desiredPosition,
-                blendFactor);
-            Quaternion cameraRotation = Quaternion.Slerp(
-                context.MainCamera.transform.rotation,
-                lookRotation,
-                blendFactor);
+
+            // 첫 프레임에 목표 위치·회전으로 즉시 컷 → InGame 카메라에서 날아오거나 빙글 도는 현상 방지
+            // 이후 프레임은 softBlendTime 기반 미세 보정만 수행
+            Vector3 cameraPosition;
+            if (_isFirstFrame)
+            {
+                _isFirstFrame = false;
+                _currentRotation = lookRotation;
+                cameraPosition = desiredPosition;
+            }
+            else
+            {
+                _currentRotation = Quaternion.Slerp(_currentRotation, lookRotation, blendFactor);
+                cameraPosition = Vector3.Lerp(context.MainCamera.transform.position, desiredPosition, blendFactor);
+            }
+            Quaternion cameraRotation = _currentRotation;
 
             cameraPosition += effectState.positionDelta;
 

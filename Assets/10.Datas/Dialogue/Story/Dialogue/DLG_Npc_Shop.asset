@@ -15,8 +15,10 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uD398\uB2C8"
-  dialogueText: "어제 밤부터 숲 쪽 등불이 하나씩 꺼지고 있어요. 바람 때문이라기엔 꺼지는 순서가 너무 일정해요."
+  speakerId: "\uC0C1\uC778"
+  dialogueText: "\uD544\uC694\uD55C \uBB3C\uAC74\uC774 \uC788\uC73C\uBA74 \uCC9C\uCC9C\uD788
+    \uB458\uB7EC\uBCF4\uC138\uC694. \uBA3C \uAE38\uC744 \uB098\uC11C\uAE30 \uC804\uC5D4
+    \uD68C\uBCF5 \uBB3C\uD488\uBD80\uD130 \uCC59\uAE30\uB294 \uAC8C \uC88B\uC544\uC694."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -27,53 +29,6 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   editorPosition: {x: 460, y: 320}
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Npc_Penny
-  m_EditorClassIdentifier: 
-  graphId: 
-  graphName: 
-  startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
-  nodes:
-  - {fileID: -7539864593923620332}
-  - {fileID: -602102001}
-  - {fileID: -602102002}
-  - {fileID: 8090487291098517983}
---- !u!114 &-602102001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_PlayerReply
-  m_EditorClassIdentifier: 
-  nodeId: penny_player_reply
-  nodeType: 0
-  channel: 0
-  speakerId: "당신"
-  dialogueText: "누가 일부러 길을 막고 있다는 뜻이야?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: penny_followup
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 460, y: 500}
 --- !u!114 &-602102002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,8 +44,10 @@ MonoBehaviour:
   nodeId: penny_followup
   nodeType: 0
   channel: 0
-  speakerId: "\uD398\uB2C8"
-  dialogueText: "아직은 모르겠어요. 그래도 혼자 움직이지 마세요. 당신 곁에 선 사람이 많아질수록 마을 사람들도 버틸 힘이 생길 거예요."
+  speakerId: "\uC0C1\uC778"
+  dialogueText: "\uC0C1\uCC98\uC57D\uC774 \uC81C\uC77C \uBE68\uB9AC \uB098\uAC00\uC694.
+    \uC232\uC5D0\uC11C \uB3CC\uC544\uC628 \uC0AC\uB78C\uB4E4\uC740 \uB2E4\uB4E4 \uAE01\uD78C
+    \uC790\uAD6D\uC744 \uD558\uB098\uC529 \uB2EC\uACE0 \uC624\uAC70\uB4E0\uC694."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -101,6 +58,54 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   editorPosition: {x: 460, y: 680}
+--- !u!114 &-602102001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_PlayerReply
+  m_EditorClassIdentifier: 
+  nodeId: penny_player_reply
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uC694\uC998 \uAC00\uC7A5 \uB9CE\uC774 \uD544\uC694\uD55C \uBB3C\uAC74\uC740
+    \uBB50\uC57C?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: penny_followup
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 460, y: 500}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Npc_Shop
+  m_EditorClassIdentifier: 
+  graphId: 
+  graphName: 
+  startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
+  nodes:
+  - {fileID: -7539864593923620332}
+  - {fileID: -602102001}
+  - {fileID: -602102002}
+  - {fileID: 8090487291098517983}
 --- !u!114 &8090487291098517983
 MonoBehaviour:
   m_ObjectHideFlags: 0

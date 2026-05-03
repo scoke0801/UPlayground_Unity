@@ -43,7 +43,7 @@ public class UI_Inventory : UI_Base
     [SerializeField] private UI_InventorySlot _leftHandSlot;
     [SerializeField] private UI_InventorySlot _rightHandSlot;
     
-    private Dictionary<EquipArmorType, UI_InventorySlot> _armorSlotMap; // SlotClass는 실제 슬롯 타입으로 변경하세요
+    private Dictionary<EquipArmorType, UI_InventorySlot> _armorSlotMap;
     
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
 

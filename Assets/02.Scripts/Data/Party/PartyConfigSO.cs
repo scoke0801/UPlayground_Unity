@@ -37,5 +37,8 @@ namespace UPlayGround.Data.Party
 
         [Tooltip("LOS 검사 시 시야를 가로막는 레이어 (지형 등). requireLineOfSight=true 인 캐릭터에만 사용.")]
         public LayerMask entryAttackLineOfSightBlocker = 0;
+        
+        [Header("파티원 이미지")]
+        public PartyMemberDataSO partyMemberData;
     }
 }

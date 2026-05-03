@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d66791d8b8043218086e0c39476de04, type: 3}
+  m_Name: PartyMemberData
+  m_EditorClassIdentifier: 
+  sprites:
+  - type: 1
+    fullBodySprite: {fileID: 21300000, guid: f8326ecf1d2063e4b9ae2cda269b9f95, type: 3}
+    headSprite: {fileID: 21300000, guid: 794cc84e5cf20d64c833fa0c75675e9e, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 0a6c4a7571c841b4b88759bf66d54d95, type: 3}
+    name: "\uBCF4\uCFE0\uC138\uC774"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 2
+    fullBodySprite: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+    headSprite: {fileID: 21300000, guid: 1bdbb5857ecc96d479a1cd4d9637a065, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 5baa22294cd25e347927bf1d8d0c3d5d, type: 3}
+    name: "\uD638\uB178\uCE74"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 3
+    fullBodySprite: {fileID: 21300000, guid: 9638c2458a8c6a14baad18cce3772c5d, type: 3}
+    headSprite: {fileID: 21300000, guid: 84e7e55ba594ac84487898b42e3c50d5, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 0c74ad81526c59e458d3facf9a1df996, type: 3}
+    name: "\uB80C\uB290"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 4
+    fullBodySprite: {fileID: 21300000, guid: e3ebdb68af1860748b09cb56c6984f29, type: 3}
+    headSprite: {fileID: 21300000, guid: 9973d69136e704d49855c651f3bd2269, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 1c826161274b46e45b76cd5efe67ef8c, type: 3}
+    name: "\uB9AC\uC548"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 5
+    fullBodySprite: {fileID: 21300000, guid: 604975ba04d96d5498c9bcecee9eaca5, type: 3}
+    headSprite: {fileID: 21300000, guid: 627ec7e4920eda348a93d23c90eeedee, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 698eb91ec076e4c41abe80267c7b0721, type: 3}
+    name: "\uB2C8\uC544"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 6
+    fullBodySprite: {fileID: 21300000, guid: 3427a3339e15e184681ef98ed613b973, type: 3}
+    headSprite: {fileID: 21300000, guid: 69e61d78cd749ed4595ee45444c4824a, type: 3}
+    weaponIcon: {fileID: 21300000, guid: cc03ad2620cff654e9de84a220b34512, type: 3}
+    name: "\uC138\uB77C"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 7
+    fullBodySprite: {fileID: 21300000, guid: 9a6d65b2c28611f43b5446e7f14b9517, type: 3}
+    headSprite: {fileID: 21300000, guid: 455eb83dc60c1d14c9284ea7c58c6f8f, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
+    name: "\uC774\uB178\uB9AC"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 8
+    fullBodySprite: {fileID: 21300000, guid: 46f71fc95b0d73e45a575a631ced387a, type: 3}
+    headSprite: {fileID: 21300000, guid: 2bb3ef5108cd23f45926363273386675, type: 3}
+    weaponIcon: {fileID: 21300000, guid: c637508c44e867f4bb84a47712c9513f, type: 3}
+    name: "\uD788\uCE58"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 9
+    fullBodySprite: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+    headSprite: {fileID: 21300000, guid: f72b9cad2c3707a4ebbd7a5b0919eb12, type: 3}
+    weaponIcon: {fileID: 21300000, guid: e7563b6c6328bc74caa61b8645e5e8f0, type: 3}
+    name: "\uC2DC\uC6B0\uD558"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}

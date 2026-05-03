@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
@@ -12,58 +8,105 @@ using UPlayGround.Manager;
 
 /// <summary>
 /// 파티원 선택 / 편성 화면.
-/// - 스왑 모드(기본): 출전 슬롯 클릭 시 즉시 활성 캐릭터 교체.
-/// - 편성 모드: 출전 슬롯 / 후보 슬롯을 조작해 BattleOrder 를 변경. 즉시 반영.
-/// 자세한 규칙: docs/party-formation-system.md
 /// </summary>
 public class UI_PartyMenu : UI_Base
 {
-    [Serializable]
-    private class CharacterPreview
-    {
-        public RawImage _previewImage;
-        public UICharacterPreviewRenderer _previewRenderer;
-    }
-    
-    [Header("Character Preview")]
-    [SerializeField] private List<CharacterPreview> _characterPreviews;
-    
-    protected override void Awake()
-    {
-        base.Awake();
+    [Header("캐릭터 목록")]
+    [SerializeField] private Transform      _content;
+    [SerializeField] private UIPartyMenuEntry _partyMenuEntryPrefab;
 
-        foreach (var preview in _characterPreviews)
+    [Header("전투원 구성")]
+    [SerializeField] private List<UIPartyBattleEntry> _partyBattleEntries;
+
+    private readonly List<UIPartyMenuEntry> _menuEntries = new();
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        foreach (CharacterActorType type in Enum.GetValues(typeof(CharacterActorType)))
         {
-            preview._previewImage.enabled = true;
-            preview._previewImage.texture = preview._previewRenderer.GetRenderTexture();
+            if (type == CharacterActorType.None || type == CharacterActorType.H09)
+                continue;
+
+            var entry = Instantiate(_partyMenuEntryPrefab, _content);
+            if (entry == null) continue;
+
+            entry.Init(type);
+            _menuEntries.Add(entry);
         }
     }
+
     protected override void OnShow()
     {
+        base.OnShow();
         InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
-        
-        foreach (var preview in _characterPreviews)
+
+        if (PartyManager.Instance != null)
         {
-            preview._previewRenderer.ShowPreview();
+            PartyManager.Instance.OnBattleOrderChanged += Refresh;
+            PartyManager.Instance.OnSwapCompleted      += OnSwapCompleted;
         }
-        
+
+        Refresh();
     }
 
     protected override void OnHide()
     {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
-
-        // 캐릭터 프리뷰 비활성화
-        foreach (var preview in _characterPreviews)
+        if (PartyManager.Instance != null)
         {
-            preview._previewRenderer.HidePreview();
+            PartyManager.Instance.OnBattleOrderChanged -= Refresh;
+            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
+        }
+
+        InputManager.Instance.SetInputLayer(InputLayer.None);
+    }
+
+    protected override void OnDispose()
+    {
+        if (PartyManager.Instance != null)
+        {
+            PartyManager.Instance.OnBattleOrderChanged -= Refresh;
+            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
         }
     }
-    
+
     public override bool PerformBackFunction()
     {
-        // ESC 키 입력 시 닫는다.
         Hide();
         return false;
+    }
+
+    // ─── 갱신 ────────────────────────────────────────────────────────
+
+    private void OnSwapCompleted(PlayerActor _) => RefreshBattleEntries();
+
+    private void Refresh()
+    {
+        RefreshBattleEntries();
+        RefreshMenuEntries();
+    }
+
+    private void RefreshBattleEntries()
+    {
+        var pm = PartyManager.Instance;
+        if (pm == null) return;
+
+        var battleOrder = pm.BattleOrder;
+        var memberData  = pm.PartyMemberDataSO;
+
+        for (int i = 0; i < _partyBattleEntries.Count; i++)
+        {
+            if (i < battleOrder.Count)
+                _partyBattleEntries[i].Bind(battleOrder[i], memberData, i);
+            else
+                _partyBattleEntries[i].Unbind();
+        }
+    }
+
+    private void RefreshMenuEntries()
+    {
+        foreach (var entry in _menuEntries)
+            entry.RefreshBattleStatus();
     }
 }

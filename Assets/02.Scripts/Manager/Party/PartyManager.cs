@@ -50,6 +50,8 @@ namespace UPlayGround.Manager
         public IReadOnlyList<CharacterActorType> Roster      => _roster;
         public IReadOnlyList<CharacterActorType> BattleOrder => _battleOrder;
 
+        public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
+        
         private const string AddressableKey = "PartyConfig";
 
         // ─── IManager 구현 ────────────────────────────────────────────────

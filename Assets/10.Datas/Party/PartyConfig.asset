@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaed2788113ac845b3df18c68f6854a, type: 3}
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
-  partyOrder: 0100000005000000
+  partyOrder: 01000000050000000900000008000000
   maxBattleSize: 4
   defaultBattleOrder: 
   startActiveIndex: 0
@@ -23,3 +23,4 @@ MonoBehaviour:
   entryAttackLineOfSightBlocker:
     serializedVersion: 2
     m_Bits: 0
+  partyMemberData: {fileID: 11400000, guid: 6c1d2fe5963bad347bb7d87d853697b6, type: 2}

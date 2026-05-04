@@ -16,6 +16,8 @@ namespace UPlayGround.Animation.Editor
     {
         MotionSetAsset  _asset;
         ActorAnimationMotionSet _actorAnimationSet;
+        PlayerActorAnimationMotionSet _playerActorAnimationSet;
+        WeaponType      _selectedPlayerWeaponType = WeaponType.NoWeapon;
         AnimKey         _selectedActorMotionKey = AnimKey.None;
         MotionSetDrawer _drawer;
         Vector2         _scrollPos;
@@ -94,6 +96,15 @@ namespace UPlayGround.Animation.Editor
             window.SetActorAnimationSet(actorAnimationSet);
         }
 
+        public static void Open(PlayerActorAnimationMotionSet playerActorAnimationSet)
+        {
+            var window = GetWindow<MotionSetEditorWindow>();
+            window.titleContent = new GUIContent("애니메이션 에디터");
+            window.minSize      = new Vector2(600, 400);
+            window.Show();
+            window.SetPlayerActorAnimationSet(playerActorAnimationSet);
+        }
+
         public static void Open(ActorAnimationMotionSet actorAnimationSet, AnimKey key, MotionSetAsset asset)
         {
             var window = GetWindow<MotionSetEditorWindow>();
@@ -120,6 +131,8 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_REGISTRY_PATH       = "MotionSetWindow_RegistryPath";
         const string PREFS_REGISTRY_IDX        = "MotionSetWindow_RegistryIdx";
         const string PREFS_TEST_MODE           = "MotionSetWindow_TestMode";
+        const string PREFS_PLAYER_SET_PATH     = "MotionSetWindow_PlayerSetPath";
+        const string PREFS_PLAYER_WEAPON       = "MotionSetWindow_PlayerWeapon";
 
         void OnEnable()
         {
@@ -170,6 +183,9 @@ namespace UPlayGround.Animation.Editor
                 EditorPrefs.SetString(PREFS_REGISTRY_PATH, AssetDatabase.GetAssetPath(_testRegistry));
             EditorPrefs.SetInt(PREFS_REGISTRY_IDX, _selectedRegistryIndex);
             EditorPrefs.SetInt(PREFS_TEST_MODE, (int)_testActorMode);
+            if (_playerActorAnimationSet != null)
+                EditorPrefs.SetString(PREFS_PLAYER_SET_PATH, AssetDatabase.GetAssetPath(_playerActorAnimationSet));
+            EditorPrefs.SetInt(PREFS_PLAYER_WEAPON, (int)_selectedPlayerWeaponType);
         }
 
         // ⑤ 상태 복원
@@ -193,6 +209,12 @@ namespace UPlayGround.Animation.Editor
                 _testRegistry = AssetDatabase.LoadAssetAtPath<MotionTestRegistrySO>(registryPath);
             _selectedRegistryIndex = EditorPrefs.GetInt(PREFS_REGISTRY_IDX, -1);
             _testActorMode = (TestActorMode)EditorPrefs.GetInt(PREFS_TEST_MODE, 0);
+            string playerSetPath = EditorPrefs.GetString(PREFS_PLAYER_SET_PATH, "");
+            if (!string.IsNullOrEmpty(playerSetPath))
+                _playerActorAnimationSet = AssetDatabase.LoadAssetAtPath<PlayerActorAnimationMotionSet>(playerSetPath);
+            _selectedPlayerWeaponType = (WeaponType)EditorPrefs.GetInt(PREFS_PLAYER_WEAPON, (int)WeaponType.NoWeapon);
+            if (_testActorMode == TestActorMode.Player && _playerActorAnimationSet != null)
+                SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
         }
         
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -327,10 +349,7 @@ namespace UPlayGround.Animation.Editor
                 {
                     var playerAnimator = modelData.GetComponentInChildren<PlayerActorAnimatorType>(true);
                     if (playerAnimator?.PlayerMotionSet != null)
-                    {
-                        var ams = playerAnimator.PlayerMotionSet.GetDefaultMotionSet();
-                        if (ams != null) SetActorAnimationSet(ams);
-                    }
+                        SetPlayerActorAnimationSet(playerAnimator.PlayerMotionSet);
                 }
                 return;
             }
@@ -662,6 +681,10 @@ namespace UPlayGround.Animation.Editor
             {
                 SetActorAnimationSet(actorSet);
             }
+            else if (Selection.activeObject is PlayerActorAnimationMotionSet playerSet)
+            {
+                SetPlayerActorAnimationSet(playerSet);
+            }
             else if (Selection.activeObject is MotionSetAsset selected)
             {
                 SetAsset(selected);
@@ -698,6 +721,65 @@ namespace UPlayGround.Animation.Editor
 
             _selectedActorMotionKey = first.key;
             SetAsset(first.asset);
+        }
+
+        void SetPlayerActorAnimationSet(PlayerActorAnimationMotionSet playerSet)
+        {
+            if (_playerActorAnimationSet == playerSet && _actorAnimationSet == ResolveSelectedPlayerActorAnimationSet())
+                return;
+
+            _testActorMode = TestActorMode.Player;
+            _playerActorAnimationSet = playerSet;
+            SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
+        }
+
+        ActorAnimationMotionSet ResolveSelectedPlayerActorAnimationSet()
+        {
+            return _playerActorAnimationSet != null
+                ? _playerActorAnimationSet.GetActorAnimationMotionSet(_selectedPlayerWeaponType)
+                : null;
+        }
+
+        void SetSelectedPlayerWeaponType(WeaponType weaponType)
+        {
+            if (_selectedPlayerWeaponType == weaponType) return;
+            _selectedPlayerWeaponType = weaponType;
+            SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
+        }
+
+        void AssignPlayerWeaponActorSet(ActorAnimationMotionSet actorSet)
+        {
+            if (_playerActorAnimationSet == null) return;
+
+            var sObj = new SerializedObject(_playerActorAnimationSet);
+            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
+            int idx = FindPlayerWeaponTypeIndex(listProp, _selectedPlayerWeaponType);
+
+            if (idx < 0)
+            {
+                listProp.InsertArrayElementAtIndex(listProp.arraySize);
+                idx = listProp.arraySize - 1;
+            }
+
+            var elem = listProp.GetArrayElementAtIndex(idx);
+            elem.FindPropertyRelative("Key").intValue = (int)_selectedPlayerWeaponType;
+            elem.FindPropertyRelative("Value").objectReferenceValue = actorSet;
+
+            sObj.ApplyModifiedProperties();
+            EditorUtility.SetDirty(_playerActorAnimationSet);
+            AssetDatabase.SaveAssets();
+
+            SetActorAnimationSet(actorSet);
+        }
+
+        static int FindPlayerWeaponTypeIndex(SerializedProperty listProp, WeaponType weaponType)
+        {
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                if ((WeaponType)listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Key").intValue == weaponType)
+                    return i;
+            }
+            return -1;
         }
 
         struct ActorMotionEntry
@@ -1072,6 +1154,12 @@ namespace UPlayGround.Animation.Editor
 
         void DrawActorAnimationSetBar()
         {
+            if (_testActorMode == TestActorMode.Player)
+            {
+                DrawPlayerActorAnimationSetBar();
+                return;
+            }
+
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             {
                 EditorGUILayout.LabelField("Actor Set", GUILayout.Width(70));
@@ -1107,6 +1195,80 @@ namespace UPlayGround.Animation.Editor
                     ShowAddActorMotionMenu();
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        void DrawPlayerActorAnimationSetBar()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField("Player Set", GUILayout.Width(70));
+
+                    var newPlayerSet = (PlayerActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                        _playerActorAnimationSet, typeof(PlayerActorAnimationMotionSet), false, GUILayout.Width(220));
+                    if (newPlayerSet != _playerActorAnimationSet)
+                        SetPlayerActorAnimationSet(newPlayerSet);
+
+                    var newWeapon = (WeaponType)EditorGUILayout.EnumPopup(
+                        _selectedPlayerWeaponType, GUILayout.Width(120));
+                    if (newWeapon != _selectedPlayerWeaponType)
+                        SetSelectedPlayerWeaponType(newWeapon);
+
+                    EditorGUI.BeginDisabledGroup(_playerActorAnimationSet == null);
+                    var resolved = ResolveSelectedPlayerActorAnimationSet();
+                    var newActorSet = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                        resolved, typeof(ActorAnimationMotionSet), false, GUILayout.Width(220));
+                    if (newActorSet != resolved)
+                        AssignPlayerWeaponActorSet(newActorSet);
+                    EditorGUI.EndDisabledGroup();
+
+                    EditorGUI.BeginDisabledGroup(_playerActorAnimationSet == null);
+                    if (GUILayout.Button("Player SO 선택", GUILayout.Width(90)))
+                    {
+                        Selection.activeObject = _playerActorAnimationSet;
+                        EditorGUIUtility.PingObject(_playerActorAnimationSet);
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                {
+                    GUILayout.Space(70);
+                    if (_playerActorAnimationSet == null)
+                    {
+                        EditorGUILayout.LabelField("PlayerActorAnimationMotionSet을 선택하세요.", EditorStyles.miniLabel);
+                    }
+                    else if (_actorAnimationSet == null)
+                    {
+                        EditorGUILayout.LabelField(
+                            $"WeaponType.{_selectedPlayerWeaponType}에 연결된 ActorAnimationMotionSet이 없습니다.",
+                            EditorStyles.miniLabel);
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField(
+                            _asset != null
+                                ? $"{_selectedActorMotionKey} / {_asset.name}"
+                                : "좌측 목록에서 MotionSet을 선택하세요.",
+                            EditorStyles.miniBoldLabel);
+
+                        EditorGUI.BeginDisabledGroup(_asset == null);
+                        if (GUILayout.Button("에셋 선택", GUILayout.Width(70)))
+                        {
+                            Selection.activeObject = _asset;
+                            EditorGUIUtility.PingObject(_asset);
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        if (GUILayout.Button("+ 키/에셋 추가", GUILayout.Width(100)))
+                            ShowAddActorMotionMenu();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
         }
 
         // ── 테스트 대상 UI ──
@@ -1159,6 +1321,7 @@ namespace UPlayGround.Animation.Editor
                         _animancer   = _scenePlayer.GetComponent<AnimancerComponent>()
                                     ?? _scenePlayer.GetComponentInChildren<AnimancerComponent>();
                         UpdatePlayerSwapBehaviour();
+                        TryAutoSelectMotionSet(_scenePlayer);
                         EnsureDebugOverlay();
                         PlayIdleAnimation();
                     }
@@ -1595,8 +1758,12 @@ namespace UPlayGround.Animation.Editor
                 if (newTarget != _targetActor)
                 {
                     _targetActor = newTarget;
-                    _animancer = _targetActor?.GetComponent<AnimancerComponent>();
+                    _animancer = _targetActor != null
+                        ? _targetActor.GetComponent<AnimancerComponent>()
+                          ?? _targetActor.GetComponentInChildren<AnimancerComponent>()
+                        : null;
                     UpdatePlayerSwapBehaviour();
+                    TryAutoSelectMotionSet(_targetActor);
 
                     if (_targetActor != null && _animancer == null)
                     {
@@ -1614,12 +1781,14 @@ namespace UPlayGround.Animation.Editor
                 {
                     if (Selection.activeGameObject != null)
                     {
-                        var animancer = Selection.activeGameObject.GetComponent<AnimancerComponent>();
+                        var animancer = Selection.activeGameObject.GetComponent<AnimancerComponent>()
+                                     ?? Selection.activeGameObject.GetComponentInChildren<AnimancerComponent>();
                         if (animancer != null)
                         {
                             _targetActor = Selection.activeGameObject;
                             _animancer = animancer;
                             UpdatePlayerSwapBehaviour();
+                            TryAutoSelectMotionSet(_targetActor);
                             EnsureDebugOverlay();
                             Debug.Log($"{_targetActor.name}을(를) 대상 액터로 설정했습니다.");
                             PlayIdleAnimation();

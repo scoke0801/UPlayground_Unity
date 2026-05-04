@@ -345,7 +345,7 @@ namespace UPlayGround.Component
 
         private EquipPosition GuessEquipPosition(ParentConstraint constraint, WeaponType weaponType)
         {
-            if (weaponType == WeaponType.Shield || weaponType == WeaponType.Arrow)
+            if (weaponType == WeaponType.SwordShield || weaponType == WeaponType.Arrow)
                 return EquipPosition.LeftHand;
 
             string normalizedName = NormalizeName(constraint.name);

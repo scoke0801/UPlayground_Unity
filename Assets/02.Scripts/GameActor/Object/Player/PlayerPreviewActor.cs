@@ -204,7 +204,7 @@ namespace UPlayGround
         {
             switch (type)
             {
-                case WeaponType.Shield: _subWeaponConstraint = shieldLeftConstraint; break;
+                case WeaponType.SwordShield: _subWeaponConstraint = shieldLeftConstraint; break;
                 case WeaponType.Arrow: _subWeaponConstraint = arrowLeftConstraint; break;
                 default:
                     _subWeaponType = WeaponType.NoWeapon;

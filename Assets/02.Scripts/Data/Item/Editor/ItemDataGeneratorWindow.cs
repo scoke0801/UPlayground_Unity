@@ -82,7 +82,7 @@ public class ItemDataGeneratorWindow : EditorWindow
     private static readonly Dictionary<WeaponType, ItemIdRange> WeaponRanges = new()
     {
         { WeaponType.Sword,      new ItemIdRange(1000, 1999, "소검", "Assets/10.Datas/Item/Equipment/Weapon", "Sword") },
-        { WeaponType.Shield,     new ItemIdRange(2000, 2999, "방패", "Assets/10.Datas/Item/Equipment/Weapon", "Shield") },
+        { WeaponType.SwordShield,     new ItemIdRange(2000, 2999, "방패", "Assets/10.Datas/Item/Equipment/Weapon", "Shield") },
         { WeaponType.Staff,      new ItemIdRange(3000, 3999, "지팡이", "Assets/10.Datas/Item/Equipment/Weapon", "Staff") },
         { WeaponType.GreatSword, new ItemIdRange(4000, 4999, "대검", "Assets/10.Datas/Item/Equipment/Weapon", "GreatSword") },
         { WeaponType.Bow,        new ItemIdRange(5000, 5999, "활", "Assets/10.Datas/Item/Equipment/Weapon", "Bow") },
@@ -90,6 +90,8 @@ public class ItemDataGeneratorWindow : EditorWindow
         { WeaponType.Katana,     new ItemIdRange(7000, 7999, "카타나", "Assets/10.Datas/Item/Equipment/Weapon", "Katana") },
         { WeaponType.DoubleAxe,  new ItemIdRange(8000, 8999, "쌍도끼", "Assets/10.Datas/Item/Equipment/Weapon", "DoubleAxe") },
         { WeaponType.Whip,       new ItemIdRange(9000, 9999, "채찍", "Assets/10.Datas/Item/Equipment/Weapon", "Whip") },
+        { WeaponType.Spear,      new ItemIdRange(10000, 10999, "창", "Assets/10.Datas/Item/Equipment/Weapon", "Spear") },
+        { WeaponType.DualBlade,  new ItemIdRange(11000, 11999, "쌍검", "Assets/10.Datas/Item/Equipment/Weapon", "DualBlade") },
     };
 
     private static readonly ItemIdRange ConsumableRange = new(50000, 99999, "소비 아이템", "Assets/10.Datas/Item", "Consumable");
@@ -376,7 +378,7 @@ public class ItemDataGeneratorWindow : EditorWindow
 
     private static EquipPosition GetDefaultWeaponEquipPosition(WeaponType weaponType)
     {
-        return weaponType == WeaponType.Shield || weaponType == WeaponType.Arrow
+        return weaponType == WeaponType.SwordShield || weaponType == WeaponType.Arrow
             ? EquipPosition.LeftHand
             : EquipPosition.RightHand;
     }

@@ -6,6 +6,7 @@ using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Debugging;
 using UPlayGround.MovementController;
+using UPlayGround.Component;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -43,7 +44,22 @@ namespace UPlayGround.Animation.Editor
         readonly System.Collections.Generic.List<string> _eventLog = new System.Collections.Generic.List<string>();
         bool _showSceneEventOverlay = true;
         bool _autoAttachDebugOverlay = true;
-        
+
+        // 캐릭터 모델 전환 (Player 전용)
+        PlayerSwapBehaviour _playerSwapBehaviour;
+        CharacterActorType  _selectedCharacterType = CharacterActorType.None;
+        System.Collections.Generic.List<CharacterActorType> _availableCharacterTypes;
+        string[]            _characterTypeNames;
+
+        // 테스트 액터 레지스트리
+        enum TestActorMode { Player, Other }
+        TestActorMode        _testActorMode = TestActorMode.Player;
+        GameObject           _scenePlayer;
+        MotionTestRegistrySO _testRegistry;
+        int                  _selectedRegistryIndex = -1;
+        GameObject           _spawnedTestActor;
+        string[]             _registryNames;
+
         // 임시 MotionSet (에셋이 없을 때)
         bool            _useTemporarySet;
         MotionSet       _temporarySet;
@@ -99,6 +115,9 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_LOOP        = "MotionSetWindow_Loop";
         const string PREFS_EVENT_SCENE_OVERLAY = "MotionSetWindow_EventSceneOverlay";
         const string PREFS_EVENT_AUTO_ATTACH   = "MotionSetWindow_EventAutoAttach";
+        const string PREFS_REGISTRY_PATH       = "MotionSetWindow_RegistryPath";
+        const string PREFS_REGISTRY_IDX        = "MotionSetWindow_RegistryIdx";
+        const string PREFS_TEST_MODE           = "MotionSetWindow_TestMode";
 
         void OnEnable()
         {
@@ -145,6 +164,10 @@ namespace UPlayGround.Animation.Editor
             EditorPrefs.SetBool  (PREFS_LOOP,       _isLooping);
             EditorPrefs.SetBool  (PREFS_EVENT_SCENE_OVERLAY, _showSceneEventOverlay);
             EditorPrefs.SetBool  (PREFS_EVENT_AUTO_ATTACH,   _autoAttachDebugOverlay);
+            if (_testRegistry != null)
+                EditorPrefs.SetString(PREFS_REGISTRY_PATH, AssetDatabase.GetAssetPath(_testRegistry));
+            EditorPrefs.SetInt(PREFS_REGISTRY_IDX, _selectedRegistryIndex);
+            EditorPrefs.SetInt(PREFS_TEST_MODE, (int)_testActorMode);
         }
 
         // ⑤ 상태 복원
@@ -163,18 +186,37 @@ namespace UPlayGround.Animation.Editor
             _isLooping     = EditorPrefs.GetBool  (PREFS_LOOP,       false);
             _showSceneEventOverlay = EditorPrefs.GetBool(PREFS_EVENT_SCENE_OVERLAY, true);
             _autoAttachDebugOverlay = EditorPrefs.GetBool(PREFS_EVENT_AUTO_ATTACH, true);
+            string registryPath = EditorPrefs.GetString(PREFS_REGISTRY_PATH, "");
+            if (!string.IsNullOrEmpty(registryPath))
+                _testRegistry = AssetDatabase.LoadAssetAtPath<MotionTestRegistrySO>(registryPath);
+            _selectedRegistryIndex = EditorPrefs.GetInt(PREFS_REGISTRY_IDX, -1);
+            _testActorMode = (TestActorMode)EditorPrefs.GetInt(PREFS_TEST_MODE, 0);
         }
         
         void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            // 플레이 모드 진입 완료 시
             if (state == PlayModeStateChange.EnteredPlayMode)
             {
-                // 잠시 대기 후 대상 액터 찾기 (씬 로딩 완료 대기)
                 EditorApplication.delayCall += () =>
                 {
-                    FindAndSetTargetActor();
+                    AutoFindPlayer();
+                    if (_testActorMode == TestActorMode.Other &&
+                        _testRegistry != null && _selectedRegistryIndex >= 0 &&
+                        _selectedRegistryIndex < _testRegistry.entries.Count)
+                        SpawnRegistryActor(_selectedRegistryIndex);
                 };
+            }
+            else if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                _spawnedTestActor = null;
+                _scenePlayer = null;
+                _targetActor = null;
+                _animancer = null;
+                _playerSwapBehaviour = null;
+                _availableCharacterTypes = null;
+                _characterTypeNames = null;
+                _selectedCharacterType = CharacterActorType.None;
+                Repaint();
             }
         }
         
@@ -192,9 +234,12 @@ namespace UPlayGround.Animation.Editor
                 {
                     _targetActor = actor;
                     _animancer = animancer;
+                    if (actor.GetComponent<PlayerSwapBehaviour>() != null)
+                        _scenePlayer = actor;
+                    UpdatePlayerSwapBehaviour();
                     EnsureDebugOverlay();
                     Debug.Log($"대상 액터 자동 설정: {_testActorName}");
-                    
+
                     // Idle 애니메이션 자동 재생
                     PlayIdleAnimation();
                     
@@ -214,11 +259,58 @@ namespace UPlayGround.Animation.Editor
         void PlayIdleAnimation()
         {
             if (_animancer == null || _idleAnimation == null) return;
-            
+
             _animancer.Play(_idleAnimation);
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
-        
+
+        void UpdatePlayerSwapBehaviour()
+        {
+            _playerSwapBehaviour = _targetActor != null
+                ? _targetActor.GetComponent<PlayerSwapBehaviour>()
+                : null;
+
+            if (_playerSwapBehaviour != null)
+            {
+                _availableCharacterTypes = _playerSwapBehaviour.GetAllCharacterTypes();
+                _characterTypeNames = new string[_availableCharacterTypes.Count];
+                for (int i = 0; i < _availableCharacterTypes.Count; i++)
+                    _characterTypeNames[i] = _availableCharacterTypes[i].ToString();
+
+                _selectedCharacterType = _playerSwapBehaviour.ActiveCharacterType;
+                RefreshAnimancerFromActiveModel();
+            }
+            else
+            {
+                _availableCharacterTypes = null;
+                _characterTypeNames = null;
+                _selectedCharacterType = CharacterActorType.None;
+            }
+        }
+
+        void RefreshAnimancerFromActiveModel()
+        {
+            if (_playerSwapBehaviour == null) return;
+            var modelData = _playerSwapBehaviour.GetModelData(_selectedCharacterType);
+            if (modelData?.AnimancerComponent != null)
+                _animancer = modelData.AnimancerComponent;
+        }
+
+        void SwapCharacterModel(CharacterActorType type)
+        {
+            if (_playerSwapBehaviour == null) return;
+            if (!_playerSwapBehaviour.SwapTo(type)) return;
+
+            _selectedCharacterType = type;
+            RefreshAnimancerFromActiveModel();
+            EnsureDebugOverlay();
+
+            if (_isPlaying)
+                UpdateAnimancerPlayback();
+            else
+                PlayIdleAnimation();
+        }
+
         // ── Loop/Freeze 에디터 프리뷰 상태 ──
         private LoopEvent _editorActiveLoopEvent;
         private int _editorLoopRemainingCount;
@@ -485,8 +577,9 @@ namespace UPlayGround.Animation.Editor
                 {
                     _targetActor = Selection.activeGameObject;
                     _animancer = animancer;
+                    UpdatePlayerSwapBehaviour();
                     EnsureDebugOverlay();
-                    
+
                     // 대상 액터 변경 시 Idle 재생
                     if (!_isPlaying)
                     {
@@ -764,6 +857,7 @@ namespace UPlayGround.Animation.Editor
         {
             DrawToolbar();
             DrawActorAnimationSetBar();
+            DrawTestActorRegistry();
             DrawPlaybackControls();
             DrawEventDebugControls();
 
@@ -985,6 +1079,341 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.EndHorizontal();
         }
 
+        // ── 테스트 대상 UI ──
+        void DrawTestActorRegistry()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                // 모드 토글 헤더
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField("테스트 대상", EditorStyles.boldLabel, GUILayout.Width(70));
+
+                    bool wantPlayer = GUILayout.Toggle(
+                        _testActorMode == TestActorMode.Player, "Player",
+                        EditorStyles.miniButtonLeft, GUILayout.Width(80));
+                    bool wantOther = GUILayout.Toggle(
+                        _testActorMode == TestActorMode.Other, "기타 액터",
+                        EditorStyles.miniButtonRight, GUILayout.Width(80));
+
+                    if (wantPlayer && _testActorMode != TestActorMode.Player)
+                        SetTestActorMode(TestActorMode.Player);
+                    else if (wantOther && _testActorMode != TestActorMode.Other)
+                        SetTestActorMode(TestActorMode.Other);
+                }
+                EditorGUILayout.EndHorizontal();
+
+                if (_testActorMode == TestActorMode.Player)
+                    DrawPlayerTestUI();
+                else
+                    DrawOtherActorTestUI();
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        void DrawPlayerTestUI()
+        {
+            // Player 오브젝트 필드 + 자동 탐색
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField("Player", GUILayout.Width(50));
+
+                var newPlayer = (GameObject)EditorGUILayout.ObjectField(
+                    _scenePlayer, typeof(GameObject), true, GUILayout.Width(200));
+                if (newPlayer != _scenePlayer)
+                {
+                    _scenePlayer = newPlayer;
+                    if (_scenePlayer != null && Application.isPlaying)
+                    {
+                        _targetActor = _scenePlayer;
+                        _animancer   = _scenePlayer.GetComponent<AnimancerComponent>()
+                                    ?? _scenePlayer.GetComponentInChildren<AnimancerComponent>();
+                        UpdatePlayerSwapBehaviour();
+                        EnsureDebugOverlay();
+                        PlayIdleAnimation();
+                    }
+                }
+
+                EditorGUI.BeginDisabledGroup(!Application.isPlaying);
+                if (GUILayout.Button("자동 탐색", GUILayout.Width(70)))
+                    AutoFindPlayer();
+                EditorGUI.EndDisabledGroup();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // 캐릭터 모델 드롭다운 (PlayerSwapBehaviour가 있을 때만)
+            if (_playerSwapBehaviour != null && _availableCharacterTypes != null && _availableCharacterTypes.Count > 0)
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField("캐릭터 모델", GUILayout.Width(80));
+
+                    int currentIdx = _availableCharacterTypes.IndexOf(_selectedCharacterType);
+                    int newIdx = EditorGUILayout.Popup(
+                        Mathf.Max(0, currentIdx), _characterTypeNames, GUILayout.Width(150));
+                    if (newIdx >= 0 && newIdx < _availableCharacterTypes.Count && newIdx != currentIdx)
+                        SwapCharacterModel(_availableCharacterTypes[newIdx]);
+
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField(
+                        $"[{_selectedCharacterType}]", EditorStyles.miniLabel, GUILayout.Width(120));
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        void DrawOtherActorTestUI()
+        {
+            // 레지스트리 SO 필드
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField("레지스트리", GUILayout.Width(60));
+
+                var newRegistry = (MotionTestRegistrySO)EditorGUILayout.ObjectField(
+                    _testRegistry, typeof(MotionTestRegistrySO), false, GUILayout.Width(210));
+                if (newRegistry != _testRegistry)
+                {
+                    _testRegistry = newRegistry;
+                    _selectedRegistryIndex = -1;
+                    _registryNames = null;
+                }
+
+                if (GUILayout.Button("생성", EditorStyles.miniButton, GUILayout.Width(40)))
+                    CreateTestRegistry();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (_testRegistry == null || _testRegistry.entries == null || _testRegistry.entries.Count == 0)
+            {
+                EditorGUILayout.LabelField(
+                    "MotionTestRegistrySO를 설정하고 ActorDefinitionSO 항목을 추가하세요.",
+                    EditorStyles.miniLabel);
+                return;
+            }
+
+            // 액터 선택 + 스폰/제거
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField("액터", GUILayout.Width(40));
+
+                if (_registryNames == null || _registryNames.Length != _testRegistry.entries.Count)
+                    RebuildRegistryNames();
+
+                int newIdx = EditorGUILayout.Popup(
+                    Mathf.Max(0, _selectedRegistryIndex), _registryNames, GUILayout.MinWidth(200));
+                if (newIdx != _selectedRegistryIndex)
+                    _selectedRegistryIndex = newIdx;
+
+                EditorGUI.BeginDisabledGroup(!Application.isPlaying || _selectedRegistryIndex < 0);
+                GUI.backgroundColor = new Color(0.5f, 0.8f, 1f);
+                if (GUILayout.Button("스폰", GUILayout.Width(50)))
+                    SpawnRegistryActor(_selectedRegistryIndex);
+                GUI.backgroundColor = Color.white;
+                EditorGUI.EndDisabledGroup();
+
+                if (_spawnedTestActor != null)
+                {
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.ObjectField(
+                        _spawnedTestActor, typeof(GameObject), true, GUILayout.Width(130));
+                    EditorGUI.EndDisabledGroup();
+
+                    GUI.backgroundColor = new Color(1f, 0.6f, 0.6f);
+                    if (GUILayout.Button("제거", GUILayout.Width(40)))
+                        DestroySpawnedActor();
+                    GUI.backgroundColor = Color.white;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void SetTestActorMode(TestActorMode mode)
+        {
+            if (_testActorMode == mode) return;
+            _testActorMode = mode;
+
+            StopPlayback();
+
+            if (mode == TestActorMode.Player)
+            {
+                // 스폰된 비플레이어 액터 제거
+                DestroySpawnedActor();
+                // Player 활성화 + 타겟 설정
+                if (_scenePlayer != null && Application.isPlaying)
+                {
+                    _scenePlayer.SetActive(true);
+                    _targetActor = _scenePlayer;
+                    _animancer   = _scenePlayer.GetComponent<AnimancerComponent>()
+                                ?? _scenePlayer.GetComponentInChildren<AnimancerComponent>();
+                    UpdatePlayerSwapBehaviour();
+                    EnsureDebugOverlay();
+                    PlayIdleAnimation();
+                }
+            }
+            else
+            {
+                // Player 비활성화
+                if (_scenePlayer != null && Application.isPlaying)
+                    _scenePlayer.SetActive(false);
+                _targetActor = null;
+                _animancer   = null;
+                UpdatePlayerSwapBehaviour();
+            }
+
+            Repaint();
+        }
+
+        void AutoFindPlayer()
+        {
+            if (string.IsNullOrEmpty(_testActorName)) return;
+            var go = GameObject.Find(_testActorName);
+            if (go == null)
+            {
+                Debug.LogWarning($"[MotionEditor] '{_testActorName}'을 씬에서 찾을 수 없습니다.");
+                return;
+            }
+            _scenePlayer = go;
+            if (_testActorMode == TestActorMode.Player)
+            {
+                _targetActor = go;
+                _animancer   = go.GetComponent<AnimancerComponent>()
+                            ?? go.GetComponentInChildren<AnimancerComponent>();
+                UpdatePlayerSwapBehaviour();
+                EnsureDebugOverlay();
+                PlayIdleAnimation();
+                Repaint();
+            }
+        }
+
+        void DestroySpawnedActor()
+        {
+            if (_spawnedTestActor == null) return;
+            bool wasTarget = _targetActor == _spawnedTestActor;
+            UnityEngine.Object.Destroy(_spawnedTestActor);
+            _spawnedTestActor = null;
+            if (wasTarget)
+            {
+                _targetActor = null;
+                _animancer   = null;
+                UpdatePlayerSwapBehaviour();
+            }
+            StopPlayback();
+        }
+
+        void RebuildRegistryNames()
+        {
+            if (_testRegistry?.entries == null)
+            {
+                _registryNames = System.Array.Empty<string>();
+                return;
+            }
+
+            _registryNames = new string[_testRegistry.entries.Count];
+            for (int i = 0; i < _testRegistry.entries.Count; i++)
+            {
+                var entry = _testRegistry.entries[i];
+                if (entry.actorDef == null)
+                {
+                    _registryNames[i] = $"[{i}] (없음)";
+                    continue;
+                }
+                string display = !string.IsNullOrEmpty(entry.actorDef.displayName)
+                    ? entry.actorDef.displayName
+                    : entry.actorDef.actorId;
+                _registryNames[i] = $"[{i}] {display}  ·  {entry.actorDef.actorId}";
+            }
+        }
+
+        void SpawnRegistryActor(int index)
+        {
+            if (_testRegistry == null || index < 0 || index >= _testRegistry.entries.Count) return;
+
+            var entry = _testRegistry.entries[index];
+            if (entry.actorDef?.prefab == null)
+            {
+                Debug.LogWarning($"[MotionEditor] 레지스트리 [{index}] '{entry.actorDef?.actorId}'에 prefab이 없습니다.");
+                return;
+            }
+
+            // 이전 스폰 액터 제거
+            if (_spawnedTestActor != null)
+            {
+                UnityEngine.Object.Destroy(_spawnedTestActor);
+                _spawnedTestActor = null;
+            }
+
+            // 스폰
+            var go = UnityEngine.Object.Instantiate(entry.actorDef.prefab, entry.spawnOffset, Quaternion.identity);
+            string label = !string.IsNullOrEmpty(entry.actorDef.displayName)
+                ? entry.actorDef.displayName
+                : entry.actorDef.actorId;
+            go.name = $"[MotionTest] {label}";
+
+            _spawnedTestActor = go;
+            _targetActor = go;
+
+            // Other 모드 스폰 시 Player 비활성화
+            if (_scenePlayer != null)
+                _scenePlayer.SetActive(false);
+
+            // Player 여부에 따라 분기
+            var swap = go.GetComponent<PlayerSwapBehaviour>();
+            if (swap != null)
+            {
+                // Player: PlayerSwapBehaviour 로직으로 처리 (모델 전환 + Animancer 갱신)
+                UpdatePlayerSwapBehaviour();
+            }
+            else
+            {
+                // 비플레이어(Monster, NPC 등): AI/물리 동결 후 AnimancerComponent 직접 탐색
+                FreezeTestActor(go);
+                _animancer = go.GetComponent<AnimancerComponent>()
+                          ?? go.GetComponentInChildren<AnimancerComponent>();
+                if (_animancer == null)
+                    Debug.LogWarning($"[MotionEditor] '{go.name}'에서 AnimancerComponent를 찾을 수 없습니다.");
+            }
+
+            // 엔트리에 Idle 클립이 지정된 경우 적용
+            if (entry.idleClip != null)
+                _idleAnimation = entry.idleClip;
+
+            EnsureDebugOverlay();
+            PlayIdleAnimation();
+
+            Debug.Log($"[MotionEditor] 테스트 액터 스폰: {go.name}");
+            Repaint();
+        }
+
+        void FreezeTestActor(GameObject go)
+        {
+            // EnemyBrain / EnemyFlyingBrain 비활성화 → AI 의사결정 중단
+            foreach (var brain in go.GetComponentsInChildren<EnemyBrain>(true))
+                brain.enabled = false;
+            foreach (var brain in go.GetComponentsInChildren<EnemyFlyingBrain>(true))
+                brain.enabled = false;
+
+            // KinematicCharacterMotor 비활성화 → 물리 이동 및 상태머신 업데이트 중단
+            var movCtrl = go.GetComponent<ActorMovementController>()
+                       ?? go.GetComponentInChildren<ActorMovementController>(true);
+            if (movCtrl?.Motor != null)
+                movCtrl.Motor.enabled = false;
+        }
+
+        void CreateTestRegistry()
+        {
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Motion Test Registry 생성", "MotionTestRegistry", "asset", "저장 위치를 선택하세요.");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var registry = ScriptableObject.CreateInstance<MotionTestRegistrySO>();
+            AssetDatabase.CreateAsset(registry, path);
+            AssetDatabase.SaveAssets();
+            _testRegistry = registry;
+            _registryNames = null;
+            Selection.activeObject = registry;
+            EditorGUIUtility.PingObject(registry);
+        }
+
         void DrawActorMotionSidebar()
         {
             const float sidebarWidth = 300f;
@@ -1134,7 +1563,8 @@ namespace UPlayGround.Animation.Editor
                 {
                     _targetActor = newTarget;
                     _animancer = _targetActor?.GetComponent<AnimancerComponent>();
-                    
+                    UpdatePlayerSwapBehaviour();
+
                     if (_targetActor != null && _animancer == null)
                     {
                         Debug.LogWarning($"{_targetActor.name}에 AnimancerComponent가 없습니다!");
@@ -1156,6 +1586,7 @@ namespace UPlayGround.Animation.Editor
                         {
                             _targetActor = Selection.activeGameObject;
                             _animancer = animancer;
+                            UpdatePlayerSwapBehaviour();
                             EnsureDebugOverlay();
                             Debug.Log($"{_targetActor.name}을(를) 대상 액터로 설정했습니다.");
                             PlayIdleAnimation();
@@ -1223,7 +1654,26 @@ namespace UPlayGround.Animation.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            
+
+            // 캐릭터 모델 전환 (PlayerSwapBehaviour가 있을 때만)
+            if (_playerSwapBehaviour != null && _availableCharacterTypes != null && _availableCharacterTypes.Count > 0)
+            {
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                {
+                    EditorGUILayout.LabelField("캐릭터 모델", GUILayout.Width(80));
+
+                    int currentIdx = _availableCharacterTypes.IndexOf(_selectedCharacterType);
+                    int newIdx = EditorGUILayout.Popup(Mathf.Max(0, currentIdx), _characterTypeNames, GUILayout.Width(150));
+
+                    if (newIdx >= 0 && newIdx < _availableCharacterTypes.Count && newIdx != currentIdx)
+                        SwapCharacterModel(_availableCharacterTypes[newIdx]);
+
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField($"[{_selectedCharacterType}]", EditorStyles.miniLabel, GUILayout.Width(120));
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
             // 재생 속도 + 루프 컨트롤
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             {

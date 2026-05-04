@@ -18,6 +18,7 @@ namespace UPlayGround.Animation
         private PlayerCombat _playerCombat;
 
         public bool IsOpenedComboWindow { get; set; } = false;
+        public PlayerActorAnimationMotionSet PlayerMotionSet => _playerActorAnimationMotionSet;
 
         public override void Init(GameActor actor)
         {

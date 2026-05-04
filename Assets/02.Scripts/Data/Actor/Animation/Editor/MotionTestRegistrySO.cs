@@ -17,6 +17,10 @@ namespace UPlayGround.Animation.Editor
             public Vector3 spawnOffset = Vector3.zero;
         }
 
+        [Header("자동 동기화")]
+        public ActorDatabase sourceDatabase;
+
+        [Header("항목 목록")]
         public List<Entry> entries = new();
     }
 }

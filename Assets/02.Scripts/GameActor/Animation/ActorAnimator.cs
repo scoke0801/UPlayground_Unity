@@ -76,6 +76,7 @@ namespace UPlayGround.Animation
         /// fallbackMotionSet이 연결되어 있으면 공통 Humanoid 모션(8방향 등)을 사용할 수 있음.
         /// </summary>
         public bool HasFallbackMotionSet => _motionSet != null && _motionSet.fallbackMotionSet != null;
+        public ActorAnimationMotionSet MotionSet => _motionSet;
 
         private void Awake()
         {

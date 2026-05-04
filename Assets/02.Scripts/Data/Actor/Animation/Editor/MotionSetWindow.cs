@@ -7,6 +7,8 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Debugging;
 using UPlayGround.MovementController;
 using UPlayGround.Component;
+using ActorAnimatorType = UPlayGround.Animation.ActorAnimator;
+using PlayerActorAnimatorType = UPlayGround.Animation.PlayerActorAnimator;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -22,7 +24,7 @@ namespace UPlayGround.Animation.Editor
         
         // 테스트 씬 설정
         string          _testScenePath = "Assets/01.Scenes/Test/MotionTestMap.unity"; // 기본 경로
-        string          _testActorName = "TestPlayer"; // 기본 액터 이름
+        string          _testActorName = "Player"; // 기본 액터 이름
         public AnimationClip   _idleAnimation; // 기본 Idle 애니메이션
         
         // 플레이 관련
@@ -304,11 +306,39 @@ namespace UPlayGround.Animation.Editor
             _selectedCharacterType = type;
             RefreshAnimancerFromActiveModel();
             EnsureDebugOverlay();
+            TryAutoSelectMotionSet(_targetActor);
 
             if (_isPlaying)
                 UpdateAnimancerPlayback();
             else
                 PlayIdleAnimation();
+        }
+
+        void TryAutoSelectMotionSet(GameObject actorGo)
+        {
+            if (actorGo == null) return;
+
+            // Player: 활성 캐릭터 모델의 PlayerActorAnimator 우선 탐색
+            // Player 분기에 진입하면 성공·실패 모두 여기서 종료 (비플레이어 fallback 차단)
+            if (_playerSwapBehaviour != null && _selectedCharacterType != CharacterActorType.None)
+            {
+                var modelData = _playerSwapBehaviour.GetModelData(_selectedCharacterType);
+                if (modelData != null)
+                {
+                    var playerAnimator = modelData.GetComponentInChildren<PlayerActorAnimatorType>(true);
+                    if (playerAnimator?.PlayerMotionSet != null)
+                    {
+                        var ams = playerAnimator.PlayerMotionSet.GetDefaultMotionSet();
+                        if (ams != null) SetActorAnimationSet(ams);
+                    }
+                }
+                return;
+            }
+
+            // 비플레이어(Monster, NPC 등): ActorAnimator.MotionSet 직접 사용
+            var animator = actorGo.GetComponentInChildren<ActorAnimatorType>(true);
+            if (animator?.MotionSet != null)
+                SetActorAnimationSet(animator.MotionSet);
         }
 
         // ── Loop/Freeze 에디터 프리뷰 상태 ──
@@ -1246,6 +1276,7 @@ namespace UPlayGround.Animation.Editor
                     _animancer   = _scenePlayer.GetComponent<AnimancerComponent>()
                                 ?? _scenePlayer.GetComponentInChildren<AnimancerComponent>();
                     UpdatePlayerSwapBehaviour();
+                    TryAutoSelectMotionSet(_scenePlayer);
                     EnsureDebugOverlay();
                     PlayIdleAnimation();
                 }
@@ -1279,6 +1310,7 @@ namespace UPlayGround.Animation.Editor
                 _animancer   = go.GetComponent<AnimancerComponent>()
                             ?? go.GetComponentInChildren<AnimancerComponent>();
                 UpdatePlayerSwapBehaviour();
+                TryAutoSelectMotionSet(go);
                 EnsureDebugOverlay();
                 PlayIdleAnimation();
                 Repaint();
@@ -1377,6 +1409,7 @@ namespace UPlayGround.Animation.Editor
             if (entry.idleClip != null)
                 _idleAnimation = entry.idleClip;
 
+            TryAutoSelectMotionSet(go);
             EnsureDebugOverlay();
             PlayIdleAnimation();
 
@@ -1655,24 +1688,6 @@ namespace UPlayGround.Animation.Editor
             }
             EditorGUILayout.EndHorizontal();
 
-            // 캐릭터 모델 전환 (PlayerSwapBehaviour가 있을 때만)
-            if (_playerSwapBehaviour != null && _availableCharacterTypes != null && _availableCharacterTypes.Count > 0)
-            {
-                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-                {
-                    EditorGUILayout.LabelField("캐릭터 모델", GUILayout.Width(80));
-
-                    int currentIdx = _availableCharacterTypes.IndexOf(_selectedCharacterType);
-                    int newIdx = EditorGUILayout.Popup(Mathf.Max(0, currentIdx), _characterTypeNames, GUILayout.Width(150));
-
-                    if (newIdx >= 0 && newIdx < _availableCharacterTypes.Count && newIdx != currentIdx)
-                        SwapCharacterModel(_availableCharacterTypes[newIdx]);
-
-                    GUILayout.FlexibleSpace();
-                    EditorGUILayout.LabelField($"[{_selectedCharacterType}]", EditorStyles.miniLabel, GUILayout.Width(120));
-                }
-                EditorGUILayout.EndHorizontal();
-            }
 
             // 재생 속도 + 루프 컨트롤
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);

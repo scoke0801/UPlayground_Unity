@@ -45,7 +45,8 @@
       "Bash(git *)",
       "Bash(Get-ChildItem *)",
       "Bash(Start-Sleep -Milliseconds 500)",
-      "Bash(Get-Content \"C:\\\\Users\\\\scoke\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--UsingProject-UnityProject-UPlayground\\\\c921de36-2a97-4ae1-b157-b19edaa7d4cd\\\\tasks\\\\bgn7ezl1y.output\" -ErrorAction SilentlyContinue)"
+      "Bash(Get-Content \"C:\\\\Users\\\\scoke\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--UsingProject-UnityProject-UPlayground\\\\c921de36-2a97-4ae1-b157-b19edaa7d4cd\\\\tasks\\\\bgn7ezl1y.output\" -ErrorAction SilentlyContinue)",
+      "mcp__plugin_code-review-graph_code-review-graph__get_docs_section_tool"
     ]
   }
 }

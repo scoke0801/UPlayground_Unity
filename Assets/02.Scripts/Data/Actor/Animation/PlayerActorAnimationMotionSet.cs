@@ -16,6 +16,16 @@ namespace UPlayGround.Data.Actor.Animation
             return result;
         }
 
+        public ActorAnimationMotionSet GetDefaultMotionSet()
+        {
+            if (motionSets == null) return null;
+            if (motionSets.TryGetValue(WeaponType.NoWeapon, out var noWeapon) && noWeapon != null)
+                return noWeapon;
+            foreach (var v in motionSets.Values)
+                if (v != null) return v;
+            return null;
+        }
+
         public MotionSet GetMotionSet(WeaponType weaponType, AnimKey key)
         {
             ActorAnimationMotionSet motionSet = GetActorAnimationMotionSet(weaponType);

@@ -1,0 +1,430 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae4c769f019ea94a984e15c8d987d03, type: 3}
+  m_Name: WeaponMotionMappingConfig_Spear
+  m_EditorClassIdentifier: 
+  entries:
+  - clip: {fileID: 7400000, guid: bc6136ba7427a5843b5339eb7c041ccb, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_B
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 618da1c52101ac248a3ffae8dfab29e6, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_BL
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: a106c4e733266c849b3c0f52cbc6ab37, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_BR
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: f8236f90fc4ff3d40898d9af71f54358, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_F
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 3c3185e6d7eacec4a82a6d18482f5283, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_FL
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: b87ea688afa090a48b030bf66de6ce28, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_FR
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 705ee4bc44fae494595808c9b9b94d80, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_L
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 67782f70312244146b3ae268c5d8ded7, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Run_R
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 5636838a90b7dc145b3187795ad8b37f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_B
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: ff6e1928dc56ea545bbe78af4f753d61, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_BL
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 3eaca314972f5db43a2e955bfb6ea76e, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_BR
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 9b40267135c42fc4f87d14e3a97b60a7, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_F
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: e027e42f7d397954e8ec30c9d4ba0ad2, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_FL
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 1896397fcaf68cb4db3edd8e992d51f9, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_FR
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: 0938d3f3a4790784ab6e99e8bbe8884d, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_L
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: f6c97c1006fc4244aad089f33284258c, type: 3}
+    clipDisplayName: Frank_RPG_Spear_8Way_Walk_R
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: cfcf64c28e615504bba2677f865dfee6, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Attack01
+    animKey: 203
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: ce102fb84d0543043935bed064a8669d, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Attack02
+    animKey: 204
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 542bb5f4a33c12b438020ebf619fc290, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Attack03
+    animKey: 205
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 710bcab4c75a34b4cac9e87299e398d7, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Attack04
+    animKey: 206
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: d7c406c45b9d4ca4f98f071f9947be02, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Attack05
+    animKey: 207
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 241f35d9ad8ea914b8053b5ff94a3c74, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Block
+    animKey: 860
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: f5da718d9640a45418a86fd237ba9a79, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo01_1
+    animKey: 100
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: df5a41e39bd7c5e46bc8f129da5f6c4e, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo01_2
+    animKey: 101
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 99dcd8725920e18459d9176d7f2b0e59, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo02_1
+    animKey: 102
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: c4b36c487901d354daebd9a9fb16081f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo02_2
+    animKey: 103
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 961d2a0c811b11747b5062542076bd0f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo02_3
+    animKey: 104
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 104ba9446bdcbf548a591205ddd83c06, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo02_All
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: e9cd6b0d6357e494bb552cc80f32cb89, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo03_1
+    animKey: 105
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: cd15092baf531304d9cb4c432e80774b, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo03_2
+    animKey: 106
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: b77f470092a298d47b016692eb2511bb, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo03_3
+    animKey: 107
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: b88c51de05c1dba42a5674d5e8f4da5f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo03_All
+    animKey: 0
+    orderInSet: 0
+    skip: 1
+  - clip: {fileID: 7400000, guid: f49e476cc9a18b24299d17f5413a19f5, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo04_1
+    animKey: 108
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 2d70f1867a4491b4483613e55c9df8b3, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo04_2
+    animKey: 109
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 2f0a631259fc06d41b1ef1862f7c37f1, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo04_3
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: da98855a4ca303540851fc1f06b4d1c2, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo04_4
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: f78de8f24c0446d4bbda3295a2be4b30, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo04_All
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 4b2680ae8eaf5d54980f21409c35e3d3, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo05_1
+    animKey: 200
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 44f7236ff1194d44889a269d3988aba2, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo05_2
+    animKey: 201
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 509ad99b93581c1469c0258a823aaffa, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo05_3
+    animKey: 202
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 15ba5d8945c9a094e97591c52f719601, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Combo05_All
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 5d4c69a7a86066e46a0b293f072b0bb6, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Die01
+    animKey: 800
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 2229ab2b4438c24468f2c7b5270938f8, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Die02
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: c00410a140d5037429a73be7e6642464, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Die03
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 913948b2f455ad4459c9149060d9d27c, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Die04
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 7c8843b65e218864b847c1e8138b3dd9, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Die05
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 35b0f112630591b4bac6916c93093772, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Equip
+    animKey: 2110
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 343c4eff7dab1c94c9b38fe83274c19f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Equip_Idle
+    animKey: 1
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 221f8632a8fd2f24f8c2d20817b3a39c, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Equip_Run01
+    animKey: 3
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: f3a6fc740a993f04b9b1390c7765b5a4, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Equip_Run02
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 796b89dcf63428c4492621de7cfd8e8c, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Evade_B
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 27725555e63ad0646a54baee2f62dceb, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Evade_F
+    animKey: 10
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 13be5c07174c85a419268ccfc45f49c3, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Evade_L
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 0aa1ef5be3eff5647bfd5fbe8c415967, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Evade_R
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 309fa5739d74f464bafa20c33ddeeb59, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Getup01
+    animKey: 820
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 9437313cf6e8d44449ece3c7abfd62a9, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Getup02
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 6c3384e5d6c3ac449930a4d2f79fa9ba, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Guard
+    animKey: 840
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 82c32d0129a5821458e521b0ebcf2ac8, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit_Knockback
+    animKey: 900
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 6be20f9e229fd374999df480c4ccf72e, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit_Knockdown
+    animKey: 901
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: e0422bc5bc599de42b5ea05af3676bda, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit_Knockdown_Loop
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 9659c413b7bf1af48b10b07d88d0c54c, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit01
+    animKey: 700
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: d3fbb3ff96383794e9d0d988618a9a9d, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit02
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 36a2f6ebdeabd6c478207dd6a1656393, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Hit03
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 465ee68f0b6d02d409576930a9d1e7ac, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Jump_01
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 83d98eb07d092784ead3f0de63d2ec99, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Jump_02
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: b1f10b6bab25fc2478b6cd05c4ceb1b3, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Jump_ZeroHeight
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: b1e5624fc8d057f43b8c491bc6360eed, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Skill01
+    animKey: 500
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: f6abea2c8bbce644eb2b55bb95777c62, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Skill02
+    animKey: 501
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 97deb850ae1016d45b92f153e7b6dee7, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Skill03
+    animKey: 502
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: de4b56c7ced974e4d83f4b101d2391d3, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Step_B
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 4d0977fbb32e50343a0c34f8069e9057, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Step_F
+    animKey: 11
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: ea87f240fd8de4146b2ce6e07a61fc5a, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Step_L
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: e240965bc31e0ab45ac129c962e12b9d, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Step_R
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 34dbbebd645ec394d89a624e26a8ab5e, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Tumbling_B
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 588f1c62a4050164b8679d6954d0d3b5, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Tumbling_F
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 5c004d14233676746838fb07ed6782c4, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Tumbling_L
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: ba7a89ec6dd4f754283eb3793fbac66f, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Tumbling_R
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 4903e4f7f3394474091d2812dd7470a0, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Unequip
+    animKey: 2112
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: a4431dd6e857ccb49b63a878555a1453, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Unequip_Idle
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 507c468b6c481184ab130445135362fd, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Unequip_Run
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 5ce83bbe57c45c645a857fc6450e93f9, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Unequip_Run_Faster
+    animKey: 0
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: 81a4f4f97fb3b6644a2b76120479c1d7, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Walk
+    animKey: 2
+    orderInSet: 0
+    skip: 0
+  - clip: {fileID: 7400000, guid: e92809af64e102341a0f6fc853d074fe, type: 3}
+    clipDisplayName: Frank_RPG_Spear_Walk_Faster
+    animKey: 0
+    orderInSet: 0
+    skip: 0

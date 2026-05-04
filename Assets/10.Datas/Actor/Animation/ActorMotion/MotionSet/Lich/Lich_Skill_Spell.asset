@@ -31,8 +31,13 @@ MonoBehaviour:
       data:
         startTime: 0.7625
         endTime: 2.175
+        globalStartTimeOffset: 0
         projectilePrefab: {fileID: 1327643182497009608, guid: 45a162a9b9a681843bc5bc016ab0614a, type: 3}
+        spawnPointName: 
         spawnOffset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 1
+        damage: 10
         speed: 1
         duration: 3
         targetHitLayer:

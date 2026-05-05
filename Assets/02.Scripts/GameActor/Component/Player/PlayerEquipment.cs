@@ -65,6 +65,10 @@ namespace UPlayGround.Component
         public void SetWeaponType(WeaponType type)
         {
             SetRightWeaponType(type);
+            if (IsPairedWeaponType(type))
+                SetLeftWeaponType(type);
+            else
+                SetLeftWeaponType(WeaponType.NoWeapon);
         }
 
         private void OnEnable()
@@ -345,14 +349,27 @@ namespace UPlayGround.Component
 
         private EquipPosition GuessEquipPosition(ParentConstraint constraint, WeaponType weaponType)
         {
-            if (weaponType == WeaponType.SwordShield || weaponType == WeaponType.Arrow)
+            if (weaponType == WeaponType.Arrow)
                 return EquipPosition.LeftHand;
 
-            string normalizedName = NormalizeName(constraint.name);
-            if (normalizedName.Contains("left") || normalizedName.EndsWith("l"))
+            string normalizedName = NormalizeName(GetConstraintSearchName(constraint));
+            if (normalizedName.Contains("left") || normalizedName.Contains("handl") || normalizedName.EndsWith("l"))
                 return EquipPosition.LeftHand;
 
             return EquipPosition.RightHand;
+        }
+
+        private static string GetConstraintSearchName(ParentConstraint constraint)
+        {
+            string searchName = constraint.name;
+            for (int i = 0; i < constraint.sourceCount; i++)
+            {
+                Transform sourceTransform = constraint.GetSource(i).sourceTransform;
+                if (sourceTransform != null)
+                    searchName += sourceTransform.name;
+            }
+
+            return searchName;
         }
 
         private static bool MatchesExactWeaponType(ParentConstraint constraint, WeaponType weaponType)
@@ -368,10 +385,27 @@ namespace UPlayGround.Component
             string constraintName = NormalizeName(constraint.name);
             return weaponType switch
             {
+                WeaponType.Sword => constraintName.Contains("sword"),
+                WeaponType.SwordShield => constraintName.Contains("sword") || constraintName.Contains("shield"),
+                WeaponType.GreatSword => constraintName.Contains("greatsword") || constraintName.Contains("claymore"),
+                WeaponType.Staff => constraintName.Contains("staff"),
+                WeaponType.Bow => constraintName.Contains("bow"),
+                WeaponType.Arrow => constraintName.Contains("arrow"),
                 WeaponType.Katana => constraintName.Contains("sword"),
                 WeaponType.DoubleAxe => constraintName.Contains("axe"),
+                WeaponType.Whip => constraintName.Contains("whip"),
+                WeaponType.Spear => constraintName.Contains("spear") || constraintName.Contains("lance"),
+                WeaponType.DualBlade => constraintName.Contains("dualblade") ||
+                                        constraintName.Contains("doubleblade") ||
+                                        constraintName.Contains("blade") ||
+                                        constraintName.Contains("sword"),
                 _ => false,
             };
+        }
+
+        private static bool IsPairedWeaponType(WeaponType weaponType)
+        {
+            return weaponType == WeaponType.DualBlade;
         }
 
         private bool IsGenericWeaponConstraint(ParentConstraint constraint)
@@ -428,6 +462,9 @@ namespace UPlayGround.Component
 
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
+
+            if (IsPairedWeaponType(_mainWeaponType))
+                SetSubWeaponDrawn(drawn);
         }
 
         public void SetSubWeaponDrawn(bool drawn)
@@ -509,6 +546,8 @@ namespace UPlayGround.Component
         public void ForceSyncMainWeaponState(bool drawn)
         {
             ForceSyncWeaponState(EquipPosition.RightHand, drawn);
+            if (IsPairedWeaponType(_mainWeaponType))
+                ForceSyncWeaponState(EquipPosition.LeftHand, drawn);
         }
 
         private void ForceSyncWeaponState(EquipPosition equipPosition, bool drawn)

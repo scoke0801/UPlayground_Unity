@@ -38,6 +38,12 @@ namespace UPlayGround.Component
         // 모든 자식의 렌더러를 찾아 원래 색상을 리스트에 저장합니다.
         public void InitializeRendererData()
         {
+            if (propBlock == null)
+                propBlock = new MaterialPropertyBlock();
+
+            StopAllCoroutines();
+            RestoreTrackedRenderers();
+
             rendererInfos.Clear();
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
@@ -70,12 +76,15 @@ namespace UPlayGround.Component
                 // 관리 대상 프로퍼티를 찾은 경우에만 리스트에 추가
                 if (targetId != -1)
                 {
-                    rendererInfos.Add(new RendererInfo
+                    var info = new RendererInfo
                     {
                         renderer = r,
                         colorPropertyId = targetId,
                         originalColor = r.sharedMaterial.GetColor(targetId)
-                    });
+                    };
+
+                    rendererInfos.Add(info);
+                    SetRendererColor(info, info.originalColor);
                 }
             }
         }
@@ -119,13 +128,25 @@ namespace UPlayGround.Component
             {
                 if (info.renderer == null) continue;
 
-                info.renderer.GetPropertyBlock(propBlock);
-            
                 Color finalColor = useOriginal ? info.originalColor : targetColor;
-                propBlock.SetColor(info.colorPropertyId, finalColor);
-            
-                info.renderer.SetPropertyBlock(propBlock);
+                SetRendererColor(info, finalColor);
             }
+        }
+
+        private void RestoreTrackedRenderers()
+        {
+            foreach (var info in rendererInfos)
+            {
+                if (info.renderer == null) continue;
+                SetRendererColor(info, info.originalColor);
+            }
+        }
+
+        private void SetRendererColor(RendererInfo info, Color color)
+        {
+            info.renderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor(info.colorPropertyId, color);
+            info.renderer.SetPropertyBlock(propBlock);
         }
     }
 }

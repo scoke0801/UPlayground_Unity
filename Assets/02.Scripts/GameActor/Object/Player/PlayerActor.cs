@@ -446,13 +446,7 @@ namespace UPlayGround
             _playerActorAnimator = _animator as PlayerActorAnimator;
             _equipment           = GetComponentInChildren<PlayerEquipment>();
             _equipment?.RefreshWeaponConstraintsFromModel();
-
-            if(_characterActorType == CharacterActorType.Bokusei)
-                _equipment.SetWeaponType(WeaponType.Katana);
-            else
-            {
-                _equipment.SetWeaponType(WeaponType.NoWeapon);
-            }
+            _equipment?.SetWeaponType(data.defaultWeaponType);
             
             // 애니메이터에 Actor 재주입 (PlayerEquipment 참조 포함)
             _playerActorAnimator?.Init(this);

@@ -17,6 +17,9 @@ namespace UPlayGround.Component
         [Header("Identity")]
         public CharacterActorType characterType;
 
+        [Header("Equipment")]
+        public WeaponType defaultWeaponType = WeaponType.NoWeapon;
+
         [Header("Combat")]
         public PlayerAttackDataSO attackData;
 

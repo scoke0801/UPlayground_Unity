@@ -408,6 +408,9 @@ namespace UPlayGround
             _isEntryAttackPending = false;
             return true;
         }
+
+        /// <summary> 등장 공격 대기 여부를 소비하지 않고 조회 (PlayerAttackState 진입 가능 판정용). </summary>
+        public bool IsEntryAttackPending => _isEntryAttackPending;
     }
 
     // Component

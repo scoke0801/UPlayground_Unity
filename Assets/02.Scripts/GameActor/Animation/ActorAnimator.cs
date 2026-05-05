@@ -145,19 +145,23 @@ namespace UPlayGround.Animation
             {
                 return _currentState;
             }
-            
+
+            // 새 MotionSet 유효성을 먼저 확인. 무효라면 기존 재생을 끊지 않고 즉시 null 반환.
+            // (기존에는 StopMotionSet 후 무효를 발견해 재생 중이던 모션이 끊기는 버그가 있었다)
+            MotionSet nextMotionSet = _motionSet != null ? _motionSet.GetMotionSet(key) : null;
+            if (nextMotionSet == null || nextMotionSet.IsValid() == false)
+            {
+                return null;
+            }
+
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
             if (_isPlayingMotionSet && _currentMotionSet != null)
             {
                 StopMotionSet();
             }
-            
-            _currentMotionSet = _motionSet.GetMotionSet(key);
-            if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
-            {
-                return null;
-            }
-            
+
+            _currentMotionSet = nextMotionSet;
+
             _currentMotionIndex = 0;
             _globalTime = 0f;
             _lastLocalTime = -0.001f;

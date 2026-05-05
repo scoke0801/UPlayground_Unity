@@ -776,6 +776,98 @@ namespace UPlayGround.Component
         public void OpenComboWindow()  => CanCombo = true;
         public void CloseComboWindow() => CanCombo = false;
 
+        // ── Peek API (side-effect-free) ───────────────────────────────
+        // PlayerAttackState 진입 가능 여부 판정용. CurrentComboIndex / _attackState /
+        // _currentAttackData 등 어떠한 상태도 변경하지 않는다.
+
+        /// <summary> 다음 일반 공격이 사용할 AnimKey를 미리 조회 (side effect 없음). </summary>
+        public AnimKey PeekNormalAttackAnimKey(bool isCombo)
+        {
+            if (_attackData == null || _attackData.liteComboAttackList == null
+                || _attackData.liteComboAttackList.Count == 0)
+                return AnimKey.None;
+
+            int nextIndex = PeekNextComboIndex(AttackState.NormalAttack, isCombo);
+            return _attackData.liteComboAttackList[nextIndex]?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 다음 강 공격이 사용할 AnimKey를 미리 조회 (side effect 없음). </summary>
+        public AnimKey PeekHeavyAttackAnimKey(bool isCombo)
+        {
+            if (_attackData == null || _attackData.heavyComboAttackList == null
+                || _attackData.heavyComboAttackList.Count == 0)
+                return AnimKey.None;
+
+            int nextIndex = PeekNextComboIndex(AttackState.HeavyAttack, isCombo);
+            return _attackData.heavyComboAttackList[nextIndex]?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 카운터 공격 AnimKey 조회 (ExecuteCounterAttack과 동일한 폴백 체인). </summary>
+        public AnimKey PeekCounterAttackAnimKey()
+        {
+            var source = _attackData?.counterAttack?.baseInfo != null
+                ? _attackData.counterAttack
+                : (_attackData != null && _attackData.heavyComboAttackList.Count > 0
+                    ? _attackData.heavyComboAttackList[0]
+                    : null);
+            return source?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 등장 공격 AnimKey 조회 (ExecuteEntryAttack과 동일한 폴백 체인). </summary>
+        public AnimKey PeekEntryAttackAnimKey()
+        {
+            var source = _attackData?.entryAttack?.baseInfo != null
+                ? _attackData.entryAttack
+                : (_attackData != null && _attackData.liteComboAttackList.Count > 0
+                    ? _attackData.liteComboAttackList[0]
+                    : null);
+            return source?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 패리 반격 AnimKey 조회 (ExecuteParryCounterAttack과 동일한 폴백 체인). </summary>
+        public AnimKey PeekParryCounterAttackAnimKey()
+        {
+            var source = _attackData?.parryCounterAttack?.baseInfo != null
+                ? _attackData.parryCounterAttack
+                : (_attackData?.counterAttack?.baseInfo != null
+                    ? _attackData.counterAttack
+                    : (_attackData != null && _attackData.heavyComboAttackList.Count > 0
+                        ? _attackData.heavyComboAttackList[0]
+                        : null));
+            return source?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 스킬 공격 AnimKey 조회. 인덱스가 범위 밖이면 None. </summary>
+        public AnimKey PeekSkillAttackAnimKey(int skillIndex)
+        {
+            if (_attackData == null || _attackData.skillAttackList == null) return AnimKey.None;
+            if (skillIndex < 0 || skillIndex >= _attackData.skillAttackList.Count) return AnimKey.None;
+            return _attackData.skillAttackList[skillIndex]?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary>
+        /// 다음 콤보 인덱스를 미리 계산 (CurrentComboIndex를 변경하지 않음).
+        /// 동일 attackState 안에서 isCombo==true 이고 다음 인덱스가 존재할 때만 +1, 그 외에는 0.
+        /// 다른 attackState로 전환되는 경우 Execute 시점에서 ResetCombo가 일어나므로 0이 된다.
+        /// </summary>
+        private int PeekNextComboIndex(AttackState desiredState, bool isCombo)
+        {
+            if (desiredState != _attackState) return 0;
+
+            int length = desiredState switch
+            {
+                AttackState.NormalAttack => _attackData.liteComboAttackList.Count,
+                AttackState.HeavyAttack  => _attackData.heavyComboAttackList.Count,
+                _                        => 0,
+            };
+            if (length <= 0) return 0;
+
+            bool canContinue = CurrentComboIndex < length - 1;
+            int nextIndex = (isCombo && canContinue) ? CurrentComboIndex + 1 : 0;
+            return Mathf.Clamp(nextIndex, 0, length - 1);
+        }
+        // ──────────────────────────────────────────────────────────────
+
         /// <summary>
         /// 캐릭터 교체 시 공격 데이터 SO를 교체하고 콤보를 초기화한다.
         /// </summary>

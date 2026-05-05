@@ -106,10 +106,13 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (PlayerAttackState.TryEnter(playerController))
+                {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    return;
+                }
             }
 
             if (playerController.IsChargeAttackHeld())
@@ -118,10 +121,11 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                // TryEnter 가 OnEnter 안에서 HeavyAttack 입력을 소비한다.
+                if (PlayerAttackState.TryEnter(playerController))
+                    return;
             }
         }
 

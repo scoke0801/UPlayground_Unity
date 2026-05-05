@@ -92,14 +92,20 @@ namespace UPlayGround.State
             }
 
             // 퍼펙트 가드 반격 창이 열려 있을 때 Attack 입력 → 반격 전환
+            // 카운터 모션이 없으면 진입 자체를 막고 카운터 창/태그도 손대지 않는다.
             if (_combat.IsPerfectGuardCounterAvailable &&
-                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
             {
-                _combat.ClosePerfectGuardCounterWindow();
-                GameCombatManager.Instance.GameHitStop.Stop();
                 playerActor.Tags?.AddTag(GameplayTagId.State_Combat_Counter);
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (PlayerAttackState.TryEnter(playerController))
+                {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    _combat.ClosePerfectGuardCounterWindow();
+                    GameCombatManager.Instance.GameHitStop.Stop();
+                    return;
+                }
+                // 진입 실패: 추가했던 카운터 태그를 원복.
+                playerActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
             }
 
             // 지면에서 떨어지면 Airborne 상태로 전환

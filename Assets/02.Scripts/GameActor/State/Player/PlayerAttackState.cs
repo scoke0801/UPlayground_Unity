@@ -56,6 +56,87 @@ namespace UPlayGround.State
             return true;
         }
 
+        /// <summary>
+        /// 진입 후 재생할 공격 모션이 실제로 존재하는지 side effect 없이 미리 판정한다.
+        /// GetAnimKey()와 동일한 우선순위 체인을 따라 다음 AnimKey를 미리 조회 후
+        /// ActorAnimator.HasMotion으로 보유 여부만 확인한다.
+        ///
+        /// 호출자 측 입력 소비/콤보 인덱스/스킬 게이지 등은 변경하지 않으므로
+        /// false 반환 시 현재 상태를 그대로 유지해도 안전하다.
+        /// </summary>
+        public static bool CanEnter(PlayerMovementController controller)
+        {
+            if (controller == null) return false;
+
+            var playerActor = controller.GetComponent<PlayerActor>();
+            if (playerActor == null) return false;
+
+            var combat   = playerActor.GetCombat();
+            var animator = playerActor.Animator;
+            if (combat == null || animator == null) return false;
+
+            // 강 공격 입력이 들어와 있고 피니시 가능한 타겟이 있다면
+            // PlayerFinishAttackState로 라우팅된다 → AttackState 진입은 항상 허용.
+            bool isHeavyPending = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            if (isHeavyPending && combat.FindFinishableTarget() != null)
+                return true;
+
+            AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending);
+            if (peekedKey == AnimKey.None) return false;
+
+            return animator.HasMotion(peekedKey, true);
+        }
+
+        /// <summary>
+        /// CanEnter 판정 후 통과하면 PlayerAttackState로 전환한다.
+        /// 모션이 없으면 진입 자체를 막아 기존 애니메이션이 끊기는 스터터를 방지한다.
+        /// </summary>
+        public static bool TryEnter(PlayerMovementController controller)
+        {
+            if (!CanEnter(controller)) return false;
+            controller.TransitionToState(new PlayerAttackState(controller));
+            return true;
+        }
+
+        /// <summary>
+        /// GetAnimKey()의 우선순위 그대로 다음 AnimKey를 미리 산출 (side effect 없음).
+        /// 0순위: 패리 반격 → 카운터 → 등장 공격 → 스킬 → 강/약 콤보.
+        /// </summary>
+        private static AnimKey PeekNextAnimKey(
+            PlayerActor playerActor,
+            PlayerMovementController controller,
+            PlayerCombat combat,
+            bool isHeavyAttack)
+        {
+            // 0순위: 패리 반격
+            if (combat.IsParryCounterAvailable)
+                return combat.PeekParryCounterAttackAnimKey();
+
+            // 1순위: 퍼펙트 가드 반격
+            bool isCounter = playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+            if (isCounter)
+                return combat.PeekCounterAttackAnimKey();
+
+            // 1순위: 교체 등장 공격
+            if (playerActor.IsEntryAttackPending)
+                return combat.PeekEntryAttackAnimKey();
+
+            // 1순위: 숫자 키 스킬 (게이지 보유 여부만 확인하고 실제로 소비하지 않음)
+            var skillGauge = playerActor.SkillGauge;
+            for (int i = 0; i < 10; i++)
+            {
+                if (!controller.HasSkillInput(i)) continue;
+                if (skillGauge != null && !skillGauge.CanUseSkill(i)) continue;
+
+                return combat.PeekSkillAttackAnimKey(i);
+            }
+
+            // 2순위: 기본 약/강 콤보. 콤보 입력 없는 첫 진입이므로 isCombo=false.
+            return isHeavyAttack
+                ? combat.PeekHeavyAttackAnimKey(false)
+                : combat.PeekNormalAttackAnimKey(false);
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -198,8 +279,26 @@ namespace UPlayGround.State
 
             if (_comboInputted)
             {
-                _isCounter              = false;
-                _isParryCounter         = false;
+                _isCounter      = false;
+                _isParryCounter = false;
+                _isEntryAttack  = false;
+
+                // 다음 콤보 키를 미리 조회해 보유 여부를 확인.
+                // 모션이 없으면 콤보 인덱스를 진행시키지 않고 Idle/Move로 이탈.
+                AnimKey peekedKey = _isHeavyAttack
+                    ? _combat.PeekHeavyAttackAnimKey(true)
+                    : _combat.PeekNormalAttackAnimKey(true);
+
+                if (peekedKey == AnimKey.None || !gameActor.Animator.HasMotion(peekedKey, true))
+                {
+                    _comboInputted = false;
+                    _combat.ResetCombo();
+                    if (playerController.HasMoveInput())
+                        controller.TransitionToState(new PlayerGroundMoveState(controller));
+                    else
+                        controller.TransitionToState(new PlayerIdleState(controller));
+                    return;
+                }
 
                 gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
                 var animState =  gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);

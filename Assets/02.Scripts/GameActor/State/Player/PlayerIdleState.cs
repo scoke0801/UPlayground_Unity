@@ -93,8 +93,7 @@ namespace UPlayGround.State
             {
                 if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
                 {
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
-                    return;
+                    if (PlayerAttackState.TryEnter(playerController)) return;
                 }
 
                 // 차지 공격: 홀드 임계값 초과 시 우선 진입 (HeavyAttack 버퍼 체크보다 앞)
@@ -106,8 +105,7 @@ namespace UPlayGround.State
 
                 if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
                 {
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
-                    return;
+                    if (PlayerAttackState.TryEnter(playerController)) return;
                 }
 
                
@@ -116,10 +114,9 @@ namespace UPlayGround.State
                 {
                     if (skillGauge == null) break;
                     if (!playerController.HasSkillInput(i)) continue;
-                    if (skillGauge.CanUseSkill(i) == false) continue; 
+                    if (skillGauge.CanUseSkill(i) == false) continue;
 
-                    playerController.TransitionToState(new PlayerAttackState(playerController));
-                    return;
+                    if (PlayerAttackState.TryEnter(playerController)) return;
                 }
             }
 

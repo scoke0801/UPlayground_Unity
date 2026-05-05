@@ -143,11 +143,17 @@ namespace UPlayGround.State
             if (_heavyHit) return;  // Heavy 이상은 공격 캔슬 불가
 
             // 공격 캔슬 (일반 Hit 이하만)
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null ||
-                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            // 입력 소비는 TryEnter 성공 시에만 일어나도록 HasInput으로 사전 확인.
+            bool hasAttack      = InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack);
+            bool hasHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            if (hasAttack || hasHeavyAttack)
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (PlayerAttackState.TryEnter(playerController))
+                {
+                    if (hasAttack)      InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    if (hasHeavyAttack) InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    return;
+                }
             }
 
             var skillGauge = playerActor.SkillGauge;
@@ -155,10 +161,9 @@ namespace UPlayGround.State
             {
                 if (skillGauge == null) break;
                 if (!playerController.HasSkillInput(i)) continue;
-                if (skillGauge.CanUseSkill(i) == false) continue; 
+                if (skillGauge.CanUseSkill(i) == false) continue;
 
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (PlayerAttackState.TryEnter(playerController)) return;
             }
         }
 

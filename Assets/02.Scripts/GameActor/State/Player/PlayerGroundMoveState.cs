@@ -111,9 +111,8 @@ namespace UPlayGround.State
 
             if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                
-                return;
+                if (PlayerAttackState.TryEnter(playerController))
+                    return;
             }
 
             // 차지 공격: 홀드 임계값 초과 시 우선 진입 (HeavyAttack 버퍼 체크보다 앞)
@@ -123,28 +122,29 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
             {
                 if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint
                     && playerController.TryTransitionToState(new PlayerDashAttackState(playerController)))
                 {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     return;
                 }
 
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                // TryEnter 가 OnEnter 안에서 HeavyAttack 입력을 소비한다.
+                if (PlayerAttackState.TryEnter(playerController))
+                    return;
             }
 
-           
+
             var skillGauge = playerActor.SkillGauge;
             for (int i = 0; i < 10; i++)
             {
                 if (skillGauge == null) break;
                 if (!playerController.HasSkillInput(i)) continue;
-                if (skillGauge.CanUseSkill(i) == false) continue; 
+                if (skillGauge.CanUseSkill(i) == false) continue;
 
-                playerController.TransitionToState(new PlayerAttackState(playerController));
-                return;
+                if (PlayerAttackState.TryEnter(playerController)) return;
             }
             
             if (_cachedAnimType != gameActor.MoveAnimType)

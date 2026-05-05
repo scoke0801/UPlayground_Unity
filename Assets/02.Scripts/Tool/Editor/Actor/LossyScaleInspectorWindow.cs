@@ -39,7 +39,7 @@ namespace UPlayGround.Actor.Editor
         private const float Eps = 0.0001f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Actor/Lossy Scale Inspector")]
+        [MenuItem("UPlayGround/Character/Actor/Lossy Scale Inspector")]
         public static void Open()
         {
             var window = GetWindow<LossyScaleInspectorWindow>();

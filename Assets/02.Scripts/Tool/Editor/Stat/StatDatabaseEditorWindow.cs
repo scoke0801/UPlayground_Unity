@@ -53,7 +53,7 @@ namespace UPlayGround.Tool.Editor.Stat
         };
 
         // ── 메뉴 ─────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Stat/Stat Database Editor")]
+        [MenuItem("UPlayGround/Gameplay/Stat/Stat Database Editor")]
         public static void Open()
         {
             var window = GetWindow<StatDatabaseEditorWindow>();

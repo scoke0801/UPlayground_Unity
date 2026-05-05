@@ -69,7 +69,7 @@ public class MinimapCaptureEditorWindow : EditorWindow
 
     // ─────────────────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Minimap/Minimap Capture Editor")]
+    [MenuItem("UPlayGround/World/Minimap/Minimap Capture Editor")]
     public static void ShowWindow()
     {
         var window = GetWindow<MinimapCaptureEditorWindow>("Minimap Capture");

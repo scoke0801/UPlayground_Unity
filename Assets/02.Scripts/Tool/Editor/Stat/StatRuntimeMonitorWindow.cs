@@ -49,7 +49,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private const float RowH      = 22f;
 
         // ── 메뉴 ─────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Stat/Stat Runtime Monitor")]
+        [MenuItem("UPlayGround/Gameplay/Stat/Stat Runtime Monitor")]
         public static void Open()
         {
             var window = GetWindow<StatRuntimeMonitorWindow>();

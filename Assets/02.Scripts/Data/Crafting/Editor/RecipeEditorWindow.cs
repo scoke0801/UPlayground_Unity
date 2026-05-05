@@ -66,7 +66,7 @@ public class RecipeEditorWindow : EditorWindow
 
     // ──────────────────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Crafting/Recipe Editor")]
+    [MenuItem("UPlayGround/Gameplay/Crafting/Recipe Editor")]
     public static void ShowWindow()
     {
         var win = GetWindow<RecipeEditorWindow>("Recipe Editor");

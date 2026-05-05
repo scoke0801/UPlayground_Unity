@@ -67,7 +67,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             typeof(EnemyTransitionStateType)
         };
 
-        [MenuItem("UPlayGround/AI/Behavior Tree Json/Export Selected")]
+        [MenuItem("UPlayGround/Character/AI/Behavior Tree Json/Export Selected")]
         public static void ExportSelected()
         {
             if (Selection.activeObject is not BehaviorTreeAsset tree)
@@ -88,7 +88,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             ExportToJsonFile(tree, path);
         }
 
-        [MenuItem("UPlayGround/AI/Behavior Tree Json/Import Json")]
+        [MenuItem("UPlayGround/Character/AI/Behavior Tree Json/Import Json")]
         public static void ImportJson()
         {
             var jsonPath = EditorUtility.OpenFilePanel("Behavior Tree Json Import", Application.dataPath, "json");

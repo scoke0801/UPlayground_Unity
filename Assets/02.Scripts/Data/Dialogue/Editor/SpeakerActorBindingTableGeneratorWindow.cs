@@ -28,7 +28,7 @@ namespace UPlayGround.Dialogue.Editor
         private Vector2 _scroll;
         private List<BindingPreview> _previews = new();
 
-        [MenuItem("UPlayGround/Dialogue/Speaker Actor Binding Generator")]
+        [MenuItem("UPlayGround/Narrative/Dialogue/Speaker Actor Binding Generator")]
         public static void Open()
         {
             GetWindow<SpeakerActorBindingTableGeneratorWindow>("Speaker Actor Binding");

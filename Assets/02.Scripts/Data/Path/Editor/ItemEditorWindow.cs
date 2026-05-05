@@ -57,7 +57,7 @@ public class ItemEditorWindow : EditorWindow
 
     // ──────────────────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Item/Item Editor")]
+    [MenuItem("UPlayGround/Gameplay/Item/Item Editor")]
     public static void ShowWindow()
     {
         var win = GetWindow<ItemEditorWindow>("Item Editor");

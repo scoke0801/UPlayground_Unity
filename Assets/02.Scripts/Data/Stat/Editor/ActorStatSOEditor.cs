@@ -192,7 +192,7 @@ namespace UPlayGround.Editor.Stat
 
             if (GUILayout.Button("Stat Database Editor 열기", GUILayout.Height(22)))
             {
-                EditorApplication.ExecuteMenuItem("UPlayGround/Stat/Stat Database Editor");
+                EditorApplication.ExecuteMenuItem("UPlayGround/Gameplay/Stat/Stat Database Editor");
             }
         }
     }

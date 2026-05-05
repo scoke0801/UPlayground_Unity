@@ -68,7 +68,7 @@ namespace UPlayGround.Animation.Editor
         bool            _useTemporarySet;
         MotionSet       _temporarySet;
 
-        [MenuItem("UPlayGround/Actor/애니메이션 에디터")]
+        [MenuItem("UPlayGround/Character/Actor/애니메이션 에디터")]
         static void OpenWindow()
         {
             var window = GetWindow<MotionSetEditorWindow>();

@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Editor
     {
         private const string DefaultAssetPath = "Assets/10.Datas/Camera/DialogueCameraSettings.asset";
 
-        [MenuItem("UPlayGround/Camera/Create Dialogue Camera Settings")]
+        [MenuItem("UPlayGround/World/Camera/Create Dialogue Camera Settings")]
         public static void CreateOrSelectSettings()
         {
             var settings = AssetDatabase.LoadAssetAtPath<DialogueCameraSettingsSO>(DefaultAssetPath);

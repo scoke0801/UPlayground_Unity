@@ -10,13 +10,13 @@ namespace UPlayGround.Data.Item.Editor
     {
         private const string DefaultSaveFolder = "Assets/10.Datas/Item/WeaponDefinition";
 
-        [MenuItem("UPlayGround/Item/WeaponDefinition/Create Missing Definitions")]
+        [MenuItem("UPlayGround/Gameplay/Item/WeaponDefinition/Create Missing Definitions")]
         public static void CreateMissingWeaponDefinitions()
         {
             GenerateWeaponDefinitions(false);
         }
 
-        [MenuItem("UPlayGround/Item/WeaponDefinition/Regenerate All Definitions")]
+        [MenuItem("UPlayGround/Gameplay/Item/WeaponDefinition/Regenerate All Definitions")]
         public static void RegenerateAllWeaponDefinitions()
         {
             bool confirmed = EditorUtility.DisplayDialog(

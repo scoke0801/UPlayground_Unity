@@ -51,7 +51,7 @@ namespace UPlayGround.Actor.Editor
         private const float RowH         = 22f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Actor/Actor Runtime Monitor")]
+        [MenuItem("UPlayGround/Character/Actor/Actor Runtime Monitor")]
         public static void Open()
         {
             var window = GetWindow<ActorRuntimeMonitorWindow>();

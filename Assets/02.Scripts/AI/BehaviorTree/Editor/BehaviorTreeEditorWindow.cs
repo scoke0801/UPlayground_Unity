@@ -43,7 +43,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Trace
         }
 
-        [MenuItem("UPlayGround/AI/Behavior Tree Editor")]
+        [MenuItem("UPlayGround/Character/AI/Behavior Tree Editor")]
         public static void Open()
         {
             var window = GetWindow<BehaviorTreeEditorWindow>();

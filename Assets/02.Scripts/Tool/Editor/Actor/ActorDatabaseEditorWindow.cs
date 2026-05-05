@@ -56,7 +56,7 @@ namespace UPlayGround.Actor.Editor
         private const string EnumOutputPath    = "Assets/02.Scripts/Data/Actor/ActorIdType.cs";
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Actor/Actor Database Editor")]
+        [MenuItem("UPlayGround/Character/Actor/Actor Database Editor")]
         public static void Open()
         {
             var window = GetWindow<ActorDatabaseEditorWindow>();

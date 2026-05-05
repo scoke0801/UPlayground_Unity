@@ -54,7 +54,7 @@ namespace UPlayGround.Gameplay.Tag.Editor
         private const float SwatchW     = 14f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/GameplayTag/Tag Registry Editor")]
+        [MenuItem("UPlayGround/Gameplay/GameplayTag/Tag Registry Editor")]
         public static void Open()
         {
             var w = GetWindow<GameplayTagRegistryEditorWindow>();

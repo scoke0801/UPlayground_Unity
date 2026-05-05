@@ -56,7 +56,7 @@ namespace UPlayGround.Tool.Editor.Map
         private GUIStyle _normalItemStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("UPlayGround/Map/Map Placement Tool")]
+        [MenuItem("UPlayGround/World/Map/Map Placement Tool")]
         public static void Open()
         {
             var window = GetWindow<MapPlacementEditorWindow>();

@@ -24,7 +24,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const string EnemyGroundBasicPath = "Assets/10.Datas/AI/BehaviorTree/BT_EnemyGroundBasic_Test.asset";
         private const string TestPrefabPath = "Assets/03.Prefabs/AI/BehaviorTree/PF_BT_EnemyGroundBasic_TestRunner.prefab";
 
-        [MenuItem("UPlayGround/AI/Behavior Tree/Generate Enemy Ground Basic Test")]
+        [MenuItem("UPlayGround/Character/AI/Behavior Tree/Generate Enemy Ground Basic Test")]
         public static void GenerateEnemyGroundBasic()
         {
             var tree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(EnemyGroundBasicPath);

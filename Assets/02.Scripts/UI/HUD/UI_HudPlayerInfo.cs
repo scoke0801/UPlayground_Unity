@@ -86,9 +86,9 @@ public class UI_HudPlayerInfo : UI_Base
     public void SetIsInCombat(bool isInCombat)
     {
         _isInCombat = isInCombat;
-        if (_isInCombat == false)
+        if (_isInCombat == false && _fxObject != null)
         {
-            _fxObject?.SetActive(false);
+            _fxObject.SetActive(false);
         }
     }
 

@@ -52,7 +52,6 @@ namespace UPlayGround.Tool.Editor.Party
             ("전체",  (StatType[])Enum.GetValues(typeof(StatType))),
         };
 
-        [MenuItem("UPlayGround/Party/Party Growth Editor")]
         public static void Open()
         {
             var window = GetWindow<PartyGrowthEditorWindow>();

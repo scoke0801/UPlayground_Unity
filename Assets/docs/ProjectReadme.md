@@ -327,6 +327,7 @@ Assets/
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
+| [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [PARTY_LEVEL_POWER_DESIGN.md](PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |

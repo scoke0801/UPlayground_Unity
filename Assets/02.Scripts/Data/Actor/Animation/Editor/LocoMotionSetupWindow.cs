@@ -120,7 +120,6 @@ namespace UPlayGround.Animation.Editor
 
         // ────────────────────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Util/Locomotion Motion Setup")]
         public static void Open()
         {
             var w = GetWindow<LocoMotionSetupWindow>("Locomotion Setup");

@@ -123,7 +123,8 @@ public class UI_ItemPopup : UI_Base
         {
             itemKey = equipData.itemId,
             weaponType = equipData.weaponType,
-            equipPosition = equipData.equipSlot
+            equipPosition = equipData.equipSlot,
+            isEquip = true
         };
         
         EventManager.Instance.Send(PlayerEvent.EquipItem, eventData);  

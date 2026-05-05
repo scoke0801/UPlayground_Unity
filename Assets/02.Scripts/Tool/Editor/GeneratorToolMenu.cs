@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UPlayGround.Animation.Editor;
+using UPlayGround.Tool.Editor.Actor;
 using UPlayGround.Tool.Editor.Party;
 using UPlayGround.Tool.Editor.Stat;
 
@@ -18,7 +19,7 @@ namespace UPlayGround.Editor
 
         [MenuItem("UPlayGround/Generator Tool/Item Data Generator", false, 15)]
         private static void OpenItemDataGenerator()
-            => EditorApplication.ExecuteMenuItem("UPlayGround/Item/Item Data Generator");
+            => ItemDataGeneratorWindow.Open();
 
         [MenuItem("UPlayGround/Generator Tool/Recipe Data Generator", false, 20)]
         private static void OpenRecipeDataGenerator()
@@ -38,7 +39,7 @@ namespace UPlayGround.Editor
 
         [MenuItem("UPlayGround/Generator Tool/NPC Data Generator", false, 35)]
         private static void OpenNpcDataGenerator()
-            => EditorApplication.ExecuteMenuItem("UPlayGround/NPC/NPC Data Generator");
+            => NpcDataGeneratorWindow.Open();
 
         [MenuItem("UPlayGround/Generator Tool/Main Story Generator", false, 40)]
         private static void OpenMainStoryGenerator()

@@ -148,7 +148,6 @@ namespace UPlayGround.Editor
             }
         };
 
-        [MenuItem("UPlayGround/Story/Main Story Generator")]
         public static void ShowWindow()
         {
             var win = GetWindow<MainStoryGeneratorWindow>("Main Story Generator");

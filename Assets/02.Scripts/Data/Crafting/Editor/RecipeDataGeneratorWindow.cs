@@ -57,7 +57,6 @@ public class RecipeDataGeneratorWindow : EditorWindow
     private const float LIST_WIDTH = 310f;
     private const string RECIPE_ENUM_OUTPUT_PATH = "Assets/02.Scripts/Data/Crafting/RecipeIdType.cs";
 
-    [MenuItem("UPlayGround/Crafting/Recipe Data Generator")]
     public static void Open()
     {
         var win = GetWindow<RecipeDataGeneratorWindow>("Recipe Data Generator");

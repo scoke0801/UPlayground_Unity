@@ -31,7 +31,6 @@ namespace UPlayGround.Editor
             new() { key = "Explosion",       ampX = 0.35f, ampY = 0.20f, freqHz = 12f, duration = 0.40f, dampening = CameraShakeData.DampeningType.EaseOut   },
         };
 
-        [MenuItem("UPlayGround/Camera/Generate Shake Presets")]
         public static void Generate()
         {
             string savePath = EditorUtility.OpenFolderPanel("프리셋 저장 폴더 선택", "Assets", "");

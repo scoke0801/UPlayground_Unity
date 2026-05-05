@@ -29,7 +29,7 @@ namespace UPlayGround.Cheat.Editor
         private static readonly Color ColorSection = new Color(0.20f, 0.20f, 0.27f);
         private static readonly Color ColorWarning = new Color(0.80f, 0.40f, 0.10f);
 
-        [MenuItem("UPlayGround/치트 콘솔 %&c")]
+        [MenuItem("UPlayGround/Util/치트 콘솔 %&c")]
         public static void Open()
         {
             var window = GetWindow<CheatConsoleWindow>();

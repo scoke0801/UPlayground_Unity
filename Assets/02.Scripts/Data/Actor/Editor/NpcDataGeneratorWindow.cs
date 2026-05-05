@@ -40,7 +40,6 @@ namespace UPlayGround.Tool.Editor.Actor
 
         private Vector2 _scroll;
 
-        [MenuItem("UPlayGround/NPC/NPC Data Generator")]
         public static void Open()
         {
             var window = GetWindow<NpcDataGeneratorWindow>();

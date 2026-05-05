@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Animations;
 using UPlayGround.Animation;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Item;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Component
@@ -20,11 +20,11 @@ namespace UPlayGround.Component
     /// </summary>
     public class PlayerEquipment : PlayerActorComponent
     {
-        [Header("underwear")]
-        [SerializeField] private GameObject _underwear_chest;
-
         [Header("StartItem")]
         [SerializeField] private List<EquipmentSO> _startEquipItemList;
+
+        [Header("Weapon Definition")]
+        [SerializeField] private List<WeaponDefinitionSO> _weaponDefinitions = new List<WeaponDefinitionSO>();
         
         private WeaponType _subWeaponType = WeaponType.NoWeapon;
         private WeaponType _mainWeaponType = WeaponType.NoWeapon;
@@ -34,7 +34,9 @@ namespace UPlayGround.Component
         private bool? _requestedMainWeaponDrawn = null;
         private bool? _requestedSubWeaponDrawn = null;
         private int _mainWeaponDrawRequestVersion = 0;
+        private readonly Dictionary<EquipArmorType, int> _equippedArmorItemKeys = new Dictionary<EquipArmorType, int>();
         private readonly List<ParentConstraint> _weaponConstraints = new List<ParentConstraint>();
+        private readonly List<WeaponSocketBinding> _weaponSocketBindings = new List<WeaponSocketBinding>();
         private Transform _weaponRoot;
 
         // 가지고 있는 무기
@@ -52,12 +54,6 @@ namespace UPlayGround.Component
         // [TODO] 실제 Data로 가져올 수 있어야 하겠지만 우선은 단독 데이터로 관리하는 상태
         public WeaponData CurrentWeapon { get; private set; }
 
-        // [부위, [아머인덱스, 게임오브젝트]]
-        private Dictionary<EquipArmorType, Dictionary<int, GameObject>> partLibrary = 
-            new Dictionary<EquipArmorType, Dictionary<int, GameObject>>();
-
-        private Dictionary<EquipArmorType, int> _equipedItemKeyDict = new Dictionary<EquipArmorType, int>();
-        
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
         
@@ -65,7 +61,7 @@ namespace UPlayGround.Component
         public void SetWeaponType(WeaponType type)
         {
             SetRightWeaponType(type);
-            if (IsPairedWeaponType(type))
+            if (WeaponAttachmentResolver.IsPairedWeaponType(type, _weaponDefinitions))
                 SetLeftWeaponType(type);
             else
                 SetLeftWeaponType(WeaponType.NoWeapon);
@@ -88,7 +84,6 @@ namespace UPlayGround.Component
         private void Start()
         {
             RefreshWeaponConstraintsFromModel();
-            InitPartLibrary();
             StartCoroutine(CoEquipStartItem());
         }
 
@@ -97,28 +92,9 @@ namespace UPlayGround.Component
             // OnDisable에서 이미 해제되므로 추가 처리 불필요
         }
 
-        public int GetActiveEquipment(EquipArmorType type)
-        {
-            if (partLibrary.ContainsKey(type) == false)
-                return -1;
-            
-            // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
-            foreach (var pair in partLibrary[type])
-            {
-                if (pair.Value.activeSelf)
-                    return pair.Key;
-            }
-            return -1;
-        }
-
         public int GetActiveEquipmentKey(EquipArmorType type)
         {
-            if (_equipedItemKeyDict.TryGetValue(type, out var key))
-            {
-                return key;
-            }
-            
-            return -1;
+            return _equippedArmorItemKeys.TryGetValue(type, out int itemKey) ? itemKey : -1;
         }
         
         private void OnWeaponChanged(PlayerEquipChangeEvent data)
@@ -131,28 +107,6 @@ namespace UPlayGround.Component
             EquipWeapon(data.itemKey, data.equipPosition,data.weaponType);
         }
 
-        // 특정 부위의 특정 번호를 활성화 (예: Chest 부위의 3번 장비)
-        public void EquipPart(EquipArmorType part, int armorIndex)
-        {
-            if (!partLibrary.ContainsKey(part)) return;
-
-            bool isAnyChestActive = false;
-
-            // 해당 부위의 모든 아머를 순회하며 인덱스가 일치하는 것만 활성화
-            foreach (var pair in partLibrary[part])
-            {
-                bool isActive = pair.Key == armorIndex;
-
-                if (part == EquipArmorType.Chest && isActive)
-                    isAnyChestActive = true;
-                pair.Value.SetActive(isActive);
-            }
-
-            if (part == EquipArmorType.Chest)
-            {
-                _underwear_chest.SetActive(!isAnyChestActive);
-            }
-        }
         private IEnumerator CoEquipStartItem()
         {
             yield return new WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded);
@@ -196,20 +150,14 @@ namespace UPlayGround.Component
                 return;
             }
             
-            EquipArmorType armorType = EquipArmorType.None;
-            switch (itemData.equipSlot)
-            {
-                case EquipPosition.Chest: armorType = EquipArmorType.Chest; break;
-                case EquipPosition.Head: armorType = EquipArmorType.Head; break;
-                case EquipPosition.Gloves: armorType = EquipArmorType.Arm; break;
-                case EquipPosition.Pants: armorType = EquipArmorType.Waist; break;
-                case EquipPosition.Shoes: armorType = EquipArmorType.Leg; break;
-                default: return;
-            }
+            EquipArmorType armorType = ToArmorType(itemData.equipSlot);
+            if (armorType == EquipArmorType.None)
+                return;
 
-            int armorIndex = itemData.itemId % 100;
-            EquipPart(armorType, armorIndex);
-            _equipedItemKeyDict[armorType] = itemData.itemId;
+            if (eventData.isEquip)
+                _equippedArmorItemKeys[armorType] = itemData.itemId;
+            else
+                _equippedArmorItemKeys.Remove(armorType);
         }
 
         /// <summary>
@@ -277,7 +225,15 @@ namespace UPlayGround.Component
                 RefreshWeaponConstraintsFromModel();
 
             _mainWeaponType = type;
-            _mainWeaponConstraint = GetWeaponConstraint(EquipPosition.RightHand, type);
+            _mainWeaponConstraint = WeaponAttachmentResolver.Resolve(
+                EquipPosition.RightHand,
+                type,
+                transform,
+                _weaponRoot,
+                _weaponConstraints,
+                _weaponSocketBindings,
+                _weaponDefinitions,
+                this);
         }
 
         public void SetLeftWeaponType(WeaponType type)
@@ -286,164 +242,36 @@ namespace UPlayGround.Component
                 RefreshWeaponConstraintsFromModel();
 
             _subWeaponType = type;
-            _subWeaponConstraint = GetWeaponConstraint(EquipPosition.LeftHand, type);
+            _subWeaponConstraint = WeaponAttachmentResolver.Resolve(
+                EquipPosition.LeftHand,
+                type,
+                transform,
+                _weaponRoot,
+                _weaponConstraints,
+                _weaponSocketBindings,
+                _weaponDefinitions,
+                this);
         }
 
         public void RefreshWeaponConstraintsFromModel()
         {
-            _weaponConstraints.Clear();
             _mainWeaponConstraint = null;
             _subWeaponConstraint = null;
-
-            _weaponRoot = FindChildRecursive(transform, "Weapon");
-            if (_weaponRoot == null)
-                return;
-
-            _weaponRoot.GetComponentsInChildren(true, _weaponConstraints);
+            _weaponRoot = WeaponAttachmentResolver.FindWeaponRoot(transform);
+            WeaponAttachmentResolver.CollectBindings(transform, _weaponRoot, _weaponConstraints, _weaponSocketBindings);
         }
 
-        private ParentConstraint GetWeaponConstraint(EquipPosition equipPosition, WeaponType weaponType)
+        private static EquipArmorType ToArmorType(EquipPosition equipPosition)
         {
-            if (weaponType == WeaponType.NoWeapon)
-                return null;
-
-            ParentConstraint alias = null;
-            ParentConstraint fallback = null;
-
-            for (int i = 0; i < _weaponConstraints.Count; i++)
+            switch (equipPosition)
             {
-                var constraint = _weaponConstraints[i];
-                if (constraint == null) continue;
-                if (GuessEquipPosition(constraint, weaponType) != equipPosition) continue;
-
-                if (MatchesExactWeaponType(constraint, weaponType))
-                    return constraint;
-
-                if (alias == null && MatchesWeaponAlias(constraint, weaponType))
-                    alias = constraint;
-
-                if (fallback == null && IsGenericWeaponConstraint(constraint))
-                    fallback = constraint;
+                case EquipPosition.Chest: return EquipArmorType.Chest;
+                case EquipPosition.Head: return EquipArmorType.Head;
+                case EquipPosition.Gloves: return EquipArmorType.Arm;
+                case EquipPosition.Pants: return EquipArmorType.Waist;
+                case EquipPosition.Shoes: return EquipArmorType.Leg;
+                default: return EquipArmorType.None;
             }
-
-            return alias ?? fallback ?? GetSingleConstraintForPosition(equipPosition, weaponType);
-        }
-
-        private static Transform FindChildRecursive(Transform root, string childName)
-        {
-            if (root == null)
-                return null;
-
-            if (root.name == childName)
-                return root;
-
-            foreach (Transform child in root)
-            {
-                Transform found = FindChildRecursive(child, childName);
-                if (found != null)
-                    return found;
-            }
-
-            return null;
-        }
-
-        private EquipPosition GuessEquipPosition(ParentConstraint constraint, WeaponType weaponType)
-        {
-            if (weaponType == WeaponType.Arrow)
-                return EquipPosition.LeftHand;
-
-            string normalizedName = NormalizeName(GetConstraintSearchName(constraint));
-            if (normalizedName.Contains("left") || normalizedName.Contains("handl") || normalizedName.EndsWith("l"))
-                return EquipPosition.LeftHand;
-
-            return EquipPosition.RightHand;
-        }
-
-        private static string GetConstraintSearchName(ParentConstraint constraint)
-        {
-            string searchName = constraint.name;
-            for (int i = 0; i < constraint.sourceCount; i++)
-            {
-                Transform sourceTransform = constraint.GetSource(i).sourceTransform;
-                if (sourceTransform != null)
-                    searchName += sourceTransform.name;
-            }
-
-            return searchName;
-        }
-
-        private static bool MatchesExactWeaponType(ParentConstraint constraint, WeaponType weaponType)
-        {
-            string constraintName = NormalizeName(constraint.name);
-            string typeName = NormalizeName(weaponType.ToString());
-
-            return constraintName.Contains(typeName);
-        }
-
-        private static bool MatchesWeaponAlias(ParentConstraint constraint, WeaponType weaponType)
-        {
-            string constraintName = NormalizeName(constraint.name);
-            return weaponType switch
-            {
-                WeaponType.Sword => constraintName.Contains("sword"),
-                WeaponType.SwordShield => constraintName.Contains("sword") || constraintName.Contains("shield"),
-                WeaponType.GreatSword => constraintName.Contains("greatsword") || constraintName.Contains("claymore"),
-                WeaponType.Staff => constraintName.Contains("staff"),
-                WeaponType.Bow => constraintName.Contains("bow"),
-                WeaponType.Arrow => constraintName.Contains("arrow"),
-                WeaponType.Katana => constraintName.Contains("sword"),
-                WeaponType.DoubleAxe => constraintName.Contains("axe"),
-                WeaponType.Whip => constraintName.Contains("whip"),
-                WeaponType.Spear => constraintName.Contains("spear") || constraintName.Contains("lance"),
-                WeaponType.DualBlade => constraintName.Contains("dualblade") ||
-                                        constraintName.Contains("doubleblade") ||
-                                        constraintName.Contains("blade") ||
-                                        constraintName.Contains("sword"),
-                _ => false,
-            };
-        }
-
-        private static bool IsPairedWeaponType(WeaponType weaponType)
-        {
-            return weaponType == WeaponType.DualBlade;
-        }
-
-        private bool IsGenericWeaponConstraint(ParentConstraint constraint)
-        {
-            return constraint.transform == _weaponRoot ||
-                   NormalizeName(constraint.name) == "weapon";
-        }
-
-        private ParentConstraint GetSingleConstraintForPosition(EquipPosition equipPosition, WeaponType weaponType)
-        {
-            ParentConstraint result = null;
-            for (int i = 0; i < _weaponConstraints.Count; i++)
-            {
-                var constraint = _weaponConstraints[i];
-                if (constraint == null) continue;
-                if (GuessEquipPosition(constraint, weaponType) != equipPosition) continue;
-
-                if (result != null)
-                    return null;
-
-                result = constraint;
-            }
-
-            return result;
-        }
-
-        private static string NormalizeName(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-
-            return value
-                .Replace(" ", string.Empty)
-                .Replace("_", string.Empty)
-                .Replace("-", string.Empty)
-                .Replace("(", string.Empty)
-                .Replace(")", string.Empty)
-                .ToLowerInvariant();
         }
 
         public bool CanToggleMainWeapon()
@@ -463,7 +291,7 @@ namespace UPlayGround.Component
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
 
-            if (IsPairedWeaponType(_mainWeaponType))
+            if (WeaponAttachmentResolver.IsPairedWeaponType(_mainWeaponType, _weaponDefinitions))
                 SetSubWeaponDrawn(drawn);
         }
 
@@ -546,7 +374,7 @@ namespace UPlayGround.Component
         public void ForceSyncMainWeaponState(bool drawn)
         {
             ForceSyncWeaponState(EquipPosition.RightHand, drawn);
-            if (IsPairedWeaponType(_mainWeaponType))
+            if (WeaponAttachmentResolver.IsPairedWeaponType(_mainWeaponType, _weaponDefinitions))
                 ForceSyncWeaponState(EquipPosition.LeftHand, drawn);
         }
 
@@ -608,60 +436,6 @@ namespace UPlayGround.Component
                     MainWeaponKey = -1;
                     IsMainWeaponEquipped = false;
                 }
-            }
-        }
-        
-        private void InitPartLibrary()
-        {
-            // "Female" 하위의 모든 Armor_XXX를 탐색하며 부위별로 분류
-            Transform meshRoot = transform.Find("Mesh/Female");
-            if (meshRoot == null)
-            {
-                return;
-            }
-            // Enum 순회하며 딕셔너리 초기화
-            foreach (EquipArmorType type in System.Enum.GetValues(typeof(EquipArmorType)))
-            {
-                if (type == EquipArmorType.None) continue;
-                partLibrary[type] = new Dictionary<int, GameObject>();
-            }
-            
-            // 모든 Armor_XXX 자식 순회
-            foreach (Transform armorSet in meshRoot)
-            {
-                if (!armorSet.name.StartsWith("Armor_")) continue;
-
-                // 이름에서 숫자만 추출 (예: "Armor_001" -> 1)
-                int armorIndex = ExtractIndexFromName(armorSet.name);
-
-                foreach (Transform piece in armorSet)
-                {
-                    EquipArmorType pieceType = DeterminePartType(piece.name);
-
-                    if (pieceType != EquipArmorType.None)
-                    {
-                        // 부위별 딕셔너리에 인덱스를 키값으로 등록
-                        partLibrary[pieceType][armorIndex] = piece.gameObject;
-                        piece.gameObject.SetActive(false); // 초기 비활성화
-                    }
-                }
-            }
-            //"Armor_001" 등의 문자열에서 숫자 '1'을 추출하는 헬퍼 함수
-            int ExtractIndexFromName(string name)
-            {
-                string resultString = Regex.Match(name, @"\d+").Value;
-                return int.TryParse(resultString, out int result) ? result : -1;
-            }
-
-            // 이름의 끝부분을 확인하여 부위(Type) 결정 (중복 매칭 방지)
-            EquipArmorType DeterminePartType(string name)
-            {
-                if (name.EndsWith("_Head")) return EquipArmorType.Head;
-                if (name.EndsWith("_Chest")) return EquipArmorType.Chest;
-                if (name.EndsWith("_Arm")) return EquipArmorType.Arm;
-                if (name.EndsWith("_Waist")) return EquipArmorType.Waist;
-                if (name.EndsWith("_Leg")) return EquipArmorType.Leg;
-                return EquipArmorType.None;
             }
         }
     }

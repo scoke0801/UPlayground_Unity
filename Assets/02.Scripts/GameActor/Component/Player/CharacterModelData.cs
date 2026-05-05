@@ -1,4 +1,5 @@
 using Animancer;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -34,20 +35,20 @@ namespace UPlayGround.Component
         public float maxHealth = 100f;
 
         [Header("Sockets — Model 내부 본")]
-        public Transform RightHandSocket;
-        public Transform LeftHandSocket;
-        public Transform CenterSocket;
-        public Transform HeadSocket;
+        [SerializeField] private SerializedDictionary<ActorSocketType, Transform> _socketDict = new();
 
         [Header("Foot IK Bones")]
         public Transform HipBone;
         public Transform LeftFootBone;
         public Transform RightFootBone;
 
+        public SerializedDictionary<ActorSocketType, Transform> SocketDict => _socketDict;
+
         public AnimancerComponent AnimancerComponent { get; private set; }
 
         private void Awake()
         {
+            _socketDict ??= new SerializedDictionary<ActorSocketType, Transform>();
             AnimancerComponent = GetComponent<AnimancerComponent>();
         }
     }

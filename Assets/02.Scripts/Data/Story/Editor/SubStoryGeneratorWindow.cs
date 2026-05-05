@@ -169,7 +169,6 @@ namespace UPlayGround.Editor
             }
         };
 
-        [MenuItem("UPlayGround/Story/Sub Story Generator")]
         public static void ShowWindow()
         {
             var win = GetWindow<SubStoryGeneratorWindow>("Sub Story Generator");

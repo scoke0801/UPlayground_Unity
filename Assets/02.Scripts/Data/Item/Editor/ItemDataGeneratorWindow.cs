@@ -98,7 +98,6 @@ public class ItemDataGeneratorWindow : EditorWindow
     private static readonly ItemIdRange MaterialRange = new(100000, 199999, "재료/기타", "Assets/10.Datas/Item", "Material");
     private static readonly ItemIdRange SpecialRange = new(200000, 299999, "특수 아이템", "Assets/10.Datas/Item", "Special");
 
-    [MenuItem("UPlayGround/Item/Item Data Generator")]
     public static void Open()
     {
         var win = GetWindow<ItemDataGeneratorWindow>("Item Data Generator");

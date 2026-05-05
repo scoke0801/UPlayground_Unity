@@ -11,7 +11,7 @@ namespace UPlayGround.Editor
     public class PlayerAttackDataSOWindow : EditorWindow
     {
         // ─── 메뉴 진입점 ─────────────────────────────────────────────
-        [MenuItem("UPlayGround/공격 데이터 에디터")]
+        [MenuItem("UPlayGround/Combat/공격 데이터 에디터")]
         public static void OpenFromMenu()
         {
             var w = GetWindow<PlayerAttackDataSOWindow>("공격 데이터 에디터");

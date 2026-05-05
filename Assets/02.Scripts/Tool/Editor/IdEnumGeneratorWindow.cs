@@ -41,7 +41,6 @@ namespace UPlayGround.Editor
         private bool     _stylesReady;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Util/ID Enum Generator")]
         public static void Open()
         {
             var win = GetWindow<IdEnumGeneratorWindow>("ID Enum Generator");

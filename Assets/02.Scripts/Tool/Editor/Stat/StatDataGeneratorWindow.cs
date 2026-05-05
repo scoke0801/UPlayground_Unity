@@ -62,7 +62,6 @@ namespace UPlayGround.Tool.Editor.Stat
         private const float RowH = 22f;
 
         // ── 메뉴 ──────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Stat/Stat Data Generator")]
         public static void Open()
         {
             var window = GetWindow<StatDataGeneratorWindow>();
@@ -928,7 +927,6 @@ namespace UPlayGround.Tool.Editor.Stat
         // 공통 유틸
         // ──────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Stat/Validate Stat Data Coverage")]
         public static void ValidateStatDataCoverageMenu()
             => ValidateStatDataCoverage(showDialog: true);
 

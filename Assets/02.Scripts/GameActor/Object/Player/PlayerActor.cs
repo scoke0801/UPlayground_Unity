@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Data.EnumType;
@@ -463,7 +464,7 @@ namespace UPlayGround
             // 현재 전투 상태에 맞춰 weight + 플래그를 강제 동기화한다.
             _equipment?.ForceSyncMainWeaponState(_combat != null && _combat.IsInCombat);
 
-            // 소켓
+            // 모델별 공용 소켓
             RefreshSockets(data);
 
             // 비주얼 효과 컴포넌트 재초기화
@@ -484,10 +485,19 @@ namespace UPlayGround
 
         private void RefreshSockets(CharacterModelData data)
         {
-            if (data.RightHandSocket != null) _socketDict[ActorSocketType.RightHand] = data.RightHandSocket;
-            if (data.LeftHandSocket  != null) _socketDict[ActorSocketType.LeftHand]  = data.LeftHandSocket;
-            if (data.CenterSocket    != null) _socketDict[ActorSocketType.Center]    = data.CenterSocket;
-            if (data.HeadSocket      != null) _socketDict[ActorSocketType.Head]      = data.HeadSocket;
+            _socketDict ??= new SerializedDictionary<ActorSocketType, Transform>();
+            _socketDict.Clear();
+
+            if (data?.SocketDict == null)
+                return;
+
+            foreach (var pair in data.SocketDict)
+            {
+                if (pair.Key == ActorSocketType.None || pair.Value == null)
+                    continue;
+
+                _socketDict[pair.Key] = pair.Value;
+            }
         }
 
         /// <summary>

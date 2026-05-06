@@ -23,6 +23,9 @@ namespace UPlayGround.Component
         [Header("StartItem")]
         [SerializeField] private List<EquipmentSO> _startEquipItemList;
 
+        [Header("Weapon Dissolve")]
+        [SerializeField, Min(0f)] private float _weaponDissolveDuration = 0.6f;
+
         [Header("Weapon Definition")]
         [SerializeField] private List<WeaponDefinitionSO> _weaponDefinitions = new List<WeaponDefinitionSO>();
         
@@ -284,9 +287,10 @@ namespace UPlayGround.Component
         public void SetMainWeaponDrawn(bool drawn)
         {
             if (!CanToggleMainWeapon() || IsMainWeaponEquipped == drawn)
-            {
                 return;
-            }
+
+            if (drawn)
+                RecreateWeapons();
 
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
@@ -311,9 +315,7 @@ namespace UPlayGround.Component
         public bool TryPlayMainWeaponDrawMotion(bool drawn, ActorAnimator animator, Action onComplete = null)
         {
             if (!CanToggleMainWeapon())
-            {
                 return false;
-            }
 
             if (IsMainWeaponEquipped == drawn)
             {
@@ -321,10 +323,23 @@ namespace UPlayGround.Component
                 return true;
             }
 
-            AnimKey animKey = drawn ? AnimKey.Equip_Weapon : AnimKey.UnEquip_Weapon;
+            // 납도: 애니메이션 대신 무기 디졸브
+            if (!drawn)
+            {
+                DissolveDrawnWeapons();
+                IsMainWeaponEquipped = false;
+                _requestedMainWeaponDrawn = null;
+                onComplete?.Invoke();
+                return true;
+            }
+
+            // 발도: 디졸브로 제거된 무기가 있으면 재생성
+            if (_currentMainWeaponObj == null && MainWeaponKey != -1)
+                RecreateWeapons();
+
             int requestVersion = ++_mainWeaponDrawRequestVersion;
             _requestedMainWeaponDrawn = drawn;
-            var animState = animator != null ? animator.PlayMotion(animKey, 0.25f) : null;
+            var animState = animator != null ? animator.PlayMotion(AnimKey.Equip_Weapon, 0.25f) : null;
             if (animState == null)
             {
                 SetMainWeaponDrawn(drawn);
@@ -337,9 +352,7 @@ namespace UPlayGround.Component
             {
                 animator.OnMotionSetCompleted -= OnCompleted;
                 if (requestVersion != _mainWeaponDrawRequestVersion)
-                {
                     return;
-                }
 
                 SetMainWeaponDrawn(drawn);
                 _requestedMainWeaponDrawn = null;
@@ -373,9 +386,17 @@ namespace UPlayGround.Component
         /// </summary>
         public void ForceSyncMainWeaponState(bool drawn)
         {
-            ForceSyncWeaponState(EquipPosition.RightHand, drawn);
-            if (WeaponAttachmentResolver.IsPairedWeaponType(_mainWeaponType, _weaponDefinitions))
-                ForceSyncWeaponState(EquipPosition.LeftHand, drawn);
+            if (drawn)
+            {
+                RecreateWeapons();
+                ForceSyncWeaponState(EquipPosition.RightHand, true);
+                if (_subWeaponConstraint != null)
+                    ForceSyncWeaponState(EquipPosition.LeftHand, true);
+            }
+            else
+            {
+                CompleteHideDrawnWeapons();
+            }
         }
 
         private void ForceSyncWeaponState(EquipPosition equipPosition, bool drawn)
@@ -436,6 +457,218 @@ namespace UPlayGround.Component
                     MainWeaponKey = -1;
                     IsMainWeaponEquipped = false;
                 }
+            }
+        }
+
+        private void DissolveAndRelease(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+
+            weaponObj.transform.SetParent(null, true);
+
+            foreach (var col in weaponObj.GetComponentsInChildren<Collider>(true))
+                col.enabled = false;
+
+            var dissolve = weaponObj.GetComponent<DissolveController>();
+            if (dissolve == null)
+                dissolve = weaponObj.AddComponent<DissolveController>();
+
+            dissolve.StartDissolve(_weaponDissolveDuration);
+        }
+
+        private void DissolveDrawnWeapons()
+        {
+            if (_currentMainWeaponObj != null)
+            {
+                DissolveAndRelease(_currentMainWeaponObj);
+                _currentMainWeaponObj = null;
+            }
+            else if (_mainWeaponConstraint != null)
+            {
+                DissolveInPlace(_mainWeaponConstraint.gameObject);
+            }
+            IsMainWeaponEquipped = false;
+
+            if (_currentSubWeaponObj != null)
+            {
+                DissolveAndRelease(_currentSubWeaponObj);
+                _currentSubWeaponObj = null;
+                IsSubWeaponEquipped = false;
+            }
+            else if (_subWeaponConstraint != null)
+            {
+                DissolveInPlace(_subWeaponConstraint.gameObject);
+                IsSubWeaponEquipped = false;
+            }
+            else
+            {
+                // ParentConstraint 없는 내장 서브 무기(방패 등) — weapon root 직계 자식 탐색
+                DissolveBuiltInSubWeapons();
+            }
+        }
+
+        private void CompleteHideDrawnWeapons()
+        {
+            if (_currentMainWeaponObj != null)
+            {
+                CompleteHideAndRelease(_currentMainWeaponObj);
+                _currentMainWeaponObj = null;
+            }
+            else if (_mainWeaponConstraint != null)
+            {
+                CompleteHideInPlace(_mainWeaponConstraint.gameObject);
+            }
+            IsMainWeaponEquipped = false;
+
+            if (_currentSubWeaponObj != null)
+            {
+                CompleteHideAndRelease(_currentSubWeaponObj);
+                _currentSubWeaponObj = null;
+                IsSubWeaponEquipped = false;
+            }
+            else if (_subWeaponConstraint != null)
+            {
+                CompleteHideInPlace(_subWeaponConstraint.gameObject);
+                IsSubWeaponEquipped = false;
+            }
+            else
+            {
+                CompleteHideBuiltInSubWeapons();
+            }
+        }
+
+        private void CompleteHideAndRelease(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+
+            weaponObj.transform.SetParent(null, true);
+
+            foreach (var col in weaponObj.GetComponentsInChildren<Collider>(true))
+                col.enabled = false;
+
+            var dissolve = weaponObj.GetComponent<DissolveController>();
+            if (dissolve == null)
+                dissolve = weaponObj.AddComponent<DissolveController>();
+
+            dissolve.CompleteDissolve();
+        }
+
+        private void CompleteHideBuiltInSubWeapons()
+        {
+            if (_weaponRoot == null) return;
+
+            foreach (Transform child in _weaponRoot)
+            {
+                if (_mainWeaponConstraint != null && child == _mainWeaponConstraint.transform) continue;
+                if (child.GetComponentInChildren<Renderer>() == null) continue;
+                CompleteHideInPlace(child.gameObject);
+            }
+        }
+
+        private void CompleteHideInPlace(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+
+            var dissolve = weaponObj.GetComponent<DissolveController>();
+            if (dissolve == null)
+                dissolve = weaponObj.AddComponent<DissolveController>();
+
+            dissolve.CompleteDissolve(destroyOnComplete: false, onComplete: () =>
+            {
+                foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
+                    r.enabled = false;
+            });
+        }
+
+        private void DissolveBuiltInSubWeapons()
+        {
+            if (_weaponRoot == null) return;
+
+            foreach (Transform child in _weaponRoot)
+            {
+                if (_mainWeaponConstraint != null && child == _mainWeaponConstraint.transform) continue;
+                if (child.GetComponentInChildren<Renderer>() == null) continue;
+                DissolveInPlace(child.gameObject);
+            }
+        }
+
+        private void DissolveInPlace(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+            if (weaponObj.GetComponent<DissolveController>() != null) return; // 이미 진행 중 또는 완료
+
+            var dissolve = weaponObj.AddComponent<DissolveController>();
+            dissolve.StartDissolve(_weaponDissolveDuration, destroyOnComplete: false, onComplete: () =>
+            {
+                foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
+                    r.enabled = false;
+            });
+        }
+
+        private void RestoreBuiltInWeapon(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+
+            var dissolve = weaponObj.GetComponent<DissolveController>();
+            if (dissolve == null) return; // 디졸브된 적 없음 — 복원 불필요
+
+            dissolve.ResetDissolve();
+            Destroy(dissolve);
+
+            foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
+                r.enabled = true;
+        }
+
+        private void RecreateWeapons()
+        {
+            if (MainWeaponKey != -1)
+            {
+                var newMain = GameObjectManager.Instance.CreateWeapon(MainWeaponKey);
+                if (newMain != null && _mainWeaponConstraint != null)
+                {
+                    newMain.transform.SetParent(_mainWeaponConstraint.transform, false);
+                    newMain.transform.localPosition = Vector3.zero;
+                }
+                _currentMainWeaponObj = newMain;
+                ForceSyncWeaponState(EquipPosition.RightHand, false);
+            }
+            else if (_mainWeaponConstraint != null)
+            {
+                RestoreBuiltInWeapon(_mainWeaponConstraint.gameObject);
+                ForceSyncWeaponState(EquipPosition.RightHand, false);
+            }
+
+            if (SubWeaponKey != -1)
+            {
+                var newSub = GameObjectManager.Instance.CreateWeapon(SubWeaponKey);
+                if (newSub != null && _subWeaponConstraint != null)
+                {
+                    newSub.transform.SetParent(_subWeaponConstraint.transform, false);
+                    newSub.transform.localPosition = Vector3.zero;
+                }
+                _currentSubWeaponObj = newSub;
+                ForceSyncWeaponState(EquipPosition.LeftHand, false);
+            }
+            else if (_subWeaponConstraint != null)
+            {
+                RestoreBuiltInWeapon(_subWeaponConstraint.gameObject);
+                ForceSyncWeaponState(EquipPosition.LeftHand, false);
+            }
+            else
+            {
+                RestoreBuiltInSubWeapons();
+            }
+        }
+
+        private void RestoreBuiltInSubWeapons()
+        {
+            if (_weaponRoot == null) return;
+
+            foreach (Transform child in _weaponRoot)
+            {
+                if (_mainWeaponConstraint != null && child == _mainWeaponConstraint.transform) continue;
+                if (child.GetComponentInChildren<Renderer>() == null) continue;
+                RestoreBuiltInWeapon(child.gameObject);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,25 +26,14 @@ public class UI_Inventory : UI_Base
     [SerializeField] private int _slotCountPerRow = 5;
     [SerializeField] private int _startRowCount = 10;
     
-    [Header("Character Preview")]
-    [SerializeField] private RawImage _characterPreview;
-    [SerializeField] private UICharacterPreviewRenderer _previewRenderer;
-
-    [Header("Character HP")]
-    [SerializeField] private Image _boardHpFill;
-    [SerializeField] private TextMeshProUGUI _hpText;
+    [Header("Select Detail Panel")]
+    [SerializeField] private GameObject _selectedItemPrefab;
+    [SerializeField] private Image _selectedItemImage;
+    [SerializeField] private TextMeshProUGUI _selectedItemCountText;
+    [SerializeField] private TextMeshProUGUI _selectedItemNameText;
+    [SerializeField] private TextMeshProUGUI _selectedItemTypeText;
+    [SerializeField] private TextMeshProUGUI _selectedItemDescText;
     
-    [Header("Equipment Slot")] 
-    [SerializeField] private UI_InventorySlot _headSlot;
-    [SerializeField] private UI_InventorySlot _chestSlot;
-    [SerializeField] private UI_InventorySlot _pantSlot;
-    [SerializeField] private UI_InventorySlot _shoesSlot;
-    [SerializeField] private UI_InventorySlot _glovesSlot;
-    
-    [SerializeField] private UI_InventorySlot _leftHandSlot;
-    [SerializeField] private UI_InventorySlot _rightHandSlot;
-    
-    private Dictionary<EquipArmorType, UI_InventorySlot> _armorSlotMap;
     
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
 
@@ -54,29 +44,6 @@ public class UI_Inventory : UI_Base
         base.Awake();
         
         Init();
-        
-        _armorSlotMap = new Dictionary<EquipArmorType, UI_InventorySlot>
-        {
-            { EquipArmorType.Head, _headSlot },
-            { EquipArmorType.Chest, _chestSlot },
-            { EquipArmorType.Arm, _glovesSlot },
-            { EquipArmorType.Waist, _pantSlot },
-            { EquipArmorType.Leg, _shoesSlot }
-        };
-        
-        _headSlot.SetParent(this);
-        _chestSlot.SetParent(this);
-        _pantSlot.SetParent(this);
-        _shoesSlot.SetParent(this);
-        _glovesSlot.SetParent(this);
-        _leftHandSlot.SetParent(this);
-        _rightHandSlot.SetParent(this);
-        
-        // RenderTexture 연결
-        if (_previewRenderer != null && _characterPreview != null)
-        {
-            _characterPreview.texture = _previewRenderer.GetRenderTexture();
-        }
     }
 
     protected override void OnShow()
@@ -86,24 +53,12 @@ public class UI_Inventory : UI_Base
         RefreshDictItem();
         SetInventory();
         InitPlayerEquipmentSlot();
-        
-        EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
-            PlayerEvent.EquipItem, 
-            OnEquipItem
-        );
-        
-        // 캐릭터 프리뷰 활성화
-        if (_previewRenderer != null)
-        {
-            _previewRenderer.ShowPreview();
-        }
-        
-        PlayerActor playerActor = GameObjectManager.Instance?.Player;
-        if (playerActor != null)
-        {
-            RefreshPlayerHp(playerActor.CurrentHealth, playerActor.MaxHealth);
-            playerActor.OnHpChanged += RefreshPlayerHp;
-        }
+
+        var firstItem = InventoryManager.Instance.ItemDict.Values.FirstOrDefault();
+        if (firstItem != null)
+            ShowSelectedItemDetail(firstItem.data, firstItem.count);
+        else
+            ClearSelectedItemDetail();
     }
     
     public override bool PerformBackFunction()
@@ -116,22 +71,6 @@ public class UI_Inventory : UI_Base
     protected override void OnHide()
     {
         InputManager.Instance.SetInputLayer(InputLayer.None);
-
-        EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
-            PlayerEvent.EquipItem, 
-            OnEquipItem
-        );
-        
-        // 캐릭터 프리뷰 비활성화
-        if (_previewRenderer != null)
-        {
-            _previewRenderer.HidePreview();
-        }
-        PlayerActor playerActor = GameObjectManager.Instance?.Player;
-        if (playerActor != null)
-        {
-            playerActor.OnHpChanged -= RefreshPlayerHp;
-        }
     }
     
     public void SetInventory()
@@ -141,18 +80,11 @@ public class UI_Inventory : UI_Base
             t.RefreshUI();
         }
 
-        _glovesSlot.RefreshUI();
-        
         _imgWeightFill.fillAmount = InventoryManager.Instance.GetTotalWeight() / InventoryManager.Instance.MaxWeight;
         _txtWeight.text =
             $"({InventoryManager.Instance.GetTotalWeight():0.0}/{InventoryManager.Instance.MaxWeight:0.0})";
     }
 
-    public void RefreshPlayerHp(float hp, float maxHp)
-    {
-        _boardHpFill.fillAmount = hp / maxHp;
-        _hpText.text = $"{(int)hp}/{(int)maxHp}";
-    }
     
     private void InitPlayerEquipmentSlot()
     {
@@ -166,26 +98,6 @@ public class UI_Inventory : UI_Base
         if (manager == null)
         {
             return;
-        }
-
-        foreach (EquipArmorType type in Enum.GetValues(typeof(EquipArmorType)))
-        {
-            // None은 제외
-            if (type == EquipArmorType.None) continue;
-
-            // 해당 부위의 아이템 데이터 가져오기
-            var itemKey = playerEquipment.GetActiveEquipmentKey(type);
-            EquipmentSO itemData = manager.GetItemData(itemKey) as EquipmentSO;
-
-            if (itemData != null)
-            {
-                // 매핑된 딕셔너리에서 슬롯을 찾아 Init
-                if (_armorSlotMap.TryGetValue(type, out var slot))
-                {
-                    slot.Init(itemData, 1);
-                    slot.RefreshUI();
-                }
-            }
         }
     }
     
@@ -234,39 +146,31 @@ public class UI_Inventory : UI_Base
         }
     }
 
-    private void OnEquipItem(PlayerEquipChangeEvent eventData)
+    public void ShowSelectedItemDetail(ItemSO itemData, int count)
     {
-        UI_InventorySlot targetSlot = null;
-        switch (eventData.equipPosition)
-        {
-            case EquipPosition.LeftHand: targetSlot = _leftHandSlot; break;
-            case EquipPosition.RightHand: targetSlot = _rightHandSlot; break;
-            case EquipPosition.Head: targetSlot = _headSlot; break;
-            case EquipPosition.Chest: targetSlot = _chestSlot; break;
-            case EquipPosition.Pants: targetSlot = _pantSlot; break;
-            case EquipPosition.Gloves: targetSlot = _glovesSlot; break;
-            case EquipPosition.Shoes: targetSlot = _shoesSlot; break;
-        }
-
-        if (targetSlot == null)
-        {
-            return;
-        }
-
-        ItemSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey);
         if (itemData == null)
         {
+            ClearSelectedItemDetail();
             return;
         }
-        targetSlot.Init(itemData, 1);
-        targetSlot.RefreshUI();
+        _selectedItemPrefab.SetActive(true);
+        _selectedItemImage.sprite = itemData.icon;
+        _selectedItemImage.enabled = true;
+        _selectedItemCountText.text = count.ToString();
+        _selectedItemNameText.text = itemData.name;
+        _selectedItemTypeText.text = itemData.itemType.ToString();
+        _selectedItemDescText.text = itemData.itemDescription;
     }
 
-    public void RefreshPreviewModel()
+    public void ClearSelectedItemDetail()
     {
-        if (_previewRenderer != null)
-        {
-            _previewRenderer.ShowPreview();
-        }
+        _selectedItemImage.sprite = null;
+        _selectedItemImage.enabled = false;
+        _selectedItemCountText.text = string.Empty;
+        _selectedItemNameText.text = string.Empty;
+        _selectedItemTypeText.text = string.Empty;
+        _selectedItemDescText.text = string.Empty;
+
+        _selectedItemPrefab.SetActive(false);
     }
 }

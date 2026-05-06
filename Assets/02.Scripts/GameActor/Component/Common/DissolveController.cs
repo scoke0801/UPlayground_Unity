@@ -12,7 +12,8 @@ namespace UPlayGround.Component
         private struct RendererInfo
         {
             public Renderer renderer;
-            public Texture baseMap; // 기존 머티리얼의 BaseMap
+            public Texture baseMap;
+            public Material[] originalSharedMaterials; // ResetDissolve 복원용
         }
         
         private const string DissolveMaterialAddress = "DissolveMaterial";
@@ -33,9 +34,21 @@ namespace UPlayGround.Component
         {
             _mpb = new MaterialPropertyBlock();
             InitializeRendererData();
-            
+
             if (!_loadHandle.IsValid())
-                StartCoroutine(PreloadDissolveMaterial());
+            {
+                _loadHandle = Addressables.LoadAssetAsync<Material>(DissolveMaterialAddress);
+                _loadHandle.Completed += OnDissolveMaterialLoaded;
+            }
+            else if (_loadHandle.IsDone)
+            {
+                OnDissolveMaterialLoaded(_loadHandle);
+            }
+            else
+            {
+                _loadHandle.Completed -= OnDissolveMaterialLoaded;
+                _loadHandle.Completed += OnDissolveMaterialLoaded;
+            }
         }
 
         private void OnDestroy()
@@ -55,13 +68,18 @@ namespace UPlayGround.Component
             _loadHandle = Addressables.LoadAssetAsync<Material>(DissolveMaterialAddress);
             yield return _loadHandle;
 
-            if (_loadHandle.Status != AsyncOperationStatus.Succeeded)
+            OnDissolveMaterialLoaded(_loadHandle);
+        }
+
+        private static void OnDissolveMaterialLoaded(AsyncOperationHandle<Material> handle)
+        {
+            if (handle.Status != AsyncOperationStatus.Succeeded)
             {
                 Debug.LogError($"[DissolveController] DissolveMaterial 로드 실패: {DissolveMaterialAddress}");
-                yield break;
+                return;
             }
 
-            _dissolveSourceMaterial = _loadHandle.Result;
+            _dissolveSourceMaterial = handle.Result;
         }
         
         public void InitializeRendererData()
@@ -82,11 +100,32 @@ namespace UPlayGround.Component
                 _rendererInfos.Add(new RendererInfo
                 {
                     renderer = r,
-                    baseMap = baseMap
+                    baseMap = baseMap,
+                    originalSharedMaterials = r.sharedMaterials
                 });
             }
         }
         
+        /// <summary>
+        /// 내장 무기 복원 시 호출. 디졸브 머티리얼을 제거하고 원본 머티리얼과 렌더러 상태를 복원한다.
+        /// </summary>
+        public void ResetDissolve()
+        {
+            StopAllCoroutines();
+
+            foreach (var info in _rendererInfos)
+            {
+                if (info.renderer == null) continue;
+                info.renderer.enabled = true;
+                if (info.originalSharedMaterials != null)
+                    info.renderer.sharedMaterials = info.originalSharedMaterials;
+            }
+
+            foreach (var mat in _instancedMaterials)
+                if (mat != null) Destroy(mat);
+            _instancedMaterials.Clear();
+        }
+
         /// <summary>
         /// 모델 교체 시 호출. 기존 인스턴스 머티리얼을 해제하고 새 Model의 렌더러로 재초기화한다.
         /// </summary>
@@ -101,22 +140,51 @@ namespace UPlayGround.Component
             InitializeRendererData();
         }
         
-        public void StartDissolve(float duration)
+        public void StartDissolve(float duration, bool destroyOnComplete = true, System.Action onComplete = null)
         {
-            if (_rendererInfos.Count == 0) return;
+            if (_rendererInfos.Count == 0)
+            {
+                onComplete?.Invoke();
+                if (destroyOnComplete) Destroy(gameObject);
+                return;
+            }
 
             _dissolveDuration = duration;
-            
+
             StopAllCoroutines();
-            StartCoroutine(DissolveRoutine());
+            StartCoroutine(DissolveRoutine(destroyOnComplete, onComplete));
         }
 
-        private IEnumerator DissolveRoutine()
+        public void CompleteDissolve(bool destroyOnComplete = true, System.Action onComplete = null)
         {
-            // 로드 대기
+            StopAllCoroutines();
+
+            if (_rendererInfos.Count > 0 && _dissolveSourceMaterial != null)
+            {
+                SwapToDissolveMaterials();
+                SetDissolveAmount(1f);
+            }
+
+            onComplete?.Invoke();
+            if (destroyOnComplete) Destroy(gameObject);
+        }
+
+        private IEnumerator DissolveRoutine(bool destroyOnComplete, System.Action onComplete)
+        {
+            float waitTime = 0f;
             while (_dissolveSourceMaterial == null)
+            {
+                waitTime += Time.unscaledDeltaTime;
+                if (waitTime > 1.5f)
+                {
+                    Debug.LogWarning("[DissolveController] DissolveMaterial 로드 지연/실패 — 즉시 파괴 처리.");
+                    onComplete?.Invoke();
+                    if (destroyOnComplete) Destroy(gameObject);
+                    yield break;
+                }
                 yield return null;
-            
+            }
+
             SwapToDissolveMaterials();
 
             float elapsed = 0f;
@@ -126,12 +194,15 @@ namespace UPlayGround.Component
                 SetDissolveAmount(Mathf.Clamp01(elapsed / _dissolveDuration));
                 yield return null;
             }
-            
-            Destroy(gameObject);
+
+            onComplete?.Invoke();
+            if (destroyOnComplete) Destroy(gameObject);
         }
 
         private void SwapToDissolveMaterials()
         { 
+            foreach (var mat in _instancedMaterials)
+                if (mat != null) Destroy(mat);
             _instancedMaterials.Clear();
             
             foreach (var info in _rendererInfos)

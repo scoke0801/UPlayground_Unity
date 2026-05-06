@@ -1,10 +1,7 @@
 ﻿using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
-using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -74,11 +71,10 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        UI_ItemPopup itemPopup = UIManager.Instance.ShowUI(UIKeyType.ItemPopup)?.GetComponent<UI_ItemPopup>();
-        if (itemPopup != null)
-        {
-            itemPopup.Init(_itemData, _itemCount);
-        }
+        if (_itemData != null)
+            _parent.ShowSelectedItemDetail(_itemData, _itemCount);
+        else
+            _parent.ClearSelectedItemDetail();
     }
     #endregion
 }

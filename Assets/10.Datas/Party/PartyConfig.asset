@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaed2788113ac845b3df18c68f6854a, type: 3}
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
-  partyOrder: 0100000005000000090000000800000006000000020000000300000004000000
+  partyOrder: 01000000050000000900000008000000060000000200000003000000040000000a000000
   maxBattleSize: 4
   defaultBattleOrder: 
   startActiveIndex: 0
@@ -26,6 +26,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba9d7816dbe07e341aafd528ae5cd138, type: 2}
   - {fileID: 11400000, guid: 697b89e9afe09854195b9dfea57e5cf1, type: 2}
   - {fileID: 11400000, guid: a4d18acdd71dc1b44bad4e5a08c3b6e2, type: 2}
+  - {fileID: 11400000, guid: 7bd5c0c147c228949af790b02195f614, type: 2}
   defaultEntryAttackRange: 6
   entryAttackTargetLayer:
     serializedVersion: 2

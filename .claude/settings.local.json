@@ -46,7 +46,28 @@
       "Bash(Get-ChildItem *)",
       "Bash(Start-Sleep -Milliseconds 500)",
       "Bash(Get-Content \"C:\\\\Users\\\\scoke\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--UsingProject-UnityProject-UPlayground\\\\c921de36-2a97-4ae1-b157-b19edaa7d4cd\\\\tasks\\\\bgn7ezl1y.output\" -ErrorAction SilentlyContinue)",
-      "mcp__plugin_code-review-graph_code-review-graph__get_docs_section_tool"
+      "mcp__plugin_code-review-graph_code-review-graph__get_docs_section_tool",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(powershell -Command \"Get-ChildItem -Path '.' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'Assets' -Recurse -Filter 'P09_Modular_Humanoid' -Directory\")",
+      "Bash(powershell -Command \"ls -Recurse -Directory | Select-Object -Property Name | Sort-Object Name -Unique\")",
+      "Bash(powershell -Command \"ls -Directory | Select-Object -Property Name\")",
+      "Bash(powershell -Command \"ls -Recurse -File | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.prefab'\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Directory | Select-Object -Property Name | Sort-Object Name -Unique\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.mat' | Measure-Object | Select-Object Count\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.png' | Measure-Object | Select-Object Count\")",
+      "Bash(powershell -Command \"Get-ChildItem -Directory -Recurse -Depth 1 | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.png' | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.asset' | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"ls -Filter '*.mat' | Measure-Object | Select-Object Count\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.unity' | Select-Object -Property Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter '*.prefab' | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"ls -Filter '*.png' | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"cd 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\ExternalAssets\\\\Character\\\\P09_Modular_Humanoid\\\\Model_DATA\\\\Textures\\\\Common\\\\Hair' | Get-ChildItem -Filter '*.png' | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Directory | Select-Object -Property Name | Sort-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Filter '*.txt'\")"
     ]
   }
 }

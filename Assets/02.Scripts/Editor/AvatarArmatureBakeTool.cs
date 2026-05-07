@@ -229,6 +229,23 @@ namespace UPlayGround.Editor
                 return;
             }
 
+            if (_keepSourceRootAsChild && IsLikelyBodyArmatureBake())
+            {
+                bool continueAsAccessory = EditorUtility.DisplayDialog(
+                    "처리 모드 확인",
+                    "Target Root와 Source Root가 전신 의상 본처럼 보입니다.\n\n" +
+                    "현재 Keep Source Root As Child 모드는 헤어/악세서리용으로, 본 병합과 SkinnedMeshRenderer 리타겟을 수행하지 않습니다.\n" +
+                    "전신 의상이라면 이 옵션을 끄고 다시 실행하세요.\n\n" +
+                    "그래도 Source Root를 Target Root 하위에 그대로 붙일까요?",
+                    "그대로 붙이기", "취소");
+
+                if (!continueAsAccessory)
+                {
+                    _status = "베이크를 취소했습니다. 전신 의상은 Keep Source Root As Child 옵션을 끄고 실행하세요.";
+                    return;
+                }
+            }
+
             Undo.RegisterFullObjectHierarchyUndo(_avatarObject, "Bake Avatar Armature");
             Undo.RegisterFullObjectHierarchyUndo(_sourceObject, "Bake Source Armature");
 
@@ -236,11 +253,14 @@ namespace UPlayGround.Editor
             if (_keepSourceRootAsChild)
             {
                 Undo.SetTransformParent(_sourceRoot, _targetRoot, "Attach source root to target root");
+
+                EditorUtility.SetDirty(_avatarObject);
+                EditorUtility.SetDirty(_sourceObject);
+                _status = $"베이크 완료: '{_sourceRoot.name}'를 '{_targetRoot.name}' 하위로 부착했습니다. 본 병합/SMR 리타겟은 수행하지 않았습니다.";
+                return;
             }
-            else
-            {
-                MergeRecursive(_sourceRoot, _targetRoot, mapping, true);
-            }
+
+            MergeRecursive(_sourceRoot, _targetRoot, mapping, true);
 
             int rendererCount = 0;
             if (!_keepSourceRootAsChild && _retargetSkinnedMeshes)
@@ -257,6 +277,40 @@ namespace UPlayGround.Editor
             EditorUtility.SetDirty(_avatarObject);
             EditorUtility.SetDirty(_sourceObject);
             _status = $"베이크 완료: 매칭 본 {mapping.Count}개, SMR {rendererCount}개 갱신, 중복 본 {deletedCount}개 삭제.";
+        }
+
+        private bool IsLikelyBodyArmatureBake()
+        {
+            if (_targetRoot == null || _sourceRoot == null)
+            {
+                return false;
+            }
+
+            bool matchingRootNames = string.Equals(
+                StripPrefixSuffix(_sourceRoot.name),
+                _targetRoot.name,
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!matchingRootNames)
+            {
+                return false;
+            }
+
+            int matchingChildCount = 0;
+            foreach (Transform sourceChild in _sourceRoot)
+            {
+                if (sourceChild.GetComponent<SkinnedMeshRenderer>() != null)
+                {
+                    continue;
+                }
+
+                if (FindMatchingChild(_targetRoot, sourceChild.name) != null)
+                {
+                    matchingChildCount++;
+                }
+            }
+
+            return matchingChildCount > 0;
         }
 
         private void MergeRecursive(Transform source, Transform targetParent, Dictionary<Transform, Transform> mapping, bool isRoot)

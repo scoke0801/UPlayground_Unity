@@ -85,3 +85,11 @@ MonoBehaviour:
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
+  - type: 10
+    fullBodySprite: {fileID: 21300000, guid: d8df18889cc6e694591232253b5711af, type: 3}
+    headSprite: {fileID: 21300000, guid: 2018e3de6d6f0664fb6a2321f91f2e20, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
+    name: "\uCF54\uBAA8\uC5D0"
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}

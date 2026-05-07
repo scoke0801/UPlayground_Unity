@@ -329,6 +329,7 @@ Assets/
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
+| [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 강공격 텔레그래프 연출 — EnemyAttackDataSO, MotionEvent, FXPrefabDatabase 연동 작업 필요사항 |
 | [PARTY_LEVEL_POWER_DESIGN.md](PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md](BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md) | Behavior Tree 레퍼런스 누락 기능 구현 — Conditional Abort, Runner 제어, Decorator 확장, 디버그 기능 보강 계획 |

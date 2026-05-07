@@ -349,6 +349,10 @@ namespace UPlayGround.MovementController
     /// </summary>
     public class MotionWarpController : MonoBehaviour
     {
+        private const float DefaultContactBuffer = 0.08f;
+        private const float CloseRangeStopBuffer = 0.12f;
+        private const float CloseRangeTangentRetention = 0f;
+
         private Transform _target;
         private Vector3 _targetPosition;
         private bool _useSnapshot = true;
@@ -505,6 +509,92 @@ namespace UPlayGround.MovementController
                 blended.y = rootVelocity.y;
 
             return blended;
+        }
+
+        /// <summary>
+        /// 공격 루트모션이 타겟 캡슐 안쪽으로 계속 밀고 들어가면 KCC가 접선 방향으로 투영하며
+        /// 타겟 주변을 미끄러지는 현상이 생긴다. 타겟 표면 앞에서 접근 성분만 제한한다.
+        /// </summary>
+        public Vector3 ClampApproachVelocity(Vector3 velocity, Vector3 currentPosition, float deltaTime)
+        {
+            if (_target == null || deltaTime <= 0f)
+                return velocity;
+
+            Vector3 selfPosition = GetSelfCapsuleCenterPosition(currentPosition);
+            Vector3 toTarget = GetHorizontalTargetOffset(selfPosition, _target);
+            float distance = toTarget.magnitude;
+            if (distance <= 0.0001f)
+                return velocity;
+
+            Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
+            if (horizontalVelocity.sqrMagnitude <= 0.0001f)
+                return velocity;
+
+            Vector3 targetDirection = toTarget / distance;
+            float approachSpeed = Vector3.Dot(horizontalVelocity, targetDirection);
+            if (approachSpeed <= 0f)
+                return velocity;
+
+            float desiredDistance = GetCombinedHorizontalRadius(_target) + DefaultContactBuffer;
+            float allowedApproachSpeed = Mathf.Max(0f, (distance - desiredDistance) / deltaTime);
+            if (approachSpeed <= allowedApproachSpeed)
+                return velocity;
+
+            Vector3 approach = targetDirection * allowedApproachSpeed;
+            Vector3 tangent = horizontalVelocity - targetDirection * approachSpeed;
+
+            if (distance <= desiredDistance + CloseRangeStopBuffer)
+                tangent *= CloseRangeTangentRetention;
+
+            Vector3 clampedHorizontal = approach + tangent;
+            return new Vector3(clampedHorizontal.x, velocity.y, clampedHorizontal.z);
+        }
+
+        private Vector3 GetSelfCapsuleCenterPosition(Vector3 currentPosition)
+        {
+            CapsuleCollider selfCapsule = GetComponent<CapsuleCollider>();
+            if (selfCapsule == null)
+                return currentPosition;
+
+            Vector3 centerOffset = selfCapsule.transform.TransformPoint(selfCapsule.center) - transform.position;
+            return currentPosition + centerOffset;
+        }
+
+        private Vector3 GetHorizontalTargetOffset(Vector3 currentPosition, Transform target)
+        {
+            Vector3 targetPosition = _useSnapshot ? _targetPosition : target.position;
+
+            CapsuleCollider targetCapsule = target.GetComponent<CapsuleCollider>()
+                                            ?? target.GetComponentInParent<CapsuleCollider>();
+            if (targetCapsule != null)
+                targetPosition = targetCapsule.transform.TransformPoint(targetCapsule.center);
+
+            Vector3 toTarget = targetPosition - currentPosition;
+            toTarget.y = 0f;
+            return toTarget;
+        }
+
+        private float GetCombinedHorizontalRadius(Transform target)
+        {
+            float selfRadius = GetHorizontalRadius(GetComponent<CapsuleCollider>());
+            float targetRadius = GetHorizontalRadius(
+                target.GetComponent<CapsuleCollider>() ?? target.GetComponentInParent<CapsuleCollider>());
+
+            return selfRadius + targetRadius;
+        }
+
+        private static float GetHorizontalRadius(CapsuleCollider capsule)
+        {
+            if (capsule == null)
+                return 0.35f;
+
+            Vector3 scale = capsule.transform.lossyScale;
+            return capsule.direction switch
+            {
+                0 => capsule.radius * Mathf.Max(Mathf.Abs(scale.y), Mathf.Abs(scale.z)),
+                1 => capsule.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z)),
+                _ => capsule.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y))
+            };
         }
 
         private static Vector3 EvaluateAdditiveVelocity(

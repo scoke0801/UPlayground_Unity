@@ -153,6 +153,11 @@ namespace UPlayGround.State
                     _combat.WarpMaxSpeed,
                     deltaTime,
                     _combat.EndMotionWarp);
+
+                currentVelocity = _motionWarp.ClampApproachVelocity(
+                    currentVelocity,
+                    motor.TransientPosition,
+                    deltaTime);
             }
 
             // Y축 복원 (중력/점프 보존)

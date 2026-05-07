@@ -394,7 +394,7 @@ namespace UPlayGround.State
             Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             currentVelocity = _motionWarp.EvaluateVelocity(
                 rootVelocity,
-                gameActor.transform.position,
+                motor.TransientPosition,
                 _combat.IsMotionWarping,
                 _combat.WarpRemainingTime,
                 _combat.WarpDuration,
@@ -403,6 +403,11 @@ namespace UPlayGround.State
                 _combat.WarpMaxSpeed,
                 deltaTime,
                 _combat.EndMotionWarp);
+
+            currentVelocity = _motionWarp.ClampApproachVelocity(
+                currentVelocity,
+                motor.TransientPosition,
+                deltaTime);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -411,7 +416,7 @@ namespace UPlayGround.State
             // UpdateVelocity와 동일한 조건(스냅샷 거리 + 도달 가능 여부)으로만 적용해
             // 이동 방향과 회전 방향이 일치하도록 한다.
             if (_motionWarp.TryGetFacingDirection(
-                    gameActor.transform.position,
+                    motor.TransientPosition,
                     _combat.IsMotionWarping,
                     _combat.WarpRemainingTime,
                     _combat.WarpMinDistance,

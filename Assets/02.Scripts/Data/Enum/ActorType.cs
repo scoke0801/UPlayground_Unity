@@ -32,6 +32,7 @@
         Inori,
         Hichi,
         Siuha,
+        Komoe,
         
         H09, // 안쓸거임
     }

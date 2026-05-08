@@ -71,7 +71,20 @@
       "PowerShell(New-Item *)",
       "Bash(Select-Object FullName)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\02.Scripts\" -Recurse | Where-Object { $_.PSIsContainer } | Select-Object FullName | Sort-Object FullName)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(grep -A 10 \"&2755541965333357687$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 1 -A 3 \"m_Name: Male_Armor_010_Chest$\\\\|m_Name: Male_Armor_010_Chest_Cloak\\\\|m_Name: Male_Body_Chest\\\\|m_Name: Male_Armor_002_Chest\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 8 \"m_Name: Male_Armor_010_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -A 8 \"m_Name: Male_Armor_010_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 2 -A 25 \"&3948882980177786879$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -A 10 \"&8014406495992753873$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -A 5 \"&2755541965333357687$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 8 \"m_Name: Armor_002\\\\|m_Name: Armor_003\\\\|m_Name: Armor_010\\\\|m_Name: Equipment\\\\|m_Name: Male$\\\\|m_Name: Body$\\\\|m_Name: Male_Armor_010_Chest$\\\\|m_Name: Male_Armor_002_Chest$\\\\|m_Name: Male_Armor_003_Chest$\" \"Assets/03.Prefabs/Characters/Enemy/ENM_M_03_001/ENM_M_03_001.prefab\")",
+      "Bash(grep -A 5 \"m_Name: Male_Body_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 3 -A 5 \"m_Name: Male_Body_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -A 20 \"m_Name: Male_Body_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
+      "Bash(grep -B 2 \"m_Name: Armor_010$\\\\|m_Name: Armor_002$\\\\|m_Name: Body$\\\\|m_Name: Equipment$\\\\|m_Name: Male$\\\\|m_Name: Female$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")",
+      "Bash(grep -nE \"m_Name: \\(Male|Female|Fem\\)$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")"
     ]
   }
 }

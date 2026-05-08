@@ -71,6 +71,43 @@ namespace Game.Editor.P09Builder
             return newSelection;
         }
 
+        public static int DrawNumberedOptions(
+            int maxId,
+            int selectedId,
+            int columns = 8,
+            float iconSize = 52f,
+            string noneLabel = "None")
+        {
+            maxId = Mathf.Max(0, maxId);
+            if (columns < 1) columns = 1;
+            iconSize = Mathf.Max(48f, iconSize);
+            selectedId = Mathf.Clamp(selectedId, 0, maxId);
+
+            int newSelection = selectedId;
+            int totalSlots = maxId + 1;
+            int rows = Mathf.CeilToInt(totalSlots / (float)columns);
+
+            for (int r = 0; r < rows; r++)
+            {
+                using (new EditorGUILayout.HorizontalScope(GUILayout.Height(iconSize + CellGap)))
+                {
+                    for (int c = 0; c < columns; c++)
+                    {
+                        int id = r * columns + c;
+                        if (id >= totalSlots) break;
+
+                        string label = id == 0 ? noneLabel : id.ToString("00");
+                        string tooltip = id == 0 ? noneLabel : $"FacialHair {id:00}";
+                        if (DrawCell(null, null, id == selectedId, iconSize, label, tooltip))
+                            newSelection = id;
+                    }
+                    GUILayout.FlexibleSpace();
+                }
+            }
+
+            return newSelection;
+        }
+
         private static bool DrawCell(ScriptableObject so, Texture2D icon, bool isSelected,
             float size, string label, string tooltip)
         {
@@ -82,7 +119,12 @@ namespace Game.Editor.P09Builder
                            evt.button == 0 &&
                            rect.Contains(evt.mousePosition);
             if (clicked)
+            {
+                // ChangeCheckScope가 감지하도록 명시적으로 변경 플래그를 세운다.
+                // 이 플래그가 없으면 부모 윈도우의 디바운스 자동 리빌드가 동작하지 않는다.
+                GUI.changed = true;
                 evt.Use();
+            }
 
             var bg = isSelected
                 ? (EditorGUIUtility.isProSkin ? new Color(0.22f, 0.42f, 0.75f, 1f) : new Color(0.62f, 0.78f, 1f, 1f))

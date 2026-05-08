@@ -13,6 +13,9 @@ namespace UPlayGround
 {
     public abstract class GameActor : MonoBehaviour
     {
+        private const string PlayerDefaultTargetLayerName = "Enemy";
+        private const string MonsterDefaultTargetLayerName = "Player";
+
         [SerializeField] protected ActorType _actorType = ActorType.None;
         [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
 
@@ -73,6 +76,20 @@ namespace UPlayGround
         /// 플래그 조합 체크. 예: actor.HasActorType(ActorType.Talkable)
         /// </summary>
         public bool HasActorType(ActorType flag) => (_actorType & flag) != 0;
+
+        public LayerMask GetAttackTargetLayerMask()
+        {
+            if (_definition != null && _definition.targetLayerMask.value != 0)
+                return _definition.targetLayerMask;
+
+            if (HasActorType(ActorType.Player))
+                return LayerMask.GetMask(PlayerDefaultTargetLayerName);
+
+            if (HasActorType(ActorType.Monster))
+                return LayerMask.GetMask(MonsterDefaultTargetLayerName);
+
+            return 0;
+        }
 
         /// <summary>
         /// ActorDefinitionSO를 주입한다. ActorSpawnManager가 스폰 직후 호출.

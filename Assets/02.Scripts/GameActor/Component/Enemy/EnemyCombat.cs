@@ -410,6 +410,9 @@ namespace UPlayGround.Component
         public void SetEnableCollision(bool isCollisionEnable) =>
             _isCollisionEnabled = isCollisionEnable;
 
+        public void SetTargetLayer(LayerMask targetLayer) =>
+            _targetLayer = targetLayer;
+
         public void SetHitPhaseIndex(int index) =>
             _currentHitPhaseIndex = index;
 

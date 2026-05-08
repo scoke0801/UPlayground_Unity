@@ -12,8 +12,6 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class BeginCollisionEvent : MotionEventBase
     {
-        public LayerMask targetLayers = -1;
-
         [Tooltip("AttackInfoBase.hitPhases의 인덱스. 멀티 히트 시 구간마다 다른 값을 설정한다.")]
         public int hitPhaseIndex = 0;
 
@@ -52,6 +50,7 @@ namespace UPlayGround.Data.Event
             combat.ClearHitTargets();
             if (isCollisionEnable)
             {
+                combat.SetTargetLayerMask(playerActor.GetAttackTargetLayerMask());
                 combat.SetHitPhaseIndex(hitPhaseIndex);
             }
             combat.SetEnableCollision(isCollisionEnable);
@@ -66,6 +65,7 @@ namespace UPlayGround.Data.Event
             combat.ClearHitTargets();
             if (isCollisionEnable)
             {
+                combat.SetTargetLayer(monsterActor.GetAttackTargetLayerMask());
                 combat.SetHitPhaseIndex(hitPhaseIndex);
             }
             combat.SetEnableCollision(isCollisionEnable);

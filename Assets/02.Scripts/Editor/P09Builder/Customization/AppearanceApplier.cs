@@ -17,6 +17,8 @@ namespace Game.Editor.P09Builder
         private const int FemaleSexId = 2;
         private const string SkinMaterialPattern = @"^P09_.*_Skin.*$";
         private const string EyeMaterialPattern = @"^P09_Eye.*$";
+        private static readonly Regex FacialHairNamePattern =
+            new Regex(@"^(?:Male|Female|Fem)_FacialHair_(\d+)$", RegexOptions.Compiled);
 
         public static void Apply(GameObject prefabRoot, CharacterBuildConfig config, P09AssetCatalog catalog)
         {
@@ -24,14 +26,19 @@ namespace Game.Editor.P09Builder
 
             int sexId = config.Sex == BuilderSex.Male ? MaleSexId : FemaleSexId;
             var allTransforms = prefabRoot.GetComponentsInChildren<Transform>(includeInactive: true);
+            var rootTransform = prefabRoot.transform;
+
+            // 베이스 프리팹에는 성별 모드별 그룹("Male" / "Female")이 함께 들어있다.
+            // 선택된 성별 그룹만 활성화하고 반대편은 비활성화. (Variant 프리팹의 경우 한쪽이 RemovedGameObjects 로 빠져 있어도 안전)
+            ApplyGenderGroup(allTransforms, config.Sex, rootTransform);
 
             // FaceType
             if (config.FaceTypeSo != null)
-                ApplyRenderer(allTransforms, ToData(catalog.FaceTypes), GetId(config.FaceTypeSo), sexId);
+                ApplyRenderer(allTransforms, ToData(catalog.FaceTypes), GetId(config.FaceTypeSo), sexId, rootTransform);
 
             // HairStyle
             if (config.HairStyleSo != null)
-                ApplyRenderer(allTransforms, ToData(catalog.HairStyles), GetId(config.HairStyleSo), sexId);
+                ApplyRenderer(allTransforms, ToData(catalog.HairStyles), GetId(config.HairStyleSo), sexId, rootTransform);
 
             // HairColor (sharedMaterial 사용)
             if (config.HairColorSo != null && config.HairStyleSo != null)
@@ -55,20 +62,59 @@ namespace Game.Editor.P09Builder
                 ApplyEyeColor(allTransforms, ToData(catalog.EyeColors), GetId(config.EyeColorSo));
 
             // FacialHair (Male only)
-            if (config.Sex == BuilderSex.Male && config.FacialHairSo != null)
-                ApplyRenderer(allTransforms, ToData(catalog.FacialHairs), GetId(config.FacialHairSo), sexId);
+            int facialHairId = config.FacialHairId > 0 ? config.FacialHairId : GetId(config.FacialHairSo);
+            ApplyAttachedFacialHair(allTransforms, config.Sex == BuilderSex.Male ? facialHairId : 0, rootTransform);
 
             // BustSize (Female only)
             if (config.Sex == BuilderSex.Female && config.BustSizeSo != null)
                 ApplyBustSize(allTransforms, ToData(catalog.BustSizes), GetId(config.BustSizeSo));
 
             // Armor slots
+            // so == null (None) 일 때도 슬롯에 속한 모든 메시를 꺼야 하므로 selectedId=0 으로 일괄 적용.
             foreach (var slot in System.Enum.GetValues(typeof(BuilderArmorSlot)).Cast<BuilderArmorSlot>())
             {
                 var so = config.ArmorSelections?.Get(slot);
-                if (so == null) continue;
                 var items = GetCatalogForSlot(slot, catalog);
-                ApplyRenderer(allTransforms, ToData(items), GetId(so), sexId);
+                ApplyRenderer(allTransforms, ToData(items), GetId(so), sexId, rootTransform);
+            }
+        }
+
+        // 성별 그룹 토글: 베이스 프리팹 안의 "Male" / "Female" 최상위 그룹을 선택된 성별에 맞게 활성화한다.
+        // - Male 선택: "Male" 활성, "Female" 비활성. (반대편 그룹 안의 모든 자식 메시도 함께 꺼짐.)
+        // - 그룹이 없으면(이미 변형 프리팹에서 RemovedGameObjects 처리된 경우) 조용히 패스.
+        // - 양쪽 그룹이 모두 활성이거나 모두 비활성인 베이스 프리팹의 비정상 상태를 강제 정상화하는 역할도 겸한다.
+        private static void ApplyGenderGroup(Transform[] allTransforms, BuilderSex sex, Transform root)
+        {
+            if (allTransforms == null) return;
+            bool isMale = sex == BuilderSex.Male;
+            foreach (var t in allTransforms)
+            {
+                if (t == null || t == root) continue;
+                if (t.name == "Male")
+                {
+                    t.gameObject.SetActive(isMale);
+                    if (isMale) EnsureAncestorsActive(t, root);
+                }
+                else if (t.name == "Female" || t.name == "Fem")
+                {
+                    t.gameObject.SetActive(!isMale);
+                    if (!isMale) EnsureAncestorsActive(t, root);
+                }
+            }
+        }
+
+        // 활성화하려는 트랜스폼의 조상 체인을 root 직하까지 self-active 로 끌어올린다.
+        // P09 베이스 프리팹은 Armor_XXX 같은 상위 그룹이 m_IsActive=0 이라
+        // 자식만 SetActive(true) 해도 보이지 않는 문제를 보정.
+        private static void EnsureAncestorsActive(Transform t, Transform root)
+        {
+            if (t == null) return;
+            var p = t.parent;
+            while (p != null && p != root)
+            {
+                if (!p.gameObject.activeSelf)
+                    p.gameObject.SetActive(true);
+                p = p.parent;
             }
         }
 
@@ -78,8 +124,10 @@ namespace Game.Editor.P09Builder
         private static int GetId(ScriptableObject so)
             => (so as IEditPartData)?.ContentId ?? 0;
 
-        // AvatarView.UpdateRenderer 에디터 버전
-        private static void ApplyRenderer(Transform[] allTransforms, List<IEditPartData> dataList, int selectedId, int sexId)
+        // AvatarView.UpdateRenderer 에디터 버전.
+        // 정확 일치뿐 아니라 "{베이스이름}_*" 형태의 보조 메시(예: *_Chest_Cloak)도 함께 토글한다.
+        // 활성화되는 메시의 부모 체인은 EnsureAncestorsActive 로 함께 켜준다.
+        private static void ApplyRenderer(Transform[] allTransforms, List<IEditPartData> dataList, int selectedId, int sexId, Transform root)
         {
             if (dataList == null || dataList.Count == 0) return;
             foreach (var t in allTransforms)
@@ -88,33 +136,68 @@ namespace Game.Editor.P09Builder
                 foreach (var data in dataList)
                 {
                     if (data == null || string.IsNullOrEmpty(data.MeshName)) continue;
-                    if (t.name == data.MeshName)
+
+                    if (NameMatches(t.name, data.MeshName))
                     {
-                        t.gameObject.SetActive(data.ContentId == selectedId);
+                        bool active = data.ContentId == selectedId;
+                        t.gameObject.SetActive(active);
+                        if (active) EnsureAncestorsActive(t, root);
+                        continue;
                     }
-                    else
+
+                    string maleName = TryFormat(data.MeshName, "Male");
+                    if (maleName != null && NameMatches(t.name, maleName))
                     {
-                        try
-                        {
-                            var maleName = string.Format(data.MeshName, "Male");
-                            if (t.name == maleName)
-                            {
-                                t.gameObject.SetActive(sexId == MaleSexId && data.ContentId == selectedId);
-                                continue;
-                            }
-                            var femaleName = string.Format(data.MeshName, "Female");
-                            var femName = string.Format(data.MeshName, "Fem");
-                            if (t.name == femaleName || t.name == femName)
-                            {
-                                t.gameObject.SetActive(sexId == FemaleSexId && data.ContentId == selectedId);
-                            }
-                        }
-                        catch (System.FormatException)
-                        {
-                            // MeshName에 {0} placeholder가 없는 경우 무시
-                        }
+                        bool active = sexId == MaleSexId && data.ContentId == selectedId;
+                        t.gameObject.SetActive(active);
+                        if (active) EnsureAncestorsActive(t, root);
+                        continue;
+                    }
+
+                    string femaleName = TryFormat(data.MeshName, "Female");
+                    string femName    = TryFormat(data.MeshName, "Fem");
+                    if ((femaleName != null && NameMatches(t.name, femaleName)) ||
+                        (femName != null    && NameMatches(t.name, femName)))
+                    {
+                        bool active = sexId == FemaleSexId && data.ContentId == selectedId;
+                        t.gameObject.SetActive(active);
+                        if (active) EnsureAncestorsActive(t, root);
                     }
                 }
+            }
+        }
+
+        private static bool NameMatches(string transformName, string baseName)
+        {
+            if (string.IsNullOrEmpty(transformName) || string.IsNullOrEmpty(baseName)) return false;
+            if (transformName == baseName) return true;
+            // Cloak/Cape 등 보조 파츠: "{base}_..." 접두 매칭
+            return transformName.Length > baseName.Length
+                && transformName[baseName.Length] == '_'
+                && transformName.StartsWith(baseName, System.StringComparison.Ordinal);
+        }
+
+        private static string TryFormat(string format, string arg)
+        {
+            try { return string.Format(format, arg); }
+            catch (System.FormatException) { return null; }
+        }
+
+        private static void ApplyAttachedFacialHair(Transform[] allTransforms, int selectedId, Transform root)
+        {
+            if (allTransforms == null) return;
+
+            foreach (var t in allTransforms)
+            {
+                if (t == null) continue;
+                var match = FacialHairNamePattern.Match(t.name);
+                if (!match.Success) continue;
+
+                int id = 0;
+                int.TryParse(match.Groups[1].Value, out id);
+                bool active = selectedId > 0 && id == selectedId;
+                t.gameObject.SetActive(active);
+                if (active) EnsureAncestorsActive(t, root);
             }
         }
 

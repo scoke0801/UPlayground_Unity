@@ -25,6 +25,7 @@ namespace Game.Editor.P09Builder
         public ScriptableObject FaceTypeSo;
         public ScriptableObject EmotionSo;
         public ScriptableObject FacialHairSo;
+        public int FacialHairId = 0;
         public ScriptableObject EyeColorSo;
         public ScriptableObject SkinColorSo;
 
@@ -60,6 +61,7 @@ namespace Game.Editor.P09Builder
             FaceTypeSo = null;
             EmotionSo = null;
             FacialHairSo = null;
+            FacialHairId = 0;
             EyeColorSo = null;
             SkinColorSo = null;
             UseWeaponGroup = false;

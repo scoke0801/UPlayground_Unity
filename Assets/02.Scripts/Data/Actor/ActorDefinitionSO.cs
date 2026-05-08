@@ -25,6 +25,8 @@ namespace UPlayGround.Data.Actor
         [Header("Actor 기본 정보")]
         public ActorType actorType = ActorType.Monster;
         public CharacterActorType characterType = CharacterActorType.None;
+        [Tooltip("이 ActorID가 공격 판정을 켤 때 대상으로 삼을 레이어. 비워두면 ActorType 기본 규칙을 사용한다.")]
+        public LayerMask targetLayerMask = 0;
 
         [Header("프리팹")]
         [Tooltip("런타임 스폰에 사용할 프리팹. GameActor 컴포넌트를 포함해야 함.")]

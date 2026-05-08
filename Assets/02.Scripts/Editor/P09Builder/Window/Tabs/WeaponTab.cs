@@ -38,6 +38,18 @@ namespace Game.Editor.P09Builder
                 config.ShieldSo = IconGridDrawer.Draw(
                     ToReadOnly(catalog.Shields), config.ShieldSo, iconResolver);
 
+                EditorGUILayout.Space(4);
+
+                EditorGUILayout.LabelField("활 (Bow)", EditorStyles.miniBoldLabel);
+                config.BowSo = IconGridDrawer.Draw(
+                    ToReadOnly(catalog.Bows), config.BowSo, iconResolver);
+
+                EditorGUILayout.Space(4);
+
+                EditorGUILayout.LabelField("스태프 (Staff)", EditorStyles.miniBoldLabel);
+                config.StaffSo = IconGridDrawer.Draw(
+                    ToReadOnly(catalog.Staves), config.StaffSo, iconResolver);
+
                 EditorGUILayout.Space(6);
                 config.ShowArrows = EditorGUILayout.Toggle("화살 표시", config.ShowArrows);
             }

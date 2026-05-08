@@ -81,14 +81,20 @@ namespace Game.Editor.P09Builder
             if (assetPath.Contains("/ScriptableObject/Leg/"))
                 return MakeKey("Armor", sexKey, "Leg", contentId);
 
-            if (assetPath.Contains("/ScriptableObject/Weapon/"))
-                return MakeKey("Weapon", "Sword", contentId);
             if (assetPath.Contains("/ScriptableObject/Shield/"))
                 return MakeKey("Weapon", "Shield", contentId);
             if (assetPath.Contains("/ScriptableObject/Bow/"))
                 return MakeKey("Weapon", "Bow", contentId);
             if (assetPath.Contains("/ScriptableObject/Staff/"))
                 return MakeKey("Weapon", "Staff", contentId);
+            if (assetPath.Contains("/ScriptableObject/Weapon/Shield/"))
+                return MakeKey("Weapon", "Shield", contentId);
+            if (assetPath.Contains("/ScriptableObject/Weapon/Bow/"))
+                return MakeKey("Weapon", "Bow", contentId);
+            if (assetPath.Contains("/ScriptableObject/Weapon/Staff/"))
+                return MakeKey("Weapon", "Staff", contentId);
+            if (assetPath.Contains("/ScriptableObject/Weapon/"))
+                return MakeKey("Weapon", "Sword", contentId);
 
             return null;
         }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace Game.Editor.P09Builder
         private const double PreviewDebounceSeconds = 0.2d;
 
         private const string PresetFolder = "Assets/10.Datas/Generated/BuildPresets";
+        private static readonly Regex FacialHairNamePattern =
+            new Regex(@"^(?:Male|Female|Fem)_FacialHair_(\d+)$", RegexOptions.Compiled);
 
         [SerializeField] private CharacterBuildConfig _config = new CharacterBuildConfig();
         [SerializeField] private int _activeTabIndex = 0;
@@ -153,6 +156,9 @@ namespace Game.Editor.P09Builder
                     Repaint();
                 }
 
+                if (GUILayout.Button("외형 랜덤", EditorStyles.toolbarButton))
+                    RandomizeAppearance();
+
                 _showPreview = GUILayout.Toggle(_showPreview, "미리보기", EditorStyles.toolbarButton);
 
                 using (new EditorGUI.DisabledScope(_isBuilding))
@@ -164,6 +170,113 @@ namespace Game.Editor.P09Builder
                     GUI.color = prevColor;
                 }
             }
+        }
+
+        private void RandomizeAppearance()
+        {
+            if (_config == null) _config = new CharacterBuildConfig();
+            if (_catalog == null)
+            {
+                _catalog = new P09AssetCatalog();
+                _catalog.Refresh();
+            }
+
+            Undo.RecordObject(this, "P09 외형 랜덤 생성");
+
+            if (_config.ArmorSelections == null)
+                _config.ArmorSelections = new ArmorSelectionMap();
+
+            var armorPresets = ArmorIndexPresetUtility.Build(_catalog);
+            if (armorPresets.Count > 0)
+                ArmorIndexPresetUtility.Apply(_config.ArmorSelections, armorPresets[UnityEngine.Random.Range(0, armorPresets.Count)]);
+            else
+            {
+                foreach (var slot in BuilderArmorSlotExtensions.All)
+                    _config.ArmorSelections.Set(slot, PickOptional(GetArmorCatalog(slot)));
+            }
+
+            _config.HairStyleSo = PickRequired(_catalog.HairStyles, _config.HairStyleSo);
+            _config.HairColorSo = PickRequired(_catalog.HairColors, _config.HairColorSo);
+            _config.FaceTypeSo  = PickRequired(_catalog.FaceTypes, _config.FaceTypeSo);
+            _config.EmotionSo   = PickOptional(_catalog.Emotions);
+            _config.EyeColorSo  = PickRequired(_catalog.EyeColors, _config.EyeColorSo);
+
+            var skinColors = _config.Sex == BuilderSex.Male
+                ? _catalog.SkinColorsMale
+                : _catalog.SkinColorsFemale;
+            _config.SkinColorSo = PickRequired(skinColors, _config.SkinColorSo);
+
+            if (_config.Sex == BuilderSex.Female)
+            {
+                _config.BustSizeSo = PickRequired(_catalog.BustSizes, _config.BustSizeSo);
+                _config.FacialHairId = 0;
+                _config.FacialHairSo = null;
+            }
+            else
+            {
+                int maxFacialHairId = GetAttachedFacialHairMaxId(_config);
+                if (maxFacialHairId > 0)
+                {
+                    _config.FacialHairId = UnityEngine.Random.Range(0, maxFacialHairId + 1);
+                    _config.FacialHairSo = null;
+                }
+                else
+                {
+                    _config.FacialHairId = 0;
+                    _config.FacialHairSo = PickOptional(_catalog.FacialHairs);
+                }
+            }
+
+            RegeneratePreviewName();
+            MarkPreviewDirty();
+            _statusMessage = "외형 랜덤 생성 완료";
+            EditorUtility.SetDirty(this);
+            Repaint();
+        }
+
+        private List<ScriptableObject> GetArmorCatalog(BuilderArmorSlot slot)
+        {
+            switch (slot)
+            {
+                case BuilderArmorSlot.Head:  return _catalog.Heads;
+                case BuilderArmorSlot.Chest: return _catalog.Chests;
+                case BuilderArmorSlot.Arm:   return _catalog.Arms;
+                case BuilderArmorSlot.Waist: return _catalog.Waists;
+                case BuilderArmorSlot.Leg:   return _catalog.Legs;
+                default: return null;
+            }
+        }
+
+        private static ScriptableObject PickRequired(IReadOnlyList<ScriptableObject> list, ScriptableObject fallback)
+        {
+            if (list == null || list.Count == 0) return fallback;
+            return list[UnityEngine.Random.Range(0, list.Count)];
+        }
+
+        private static ScriptableObject PickOptional(IReadOnlyList<ScriptableObject> list)
+        {
+            if (list == null || list.Count == 0) return null;
+            int index = UnityEngine.Random.Range(0, list.Count + 1);
+            return index == 0 ? null : list[index - 1];
+        }
+
+        private static int GetAttachedFacialHairMaxId(CharacterBuildConfig config)
+        {
+            string prefabPath = PathConfig.GetBasePrefabPath(BuilderSex.Male, config != null && config.UseMagicaCloth);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null) return 0;
+
+            int maxId = 0;
+            var transforms = prefab.GetComponentsInChildren<Transform>(includeInactive: true);
+            foreach (var t in transforms)
+            {
+                if (t == null) continue;
+                var match = FacialHairNamePattern.Match(t.name);
+                if (match.Success && int.TryParse(match.Groups[1].Value, out int id))
+                    maxId = Mathf.Max(maxId, id);
+            }
+
+            return maxId;
         }
 
         private void DrawTabHeaders()
@@ -283,8 +396,6 @@ namespace Game.Editor.P09Builder
                 if (result.Success)
                 {
                     _statusMessage = $"완료: {result.PrefabPath}";
-                    if (!string.IsNullOrEmpty(result.PrefabPath))
-                        EditorUtility.RevealInFinder(result.PrefabPath);
 
                     // 시퀀스가 증가했으니 미리보기 이름 갱신
                     if (_registry != null)

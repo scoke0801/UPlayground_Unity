@@ -50,7 +50,15 @@ namespace Game.Editor.P09Builder
                 return;
             }
 
-            _instance = Object.Instantiate(basePrefab);
+            // Variant 프리팹의 m_RemovedGameObjects 등 오버라이드를 정확히 반영하기 위해
+            // 빌드 파이프라인과 동일하게 PrefabUtility.InstantiatePrefab + Unpack 경로를 사용한다.
+            _instance = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
+            if (_instance == null)
+            {
+                LastError = "프리팹 인스턴스화에 실패했습니다.";
+                return;
+            }
+            PrefabUtility.UnpackPrefabInstance(_instance, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
             _instance.name = "P09 Preview";
             _preview.AddSingleGO(_instance);
 
@@ -182,6 +190,7 @@ namespace Game.Editor.P09Builder
                 hash = hash * 31 + GetId(config.FaceTypeSo);
                 hash = hash * 31 + GetId(config.EmotionSo);
                 hash = hash * 31 + GetId(config.FacialHairSo);
+                hash = hash * 31 + config.FacialHairId;
                 hash = hash * 31 + GetId(config.EyeColorSo);
                 hash = hash * 31 + GetId(config.SkinColorSo);
                 hash = hash * 31 + (config.UseWeaponGroup ? 1 : 0);

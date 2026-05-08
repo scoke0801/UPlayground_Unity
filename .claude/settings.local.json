@@ -67,7 +67,11 @@
       "Bash(powershell -Command \"ls -Filter '*.png' | Select-Object -Property Name | Sort-Object Name\")",
       "Bash(powershell -Command \"cd 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\ExternalAssets\\\\Character\\\\P09_Modular_Humanoid\\\\Model_DATA\\\\Textures\\\\Common\\\\Hair' | Get-ChildItem -Filter '*.png' | Select-Object -Property Name | Sort-Object Name\")",
       "Bash(powershell -Command \"Get-ChildItem -Directory | Select-Object -Property Name | Sort-Object Name\")",
-      "Bash(powershell -Command \"Get-ChildItem -Filter '*.txt'\")"
+      "Bash(powershell -Command \"Get-ChildItem -Filter '*.txt'\")",
+      "PowerShell(New-Item *)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\02.Scripts\" -Recurse | Where-Object { $_.PSIsContainer } | Select-Object FullName | Sort-Object FullName)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }

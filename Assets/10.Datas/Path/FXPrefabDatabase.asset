@@ -52,3 +52,6 @@ MonoBehaviour:
   - key: ParryFX
     prefab: {fileID: 1320316104850776, guid: 1977fc844cb969a44866c4dcd32996d1, type: 3}
     description: 
+  - key: EnemyHeavyAttackTelegraph_Circle
+    prefab: {fileID: 1612411718768874, guid: 4ef343c2fedb6884aac07e8610d65212, type: 3}
+    description: 

@@ -424,7 +424,9 @@ namespace UPlayGround
         /// 모델 교체 시 PlayerSwapBehaviour가 호출.
         /// 이전 캐릭터 상태를 저장하고 새 캐릭터 데이터로 컴포넌트를 일괄 갱신한다.
         /// </summary>
-        public void RefreshForCharacter(CharacterModelData data)
+        public void RefreshForCharacter(
+            CharacterModelData data,
+            ActorAnimator.MotionPlaybackSnapshot animationSnapshot = default)
         {
             // 현재 캐릭터 상태 저장 (최초 호출 시에는 None이므로 스킵)
             if (_characterActorType != CharacterActorType.None)
@@ -474,11 +476,16 @@ namespace UPlayGround
             // Foot IK
             _footIK.Refresh(data.AnimancerComponent?.Animator);
 
-            // 새 AnimancerComponent에 즉시 애니메이션 적용: Idle로 강제 전환
-            // 현재 상태가 이미 PlayerIdleState인 경우 TransitionToState의 같은 타입 가드(ActorMovementController.cs:149)
-            // 때문에 OnEnter가 호출되지 않아 새 애니메이터에 PlayMotion이 안 걸린다. 직접 한 번 더 재생한다.
-            PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
-            _playerActorAnimator?.PlayMotion(AnimKey.Idle, 0f);
+            // 모델 교체 전 재생 중이던 MotionSet이 있으면 같은 AnimKey의 진행률로 복원한다.
+            // 초기화/복원 실패 시에는 기존처럼 Idle을 강제로 한 번 재생해 새 Animancer에 포즈를 적용한다.
+            bool restoredAnimation = _playerActorAnimator != null
+                                     && animationSnapshot.IsValid
+                                     && _playerActorAnimator.RestorePlaybackSnapshot(animationSnapshot);
+            if (!restoredAnimation)
+            {
+                PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
+                _playerActorAnimator?.PlayMotion(AnimKey.Idle, 0f);
+            }
 
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
@@ -65,10 +66,14 @@ namespace UPlayGround.Component
                 return false;
             }
 
+            ActorAnimator.MotionPlaybackSnapshot animationSnapshot =
+                _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
+                ?? ActorAnimator.MotionPlaybackSnapshot.Empty;
+
             _activeModel?.gameObject.SetActive(false);
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
-            _playerActor.RefreshForCharacter(_activeModel);
+            _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
             return true;
         }
 

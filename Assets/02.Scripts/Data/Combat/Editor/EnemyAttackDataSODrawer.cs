@@ -121,6 +121,9 @@ namespace UPlayGround.Editor
             var maxRangeP    = prop.FindPropertyRelative("maxRange");
             var cooldownP    = prop.FindPropertyRelative("cooldown");
             var skillTypeP   = prop.FindPropertyRelative("skillType");
+            var useTelegraphP = prop.FindPropertyRelative("useTelegraph");
+            var telegraphShapeP = prop.FindPropertyRelative("telegraphShape");
+            var telegraphRadiusScaleP = prop.FindPropertyRelative("telegraphRadiusScale");
             var aerialP      = prop.FindPropertyRelative("isAerialSkill");
             var diveP        = prop.FindPropertyRelative("isDiveAttack");
             var diveSpeedP   = prop.FindPropertyRelative("diveDescentSpeed");
@@ -172,6 +175,24 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(minRangeP, new GUIContent("최소 거리"));
                     EditorGUILayout.PropertyField(maxRangeP, new GUIContent("최대 거리"));
                     EditorGUILayout.EndHorizontal();
+                }
+
+                // 텔레그래프
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("텔레그래프", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(useTelegraphP, new GUIContent("텔레그래프 사용"));
+
+                    if (useTelegraphP.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(telegraphShapeP,       new GUIContent("형태"));
+                        EditorGUILayout.PropertyField(telegraphRadiusScaleP, new GUIContent("반경 배율"));
+                        EditorGUILayout.HelpBox("FX는 공통 키 EnemyHeavyAttackTelegraph_Circle을 사용합니다.", MessageType.Info);
+                    }
+                    else if (HasStrongReaction(phasesP))
+                    {
+                        EditorGUILayout.HelpBox("강한 리액션(Heavy/KnockBack/Airborne/Knockdown/Grab)이 포함되어 있습니다. 강공격이면 텔레그래프 사용 여부를 확인하세요.", MessageType.Warning);
+                    }
                 }
 
                 // 공중 설정
@@ -264,6 +285,29 @@ namespace UPlayGround.Editor
             if (a < 0 || b < 0 || a >= _cardFold.Count || b >= _cardFold.Count) return;
             (_cardFold[a],  _cardFold[b])  = (_cardFold[b],  _cardFold[a]);
             (_phaseFold[a], _phaseFold[b]) = (_phaseFold[b], _phaseFold[a]);
+        }
+
+        private static bool HasStrongReaction(SerializedProperty phasesP)
+        {
+            if (phasesP == null) return false;
+
+            for (int i = 0; i < phasesP.arraySize; i++)
+            {
+                var reactionP = phasesP.GetArrayElementAtIndex(i).FindPropertyRelative("reactionType");
+                if (reactionP == null || reactionP.enumValueIndex < 0) continue;
+
+                string reactionName = reactionP.enumNames[reactionP.enumValueIndex];
+                if (reactionName == "Heavy" ||
+                    reactionName == "KnockBack" ||
+                    reactionName == "Airborne" ||
+                    reactionName == "Knockdown" ||
+                    reactionName == "Grab")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

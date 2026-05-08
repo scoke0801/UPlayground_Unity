@@ -7,6 +7,13 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data
 {
+    public enum TelegraphShape
+    {
+        Circle,
+        Cone,
+        Line
+    }
+
     /// <summary>
     /// 하나의 공격 애니메이션 안에서 발생하는 개별 히트 구간 데이터.
     /// BeginCollisionEvent의 hitPhaseIndex와 1:1 매칭된다.
@@ -96,6 +103,14 @@ namespace UPlayGround.Data
 
         [Header("Cooldown")]
         public float cooldown = 2f;
+
+        [Header("Telegraph")]
+        [Tooltip("강공격 판정 전에 텔레그래프 경고 연출을 사용할지 여부")]
+        public bool useTelegraph = false;
+        [Tooltip("텔레그래프 형태. 현재 런타임 구현은 Circle만 지원한다.")]
+        public TelegraphShape telegraphShape = TelegraphShape.Circle;
+        [Tooltip("현재 히트 반경에 곱할 텔레그래프 표시 배율")]
+        public float telegraphRadiusScale = 1f;
 
         [Header("Aerial")]
         [Tooltip("true = EnemyAerialState에서만 선택되는 공중 전용 스킬")]

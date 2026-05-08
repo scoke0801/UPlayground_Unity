@@ -63,6 +63,8 @@ namespace UPlayGround.State
             if (_currentSkill != null)
             {
                 var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
+                _combat.BeginCurrentSkillTelegraph();
+
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
                 else
@@ -93,6 +95,7 @@ namespace UPlayGround.State
             _homingTarget   = null;
             _motionWarp?.ClearTarget();
             _combat.ClearHitTargets();
+            _combat.ClearTelegraphs();
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
@@ -104,6 +107,7 @@ namespace UPlayGround.State
             if (!_isAttackActive || _currentSkill == null) return;
 
             _attackTimer += deltaTime;
+            _combat.UpdateTelegraphs();
 
             if (_currentSkill.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
                 _combat.CheckMeleeAttackHit();

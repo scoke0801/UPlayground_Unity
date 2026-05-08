@@ -10,6 +10,8 @@ namespace UPlayGround.Component
 {
     public class EnemyCombat : MonoBehaviour
     {
+        private const string HeavyAttackTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
+
         [Header("Combat Settings")]
         [SerializeField] private EnemyAttackDataSO _attackData;
         [SerializeField] private Transform _attackOrigin;
@@ -22,6 +24,13 @@ namespace UPlayGround.Component
         [SerializeField] private float _warpMaxDistance = 6f;
         [Tooltip("워프 최대 속도. 남은 시간 내 도달 불가 거리면 워프 자체를 미적용")]
         [SerializeField] private float _warpMaxSpeed = 18f;
+
+        [Header("Telegraph Settings")]
+        [SerializeField] private bool _alignTelegraphToGround = true;
+        [SerializeField] private LayerMask _telegraphGroundLayers = -1;
+        [SerializeField] private float _telegraphGroundProbeHeight = 2f;
+        [SerializeField] private float _telegraphGroundProbeDistance = 6f;
+        [SerializeField] private float _telegraphGroundYOffset = 0.03f;
 
         public float WarpMinDistance => _warpMinDistance;
         public float WarpMaxDistance => _warpMaxDistance;
@@ -43,6 +52,8 @@ namespace UPlayGround.Component
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
+        private readonly List<GameObject> _telegraphInstances = new List<GameObject>();
+        private int _telegraphHitPhaseIndex = 0;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이를 주입.
@@ -332,6 +343,70 @@ namespace UPlayGround.Component
 
         public void ClearHitTargets()     => _hitTargets.Clear();
 
+        public void BeginCurrentSkillTelegraph()
+        {
+            ClearTelegraphs();
+
+            if (_currentSkill == null || !_currentSkill.useTelegraph)
+                return;
+
+            if (_currentSkill.telegraphShape != TelegraphShape.Circle)
+            {
+                Debug.LogWarning($"[EnemyCombat] 현재 Circle 텔레그래프만 지원합니다: {_currentSkill.telegraphShape}");
+                return;
+            }
+
+            _telegraphHitPhaseIndex = 0;
+            Vector3 position = GetTelegraphPosition(_telegraphHitPhaseIndex);
+            GameObject instance = GameObjectManager.Instance.ShowFX(HeavyAttackTelegraphFXKey, position, Quaternion.identity, null, 0f);
+            if (instance == null) return;
+
+            ApplyTelegraphScale(instance, _telegraphHitPhaseIndex);
+            RegisterTelegraph(instance);
+        }
+
+        public void UpdateTelegraphs()
+        {
+            if (_telegraphInstances.Count == 0) return;
+
+            for (int i = _telegraphInstances.Count - 1; i >= 0; i--)
+            {
+                GameObject instance = _telegraphInstances[i];
+                if (instance == null)
+                {
+                    _telegraphInstances.RemoveAt(i);
+                    continue;
+                }
+
+                instance.transform.position = GetTelegraphPosition(_telegraphHitPhaseIndex);
+                ApplyTelegraphScale(instance, _telegraphHitPhaseIndex);
+            }
+        }
+
+        public void RegisterTelegraph(GameObject instance)
+        {
+            if (instance != null && !_telegraphInstances.Contains(instance))
+                _telegraphInstances.Add(instance);
+        }
+
+        public void UnregisterTelegraph(GameObject instance)
+        {
+            if (instance == null) return;
+
+            _telegraphInstances.Remove(instance);
+        }
+
+        public void ClearTelegraphs()
+        {
+            for (int i = _telegraphInstances.Count - 1; i >= 0; i--)
+            {
+                if (_telegraphInstances[i] != null)
+                    Destroy(_telegraphInstances[i]);
+            }
+
+            _telegraphInstances.Clear();
+        }
+
         public void SetEnableCollision(bool isCollisionEnable) =>
             _isCollisionEnabled = isCollisionEnable;
 
@@ -340,8 +415,13 @@ namespace UPlayGround.Component
 
         public Vector3 GetCurrentAttackPosition()
         {
+            return GetAttackPosition(_currentHitPhaseIndex);
+        }
+
+        public Vector3 GetAttackPosition(int hitPhaseIndex)
+        {
             if (_currentSkill == null) return _attackOrigin.position;
-            var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
+            var phase = _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex);
             return _attackOrigin.position
                 + _attackOrigin.forward * phase.attackOffset.z
                 + _attackOrigin.right   * phase.attackOffset.x
@@ -350,8 +430,39 @@ namespace UPlayGround.Component
 
         public float GetCurrentAttackRadius()
         {
+            return GetAttackRadius(_currentHitPhaseIndex);
+        }
+
+        public float GetAttackRadius(int hitPhaseIndex)
+        {
             if (_currentSkill == null) return 0f;
-            return _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex).attackRadius;
+            return _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex).attackRadius;
+        }
+
+        private Vector3 GetTelegraphPosition(int hitPhaseIndex)
+        {
+            Vector3 position = GetAttackPosition(hitPhaseIndex);
+            if (!_alignTelegraphToGround) return position;
+
+            Vector3 origin = position + Vector3.up * _telegraphGroundProbeHeight;
+            float distance = _telegraphGroundProbeHeight + _telegraphGroundProbeDistance;
+
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, distance, _telegraphGroundLayers, QueryTriggerInteraction.Ignore))
+            {
+                position.y = hit.point.y + _telegraphGroundYOffset;
+                return position;
+            }
+
+            position.y += _telegraphGroundYOffset;
+            return position;
+        }
+
+        private void ApplyTelegraphScale(GameObject instance, int hitPhaseIndex)
+        {
+            if (instance == null || _currentSkill == null) return;
+
+            float scale = Mathf.Max(0.01f, GetAttackRadius(hitPhaseIndex) * _currentSkill.telegraphRadiusScale);
+            instance.transform.localScale = Vector3.one * scale;
         }
     }
 }

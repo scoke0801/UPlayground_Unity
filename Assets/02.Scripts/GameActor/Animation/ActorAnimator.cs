@@ -52,6 +52,32 @@ namespace UPlayGround.Animation
         public event Action OnMotionSetCompleted;
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
+
+        public readonly struct MotionPlaybackSnapshot
+        {
+            public readonly bool    IsValid;
+            public readonly AnimKey Key;
+            public readonly float   NormalizedTime;
+            public readonly int     LayerIndex;
+            public readonly float   GraphSpeed;
+
+            public MotionPlaybackSnapshot(
+                bool isValid,
+                AnimKey key,
+                float normalizedTime,
+                int layerIndex,
+                float graphSpeed)
+            {
+                IsValid        = isValid;
+                Key            = key;
+                NormalizedTime = normalizedTime;
+                LayerIndex     = layerIndex;
+                GraphSpeed     = graphSpeed;
+            }
+
+            public static MotionPlaybackSnapshot Empty =>
+                new MotionPlaybackSnapshot(false, AnimKey.None, 0f, 0, 1f);
+        }
         
         /// <summary>
         /// 전체 애니메이터 재생 속도
@@ -180,6 +206,118 @@ namespace UPlayGround.Animation
                 _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
             }
             return _currentState;
+        }
+
+        public MotionPlaybackSnapshot CapturePlaybackSnapshot()
+        {
+            if (!_isPlayingMotionSet || _currentMotionSet == null || _lastPlayedKey == AnimKey.None)
+                return MotionPlaybackSnapshot.Empty;
+
+            float total = _currentMotionSet.TotalDuration;
+            float normalizedTime = total > 0f
+                ? Mathf.Clamp01(_globalTime / total)
+                : 0f;
+
+            return new MotionPlaybackSnapshot(
+                true,
+                _lastPlayedKey,
+                normalizedTime,
+                _currentMotionLayerIndex,
+                Speed);
+        }
+
+        public MotionPlaybackSnapshot CaptureMovementPlaybackSnapshot()
+        {
+            if (!IsMovementPlaybackKey(_lastPlayedKey))
+                return MotionPlaybackSnapshot.Empty;
+
+            return CapturePlaybackSnapshot();
+        }
+
+        public static bool IsMovementPlaybackKey(AnimKey key)
+        {
+            return key switch
+            {
+                AnimKey.Walk or
+                AnimKey.Run or
+                AnimKey.Sprint or
+                AnimKey.Dodge or
+                AnimKey.Dash or
+                AnimKey.Jump or
+                AnimKey.Fall or
+                AnimKey.Land or
+                AnimKey.DoubleJump or
+                AnimKey.Crouch_Idle or
+                AnimKey.Crouch_Walk or
+                AnimKey.Idle_To_Crouch or
+                AnimKey.Crouch_To_Idle or
+                AnimKey.Move_Stop_Walking or
+                AnimKey.Move_Stop_Running or
+                AnimKey.Move_Stop_Sprinting or
+                AnimKey.Move_Stop_Walking_L45 or
+                AnimKey.Move_Stop_Walking_R45 or
+                AnimKey.Move_Stop_Running_L45 or
+                AnimKey.Move_Stop_Running_R45 or
+                AnimKey.Move_Stop_Sprinting_L45 or
+                AnimKey.Move_Stop_Sprinting_R45 or
+                AnimKey.Stand_Idle_Turn_L45 or
+                AnimKey.Stand_Idle_Turn_R45 or
+                AnimKey.Stand_Idle_Turn_L90 or
+                AnimKey.Stand_Idle_Turn_R90 or
+                AnimKey.Stand_Idle_Turn_180 or
+                AnimKey.Walk_Turn_L45 or
+                AnimKey.Walk_Turn_R45 or
+                AnimKey.Walk_Turn_L90 or
+                AnimKey.Walk_Turn_R90 or
+                AnimKey.Walk_Turn_180 or
+                AnimKey.Run_Turn_L45 or
+                AnimKey.Run_Turn_R45 or
+                AnimKey.Run_Turn_L90 or
+                AnimKey.Run_Turn_R90 or
+                AnimKey.Run_Turn_180 or
+                AnimKey.Sprint_Turn_L45 or
+                AnimKey.Sprint_Turn_R45 or
+                AnimKey.Sprint_Turn_L90 or
+                AnimKey.Sprint_Turn_R90 or
+                AnimKey.Sprint_Turn_180 or
+                AnimKey.Walk_Slow or
+                AnimKey.Walk_Slow_B or
+                AnimKey.Walk_Slow_B_L45 or
+                AnimKey.Walk_Slow_B_R45 or
+                AnimKey.Walk_Slow_F_L45 or
+                AnimKey.Walk_Slow_F_R45 or
+                AnimKey.Walk_Slow_F_L90 or
+                AnimKey.Walk_Slow_F_R90 or
+                AnimKey.Walk_B or
+                AnimKey.Walk_B_L45 or
+                AnimKey.Walk_B_R45 or
+                AnimKey.Walk_F_L45 or
+                AnimKey.Walk_F_R45 or
+                AnimKey.Walk_F_L90 or
+                AnimKey.Walk_F_R90 or
+                AnimKey.Run_B or
+                AnimKey.Run_B_L45 or
+                AnimKey.Run_B_R45 or
+                AnimKey.Run_F_L45 or
+                AnimKey.Run_F_R45 or
+                AnimKey.Run_F_L90 or
+                AnimKey.Run_F_R90 => true,
+                _ => false,
+            };
+        }
+
+        public bool RestorePlaybackSnapshot(MotionPlaybackSnapshot snapshot, float fadeDuration = 0f)
+        {
+            if (!snapshot.IsValid || snapshot.Key == AnimKey.None)
+                return false;
+
+            var state = PlayMotion(snapshot.Key, fadeDuration, snapshot.LayerIndex);
+            if (state == null || _currentMotionSet == null)
+                return false;
+
+            SeekCurrentMotionSet(Mathf.Clamp01(snapshot.NormalizedTime), snapshot.LayerIndex);
+            Speed = snapshot.GraphSpeed > 0f ? snapshot.GraphSpeed : 1f;
+            return true;
         }
         
         /// <summary>
@@ -630,6 +768,36 @@ namespace UPlayGround.Animation
             _infiniteLoopElapsed    = 0f;
             _infiniteLoopStageIndex = -1;
             _lastLocalTime          = -0.001f;
+        }
+
+        private void SeekCurrentMotionSet(float normalizedTime, int layerIndex)
+        {
+            if (!_isPlayingMotionSet || _currentMotionSet == null)
+                return;
+
+            float totalDuration = _currentMotionSet.TotalDuration;
+            if (totalDuration <= 0f)
+                return;
+
+            _globalTime = Mathf.Clamp(normalizedTime * totalDuration, 0f, Mathf.Max(0f, totalDuration - 0.001f));
+            ResetLoopState();
+
+            if (_currentMotionSet.GetMotionAtTime(_globalTime, out int motionIndex, out float localTime))
+            {
+                PlayMotionAtIndex(motionIndex, 0f, layerIndex);
+
+                var motion = GetCurrentMotion();
+                if (_currentState != null && motion != null)
+                {
+                    float playbackSpeed = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+                    _currentState.Time = motion.ClipStartTime + localTime * playbackSpeed;
+                    _currentState.Speed = motion.playbackSpeed;
+                }
+
+                _lastLocalTime = localTime;
+            }
+
+            _eventExecutor?.SeekTo(_globalTime);
         }
 
         private Motion GetCurrentMotion()

@@ -26,6 +26,12 @@ namespace UPlayGround.Component
         [Header("Weapon Dissolve")]
         [SerializeField, Min(0f)] private float _weaponDissolveDuration = 0.6f;
 
+        [Header("Weapon Draw FX")]
+        [SerializeField] private string _weaponDrawFxKey = string.Empty;
+        [SerializeField] private Vector3 _weaponDrawFxOffset = Vector3.zero;
+        [SerializeField, Min(0f)] private float _weaponDrawFxDuration = 5f;
+        [SerializeField] private bool _parentWeaponDrawFxToWeapon = false;
+
         [Header("Weapon Definition")]
         [SerializeField] private List<WeaponDefinitionSO> _weaponDefinitions = new List<WeaponDefinitionSO>();
         
@@ -294,6 +300,8 @@ namespace UPlayGround.Component
 
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
+            if (drawn)
+                PlayWeaponDrawFx(_currentMainWeaponObj, _mainWeaponConstraint);
 
             if (WeaponAttachmentResolver.IsPairedWeaponType(_mainWeaponType, _weaponDefinitions))
                 SetSubWeaponDrawn(drawn);
@@ -310,6 +318,8 @@ namespace UPlayGround.Component
 
             SetWeaponDrawn(_subWeaponConstraint, drawn);
             IsSubWeaponEquipped = drawn;
+            if (drawn)
+                PlayWeaponDrawFx(_currentSubWeaponObj, _subWeaponConstraint);
         }
 
         public bool TryPlayMainWeaponDrawMotion(bool drawn, ActorAnimator animator, Action onComplete = null)
@@ -379,6 +389,35 @@ namespace UPlayGround.Component
 
             constraint.SetSource(0, rightHand);
             constraint.SetSource(1, back);
+        }
+
+        private void PlayWeaponDrawFx(GameObject weaponObj, ParentConstraint constraint)
+        {
+            if (string.IsNullOrWhiteSpace(_weaponDrawFxKey) || GameObjectManager.Instance == null)
+                return;
+
+            Transform fxParent = null;
+            Vector3 position;
+            Quaternion rotation = transform.rotation;
+
+            if (weaponObj != null)
+            {
+                fxParent = _parentWeaponDrawFxToWeapon ? weaponObj.transform : null;
+                position = weaponObj.transform.TransformPoint(_weaponDrawFxOffset);
+                rotation = weaponObj.transform.rotation;
+            }
+            else if (constraint != null)
+            {
+                fxParent = _parentWeaponDrawFxToWeapon ? constraint.transform : null;
+                position = constraint.transform.TransformPoint(_weaponDrawFxOffset);
+                rotation = constraint.transform.rotation;
+            }
+            else
+            {
+                position = transform.TransformPoint(_weaponDrawFxOffset);
+            }
+
+            GameObjectManager.Instance.ShowFX(_weaponDrawFxKey, position, rotation, fxParent, _weaponDrawFxDuration);
         }
 
         /// <summary>

@@ -45,11 +45,24 @@ namespace UPlayGround
             _fadeTimer     = 0f;
 
             _renderers = GetComponentsInChildren<Renderer>();
-            
+
             // 플레이어 캐싱
-            var playerObj = GameObjectManager.Instance.Player;
-            if (playerObj != null)
-                _playerTransform = playerObj.GetSocket(ActorSocketType.Center);
+            ResolvePlayerTransform();
+        }
+
+        // Center 소켓이 없거나(데이터 누락) 캐릭터 스왑으로 무효화된 경우를 방어.
+        // 소켓이 비면 Player 루트 transform을 fallback으로 사용한다.
+        private void ResolvePlayerTransform()
+        {
+            var playerObj = GameObjectManager.Instance?.Player;
+            if (playerObj == null)
+            {
+                _playerTransform = null;
+                return;
+            }
+
+            var socket = playerObj.GetSocket(ActorSocketType.Center);
+            _playerTransform = socket != null ? socket : playerObj.transform;
         }
 
         // -----------------------------------------------------------
@@ -57,7 +70,14 @@ namespace UPlayGround
         // -----------------------------------------------------------
         private void Update()
         {
-            if (_data == null || _playerTransform == null) return;
+            if (_data == null) return;
+
+            // 캐릭터 스왑이나 소켓 미등록으로 캐싱이 무효화된 경우 매 프레임 재시도
+            if (_playerTransform == null)
+            {
+                ResolvePlayerTransform();
+                if (_playerTransform == null) return;
+            }
 
             switch (_state)
             {

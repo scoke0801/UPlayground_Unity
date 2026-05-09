@@ -88,6 +88,26 @@ namespace Game.Editor.P09Builder
 
             EditorGUILayout.Space();
 
+            // Poise
+            config.Stats.createNewPoise = EditorGUILayout.Toggle("새 Poise SO 생성", config.Stats.createNewPoise);
+            if (config.Stats.createNewPoise)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    config.Stats.defaultMaxPoise = EditorGUILayout.FloatField("최대 Poise", config.Stats.defaultMaxPoise);
+                    config.Stats.defaultPoiseRecoveryDelay = EditorGUILayout.FloatField("Poise 회복 지연", config.Stats.defaultPoiseRecoveryDelay);
+                    config.Stats.defaultPoiseRecoveryRate = EditorGUILayout.FloatField("Poise 회복량/초", config.Stats.defaultPoiseRecoveryRate);
+                    config.Stats.defaultHasHyperArmor = EditorGUILayout.Toggle("Hyper Armor 사용", config.Stats.defaultHasHyperArmor);
+                }
+            }
+            else
+            {
+                config.Stats.existingPoiseSo = EditorGUILayout.ObjectField(
+                    "기존 PoiseSO", config.Stats.existingPoiseSo, typeof(PoiseSO), false) as ScriptableObject;
+            }
+
+            EditorGUILayout.Space();
+
             // Behavior
             config.Stats.createNewBehavior = EditorGUILayout.Toggle("새 Behavior SO 생성", config.Stats.createNewBehavior);
             if (config.Stats.createNewBehavior)

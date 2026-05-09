@@ -333,7 +333,7 @@ namespace UPlayGround.Component
                 return true;
             }
 
-            // 납도: 애니메이션 대신 무기 디졸브
+            // 납도: 애니메이션 없이 무기 디졸브
             if (!drawn)
             {
                 DissolveDrawnWeapons();
@@ -343,33 +343,11 @@ namespace UPlayGround.Component
                 return true;
             }
 
-            // 발도: 디졸브로 제거된 무기가 있으면 재생성
-            if (_currentMainWeaponObj == null && MainWeaponKey != -1)
-                RecreateWeapons();
-
-            int requestVersion = ++_mainWeaponDrawRequestVersion;
-            _requestedMainWeaponDrawn = drawn;
-            var animState = animator != null ? animator.PlayMotion(AnimKey.Equip_Weapon, 0.25f) : null;
-            if (animState == null)
-            {
-                SetMainWeaponDrawn(drawn);
-                _requestedMainWeaponDrawn = null;
-                onComplete?.Invoke();
-                return false;
-            }
-
-            void OnCompleted()
-            {
-                animator.OnMotionSetCompleted -= OnCompleted;
-                if (requestVersion != _mainWeaponDrawRequestVersion)
-                    return;
-
-                SetMainWeaponDrawn(drawn);
-                _requestedMainWeaponDrawn = null;
-                onComplete?.Invoke();
-            }
-
-            animator.OnMotionSetCompleted += OnCompleted;
+            // 발도: 애니메이션 없이 즉시 무기 장착 (SetMainWeaponDrawn 내부에서 RecreateWeapons 처리)
+            _mainWeaponDrawRequestVersion++;
+            _requestedMainWeaponDrawn = null;
+            SetMainWeaponDrawn(drawn);
+            onComplete?.Invoke();
             return true;
         }
 

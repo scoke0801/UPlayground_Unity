@@ -642,7 +642,7 @@ namespace UPlayGround.Component
                 _hitTargets.Add(damageable);
                 damageable.TakeDamage(_currentAttackData);
                 ShowDamageFloater(_currentAttackData);
-                GameObjectManager.Instance.ShowFX(_currentAttackData.hitParticleName, hitPoint);
+                GameObjectManager.Instance.ShowFX(GetHitFxKey(_currentAttackData), hitPoint);
                 OnAttackHit?.Invoke(_currentAttackData);
 
                 if (!hitOccurred)
@@ -750,6 +750,13 @@ namespace UPlayGround.Component
             _currentAttackData.airborneForce   = phase.airborneForce;
             _currentAttackData.knockbackForce  = phase.knockBackForce;
             _currentAttackData.knockbackDrag   = phase.knockBackDrag;
+        }
+
+        private static string GetHitFxKey(AttackData attackData)
+        {
+            return !string.IsNullOrWhiteSpace(attackData?.hitParticleName)
+                ? attackData.hitParticleName
+                : FXKeyType.DefaultCombatHit.ToKey();
         }
 
         private float GetAnimationDuration(AnimKey animKey)

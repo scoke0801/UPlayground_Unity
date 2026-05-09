@@ -14,6 +14,12 @@ namespace Game.Editor.P09Builder
         public float defaultWalkSpeed = 2f;
         public float defaultRunSpeed = 4f;
         public float defaultDetectionRadius = 10f;
+        public bool createNewPoise = true;
+        public ScriptableObject existingPoiseSo;
+        public float defaultMaxPoise = 100f;
+        public float defaultPoiseRecoveryDelay = 2f;
+        public float defaultPoiseRecoveryRate = 40f;
+        public bool defaultHasHyperArmor = false;
         public MonsterActorGrade grade = MonsterActorGrade.Normal;
         public int level = 1;
         public bool applyLevelScaling = true;

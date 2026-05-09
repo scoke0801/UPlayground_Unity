@@ -84,7 +84,10 @@
       "Bash(grep -B 3 -A 5 \"m_Name: Male_Body_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
       "Bash(grep -A 20 \"m_Name: Male_Body_Chest$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/No_MagicaCloth/P09_Human_No_Physics.prefab\")",
       "Bash(grep -B 2 \"m_Name: Armor_010$\\\\|m_Name: Armor_002$\\\\|m_Name: Body$\\\\|m_Name: Equipment$\\\\|m_Name: Male$\\\\|m_Name: Female$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")",
-      "Bash(grep -nE \"m_Name: \\(Male|Female|Fem\\)$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")"
+      "Bash(grep -nE \"m_Name: \\(Male|Female|Fem\\)$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")",
+      "Read(//c/Users/scoke/.claude/plans//**)",
+      "Read(//c/Users/scoke/.claude//**)",
+      "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/Component/Player/**)"
     ]
   }
 }

@@ -17,10 +17,6 @@ MonoBehaviour:
     _serializedList:
     - Key: 1
       Value: {fileID: 11400000, guid: deacba58f757e4d4a9f0e76a2de018c5, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: df2646241a2b67c49b25dd0fb2e270d5, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 879221719d387024e8d9de078e8df9b9, type: 2}
     - Key: 10
       Value: {fileID: 11400000, guid: b10696470d640bc408b4fde981d54f45, type: 2}
     - Key: 11

@@ -135,6 +135,9 @@ namespace UPlayGround.Actor.Editor
             if (_database != null && GUILayout.Button("프리팹 ID 동기화", EditorStyles.toolbarButton, GUILayout.Width(100)))
                 SyncPrefabActorIds();
 
+            if (_database != null && GUILayout.Button(GetMissingCleanupButtonLabel(), EditorStyles.toolbarButton, GUILayout.Width(96)))
+                CleanupMissingDefinitions();
+
             // 저장 버튼 — 미저장 변경이 있을 때 주황색 강조
             if (_hasUnsavedChanges)
             {
@@ -489,6 +492,79 @@ namespace UPlayGround.Actor.Editor
             }
             _dragIndex       = -1;
             _dropTargetIndex = -1;
+        }
+
+        private string GetMissingCleanupButtonLabel()
+        {
+            int missingCount = CountMissingDefinitions();
+            return missingCount > 0 ? $"Missing 정리 ({missingCount})" : "Missing 정리";
+        }
+
+        private int CountMissingDefinitions()
+        {
+            if (_database == null) return 0;
+
+            int count = 0;
+            foreach (var def in _database.All)
+            {
+                if (def == null)
+                    count++;
+            }
+            return count;
+        }
+
+        private void CleanupMissingDefinitions()
+        {
+            int missingCount = CountMissingDefinitions();
+            if (missingCount == 0)
+            {
+                EditorUtility.DisplayDialog("Missing 정리", "정리할 Missing 항목이 없습니다.", "확인");
+                return;
+            }
+
+            if (!EditorUtility.DisplayDialog(
+                "Missing 항목 정리",
+                $"ActorDatabase에서 Missing 항목 {missingCount}개를 제거하시겠습니까?\n(ActorDefinitionSO 에셋 파일은 삭제하지 않습니다)",
+                "정리", "취소"))
+                return;
+
+            Undo.RecordObject(_database, "Cleanup Missing Actor Definitions");
+
+            var dbSO = new SerializedObject(_database);
+            var actorsProp = dbSO.FindProperty("_actors");
+            if (actorsProp == null || !actorsProp.isArray)
+            {
+                EditorUtility.DisplayDialog("Missing 정리 실패", "ActorDatabase의 _actors 배열을 찾을 수 없습니다.", "확인");
+                return;
+            }
+
+            int removed = 0;
+            for (int i = actorsProp.arraySize - 1; i >= 0; i--)
+            {
+                var element = actorsProp.GetArrayElementAtIndex(i);
+                if (element.objectReferenceValue != null)
+                    continue;
+
+                int beforeSize = actorsProp.arraySize;
+                actorsProp.DeleteArrayElementAtIndex(i);
+                if (actorsProp.arraySize == beforeSize)
+                    actorsProp.DeleteArrayElementAtIndex(i);
+
+                removed++;
+            }
+
+            dbSO.ApplyModifiedProperties();
+            _database.InvalidateLookup();
+            EditorUtility.SetDirty(_database);
+
+            if (_selected == null)
+                ClearSelection();
+
+            MarkUnsaved();
+            Repaint();
+
+            Debug.Log($"[ActorDatabase] Missing 항목 정리 완료: {removed}개 제거");
+            EditorUtility.DisplayDialog("Missing 정리 완료", $"{removed}개 Missing 항목을 제거했습니다.", "확인");
         }
 
         private void DuplicateDefinition(ActorDefinitionSO source)

@@ -26,6 +26,11 @@ namespace Game.Editor.P09Builder
                 case SerializedPropertyType.Integer:
                     prop.intValue = System.Convert.ToInt32(value);
                     break;
+                case SerializedPropertyType.LayerMask:
+                    prop.intValue = value is LayerMask mask
+                        ? mask.value
+                        : System.Convert.ToInt32(value);
+                    break;
                 case SerializedPropertyType.Enum:
                     // intValue 사용: Flags enum과 일반 enum 모두에서 안전하게 동작
                     prop.intValue = System.Convert.ToInt32(value);
@@ -64,6 +69,37 @@ namespace Game.Editor.P09Builder
                 return null;
             serializedObject = new SerializedObject(obj);
             return serializedObject.FindProperty(fieldName);
+        }
+    }
+
+    internal static class LayerAssignmentUtil
+    {
+        private const string DefaultLayerName = "Default";
+
+        public static void ApplyActorLayer(GameObject root, string layerName)
+        {
+            if (root == null || string.IsNullOrEmpty(layerName)) return;
+
+            var layer = LayerMask.NameToLayer(layerName);
+            if (layer < 0)
+            {
+                Debug.LogWarning($"[P09Builder] Layer를 찾지 못했습니다: {layerName}");
+                return;
+            }
+
+            var defaultLayer = LayerMask.NameToLayer(DefaultLayerName);
+            var transforms = root.GetComponentsInChildren<Transform>(true);
+            Undo.RecordObjects(transforms, "Apply Actor Layer");
+
+            root.layer = layer;
+            foreach (var transform in transforms)
+            {
+                var go = transform.gameObject;
+                if (go == root || go.layer == defaultLayer)
+                    go.layer = layer;
+            }
+
+            EditorUtility.SetDirty(root);
         }
     }
 }

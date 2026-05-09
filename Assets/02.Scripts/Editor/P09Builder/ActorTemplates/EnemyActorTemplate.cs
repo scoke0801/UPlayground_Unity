@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Animancer;
 using KinematicCharacterController;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +32,8 @@ namespace Game.Editor.P09Builder
                 return;
             }
 
+            LayerAssignmentUtil.ApplyActorLayer(root, "Enemy");
+
             // 물리 / 이동
             if (root.GetComponent<KinematicCharacterMotor>() == null)
                 Undo.AddComponent<KinematicCharacterMotor>(root);
@@ -49,6 +52,9 @@ namespace Game.Editor.P09Builder
 
             if (root.GetComponent<Animator>() == null)
                 Undo.AddComponent<Animator>(root);
+
+            if (root.GetComponent<AnimancerComponent>() == null)
+                Undo.AddComponent<AnimancerComponent>(root);
 
             if (root.GetComponent<CapsuleCollider>() == null)
             {
@@ -75,6 +81,10 @@ namespace Game.Editor.P09Builder
             // ActorType 및 CharacterActorType 설정
             ReflectionUtil.SetField(actor, "_actorType", (int)(ActorType.Monster | ActorType.Combat));
             ReflectionUtil.SetField(actor, "_characterActorType", (int)CharacterActorType.None);
+            ReflectionUtil.SetField(actor, "_actorId", root.name);
+            ApplyMonsterSocketBindings(root, actor);
+
+            ApplyDetectionDefaults(detect);
         }
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
@@ -82,6 +92,10 @@ namespace Game.Editor.P09Builder
             // Stats: createNewStats=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewStats)
                 yield return new EnemyStatsDescDef();
+
+            // Poise: createNewPoise=true일 때만 생성
+            if (config != null && config.Stats != null && config.Stats.createNewPoise)
+                yield return new PoiseDescDef();
 
             // Behavior: createNewBehavior=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewBehavior)
@@ -109,8 +123,15 @@ namespace Game.Editor.P09Builder
             var attackData = FindFirst<EnemyAttackDataSO>(generatedDescs)
                              ?? (config?.Stats?.attackDataSo as EnemyAttackDataSO);
 
+            var poiseData = FindFirst<PoiseSO>(generatedDescs)
+                            ?? (config?.Stats?.existingPoiseSo as PoiseSO);
+
             if (actor != null && stats != null)
                 ReflectionUtil.SetField(actor, "_stats", stats);
+
+            var poise = root.GetComponent<PoiseStat>();
+            if (poise != null && poiseData != null)
+                ReflectionUtil.SetField(poise, "_data", poiseData);
 
             if (brain != null && behavior != null)
                 ReflectionUtil.SetField(brain, "_behaviorData", behavior);
@@ -137,6 +158,80 @@ namespace Game.Editor.P09Builder
             return null;
         }
 
+        private static void ApplyDetectionDefaults(EnemyDetection detection)
+        {
+            if (detection == null) return;
+
+            ReflectionUtil.SetField(detection, "_detectionRadius", 10f);
+            ReflectionUtil.SetField(detection, "_lostTargetRadius", 15f);
+            ReflectionUtil.SetField(detection, "_fieldOfView", 120f);
+            ReflectionUtil.SetField(detection, "_targetLayer", LayerMask.GetMask("Player"));
+            ReflectionUtil.SetField(detection, "_obstacleLayer", LayerMask.GetMask("Default", "Water", "InteractableObject"));
+            ReflectionUtil.SetField(detection, "_allyDetectionRadius", 10f);
+            ReflectionUtil.SetField(detection, "_allyLayer", LayerMask.GetMask("Enemy"));
+            ReflectionUtil.SetField(detection, "_detectionInterval", 0.2f);
+        }
+
+        private static void ApplyMonsterSocketBindings(GameObject root, MonsterActor actor)
+        {
+            if (root == null || actor == null) return;
+
+            var chest = FindChild(root, "Chest");
+            var hpBarSocket = FindChild(root, "HpBarSocket");
+            var lockOn = FindChild(root, "LockOn");
+
+            SetSocket(actor, ActorSocketType.Center, chest);
+            SetSocket(actor, ActorSocketType.UI_HpBar, hpBarSocket);
+            ReflectionUtil.SetField(actor, "_lockOnDecal", lockOn != null ? lockOn.gameObject : null);
+
+            if (chest == null)
+                Debug.LogWarning($"[P09Builder] MonsterActor Center 소켓 대상 'Chest'를 찾지 못했습니다: {root.name}");
+            if (hpBarSocket == null)
+                Debug.LogWarning($"[P09Builder] MonsterActor UI_HpBar 소켓 대상 'HpBarSocket'을 찾지 못했습니다: {root.name}");
+            if (lockOn == null)
+                Debug.LogWarning($"[P09Builder] MonsterActor LockOnDecal 대상 'LockOn'을 찾지 못했습니다: {root.name}");
+        }
+
+        private static Transform FindChild(GameObject root, string childName)
+        {
+            if (root == null || string.IsNullOrEmpty(childName)) return null;
+
+            var transforms = root.GetComponentsInChildren<Transform>(true);
+            return transforms.FirstOrDefault(t =>
+                string.Equals(t.name, childName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static void SetSocket(MonsterActor actor, ActorSocketType socketType, Transform socket)
+        {
+            if (socket == null) return;
+
+            var prop = ReflectionUtil.FindProperty(actor, "_socketDict", out var so);
+            var list = prop?.FindPropertyRelative("_serializedList");
+            if (so == null || list == null)
+            {
+                Debug.LogWarning($"[P09Builder] MonsterActor SocketDict 직렬화 필드를 찾지 못했습니다: {actor.name}");
+                return;
+            }
+
+            var key = (int)socketType;
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                var element = list.GetArrayElementAtIndex(i);
+                if (element.FindPropertyRelative("Key")?.intValue != key)
+                    continue;
+
+                element.FindPropertyRelative("Value").objectReferenceValue = socket;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                return;
+            }
+
+            list.InsertArrayElementAtIndex(list.arraySize);
+            var newElement = list.GetArrayElementAtIndex(list.arraySize - 1);
+            newElement.FindPropertyRelative("Key").intValue = key;
+            newElement.FindPropertyRelative("Value").objectReferenceValue = socket;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         // ---------- DescDefs ----------
         private sealed class EnemyStatsDescDef : IDescDef
         {
@@ -160,6 +255,29 @@ namespace Game.Editor.P09Builder
                 stats.runSpeed         = config.Stats.defaultRunSpeed * tuning.MoveSpeedMultiplier;
                 stats.detectionRadius  = config.Stats.defaultDetectionRadius;
                 stats.grade            = config.Stats.grade;
+
+                EditorUtility.SetDirty(so);
+            }
+        }
+
+        private sealed class PoiseDescDef : IDescDef
+        {
+            public Type DescType => typeof(PoiseSO);
+            public string Suffix => "_Poise";
+
+            public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
+            {
+                if (so is not PoiseSO poise) return;
+                if (config?.Stats == null)
+                {
+                    EditorUtility.SetDirty(so);
+                    return;
+                }
+
+                poise.maxPoise = Mathf.Max(1f, config.Stats.defaultMaxPoise);
+                poise.recoveryDelay = Mathf.Max(0f, config.Stats.defaultPoiseRecoveryDelay);
+                poise.recoveryRate = Mathf.Max(0f, config.Stats.defaultPoiseRecoveryRate);
+                poise.hasHyperArmor = config.Stats.defaultHasHyperArmor;
 
                 EditorUtility.SetDirty(so);
             }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Animancer;
 using KinematicCharacterController;
 using UnityEditor;
 using UnityEngine;
@@ -25,6 +26,8 @@ namespace Game.Editor.P09Builder
                 return;
             }
 
+            LayerAssignmentUtil.ApplyActorLayer(root, "Player");
+
             // 물리 / 이동
             GetOrAdd<KinematicCharacterMotor>(root);
             GetOrAdd<PlayerMovementController>(root);
@@ -37,6 +40,9 @@ namespace Game.Editor.P09Builder
 
             if (root.GetComponent<Animator>() == null)
                 Undo.AddComponent<Animator>(root);
+
+            if (root.GetComponent<AnimancerComponent>() == null)
+                Undo.AddComponent<AnimancerComponent>(root);
 
             if (root.GetComponent<CapsuleCollider>() == null)
             {

@@ -27,7 +27,6 @@ namespace Game.Editor.P09Builder
 
             // 물리 / 이동
             GetOrAdd<KinematicCharacterMotor>(root);
-            GetOrAdd<MotionWarpController>(root);
             GetOrAdd<PlayerMovementController>(root);
 
             // Player 핵심 컴포넌트

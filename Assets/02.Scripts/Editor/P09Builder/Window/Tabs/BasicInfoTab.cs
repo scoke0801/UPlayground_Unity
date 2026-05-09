@@ -40,6 +40,7 @@ namespace Game.Editor.P09Builder
 
             // ---------- 성별 ----------
             config.Sex = (BuilderSex)EditorGUILayout.EnumPopup("성별", config.Sex);
+            config.IsRandomAppearance = EditorGUILayout.Toggle("랜덤 외형 태그", config.IsRandomAppearance);
 
             // ---------- BustSize (Female 전용) ----------
             using (new EditorGUI.DisabledGroupScope(config.Sex != BuilderSex.Female))

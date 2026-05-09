@@ -12,6 +12,10 @@ namespace UPlayGround.Data.Enemy
     public class EnemyStatsSO : ScriptableObject
     {
         [Header("Health")]
+        [Min(1)]
+        [Tooltip("생성/밸런싱 기준 레벨. 런타임 레벨 시스템과 연결하기 위한 메타값.")]
+        public int level = 1;
+
         [Tooltip("레거시 체력. 런타임 폴백으로 쓰지 않고 ActorStatSO 생성 시 MaxHealth 초기값으로만 사용한다.")]
         public float maxHealth = 100f;
         

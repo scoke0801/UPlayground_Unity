@@ -45,6 +45,39 @@ namespace Game.Editor.P09Builder
                     config.Stats.defaultRunSpeed        = EditorGUILayout.FloatField("이동속도(달리기)", config.Stats.defaultRunSpeed);
                     config.Stats.defaultDetectionRadius = EditorGUILayout.FloatField("탐지 반경", config.Stats.defaultDetectionRadius);
                     config.Stats.grade                  = (MonsterActorGrade)EditorGUILayout.EnumPopup("등급", config.Stats.grade);
+                    config.Stats.level                  = Mathf.Max(1, EditorGUILayout.IntField("레벨", config.Stats.level));
+
+                    EditorGUILayout.Space(4);
+                    config.Stats.applyLevelScaling = EditorGUILayout.Toggle("레벨 스케일링", config.Stats.applyLevelScaling);
+                    if (config.Stats.applyLevelScaling)
+                    {
+                        using (new EditorGUI.IndentLevelScope())
+                        {
+                            config.Stats.healthPerLevel = EditorGUILayout.FloatField("레벨당 체력 증가율", config.Stats.healthPerLevel);
+                            config.Stats.attackPerLevel = EditorGUILayout.FloatField("레벨당 공격 증가율", config.Stats.attackPerLevel);
+                        }
+                    }
+
+                    config.Stats.applyArmorStatBonus = EditorGUILayout.Toggle("갑옷 프리셋 스탯 강화", config.Stats.applyArmorStatBonus);
+                    if (config.Stats.applyArmorStatBonus)
+                    {
+                        using (new EditorGUI.IndentLevelScope())
+                        {
+                            config.Stats.armorHealthPerTier = EditorGUILayout.FloatField("갑옷 티어당 체력 증가율", config.Stats.armorHealthPerTier);
+                            config.Stats.armorMoveSpeedPerTier = EditorGUILayout.FloatField("갑옷 티어당 이동 증가율", config.Stats.armorMoveSpeedPerTier);
+                        }
+                    }
+
+                    config.Stats.randomizeStatsOnBuild = EditorGUILayout.Toggle("빌드 시 스탯 랜덤 발급", config.Stats.randomizeStatsOnBuild);
+                    using (new EditorGUI.DisabledScope(!config.Stats.randomizeStatsOnBuild))
+                    using (new EditorGUI.IndentLevelScope())
+                    {
+                        config.Stats.randomStatMin = EditorGUILayout.FloatField("랜덤 최소 배율", config.Stats.randomStatMin);
+                        config.Stats.randomStatMax = EditorGUILayout.FloatField("랜덤 최대 배율", config.Stats.randomStatMax);
+                    }
+
+                    if (GUILayout.Button("현재 스탯 랜덤 발급"))
+                        RandomizeEnemyStats(config);
                 }
             }
             else
@@ -79,6 +112,20 @@ namespace Game.Editor.P09Builder
                 "AttackData SO", config.Stats.attackDataSo, typeof(EnemyAttackDataSO), false) as ScriptableObject;
             config.Stats.combatStyle = (EnemyCombatStyle)EditorGUILayout.EnumPopup(
                 "전투 스타일", config.Stats.combatStyle);
+            config.Stats.defaultAttackDamage = EditorGUILayout.FloatField(
+                "기본 공격 데미지", config.Stats.defaultAttackDamage);
+            config.Stats.applyWeaponAttackBonus = EditorGUILayout.Toggle(
+                "무기 등급 공격 강화", config.Stats.applyWeaponAttackBonus);
+            if (config.Stats.applyWeaponAttackBonus)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    config.Stats.weaponAttackPerTier = EditorGUILayout.FloatField(
+                        "무기 티어당 공격 증가율", config.Stats.weaponAttackPerTier);
+                }
+            }
+            if (config.Stats.attackDataSo != null)
+                EditorGUILayout.HelpBox("기존 AttackData SO를 지정하면 공유 자산 보호를 위해 새 공격 데이터 보정은 적용하지 않습니다.", MessageType.Info);
 
             EditorGUILayout.Space();
 
@@ -93,6 +140,20 @@ namespace Game.Editor.P09Builder
                         "합류 캐릭터", config.Stats.recruitableAs);
                 }
             }
+        }
+
+        private static void RandomizeEnemyStats(CharacterBuildConfig config)
+        {
+            if (config?.Stats == null) return;
+
+            config.Stats.level = UnityEngine.Random.Range(1, 31);
+            config.Stats.defaultHp = Mathf.Round(UnityEngine.Random.Range(80f, 220f));
+            config.Stats.defaultWalkSpeed = UnityEngine.Random.Range(1.6f, 3.0f);
+            config.Stats.defaultRunSpeed = UnityEngine.Random.Range(3.2f, 6.0f);
+            config.Stats.defaultDetectionRadius = UnityEngine.Random.Range(8f, 18f);
+            config.Stats.defaultAttackDamage = Mathf.Round(UnityEngine.Random.Range(8f, 28f));
+            config.Stats.grade = (MonsterActorGrade)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(MonsterActorGrade)).Length);
+            GUI.changed = true;
         }
 
         // ---------- Player ----------

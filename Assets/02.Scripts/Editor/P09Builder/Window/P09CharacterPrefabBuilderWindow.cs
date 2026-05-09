@@ -186,6 +186,8 @@ namespace Game.Editor.P09Builder
             if (_config.ArmorSelections == null)
                 _config.ArmorSelections = new ArmorSelectionMap();
 
+            _config.IsRandomAppearance = true;
+
             var armorPresets = ArmorIndexPresetUtility.Build(_catalog);
             if (armorPresets.Count > 0)
                 ArmorIndexPresetUtility.Apply(_config.ArmorSelections, armorPresets[UnityEngine.Random.Range(0, armorPresets.Count)]);
@@ -397,6 +399,11 @@ namespace Game.Editor.P09Builder
                 if (result.Success)
                 {
                     _statusMessage = $"완료: {result.PrefabPath}";
+                    if (result.Prefab != null)
+                    {
+                        Selection.activeObject = result.Prefab;
+                        EditorGUIUtility.PingObject(result.Prefab);
+                    }
 
                     // 시퀀스가 증가했으니 미리보기 이름 갱신
                     if (_registry != null)

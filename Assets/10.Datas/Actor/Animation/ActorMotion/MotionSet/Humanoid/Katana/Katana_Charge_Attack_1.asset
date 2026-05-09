@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Katana_Charge_Attack_1
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: 
+      motionClip: {fileID: 7400000, guid: b16aec4454f0ef64ba2b5bafce050920, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917011524124806
+      - rid: 5792125535029297270
+      - rid: 5792125557290303606
+      - rid: 5792125557290303607
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5792125535029297270
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.43003654
+        endTime: 0.4300365
+        globalStartTimeOffset: 0
+        mode: 2
+        loopCount: 1
+        freezeDuration: 3
+    - rid: 5792125557290303606
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.4530412
+        endTime: 0.4530412
+        globalStartTimeOffset: 0
+        mode: 2
+        loopCount: 1
+        freezeDuration: 3
+    - rid: 5792125557290303607
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.4775
+        endTime: 0.4775
+        globalStartTimeOffset: 0
+        mode: 2
+        loopCount: 1
+        freezeDuration: 3
+    - rid: 7399917011524124806
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2705625
+        endTime: 1.6279955
+        globalStartTimeOffset: 0
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 128
+        hitPhaseIndex: 0

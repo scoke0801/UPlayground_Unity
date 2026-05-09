@@ -5,6 +5,7 @@ using KinematicCharacterController;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround;
+using UPlayGround.Data;
 using UPlayGround.Component;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
@@ -33,9 +34,6 @@ namespace Game.Editor.P09Builder
             // 물리 / 이동
             if (root.GetComponent<KinematicCharacterMotor>() == null)
                 Undo.AddComponent<KinematicCharacterMotor>(root);
-
-            if (root.GetComponent<MotionWarpController>() == null)
-                Undo.AddComponent<MotionWarpController>(root);
 
             if (root.GetComponent<EnemyMovementController>() == null)
                 Undo.AddComponent<EnemyMovementController>(root);
@@ -154,9 +152,12 @@ namespace Game.Editor.P09Builder
                     return;
                 }
 
-                stats.maxHealth        = config.Stats.defaultHp;
-                stats.walkSpeed        = config.Stats.defaultWalkSpeed;
-                stats.runSpeed         = config.Stats.defaultRunSpeed;
+                var tuning = EnemyStatTuningUtility.Calculate(config);
+
+                stats.level            = Mathf.Max(1, config.Stats.level);
+                stats.maxHealth        = config.Stats.defaultHp * tuning.HealthMultiplier;
+                stats.walkSpeed        = config.Stats.defaultWalkSpeed * tuning.MoveSpeedMultiplier;
+                stats.runSpeed         = config.Stats.defaultRunSpeed * tuning.MoveSpeedMultiplier;
                 stats.detectionRadius  = config.Stats.defaultDetectionRadius;
                 stats.grade            = config.Stats.grade;
 
@@ -190,7 +191,35 @@ namespace Game.Editor.P09Builder
 
             public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
             {
-                // 기본값(빈 skills 리스트, globalCooldown=1f)을 그대로 사용한다.
+                if (so is EnemyAttackDataSO attackData && config?.Stats != null)
+                {
+                    var tuning = EnemyStatTuningUtility.Calculate(config);
+                    var skill = new EnemyAttackInfo
+                    {
+                        baseInfo = new AttackInfoBase
+                        {
+                            attackType = AttackType.Melee,
+                            hitPhases = new List<HitPhaseData>
+                            {
+                                new HitPhaseData
+                                {
+                                    damage = config.Stats.defaultAttackDamage * tuning.AttackMultiplier,
+                                    poiseDamage = 30f,
+                                    reactionType = AttackReactionType.Hit,
+                                }
+                            }
+                        },
+                        skillType = SkillType.Attack,
+                        selectionWeight = 10f,
+                        minRange = 0f,
+                        maxRange = Mathf.Max(1f, config.Stats.optimalCombatDistance + 0.5f),
+                        cooldown = 2f,
+                    };
+
+                    attackData.skills.Clear();
+                    attackData.skills.Add(skill);
+                }
+
                 EditorUtility.SetDirty(so);
             }
         }

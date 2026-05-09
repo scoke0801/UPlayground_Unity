@@ -30,7 +30,6 @@ namespace Game.Editor.P09Builder
 
             // 물리 / 이동
             GetOrAdd<KinematicCharacterMotor>(root);
-            GetOrAdd<MotionWarpController>(root);
             GetOrAdd<NpcMovementController>(root);
 
             var actor = GetOrAdd<NpcActor>(root);

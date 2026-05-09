@@ -28,6 +28,7 @@ namespace Game.Editor.P09Builder
         public int FacialHairId = 0;
         public ScriptableObject EyeColorSo;
         public ScriptableObject SkinColorSo;
+        public bool IsRandomAppearance = false;
 
         // ---------- Weapons ----------
         public bool UseWeaponGroup = false;
@@ -69,6 +70,7 @@ namespace Game.Editor.P09Builder
             FacialHairId = 0;
             EyeColorSo = null;
             SkinColorSo = null;
+            IsRandomAppearance = false;
             UseWeaponGroup = false;
             WeaponGroupSo = null;
             SwordSo = null;

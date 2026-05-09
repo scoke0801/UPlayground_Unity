@@ -139,9 +139,14 @@ public class UI_PartyMenu : UI_Base
     private void OnEntryToggleRequested(CharacterActorType type)
     {
         if (_pendingOrder.Contains(type))
+        {
+            if (_pendingOrder.Count <= 1) return; // 마지막 출전 멤버는 목록 클릭으로도 해제 불가
             _pendingOrder.Remove(type);
+        }
         else if (_pendingOrder.Count < (PartyManager.Instance?.MaxBattleSize ?? 4))
+        {
             _pendingOrder.Add(type);
+        }
 
         Refresh();
     }

@@ -93,6 +93,15 @@ namespace UPlayGround.Component
         private void Start()
         {
             RefreshWeaponConstraintsFromModel();
+
+            // RefreshForCharacter가 swap 시 미리 세팅한 weapon type이 있으면 constraint 재해결.
+            // (RefreshWeaponConstraintsFromModel이 _mainWeaponConstraint를 null로 리셋하기 때문에
+            //  start item이 비어있는 모델은 이 보정이 없으면 constraint가 영구 null로 남는다.)
+            if (_mainWeaponType != WeaponType.NoWeapon)
+                SetRightWeaponType(_mainWeaponType);
+            if (_subWeaponType != WeaponType.NoWeapon)
+                SetLeftWeaponType(_subWeaponType);
+
             StartCoroutine(CoEquipStartItem());
         }
 
@@ -292,11 +301,15 @@ namespace UPlayGround.Component
 
         public void SetMainWeaponDrawn(bool drawn)
         {
-            if (!CanToggleMainWeapon() || IsMainWeaponEquipped == drawn)
+            if (!CanToggleMainWeapon())
                 return;
 
-            if (drawn)
+            // 발도 시: 무기 GameObject가 없거나 디졸브로 사라졌으면 플래그와 무관하게 항상 재생성
+            if (drawn && _currentMainWeaponObj == null)
                 RecreateWeapons();
+
+            if (IsMainWeaponEquipped == drawn)
+                return;
 
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
@@ -333,10 +346,12 @@ namespace UPlayGround.Component
                 return true;
             }
 
-            // 납도: 애니메이션 없이 무기 디졸브
+            // 납도: 애니메이션 없이 무기 디졸브 + constraint weight도 back으로 동기화
             if (!drawn)
             {
                 DissolveDrawnWeapons();
+                if (_mainWeaponConstraint != null && _mainWeaponConstraint.sourceCount >= 2)
+                    SetWeaponDrawn(_mainWeaponConstraint, false);
                 IsMainWeaponEquipped = false;
                 _requestedMainWeaponDrawn = null;
                 onComplete?.Invoke();

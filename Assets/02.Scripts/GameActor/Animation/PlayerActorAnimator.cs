@@ -90,7 +90,7 @@ namespace UPlayGround.Animation
         }
 
         // 손에 들고 있을 때만 무기 모션셋, 등에 멘 상태에서는 NoWeapon 모션셋을 사용한다.
-        // 단 발도/납도 모션 자체는 무기에 정의된 모션이라 WeaponType 기준 그대로 사용.
+        // 단 발도/납도 및 전투 모션은 무기 정의 기준이라 WeaponType 그대로 사용.
         private WeaponType GetActiveWeaponTypeForMotion(AnimKey key)
         {
             if (_playerEquipment == null)
@@ -99,9 +99,19 @@ namespace UPlayGround.Animation
             if (key == AnimKey.Equip_Weapon || key == AnimKey.UnEquip_Weapon || key == AnimKey.Equip_LeftWeapon)
                 return _playerEquipment.GetMainWeaponType();
 
+            // 전투 모션은 무기를 든 상태 전제 → IsMainWeaponEquipped 무관하게 무기 타입 사용
+            if (IsCombatMotion(key))
+                return _playerEquipment.GetMainWeaponType();
+
             return _playerEquipment.IsMainWeaponEquipped
                 ? _playerEquipment.GetMainWeaponType()
                 : WeaponType.NoWeapon;
+        }
+
+        private static bool IsCombatMotion(AnimKey key)
+        {
+            int v = (int)key;
+            return v >= (int)AnimKey.Attack_1 && v <= (int)AnimKey.FinishAttack;
         }
     }
 

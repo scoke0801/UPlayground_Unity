@@ -331,6 +331,7 @@ namespace Game.Editor.P09Builder
             if (_preview != null)
             {
                 _preview.CameraFov = EditorGUILayout.Slider("FOV", _preview.CameraFov, 20f, 60f);
+                _preview.VerticalOffset = EditorGUILayout.Slider("Y 위치", _preview.VerticalOffset, -1f, 1f);
                 _preview.BackgroundColor = EditorGUILayout.ColorField("배경", _preview.BackgroundColor);
             }
 

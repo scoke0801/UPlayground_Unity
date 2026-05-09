@@ -22,9 +22,14 @@ namespace Game.Editor.P09Builder
         public List<ScriptableObject> SkinColorsFemale { get; } = new();
         public List<ScriptableObject> BustSizes { get; } = new();
         public List<ScriptableObject> Swords { get; } = new();
+        public List<ScriptableObject> SubSwords { get; } = new();
+        public List<ScriptableObject> GreatSwords { get; } = new();
         public List<ScriptableObject> Shields { get; } = new();
         public List<ScriptableObject> Bows { get; } = new();
         public List<ScriptableObject> Staves { get; } = new();
+        public List<ScriptableObject> Spears { get; } = new();
+        public List<ScriptableObject> DualAxes { get; } = new();
+        public List<ScriptableObject> Whips { get; } = new();
         public List<ScriptableObject> WeaponGroups { get; } = new();
 
         public bool IsLoaded { get; private set; }
@@ -68,13 +73,19 @@ namespace Game.Editor.P09Builder
 
             if (inWeapon)
             {
-                if (ContainsSegment(segs, "Sword"))   { Swords.Add(so); return; }
-                if (ContainsSegment(segs, "Shield"))  { Shields.Add(so); return; }
-                if (ContainsSegment(segs, "Bow"))     { Bows.Add(so); return; }
-                if (ContainsSegment(segs, "Staff"))   { Staves.Add(so); return; }
+                if (ContainsSegment(segs, "SubSword"))   { SubSwords.Add(so); return; }
+                if (ContainsSegment(segs, "GreatSword")) { GreatSwords.Add(so); return; }
+                if (ContainsSegment(segs, "Sword"))      { Swords.Add(so); return; }
+                if (ContainsSegment(segs, "Shield"))     { Shields.Add(so); return; }
+                if (ContainsSegment(segs, "Bow"))        { Bows.Add(so); return; }
+                if (ContainsSegment(segs, "Staff"))      { Staves.Add(so); return; }
+                if (ContainsSegment(segs, "Spear"))      { Spears.Add(so); return; }
+                if (ContainsSegment(segs, "DualAxe"))    { DualAxes.Add(so); return; }
+                if (ContainsSegment(segs, "DoubleAxe"))  { DualAxes.Add(so); return; }
+                if (ContainsSegment(segs, "Whip"))       { Whips.Add(so); return; }
                 if (ContainsSegment(segs, "WeaponGroup")) { WeaponGroups.Add(so); return; }
-                // Weapon/ 직속 - 기본은 Sword 취급
-                Swords.Add(so);
+
+                CategorizeWeaponByMeshName(so);
                 return;
             }
             if (inShield) { Shields.Add(so); return; }
@@ -115,6 +126,47 @@ namespace Game.Editor.P09Builder
             return false;
         }
 
+        private void CategorizeWeaponByMeshName(ScriptableObject so)
+        {
+            string meshName = ReadString(so, "_meshName", "meshName");
+
+            if (StartsWith(meshName, "SubSword"))   { SubSwords.Add(so); return; }
+            if (StartsWith(meshName, "GreatSword")) { GreatSwords.Add(so); return; }
+            if (StartsWith(meshName, "Shield"))     { Shields.Add(so); return; }
+            if (StartsWith(meshName, "Bow"))        { Bows.Add(so); return; }
+            if (StartsWith(meshName, "Staff"))      { Staves.Add(so); return; }
+            if (StartsWith(meshName, "Spear"))      { Spears.Add(so); return; }
+            if (StartsWith(meshName, "DualAxe"))    { DualAxes.Add(so); return; }
+            if (StartsWith(meshName, "DoubleAxe"))  { DualAxes.Add(so); return; }
+            if (StartsWith(meshName, "Whip"))       { Whips.Add(so); return; }
+
+            // 기존 P09 데이터처럼 Weapon/ 직속에 검 데이터가 놓이는 경우.
+            Swords.Add(so);
+        }
+
+        private static bool StartsWith(string value, string prefix)
+        {
+            return !string.IsNullOrEmpty(value) &&
+                   value.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ReadString(ScriptableObject so, params string[] propertyNames)
+        {
+            try
+            {
+                var sObj = new SerializedObject(so);
+                foreach (var propertyName in propertyNames)
+                {
+                    var prop = sObj.FindProperty(propertyName);
+                    if (prop != null && prop.propertyType == SerializedPropertyType.String)
+                        return prop.stringValue;
+                }
+            }
+            catch { }
+
+            return string.Empty;
+        }
+
         private static int ReadSexId(ScriptableObject so)
         {
             try
@@ -142,7 +194,9 @@ namespace Game.Editor.P09Builder
             FacialHairs.Clear(); EyeColors.Clear();
             SkinColorsAll.Clear(); SkinColorsMale.Clear(); SkinColorsFemale.Clear();
             BustSizes.Clear();
-            Swords.Clear(); Shields.Clear(); Bows.Clear(); Staves.Clear();
+            Swords.Clear(); SubSwords.Clear(); GreatSwords.Clear();
+            Shields.Clear(); Bows.Clear(); Staves.Clear();
+            Spears.Clear(); DualAxes.Clear(); Whips.Clear();
             WeaponGroups.Clear();
         }
 
@@ -164,9 +218,14 @@ namespace Game.Editor.P09Builder
             SkinColorsFemale.Sort(NameCompare);
             BustSizes.Sort(NameCompare);
             Swords.Sort(NameCompare);
+            SubSwords.Sort(NameCompare);
+            GreatSwords.Sort(NameCompare);
             Shields.Sort(NameCompare);
             Bows.Sort(NameCompare);
             Staves.Sort(NameCompare);
+            Spears.Sort(NameCompare);
+            DualAxes.Sort(NameCompare);
+            Whips.Sort(NameCompare);
             WeaponGroups.Sort(NameCompare);
         }
 

@@ -13,6 +13,7 @@ namespace Game.Editor.P09Builder
         private int _lastVisualSignature;
 
         public float CameraFov { get; set; } = 30f;
+        public float VerticalOffset { get; set; }
         public Color BackgroundColor { get; set; } = new Color(0.18f, 0.18f, 0.18f, 1f);
         public string LastError { get; private set; }
         public bool HasInstance => _instance != null;
@@ -97,6 +98,7 @@ namespace Game.Editor.P09Builder
         public void ResetView()
         {
             _drag = Vector2.zero;
+            VerticalOffset = 0f;
             FrameInstance();
         }
 
@@ -154,13 +156,14 @@ namespace Game.Editor.P09Builder
         private void FrameInstance()
         {
             if (_instance == null) return;
-            _instance.transform.position = Vector3.zero;
-            _instance.transform.rotation = Quaternion.identity;
+            _instance.transform.position = new Vector3(0f, VerticalOffset, 0f);
+            _instance.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
         private void PositionCamera()
         {
-            var rotation = Quaternion.Euler(0f, _drag.x * 0.6f, 0f);
+            var rotation = Quaternion.Euler(0f, 180f + _drag.x * 0.6f, 0f);
+            _instance.transform.position = new Vector3(0f, VerticalOffset, 0f);
             _instance.transform.rotation = rotation;
 
             var camera = _preview.camera;
@@ -196,9 +199,14 @@ namespace Game.Editor.P09Builder
                 hash = hash * 31 + (config.UseWeaponGroup ? 1 : 0);
                 hash = hash * 31 + GetId(config.WeaponGroupSo);
                 hash = hash * 31 + GetId(config.SwordSo);
+                hash = hash * 31 + GetId(config.SubSwordSo);
+                hash = hash * 31 + GetId(config.GreatSwordSo);
                 hash = hash * 31 + GetId(config.ShieldSo);
                 hash = hash * 31 + GetId(config.BowSo);
                 hash = hash * 31 + GetId(config.StaffSo);
+                hash = hash * 31 + GetId(config.SpearSo);
+                hash = hash * 31 + GetId(config.DualAxeSo);
+                hash = hash * 31 + GetId(config.WhipSo);
                 hash = hash * 31 + (config.ShowArrows ? 1 : 0);
 
                 foreach (var slot in BuilderArmorSlotExtensions.All)

@@ -33,9 +33,14 @@ namespace Game.Editor.P09Builder
         public bool UseWeaponGroup = false;
         public ScriptableObject WeaponGroupSo;
         public ScriptableObject SwordSo;
+        public ScriptableObject SubSwordSo;
+        public ScriptableObject GreatSwordSo;
         public ScriptableObject ShieldSo;
         public ScriptableObject BowSo;
         public ScriptableObject StaffSo;
+        public ScriptableObject SpearSo;
+        public ScriptableObject DualAxeSo;
+        public ScriptableObject WhipSo;
         public bool ShowArrows = false;
 
         // ---------- Physics ----------
@@ -67,9 +72,14 @@ namespace Game.Editor.P09Builder
             UseWeaponGroup = false;
             WeaponGroupSo = null;
             SwordSo = null;
+            SubSwordSo = null;
+            GreatSwordSo = null;
             ShieldSo = null;
             BowSo = null;
             StaffSo = null;
+            SpearSo = null;
+            DualAxeSo = null;
+            WhipSo = null;
             ShowArrows = false;
             UseMagicaCloth = true;
             Stats = new StatsAssignment();

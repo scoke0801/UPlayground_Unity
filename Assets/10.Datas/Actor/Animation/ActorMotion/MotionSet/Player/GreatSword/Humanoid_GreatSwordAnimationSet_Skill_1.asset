@@ -20,8 +20,16 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7432452531840876594
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452531840876594
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3887894
+        endTime: 1.8887893
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0

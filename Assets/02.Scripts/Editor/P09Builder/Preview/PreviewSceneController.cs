@@ -89,7 +89,7 @@ namespace Game.Editor.P09Builder
             _preview.cameraFieldOfView = CameraFov;
             _preview.BeginPreview(rect, GUIStyle.none);
             GL.Clear(true, true, BackgroundColor);
-            PositionCamera();
+            PositionCamera(rect);
             _preview.camera.Render();
             var texture = _preview.EndPreview();
             GUI.DrawTexture(rect, texture, ScaleMode.StretchToFill, false);
@@ -160,17 +160,41 @@ namespace Game.Editor.P09Builder
             _instance.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
-        private void PositionCamera()
+        private void PositionCamera(Rect rect)
         {
             var rotation = Quaternion.Euler(0f, 180f + _drag.x * 0.6f, 0f);
             _instance.transform.position = new Vector3(0f, VerticalOffset, 0f);
             _instance.transform.rotation = rotation;
 
+            var bounds = CalculateRendererBounds(_instance);
+            var target = bounds.center;
+            var verticalSize = Mathf.Max(bounds.size.y, 0.5f);
+            var horizontalSize = Mathf.Max(bounds.size.x, bounds.size.z, 0.5f);
+            var aspect = Mathf.Max(rect.width / Mathf.Max(rect.height, 1f), 0.1f);
+            var verticalFov = CameraFov * Mathf.Deg2Rad;
+            var horizontalFov = 2f * Mathf.Atan(Mathf.Tan(verticalFov * 0.5f) * aspect);
+            const float FillRatio = 0.88f;
+            var distanceByHeight = (verticalSize * 0.5f) / Mathf.Tan(verticalFov * 0.5f) / FillRatio;
+            var distanceByWidth = (horizontalSize * 0.5f) / Mathf.Tan(horizontalFov * 0.5f) / FillRatio;
+            var distance = Mathf.Max(distanceByHeight, distanceByWidth, 1.2f);
+
             var camera = _preview.camera;
-            camera.transform.position = new Vector3(0f, 1.15f, -4.2f);
-            camera.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 1.05f, 0f) - camera.transform.position);
+            camera.transform.position = target + new Vector3(0f, 0f, -distance);
+            camera.transform.rotation = Quaternion.LookRotation(target - camera.transform.position);
             camera.nearClipPlane = 0.03f;
-            camera.farClipPlane = 100f;
+            camera.farClipPlane = Mathf.Max(100f, distance + bounds.extents.magnitude + 10f);
+        }
+
+        private static Bounds CalculateRendererBounds(GameObject root)
+        {
+            var renderers = root.GetComponentsInChildren<Renderer>(includeInactive: false);
+            if (renderers == null || renderers.Length == 0)
+                return new Bounds(root.transform.position + Vector3.up, Vector3.one * 2f);
+
+            var bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+            return bounds;
         }
 
         private static void ClearScenePreview()

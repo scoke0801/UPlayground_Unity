@@ -99,6 +99,7 @@ namespace UPlayGround.Animation.Editor
 
         // 이벤트 복사 버퍼
         MotionEventBase _copiedEvent = null;
+        string _eventFilterText = string.Empty;
 
         // 섹션 접힘 상태
         public bool foldMotions = true;
@@ -125,13 +126,15 @@ namespace UPlayGround.Animation.Editor
         // Undo/Dirty 처리용 콜백
         readonly Func<UnityEngine.Object> _getTarget;
         readonly Action _repaint;
+        readonly Action<int, int> _onSelectedMotionChanged;
 
         /// <param name="getTarget">Undo/Dirty 대상 오브젝트 반환</param>
         /// <param name="repaint">Repaint 요청 콜백</param>
-        public MotionSetDrawer(Func<UnityEngine.Object> getTarget, Action repaint)
+        public MotionSetDrawer(Func<UnityEngine.Object> getTarget, Action repaint, Action<int, int> onSelectedMotionChanged = null)
         {
             _getTarget = getTarget;
             _repaint = repaint;
+            _onSelectedMotionChanged = onSelectedMotionChanged;
         }
 
         void RecordUndo(string name)
@@ -486,7 +489,12 @@ namespace UPlayGround.Animation.Editor
                         if (selected) GUI.backgroundColor = new Color(0.4f, 0.6f, 0.9f);
 
                         if (GUILayout.Button($"#{i}", GUILayout.Width(28)))
+                        {
+                            int previousIndex = selectedMotionIndex;
                             selectedMotionIndex = selectedMotionIndex == i ? -1 : i;
+                            if (previousIndex != selectedMotionIndex)
+                                _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
+                        }
 
                         GUI.backgroundColor = Color.white;
 
@@ -639,12 +647,13 @@ namespace UPlayGround.Animation.Editor
             motion.events ??= new List<MotionEventBase>();
 
             EditorGUI.indentLevel++;
-            EditorGUILayout.LabelField("이벤트", EditorStyles.miniBoldLabel);
+            DrawAttachedEventFilterBar("이벤트", motion.events.Count, CountFilteredEvents(motion.events));
 
             for (int i = 0; i < motion.events.Count; i++)
             {
                 var evt = motion.events[i];
                 if (evt == null) continue;
+                if (!MatchesEventFilter(evt)) continue;
 
                 string foldKey = EventKey(motionIdx, i);
                 bool isOpen = GetEventFold(foldKey);
@@ -713,18 +722,24 @@ namespace UPlayGround.Animation.Editor
                 EditorGUILayout.EndVertical();
             }
 
+            if (motion.events.Count > 0 && CountFilteredEvents(motion.events) == 0)
+                EditorGUILayout.HelpBox("필터 조건에 맞는 이벤트가 없습니다.", MessageType.Info);
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+ 이벤트", GUILayout.Width(80)))
             {
-                MotionEventMenuHelper.ShowAddEventMenu(motion.events, 0f, () =>
-                {
-                    RecordUndo("Add Motion Event");
-                    // 새로 추가된 이벤트는 바로 펼쳐진 상태로
-                    SetEventFold(EventKey(motionIdx, motion.events.Count - 1), true);
-                    MarkDirty();
-                    Repaint();
-                });
+                MotionEventMenuHelper.ShowAddEventMenu(
+                    motion.events,
+                    0f,
+                    () => RecordUndo("Add Motion Event"),
+                    () =>
+                    {
+                        // 새로 추가된 이벤트는 바로 펼쳐진 상태로
+                        SetEventFold(EventKey(motionIdx, motion.events.Count - 1), true);
+                        MarkDirty();
+                        Repaint();
+                    });
             }
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
@@ -810,6 +825,65 @@ namespace UPlayGround.Animation.Editor
         {
             // 리플렉션을 통해 모든 필드를 가져와 순회하며 그립니다.
             DrawObjectFields(evt);
+        }
+
+        void DrawAttachedEventFilterBar(string label, int totalCount, int filteredCount)
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel, GUILayout.Width(80));
+
+                GUILayout.Label("필터", GUILayout.Width(32));
+                EditorGUI.BeginChangeCheck();
+                _eventFilterText = EditorGUILayout.TextField(
+                    _eventFilterText,
+                    GUI.skin.FindStyle("ToolbarSeachTextField") ?? EditorStyles.toolbarTextField);
+                if (EditorGUI.EndChangeCheck())
+                    Repaint();
+
+                if (!string.IsNullOrWhiteSpace(_eventFilterText))
+                {
+                    if (GUILayout.Button("×", GUILayout.Width(22)))
+                    {
+                        _eventFilterText = string.Empty;
+                        Repaint();
+                    }
+                }
+
+                EditorGUILayout.LabelField($"{filteredCount}/{totalCount}", EditorStyles.miniLabel, GUILayout.Width(52));
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        int CountFilteredEvents(List<MotionEventBase> events)
+        {
+            if (events == null) return 0;
+
+            int count = 0;
+            for (int i = 0; i < events.Count; i++)
+            {
+                var evt = events[i];
+                if (evt != null && MatchesEventFilter(evt))
+                    count++;
+            }
+            return count;
+        }
+
+        bool MatchesEventFilter(MotionEventBase evt)
+        {
+            if (evt == null) return false;
+            if (string.IsNullOrWhiteSpace(_eventFilterText)) return true;
+
+            string query = _eventFilterText.Trim();
+            return ContainsIgnoreCase(evt.GetDisplayName(), query) ||
+                   ContainsIgnoreCase(evt.GetShortLabel(), query) ||
+                   ContainsIgnoreCase(evt.GetType().Name, query);
+        }
+
+        static bool ContainsIgnoreCase(string text, string query)
+        {
+            return !string.IsNullOrEmpty(text) &&
+                   text.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>
@@ -1032,10 +1106,13 @@ namespace UPlayGround.Animation.Editor
             set.globalEvents ??= new List<MotionEventBase>();
 
             EditorGUI.indentLevel++;
+            DrawAttachedEventFilterBar("글로벌 이벤트", set.globalEvents.Count, CountFilteredEvents(set.globalEvents));
+
             for (int i = 0; i < set.globalEvents.Count; i++)
             {
                 var evt = set.globalEvents[i];
                 if (evt == null) continue;
+                if (!MatchesEventFilter(evt)) continue;
 
                 string foldKey = SetEventKey(i);
                 bool isOpen = GetEventFold(foldKey);
@@ -1100,17 +1177,23 @@ namespace UPlayGround.Animation.Editor
                 EditorGUILayout.EndVertical();
             }
 
+            if (set.globalEvents.Count > 0 && CountFilteredEvents(set.globalEvents) == 0)
+                EditorGUILayout.HelpBox("필터 조건에 맞는 이벤트가 없습니다.", MessageType.Info);
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+ 이벤트", GUILayout.Width(80)))
             {
-                MotionEventMenuHelper.ShowAddEventMenu(set.globalEvents, 0f, () =>
-                {
-                    RecordUndo("Add MotionSet Event");
-                    SetEventFold(SetEventKey(set.globalEvents.Count - 1), true);
-                    MarkDirty();
-                    Repaint();
-                });
+                MotionEventMenuHelper.ShowAddEventMenu(
+                    set.globalEvents,
+                    0f,
+                    () => RecordUndo("Add MotionSet Event"),
+                    () =>
+                    {
+                        SetEventFold(SetEventKey(set.globalEvents.Count - 1), true);
+                        MarkDirty();
+                        Repaint();
+                    });
             }
             EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;

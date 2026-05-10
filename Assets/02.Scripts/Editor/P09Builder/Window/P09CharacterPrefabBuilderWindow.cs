@@ -16,9 +16,9 @@ namespace Game.Editor.P09Builder
     public sealed class P09CharacterPrefabBuilderWindow : EditorWindow
     {
         private const string MENU_PATH = "Tools/P09 Builder/Character Prefab Builder";
-        private const float MIN_WIDTH = 700f;
+        private const float MIN_WIDTH = 900f;
         private const float MIN_HEIGHT = 550f;
-        private const float PreviewPanelWidth = 320f;
+        private const float PreviewPanelWidth = 520f;
         private const double PreviewDebounceSeconds = 0.2d;
 
         private const string PresetFolder = "Assets/10.Datas/Generated/BuildPresets";
@@ -57,6 +57,8 @@ namespace Game.Editor.P09Builder
 
         private void OnEnable()
         {
+            minSize = new Vector2(MIN_WIDTH, MIN_HEIGHT);
+
             _catalog = new P09AssetCatalog();
             _catalog.Refresh();
 
@@ -317,7 +319,7 @@ namespace Game.Editor.P09Builder
         {
             EditorGUILayout.LabelField("Live Preview", EditorStyles.boldLabel);
 
-            var rect = GUILayoutUtility.GetRect(300f, 420f, GUILayout.ExpandWidth(true));
+            var rect = GUILayoutUtility.GetRect(420f, 560f, GUILayout.ExpandWidth(true));
             _preview?.Draw(rect);
 
             using (new EditorGUILayout.HorizontalScope())

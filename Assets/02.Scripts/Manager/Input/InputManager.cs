@@ -13,6 +13,7 @@ namespace UPlayGround.Manager
     {
         private int _cursorVisibleStack = 0;
         private InputBuffer _inputBuffer; // InputBuffer 선언
+        private bool _isPlayerActionInputSuppressed;
         private bool _isGamepadActive = false;
 
         public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
@@ -151,6 +152,15 @@ namespace UPlayGround.Manager
 
             InvokeCancelEvents(layer);
         }
+
+        public void SetPlayerActionInputSuppressed(bool suppressed)
+        {
+            _isPlayerActionInputSuppressed = suppressed;
+            if (suppressed)
+                _inputBuffer?.Clear();
+        }
+
+        public bool IsPlayerActionInputSuppressed => _isPlayerActionInputSuppressed;
 
         #endregion
     }

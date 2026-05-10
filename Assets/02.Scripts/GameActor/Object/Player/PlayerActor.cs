@@ -79,6 +79,7 @@ namespace UPlayGround
         private MonsterActor _entryAttackTarget;
         // PlayerAttackState 가 OnEnter에서 1회 소비하여 ExecuteEntryAttack 라우팅을 트리거.
         private bool         _isEntryAttackPending = false;
+        private bool         _isInputSuppressed = false;
 
         // 차지 공격 입력 추적
         private bool  _chargeAttackHeld;
@@ -104,6 +105,7 @@ namespace UPlayGround
         public float                       CurrentHealth         => _currentHealth;
         public PlayerSkillGauge            SkillGauge            => _skillGauge;
         public FootIKController            FootIK                => _footIK;
+        public bool                        IsInputSuppressed     => _isInputSuppressed;
     }
 
     public partial class PlayerActor : GameActor, IDamageable
@@ -146,6 +148,13 @@ namespace UPlayGround
         private void Update()
         {
             if (MovementController == null) return;
+
+            if (_isInputSuppressed)
+            {
+                ClearAllInputState();
+                PlayerMovementPlayerController?.ClearInputAll();
+                return;
+            }
 
             if (_chargeAttackHeld)
                 _chargeHoldTime += Time.deltaTime;
@@ -352,6 +361,14 @@ namespace UPlayGround
             _chargeHoldTime            = 0f;
             for (int i = 0; i < _skillInputCondition.Count; ++i)
                 _skillInputCondition[i] = InputCondition.None;
+        }
+
+        public void SetInputSuppressed(bool suppressed)
+        {
+            _isInputSuppressed = suppressed;
+            ClearAllInputState();
+            PlayerMovementPlayerController?.ClearInputAll();
+            InputManager.Instance?.InputBuffer?.Clear();
         }
 
         /// <summary>

@@ -69,7 +69,7 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        static string GetFriendlyName(Type type)
+        public static string GetFriendlyName(Type type)
         {
             // "BeginParticleEvent" -> "Particle"
             string name = type.Name;
@@ -219,31 +219,21 @@ namespace UPlayGround.Animation.Editor
     /// </summary>
     public static class MotionEventMenuHelper
     {
-        public static void ShowAddEventMenu(List<MotionEventBase> eventList, float defaultStartTime, Action onAdd)
+        public static void ShowAddEventMenu(
+            List<MotionEventBase> eventList,
+            float defaultStartTime,
+            Action onBeforeAdd,
+            Action onAdd)
         {
-            GenericMenu menu = new GenericMenu();
-            
-            var types = MotionEventTypeRegistry.GetAllEventTypes();
-            var names = MotionEventTypeRegistry.GetEventTypeNames();
-
-            for (int i = 0; i < types.Length; i++)
+            // GUI 콜백 외부에서 호출되면 Event.current 가 null. 안전한 기본 위치(영점)로 폴백.
+            Rect rect = GUILayoutUtility.GetLastRect();
+            if (rect.width <= 0f || rect.height <= 0f)
             {
-                var type = types[i];
-                var name = names[i];
-                // 타입 아이콘을 메뉴 경로에 포함
-                var visual = MotionEventStyle.GetByType(type);
-                
-                menu.AddItem(new GUIContent($"{visual.icon}  {name}"), false, () =>
-                {
-                    var evt = MotionEventTypeRegistry.CreateEventInstance(type);
-                    evt.startTime = defaultStartTime;
-                    evt.endTime = defaultStartTime + 0.5f;
-                    eventList.Add(evt);
-                    onAdd?.Invoke();
-                });
+                Vector2 anchor = Event.current != null ? Event.current.mousePosition : Vector2.zero;
+                rect = new Rect(anchor, Vector2.zero);
             }
 
-            menu.ShowAsContext();
+            PopupWindow.Show(rect, new MotionEventAddPopup(eventList, defaultStartTime, onBeforeAdd, onAdd));
         }
     }
 }

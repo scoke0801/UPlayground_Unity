@@ -7,6 +7,8 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Debugging;
 using UPlayGround.MovementController;
 using UPlayGround.Component;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
 using ActorAnimatorType = UPlayGround.Animation.ActorAnimator;
 using PlayerActorAnimatorType = UPlayGround.Animation.PlayerActorAnimator;
 
@@ -41,6 +43,14 @@ namespace UPlayGround.Animation.Editor
         float           _startTime     = 0f;
         float           _endTime       = -1f; // -1 = 전체 길이 사용
         int             _currentMotionIndex = -1; // 현재 재생 중인 모션 인덱스 (전환 감지용)
+        bool            _isMotionToolInputLocked;
+        InputLayer      _previousInputLayerBeforeMotionTool = InputLayer.Level_0;
+        PlayerActor     _suppressedPlayerActor;
+
+        // _targetActor 가 바뀔 때만 GetComponent 재실행하기 위한 캐시
+        GameObject       _cachedActorKey;
+        PlayerActor      _cachedPlayerActor;
+        PlayerEquipment  _cachedPlayerEquipment;
         
         // 이벤트 재생 관리
         System.Collections.Generic.HashSet<MotionEventBase> _executedEvents;   
@@ -136,7 +146,7 @@ namespace UPlayGround.Animation.Editor
 
         void OnEnable()
         {
-            _drawer = new MotionSetDrawer(() => _asset, Repaint);
+            _drawer = new MotionSetDrawer(() => _asset, Repaint, OnSelectedMotionChanged);
 
             // ⑤ EditorPrefs 복원
             LoadEditorPrefs();
@@ -160,6 +170,7 @@ namespace UPlayGround.Animation.Editor
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             SceneView.duringSceneGui -= OnSceneGUI;
+            ReleaseMotionToolInputLock();
             StopPlayback();
         }
 
@@ -284,7 +295,9 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || _idleAnimation == null) return;
 
+            ForceDrawPlayerWeapons();
             _animancer.Play(_idleAnimation);
+            ForceDrawPlayerWeapons();
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
 
@@ -318,6 +331,79 @@ namespace UPlayGround.Animation.Editor
             var modelData = _playerSwapBehaviour.GetModelData(_selectedCharacterType);
             if (modelData?.AnimancerComponent != null)
                 _animancer = modelData.AnimancerComponent;
+            ForceDrawPlayerWeapons();
+        }
+
+        void RefreshTargetActorCache()
+        {
+            if (_cachedActorKey == _targetActor) return;
+
+            _cachedActorKey = _targetActor;
+            if (_targetActor == null)
+            {
+                _cachedPlayerActor = null;
+                _cachedPlayerEquipment = null;
+                return;
+            }
+
+            _cachedPlayerActor = _targetActor.GetComponent<PlayerActor>()
+                              ?? _targetActor.GetComponentInChildren<PlayerActor>(true);
+            _cachedPlayerEquipment = _cachedPlayerActor != null
+                ? _cachedPlayerActor.GetPlayerEquipment()
+                : _targetActor.GetComponentInChildren<PlayerEquipment>(true);
+        }
+
+        void ForceDrawPlayerWeapons()
+        {
+            if (!Application.isPlaying || _targetActor == null) return;
+
+            RefreshTargetActorCache();
+            if (_cachedPlayerEquipment == null) return;
+
+            _cachedPlayerEquipment.SetMainWeaponDrawn(true);
+            _cachedPlayerEquipment.SetSubWeaponDrawn(true);
+        }
+
+        void AcquireMotionToolInputLock()
+        {
+            if (!Application.isPlaying || !InputManager.Instance)
+                return;
+
+            RefreshTargetActorCache();
+            var currentPlayerActor = _cachedPlayerActor;
+
+            if (_suppressedPlayerActor != currentPlayerActor)
+            {
+                _suppressedPlayerActor?.SetInputSuppressed(false);
+                _suppressedPlayerActor = currentPlayerActor;
+                _suppressedPlayerActor?.SetInputSuppressed(true);
+            }
+
+            if (_isMotionToolInputLocked)
+            {
+                InputManager.Instance.InputBuffer?.Clear();
+                InputManager.Instance.SetPlayerActionInputSuppressed(true);
+                return;
+            }
+
+            _previousInputLayerBeforeMotionTool = InputManager.Instance.CurrentLayer;
+            InputManager.Instance.SetPlayerActionInputSuppressed(true);
+            InputManager.Instance.InputBuffer?.Clear();
+            InputManager.Instance.SetInputLayer(InputLayer.Level_3);
+            _isMotionToolInputLocked = true;
+        }
+
+        void ReleaseMotionToolInputLock()
+        {
+            if (!_isMotionToolInputLocked || !InputManager.Instance)
+                return;
+
+            _suppressedPlayerActor?.SetInputSuppressed(false);
+            _suppressedPlayerActor = null;
+            InputManager.Instance.SetPlayerActionInputSuppressed(false);
+            InputManager.Instance.InputBuffer?.Clear();
+            InputManager.Instance.SetInputLayer(_previousInputLayerBeforeMotionTool);
+            _isMotionToolInputLocked = false;
         }
 
         void SwapCharacterModel(CharacterActorType type)
@@ -372,6 +458,9 @@ namespace UPlayGround.Animation.Editor
         {
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
+                AcquireMotionToolInputLock();
+                ForceDrawPlayerWeapons();
+
                 var currentSet = GetCurrentMotionSet();
                 if (currentSet == null) return;
 
@@ -442,6 +531,7 @@ namespace UPlayGround.Animation.Editor
                 }
 
                 ExecuteActiveEvents(currentSet);
+                ForceDrawPlayerWeapons();
 
                 _drawer.cursorTime = _playbackTime;
                 _previousTime      = _playbackTime;
@@ -696,8 +786,59 @@ namespace UPlayGround.Animation.Editor
         void SetAsset(MotionSetAsset asset)
         {
             if (_asset == asset) return;
+
+            ResetPlaybackStateForMotionChange(true);
             _asset  = asset;
-            _drawer = new MotionSetDrawer(() => _asset, Repaint);
+
+            // 모션 전환 시 zoom/scroll/표시 옵션은 보존
+            float prevZoom       = _drawer != null ? _drawer.zoom       : 1f;
+            float prevScrollX    = _drawer != null ? _drawer.scrollX    : 0f;
+            bool  prevShowFrames = _drawer != null ? _drawer.showFrames : false;
+            int   prevFps        = _drawer != null ? _drawer.fps        : 30;
+
+            _drawer = new MotionSetDrawer(() => _asset, Repaint, OnSelectedMotionChanged)
+            {
+                zoom       = prevZoom,
+                scrollX    = prevScrollX,
+                showFrames = prevShowFrames,
+                fps        = prevFps,
+            };
+        }
+
+        void OnSelectedMotionChanged(int previousIndex, int selectedIndex)
+        {
+            if (selectedIndex < 0 || previousIndex == selectedIndex)
+                return;
+
+            ResetPlaybackStateForMotionChange(true);
+        }
+
+        void ResetPlaybackStateForMotionChange(bool playIdle)
+        {
+            bool hadPlaybackState = _isPlaying || _isPaused || _playbackTime > 0f || _currentMotionIndex >= 0;
+            ReleaseMotionToolInputLock();
+
+            if (_activeEvents != null && _targetActor != null)
+            {
+                foreach (var evt in _activeEvents)
+                    evt?.OnCompleteEvent(_targetActor);
+            }
+
+            _isPlaying = false;
+            _isPaused = false;
+            _currentMotionIndex = -1;
+            _playbackTime = 0f;
+            _previousTime = -0.001f;
+            _drawer.cursorTime = 0f;
+
+            ResetEditorLoopState();
+            _executedEvents?.Clear();
+            _activeEvents?.Clear();
+            _eventLog.Clear();
+            MotionSetEventDebugOverlay.Clear();
+
+            if (hadPlaybackState && playIdle && Application.isPlaying && _animancer != null)
+                PlayIdleAnimation();
         }
 
         void SetActorAnimationSet(ActorAnimationMotionSet actorSet)
@@ -2039,6 +2180,7 @@ namespace UPlayGround.Animation.Editor
             if (_animancer == null || GetCurrentMotionSet() == null) return;
 
             var motionSet = GetCurrentMotionSet();
+            AcquireMotionToolInputLock();
 
             // ④ 재생 구간을 Drawer에 동기화
             _drawer.playRangeStart = _startTime;
@@ -2096,6 +2238,7 @@ namespace UPlayGround.Animation.Editor
         {
             _isPlaying = false;
             _isPaused = false;
+            ReleaseMotionToolInputLock();
             ResetEditorLoopState();
             
             // 활성 중인 모든 이벤트 강제 종료 처리
@@ -2140,9 +2283,11 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || motion == null || !motion.IsValid()) return;
 
+            ForceDrawPlayerWeapons();
             var state = _animancer.Play(motion.motionClip);
             state.Time  = motion.ClipStartTime;
             state.Speed = motion.playbackSpeed * _playbackSpeed;
+            ForceDrawPlayerWeapons();
 
             // Animancer 자체 OnEnd 완전 제거 — 에디터 타임라인이 종료를 관리
             state.Events(this).OnEnd = null;
@@ -2468,7 +2613,7 @@ namespace UPlayGround.Animation.Editor
             
             _useTemporarySet = true;
             _asset = null;
-            _drawer = new MotionSetDrawer(() => null, Repaint);
+            _drawer = new MotionSetDrawer(() => null, Repaint, OnSelectedMotionChanged);
             
             Debug.Log("임시 MotionSet이 생성되었습니다. 에셋으로 저장하려면 '새로 만들기'를 사용하세요.");
         }

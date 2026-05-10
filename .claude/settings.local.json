@@ -87,7 +87,9 @@
       "Bash(grep -nE \"m_Name: \\(Male|Female|Fem\\)$\" \"Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Prefab/P09_Human.prefab\")",
       "Read(//c/Users/scoke/.claude/plans//**)",
       "Read(//c/Users/scoke/.claude//**)",
-      "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/Component/Player/**)"
+      "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/Component/Player/**)",
+      "WebFetch(domain:archive.org)",
+      "WebFetch(domain:theorangeduck.com)"
     ]
   }
 }

@@ -20,8 +20,56 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7432452542259527876
+      - rid: 7432452542259527877
+      - rid: 7432452542259527878
+      - rid: 7432452542259527879
+      - rid: 7432452542259527880
+      - rid: 7432452542259527881
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452542259527876
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.65795904
+        endTime: 0.6955567
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+    - rid: 7432452542259527877
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.70361334
+        endTime: 0.76806647
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 1
+    - rid: 7432452542259527878
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7976075
+        endTime: 0.8674317
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 2
+    - rid: 7432452542259527879
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8540039
+        endTime: 0.9748536
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 3
+    - rid: 7432452542259527880
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.97485363
+        endTime: 1.060791
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 4
+    - rid: 7432452542259527881
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0688478
+        endTime: 1.1655275
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 5

@@ -77,13 +77,29 @@ namespace UPlayGround.MovementController
 
         protected void Awake()
         {
+            EnsureReferences();
+        }
+
+        protected virtual void OnEnable()
+        {
+            EnsureReferences();
+        }
+
+        private void EnsureReferences()
+        {
             Motor = GetComponent<KinematicCharacterMotor>();
             Actor = GetComponent<GameActor>();
             MotionWarp = GetComponent<MotionWarpController>();
             if (MotionWarp == null)
                 MotionWarp = gameObject.AddComponent<MotionWarpController>();
             
-            // Assign to motor
+            if (Motor == null)
+            {
+                Debug.LogError("[ActorMovementController] KinematicCharacterMotor를 찾을 수 없습니다.", this);
+                return;
+            }
+
+            // 스크립트 리컴파일 후 NonSerialized 필드가 초기화될 수 있으므로 OnEnable에서도 재할당한다.
             Motor.CharacterController = this;
         }
 

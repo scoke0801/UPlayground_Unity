@@ -10,32 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Humanoid_DualBladeAnimationSet_Attack_9
+  m_Name: Humanoid_SwordShield_HeavyAttack_8
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Humanoid_DualBladeAnimationSet_Attack_9
+    motionSetName: Humanoid_SwordShield_HeavyAttack_8
     motions:
-    - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: 3a87ea63304b38245a39b96d6d7f91a5, type: 3}
+    - motionName: Frank_RPG_Warrior_Combo06_2
+      motionClip: {fileID: 7400000, guid: 59077ac96304e5046a4f8eef080c0bd5, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7432452529509105848
-      - rid: 7432452529509105849
-      - rid: 7432452529509105850
-      - rid: 7432452529509105851
+      - rid: 7432452546447015961
+      - rid: 7432452546447015962
+      - rid: 7432452546447015963
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7432452529509105848
+    - rid: 7432452546447015961
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0
-        endTime: 0.18032785
+        endTime: 0.37805834
         globalStartTimeOffset: 0
-        preset: 0
+        preset: 2
         modifierType: 0
         targetPolicy: 0
         translationWeight: 1
@@ -46,23 +45,16 @@ MonoBehaviour:
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
-    - rid: 7432452529509105849
+    - rid: 7432452546447015962
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.19241801
-        endTime: 0.26147538
+        startTime: 0.39645106
+        endTime: 0.54645103
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-    - rid: 7432452529509105850
+    - rid: 7432452546447015963
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.63790977
-        endTime: 0.7592213
+        startTime: 0.55311286
+        endTime: 0.803113
         globalStartTimeOffset: 0
-    - rid: 7432452529509105851
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
-      data:
-        startTime: 0.4733606
-        endTime: 0.6108606
-        globalStartTimeOffset: 0
-        hitPhaseIndex: 0

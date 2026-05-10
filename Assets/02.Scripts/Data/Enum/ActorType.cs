@@ -33,6 +33,7 @@
         Hichi,
         Siuha,
         Komoe,
+        Lili,
         
         H09, // 안쓸거임
     }

@@ -10,31 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Humanoid_DualBladeAnimationSet_Attack_6
+  m_Name: Humanoid_SwordShield_HeavyAttack_9
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Humanoid_DualBladeAnimationSet_Attack_6
+    motionSetName: Humanoid_SwordShield_HeavyAttack_9
     motions:
-    - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: ab3fa500e6dae504eba718ebaa95f424, type: 3}
+    - motionName: Frank_RPG_Warrior_Combo06_3
+      motionClip: {fileID: 7400000, guid: 098a16fbd87c71c4d9cdc9da4e1a1e50, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7432452529509105839
-      - rid: 7432452529509105840
-      - rid: 7432452529509105841
+      - rid: 7432452546447015964
+      - rid: 7432452546447015965
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7432452529509105839
+    - rid: 7432452546447015964
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0
-        endTime: 0.09692622
+        endTime: 0.5
         globalStartTimeOffset: 0
-        preset: 0
+        preset: 2
         modifierType: 0
         targetPolicy: 0
         translationWeight: 1
@@ -45,16 +44,10 @@ MonoBehaviour:
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
-    - rid: 7432452529509105840
+    - rid: 7432452546447015965
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.1
-        endTime: 0.19610654
+        startTime: 0.60629845
+        endTime: 0.7562985
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-    - rid: 7432452529509105841
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
-      data:
-        startTime: 0.21188523
-        endTime: 0.4575819
-        globalStartTimeOffset: 0

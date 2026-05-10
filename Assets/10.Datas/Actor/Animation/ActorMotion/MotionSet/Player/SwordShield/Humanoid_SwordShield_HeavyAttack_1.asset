@@ -10,31 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Humanoid_DualBladeAnimationSet_Attack_4
+  m_Name: Humanoid_SwordShield_HeavyAttack_1
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Humanoid_DualBladeAnimationSet_Attack_4
+    motionSetName: Humanoid_SwordShield_HeavyAttack_1
     motions:
-    - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: 1ba3c4c0058327f4d91c952f981e1317, type: 3}
+    - motionName: Frank_RPG_Warrior_Combo04_1
+      motionClip: {fileID: 7400000, guid: b355454bd1bd279458993a97564e1955, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7432452529509105833
-      - rid: 7432452529509105834
-      - rid: 7432452529509105835
+      - rid: 7432452546447015936
+      - rid: 7432452546447015937
+      - rid: 7432452546447015938
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7432452529509105833
+    - rid: 7432452546447015936
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0
-        endTime: 0.2254098
+        endTime: 0.33309105
         globalStartTimeOffset: 0
-        preset: 0
+        preset: 2
         modifierType: 0
         targetPolicy: 0
         translationWeight: 1
@@ -45,16 +45,16 @@ MonoBehaviour:
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
-    - rid: 7432452529509105834
+    - rid: 7432452546447015937
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.23749998
-        endTime: 0.3875
+        startTime: 0.36147648
+        endTime: 0.5114765
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-    - rid: 7432452529509105835
+    - rid: 7432452546447015938
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.40553275
-        endTime: 0.6555328
+        startTime: 0.51480734
+        endTime: 0.76480734
         globalStartTimeOffset: 0

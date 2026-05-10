@@ -21,6 +21,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Guard";
         private PlayerCombat _combat;
+        private PlayerEquipment _equipment;
         private float _guardStartTime;
         private const float PERFECT_GUARD_WINDOW = 0.3f;
 
@@ -60,7 +61,12 @@ namespace UPlayGround.State
             }
 
             _combat = playerActor.GetCombat();
-
+            if (_combat == null)
+            {
+                TransitionToIdleOrMove();
+                return;
+            }
+            
             // 가드 브레이크 쿨타임 중이면 가드 불가
             if (!_combat.CanGuard())
             {
@@ -70,6 +76,10 @@ namespace UPlayGround.State
 
             _combat.IsGuarding = true;
             _combat.OnGuardStart();
+            _combat.RefreshCombatState();
+
+            _equipment = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
             _guardStartTime = Time.time;
 
             playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
@@ -77,13 +87,20 @@ namespace UPlayGround.State
         
         public override void OnExit(GameActorState toState)
         {
-            _combat.IsGuarding = false;
-            
+            if (_combat != null)
+            {
+                _combat.IsGuarding = false;
+            }
+
             base.OnExit(toState);
         }
         
         public override void UpdateState(float deltaTime)
         {
+            // Guard 유지 자체를 전투 의도로 본다.
+            // 전투 타임아웃으로 예약된 납도 요청이 Guard 중 실행되는 것을 막는다.
+            _combat?.RefreshCombatState();
+
             // Guard 입력을 떼면 Idle/Move로 복귀
             if (!playerController.HasGuardInput())
             {

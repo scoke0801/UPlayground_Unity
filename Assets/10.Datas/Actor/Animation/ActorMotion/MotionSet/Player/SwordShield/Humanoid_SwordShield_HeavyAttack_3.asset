@@ -10,31 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: Humanoid_DualBladeAnimationSet_Attack_2
+  m_Name: Humanoid_SwordShield_HeavyAttack_3
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Humanoid_DualBladeAnimationSet_Attack_2
+    motionSetName: Humanoid_SwordShield_HeavyAttack_3
     motions:
-    - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: e4d2b605c779b3048bce1e6c217b99ee, type: 3}
+    - motionName: Frank_RPG_Warrior_Combo04_3
+      motionClip: {fileID: 7400000, guid: 288de8dff21dc454799de6fb81992911, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7432452529509105827
-      - rid: 7432452529509105828
-      - rid: 7432452529509105829
+      - rid: 7432452546447015943
+      - rid: 7432452546447015944
+      - rid: 7432452546447015945
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 7432452529509105827
+    - rid: 7432452546447015943
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0
-        endTime: 0.2254098
+        endTime: 0.41802928
         globalStartTimeOffset: 0
-        preset: 0
+        preset: 2
         modifierType: 0
         targetPolicy: 0
         translationWeight: 1
@@ -45,16 +45,16 @@ MonoBehaviour:
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
-    - rid: 7432452529509105828
+    - rid: 7432452546447015944
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.25778687
-        endTime: 0.40778688
+        startTime: 0.42309833
+        endTime: 0.5512657
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-    - rid: 7432452529509105829
+    - rid: 7432452546447015945
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.41475406
-        endTime: 0.5969262
+        startTime: 0.7829457
+        endTime: 1.0329459
         globalStartTimeOffset: 0

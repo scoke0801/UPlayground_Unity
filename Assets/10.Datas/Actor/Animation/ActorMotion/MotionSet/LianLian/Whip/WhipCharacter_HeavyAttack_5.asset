@@ -36,52 +36,40 @@ MonoBehaviour:
       data:
         startTime: 0.8293522
         endTime: 1.0344973
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 1
     - rid: 5792125030652444812
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.1855263
         endTime: 1.3906713
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 2
     - rid: 5792125030652444813
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.8803475
         endTime: 2.0854926
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 3
     - rid: 5792125030652444814
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 2.4035254
         endTime: 2.7880397
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 4
     - rid: 5792125030652444815
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 3.1076243
         endTime: 3.3261638
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 5
     - rid: 7399917016132091904
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.25978407
         endTime: 0.505391
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 0

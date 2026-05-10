@@ -20,8 +20,39 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7432452542259527864
+      - rid: 7432452542259527865
+      - rid: 7432452542259527866
+      - rid: 7432452542259527867
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452542259527864
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.19667965
+        endTime: 0.34667966
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+    - rid: 7432452542259527865
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.9536133
+        endTime: 1.2036133
+        globalStartTimeOffset: 0
+    - rid: 7432452542259527866
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.427002
+        endTime: 0.54785156
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 1
+    - rid: 7432452542259527867
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7653809
+        endTime: 0.92114264
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 2

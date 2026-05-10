@@ -12,7 +12,7 @@ namespace UPlayGround.Component
     ///    - 발이 지면 근처 (stance): weight → 1  (IK가 발을 지형에 밀착)
     ///    - 발이 공중 (swing)      : weight → 0  (애니메이션이 자유롭게 제어)
     ///    → 이동/정지 전환과 무관하게 항상 부드럽게 동작
-    /// 2. ForceDisabled = true 시 전체 weight를 0으로 페이드 (공격 등 명시적 비활성화)
+    /// 2. ForceDisabled = true 시 실제 IK weight는 0으로 두고, 내부 지면 목표는 계속 추적
     /// 3. 각 발 위치에서 아래로 Raycast → 지면 높이(groundY) + 법선 획득
     /// 4. 지면 Y - 루트 Y 기준 → 골반(hip) 보정 (평지에서 가라앉음 없음)
     /// 5. 두 발 법선 평균 → bodyRotation으로 상체 기울기 보정
@@ -43,43 +43,36 @@ namespace UPlayGround.Component
         [SerializeField, Tooltip("per-foot weight 변화 속도.")]
         private float _footWeightSpeed = 10f;
 
-        [SerializeField, Tooltip("ForceDisabled 시 전체 weight 페이드 속도.")]
-        private float _globalFadeSpeed = 15f;
+        [SerializeField, Tooltip("ForceDisabled 해제 후 전체 weight 페이드 인 속도.")]
+        private float _globalFadeSpeed = 8f;
+
+        [SerializeField, Tooltip("ForceDisabled 해제 직후 IK를 다시 켜기 전 대기 시간.\n0이면 weight는 즉시 페이드 인하고, 목표 발 위치만 별도 보간한다.")]
+        private float _reenableDelay = 0f;
+
+        [SerializeField, Tooltip("ForceDisabled 해제 직후 IK 목표 높이를 현재 애니메이션 발 높이에서 다시 추적하는 시간.")]
+        private float _resumeTargetBlendTime = 0.12f;
+
+        [SerializeField, Tooltip("ForceDisabled 해제 직후 골반/상체 보정 적용을 지연하는 시간.")]
+        private float _bodyCorrectionDelay = 0.15f;
 
         private Animator _animator;
         private KinematicCharacterMotor _motor;
 
         // 외부(상태머신 등)에서 IK를 강제 비활성화.
-        // 비대칭 페이드: 끄는 건 즉시(도약 시 발 stretch 방지), 켜는 건 부드럽게(착지 팝 방지).
+        // 비대칭 페이드: 끄는 건 즉시(도약 시 발 stretch 방지), 켜는 건 지연 후 부드럽게(공격 종료 스냅 방지).
         public bool ForceDisabled
         {
             get => _forceDisabled;
-            set
-            {
-                if (_forceDisabled == value) return;
-                _forceDisabled = value;
-                if (value)
-                {
-                    // 즉시 비활성화 + 내부 상태 리셋
-                    _globalWeight = 0f;
-                    _leftFootWeight = 0f;
-                    _rightFootWeight = 0f;
-                    _hipOffset = 0f;
-                    _bodyRotOffset = Quaternion.identity;
-                    _initialized = false; // 재활성 시 깨끗한 시작
-                    // if (_animator != null)
-                    // {
-                    //     SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
-                    //     SetFootWeight(AvatarIKGoal.RightFoot, 0f);
-                    // }
-                }
-                // false로 돌아갈 땐 _globalWeight 0에서 _globalFadeSpeed로 자연스럽게 페이드 인
-            }
+            set => SetForceDisabled(value, _reenableDelay, _globalFadeSpeed);
         }
 
         private bool _forceDisabled;
 
         private float _globalWeight = 1f; // ForceDisabled 페이드용
+        private float _currentGlobalFadeSpeed = 15f;
+        private float _reenableTimer;
+        private float _resumeTargetBlendTimer;
+        private float _bodyCorrectionDelayTimer;
         private bool _initialized;
 
         private float _leftFootWeight;
@@ -127,7 +120,7 @@ namespace UPlayGround.Component
             // ActorAnimator.Awake()에서 ApplyFootIK = true로 설정하므로, Start에서 덮어씀
             var animancer = GetComponentInChildren<AnimancerComponent>();
             if (animancer != null && animancer.Layers.Count > 0)
-                animancer.Layers[0].ApplyFootIK = false;
+                DisableAnimancerFootIK(animancer);
         }
 
         /// <summary>
@@ -151,6 +144,10 @@ namespace UPlayGround.Component
             _animator     = newAnimator;
             _initialized  = false;
 
+            var animancer = _animator.GetComponent<AnimancerComponent>();
+            if (animancer != null)
+                DisableAnimancerFootIK(animancer);
+
             if (_animator.gameObject != gameObject)
             {
                 var relay = _animator.gameObject.GetComponent<FootIKRelay>();
@@ -161,20 +158,53 @@ namespace UPlayGround.Component
             enabled = true;
         }
 
+        private void SetForceDisabled(bool value, float reenableDelay, float fadeSpeed)
+        {
+            if (_forceDisabled == value)
+            {
+                if (!value)
+                {
+                    _reenableTimer = Mathf.Max(_reenableTimer, reenableDelay);
+                    _currentGlobalFadeSpeed = fadeSpeed;
+                }
+                return;
+            }
+
+            _forceDisabled = value;
+            if (value)
+            {
+                // 즉시 비활성화. 내부 발 목표는 ProcessFootIK에서 계속 추적해 재활성 스냅을 줄인다.
+                _globalWeight = 0f;
+                _leftFootWeight = 0f;
+                _rightFootWeight = 0f;
+                _reenableTimer = 0f;
+                _currentGlobalFadeSpeed = _globalFadeSpeed;
+                _bodyCorrectionDelayTimer = 0f;
+            }
+            else
+            {
+                // false로 돌아갈 땐 현재 애니메이션 발 위치에서 지면 IK 목표로 다시 추적한다.
+                _globalWeight = 0f;
+                _reenableTimer = reenableDelay;
+                _currentGlobalFadeSpeed = fadeSpeed;
+                _resumeTargetBlendTimer = _resumeTargetBlendTime;
+                _bodyCorrectionDelayTimer = _bodyCorrectionDelay;
+                _initialized = false;
+            }
+        }
+
+        private static void DisableAnimancerFootIK(AnimancerComponent animancer)
+        {
+            for (int i = 0; i < animancer.Layers.Count; i++)
+                animancer.Layers[i].ApplyFootIK = false;
+        }
+
         private void OnAnimatorIK(int layerIndex) => ProcessFootIK();
 
         internal void ProcessFootIK()
         {
             float dt = Time.deltaTime;
             if (dt < Mathf.Epsilon || _animator == null) return;
-
-            // 완전 비활성 상태: 모든 계산/레이캐스트 스킵 (stale 누적 방지 + CPU 절약)
-            if (_forceDisabled && _globalWeight <= 0f)
-            {
-                SetFootWeight(AvatarIKGoal.LeftFoot, 0f);
-                SetFootWeight(AvatarIKGoal.RightFoot, 0f);
-                return;
-            }
 
             float smoothT = 1f - Mathf.Exp(-_smoothSpeed * dt);
             float footWeightDt = _footWeightSpeed * dt;
@@ -202,16 +232,25 @@ namespace UPlayGround.Component
             // ─── 2) 발 위치·법선 항상 추적 (IK 비활성 중에도) ───
             if (!_initialized)
             {
-                _leftFootY = leftTargetY;
-                _rightFootY = rightTargetY;
+                bool resumeBlend = !_forceDisabled && _resumeTargetBlendTimer > 0f;
+                _leftFootY = resumeBlend ? leftAnimPos.y : leftTargetY;
+                _rightFootY = resumeBlend ? rightAnimPos.y : rightTargetY;
                 _leftNormal = leftHit && leftNorm.y >= _minNormalY ? leftNorm : Vector3.up;
                 _rightNormal = rightHit && rightNorm.y >= _minNormalY ? rightNorm : Vector3.up;
                 _initialized = true;
             }
             else
             {
-                _leftFootY = Mathf.Lerp(_leftFootY, leftTargetY, smoothT);
-                _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, smoothT);
+                float targetSmoothT = smoothT;
+                if (!_forceDisabled && _resumeTargetBlendTimer > 0f)
+                {
+                    _resumeTargetBlendTimer = Mathf.Max(0f, _resumeTargetBlendTimer - dt);
+                    float blendSpeed = 1f / Mathf.Max(_resumeTargetBlendTime, 0.001f);
+                    targetSmoothT = 1f - Mathf.Exp(-blendSpeed * dt);
+                }
+
+                _leftFootY = Mathf.Lerp(_leftFootY, leftTargetY, targetSmoothT);
+                _rightFootY = Mathf.Lerp(_rightFootY, rightTargetY, targetSmoothT);
                 _leftNormal = Vector3.Slerp(_leftNormal,
                     leftHit && leftNorm.y >= _minNormalY ? leftNorm : Vector3.up, smoothT);
                 _rightNormal = Vector3.Slerp(_rightNormal,
@@ -231,13 +270,34 @@ namespace UPlayGround.Component
                 ? Mathf.Clamp01(1f - Mathf.Max(0f, rightLift) / _footLiftThreshold)
                 : 0f;
 
-            _leftFootWeight = Mathf.MoveTowards(_leftFootWeight, targetLeftWeight, footWeightDt);
-            _rightFootWeight = Mathf.MoveTowards(_rightFootWeight, targetRightWeight, footWeightDt);
+            if (_forceDisabled)
+            {
+                // 비활성 중에는 지면 목표만 추적하고 weight는 0에 고정한다.
+                // 공격 중 weight가 미리 1까지 차올랐다가 해제 프레임에 튀는 것을 막는다.
+                _leftFootWeight = 0f;
+                _rightFootWeight = 0f;
+            }
+            else
+            {
+                _leftFootWeight = Mathf.MoveTowards(_leftFootWeight, targetLeftWeight, footWeightDt);
+                _rightFootWeight = Mathf.MoveTowards(_rightFootWeight, targetRightWeight, footWeightDt);
+            }
 
             // ─── 4) ForceDisabled 해제 시 글로벌 weight 페이드 인 ───
-            // 끄는 방향은 setter에서 즉시 0으로 처리되므로 여기는 0→1 방향만.
-            if (!_forceDisabled)
-                _globalWeight = Mathf.MoveTowards(_globalWeight, 1f, _globalFadeSpeed * dt);
+            // 비활성 중에도 발 목표는 추적하되, 실제 IK weight는 0으로 유지한다.
+            if (_forceDisabled)
+            {
+                _globalWeight = 0f;
+            }
+            else if (_reenableTimer > 0f)
+            {
+                _reenableTimer = Mathf.Max(0f, _reenableTimer - dt);
+                _globalWeight = 0f;
+            }
+            else
+            {
+                _globalWeight = Mathf.MoveTowards(_globalWeight, 1f, _currentGlobalFadeSpeed * dt);
+            }
 
             float appliedLeft = _leftFootWeight * _globalWeight;
             float appliedRight = _rightFootWeight * _globalWeight;
@@ -263,10 +323,17 @@ namespace UPlayGround.Component
             // ─── 7) IK 적용 ───
             float avgWeight = (appliedLeft + appliedRight) * 0.5f;
 
-            if (avgWeight > 0.001f)
+            float bodyWeight = avgWeight;
+            if (_bodyCorrectionDelayTimer > 0f)
             {
-                _animator.bodyPosition += Vector3.up * _hipOffset * avgWeight;
-                _animator.bodyRotation = Quaternion.Slerp(Quaternion.identity, _bodyRotOffset, avgWeight)
+                _bodyCorrectionDelayTimer = Mathf.Max(0f, _bodyCorrectionDelayTimer - dt);
+                bodyWeight = 0f;
+            }
+
+            if (bodyWeight > 0.001f)
+            {
+                _animator.bodyPosition += Vector3.up * _hipOffset * bodyWeight;
+                _animator.bodyRotation = Quaternion.Slerp(Quaternion.identity, _bodyRotOffset, bodyWeight)
                                          * _animator.bodyRotation;
             }
 

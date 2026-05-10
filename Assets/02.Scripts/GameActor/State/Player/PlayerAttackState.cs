@@ -142,8 +142,6 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Combat_Attack);
 
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
-
             _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             playerActor.Animator.ApplyRootMotion(true);
@@ -202,7 +200,6 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
 
             _combat.ClearHitTargets();
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;

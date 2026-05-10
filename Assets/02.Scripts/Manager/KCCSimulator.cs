@@ -27,24 +27,42 @@ public class KCCSimulator : MonoBehaviour
 
     private void Awake()
     {
-        // AutoSimulation을 끄면 KCS.FixedUpdate가 Simulate를 호출하지 않는다.
-        // 이 컴포넌트가 대신 제어권을 가진다.
+        DisableAutoSimulation();
+    }
+
+    private void OnEnable()
+    {
+        DisableAutoSimulation();
+    }
+
+    private void DisableAutoSimulation()
+    {
         KinematicCharacterSystem.EnsureCreation();
-        KinematicCharacterSystem.Settings.AutoSimulation = false;
+        if (KinematicCharacterSystem.Settings != null)
+        {
+            // AutoSimulation을 끄면 KCS.FixedUpdate가 Simulate를 호출하지 않는다.
+            // 이 컴포넌트가 대신 제어권을 가진다.
+            KinematicCharacterSystem.Settings.AutoSimulation = false;
+        }
     }
 
     private void OnDestroy()
     {
-        // 씬 언로드 등으로 소멸 시 AutoSimulation 복구
-        if (KinematicCharacterSystem.Settings != null)
+        // 플레이 중 스크립트 리컴파일로 파괴될 때 AutoSimulation을 다시 켜면
+        // KinematicCharacterSystem과 KCCSimulator가 동시에 Simulate를 호출할 수 있다.
+        if (!Application.isPlaying && KinematicCharacterSystem.Settings != null)
             KinematicCharacterSystem.Settings.AutoSimulation = true;
     }
 
     private void FixedUpdate()
     {
+        DisableAutoSimulation();
+
         float baseDt = Time.deltaTime;
         var motors  = KinematicCharacterSystem.CharacterMotors;
         var movers  = KinematicCharacterSystem.PhysicsMovers;
+
+        PruneInvalidMotors(motors);
 
         if (KinematicCharacterSystem.Settings.Interpolate)
             KinematicCharacterSystem.PreSimulationInterpolationUpdate(baseDt);
@@ -77,6 +95,28 @@ public class KCCSimulator : MonoBehaviour
             KinematicCharacterSystem.PostSimulationInterpolationUpdate(baseDt);
     }
 
+    private void PruneInvalidMotors(List<KinematicCharacterMotor> motors)
+    {
+        for (int i = motors.Count - 1; i >= 0; i--)
+        {
+            var motor = motors[i];
+            if (motor == null)
+            {
+                motors.RemoveAt(i);
+                continue;
+            }
+
+            if (motor.CharacterController == null)
+                motor.CharacterController = motor.GetComponent<ICharacterController>();
+
+            if (motor.CharacterController == null)
+            {
+                Debug.LogWarning($"[KCCSimulator] CharacterController가 없는 모터를 시뮬레이션 목록에서 제거합니다: {motor.name}", motor);
+                motors.RemoveAt(i);
+            }
+        }
+    }
+
     private void BuildGroups(List<KinematicCharacterMotor> motors, float baseDt)
     {
         // 리스트는 재사용하되 내용만 초기화
@@ -86,6 +126,9 @@ public class KCCSimulator : MonoBehaviour
         for (int i = 0; i < motors.Count; i++)
         {
             var motor = motors[i];
+            if (motor == null || !motor.isActiveAndEnabled || motor.CharacterController == null)
+                continue;
+
             var actor = motor.GetComponent<GameActor>();
             // 소수점 3자리 반올림: 0.05f / 0.1f 등 근사값이 다른 키로 분류되는 것 방지
             float scale = actor != null ? Mathf.Round(actor.LocalTimeScale * 1000f) / 1000f : 1f;

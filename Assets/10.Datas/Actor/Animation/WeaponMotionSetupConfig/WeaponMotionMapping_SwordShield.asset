@@ -235,17 +235,17 @@ MonoBehaviour:
     skip: 1
   - clip: {fileID: 7400000, guid: b355454bd1bd279458993a97564e1955, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo04_1
-    animKey: 0
+    animKey: 200
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 32f8065aaca77894fb221a25ce665c1d, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo04_2
-    animKey: 0
+    animKey: 201
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 288de8dff21dc454799de6fb81992911, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo04_3
-    animKey: 0
+    animKey: 202
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: fa01b10c5ac589e4d87f6cdb8fdb2867, type: 3}
@@ -260,17 +260,17 @@ MonoBehaviour:
     skip: 1
   - clip: {fileID: 7400000, guid: bb855748509c7984ab293e337e010fa1, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo05_1
-    animKey: 0
+    animKey: 203
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 4b20511d5f7a4dd4fbe917042122660e, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo05_2
-    animKey: 0
+    animKey: 204
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a0016b6ef35404446a6e7cd62073fd60, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo05_3
-    animKey: 0
+    animKey: 205
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 6f1fc8bbc3aa62a4f87e339dd32b9320, type: 3}
@@ -285,17 +285,17 @@ MonoBehaviour:
     skip: 0
   - clip: {fileID: 7400000, guid: 0619fed19fcbeb24c9cdc978646fa1f0, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo06_1
-    animKey: 0
+    animKey: 206
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 59077ac96304e5046a4f8eef080c0bd5, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo06_2
-    animKey: 0
+    animKey: 207
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 098a16fbd87c71c4d9cdc9da4e1a1e50, type: 3}
     clipDisplayName: Frank_RPG_Warrior_Combo06_3
-    animKey: 0
+    animKey: 208
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f4dedcb0ac221ba42826d0ea12839631, type: 3}
@@ -608,82 +608,82 @@ MonoBehaviour:
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: b5ff6bda64bcb6040afcabe52ad0b11c, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: b5ff6bda64bcb6040afcabe52ad0b11c, type: 3}
     clipDisplayName: Velocity_8Way_Run_B
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 5b57d3366d486844198e416245346fff, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 5b57d3366d486844198e416245346fff, type: 3}
     clipDisplayName: Velocity_8Way_Run_BL
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 9a6631f18eb44ca4b99c9a9c9254fe1a, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 9a6631f18eb44ca4b99c9a9c9254fe1a, type: 3}
     clipDisplayName: Velocity_8Way_Run_BR
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: c091917577f7b8c4a8f2b92489877deb, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: c091917577f7b8c4a8f2b92489877deb, type: 3}
     clipDisplayName: Velocity_8Way_Run_F
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 583b61ca7554e71488674f204b9831c5, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 583b61ca7554e71488674f204b9831c5, type: 3}
     clipDisplayName: Velocity_8Way_Run_FL
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 0afec92337369764e87038612a61ef95, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 0afec92337369764e87038612a61ef95, type: 3}
     clipDisplayName: Velocity_8Way_Run_FR
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 72c8d0d76aa6e924e8138ada15a24c94, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 72c8d0d76aa6e924e8138ada15a24c94, type: 3}
     clipDisplayName: Velocity_8Way_Run_L
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 3c757267e87efc9478bb8c3529a2574f, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 3c757267e87efc9478bb8c3529a2574f, type: 3}
     clipDisplayName: Velocity_8Way_Run_R
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: a34e1c32ad498d14bbd68e391bcacf00, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: a34e1c32ad498d14bbd68e391bcacf00, type: 3}
     clipDisplayName: Velocity_8Way_Walk_B
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 26979028e3a1a064f98c75a590eedf38, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 26979028e3a1a064f98c75a590eedf38, type: 3}
     clipDisplayName: Velocity_8Way_Walk_BL
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 3f2f27b23b97055418bddf8966aca52f, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 3f2f27b23b97055418bddf8966aca52f, type: 3}
     clipDisplayName: Velocity_8Way_Walk_BR
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 233be56097e1c8940b8ace0cc760f790, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 233be56097e1c8940b8ace0cc760f790, type: 3}
     clipDisplayName: Velocity_8Way_Walk_F
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 3bf21719f06a8934a9addccb24f4d926, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 3bf21719f06a8934a9addccb24f4d926, type: 3}
     clipDisplayName: Velocity_8Way_Walk_FL
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 2c2a093150998984690830cfb48bec32, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 2c2a093150998984690830cfb48bec32, type: 3}
     clipDisplayName: Velocity_8Way_Walk_FR
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 2361a8e00325d2341810778fa9576a1a, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 2361a8e00325d2341810778fa9576a1a, type: 3}
     clipDisplayName: Velocity_8Way_Walk_L
     animKey: 0
     orderInSet: 0
     skip: 0
-  - clip: {fileID: 7400000, guid: 2c7af6fe722098946bc644b53f20a7c0, type: 3}
+  - clip: {fileID: 1827226128182048838, guid: 2c7af6fe722098946bc644b53f20a7c0, type: 3}
     clipDisplayName: Velocity_8Way_Walk_R
     animKey: 0
     orderInSet: 0

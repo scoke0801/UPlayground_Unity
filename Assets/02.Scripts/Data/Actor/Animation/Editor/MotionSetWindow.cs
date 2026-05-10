@@ -364,6 +364,24 @@ namespace UPlayGround.Animation.Editor
             _cachedPlayerEquipment.SetSubWeaponDrawn(true);
         }
 
+        void ShowSelectedPlayerWeapon()
+        {
+            if (!Application.isPlaying || _targetActor == null) return;
+
+            RefreshTargetActorCache();
+            if (_cachedPlayerEquipment == null) return;
+
+            if (_selectedPlayerWeaponType != WeaponType.NoWeapon &&
+                _cachedPlayerEquipment.GetMainWeaponType() != _selectedPlayerWeaponType)
+            {
+                _cachedPlayerEquipment.SetWeaponType(_selectedPlayerWeaponType);
+            }
+
+            _cachedPlayerEquipment.SetMainWeaponDrawn(true);
+            _cachedPlayerEquipment.SetSubWeaponDrawn(true);
+            Repaint();
+        }
+
         void AcquireMotionToolInputLock()
         {
             if (!Application.isPlaying || !InputManager.Instance)
@@ -1355,6 +1373,14 @@ namespace UPlayGround.Animation.Editor
                         _selectedPlayerWeaponType, GUILayout.Width(120));
                     if (newWeapon != _selectedPlayerWeaponType)
                         SetSelectedPlayerWeaponType(newWeapon);
+
+                    EditorGUI.BeginDisabledGroup(!Application.isPlaying || _targetActor == null);
+                    if (GUILayout.Button(new GUIContent("무기 Show", "현재 테스트 플레이어의 무기를 즉시 발도 상태로 표시합니다."),
+                            GUILayout.Width(75)))
+                    {
+                        ShowSelectedPlayerWeapon();
+                    }
+                    EditorGUI.EndDisabledGroup();
 
                     EditorGUI.BeginDisabledGroup(_playerActorAnimationSet == null);
                     var resolved = ResolveSelectedPlayerActorAnimationSet();
@@ -2370,23 +2396,26 @@ namespace UPlayGround.Animation.Editor
                         // 실제 클립 시간 = ClipStartTime + localTime * playbackSpeed
                         float spd      = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
                         state.Time     = motion.ClipStartTime + localTime * spd;
-                        state.Speed    = _isPaused ? 0f : motion.playbackSpeed * _playbackSpeed;
+                        // 재생 중이 아니거나 일시정지 상태면 그 프레임에서 멈춤(스크럽 프리뷰).
+                        state.Speed    = (_isPaused || !_isPlaying) ? 0f : motion.playbackSpeed * _playbackSpeed;
                         state.Events(this).OnEnd = null;
                     }
                 }
             }
         }
         
-        // 타임라인 클릭으로 재생 위치 조절
+        // 타임라인 클릭으로 재생 위치 조절 (재생/일시정지/정지 어느 상태든 동작)
         void HandleTimelineScrubbing()
         {
-            if (!_isPlaying) return;
-            
-            // Drawer의 커서 시간이 변경되었고, 드래그 중이면
-            if (_drawer.isDraggingCursor)
-            {
-                SeekToTime(_drawer.cursorTime);
-            }
+            // 사용자 입력으로 cursor가 갱신된 순간에만 Seek를 발화한다.
+            // 매 OnGUI마다 SeekToTime을 호출하면 _animancer.Play / 이벤트 재실행이 중복되어 부담된다.
+            if (!_drawer.cursorScrubRequested) return;
+            _drawer.cursorScrubRequested = false;
+
+            // Animancer가 동작하려면 플레이 모드여야 한다. 그 외 환경에서는 cursor만 이동하고 모션 프리뷰는 생략.
+            if (!Application.isPlaying || _animancer == null) return;
+
+            SeekToTime(_drawer.cursorTime);
         }
         
         // ── 이벤트 실행 ──

@@ -346,12 +346,11 @@ namespace UPlayGround.Component
                 return true;
             }
 
-            // 납도: 애니메이션 없이 무기 디졸브 + constraint weight도 back으로 동기화
+            // 납도: 애니메이션 없이 무기 디졸브.
+            // 사라지는 연출 중에는 Constraint weight를 전환하지 않는다.
             if (!drawn)
             {
                 DissolveDrawnWeapons();
-                if (_mainWeaponConstraint != null && _mainWeaponConstraint.sourceCount >= 2)
-                    SetWeaponDrawn(_mainWeaponConstraint, false);
                 IsMainWeaponEquipped = false;
                 _requestedMainWeaponDrawn = null;
                 onComplete?.Invoke();

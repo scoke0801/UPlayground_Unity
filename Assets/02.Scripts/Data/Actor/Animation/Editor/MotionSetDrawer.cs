@@ -69,6 +69,10 @@ namespace UPlayGround.Animation.Editor
         public bool isDraggingCursor;
         public int selectedMotionIndex = -1;
 
+        // 사용자가 ruler/scrub으로 cursorTime을 변경한 직후 1프레임 동안 true.
+        // 외부(Window)에서 이 플래그를 보고 Seek를 발화한 뒤 false로 리셋한다.
+        public bool cursorScrubRequested;
+
         // fps 표시 관련
         public bool showFrames = false; // true = 프레임 단위, false = 초 단위
         public int fps = 30; // 기준 fps
@@ -1846,11 +1850,16 @@ namespace UPlayGround.Animation.Editor
             {
                 Vector2 localPos = e.mousePosition;
 
+                // MouseUp 누락(이벤트가 화면 밖으로 밀려나 가시성 체크 실패, 윈도우 포커스 손실 등)으로
+                // 드래그 플래그가 stale 상태로 남으면 Shift 없는 다음 클릭+이동이 그대로 드래그로 이어진다.
+                // 새 클릭 진입 시점에 강제 리셋하여 매칭되는 분기에서만 다시 설정되도록 한다.
+                _isDraggingStart = false;
+                _isDraggingEnd = false;
+                _isDraggingBody = false;
+
                 if (startRect.Contains(localPos))
                 {
                     _isDraggingStart = true;
-                    _isDraggingEnd = false;
-                    _isDraggingBody = false;
                     _dragEventMotionIndex = motionIndex;
                     _dragEventIndex = eventIndex;
                     _dragSetEvent = isSetEvent;
@@ -1860,9 +1869,7 @@ namespace UPlayGround.Animation.Editor
                 }
                 else if (endRect.Contains(localPos))
                 {
-                    _isDraggingStart = false;
                     _isDraggingEnd = true;
-                    _isDraggingBody = false;
                     _dragEventMotionIndex = motionIndex;
                     _dragEventIndex = eventIndex;
                     _dragSetEvent = isSetEvent;
@@ -1872,8 +1879,6 @@ namespace UPlayGround.Animation.Editor
                 }
                 else if (barRect.Contains(localPos) && e.shift)
                 {
-                    _isDraggingStart = false;
-                    _isDraggingEnd = false;
                     _isDraggingBody = true;
                     _dragEventMotionIndex = motionIndex;
                     _dragEventIndex = eventIndex;
@@ -1958,12 +1963,14 @@ namespace UPlayGround.Animation.Editor
             {
                 isDraggingCursor = true;
                 cursorTime = Mathf.Clamp((e.mousePosition.x - rulerRect.x + scrollX) / pps, 0, totalDur);
+                cursorScrubRequested = true;
                 e.Use();
                 Repaint();
             }
             if (isDraggingCursor && e.type == EventType.MouseDrag)
             {
                 cursorTime = Mathf.Clamp((e.mousePosition.x - rulerRect.x + scrollX) / pps, 0, totalDur);
+                cursorScrubRequested = true;
                 e.Use();
                 Repaint();
             }

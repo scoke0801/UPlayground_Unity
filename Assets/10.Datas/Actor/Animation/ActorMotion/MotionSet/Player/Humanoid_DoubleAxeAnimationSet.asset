@@ -14,4 +14,58 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
   motionSets:
-    _serializedList: []
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 8b71274a47d698140b54bed62c81704a, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: d9406e9621f9ef94f943aaaac790c894, type: 2}
+    - Key: 4
+      Value: {fileID: 11400000, guid: 62ea3d964e20ad74db61c42113f66106, type: 2}
+    - Key: 10
+      Value: {fileID: 11400000, guid: b027a6fcf06189c4791ac125e7edd932, type: 2}
+    - Key: 11
+      Value: {fileID: 11400000, guid: 76cad57c2eb1c824394b8a09555349fa, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: dfaf68c37a36b674286d5ec93715caca, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: c7ad123494cf08e45ad4c0d14eb30e3f, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: c3cbfa5f309a30f40b72fccca6e8a08f, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: 24166d229a3572c4290bf490c7e07135, type: 2}
+    - Key: 104
+      Value: {fileID: 11400000, guid: 8885fd580dfa312479943121582d3eac, type: 2}
+    - Key: 105
+      Value: {fileID: 11400000, guid: f15ecb7834ee67141a7b4ab70172f156, type: 2}
+    - Key: 106
+      Value: {fileID: 11400000, guid: d14812e0dd5a8574eb3e0ee4a3a91d1d, type: 2}
+    - Key: 107
+      Value: {fileID: 11400000, guid: 578694e43f937f64ca4eda9793f23ece, type: 2}
+    - Key: 108
+      Value: {fileID: 11400000, guid: 32fd517f9093c244aaa42391541977ff, type: 2}
+    - Key: 200
+      Value: {fileID: 11400000, guid: 71d7d6c894671ef4bb5e8b845ca50077, type: 2}
+    - Key: 201
+      Value: {fileID: 11400000, guid: 78acb0d9693cf9b4bb51a3c110b0f73e, type: 2}
+    - Key: 202
+      Value: {fileID: 11400000, guid: 7ffb96066f859b04cb1671075139b6e5, type: 2}
+    - Key: 203
+      Value: {fileID: 11400000, guid: da1b53654f93eaa488655c05a1e08e25, type: 2}
+    - Key: 204
+      Value: {fileID: 11400000, guid: 1bdf37690314cdf4e8f00a0228f91fa4, type: 2}
+    - Key: 205
+      Value: {fileID: 11400000, guid: 21d0cbe5fd773784089f41f063a91256, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: 15c59b96bef361047a99a92350f7e14d, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 69e9e4d16dc3b384fa868a8ab6f2943a, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: 41324672ed371b1488f8ba5be10a9ebf, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 121e6bb1f172e644a82ec5d7535c8928, type: 2}
+    - Key: 820
+      Value: {fileID: 11400000, guid: 2f70dea3bcb344c47a19836e581d0912, type: 2}
+    - Key: 840
+      Value: {fileID: 11400000, guid: 91662c4eef8a6c143b2b8906796f838a, type: 2}
+    - Key: 860
+      Value: {fileID: 11400000, guid: 87cb5b919f5a4b941b07e7e0cbb9875d, type: 2}

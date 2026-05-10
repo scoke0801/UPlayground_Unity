@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: Walk
     motions:
     - motionName: Frank_RPG_Dual_Walk
-      motionClip: {fileID: 7400000, guid: 34829c62225bd854691ea358ef92cee7, type: 3}
+      motionClip: {fileID: 7400000, guid: e692fbc0bcf08cc4c8532e9027ee67a3, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

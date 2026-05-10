@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: WhipCharacter_HeavyAttack_1
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: Motion
+      motionClip: {fileID: 9145160955850070181, guid: 72b53cbc8461bff46aadf52e39c95364, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 5792125030652444794
+      - rid: 5792125030652444795
+      - rid: 5792125030652444796
+      - rid: 5792125030652444797
+      - rid: 5792125030652444798
+      - rid: 5792125030652444799
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5792125030652444794
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.18115553
+        endTime: 0.2524298
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 0
+    - rid: 5792125030652444795
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.39746225
+        endTime: 0.4900108
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 1
+    - rid: 5792125030652444796
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8691685
+        endTime: 0.9800216
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 2
+    - rid: 5792125030652444797
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.1329914
+        endTime: 1.2086934
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 3
+    - rid: 5792125030652444798
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3542117
+        endTime: 1.4165767
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 4
+    - rid: 5792125030652444799
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8526459
+        endTime: 1.9150109
+        targetLayers:
+          serializedVersion: 2
+          m_Bits: 64
+        hitPhaseIndex: 5

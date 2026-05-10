@@ -37,8 +37,6 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 37c8319a55959974b9af6b7d604dddda, type: 2}
     - Key: 1
       Value: {fileID: 11400000, guid: 8478e7f123106d941b43389f262ae7c9, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: e27ee4d9a172c99448edc0b1d1ef5f6b, type: 2}
     - Key: 3
       Value: {fileID: 11400000, guid: d3f2986c31591f14ab7d9b9be8ad01b2, type: 2}
     - Key: 4

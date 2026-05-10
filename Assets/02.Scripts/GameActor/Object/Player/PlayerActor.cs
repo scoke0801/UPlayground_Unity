@@ -79,6 +79,7 @@ namespace UPlayGround
         private MonsterActor _entryAttackTarget;
         // PlayerAttackState 가 OnEnter에서 1회 소비하여 ExecuteEntryAttack 라우팅을 트리거.
         private bool         _isEntryAttackPending = false;
+        private bool         _isSwapSpecialAttackPending = false;
         private bool         _isInputSuppressed = false;
 
         // 차지 공격 입력 추적
@@ -388,6 +389,20 @@ namespace UPlayGround
             _entryAttackTarget = target;
         }
 
+        public bool TryStartSwapSpecialAttack()
+        {
+            _isSwapSpecialAttackPending = true;
+
+            bool entered = PlayerMovementPlayerController != null
+                           && PlayerAttackState.TryEnter(PlayerMovementPlayerController);
+            if (!entered)
+            {
+                _isSwapSpecialAttackPending = false;
+            }
+
+            return entered;
+        }
+
         /// <summary>
         /// 큐에 쌓인 등장 공격을 소비한다. 무력화 상태이면 폐기.
         /// </summary>
@@ -427,8 +442,16 @@ namespace UPlayGround
             return true;
         }
 
+        public bool ConsumeSwapSpecialAttackPending()
+        {
+            if (!_isSwapSpecialAttackPending) return false;
+            _isSwapSpecialAttackPending = false;
+            return true;
+        }
+
         /// <summary> 등장 공격 대기 여부를 소비하지 않고 조회 (PlayerAttackState 진입 가능 판정용). </summary>
         public bool IsEntryAttackPending => _isEntryAttackPending;
+        public bool IsSwapSpecialAttackPending => _isSwapSpecialAttackPending;
     }
 
     // Component
@@ -556,6 +579,39 @@ namespace UPlayGround
 
         public float GetMaxSkillGaugeForCharacter(CharacterActorType type)
             => _skillGauge != null ? _skillGauge.MaxGauge : 1f;
+
+        public bool IsSkillGaugeFullForCharacter(CharacterActorType type)
+        {
+            float max = GetMaxSkillGaugeForCharacter(type);
+            return max > 0f && GetSkillGaugeForCharacter(type) >= max;
+        }
+
+        public void AddSkillGaugeForCharacter(CharacterActorType type, float amount)
+        {
+            if (type == CharacterActorType.None || amount <= 0f || _skillGauge == null) return;
+
+            if (type == _characterActorType)
+            {
+                _skillGauge.AddGauge(amount);
+                return;
+            }
+
+            float max = _skillGauge.MaxGauge;
+            float current = _characterSkillMap.TryGetValue(type, out var gauge) ? gauge : 0f;
+            _characterSkillMap[type] = Mathf.Clamp(current + amount, 0f, max);
+        }
+
+        public bool ConsumeFullSkillGaugeForCharacter(CharacterActorType type)
+        {
+            if (!IsSkillGaugeFullForCharacter(type)) return false;
+
+            if (type == _characterActorType)
+                _skillGauge.SetGauge(0f);
+            else
+                _characterSkillMap[type] = 0f;
+
+            return true;
+        }
 
         private void InitComponents()
         {

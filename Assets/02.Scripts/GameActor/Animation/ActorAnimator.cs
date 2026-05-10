@@ -201,11 +201,15 @@ namespace UPlayGround.Animation
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
-            if (_subAnimator != null)
-            {
-                _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
-            }
+            PlaySubAnimatorMotion(key, fadeDuration, layerIndex);
             return _currentState;
+        }
+
+        protected void PlaySubAnimatorMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
+        {
+            if (_subAnimator == null) return;
+
+            _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
         }
 
         public MotionPlaybackSnapshot CapturePlaybackSnapshot()

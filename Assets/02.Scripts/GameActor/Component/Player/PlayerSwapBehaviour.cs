@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
@@ -17,6 +18,16 @@ namespace UPlayGround.Component
 
         private List<CharacterModelData> _models = new();
         private CharacterModelData       _activeModel;
+
+        [Header("Swap FX")]
+        [Tooltip("모델 교체 성공 시 Center 소켓 위치에 재생할 FX 키. 비워두면 재생하지 않는다.")]
+        [SerializeField] private string _swapFxKey;
+        [SerializeField] private float  _swapFxDuration = 5f;
+        [SerializeField] private bool   _destroyPreviousSwapFx = true;
+        [SerializeField] private float  _swapFxMinInterval = 0.05f;
+
+        private GameObject _activeSwapFxInstance;
+        private float      _lastSwapFxTime = -999f;
 
         public CharacterActorType ActiveCharacterType =>
             _activeModel?.characterType ?? CharacterActorType.None;
@@ -74,6 +85,7 @@ namespace UPlayGround.Component
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
             _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
+            PlaySwapFx();
             return true;
         }
 
@@ -90,5 +102,35 @@ namespace UPlayGround.Component
 
         public CharacterModelData GetModelData(CharacterActorType type)
             => _models.Find(m => m.characterType == type);
+
+        private void PlaySwapFx()
+        {
+            if (string.IsNullOrWhiteSpace(_swapFxKey)) return;
+            if (Time.time - _lastSwapFxTime < _swapFxMinInterval) return;
+
+            Transform owner = _playerActor != null ? _playerActor.transform : transform;
+            Vector3 position = owner.position;
+            if (_activeModel != null
+                && _activeModel.SocketDict != null
+                && _activeModel.SocketDict.TryGetValue(ActorSocketType.Center, out Transform centerSocket)
+                && centerSocket != null)
+            {
+                position = centerSocket.position;
+            }
+
+            if (_destroyPreviousSwapFx && _activeSwapFxInstance != null)
+            {
+                Destroy(_activeSwapFxInstance);
+                _activeSwapFxInstance = null;
+            }
+
+            _activeSwapFxInstance = GameObjectManager.Instance?.ShowFX(
+                _swapFxKey,
+                position,
+                owner.rotation,
+                null,
+                _swapFxDuration);
+            _lastSwapFxTime = Time.time;
+        }
     }
 }

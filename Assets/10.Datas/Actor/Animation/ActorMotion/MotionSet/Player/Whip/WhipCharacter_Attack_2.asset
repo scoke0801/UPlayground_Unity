@@ -22,6 +22,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917016132091904
+      - rid: 7432452548399988913
     globalEvents: []
   references:
     version: 2
@@ -31,7 +32,11 @@ MonoBehaviour:
       data:
         startTime: 0.33041397
         endTime: 0.43391716
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 192
+        globalStartTimeOffset: 0
         hitPhaseIndex: 0
+    - rid: 7432452548399988913
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.43468383
+        endTime: 0.7194767
+        globalStartTimeOffset: 0

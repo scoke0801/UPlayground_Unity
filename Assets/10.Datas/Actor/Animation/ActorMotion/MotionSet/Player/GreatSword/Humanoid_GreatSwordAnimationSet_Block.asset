@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: Humanoid_GreatSwordAnimationSet_Block
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: 83293770c8755b1409e60b166a8a6182, type: 3}
+      motionClip: {fileID: 1827226128182048838, guid: 83293770c8755b1409e60b166a8a6182, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

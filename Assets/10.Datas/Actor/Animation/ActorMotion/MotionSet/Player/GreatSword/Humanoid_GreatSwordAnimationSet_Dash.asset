@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: Humanoid_GreatSwordAnimationSet_Dash
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: 03b0bc116b88efe4f92441ef3348fb06, type: 3}
+      motionClip: {fileID: 1827226128182048838, guid: 03b0bc116b88efe4f92441ef3348fb06, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

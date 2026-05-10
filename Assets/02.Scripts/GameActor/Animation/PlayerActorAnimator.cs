@@ -77,6 +77,8 @@ namespace UPlayGround.Animation
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
+            PlaySubAnimatorMotion(key, fadeDuration, layerIndex);
+
             return _currentState;
         }
 

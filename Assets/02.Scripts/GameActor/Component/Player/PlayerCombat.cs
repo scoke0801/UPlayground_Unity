@@ -453,6 +453,25 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        public AttackData ExecuteSwapSpecialAttack()
+        {
+            var source = _attackData.swapSpecialAttack?.baseInfo != null
+                ? _attackData.swapSpecialAttack
+                : (_attackData.skillAttackList.Count > 0 && _attackData.skillAttackList[0]?.baseInfo != null
+                    ? _attackData.skillAttackList[0]
+                    : (_attackData.entryAttack?.baseInfo != null ? _attackData.entryAttack : null));
+
+            if (source == null) return null;
+
+            _attackState = AttackState.SkillAttack;
+            ResetCombo();
+            _currentAttackData = ConvertToAttackData(source, AttackKind.SkillAttack);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
         public AttackData ExecuteParryCounterAttack()
         {
             var source = _attackData.parryCounterAttack?.baseInfo != null
@@ -831,6 +850,17 @@ namespace UPlayGround.Component
                 : (_attackData != null && _attackData.liteComboAttackList.Count > 0
                     ? _attackData.liteComboAttackList[0]
                     : null);
+            return source?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 풀 게이지 교체 특수 공격 AnimKey 조회 (ExecuteSwapSpecialAttack과 동일한 폴백 체인). </summary>
+        public AnimKey PeekSwapSpecialAttackAnimKey()
+        {
+            var source = _attackData?.swapSpecialAttack?.baseInfo != null
+                ? _attackData.swapSpecialAttack
+                : (_attackData != null && _attackData.skillAttackList.Count > 0 && _attackData.skillAttackList[0]?.baseInfo != null
+                    ? _attackData.skillAttackList[0]
+                    : (_attackData?.entryAttack?.baseInfo != null ? _attackData.entryAttack : null));
             return source?.baseInfo?.animKey ?? AnimKey.None;
         }
 

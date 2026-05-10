@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Katana_Charge_SwapSpecialAttack
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: Katana_Charge_SwapSpecialAttack
+    motions:
+    - motionName: 
+      motionClip: {fileID: 1827226128182048838, guid: 4a5b2ab7591526144b6b32c41155fd2a, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917011524124806
+      - rid: 7432452548399988927
+      - rid: 7432452548399988928
+      - rid: 7432452548399988929
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7399917011524124806
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2012582
+        endTime: 1.3342927
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+    - rid: 7432452548399988927
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.4506823
+        endTime: 1.5378289
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 1
+    - rid: 7432452548399988928
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.587031
+        endTime: 1.6741776
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 2
+    - rid: 7432452548399988929
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.2106328
+        endTime: 2.2977796
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 3

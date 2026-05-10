@@ -90,6 +90,7 @@ namespace UPlayGround.Data.EnumType
         Player_SwapAttack_3,
         Player_SwapAttack_4,
         Player_SwapAttack_5,
+        Player_SwapSpecialAttack_1,
         
         // 차지 공격 — 하나의 애니메이션 안에 InfiniteLoop LoopEvent로 차지 구간을 정의
         ChargeAttack_1 = 620,

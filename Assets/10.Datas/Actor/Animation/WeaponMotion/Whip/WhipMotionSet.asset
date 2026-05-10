@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: WhipMotionSet
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -44,3 +45,9 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
     - Key: 502
       Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
+    - Key: 555
+      Value: {fileID: 11400000, guid: 85b4d34ec5838bd4c940302a3a1b458a, type: 2}
+    - Key: 530
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key: 531
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}

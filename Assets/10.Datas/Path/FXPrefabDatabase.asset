@@ -55,3 +55,6 @@ MonoBehaviour:
   - key: EnemyHeavyAttackTelegraph_Circle
     prefab: {fileID: 1612411718768874, guid: 4ef343c2fedb6884aac07e8610d65212, type: 3}
     description: 
+  - key: PlayerSwap
+    prefab: {fileID: 1315764361558410, guid: f99c3ed97779c5b4eb026cb91d4e4933, type: 3}
+    description: 

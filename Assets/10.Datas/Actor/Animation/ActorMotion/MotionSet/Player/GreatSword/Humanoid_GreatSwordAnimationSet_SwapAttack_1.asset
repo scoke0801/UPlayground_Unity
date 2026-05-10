@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Humanoid_GreatSwordAnimationSet_SwapAttack_1
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: Humanoid_GreatSwordAnimationSet_SwapAttack_1
+    motions:
+    - motionName: Motion_0
+      motionClip: {fileID: 7400000, guid: fbb0deca098b8c04090df31f66c37d68, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452529509105901
+      - rid: 7432452529509105902
+      - rid: 7432452529509105903
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7432452529509105901
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.5
+        globalStartTimeOffset: 0
+        preset: 1
+        modifierType: 0
+        targetPolicy: 0
+        translationWeight: 1
+        rotationWeight: 1
+        ignoreY: 1
+        overrideDistance: 0
+        minDistance: 0.3
+        maxDistance: 4
+        maxSpeed: 18
+        targetOffset: {x: 0, y: 0, z: 0}
+    - rid: 7432452529509105902
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.57202154
+        endTime: 0.7197266
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+    - rid: 7432452529509105903
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7307129
+        endTime: 0.9807129
+        globalStartTimeOffset: 0

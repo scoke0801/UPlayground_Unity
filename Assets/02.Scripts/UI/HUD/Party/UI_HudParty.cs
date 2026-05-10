@@ -20,6 +20,7 @@ public class UI_HudParty : UI_Base
         {
             PartyManager.Instance.OnBattleOrderChanged += Refresh;
             PartyManager.Instance.OnSwapCompleted      += OnSwapCompleted;
+            PartyManager.Instance.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
         }
 
         Refresh();
@@ -33,6 +34,7 @@ public class UI_HudParty : UI_Base
         {
             PartyManager.Instance.OnBattleOrderChanged -= Refresh;
             PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
+            PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
         }
 
         foreach (var entry in _entries)
@@ -47,6 +49,7 @@ public class UI_HudParty : UI_Base
         {
             PartyManager.Instance.OnBattleOrderChanged -= Refresh;
             PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
+            PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
         }
     }
 
@@ -113,6 +116,18 @@ public class UI_HudParty : UI_Base
         foreach (var entry in _entries)
         {
             if (entry != null && entry.BoundType == activeType)
+            {
+                entry.SetSkillGauge(current, max);
+                break;
+            }
+        }
+    }
+
+    private void OnPartySkillGaugeChanged(UPlayGround.Data.EnumType.CharacterActorType type, float current, float max)
+    {
+        foreach (var entry in _entries)
+        {
+            if (entry != null && entry.BoundType == type)
             {
                 entry.SetSkillGauge(current, max);
                 break;

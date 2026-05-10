@@ -39,6 +39,7 @@ namespace UPlayGround.State
         private bool _isCounter;
         private bool _isParryCounter;
         private bool _isEntryAttack;
+        private bool _isSwapSpecialAttack;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -117,7 +118,11 @@ namespace UPlayGround.State
             if (isCounter)
                 return combat.PeekCounterAttackAnimKey();
 
-            // 1순위: 교체 등장 공격
+            // 1순위: 풀 게이지 교체 특수 공격
+            if (playerActor.IsSwapSpecialAttackPending)
+                return combat.PeekSwapSpecialAttackAnimKey();
+
+            // 2순위: 교체 등장 공격
             if (playerActor.IsEntryAttackPending)
                 return combat.PeekEntryAttackAnimKey();
 
@@ -157,6 +162,7 @@ namespace UPlayGround.State
             if (_isCounter)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
 
+            _isSwapSpecialAttack = playerActor.ConsumeSwapSpecialAttackPending();
             _isEntryAttack = playerActor.ConsumeEntryAttackPending();
 
             _isParryCounter = _combat.IsParryCounterAvailable;
@@ -279,6 +285,7 @@ namespace UPlayGround.State
                 _isCounter      = false;
                 _isParryCounter = false;
                 _isEntryAttack  = false;
+                _isSwapSpecialAttack = false;
 
                 // 다음 콤보 키를 미리 조회해 보유 여부를 확인.
                 // 모션이 없으면 콤보 인덱스를 진행시키지 않고 Idle/Move로 이탈.
@@ -333,7 +340,14 @@ namespace UPlayGround.State
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
             }
 
-            // 1순위: 교체 등장 공격
+            // 1순위: 풀 게이지 교체 특수 공격
+            if (_isSwapSpecialAttack)
+            {
+                _currentAttack = _combat.ExecuteSwapSpecialAttack();
+                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
+            // 2순위: 교체 등장 공격
             if (_isEntryAttack)
             {
                 _currentAttack = _combat.ExecuteEntryAttack();

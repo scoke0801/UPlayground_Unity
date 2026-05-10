@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Humanoid_DoubleAxeAxeAnimationSet_Skill_1 1
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: Humanoid_DoubleAxeAxeAnimationSet_SwapSpecialAttack
+    motions:
+    - motionName: Frank_RPG_2Hand_Skill01_WhirlWind
+      motionClip: {fileID: 1827226128182048838, guid: 8e886e4a64f0b8b4ca6676f977d39253, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452544598638636
+      - rid: 7432452544598638637
+      - rid: 7432452544598638638
+      - rid: 7432452544598638639
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7432452544598638636
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.93211615
+        endTime: 1.0711612
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+    - rid: 7432452544598638637
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0608615
+        endTime: 1.2462548
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 1
+    - rid: 7432452544598638638
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2720038
+        endTime: 1.4264982
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 2
+    - rid: 7432452544598638639
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.431648
+        endTime: 1.6170412
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 3

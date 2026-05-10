@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UPlayGround.Component;
+using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.InputDefine;
@@ -36,8 +37,10 @@ namespace UPlayGround.Manager
         private int                    _maxBattleSize = 4;
         private float                  _lastSwapTime = -999f;
         private bool                   _isSwapping   = false;
+        private PlayerCombat           _subscribedCombat;
 
         [SerializeField] private float _swapCooldown = 0.5f;
+        [SerializeField] private float _partySkillGaugeChargePerPlayerHit = 5f;
 
         public event Action<PlayerActor, PlayerActor> OnSwapStarted;
         public event Action<PlayerActor>              OnSwapCompleted;
@@ -45,6 +48,7 @@ namespace UPlayGround.Manager
         public event Action                           OnRosterChanged;
         public event Action                           OnBattleOrderChanged;
         public event Action<CharacterActorType>       OnPartyProgressionChanged;
+        public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
 
         public PlayerActor               ActiveCharacter     => _player;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
@@ -95,6 +99,7 @@ namespace UPlayGround.Manager
             }
 
             InitializePartyStates();
+            SubscribeCombatEvents();
             NotifyActivePlayerChanged();
 
             Debug.Log($"[PartyManager] 파티 구성 완료: 보유 {_roster.Count}명 / 출전 {_battleOrder.Count}/{_maxBattleSize}, 활성={ActiveCharacterType}");
@@ -102,6 +107,7 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            UnsubscribeCombatEvents();
             UnregisterSwapInputs();
             _roster.Clear();
             _battleOrder.Clear();
@@ -128,10 +134,12 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            UnsubscribeCombatEvents();
             BuildPartyFromScene();
             if (_player != null && _battleOrder.Count > 0)
             {
                 InitializePartyStates();
+                SubscribeCombatEvents();
                 NotifyActivePlayerChanged();
             }
         }
@@ -162,7 +170,8 @@ namespace UPlayGround.Manager
                 return false;
             }
 
-            // 어시스트와 등장 공격은 배타. 어시스트가 우선.
+            // 풀 게이지 스왑 특수공격은 임시 비활성화. 우선 일반 스왑 공격만 사용한다.
+            bool isSwapSpecial = false;
             bool isEntryAttack = false;
             if (isAssist)
             {
@@ -181,7 +190,7 @@ namespace UPlayGround.Manager
             NotifyActivePlayerChanged();
             OnSwapCompleted?.Invoke(_player);
 
-            string tag = isAssist ? " [어시스트]" : (isEntryAttack ? " [등장공격]" : "");
+            string tag = isSwapSpecial ? " [특수공격]" : (isAssist ? " [어시스트]" : (isEntryAttack ? " [등장공격]" : ""));
             Debug.Log($"[PartyManager] 교체 → {targetType}{tag}");
             return true;
         }
@@ -608,6 +617,39 @@ namespace UPlayGround.Manager
         {
             GameObjectManager.Instance?.SetActivePartyPlayer(_player);
             CameraManager.Instance?.SetTarget(_player?.transform);
+        }
+
+        private void SubscribeCombatEvents()
+        {
+            UnsubscribeCombatEvents();
+            _subscribedCombat = _player?.GetCombat();
+            if (_subscribedCombat != null)
+                _subscribedCombat.OnAttackHit += OnPlayerAttackHit;
+        }
+
+        private void UnsubscribeCombatEvents()
+        {
+            if (_subscribedCombat != null)
+                _subscribedCombat.OnAttackHit -= OnPlayerAttackHit;
+            _subscribedCombat = null;
+        }
+
+        private void OnPlayerAttackHit(AttackData attackData)
+        {
+            if (_player == null || _partySkillGaugeChargePerPlayerHit <= 0f) return;
+
+            CharacterActorType activeType = ActiveCharacterType;
+            for (int i = 0; i < _battleOrder.Count; i++)
+            {
+                CharacterActorType type = _battleOrder[i];
+                if (type == CharacterActorType.None || type == activeType) continue;
+
+                float before = _player.GetSkillGaugeForCharacter(type);
+                _player.AddSkillGaugeForCharacter(type, _partySkillGaugeChargePerPlayerHit);
+                float current = _player.GetSkillGaugeForCharacter(type);
+                if (!Mathf.Approximately(before, current))
+                    OnPartySkillGaugeChanged?.Invoke(type, current, _player.GetMaxSkillGaugeForCharacter(type));
+            }
         }
 
         // ─── 입력 등록 ────────────────────────────────────────────────────

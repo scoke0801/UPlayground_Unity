@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-05-07 23:20
+// Generated: 2026-05-10 17:46
 namespace UPlayGround.Data.Path
 {
     /// <summary>FXKeyType — FX Prefab 키 열거형 (자동 생성)</summary>
@@ -21,6 +21,7 @@ namespace UPlayGround.Data.Path
         GriffinDiveImpact = 12,
         ParryFX = 13,
         EnemyHeavyAttackTelegraph_Circle = 14,
+        PlayerSwap = 15,
     }
 
     public static class FXKeyTypeExtensions
@@ -42,6 +43,7 @@ namespace UPlayGround.Data.Path
             FXKeyType.GriffinDiveImpact => "GriffinDiveImpact",
             FXKeyType.ParryFX => "ParryFX",
             FXKeyType.EnemyHeavyAttackTelegraph_Circle => "EnemyHeavyAttackTelegraph_Circle",
+            FXKeyType.PlayerSwap => "PlayerSwap",
             _ => string.Empty,
         };
     }

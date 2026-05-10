@@ -145,8 +145,8 @@ namespace UPlayGround
         public bool CanTakeDamage()    => IsAlive() && !_isInvincible;
         public Transform GetTransform() => transform;
 
-        public void LockOn()   => _lockOnDecal?.SetActive(true);
-        public void UnLockOn() => _lockOnDecal?.SetActive(false);
+        public void LockOn()   { if (_lockOnDecal != null) _lockOnDecal.SetActive(true); }
+        public void UnLockOn() { if (_lockOnDecal != null) _lockOnDecal.SetActive(false); }
 
         public float GetHealthPercent() => _currentHealth / _maxHealth;
         public float GetCurrentHealth() => _currentHealth;

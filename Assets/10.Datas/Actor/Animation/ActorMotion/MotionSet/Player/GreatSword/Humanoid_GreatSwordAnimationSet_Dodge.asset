@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: Humanoid_GreatSwordAnimationSet_Dodge
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: 7400000, guid: 6e4400e8a9927284e90f241e77719731, type: 3}
+      motionClip: {fileID: 1827226128182048838, guid: 6e4400e8a9927284e90f241e77719731, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

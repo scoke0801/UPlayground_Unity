@@ -16,6 +16,10 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
+        // 모션 워핑 기능 개선 작업 중 — 임시 전역 비활성화 토글.
+        // true 로 되돌리면 기존 동작 복구.
+        private const bool MotionWarpEnabled = false;
+
         [Header("Warp Modifier")]
         public MotionWarpPreset preset = MotionWarpPreset.Custom;
         public MotionWarpModifierType modifierType = MotionWarpModifierType.Additive;
@@ -41,6 +45,8 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            if (!MotionWarpEnabled) return;
+
             float warpDuration = endTime - startTime;
             ConfigureMotionWarp(target, warpDuration);
 
@@ -59,6 +65,8 @@ namespace UPlayGround.Data.Event
 
         public override void OnCompleteEvent(GameObject target)
         {
+            if (!MotionWarpEnabled) return;
+
             ResolveController(target)?.MotionWarp.EndWarpWindow();
 
             var playerCombat = target.GetComponent<PlayerCombat>()

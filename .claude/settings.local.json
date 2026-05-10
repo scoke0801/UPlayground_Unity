@@ -89,7 +89,12 @@
       "Read(//c/Users/scoke/.claude//**)",
       "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/GameActor/Component/Player/**)",
       "WebFetch(domain:archive.org)",
-      "WebFetch(domain:theorangeduck.com)"
+      "WebFetch(domain:theorangeduck.com)",
+      "WebFetch(domain:dev.epicgames.com)",
+      "WebFetch(domain:kinemation.gitbook.io)",
+      "WebFetch(domain:forums.unrealengine.com)",
+      "WebFetch(domain:www.quodsoler.com)",
+      "WebFetch(domain:soulslike-framework.isik.vip)"
     ]
   }
 }

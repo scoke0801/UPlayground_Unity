@@ -38,6 +38,9 @@ namespace UPlayGround.Data.Combat
         [Tooltip("교체 등장 공격 데이터. 비어 있으면 약 공격 첫 번째로 대체된다.")]
         public PlayerAttackInfo entryAttack;
 
+        [Tooltip("스킬 게이지가 가득 찬 캐릭터로 교체할 때 발동하는 특수 공격 데이터. 비어 있으면 스킬 0번, 등장 공격 순으로 대체된다.")]
+        public PlayerAttackInfo swapSpecialAttack;
+
         [Tooltip("차지 공격 MotionSet AnimKey.\nMotionSet 내 InfiniteLoop 개수 = chargeStages.Count 와 일치시켜야 한다.")]
         public AnimKey chargeAnimKey = AnimKey.None;
 

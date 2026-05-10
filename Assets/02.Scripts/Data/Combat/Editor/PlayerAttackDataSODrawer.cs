@@ -12,7 +12,7 @@ namespace UPlayGround.Editor
     public class PlayerAttackDataSODrawer
     {
         // ─── 탭 ─────────────────────────────────────────────────────────
-        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장" };
+        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "특수" };
         internal static readonly Color[] TabAccents =
         {
             new Color(0.35f, 0.55f, 1.00f),
@@ -23,6 +23,7 @@ namespace UPlayGround.Editor
             new Color(1.00f, 0.85f, 0.00f),
             new Color(1.00f, 0.50f, 0.15f),
             new Color(0.20f, 0.85f, 0.95f),
+            new Color(1.00f, 0.25f, 0.65f),
         };
         private int _tab;
 
@@ -39,7 +40,7 @@ namespace UPlayGround.Editor
         // ─── SerializedObject / Property ────────────────────────────────
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
-        private SerializedProperty _counter, _parryCounter, _entry;
+        private SerializedProperty _counter, _parryCounter, _entry, _swapSpecial;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
 
@@ -141,6 +142,7 @@ namespace UPlayGround.Editor
             _counter          = so.FindProperty("counterAttack");
             _parryCounter     = so.FindProperty("parryCounterAttack");
             _entry            = so.FindProperty("entryAttack");
+            _swapSpecial      = so.FindProperty("swapSpecialAttack");
             _chargeAnimKey    = so.FindProperty("chargeAnimKey");
             _chargeStages     = so.FindProperty("chargeStages");
             _chargeThresholds = so.FindProperty("chargeStageThresholds");
@@ -173,6 +175,7 @@ namespace UPlayGround.Editor
                 case 5: DrawCounterAttack(accent); break;
                 case 6: DrawChargeSection(accent); break;
                 case 7: DrawEntryAttack(accent); break;
+                case 8: DrawSwapSpecialAttack(accent); break;
             }
         }
 
@@ -204,6 +207,7 @@ namespace UPlayGround.Editor
             5 => 1,
             6 => _chargeStages.arraySize,
             7 => 1,
+            8 => 1,
             _ => 0,
         };
 
@@ -214,7 +218,7 @@ namespace UPlayGround.Editor
             {
                 bool active = i == _tab;
                 int  count  = GetTabCount(i);
-                bool empty  = count == 0 && i != 5 && i != 7;
+                bool empty  = count == 0 && i != 5 && i != 7 && i != 8;
 
                 Color prev = GUI.backgroundColor;
                 GUI.backgroundColor = active
@@ -224,7 +228,7 @@ namespace UPlayGround.Editor
                         : new Color(0.25f, 0.25f, 0.25f, 0.8f);
 
                 var style = active ? _tabStyleActive : _tabStyleNormal;
-                string label = (i == 5 || i == 6 || i == 7) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
+                string label = (i == 5 || i == 6 || i == 7 || i == 8) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
 
                 Color prevContent = GUI.contentColor;
                 if (empty && !active) GUI.contentColor = new Color(1f, 1f, 1f, 0.4f);
@@ -756,6 +760,19 @@ namespace UPlayGround.Editor
                 MessageType.Info);
             EditorGUILayout.Space(4);
             DrawCounterAttackField(_entry, "entry", accent);
+        }
+
+        private void DrawSwapSpecialAttack(Color accent)
+        {
+            EnsureFoldLists("swapSpecial", 1);
+
+            DrawSectionHeader("풀 게이지 교체 특수 공격", accent);
+            EditorGUILayout.HelpBox(
+                "스킬 게이지가 가득 찬 캐릭터로 교체할 때 자동으로 발동됩니다.\n" +
+                "비워두면 스킬 공격 0번, 등장 공격 순으로 대체됩니다.",
+                MessageType.Info);
+            EditorGUILayout.Space(4);
+            DrawCounterAttackField(_swapSpecial, "swapSpecial", accent);
         }
 
         private void DrawCounterAttackField(SerializedProperty prop, string key, Color accent)

@@ -55,6 +55,7 @@ namespace UPlayGround.Editor
             ("Gameplay / Combat", new[]
             {
                 new ToolEntry("공격 데이터 에디터",                "UPlayGround/Gameplay/Combat/공격 데이터 에디터"),
+                new ToolEntry("MotionSet 기반 공격 데이터 생성기", "UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기"),
             }),
             ("Gameplay / Item", new[]
             {

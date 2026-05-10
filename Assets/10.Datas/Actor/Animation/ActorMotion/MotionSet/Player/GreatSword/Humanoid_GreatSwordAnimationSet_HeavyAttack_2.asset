@@ -52,7 +52,7 @@ MonoBehaviour:
         startTime: 0.41894534
         endTime: 0.5266113
         globalStartTimeOffset: 0
-        hitPhaseIndex: 1
+        hitPhaseIndex: 0
     - rid: 7432452531840876577
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -65,4 +65,4 @@ MonoBehaviour:
         startTime: 0.9211426
         endTime: 1.0822754
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 1

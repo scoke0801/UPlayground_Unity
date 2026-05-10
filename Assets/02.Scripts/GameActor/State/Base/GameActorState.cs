@@ -19,6 +19,11 @@ namespace UPlayGround.State
         /// true이면 이 상태 동안 피격 무적. PlayerActor.CanTakeDamage()에서 참조.
         /// </summary>
         public virtual bool GrantsInvincibility => false;
+
+        /// <summary>
+        /// true이면 데미지는 받지만 피격 리액션/경직 전환은 무시한다.
+        /// </summary>
+        public virtual bool SuppressesHitReaction => false;
         
         public GameActorState(ActorMovementController controller)
         {

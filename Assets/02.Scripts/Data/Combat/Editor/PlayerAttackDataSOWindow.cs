@@ -102,6 +102,9 @@ namespace UPlayGround.Editor
                 EditorGUILayout.HelpBox(
                     "PlayerAttackDataSO 또는 EnemyAttackDataSO 에셋을 위 필드에 드래그하거나\n인스펙터에서 에셋을 선택하세요.",
                     MessageType.Info);
+
+                if (GUILayout.Button("MotionSet 기반 공격 데이터 생성기 열기", GUILayout.Height(28)))
+                    AttackDataFromMotionSetWindow.OpenFromMenu();
                 return;
             }
 
@@ -142,7 +145,7 @@ namespace UPlayGround.Editor
                 new GUIStyle(EditorStyles.boldLabel) { fontSize = 13, normal = { textColor = Color.white } });
 
             float fieldX = headerRect.x + 184;
-            float fieldW = headerRect.width - 194;
+            float fieldW = headerRect.width - 306;
             float fieldY = headerRect.y + (headerRect.height - 18) * 0.5f;
 
             // 하나의 ObjectField로 두 타입 모두 지원 (Object 타입으로 받아 타입 감지)
@@ -159,6 +162,16 @@ namespace UPlayGround.Editor
             {
                 if (newObj is PlayerAttackDataSO p && p != _playerTarget) BindPlayer(p);
                 else if (newObj is EnemyAttackDataSO e && e != _enemyTarget) BindEnemy(e);
+            }
+
+            if (GUI.Button(new Rect(headerRect.xMax - 112, headerRect.y + 11, 102, 20), "MotionSet 생성", EditorStyles.miniButton))
+            {
+                if (_targetType == TargetType.Player)
+                    AttackDataFromMotionSetWindow.Open(_playerTarget);
+                else if (_targetType == TargetType.Enemy)
+                    AttackDataFromMotionSetWindow.Open(_enemyTarget);
+                else
+                    AttackDataFromMotionSetWindow.OpenFromMenu();
             }
         }
     }

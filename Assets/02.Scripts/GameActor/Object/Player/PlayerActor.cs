@@ -403,6 +403,20 @@ namespace UPlayGround
             return entered;
         }
 
+        public bool TryStartEntryAttack()
+        {
+            _isEntryAttackPending = true;
+
+            bool entered = PlayerMovementPlayerController != null
+                           && PlayerAttackState.TryEnter(PlayerMovementPlayerController);
+            if (!entered)
+            {
+                _isEntryAttackPending = false;
+            }
+
+            return entered;
+        }
+
         /// <summary>
         /// 큐에 쌓인 등장 공격을 소비한다. 무력화 상태이면 폐기.
         /// </summary>
@@ -425,10 +439,9 @@ namespace UPlayGround
                     transform.rotation = Quaternion.LookRotation(toTarget);
             }
 
-            _attackInputCondition  = InputCondition.Pressed;
-            _isEntryAttackPending  = true;
-            _entryAttackQueued     = false;
-            _entryAttackTarget     = null;
+            _entryAttackQueued = false;
+            _entryAttackTarget = null;
+            TryStartEntryAttack();
         }
 
         /// <summary>
@@ -831,8 +844,10 @@ namespace UPlayGround
             // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
             bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
                                  chargeState.HasChargedAtLeastOneStage;
+            bool suppressHitReaction = MovementController.CurrentState.SuppressesHitReaction;
+            bool ignoreHitReaction = hasSuperArmor || suppressHitReaction;
 
-            if (!hasSuperArmor && attackData != null)
+            if (!ignoreHitReaction && attackData != null)
             {
                 switch (attackData.reactionType)
                 {
@@ -868,7 +883,7 @@ namespace UPlayGround
             }
 
             string stateName = MovementController.CurrentState.StateName;
-            if (stateName != "Hit" && stateName != "Grabbed")
+            if (!ignoreHitReaction && stateName != "Hit" && stateName != "Grabbed")
             {
                 if (MovementController.CurrentState.CanTransitionState("Hit"))
                 {

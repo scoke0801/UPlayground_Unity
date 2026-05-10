@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Humanoid_DoubleAxeAxeAnimationSet_HeavyAttack_6
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: Humanoid_DoubleAxeAxeAnimationSet_HeavyAttack_6
+    motions:
+    - motionName: Frank_RPG_2Hand_Combo05_2
+      motionClip: {fileID: 7400000, guid: defb7689946643a48806148cf40d74b6, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452544598638634
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7432452544598638634
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7176758
+        endTime: 0.8676758
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0

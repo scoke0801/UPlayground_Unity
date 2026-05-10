@@ -3,7 +3,12 @@
 > 작성일: 2026-05-10
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 선행 문서: [MOTION_WARPING_IMPROVEMENT_DESIGN.md](MOTION_WARPING_IMPROVEMENT_DESIGN.md) (1차 설계, 1~5단계 완료)
-> 현재 상태: `MotionEvent_MotionWarp.MotionWarpEnabled = false`로 워프 기능 전역 비활성화. 본 문서의 Phase 1을 마치는 시점에 다시 활성화한다.
+> 현재 상태: `MotionEvent_MotionWarp.MotionWarpEnabled = true` (1차 동작 그대로 활성). 본 문서의 Phase 1~5는 활성 상태에서 점진적으로 적용한다.
+>
+> 결정 사항 (2026-05-10 확정):
+> - 락온 타겟 우선 정책: **C. 하이브리드** — 락온이 콘 안이면 락온 우선, 밖이면 콘 후보 fallback
+> - 캔슬 후속 모션: **A. 헛스윙 마무리** — 잔여 루트모션을 그대로 재생
+> - 멀티 타겟 키 도입 시점: **B. Phase 4까지 단일 키** — 필요 시점에 확장
 
 ---
 
@@ -74,7 +79,7 @@
 
 ### Phase 1 — 데이터 모델 통합 (호환성 유지 리팩터)
 
-목표: 진실 소스 셋을 컨트롤러 한 곳으로 모은다. 이 단계가 끝난 시점에 `MotionWarpEnabled` 토글을 다시 켠다.
+목표: 진실 소스 셋을 컨트롤러 한 곳으로 모은다. 워프는 1차 동작을 유지한 채로 작업하며, 회귀 발생 시 일시적으로 `MotionWarpEnabled` 토글로 우회할 수 있게 둔다.
 
 - `MotionWarpTarget` 구조체 신설.
   - 필드: `Transform anchor`, `Vector3 offset`, `WarpTargetSpace space (World / AnchorLocal / AnchorForward)`, `bool follow`.
@@ -82,10 +87,11 @@
 - `IsMotionWarping`, `WarpRemainingTime`, `WarpDuration`을 `MotionWarpController`로 이전.
   - `Combat`은 호환 프록시 프로퍼티만 남기고 점진적으로 호출지 제거.
   - `AttackState.UpdateVelocity`/`UpdateRotation`이 컨트롤러 한 곳만 본다.
-- `IWarpTargetResolver` 인터페이스 추출. 기본 구현 두 가지:
+- `IWarpTargetResolver` 인터페이스 추출. 기본 구현 셋:
   - `ConeNearestResolver` — 현재 `FindAttackSnapTarget` 동작.
-  - `LockOnFirstResolver` — `CameraManager.GetLockOnTarget()` 우선, 없으면 콘 후보 fallback.
-- `MotionEvent_MotionWarp`에 `resolverPolicy` enum 필드 추가. 기본은 프로젝트 결정 포인트(아래) 결과대로.
+  - `LockOnFirstResolver` — `CameraManager.GetLockOnTarget()`만 사용, 없으면 null.
+  - `HybridResolver` *(기본값)* — 락온 타겟이 콘(`hitRange`/`hitAngle`) 안에 있으면 락온, 밖이면 `ConeNearestResolver` fallback.
+- `MotionEvent_MotionWarp`에 `resolverPolicy` enum 필드 추가. 기본은 `Hybrid`.
 
 ### Phase 2 — 취소·Cleanup 견고화
 
@@ -97,8 +103,8 @@
   - `Combat.EndMotionWarp` 외부 호출 (자기 Hit/KnockBack/사망)
   - 타겟 anchor 파괴/사망 (`IDamageable.IsDead` 체크)
   - 캐릭터 교체 (`PartyManager.SwapCharacter`)
-- `AttackState`에 `OnWarpCancelled` 핸들러 추가. 캔슬 후속 모션 정책은 결정 포인트(아래).
-- `Hit`/`KnockBack` 상태 진입 시 컨트롤러 자동 clear.
+- `AttackState`에 `OnWarpCancelled` 핸들러 추가. **캔슬 후속 모션 정책: 헛스윙 마무리** — 잔여 루트모션을 그대로 재생하고 일반 공격 종료 흐름(콤보 윈도우, `OnExit`)을 그대로 탄다. 별도 페이드/즉시 전이는 적용하지 않는다.
+- `Hit`/`KnockBack` 상태 진입 시 컨트롤러 자동 clear. 이 경우는 헛스윙도 적용되지 않고 새 상태의 모션이 우선한다.
 
 ### Phase 3 — 회전·Y축 정확도
 
@@ -122,10 +128,12 @@
 - `MotionWarpTargetPolicy.Predictive` 추가.
   - `targetVelocity * predictionFactor * remainingTime`을 anchor 위치에 가산.
   - `predictionFactor`는 0~1 사이, 프리셋별 기본값(Grab=0.6 등).
-- `MotionWarpController._target` 단일 → `Dictionary<string, MotionWarpTarget>` 다중.
+- 멀티 타겟 키 도입: **Phase 4 시점에 도입** (단일 키 모델로는 부족해지는 다단 모션 — 도약-착지 시퀀스, 환경 오브젝트 경유 공격 — 이 등장하는 시점에 활성).
+  - `MotionWarpController._target` 단일 → `Dictionary<string, MotionWarpTarget>` 다중.
   - `MotionEvent_MotionWarp.targetKey` (string) 추가. 기본 `"primary"`.
   - 같은 키를 가진 두 이벤트는 같은 타겟을 공유 (도약-착지 시퀀스).
   - 다른 키를 가지면 별도 타겟 (예: 환경 오브젝트 → 적).
+  - Phase 1~3은 단일 키(`"primary"`)만 사용해 데이터 모델을 단순하게 유지한다.
 
 ### Phase 5 — 워크플로우·디버깅
 
@@ -157,38 +165,39 @@ Phase 1 (데이터 통합)
 
 ---
 
-## 결정 필요 포인트
+## 결정 사항
 
-Phase 1 착수 전에 확정이 필요한 항목.
+2026-05-10 확정. Phase 1 구현 시 본 결정에 맞춰 진행한다.
 
-### 1. 락온 타겟 우선 정책
+### 1. 락온 타겟 우선 정책 — **C. 하이브리드**
 
-| 안 | 동작 | 적합 게임 톤 |
-|----|------|-------------|
-| A. 락온 강제 (Sekiro/Souls 스타일) | 락온이 켜져 있으면 항상 락온 타겟으로 워프, 콘은 무시 | 무겁고 정확한 1대1 |
-| B. 콘 우선 (DMC 스타일) | 콘 안 최근접을 우선, 락온은 fallback | 다대일, 군중 처리 |
-| C. 하이브리드 | 락온 타겟이 콘 안에 있으면 락온, 밖이면 콘 후보 | 절충형 |
+락온 타겟이 공격 콘(`hitRange`/`hitAngle`) 안에 있으면 락온 타겟을 워프 대상으로 채택하고, 콘 밖이면 `ConeNearestResolver` 결과를 사용한다.
 
-기본 추천은 C. Bokusei가 솔로 액션이고 `EnemyCombatStyle`이 다대일 상황을 가정하므로.
+- 채택 이유: 1인 보스전(락온)과 다대일 잡몹전(군중) 모두를 한 정책으로 커버.
+- 검토했던 다른 안:
+  - A. 락온 강제 — Souls 스타일이지만 군중전에서 락온 타겟이 멀리 있으면 가까운 적을 무시.
+  - B. 콘 우선 — DMC 스타일이지만 락온 의도(특정 적 집중)를 깬다.
+- 구현: `HybridResolver`가 기본 `IWarpTargetResolver`. `MotionEvent_MotionWarp.resolverPolicy` 기본값 `Hybrid`.
 
-### 2. 캔슬 후속 모션
+### 2. 캔슬 후속 모션 — **A. 헛스윙 마무리**
 
-| 안 | 동작 |
-|----|------|
-| A. 헛스윙 마무리 | 그 자리에 잔여 루트모션만 재생 |
-| B. 즉시 Idle 복귀 | 캔슬 즉시 `PlayerIdleState`로 전이 |
-| C. 잔여 루트모션 + 페이드 | 0.15~0.2s에 걸쳐 잔여 모션을 약화시키며 재생 |
+워프가 캔슬되면 잔여 루트모션을 그대로 재생하고 일반 공격 종료 흐름(콤보 윈도우, `OnExit`)을 그대로 탄다. 별도 페이드나 즉시 Idle 전이는 적용하지 않는다.
 
-기본 추천은 C. A는 어색하고, B는 끊겨 보인다.
+- 채택 이유: 가장 단순하고 예측 가능한 동작. 페이드/전이 로직을 추가하면 콤보 윈도우와 충돌할 위험이 있다.
+- 검토했던 다른 안:
+  - B. 즉시 Idle — 끊겨 보이고 콤보 시퀀스를 끊는다.
+  - C. 잔여 루트모션 + 페이드 — 자연스럽지만 페이드 구간 동안 콤보 입력 처리가 모호.
+- 구현: `OnWarpCancelled` 발화만 하고 `PlayerAttackState`는 별도 처리 없이 기존 `UpdateState` 흐름을 그대로 둔다. 잔여 루트모션은 `_motionWarp.IsMotionWarping = false` 상태에서 KCC가 그대로 처리.
+- 자기 Hit/KnockBack 진입 시는 새 상태가 우선하므로 헛스윙도 적용되지 않는다.
 
-### 3. 멀티 타겟 키 도입 시점
+### 3. 멀티 타겟 키 도입 시점 — **B. Phase 4까지 단일 키**
 
-| 안 | 동작 |
-|----|------|
-| A. Phase 1에 같이 도입 | 데이터 모델 정리 시 Dictionary로 직행 |
-| B. Phase 4까지 단일 키 | 현재 시나리오 충분, 필요 시점에 확장 |
+Phase 1~3은 단일 타겟(`"primary"` 키)만 사용해 데이터 모델을 단순하게 유지한다. 다단 모션(도약-착지, 환경 경유 공격)이 등장하는 Phase 4 시점에 `Dictionary<string, MotionWarpTarget>`으로 확장.
 
-기본 추천은 B. 현재 보스 1 vs 플레이어 1 시나리오에서는 단일 키로 충분하고, 멀티 키는 점프-착지 같은 다단 모션을 만들 때 도입한다.
+- 채택 이유: 현재 보스 1 vs 플레이어 1 시나리오에서 멀티 키는 사용되지 않는다. 미리 도입하면 검증 부담만 늘어남.
+- 검토했던 다른 안:
+  - A. Phase 1 도입 — 데이터 모델은 깨끗해지지만 미사용 코드로 남아 회귀 검증 부담 증가.
+- 구현 메모: Phase 1의 `MotionWarpTarget` 구조체는 키 확장 시에도 변형 없이 그대로 사용할 수 있게 설계해 둔다 (앞으로 Dictionary value로 들어가도 무리 없게).
 
 ---
 

@@ -28,6 +28,8 @@ namespace UPlayGround.Editor
             GUI.backgroundColor = new Color(1f, 0.55f, 0.25f);
             if (GUILayout.Button("에디터 창에서 열기", GUILayout.Height(30)))
                 PlayerAttackDataSOWindow.Open((EnemyAttackDataSO)target);
+            if (GUILayout.Button("MotionSet 기반 생성기 열기", GUILayout.Height(26)))
+                AttackDataFromMotionSetWindow.Open((EnemyAttackDataSO)target);
             GUI.backgroundColor = Color.white;
         }
     }

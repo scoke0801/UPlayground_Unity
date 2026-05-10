@@ -11,6 +11,7 @@ using UPlayGround.Component;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Stat;
 using UPlayGround.MovementController;
 
 namespace Game.Editor.P09Builder
@@ -92,6 +93,10 @@ namespace Game.Editor.P09Builder
             // Stats: createNewStats=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewStats)
                 yield return new EnemyStatsDescDef();
+
+            // 런타임 전투 스탯. MonsterActor는 EnemyStatsSO가 아니라 ActorDefinitionSO.statData를 사용한다.
+            if (config != null && config.Stats != null)
+                yield return new ActorStatDescDef();
 
             // Poise: createNewPoise=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewPoise)
@@ -278,6 +283,53 @@ namespace Game.Editor.P09Builder
                 poise.recoveryDelay = Mathf.Max(0f, config.Stats.defaultPoiseRecoveryDelay);
                 poise.recoveryRate = Mathf.Max(0f, config.Stats.defaultPoiseRecoveryRate);
                 poise.hasHyperArmor = config.Stats.defaultHasHyperArmor;
+
+                EditorUtility.SetDirty(so);
+            }
+        }
+
+        private sealed class ActorStatDescDef : IDescDef
+        {
+            public Type DescType => typeof(ActorStatSO);
+            public string Suffix => "_ActorStat";
+
+            public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
+            {
+                if (so is not ActorStatSO stat) return;
+
+                stat.EditorFillMissing();
+
+                var stats = config?.Stats;
+                if (stats == null)
+                {
+                    EditorUtility.SetDirty(so);
+                    return;
+                }
+
+                var tuning = EnemyStatTuningUtility.Calculate(config);
+                var sourceStats = stats.existingStatsSo as EnemyStatsSO;
+                var sourcePoise = stats.existingPoiseSo as PoiseSO;
+
+                float maxHealth = stats.createNewStats || sourceStats == null
+                    ? stats.defaultHp * tuning.HealthMultiplier
+                    : sourceStats.maxHealth;
+                float moveSpeed = stats.createNewStats || sourceStats == null
+                    ? tuning.MoveSpeedMultiplier
+                    : Mathf.Max(0.01f, sourceStats.runSpeed / Mathf.Max(0.01f, stats.defaultRunSpeed));
+
+                stat.EditorSet(StatType.MaxHealth, maxHealth);
+                stat.EditorSet(StatType.AttackPower, tuning.AttackMultiplier);
+                stat.EditorSet(StatType.MoveSpeed, moveSpeed);
+
+                stat.EditorSet(
+                    StatType.MaxPoise,
+                    stats.createNewPoise || sourcePoise == null ? stats.defaultMaxPoise : sourcePoise.maxPoise);
+                stat.EditorSet(
+                    StatType.PoiseRecoveryRate,
+                    stats.createNewPoise || sourcePoise == null ? stats.defaultPoiseRecoveryRate : sourcePoise.recoveryRate);
+                stat.EditorSet(
+                    StatType.PoiseRecoveryDelay,
+                    stats.createNewPoise || sourcePoise == null ? stats.defaultPoiseRecoveryDelay : sourcePoise.recoveryDelay);
 
                 EditorUtility.SetDirty(so);
             }

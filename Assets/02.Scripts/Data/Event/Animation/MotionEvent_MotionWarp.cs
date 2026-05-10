@@ -18,7 +18,7 @@ namespace UPlayGround.Data.Event
     {
         // 모션 워핑 기능 개선 작업 중 — 임시 전역 비활성화 토글.
         // true 로 되돌리면 기존 동작 복구.
-        private const bool MotionWarpEnabled = false;
+        private const bool MotionWarpEnabled = true;
 
         [Header("Warp Modifier")]
         public MotionWarpPreset preset = MotionWarpPreset.Custom;

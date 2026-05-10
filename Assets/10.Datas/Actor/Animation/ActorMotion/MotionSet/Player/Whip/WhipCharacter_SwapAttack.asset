@@ -29,7 +29,7 @@ MonoBehaviour:
     - rid: 7399917016132091904
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.3765213
-        endTime: 0.58918613
+        startTime: 0.24950999
+        endTime: 0.5162395
         globalStartTimeOffset: 0
         hitPhaseIndex: 0

@@ -190,20 +190,21 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             }
 
             // 1) 자식 MotionSetAsset 들을 새 폴더로 복사
-            var copiedPaths = new Dictionary<MotionSetAsset, string>();
+            var copiedPaths = new Dictionary<string, string>();
             foreach (var src in _previewAssets)
             {
-                if (src == null || copiedPaths.ContainsKey(src)) continue;
+                if (src == null) continue;
 
-                var srcPath = AssetDatabase.GetAssetPath(src);
+                var srcPath = AssetDatabase.GetAssetPath(src)?.Replace('\\', '/');
                 if (string.IsNullOrEmpty(srcPath)) continue;
+                if (copiedPaths.ContainsKey(srcPath)) continue;
 
                 var newName = ResolveChildNewName(src.name);
                 var newPath = $"{folderPath}/{newName}.asset";
                 newPath = ResolveTargetPath(newPath);
 
                 if (AssetDatabase.CopyAsset(srcPath, newPath))
-                    copiedPaths[src] = newPath;
+                    copiedPaths[srcPath] = newPath;
                 else
                     Debug.LogError($"[모션셋 복제기] 자식 복사 실패: {srcPath} → {newPath}");
             }
@@ -220,7 +221,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             string newFallbackPath = null;
             if (_duplicateFallback && _source.fallbackMotionSet != null)
             {
-                var fbSrcPath = AssetDatabase.GetAssetPath(_source.fallbackMotionSet);
+                CopyReferencedMotionAssets(_source.fallbackMotionSet, folderPath, copiedPaths);
+
+                var fbSrcPath = AssetDatabase.GetAssetPath(_source.fallbackMotionSet)?.Replace('\\', '/');
                 if (!string.IsNullOrEmpty(fbSrcPath))
                 {
                     var fbNewName = ResolveChildNewName(_source.fallbackMotionSet.name);
@@ -244,32 +247,18 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                 return;
             }
 
-            Undo.RecordObject(newRoot, "Duplicate MotionSet References");
-
-            int rewired = 0;
-            if (newRoot.motionSets != null)
-            {
-                var keys = new List<AnimKey>(newRoot.motionSets.Keys);
-                foreach (var k in keys)
-                {
-                    var current = newRoot.motionSets[k];
-                    if (current == null) continue;
-                    if (copiedPaths.TryGetValue(current, out var copiedPath))
-                    {
-                        var loaded = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(copiedPath);
-                        if (loaded != null)
-                        {
-                            newRoot.motionSets[k] = loaded;
-                            rewired++;
-                        }
-                    }
-                }
-            }
+            int rewired = RewireMotionSetReferences(newRoot, copiedPaths);
 
             if (newFallbackPath != null)
             {
                 var newFallback = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(newFallbackPath);
-                if (newFallback != null) newRoot.fallbackMotionSet = newFallback;
+                if (newFallback != null)
+                {
+                    Undo.RecordObject(newRoot, "Duplicate MotionSet Fallback Reference");
+                    newRoot.fallbackMotionSet = newFallback;
+                    EditorUtility.SetDirty(newRoot);
+                    rewired += RewireMotionSetReferences(newFallback, copiedPaths);
+                }
             }
 
             EditorUtility.SetDirty(newRoot);
@@ -291,6 +280,70 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                 return desiredPath;
             }
             return AssetDatabase.GenerateUniqueAssetPath(desiredPath);
+        }
+
+        void CopyReferencedMotionAssets(
+            ActorAnimationMotionSet sourceSet,
+            string folderPath,
+            IDictionary<string, string> copiedPaths)
+        {
+            if (sourceSet?.motionSets == null) return;
+
+            foreach (var kv in sourceSet.motionSets)
+            {
+                MotionSetAsset src = kv.Value;
+                if (src == null) continue;
+
+                string srcPath = AssetDatabase.GetAssetPath(src)?.Replace('\\', '/');
+                if (string.IsNullOrEmpty(srcPath) || copiedPaths.ContainsKey(srcPath)) continue;
+
+                string newName = ResolveChildNewName(src.name);
+                string newPath = ResolveTargetPath($"{folderPath}/{newName}.asset");
+
+                if (AssetDatabase.CopyAsset(srcPath, newPath))
+                    copiedPaths[srcPath] = newPath;
+                else
+                    Debug.LogError($"[모션셋 복제기] Fallback 자식 복사 실패: {srcPath} → {newPath}");
+            }
+        }
+
+        static int RewireMotionSetReferences(ActorAnimationMotionSet target, IReadOnlyDictionary<string, string> copiedPaths)
+        {
+            if (target == null || copiedPaths == null || copiedPaths.Count == 0) return 0;
+
+            var sObj = new SerializedObject(target);
+            var listProp = sObj.FindProperty("motionSets")?.FindPropertyRelative("_serializedList");
+            if (listProp == null) return 0;
+
+            Undo.RecordObject(target, "Duplicate MotionSet References");
+
+            int rewired = 0;
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                SerializedProperty valueProp = listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Value");
+                if (valueProp == null || valueProp.objectReferenceValue == null) continue;
+
+                string sourcePath = AssetDatabase.GetAssetPath(valueProp.objectReferenceValue);
+                if (string.IsNullOrEmpty(sourcePath)) continue;
+                sourcePath = sourcePath.Replace('\\', '/');
+
+                if (!copiedPaths.TryGetValue(sourcePath, out string copiedPath)) continue;
+
+                var copiedAsset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(copiedPath);
+                if (copiedAsset == null) continue;
+
+                valueProp.objectReferenceValue = copiedAsset;
+                rewired++;
+            }
+
+            if (rewired > 0)
+            {
+                sObj.ApplyModifiedProperties();
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssetIfDirty(target);
+            }
+
+            return rewired;
         }
     }
 }

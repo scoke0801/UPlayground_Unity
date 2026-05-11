@@ -29,7 +29,10 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
+
+            // 워프 진행 중이면 즉시 clear (사망 모션이 우선).
+            controller.MotionWarp?.ClearTarget();
+
             MonsterActor owner = gameActor as MonsterActor;
 
             if (owner == null)

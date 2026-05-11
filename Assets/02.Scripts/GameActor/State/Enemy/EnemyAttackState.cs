@@ -179,20 +179,19 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 워프 구간: 타겟 방향으로 회전 보정
-            if (_motionWarp.TryGetFacingDirection(
+            // 워프 구간: rotationCurve 기반 곡선 보간으로 타겟 방향 정렬.
+            if (_motionWarp.TryEvaluateRotation(
+                    currentRotation,
                     motor.TransientPosition,
                     _combat.IsMotionWarping,
                     _combat.WarpRemainingTime,
+                    _combat.WarpDuration,
                     _combat.WarpMinDistance,
                     _combat.WarpMaxDistance,
                     _combat.WarpMaxSpeed,
-                    out Vector3 warpDirection))
+                    out Quaternion warpRotation))
             {
-                Quaternion targetRot = Quaternion.LookRotation(warpDirection);
-                float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
-                currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
-                currentRotation = currentRotation.normalized;
+                currentRotation = warpRotation;
                 return;
             }
             else if (_detection.HasTarget && _attackTimer < 0.3f)

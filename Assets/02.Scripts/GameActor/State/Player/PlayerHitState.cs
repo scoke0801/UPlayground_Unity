@@ -51,6 +51,9 @@ namespace UPlayGround.State
             _elapsedTime = 0f;
             _canCancel   = false;
 
+            // 워프 진행 중이면 즉시 clear (Hit 모션이 우선, 헛스윙도 적용 안 함).
+            controller.MotionWarp?.ClearTarget();
+
             playerActor.GetCombat()?.RefreshCombatState();
 
             // 경직 강도 결정

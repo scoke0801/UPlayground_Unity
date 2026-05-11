@@ -94,7 +94,8 @@
       "WebFetch(domain:kinemation.gitbook.io)",
       "WebFetch(domain:forums.unrealengine.com)",
       "WebFetch(domain:www.quodsoler.com)",
-      "WebFetch(domain:soulslike-framework.isik.vip)"
+      "WebFetch(domain:soulslike-framework.isik.vip)",
+      "PowerShell(head *)"
     ]
   }
 }

@@ -13,6 +13,7 @@ using UPlayGround.Manager.Combat;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
@@ -137,16 +138,14 @@ namespace UPlayGround.Component
         private float             _threatCheckTimer;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
-        // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이(endTime-startTime)를 주입.
-        // 매 프레임 deltaTime만큼 소모하며, 0 이하가 되면 워프 비활성.
-        private float _warpRemainingTime;
-        private float _warpTotalDuration;
+        // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
+        private MotionWarpController _motionWarp;
 
         /// <summary> 워프 이벤트 구간 내 남은 시간. PlayerAttackState의 속력 역산에 사용. </summary>
-        public float WarpRemainingTime => _warpRemainingTime;
+        public float WarpRemainingTime => _motionWarp != null ? _motionWarp.WarpRemainingTime : 0f;
         /// <summary> BeginMotionWarp 시 주입된 전체 워프 구간 길이. EaseOut 진행도 계산에 사용. </summary>
-        public float WarpDuration      => _warpTotalDuration;
-        public bool  IsMotionWarping   => _warpRemainingTime > 0f;
+        public float WarpDuration      => _motionWarp != null ? _motionWarp.WarpDuration : 0f;
+        public bool  IsMotionWarping   => _motionWarp != null && _motionWarp.IsMotionWarping;
         // ──────────────────────────────────────────────────────────────
 
         public bool IsGuarding    = false;
@@ -197,6 +196,32 @@ namespace UPlayGround.Component
         public int        CurrentComboIndex { get; private set; }
         public float      LastAttackTime    { get; private set; }
         public bool       CanCombo          { get; private set; }
+        public LayerMask  WarpTargetLayer   => _targetLayerMask;
+
+        // 0-할당 보장: targetFilter 람다를 정적 필드로 고정. 매 호출 BuildWarpResolverContext 에서
+        // 재할당 없이 동일 delegate 인스턴스 재사용.
+        private static readonly Func<Transform, bool> WarpDamageableFilter = static t =>
+        {
+            var d = t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>();
+            return d != null && d.CanTakeDamage();
+        };
+
+        /// <summary>
+        /// resolver 호출용 컨텍스트. 현재 공격 데이터의 hitRange/hitAngle 을 사용한다.
+        /// CurrentAttackData 가 없으면 default(WarpResolverContext) 반환.
+        /// </summary>
+        public WarpResolverContext BuildWarpResolverContext()
+        {
+            if (_currentAttackData == null) return default;
+            return new WarpResolverContext
+            {
+                origin       = transform,
+                hitRange     = _currentAttackData.hitRange,
+                hitAngle     = _currentAttackData.hitAngle,
+                targetLayer  = _targetLayerMask,
+                targetFilter = WarpDamageableFilter,
+            };
+        }
 
         public event Action<AttackData>                        OnAttackStarted;
         public event Action<AttackData>                        OnAttackHit;
@@ -209,6 +234,11 @@ namespace UPlayGround.Component
             // 최초에는 인스펙터 직렬화 값이 있으면 유지, 없으면 자동 탐색한다.
             if (_equipment     == null) _equipment     = GetComponentInChildren<PlayerEquipment>();
             if (_actorAnimator == null) _actorAnimator = GetComponentInChildren<ActorAnimator>();
+
+            // 워프 진실 소스는 MotionWarpController. 컴포넌트가 없으면 즉시 부착(ActorMovementController와 동일 패턴).
+            _motionWarp = GetComponent<MotionWarpController>();
+            if (_motionWarp == null)
+                _motionWarp = gameObject.AddComponent<MotionWarpController>();
         }
 
         /// <summary>
@@ -223,10 +253,7 @@ namespace UPlayGround.Component
 
         private void Update()
         {
-            // 워프 남은 시간 소모
-            if (_warpRemainingTime > 0f)
-                _warpRemainingTime -= Time.deltaTime;
-
+            // 워프 타이머는 MotionWarpController.Update 가 처리.
             if (IsPossibleCollide)
                 PerformHitDetection();
 
@@ -312,16 +339,12 @@ namespace UPlayGround.Component
         /// MotionEvent_MotionWarp.Execute()에서 호출.
         /// warpDuration = 이벤트의 endTime - startTime.
         /// </summary>
-        public void BeginMotionWarp(float warpDuration)
-        {
-            _warpRemainingTime = warpDuration;
-            _warpTotalDuration = warpDuration;
-        }
+        public void BeginMotionWarp(float warpDuration) => _motionWarp?.BeginMotionWarp(warpDuration);
 
         /// <summary>
         /// MotionEvent_MotionWarp.OnCompleteEvent()에서 호출.
         /// </summary>
-        public void EndMotionWarp() => _warpRemainingTime = 0f;
+        public void EndMotionWarp() => _motionWarp?.EndMotionWarp();
 
         #region Execute Attack
 

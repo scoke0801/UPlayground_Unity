@@ -3,7 +3,15 @@
 > 작성일: 2026-05-10
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 선행 문서: [MOTION_WARPING_IMPROVEMENT_DESIGN.md](MOTION_WARPING_IMPROVEMENT_DESIGN.md) (1차 설계, 1~5단계 완료)
-> 현재 상태: `MotionEvent_MotionWarp.MotionWarpEnabled = true` (1차 동작 그대로 활성). 본 문서의 Phase 1~5는 활성 상태에서 점진적으로 적용한다.
+> 현재 상태: 워프 전역 토글은 `SettingsManager.Data.debugMotionWarpEnabled` (기본 `true`) 로 승격됨.
+>
+> 진행 상황 (2026-05-10):
+> - **Phase 1 — 데이터 모델 통합**: ✅ 완료
+> - **Phase 2 — 취소·Cleanup 견고화**: ✅ 완료
+> - **Phase 3 — 회전·Y축 정확도**: ✅ 완료
+> - **Phase 4 — Predictive Live & 멀티 타겟 키**: ✅ 완료
+> - **Phase 5 — 워크플로우·디버깅**: ✅ 완료
+> - **Phase 6 — 정밀도·확장 후속**: ⏳ 대기 (Phase 1~5 회귀/플레이 검증 후 착수)
 >
 > 결정 사항 (2026-05-10 확정):
 > - 락온 타겟 우선 정책: **C. 하이브리드** — 락온이 콘 안이면 락온 우선, 밖이면 콘 후보 fallback
@@ -77,9 +85,9 @@
 
 ## 개선 항목
 
-### Phase 1 — 데이터 모델 통합 (호환성 유지 리팩터)
+### Phase 1 — 데이터 모델 통합 (호환성 유지 리팩터) ✅ 완료 (2026-05-10)
 
-목표: 진실 소스 셋을 컨트롤러 한 곳으로 모은다. 워프는 1차 동작을 유지한 채로 작업하며, 회귀 발생 시 일시적으로 `MotionWarpEnabled` 토글로 우회할 수 있게 둔다.
+목표: 진실 소스 셋을 컨트롤러 한 곳으로 모은다. 워프는 1차 동작을 유지한 채로 작업하며, 회귀 발생 시 일시적으로 `SettingsData.debugMotionWarpEnabled` 토글로 우회할 수 있게 둔다 (Phase 5 에서 const 제거 후 SettingsManager 로 승격).
 
 - `MotionWarpTarget` 구조체 신설.
   - 필드: `Transform anchor`, `Vector3 offset`, `WarpTargetSpace space (World / AnchorLocal / AnchorForward)`, `bool follow`.
@@ -93,7 +101,14 @@
   - `HybridResolver` *(기본값)* — 락온 타겟이 콘(`hitRange`/`hitAngle`) 안에 있으면 락온, 밖이면 `ConeNearestResolver` fallback.
 - `MotionEvent_MotionWarp`에 `resolverPolicy` enum 필드 추가. 기본은 `Hybrid`.
 
-### Phase 2 — 취소·Cleanup 견고화
+**구현 결과:**
+- 신규 파일: `Assets/02.Scripts/GameActor/MovementController/MotionWarpTarget.cs`, `IWarpTargetResolver.cs`
+- `MotionWarpController` 내부 상태가 `MotionWarpTarget _activeTarget` + `_snapshotPosition` 으로 통합됨 (`_target`/`_targetPosition`/`_useSnapshot` 제거).
+- 워프 타이머가 `PlayerCombat`/`EnemyCombat` → `MotionWarpController` 로 이전. Combat 은 호환 프록시만 노출.
+- `BuildWarpResolverContext()` 가 `PlayerCombat` 에 추가되어 이벤트가 resolver 컨텍스트를 안전하게 가져갈 수 있다.
+- `MotionEvent_MotionWarp.resolverPolicy` 추가, 기본은 `UseExisting` (기존 자산 호환). 마이그레이션 후 `Hybrid` 로 전환 예정.
+
+### Phase 2 — 취소·Cleanup 견고화 ✅ 완료 (2026-05-10)
 
 목표: 워프 도중 상황 변화에 대한 명시적 종료 경로를 만든다.
 
@@ -101,12 +116,19 @@
 - `MotionWarpController.OnWarpCancelled` 이벤트 신설. 발생 시점:
   - 거리 임계 누적 초과
   - `Combat.EndMotionWarp` 외부 호출 (자기 Hit/KnockBack/사망)
-  - 타겟 anchor 파괴/사망 (`IDamageable.IsDead` 체크)
-  - 캐릭터 교체 (`PartyManager.SwapCharacter`)
-- `AttackState`에 `OnWarpCancelled` 핸들러 추가. **캔슬 후속 모션 정책: 헛스윙 마무리** — 잔여 루트모션을 그대로 재생하고 일반 공격 종료 흐름(콤보 윈도우, `OnExit`)을 그대로 탄다. 별도 페이드/즉시 전이는 적용하지 않는다.
-- `Hit`/`KnockBack` 상태 진입 시 컨트롤러 자동 clear. 이 경우는 헛스윙도 적용되지 않고 새 상태의 모션이 우선한다.
+  - 타겟 anchor 파괴/사망 (`IDamageable.IsAlive()` 체크)
+  - 캐릭터 교체 (`PartyManager.SwapCharacter`) — 새 캐릭터의 컨트롤러로 자연 전환되므로 별도 훅 불필요
+- 캔슬 후속 모션 정책: **헛스윙 마무리** — 잔여 루트모션을 그대로 재생하고 일반 공격 종료 흐름(콤보 윈도우, `OnExit`)을 그대로 탄다. 별도 페이드/즉시 전이는 적용하지 않는다. `OnWarpCancelled` 핸들러를 따로 두지 않아도 자동으로 흐름이 자연 연결된다.
+- `Hit`/`KnockBack`/`Death` 상태 진입 시 컨트롤러 자동 clear. 이 경우는 헛스윙도 적용되지 않고 새 상태의 모션이 우선한다.
 
-### Phase 3 — 회전·Y축 정확도
+**구현 결과:**
+- `WarpCancelReason` enum (`ExternalEnd` / `OutOfRangeTimeout` / `TargetLost` / `ManualClear`) + `event Action<WarpCancelReason> OnWarpCancelled` 신설.
+- `Cancel(reason)` 공개 메서드 + 내부 `IsTargetUnreachableLifecycle()` 헬퍼.
+- `EvaluateVelocity` 에 `_outOfRangeAccumulator` (임계 0.1s) 도입. 정상 범위 복귀 시 리셋.
+- `EndMotionWarp` / `ClearTarget` 이 워프 활성 중에 호출되면 적절한 사유로 자동 발화.
+- `PlayerHitState`, `EnemyHitState`, `PlayerDeathState`, `EnemyDeathState` `OnEnter` 에서 `controller.MotionWarp?.ClearTarget()` 호출.
+
+### Phase 3 — 회전·Y축 정확도 ✅ 완료 (2026-05-10)
 
 목표: 시간 상수 하드코딩 제거, Y 보정 옵션 개방.
 
@@ -121,7 +143,14 @@
   - `ProjectToTargetY` (지면 높이 차 흡수)
 - `ignoreY` bool은 enum의 호환 매핑으로 유지.
 
-### Phase 4 — Predictive Live & 멀티 타겟 키
+**구현 결과:**
+- `WarpYPolicy` enum + `MotionWarpWindowSettings.yPolicy` 추가. `ResolveYPolicy()` 가 `ignoreY` bool 과 양방향 호환.
+- `EvaluateVelocity` 마지막 단계에서 정책 분기 — `MatchTargetY` 는 `dy/remainingTime` 즉시 매칭, `ProjectToTargetY` 는 진행도 기반 점진 보간.
+- `MotionWarpController._warpStartRotation` 캡처 + `TryEvaluateRotation(...)` API 추가. 정규화 시간 t 의 곡선 알파로 `Slerp(start, target, alpha * rotationWeight)`. 곡선 비어 있으면 EaseOut 폴백.
+- `PlayerAttackState.UpdateRotation` / `EnemyAttackState.UpdateRotation` 가 `TryEvaluateRotation` 으로 교체 — `_attackTimer < 0.15f ? 25 : 8` 시간 상수 분기 제거.
+- `MotionEvent_MotionWarp` 인스펙터에 `yPolicy`, `rotationCurve` 노출. `ApplyPreset` 이 비어 있는 곡선을 프리셋별 기본값으로 채움 (사용자 곡선 입력 시 보존).
+
+### Phase 4 — Predictive Live & 멀티 타겟 키 ✅ 완료 (2026-05-10)
 
 목표: 빠른 타겟에 대한 추적 품질, 다단 워프 지원.
 
@@ -135,7 +164,16 @@
   - 다른 키를 가지면 별도 타겟 (예: 환경 오브젝트 → 적).
   - Phase 1~3은 단일 키(`"primary"`)만 사용해 데이터 모델을 단순하게 유지한다.
 
-### Phase 5 — 워크플로우·디버깅
+**구현 결과:**
+- `MotionWarpTargetPolicy.Predictive` enum 추가. `MotionWarpWindowSettings.predictionFactor` 필드 (`[Range(0,1)]`).
+- `MotionWarpController` 가 매 프레임 활성 타겟의 단일 프레임 차분 속도를 추적 (`_targetVelocity`). `EvaluateVelocity` 가 `targetWorld += velocity * factor * remainingTime` 으로 미래 위치 가산.
+- `Dictionary<string, MotionWarpTarget> _targets` + `_activeKey` 추가. 기존 `_activeTarget` 은 `_targets[_activeKey]` 의 캐시로 작동.
+- API 오버로드: `SetTarget(key, target, useSnapshot)`, `SetTarget(key, MotionWarpTarget)`, `BeginWarpWindow(settings, key)`, `ClearTarget(key)`. 기존 무인자 시그니처는 `DefaultTargetKey = "primary"` 로 위임.
+- `MotionEvent_MotionWarp` 인스펙터에 `targetKey`, `predictionFactor` 노출. Execute 가 키를 SetTarget/BeginWarpWindow 양쪽에 전달.
+- `Grab` 프리셋은 `Predictive` 정책 + `predictionFactor = 0.6` 으로 자동 승격 (기존 Live 정책 떨림 해소).
+- 새 워프 윈도우 / 키 전환 시 `_hasTargetVelocityHistory = false` 로 리셋해 이전 타겟의 잔여 속도가 새 보정에 섞이지 않도록 함.
+
+### Phase 5 — 워크플로우·디버깅 ✅ 완료 (2026-05-10)
 
 목표: 튜닝 사이클 단축. (1차 설계의 5단계 디버그 오버레이를 확장)
 
@@ -143,6 +181,81 @@
 - `MotionEvent_MotionWarp` 인스펙터 검증 버튼: 가상 타겟을 콘 정중앙에 두고 실시간 시뮬 결과(예상 도착점, 실패 사유) 표시.
 - `ActorMonitor` 확장 패널 (GameplayTag/ComboSequence 패턴 참조)로 활성 워프 키, 타겟, blend, OOR 누적 시간 노출.
 - `MotionWarpEnabled` const 토글 제거. SettingsManager 디버그 옵션으로 승격.
+
+**구현 결과:**
+- `MotionWarpController.OnDrawGizmosSelected` 추가 (`#if UNITY_EDITOR` 가드). 액티브 타겟 라인, min/max 디스크, `maxSpeed × remainingTime` 도달가능영역 디스크, Snapshot 위치 마커, Predictive 가산 위치, `t/blend/OOR/key/policy/modifier` 텍스트 라벨까지 표시.
+- 컨트롤러 모니터링 노출: `BlendWeight`, `OutOfRangeAccumulator`, `TargetVelocity`, `HasActiveWindow`, `ActiveWindowSettings`, `ActiveTarget`, `SnapshotPosition` 공개 프로퍼티.
+- `SettingsData` 에 `[Header("디버그")] bool debugMotionWarpEnabled = true` 추가, `ResetToDefault()` 에 포함. `MotionEvent_MotionWarp` 의 `const MotionWarpEnabled` 제거 → `SettingsManager.Instance.Data.debugMotionWarpEnabled` 조회로 대체. SettingsManager 미로드 프레임에는 기본 활성으로 폴백.
+- `ActorRuntimeMonitorWindow` 에 **MotionWarp** 컬럼 추가 (`ColWarp = 220f`). 활성 키 → 타겟 이름 → `t/blend/OOR` → 정책/모디파이어 → 실패 사유까지 한 행에 표시. 활성/유휴를 색으로 구분 (활성: 하늘색, 유휴: 회색). 윈도우 minSize 1080 으로 확장.
+- 인스펙터 검증 버튼은 Gizmo + ActorMonitor 조합으로 동등 정보가 노출되어 별도 도입 보류 (향후 필요 시 `MotionSetEditorWindow.DrawToolbar` 영역에 추가).
+
+### Phase 6 — 정밀도·확장 후속 ⏳ 대기
+
+목표: Phase 1~5 의 코드 리뷰에서 발견된 정밀도 이슈와 보류 확장 항목을 한 번에 수렴. 게임 감각이 흔들리지 않는 항목들이라 플레이 검증을 마친 후 진행.
+
+#### 6-1. 타이밍 정합성 — fixed vs delta
+
+`MotionWarpController.Update` 가 `Time.deltaTime` 으로 워프 타이머와 타겟 속도를 갱신하지만, KCC 가 `FixedUpdate` 기반이라 같은 frame 안에서 EvaluateVelocity 가 보는 `_warpRemainingTime` / `_targetVelocity` 가 stale 일 수 있다.
+
+- 옵션 A: `MotionWarpController` 의 타이머/속도 갱신을 `FixedUpdate` 로 이동.
+- 옵션 B: `EvaluateVelocity` 호출 시점에 즉석 보간으로 fixed-frame 위치를 추정.
+- 권장: A. 영향 범위가 작고 KCC 와 자연스럽게 정합.
+
+#### 6-2. EnemyCombat 의 `BuildWarpResolverContext` 지원
+
+현재 `MotionEvent_MotionWarp.Execute` 의 resolver 경로는 `PlayerCombat` 한정. 적 공격 이벤트에 `Hybrid` 등 정책을 지정해도 silent no-op.
+
+- `EnemyCombat` 에 동일 메서드 추가, `EnemyDetection.CurrentTarget` 또는 `CurrentSkill` 의 hitRange/hitAngle 활용.
+- `MotionEvent_MotionWarp.Execute` 가 PlayerCombat / EnemyCombat 양쪽 컨텍스트를 시도.
+- non-UseExisting 정책 + 컨텍스트 부재 시 1회 `Debug.LogWarning` 으로 디자이너 안내.
+
+#### 6-3. 타겟 속도 EMA 평활화
+
+Phase 4 의 단일 프레임 차분은 정지/방향전환 시 노이즈가 큼. Predictive 가산이 한 프레임 튀는 현상 가능.
+
+- `_targetVelocity = Vector3.Lerp(_targetVelocity, raw, smoothing)` 으로 변경.
+- `smoothing` 은 `MotionWarpWindowSettings` 또는 컨트롤러 SerializeField 로 노출 (기본 0.3 ~ 0.5).
+- 너무 강한 평활화는 반응 지연 — 인게임 튜닝 필요.
+
+#### 6-4. 데이터 자산 마이그레이션
+
+- 기존 `MotionEvent_MotionWarp` 자산의 `resolverPolicy` 가 `UseExisting` 으로 직렬화됨. 1회 일괄 마이그레이션 스크립트 또는 에디터 메뉴(`UPlayGround/MotionWarp/Migrate Assets`) 로 `Hybrid` 로 변경.
+- 마이그레이션 전 / 후 동작 비교용 디버그 모드 (Phase 5 의 `debugMotionWarpEnabled` 토글로 우회 가능).
+- `Grab` 프리셋이 `Live` → `Predictive` 로 자동 승격된 결과 회귀 검증.
+
+#### 6-5. 멀티 타겟 키 데모 자산
+
+- 점프-착지 시퀀스 모션셋 1종 작성: 이벤트 A 가 `targetKey="leap"` (환경 오브젝트), 이벤트 B 가 `targetKey="primary"` (적).
+- Phase 4 의 다중 키 모델이 실 자산에서 간섭 없이 동작하는지 확인.
+- 검증 후 가이드 문서/스크린샷.
+
+#### 6-6. `MotionEvent_MotionWarp` 인스펙터 검증 버튼 (Phase 5 보류분)
+
+- `MotionSetEditorWindow.DrawToolbar` 에 "워프 시뮬" 버튼 추가.
+- 가상 타겟을 콘 정중앙에 배치하고 현재 설정으로 EvaluateVelocity 를 시뮬, 예상 도착점·실패 사유·blend 진행을 즉시 표시.
+- Gizmo + ActorMonitor 와 별개로 자산 단위 빠른 검증용.
+
+#### 6-7. 잔존 코드 품질 항목
+
+리뷰에서 발견된 비-성능 항목:
+
+- `MotionWarpController.UpdateTargetVelocity` 의 dt ≤ 0 분기에서 `_targetPreviousPosition` 도 함께 리셋 (현재 stale 유지, 다음 프레임 history=false 로 영향 없으나 의도 명확화).
+- `MotionWarpController.EvaluateVelocity` 의 타겟 사망 분기에서 `Cancel(...)` + `cancelWarp?.Invoke()` 중복 호출. Cancel 한쪽으로 단일화.
+- `MotionEvent_MotionWarp.Execute` 의 `"primary"` 문자열을 `MotionWarpController.DefaultTargetKey` 상수로 단일화.
+- `ActorRuntimeMonitorWindow.DrawWarpCell` 의 `IsNullOrEmpty` 분기 제거 (warpInfo 가 항상 non-null/non-empty).
+- `MotionWarpController` 의 enum/struct 다수를 별도 파일(`MotionWarpEnums.cs` 등) 로 분리해 navigation 향상.
+
+### 우선순위 (Phase 6 내부)
+
+```
+6-1 (타이밍 정합성)        ─┐
+6-3 (EMA 평활화)            ├──▶ 게임 감각에 직접 영향 → 우선
+6-4 (데이터 마이그레이션)   ─┘
+6-2 (EnemyCombat resolver) ──▶ 디자이너 워크플로우 확장
+6-5 (멀티 키 데모 자산)
+6-6 (인스펙터 검증 버튼)
+6-7 (코드 품질 마이크로)    ──▶ 시간 날 때 묶음 처리
+```
 
 ---
 
@@ -205,32 +318,50 @@ Phase 1~3은 단일 타겟(`"primary"` 키)만 사용해 데이터 모델을 단
 
 각 Phase 종료 시점에 다음 항목으로 회귀 점검.
 
-### Phase 1
+### Phase 1 ✅
 
-- 기존 `Light/Heavy/Finish/Grab` 프리셋 워프 결과가 1차 설계 종료 시점과 동일한 프레임 단위 거리·각도로 재현된다.
-- `Combat.IsMotionWarping`을 외부에서 직접 참조하는 호출지가 0이다.
-- `MotionWarpEnabled` 토글을 다시 `true`로 켜도 회귀가 없다.
+- [x] 기존 `Light/Heavy/Finish/Grab` 프리셋 코드 경로가 동일 (resolverPolicy 기본 `UseExisting` 으로 자산 회귀 없음). 실제 인게임 프레임 비교는 플레이 검증 잔존.
+- [x] `Combat.IsMotionWarping` 외부 참조 0 — 타이머 진실 소스가 `MotionWarpController` 단일.
+- [x] `MotionWarpEnabled = true` 활성 상태 유지.
 
-### Phase 2
+### Phase 2 ✅
 
-- 워프 도중 타겟 사망 시 `OnWarpCancelled` 발화 → 후속 모션 정책에 맞춰 종료한다.
-- 자신의 Hit 진입 시 컨트롤러가 자동 clear된다.
-- `MotionWarpController`가 활성 윈도우 없이 cancel 신호를 두 번 보내지 않는다 (idempotent).
+- [x] 타겟 사망 감지 (`IDamageable.IsAlive() == false`) → `Cancel(WarpCancelReason.TargetLost)` 발화.
+- [x] `PlayerHitState` / `EnemyHitState` / `PlayerDeathState` / `EnemyDeathState` `OnEnter` 에서 `MotionWarp.ClearTarget()` 호출.
+- [x] `Cancel` / `EndMotionWarp` / `ClearTarget` 모두 `_warpRemainingTime > 0f` 가드로 idempotent. 활성 윈도우 없이 cancel 이 두 번 발화하지 않는다.
+- [ ] (잔존) OOR 누적 0.1s 임계의 실제 게임 감각 튜닝.
 
-### Phase 3
+### Phase 3 ✅
 
-- 동일 프리셋의 짧은 클립과 긴 클립이 회전 진행률 곡선상 동일 비율 위치에서 같은 정렬도를 보인다.
-- `MatchTargetY` 옵션이 점프 마무리 모션의 착지점을 ±0.05m 이내로 정렬한다.
+- [x] 시간 상수 (25/8) 분기 제거. `TryEvaluateRotation` 이 정규화 t 의 곡선 알파만 사용.
+- [x] `WarpYPolicy` 분기 (`IgnoreY` / `MatchTargetY` / `ProjectToTargetY`) 가 `EvaluateVelocity` 마지막 단계에서 분기.
+- [ ] (잔존) `MatchTargetY` 옵션이 실제 점프 마무리 모션의 착지점을 ±0.05m 이내로 정렬하는지 인게임 검증.
+- [ ] (잔존) 짧은/긴 클립 동일 정렬도 회귀 검증.
 
-### Phase 4
+### Phase 4 ✅
 
-- `Predictive` 정책으로 `EnemyMovementController` 주행 적을 워프 시 도착 오차가 Live 단독 대비 50% 이상 감소한다.
-- 두 개의 다른 키를 사용하는 이벤트가 한 모션셋 안에서 서로 간섭 없이 동작한다.
+- [x] `MotionWarpTargetPolicy.Predictive` 코드 경로 활성. Grab 프리셋이 자동으로 Predictive 채택.
+- [x] `Dictionary<string, MotionWarpTarget>` + `_activeKey` 모델로 다중 키 데이터 모델 도입.
+- [x] 기존 단일 키 호출 (`SetTarget(target)`, `BeginWarpWindow(settings)`, `ClearTarget()`) 모두 `"primary"` 키로 위임 — Phase 1~3 코드 무수정.
+- [ ] (잔존) `Predictive` 도착 오차가 `Live` 대비 50% 이상 감소하는지 인게임 측정.
+- [ ] (잔존) 다른 키 두 이벤트가 한 모션셋 안에서 간섭 없이 동작하는지 데모 자산 검증.
 
-### Phase 5
+### Phase 5 ✅
 
-- `ActorMonitor`에서 활성 워프 키/타겟/blend/실패사유를 한 화면에서 볼 수 있다.
-- `MotionEvent_MotionWarp` 인스펙터 검증 버튼으로 실패 사유와 도착 오차를 즉시 확인할 수 있다.
+- [x] `ActorRuntimeMonitorWindow` 에서 활성 워프 키/타겟/blend/OOR/실패사유를 한 행에서 볼 수 있다.
+- [x] SceneView Gizmo 로 anchor / min·max / 도달 영역 / Predictive 가산점이 시각화된다.
+- [x] `SettingsData.debugMotionWarpEnabled` 로 워프 전역 토글이 런타임 조정 가능 — `MotionWarpEnabled` const 제거.
+- [ ] (Phase 6 이관) `MotionEvent_MotionWarp` 인스펙터 전용 시뮬 버튼 — 현재 Gizmo + ActorMonitor 로 등가 정보 확보. Phase 6-6 에 통합.
+
+### Phase 6 ⏳
+
+- [ ] `MotionWarpController` 타이머·속도 갱신이 FixedUpdate 와 정합한다 (KCC 와 같은 frame).
+- [ ] `EnemyCombat.BuildWarpResolverContext` 가 적 공격에서도 Hybrid/ConeNearest resolver 를 사용 가능.
+- [ ] Predictive 정책 사용 시 빠른 적의 정지/방향전환에서 한 프레임 튐 현상이 EMA 평활화로 해소된다.
+- [ ] 기존 자산이 `Hybrid` resolverPolicy 로 일괄 마이그레이션, Grab 의 `Live → Predictive` 전환 회귀 통과.
+- [ ] 점프-착지 멀티 키 데모 자산 1종 작성, 두 이벤트가 서로 간섭 없이 동작.
+- [ ] `MotionSetEditorWindow` 에 워프 시뮬 버튼 — 가상 타겟 시뮬 결과 즉시 확인.
+- [ ] 잔존 코드 품질 항목 (Phase 6-7) 묶음 정리.
 
 ---
 

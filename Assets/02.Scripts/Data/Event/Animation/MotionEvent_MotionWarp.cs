@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UPlayGround.Component;
-
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.Data.Event
@@ -16,20 +16,58 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
-        // 모션 워핑 기능 개선 작업 중 — 임시 전역 비활성화 토글.
-        // true 로 되돌리면 기존 동작 복구.
-        private const bool MotionWarpEnabled = true;
+        // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.
+        // SettingsManager 미로드/Data null 인 초기 프레임에는 활성 기본값.
+        private static bool IsMotionWarpEnabled
+        {
+            get
+            {
+                var sm = SettingsManager.Instance;
+                if (sm == null || !sm.IsLoaded || sm.Data == null) return true;
+                return sm.Data.debugMotionWarpEnabled;
+            }
+        }
 
         [Header("Warp Modifier")]
         public MotionWarpPreset preset = MotionWarpPreset.Custom;
         public MotionWarpModifierType modifierType = MotionWarpModifierType.Additive;
         public MotionWarpTargetPolicy targetPolicy = MotionWarpTargetPolicy.Snapshot;
 
+        [Header("Target Resolver")]
+        [Tooltip("UseExisting: AttackState 가 미리 설정한 타겟 그대로 사용 (기존 호환).\n" +
+                 "ConeNearest / LockOnFirst / Hybrid: 이벤트 발화 시점에 재결정.\n" +
+                 "Hybrid 권장: 락온이 콘 안이면 락온, 밖이면 콘 최근접.")]
+        public WarpResolverPolicy resolverPolicy = WarpResolverPolicy.UseExisting;
+
+        [Header("Multi-Target Key")]
+        [Tooltip("같은 키를 가진 두 이벤트는 같은 타겟을 공유 (도약-착지 등 다단 모션).\n" +
+                 "다른 키를 쓰면 별도 타겟. 비워두면 \"primary\" 기본 키 사용.")]
+        public string targetKey = "primary";
+
+        [Header("Predictive Live")]
+        [Tooltip("targetPolicy 가 Predictive 일 때만 사용.\n" +
+                 "타겟 추정 속도 × 이 비율 × 남은 워프 시간 만큼 미래 위치 가산. 0 = Live 동등.")]
+        [Range(0f, 1f)]
+        public float predictionFactor = 0.5f;
+
         [Range(0f, 1f)]
         public float translationWeight = 1f;
         [Range(0f, 1f)]
         public float rotationWeight = 1f;
+
+        [Tooltip("[Deprecated] yPolicy 가 IgnoreY 기본값일 때만 사용. 신규 설정은 yPolicy 를 사용.")]
         public bool ignoreY = true;
+
+        [Header("Y Axis Policy")]
+        [Tooltip("IgnoreY: 수평만 보정 (현재 동작).\n" +
+                 "MatchTargetY: 점프/공중 마무리 등 Y 도 적극 추적.\n" +
+                 "ProjectToTargetY: 진행도에 따라 Y 점진 보간 (지면 높이 차 흡수).")]
+        public WarpYPolicy yPolicy = WarpYPolicy.IgnoreY;
+
+        [Header("Rotation Curve")]
+        [Tooltip("정규화 시간 t(0~1) → 회전 보간 알파(0~1).\n" +
+                 "비워두면 EaseOut(1-(1-t)^2) 폴백. 프리셋이 자동으로 곡선을 채울 수 있음.")]
+        public AnimationCurve rotationCurve;
 
         [Header("Override Range")]
         public bool overrideDistance = false;
@@ -45,13 +83,37 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
-            if (!MotionWarpEnabled) return;
+            if (!IsMotionWarpEnabled) return;
 
             float warpDuration = endTime - startTime;
-            ConfigureMotionWarp(target, warpDuration);
+            string key = string.IsNullOrEmpty(targetKey) ? "primary" : targetKey;
 
             var playerCombat = target.GetComponent<PlayerCombat>()
                             ?? target.GetComponentInChildren<PlayerCombat>();
+
+            // resolverPolicy != UseExisting 인 경우 이벤트 발화 시점에 타겟 재결정.
+            // 현재 PlayerCombat 경로에서만 컨텍스트를 구성한다 (EnemyCombat 은 Phase 후속에서 확장).
+            if (resolverPolicy != WarpResolverPolicy.UseExisting && playerCombat != null)
+            {
+                IWarpTargetResolver resolver = WarpTargetResolverFactory.For(resolverPolicy);
+                if (resolver != null)
+                {
+                    WarpResolverContext ctx = playerCombat.BuildWarpResolverContext();
+                    if (ctx.origin != null)
+                    {
+                        Transform resolved = resolver.Resolve(in ctx);
+                        var controller = ResolveController(target);
+                        if (resolved != null && controller != null)
+                        {
+                            bool useSnapshot = targetPolicy == MotionWarpTargetPolicy.Snapshot;
+                            controller.MotionWarp.SetTarget(key, resolved, useSnapshot);
+                        }
+                    }
+                }
+            }
+
+            ConfigureMotionWarp(target, warpDuration, key);
+
             if (playerCombat != null)
             {
                 playerCombat.BeginMotionWarp(warpDuration);
@@ -65,7 +127,7 @@ namespace UPlayGround.Data.Event
 
         public override void OnCompleteEvent(GameObject target)
         {
-            if (!MotionWarpEnabled) return;
+            if (!IsMotionWarpEnabled) return;
 
             ResolveController(target)?.MotionWarp.EndWarpWindow();
 
@@ -82,7 +144,7 @@ namespace UPlayGround.Data.Event
             enemyCombat?.EndMotionWarp();
         }
 
-        private void ConfigureMotionWarp(GameObject target, float duration)
+        private void ConfigureMotionWarp(GameObject target, float duration, string key)
         {
             var controller = ResolveController(target);
             if (controller == null || controller.MotionWarp == null) return;
@@ -96,14 +158,17 @@ namespace UPlayGround.Data.Event
                 translationWeight = translationWeight,
                 rotationWeight = rotationWeight,
                 ignoreY = ignoreY,
+                yPolicy = yPolicy,
                 overrideDistance = overrideDistance,
                 minDistance = minDistance,
                 maxDistance = maxDistance,
                 maxSpeed = maxSpeed,
-                targetOffset = targetOffset
+                targetOffset = targetOffset,
+                rotationCurve = rotationCurve,
+                predictionFactor = predictionFactor,
             };
 
-            controller.MotionWarp.BeginWarpWindow(ApplyPreset(settings));
+            controller.MotionWarp.BeginWarpWindow(ApplyPreset(settings), key);
         }
 
         private static ActorMovementController ResolveController(GameObject target)
@@ -123,10 +188,13 @@ namespace UPlayGround.Data.Event
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
                     settings.ignoreY = true;
+                    settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.25f;
                     settings.maxDistance = 4f;
                     settings.maxSpeed = 18f;
+                    if (HasCurve(settings.rotationCurve) == false)
+                        settings.rotationCurve = BuildLightCurve();
                     break;
                 case MotionWarpPreset.HeavyAttack:
                     settings.modifierType = MotionWarpModifierType.Scale;
@@ -134,10 +202,13 @@ namespace UPlayGround.Data.Event
                     settings.translationWeight = 0.9f;
                     settings.rotationWeight = 1f;
                     settings.ignoreY = true;
+                    settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.35f;
                     settings.maxDistance = 5f;
                     settings.maxSpeed = 16f;
+                    if (HasCurve(settings.rotationCurve) == false)
+                        settings.rotationCurve = BuildHeavyCurve();
                     break;
                 case MotionWarpPreset.FinishAttack:
                     settings.modifierType = MotionWarpModifierType.Skew;
@@ -145,25 +216,59 @@ namespace UPlayGround.Data.Event
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
                     settings.ignoreY = true;
+                    settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.1f;
                     settings.maxDistance = 3f;
                     settings.maxSpeed = 12f;
+                    if (HasCurve(settings.rotationCurve) == false)
+                        settings.rotationCurve = BuildFinishCurve();
                     break;
                 case MotionWarpPreset.Grab:
                     settings.modifierType = MotionWarpModifierType.Skew;
-                    settings.targetPolicy = MotionWarpTargetPolicy.Live;
+                    // Grab 은 움직이는 타겟 잡기 — Predictive 로 승격해 떨림 감소 + 도달 정확도 개선.
+                    settings.targetPolicy = MotionWarpTargetPolicy.Predictive;
+                    settings.predictionFactor = 0.6f;
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
                     settings.ignoreY = true;
+                    settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.05f;
                     settings.maxDistance = 2f;
                     settings.maxSpeed = 10f;
+                    if (HasCurve(settings.rotationCurve) == false)
+                        settings.rotationCurve = BuildLightCurve();
                     break;
             }
 
             return settings;
         }
+
+        private static bool HasCurve(AnimationCurve c) => c != null && c.length > 0;
+
+        // 프리셋 곡선은 읽기 전용으로만 사용되므로 static 인스턴스 공유.
+        // 누군가 외부에서 AddKey/RemoveKey 로 변형하면 공유 인스턴스가 오염될 수 있어 주의.
+        private static readonly AnimationCurve LightCurve = new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 4f),
+            new Keyframe(0.5f, 0.85f, 1f, 1f),
+            new Keyframe(1f, 1f, 0f, 0f));
+
+        private static readonly AnimationCurve HeavyCurve = new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 0.5f),
+            new Keyframe(0.5f, 0.5f, 1.5f, 1.5f),
+            new Keyframe(1f, 1f, 0.5f, 0f));
+
+        private static readonly AnimationCurve FinishCurve = new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 1.5f),
+            new Keyframe(0.7f, 0.7f, 1f, 1f),
+            new Keyframe(1f, 1f, 1f, 0f));
+
+        // 빠른 EaseOut: 앞부분에서 강하게 정렬 (LightAttack, Grab).
+        private static AnimationCurve BuildLightCurve()  => LightCurve;
+        // 느린 EaseIn-Out: 무게감 (HeavyAttack).
+        private static AnimationCurve BuildHeavyCurve()  => HeavyCurve;
+        // 마지막 프레임에 거의 정확히 일치 (FinishAttack).
+        private static AnimationCurve BuildFinishCurve() => FinishCurve;
     }
 }

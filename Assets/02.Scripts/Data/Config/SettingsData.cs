@@ -30,6 +30,10 @@ namespace UPlayGround.Data.Config
         [Range(0, 10)] public int sfxVolume = 9;
         [Range(0, 10)] public int voiceVolume = 8;
 
+        [Header("디버그")]
+        [Tooltip("모션 워핑 시스템 전역 활성/비활성. 회귀 의심 시 일시적으로 끄고 1차 동작 비교용.")]
+        public bool debugMotionWarpEnabled = true;
+
         private const string PREFS_KEY = "GameSettings_v1";
 
         public void Save()
@@ -51,6 +55,7 @@ namespace UPlayGround.Data.Config
             screenShake = true; aimAssist = true; languageIndex = 0;
             resolutionIndex = 0; fullscreen = true; qualityIndex = 2; brightness = 100;
             masterVolume = 8; bgmVolume = 7; sfxVolume = 9; voiceVolume = 8;
+            debugMotionWarpEnabled = true;
         }
     }
 

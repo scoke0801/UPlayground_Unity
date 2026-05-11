@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Actor.Editor
 {
@@ -48,7 +49,11 @@ namespace UPlayGround.Actor.Editor
         private const float ColTags      = 220f;
         private const float ColGroup     = 90f;
         private const float ColSpawnTime = 65f;
+        private const float ColWarp      = 220f;
         private const float RowH         = 22f;
+
+        private static readonly Color ColorWarpActive = new(0.55f, 0.85f, 1.00f);
+        private static readonly Color ColorWarpIdle   = new(0.55f, 0.55f, 0.55f);
 
         // ── 메뉴 ─────────────────────────────────────────────────────
         [MenuItem("UPlayGround/Character/Actor/Actor Runtime Monitor")]
@@ -56,7 +61,7 @@ namespace UPlayGround.Actor.Editor
         {
             var window = GetWindow<ActorRuntimeMonitorWindow>();
             window.titleContent = new GUIContent("Actor Monitor", EditorGUIUtility.IconContent("d_UnityEditor.ProfilerWindow").image);
-            window.minSize = new Vector2(840f, 320f);
+            window.minSize = new Vector2(1080f, 320f);
             window.Show();
         }
 
@@ -149,6 +154,7 @@ namespace UPlayGround.Actor.Editor
             DrawHeaderCell(ref x, y, ColTags,      "GameplayTags");
             DrawHeaderCell(ref x, y, ColGroup,     "그룹");
             DrawHeaderCell(ref x, y, ColSpawnTime, "스폰 경과");
+            DrawHeaderCell(ref x, y, ColWarp,      "MotionWarp");
         }
 
         private void DrawHeaderCell(ref float x, float y, float width, string label)
@@ -220,6 +226,20 @@ namespace UPlayGround.Actor.Editor
                 ? $"{(Time.time - row.spawnTime):F1}s"
                 : "-";
             DrawCell(ref x, y, ColSpawnTime, elapsed, EditorStyles.miniLabel);
+
+            // MotionWarp 상태
+            DrawWarpCell(ref x, y, row);
+        }
+
+        private void DrawWarpCell(ref float x, float y, ActorRow row)
+        {
+            var rect = new Rect(x + 2, y, ColWarp - 4, RowH - 4);
+            var old = GUI.contentColor;
+            GUI.contentColor = row.warpActive ? ColorWarpActive : ColorWarpIdle;
+            string text = string.IsNullOrEmpty(row.warpInfo) ? "-" : row.warpInfo;
+            GUI.Label(rect, text, EditorStyles.miniLabel);
+            GUI.contentColor = old;
+            x += ColWarp;
         }
 
         private void DrawCell(ref float x, float y, float width, string text, GUIStyle style)
@@ -349,6 +369,32 @@ namespace UPlayGround.Actor.Editor
                 if (actor.Tags != null && actor.Tags.AllTags.Count > 0)
                     tagsText = actor.Tags.ToString();
 
+                // MotionWarp 상태 수집
+                bool warpActive = false;
+                string warpInfo = "-";
+                var warp = actor.GetComponent<MotionWarpController>();
+                if (warp != null)
+                {
+                    if (warp.IsMotionWarping)
+                    {
+                        warpActive = true;
+                        var settings = warp.HasActiveWindow ? warp.ActiveWindowSettings : default;
+                        float t = warp.WarpDuration > 0f ? 1f - (warp.WarpRemainingTime / warp.WarpDuration) : 0f;
+                        string targetName = warp.ActiveTarget.IsValid && warp.ActiveTarget.anchor != null
+                            ? warp.ActiveTarget.anchor.name
+                            : "-";
+                        warpInfo =
+                            $"key={warp.ActiveKey} → {targetName}  " +
+                            $"t={t:F2} blend={warp.BlendWeight:F2} OOR={warp.OutOfRangeAccumulator:F2}s\n" +
+                            $"{settings.targetPolicy} {settings.modifierType}" +
+                            (warp.IsApplicable ? "" : $" — {warp.LastFailureReason}");
+                    }
+                    else if (warp.HasTarget)
+                    {
+                        warpInfo = $"idle (target ready: {warp.ActiveKey})";
+                    }
+                }
+
                 _rows.Add(new ActorRow
                 {
                     actor      = actor,
@@ -361,6 +407,8 @@ namespace UPlayGround.Actor.Editor
                     tags       = tagsText,
                     groupName  = groupName,
                     spawnTime  = info != null ? info.spawnTime : -1f,
+                    warpActive = warpActive,
+                    warpInfo   = warpInfo,
                 });
             }
 
@@ -403,6 +451,8 @@ namespace UPlayGround.Actor.Editor
             public string tags;      // GameplayTag 목록 (쉼표 구분)
             public string groupName;
             public float  spawnTime; // -1이면 스폰 기록 없음
+            public bool   warpActive;
+            public string warpInfo;
         }
     }
 }

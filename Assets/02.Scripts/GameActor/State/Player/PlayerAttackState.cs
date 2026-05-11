@@ -424,23 +424,20 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 호밍: 워프 구간에서 타겟 방향으로 회전 보정
-            // UpdateVelocity와 동일한 조건(스냅샷 거리 + 도달 가능 여부)으로만 적용해
-            // 이동 방향과 회전 방향이 일치하도록 한다.
-            if (_motionWarp.TryGetFacingDirection(
+            // 호밍: 워프 구간에서 타겟 방향으로 회전 보정.
+            // rotationCurve 기반 곡선 보간 — 시간 상수가 아닌 정규화 진행도로 회전 진행.
+            if (_motionWarp.TryEvaluateRotation(
+                    currentRotation,
                     motor.TransientPosition,
                     _combat.IsMotionWarping,
                     _combat.WarpRemainingTime,
+                    _combat.WarpDuration,
                     _combat.WarpMinDistance,
                     _combat.WarpMaxDistance,
                     _combat.WarpMaxSpeed,
-                    out Vector3 warpDirection))
+                    out Quaternion warpRotation))
             {
-                Quaternion targetRot = Quaternion.LookRotation(warpDirection);
-                // Startup 0.15초: 빠르게 보정 → 이후: 무게감 있게 감속
-                float rotSpeed = _attackTimer < 0.15f ? 25f : 8f;
-                currentRotation = Quaternion.Slerp(currentRotation, targetRot, deltaTime * rotSpeed);
-                currentRotation = currentRotation.normalized;
+                currentRotation = warpRotation;
                 return;
             }
 

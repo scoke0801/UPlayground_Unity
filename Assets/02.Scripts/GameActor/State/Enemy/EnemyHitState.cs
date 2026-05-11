@@ -27,6 +27,9 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            // 워프 진행 중이면 즉시 clear (Hit 모션이 우선).
+            controller.MotionWarp?.ClearTarget();
+
             var memory = gameActor.GetComponent<EnemyTacticalMemory>();
             memory?.NotifyTookDamage();
 

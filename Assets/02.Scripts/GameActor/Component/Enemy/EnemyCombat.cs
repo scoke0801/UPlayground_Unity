@@ -5,6 +5,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
@@ -56,14 +57,12 @@ namespace UPlayGround.Component
         private int _telegraphHitPhaseIndex = 0;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
-        // MotionEvent_MotionWarp.Execute() 시 워프 구간 길이를 주입.
-        // 매 프레임 deltaTime만큼 소모하며 0 이하가 되면 워프 비활성.
-        private float _warpRemainingTime;
-        private float _warpTotalDuration;
+        // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
+        private MotionWarpController _motionWarp;
 
-        public float WarpRemainingTime => _warpRemainingTime;
-        public float WarpDuration      => _warpTotalDuration;
-        public bool  IsMotionWarping   => _warpRemainingTime > 0f;
+        public float WarpRemainingTime => _motionWarp != null ? _motionWarp.WarpRemainingTime : 0f;
+        public float WarpDuration      => _motionWarp != null ? _motionWarp.WarpDuration : 0f;
+        public bool  IsMotionWarping   => _motionWarp != null && _motionWarp.IsMotionWarping;
         // ──────────────────────────────────────────────────────────────
 
         public EnemyAttackDataSO AttackData       => _attackData;
@@ -84,14 +83,17 @@ namespace UPlayGround.Component
             _ownerDamageable = GetComponent<IDamageable>();
             _detection       = GetComponent<EnemyDetection>();
             _ownerActor      = GetComponent<MonsterActor>();
+
+            // 워프 진실 소스는 MotionWarpController. 컴포넌트가 없으면 즉시 부착.
+            _motionWarp = GetComponent<MotionWarpController>();
+            if (_motionWarp == null)
+                _motionWarp = gameObject.AddComponent<MotionWarpController>();
         }
 
         private void Update()
         {
             UpdateCooldowns();
-
-            if (_warpRemainingTime > 0f)
-                _warpRemainingTime -= Time.deltaTime;
+            // 워프 타이머는 MotionWarpController.Update 가 처리.
         }
 
         private void UpdateCooldowns()
@@ -121,14 +123,10 @@ namespace UPlayGround.Component
         }
 
         /// <summary> MotionEvent_MotionWarp.Execute()에서 호출. warpDuration = endTime - startTime. </summary>
-        public void BeginMotionWarp(float warpDuration)
-        {
-            _warpRemainingTime = warpDuration;
-            _warpTotalDuration = warpDuration;
-        }
+        public void BeginMotionWarp(float warpDuration) => _motionWarp?.BeginMotionWarp(warpDuration);
 
         /// <summary> MotionEvent_MotionWarp.OnCompleteEvent()에서 호출. </summary>
-        public void EndMotionWarp() => _warpRemainingTime = 0f;
+        public void EndMotionWarp() => _motionWarp?.EndMotionWarp();
 
         private SkillConditionContext CreateContext(float distanceToTarget)
         {

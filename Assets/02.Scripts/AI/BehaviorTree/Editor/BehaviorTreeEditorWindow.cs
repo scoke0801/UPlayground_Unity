@@ -8,6 +8,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public class BehaviorTreeEditorWindow : EditorWindow
     {
+        private const double DebugRefreshInterval = 0.05d;
+
         private BehaviorTreeAsset _tree;
         private BehaviorTreeRunner _debugRunner;
         private BehaviorTreeGraphView _graphView;
@@ -33,6 +35,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private ToolbarToggle _miniMapToggle;
         private ObjectField _treeField;
         private ObjectField _runnerField;
+        private string _lastFocusedPauseGuid;
+        private double _nextDebugRefreshTime;
+        private int _lastTraceVersion = -1;
+        private int _lastTraceTick = -1;
+        private int _lastTraceViewVersion = -1;
+        private BehaviorTreeRunnerState _lastDebugState = (BehaviorTreeRunnerState)(-1);
+        private BTStatus _lastExecutionStatus = (BTStatus)(-1);
+        private bool _lastDebugMode;
+        private bool _debugGraphWasActive;
         private PropertyTab _activeTab = PropertyTab.Inspector;
 
         private enum PropertyTab
@@ -71,6 +82,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private void OnDisable()
         {
+            _graphView?.FlushPendingSave();
             Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.update -= OnEditorUpdate;
         }
@@ -143,6 +155,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _runnerField.RegisterValueChangedCallback(evt =>
             {
                 _debugRunner = evt.newValue as BehaviorTreeRunner;
+                ResetDebugUiCache();
+                _blackboardView?.SetDebugRunner(_debugRunner);
                 RefreshDebugState();
             });
             debugToolbar.Add(CreateToolbarLabel("Debug Runner"));
@@ -180,6 +194,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _graphView.PopulateView(_tree);
             _blackboardView.Bind(_tree);
+            _blackboardView.SetDebugRunner(_debugRunner);
             RefreshGraphTitle();
             RefreshDebugState();
             ValidateTree();
@@ -375,6 +390,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public void SetTree(BehaviorTreeAsset tree)
         {
             _tree = tree;
+            ResetDebugUiCache();
             if (_treeField != null)
                 _treeField.SetValueWithoutNotify(_tree);
 
@@ -383,6 +399,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _inspectorView?.ClearSelection();
             RefreshGraphTitle();
             ValidateTree();
+        }
+
+        private void ResetDebugUiCache()
+        {
+            _lastFocusedPauseGuid = null;
+            _nextDebugRefreshTime = 0d;
+            _lastTraceVersion = -1;
+            _lastTraceTick = -1;
+            _lastTraceViewVersion = -1;
+            _lastDebugState = (BehaviorTreeRunnerState)(-1);
+            _lastExecutionStatus = (BTStatus)(-1);
+            _lastDebugMode = false;
+            _debugGraphWasActive = false;
         }
 
         public void RefreshInspector()
@@ -431,14 +460,67 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (_graphView == null)
                 return;
 
-            var runtimeTree = Application.isPlaying && _debugRunner != null && _debugRunner.DebugMode
-                ? _debugRunner.RuntimeTree
-                : null;
+            var debugActive = Application.isPlaying && _debugRunner != null && _debugRunner.DebugMode;
+            var trace = debugActive ? _debugRunner.DebugTrace : null;
+            var traceVersion = trace?.Version ?? -1;
+            var traceTick = trace?.CurrentTick ?? -1;
+            var debugStateChanged = HasDebugStateChanged();
+            var traceChanged = traceVersion != _lastTraceVersion || traceTick != _lastTraceTick;
+            var graphNeedsClear = _debugGraphWasActive && !debugActive;
+            var now = EditorApplication.timeSinceStartup;
 
-            _graphView.UpdateDebugState(runtimeTree, _debugRunner?.DebugTrace);
-            _miniMapView?.MarkDirtyRepaint();
+            if (!debugActive && !graphNeedsClear && !debugStateChanged)
+                return;
+
+            if (debugActive && !traceChanged && !debugStateChanged)
+            {
+                if (_debugRunner.State != BehaviorTreeRunnerState.Running || now < _nextDebugRefreshTime)
+                    return;
+            }
+
+            _nextDebugRefreshTime = now + DebugRefreshInterval;
+            _lastTraceVersion = traceVersion;
+            _lastTraceTick = traceTick;
+            _debugGraphWasActive = debugActive;
+
+            var runtimeTree = debugActive ? _debugRunner.RuntimeTree : null;
+            if (debugActive || graphNeedsClear || traceChanged)
+            {
+                _graphView.UpdateDebugState(runtimeTree, trace);
+                _miniMapView?.MarkDirtyRepaint();
+                _blackboardView?.MarkDirtyRepaint();
+            }
+            FocusBreakpointNodeIfNeeded();
             RefreshDebugState();
-            RefreshTraceView();
+            RefreshTraceView(traceVersion);
+        }
+
+        private void FocusBreakpointNodeIfNeeded()
+        {
+            if (!Application.isPlaying || _debugRunner == null || _debugRunner.State != BehaviorTreeRunnerState.Paused)
+            {
+                _lastFocusedPauseGuid = null;
+                return;
+            }
+
+            var pauseNode = _debugRunner.PauseRequestedBy;
+            if (pauseNode == null || string.IsNullOrWhiteSpace(pauseNode.Guid) || pauseNode.Guid == _lastFocusedPauseGuid)
+                return;
+
+            if (_graphView != null && _graphView.FocusNodeByGuid(pauseNode.Guid))
+                _lastFocusedPauseGuid = pauseNode.Guid;
+        }
+
+        private bool HasDebugStateChanged()
+        {
+            if (_debugRunner == null)
+                return _lastDebugState != (BehaviorTreeRunnerState)(-1) ||
+                       _lastExecutionStatus != (BTStatus)(-1) ||
+                       _lastDebugMode;
+
+            return _lastDebugState != _debugRunner.State ||
+                   _lastExecutionStatus != _debugRunner.ExecutionStatus ||
+                   _lastDebugMode != _debugRunner.DebugMode;
         }
 
         private void CreateTreeAsset()
@@ -465,6 +547,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (_tree == null)
                 return;
 
+            _graphView?.FlushPendingSave();
             EditorUtility.SetDirty(_tree);
             foreach (var node in _tree.Nodes)
             {
@@ -642,6 +725,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             if (content != null)
                 _propertyContent.Add(content);
+
+            if (tab == PropertyTab.Trace)
+            {
+                _lastTraceViewVersion = int.MinValue;
+                RefreshTraceView(_lastTraceVersion);
+            }
         }
 
         private static void StylePropertyTab(ToolbarToggle toggle, bool active)
@@ -796,6 +885,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 _debugStateLabel.style.backgroundColor = new Color(0.30f, 0.30f, 0.30f);
                 if (_runtimeBanner != null)
                     _runtimeBanner.style.display = DisplayStyle.None;
+                _lastDebugState = (BehaviorTreeRunnerState)(-1);
+                _lastExecutionStatus = (BTStatus)(-1);
+                _lastDebugMode = false;
                 return;
             }
 
@@ -810,13 +902,20 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 _runtimeBanner.style.display = Application.isPlaying && _debugRunner.DebugMode
                     ? DisplayStyle.Flex
                     : DisplayStyle.None;
+            _lastDebugState = _debugRunner.State;
+            _lastExecutionStatus = _debugRunner.ExecutionStatus;
+            _lastDebugMode = _debugRunner.DebugMode;
         }
 
-        private void RefreshTraceView()
+        private void RefreshTraceView(int traceVersion)
         {
             if (_traceBox == null || _activeTab != PropertyTab.Trace)
                 return;
 
+            if (_lastTraceViewVersion == traceVersion)
+                return;
+
+            _lastTraceViewVersion = traceVersion;
             _traceBox.Clear();
             var trace = _debugRunner != null && _debugRunner.DebugMode ? _debugRunner.DebugTrace : null;
             if (trace == null || trace.Records.Count == 0)
@@ -835,6 +934,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 row.style.color = GetTraceColor(record);
                 row.style.whiteSpace = WhiteSpace.Normal;
                 row.style.marginBottom = 2f;
+                row.style.paddingLeft = 4f;
+                row.style.paddingRight = 4f;
+                row.tooltip = "클릭하면 해당 노드로 이동합니다.";
+                var nodeGuid = record.NodeGuid;
+                row.RegisterCallback<MouseDownEvent>(evt =>
+                {
+                    if (evt.button != 0)
+                        return;
+
+                    _graphView?.FocusNodeByGuid(nodeGuid);
+                    evt.StopPropagation();
+                });
                 _traceBox.Add(row);
             }
         }

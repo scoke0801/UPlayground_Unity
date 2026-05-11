@@ -210,7 +210,7 @@ namespace UPlayGround.State
         private void TryAerialAttack()
         {
             float dist = _brain.Detection.DistanceToTarget;
-            var aerialSkills = _brain.Combat.AttackData?.GetAvailableAerialSkills(dist);
+            var aerialSkills = _brain.Combat.AttackData?.GetAvailableAerialSkills(dist, _brain.Combat.CurrentLevel);
             // isDiveAttack 스킬 제외 (Dive는 Brain.TransitionToDescend에서 처리)
             aerialSkills?.RemoveAll(s => s.isDiveAttack);
 

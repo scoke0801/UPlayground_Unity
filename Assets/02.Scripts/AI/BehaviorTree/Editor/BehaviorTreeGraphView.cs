@@ -11,11 +11,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public class BehaviorTreeGraphView : GraphView
     {
+        private const string ClipboardPrefix = "UPlayGround.BTGraphClipboard:";
+        private const double SaveDebounceSeconds = 0.35d;
         private readonly BehaviorTreeEditorWindow _window;
         private readonly Dictionary<BTNode, BehaviorTreeNodeView> _nodeViews = new();
+        private readonly Dictionary<string, BehaviorTreeNodeView> _nodeViewsByGuid = new();
         private readonly Dictionary<BehaviorTreeEditorGroup, BehaviorTreeGroupView> _groupViews = new();
         private readonly Dictionary<string, BTStatus> _currentTickStatuses = new();
+        private readonly Dictionary<string, BTNode> _runtimeNodesByGuid = new();
+        private readonly BehaviorTreeNodeSearchWindow _nodeSearchWindow;
         private BehaviorTreeAsset _tree;
+        private bool _saveQueued;
+        private double _nextSaveTime;
 
         public BehaviorTreeGraphView(BehaviorTreeEditorWindow window)
         {
@@ -28,6 +35,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
+
+            _nodeSearchWindow = ScriptableObject.CreateInstance<BehaviorTreeNodeSearchWindow>();
+            _nodeSearchWindow.Initialize(window, this, CreateNodeAtSearchPosition);
+            nodeCreationRequest = context => SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _nodeSearchWindow);
+            serializeGraphElements = SerializeSelectionToClipboardData;
+            canPasteSerializedData = CanPasteClipboardData;
+            unserializeAndPaste = UnserializeAndPaste;
+            RegisterCallback<DetachFromPanelEvent>(_ => FlushPendingSave());
 
             graphViewChanged += OnGraphViewChanged;
         }
@@ -45,7 +60,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             graphViewChanged -= OnGraphViewChanged;
             DeleteElements(graphElements.ToList());
             _nodeViews.Clear();
+            _nodeViewsByGuid.Clear();
             _groupViews.Clear();
+            _currentTickStatuses.Clear();
 
             if (_tree == null)
             {
@@ -56,10 +73,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             foreach (var group in _tree.EditorGroups.Where(group => group != null))
                 AddGroupView(group);
 
-            foreach (var node in _tree.Nodes.Where(node => node != null))
+            foreach (var node in _tree.Nodes.Where(node => node != null && node is not BTServiceNode))
                 AddNodeView(node);
 
-            foreach (var node in _tree.Nodes.Where(node => node != null))
+            foreach (var node in _tree.Nodes.Where(node => node != null && node is not BTServiceNode))
             {
                 if (!_nodeViews.TryGetValue(node, out var parentView) || parentView.Output == null)
                     continue;
@@ -80,13 +97,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         public void UpdateDebugState(BehaviorTreeAsset runtimeTree, BehaviorTreeDebugTrace trace = null)
         {
-            var runtimeByGuid = new Dictionary<string, BTNode>();
+            _runtimeNodesByGuid.Clear();
             if (runtimeTree != null)
             {
                 foreach (var node in runtimeTree.Nodes)
                 {
                     if (node != null)
-                    runtimeByGuid[node.Guid] = node;
+                        _runtimeNodesByGuid[node.Guid] = node;
                 }
             }
 
@@ -104,12 +121,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             foreach (var pair in _nodeViews)
             {
-                runtimeByGuid.TryGetValue(pair.Key.Guid, out var runtimeNode);
+                _runtimeNodesByGuid.TryGetValue(pair.Key.Guid, out var runtimeNode);
                 var wasTicked = _currentTickStatuses.TryGetValue(pair.Key.Guid, out var tickStatus);
                 pair.Value.UpdateStateColor(runtimeNode, wasTicked, tickStatus);
             }
 
-            foreach (var edge in edges.ToList())
+            foreach (var edge in edges)
             {
                 if (edge.output?.node is not BehaviorTreeNodeView parentView ||
                     edge.input?.node is not BehaviorTreeNodeView childView)
@@ -117,8 +134,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     continue;
                 }
 
-                runtimeByGuid.TryGetValue(parentView.Node.Guid, out var runtimeParent);
-                runtimeByGuid.TryGetValue(childView.Node.Guid, out var runtimeChild);
+                _runtimeNodesByGuid.TryGetValue(parentView.Node.Guid, out var runtimeParent);
+                _runtimeNodesByGuid.TryGetValue(childView.Node.Guid, out var runtimeChild);
                 var running = runtimeParent is { IsStarted: true } || runtimeChild is { IsStarted: true };
                 var ticked = IsNodeHighlighted(parentView.Node.Guid) && IsNodeHighlighted(childView.Node.Guid);
                 StyleEdge(edge, running, ticked);
@@ -151,6 +168,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _window.SelectNode(node);
         }
 
+        public bool FocusNodeByGuid(string guid)
+        {
+            if (string.IsNullOrWhiteSpace(guid))
+                return false;
+
+            if (!_nodeViewsByGuid.TryGetValue(guid, out var nodeView) || nodeView?.Node == null)
+                return false;
+
+            FocusNode(nodeView.Node);
+            return true;
+        }
+
         public void RefreshNodeView(BTNode node)
         {
             if (node == null || !_nodeViews.TryGetValue(node, out var nodeView))
@@ -177,6 +206,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             var mousePosition = contentViewContainer.WorldToLocal(evt.mousePosition);
+            evt.menu.AppendAction(
+                "Edit/Copy Selection",
+                _ => CopySelectionToClipboard(),
+                _ => selection.OfType<BehaviorTreeNodeView>().Any() || selection.OfType<BehaviorTreeGroupView>().Any()
+                    ? DropdownMenuAction.Status.Normal
+                    : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendAction(
+                "Edit/Paste",
+                _ => PasteFromClipboard(),
+                _ => CanPasteClipboardData(EditorGUIUtility.systemCopyBuffer)
+                    ? DropdownMenuAction.Status.Normal
+                    : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendSeparator("Edit/");
             evt.menu.AppendAction("Create/Group Box", _ => CreateGroup(mousePosition));
             evt.menu.AppendAction(
                 "Create/Group Box From Selection",
@@ -305,12 +347,227 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             SaveAsset();
         }
 
+        private string SerializeSelectionToClipboardData(IEnumerable<GraphElement> elements)
+        {
+            var clipboard = new BehaviorTreeClipboardData();
+            var seenNodeGuids = new HashSet<string>();
+            var seenGroupGuids = new HashSet<string>();
+
+            foreach (var element in elements)
+            {
+                if (element is BehaviorTreeNodeView nodeView && nodeView.Node != null)
+                {
+                    nodeView.Node.EnsureGuid();
+                    if (seenNodeGuids.Add(nodeView.Node.Guid))
+                        clipboard.nodeGuids.Add(nodeView.Node.Guid);
+                }
+                else if (element is BehaviorTreeGroupView groupView && groupView.Group != null)
+                {
+                    if (seenGroupGuids.Add(groupView.Group.Guid))
+                    {
+                        clipboard.groups.Add(new BehaviorTreeClipboardGroup
+                        {
+                            title = groupView.Group.Title,
+                            rect = groupView.Group.Rect,
+                            color = groupView.Group.Color
+                        });
+                    }
+                }
+            }
+
+            return clipboard.nodeGuids.Count == 0 && clipboard.groups.Count == 0
+                ? string.Empty
+                : ClipboardPrefix + JsonUtility.ToJson(clipboard);
+        }
+
+        private bool CanPasteClipboardData(string data)
+        {
+            return _tree != null && !string.IsNullOrWhiteSpace(data) && data.StartsWith(ClipboardPrefix, StringComparison.Ordinal);
+        }
+
+        private void UnserializeAndPaste(string operationName, string data)
+        {
+            if (!CanPasteClipboardData(data))
+                return;
+
+            var json = data.Substring(ClipboardPrefix.Length);
+            var clipboard = JsonUtility.FromJson<BehaviorTreeClipboardData>(json);
+            if (clipboard == null)
+                return;
+
+            PasteClipboardData(clipboard);
+        }
+
+        private void CopySelectionToClipboard()
+        {
+            var serialized = SerializeSelectionToClipboardData(selection.OfType<GraphElement>());
+            if (!string.IsNullOrWhiteSpace(serialized))
+                EditorGUIUtility.systemCopyBuffer = serialized;
+        }
+
+        private void PasteFromClipboard()
+        {
+            UnserializeAndPaste("Paste BT Selection", EditorGUIUtility.systemCopyBuffer);
+        }
+
+        private void PasteClipboardData(BehaviorTreeClipboardData clipboard)
+        {
+            if (_tree == null)
+                return;
+
+            var sourceNodes = ResolveClipboardNodes(clipboard);
+            if (sourceNodes.Count == 0 && clipboard.groups.Count == 0)
+                return;
+
+            var undoGroup = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName("Paste BT Selection");
+            Undo.RecordObject(_tree, "Paste BT Selection");
+            var nodeMap = new Dictionary<BTNode, BTNode>();
+            var sourceBounds = CalculateClipboardBounds(sourceNodes, clipboard.groups);
+            var pasteOffset = GetVisibleContentBounds().center - sourceBounds.center + new Vector2(32f, 32f);
+
+            foreach (var source in sourceNodes)
+            {
+                var clone = UnityEngine.Object.Instantiate(source);
+                clone.name = source.name;
+                clone.Guid = Guid.NewGuid().ToString("N");
+                clone.DisplayName = source.DisplayName;
+                clone.EditorPosition = source.EditorPosition + pasteOffset;
+                clone.Children.Clear();
+                CloneCompositeServices(source, clone, pasteOffset);
+
+                Undo.RegisterCreatedObjectUndo(clone, "Paste BT Node");
+                AssetDatabase.AddObjectToAsset(clone, _tree);
+                _tree.Nodes.Add(clone);
+                nodeMap[source] = clone;
+            }
+
+            foreach (var pair in nodeMap)
+            {
+                var source = pair.Key;
+                var clone = pair.Value;
+                foreach (var child in source.Children)
+                {
+                    if (child != null && nodeMap.TryGetValue(child, out var childClone))
+                        clone.Children.Add(childClone);
+                }
+
+                EditorUtility.SetDirty(clone);
+            }
+
+            foreach (var groupData in clipboard.groups)
+            {
+                var group = new BehaviorTreeEditorGroup
+                {
+                    Guid = Guid.NewGuid().ToString("N"),
+                    Title = groupData.title,
+                    Rect = new Rect(groupData.rect.position + pasteOffset, groupData.rect.size),
+                    Color = groupData.color
+                };
+                _tree.EditorGroups.Add(group);
+            }
+
+            SaveAsset();
+            Undo.CollapseUndoOperations(undoGroup);
+            PopulateView(_tree);
+
+            ClearSelection();
+            foreach (var clone in nodeMap.Values)
+            {
+                if (_nodeViews.TryGetValue(clone, out var nodeView))
+                    AddToSelection(nodeView);
+            }
+            foreach (var group in _tree.EditorGroups.Where(group => clipboard.groups.Any(copied => group.Title == copied.title && group.Rect.position == copied.rect.position + pasteOffset)))
+            {
+                if (_groupViews.TryGetValue(group, out var groupView))
+                    AddToSelection(groupView);
+            }
+        }
+
+        private List<BTNode> ResolveClipboardNodes(BehaviorTreeClipboardData clipboard)
+        {
+            var result = new List<BTNode>();
+            if (clipboard?.nodeGuids == null)
+                return result;
+
+            foreach (var guid in clipboard.nodeGuids)
+            {
+                var node = _tree.Nodes.FirstOrDefault(candidate => candidate != null && candidate.Guid == guid);
+                if (node != null && node is not BTServiceNode)
+                    result.Add(node);
+            }
+
+            return result;
+        }
+
+        private static Rect CalculateClipboardBounds(List<BTNode> nodes, List<BehaviorTreeClipboardGroup> groups)
+        {
+            var first = true;
+            var bounds = new Rect();
+            foreach (var rect in nodes.Select(node => new Rect(node.EditorPosition, new Vector2(160f, 120f)))
+                         .Concat((groups ?? new List<BehaviorTreeClipboardGroup>()).Select(group => group.rect)))
+            {
+                if (first)
+                {
+                    bounds = rect;
+                    first = false;
+                }
+                else
+                {
+                    bounds.xMin = Mathf.Min(bounds.xMin, rect.xMin);
+                    bounds.yMin = Mathf.Min(bounds.yMin, rect.yMin);
+                    bounds.xMax = Mathf.Max(bounds.xMax, rect.xMax);
+                    bounds.yMax = Mathf.Max(bounds.yMax, rect.yMax);
+                }
+            }
+
+            return first ? new Rect(Vector2.zero, Vector2.one) : bounds;
+        }
+
+        private void CloneCompositeServices(BTNode source, BTNode clone, Vector2 pasteOffset)
+        {
+            if (source is not BTCompositeNode sourceComposite || clone is not BTCompositeNode cloneComposite)
+                return;
+
+            cloneComposite.Services.Clear();
+            foreach (var service in sourceComposite.Services)
+            {
+                if (service == null)
+                    continue;
+
+                var serviceClone = UnityEngine.Object.Instantiate(service);
+                serviceClone.name = service.name;
+                serviceClone.Guid = Guid.NewGuid().ToString("N");
+                serviceClone.DisplayName = service.DisplayName;
+                serviceClone.EditorPosition = service.EditorPosition + pasteOffset;
+                serviceClone.Children.Clear();
+
+                Undo.RegisterCreatedObjectUndo(serviceClone, "Paste BT Service");
+                AssetDatabase.AddObjectToAsset(serviceClone, _tree);
+                _tree.Nodes.Add(serviceClone);
+                cloneComposite.Services.Add(serviceClone);
+                EditorUtility.SetDirty(serviceClone);
+            }
+        }
+
+        private void CreateNodeAtSearchPosition(Type type, Vector2 screenMousePosition)
+        {
+            if (_tree == null || type == null)
+                return;
+
+            var windowMousePosition = screenMousePosition - _window.position.position;
+            var graphPosition = _window.rootVisualElement.ChangeCoordinatesTo(contentViewContainer, windowMousePosition);
+            CreateNode(type, graphPosition);
+        }
+
         private void AddNodeView(BTNode node)
         {
             var nodeView = new BehaviorTreeNodeView(node, _tree != null ? _tree.Nodes.IndexOf(node) : -1);
             nodeView.OnSetRoot += SetRoot;
             nodeView.RegisterCallback<MouseDownEvent>(_ => _window.SelectNode(nodeView.Node));
             _nodeViews[node] = nodeView;
+            if (!string.IsNullOrWhiteSpace(node.Guid))
+                _nodeViewsByGuid[node.Guid] = nodeView;
             AddElement(nodeView);
         }
 
@@ -397,7 +654,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private void MarkEdgesDirty()
         {
-            foreach (var edge in edges.ToList())
+            foreach (var edge in edges)
                 edge.MarkDirtyRepaint();
         }
 
@@ -444,6 +701,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _tree.Nodes.Remove(nodeView.Node);
             _nodeViews.Remove(nodeView.Node);
+            if (!string.IsNullOrWhiteSpace(nodeView.Node.Guid))
+                _nodeViewsByGuid.Remove(nodeView.Node.Guid);
             Undo.DestroyObjectImmediate(nodeView.Node);
         }
 
@@ -470,6 +729,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private void SaveAsset()
         {
+            SaveAsset(false);
+        }
+
+        private void SaveAsset(bool immediate)
+        {
             if (_tree == null)
                 return;
 
@@ -480,13 +744,58 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     EditorUtility.SetDirty(node);
             }
 
+            if (immediate)
+            {
+                _saveQueued = false;
+                EditorApplication.update -= FlushDebouncedSave;
+                AssetDatabase.SaveAssets();
+                return;
+            }
+
+            QueueSaveAssets();
+        }
+
+        public void FlushPendingSave()
+        {
+            if (!_saveQueued)
+                return;
+
+            _saveQueued = false;
+            EditorApplication.update -= FlushDebouncedSave;
             AssetDatabase.SaveAssets();
+        }
+
+        private void QueueSaveAssets()
+        {
+            _nextSaveTime = EditorApplication.timeSinceStartup + SaveDebounceSeconds;
+            if (_saveQueued)
+                return;
+
+            _saveQueued = true;
+            EditorApplication.update += FlushDebouncedSave;
+        }
+
+        private void FlushDebouncedSave()
+        {
+            if (!_saveQueued)
+            {
+                EditorApplication.update -= FlushDebouncedSave;
+                return;
+            }
+
+            if (EditorApplication.timeSinceStartup < _nextSaveTime)
+                return;
+
+            EditorApplication.update -= FlushDebouncedSave;
+            FlushPendingSave();
         }
 
         private static IEnumerable<Type> GetNodeTypes()
         {
             return TypeCache.GetTypesDerivedFrom<BTNode>()
                 .Where(type => !type.IsAbstract && !type.IsGenericType)
+                // Service는 그래프 노드로 직접 생성하지 않고 Composite Inspector를 통해 부착한다.
+                .Where(type => !typeof(BTServiceNode).IsAssignableFrom(type))
                 .OrderBy(GetCategory)
                 .ThenBy(type => type.Name);
         }
@@ -499,6 +808,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return "Decorator";
             if (typeof(BTConditionNode).IsAssignableFrom(type))
                 return "Condition";
+            if (typeof(BTServiceNode).IsAssignableFrom(type))
+                return "Service";
             return "Action";
         }
 
@@ -547,7 +858,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         public IEnumerable<(Vector2 From, Vector2 To, bool Running)> GetMiniMapEdges()
         {
-            foreach (var edge in edges.ToList())
+            foreach (var edge in edges)
             {
                 if (edge.output?.node is not BehaviorTreeNodeView parentView ||
                     edge.input?.node is not BehaviorTreeNodeView childView)
@@ -615,7 +926,24 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return BehaviorTreeEditorStyles.Decorator;
             if (node is BTConditionNode)
                 return BehaviorTreeEditorStyles.Condition;
+            if (node is BTServiceNode)
+                return BehaviorTreeEditorStyles.Decorator;
             return BehaviorTreeEditorStyles.Action;
+        }
+
+        [Serializable]
+        private sealed class BehaviorTreeClipboardData
+        {
+            public List<string> nodeGuids = new();
+            public List<BehaviorTreeClipboardGroup> groups = new();
+        }
+
+        [Serializable]
+        private sealed class BehaviorTreeClipboardGroup
+        {
+            public string title;
+            public Rect rect;
+            public Color color;
         }
     }
 

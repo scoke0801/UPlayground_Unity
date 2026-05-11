@@ -4,6 +4,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
+using System.Linq;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
@@ -73,6 +74,79 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 }
             }));
             Add(propertyBox);
+
+            if (node is BTCompositeNode)
+            {
+                Add(CreateInspectorSectionLabel("Services"));
+                Add(CreateAddServiceButton((BTCompositeNode)node));
+            }
+        }
+
+        private VisualElement CreateAddServiceButton(BTCompositeNode composite)
+        {
+            var container = CreatePropertyBox();
+            var button = new Button(() =>
+            {
+                var menu = new GenericMenu();
+                var serviceTypes = TypeCache.GetTypesDerivedFrom<BTServiceNode>()
+                    .Where(t => !t.IsAbstract && !t.IsGenericType)
+                    .OrderBy(t => t.Name)
+                    .ToList();
+
+                if (serviceTypes.Count == 0)
+                {
+                    menu.AddDisabledItem(new GUIContent("(No BTServiceNode subclasses found)"));
+                }
+                else
+                {
+                    foreach (var serviceType in serviceTypes)
+                    {
+                        var capturedType = serviceType;
+                        menu.AddItem(new GUIContent(capturedType.Name), false, () => AttachService(composite, capturedType));
+                    }
+                }
+
+                menu.ShowAsContext();
+            })
+            {
+                text = "+ Add Service"
+            };
+            StyleButton(button);
+            container.Add(button);
+            return container;
+        }
+
+        private void AttachService(BTCompositeNode composite, System.Type serviceType)
+        {
+            var assetPath = AssetDatabase.GetAssetPath(composite);
+            if (string.IsNullOrEmpty(assetPath))
+                return;
+
+            var tree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(assetPath);
+            if (tree == null)
+                return;
+
+            var service = ScriptableObject.CreateInstance(serviceType) as BTServiceNode;
+            if (service == null)
+                return;
+
+            service.name = serviceType.Name;
+            service.DisplayName = serviceType.Name;
+            service.EnsureGuid();
+
+            Undo.RegisterCreatedObjectUndo(service, "Attach BT Service");
+            Undo.RecordObject(tree, "Attach BT Service");
+            Undo.RecordObject(composite, "Attach BT Service");
+
+            AssetDatabase.AddObjectToAsset(service, tree);
+            tree.Nodes.Add(service);
+            composite.Services.Add(service);
+
+            EditorUtility.SetDirty(composite);
+            EditorUtility.SetDirty(tree);
+            AssetDatabase.SaveAssets();
+            OnNodeChanged?.Invoke(_node);
+            UpdateSelection(_node);
         }
 
         public void UpdateSelection(BehaviorTreeEditorGroup group)
@@ -329,6 +403,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return "Decorator";
             if (node is BTConditionNode)
                 return "Condition";
+            if (node is BTServiceNode)
+                return "Service";
             return "Action";
         }
 
@@ -340,6 +416,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return BehaviorTreeEditorStyles.Decorator;
             if (node is BTConditionNode)
                 return BehaviorTreeEditorStyles.Condition;
+            if (node is BTServiceNode)
+                return BehaviorTreeEditorStyles.Decorator;
             return BehaviorTreeEditorStyles.Action;
         }
     }

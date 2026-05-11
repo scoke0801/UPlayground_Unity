@@ -164,6 +164,20 @@ namespace UPlayGround.AI.BehaviorTree
             entry.ObjectValue = value;
         }
 
+        public bool TryGetBool(BlackboardKeySelector selector, out bool value) => TryGetBool(selector.Key, out value);
+        public bool TryGetInt(BlackboardKeySelector selector, out int value) => TryGetInt(selector.Key, out value);
+        public bool TryGetFloat(BlackboardKeySelector selector, out float value) => TryGetFloat(selector.Key, out value);
+        public bool TryGetString(BlackboardKeySelector selector, out string value) => TryGetString(selector.Key, out value);
+        public bool TryGetVector3(BlackboardKeySelector selector, out Vector3 value) => TryGetVector3(selector.Key, out value);
+        public bool TryGetObject<T>(BlackboardKeySelector selector, out T value) where T : UnityEngine.Object => TryGetObject(selector.Key, out value);
+
+        public void SetBool(BlackboardKeySelector selector, bool value) => SetBool(selector.Key, value);
+        public void SetInt(BlackboardKeySelector selector, int value) => SetInt(selector.Key, value);
+        public void SetFloat(BlackboardKeySelector selector, float value) => SetFloat(selector.Key, value);
+        public void SetString(BlackboardKeySelector selector, string value) => SetString(selector.Key, value);
+        public void SetVector3(BlackboardKeySelector selector, Vector3 value) => SetVector3(selector.Key, value);
+        public void SetObject(BlackboardKeySelector selector, UnityEngine.Object value) => SetObject(selector.Key, value);
+
         private BlackboardEntry GetOrCreate(string key, BlackboardValueType valueType)
         {
             var entry = FindEntry(key);

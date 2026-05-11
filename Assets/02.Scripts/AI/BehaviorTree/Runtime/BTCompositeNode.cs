@@ -1,7 +1,17 @@
+using System.Collections.Generic;
+using UnityEngine;
+
 namespace UPlayGround.AI.BehaviorTree
 {
     public abstract class BTCompositeNode : BTNode
     {
+        [SerializeField] private List<BTServiceNode> _services = new();
+
+        private bool _servicesRunning;
+        private float _lastServiceTickTime;
+
+        public List<BTServiceNode> Services => _services;
+
         protected void AbortRunningChildren(BTNode except = null)
         {
             foreach (var child in Children)
@@ -11,6 +21,60 @@ namespace UPlayGround.AI.BehaviorTree
 
                 child.Abort();
             }
+        }
+
+        internal void BeginServices()
+        {
+            if (_servicesRunning || _services == null || _services.Count == 0)
+                return;
+
+            _servicesRunning = true;
+            _lastServiceTickTime = Time.time;
+
+            foreach (var service in _services)
+            {
+                if (service == null || service.Disabled)
+                    continue;
+
+                service.ServiceEnter();
+            }
+        }
+
+        internal void TickServices()
+        {
+            if (!_servicesRunning || _services == null || _services.Count == 0)
+                return;
+
+            var now = Time.time;
+            var dt = Mathf.Max(0f, now - _lastServiceTickTime);
+            _lastServiceTickTime = now;
+
+            foreach (var service in _services)
+            {
+                if (service == null || service.Disabled)
+                    continue;
+
+                service.ServiceTick(dt);
+            }
+        }
+
+        internal void EndServices()
+        {
+            if (!_servicesRunning || _services == null || _services.Count == 0)
+            {
+                _servicesRunning = false;
+                return;
+            }
+
+            foreach (var service in _services)
+            {
+                if (service == null)
+                    continue;
+
+                service.ServiceExit();
+            }
+
+            _servicesRunning = false;
         }
 
         protected bool TryEvaluateSelfAbort(int runningIndex, out BTConditionNode changedCondition)

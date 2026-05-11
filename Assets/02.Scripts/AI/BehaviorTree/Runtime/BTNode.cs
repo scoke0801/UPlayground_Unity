@@ -72,6 +72,12 @@ namespace UPlayGround.AI.BehaviorTree
 
             foreach (var child in _children)
                 child?.Initialize(context);
+
+            if (this is BTCompositeNode composite)
+            {
+                foreach (var service in composite.Services)
+                    service?.Initialize(context);
+            }
         }
 
         public BTStatus Tick()
@@ -83,6 +89,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return LastStatus;
             }
 
+            var compositeSelf = this as BTCompositeNode;
             if (!_started)
             {
                 _started = true;
@@ -91,7 +98,10 @@ namespace UPlayGround.AI.BehaviorTree
                     _context?.RequestPause(this);
 
                 OnStart();
+                compositeSelf?.BeginServices();
             }
+
+            compositeSelf?.TickServices();
 
             LastStatus = OnUpdate();
             if (this is BTConditionNode conditionNode)
@@ -103,6 +113,7 @@ namespace UPlayGround.AI.BehaviorTree
             if (LastStatus != BTStatus.Running)
             {
                 OnStop();
+                compositeSelf?.EndServices();
                 _context?.DebugTrace?.Record(this, "Stop", LastStatus);
                 _started = false;
             }
@@ -116,6 +127,7 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 OnAbort();
                 OnStop();
+                (this as BTCompositeNode)?.EndServices();
                 _context?.DebugTrace?.Record(this, "Abort", LastStatus);
                 _started = false;
             }
@@ -132,6 +144,12 @@ namespace UPlayGround.AI.BehaviorTree
 
             foreach (var child in _children)
                 child?.ResetNode();
+
+            if (this is BTCompositeNode composite)
+            {
+                foreach (var service in composite.Services)
+                    service?.ResetNode();
+            }
         }
 
         public void EnsureGuid()

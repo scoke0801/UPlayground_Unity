@@ -67,6 +67,7 @@ namespace UPlayGround.Component
 
         public EnemyAttackDataSO AttackData       => _attackData;
         public EnemyAttackInfo   CurrentSkill     => _currentSkill;
+        public int               CurrentLevel     => Mathf.Max(1, _ownerActor?.Stat?.level ?? 1);
         public bool              IsPossibleCollide => _isCollisionEnabled;
         public SkillType         ReservedSkillType => _reservedSkillType;
         public List<IDamageable> SkillTargetList  => _skillTargets;
@@ -141,6 +142,7 @@ namespace UPlayGround.Component
 
             return new SkillConditionContext
             {
+                CurrentLevel        = CurrentLevel,
                 CurrentHealth        = currentHealth,
                 MaxHealth            = maxHealth,
                 DistanceToTarget     = distanceToTarget,
@@ -207,8 +209,7 @@ namespace UPlayGround.Component
             {
                 if (skill.isAerialSkill)                     continue;
                 if (_skillCooldowns.ContainsKey(skill))       continue;
-                if (!skill.IsInRange(distanceToTarget))       continue;
-                if (!skill.CheckCondition(context))           continue;
+                if (!skill.CanUse(distanceToTarget, context)) continue;
 
                 availableSkills.Add(skill);
             }

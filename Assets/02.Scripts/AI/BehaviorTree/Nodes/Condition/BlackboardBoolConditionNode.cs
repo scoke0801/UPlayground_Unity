@@ -12,7 +12,9 @@ namespace UPlayGround.AI.BehaviorTree
             if (Context?.Blackboard == null || !Context.Blackboard.TryGetBool(_key, out var value))
                 return BTStatus.Failure;
 
-            return value == _expectedValue ? BTStatus.Success : BTStatus.Failure;
+            var status = value == _expectedValue ? BTStatus.Success : BTStatus.Failure;
+            Context.DebugTrace?.Record(this, "BlackboardRead", status, $"{_key}={value}, expected={_expectedValue}");
+            return status;
         }
     }
 }

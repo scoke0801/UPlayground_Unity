@@ -8,6 +8,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     public class BehaviorTreeBlackboardView : VisualElement
     {
         private BehaviorTreeAsset _tree;
+        private BehaviorTreeRunner _debugRunner;
         private SerializedObject _serializedTree;
 
         public BehaviorTreeBlackboardView()
@@ -21,6 +22,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _tree = tree;
             _serializedTree = _tree != null ? new SerializedObject(_tree) : null;
             Redraw();
+        }
+
+        public void SetDebugRunner(BehaviorTreeRunner runner)
+        {
+            _debugRunner = runner;
+            MarkDirtyRepaint();
         }
 
         public void Redraw()
@@ -68,6 +75,57 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             _serializedTree.ApplyModifiedProperties();
+            DrawRuntimeBlackboard();
+        }
+
+        private void DrawRuntimeBlackboard()
+        {
+            if (!Application.isPlaying || _debugRunner == null || !_debugRunner.DebugMode)
+                return;
+
+            var runtimeBlackboard = _debugRunner.RuntimeTree?.Blackboard;
+            if (runtimeBlackboard == null)
+                return;
+
+            EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField("Runtime Values", EditorStyles.boldLabel);
+            EditorGUI.BeginDisabledGroup(true);
+            foreach (var entry in runtimeBlackboard.Entries)
+            {
+                if (entry == null)
+                    continue;
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField(entry.Key, entry.ValueType.ToString());
+                DrawRuntimeValue(entry);
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUI.EndDisabledGroup();
+        }
+
+        private static void DrawRuntimeValue(BlackboardEntry entry)
+        {
+            switch (entry.ValueType)
+            {
+                case BlackboardValueType.Bool:
+                    EditorGUILayout.Toggle("Value", entry.BoolValue);
+                    break;
+                case BlackboardValueType.Int:
+                    EditorGUILayout.IntField("Value", entry.IntValue);
+                    break;
+                case BlackboardValueType.Float:
+                    EditorGUILayout.FloatField("Value", entry.FloatValue);
+                    break;
+                case BlackboardValueType.String:
+                    EditorGUILayout.TextField("Value", entry.StringValue);
+                    break;
+                case BlackboardValueType.Vector3:
+                    EditorGUILayout.Vector3Field("Value", entry.Vector3Value);
+                    break;
+                case BlackboardValueType.Object:
+                    EditorGUILayout.ObjectField("Value", entry.ObjectValue, typeof(UnityEngine.Object), true);
+                    break;
+            }
         }
 
         private static void DrawValueField(SerializedProperty entry)

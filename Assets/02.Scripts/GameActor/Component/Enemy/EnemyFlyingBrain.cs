@@ -410,7 +410,7 @@ namespace UPlayGround.Component
             var diveSkills = new System.Collections.Generic.List<EnemyAttackInfo>();
             foreach (var skill in _combat.AttackData.skills)
             {
-                if (skill.isDiveAttack)
+                if (skill.isDiveAttack && skill.IsUnlockedForLevel(_combat.CurrentLevel))
                     diveSkills.Add(skill);
             }
 

@@ -22,7 +22,7 @@ namespace UPlayGround.AI.BehaviorTree
         public Blackboard Blackboard => _blackboard;
         public List<BehaviorTreeEditorGroup> EditorGroups => _editorGroups;
 
-        public BehaviorTreeAsset CloneRuntime(Blackboard blackboardOverride = null)
+        public BehaviorTreeAsset CloneRuntime(Blackboard blackboardOverride = null, bool shareBlackboardOverride = false)
         {
             var tree = Instantiate(this);
             var nodeMap = new Dictionary<BTNode, BTNode>();
@@ -36,6 +36,8 @@ namespace UPlayGround.AI.BehaviorTree
                 var clone = Instantiate(node);
                 clone.name = node.name;
                 clone.Children.Clear();
+                if (clone is BTCompositeNode compositeClone)
+                    compositeClone.Services.Clear();
                 nodeMap[node] = clone;
                 tree._nodes.Add(clone);
             }
@@ -50,12 +52,24 @@ namespace UPlayGround.AI.BehaviorTree
                     if (child != null && nodeMap.TryGetValue(child, out var childClone))
                         clone.Children.Add(childClone);
                 }
+
+                if (node is BTCompositeNode sourceComposite && clone is BTCompositeNode compositeClone)
+                {
+                    foreach (var service in sourceComposite.Services)
+                    {
+                        if (service != null && nodeMap.TryGetValue(service, out var serviceClone) && serviceClone is BTServiceNode serviceCloneTyped)
+                            compositeClone.Services.Add(serviceCloneTyped);
+                    }
+                }
             }
 
             tree._rootNode = _rootNode != null && nodeMap.TryGetValue(_rootNode, out var rootClone)
                 ? rootClone
                 : null;
-            tree._blackboard = blackboardOverride?.Clone() ?? _blackboard?.Clone() ?? new Blackboard();
+            if (blackboardOverride != null)
+                tree._blackboard = shareBlackboardOverride ? blackboardOverride : blackboardOverride.Clone();
+            else
+                tree._blackboard = _blackboard?.Clone() ?? new Blackboard();
             return tree;
         }
     }

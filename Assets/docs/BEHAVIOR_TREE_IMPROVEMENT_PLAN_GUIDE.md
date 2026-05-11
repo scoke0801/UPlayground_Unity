@@ -1,8 +1,10 @@
 # Behavior Tree 개선 방안 가이드
 
-> 작성일: 2026-04-28  
-> 대상 버전: Unity 6 (6000.0.60f1), URP  
+> 작성일: 2026-04-28
+> 대상 버전: Unity 6 (6000.0.60f1), URP
 > 적용 범위: 커스텀 BT 런타임/에디터 신규 구현 제안. 기존 `EnemyBrain`, `EnemyFlyingBrain`, Enemy State 구조는 직접 수정하지 않는다.
+>
+> **2026-05-11 갱신**: 본 문서의 1차 BT 신규 구현 계획은 상당 부분 적용되었다. 그 이후의 AAA 비교 분석 및 EnemyBrain과의 통합 방향 검토는 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md`로 이어진다. 누락 기능 보강은 `BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md` + AAA 분석 문서 §9 참고.
 
 ---
 

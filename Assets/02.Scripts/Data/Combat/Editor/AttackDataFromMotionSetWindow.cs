@@ -28,6 +28,13 @@ namespace UPlayGround.Editor
         private bool _includeFallback = true;
         private bool _requireCollisionEvent = true;
         private bool _normalizeCollisionPhaseIndex = true;
+        private bool _applyBalancedDamage = true;
+        private bool _overwriteExistingDamage = false;
+        private float _playerBaseDamage = 10f;
+        private float _enemyBaseDamage = 8f;
+        private float _poiseDamageRatio = 3f;
+        private float _motionDurationWeight = 0.15f;
+        private float _comboStepWeight = 0.08f;
         private Vector2 _scroll;
         private List<ScanEntry> _scanEntries = new();
         private string _lastMessage = "";
@@ -140,6 +147,21 @@ namespace UPlayGround.Editor
                     "Collision hitPhaseIndex를 시간순으로 0부터 재정렬", _normalizeCollisionPhaseIndex);
                 _existingPolicy = (ExistingPolicy)EditorGUILayout.EnumPopup("기존 공격 처리", _existingPolicy);
             }
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                _applyBalancedDamage = EditorGUILayout.ToggleLeft("밸런싱 대미지 자동 설정", _applyBalancedDamage);
+                using (new EditorGUI.DisabledScope(!_applyBalancedDamage))
+                {
+                    _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise도 갱신", _overwriteExistingDamage);
+                    _playerBaseDamage = EditorGUILayout.FloatField("플레이어 기준 대미지", Mathf.Max(0f, _playerBaseDamage));
+                    _enemyBaseDamage = EditorGUILayout.FloatField("적 기준 대미지", Mathf.Max(0f, _enemyBaseDamage));
+                    _poiseDamageRatio = EditorGUILayout.FloatField("Poise 배율", Mathf.Max(0f, _poiseDamageRatio));
+                    _motionDurationWeight = EditorGUILayout.Slider("모션 길이 반영", _motionDurationWeight, 0f, 0.5f);
+                    _comboStepWeight = EditorGUILayout.Slider("콤보 순번 반영", _comboStepWeight, 0f, 0.25f);
+                }
+            }
         }
 
         private void DrawPreview()
@@ -170,6 +192,7 @@ namespace UPlayGround.Editor
                     GUILayout.Label(entry.CategoryLabel, GUILayout.Width(90f));
                     GUILayout.Label($"Collision {entry.CollisionCount}", GUILayout.Width(90f));
                     GUILayout.Label($"Phase {entry.PhaseCount}", GUILayout.Width(70f));
+                    GUILayout.Label($"DMG {CalculateTotalDamage(entry):F0}", GUILayout.Width(80f));
                     GUILayout.FlexibleSpace();
                     EditorGUILayout.ObjectField(entry.Asset, typeof(MotionSetAsset), false, GUILayout.Width(180f));
                 }
@@ -240,7 +263,8 @@ namespace UPlayGround.Editor
                 if (_existingPolicy != ExistingPolicy.Skip || data.chargeAnimKey == AnimKey.None)
                 {
                     data.chargeAnimKey = entry.Key;
-                    SyncChargeStageHitPhases(data, entry.PhaseCount);
+                    SyncChargeStageHitPhases(data, entry, _applyBalancedDamage,
+                        _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
                     updated++;
                 }
                 return;
@@ -260,6 +284,8 @@ namespace UPlayGround.Editor
                     ReplacePlayerAttack(existing, entry);
                 else
                     SyncHitPhases(existing.baseInfo, entry.PhaseCount);
+                ApplyBalancedDamage(existing.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
                 updated++;
                 return;
             }
@@ -291,6 +317,7 @@ namespace UPlayGround.Editor
                 ReplacePlayerAttack(value, entry);
             else
                 SyncHitPhases(value.baseInfo, entry.PhaseCount);
+            ApplyBalancedDamage(value.baseInfo, entry, isEmpty || _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
 
             if (entry.Category == AttackCategory.Counter)
                 data.counterAttack = value;
@@ -315,6 +342,8 @@ namespace UPlayGround.Editor
                     ReplaceEnemyAttack(existing, entry);
                 else
                     SyncHitPhases(existing.baseInfo, entry.PhaseCount);
+                ApplyBalancedDamage(existing.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
                 updated++;
                 return;
             }
@@ -323,15 +352,20 @@ namespace UPlayGround.Editor
             created++;
         }
 
-        private static void SyncChargeStageHitPhases(PlayerAttackDataSO data, int phaseCount)
+        private void SyncChargeStageHitPhases(PlayerAttackDataSO data, ScanEntry entry, bool applyDamage, bool overwriteDamage)
         {
             data.chargeStages ??= new List<ChargeStageData>();
 
             if (data.chargeStages.Count == 0)
                 data.chargeStages.Add(new ChargeStageData());
 
-            foreach (ChargeStageData stage in data.chargeStages)
-                SyncHitPhases(stage, phaseCount);
+            for (int i = 0; i < data.chargeStages.Count; i++)
+            {
+                ChargeStageData stage = data.chargeStages[i];
+                SyncHitPhases(stage, entry.PhaseCount);
+                if (applyDamage)
+                    ApplyBalancedDamage(stage, entry, overwriteDamage, i, data.chargeStages.Count);
+            }
         }
 
         private static void SyncHitPhases(ChargeStageData stage, int phaseCount)
@@ -346,28 +380,28 @@ namespace UPlayGround.Editor
                 stage.hitPhases.RemoveAt(stage.hitPhases.Count - 1);
         }
 
-        private static PlayerAttackInfo CreatePlayerAttack(ScanEntry entry)
+        private PlayerAttackInfo CreatePlayerAttack(ScanEntry entry)
         {
             var attack = new PlayerAttackInfo();
             ReplacePlayerAttack(attack, entry);
             return attack;
         }
 
-        private static EnemyAttackInfo CreateEnemyAttack(ScanEntry entry)
+        private EnemyAttackInfo CreateEnemyAttack(ScanEntry entry)
         {
             var attack = new EnemyAttackInfo();
             ReplaceEnemyAttack(attack, entry);
             return attack;
         }
 
-        private static void ReplacePlayerAttack(PlayerAttackInfo attack, ScanEntry entry)
+        private void ReplacePlayerAttack(PlayerAttackInfo attack, ScanEntry entry)
         {
             attack.baseInfo = CreateBaseInfo(entry);
             attack.canBeInterrupted = entry.Category is AttackCategory.Light or AttackCategory.Skill;
             attack.hitAngle = entry.Category is AttackCategory.Jump ? 90f : 60f;
         }
 
-        private static void ReplaceEnemyAttack(EnemyAttackInfo attack, ScanEntry entry)
+        private void ReplaceEnemyAttack(EnemyAttackInfo attack, ScanEntry entry)
         {
             attack.baseInfo = CreateBaseInfo(entry);
             attack.selectionWeight = 10f;
@@ -378,7 +412,7 @@ namespace UPlayGround.Editor
             attack.isAerialSkill = entry.Key == AnimKey.Fly_Attack;
         }
 
-        private static AttackInfoBase CreateBaseInfo(ScanEntry entry)
+        private AttackInfoBase CreateBaseInfo(ScanEntry entry)
         {
             var baseInfo = new AttackInfoBase
             {
@@ -387,6 +421,7 @@ namespace UPlayGround.Editor
                 hitPhases = new List<HitPhaseData>()
             };
             SyncHitPhases(baseInfo, entry.PhaseCount);
+            ApplyBalancedDamage(baseInfo, entry, true);
             return baseInfo;
         }
 
@@ -420,6 +455,91 @@ namespace UPlayGround.Editor
                 knockBackDrag = source.knockBackDrag,
                 grabDuration = source.grabDuration,
                 victimForcedAnimKey = source.victimForcedAnimKey,
+            };
+        }
+
+        private void ApplyBalancedDamage(AttackInfoBase baseInfo, ScanEntry entry, bool overwriteDamage)
+        {
+            if (!_applyBalancedDamage || baseInfo?.hitPhases == null) return;
+            ApplyBalancedDamage(baseInfo.hitPhases, entry, overwriteDamage);
+        }
+
+        private void ApplyBalancedDamage(ChargeStageData stage, ScanEntry entry, bool overwriteDamage, int stageIndex, int stageCount)
+        {
+            if (!_applyBalancedDamage || stage?.hitPhases == null) return;
+            float stageMultiplier = stageCount <= 1 ? 1f : Mathf.Lerp(1f, 2.25f, (float)stageIndex / (stageCount - 1));
+            ApplyBalancedDamage(stage.hitPhases, entry, overwriteDamage, stageMultiplier);
+        }
+
+        private void ApplyBalancedDamage(List<HitPhaseData> phases, ScanEntry entry, bool overwriteDamage, float extraMultiplier = 1f)
+        {
+            if (phases == null || phases.Count == 0) return;
+            float totalDamage = CalculateTotalDamage(entry) * Mathf.Max(0f, extraMultiplier);
+            float totalWeight = 0f;
+            float[] weights = new float[phases.Count];
+
+            for (int i = 0; i < phases.Count; i++)
+            {
+                weights[i] = Mathf.Lerp(1f, 1.25f, phases.Count <= 1 ? 0f : (float)i / (phases.Count - 1));
+                totalWeight += weights[i];
+            }
+
+            for (int i = 0; i < phases.Count; i++)
+            {
+                HitPhaseData phase = phases[i];
+                if (phase == null) continue;
+                if (!overwriteDamage && phase.damage != 0f && !Mathf.Approximately(phase.damage, 10f)) continue;
+
+                float damage = totalWeight > 0f ? totalDamage * weights[i] / totalWeight : totalDamage;
+                phase.damage = Mathf.Round(damage);
+                phase.poiseDamage = Mathf.Round(phase.damage * _poiseDamageRatio);
+            }
+        }
+
+        private float CalculateTotalDamage(ScanEntry entry)
+        {
+            if (!_applyBalancedDamage || entry == null) return 0f;
+
+            float baseDamage = _targetKind == TargetKind.Enemy ? _enemyBaseDamage : _playerBaseDamage;
+            float categoryMultiplier = GetCategoryDamageMultiplier(entry.Category);
+            float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
+            float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
+            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
+
+            return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
+        }
+
+        private static float GetCategoryDamageMultiplier(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 1.00f,
+                AttackCategory.Heavy => 1.55f,
+                AttackCategory.Dash => 1.25f,
+                AttackCategory.Jump => 1.20f,
+                AttackCategory.Skill => 2.10f,
+                AttackCategory.Counter => 1.75f,
+                AttackCategory.Entry => 1.15f,
+                AttackCategory.SwapSpecial => 2.40f,
+                AttackCategory.Charge => 1.35f,
+                _ => 1.00f,
+            };
+        }
+
+        private static int GetComboStep(AnimKey key, AttackCategory category)
+        {
+            int value = (int)key;
+            return category switch
+            {
+                AttackCategory.Light => Mathf.Max(0, value - (int)AnimKey.Attack_1),
+                AttackCategory.Heavy => Mathf.Max(0, value - (int)AnimKey.HeavyAttack_1),
+                AttackCategory.Dash => key == AnimKey.JumpDashAttack_1 ? 1 : Mathf.Max(0, value - (int)AnimKey.DashAttack_1),
+                AttackCategory.Jump => Mathf.Max(0, value - (int)AnimKey.JumpAttack_1),
+                AttackCategory.Skill => Mathf.Max(0, value - (int)AnimKey.Skill_1),
+                AttackCategory.Counter => Mathf.Max(0, value - (int)AnimKey.Counter_Attack_1),
+                AttackCategory.Entry => Mathf.Max(0, value - (int)AnimKey.Player_SwapAttack_1),
+                AttackCategory.Charge => Mathf.Max(0, value - (int)AnimKey.ChargeAttack_1),
+                _ => 0,
             };
         }
 
@@ -462,7 +582,7 @@ namespace UPlayGround.Editor
                     if (requireCollision && collisions.Count == 0) continue;
 
                     int phaseCount = CalculatePhaseCount(collisions);
-                    result.Add(new ScanEntry(key, category, asset, collisions, phaseCount));
+                    result.Add(new ScanEntry(key, category, asset, collisions, phaseCount, asset.motionSet.TotalDuration));
                 }
             }
 
@@ -592,15 +712,17 @@ namespace UPlayGround.Editor
             public readonly MotionSetAsset Asset;
             public readonly List<BeginCollisionEvent> Collisions;
             public readonly int PhaseCount;
+            public readonly float Duration;
 
             public ScanEntry(AnimKey key, AttackCategory category, MotionSetAsset asset,
-                List<BeginCollisionEvent> collisions, int phaseCount)
+                List<BeginCollisionEvent> collisions, int phaseCount, float duration)
             {
                 Key = key;
                 Category = category;
                 Asset = asset;
                 Collisions = collisions ?? new List<BeginCollisionEvent>();
                 PhaseCount = Mathf.Max(1, phaseCount);
+                Duration = Mathf.Max(0f, duration);
             }
 
             public int CollisionCount => Collisions.Count;

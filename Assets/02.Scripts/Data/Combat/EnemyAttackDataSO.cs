@@ -17,13 +17,13 @@ namespace UPlayGround.Data.Combat
         [Header("Global Settings")]
         public float globalCooldown = 1f;
         
-        public List<EnemyAttackInfo> GetAvailableSkillsAtRange(float distance)
+        public List<EnemyAttackInfo> GetAvailableSkillsAtRange(float distance, int monsterLevel = 1)
         {
             List<EnemyAttackInfo> availableSkills = new List<EnemyAttackInfo>();
             
             foreach (var skill in skills)
             {
-                if (skill.IsInRange(distance))
+                if (skill.IsUnlockedForLevel(monsterLevel) && skill.IsInRange(distance))
                 {
                     availableSkills.Add(skill);
                 }
@@ -86,12 +86,13 @@ namespace UPlayGround.Data.Combat
         }
 
         /// <summary> 공중 전용 스킬 중 거리 조건을 만족하는 목록 반환 </summary>
-        public List<EnemyAttackInfo> GetAvailableAerialSkills(float distance)
+        public List<EnemyAttackInfo> GetAvailableAerialSkills(float distance, int monsterLevel = 1)
         {
             var result = new List<EnemyAttackInfo>();
             foreach (var skill in skills)
             {
                 if (!skill.isAerialSkill) continue;
+                if (!skill.IsUnlockedForLevel(monsterLevel)) continue;
                 if (!skill.IsInRange(distance)) continue;
                 result.Add(skill);
             }

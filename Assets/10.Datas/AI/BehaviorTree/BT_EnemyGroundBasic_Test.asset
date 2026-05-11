@@ -21,6 +21,7 @@ MonoBehaviour:
   - {fileID: 6096042406183419737}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &-8037258016860720280
 MonoBehaviour:
@@ -38,7 +39,7 @@ MonoBehaviour:
   _displayName: Action_Idle_NoPatrol
   _comment: "\uC21C\uCC30\uC774 \uAEBC\uC838 \uC788\uC73C\uBA74 Idle State\uB85C
     \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 1099.9583, y: 800.4791}
+  _editorPosition: {x: 1100, y: 798.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -59,12 +60,13 @@ MonoBehaviour:
   _guid: seq_patrol_when_enabled
   _displayName: "\uC21C\uCC30\uD560\uAE4C"
   _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 778.95825, y: 776.4791}
+  _editorPosition: {x: 779, y: 774.6775}
   _children:
   - {fileID: 3415640705049045034}
   - {fileID: -3681586728207117700}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &-3864159759119073498
 MonoBehaviour:
@@ -89,6 +91,7 @@ MonoBehaviour:
   - {fileID: 4546674035571993911}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &-3681586728207117700
 MonoBehaviour:
@@ -105,7 +108,7 @@ MonoBehaviour:
   _guid: act_patrol
   _displayName: Action_Patrol
   _comment: "EnemyPatrolState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 918.95825, y: 1201.4791}
+  _editorPosition: {x: 919, y: 1199.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -133,6 +136,7 @@ MonoBehaviour:
   - {fileID: 924933733775013235}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &-1847582369555403117
 MonoBehaviour:
@@ -156,6 +160,7 @@ MonoBehaviour:
   - {fileID: -827829528935278752}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &-1576442525147340075
 MonoBehaviour:
@@ -237,7 +242,7 @@ MonoBehaviour:
   _guid: cond_no_target
   _displayName: Condition_NoTarget
   _comment: EnemyDetection.HasTarget == false
-  _editorPosition: {x: 749.95825, y: 570.4791}
+  _editorPosition: {x: 750, y: 568.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -318,7 +323,7 @@ MonoBehaviour:
     _rect:
       serializedVersion: 2
       x: 626.86096
-      y: 204.58992
+      y: 203.26743
       width: 680
       height: 1244
     _color: {r: 1, g: 0.5458693, b: 0, a: 0.42}
@@ -387,7 +392,7 @@ MonoBehaviour:
   _displayName: Condition_PatrolEnabled
   _comment: "EnemyBrain.EnablePatrol \uD655\uC778. Brain\uC740 \uD14C\uC2A4\uD2B8
     \uCC38\uC870\uC6A9\uC73C\uB85C\uB9CC \uC0AC\uC6A9\uD55C\uB2E4."
-  _editorPosition: {x: 647.95825, y: 1208.4791}
+  _editorPosition: {x: 648, y: 1206.6775}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -459,6 +464,7 @@ MonoBehaviour:
   - {fileID: -1576442525147340075}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &4987458986752680403
 MonoBehaviour:
@@ -500,12 +506,13 @@ MonoBehaviour:
   _displayName: NonCombat_NoTarget
   _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
     \uBCF4\uACE0 Patrol/Idle\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 842.95825, y: 310.47913}
+  _editorPosition: {x: 843, y: 308.6775}
   _children:
   - {fileID: -158394763614966633}
   - {fileID: 8340599277679366890}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 1
 --- !u!114 &6928455814388444325
 MonoBehaviour:
@@ -550,6 +557,7 @@ MonoBehaviour:
   - {fileID: -1067967090654950255}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0
 --- !u!114 &8340599277679366890
 MonoBehaviour:
@@ -566,10 +574,11 @@ MonoBehaviour:
   _guid: sel_non_combat_decision
   _displayName: NonCombat_Decision
   _comment: "Patrol \uAC00\uB2A5\uD558\uBA74 Patrol, \uC544\uB2C8\uBA74 Idle."
-  _editorPosition: {x: 1117.9583, y: 490.47913}
+  _editorPosition: {x: 1118, y: 488.6775}
   _children:
   - {fileID: -4687848252655193683}
   - {fileID: -8037258016860720280}
   _disabled: 0
   _breakpoint: 0
+  _services: []
   _abortType: 0

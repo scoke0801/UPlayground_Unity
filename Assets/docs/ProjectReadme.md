@@ -333,6 +333,7 @@ Assets/
 | [PARTY_LEVEL_POWER_DESIGN.md](PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md](BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md) | Behavior Tree 레퍼런스 누락 기능 구현 — Conditional Abort, Runner 제어, Decorator 확장, 디버그 기능 보강 계획 |
+| [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
 | [EVENT_MANAGER_GUIDE.md](EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |

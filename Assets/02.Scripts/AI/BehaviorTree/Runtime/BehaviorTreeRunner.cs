@@ -234,6 +234,7 @@ namespace UPlayGround.AI.BehaviorTree
         }
 
         public int CurrentTick { get; private set; }
+        public int Version { get; private set; }
         public IReadOnlyCollection<BehaviorTreeDebugTraceRecord> Records => _records;
 
         public void BeginTick()
@@ -247,6 +248,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return;
 
             _records.Enqueue(new BehaviorTreeDebugTraceRecord(CurrentTick, node.Guid, node.DisplayName, eventType, status, detail));
+            Version++;
             while (_records.Count > _capacity)
                 _records.Dequeue();
         }

@@ -1,9 +1,11 @@
 # Behavior Tree 레퍼런스 누락 기능 구현 가이드
 
-> 작성일: 2026-04-28  
-> 대상 버전: Unity 6 (6000.0.60f1), URP  
-> 적용 범위: `Assets/02.Scripts/AI/BehaviorTree/` 커스텀 BT 런타임/에디터 보강 계획  
+> 작성일: 2026-04-28
+> 대상 버전: Unity 6 (6000.0.60f1), URP
+> 적용 범위: `Assets/02.Scripts/AI/BehaviorTree/` 커스텀 BT 런타임/에디터 보강 계획
 > 원칙: 기존 `EnemyBrain`, `EnemyFlyingBrain`, Enemy State 구조는 직접 수정하지 않는다.
+>
+> **2026-05-11 갱신**: 본 문서의 보강 계획 중 일부 항목(Service 노드, WeightedRandomSelector, Subtree, BlackboardKeySelector)은 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md`의 §4.1 / §9에서 구현 완료되었다. 본 문서가 다루는 그 외 항목(고급 Decorator, JSON 직렬화 보강 등)은 4.2 이후로 정렬됨.
 
 ---
 

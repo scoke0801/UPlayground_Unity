@@ -93,6 +93,11 @@ namespace UPlayGround.Data
         [Header("Skill Type")]
         public SkillType skillType = SkillType.Attack;
 
+        [Header("Unlock")]
+        [Min(1)]
+        [Tooltip("이 레벨 이상인 몬스터만 이 스킬을 선택할 수 있습니다.")]
+        public int requiredLevel = 1;
+
         [Header("Selection Weight")]
         [Range(0f, 100f)]
         public float selectionWeight = 10f;
@@ -126,9 +131,16 @@ namespace UPlayGround.Data
         [Tooltip("복합 조건 설정 (여러 조건을 AND/OR로 연결)")]
         public SkillConditionGroup conditionGroup = new SkillConditionGroup();
 
+        public bool IsUnlockedForLevel(int level) => level >= requiredLevel;
+
         public bool IsInRange(float distance) => distance >= minRange && distance <= maxRange;
 
         public bool CheckCondition(SkillConditionContext context) => conditionGroup.CheckAll(context);
+
+        public bool CanUse(float distance, SkillConditionContext context)
+            => IsUnlockedForLevel(context.CurrentLevel)
+               && IsInRange(distance)
+               && CheckCondition(context);
     }
 
     /// <summary>

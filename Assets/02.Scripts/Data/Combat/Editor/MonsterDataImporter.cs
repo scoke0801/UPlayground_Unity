@@ -30,6 +30,7 @@ namespace UPlayGround.Editor
 
         [Serializable] private class StatsJson
         {
+            public int level = 1;
             public float maxHealth = 100;
             public float walkSpeed = 2; public float runSpeed = 4;
             public float chaseSpeedMultiplier = 1.2f;
@@ -78,7 +79,7 @@ namespace UPlayGround.Editor
 
         [Serializable] private class SkillJson
         {
-            public int    skillType; public float selectionWeight;
+            public int    skillType; public int requiredLevel = 1; public float selectionWeight;
             public float  minRange;  public float maxRange;
             public float  cooldown;
             public ConditionGroupJson conditionGroup;
@@ -112,6 +113,7 @@ namespace UPlayGround.Editor
             public float minRange;         public float maxRange = 10;
             public int   minAllyCount;     public int   maxAllyCount = 99;
             public int   checkSpawnCount;
+            public int   minLevel = 1;      public int   maxLevel = 99;
         }
 
         // ── EditorWindow ────────────────────────────────────────────
@@ -200,6 +202,7 @@ namespace UPlayGround.Editor
             var so = LoadOrCreate<EnemyStatsSO>(path);
             var s  = m.stats ?? new StatsJson();
 
+            so.level                = Mathf.Max(1, s.level);
             so.maxHealth            = s.maxHealth;
             so.walkSpeed            = s.walkSpeed;
             so.runSpeed             = s.runSpeed;
@@ -301,6 +304,7 @@ namespace UPlayGround.Editor
         private EnemyAttackInfo ConvertSkill(SkillJson sj) => new()
         {
             skillType       = (SkillType)sj.skillType,
+            requiredLevel   = Mathf.Max(1, sj.requiredLevel),
             selectionWeight = sj.selectionWeight,
             minRange        = sj.minRange,
             maxRange        = sj.maxRange,
@@ -357,6 +361,8 @@ namespace UPlayGround.Editor
                     minAllyCount     = c.minAllyCount,
                     maxAllyCount     = c.maxAllyCount,
                     checkSpawnCount  = c.checkSpawnCount,
+                    minLevel         = Mathf.Max(1, c.minLevel),
+                    maxLevel         = Mathf.Max(1, c.maxLevel),
                 });
             }
             return group;

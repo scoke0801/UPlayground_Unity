@@ -121,6 +121,7 @@ namespace UPlayGround.Editor
             var maxRangeP    = prop.FindPropertyRelative("maxRange");
             var cooldownP    = prop.FindPropertyRelative("cooldown");
             var skillTypeP   = prop.FindPropertyRelative("skillType");
+            var requiredLevelP = prop.FindPropertyRelative("requiredLevel");
             var useTelegraphP = prop.FindPropertyRelative("useTelegraph");
             var telegraphShapeP = prop.FindPropertyRelative("telegraphShape");
             var telegraphRadiusScaleP = prop.FindPropertyRelative("telegraphRadiusScale");
@@ -140,7 +141,7 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_cardStyle);
 
             string animLabel = animKeyP.enumDisplayNames[animKeyP.enumValueIndex];
-            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   DMG {dmg0:F0}   |   가중치 {weightP.floatValue:F0}   |   사거리 {minRangeP.floatValue:F0}~{maxRangeP.floatValue:F0}";
+            string summary   = $"  [{index + 1}]  {animLabel}   |   Lv {requiredLevelP.intValue}+   |   Phase {phasesP.arraySize}   |   DMG {dmg0:F0}   |   가중치 {weightP.floatValue:F0}   |   사거리 {minRangeP.floatValue:F0}~{maxRangeP.floatValue:F0}";
             Color  bgColor   = new Color(AccentColor.r, AccentColor.g, AccentColor.b, 0.18f);
 
             // 헤더 행 (이동 버튼 없이, 삭제만)
@@ -163,6 +164,7 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(animKeyP,   new GUIContent("AnimKey"));
                     EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                     EditorGUILayout.PropertyField(skillTypeP, new GUIContent("스킬 타입"));
+                    EditorGUILayout.PropertyField(requiredLevelP, new GUIContent("해금 레벨"));
                 }
 
                 // 선택 조건

@@ -9,6 +9,7 @@ namespace UPlayGround.Data.Combat
     /// </summary>
     public class SkillConditionContext
     {
+        public int CurrentLevel = 1;
         public float CurrentHealth;
         public float MaxHealth;
         public float DistanceToTarget;
@@ -33,6 +34,7 @@ namespace UPlayGround.Data.Combat
         AllyCountBased,         // 아군 수 기반
         InjuredAllyNearby,      // 부상당한 아군이 주변에 있음
         SpawnedUnitCount,       // 소환 유닛 수 기반
+        LevelBased,             // 몬스터 레벨 기반
     }
     
     /// <summary>
@@ -70,6 +72,12 @@ namespace UPlayGround.Data.Combat
 
         [Header("Spawned Unit Condition")]
         public int checkSpawnCount = 0;
+
+        [Header("Level Condition")]
+        [Min(1)]
+        public int minLevel = 1;
+        [Min(1)]
+        public int maxLevel = 99;
         
         /// <summary>
         /// 조건 체크
@@ -98,6 +106,9 @@ namespace UPlayGround.Data.Combat
                     
                 case ConditionType.SpawnedUnitCount:
                     return CheckSpawnedUnitCount(context);
+
+                case ConditionType.LevelBased:
+                    return CheckLevel(context);
                 
                 default:
                     return true;
@@ -107,6 +118,13 @@ namespace UPlayGround.Data.Combat
         private bool CheckSpawnedUnitCount(SkillConditionContext context)
         {
             return context.SpawnedUnitCount < checkSpawnCount;
+        }
+
+        private bool CheckLevel(SkillConditionContext context)
+        {
+            int lo = Mathf.Min(minLevel, maxLevel);
+            int hi = Mathf.Max(minLevel, maxLevel);
+            return context.CurrentLevel >= lo && context.CurrentLevel <= hi;
         }
 
         private bool CheckSelfHealth(SkillConditionContext context)

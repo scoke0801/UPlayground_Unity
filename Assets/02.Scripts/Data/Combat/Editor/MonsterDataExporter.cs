@@ -146,6 +146,7 @@ namespace UPlayGround.Editor
             sb.AppendLine(I(3) + "\"stats\": {");
             if (s == null) { sb.AppendLine(I(3) + "},"); return; }
 
+            sb.AppendLine(N("level",                s.level,                4, true));
             sb.AppendLine(F("maxHealth",            s.maxHealth,            4, true));
             sb.AppendLine(F("walkSpeed",            s.walkSpeed,            4, true));
             sb.AppendLine(F("runSpeed",             s.runSpeed,             4, true));
@@ -253,6 +254,7 @@ namespace UPlayGround.Editor
         {
             sb.AppendLine(I(5) + "{");
             sb.AppendLine(I(6) + $"\"skillType\": {(int)sk.skillType},");
+            sb.AppendLine(I(6) + $"\"requiredLevel\": {sk.requiredLevel},");
             sb.AppendLine(I(6) + $"\"selectionWeight\": {sk.selectionWeight},");
             sb.AppendLine(I(6) + $"\"minRange\": {sk.minRange},");
             sb.AppendLine(I(6) + $"\"maxRange\": {sk.maxRange},");
@@ -282,7 +284,9 @@ namespace UPlayGround.Editor
                 sb.Append($" \"maxRange\": {c.maxRange},");
                 sb.Append($" \"minAllyCount\": {c.minAllyCount},");
                 sb.Append($" \"maxAllyCount\": {c.maxAllyCount},");
-                sb.Append($" \"checkSpawnCount\": {c.checkSpawnCount}");
+                sb.Append($" \"checkSpawnCount\": {c.checkSpawnCount},");
+                sb.Append($" \"minLevel\": {c.minLevel},");
+                sb.Append($" \"maxLevel\": {c.maxLevel}");
                 sb.Append(" }");
                 sb.AppendLine(i < conds.Count - 1 ? "," : "");
             }
@@ -348,6 +352,10 @@ namespace UPlayGround.Editor
 
         // float 필드 한 줄
         private static string F(string key, float val, int depth, bool comma)
+            => $"{I(depth)}\"{key}\": {val}{(comma ? "," : "")}";
+
+        // int 필드 한 줄
+        private static string N(string key, int val, int depth, bool comma)
             => $"{I(depth)}\"{key}\": {val}{(comma ? "," : "")}";
 
         // bool 필드 한 줄

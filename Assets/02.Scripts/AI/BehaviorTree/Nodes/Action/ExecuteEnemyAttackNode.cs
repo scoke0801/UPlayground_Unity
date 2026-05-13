@@ -27,7 +27,37 @@ namespace UPlayGround.AI.BehaviorTree
             if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget))
                 return BTStatus.Failure;
 
+            if (!brain.TryRequestAttackSlot())
+            {
+                Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+                return BTStatus.Failure;
+            }
+
+            Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
+            brain.NotifyBTAttackStarted();
             controller.TransitionToState(new EnemyAttackState(controller, combat, brain, detection));
+            return BTStatus.Running;
+        }
+    }
+
+    public class RequestEnemyAttackSlotNode : BTActionNode
+    {
+        protected override BTStatus OnUpdate()
+        {
+            var brain = Context?.GetComponentCached<EnemyBrain>();
+            if (brain == null)
+                return BTStatus.Success;
+
+            var result = brain.TryRequestAttackSlot();
+            Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, result);
+            return result ? BTStatus.Success : BTStatus.Failure;
+        }
+    }
+
+    public class KeepCurrentStateNode : BTActionNode
+    {
+        protected override BTStatus OnUpdate()
+        {
             return BTStatus.Running;
         }
     }

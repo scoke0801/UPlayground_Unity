@@ -53,6 +53,11 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Chase when brain != null && detection != null => new EnemyChaseState(controller, brain, detection),
                 EnemyTransitionStateType.Attack when brain != null && detection != null && combat != null => new EnemyAttackState(controller, combat, brain, detection),
                 EnemyTransitionStateType.Retreat when brain != null && detection != null => new EnemyRetreatState(controller, brain, detection, brain.RetreatDistance),
+                EnemyTransitionStateType.Circle when brain != null && detection != null => new EnemyCircleState(controller, brain, detection, brain.CircleDuration),
+                EnemyTransitionStateType.Guard when brain != null && detection != null && brain.HasGuardMotion => new EnemyGuardState(controller, brain, detection, brain.GuardDuration),
+                EnemyTransitionStateType.Charge when brain != null && detection != null && combat != null => new EnemyChargeState(controller, combat, brain, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
+                EnemyTransitionStateType.Flank when brain != null && detection != null && combat != null => new EnemyFlankState(controller, combat, brain, detection),
+                EnemyTransitionStateType.Counter when brain != null && detection != null && combat != null => new EnemyCounterState(controller, combat, brain, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
                 _ => null
             };
         }
@@ -66,13 +71,18 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Chase => "Chase",
                 EnemyTransitionStateType.Attack => "Attack",
                 EnemyTransitionStateType.Retreat => "Retreat",
+                EnemyTransitionStateType.Circle => "Circle",
+                EnemyTransitionStateType.Guard => "Guard",
+                EnemyTransitionStateType.Charge => "Charge",
+                EnemyTransitionStateType.Flank => "Flank",
+                EnemyTransitionStateType.Counter => "Counter",
                 _ => ""
             };
         }
 
         private static bool IsBlockedState(string stateName)
         {
-            return stateName is "Death" or "Hit" or "Grabbed" or "Airborne" or "Land" or "TakeOff";
+            return IsBlockedEnemyStateNode.IsBlockedState(stateName);
         }
     }
 }

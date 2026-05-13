@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -20,9 +21,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private readonly Dictionary<string, BTStatus> _currentTickStatuses = new();
         private readonly Dictionary<string, BTNode> _runtimeNodesByGuid = new();
         private readonly BehaviorTreeNodeSearchWindow _nodeSearchWindow;
+        private readonly PortDragConnectorListener _portConnectorListener;
         private BehaviorTreeAsset _tree;
         private bool _saveQueued;
         private double _nextSaveTime;
+        private Port _pendingPortConnect;
+        private bool _inGraphChangeUndoGroup;
 
         public BehaviorTreeGraphView(BehaviorTreeEditorWindow window)
         {
@@ -37,8 +41,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             this.AddManipulator(new RectangleSelector());
 
             _nodeSearchWindow = ScriptableObject.CreateInstance<BehaviorTreeNodeSearchWindow>();
-            _nodeSearchWindow.Initialize(window, this, CreateNodeAtSearchPosition);
-            nodeCreationRequest = context => SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _nodeSearchWindow);
+            _nodeSearchWindow.Initialize(window, this, CreateNodeAtSearchPosition, CreateNodeFromPortDrag);
+            _portConnectorListener = new PortDragConnectorListener(this);
+            nodeCreationRequest = context =>
+            {
+                _nodeSearchWindow.SetPortFilter(null);
+                SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _nodeSearchWindow);
+            };
             serializeGraphElements = SerializeSelectionToClipboardData;
             canPasteSerializedData = CanPasteClipboardData;
             unserializeAndPaste = UnserializeAndPaste;
@@ -46,6 +55,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             graphViewChanged += OnGraphViewChanged;
         }
+
+        internal PortDragConnectorListener PortConnectorListener => _portConnectorListener;
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
@@ -57,6 +68,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public void PopulateView(BehaviorTreeAsset tree)
         {
             _tree = tree;
+            _pendingPortConnect = null;
             graphViewChanged -= OnGraphViewChanged;
             DeleteElements(graphElements.ToList());
             _nodeViews.Clear();
@@ -241,39 +253,76 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (_tree == null)
                 return graphViewChange;
 
-            if (graphViewChange.elementsToRemove != null)
+            var hasRemovals = graphViewChange.elementsToRemove != null && graphViewChange.elementsToRemove.Count > 0;
+            var hasCreations = graphViewChange.edgesToCreate != null && graphViewChange.edgesToCreate.Count > 0;
+            var hasMoves = graphViewChange.movedElements != null && graphViewChange.movedElements.Count > 0;
+
+            var undoGroup = -1;
+            var groupOpened = false;
+            if (!_inGraphChangeUndoGroup && (hasRemovals || hasCreations || hasMoves))
             {
-                foreach (var element in graphViewChange.elementsToRemove)
+                _inGraphChangeUndoGroup = true;
+                undoGroup = Undo.GetCurrentGroup();
+                Undo.SetCurrentGroupName(BuildUndoLabel(hasRemovals, hasCreations, hasMoves));
+                groupOpened = true;
+            }
+
+            try
+            {
+                if (graphViewChange.elementsToRemove != null)
                 {
-                    if (element is Edge edge)
-                        RemoveEdge(edge);
+                    foreach (var element in graphViewChange.elementsToRemove)
+                    {
+                        if (element is Edge edge)
+                            RemoveEdge(edge);
 
-                    if (element is BehaviorTreeNodeView nodeView)
-                        DeleteNode(nodeView);
+                        if (element is BehaviorTreeNodeView nodeView)
+                            DeleteNode(nodeView);
 
-                    if (element is BehaviorTreeGroupView groupView)
-                        DeleteGroup(groupView);
+                        if (element is BehaviorTreeGroupView groupView)
+                            DeleteGroup(groupView);
+                    }
+                }
+
+                if (graphViewChange.edgesToCreate != null)
+                {
+                    foreach (var edge in graphViewChange.edgesToCreate)
+                        AddEdge(edge);
+                }
+
+                if (graphViewChange.movedElements != null)
+                {
+                    foreach (var element in graphViewChange.movedElements)
+                    {
+                        if (element is BehaviorTreeGroupView groupView)
+                            groupView.PersistPosition();
+                    }
+                }
+
+                SortChildrenByPosition();
+                SaveAsset();
+            }
+            finally
+            {
+                if (groupOpened)
+                {
+                    Undo.CollapseUndoOperations(undoGroup);
+                    _inGraphChangeUndoGroup = false;
                 }
             }
 
-            if (graphViewChange.edgesToCreate != null)
-            {
-                foreach (var edge in graphViewChange.edgesToCreate)
-                    AddEdge(edge);
-            }
-
-            if (graphViewChange.movedElements != null)
-            {
-                foreach (var element in graphViewChange.movedElements)
-                {
-                    if (element is BehaviorTreeGroupView groupView)
-                        groupView.PersistPosition();
-                }
-            }
-
-            SortChildrenByPosition();
-            SaveAsset();
             return graphViewChange;
+        }
+
+        private static string BuildUndoLabel(bool hasRemovals, bool hasCreations, bool hasMoves)
+        {
+            if (hasRemovals && !hasCreations && !hasMoves)
+                return "Delete BT Elements";
+            if (hasCreations && !hasRemovals && !hasMoves)
+                return "Connect BT Nodes";
+            if (hasMoves && !hasRemovals && !hasCreations)
+                return "Move BT Elements";
+            return "Modify BT Graph";
         }
 
         private void CreateGroup(Vector2 position)
@@ -568,7 +617,154 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _nodeViews[node] = nodeView;
             if (!string.IsNullOrWhiteSpace(node.Guid))
                 _nodeViewsByGuid[node.Guid] = nodeView;
+            OverridePortListener(nodeView.Input);
+            OverridePortListener(nodeView.Output);
             AddElement(nodeView);
+        }
+
+        private void OverridePortListener(Port port)
+        {
+            if (port == null)
+                return;
+
+            var existing = port.edgeConnector;
+            if (existing != null)
+                port.RemoveManipulator(existing);
+
+            var connector = new EdgeConnector<Edge>(_portConnectorListener);
+            var field = typeof(Port).GetField("m_EdgeConnector", BindingFlags.NonPublic | BindingFlags.Instance);
+            field?.SetValue(port, connector);
+            port.AddManipulator(connector);
+        }
+
+        internal void HandlePortDragDroppedOutside(Edge edge, Vector2 mousePosition)
+        {
+            var port = edge.output ?? edge.input;
+            if (port == null || _tree == null)
+                return;
+
+            _pendingPortConnect = port;
+            _nodeSearchWindow.SetPortFilter(port.direction);
+            var screen = GUIUtility.GUIToScreenPoint(mousePosition);
+            SearchWindow.Open(new SearchWindowContext(screen), _nodeSearchWindow);
+        }
+
+        internal void HandlePortDragNormalDrop(Edge edge)
+        {
+            // 표준 OnDrop 흐름 복제: graphViewChanged → AddElement
+            var change = new GraphViewChange { edgesToCreate = new List<Edge> { edge } };
+            if (graphViewChanged != null)
+                change = graphViewChanged(change);
+
+            if (change.edgesToCreate != null)
+            {
+                foreach (var created in change.edgesToCreate)
+                    AddElement(created);
+            }
+        }
+
+        private void CreateNodeFromPortDrag(Type type, Vector2 screenMousePosition)
+        {
+            if (_tree == null || type == null || _pendingPortConnect == null)
+            {
+                _pendingPortConnect = null;
+                return;
+            }
+
+            var originPort = _pendingPortConnect;
+            _pendingPortConnect = null;
+
+            var windowMousePosition = screenMousePosition - _window.position.position;
+            var graphPosition = _window.rootVisualElement.ChangeCoordinatesTo(contentViewContainer, windowMousePosition);
+
+            var undoGroup = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName("Create BT Node From Port");
+
+            var newNode = CreateNodeReturn(type, graphPosition);
+            if (newNode == null)
+            {
+                Undo.CollapseUndoOperations(undoGroup);
+                return;
+            }
+
+            if (originPort.node is not BehaviorTreeNodeView originView)
+            {
+                Undo.CollapseUndoOperations(undoGroup);
+                return;
+            }
+
+            if (!_nodeViews.TryGetValue(newNode, out var newView))
+            {
+                Undo.CollapseUndoOperations(undoGroup);
+                return;
+            }
+
+            BehaviorTreeNodeView parentView;
+            BehaviorTreeNodeView childView;
+            if (originPort.direction == Direction.Output)
+            {
+                parentView = originView;
+                childView = newView;
+            }
+            else
+            {
+                parentView = newView;
+                childView = originView;
+            }
+
+            if (parentView.Output == null || childView.Input == null)
+            {
+                Undo.CollapseUndoOperations(undoGroup);
+                return;
+            }
+
+            var edge = parentView.Output.ConnectTo(childView.Input);
+            AddEdge(edge);
+            AddElement(edge);
+            StyleEdge(edge, false, false);
+            SaveAsset();
+            Undo.CollapseUndoOperations(undoGroup);
+        }
+
+        private BTNode CreateNodeReturn(Type type, Vector2 position)
+        {
+            var node = ScriptableObject.CreateInstance(type) as BTNode;
+            if (node == null)
+                return null;
+
+            node.name = type.Name;
+            node.DisplayName = type.Name;
+            node.EditorPosition = position;
+            node.EnsureGuid();
+
+            Undo.RegisterCreatedObjectUndo(node, "Create BT Node");
+            AssetDatabase.AddObjectToAsset(node, _tree);
+            _tree.Nodes.Add(node);
+            if (_tree.RootNode == null)
+                _tree.RootNode = node;
+
+            AddNodeView(node);
+            return node;
+        }
+
+        internal sealed class PortDragConnectorListener : IEdgeConnectorListener
+        {
+            private readonly BehaviorTreeGraphView _graphView;
+
+            public PortDragConnectorListener(BehaviorTreeGraphView graphView)
+            {
+                _graphView = graphView;
+            }
+
+            public void OnDrop(GraphView graphView, Edge edge)
+            {
+                _graphView.HandlePortDragNormalDrop(edge);
+            }
+
+            public void OnDropOutsidePort(Edge edge, Vector2 position)
+            {
+                _graphView.HandlePortDragDroppedOutside(edge, position);
+            }
         }
 
         private void AddGroupView(BehaviorTreeEditorGroup group)

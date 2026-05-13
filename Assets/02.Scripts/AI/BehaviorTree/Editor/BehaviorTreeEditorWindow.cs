@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     public class BehaviorTreeEditorWindow : EditorWindow
     {
         private const double DebugRefreshInterval = 0.05d;
+        private const int BreadcrumbMaxDepth = 12;
 
         private BehaviorTreeAsset _tree;
         private BehaviorTreeRunner _debugRunner;
@@ -21,16 +23,20 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private VisualElement _variablesPanel;
         private VisualElement _errorsPanel;
         private VisualElement _tracePanel;
+        private VisualElement _searchPanel;
         private VisualElement _traceBox;
         private ToolbarToggle _inspectorTab;
         private ToolbarToggle _variablesTab;
         private ToolbarToggle _errorsTab;
         private ToolbarToggle _traceTab;
+        private ToolbarToggle _searchTab;
         private Label _errorCountLabel;
         private Label _debugStateLabel;
         private Label _graphTitleLabel;
         private Label _graphSubtitleLabel;
         private Label _runtimeBanner;
+        private VisualElement _breadcrumbBar;
+        private BehaviorTreeSearchPanel _searchPanelView;
         private BehaviorTreeMiniMapView _miniMapView;
         private ToolbarToggle _miniMapToggle;
         private ObjectField _treeField;
@@ -40,10 +46,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private int _lastTraceVersion = -1;
         private int _lastTraceTick = -1;
         private int _lastTraceViewVersion = -1;
+        private int _lastBreadcrumbTick = int.MinValue;
         private BehaviorTreeRunnerState _lastDebugState = (BehaviorTreeRunnerState)(-1);
         private BTStatus _lastExecutionStatus = (BTStatus)(-1);
         private bool _lastDebugMode;
         private bool _debugGraphWasActive;
+        private bool _autoDetectedRunner;
         private PropertyTab _activeTab = PropertyTab.Inspector;
 
         private enum PropertyTab
@@ -51,7 +59,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Inspector,
             Variables,
             Errors,
-            Trace
+            Trace,
+            Search
         }
 
         [MenuItem("UPlayGround/Character/AI/Behavior Tree Editor")]
@@ -75,9 +84,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             ConstructLayout();
             Selection.selectionChanged += OnSelectionChanged;
             EditorApplication.update += OnEditorUpdate;
+            EditorApplication.hierarchyChanged += OnHierarchyChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
 
             if (_tree == null && Selection.activeObject is BehaviorTreeAsset selectedTree)
                 SetTree(selectedTree);
+
+            TryAutoDetectRunner();
         }
 
         private void OnDisable()
@@ -85,6 +98,47 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _graphView?.FlushPendingSave();
             Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.hierarchyChanged -= OnHierarchyChanged;
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+        }
+
+        private void OnHierarchyChanged()
+        {
+            TryAutoDetectRunner();
+        }
+
+        private void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredPlayMode || state == PlayModeStateChange.EnteredEditMode)
+                TryAutoDetectRunner();
+        }
+
+        private void TryAutoDetectRunner()
+        {
+            if (_debugRunner != null || _tree == null)
+                return;
+
+            BehaviorTreeRunner candidate = null;
+            var runners = UnityEngine.Object.FindObjectsByType<BehaviorTreeRunner>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var runner in runners)
+            {
+                if (runner == null || runner.SourceTree != _tree)
+                    continue;
+
+                candidate = runner;
+                if (Selection.activeGameObject == runner.gameObject)
+                    break;
+            }
+
+            if (candidate == null)
+                return;
+
+            _autoDetectedRunner = true;
+            _debugRunner = candidate;
+            _runnerField?.SetValueWithoutNotify(candidate);
+            ResetDebugUiCache();
+            _blackboardView?.SetDebugRunner(_debugRunner);
+            RefreshDebugState();
         }
 
         private void ConstructLayout()
@@ -155,6 +209,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _runnerField.RegisterValueChangedCallback(evt =>
             {
                 _debugRunner = evt.newValue as BehaviorTreeRunner;
+                _autoDetectedRunner = false;
                 ResetDebugUiCache();
                 _blackboardView?.SetDebugRunner(_debugRunner);
                 RefreshDebugState();
@@ -187,6 +242,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             graphShell.Add(graphHeader);
             _runtimeBanner = CreateRuntimeBanner();
             graphShell.Add(_runtimeBanner);
+            _breadcrumbBar = CreateBreadcrumbBar();
+            graphShell.Add(_breadcrumbBar);
             _miniMapView = new BehaviorTreeMiniMapView(_graphView);
             graphShell.Add(_miniMapView);
 
@@ -252,6 +309,123 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return header;
         }
 
+        private VisualElement CreateBreadcrumbBar()
+        {
+            var bar = new VisualElement();
+            // 빈 영역은 GraphView로 통과되어야 SelectionDragger의 MouseUp이 정상 동작한다.
+            // 내부 라벨은 default PickingMode.Position을 그대로 사용해 클릭 가능하다.
+            bar.pickingMode = PickingMode.Ignore;
+            bar.style.position = Position.Absolute;
+            bar.style.left = 14f;
+            bar.style.bottom = 12f;
+            bar.style.right = 200f;
+            bar.style.height = 26f;
+            bar.style.flexDirection = FlexDirection.Row;
+            bar.style.alignItems = Align.Center;
+            bar.style.paddingLeft = 10f;
+            bar.style.paddingRight = 10f;
+            bar.style.backgroundColor = new Color(0.07f, 0.07f, 0.09f, 0.92f);
+            bar.style.borderTopLeftRadius = 6f;
+            bar.style.borderTopRightRadius = 6f;
+            bar.style.borderBottomLeftRadius = 6f;
+            bar.style.borderBottomRightRadius = 6f;
+            bar.style.borderLeftColor = new Color(0.36f, 0.95f, 0.52f);
+            bar.style.borderLeftWidth = 2f;
+            bar.style.display = DisplayStyle.None;
+            return bar;
+        }
+
+        private void UpdateBreadcrumb(bool debugActive)
+        {
+            if (_breadcrumbBar == null)
+                return;
+
+            if (!debugActive || _debugRunner?.RuntimeTree?.RootNode == null)
+            {
+                _breadcrumbBar.style.display = DisplayStyle.None;
+                _lastBreadcrumbTick = int.MinValue;
+                return;
+            }
+
+            var tickKey = _debugRunner.DebugTrace?.CurrentTick ?? 0;
+            if (tickKey == _lastBreadcrumbTick && _breadcrumbBar.style.display == DisplayStyle.Flex)
+                return;
+
+            _lastBreadcrumbTick = tickKey;
+
+            var runtimePath = BuildBreadcrumbPath(_debugRunner.RuntimeTree.RootNode);
+            _breadcrumbBar.Clear();
+
+            if (runtimePath.Count == 0)
+            {
+                _breadcrumbBar.style.display = DisplayStyle.None;
+                return;
+            }
+
+            _breadcrumbBar.style.display = DisplayStyle.Flex;
+            for (var i = 0; i < runtimePath.Count; i++)
+            {
+                var node = runtimePath[i];
+                var label = new Label(node.DisplayName)
+                {
+                    tooltip = $"{node.GetType().Name}\nGuid: {node.Guid}"
+                };
+                label.style.color = i == runtimePath.Count - 1
+                    ? new Color(0.48f, 0.96f, 0.56f)
+                    : new Color(0.78f, 0.85f, 0.92f);
+                label.style.unityFontStyleAndWeight = i == runtimePath.Count - 1 ? FontStyle.Bold : FontStyle.Normal;
+                label.style.fontSize = 11f;
+                label.style.paddingLeft = 4f;
+                label.style.paddingRight = 4f;
+                var guid = node.Guid;
+                label.RegisterCallback<MouseDownEvent>(evt =>
+                {
+                    if (evt.button != 0)
+                        return;
+                    _graphView?.FocusNodeByGuid(guid);
+                    evt.StopPropagation();
+                });
+                _breadcrumbBar.Add(label);
+
+                if (i < runtimePath.Count - 1)
+                {
+                    var sep = new Label("›");
+                    sep.style.color = new Color(0.40f, 0.40f, 0.50f);
+                    sep.style.unityFontStyleAndWeight = FontStyle.Bold;
+                    sep.style.fontSize = 13f;
+                    sep.style.paddingLeft = 2f;
+                    sep.style.paddingRight = 2f;
+                    _breadcrumbBar.Add(sep);
+                }
+            }
+        }
+
+        private static List<BTNode> BuildBreadcrumbPath(BTNode root)
+        {
+            var path = new List<BTNode>();
+            var current = root;
+            var depth = 0;
+            while (current != null && current.IsRunning && depth < BreadcrumbMaxDepth)
+            {
+                path.Add(current);
+                BTNode nextRunning = null;
+                foreach (var child in current.Children)
+                {
+                    if (child == null || !child.IsRunning)
+                        continue;
+                    nextRunning = child;
+                    break;
+                }
+
+                if (nextRunning == null)
+                    break;
+                current = nextRunning;
+                depth++;
+            }
+
+            return path;
+        }
+
         private static Label CreateRuntimeBanner()
         {
             var banner = new Label("RUNTIME MODE");
@@ -313,10 +487,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _variablesTab = CreatePropertyTab("Variables", PropertyTab.Variables);
             _errorsTab = CreatePropertyTab("Errors", PropertyTab.Errors);
             _traceTab = CreatePropertyTab("Trace", PropertyTab.Trace);
+            _searchTab = CreatePropertyTab("Search", PropertyTab.Search);
             tabs.Add(_inspectorTab);
             tabs.Add(_variablesTab);
             tabs.Add(_errorsTab);
             tabs.Add(_traceTab);
+            tabs.Add(_searchTab);
             panel.Add(tabs);
 
             _propertyContent = new VisualElement();
@@ -349,6 +525,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _traceBox.style.flexGrow = 1;
             traceScroll.Add(_traceBox);
             _tracePanel = traceScroll;
+
+            _searchPanelView = new BehaviorTreeSearchPanel(node =>
+            {
+                if (node == null)
+                    return;
+                _graphView?.FocusNode(node);
+            });
+            _searchPanel = _searchPanelView;
 
             SelectPropertyTab(_activeTab);
             return panel;
@@ -396,9 +580,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             _graphView?.PopulateView(_tree);
             _blackboardView?.Bind(_tree);
+            _searchPanelView?.Bind(_tree);
             _inspectorView?.ClearSelection();
             RefreshGraphTitle();
             ValidateTree();
+            TryAutoDetectRunner();
         }
 
         private void ResetDebugUiCache()
@@ -453,6 +639,20 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             if (Selection.activeObject is BehaviorTreeAsset selectedTree && selectedTree != _tree)
                 SetTree(selectedTree);
+
+            if (Selection.activeGameObject != null)
+            {
+                var runner = Selection.activeGameObject.GetComponentInParent<BehaviorTreeRunner>(true);
+                if (runner != null && _tree != null && runner.SourceTree == _tree && _debugRunner != runner)
+                {
+                    _autoDetectedRunner = true;
+                    _debugRunner = runner;
+                    _runnerField?.SetValueWithoutNotify(runner);
+                    ResetDebugUiCache();
+                    _blackboardView?.SetDebugRunner(_debugRunner);
+                    RefreshDebugState();
+                }
+            }
         }
 
         private void OnEditorUpdate()
@@ -491,6 +691,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 _blackboardView?.MarkDirtyRepaint();
             }
             FocusBreakpointNodeIfNeeded();
+            UpdateBreadcrumb(debugActive);
             RefreshDebugState();
             RefreshTraceView(traceVersion);
         }
@@ -706,10 +907,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _variablesTab?.SetValueWithoutNotify(tab == PropertyTab.Variables);
             _errorsTab?.SetValueWithoutNotify(tab == PropertyTab.Errors);
             _traceTab?.SetValueWithoutNotify(tab == PropertyTab.Trace);
+            _searchTab?.SetValueWithoutNotify(tab == PropertyTab.Search);
             StylePropertyTab(_inspectorTab, tab == PropertyTab.Inspector);
             StylePropertyTab(_variablesTab, tab == PropertyTab.Variables);
             StylePropertyTab(_errorsTab, tab == PropertyTab.Errors);
             StylePropertyTab(_traceTab, tab == PropertyTab.Trace);
+            StylePropertyTab(_searchTab, tab == PropertyTab.Search);
 
             if (_propertyContent == null)
                 return;
@@ -720,6 +923,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 PropertyTab.Variables => _variablesPanel,
                 PropertyTab.Errors => _errorsPanel,
                 PropertyTab.Trace => _tracePanel,
+                PropertyTab.Search => _searchPanel,
                 _ => _inspectorPanel
             };
 
@@ -730,6 +934,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             {
                 _lastTraceViewVersion = int.MinValue;
                 RefreshTraceView(_lastTraceVersion);
+            }
+            else if (tab == PropertyTab.Search)
+            {
+                _searchPanelView?.Bind(_tree);
             }
         }
 

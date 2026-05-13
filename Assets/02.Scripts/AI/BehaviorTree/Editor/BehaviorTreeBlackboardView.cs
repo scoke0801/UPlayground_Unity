@@ -48,21 +48,38 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var blackboard = _serializedTree.FindProperty("_blackboard");
             var entries = blackboard.FindPropertyRelative("_entries");
 
+            var runtimeBlackboard = ResolveRuntimeBlackboard();
+
             for (var i = 0; i < entries.arraySize; i++)
             {
                 var entry = entries.GetArrayElementAtIndex(i);
+                var keyProp = entry.FindPropertyRelative("_key");
+                var typeProp = entry.FindPropertyRelative("_valueType");
+                var currentKey = keyProp.stringValue;
+                var runtimeEntry = runtimeBlackboard != null && !string.IsNullOrWhiteSpace(currentKey)
+                    ? runtimeBlackboard.FindEntry(currentKey)
+                    : null;
+
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(entry.FindPropertyRelative("_key"), GUIContent.none);
-                if (GUILayout.Button("삭제", GUILayout.Width(44f)))
+                EditorGUILayout.PropertyField(keyProp, GUIContent.none);
+                if (GUILayout.Button(new GUIContent("Rename", $"'{currentKey}' Key를 참조하는 모든 노드를 함께 변경합니다."), GUILayout.Width(64f)))
+                {
+                    PromptRename(currentKey);
+                }
+                if (GUILayout.Button(new GUIContent("삭제"), GUILayout.Width(44f)))
                 {
                     entries.DeleteArrayElementAtIndex(i);
-                    break;
+                    _serializedTree.ApplyModifiedProperties();
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    return;
                 }
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.PropertyField(entry.FindPropertyRelative("_valueType"), new GUIContent("Type"));
-                DrawValueField(entry);
+                EditorGUILayout.PropertyField(typeProp, new GUIContent("Type"));
+                DrawSideBySideValue(entry, runtimeEntry);
                 EditorGUILayout.EndVertical();
             }
 
@@ -75,32 +92,106 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             _serializedTree.ApplyModifiedProperties();
-            DrawRuntimeBlackboard();
+            DrawRuntimeOnlyEntries(runtimeBlackboard, entries);
         }
 
-        private void DrawRuntimeBlackboard()
+        private Blackboard ResolveRuntimeBlackboard()
         {
             if (!Application.isPlaying || _debugRunner == null || !_debugRunner.DebugMode)
-                return;
+                return null;
 
-            var runtimeBlackboard = _debugRunner.RuntimeTree?.Blackboard;
+            return _debugRunner.RuntimeTree?.Blackboard;
+        }
+
+        private void DrawSideBySideValue(SerializedProperty entry, BlackboardEntry runtimeEntry)
+        {
+            var type = (BlackboardValueType)entry.FindPropertyRelative("_valueType").enumValueIndex;
+
+            EditorGUILayout.BeginHorizontal();
+
+            EditorGUILayout.BeginVertical();
+            EditorGUILayout.LabelField("Asset", EditorStyles.miniBoldLabel);
+            DrawValueField(entry, type);
+            EditorGUILayout.EndVertical();
+
+            if (runtimeEntry != null)
+            {
+                EditorGUILayout.BeginVertical();
+                EditorGUILayout.LabelField("Runtime", EditorStyles.miniBoldLabel);
+                EditorGUI.BeginDisabledGroup(true);
+                DrawRuntimeValue(runtimeEntry);
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.EndVertical();
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawRuntimeOnlyEntries(Blackboard runtimeBlackboard, SerializedProperty entries)
+        {
             if (runtimeBlackboard == null)
                 return;
 
-            EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField("Runtime Values", EditorStyles.boldLabel);
-            EditorGUI.BeginDisabledGroup(true);
-            foreach (var entry in runtimeBlackboard.Entries)
+            var hasRuntimeOnly = false;
+            foreach (var runtimeEntry in runtimeBlackboard.Entries)
             {
-                if (entry == null)
+                if (runtimeEntry == null || string.IsNullOrWhiteSpace(runtimeEntry.Key))
                     continue;
 
+                if (HasAssetEntry(entries, runtimeEntry.Key))
+                    continue;
+
+                if (!hasRuntimeOnly)
+                {
+                    EditorGUILayout.Space(8f);
+                    EditorGUILayout.LabelField("Runtime Only", EditorStyles.boldLabel);
+                    hasRuntimeOnly = true;
+                }
+
+                EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.LabelField(entry.Key, entry.ValueType.ToString());
-                DrawRuntimeValue(entry);
+                EditorGUILayout.LabelField($"{runtimeEntry.Key} ({runtimeEntry.ValueType})");
+                DrawRuntimeValue(runtimeEntry);
                 EditorGUILayout.EndVertical();
+                EditorGUI.EndDisabledGroup();
             }
-            EditorGUI.EndDisabledGroup();
+        }
+
+        private static bool HasAssetEntry(SerializedProperty entries, string key)
+        {
+            for (var i = 0; i < entries.arraySize; i++)
+            {
+                var keyProp = entries.GetArrayElementAtIndex(i).FindPropertyRelative("_key");
+                if (string.Equals(keyProp.stringValue, key, System.StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void PromptRename(string currentKey)
+        {
+            if (_tree == null || string.IsNullOrWhiteSpace(currentKey))
+                return;
+
+            var references = BehaviorTreeBlackboardKeyRenamer.CountReferences(_tree, currentKey);
+            BehaviorTreeKeyRenameDialog.Show(_tree, currentKey, references, OnRenameConfirmed);
+        }
+
+        private void OnRenameConfirmed(string oldKey, string newKey)
+        {
+            if (_tree == null)
+                return;
+
+            var result = BehaviorTreeBlackboardKeyRenamer.RenameKey(_tree, oldKey, newKey);
+            if (result.TotalFieldUpdates > 0 || !string.Equals(oldKey, newKey, System.StringComparison.Ordinal))
+            {
+                AssetDatabase.SaveAssets();
+                _serializedTree = new SerializedObject(_tree);
+                Redraw();
+            }
+
+            Debug.Log($"Blackboard Key 변경: '{oldKey}' → '{newKey}'. 노드 {result.TouchedNodes}개, Selector {result.UpdatedSelectorFields}개, Legacy Key {result.UpdatedLegacyFields}개 업데이트.");
         }
 
         private static void DrawRuntimeValue(BlackboardEntry entry)
@@ -128,9 +219,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
         }
 
-        private static void DrawValueField(SerializedProperty entry)
+        private static void DrawValueField(SerializedProperty entry, BlackboardValueType type)
         {
-            var type = (BlackboardValueType)entry.FindPropertyRelative("_valueType").enumValueIndex;
             switch (type)
             {
                 case BlackboardValueType.Bool:
@@ -152,6 +242,53 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     EditorGUILayout.PropertyField(entry.FindPropertyRelative("_objectValue"), new GUIContent("Value"));
                     break;
             }
+        }
+    }
+
+    internal sealed class BehaviorTreeKeyRenameDialog : EditorWindow
+    {
+        private string _oldKey;
+        private string _newKey;
+        private int _references;
+        private System.Action<string, string> _onConfirm;
+
+        public static void Show(BehaviorTreeAsset tree, string oldKey, int references, System.Action<string, string> onConfirm)
+        {
+            var window = CreateInstance<BehaviorTreeKeyRenameDialog>();
+            window.titleContent = new GUIContent("Rename Blackboard Key");
+            window.minSize = new Vector2(360f, 150f);
+            window.maxSize = new Vector2(420f, 180f);
+            window._oldKey = oldKey;
+            window._newKey = oldKey;
+            window._references = references;
+            window._onConfirm = onConfirm;
+            window.ShowModal();
+        }
+
+        private void OnGUI()
+        {
+            EditorGUILayout.LabelField("Blackboard Key 변경", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"기존 이름: {_oldKey}");
+            EditorGUILayout.LabelField($"참조 노드 필드: {_references}개");
+            EditorGUILayout.Space(6f);
+
+            _newKey = EditorGUILayout.TextField("새 Key", _newKey);
+
+            EditorGUILayout.Space(8f);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("취소"))
+            {
+                Close();
+            }
+
+            GUI.enabled = !string.IsNullOrWhiteSpace(_newKey) && !string.Equals(_newKey, _oldKey, System.StringComparison.Ordinal);
+            if (GUILayout.Button("변경"))
+            {
+                _onConfirm?.Invoke(_oldKey, _newKey);
+                Close();
+            }
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

@@ -122,8 +122,52 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public static BehaviorTreeAsset ImportFromJsonFile(string absoluteJsonPath, string assetPath)
         {
             var json = File.ReadAllText(absoluteJsonPath);
+            if (LooksLikeMonsterBehaviorJson(json))
+            {
+                return ImportMonsterBehaviorJsonWithReflection(absoluteJsonPath, assetPath);
+            }
+
             var data = JsonUtility.FromJson<BehaviorTreeJsonData>(json);
+            if (data?.nodes == null || data.nodes.Count == 0)
+            {
+                throw new InvalidDataException(
+                    "BT Json에 nodes가 없습니다. " +
+                    "BehaviorTreeAsset에서 Export한 JSON인지 확인하세요.");
+            }
+
             return ImportFromData(data, assetPath);
+        }
+
+        private static bool LooksLikeMonsterBehaviorJson(string json)
+        {
+            return !string.IsNullOrWhiteSpace(json)
+                   && json.Contains("\"schemaVersion\"")
+                   && json.Contains("\"rules\"")
+                   && !json.Contains("\"nodes\"");
+        }
+
+        private static BehaviorTreeAsset ImportMonsterBehaviorJsonWithReflection(string absoluteJsonPath, string assetPath)
+        {
+            var importerType = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Select(assembly => assembly.GetType("UPlayGround.AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter"))
+                .FirstOrDefault(type => type != null);
+
+            var method = importerType?.GetMethod(
+                "ImportFromMonsterBehaviorJson",
+                BindingFlags.Public | BindingFlags.Static,
+                null,
+                new[] { typeof(string), typeof(string) },
+                null);
+
+            if (method == null)
+            {
+                throw new InvalidDataException(
+                    "Monster Behavior Json 임포터를 찾을 수 없습니다. " +
+                    "UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json 메뉴가 컴파일되어 있는지 확인하세요.");
+            }
+
+            return method.Invoke(null, new object[] { absoluteJsonPath, assetPath }) as BehaviorTreeAsset;
         }
 
         public static BehaviorTreeJsonData ExportToData(BehaviorTreeAsset tree)

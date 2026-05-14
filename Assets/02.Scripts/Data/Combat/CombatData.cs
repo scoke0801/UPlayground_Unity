@@ -14,6 +14,12 @@ namespace UPlayGround.Data
         Line
     }
 
+    public enum TelegraphAnchorType
+    {
+        CasterOffset,
+        TargetPosition
+    }
+
     /// <summary>
     /// 하나의 공격 애니메이션 안에서 발생하는 개별 히트 구간 데이터.
     /// BeginCollisionEvent의 hitPhaseIndex와 1:1 매칭된다.
@@ -116,6 +122,14 @@ namespace UPlayGround.Data
         public TelegraphShape telegraphShape = TelegraphShape.Circle;
         [Tooltip("현재 히트 반경에 곱할 텔레그래프 표시 배율")]
         public float telegraphRadiusScale = 1f;
+        [Tooltip("비워두면 기본 형태별 FX 키를 사용한다. 현재 기본값: EnemyHeavyAttackTelegraph_Circle")]
+        public string telegraphFXKey;
+        [Tooltip("true면 EnemyAttackState 진입 시 자동 표시하지 않고 MotionSet의 TelegraphEvent 타이밍을 따른다.")]
+        public bool useMotionEventTelegraph = false;
+        [Tooltip("텔레그래프 위치 기준. TargetPosition은 시전 시작 시 현재 타겟 위치에 고정하는 AOE 장판에 사용한다.")]
+        public TelegraphAnchorType telegraphAnchorType = TelegraphAnchorType.CasterOffset;
+        [Tooltip("true면 TelegraphEvent에서 예약한 위치를 실제 Collision 판정 위치로 사용한다. TargetPosition AOE에 사용한다.")]
+        public bool useTelegraphPositionForHit = false;
 
         [Header("Aerial")]
         [Tooltip("true = EnemyAerialState에서만 선택되는 공중 전용 스킬")]

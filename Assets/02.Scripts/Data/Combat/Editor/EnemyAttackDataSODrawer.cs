@@ -125,6 +125,10 @@ namespace UPlayGround.Editor
             var useTelegraphP = prop.FindPropertyRelative("useTelegraph");
             var telegraphShapeP = prop.FindPropertyRelative("telegraphShape");
             var telegraphRadiusScaleP = prop.FindPropertyRelative("telegraphRadiusScale");
+            var telegraphFXKeyP = prop.FindPropertyRelative("telegraphFXKey");
+            var useMotionEventTelegraphP = prop.FindPropertyRelative("useMotionEventTelegraph");
+            var telegraphAnchorTypeP = prop.FindPropertyRelative("telegraphAnchorType");
+            var useTelegraphPositionForHitP = prop.FindPropertyRelative("useTelegraphPositionForHit");
             var aerialP      = prop.FindPropertyRelative("isAerialSkill");
             var diveP        = prop.FindPropertyRelative("isDiveAttack");
             var diveSpeedP   = prop.FindPropertyRelative("diveDescentSpeed");
@@ -189,7 +193,11 @@ namespace UPlayGround.Editor
                     {
                         EditorGUILayout.PropertyField(telegraphShapeP,       new GUIContent("형태"));
                         EditorGUILayout.PropertyField(telegraphRadiusScaleP, new GUIContent("반경 배율"));
-                        EditorGUILayout.HelpBox("FX는 공통 키 EnemyHeavyAttackTelegraph_Circle을 사용합니다.", MessageType.Info);
+                        EditorGUILayout.PropertyField(telegraphFXKeyP,       new GUIContent("FX 키"));
+                        EditorGUILayout.PropertyField(useMotionEventTelegraphP, new GUIContent("MotionEvent 타이밍 사용"));
+                        EditorGUILayout.PropertyField(telegraphAnchorTypeP, new GUIContent("위치 기준"));
+                        EditorGUILayout.PropertyField(useTelegraphPositionForHitP, new GUIContent("텔레그래프 위치를 판정에 사용"));
+                        EditorGUILayout.HelpBox("FX 키가 비어 있으면 형태별 기본 키를 사용합니다. 현재 Circle 기본 키는 EnemyHeavyAttackTelegraph_Circle입니다.", MessageType.Info);
                     }
                     else if (HasStrongReaction(phasesP))
                     {

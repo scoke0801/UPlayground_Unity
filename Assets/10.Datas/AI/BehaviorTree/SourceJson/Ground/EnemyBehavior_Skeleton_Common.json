@@ -1,0 +1,85 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Skeleton_Common",
+    "displayName": "Skeleton Common",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_common.asset",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": true,
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.5,
+        "personalSpaceDistance": 0.8,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "circleWeight": 1.0
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "Wait", "duration": 0.01 },
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "PatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "TooClose",
+            "priority": 800,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Retreat" }
+            ]
+        },
+        {
+            "name": "Attack",
+            "priority": 700,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "OutOfRange",
+            "priority": 500,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "CombatIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" }
+            ]
+        }
+    ]
+}

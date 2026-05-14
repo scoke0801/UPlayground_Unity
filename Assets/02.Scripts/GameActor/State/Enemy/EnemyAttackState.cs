@@ -63,7 +63,8 @@ namespace UPlayGround.State
             if (_currentSkill != null)
             {
                 var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
-                _combat.BeginCurrentSkillTelegraph();
+                if (!_currentSkill.useMotionEventTelegraph)
+                    _combat.BeginCurrentSkillTelegraph();
 
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
@@ -96,6 +97,7 @@ namespace UPlayGround.State
             _motionWarp?.ClearTarget();
             _combat.ClearHitTargets();
             _combat.ClearTelegraphs();
+            _combat.ClearTelegraphHitPositions();
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);

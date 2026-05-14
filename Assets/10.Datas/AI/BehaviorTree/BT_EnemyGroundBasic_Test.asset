@@ -15,7 +15,7 @@ MonoBehaviour:
   _guid: root_enemy_ground_basic
   _displayName: "\uB545\uC5D0 \uC788\uB294\uAC00?"
   _comment: 
-  _editorPosition: {x: 12.000026, y: -183.33333}
+  _editorPosition: {x: 444.69843, y: -328.9215}
   _children:
   - {fileID: -3864159759119073498}
   - {fileID: 6096042406183419737}
@@ -39,7 +39,7 @@ MonoBehaviour:
   _displayName: Action_Idle_NoPatrol
   _comment: "\uC21C\uCC30\uC774 \uAEBC\uC838 \uC788\uC73C\uBA74 Idle State\uB85C
     \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 1100, y: 798.6775}
+  _editorPosition: {x: 2746, y: 1102.4822}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
   _guid: seq_patrol_when_enabled
   _displayName: "\uC21C\uCC30\uD560\uAE4C"
   _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 779, y: 774.6775}
+  _editorPosition: {x: 2425, y: 1078.4822}
   _children:
   - {fileID: 3415640705049045034}
   - {fileID: -3681586728207117700}
@@ -84,7 +84,7 @@ MonoBehaviour:
   _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00?"
   _comment: "\uD0C0\uAC9F\uC774 \uC788\uC73C\uBA74 \uC804\uD22C \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: -344, y: -4}
+  _editorPosition: {x: 88.69852, y: -149.92152}
   _children:
   - {fileID: 4987458986752680403}
   - {fileID: 2733662606038583687}
@@ -108,7 +108,7 @@ MonoBehaviour:
   _guid: act_patrol
   _displayName: Action_Patrol
   _comment: "EnemyPatrolState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 919, y: 1199.6775}
+  _editorPosition: {x: 2565, y: 1503.4822}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
   _guid: act_chase
   _displayName: Action_Chase
   _comment: "EnemyChaseState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 266, y: 1055.6775}
+  _editorPosition: {x: 1039.3184, y: 1592.4998}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -242,7 +242,7 @@ MonoBehaviour:
   _guid: cond_no_target
   _displayName: Condition_NoTarget
   _comment: EnemyDetection.HasTarget == false
-  _editorPosition: {x: 750, y: 568.6775}
+  _editorPosition: {x: 2396, y: 872.4822}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -322,8 +322,8 @@ MonoBehaviour:
     _title: "\uADF8\uB8E8\uD551 \uD14C\uC2A4\uD2B82"
     _rect:
       serializedVersion: 2
-      x: 626.86096
-      y: 203.26743
+      x: 2280.263
+      y: 505.8048
       width: 680
       height: 1244
     _color: {r: 1, g: 0.5458693, b: 0, a: 0.42}
@@ -371,7 +371,7 @@ MonoBehaviour:
   _guid: cond_has_target
   _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00"
   _comment: EnemyDetection.HasTarget == true
-  _editorPosition: {x: -344, y: 266}
+  _editorPosition: {x: 88.69852, y: 120.078476}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -392,7 +392,7 @@ MonoBehaviour:
   _displayName: Condition_PatrolEnabled
   _comment: "EnemyBrain.EnablePatrol \uD655\uC778. Brain\uC740 \uD14C\uC2A4\uD2B8
     \uCC38\uC870\uC6A9\uC73C\uB85C\uB9CC \uC0AC\uC6A9\uD55C\uB2E4."
-  _editorPosition: {x: 648, y: 1206.6775}
+  _editorPosition: {x: 2294, y: 1510.4822}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -456,7 +456,7 @@ MonoBehaviour:
   _displayName: "\uACF5\uACA9 \uACB0\uC815"
   _comment: "\uACF5\uACA9 \uAC00\uB2A5, \uACFC\uADFC\uC811 \uD6C4\uD1F4, \uC6D0\uAC70\uB9AC
     \uCD94\uACA9, \uC804\uD22C Idle \uC21C\uC11C\uB85C \uD310\uB2E8\uD55C\uB2E4."
-  _editorPosition: {x: -58, y: 376}
+  _editorPosition: {x: 374.6984, y: 230.07848}
   _children:
   - {fileID: -2905794136864824708}
   - {fileID: -1847582369555403117}
@@ -482,7 +482,7 @@ MonoBehaviour:
   _displayName: "\uBE14\uB799\uBCF4\uB4DC \uB3D9\uAE30\uD654"
   _comment: "EnemyDetection\uACFC ActorMovementController \uAC12\uC744 Blackboard\uC5D0
     \uBCF5\uC0AC\uD55C\uB2E4."
-  _editorPosition: {x: -585, y: 238}
+  _editorPosition: {x: -152.30154, y: 92.078476}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -506,7 +506,7 @@ MonoBehaviour:
   _displayName: NonCombat_NoTarget
   _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
     \uBCF4\uACE0 Patrol/Idle\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 843, y: 308.6775}
+  _editorPosition: {x: 2489, y: 612.4822}
   _children:
   - {fileID: -158394763614966633}
   - {fileID: 8340599277679366890}
@@ -574,7 +574,7 @@ MonoBehaviour:
   _guid: sel_non_combat_decision
   _displayName: NonCombat_Decision
   _comment: "Patrol \uAC00\uB2A5\uD558\uBA74 Patrol, \uC544\uB2C8\uBA74 Idle."
-  _editorPosition: {x: 1118, y: 488.6775}
+  _editorPosition: {x: 2764, y: 792.4822}
   _children:
   - {fileID: -4687848252655193683}
   - {fileID: -8037258016860720280}

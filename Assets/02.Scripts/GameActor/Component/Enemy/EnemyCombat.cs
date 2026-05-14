@@ -11,7 +11,16 @@ namespace UPlayGround.Component
 {
     public class EnemyCombat : MonoBehaviour
     {
-        private const string HeavyAttackTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
+        private const string DefaultCircleTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
+
+        private sealed class TelegraphInstance
+        {
+            public GameObject instance;
+            public int hitPhaseIndex;
+            public bool lockPosition;
+            public Vector3 lockedPosition;
+            public Quaternion lockedRotation;
+        }
 
         [Header("Combat Settings")]
         [SerializeField] private EnemyAttackDataSO _attackData;
@@ -53,8 +62,8 @@ namespace UPlayGround.Component
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
-        private readonly List<GameObject> _telegraphInstances = new List<GameObject>();
-        private int _telegraphHitPhaseIndex = 0;
+        private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
+        private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -190,6 +199,7 @@ namespace UPlayGround.Component
 
             if (_currentSkill != null)
             {
+                ClearTelegraphHitPositions();
                 _skillCooldowns[_currentSkill] = _currentSkill.cooldown;
                 ExecuteSkill(_currentSkill);
             }
@@ -338,11 +348,17 @@ namespace UPlayGround.Component
         {
             _currentSkill         = skill;
             _currentHitPhaseIndex = 0;
+            ClearTelegraphHitPositions();
         }
 
         public void ClearHitTargets()     => _hitTargets.Clear();
 
         public void BeginCurrentSkillTelegraph()
+        {
+            BeginTelegraph(0, false);
+        }
+
+        public void BeginTelegraph(int hitPhaseIndex, bool lockPositionOnStart)
         {
             ClearTelegraphs();
 
@@ -355,13 +371,17 @@ namespace UPlayGround.Component
                 return;
             }
 
-            _telegraphHitPhaseIndex = 0;
-            Vector3 position = GetTelegraphPosition(_telegraphHitPhaseIndex);
-            GameObject instance = GameObjectManager.Instance.ShowFX(HeavyAttackTelegraphFXKey, position, Quaternion.identity, null, 0f);
+            int clampedHitPhaseIndex = GetClampedHitPhaseIndex(hitPhaseIndex);
+            Vector3 position = GetTelegraphPosition(clampedHitPhaseIndex);
+            Quaternion rotation = GetTelegraphRotation();
+            string fxKey = GetTelegraphFXKey(_currentSkill);
+
+            GameObject instance = GameObjectManager.Instance.ShowFX(fxKey, position, rotation, null, 0f);
             if (instance == null) return;
 
-            ApplyTelegraphScale(instance, _telegraphHitPhaseIndex);
-            RegisterTelegraph(instance);
+            _telegraphHitPositions[clampedHitPhaseIndex] = position;
+            ApplyTelegraphScale(instance, clampedHitPhaseIndex);
+            RegisterTelegraph(instance, clampedHitPhaseIndex, lockPositionOnStart, position, rotation);
         }
 
         public void UpdateTelegraphs()
@@ -370,40 +390,75 @@ namespace UPlayGround.Component
 
             for (int i = _telegraphInstances.Count - 1; i >= 0; i--)
             {
-                GameObject instance = _telegraphInstances[i];
+                TelegraphInstance entry = _telegraphInstances[i];
+                GameObject instance = entry.instance;
                 if (instance == null)
                 {
                     _telegraphInstances.RemoveAt(i);
                     continue;
                 }
 
-                instance.transform.position = GetTelegraphPosition(_telegraphHitPhaseIndex);
-                ApplyTelegraphScale(instance, _telegraphHitPhaseIndex);
+                if (!entry.lockPosition)
+                {
+                    Vector3 position = GetTelegraphPosition(entry.hitPhaseIndex);
+                    instance.transform.SetPositionAndRotation(
+                        position,
+                        GetTelegraphRotation());
+                    _telegraphHitPositions[entry.hitPhaseIndex] = position;
+                }
+                else
+                {
+                    instance.transform.SetPositionAndRotation(entry.lockedPosition, entry.lockedRotation);
+                }
+
+                ApplyTelegraphScale(instance, entry.hitPhaseIndex);
             }
         }
 
         public void RegisterTelegraph(GameObject instance)
         {
-            if (instance != null && !_telegraphInstances.Contains(instance))
-                _telegraphInstances.Add(instance);
+            RegisterTelegraph(instance, 0, false, instance != null ? instance.transform.position : default, instance != null ? instance.transform.rotation : Quaternion.identity);
+        }
+
+        private void RegisterTelegraph(GameObject instance, int hitPhaseIndex, bool lockPosition, Vector3 lockedPosition, Quaternion lockedRotation)
+        {
+            if (instance == null || ContainsTelegraph(instance)) return;
+
+            _telegraphInstances.Add(new TelegraphInstance
+            {
+                instance       = instance,
+                hitPhaseIndex  = GetClampedHitPhaseIndex(hitPhaseIndex),
+                lockPosition   = lockPosition,
+                lockedPosition = lockedPosition,
+                lockedRotation = lockedRotation,
+            });
         }
 
         public void UnregisterTelegraph(GameObject instance)
         {
             if (instance == null) return;
 
-            _telegraphInstances.Remove(instance);
+            for (int i = _telegraphInstances.Count - 1; i >= 0; i--)
+            {
+                if (_telegraphInstances[i].instance == instance)
+                    _telegraphInstances.RemoveAt(i);
+            }
         }
 
         public void ClearTelegraphs()
         {
             for (int i = _telegraphInstances.Count - 1; i >= 0; i--)
             {
-                if (_telegraphInstances[i] != null)
-                    Destroy(_telegraphInstances[i]);
+                if (_telegraphInstances[i]?.instance != null)
+                    Destroy(_telegraphInstances[i].instance);
             }
 
             _telegraphInstances.Clear();
+        }
+
+        public void ClearTelegraphHitPositions()
+        {
+            _telegraphHitPositions.Clear();
         }
 
         public void SetEnableCollision(bool isCollisionEnable) =>
@@ -423,6 +478,12 @@ namespace UPlayGround.Component
         public Vector3 GetAttackPosition(int hitPhaseIndex)
         {
             if (_currentSkill == null) return _attackOrigin.position;
+            if (_currentSkill.useTelegraphPositionForHit
+                && _telegraphHitPositions.TryGetValue(GetClampedHitPhaseIndex(hitPhaseIndex), out Vector3 telegraphPosition))
+            {
+                return telegraphPosition;
+            }
+
             var phase = _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex);
             return _attackOrigin.position
                 + _attackOrigin.forward * phase.attackOffset.z
@@ -443,7 +504,7 @@ namespace UPlayGround.Component
 
         private Vector3 GetTelegraphPosition(int hitPhaseIndex)
         {
-            Vector3 position = GetAttackPosition(hitPhaseIndex);
+            Vector3 position = GetRawTelegraphPosition(hitPhaseIndex);
             if (!_alignTelegraphToGround) return position;
 
             Vector3 origin = position + Vector3.up * _telegraphGroundProbeHeight;
@@ -457,6 +518,63 @@ namespace UPlayGround.Component
 
             position.y += _telegraphGroundYOffset;
             return position;
+        }
+
+        private Vector3 GetRawTelegraphPosition(int hitPhaseIndex)
+        {
+            if (_currentSkill == null) return _attackOrigin.position;
+
+            if (_currentSkill.telegraphAnchorType == TelegraphAnchorType.TargetPosition)
+            {
+                Transform target = _detection != null && _detection.HasTarget ? _detection.CurrentTarget : null;
+                if (target != null)
+                    return target.position;
+            }
+
+            var phase = _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex);
+            return _attackOrigin.position
+                + _attackOrigin.forward * phase.attackOffset.z
+                + _attackOrigin.right   * phase.attackOffset.x
+                + _attackOrigin.up      * phase.attackOffset.y;
+        }
+
+        private Quaternion GetTelegraphRotation()
+        {
+            Vector3 forward = _attackOrigin != null ? _attackOrigin.forward : transform.forward;
+            forward.y = 0f;
+            return forward.sqrMagnitude > 0.001f
+                ? Quaternion.LookRotation(forward.normalized)
+                : Quaternion.identity;
+        }
+
+        private int GetClampedHitPhaseIndex(int hitPhaseIndex)
+        {
+            int count = _currentSkill?.baseInfo?.hitPhases?.Count ?? 0;
+            if (count <= 0) return 0;
+            return Mathf.Clamp(hitPhaseIndex, 0, count - 1);
+        }
+
+        private static string GetTelegraphFXKey(EnemyAttackInfo skill)
+        {
+            if (!string.IsNullOrWhiteSpace(skill?.telegraphFXKey))
+                return skill.telegraphFXKey;
+
+            return skill?.telegraphShape switch
+            {
+                TelegraphShape.Circle => DefaultCircleTelegraphFXKey,
+                _ => DefaultCircleTelegraphFXKey,
+            };
+        }
+
+        private bool ContainsTelegraph(GameObject instance)
+        {
+            for (int i = 0; i < _telegraphInstances.Count; i++)
+            {
+                if (_telegraphInstances[i].instance == instance)
+                    return true;
+            }
+
+            return false;
         }
 
         private void ApplyTelegraphScale(GameObject instance, int hitPhaseIndex)

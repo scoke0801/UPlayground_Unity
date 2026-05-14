@@ -738,6 +738,25 @@ namespace UPlayGround.Component
             return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
         }
 
+        public bool TryRequestAttackSlot()
+        {
+            if (_groupController == null || _monster == null)
+                return true;
+
+            return _groupController.RequestAttackSlot(_monster, _myAttackType);
+        }
+
+        public void NotifyBTAttackStarted()
+        {
+            _lastAttackTime = Time.time;
+            _actionCooldownTimer = 0f;
+            _consecutiveDefensiveCount = 0;
+            _memory?.NotifyCombatAction();
+
+            if (_detection != null && _detection.HasTarget)
+                _groupController?.AlertGroup(_detection.CurrentTarget);
+        }
+
         protected virtual void TransitionRetreating()
         {
             _memory?.NotifyRetreated();

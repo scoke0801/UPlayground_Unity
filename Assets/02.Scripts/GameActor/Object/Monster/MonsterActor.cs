@@ -149,7 +149,8 @@ namespace UPlayGround
         }
         
         public bool IsAlive()          => _currentHealth > 0;
-        public bool CanTakeDamage()    => IsAlive() && !_isInvincible;
+        public bool CanTakeDamage()
+            => IsAlive() && !_isInvincible && !(MovementController?.CurrentState?.GrantsInvincibility ?? false);
         public Transform GetTransform() => transform;
 
         public void LockOn()   { if (_lockOnDecal != null) _lockOnDecal.SetActive(true); }

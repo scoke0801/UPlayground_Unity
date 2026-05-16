@@ -20,6 +20,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string actorKind = "Ground";
         public string sourceBehaviorSo;
         public MonsterBehaviorBlackboardJson blackboard = new();
+        public List<MonsterBehaviorRuleGroupJson> groups = new();
+        public List<MonsterBehaviorRuleJson> rules = new();
+    }
+
+    [Serializable]
+    public class MonsterBehaviorRuleGroupJson
+    {
+        public string name;
+        public int priority;
         public List<MonsterBehaviorRuleJson> rules = new();
     }
 
@@ -77,6 +86,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const int SupportedSchemaVersion = 1;
         private const string SourceRoot = "Assets/10.Datas/AI/BehaviorTree/SourceJson";
         private const string GeneratedRoot = "Assets/10.Datas/AI/BehaviorTree/Generated";
+        private const float LayoutHorizontalSpacing = 300f;
+        private const float LayoutVerticalSpacing = 170f;
+        private const float LayoutServiceSpacing = 110f;
 
         [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json")]
         public static void ImportSelectedJson()
@@ -99,19 +111,112 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (string.IsNullOrWhiteSpace(absoluteFolder))
                 return;
 
-            var importedCount = 0;
-            foreach (var jsonPath in Directory.GetFiles(absoluteFolder, "*.json", SearchOption.AllDirectories))
+            ImportJsonFolder(absoluteFolder, "폴더");
+        }
+
+        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Project Jsons")]
+        public static void ImportSelectedProjectJsons()
+        {
+            ImportJsonFiles(GetSelectedJsonAssetPaths().Select(Path.GetFullPath), "선택 JSON");
+        }
+
+        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Project Jsons", true)]
+        public static bool CanImportSelectedProjectJsons()
+        {
+            return GetSelectedJsonAssetPaths().Count > 0;
+        }
+
+        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import All SourceJson")]
+        public static void ImportAllSourceJson()
+        {
+            ImportJsonFolder(Path.GetFullPath(SourceRoot), "SourceJson 전체");
+        }
+
+        public static IReadOnlyList<BehaviorTreeAsset> ImportJsonFolder(string absoluteFolder)
+        {
+            return ImportJsonFolder(absoluteFolder, "폴더");
+        }
+
+        public static IReadOnlyList<BehaviorTreeAsset> ImportJsonFiles(IEnumerable<string> absoluteJsonPaths)
+        {
+            return ImportJsonFiles(absoluteJsonPaths, "JSON 목록");
+        }
+
+        private static IReadOnlyList<BehaviorTreeAsset> ImportJsonFolder(string absoluteFolder, string label)
+        {
+            if (string.IsNullOrWhiteSpace(absoluteFolder) || !Directory.Exists(absoluteFolder))
             {
-                var data = LoadJson(jsonPath);
-                ImportFromMonsterBehaviorJson(jsonPath, GetGeneratedAssetPath(data));
-                importedCount++;
+                Debug.LogError($"[BT] Monster Behavior Json {label} Import 실패: 폴더를 찾을 수 없습니다. {absoluteFolder}");
+                return Array.Empty<BehaviorTreeAsset>();
             }
 
-            AssetDatabase.Refresh();
-            Debug.Log($"[BT] Monster Behavior Json 폴더 Import 완료: {importedCount}개");
+            var jsonPaths = Directory
+                .GetFiles(absoluteFolder, "*.json", SearchOption.AllDirectories)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
+
+            return ImportJsonFiles(jsonPaths, label);
+        }
+
+        private static IReadOnlyList<BehaviorTreeAsset> ImportJsonFiles(IEnumerable<string> absoluteJsonPaths, string label)
+        {
+            var jsonPaths = absoluteJsonPaths
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Select(Path.GetFullPath)
+                .Where(path => string.Equals(Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (jsonPaths.Count == 0)
+            {
+                Debug.LogWarning($"[BT] Monster Behavior Json {label} Import 대상이 없습니다.");
+                return Array.Empty<BehaviorTreeAsset>();
+            }
+
+            var importedTrees = new List<BehaviorTreeAsset>();
+            var failures = new List<string>();
+
+            AssetDatabase.StartAssetEditing();
+            try
+            {
+                foreach (var jsonPath in jsonPaths)
+                {
+                    try
+                    {
+                        var data = LoadJson(jsonPath);
+                        var tree = ImportFromMonsterBehaviorJsonInternal(jsonPath, GetGeneratedAssetPath(data), false);
+                        importedTrees.Add(tree);
+                    }
+                    catch (Exception exception)
+                    {
+                        failures.Add($"{jsonPath}: {exception.Message}");
+                    }
+                }
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+            if (importedTrees.Count > 0)
+                EditorGUIUtility.PingObject(importedTrees[^1]);
+
+            if (failures.Count > 0)
+                Debug.LogError($"[BT] Monster Behavior Json {label} Import 일부 실패: 성공 {importedTrees.Count}개 / 실패 {failures.Count}개\n{string.Join("\n", failures)}");
+            else
+                Debug.Log($"[BT] Monster Behavior Json {label} Import 완료: {importedTrees.Count}개");
+
+            return importedTrees;
         }
 
         public static BehaviorTreeAsset ImportFromMonsterBehaviorJson(string absoluteJsonPath, string outputAssetPath)
+        {
+            return ImportFromMonsterBehaviorJsonInternal(absoluteJsonPath, outputAssetPath, true);
+        }
+
+        private static BehaviorTreeAsset ImportFromMonsterBehaviorJsonInternal(string absoluteJsonPath, string outputAssetPath, bool saveAndRefresh)
         {
             var data = LoadJson(absoluteJsonPath);
             Validate(data, absoluteJsonPath);
@@ -122,47 +227,209 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var sourceBehavior = LoadSourceBehavior(data);
             EnsureAssetDirectory(outputAssetPath);
 
-            if (AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) != null)
-                AssetDatabase.DeleteAsset(outputAssetPath);
+            var finalAssetName = Path.GetFileNameWithoutExtension(outputAssetPath);
+            var tempAssetPath = GetTempAssetPath(outputAssetPath);
+            BehaviorTreeAsset tree = null;
 
-            var tree = ScriptableObject.CreateInstance<BehaviorTreeAsset>();
-            tree.name = Path.GetFileNameWithoutExtension(outputAssetPath);
-            AssetDatabase.CreateAsset(tree, outputAssetPath);
-
-            var root = CreateNode<SelectorNode>(tree, "Root", new Vector2(0f, 0f));
-            root.Services.Add(CreateNode<SyncEnemyBlackboardService>(tree, "Sync Enemy Blackboard", new Vector2(-260f, -160f)));
-
-            // 비행형은 EnemyTacticalMemory / EnemyAIContext 페이즈 모델을 쓰지 않으므로 Memory / Phase 서비스 미부착.
-            var isFlying = string.Equals(data.actorKind, "Flying", StringComparison.OrdinalIgnoreCase);
-            if (!isFlying)
+            try
             {
-                root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));
-                root.Services.Add(CreateNode<SyncEnemyPhaseService>(tree, "Sync Enemy Phase", new Vector2(-260f, -40f)));
+                tree = ScriptableObject.CreateInstance<BehaviorTreeAsset>();
+                tree.name = finalAssetName;
+                AssetDatabase.CreateAsset(tree, tempAssetPath);
+
+                var root = CreateNode<SelectorNode>(tree, "Root", new Vector2(0f, 0f));
+                root.Services.Add(CreateNode<SyncEnemyBlackboardService>(tree, "Sync Enemy Blackboard", new Vector2(-260f, -160f)));
+
+                // 비행형은 EnemyTacticalMemory / EnemyAIContext 페이즈 모델을 쓰지 않으므로 Memory / Phase 서비스 미부착.
+                var isFlying = string.Equals(data.actorKind, "Flying", StringComparison.OrdinalIgnoreCase);
+                if (!isFlying)
+                {
+                    root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));
+                    root.Services.Add(CreateNode<SyncEnemyPhaseService>(tree, "Sync Enemy Phase", new Vector2(-260f, -40f)));
+                }
+                tree.RootNode = root;
+
+                AddDefaultBlackboard(tree, data, sourceBehavior);
+
+                AddJsonDefinedChildren(tree, root, data, sourceBehavior);
+
+                ApplyTopDownLayout(tree);
+
+                EditorUtility.SetDirty(tree);
+                foreach (var node in tree.Nodes)
+                    EditorUtility.SetDirty(node);
+
+                ReplaceAssetWithTemp(tempAssetPath, outputAssetPath);
+                tree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) ?? tree;
             }
-            tree.RootNode = root;
+            catch
+            {
+                if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(tempAssetPath) != null)
+                    AssetDatabase.DeleteAsset(tempAssetPath);
+                throw;
+            }
 
-            AddDefaultBlackboard(tree, data, sourceBehavior);
+            if (saveAndRefresh)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
 
-            var orderedRules = data.rules
+            Debug.Log($"[BT] Monster Behavior Json Import 완료: {outputAssetPath}");
+            return tree;
+        }
+
+        private static string GetTempAssetPath(string outputAssetPath)
+        {
+            var directory = Path.GetDirectoryName(outputAssetPath)?.Replace("\\", "/");
+            var fileName = Path.GetFileNameWithoutExtension(outputAssetPath);
+            var tempPath = string.IsNullOrEmpty(directory)
+                ? $".{fileName}_Importing.asset"
+                : $"{directory}/.{fileName}_Importing.asset";
+
+            return AssetDatabase.GenerateUniqueAssetPath(tempPath);
+        }
+
+        private static void ReplaceAssetWithTemp(string tempAssetPath, string outputAssetPath)
+        {
+            if (AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) != null
+                && !AssetDatabase.DeleteAsset(outputAssetPath))
+            {
+                throw new IOException($"기존 BehaviorTreeAsset을 삭제할 수 없습니다. {outputAssetPath}");
+            }
+
+            var moveError = AssetDatabase.MoveAsset(tempAssetPath, outputAssetPath);
+            if (!string.IsNullOrEmpty(moveError))
+                throw new IOException($"임시 BehaviorTreeAsset을 결과 경로로 이동할 수 없습니다. {moveError}");
+        }
+
+        private static void ApplyTopDownLayout(BehaviorTreeAsset tree)
+        {
+            if (tree?.RootNode == null)
+                return;
+
+            LayoutTreeTopDown(tree.RootNode, 0f, 0f, new HashSet<BTNode>());
+            LayoutServices(tree);
+        }
+
+        private static void AddJsonDefinedChildren(
+            BehaviorTreeAsset tree,
+            SelectorNode root,
+            MonsterBehaviorTreeJson data,
+            EnemyBehaviorSO sourceBehavior)
+        {
+            if (data.groups != null && data.groups.Count > 0)
+            {
+                var orderedGroups = data.groups
+                    .OrderByDescending(group => group.priority)
+                    .ThenBy(group => data.groups.IndexOf(group))
+                    .ToList();
+
+                var row = 0;
+                foreach (var group in orderedGroups)
+                {
+                    var groupNode = CreateNode<SelectorNode>(tree, group.name, Vector2.zero);
+                    var orderedRules = group.rules
+                        .OrderByDescending(rule => rule.priority)
+                        .ThenBy(rule => group.rules.IndexOf(rule))
+                        .ToList();
+
+                    foreach (var rule in orderedRules)
+                    {
+                        var child = CreateRuleNode(tree, rule, sourceBehavior, row++);
+                        if (child != null)
+                            groupNode.Children.Add(child);
+                    }
+
+                    if (groupNode.Children.Count > 0)
+                        root.Children.Add(groupNode);
+                }
+
+                return;
+            }
+
+            var flatRules = data.rules ?? new List<MonsterBehaviorRuleJson>();
+            var orderedFlatRules = flatRules
                 .OrderByDescending(rule => rule.priority)
-                .ThenBy(rule => data.rules.IndexOf(rule))
+                .ThenBy(rule => flatRules.IndexOf(rule))
                 .ToList();
 
-            for (var i = 0; i < orderedRules.Count; i++)
+            for (var i = 0; i < orderedFlatRules.Count; i++)
             {
-                var child = CreateRuleNode(tree, orderedRules[i], sourceBehavior, i);
+                var child = CreateRuleNode(tree, orderedFlatRules[i], sourceBehavior, i);
                 if (child != null)
                     root.Children.Add(child);
             }
+        }
 
-            EditorUtility.SetDirty(tree);
-            foreach (var node in tree.Nodes)
-                EditorUtility.SetDirty(node);
+        private static float LayoutTreeTopDown(BTNode node, float leftX, float y, HashSet<BTNode> visited)
+        {
+            if (node == null || !visited.Add(node))
+                return 0f;
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            Debug.Log($"[BT] Monster Behavior Json Import 완료: {outputAssetPath}");
-            return tree;
+            var children = node.Children?.Where(child => child != null).ToList() ?? new List<BTNode>();
+            if (children.Count == 0)
+            {
+                node.EditorPosition = new Vector2(leftX, y);
+                return LayoutHorizontalSpacing;
+            }
+
+            var currentX = leftX;
+            var totalWidth = 0f;
+            foreach (var child in children)
+            {
+                var childWidth = LayoutTreeTopDown(child, currentX, y + LayoutVerticalSpacing, visited);
+                currentX += childWidth;
+                totalWidth += childWidth;
+            }
+
+            node.EditorPosition = new Vector2(leftX + totalWidth * 0.5f - LayoutHorizontalSpacing * 0.5f, y);
+            return Mathf.Max(LayoutHorizontalSpacing, totalWidth);
+        }
+
+        private static IEnumerable<MonsterBehaviorRuleJson> EnumerateJsonRules(MonsterBehaviorTreeJson data)
+        {
+            if (data.groups != null && data.groups.Count > 0)
+            {
+                foreach (var group in data.groups)
+                {
+                    foreach (var rule in group.rules ?? new List<MonsterBehaviorRuleJson>())
+                        yield return rule;
+                }
+
+                yield break;
+            }
+
+            foreach (var rule in data.rules ?? new List<MonsterBehaviorRuleJson>())
+                yield return rule;
+        }
+
+        private static void LayoutServices(BehaviorTreeAsset tree)
+        {
+            foreach (var composite in tree.Nodes.OfType<BTCompositeNode>())
+            {
+                var services = composite.Services?.Where(service => service != null).ToList();
+                if (services == null || services.Count == 0)
+                    continue;
+
+                var startOffset = -(services.Count - 1) * LayoutServiceSpacing * 0.5f;
+                for (var i = 0; i < services.Count; i++)
+                {
+                    services[i].EditorPosition = composite.EditorPosition + new Vector2(
+                        -LayoutHorizontalSpacing,
+                        startOffset + i * LayoutServiceSpacing);
+                }
+            }
+        }
+
+        private static List<string> GetSelectedJsonAssetPaths()
+        {
+            return Selection.objects
+                .Select(AssetDatabase.GetAssetPath)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Where(path => string.Equals(Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase))
+                .Where(path => AssetDatabase.LoadAssetAtPath<TextAsset>(path) != null)
+                .ToList();
         }
 
         private static MonsterBehaviorTreeJson LoadJson(string absoluteJsonPath)
@@ -182,12 +449,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (string.IsNullOrWhiteSpace(data.id))
                 throw new InvalidDataException("id가 비어 있습니다.");
 
-            if (data.rules == null || data.rules.Count == 0)
-                throw new InvalidDataException($"{data.id}: rules가 비어 있습니다.");
+            var hasGroups = data.groups != null && data.groups.Count > 0;
+            var hasRules = data.rules != null && data.rules.Count > 0;
+            if (!hasGroups && !hasRules)
+                throw new InvalidDataException($"{data.id}: groups 또는 rules가 필요합니다.");
 
             var actorKind = ResolveActorKind(data.actorKind);
 
-            foreach (var rule in data.rules)
+            if (hasGroups)
+            {
+                foreach (var group in data.groups)
+                {
+                    if (string.IsNullOrWhiteSpace(group.name))
+                        throw new InvalidDataException($"{data.id}: name이 비어 있는 group이 있습니다.");
+
+                    if (group.rules == null || group.rules.Count == 0)
+                        throw new InvalidDataException($"{data.id}: group '{group.name}'의 rules가 비어 있습니다.");
+                }
+            }
+
+            foreach (var rule in EnumerateJsonRules(data))
             {
                 if (string.IsNullOrWhiteSpace(rule.name))
                     throw new InvalidDataException($"{data.id}: name이 비어 있는 rule이 있습니다.");
@@ -236,7 +517,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static void ValidateCondition(MonsterBehaviorConditionJson condition, string ruleName, ActorKind actorKind)
         {
-            var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "DistanceLessOrEqual"
+            var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "IsEnemyPhase" or "DistanceLessOrEqual"
                 or "DistanceGreater" or "ActionDelayElapsed" or "CanUseSkill" or "IsPlayerAttacking"
                 or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
                 // ── 비행 전용 ──
@@ -249,6 +530,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             if (condition.condition == "IsCurrentState" && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: IsCurrentState는 value(상태 이름)가 필요합니다.");
+
+            if (condition.condition == "IsEnemyPhase" && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: IsEnemyPhase는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
 
             if (actorKind == ActorKind.Flying && GroundOnlyConditions.Contains(condition.condition))
                 throw new InvalidDataException($"{ruleName}: 지상 전용 condition '{condition.condition}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 노드(예: FlyingCanUseSkill)로 교체하세요.");
@@ -341,6 +625,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             {
                 "HasTarget" => CreateHasTargetNode(tree, !condition.invert, row),
                 "IsBlockedEnemyState" => CreateNode<IsBlockedEnemyStateNode>(tree, "Is Blocked Enemy State", new Vector2(520f, row * 180f)),
+                "IsEnemyPhase" => CreateEnemyPhaseNode(tree, condition.value, row),
                 "DistanceLessOrEqual" => CreateRangeNode(tree, FloatComparisonType.LessOrEqual, condition.value, sourceBehavior, row),
                 "DistanceGreater" => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, sourceBehavior, row),
                 "ActionDelayElapsed" => CreateNode<HasEnemyActionDelayElapsedNode>(tree, "Action Delay Elapsed", new Vector2(520f, row * 180f)),
@@ -479,6 +764,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return node;
         }
 
+        private static IsEnemyPhaseNode CreateEnemyPhaseNode(BehaviorTreeAsset tree, string value, int row)
+        {
+            var node = CreateNode<IsEnemyPhaseNode>(tree, "Is Enemy Phase " + value, new Vector2(520f, row * 180f));
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var phaseIndex))
+                SetPrivateField(node, "_phaseIndex", phaseIndex);
+            else
+                SetPrivateField(node, "_phaseName", value);
+
+            return node;
+        }
+
         private static WaitNode CreateWaitNode(BehaviorTreeAsset tree, float duration, int row)
         {
             var node = CreateNode<WaitNode>(tree, "Wait", new Vector2(820f, row * 180f));
@@ -512,6 +808,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             var blackboard = tree.Blackboard;
             blackboard.SetBool(EnemyBlackboardKeys.HasTarget, false);
+            blackboard.SetObject(EnemyBlackboardKeys.Target, null);
             blackboard.SetFloat(EnemyBlackboardKeys.DistanceToTarget, float.MaxValue);
             blackboard.SetString(EnemyBlackboardKeys.CurrentState, "");
             blackboard.SetFloat(EnemyBlackboardKeys.HpPercent, 1f);
@@ -523,6 +820,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             blackboard.SetFloat(EnemyBlackboardKeys.ContinueAttackChance, sourceBehavior?.continueAttackChance ?? 0.3f);
             blackboard.SetFloat(EnemyBlackboardKeys.GuardChance, sourceBehavior?.guardChance ?? 0.25f);
             blackboard.SetFloat(EnemyBlackboardKeys.RetreatChance, sourceBehavior?.retreatChance ?? 0.2f);
+            blackboard.SetBool(EnemyBlackboardKeys.IsPlayerAttacking, false);
+            blackboard.SetBool(EnemyBlackboardKeys.IsPlayerGuarding, false);
+            blackboard.SetBool(EnemyBlackboardKeys.IsPlayerStaggered, false);
+            blackboard.SetBool(EnemyBlackboardKeys.IsPlayerRecovering, false);
+            blackboard.SetBool(EnemyBlackboardKeys.IsPlayerDodgingFrequently, false);
+            blackboard.SetBool(EnemyBlackboardKeys.CanUseSkill, false);
             blackboard.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
             blackboard.SetFloat(EnemyBlackboardKeys.NextActionAllowedTime, 0f);
 

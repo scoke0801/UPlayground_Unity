@@ -60,7 +60,7 @@ namespace UPlayGround.AI.BehaviorTree
 
         public static bool IsBlockedState(string stateName)
         {
-            return stateName is "Death" or "Hit" or "Grabbed" or "Airborne" or "Attack" or "Counter"
+            return stateName is "Death" or "Hit" or "Grabbed" or "Airborne" or "Attack" or "Counter" or "Dodge"
                 or "Land" or "TakeOff" or "Aerial" or "AerialAttack"
                 or "Flying_TakeOff" or "Flying_GroundAttack" or "Flying_Dive" or "Flying_Land";
         }

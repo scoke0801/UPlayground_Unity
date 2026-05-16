@@ -2,16 +2,17 @@ namespace UPlayGround.AI.BehaviorTree
 {
     public enum EnemyTransitionStateType
     {
-        Idle,
-        Patrol,
-        Chase,
-        Attack,
-        Retreat,
-        Circle,
-        Guard,
-        Charge,
-        Flank,
-        Counter
+        Idle = 0,
+        Patrol = 1,
+        Chase = 2,
+        Attack = 3,
+        Retreat = 4,
+        Circle = 5,
+        Guard = 6,
+        Charge = 7,
+        Flank = 8,
+        Counter = 9,
+        Dodge = 10
     }
 
     public static class EnemyBlackboardKeys

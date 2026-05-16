@@ -206,6 +206,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             propertyBox.Add(applyColorButton);
 
             var positionField = new Vector2Field("Position") { value = group.Rect.position };
+            SetVector2FieldDelayed(positionField);
             StyleField(positionField);
             positionField.RegisterValueChangedCallback(evt =>
             {
@@ -217,6 +218,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             propertyBox.Add(positionField);
 
             var sizeField = new Vector2Field("Size") { value = group.Rect.size };
+            SetVector2FieldDelayed(sizeField);
             StyleField(sizeField);
             sizeField.RegisterValueChangedCallback(evt =>
             {
@@ -235,6 +237,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             propertyBox.Add(meta);
 
             return propertyBox;
+        }
+
+        private static void SetVector2FieldDelayed(Vector2Field field)
+        {
+            field.Query<FloatField>().ForEach(componentField => componentField.isDelayed = true);
         }
 
         private static VisualElement CreateIdentityHeader(BTNode node)

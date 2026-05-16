@@ -51,7 +51,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             serializeGraphElements = SerializeSelectionToClipboardData;
             canPasteSerializedData = CanPasteClipboardData;
             unserializeAndPaste = UnserializeAndPaste;
-            RegisterCallback<DetachFromPanelEvent>(_ => FlushPendingSave());
+            Undo.undoRedoPerformed += RefreshPositionsAfterUndoRedo;
+            RegisterCallback<DetachFromPanelEvent>(_ =>
+            {
+                FlushPendingSave();
+                Undo.undoRedoPerformed -= RefreshPositionsAfterUndoRedo;
+            });
 
             graphViewChanged += OnGraphViewChanged;
         }
@@ -209,6 +214,28 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             groupView.SendToBack();
         }
 
+        private void RefreshPositionsAfterUndoRedo()
+        {
+            if (_tree == null)
+                return;
+
+            foreach (var pair in _nodeViews)
+            {
+                var rect = pair.Value.GetPosition();
+                rect.position = pair.Key.EditorPosition;
+                pair.Value.SetPosition(rect);
+            }
+
+            foreach (var groupView in _groupViews.Values)
+            {
+                groupView.RefreshView();
+                groupView.SendToBack();
+            }
+
+            MarkEdgesDirty();
+            _window.RefreshInspector();
+        }
+
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             if (_tree == null)
@@ -330,6 +357,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (_tree == null)
                 return;
 
+            var selectedNodes = selection.OfType<BehaviorTreeNodeView>().ToList();
+            if (selectedNodes.Count > 0)
+            {
+                CreateGroupFromNodes(selectedNodes);
+                return;
+            }
+
             Undo.RecordObject(_tree, "Create BT Group Box");
             var group = new BehaviorTreeEditorGroup
             {
@@ -352,10 +386,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (selectedNodes.Count == 0)
                 return;
 
+            CreateGroupFromNodes(selectedNodes);
+        }
+
+        private void CreateGroupFromNodes(IReadOnlyList<BehaviorTreeNodeView> selectedNodes)
+        {
             var bounds = selectedNodes[0].GetPosition();
-            foreach (var node in selectedNodes.Skip(1))
+            for (var i = 1; i < selectedNodes.Count; i++)
             {
-                var rect = node.GetPosition();
+                var rect = selectedNodes[i].GetPosition();
                 bounds.xMin = Mathf.Min(bounds.xMin, rect.xMin);
                 bounds.yMin = Mathf.Min(bounds.yMin, rect.yMin);
                 bounds.xMax = Mathf.Max(bounds.xMax, rect.xMax);
@@ -790,8 +829,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 if (!previousGroupRect.Contains(nodeRect.center))
                     continue;
 
+                Undo.RecordObject(nodeView.Node, "Move BT Group Box");
                 nodeRect.position += delta;
                 nodeView.SetPosition(nodeRect);
+                EditorUtility.SetDirty(nodeView.Node);
             }
         }
 
@@ -1147,6 +1188,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         private const float MinWidth = 220f;
         private const float MinHeight = 140f;
+        private const float EdgeResizeHandleSize = 10f;
+        private const float CornerResizeHandleSize = 18f;
 
         private readonly Action<BehaviorTreeGroupView, Rect, Vector2> _onMoved;
         private readonly Action _onChanged;
@@ -1183,8 +1226,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _titleField = CreateTitleField();
             Add(_titleField);
 
-            var resizeHandle = CreateResizeHandle();
-            Add(resizeHandle);
+            Add(CreateResizeHandle(ResizeDirection.Top));
+            Add(CreateResizeHandle(ResizeDirection.Right));
+            Add(CreateResizeHandle(ResizeDirection.Bottom));
+            Add(CreateResizeHandle(ResizeDirection.Left));
+            Add(CreateResizeHandle(ResizeDirection.Top | ResizeDirection.Left));
+            Add(CreateResizeHandle(ResizeDirection.Top | ResizeDirection.Right));
+            Add(CreateResizeHandle(ResizeDirection.Bottom | ResizeDirection.Left));
+            Add(CreateResizeHandle(ResizeDirection.Bottom | ResizeDirection.Right));
 
             _suppressMoveChildren = true;
             SetPosition(Group.Rect);
@@ -1256,16 +1305,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return field;
         }
 
-        private VisualElement CreateResizeHandle()
+        private VisualElement CreateResizeHandle(ResizeDirection direction)
         {
             var handle = new VisualElement();
             handle.style.position = Position.Absolute;
-            handle.style.right = 0f;
-            handle.style.bottom = 0f;
-            handle.style.width = 18f;
-            handle.style.height = 18f;
-            handle.style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(Color.white, 0.14f);
-            handle.style.borderTopLeftRadius = 5f;
+            handle.pickingMode = PickingMode.Position;
+            ApplyResizeHandleLayout(handle, direction);
 
             handle.RegisterCallback<MouseDownEvent>(evt =>
             {
@@ -1285,9 +1330,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     return;
 
                 var delta = evt.mousePosition - _resizeStartMouse;
-                var rect = _resizeStartRect;
-                rect.width = Mathf.Max(MinWidth, rect.width + delta.x);
-                rect.height = Mathf.Max(MinHeight, rect.height + delta.y);
+                var rect = CalculateResizedRect(_resizeStartRect, delta, direction);
                 _suppressMoveChildren = true;
                 SetPosition(rect);
                 _suppressMoveChildren = false;
@@ -1309,6 +1352,56 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return handle;
         }
 
+        private static void ApplyResizeHandleLayout(VisualElement handle, ResizeDirection direction)
+        {
+            var horizontalEdge = direction is ResizeDirection.Top or ResizeDirection.Bottom;
+            var verticalEdge = direction is ResizeDirection.Left or ResizeDirection.Right;
+
+            if (horizontalEdge)
+            {
+                handle.style.height = EdgeResizeHandleSize;
+                handle.style.left = CornerResizeHandleSize;
+                handle.style.right = CornerResizeHandleSize;
+            }
+            else if (verticalEdge)
+            {
+                handle.style.width = EdgeResizeHandleSize;
+                handle.style.top = CornerResizeHandleSize;
+                handle.style.bottom = CornerResizeHandleSize;
+            }
+            else
+            {
+                handle.style.width = CornerResizeHandleSize;
+                handle.style.height = CornerResizeHandleSize;
+                handle.style.backgroundColor = BehaviorTreeEditorStyles.WithAlpha(Color.white, 0.12f);
+            }
+
+            if (direction.HasFlag(ResizeDirection.Left))
+                handle.style.left = 0f;
+            if (direction.HasFlag(ResizeDirection.Right))
+                handle.style.right = 0f;
+            if (direction.HasFlag(ResizeDirection.Top))
+                handle.style.top = 0f;
+            if (direction.HasFlag(ResizeDirection.Bottom))
+                handle.style.bottom = 0f;
+        }
+
+        private static Rect CalculateResizedRect(Rect startRect, Vector2 delta, ResizeDirection direction)
+        {
+            var rect = startRect;
+
+            if (direction.HasFlag(ResizeDirection.Left))
+                rect.xMin = Mathf.Min(startRect.xMax - MinWidth, startRect.xMin + delta.x);
+            if (direction.HasFlag(ResizeDirection.Right))
+                rect.xMax = Mathf.Max(startRect.xMin + MinWidth, startRect.xMax + delta.x);
+            if (direction.HasFlag(ResizeDirection.Top))
+                rect.yMin = Mathf.Min(startRect.yMax - MinHeight, startRect.yMin + delta.y);
+            if (direction.HasFlag(ResizeDirection.Bottom))
+                rect.yMax = Mathf.Max(startRect.yMin + MinHeight, startRect.yMax + delta.y);
+
+            return rect;
+        }
+
         private void ApplyColor(Color color)
         {
             style.backgroundColor = color;
@@ -1316,6 +1409,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             style.borderRightColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.95f);
             style.borderBottomColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.95f);
             style.borderLeftColor = BehaviorTreeEditorStyles.WithAlpha(color, 0.95f);
+        }
+
+        [Flags]
+        private enum ResizeDirection
+        {
+            Top = 1,
+            Right = 2,
+            Bottom = 4,
+            Left = 8
         }
     }
 }

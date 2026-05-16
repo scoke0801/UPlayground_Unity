@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Component;
@@ -221,8 +222,8 @@ namespace UPlayGround.State
                 // 공격자 경직 + 반격 창 열기
                 if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
                 {
-                    var brain = incomingAttack.attacker.GetComponent<EnemyAIController>();
-                    brain?.OnParried();
+                    var monster = incomingAttack.attacker.GetComponent<MonsterActor>();
+                    monster?.AIController?.OnParried();
                 }
 
                 _combat.OpenPerfectGuardCounterWindow();

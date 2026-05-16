@@ -27,7 +27,7 @@ namespace UPlayGround.State
 
         private readonly Transform _finishTarget;
         private PlayerCombat _combat;
-        private List<EnemyAIController> _frozenEnemyControllers = new List<EnemyAIController>();
+        private List<IEnemyAIController> _frozenEnemyControllers = new List<IEnemyAIController>();
 
         private Vector3 _targetPosition;
         private bool _isSliding;

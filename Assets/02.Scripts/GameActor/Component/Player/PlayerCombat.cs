@@ -295,9 +295,9 @@ namespace UPlayGround.Component
                 if (hit == null)
                     continue;
 
-                EnemyAIController brain = hit.GetComponent<EnemyAIController>()
-                                        ?? hit.GetComponentInParent<EnemyAIController>();
-                if (brain != null && brain.HasAggroTarget)
+                var monster = hit.GetComponent<MonsterActor>()
+                              ?? hit.GetComponentInParent<MonsterActor>();
+                if (monster?.AIController != null && monster.AIController.HasAggroTarget)
                     return true;
             }
 
@@ -1005,14 +1005,14 @@ namespace UPlayGround.Component
             return bestTarget;
         }
 
-        public List<EnemyAIController> GetEnemyAIControllersInRadius(float radius)
+        public List<IEnemyAIController> GetEnemyAIControllersInRadius(float radius)
         {
-            var        result = new List<EnemyAIController>();
+            var        result = new List<IEnemyAIController>();
             FillEnemyAIControllersInRadius(radius, result);
             return result;
         }
 
-        public void FillEnemyAIControllersInRadius(float radius, List<EnemyAIController> result)
+        public void FillEnemyAIControllersInRadius(float radius, List<IEnemyAIController> result)
         {
             if (result == null)
                 return;
@@ -1030,10 +1030,11 @@ namespace UPlayGround.Component
                 if (hit == null)
                     continue;
 
-                EnemyAIController brain = hit.GetComponent<EnemyAIController>()
-                                ?? hit.GetComponentInParent<EnemyAIController>();
-                if (brain != null && !result.Contains(brain))
-                    result.Add(brain);
+                var monster = hit.GetComponent<MonsterActor>()
+                              ?? hit.GetComponentInParent<MonsterActor>();
+                var aiController = monster?.AIController;
+                if (aiController != null && !result.Contains(aiController))
+                    result.Add(aiController);
             }
         }
 

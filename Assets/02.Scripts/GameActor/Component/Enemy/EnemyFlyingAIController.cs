@@ -21,7 +21,7 @@ namespace UPlayGround.Component
     /// 의사결정은 BehaviorTreeRunner가 담당한다.
     /// State 콜백은 BT가 참조할 카운터와 타임스탬프만 갱신한다.
     /// </summary>
-    public class EnemyFlyingAIController : EnemyFlyingAIContext
+    public class EnemyFlyingAIController : EnemyFlyingAIContext, IEnemyAIController
     {
         [Header("References")]
         [SerializeField] protected EnemyDetection _detection;
@@ -29,6 +29,7 @@ namespace UPlayGround.Component
         [SerializeField] protected ActorMovementController _movementController;
         [SerializeField] protected EnemyFlyingSettingsSO _flyingSettings;
         [SerializeField] private BehaviorTreeRunner _behaviorTreeRunner;
+        [SerializeField] private BehaviorTreeAsset _behaviorTree;
 
         [Header("Ground Combat")]
         [SerializeField] protected float _chaseStopDistance = 2f;
@@ -79,6 +80,7 @@ namespace UPlayGround.Component
         protected Vector3 _spawnPosition;
 
         protected MonsterActor _monster;
+        private MonsterGroupController _groupController;
         private readonly List<EnemyAttackInfo> _diveSkillBuffer = new();
 
         // ── 프로퍼티 (State에서 접근) ──
@@ -110,6 +112,8 @@ namespace UPlayGround.Component
 
         /// <summary> State들이 튜닝 값에 접근하는 단일 창구 </summary>
         public override EnemyFlyingSettingsSO FlyingSettings => _flyingSettings;
+        public MonsterGroupController Group => _groupController;
+        public bool HasAggroTarget => _detection != null && _detection.HasTarget;
 
         #region Mono
 
@@ -121,6 +125,7 @@ namespace UPlayGround.Component
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _monster = GetComponent<MonsterActor>();
             _spawnPosition = transform.position;
+            EnsureBehaviorTreeRunner();
         }
 
         protected virtual void Start()
@@ -130,8 +135,23 @@ namespace UPlayGround.Component
 
             ResetAllCounters();
 
+            EnsureBehaviorTreeRunner();
+
             if (_behaviorTreeRunner == null || !_behaviorTreeRunner.IsRunning)
                 Debug.LogWarning($"[EnemyFlyingAIController] {gameObject.name}에 실행 중인 BehaviorTreeRunner가 없습니다. Phase 7 이후 비행형 의사결정은 BT가 담당합니다.", this);
+        }
+
+        private void EnsureBehaviorTreeRunner()
+        {
+            if (_behaviorTree == null)
+                return;
+
+            _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
+            _behaviorTreeRunner ??= gameObject.AddComponent<BehaviorTreeRunner>();
+            _behaviorTreeRunner.SetTreeAsset(_behaviorTree, restartIfRunning: false);
+
+            if (isActiveAndEnabled && !_behaviorTreeRunner.IsRunning && !_behaviorTreeRunner.IsPaused)
+                _behaviorTreeRunner.StartTree();
         }
 
         private void Update()
@@ -302,14 +322,32 @@ namespace UPlayGround.Component
         protected bool IsAirState(string s) => s is "Flying_AirCircle" or "Flying_TakeOff";
         protected bool IsGroundCombatState(string s) => s is "Flying_Chase" or "Flying_GroundAttack" or "Flying_Circle" or "Flying_Retreat";
 
+        public void SetGroup(MonsterGroupController group, MemberPriority priority)
+        {
+            _groupController = group;
+        }
+
+        public void UpdatePhase(float hpPercent)
+        {
+        }
+
+        public void OnParried()
+        {
+            _lastAttackTime = Time.time;
+        }
+
         public void Freeze()
         {
             if (_movementController.CurrentState?.StateName == "Death") return;
+            _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
-            _movementController.TransitionToState(new EnemyIdleState(_movementController));
         }
 
-        public void Unfreeze() => enabled = true;
+        public void Unfreeze()
+        {
+            enabled = true;
+            _behaviorTreeRunner?.EnableBehavior();
+        }
 
         #endregion
     }

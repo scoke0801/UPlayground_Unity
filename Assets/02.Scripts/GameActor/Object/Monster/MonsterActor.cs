@@ -33,7 +33,9 @@ namespace UPlayGround
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [FormerlySerializedAs("_brain")]
-        [SerializeField] private EnemyAIController _aiController;
+        [FormerlySerializedAs("_aiController")]
+        [SerializeField] private EnemyAIController _groundAIController;
+        [SerializeField] private EnemyFlyingAIController _flyingAIController;
         [SerializeField] private EnemyCombat _combat;
 
         protected float _maxHealth = 0.0f;
@@ -44,7 +46,9 @@ namespace UPlayGround
         
         public event Action<float, float> OnHealthChanged; // (current, max)
         public EnemyDetection Detection => _detection;
-        public EnemyAIController AIController => _aiController;
+        public IEnemyAIController AIController => _groundAIController != null ? _groundAIController : _flyingAIController;
+        public EnemyAIController GroundAIController => _groundAIController;
+        public EnemyFlyingAIController FlyingAIController => _flyingAIController;
         public EnemyCombat Combat => _combat;
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
@@ -60,7 +64,8 @@ namespace UPlayGround
             ResetHealthFromStats();
 
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
-            if (_aiController == null) _aiController = GetComponent<EnemyAIController>();
+            if (_groundAIController == null) _groundAIController = GetComponent<EnemyAIController>();
+            if (_flyingAIController == null) _flyingAIController = GetComponent<EnemyFlyingAIController>();
             if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
         }
@@ -122,7 +127,7 @@ namespace UPlayGround
             if (_uiHpBar == null) AttachHpUI();
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            _aiController?.UpdatePhase(GetHealthPercent());
+            AIController?.UpdatePhase(GetHealthPercent());
             
             _detection?.AcquireTarget(attackData.attacker?.transform);
             
@@ -186,7 +191,7 @@ namespace UPlayGround
 
             if (_uiHpBar == null) AttachHpUI();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            _aiController?.UpdatePhase(GetHealthPercent());
+            AIController?.UpdatePhase(GetHealthPercent());
 
             if (wasAlive && _currentHealth <= 0f)
                 OnDeath(null);
@@ -258,7 +263,7 @@ namespace UPlayGround
 
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
-            _aiController?.Group?.UnregisterMember(this);
+            AIController?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             SpawnDropItems();
@@ -332,13 +337,13 @@ namespace UPlayGround
 
         /// <summary>
         /// 플레이어 패리에 의해 공격이 무효화됐을 때 호출.
-        /// Brain에 패리 알림 후 경직 상태로 강제 전환한다.
+        /// AI 컨트롤러에 패리 알림 후 경직 상태로 강제 전환한다.
         /// </summary>
         public void OnParried()
         {
             Debug.Log($"[MonsterActor] {gameObject.name} 패리당함!");
 
-            _aiController?.OnParried();
+            AIController?.OnParried();
 
             // 패리 경직: Light 반응 타입으로 EnemyHitState 전환
             var staggerData = new AttackData

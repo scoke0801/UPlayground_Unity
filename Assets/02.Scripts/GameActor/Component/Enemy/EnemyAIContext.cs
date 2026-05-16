@@ -1,8 +1,21 @@
 using UnityEngine;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Group;
 
 namespace UPlayGround.Component
 {
+    public interface IEnemyAIController
+    {
+        MonsterGroupController Group { get; }
+        bool HasAggroTarget { get; }
+
+        void SetGroup(MonsterGroupController group, MemberPriority priority);
+        void UpdatePhase(float hpPercent);
+        void OnParried();
+        void Freeze();
+        void Unfreeze();
+    }
+
     /// <summary>
     /// BT 노드가 참조하는 적 AI Facade.
     /// EnemyAIController 의사결정 로직을 BT로 이전하는 동안 BT 노드와 EnemyAIController을 분리하는 추상 계층.

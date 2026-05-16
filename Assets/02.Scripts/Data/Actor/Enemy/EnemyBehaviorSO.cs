@@ -4,14 +4,14 @@ using UPlayGround.AI.BehaviorTree;
 namespace UPlayGround.Data.Enemy
 {
     /// <summary>
-    /// EnemyAIController의 행동 설정 전체를 담는 SO.
+    /// 지상형 EnemyAIController의 행동 설정 전체를 담는 SO.
     /// 기본 전투 수치 + 페이즈 배열을 포함한다.
     /// </summary>
     [CreateAssetMenu(fileName = "BehaviorData", menuName = "UPlayGround/Enemy/Behavior Data")]
     public class EnemyBehaviorSO : ScriptableObject
     {
         [Header("Behavior Tree")]
-        [Tooltip("이 몬스터의 행동을 결정할 BT Asset. 프리팹의 BehaviorTreeRunner._treeAsset에 직접 연결하는 게 1차 방식이며, 본 필드는 런타임 동기화 또는 추후 SO→Runner 자동 주입에 사용한다 (현재 EnemyAIController은 컴포넌트만 참조).")]
+        [Tooltip("이 몬스터의 행동을 결정할 BT Asset. EnemyAIController가 런타임에 BehaviorTreeRunner로 주입한다.")]
         public BehaviorTreeAsset behaviorTree;
 
         [Header("전투 거리")]
@@ -20,7 +20,7 @@ namespace UPlayGround.Data.Enemy
         public bool  maintainDistance       = true;
 
         [Header("Chase 정지 거리")]
-        [Tooltip("이 거리 이하가 되면 Chase 이동을 멈추고 Brain의 행동 결정을 기다린다.")]
+        [Tooltip("이 거리 이하가 되면 Chase 이동을 멈추고 BT의 행동 결정을 기다린다.")]
         public float chaseStopDistance     = 2.0f;
         [Tooltip("이 거리 이하로 겹치면 강제 Retreat. Attack Active 중에는 Brain에서 무시.")]
         public float personalSpaceDistance = 0.8f;

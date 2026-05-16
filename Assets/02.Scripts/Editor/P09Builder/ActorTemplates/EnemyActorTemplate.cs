@@ -66,7 +66,7 @@ namespace Game.Editor.P09Builder
             }
 
             // Actor에 컴포넌트 참조 주입 (private SerializeField)
-            ReflectionUtil.SetField(actor, "_aiController", aiController);
+            ReflectionUtil.SetField(actor, "_groundAIController", aiController);
             ReflectionUtil.SetField(actor, "_combat", combat);
             ReflectionUtil.SetField(actor, "_detection", detect);
             ReflectionUtil.SetField(actor, "_poiseStat", poise);

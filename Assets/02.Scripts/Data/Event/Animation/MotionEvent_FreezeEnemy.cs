@@ -13,7 +13,7 @@ namespace UPlayGround.Data.Event
     {
         public override string GetDisplayName() => "FreezeEnemy";
 
-        [NonSerialized] private List<EnemyAIController> _frozenEnemyControllers;
+        [NonSerialized] private List<IEnemyAIController> _frozenEnemyControllers;
         
         public override string GetShortLabel()
         {
@@ -35,7 +35,7 @@ namespace UPlayGround.Data.Event
             }
             
             // 주변 모든 적 Freeze
-            _frozenEnemyControllers ??= new List<EnemyAIController>();
+            _frozenEnemyControllers ??= new List<IEnemyAIController>();
             combat.FillEnemyAIControllersInRadius(30.0f, _frozenEnemyControllers);
             foreach (var brain in _frozenEnemyControllers)
                 brain.Freeze();

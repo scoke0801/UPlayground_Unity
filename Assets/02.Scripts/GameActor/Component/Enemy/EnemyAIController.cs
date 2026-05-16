@@ -14,7 +14,7 @@ namespace UPlayGround.Component
     /// 플레이어 상태를 관찰하여 반응형으로 행동을 결정한다.
     /// 공격적 접근 + 불확실한 전환 + 빠른 리듬이 핵심.
     /// </summary>
-    public class EnemyAIController : EnemyAIContext
+    public class EnemyAIController : EnemyAIContext, IEnemyAIController
     {
         [Header("Data")]
         [SerializeField] private EnemyBehaviorSO _behaviorData;
@@ -29,6 +29,7 @@ namespace UPlayGround.Component
         protected float       _lastAttackTime;
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
+        private float         _effectiveOptimalCombatDistance;
         private bool          _hasGuardMotion;
         protected BehaviorPhase _currentPhase;
 
@@ -71,7 +72,7 @@ namespace UPlayGround.Component
         public float RetreatChance        => _currentPhase?.retreatChance        ?? data?.retreatChance        ?? 0.2f;
         public override float ChaseSpeedMultiplier => _currentPhase?.chaseSpeedMultiplier ?? data?.chaseSpeedMultiplier ?? 1.2f;
 
-        public override float OptimalCombatDistance  => data?.optimalCombatDistance  ?? 2.5f;
+        public override float OptimalCombatDistance  => _effectiveOptimalCombatDistance;
         public override float MinCombatDistance      => data?.minCombatDistance      ?? 1.5f;
         public bool  MaintainDistance       => data?.maintainDistance       ?? true;
         public override float ChaseStopDistance      => data?.chaseStopDistance      ?? 2.0f;
@@ -99,11 +100,13 @@ namespace UPlayGround.Component
 
         protected virtual void Start()
         {
+            _effectiveOptimalCombatDistance = data?.optimalCombatDistance ?? 2.5f;
+
             if (_combat?.AttackData != null)
             {
                 _maxAttackRange = _combat.AttackData.GetMaxAttackRange();
-                if (data != null && data.optimalCombatDistance > _maxAttackRange)
-                    data.optimalCombatDistance = _maxAttackRange * 0.8f;
+                if (_effectiveOptimalCombatDistance > _maxAttackRange)
+                    _effectiveOptimalCombatDistance = _maxAttackRange * 0.8f;
             }
             else
             {
@@ -282,11 +285,16 @@ namespace UPlayGround.Component
         public void Freeze()
         {
             if (_movementController.CurrentState.StateName == "Death") return;
+            _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
             _movementController.TransitionToState(new EnemyIdleState(_movementController));
         }
 
-        public void Unfreeze() => enabled = true;
+        public void Unfreeze()
+        {
+            enabled = true;
+            _behaviorTreeRunner?.EnableBehavior();
+        }
         #endregion
     }
 }

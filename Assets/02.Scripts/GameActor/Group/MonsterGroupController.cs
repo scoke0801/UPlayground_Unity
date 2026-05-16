@@ -163,8 +163,8 @@ namespace UPlayGround.Group
 
             if (lowestActor == null) return false; // 밀어낼 대상 없음 → 거절
 
-            // 밀어내기: 낮은 우선순위 점유자가 슬롯을 잃음
-            // 해당 몬스터는 다음 Brain 판단 주기(0.1s)에 슬롯 재요청 or CircleState 대기
+            // 밀어내기: 낮은 우선순위 점유자가 슬롯을 잃음.
+            // 해당 몬스터는 다음 BT 판단 주기에 슬롯 재요청 또는 CircleState 대기.
             slotOwners.Remove(lowestActor);
             slotOwners[requester] = requesterPriority;
             return true;

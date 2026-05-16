@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.CameraSystem;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Editor
@@ -9,7 +10,7 @@ namespace UPlayGround.Data.Editor
     {
         private CameraSnapshotProfile _profile;
         private Camera _previewCamera;
-        private Transform _actorAnchor;
+        private Transform _captureActorAnchor;
         private CameraSnapshotSpace _captureSpace = CameraSnapshotSpace.ActorRelative;
         private int _selectedIndex = -1;
         private Vector2 _shotScroll;
@@ -57,7 +58,7 @@ namespace UPlayGround.Data.Editor
             {
                 _profile = (CameraSnapshotProfile)EditorGUILayout.ObjectField("프로필", _profile, typeof(CameraSnapshotProfile), false);
                 _previewCamera = (Camera)EditorGUILayout.ObjectField("캡처 카메라", _previewCamera, typeof(Camera), true);
-                _actorAnchor = (Transform)EditorGUILayout.ObjectField("액터 기준", _actorAnchor, typeof(Transform), true);
+                _captureActorAnchor = (Transform)EditorGUILayout.ObjectField("캡처 기준 Transform", _captureActorAnchor, typeof(Transform), true);
                 _captureSpace = (CameraSnapshotSpace)EditorGUILayout.EnumPopup("캡처 좌표계", _captureSpace);
 
                 using (new EditorGUILayout.HorizontalScope())
@@ -100,7 +101,7 @@ namespace UPlayGround.Data.Editor
                     if (_isSequencePlaying && _profile != null)
                     {
                         float elapsed = (float)(EditorApplication.timeSinceStartup - _sequenceStartTime);
-                        EditorGUILayout.LabelField($"{elapsed:0.00}s / {_profile.TotalDuration:0.00}s", GUILayout.Width(120f));
+                        EditorGUILayout.LabelField($"{elapsed:0.00}s / {_profile.EffectiveTotalDuration:0.00}s", GUILayout.Width(120f));
                     }
                 }
 
@@ -129,11 +130,30 @@ namespace UPlayGround.Data.Editor
             _profile.useCollision = EditorGUILayout.Toggle("충돌 보정 사용", _profile.useCollision);
             _profile.entryBlendDuration = Mathf.Max(0f, EditorGUILayout.FloatField("진입 블렌드 시간", _profile.entryBlendDuration));
             _profile.entryBlendCurve = EditorGUILayout.CurveField("진입 블렌드 커브", _profile.entryBlendCurve);
+            _profile.playbackSpeed = Mathf.Max(0.01f, EditorGUILayout.FloatField("재생 속도", _profile.playbackSpeed));
             _profile.priority = EditorGUILayout.IntField("우선순위", _profile.priority);
             _profile.interruptPolicy = (CameraSnapshotInterruptPolicy)EditorGUILayout.EnumPopup("인터럽트 정책", _profile.interruptPolicy);
+            DrawActorReferenceField("액터 기준", ref _profile.actorAnchor);
+            DrawActorReferenceField("LookAt 기준", ref _profile.lookAtTarget);
 
             if (EditorGUI.EndChangeCheck())
                 EditorUtility.SetDirty(_profile);
+        }
+
+        private static void DrawActorReferenceField(string label, ref CameraSnapshotActorReference reference)
+        {
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                reference.enabled = EditorGUILayout.Toggle("사용", reference.enabled);
+                reference.useActivePlayerWhenEmpty = EditorGUILayout.Toggle("비어 있으면 활성 플레이어", reference.useActivePlayerWhenEmpty);
+                reference.actorIdType = (UPlayGround.Data.Actor.ActorIdType)EditorGUILayout.EnumPopup("Actor ID", reference.actorIdType);
+                using (new EditorGUI.DisabledScope(reference.actorIdType != UPlayGround.Data.Actor.ActorIdType.None))
+                {
+                    reference.actorId = EditorGUILayout.TextField("Actor ID 문자열", reference.actorId);
+                }
+                reference.socketType = (UPlayGround.Data.EnumType.ActorSocketType)EditorGUILayout.EnumPopup("Socket", reference.socketType);
+            }
         }
 
         private void DrawFreeCameraControls()
@@ -235,6 +255,12 @@ namespace UPlayGround.Data.Editor
                 shot.fieldOfView = EditorGUILayout.Slider("FOV", shot.fieldOfView, 1f, 179f);
                 shot.duration = Mathf.Max(0.01f, EditorGUILayout.FloatField("지속 시간", shot.duration));
                 shot.blendCurve = EditorGUILayout.CurveField("블렌드 커브", shot.blendCurve);
+                shot.moveType = (CameraSnapshotMoveType)EditorGUILayout.EnumPopup("이동 방식", shot.moveType);
+                using (new EditorGUI.DisabledScope(shot.moveType != CameraSnapshotMoveType.OrbitAroundAnchor))
+                {
+                    shot.orbitDirection = (CameraSnapshotOrbitDirection)EditorGUILayout.EnumPopup("공전 방향", shot.orbitDirection);
+                    shot.keepLookAtTargetDuringBlend = EditorGUILayout.Toggle("보간 중 중심 바라보기", shot.keepLookAtTargetDuringBlend);
+                }
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -242,7 +268,7 @@ namespace UPlayGround.Data.Editor
                     {
                         if (GUILayout.Button("현재 카메라로 덮어쓰기"))
                         {
-                            shot.Capture(ResolveCaptureCamera(), _actorAnchor, _captureSpace);
+                            shot.Capture(ResolveCaptureCamera(), _captureActorAnchor, _captureSpace);
                             EditorUtility.SetDirty(_profile);
                         }
 
@@ -292,7 +318,7 @@ namespace UPlayGround.Data.Editor
                 shotName = $"Shot {_profile.shots.Count + 1}",
                 duration = 1f
             };
-            shot.Capture(ResolveCaptureCamera(), _actorAnchor, _captureSpace);
+            shot.Capture(ResolveCaptureCamera(), _captureActorAnchor, _captureSpace);
             _profile.shots.Add(shot);
             _selectedIndex = _profile.shots.Count - 1;
             EditorUtility.SetDirty(_profile);
@@ -302,7 +328,8 @@ namespace UPlayGround.Data.Editor
         {
             if (shot == null) return;
 
-            shot.ResolveWorldPose(_actorAnchor, out Vector3 position, out Quaternion rotation);
+            Transform actorAnchor = ResolveEditorActorAnchor();
+            shot.ResolveWorldPose(actorAnchor, out Vector3 position, out Quaternion rotation);
 
             if (Application.isPlaying && CameraManager.Instance != null)
             {
@@ -349,6 +376,10 @@ namespace UPlayGround.Data.Editor
             runtimeProfile.lockCameraInput = true;
             runtimeProfile.releaseLockOnOnEnter = false;
             runtimeProfile.applyFirstShotImmediately = true;
+            runtimeProfile.actorAnchor = _profile != null ? _profile.actorAnchor : CameraSnapshotActorReference.ActivePlayer();
+            runtimeProfile.lookAtTarget = _profile != null
+                ? _profile.lookAtTarget
+                : CameraSnapshotActorReference.None();
             runtimeProfile.shots.Add(new CameraSnapshotShot
             {
                 shotName = shot.shotName,
@@ -360,7 +391,7 @@ namespace UPlayGround.Data.Editor
                 blendCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f)
             });
 
-            CameraManager.Instance.PushCameraSnapshotSequence(runtimeProfile, _actorAnchor, null);
+            CameraManager.Instance.PushCameraSnapshotSequence(runtimeProfile);
         }
 
         private void PlaySequence()
@@ -372,7 +403,7 @@ namespace UPlayGround.Data.Editor
             {
                 _isSequencePlaying = true;
                 _sequenceStartTime = EditorApplication.timeSinceStartup;
-                CameraManager.Instance.PushCameraSnapshotSequence(_profile, _actorAnchor, null);
+                CameraManager.Instance.PushCameraSnapshotSequence(_profile);
                 return;
             }
 
@@ -408,7 +439,7 @@ namespace UPlayGround.Data.Editor
 
             if (Application.isPlaying)
             {
-                if (EditorApplication.timeSinceStartup - _sequenceStartTime >= _profile.TotalDuration)
+                if (EditorApplication.timeSinceStartup - _sequenceStartTime >= _profile.EffectiveTotalDuration)
                     _isSequencePlaying = false;
 
                 Repaint();
@@ -422,11 +453,12 @@ namespace UPlayGround.Data.Editor
                 return;
             }
 
-            float elapsed = (float)(EditorApplication.timeSinceStartup - _sequenceStartTime);
+            float elapsed = (float)(EditorApplication.timeSinceStartup - _sequenceStartTime) * Mathf.Max(0.01f, _profile.playbackSpeed);
             if (!TryEvaluateEditorPose(elapsed, out Vector3 position, out Quaternion rotation, out float fov))
             {
                 CameraSnapshotShot lastShot = _profile.shots[_profile.shots.Count - 1];
-                lastShot.ResolveWorldPose(_actorAnchor, out position, out rotation);
+                Transform actorAnchor = ResolveEditorActorAnchor();
+                lastShot.ResolveWorldPose(actorAnchor, out position, out rotation);
                 fov = lastShot.fieldOfView;
                 _isSequencePlaying = false;
             }
@@ -460,7 +492,8 @@ namespace UPlayGround.Data.Editor
                 }
 
                 ResolveEditorFromPose(i, out Vector3 fromPosition, out Quaternion fromRotation, out float fromFov);
-                shot.ResolveWorldPose(_actorAnchor, out Vector3 toPosition, out Quaternion toRotation);
+                Transform actorAnchor = ResolveEditorActorAnchor();
+                shot.ResolveWorldPose(actorAnchor, out Vector3 toPosition, out Quaternion toRotation);
 
                 float rawT = Mathf.Clamp01((elapsed - accumulated) / duration);
                 if (_profile.applyFirstShotImmediately && i == 0)
@@ -487,7 +520,7 @@ namespace UPlayGround.Data.Editor
                 if (_profile.applyFirstShotImmediately && _profile.shots.Count > 0)
                 {
                     CameraSnapshotShot firstShot = _profile.shots[0];
-                    firstShot.ResolveWorldPose(_actorAnchor, out position, out rotation);
+                    firstShot.ResolveWorldPose(ResolveEditorActorAnchor(), out position, out rotation);
                     fov = firstShot.fieldOfView;
                     return;
                 }
@@ -499,8 +532,18 @@ namespace UPlayGround.Data.Editor
             }
 
             CameraSnapshotShot previousShot = _profile.shots[shotIndex - 1];
-            previousShot.ResolveWorldPose(_actorAnchor, out position, out rotation);
+            previousShot.ResolveWorldPose(ResolveEditorActorAnchor(), out position, out rotation);
             fov = previousShot.fieldOfView;
+        }
+
+        private Transform ResolveEditorActorAnchor()
+        {
+            if (_captureActorAnchor != null)
+                return _captureActorAnchor;
+
+            return _profile != null
+                ? CameraSnapshotActorReferenceResolver.Resolve(_profile.actorAnchor)
+                : null;
         }
 
         private static void AlignSceneViewToCamera(SceneView sceneView, Camera camera)

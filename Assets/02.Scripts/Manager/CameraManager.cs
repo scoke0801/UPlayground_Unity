@@ -780,7 +780,16 @@ namespace UPlayGround.Manager
 
         public bool IsFreeCameraActive => CurrentCameraMode == CameraModeType.Free;
 
-        public bool PushCameraSnapshotSequence(CameraSnapshotProfile profile, Transform actorAnchor = null, Transform lookAtTarget = null, System.Action onComplete = null)
+        public bool PushCameraSnapshotSequence(CameraSnapshotProfile profile, System.Action onComplete = null)
+        {
+            return PushCameraSnapshotSequence(profile, null, null, onComplete);
+        }
+
+        public bool PushCameraSnapshotSequence(
+            CameraSnapshotProfile profile,
+            CameraSnapshotActorReference? actorAnchor,
+            CameraSnapshotActorReference? lookAtTarget,
+            System.Action onComplete = null)
         {
             if (profile == null)
             {
@@ -793,9 +802,11 @@ namespace UPlayGround.Manager
 
             return PushCameraMode(CameraModeType.CameraSnapshotSequence, new CameraModeEnterParams
             {
-                PrimaryTarget = actorAnchor != null ? actorAnchor : _target,
-                SecondaryTarget = lookAtTarget,
                 SnapshotProfile = profile,
+                HasSnapshotActorAnchorOverride = actorAnchor.HasValue,
+                SnapshotActorAnchor = actorAnchor.GetValueOrDefault(),
+                HasSnapshotLookAtTargetOverride = lookAtTarget.HasValue,
+                SnapshotLookAtTarget = lookAtTarget.GetValueOrDefault(),
                 RestorePreviousOnExit = profile.restorePreviousModeOnFinish,
                 OnComplete = onComplete
             });

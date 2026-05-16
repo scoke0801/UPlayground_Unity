@@ -10,8 +10,10 @@ namespace UPlayGround.Data.Event
     public class CameraSnapshotSequenceEvent : MotionEventBase
     {
         public CameraSnapshotProfile profile;
-        public string actorAnchorName;
-        public string lookAtTargetName;
+        public bool overrideActorAnchor;
+        public CameraSnapshotActorReference actorAnchor = CameraSnapshotActorReference.ActivePlayer();
+        public bool overrideLookAtTarget;
+        public CameraSnapshotActorReference lookAtTarget = CameraSnapshotActorReference.None();
         public bool restorePreviousOnComplete = true;
 
         public override string GetDisplayName() => "Camera Snapshot Sequence";
@@ -25,12 +27,10 @@ namespace UPlayGround.Data.Event
         {
             if (profile == null || CameraManager.Instance == null) return;
 
-            Transform actorAnchor = ResolveTransform(target, actorAnchorName);
-            if (actorAnchor == null && target != null)
-                actorAnchor = target.transform;
-
-            Transform lookAtTarget = ResolveTransform(target, lookAtTargetName);
-            CameraManager.Instance.PushCameraSnapshotSequence(profile, actorAnchor, lookAtTarget);
+            CameraManager.Instance.PushCameraSnapshotSequence(
+                profile,
+                overrideActorAnchor ? actorAnchor : null,
+                overrideLookAtTarget ? lookAtTarget : null);
         }
 
         public override void OnCompleteEvent(GameObject target)
@@ -38,21 +38,6 @@ namespace UPlayGround.Data.Event
             if (!restorePreviousOnComplete) return;
 
             CameraManager.Instance?.StopCameraSnapshotSequence(profile);
-        }
-
-        private static Transform ResolveTransform(GameObject target, string transformName)
-        {
-            if (target == null || string.IsNullOrEmpty(transformName))
-                return null;
-
-            Transform[] transforms = target.GetComponentsInChildren<Transform>(true);
-            foreach (var tr in transforms)
-            {
-                if (tr.name == transformName)
-                    return tr;
-            }
-
-            return null;
         }
     }
 }

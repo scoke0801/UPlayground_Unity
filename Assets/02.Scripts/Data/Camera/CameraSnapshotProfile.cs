@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data
 {
@@ -17,6 +19,64 @@ namespace UPlayGround.Data
         OverrideIfHigherPriority
     }
 
+    public enum CameraSnapshotMoveType
+    {
+        Linear,
+        OrbitAroundAnchor
+    }
+
+    public enum CameraSnapshotOrbitDirection
+    {
+        Shortest,
+        Clockwise,
+        CounterClockwise
+    }
+
+    [Serializable]
+    public struct CameraSnapshotActorReference
+    {
+        public bool enabled;
+        public bool useActivePlayerWhenEmpty;
+        public ActorIdType actorIdType;
+        public string actorId;
+        public ActorSocketType socketType;
+
+        public string ResolvedActorId
+        {
+            get
+            {
+                if (actorIdType != ActorIdType.None)
+                    return actorIdType.ToActorId();
+
+                return actorId;
+            }
+        }
+
+        public static CameraSnapshotActorReference ActivePlayer(ActorSocketType socketType = ActorSocketType.Center)
+        {
+            return new CameraSnapshotActorReference
+            {
+                enabled = true,
+                useActivePlayerWhenEmpty = true,
+                actorIdType = ActorIdType.None,
+                actorId = string.Empty,
+                socketType = socketType
+            };
+        }
+
+        public static CameraSnapshotActorReference None()
+        {
+            return new CameraSnapshotActorReference
+            {
+                enabled = false,
+                useActivePlayerWhenEmpty = false,
+                actorIdType = ActorIdType.None,
+                actorId = string.Empty,
+                socketType = ActorSocketType.None
+            };
+        }
+    }
+
     [Serializable]
     public class CameraSnapshotShot
     {
@@ -27,6 +87,9 @@ namespace UPlayGround.Data
         public float fieldOfView = 50f;
         public float duration = 1f;
         public AnimationCurve blendCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        public CameraSnapshotMoveType moveType = CameraSnapshotMoveType.Linear;
+        public CameraSnapshotOrbitDirection orbitDirection = CameraSnapshotOrbitDirection.Shortest;
+        public bool keepLookAtTargetDuringBlend = true;
 
         public void Capture(Camera camera, Transform actorAnchor, CameraSnapshotSpace captureSpace)
         {
@@ -73,8 +136,11 @@ namespace UPlayGround.Data
         public bool useCollision = false;
         public float entryBlendDuration = 0f;
         public AnimationCurve entryBlendCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        public float playbackSpeed = 1f;
         public int priority = 0;
         public CameraSnapshotInterruptPolicy interruptPolicy = CameraSnapshotInterruptPolicy.Restart;
+        public CameraSnapshotActorReference actorAnchor = CameraSnapshotActorReference.ActivePlayer();
+        public CameraSnapshotActorReference lookAtTarget = CameraSnapshotActorReference.None();
         public List<CameraSnapshotShot> shots = new List<CameraSnapshotShot>();
 
         public float TotalDuration
@@ -92,12 +158,15 @@ namespace UPlayGround.Data
             }
         }
 
+        public float EffectiveTotalDuration => playbackSpeed > 0f ? TotalDuration / playbackSpeed : TotalDuration;
+
         private void OnValidate()
         {
             if (string.IsNullOrEmpty(sequenceName))
                 sequenceName = name;
 
             entryBlendDuration = Mathf.Max(0f, entryBlendDuration);
+            playbackSpeed = Mathf.Max(0.01f, playbackSpeed);
 
             if (shots == null) return;
             foreach (var shot in shots)

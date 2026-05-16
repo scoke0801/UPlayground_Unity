@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -6,13 +6,13 @@ using UPlayGround.MovementController;
 namespace UPlayGround.State
 {
     /// <summary>
-    /// 비행 몬스터 순찰. 기존 EnemyPatrolState 로직을 EnemyFlyingBrain 참조로 재구현.
+    /// 비행 몬스터 순찰. 기존 EnemyPatrolState 로직을 EnemyFlyingAIController 참조로 재구현.
     /// </summary>
     public class EnemyFlyingPatrolState : GameActorState
     {
         public override string StateName => "Flying_Patrol";
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private Vector3 _targetPos;
         private float _patrolSpeed;
         private float _waitTimer;
@@ -23,7 +23,7 @@ namespace UPlayGround.State
         private const float ArrivalDist = 0.5f;
         private const float StuckTimeout = 2.0f;
 
-        public EnemyFlyingPatrolState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingPatrolState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller) { _brain = brain; }
 
         public override bool CanTransitionState(string stateName) => true;
@@ -49,7 +49,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 타겟 발견 → Brain.MakeDecision이 처리
+            // 타겟 발견 이후의 전환은 BT가 처리
             if (_brain.Detection.HasTarget) return;
 
             if (_isWaiting)

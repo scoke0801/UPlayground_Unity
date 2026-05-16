@@ -95,7 +95,10 @@
       "WebFetch(domain:forums.unrealengine.com)",
       "WebFetch(domain:www.quodsoler.com)",
       "WebFetch(domain:soulslike-framework.isik.vip)",
-      "PowerShell(head *)"
+      "PowerShell(head *)",
+      "Bash(dotnet build *)",
+      "Bash(python -c \"import uuid; print\\(uuid.uuid4\\(\\).hex\\)\")",
+      "Bash(powershell -NoProfile -Command \"[guid]::NewGuid\\(\\).ToString\\('N'\\)\")"
     ]
   }
 }

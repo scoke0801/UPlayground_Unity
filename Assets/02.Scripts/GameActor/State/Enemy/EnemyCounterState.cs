@@ -16,7 +16,7 @@ namespace UPlayGround.State
         public override string StateName => "Counter";
 
         private readonly EnemyCombat _combat;
-        private readonly EnemyBrain _brain;
+        private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
         private readonly EnemyTacticalMemory _memory;
 
@@ -31,12 +31,12 @@ namespace UPlayGround.State
         public EnemyCounterState(
             ActorMovementController controller,
             EnemyCombat combat,
-            EnemyBrain brain,
+            EnemyAIContext context,
             EnemyDetection detection,
             EnemyTacticalMemory memory) : base(controller)
         {
             _combat   = combat;
-            _brain    = brain;
+            _context  = context;
             _detection = detection;
             _memory   = memory;
         }
@@ -56,7 +56,7 @@ namespace UPlayGround.State
             if (_skill == null)
             {
                 // 사용 가능한 스킬이 없으면 그냥 추격으로 빠짐
-                controller.TransitionToState(new EnemyChaseState(controller, _brain, _detection));
+                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
                 return;
             }
 
@@ -140,7 +140,7 @@ namespace UPlayGround.State
             if (_detection.HasTarget)
             {
                 controller.TransitionToState(
-                    new EnemyRetreatState(controller, _brain, _detection, _brain.RetreatDistance));
+                    new EnemyRetreatState(controller, _context, _detection, _context.RetreatDistance));
             }
             else
             {

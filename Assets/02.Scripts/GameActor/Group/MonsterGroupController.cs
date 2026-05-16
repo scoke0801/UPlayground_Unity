@@ -35,6 +35,7 @@ namespace UPlayGround.Group
         // 멤버 레지스트리
         private readonly List<MonsterActor>                        _members    = new();
         private readonly Dictionary<MonsterActor, MemberPriority>  _priorities = new();
+        private readonly List<MonsterActor>                        _deadSlotOwners = new();
 
         private bool _isActivated = false;
 
@@ -48,7 +49,7 @@ namespace UPlayGround.Group
 
         private void Start()
         {
-            // Awake 타이밍에 호출하면 MonsterActor._brain이 아직 null일 수 있음
+            // Awake 타이밍에 호출하면 MonsterActor.AIController가 아직 null일 수 있음
             // Start에서 수집하면 모든 컴포넌트 Awake 완료 후 보장됨
             var actors = GetComponentsInChildren<MonsterActor>(includeInactive: true);
             foreach (var actor in actors)
@@ -74,15 +75,15 @@ namespace UPlayGround.Group
         public void RegisterMember(MonsterActor actor, MemberPriority priority)
         {
             if (actor == null || _priorities.ContainsKey(actor)) return;
-            if (actor.Brain == null)
+            if (actor.AIController == null)
             {
-                Debug.LogWarning($"[MonsterGroupController] {actor.name}의 Brain이 null입니다. 등록 건너뜀.");
+                Debug.LogWarning($"[MonsterGroupController] {actor.name}의 AIController가 null입니다. 등록 건너뜀.");
                 return;
             }
 
             _members.Add(actor);
             _priorities[actor] = priority;
-            actor.Brain.SetGroup(this, priority);
+            actor.AIController.SetGroup(this, priority);
         }
 
         public void UnregisterMember(MonsterActor actor)
@@ -135,10 +136,10 @@ namespace UPlayGround.Group
             if (slotOwners.ContainsKey(requester)) return true;
 
             // 사망자 정리
-            var dead = new List<MonsterActor>();
+            _deadSlotOwners.Clear();
             foreach (var kv in slotOwners)
-                if (kv.Key == null || !kv.Key.IsAlive()) dead.Add(kv.Key);
-            foreach (var d in dead) slotOwners.Remove(d);
+                if (kv.Key == null || !kv.Key.IsAlive()) _deadSlotOwners.Add(kv.Key);
+            foreach (var d in _deadSlotOwners) slotOwners.Remove(d);
 
             // 빈 슬롯 있으면 바로 점유
             if (slotOwners.Count < maxSlots)

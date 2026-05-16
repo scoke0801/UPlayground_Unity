@@ -1749,10 +1749,10 @@ namespace UPlayGround.Animation.Editor
 
         void FreezeTestActor(GameObject go)
         {
-            // EnemyBrain / EnemyFlyingBrain 비활성화 → AI 의사결정 중단
-            foreach (var brain in go.GetComponentsInChildren<EnemyBrain>(true))
+            // EnemyAIController / EnemyFlyingAIController 비활성화 → AI 의사결정 중단
+            foreach (var brain in go.GetComponentsInChildren<EnemyAIController>(true))
                 brain.enabled = false;
-            foreach (var brain in go.GetComponentsInChildren<EnemyFlyingBrain>(true))
+            foreach (var brain in go.GetComponentsInChildren<EnemyFlyingAIController>(true))
                 brain.enabled = false;
 
             // KinematicCharacterMotor 비활성화 → 물리 이동 및 상태머신 업데이트 중단

@@ -47,7 +47,7 @@ namespace UPlayGround.State
             {
                 controller.TransitionToState(new EnemyChaseState(
                     controller,
-                    gameActor.GetComponent<EnemyBrain>(),
+                    gameActor.GetComponent<EnemyAIContext>(),
                     gameActor.GetComponent<EnemyDetection>()));
                 return;
             }

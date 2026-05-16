@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
@@ -10,6 +10,7 @@ using UPlayGround.Manager;
 using UPlayGround.Manager.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
+using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace UPlayGround
@@ -31,7 +32,8 @@ namespace UPlayGround
 
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
-        [SerializeField] private EnemyBrain _brain;
+        [FormerlySerializedAs("_brain")]
+        [SerializeField] private EnemyAIController _aiController;
         [SerializeField] private EnemyCombat _combat;
 
         protected float _maxHealth = 0.0f;
@@ -42,7 +44,7 @@ namespace UPlayGround
         
         public event Action<float, float> OnHealthChanged; // (current, max)
         public EnemyDetection Detection => _detection;
-        public EnemyBrain Brain => _brain;
+        public EnemyAIController AIController => _aiController;
         public EnemyCombat Combat => _combat;
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
@@ -58,7 +60,7 @@ namespace UPlayGround
             ResetHealthFromStats();
 
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
-            if (_brain     == null) _brain     = GetComponent<EnemyBrain>();
+            if (_aiController == null) _aiController = GetComponent<EnemyAIController>();
             if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
         }
@@ -120,7 +122,7 @@ namespace UPlayGround
             if (_uiHpBar == null) AttachHpUI();
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            _brain?.UpdatePhase(GetHealthPercent());
+            _aiController?.UpdatePhase(GetHealthPercent());
             
             _detection?.AcquireTarget(attackData.attacker?.transform);
             
@@ -184,7 +186,7 @@ namespace UPlayGround
 
             if (_uiHpBar == null) AttachHpUI();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            _brain?.UpdatePhase(GetHealthPercent());
+            _aiController?.UpdatePhase(GetHealthPercent());
 
             if (wasAlive && _currentHealth <= 0f)
                 OnDeath(null);
@@ -256,7 +258,7 @@ namespace UPlayGround
 
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
-            _brain?.Group?.UnregisterMember(this);
+            _aiController?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             SpawnDropItems();
@@ -336,7 +338,7 @@ namespace UPlayGround
         {
             Debug.Log($"[MonsterActor] {gameObject.name} 패리당함!");
 
-            _brain?.OnParried();
+            _aiController?.OnParried();
 
             // 패리 경직: Light 반응 타입으로 EnemyHitState 전환
             var staggerData = new AttackData

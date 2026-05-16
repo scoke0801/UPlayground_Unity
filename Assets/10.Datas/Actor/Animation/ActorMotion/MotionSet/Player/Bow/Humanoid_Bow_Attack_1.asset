@@ -20,8 +20,42 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7432452679253098625
+      - rid: 7432452679253098626
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452679253098625
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.90137064
+        endTime: 1.4013705
+        globalStartTimeOffset: 0
+    - rid: 7432452679253098626
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.708805
+        endTime: 1.2088048
+        globalStartTimeOffset: 0
+        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        spawnPointName: 
+        spawnOffset: {x: 0, y: 1, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 1
+        damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
+        speed: 10
+        duration: 3
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 0
+        hitParticleName: 

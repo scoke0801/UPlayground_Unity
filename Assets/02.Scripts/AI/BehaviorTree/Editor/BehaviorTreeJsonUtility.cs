@@ -95,6 +95,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (string.IsNullOrWhiteSpace(jsonPath))
                 return;
 
+            if (LooksLikeMonsterBehaviorJson(File.ReadAllText(jsonPath)))
+            {
+                var monsterTree = ImportMonsterBehaviorJsonWithReflection(jsonPath, null);
+                EditorGUIUtility.PingObject(monsterTree);
+                BehaviorTreeEditorWindow.Open(monsterTree);
+                LogValidation(monsterTree);
+                return;
+            }
+
             var assetPath = EditorUtility.SaveFilePanelInProject(
                 "Behavior Tree Asset 저장",
                 Path.GetFileNameWithoutExtension(jsonPath),
@@ -108,6 +117,40 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var tree = ImportFromJsonFile(jsonPath, assetPath);
             EditorGUIUtility.PingObject(tree);
             BehaviorTreeEditorWindow.Open(tree);
+            LogValidation(tree);
+        }
+
+        private static void LogValidation(BehaviorTreeAsset tree)
+        {
+            if (tree == null)
+                return;
+
+            var messages = BehaviorTreeAssetValidator.Validate(tree);
+            if (messages == null || messages.Count == 0)
+            {
+                Debug.Log($"[BT] '{tree.name}' Validate: 문제 없음.");
+                return;
+            }
+
+            var errorCount = messages.Count(m => m.Level == BehaviorTreeValidationLevel.Error);
+            var warningCount = messages.Count(m => m.Level == BehaviorTreeValidationLevel.Warning);
+            foreach (var m in messages)
+            {
+                switch (m.Level)
+                {
+                    case BehaviorTreeValidationLevel.Error:
+                        Debug.LogError($"[BT][Validate] {m.Message}", tree);
+                        break;
+                    case BehaviorTreeValidationLevel.Warning:
+                        Debug.LogWarning($"[BT][Validate] {m.Message}", tree);
+                        break;
+                    default:
+                        Debug.Log($"[BT][Validate] {m.Message}", tree);
+                        break;
+                }
+            }
+
+            Debug.Log($"[BT] '{tree.name}' Validate 완료: Error {errorCount}개 / Warning {warningCount}개.", tree);
         }
 
         public static void ExportToJsonFile(BehaviorTreeAsset tree, string absolutePath)

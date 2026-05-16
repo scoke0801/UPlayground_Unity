@@ -24,8 +24,8 @@ namespace UPlayGround.AI.BehaviorTree
             if (_requireTarget && (detection == null || !detection.HasTarget))
                 return BTStatus.Failure;
 
-            var brain = Context?.GetComponentCached<EnemyBrain>();
-            if (brain != null && !brain.CanUseSkill())
+            var context = Context?.GetComponentCached<EnemyAIContext>();
+            if (context != null && !context.CanUseSkill())
                 return BTStatus.Failure;
 
             var distance = detection != null && detection.HasTarget

@@ -8,19 +8,19 @@ namespace UPlayGround.State
     /// <summary>
     /// 비행 몬스터 지상 선회. 기존 EnemyCircleState의 경량 버전.
     /// 타겟 주변을 배회하다 duration 만료 시 Chase로 복귀.
-    /// Brain.MakeDecision이 이륙 조건을 감시하여 중간에 TakeOff 가능.
+    /// 이륙/공격 전환 판단은 BT가 담당한다.
     /// </summary>
     public class EnemyFlyingCircleState : GameActorState
     {
         public override string StateName => "Flying_Circle";
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private float _duration;
         private float _timer;
         private float _circleDir;
         private float _baseSpeed;
 
-        public EnemyFlyingCircleState(ActorMovementController controller, EnemyFlyingBrain brain, float duration)
+        public EnemyFlyingCircleState(ActorMovementController controller, EnemyFlyingAIContext brain, float duration)
             : base(controller)
         {
             _brain = brain;

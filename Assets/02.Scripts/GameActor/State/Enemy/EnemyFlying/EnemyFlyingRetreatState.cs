@@ -7,19 +7,19 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// 비행 몬스터 후퇴. 타겟 반대 방향으로 거리 확보 후 Chase 복귀.
-    /// Brain.MakeDecision이 이륙 조건을 감시하여 중간에 TakeOff 가능.
+    /// 이륙/공격 전환 판단은 BT가 담당한다.
     /// </summary>
     public class EnemyFlyingRetreatState : GameActorState
     {
         public override string StateName => "Flying_Retreat";
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private float _retreatSpeed;
         private float _timer;
 
         private const float Timeout = 2.0f;
 
-        public EnemyFlyingRetreatState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingRetreatState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller) { _brain = brain; }
 
         public override bool CanTransitionState(string stateName) => true;

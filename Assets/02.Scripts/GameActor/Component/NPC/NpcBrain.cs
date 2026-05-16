@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround.Component
 {
     /// <summary>
     /// NPC 행동 설정.
-    /// EnemyBrain과 달리 전투 로직 없이 배회·대기 데이터만 담습니다.
+    /// EnemyAIController과 달리 전투 로직 없이 배회·대기 데이터만 담습니다.
     /// </summary>
     public class NpcBrain : MonoBehaviour
     {

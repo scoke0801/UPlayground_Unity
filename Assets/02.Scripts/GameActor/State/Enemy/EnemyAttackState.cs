@@ -22,7 +22,7 @@ namespace UPlayGround.State
         public override string StateName => "Attack";
 
         private EnemyCombat    _combat;
-        private EnemyBrain     _brain;
+        private EnemyAIContext _context;
         private EnemyDetection _detection;
 
         private EnemyAttackInfo _currentSkill;
@@ -33,11 +33,11 @@ namespace UPlayGround.State
         private Transform _homingTarget;
         private MotionWarpController _motionWarp;
 
-        public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyBrain brain, EnemyDetection detection)
+        public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyAIContext context, EnemyDetection detection)
             : base(controller)
         {
             _combat    = combat;
-            _brain     = brain;
+            _context   = context;
             _detection = detection;
         }
 
@@ -101,7 +101,7 @@ namespace UPlayGround.State
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
-            _brain.ReleaseGroupSlot();
+            _context.ReleaseGroupSlot();
         }
 
         public override void UpdateState(float deltaTime)
@@ -132,7 +132,7 @@ namespace UPlayGround.State
         private void TransitionToNextState()
         {
             bool didHit = _combat.LastHitCount > 0;
-            _brain.DecidePostAttack(didHit);
+            _context.DecidePostAttack(didHit);
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

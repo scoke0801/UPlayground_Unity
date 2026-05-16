@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// Run 애니메이션을 재활용해 빠른 속도로 타겟에게 돌진 후 즉시 공격으로 전환한다.
     /// 플레이어가 반응할 시간이 짧아 회피를 요구하는 패턴이 된다.
     /// 
-    /// 사용 조건 (EnemyBrain이 판단):
+    /// 사용 조건 (EnemyAIController이 판단):
     ///   - 타겟이 일정 거리 이상 떨어져 있을 때 (먼 거리에서 갑자기 쇄도)
     ///   - 플레이어가 자주 회피해서 일반 추격으로 따라잡기 어려울 때
     /// </summary>
@@ -19,7 +19,7 @@ namespace UPlayGround.State
         public override string StateName => "Charge";
 
         private readonly EnemyCombat _combat;
-        private readonly EnemyBrain _brain;
+        private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
         private readonly EnemyTacticalMemory _memory;
 
@@ -37,12 +37,12 @@ namespace UPlayGround.State
         public EnemyChargeState(
             ActorMovementController controller,
             EnemyCombat combat,
-            EnemyBrain brain,
+            EnemyAIContext context,
             EnemyDetection detection,
             EnemyTacticalMemory memory) : base(controller)
         {
             _combat    = combat;
-            _brain     = brain;
+            _context   = context;
             _detection = detection;
             _memory    = memory;
         }
@@ -94,7 +94,7 @@ namespace UPlayGround.State
             {
                 _hasReachedTarget = true;
                 controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _brain, _detection));
+                    new EnemyAttackState(controller, _combat, _context, _detection));
                 return;
             }
 
@@ -103,7 +103,7 @@ namespace UPlayGround.State
             {
                 _memory?.NotifyAttackMissed();
                 controller.TransitionToState(
-                    new EnemyChaseState(controller, _brain, _detection));
+                    new EnemyChaseState(controller, _context, _detection));
             }
         }
 
@@ -160,7 +160,7 @@ namespace UPlayGround.State
             if (dot < -0.5f)
             {
                 _memory?.NotifyAttackMissed();
-                controller.TransitionToState(new EnemyChaseState(controller, _brain, _detection));
+                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
             }
         }
     }

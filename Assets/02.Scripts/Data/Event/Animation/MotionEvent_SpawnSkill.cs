@@ -25,8 +25,14 @@ namespace UPlayGround.Data.Event
     [Serializable]
     public class SpawnSkillEvent : MotionEventBase
     {
+        private const int OverlapBufferSize = 64;
+        private const float OverlapResolveRadius = 2.0f;
+
         public List<SpawnTargetData> spawnTargetList;
         public int resolveIterations = 3; // 겹침을 해결하기 위한 반복 횟수
+
+        [NonSerialized] private List<Collider> _spawnedColliders;
+        [NonSerialized] private Collider[] _overlapBuffer;
         
         public override string GetDisplayName() => "SpawnSkill";
 
@@ -42,8 +48,8 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-            
-            List<Collider> spawnedColliders = new List<Collider>();
+            _spawnedColliders ??= new List<Collider>();
+            _spawnedColliders.Clear();
 
             // 1. 일단 모두 생성 (랜덤 반경 내)
             foreach (var data in spawnTargetList)
@@ -56,7 +62,7 @@ namespace UPlayGround.Data.Event
                     GameObject spawned = GameObject.Instantiate(data.targetPrefab, spawnPos, Quaternion.identity);
                     if (spawned.TryGetComponent<Collider>(out var col))
                     {
-                        spawnedColliders.Add(col);
+                        _spawnedColliders.Add(col);
 
                         if (actor.HasActorType(ActorType.Monster))
                         {
@@ -71,7 +77,7 @@ namespace UPlayGround.Data.Event
             // 생성된 항목들에 대해 밀어내기( 겹치지 않도록 )
             for (int iter = 0; iter < resolveIterations; iter++)
             {
-                foreach (var col in spawnedColliders)
+                foreach (var col in _spawnedColliders)
                 {
                     ResolveOverlap(col);
                 }
@@ -85,7 +91,7 @@ namespace UPlayGround.Data.Event
             summoner.Combat.RegisterSpawnedUnit(spawned.transform);
 
             // 소환된 유닛을 소환사의 그룹에 편입 (Summon 우선순위 — 슬롯 후순위)
-            var group = summoner.Brain.Group;
+            var group = summoner.AIController?.Group;
             if (group != null)
                 group.RegisterMember(spawned, MemberPriority.Summon);
         }
@@ -93,10 +99,15 @@ namespace UPlayGround.Data.Event
         private void ResolveOverlap(Collider targetCol)
         {
             // 주변의 다른 콜라이더 탐색 (자신 제외)
-            Collider[] overlaps = Physics.OverlapSphere(targetCol.bounds.center, 2.0f); // 탐색 반경은 적절히 조절
+            _overlapBuffer ??= new Collider[OverlapBufferSize];
+            int overlapCount = Physics.OverlapSphereNonAlloc(
+                targetCol.bounds.center,
+                OverlapResolveRadius,
+                _overlapBuffer);
 
-            foreach (var otherCol in overlaps)
+            for (int i = 0; i < overlapCount; i++)
             {
+                var otherCol = _overlapBuffer[i];
                 if (targetCol == otherCol) continue;
 
                 // 두 콜라이더 간의 겹침 정보 계산

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &-8867063878722835880
 MonoBehaviour:
@@ -168,18 +168,3 @@ MonoBehaviour:
   editorPosition: {x: 322, y: 399}
   children:
   - {fileID: 3122810607006079008}
---- !u!114 &7471132341796234265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: BTSequence
-  m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.BehaviorTree:BTSequenceSO
-  nodeName: BTSequence
-  editorPosition: {x: 593, y: 550}
-  children: []

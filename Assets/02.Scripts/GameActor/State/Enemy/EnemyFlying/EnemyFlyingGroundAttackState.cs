@@ -14,7 +14,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_GroundAttack";
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private EnemyCombat _combat;
         private float _attackTimer;
         private bool _isActive;
@@ -24,7 +24,7 @@ namespace UPlayGround.State
 
         private float Cfg_MotionTimeout => _brain.FlyingSettings ? _brain.FlyingSettings.groundAttackMotionTimeout : MotionTimeout;
 
-        public EnemyFlyingGroundAttackState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingGroundAttackState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

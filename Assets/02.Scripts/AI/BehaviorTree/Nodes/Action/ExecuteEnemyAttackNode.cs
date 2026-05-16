@@ -19,23 +19,23 @@ namespace UPlayGround.AI.BehaviorTree
                 return BTStatus.Failure;
 
             var combat = Context.GetComponentCached<EnemyCombat>();
-            var brain = Context.GetComponentCached<EnemyBrain>();
+            var context = Context.GetComponentCached<EnemyAIContext>();
             var detection = Context.GetComponentCached<EnemyDetection>();
-            if (combat == null || brain == null || detection == null || !detection.HasTarget)
+            if (combat == null || context == null || detection == null || !detection.HasTarget)
                 return BTStatus.Failure;
 
             if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget))
                 return BTStatus.Failure;
 
-            if (!brain.TryRequestAttackSlot())
+            if (!context.TryRequestAttackSlot())
             {
                 Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
                 return BTStatus.Failure;
             }
 
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
-            brain.NotifyBTAttackStarted();
-            controller.TransitionToState(new EnemyAttackState(controller, combat, brain, detection));
+            context.NotifyBTAttackStarted();
+            controller.TransitionToState(new EnemyAttackState(controller, combat, context, detection));
             return BTStatus.Running;
         }
     }
@@ -44,11 +44,11 @@ namespace UPlayGround.AI.BehaviorTree
     {
         protected override BTStatus OnUpdate()
         {
-            var brain = Context?.GetComponentCached<EnemyBrain>();
-            if (brain == null)
+            var context = Context?.GetComponentCached<EnemyAIContext>();
+            if (context == null)
                 return BTStatus.Success;
 
-            var result = brain.TryRequestAttackSlot();
+            var result = context.TryRequestAttackSlot();
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, result);
             return result ? BTStatus.Success : BTStatus.Failure;
         }

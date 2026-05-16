@@ -22,6 +22,13 @@ namespace UPlayGround.AI.BehaviorTree
         public const string CurrentState = "CurrentState";
         public const string HpPercent = "HpPercent";
         public const string CurrentPhaseName = "CurrentPhaseName";
+        public const string PhaseIndex = "PhaseIndex";
+        public const string AllowCharge = "AllowCharge";
+        public const string AllowFlank = "AllowFlank";
+        public const string MaxConsecutiveAttacks = "MaxConsecutiveAttacks";
+        public const string ContinueAttackChance = "ContinueAttackChance";
+        public const string GuardChance = "GuardChance";
+        public const string RetreatChance = "RetreatChance";
         public const string IsPlayerAttacking = "IsPlayerAttacking";
         public const string IsPlayerGuarding = "IsPlayerGuarding";
         public const string IsPlayerStaggered = "IsPlayerStaggered";

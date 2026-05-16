@@ -41,6 +41,7 @@ namespace UPlayGround.Data.Event
         public float duration = 3f;
 
         [Header("Hit Setting")]
+        [Tooltip("Player/Monster 오너는 ActorDefinition 또는 ActorType 기본 규칙으로 자동 결정한다. 그 외 액터의 fallback 값으로 사용한다.")]
         public LayerMask targetHitLayer;
         public string hitParticleName;
 
@@ -111,11 +112,20 @@ namespace UPlayGround.Data.Event
 
             if (projectile != null)
             {
-                projectile.Initialize(worldPos, flyDirection, damage, speed, actor, duration, targetHitLayer, hitParticleName);
+                LayerMask hitLayer = ResolveTargetHitLayer(actor);
+                projectile.Initialize(worldPos, flyDirection, damage, speed, actor, duration, hitLayer, hitParticleName);
 
                 if (hasTargetPosition && projectile is AOEProjectile aoeProjectile)
                     aoeProjectile.SetCenterPosition(targetPosition);
             }
+        }
+
+        private LayerMask ResolveTargetHitLayer(GameActor actor)
+        {
+            if (actor == null) return targetHitLayer;
+
+            LayerMask actorTargetLayer = actor.GetAttackTargetLayerMask();
+            return actorTargetLayer.value != 0 ? actorTargetLayer : targetHitLayer;
         }
 
         private bool TryResolveTargetPosition(GameActor actor, Vector3 spawnPosition, Vector3 fallbackDirection, out Vector3 position)

@@ -13,7 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Circle";
 
-        private EnemyBrain _brain;
+        private EnemyAIContext _context;
         private EnemyDetection _detection;
 
         private float _baseSpeed;
@@ -46,11 +46,11 @@ namespace UPlayGround.State
 
         public EnemyCircleState(
             ActorMovementController controller,
-            EnemyBrain brain,
+            EnemyAIContext context,
             EnemyDetection detection,
             float duration) : base(controller)
         {
-            _brain = brain;
+            _context = context;
             _detection = detection;
             _circleDuration = duration;
         }
@@ -114,7 +114,7 @@ namespace UPlayGround.State
                 if (roll < 0.5f)
                 {
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _brain, _detection));
+                        new EnemyChaseState(controller, _context, _detection));
                 }
                 else
                 {
@@ -238,7 +238,7 @@ namespace UPlayGround.State
             Vector3 moveDir = Quaternion.Euler(0, strafeAngle, 0) * dirToTarget;
 
             // 2) 거리 보정 + 노이즈: 목표 거리 유지하되 흔들림 추가
-            float optimalDist = _brain.RetreatDistance;
+            float optimalDist = _context.RetreatDistance;
             float distanceDiff = currentDistance - optimalDist;
             float radialNoise = (Mathf.PerlinNoise(time * NOISE_SPEED * 0.7f, _noiseOffsetRadial) - 0.5f) * 2f;
             float radialCorrection = Mathf.Clamp(distanceDiff / optimalDist, -0.6f, 0.6f)

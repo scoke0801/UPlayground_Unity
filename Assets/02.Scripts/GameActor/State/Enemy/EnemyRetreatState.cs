@@ -14,7 +14,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Retreat";
 
-        private EnemyBrain _brain;
+        private EnemyAIContext _context;
         private EnemyDetection _detection;
 
         private float _retreatSpeed;
@@ -27,11 +27,11 @@ namespace UPlayGround.State
 
         public EnemyRetreatState(
             ActorMovementController controller,
-            EnemyBrain brain,
+            EnemyAIContext context,
             EnemyDetection detection,
             float targetDistance) : base(controller)
         {
-            _brain = brain;
+            _context = context;
             _detection = detection;
             _targetDistance = targetDistance;
         }
@@ -88,13 +88,13 @@ namespace UPlayGround.State
                 {
                     // 후퇴 후 바로 Chase로 돌아가 압박 (닌자 가이덴 스타일)
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _brain, _detection));
+                        new EnemyChaseState(controller, _context, _detection));
                 }
                 else if (roll < 0.7f)
                 {
                     // 짧은 Circle
                     controller.TransitionToState(
-                        new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration * Random.Range(0.3f, 0.6f)));
+                        new EnemyCircleState(controller, _context, _detection, _context.CircleDuration * Random.Range(0.3f, 0.6f)));
                 }
                 else
                 {
@@ -168,7 +168,7 @@ namespace UPlayGround.State
                 if (dot < -0.35f)
                 {
                     controller.TransitionToState(
-                        new EnemyCircleState(controller, _brain, _detection, _brain.CircleDuration));
+                        new EnemyCircleState(controller, _context, _detection, _context.CircleDuration));
                 }
             }
         }

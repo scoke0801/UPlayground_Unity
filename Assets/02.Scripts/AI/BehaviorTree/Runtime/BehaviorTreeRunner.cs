@@ -15,7 +15,7 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private float _tickInterval = 0.1f;
         [SerializeField] private bool _restartWhenComplete;
         [SerializeField] private bool _resetValuesOnRestart = true;
-        [SerializeField] private bool _debugMode = true;
+        [SerializeField] private bool _debugMode;
         [SerializeField] private int _debugTraceCapacity = 128;
 
         private BehaviorTreeAsset _runtimeTree;
@@ -35,6 +35,18 @@ namespace UPlayGround.AI.BehaviorTree
         public bool IsPaused => _state == BehaviorTreeRunnerState.Paused;
         public BehaviorTreeRunnerState State => _state;
         public bool DebugMode => _debugMode;
+
+        public void SetTreeAsset(BehaviorTreeAsset treeAsset, bool restartIfRunning = true)
+        {
+            if (_treeAsset == treeAsset)
+                return;
+
+            bool wasRunning = IsRunning || IsPaused;
+            _treeAsset = treeAsset;
+
+            if (restartIfRunning && wasRunning)
+                StartTree();
+        }
 
         private void OnEnable()
         {
@@ -72,7 +84,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return;
 
             _runtimeTree = _treeAsset.CloneRuntime();
-            DebugTrace = new BehaviorTreeDebugTrace(_debugTraceCapacity);
+            DebugTrace = _debugMode ? new BehaviorTreeDebugTrace(_debugTraceCapacity) : null;
             _context = new BehaviorTreeContext(gameObject, _runtimeTree.Blackboard, this);
             _runtimeTree.RootNode.Initialize(_context);
             _state = BehaviorTreeRunnerState.Running;
@@ -85,6 +97,7 @@ namespace UPlayGround.AI.BehaviorTree
             if (_runtimeTree?.RootNode != null)
                 _runtimeTree.RootNode.Abort();
 
+            BehaviorTreeAsset.DisposeRuntime(_runtimeTree);
             _runtimeTree = null;
             _context = null;
             DebugTrace = null;
@@ -175,11 +188,13 @@ namespace UPlayGround.AI.BehaviorTree
 
         private void RestartRuntimeTree(bool resetBlackboardValues)
         {
-            var blackboard = resetBlackboardValues ? null : _runtimeTree?.Blackboard;
+            var previousBlackboard = _runtimeTree?.Blackboard;
+            var blackboard = resetBlackboardValues ? null : (previousBlackboard != null ? previousBlackboard.Clone() : null);
 
             if (_runtimeTree?.RootNode != null)
                 _runtimeTree.RootNode.Abort();
 
+            BehaviorTreeAsset.DisposeRuntime(_runtimeTree);
             _runtimeTree = null;
             _context = null;
             _tickTimer = _tickInterval;
@@ -192,7 +207,7 @@ namespace UPlayGround.AI.BehaviorTree
             }
 
             _runtimeTree = _treeAsset.CloneRuntime(blackboard);
-            DebugTrace = new BehaviorTreeDebugTrace(_debugTraceCapacity);
+            DebugTrace = _debugMode ? new BehaviorTreeDebugTrace(_debugTraceCapacity) : null;
             _context = new BehaviorTreeContext(gameObject, _runtimeTree.Blackboard, this);
             _runtimeTree.RootNode.Initialize(_context);
             _state = BehaviorTreeRunnerState.Running;

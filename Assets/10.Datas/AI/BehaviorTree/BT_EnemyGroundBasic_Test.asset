@@ -1,6 +1,143 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8531272252416627792
+--- !u!114 &-8886296403533794712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Condition_HasTarget
+  m_EditorClassIdentifier: 
+  _guid: cond_has_target
+  _displayName: Condition_HasTarget
+  _comment: EnemyDetection.HasTarget == true
+  _editorPosition: {x: -360, y: -13.9999695}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-8847999574280673080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: NonCombat_NoTarget
+  m_EditorClassIdentifier: 
+  _guid: seq_non_combat_no_target
+  _displayName: NonCombat_NoTarget
+  _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
+    \uBCF4\uACE0 Patrol/Idle\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: 474.75143, y: -360.11353}
+  _children:
+  - {fileID: -4592280280201020191}
+  - {fileID: -6173856912272531805}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-7721966846423540520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Combat_HasTarget
+  m_EditorClassIdentifier: 
+  _guid: seq_combat_has_target
+  _displayName: Combat_HasTarget
+  _comment: "\uD0C0\uAC9F\uC774 \uC788\uC73C\uBA74 \uC804\uD22C \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
+    \uC9C4\uC785\uD55C\uB2E4."
+  _editorPosition: {x: -280.00006, y: -428.41083}
+  _children:
+  - {fileID: 7826776281151119559}
+  - {fileID: -8886296403533794712}
+  - {fileID: 6746699695489810974}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-7711011700152846161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Branch_Chase_WhenFar
+  m_EditorClassIdentifier: 
+  _guid: seq_chase_when_far
+  _displayName: Branch_Chase_WhenFar
+  _comment: "chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uC774\uC0C1\uC774\uBA74 Chase
+    State\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: 159.99998, y: 559}
+  _children:
+  - {fileID: 6501233541862946105}
+  - {fileID: -1447044142275293137}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-6613720238136180779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b541d85ae1c27d41a595bb8e94279b5, type: 3}
+  m_Name: Condition_PatrolEnabled
+  m_EditorClassIdentifier: 
+  _guid: cond_patrol_enabled
+  _displayName: Condition_PatrolEnabled
+  _comment: "EnemyBrain.EnablePatrol \uD655\uC778. Brain\uC740 \uD14C\uC2A4\uD2B8
+    \uCC38\uC870\uC6A9\uC73C\uB85C\uB9CC \uC0AC\uC6A9\uD55C\uB2E4."
+  _editorPosition: {x: 660, y: 757.5924}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-6240140463112573218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Branch_Retreat_WhenTooClose
+  m_EditorClassIdentifier: 
+  _guid: seq_retreat_when_too_close
+  _displayName: Branch_Retreat_WhenTooClose
+  _comment: "personalSpaceDistance\uC640 \uAC19\uC740 0.8m \uC774\uB0B4\uBA74 Retreat
+    State\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: -220, y: 560}
+  _children:
+  - {fileID: -5069307121595292565}
+  - {fileID: 1935700992621298330}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-6173856912272531805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,20 +147,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: Root_EnemyGroundBasic
+  m_Name: NonCombat_Decision
   m_EditorClassIdentifier: 
-  _guid: root_enemy_ground_basic
-  _displayName: "\uB545\uC5D0 \uC788\uB294\uAC00?"
-  _comment: 
-  _editorPosition: {x: 444.69843, y: -328.9215}
+  _guid: sel_non_combat_decision
+  _displayName: NonCombat_Decision
+  _comment: "Patrol \uAC00\uB2A5\uD558\uBA74 Patrol, \uC544\uB2C8\uBA74 Idle."
+  _editorPosition: {x: 659.99994, y: 2.5346832}
   _children:
-  - {fileID: -3864159759119073498}
-  - {fileID: 6096042406183419737}
+  - {fileID: 4140284177485463215}
+  - {fileID: -6045076224233173580}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &-8037258016860720280
+--- !u!114 &-6045076224233173580
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39,82 +176,13 @@ MonoBehaviour:
   _displayName: Action_Idle_NoPatrol
   _comment: "\uC21C\uCC30\uC774 \uAEBC\uC838 \uC788\uC73C\uBA74 Idle State\uB85C
     \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 2746, y: 1102.4822}
+  _editorPosition: {x: 964.3574, y: 360}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _targetState: 0
   _skipIfAlreadyInState: 1
---- !u!114 &-4687848252655193683
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: Branch_Patrol_WhenEnabled
-  m_EditorClassIdentifier: 
-  _guid: seq_patrol_when_enabled
-  _displayName: "\uC21C\uCC30\uD560\uAE4C"
-  _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 2425, y: 1078.4822}
-  _children:
-  - {fileID: 3415640705049045034}
-  - {fileID: -3681586728207117700}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-3864159759119073498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: Combat_HasTarget
-  m_EditorClassIdentifier: 
-  _guid: seq_combat_has_target
-  _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00?"
-  _comment: "\uD0C0\uAC9F\uC774 \uC788\uC73C\uBA74 \uC804\uD22C \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
-    \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: 88.69852, y: -149.92152}
-  _children:
-  - {fileID: 4987458986752680403}
-  - {fileID: 2733662606038583687}
-  - {fileID: 4546674035571993911}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-3681586728207117700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
-  m_Name: Action_Patrol
-  m_EditorClassIdentifier: 
-  _guid: act_patrol
-  _displayName: Action_Patrol
-  _comment: "EnemyPatrolState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 2565, y: 1503.4822}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _targetState: 1
-  _skipIfAlreadyInState: 1
---- !u!114 &-2905794136864824708
+--- !u!114 &-5582742193570285327
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,18 +195,18 @@ MonoBehaviour:
   m_Name: Branch_Attack_WhenSkillAvailable
   m_EditorClassIdentifier: 
   _guid: seq_attack_when_skill_available
-  _displayName: "\uACF5\uACA9 \uBC94\uC704 \uCC98\uB9AC"
+  _displayName: Branch_Attack_WhenSkillAvailable
   _comment: "EnemyCombat.HasAvailableSkillAtDistance\uAC00 true\uBA74 Attack State\uB85C
     \uC9C4\uC785\uD55C\uB2E4."
-  _editorPosition: {x: -862, y: 846.6775}
+  _editorPosition: {x: -620, y: 560}
   _children:
-  - {fileID: 6928455814388444325}
-  - {fileID: 924933733775013235}
+  - {fileID: 3733683966285172647}
+  - {fileID: 1001582164059310151}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &-1847582369555403117
+--- !u!114 &-5069307121595292565
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,22 +215,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: Branch_Retreat_WhenTooClose
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: Condition_TargetTooClose
   m_EditorClassIdentifier: 
-  _guid: seq_retreat_when_too_close
-  _displayName: "\uB108\uBB34 \uAC00\uAE4C\uC6B4\uAC00"
-  _comment: "personalSpaceDistance\uC640 \uAC19\uC740 0.8m \uC774\uB0B4\uBA74 Retreat
-    State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -343, y: 786.6775}
-  _children:
-  - {fileID: 3706937085472763614}
-  - {fileID: -827829528935278752}
+  _guid: cond_target_too_close
+  _displayName: Condition_TargetTooClose
+  _comment: "EnemyBehaviorSO.personalSpaceDistance \uAE30\uBCF8\uAC12 0.8m \uAE30\uC900."
+  _editorPosition: {x: -340, y: 1079.1552}
+  _children: []
   _disabled: 0
   _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-1576442525147340075
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 0.8
+--- !u!114 &-4592280280201020191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Condition_NoTarget
+  m_EditorClassIdentifier: 
+  _guid: cond_no_target
+  _displayName: Condition_NoTarget
+  _comment: EnemyDetection.HasTarget == false
+  _editorPosition: {x: 275.9999, y: -10.465256}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 0
+--- !u!114 &-1804474249651196303
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -179,13 +265,13 @@ MonoBehaviour:
   _comment: "\uACF5\uACA9/\uD6C4\uD1F4/\uCD94\uACA9 \uC870\uAC74\uC774 \uBAA8\uB450
     \uC544\uB2C8\uBA74 Idle\uB85C \uB450\uACE0 \uB2E4\uC74C Tick \uD310\uB2E8\uC744
     \uAE30\uB2E4\uB9B0\uB2E4."
-  _editorPosition: {x: 253, y: 762.6775}
+  _editorPosition: {x: 412.2724, y: 559}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _targetState: 0
   _skipIfAlreadyInState: 1
---- !u!114 &-1067967090654950255
+--- !u!114 &-1447044142275293137
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -200,53 +286,12 @@ MonoBehaviour:
   _guid: act_chase
   _displayName: Action_Chase
   _comment: "EnemyChaseState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 1039.3184, y: 1592.4998}
+  _editorPosition: {x: 280.00003, y: 1204}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _targetState: 2
   _skipIfAlreadyInState: 1
---- !u!114 &-827829528935278752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
-  m_Name: Action_Retreat
-  m_EditorClassIdentifier: 
-  _guid: act_retreat
-  _displayName: Action_Retreat
-  _comment: "EnemyRetreatState\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -233, y: 1146.6775}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _targetState: 4
-  _skipIfAlreadyInState: 1
---- !u!114 &-158394763614966633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Condition_NoTarget
-  m_EditorClassIdentifier: 
-  _guid: cond_no_target
-  _displayName: Condition_NoTarget
-  _comment: EnemyDetection.HasTarget == false
-  _editorPosition: {x: 2396, y: 872.4822}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _expectedValue: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,30 +304,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
   m_Name: BT_EnemyGroundBasic_Test
   m_EditorClassIdentifier: 
-  _rootNode: {fileID: -8531272252416627792}
+  _rootNode: {fileID: 96069784104057921}
   _nodes:
-  - {fileID: -8531272252416627792}
-  - {fileID: -3864159759119073498}
-  - {fileID: 4987458986752680403}
-  - {fileID: 2733662606038583687}
-  - {fileID: 4546674035571993911}
-  - {fileID: -2905794136864824708}
-  - {fileID: 6928455814388444325}
-  - {fileID: 924933733775013235}
-  - {fileID: -1847582369555403117}
-  - {fileID: 3706937085472763614}
-  - {fileID: -827829528935278752}
-  - {fileID: 8124788763858576830}
-  - {fileID: 4069653426073757580}
-  - {fileID: -1067967090654950255}
-  - {fileID: -1576442525147340075}
-  - {fileID: 6096042406183419737}
-  - {fileID: -158394763614966633}
-  - {fileID: 8340599277679366890}
-  - {fileID: -4687848252655193683}
-  - {fileID: 3415640705049045034}
-  - {fileID: -3681586728207117700}
-  - {fileID: -8037258016860720280}
+  - {fileID: 96069784104057921}
+  - {fileID: -7721966846423540520}
+  - {fileID: 7826776281151119559}
+  - {fileID: -8886296403533794712}
+  - {fileID: 6746699695489810974}
+  - {fileID: -5582742193570285327}
+  - {fileID: 3733683966285172647}
+  - {fileID: 1001582164059310151}
+  - {fileID: -6240140463112573218}
+  - {fileID: -5069307121595292565}
+  - {fileID: 1935700992621298330}
+  - {fileID: -7711011700152846161}
+  - {fileID: 6501233541862946105}
+  - {fileID: -1447044142275293137}
+  - {fileID: -1804474249651196303}
+  - {fileID: -8847999574280673080}
+  - {fileID: -4592280280201020191}
+  - {fileID: -6173856912272531805}
+  - {fileID: 4140284177485463215}
+  - {fileID: -6613720238136180779}
+  - {fileID: 6261816271387024666}
+  - {fileID: -6045076224233173580}
   _blackboard:
     _entries:
     - _key: HasTarget
@@ -317,26 +362,33 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-  _editorGroups:
-  - _guid: 824f6c93d0d74db686c3a02c7afeddba
-    _title: "\uADF8\uB8E8\uD551 \uD14C\uC2A4\uD2B82"
-    _rect:
-      serializedVersion: 2
-      x: 2280.263
-      y: 505.8048
-      width: 680
-      height: 1244
-    _color: {r: 1, g: 0.5458693, b: 0, a: 0.42}
-  - _guid: 28d90c9f5c0a4db295e945a487386d4b
-    _title: "\uADF8\uB8E8\uD551 \uD14C\uC2A4\uD2B8"
-    _rect:
-      serializedVersion: 2
-      x: -1069.6775
-      y: 686.6775
-      width: 1594
-      height: 790
-    _color: {r: 0.5283019, g: 0.05233179, b: 0.05233179, a: 0.42}
---- !u!114 &924933733775013235
+  _editorGroups: []
+--- !u!114 &96069784104057921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Root_EnemyGroundBasic
+  m_EditorClassIdentifier: 
+  _guid: root_enemy_ground_basic
+  _displayName: Root_EnemyGroundBasic
+  _comment: "\uD604\uC7AC EnemyBrain\uC758 \uAE30\uBCF8 \uC758\uC0AC\uACB0\uC815\uC744
+    \uD14C\uC2A4\uD2B8\uC6A9 BT\uB85C \uC62E\uAE34 \uB8E8\uD2B8. \uAE30\uC874 Brain\uC744
+    \uB300\uCCB4\uD558\uC9C0 \uC54A\uB294\uB2E4."
+  _editorPosition: {x: 159.99994, y: -716.57477}
+  _children:
+  - {fileID: -7721966846423540520}
+  - {fileID: -8847999574280673080}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1001582164059310151
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -352,11 +404,11 @@ MonoBehaviour:
   _displayName: Action_ExecuteAttack
   _comment: "EnemyAttackState\uB85C \uC804\uD658\uD55C\uB2E4. Attack \uC911\uC5D0\uB294
     Running\uC744 \uBC18\uD658\uD55C\uB2E4."
-  _editorPosition: {x: -742, y: 1180.6775}
+  _editorPosition: {x: -519.99994, y: 1079.1552}
   _children: []
   _disabled: 0
   _breakpoint: 0
---- !u!114 &2733662606038583687
+--- !u!114 &1935700992621298330
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -365,156 +417,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Condition_HasTarget
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Action_Retreat
   m_EditorClassIdentifier: 
-  _guid: cond_has_target
-  _displayName: "\uD0C0\uAC9F\uC774 \uC788\uB294\uAC00"
-  _comment: EnemyDetection.HasTarget == true
-  _editorPosition: {x: 88.69852, y: 120.078476}
+  _guid: act_retreat
+  _displayName: Action_Retreat
+  _comment: "EnemyRetreatState\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: -140.00002, y: 1079.1552}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _expectedValue: 1
---- !u!114 &3415640705049045034
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b541d85ae1c27d41a595bb8e94279b5, type: 3}
-  m_Name: Condition_PatrolEnabled
-  m_EditorClassIdentifier: 
-  _guid: cond_patrol_enabled
-  _displayName: Condition_PatrolEnabled
-  _comment: "EnemyBrain.EnablePatrol \uD655\uC778. Brain\uC740 \uD14C\uC2A4\uD2B8
-    \uCC38\uC870\uC6A9\uC73C\uB85C\uB9CC \uC0AC\uC6A9\uD55C\uB2E4."
-  _editorPosition: {x: 2294, y: 1510.4822}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
---- !u!114 &3706937085472763614
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
-  m_Name: Condition_TargetTooClose
-  m_EditorClassIdentifier: 
-  _guid: cond_target_too_close
-  _displayName: Condition_TargetTooClose
-  _comment: "EnemyBehaviorSO.personalSpaceDistance \uAE30\uBCF8\uAC12 0.8m \uAE30\uC900."
-  _editorPosition: {x: -485, y: 1134.6775}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _comparison: 0
-  _minDistance: 0
-  _maxDistance: 0.8
---- !u!114 &4069653426073757580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
-  m_Name: Condition_TargetFar
-  m_EditorClassIdentifier: 
-  _guid: cond_target_far
-  _displayName: Condition_TargetFar
-  _comment: "EnemyBehaviorSO.chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uAE30\uC900."
-  _editorPosition: {x: 5, y: 1043.6775}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _comparison: 1
-  _minDistance: 2
-  _maxDistance: 0
---- !u!114 &4546674035571993911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: Combat_Decision
-  m_EditorClassIdentifier: 
-  _guid: sel_combat_decision
-  _displayName: "\uACF5\uACA9 \uACB0\uC815"
-  _comment: "\uACF5\uACA9 \uAC00\uB2A5, \uACFC\uADFC\uC811 \uD6C4\uD1F4, \uC6D0\uAC70\uB9AC
-    \uCD94\uACA9, \uC804\uD22C Idle \uC21C\uC11C\uB85C \uD310\uB2E8\uD55C\uB2E4."
-  _editorPosition: {x: 374.6984, y: 230.07848}
-  _children:
-  - {fileID: -2905794136864824708}
-  - {fileID: -1847582369555403117}
-  - {fileID: 8124788763858576830}
-  - {fileID: -1576442525147340075}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &4987458986752680403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8422bd07a7b5c6844923a29dd85bad92, type: 3}
-  m_Name: Sync_EnemyBlackboard
-  m_EditorClassIdentifier: 
-  _guid: act_sync_enemy_blackboard
-  _displayName: "\uBE14\uB799\uBCF4\uB4DC \uB3D9\uAE30\uD654"
-  _comment: "EnemyDetection\uACFC ActorMovementController \uAC12\uC744 Blackboard\uC5D0
-    \uBCF5\uC0AC\uD55C\uB2E4."
-  _editorPosition: {x: -152.30154, y: 92.078476}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _hasTargetKey: HasTarget
-  _targetKey: Target
-  _distanceKey: DistanceToTarget
-  _stateKey: CurrentState
---- !u!114 &6096042406183419737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: NonCombat_NoTarget
-  m_EditorClassIdentifier: 
-  _guid: seq_non_combat_no_target
-  _displayName: NonCombat_NoTarget
-  _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
-    \uBCF4\uACE0 Patrol/Idle\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 2489, y: 612.4822}
-  _children:
-  - {fileID: -158394763614966633}
-  - {fileID: 8340599277679366890}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 1
---- !u!114 &6928455814388444325
+  _targetState: 4
+  _skipIfAlreadyInState: 1
+--- !u!114 &3733683966285172647
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -530,12 +445,12 @@ MonoBehaviour:
   _displayName: Condition_CanUseEnemySkill
   _comment: "\uD604\uC7AC \uAC70\uB9AC\uC5D0\uC11C \uC0AC\uC6A9 \uAC00\uB2A5\uD55C
     EnemyAttackInfo\uAC00 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
-  _editorPosition: {x: -1022, y: 1180.6775}
+  _editorPosition: {x: -720, y: 1079.1552}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _requireTarget: 1
---- !u!114 &8124788763858576830
+--- !u!114 &4140284177485463215
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -545,21 +460,63 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: Branch_Chase_WhenFar
+  m_Name: Branch_Patrol_WhenEnabled
   m_EditorClassIdentifier: 
-  _guid: seq_chase_when_far
-  _displayName: "\uB108\uBB34 \uBA3C\uAC00"
-  _comment: "chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uC774\uC0C1\uC774\uBA74 Chase
-    State\uB85C \uC804\uD658\uD55C\uB2E4."
-  _editorPosition: {x: 16, y: 758.6775}
+  _guid: seq_patrol_when_enabled
+  _displayName: Branch_Patrol_WhenEnabled
+  _comment: "EnemyBrain.EnablePatrol\uC774 true\uBA74 Patrol State\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: 635.00006, y: 343}
   _children:
-  - {fileID: 4069653426073757580}
-  - {fileID: -1067967090654950255}
+  - {fileID: -6613720238136180779}
+  - {fileID: 6261816271387024666}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &8340599277679366890
+--- !u!114 &6261816271387024666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Action_Patrol
+  m_EditorClassIdentifier: 
+  _guid: act_patrol
+  _displayName: Action_Patrol
+  _comment: "EnemyPatrolState\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: 840, y: 773.5924}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 1
+  _skipIfAlreadyInState: 1
+--- !u!114 &6501233541862946105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: Condition_TargetFar
+  m_EditorClassIdentifier: 
+  _guid: cond_target_far
+  _displayName: Condition_TargetFar
+  _comment: "EnemyBehaviorSO.chaseStopDistance \uAE30\uBCF8\uAC12 2.0m \uAE30\uC900."
+  _editorPosition: {x: 97.1849, y: 1188}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 1
+  _minDistance: 2
+  _maxDistance: 0
+--- !u!114 &6746699695489810974
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -569,16 +526,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: NonCombat_Decision
+  m_Name: Combat_Decision
   m_EditorClassIdentifier: 
-  _guid: sel_non_combat_decision
-  _displayName: NonCombat_Decision
-  _comment: "Patrol \uAC00\uB2A5\uD558\uBA74 Patrol, \uC544\uB2C8\uBA74 Idle."
-  _editorPosition: {x: 2764, y: 792.4822}
+  _guid: sel_combat_decision
+  _displayName: Combat_Decision
+  _comment: "\uACF5\uACA9 \uAC00\uB2A5, \uACFC\uADFC\uC811 \uD6C4\uD1F4, \uC6D0\uAC70\uB9AC
+    \uCD94\uACA9, \uC804\uD22C Idle \uC21C\uC11C\uB85C \uD310\uB2E8\uD55C\uB2E4."
+  _editorPosition: {x: -140, y: -13.9999695}
   _children:
-  - {fileID: -4687848252655193683}
-  - {fileID: -8037258016860720280}
+  - {fileID: -5582742193570285327}
+  - {fileID: -6240140463112573218}
+  - {fileID: -7711011700152846161}
+  - {fileID: -1804474249651196303}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
+--- !u!114 &7826776281151119559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8422bd07a7b5c6844923a29dd85bad92, type: 3}
+  m_Name: Sync_EnemyBlackboard
+  m_EditorClassIdentifier: 
+  _guid: act_sync_enemy_blackboard
+  _displayName: Sync_EnemyBlackboard
+  _comment: "EnemyDetection\uACFC ActorMovementController \uAC12\uC744 Blackboard\uC5D0
+    \uBCF5\uC0AC\uD55C\uB2E4."
+  _editorPosition: {x: -580, y: -13.9999695}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _hasTargetKey: HasTarget
+  _targetKey: Target
+  _distanceKey: DistanceToTarget
+  _stateKey: CurrentState

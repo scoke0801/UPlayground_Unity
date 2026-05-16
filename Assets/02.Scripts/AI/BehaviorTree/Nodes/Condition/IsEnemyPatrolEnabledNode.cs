@@ -6,11 +6,11 @@ namespace UPlayGround.AI.BehaviorTree
     {
         protected override BTStatus OnUpdate()
         {
-            var brain = Context?.GetComponentCached<EnemyBrain>();
-            if (brain == null)
+            var context = Context?.GetComponentCached<EnemyAIContext>();
+            if (context == null)
                 return BTStatus.Failure;
 
-            return brain.EnablePatrol ? BTStatus.Success : BTStatus.Failure;
+            return context.EnablePatrol ? BTStatus.Success : BTStatus.Failure;
         }
     }
 }

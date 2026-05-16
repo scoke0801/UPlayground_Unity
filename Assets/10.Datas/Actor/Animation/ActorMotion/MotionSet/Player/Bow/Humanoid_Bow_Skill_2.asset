@@ -20,8 +20,62 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 7432452679253098638
+      - rid: 7432452679253098639
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452679253098638
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.79894215
+        endTime: 1.2989421
+        globalStartTimeOffset: 0
+        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        spawnPointName: 
+        spawnOffset: {x: 0, y: 2, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 1
+        damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
+        speed: 10
+        duration: 3
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 0
+        hitParticleName: 
+    - rid: 7432452679253098639
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.97185624
+        endTime: 1.4718561
+        globalStartTimeOffset: 0
+        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        spawnPointName: 
+        spawnOffset: {x: 0, y: 2, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 1
+        damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
+        speed: 10
+        duration: 3
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 0
+        hitParticleName: 

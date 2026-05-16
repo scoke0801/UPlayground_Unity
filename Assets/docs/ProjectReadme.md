@@ -145,8 +145,8 @@ GameActorState (추상)
 | `CharacterModelData` | 플레이어 | 모델 서브루트와 CharacterActorType 연결 |
 | `FootIKController` | 플레이어 | 발 IK |
 | `EnemyCombat` | 몬스터 | 공격 로직, 가드 |
-| `EnemyBrain` | 지상 몬스터 | AI 의사결정, 페이즈 전환 |
-| `EnemyFlyingBrain` | 비행 몬스터 | 비행 AI |
+| `EnemyAIController` | 지상 몬스터 | AI 의사결정, 페이즈 전환 |
+| `EnemyFlyingAIController` | 비행 몬스터 | 비행 AI |
 | `EnemyDetection` | 몬스터 | 시야 / 거리 감지 |
 | `EnemyTacticalMemory` | 몬스터 | 전술 메모리 |
 | `PoiseStat` | 공통 | 강인도 / 경직 저항 |
@@ -325,6 +325,7 @@ Assets/
 | [MINIMAP_SYSTEM_GUIDE.md](MINIMAP_SYSTEM_GUIDE.md) | 미니맵 시스템 — 플레이어·적·퀘스트 마커 표시, 씬 캡처 에디터 |
 | [MAP_PLACEMENT_TOOL_GUIDE.md](MAP_PLACEMENT_TOOL_GUIDE.md) | 맵 배치 툴 — 씬 클릭 기반 적·NPC·포탈 프리팹 배치 |
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
+| [MOTION_EVENT_ROLE_GUIDE.md](MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
 | [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
@@ -335,7 +336,7 @@ Assets/
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md](BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md) | Behavior Tree 레퍼런스 누락 기능 구현 — Conditional Abort, Runner 제어, Decorator 확장, 디버그 기능 보강 계획 |
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
-| [MONSTER_AI_BEHAVIOR_TREE_FULL_CONVERSION_GUIDE.md](MONSTER_AI_BEHAVIOR_TREE_FULL_CONVERSION_GUIDE.md) | 몬스터 AI BT 완전 전환 — EnemyBrain/EnemyFlyingBrain 의사결정 제거, BT Asset 기반 전환 목표와 단계별 마이그레이션 |
+| [MONSTER_AI_BEHAVIOR_TREE_FULL_CONVERSION_GUIDE.md](MONSTER_AI_BEHAVIOR_TREE_FULL_CONVERSION_GUIDE.md) | 몬스터 AI BT 완전 전환 — EnemyAIController/EnemyFlyingAIController 의사결정 제거, BT Asset 기반 전환 목표와 단계별 마이그레이션 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
 | [EVENT_MANAGER_GUIDE.md](EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |

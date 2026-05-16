@@ -13,10 +13,10 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_Chase";
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private float _chaseSpeed;
 
-        public EnemyFlyingChaseState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingChaseState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

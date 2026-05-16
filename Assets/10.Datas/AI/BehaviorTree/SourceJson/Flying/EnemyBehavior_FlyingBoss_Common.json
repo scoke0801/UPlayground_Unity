@@ -1,0 +1,119 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_FlyingBoss_Common",
+    "displayName": "Flying Boss Common",
+    "actorKind": "Flying",
+    "sourceBehaviorSo": "",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": true,
+        "optimalCombatDistance": 1.5,
+        "minCombatDistance": 1.5,
+        "personalSpaceDistance": 0.8
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "DescendToDive",
+            "priority": 960,
+            "when": [
+                { "condition": "IsCurrentState", "value": "Flying_AirCircle" },
+                { "condition": "IsAirAttackLimitReached" },
+                { "condition": "HasDiveSkillAvailable" },
+                { "condition": "RollDiveChance" }
+            ],
+            "do": [
+                { "action": "SelectFlyingDiveSkill" },
+                { "action": "FlyingTransition", "state": "Dive" }
+            ]
+        },
+        {
+            "name": "DescendToLand",
+            "priority": 950,
+            "when": [
+                { "condition": "IsCurrentState", "value": "Flying_AirCircle" },
+                { "condition": "IsAirAttackLimitReached" }
+            ],
+            "do": [
+                { "action": "FlyingTransition", "state": "Land" }
+            ]
+        },
+        {
+            "name": "KeepInAir",
+            "priority": 920,
+            "when": [
+                { "condition": "IsFlyingAirState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "GroundShouldTakeOff",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsFlyingGroundCombatState" },
+                { "condition": "ShouldFlyingTakeOff" }
+            ],
+            "do": [
+                { "action": "FlyingTransition", "state": "TakeOff" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 800,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "FlyingPatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "GroundAttack",
+            "priority": 600,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsFlyingGroundCombatState" },
+                { "condition": "DistanceLessOrEqual", "value": "1.5" },
+                { "condition": "FlyingCanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestFlyingAttackSlot" },
+                { "action": "FlyingTransition", "state": "GroundAttack" }
+            ]
+        },
+        {
+            "name": "ApproachGround",
+            "priority": 400,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsFlyingGroundCombatState" },
+                { "condition": "DistanceGreater", "value": "1.5" }
+            ],
+            "do": [
+                { "action": "FlyingTransition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "PostAirReturnToChase",
+            "priority": 200,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "do": [
+                { "action": "FlyingTransition", "state": "Chase" }
+            ]
+        }
+    ]
+}

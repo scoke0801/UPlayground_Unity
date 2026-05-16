@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UPlayGround.Component
@@ -59,7 +59,7 @@ namespace UPlayGround.Component
 
         /// <summary>
         /// 경보 전파 등으로 외부에서 타겟이 주입됐을 때 발생.
-        /// EnemyBrain이 구독해서 즉시 Chase로 전환한다.
+        /// EnemyAIController이 구독해서 즉시 Chase로 전환한다.
         /// </summary>
         public event System.Action OnTargetAcquiredExternally;
         

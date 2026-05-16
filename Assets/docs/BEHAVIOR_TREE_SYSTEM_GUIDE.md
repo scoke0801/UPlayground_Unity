@@ -1,12 +1,12 @@
 # Behavior Tree 시스템 통합 가이드
 
-> 최초 작성: 2026-04-28 / 통합 갱신: 2026-05-16
+> 최초 작성: 2026-04-28 / 통합 갱신: 2026-05-16 (2차)
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 적용 범위: `Assets/02.Scripts/AI/BehaviorTree/` 커스텀 BT 런타임·에디터, `Assets/02.Scripts/GameActor/Component/Enemy/` Enemy AI, BT 기반 몬스터 행동 데이터 파이프라인
 >
 > 이 문서는 다음 세 문서를 통합한 단일 가이드다.
 > - 구 `BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md` (2026-04-28) — Behavior Designer 레퍼런스 대비 누락 기능 보강 계획
-> - 구 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md` (2026-05-11) — AAA 사례와의 갭 분석, EnemyBrain 통합 방향
+> - 구 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md` (2026-05-11) — AAA 사례와의 갭 분석, EnemyAIController 통합 방향
 > - 구 `MONSTER_AI_BEHAVIOR_TREE_FULL_CONVERSION_GUIDE.md` (2026-05-11) — 몬스터 AI를 BT로 완전 전환하는 실행 계획
 >
 > 구성: Part 1 시스템 분석 → Part 2 BT 인프라 보강 → Part 3 몬스터 AI 전환 → Part 4 통합 방향과 위험 → 부록.
@@ -33,12 +33,12 @@
 
 근거:
 - `BehaviorTreeRunner` / `BehaviorTreeAsset` 참조는 BT 폴더 내부 11개 파일에 한정 — 게임플레이 코드에서 사용처 0
-- `EnemyBrain.cs` (약 811줄)은 하드코딩된 if/else + `Random.value` 기반 의사결정
-- `EnemyFlyingBrain`, `MonsterGroupController`, 13+ Enemy 상태도 모두 EnemyBrain 경로
+- `EnemyAIController.cs` (약 811줄)은 하드코딩된 if/else + `Random.value` 기반 의사결정
+- `EnemyFlyingAIController`, `MonsterGroupController`, 13+ Enemy 상태도 모두 EnemyAIController 경로
 - BT용 enemy 노드(`TransitionEnemyStateNode`, `SyncEnemyBlackboardNode`, `ExecuteEnemyAttackNode`)는 준비됐지만 실제 BT 에셋 사용처가 `Assets/Test/BehaviorTree.asset` 한 개뿐이었다
-- `BehaviorTreeRunner._tickInterval=0.1f`와 `EnemyBrain._decisionInterval=0.1f`가 별개로 폴링하는 이중 구조
+- `BehaviorTreeRunner._tickInterval=0.1f`와 `EnemyAIController._decisionInterval=0.1f`가 별개로 폴링하는 이중 구조
 
-즉 BT는 "사두고 안 쓴 인프라"이고 EnemyBrain은 "실제로 돌아가는 코드". 본 가이드의 Part 3는 이 단절을 해소하는 단계적 실행 계획이다.
+즉 BT는 "사두고 안 쓴 인프라"이고 EnemyAIController은 "실제로 돌아가는 코드". 본 가이드의 Part 3는 이 단절을 해소하는 단계적 실행 계획이다.
 
 ## 1.2 BT 인프라 갭
 
@@ -49,10 +49,10 @@
 | **Service 노드** | (구현 완료 §2.1) `SyncEnemyBlackboardNode`를 매 Tick Action으로 굴리던 우회 해결 | UE4 Service: Composite에 첨부, 백그라운드 주기 갱신 | Blackboard 갱신이 액션 노드 자리를 차지하던 문제 해소 |
 | **Observer Decorator** | 없음. AbortType은 `BTCompositeNode.EnumerateConditions`로 매 Tick 트리 재귀 폴링 | Bobby Anguelov **Monitor Decorator**: 조건이 등록부에 들어가 매 Tick 1회 평가, 변화 시 abort 트리거 | 트리 깊을수록 O(n) 폴링. 적 수 늘면 누적 비용 |
 | **Blackboard 키 타입 안전성** | (구현 완료 §2.1) `BlackboardKeySelector` struct + PropertyDrawer | UE: BlackboardKeySelector(에디터 드롭다운) | 오타·리네임 보호 |
-| **Weighted Random Selector** | (구현 완료 §2.1) 가중 선택 Composite | "BT 정적 우선순위가 가장 큰 단점" — 가중 선택으로 보강이 표준 (GameAIPro Ch.10) | EnemyBrain의 `Random.value` 패턴을 BT로 표현 가능 |
+| **Weighted Random Selector** | (구현 완료 §2.1) 가중 선택 Composite | "BT 정적 우선순위가 가장 큰 단점" — 가중 선택으로 보강이 표준 (GameAIPro Ch.10) | EnemyAIController의 `Random.value` 패턴을 BT로 표현 가능 |
 | **Subtree / Sub-BT 참조** | (구현 완료 §2.1) `SubtreeNode` | UE: Run Behavior Tree | 보스 페이즈/그룹 패턴 재사용 가능 |
 | **Tick LOD / 예산** | Runner당 `_tickInterval=0.1f`. 거리·중요도 무관 | 거리 기반 동적 틱 간격, frustum 외 stall | 화면 밖 적도 동일 비용 |
-| **이중 폴링** | `BehaviorTreeRunner.tickInterval=0.1` + `EnemyBrain._decisionInterval=0.1` | — | 통합 시 한쪽으로 일원화 필요 |
+| **이중 폴링** | `BehaviorTreeRunner.tickInterval=0.1` + `EnemyAIController._decisionInterval=0.1` | — | 통합 시 한쪽으로 일원화 필요 |
 | **페이즈 시스템 표현** | `EnemyBehaviorSO.phases`가 노드 파라미터를 못 바꿈 | HZD: HTN의 매크로 단위 / FromSoftware: 페이즈 = FSM 전이 + 공격풀 교체 | BT migrate 시 데이터 모델 재설계 필요 |
 | **공격 풀 / 카드 시스템** | 없음. `EnemyCombat`의 스킬 리스트 + 거리 필터만 | Soulslike 보스: 5+ 공격, 페이즈마다 풀 교체, 랜덤 + 쿨다운 | 액션게임 적 행동의 핵심 모델이 BT에 부재 |
 | **런타임 디버깅 시각화** | `BehaviorTreeDebugTrace` 큐 데이터는 쌓이고 있음. GraphView 노드 색 하이라이트 부분 적용 | UE: 실시간 노드 하이라이트, 블랙보드 watcher | authoring 도구 가치 절반 |
@@ -92,8 +92,8 @@
 ### 1.3.3 Dave Mark — Infinite Axis Utility (GDC 2013)
 
 - 모든 행동에 0~1 score → 가장 높은 것 선택 (또는 weighted random in top-N)
-- EnemyBrain의 `if (Random.value < ContinueAttackChance) ...` 같은 **체이닝 if-random**의 정공법 대체
-- **우리에게 의미:** **UtilitySelectorNode** (자식들의 score 가져와서 weighted random) 추가만 해도 EnemyBrain의 의도를 BT로 표현 가능
+- EnemyAIController의 `if (Random.value < ContinueAttackChance) ...` 같은 **체이닝 if-random**의 정공법 대체
+- **우리에게 의미:** **UtilitySelectorNode** (자식들의 score 가져와서 weighted random) 추가만 해도 EnemyAIController의 의도를 BT로 표현 가능
 
 ### 1.3.4 Horizon Zero Dawn — Decima HTN
 
@@ -146,10 +146,10 @@
 
 - JSON Import/Export의 Services/Subtree 직렬화 — `BehaviorTreeNodeJson.children`은 GUID 기반이지만 `services` 필드 없음. 현재는 .asset 직렬화로만 보존
 - NodeView 본체에 service 카운트/요약 표시
-- 기존 6개 노드의 BlackboardKeySelector 마이그레이션
+- 기존 6개 노드의 BlackboardKeySelector 마이그레이션 (의도적 보류 — `BlackboardKeySelector`는 새 노드에서만 사용 권장. 기존 string 키 노드는 그대로 유지)
 - Service 노드를 그래프 위 stacked 노드로 표현
-- DebugTrace에 Service tick 미반영
-- Subtree 클론 인스턴스의 Unity Object 누수 — `RestartTree`가 새 부모 클론을 만들 때 이전 SubtreeNode의 `_runtimeSubtree`는 `DestroyImmediate` 없이 사라짐
+- ~~DebugTrace에 Service tick 미반영~~ — 2026-05-16 해소. `BTServiceNode.ServiceEnter/Tick/Exit`이 `Context.DebugTrace.Record`를 호출해 트레이스 큐에 기록됨
+- ~~Subtree 클론 인스턴스의 Unity Object 누수~~ — 2026-05-16 해소. `BehaviorTreeAsset.DisposeRuntime(runtimeTree)` static 헬퍼 추가 후 `BehaviorTreeRunner.StopTree`/`RestartRuntimeTree`와 `SubtreeNode.OnInitialize`/`OnDestroy`가 명시적으로 정리. RestartRuntimeTree는 이전 Blackboard를 `Clone()`해서 새 트리에 전달하므로 dangling 참조 없음
 
 ### 2.1.4 사용 가이드
 
@@ -283,7 +283,7 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 - Abort 발생 원인이 Debug Trace에 기록된다. ✅ 코드 경로 존재
 - 기존 `AbortType = None` 그래프의 동작은 변경되지 않는다. ✅ `TryHandleConditionalAbort`가 `selfAbort`/`lowerPriorityAbort` 모두 false면 즉시 false 반환
 
-## 2.5 Phase R4: Decorator 노드 확장 (부분 완료)
+## 2.5 Phase R4: Decorator 노드 확장 (완료)
 
 ### 추가 후보
 
@@ -297,8 +297,8 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 | `InverterNode` | 자식 결과 반전 | 완료 — `Nodes/Decorator/InverterNode.cs` |
 | `CooldownNode` | 일정 시간 안에는 자식 실행 차단 | 완료 — `Nodes/Decorator/CooldownNode.cs` |
 | `RepeatNode` | N회 반복 | 완료 — `Nodes/Decorator/RepeatNode.cs` |
-| `GuardConditionNode` | 조건 노드가 Success인 동안만 자식 실행 | 미구현 |
-| `ForceAbortNode` | 특정 Blackboard 조건 변화 시 자식 Abort | 미구현 |
+| `GuardConditionNode` | 지정 Blackboard bool 키가 기대값일 때만 자식 실행. 매 Tick 비교 후 어긋나면 Abort + Failure | 완료 — `Nodes/Decorator/GuardConditionNode.cs` |
+| `ForceAbortNode` | 지정 Blackboard bool 키 값이 트리거로 변경되는 순간 자식 강제 Abort. 변화 이벤트 기반 | 완료 — `Nodes/Decorator/ForceAbortNode.cs` |
 
 ### Decorator 공통 규칙
 
@@ -309,27 +309,27 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 | 종료 처리 | Decorator가 Success/Failure로 확정되면 Running 자식은 남지 않아야 한다 |
 | Reset 처리 | 반복형 Decorator는 반복 사이클마다 자식 상태를 명확히 Reset한다 |
 
-## 2.6 Phase R5: Debug Trace, Breakpoint, Disable Node (부분 구현)
+## 2.6 Phase R5: Debug Trace, Breakpoint, Disable Node (구현 완료)
 
 ### 구현 항목
 
 | 항목 | 설명 | 상태 |
 |------|------|------|
-| Debug Trace | tick 순서, 노드 GUID, 상태 변화, Abort 원인 기록 | 완료 — `BehaviorTreeDebugTrace` 큐 + `Record()` API (`BehaviorTreeRunner.cs:204-255`). Conditional Abort/ServicesTick 등은 호출부에서 기록. Service Tick 자체는 미반영 |
-| Breakpoint Pause (백엔드) | 노드가 `Context.Runner.RequestPauseFromNode(this)`를 호출하면 Tick 종료 후 Runner가 Paused로 전환 | 완료 — `BehaviorTreeRunner.cs:145-150, 170-171` |
-| Breakpoint UI 토글 | 노드 우클릭 또는 Inspector에서 Breakpoint on/off | 미구현 — `_breakpointEnabled` 같은 노드 필드와 GraphView UI 필요 |
+| Debug Trace | tick 순서, 노드 GUID, 상태 변화, Abort 원인 기록 | 완료 — `BehaviorTreeDebugTrace` 큐 + `Record()` API (`BehaviorTreeRunner.cs:204-255`). Start/Tick/Stop/Abort/Disabled/Breakpoint/ConditionalAbort/ServiceEnter/ServiceTick/ServiceExit/ForceAbort 11종 이벤트 기록 |
+| Breakpoint Pause (백엔드) | 노드가 `Context.RequestPause(this)`를 호출하면 Tick 종료 후 Runner가 Paused로 전환 | 완료 — `BehaviorTreeRunner.cs:145-150, 170-171` / `BehaviorTreeContext.cs:24-27` |
+| Breakpoint 노드 필드 + UI 토글 | `BTNode._breakpoint` 필드 + Tick 시작 시 `RequestPause` 자동 호출 + NodeView 우클릭 메뉴 토글 | 완료 — `BTNode.cs:15, 58-62, 97-98` / `BehaviorTreeNodeView.cs:210-212, 325-332` |
 | Step Tick | Pause 상태에서 1 tick만 실행 | 완료 — `BehaviorTreeRunner.StepTick()` (`BehaviorTreeRunner.cs:140-143`) |
-| Disable Node | 에디터에서 특정 노드를 실행 제외 | 부분 — `BTServiceNode.Disabled` 필드는 존재해 Service만 토글 가능. 일반 노드 Disable은 미구현 |
-| Runtime Blackboard View | 실행 중 Blackboard 값 표시 | 미구현 |
-| Last Active Path | 마지막 실행 경로 그래프 하이라이트 | 부분 — 데이터(`DebugTrace.Records`)는 쌓이지만 GraphView 시각화 미완 |
+| Disable Node | 에디터에서 특정 노드를 실행 제외 (런타임 Success로 건너뜀) | 완료 — `BTNode._disabled` + `Tick`에서 Disabled 시 Success 반환 (`BTNode.cs:14, 52-56, 85-90`) + NodeView 우클릭 토글 (`BehaviorTreeNodeView.cs:213-215, 334-339`) + Validator Warning (`BehaviorTreeAssetValidator.cs:59-60`) + NodeView opacity 0.45 시각화 |
+| Runtime Blackboard View | 실행 중 Blackboard 값 표시 | 완료 — `BehaviorTreeBlackboardView.ResolveRuntimeBlackboard` + `DrawSideBySideValue`로 Asset/Runtime 양쪽 컬럼, `Runtime Only` 섹션 (`BehaviorTreeBlackboardView.cs:98-158`) |
+| Last Active Path | 마지막 실행 경로 그래프 하이라이트 | 완료 — `NodeView.UpdateStateColor`가 `runtimeNode.LastStatus` 기반 색상 적용. Running(노란)/Success(초록)/Failure(빨강) (`BehaviorTreeNodeView.cs:186-205, 241-251`) |
 
-### 완료 조건
-- 노드 우클릭 또는 Inspector에서 Breakpoint를 켜고 끌 수 있다. (미구현 — Pause 백엔드는 있으나 트리거할 노드 UI 부재)
-- Breakpoint 노드가 시작되면 Runner가 Pause 상태가 된다. (백엔드 완료 — `RequestPauseFromNode` → Tick 종료 후 Pause)
-- Disable Node는 Validate에서 Warning으로 표시되고 런타임에서 해당 노드를 건너뛴다. (미구현)
-- Debug Trace를 통해 최근 tick 결과를 에디터에서 확인할 수 있다. (Debug Trace 큐는 동작, 에디터 뷰어 별도 검증 필요)
+### 완료 조건 (모두 충족)
+- 노드 우클릭에서 Breakpoint를 켜고 끌 수 있다. ✅
+- Breakpoint 노드가 시작되면 Runner가 Tick 종료 후 Paused로 전환된다. ✅
+- Disable Node는 Validate에서 Warning으로 표시되고 런타임에서 해당 노드를 Success로 건너뛴다. ✅
+- Debug Trace를 통해 최근 tick 결과를 에디터에서 확인할 수 있다. ✅
 
-## 2.7 Phase R6: Validator와 Error Window 고도화
+## 2.7 Phase R6: Validator와 Error Window 고도화 (부분 완료)
 
 ### 추가 검증 항목
 
@@ -348,12 +348,12 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 
 ### 에디터 UX
 
-| 기능 | 설명 |
-|------|------|
-| 오류 클릭 이동 | 오류 항목 클릭 시 해당 노드 선택 및 프레임 |
-| 노드 위 오류 배지 | 오류가 있는 노드 상단에 표시 |
-| 저장 전 경고 | Error가 있으면 Export/Save 전 확인 |
-| JSON Import 검증 | Import 직후 자동 Validate |
+| 기능 | 설명 | 상태 |
+|------|------|------|
+| 오류 클릭 이동 | 오류 항목 클릭 시 해당 노드 선택 및 프레임 | 완료 — `BehaviorTreeEditorWindow.cs:800-802` `row.RegisterCallback<MouseDownEvent>(_ => _graphView?.FocusNode(message.TargetNode))` |
+| 노드 위 오류 배지 | 오류가 있는 노드 상단에 표시 | 미구현 |
+| 저장 전 경고 | Error가 있으면 Export/Save 전 확인 | 미구현 |
+| JSON Import 검증 | Import 직후 자동 Validate | 완료 — `BehaviorTreeJsonUtility.ImportJson`이 Monster/표준 JSON 양쪽 경로 모두에서 `BehaviorTreeAssetValidator.Validate` 호출 후 `Debug.Log/LogWarning/LogError`로 결과 출력 (Error/Warning 카운트 요약 포함) |
 
 ## 2.8 권장 구현 순서
 
@@ -361,12 +361,12 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 |------|-------|------|-----------|
 | 1 | R1 Runner 실행 제어 | Pause/Manual Tick/Restart가 있어야 디버깅·테스트가 쉬워진다 | 완료 |
 | 2 | R2 Composite Abort/Reset | 런타임 안정성의 기반 | 완료 |
-| 3 | R4 Decorator 확장 | 공식 Decorator 기준 충족, 그래프 표현력 확대 | 부분 — 8종 완료, GuardCondition/ForceAbort 미구현 |
-| 4 | R5 Debug Trace/Breakpoint | Conditional Abort 구현 전 관찰 도구 확보 | 부분 — DebugTrace/StepTick/Pause 백엔드 완료, Breakpoint·Disable Node UI 미구현 |
-| 5 | R3 Conditional Abort | 가장 중요하지만 디버깅 난도가 높아 기반 기능 이후 진행 | 기본 동작 완료, Monitor 최적화 미진행 |
-| 6 | R6 Error Window 고도화 | 기능 안정화 후 UX 정리 | 부분 |
+| 3 | R4 Decorator 확장 | 공식 Decorator 기준 충족, 그래프 표현력 확대 | 완료 — 10종 (Inverter/Cooldown/Repeat/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/Timeout/GuardCondition/ForceAbort) |
+| 4 | R5 Debug Trace/Breakpoint | Conditional Abort 구현 전 관찰 도구 확보 | 완료 — DebugTrace 11종 이벤트, StepTick, Pause, Breakpoint UI, Disable Node, Blackboard 런타임 뷰, 활성 경로 시각화까지 모두 구현 |
+| 5 | R3 Conditional Abort | 가장 중요하지만 디버깅 난도가 높아 기반 기능 이후 진행 | 기본 동작 완료, Monitor 최적화 미진행 (의도적 보류) |
+| 6 | R6 Error Window 고도화 | 기능 안정화 후 UX 정리 | 부분 — 오류 클릭 이동/JSON Import 자동 Validate 완료, 노드 오류 배지·저장 전 경고 미구현 |
 
-순서 1~3은 기반이 끝났으므로 다음 작업은 R5 잔여(Breakpoint UI/Disable Node/Blackboard View) → R3 Monitor 최적화 → R6 UX 정리 흐름이 자연스럽다. Conditional Abort 기본 동작은 이미 코드에 들어 있어 §4.7 권고대로 Phase 5 BT 전환을 우선 진행해도 무방하다.
+R1~R5 기반은 모두 끝났다. 남은 갈래는 ① R3 Monitor 최적화(중장기, §1.3.1 참고) ② R6 UX 정리(노드 오류 배지, 저장 전 경고). 둘 다 Phase 5 BT 전환·Phase 6 비행형보다 우선순위가 낮으므로 §4.7 권고 순서를 따라간다.
 
 ## 2.9 구현 시 주의 사항
 
@@ -381,24 +381,24 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 
 # Part 3. 몬스터 AI BT 전환 계획
 
-이 부분은 BT 인프라(Part 2)를 사용해 `EnemyBrain` / `EnemyFlyingBrain` 중심의 몬스터 의사결정을 BT Asset과 BT Node로 완전히 이전하는 실행 계획이다.
+이 부분은 BT 인프라(Part 2)를 사용해 `EnemyAIController` / `EnemyFlyingAIController` 중심의 몬스터 의사결정을 BT Asset과 BT Node로 완전히 이전하는 실행 계획이다.
 
 핵심 목표:
 
-- `EnemyBrain.MakeDecision()` / `EnemyFlyingBrain.MakeDecision()`의 행동 선택 로직을 BT Asset과 BT Node로 이전한다.
+- `EnemyAIController.MakeDecision()` / `EnemyFlyingAIController.MakeDecision()`의 행동 선택 로직을 BT Asset과 BT Node로 이전한다.
 - 기존 몬스터 동작은 JSON 데이터로 기술하고, 이 JSON을 BT Asset으로 임포트할 수 있어야 한다.
 - 기존 `EnemyActorState`, `EnemyFlying*State`, KCC 기반 이동 제어는 유지한다.
 - BT는 "어떤 행동을 할지"만 결정하고, 실제 이동/공격/피격/사망 처리는 기존 State Machine이 계속 담당한다.
 - `EnemyBehaviorSO`, `BehaviorPhase`, `EnemyFlyingSettingsSO`는 BT 전환 이후에도 몬스터별 튜닝 데이터로 유지한다.
-- 최종적으로 `EnemyBrain` / `EnemyFlyingBrain`은 런타임 의사결정자가 아니라 BT Action/Condition에서 참조하는 Adapter 또는 Context Provider로 축소한다.
+- 최종적으로 `EnemyAIController` / `EnemyFlyingAIController`은 런타임 의사결정자가 아니라 BT Action/Condition에서 참조하는 Adapter 또는 Context Provider로 축소한다.
 
 ## 3.1 현재 구조
 
-지상 몬스터 AI는 `EnemyBrain`이 주기적으로 판단하여 `ActorMovementController.TransitionToState()`를 직접 호출한다.
+지상 몬스터 AI는 `EnemyAIController`이 주기적으로 판단하여 `ActorMovementController.TransitionToState()`를 직접 호출한다.
 
 ```
 MonsterActor
-├── EnemyBrain
+├── EnemyAIController
 │   ├── MakeDecision()
 │   ├── HandleCombatBehavior()
 │   ├── TryReactToPlayerState()
@@ -411,10 +411,10 @@ MonsterActor
     └── EnemyActorState
 ```
 
-비행 몬스터는 `EnemyFlyingBrain`이 지상 전투 루프와 공중 루프를 모두 제어한다.
+비행 몬스터는 `EnemyFlyingAIController`이 지상 전투 루프와 공중 루프를 모두 제어한다.
 
 ```
-EnemyFlyingBrain
+EnemyFlyingAIController
 ├── MakeDecision()
 ├── EvaluateChase()
 ├── OnGroundAttackFinished()
@@ -457,7 +457,7 @@ Assets/02.Scripts/AI/BehaviorTree/
 |------|----------------|------|
 | BT Asset → JSON | 지원 | 노드 타입, GUID, 위치, 자식 연결, Blackboard, 노드 필드 저장 |
 | JSON → BT Asset | 지원 | `BehaviorTreeJsonData`를 읽어 `BehaviorTreeAsset` 생성 |
-| 기존 `EnemyBrain` 행동 → JSON | 미지원 | C# 조건문/확률/상태 전환 로직을 데이터화하는 변환 규칙이 없음 |
+| 기존 `EnemyAIController` 행동 → JSON | 미지원 | C# 조건문/확률/상태 전환 로직을 데이터화하는 변환 규칙이 없음 |
 | 몬스터 행동 정의 JSON → BT Asset | (구현 완료) `MonsterBehaviorTreeJsonImporter`가 처리 |
 
 따라서 완전 전환에는 `BehaviorTreeJsonUtility`를 직접 확장하기보다, 사람이 작성하기 쉬운 몬스터 행동 JSON을 BT 내부 JSON 또는 `BehaviorTreeAsset`으로 변환하는 별도 Importer가 필요하다. 이 Importer는 §3.6에서 구현 완료되었다.
@@ -466,7 +466,7 @@ Assets/02.Scripts/AI/BehaviorTree/
 
 ```
 MonsterActor
-├── EnemyAIContext                 # 신규 또는 EnemyBrain 축소 버전
+├── EnemyAIContext                 # 신규 또는 EnemyAIController 축소 버전
 │   ├── EnemyBehaviorSO
 │   ├── EnemyFlyingSettingsSO
 │   ├── Phase Runtime State
@@ -554,17 +554,28 @@ BT는 다음 상태를 덮어쓰면 안 된다.
 
 ## 3.4 신규/확장 클래스
 
-### `EnemyAIContext` (도입 완료, 최소 골격)
+### `EnemyAIContext` (도입 완료, Phase 5/7 확장 반영)
 
-`EnemyBrain`을 즉시 제거하지 않고, 먼저 `EnemyAIContext` 역할로 축소한다. 현재 구현은 abstract MonoBehaviour 골격 + 9개 abstract 멤버이며, `EnemyBrain`이 상속·override한다. BT 노드는 `GetComponentCached<EnemyAIContext>()`로 접근해 클래스명에 묶이지 않는다. Phase 5에서 페이즈 관련 멤버, Phase 7에서 State 생성자 인자까지 점진 이전.
+`EnemyAIController`을 즉시 제거하지 않고, 먼저 `EnemyAIContext` 역할로 축소한다. 현재 구현은 abstract MonoBehaviour 골격 + 페이즈/거리/순찰/전투 후처리 멤버이며, `EnemyAIController`이 상속·override한다. BT 노드는 `GetComponentCached<EnemyAIContext>()`로 접근해 클래스명에 묶이지 않는다. Phase 5에서 페이즈 멤버가 들어갔고, Phase 7의 1차 정리로 지상 Enemy State 생성자와 BT Action 노드의 `EnemyAIController` 직접 타입 요구를 `EnemyAIContext`로 교체했다.
 
 ```csharp
 namespace UPlayGround.Component
 {
     public abstract class EnemyAIContext : MonoBehaviour
     {
+        public abstract EnemyBehaviorSO BehaviorData { get; }
+        public abstract BehaviorPhase CurrentPhase { get; }
+        public abstract Vector3 SpawnPosition { get; }
         public abstract bool EnablePatrol { get; }
         public abstract bool HasGuardMotion { get; }
+        public abstract float HealthPercent { get; }
+        public abstract float PatrolRadius { get; }
+        public abstract float PatrolWaitTime { get; }
+        public abstract float OptimalCombatDistance { get; }
+        public abstract float MinCombatDistance { get; }
+        public abstract float PersonalSpaceDistance { get; }
+        public abstract float ChaseStopDistance { get; }
+        public abstract float ChaseSpeedMultiplier { get; }
         public abstract float RetreatDistance { get; }
         public abstract float CircleDuration { get; }
         public abstract float GuardDuration { get; }
@@ -572,24 +583,15 @@ namespace UPlayGround.Component
         public abstract bool CanUseSkill();
         public abstract bool TryRequestAttackSlot();
         public abstract void NotifyBTAttackStarted();
+        public abstract void UpdatePhase(float hpPercent);
+        public abstract void DecidePostAttack(bool attackHit);
+        public abstract Vector3 GetRandomPatrolPoint();
         public abstract void ReleaseGroupSlot();
     }
 }
 ```
 
-Phase 5/7에서 추가할 멤버(청사진):
-
-```csharp
-public abstract BehaviorPhase CurrentPhase { get; }
-public abstract Vector3 SpawnPosition { get; }
-public abstract float OptimalCombatDistance { get; }
-public abstract float MinCombatDistance { get; }
-public abstract float PersonalSpaceDistance { get; }
-public abstract void UpdatePhase(float hpPercent);
-public abstract Vector3 GetRandomPatrolPoint();
-public abstract void NotifyAttackFinished(bool attackHit);
-public abstract void NotifyDefensiveAction();
-```
+아직 남은 것은 클래스명과 컴포넌트 책임 정리다. `EnemyAIController`은 현재 Context 구현체 + 레거시 의사결정 폴백을 겸한다.
 
 ### `EnemyBlackboardKeys` (구현 완료)
 
@@ -604,6 +606,13 @@ namespace UPlayGround.AI.BehaviorTree
         public const string CurrentState = "CurrentState";
         public const string HpPercent = "HpPercent";
         public const string CurrentPhaseName = "CurrentPhaseName";
+        public const string PhaseIndex = "PhaseIndex";
+        public const string AllowCharge = "AllowCharge";
+        public const string AllowFlank = "AllowFlank";
+        public const string MaxConsecutiveAttacks = "MaxConsecutiveAttacks";
+        public const string ContinueAttackChance = "ContinueAttackChance";
+        public const string GuardChance = "GuardChance";
+        public const string RetreatChance = "RetreatChance";
         public const string IsPlayerAttacking = "IsPlayerAttacking";
         public const string IsPlayerGuarding = "IsPlayerGuarding";
         public const string IsPlayerStaggered = "IsPlayerStaggered";
@@ -625,12 +634,13 @@ namespace UPlayGround.AI.BehaviorTree
 | `CanUseEnemySkillNode` 확장 | Condition | 글로벌 쿨다운, 거리, 스킬 존재 여부 확인 | 완료 (`EnemyAIContext` 의존) |
 | `RequestEnemyAttackSlotNode` | Action | `MonsterGroupController.RequestAttackSlot` 요청 | 완료 (`EnemyAIContext` 의존) |
 | `ReleaseEnemyAttackSlotNode` | Action | 공격 종료 또는 Abort 시 슬롯 반환 | 미구현 |
-| `TransitionEnemyStateNode` 확장 | Action | `Circle`, `Guard`, `Charge`, `Flank`, 비행 상태 전환 지원 | 완료 (`EnemyAIContext`로 거리/시간 접근, State 생성자는 임시 `EnemyBrain` 캐스팅 — Phase 7에서 정리) |
+| `TransitionEnemyStateNode` 확장 | Action | `Circle`, `Guard`, `Charge`, `Flank`, 비행 상태 전환 지원 | 지상형 완료 (`EnemyAIContext` 의존. 비행 상태 전환은 별도 노드 필요) |
 | `ExecuteEnemyAttackNode` | Action | 공격 슬롯 요청 + 공격 시작 통지 + Attack 상태 전환 | 완료 (`EnemyAIContext` 의존) |
 | `IsEnemyPatrolEnabledNode` | Condition | `EnablePatrol` 확인 | 완료 (`EnemyAIContext` 의존) |
+| `IsEnemyPhaseNode` | Condition | `CurrentPhaseName` 또는 `PhaseIndex` 기준 페이즈 조건 | 완료 (Phase 5) |
 | `SelectEnemySkillNode` | Action | 거리/타입/페이즈 기반 스킬 선택 | 미구현 |
 | `SyncEnemyMemoryService` | Service | `EnemyTacticalMemory` 상태를 Blackboard에 반영 (5개 bool 키) | 완료 (Phase 4). 임포터가 Root Selector에 자동 부착 |
-| `SyncEnemyPhaseService` | Service | HP 기반 페이즈 갱신 및 Blackboard 반영 | 미구현 (Phase 5) |
+| `SyncEnemyPhaseService` | Service | HP 기반 페이즈 갱신 및 Blackboard 반영 | 완료 (Phase 5). 임포터가 Root Selector에 자동 부착 |
 | `SetEnemyActionDelayNode` | Action | 기존 `_nextActionDelay` 역할 이전 | 미구현 |
 | `HasEnemyActionDelayElapsedNode` | Condition | 공격 후 의도적 대기 시간 판정 | 완료 |
 | `KeepCurrentStateNode` | Action | 개입 금지 상태에서 Running 반환 | 완료 |
@@ -688,7 +698,7 @@ Root Selector
 
 ### 3.5.2 공격 후 행동
 
-기존 `EnemyBrain.DecidePostAttack(bool attackHit)`는 다음 중 하나로 이전한다.
+기존 `EnemyAIController.DecidePostAttack(bool attackHit)`는 다음 중 하나로 이전한다.
 
 | 기존 처리 | BT 전환 방식 |
 |-----------|--------------|
@@ -749,11 +759,11 @@ AirCombat
 
 비행 상태는 `OnAirAttackFinished`, `OnDiveLanded`, `ResetAllCounters` 같은 콜백 기반 흐름이 있다. 이 로직은 한 번에 BT로 옮기지 않고 다음 순서로 이전한다.
 
-1. `EnemyFlyingBrain`의 카운터와 튜닝값을 `EnemyFlyingAIContext`로 분리한다.
+1. `EnemyFlyingAIController`의 카운터와 튜닝값을 `EnemyFlyingAIContext`로 분리한다.
 2. 지상 추격/공격/후퇴 판단만 BT로 이전한다.
 3. `TakeOff`, `AirCircle`, `Dive`, `Land` 상태 콜백은 유지한다.
 4. 공중 공격 횟수, 착지/급강하 선택을 BT Condition/Action으로 이전한다.
-5. `EnemyFlyingBrain.MakeDecision()`을 제거한다.
+5. `EnemyFlyingAIController.MakeDecision()`을 제거한다.
 
 ## 3.6 데이터 전환 (몬스터 행동 JSON 파이프라인, 구현 완료)
 
@@ -887,7 +897,7 @@ Monster Behavior Json
 
 ### 3.6.4 기존 Brain 로직과 JSON 매핑
 
-| 기존 `EnemyBrain` 로직 | JSON 표현 | 생성될 BT 노드 |
+| 기존 `EnemyAIController` 로직 | JSON 표현 | 생성될 BT 노드 |
 |------------------------|-----------|----------------|
 | 개입 금지 상태 검사 | `IsBlockedEnemyState` | `IsBlockedEnemyStateNode` + `ReturnSuccess/Running` |
 | 타겟 없음 | `HasTarget` invert | `HasTargetNode` + `TransitionEnemyStateNode(Patrol/Idle)` |
@@ -970,14 +980,16 @@ EnemyBehaviorSO
 | `priority` 중복 | 경고. JSON 순서로 보정 |
 | 생성될 BT에 RootNode 없음 | Import 중단 |
 
-### 3.6.8 `EnemyBehaviorSO` 확장
+### 3.6.8 `EnemyBehaviorSO` 확장 (구현 완료, 2026-05-16)
 
-몬스터별 BT Asset을 연결하기 위해 다음 필드를 추가한다.
+몬스터별 BT Asset을 연결하기 위해 다음 필드를 추가한다. Skeleton Common (`BehaviorData_skeleton_common.asset`)에는 적용 완료.
 
 ```csharp
 [Header("Behavior Tree")]
 public BehaviorTreeAsset behaviorTree;
 ```
+
+> **현 시점 동작**: 본 필드는 forward-compatible 데이터 슬롯이며, 런타임 `EnemyAIController`은 자신의 `BehaviorTreeRunner` 컴포넌트를 직접 참조한다. 즉 프리팹의 `BehaviorTreeRunner._treeAsset`이 1차 연결점이고, `EnemyBehaviorSO.behaviorTree`는 동일 자산을 참조하도록 양쪽을 맞춰 두는 용도다. Phase 5/7에서 Context/Service가 이 SO 필드를 자동 주입에 활용하도록 확장 예정.
 
 JSON을 소스 오브 트루스로 사용할 경우:
 
@@ -1033,15 +1045,16 @@ public BehaviorTreeAsset behaviorTree;
 | Import Folder 메뉴 추가 | 여러 몬스터 JSON을 일괄 BT Asset으로 재생성 |
 | JSON 검증 추가 | 잘못된 state/action/condition을 에셋 생성 전에 차단 |
 
-### 3.7.3 Phase 2: 지상형 단순 몬스터 1종 전환 (부분 완료)
+### 3.7.3 Phase 2: 지상형 단순 몬스터 1종 전환 (자산/데이터 완료 / 프리팹 연결 + Play Mode 검증 남음)
 
 Skeleton 계열처럼 기본 근접 행동만 필요한 몬스터를 선택한다.
 
 | 구분 | 경로 |
 |------|------|
 | JSON 원본 | `Assets/10.Datas/AI/BehaviorTree/SourceJson/Ground/EnemyBehavior_Skeleton_Common.json` |
-| 생성 대상 BT Asset | `Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Skeleton_Common.asset` |
-| 기존 BehaviorSO | `Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_common.asset` |
+| 생성 대상 BT Asset | `Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Skeleton_Common.asset` (GUID `683ed5e0908c92d498a1ea33bd9f1ee2`) |
+| 기존 BehaviorSO | `Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_common.asset` (behaviorTree 필드에 위 BT Asset 참조 채워짐) |
+| 적용 프리팹 | `Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Common.prefab` (BehaviorTreeRunner 추가 + Tree Asset 연결 — 사용자 작업, 부록 A.2 참조) |
 
 에디터 메뉴:
 
@@ -1070,9 +1083,9 @@ Phase 2 완료 처리는 위 JSON을 Import해서 BT Asset을 생성하고, Skel
 - 사망 중: BT가 다시 `Chase`/`Attack`으로 전환하지 않음
 - 공격 슬롯: 그룹 몬스터가 동시에 과도하게 공격하지 않음
 
-### 3.7.4 Phase 3: 기존 `EnemyBrain.MakeDecision()` 비활성화 (완료)
+### 3.7.4 Phase 3: 기존 `EnemyAIController.MakeDecision()` 비활성화 (완료)
 
-`BehaviorTreeRunner`가 활성인 몬스터는 Brain의 의사결정을 실행하지 않는다. 실제 구현은 `EnemyBrain.Update`의 `_decisionInterval` 분기 안에서 가드한다.
+`BehaviorTreeRunner`가 활성인 몬스터는 Brain의 의사결정을 실행하지 않는다. 실제 구현은 `EnemyAIController.Update`의 `_decisionInterval` 분기 안에서 가드한다.
 
 ```csharp
 [SerializeField] private BehaviorTreeRunner _behaviorTreeRunner;
@@ -1100,7 +1113,7 @@ protected virtual void Update()
 
 이 단계는 과도기용이다. 모든 몬스터 전환이 끝나면 레거시 분기는 제거한다.
 
-> `EnemyFlyingBrain`은 `MonoBehaviour`를 직접 상속하므로 본 가드가 적용되지 않는다. Phase 6에서 같은 패턴을 별도로 적용한다.
+> 2026-05-16 3차 갱신: `EnemyFlyingAIController`에도 동일한 `_behaviorTreeRunner.IsRunning` 가드를 적용했다. Runner가 실행 중이면 `Start()`의 초기 상태 전환과 `Update()`의 `MakeDecision(stateName)` 호출을 건너뛰고, 기존 공중 루프 콜백은 유지한다.
 
 ### 3.7.5 Phase 4: 전술 반응 이전 (완료)
 
@@ -1138,7 +1151,7 @@ JSON 사용 예 (Skeleton Common에 "플레이어 공격 반응" 규칙 추가):
 
 > 프리팹에 `EnemyTacticalMemory` 컴포넌트가 붙어 있어야 5개 키가 의미를 가진다. 부록 A에서 권장 컴포넌트로 표기됨.
 
-### 3.7.6 Phase 5: 페이즈 이전
+### 3.7.6 Phase 5: 페이즈 이전 (완료)
 
 `UpdatePhase()`는 Context에 남기고, 페이즈 결과를 Blackboard에 기록한다.
 
@@ -1151,29 +1164,48 @@ SyncEnemyPhaseService
 
 BT는 `CurrentPhaseName`, `allowCharge`, `allowFlank`, `maxConsecutiveAttacks` 같은 값을 조건/가중치에 사용한다.
 
-### 3.7.7 Phase 6: 비행형 전환
+구현 반영:
 
-지상형 안정화 이후 진행한다.
+- `EnemyAIContext`에 `BehaviorData`, `CurrentPhase`, `HealthPercent`, `UpdatePhase(float)`를 추가하고 `EnemyAIController`이 override한다.
+- `SyncEnemyPhaseService` 신규. HP 비율을 읽어 `EnemyAIContext.UpdatePhase()`를 호출하고 `HpPercent`, `CurrentPhaseName`, `PhaseIndex`, `AllowCharge`, `AllowFlank`, `MaxConsecutiveAttacks`, `ContinueAttackChance`, `GuardChance`, `RetreatChance`를 Blackboard에 기록한다.
+- `IsEnemyPhaseNode` 신규. 페이즈 이름 또는 인덱스 조건을 BT에서 직접 평가한다.
+- `MonsterBehaviorTreeJsonImporter`가 Root Selector에 `SyncEnemyPhaseService`를 자동 부착하고 기본 Blackboard 키를 생성한다.
+
+잔여:
+
+- 현재 생성된 Skeleton BT Asset은 기존 자산이므로 새 Service가 자동 반영되지 않았다. JSON 원본 재임포트 또는 에디터에서 Root Service 추가가 필요하다.
+- 페이즈별 공격 풀/스킬 선택(`SelectEnemySkillNode`)은 아직 미구현이다.
+
+### 3.7.7 Phase 6: 비행형 전환 (완료)
+
+지상형 안정화 이후 전면 이전한다. 2026-05-16 4차 갱신에서 Context 분리, 5차 갱신에서 비행 BT 노드와 JSON Importer 라우팅까지 완료.
 
 | 순서 | 작업 |
 |------|------|
-| 1 | `EnemyFlyingBrain` 데이터를 `EnemyFlyingAIContext`로 분리 |
-| 2 | `Flying_Chase`, `Flying_GroundAttack`, `Flying_Retreat`, `Flying_Circle` 전환 노드 추가 |
-| 3 | 지상 루프를 BT로 이전 |
-| 4 | `TakeOff` 조건을 BT로 이전 |
-| 5 | `AirCircle` 공격 횟수와 `Dive`/`Land` 선택을 BT로 이전 |
-| 6 | `EnemyFlyingBrain.MakeDecision()` 제거 |
+| 1 | `EnemyFlyingAIController` 데이터를 `EnemyFlyingAIContext`로 분리 — **완료 (2026-05-16, 4차)**. `EnemyAIContext`와 형제 관계의 새 abstract MonoBehaviour. `EnemyFlyingAIController`이 상속하고 9개 Flying State가 `EnemyFlyingAIContext`만 의존하도록 생성자 일괄 변경 |
+| 2 | `Flying_Chase`, `Flying_GroundAttack`, `Flying_Retreat`, `Flying_Circle` 전환 노드 추가 — **완료 (2026-05-16, 5차)**. `FlyingEnemyTransitionStateType` enum 10종 + `TransitionFlyingEnemyStateNode` 단일 Action으로 통합. `ResetFlyingCountersNode`/`ResetFlyingAirCountersNode`/`DescendFlyingNode`/`RequestFlyingAttackSlotNode` Action + `IsFlyingAirState`/`IsFlyingGroundCombatState`/`IsAirAttackLimitReached`/`ShouldFlyingTakeOff`/`FlyingCanUseSkill` Condition |
+| 3 | 지상 루프를 BT로 이전 — **완료 (2026-05-16, 8차)**. 기존 `EnemyFlyingChase/Retreat/Circle` 상태 콜백은 BT가 참조할 카운터/저수준 상태 완료만 담당하고, 주기적 행동 선택은 제거 |
+| 4 | `TakeOff` 조건을 BT로 이전 — **완료 (5차)**. `ShouldFlyingTakeOffNode` + `TransitionFlyingEnemyStateNode(TakeOff)`로 JSON 표현 가능 |
+| 5 | `AirCircle` 공격 횟수와 `Dive`/`Land` 선택을 BT Condition/Action으로 이전 — **완료 (2026-05-16, 6차)**. `HasDiveSkillAvailableNode` + `RollDiveChanceNode` + `SelectFlyingDiveSkillNode`로 Dive/Land 분기를 JSON 두 룰(DescendToDive 우선, DescendToLand 폴백)로 표현 가능 |
+| 6 | `EnemyFlyingAIController.MakeDecision()` 제거 — **완료 (2026-05-16, 8차)**. BT 미연결 폴백 의사결정 제거. 비행형 프리팹에 실행 중인 Runner가 없으면 경고만 남긴다 |
 
-### 3.7.8 Phase 7: 레거시 Brain 제거
+JSON Importer (`MonsterBehaviorTreeJsonImporter`)는 `actorKind: "Flying"` 분기 처리. 비행 actorKind에서는 `SyncEnemyMemoryService` / `SyncEnemyPhaseService`를 Root에 부착하지 않는다 (`EnemyTacticalMemory` / `EnemyAIContext` 비대상). 신규 condition: `IsCurrentState`(value=상태이름), `IsFlyingAirState`, `IsFlyingGroundCombatState`, `IsAirAttackLimitReached`, `ShouldFlyingTakeOff`, `FlyingCanUseSkill`. 신규 action: `FlyingTransition`(state=`FlyingEnemyTransitionStateType`), `FlyingPatrolOrIdle`, `ResetFlyingCounters`, `ResetFlyingAirCounters`, `DescendFlying`, `RequestFlyingAttackSlot`. 샘플: `Assets/10.Datas/AI/BehaviorTree/SourceJson/Flying/EnemyBehavior_FlyingBoss_Common.json`.
 
-모든 몬스터 프리팹이 BT Asset을 가지면 다음 작업을 수행한다.
+> Context 분리 설계 메모: 비행형은 `EnemyAIContext`를 상속하지 않고 형제로 둔다. 이유는 (a) `BehaviorData(EnemyBehaviorSO)`/페이즈/Guard 같은 지상 전용 추상 멤버를 비행이 의미 없이 구현해야 하고, (b) 기존 `TransitionEnemyStateNode`가 `GetComponentCached<EnemyAIContext>()`로 지상 State를 만들기 때문에 비행 액터가 상속하면 잘못된 State가 생성될 수 있다. 비행 전용 BT 노드는 `GetComponentCached<EnemyFlyingAIContext>()`로 조회한다.
 
-- `EnemyBrain.MakeDecision()` 제거
-- `EnemyFlyingBrain.MakeDecision()` 제거
-- 상태 클래스가 직접 `EnemyBrain` 타입을 요구하는 생성자를 `EnemyAIContext` 기반으로 교체
-- `EnemyBrain` 이름이 남아 있다면 `EnemyAIContext`로 리네임
-- 프리팹에서 레거시 Brain 컴포넌트 의존성 제거 또는 Context 컴포넌트로 교체
-- 몬스터별 JSON 원본과 생성된 BT Asset의 대응 관계를 `Assets/10.Datas/AI/BehaviorTree/Generated` 기준으로 정리
+### 3.7.8 Phase 7: 레거시 Brain 제거 (완료)
+
+2026-05-16 8차 갱신에서 하드코딩 의사결정 폴백을 제거했다.
+
+- `EnemyAIController.MakeDecision()` 및 관련 거리/확률 기반 분기 제거.
+- `EnemyFlyingAIController.MakeDecision()` 및 비행형 BT 미연결 폴백 분기 제거.
+- `EnemyAIController.Update()`는 전술 메모리 동기화와 BT용 타이머 갱신만 담당한다.
+- `EnemyFlyingAIController`의 State 콜백은 카운터/타임스탬프 갱신만 담당한다.
+- `BehaviorTreeRunner.SetTreeAsset()` 추가. 지상형은 `EnemyBehaviorSO.behaviorTree`가 있으면 런타임에 Runner를 보장하고 BT를 시작한다.
+- 상태 클래스가 직접 `EnemyAIController` 타입을 요구하는 생성자를 `EnemyAIContext` 기반으로 교체 — 지상 Enemy State 1차 완료.
+- `TransitionEnemyStateNode`와 `ExecuteEnemyAttackNode`는 더 이상 `EnemyAIController` 캐스팅을 요구하지 않는다.
+
+남은 것은 이름 정리(`EnemyAIController` → 전용 Context/Adapter 명칭)와 프리팹 직렬화 정리다. 클래스명은 `MonsterActor.Brain`, 그룹 컨트롤러, 패리 처리, 에디터 도구가 아직 참조하므로 별도 호환 레이어 없이 즉시 삭제하지 않는다.
 
 ## 3.8 프리팹 셋업
 
@@ -1211,13 +1243,13 @@ BT는 `CurrentPhaseName`, `allowCharge`, `allowFlank`, `maxConsecutiveAttacks` �
 |---|---|---|
 | **A. 전면 migrate** | 적·보스 다양성을 늘리고 디자이너(본인)가 데이터로 빠르게 튜닝하고 싶을 때 | 페이즈/리듬/그룹/메모리를 모두 노드로 풀어야 함 → 노드 30~50개 추가, 트리 비대화 위험 (Anguelov 경고) |
 | **B. 보스/특수 적만 BT** | 잡몹은 단순하고 보스만 복잡한 패턴 — 전형적 액션게임 구조 | 두 시스템 코드 일관성 비용. 디버깅 도구 둘 |
-| **C. BT 폐기 + EnemyBrain 강화** | BT 인프라 유지 비용 > 이득이라 판단 시 | BT 폴더 30+ 파일 삭제 결정. 향후 데이터 드리븐 요구 시 처음부터 다시 |
+| **C. BT 폐기 + EnemyAIController 강화** | BT 인프라 유지 비용 > 이득이라 판단 시 | BT 폴더 30+ 파일 삭제 결정. 향후 데이터 드리븐 요구 시 처음부터 다시 |
 
 ### 객관적 권고
 
 옵션 B(보스/특수 한정 augment)가 위험도 대비 이득이 가장 균형 잡힘. 이유:
 
-- 잡몹은 `EnemyBrain`의 페이즈/메모리/그룹 코드가 이미 동작 중 → 무리하게 BT로 옮기면 회귀 위험
+- 잡몹은 `EnemyAIController`의 페이즈/메모리/그룹 코드가 이미 동작 중 → 무리하게 BT로 옮기면 회귀 위험
 - 보스/엘리트는 패턴 복잡도가 임계점 넘으면 데이터 authoring이 필요해짐 → BT가 이때 빛남
 - §2.1, §2.2~2.7 항목은 옵션 B에서도 모두 의미 있음
 
@@ -1246,12 +1278,12 @@ BT는 `CurrentPhaseName`, `allowCharge`, `allowFlank`, `maxConsecutiveAttacks` �
 | Blackboard 문자열 오타 | `EnemyBlackboardKeys` 상수화 + `BlackboardKeySelector` |
 | 페이즈별 트리 교체로 디버깅 어려움 | 기본은 Blackboard 값 변경, 꼭 필요한 경우만 트리 override |
 | 비행형 상태 콜백과 BT Tick 충돌 | 비행형은 지상 루프부터 단계적으로 전환 |
-| 기존 State 생성자가 `EnemyBrain` 타입에 묶임 | `EnemyAIContext` 인터페이스 또는 베이스 타입으로 생성자 교체 |
+| 기존 State 생성자가 `EnemyAIController` 타입에 묶임 | `EnemyAIContext` 인터페이스 또는 베이스 타입으로 생성자 교체 |
 | 모든 몬스터 동시 Tick 비용 | Tick interval 조정, 거리 기반 Runner Pause, Debug Mode 제한 |
 | JSON과 BT Asset 불일치 | JSON을 소스 오브 트루스로 두고 Generated BT Asset은 재생성 가능 산출물로 취급 |
 | 사람이 작성한 JSON 오타 | Import 전 스키마/노드/상태/Blackboard 키 검증 |
 | 저수준 BT JSON과 몬스터 행동 JSON 혼동 | `BehaviorTreeJsonUtility`는 BT round-trip용, `MonsterBehaviorTreeJsonImporter`는 몬스터 행동 변환용으로 분리 |
-| Subtree 클론 누수 | `RestartTree` 시 이전 `_runtimeSubtree`를 명시적으로 `DestroyImmediate`로 정리하는 패턴 도입 필요 |
+| ~~Subtree 클론 누수~~ | 2026-05-16 해소. `BehaviorTreeAsset.DisposeRuntime` + Runner/SubtreeNode 정리 경로 |
 | Conditional Abort 전체 트리 폴링 비용 | Composite 단위 등록제 평가 또는 Monitor Decorator로 교체 |
 
 ## 4.5 검증 체크리스트
@@ -1294,7 +1326,7 @@ BT 완전 전환은 다음 조건을 모두 만족해야 완료로 본다.
 
 - 모든 몬스터 프리팹이 `BehaviorTreeRunner`와 BT Asset을 가진다.
 - 모든 몬스터의 기존 행동은 JSON 원본으로 작성되어 있고, 해당 JSON에서 BT Asset을 재생성할 수 있다.
-- `EnemyBrain.MakeDecision()`과 `EnemyFlyingBrain.MakeDecision()`이 제거된다.
+- `EnemyAIController.MakeDecision()`과 `EnemyFlyingAIController.MakeDecision()`이 제거된다.
 - 지상형/비행형 몬스터의 행동 선택은 BT Asset에서 확인 가능하다.
 - 기존 State Machine은 KCC 물리와 애니메이션 생명주기만 담당한다.
 - 공격 슬롯, 페이즈, 전술 메모리, 순찰, 비행 루프가 BT 경로에서 모두 동작한다.
@@ -1306,68 +1338,85 @@ BT 완전 전환은 다음 조건을 모두 만족해야 완료로 본다.
 
 ## 4.7 결론
 
-BT 인프라는 §2.1 4.1 단계로 핵심 5개 갭(Service/WeightedSelector/Subtree/BlackboardKey 타입화) 중 4개가 해소되었고, 코드 점검 결과 R1 Runner 실행 제어와 R2 Composite Abort/Reset도 이미 구현 완료, R3 Conditional Abort는 기본 평가 경로(`TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort`)까지 들어가 있다. 몬스터 AI 전환은 Phase 1/1.5/3/4 완료 + `EnemyAIContext` 골격 도입까지 진척되어 BT 노드가 더 이상 `EnemyBrain` 클래스에 직접 묶이지 않으며 플레이어 상태 반응형 분기까지 BT 경로에서 동작한다.
+BT 인프라는 §2.1 4.1 단계로 핵심 5개 갭(Service/WeightedSelector/Subtree/BlackboardKey 타입화) 중 4개가 해소되었고, 코드 점검 결과 R1 Runner 실행 제어와 R2 Composite Abort/Reset도 이미 구현 완료, R3 Conditional Abort는 기본 평가 경로(`TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort`)까지 들어가 있다. 몬스터 AI 전환은 Phase 1/1.5/3/4/5 완료, Phase 6의 BT 노드화와 Phase 7 레거시 의사결정 제거까지 완료되었다. BT 노드는 더 이상 지상형 공격/전이에서 `EnemyAIController` 캐스팅을 요구하지 않으며, 플레이어 상태 반응형 분기와 HP 페이즈 Blackboard 동기화가 BT 경로에서 동작한다.
 
-남은 핵심 차단 요소(2026-05-16 기준 재정리):
+남은 핵심 차단 요소(2026-05-16 8차 갱신 기준):
 
-- **부록 A.2 자산 이동 + Skeleton 프리팹 BT Runner 연결** — Phase 2 종료의 마지막 1마일. 코드 변경 없이 사용자 작업.
-- **Phase 5 미착수** — `SyncEnemyPhaseService` 및 `EnemyAIContext.CurrentPhase`/`UpdatePhase` 멤버 부재로 HP 임계값에 따른 행동 전환이 BT에서 표현되지 않는다.
-- **Phase 6 미착수** — `EnemyFlyingBrain`은 `BehaviorTreeRunner` 참조가 0건으로 Phase 3 가드 미적용. 비행형은 여전히 100% 레거시 경로.
-- **Monitor Decorator 부재** (Phase R3 최적화) — 기본 Conditional Abort 동작은 있으나 `EnumerateConditions` 재귀 폴링이라 트리 깊이에 비례한 비용 누적. 적 수가 늘면 부담.
-- **R5 잔여 UI** — Breakpoint Pause 백엔드/StepTick은 있으나 노드 단위 Breakpoint·Disable Node·Blackboard 런타임 뷰는 미구현.
+- **Skeleton 프리팹 Play Mode 검증** — 자산 이동·`EnemyBehaviorSO.behaviorTree` 연결은 완료. 지상형은 런타임에 `EnemyBehaviorSO.behaviorTree`로 `BehaviorTreeRunner`를 보장하므로 수동 프리팹 컴포넌트 추가는 필수가 아니지만, 프리팹 직렬화 정리는 권장된다.
+- **Generated Skeleton BT 재임포트 필요** — `MonsterBehaviorTreeJsonImporter`는 이제 `SyncEnemyPhaseService`를 자동 부착하지만, 기존 생성 BT Asset에는 자동 반영되지 않는다.
+- **비행형 프리팹 BT 연결 + Play Mode 검증** — 비행형은 `EnemyFlyingSettingsSO`에 BT Asset 필드가 없으므로 프리팹의 `BehaviorTreeRunner` 연결이 필요하다.
+- **컴포넌트 이름 정리** — `EnemyAIController`/`EnemyFlyingAIController` 클래스명은 Context 역할로 남아 있다. 참조 정리 후 명칭 변경 가능.
+- **Monitor Decorator 부재** (Phase R3 최적화, 의도적 보류) — 기본 Conditional Abort 동작은 있으나 `EnumerateConditions` 재귀 폴링이라 트리 깊이에 비례한 비용 누적. 적 수가 늘면 부담.
+- **R6 UX 잔여** — 노드 위 오류 배지, 저장 전 Error 경고 미구현.
 
 다음 액션 순서 권고:
 
-1. 부록 A.2 자산 이동·리네임 수행 → Skeleton 프리팹에 `BehaviorTreeRunner` + BT Asset 연결 → 부록 C.1/C.2/C.3 테스트 그래프 및 §4.5 지상형 체크리스트로 Play Mode 검증 → Phase 2 종료.
-2. Phase 5 — `SyncEnemyPhaseService` 추가 + `EnemyAIContext`에 페이즈 멤버 도입. 페이즈 인지 가중치/조건 노드 작성.
-3. R5 잔여 UI(Breakpoint 토글/Disable Node/Blackboard View) → R3 Monitor Decorator로 폴링 비용 최적화.
-4. Phase 6 비행형 전환 — `EnemyFlyingBrain`에도 `_behaviorTreeRunner.IsRunning` 가드 패턴 적용 후 단계적 이전.
+1. Skeleton JSON 재임포트 또는 Root Service 수동 추가로 `SyncEnemyPhaseService`를 기존 `BT_EnemyBehavior_Skeleton_Common`에 반영.
+2. Skeleton을 Play Mode에서 부록 C.1/C.2/C.3 테스트 그래프 및 §4.5 지상형 체크리스트로 검증 → Phase 2/5 실제 검증 종료.
+3. 비행 보스 프리팹에 `BehaviorTreeRunner` + 위 샘플 JSON 임포트 결과를 연결, Play Mode에서 BT 주도 비행 루프 검증.
+4. 대표 몬스터 검증 후 `EnemyAIController`/`EnemyFlyingAIController` 명칭을 Context/Adapter 용어로 정리할지 판단.
 5. 시범 보스 1마리를 BT로 작성해 옵션 A vs B를 본격 판단.
+6. 부하 측정 후 필요해지면 R3 Monitor Decorator로 폴링 비용 최적화.
 
 ---
 
 # 부록 A. 진행 상태
 
-## A.1 2026-05-16 기준 스냅샷
+## A.1 2026-05-16 (8차) 기준 스냅샷
+
+8차 갱신 핵심: Phase 7 레거시 의사결정 제거. `EnemyAIController.MakeDecision()`/`EnemyFlyingAIController.MakeDecision()`과 관련 BT 미연결 폴백을 제거했다. `EnemyAIController`은 `EnemyBehaviorSO.behaviorTree`가 있으면 런타임에 `BehaviorTreeRunner`를 보장하고 `SetTreeAsset` 후 시작한다. 비행형 State 콜백은 카운터/타임스탬프 갱신만 수행하고 다음 행동 선택은 BT가 담당한다.
+
+7차 갱신 핵심: `MonsterBehaviorTreeJsonImporter`의 `Validate`에 `actorKind`별 노드 매핑 검사 추가. 지상 전용 condition/action(`CanUseSkill`, `Transition`, `PatrolOrIdle`, `RequestAttackSlot`, `ExecuteAttack`)을 `actorKind=Flying` JSON이 참조하면 import 단계에서 명확한 메시지로 거부. 비행 전용 노드도 동일하게 `actorKind=Ground`에서 거부. 런타임에서 `GetComponentCached<EnemyAIContext>()` null 폴백으로 조용히 실패하던 footgun을 차단.
+
+6차 갱신 핵심: Phase 6 step 5 마무리. `EnemyFlyingAIController.TransitionToDescend`를 분해 가능한 primitives로 리팩터링 — `DiveChance` 프로퍼티, `HasDiveSkillAvailable()`, `SelectAndSetDiveSkill()`을 Context에 추가. 신규 BT 노드 3종: `HasDiveSkillAvailableNode`(Condition), `RollDiveChanceNode`(Condition), `SelectFlyingDiveSkillNode`(Action). Importer가 신규 노드를 인식. 샘플 JSON은 단일 `DescendFlying`을 두 룰(`DescendToDive` priority 960, `DescendToLand` priority 950)로 교체 — JSON에서 Selector 폴백 패턴으로 Dive 시도 후 Land 떨어짐을 표현. Brain 폴백 경로도 동일 primitives를 호출하므로 BT/비-BT 모두 동작.
+
+5차 갱신 핵심: 비행 전용 BT 노드 + JSON Importer 라우팅 추가. 신규 enum `FlyingEnemyTransitionStateType`(10종), 신규 Action 5종(`TransitionFlyingEnemyStateNode`, `ResetFlyingCountersNode`, `ResetFlyingAirCountersNode`, `DescendFlyingNode`, `RequestFlyingAttackSlotNode`), 신규 Condition 5종(`IsFlyingAirStateNode`, `IsFlyingGroundCombatStateNode`, `IsAirAttackLimitReachedNode`, `ShouldFlyingTakeOffNode`, `FlyingCanUseSkillNode`). `EnemyFlyingAIContext`에 `CanUseSkill`/`ShouldTakeOff`/`TryRequestAttackSlot`/`NotifyBTAttackStarted`/`TransitionToDescend` 추상 메서드 추가. `MonsterBehaviorTreeJsonImporter`는 `actorKind=Flying`을 인식해 Memory/Phase Service를 부착하지 않고 비행 condition/action을 디스패치. 샘플 JSON: `Assets/10.Datas/AI/BehaviorTree/SourceJson/Flying/EnemyBehavior_FlyingBoss_Common.json`.
+
+4차 갱신 핵심: `EnemyFlyingAIContext` abstract MonoBehaviour 신설(`EnemyAIContext`와 형제). `EnemyFlyingAIController`이 상속하고 9개 Flying State(`EnemyFlyingChase/Patrol/Circle/Retreat/TakeOff/AirCircle/Dive/Land/GroundAttackState`)의 생성자/필드 타입이 `EnemyFlyingAIContext`로 일괄 전환됨.
+
+
 
 | 단계 | 상태 | 반영 내용 | 남은 작업 |
 |------|------|-----------|-----------|
-| §2.1 4.1 즉시 가치 (Service/BlackboardKeySelector/WeightedRandom/Subtree) | 완료 | 12개 파일 추가/수정. AAA §1.2.1 핵심 5개 중 4개 해소 | DebugTrace에 Service tick 반영, 기존 6개 노드 BlackboardKeySelector 마이그레이션, Subtree 클론 누수 정리 |
+| §2.1 4.1 즉시 가치 (Service/BlackboardKeySelector/WeightedRandom/Subtree) | 완료 | 12개 파일 추가/수정. AAA §1.2.1 핵심 5개 중 4개 해소. DebugTrace에 Service tick 반영(`BTServiceNode.ServiceEnter/Tick/Exit`에서 `Record`). Subtree 클론 누수 정리(`BehaviorTreeAsset.DisposeRuntime` + Runner/SubtreeNode 정리 경로) | 기존 6개 노드 BlackboardKeySelector 마이그레이션 (의도적 보류) |
 | §2.2 R1 Runner 실행 제어 | 완료 | `EnableBehavior`/`DisableBehavior`/`PauseTree`/`ResumeTree`/`TickOnce`/`StepTick`/`RequestPauseFromNode` + `_tickMode`(Manual 포함)/`_restartWhenComplete`/`_resetValuesOnRestart` 모두 `BehaviorTreeRunner.cs`에 구현 | 부록 C.1 테스트 그래프로 Play Mode 검증 |
 | §2.3 R2 Composite Abort/Reset | 완료 | Sequence/Selector `OnStop`에서 `AbortRunningChildren` + `_currentIndex` 리셋, Parallel 양방향(`requireAllSuccess` true/false) Abort 전부 구현 | 부록 C.2 Parallel Abort 테스트로 Play Mode 검증 |
-| §2.4 R3 Conditional Abort | 부분 | `BTConditionNode.EvaluateAbortChanged` + `BTCompositeNode.TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort` + Sequence/Selector `TryHandleConditionalAbort` 구현. Debug Trace 기록까지 완료 | Monitor Decorator 도입(폴링→등록제), 부록 C.3 테스트로 Play Mode 검증 |
-| §2.5 R4 Decorator 확장 | 부분 | Inverter/Cooldown/Repeat/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/Timeout 8종 완료 | GuardConditionNode/ForceAbortNode 미구현 |
-| §2.6 R5 Debug Trace/Breakpoint | 부분 | DebugTrace 큐 + `Record()` API, `RequestPauseFromNode` 백엔드, `StepTick`까지 완료. ServiceNode `Disabled` 토글 존재 | 노드 단위 Breakpoint UI, 일반 노드 Disable, Blackboard 런타임 뷰, GraphView 마지막 활성 경로 하이라이트 |
-| §2.7 R6 Validator 고도화 | 부분 | 기본 Validator 동작 | 오류 클릭 이동, JSON Import 자동 Validate |
+| §2.4 R3 Conditional Abort | 부분 | `BTConditionNode.EvaluateAbortChanged` + `BTCompositeNode.TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort` + Sequence/Selector `TryHandleConditionalAbort` 구현. Debug Trace 기록까지 완료 | Monitor Decorator 도입(폴링→등록제, 의도적 보류), 부록 C.3 테스트로 Play Mode 검증 |
+| §2.5 R4 Decorator 확장 | 완료 | Inverter/Cooldown/Repeat/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/Timeout 8종 + 신규 GuardConditionNode/ForceAbortNode 추가로 10종 | — |
+| §2.6 R5 Debug Trace/Breakpoint | 완료 | `BTNode._disabled`/`_breakpoint` + Tick 시 자동 호출, NodeView 우클릭 토글, BlackboardView Asset/Runtime/Runtime Only 3열 표시, NodeView `UpdateStateColor` 실시간 색상, ServiceEnter/Tick/Exit DebugTrace 기록까지 모두 구현 | — |
+| §2.7 R6 Validator 고도화 | 부분 | 오류 클릭 이동(`EditorWindow.cs:800-802`), JSON Import 자동 Validate(`BehaviorTreeJsonUtility.LogValidation`) 완료 | 노드 위 오류 배지, 저장 전 Error 경고 |
 | §3.7.1 Phase 1 안전장치 | 완료 | `EnemyBlackboardKeys`, `IsBlockedEnemyStateNode`, `HasEnemyActionDelayElapsedNode`, `KeepCurrentStateNode`, `RequestEnemyAttackSlotNode`, `ExecuteEnemyAttackNode` 슬롯/통지 | Play Mode 검증 |
 | §3.7.2 Phase 1.5 JSON 파이프라인 | 완료 | `MonsterBehaviorTreeJsonImporter`, `EnemyBehaviorJsonExporter`, Skeleton JSON 샘플 | — |
-| §3.7.3 Phase 2 Skeleton 1종 전환 | 부분 | 임포터 라우팅 수정 완료 — `BehaviorTreeJsonUtility.ImportJson`이 Monster Behavior JSON을 감지하면 `SaveFilePanel`을 건너뛰고 표준 `Generated/BT_*` 경로 강제. `MonsterBehaviorTreeJsonImporter.ImportFromMonsterBehaviorJson`도 `outputAssetPath`가 null/공백이면 `GetGeneratedAssetPath`로 자동 보정 | 기존 루트의 `EnemyBehavior_Skeleton_Common.asset` 파일/.meta 이동·리네임(아래 A.2), Skeleton 프리팹에 Runner 연결, Play Mode 검증 |
-| §3.7.4 Phase 3 Brain 비활성화 | 완료 | `EnemyBrain.Update`가 `_behaviorTreeRunner.IsRunning`이면 `MakeDecision()` 호출하지 않도록 가드 추가. Awake에서 `BehaviorTreeRunner` 자동 캐싱 | Play Mode에서 BT Runner 활성 시 Brain 의사결정이 멈추는지 검증 |
+| §3.7.3 Phase 2 Skeleton 1종 전환 | 부분 | 임포터 라우팅 + 자산 이동·리네임 + 데이터 연결 완료 — `Generated/BT_EnemyBehavior_Skeleton_Common.asset`으로 이동(GUID 유지). `EnemyBehaviorSO.behaviorTree` 필드 추가 후 `BehaviorData_skeleton_common.asset`에 위 BT Asset 참조 기록 | Skeleton 프리팹에 BehaviorTreeRunner 컴포넌트 추가 + Tree Asset 연결 (부록 A.2), Play Mode 검증 |
+| §3.7.4 Phase 3 Brain 비활성화 | 완료 | `EnemyAIController.Update`의 주기적 의사결정 호출 제거. 이제 메모리 동기화와 BT용 타이머 갱신만 수행 | Play Mode에서 BT Runner 활성 시 BT만 상태 전이를 주도하는지 검증 |
 | §3.7.5 Phase 4 전술 반응 이전 | 완료 | `SyncEnemyMemoryService` 신규. 임포터가 Root Selector에 자동 부착. 5개 bool 키 동기화 경로 완성. JSON 측 condition 매핑은 기존 그대로 | 프리팹에 `EnemyTacticalMemory` 부착 확인, Play Mode에서 키 갱신 검증 |
-| §3.7.6 Phase 5 페이즈 이전 | 미착수 | — | `SyncEnemyPhaseService` 추가 |
-| §3.7.7 Phase 6 비행형 전환 | 미착수 | `EnemyFlyingBrain`은 `MonoBehaviour` 직접 상속이라 Phase 3 가드 미적용. 별도 진행 필요 | 지상형 안정화 이후 |
-| §3.7.8 Phase 7 레거시 제거 | 미착수 | — | 모든 몬스터 전환 후 |
-| `EnemyAIContext` 도입 | 완료 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs` 신규 — abstract MonoBehaviour. `EnemyBrain`이 상속하고 9개 멤버에 `override` 부여(`EnablePatrol`, `HasGuardMotion`, `RetreatDistance`, `CircleDuration`, `GuardDuration`, `CanUseSkill`, `TryRequestAttackSlot`, `NotifyBTAttackStarted`, `ReleaseGroupSlot`). BT 노드(`ExecuteEnemyAttackNode`, `RequestEnemyAttackSlotNode`, `CanUseEnemySkillNode`, `IsEnemyPatrolEnabledNode`, `TransitionEnemyStateNode`)가 `EnemyAIContext` 의존으로 전환 | Phase 5 진입 시 `BehaviorPhase CurrentPhase`/`UpdatePhase` 추가, State 생성자도 점진 이전 |
+| §3.7.6 Phase 5 페이즈 이전 | 완료 | `SyncEnemyPhaseService` + `IsEnemyPhaseNode` 신규. `EnemyAIContext`에 `BehaviorData`/`CurrentPhase`/`HealthPercent`/`UpdatePhase` 추가. 임포터가 Phase Service와 기본 Blackboard 키 자동 생성 | 기존 생성 BT Asset 재임포트 또는 수동 Service 추가, Play Mode 검증 |
+| §3.7.7 Phase 6 비행형 전환 | 완료 | 4차: `EnemyFlyingAIContext` 분리 + 9개 Flying State 전환. 5차: 비행 BT 노드 11종 + Importer 라우팅 + 샘플 JSON. 6차: Dive/Land 분기 BT 내재화. 8차: 비행형 `MakeDecision()` 폴백 제거 | 보스 프리팹에 `BehaviorTreeRunner` 연결 + Play Mode 검증 |
+| §3.7.8 Phase 7 레거시 제거 | 완료 | 지상 Enemy State 생성자와 `TransitionEnemyStateNode`/`ExecuteEnemyAttackNode`의 `EnemyAIController` 직접 요구를 `EnemyAIContext`로 교체. 지상/비행 `MakeDecision()` 제거. 지상형은 SO의 BT Asset으로 Runner 런타임 보장 | 컴포넌트 리네임 판단, 프리팹 직렬화 정리 |
+| `EnemyAIContext` 도입 | 완료 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs` — abstract MonoBehaviour. `EnemyAIController`이 상속하고 페이즈/거리/순찰/공격 슬롯/공격 후처리 멤버를 `override`. BT 노드(`ExecuteEnemyAttackNode`, `RequestEnemyAttackSlotNode`, `CanUseEnemySkillNode`, `IsEnemyPatrolEnabledNode`, `TransitionEnemyStateNode`)가 `EnemyAIContext` 의존으로 전환 | 비행형 Context 분리 |
 
-## A.2 Phase 2 후속 — 기존 자산 정리 (사용자 작업)
+## A.2 Phase 2 후속 — 프리팹 연결 (사용자 작업)
 
-코드 수정으로 신규 임포트는 모두 `Generated/BT_*.asset` 경로에 떨어진다. 단 기존에 잘못 생성된 자산이 남아 있어 사용자 측에서 다음 중 하나를 수행해야 한다.
+자산/데이터 이동·연결은 2026-05-16 완료. 남은 작업은 Unity 에디터에서 프리팹 컴포넌트 추가 한 번이다.
 
-| 항목 | 잘못된 경로/이름 | 권장 처리 |
-|------|------------------|-----------|
-| Skeleton Common BT | `Assets/10.Datas/AI/BehaviorTree/EnemyBehavior_Skeleton_Common.asset` | 파일과 `.meta`를 **함께** `Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Skeleton_Common.asset`으로 이동·리네임. 이렇게 하면 GUID가 유지되어 이미 참조 중인 `EnemyBehaviorSO.behaviorTree`나 프리팹 필드가 깨지지 않는다. |
+| 항목 | 경로 | 상태 / 처리 |
+|------|------|-------------|
+| ~~Skeleton Common BT 이동·리네임~~ | `Assets/10.Datas/AI/BehaviorTree/EnemyBehavior_Skeleton_Common.asset` → `.../Generated/BT_EnemyBehavior_Skeleton_Common.asset` | **2026-05-16 해소** — 파일·`.meta` 함께 이동, GUID `683ed5e0908c92d498a1ea33bd9f1ee2` 유지. `Generated.meta` 폴더 메타도 신규 발급. |
+| `EnemyBehaviorSO.behaviorTree` 필드 + Skeleton SO 연결 | `Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_common.asset` | **2026-05-16 해소** — SO YAML에 BT Asset GUID 참조 기록. |
+| Skeleton 프리팹 BehaviorTreeRunner 추가 | `Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Common.prefab` | **사용자 작업.** Unity 에디터에서 프리팹 열고 `Add Component → Behavior Tree Runner` → `_treeAsset`에 `BT_EnemyBehavior_Skeleton_Common` 드래그. `_startOnEnable=true`/`_tickInterval=0.1`/`_restartWhenComplete=true` 권장. EnemyAIController.Awake가 `_behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>()`로 자동 캐싱한다. |
 
-대안(GUID 새로 발급 감수): 위 자산 삭제 후 `UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json` 메뉴로 SourceJson을 재임포트. 단 어딘가에서 자산을 참조 중이라면 미싱이 된다.
+> 프리팹 YAML 직접 편집은 의도적으로 회피한다 — 9488줄 프리팹에 컴포넌트 fileID 발급 + `m_Component` 리스트 갱신 + 신규 YAML 도큐먼트 삽입을 Unity 검증 없이 동시에 처리해야 하므로 위험 대비 이득이 없다.
 
 ## A.3 검증 상태
 
 | 항목 | 결과 |
 |------|------|
-| `dotnet build UPlayground.sln --no-restore` | 성공. 오류 0개. 기존 외부 패키지/Unity 참조 경고만 존재 |
+| `dotnet build UPlayground.sln --no-restore` (2026-05-16 3차) | 성공. 오류 0개. 기존 외부 패키지/Unity 참조 경고 23개만 존재 |
 | Unity 배치모드 컴파일 | 미완료 |
-| JSON → BT Asset 실제 생성 | 신규 임포트는 `Generated/BT_*` 규칙 적용됨 (코드 검증). 사용자 측 기존 자산 이동 미진행 |
-| Skeleton 프리팹 BT 연결 | 미진행 |
-| Phase 3 가드 Play Mode 검증 | 미진행 |
+| JSON → BT Asset 실제 생성 | 신규 임포트는 `Generated/BT_*` 규칙 적용됨 (코드 검증). 기존 Skeleton Common BT 자산 이동·리네임 **완료** |
+| `EnemyBehaviorSO.behaviorTree` 필드 + Skeleton SO 연결 | 완료 |
+| Skeleton 프리팹 BT Runner 추가 | 미진행 (사용자 작업, 부록 A.2 참조) |
+| Phase 3 가드 Play Mode 검증 | 미진행 (사용자 작업) |
 
 ---
 

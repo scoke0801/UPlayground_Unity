@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
     /// <summary>
     /// 적 전술 기억 컴포넌트
-    /// 전투 이벤트를 기억해 EnemyBrain의 다음 행동 결정에 맥락을 제공한다.
+    /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
     /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
     /// </summary>
     public class EnemyTacticalMemory : MonoBehaviour

@@ -1,14 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
+using UPlayGround.AI.BehaviorTree;
 
 namespace UPlayGround.Data.Enemy
 {
     /// <summary>
-    /// EnemyBrain의 행동 설정 전체를 담는 SO.
+    /// EnemyAIController의 행동 설정 전체를 담는 SO.
     /// 기본 전투 수치 + 페이즈 배열을 포함한다.
     /// </summary>
     [CreateAssetMenu(fileName = "BehaviorData", menuName = "UPlayGround/Enemy/Behavior Data")]
     public class EnemyBehaviorSO : ScriptableObject
     {
+        [Header("Behavior Tree")]
+        [Tooltip("이 몬스터의 행동을 결정할 BT Asset. 프리팹의 BehaviorTreeRunner._treeAsset에 직접 연결하는 게 1차 방식이며, 본 필드는 런타임 동기화 또는 추후 SO→Runner 자동 주입에 사용한다 (현재 EnemyAIController은 컴포넌트만 참조).")]
+        public BehaviorTreeAsset behaviorTree;
+
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;
         public float minCombatDistance      = 1.5f;

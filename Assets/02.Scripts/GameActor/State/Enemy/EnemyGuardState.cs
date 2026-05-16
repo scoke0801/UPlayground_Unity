@@ -14,7 +14,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Guard";
         
-        private EnemyBrain _brain;
+        private EnemyAIContext _context;
         private EnemyDetection _detection;
         private EnemyCombat _combat;
         private UPlayGround.Component.EnemyTacticalMemory _memory;
@@ -22,9 +22,9 @@ namespace UPlayGround.State
         private float _guardDuration;
         private float _guardTimer;
         
-        public EnemyGuardState(ActorMovementController controller, EnemyBrain brain, EnemyDetection detection, float duration) : base(controller)
+        public EnemyGuardState(ActorMovementController controller, EnemyAIContext context, EnemyDetection detection, float duration) : base(controller)
         {
-            _brain = brain;
+            _context = context;
             _detection = detection;
             _guardDuration = duration;
         }
@@ -113,10 +113,10 @@ namespace UPlayGround.State
             _memory?.NotifyBlocked();
 
             // 블록 성공 → 카운터 공격으로 즉시 전환
-            if (_combat != null && _brain != null && _detection != null)
+            if (_combat != null && _context != null && _detection != null)
             {
                 controller.TransitionToState(
-                    new EnemyCounterState(controller, _combat, _brain, _detection, _memory));
+                    new EnemyCounterState(controller, _combat, _context, _detection, _memory));
                 return;
             }
 

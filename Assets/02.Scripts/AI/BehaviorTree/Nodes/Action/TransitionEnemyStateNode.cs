@@ -42,22 +42,22 @@ namespace UPlayGround.AI.BehaviorTree
 
         private GameActorState CreateState(ActorMovementController controller)
         {
-            var brain = Context.GetComponentCached<EnemyBrain>();
+            var context = Context.GetComponentCached<EnemyAIContext>();
             var detection = Context.GetComponentCached<EnemyDetection>();
             var combat = Context.GetComponentCached<EnemyCombat>();
 
             return _targetState switch
             {
                 EnemyTransitionStateType.Idle => new EnemyIdleState(controller),
-                EnemyTransitionStateType.Patrol when brain != null => new EnemyPatrolState(controller, brain),
-                EnemyTransitionStateType.Chase when brain != null && detection != null => new EnemyChaseState(controller, brain, detection),
-                EnemyTransitionStateType.Attack when brain != null && detection != null && combat != null => new EnemyAttackState(controller, combat, brain, detection),
-                EnemyTransitionStateType.Retreat when brain != null && detection != null => new EnemyRetreatState(controller, brain, detection, brain.RetreatDistance),
-                EnemyTransitionStateType.Circle when brain != null && detection != null => new EnemyCircleState(controller, brain, detection, brain.CircleDuration),
-                EnemyTransitionStateType.Guard when brain != null && detection != null && brain.HasGuardMotion => new EnemyGuardState(controller, brain, detection, brain.GuardDuration),
-                EnemyTransitionStateType.Charge when brain != null && detection != null && combat != null => new EnemyChargeState(controller, combat, brain, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
-                EnemyTransitionStateType.Flank when brain != null && detection != null && combat != null => new EnemyFlankState(controller, combat, brain, detection),
-                EnemyTransitionStateType.Counter when brain != null && detection != null && combat != null => new EnemyCounterState(controller, combat, brain, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
+                EnemyTransitionStateType.Patrol when context != null => new EnemyPatrolState(controller, context),
+                EnemyTransitionStateType.Chase when context != null && detection != null => new EnemyChaseState(controller, context, detection),
+                EnemyTransitionStateType.Attack when context != null && detection != null && combat != null => new EnemyAttackState(controller, combat, context, detection),
+                EnemyTransitionStateType.Retreat when context != null && detection != null => new EnemyRetreatState(controller, context, detection, context.RetreatDistance),
+                EnemyTransitionStateType.Circle when context != null && detection != null => new EnemyCircleState(controller, context, detection, context.CircleDuration),
+                EnemyTransitionStateType.Guard when context != null && detection != null && context.HasGuardMotion => new EnemyGuardState(controller, context, detection, context.GuardDuration),
+                EnemyTransitionStateType.Charge when context != null && detection != null && combat != null => new EnemyChargeState(controller, combat, context, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
+                EnemyTransitionStateType.Flank when context != null && detection != null && combat != null => new EnemyFlankState(controller, combat, context, detection),
+                EnemyTransitionStateType.Counter when context != null && detection != null && combat != null => new EnemyCounterState(controller, combat, context, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
                 _ => null
             };
         }

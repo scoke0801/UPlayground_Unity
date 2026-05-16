@@ -116,6 +116,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var data = LoadJson(absoluteJsonPath);
             Validate(data, absoluteJsonPath);
 
+            if (string.IsNullOrWhiteSpace(outputAssetPath))
+                outputAssetPath = GetGeneratedAssetPath(data);
+
             var sourceBehavior = LoadSourceBehavior(data);
             EnsureAssetDirectory(outputAssetPath);
 
@@ -128,6 +131,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var root = CreateNode<SelectorNode>(tree, "Root", new Vector2(0f, 0f));
             root.Services.Add(CreateNode<SyncEnemyBlackboardService>(tree, "Sync Enemy Blackboard", new Vector2(-260f, -160f)));
+
+            // 비행형은 EnemyTacticalMemory / EnemyAIContext 페이즈 모델을 쓰지 않으므로 Memory / Phase 서비스 미부착.
+            var isFlying = string.Equals(data.actorKind, "Flying", StringComparison.OrdinalIgnoreCase);
+            if (!isFlying)
+            {
+                root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));
+                root.Services.Add(CreateNode<SyncEnemyPhaseService>(tree, "Sync Enemy Phase", new Vector2(-260f, -40f)));
+            }
             tree.RootNode = root;
 
             AddDefaultBlackboard(tree, data, sourceBehavior);
@@ -174,47 +185,106 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (data.rules == null || data.rules.Count == 0)
                 throw new InvalidDataException($"{data.id}: rules가 비어 있습니다.");
 
+            var actorKind = ResolveActorKind(data.actorKind);
+
             foreach (var rule in data.rules)
             {
                 if (string.IsNullOrWhiteSpace(rule.name))
                     throw new InvalidDataException($"{data.id}: name이 비어 있는 rule이 있습니다.");
 
                 foreach (var condition in rule.when ?? new List<MonsterBehaviorConditionJson>())
-                    ValidateCondition(condition, rule.name);
+                    ValidateCondition(condition, rule.name, actorKind);
 
                 foreach (var action in rule.@do ?? new List<MonsterBehaviorActionJson>())
-                    ValidateAction(action, rule.name);
+                    ValidateAction(action, rule.name, actorKind);
 
                 foreach (var choice in rule.choices ?? new List<MonsterBehaviorChoiceJson>())
-                    ValidateChoice(choice, rule.name);
+                    ValidateChoice(choice, rule.name, actorKind);
             }
         }
 
-        private static void ValidateCondition(MonsterBehaviorConditionJson condition, string ruleName)
+        private enum ActorKind { Ground, Flying }
+
+        private static ActorKind ResolveActorKind(string raw)
+        {
+            if (string.Equals(raw, "Flying", StringComparison.OrdinalIgnoreCase))
+                return ActorKind.Flying;
+            return ActorKind.Ground;
+        }
+
+        private static readonly HashSet<string> GroundOnlyConditions = new()
+        {
+            "CanUseSkill"
+        };
+
+        private static readonly HashSet<string> FlyingOnlyConditions = new()
+        {
+            "IsFlyingAirState", "IsFlyingGroundCombatState", "IsAirAttackLimitReached",
+            "ShouldFlyingTakeOff", "FlyingCanUseSkill", "HasDiveSkillAvailable", "RollDiveChance"
+        };
+
+        private static readonly HashSet<string> GroundOnlyActions = new()
+        {
+            "PatrolOrIdle", "Transition", "RequestAttackSlot", "ExecuteAttack"
+        };
+
+        private static readonly HashSet<string> FlyingOnlyActions = new()
+        {
+            "FlyingTransition", "FlyingPatrolOrIdle", "ResetFlyingCounters",
+            "ResetFlyingAirCounters", "DescendFlying", "RequestFlyingAttackSlot", "SelectFlyingDiveSkill"
+        };
+
+        private static void ValidateCondition(MonsterBehaviorConditionJson condition, string ruleName, ActorKind actorKind)
         {
             var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "DistanceLessOrEqual"
                 or "DistanceGreater" or "ActionDelayElapsed" or "CanUseSkill" or "IsPlayerAttacking"
-                or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently";
+                or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                // ── 비행 전용 ──
+                or "IsCurrentState" or "IsFlyingAirState" or "IsFlyingGroundCombatState"
+                or "IsAirAttackLimitReached" or "ShouldFlyingTakeOff" or "FlyingCanUseSkill"
+                or "HasDiveSkillAvailable" or "RollDiveChance";
 
             if (!known)
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 condition입니다. {condition.condition}");
+
+            if (condition.condition == "IsCurrentState" && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: IsCurrentState는 value(상태 이름)가 필요합니다.");
+
+            if (actorKind == ActorKind.Flying && GroundOnlyConditions.Contains(condition.condition))
+                throw new InvalidDataException($"{ruleName}: 지상 전용 condition '{condition.condition}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 노드(예: FlyingCanUseSkill)로 교체하세요.");
+
+            if (actorKind == ActorKind.Ground && FlyingOnlyConditions.Contains(condition.condition))
+                throw new InvalidDataException($"{ruleName}: 비행 전용 condition '{condition.condition}'은 actorKind=Ground에서 사용할 수 없습니다.");
         }
 
-        private static void ValidateAction(MonsterBehaviorActionJson action, string ruleName)
+        private static void ValidateAction(MonsterBehaviorActionJson action, string ruleName, ActorKind actorKind)
         {
             var known = action.action is "KeepCurrentState" or "PatrolOrIdle" or "Transition"
-                or "RequestAttackSlot" or "ExecuteAttack" or "Wait";
+                or "RequestAttackSlot" or "ExecuteAttack" or "Wait"
+                // ── 비행 전용 ──
+                or "FlyingTransition" or "FlyingPatrolOrIdle" or "ResetFlyingCounters"
+                or "ResetFlyingAirCounters" or "DescendFlying" or "RequestFlyingAttackSlot"
+                or "SelectFlyingDiveSkill";
 
             if (!known)
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action.action}");
 
             if (action.action == "Transition" && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyTransitionStateType입니다. {action.state}");
+
+            if (action.action == "FlyingTransition" && !Enum.TryParse<FlyingEnemyTransitionStateType>(action.state, out _))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 FlyingEnemyTransitionStateType입니다. {action.state}");
+
+            if (actorKind == ActorKind.Flying && GroundOnlyActions.Contains(action.action))
+                throw new InvalidDataException($"{ruleName}: 지상 전용 action '{action.action}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 액션(예: FlyingTransition / FlyingPatrolOrIdle / RequestFlyingAttackSlot)으로 교체하세요.");
+
+            if (actorKind == ActorKind.Ground && FlyingOnlyActions.Contains(action.action))
+                throw new InvalidDataException($"{ruleName}: 비행 전용 action '{action.action}'은 actorKind=Ground에서 사용할 수 없습니다.");
         }
 
-        private static void ValidateChoice(MonsterBehaviorChoiceJson choice, string ruleName)
+        private static void ValidateChoice(MonsterBehaviorChoiceJson choice, string ruleName, ActorKind actorKind)
         {
-            ValidateAction(new MonsterBehaviorActionJson { action = choice.action, state = choice.state }, ruleName);
+            ValidateAction(new MonsterBehaviorActionJson { action = choice.action, state = choice.state }, ruleName, actorKind);
         }
 
         private static BTNode CreateRuleNode(
@@ -280,10 +350,21 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "IsPlayerStaggered" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerStaggered, !condition.invert, row),
                 "IsPlayerRecovering" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerRecovering, !condition.invert, row),
                 "IsPlayerDodgingFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerDodgingFrequently, !condition.invert, row),
+                // ── 비행 전용 ──
+                "IsCurrentState" => CreateIsCurrentStateNode(tree, condition.value, !condition.invert, row),
+                "IsFlyingAirState" => CreateNode<IsFlyingAirStateNode>(tree, "Is Flying Air State", new Vector2(520f, row * 180f)),
+                "IsFlyingGroundCombatState" => CreateNode<IsFlyingGroundCombatStateNode>(tree, "Is Flying Ground Combat State", new Vector2(520f, row * 180f)),
+                "IsAirAttackLimitReached" => CreateNode<IsAirAttackLimitReachedNode>(tree, "Air Attack Limit Reached", new Vector2(520f, row * 180f)),
+                "ShouldFlyingTakeOff" => CreateNode<ShouldFlyingTakeOffNode>(tree, "Should Flying Take Off", new Vector2(520f, row * 180f)),
+                "FlyingCanUseSkill" => CreateNode<FlyingCanUseSkillNode>(tree, "Flying Can Use Skill", new Vector2(520f, row * 180f)),
+                "HasDiveSkillAvailable" => CreateNode<HasDiveSkillAvailableNode>(tree, "Has Dive Skill Available", new Vector2(520f, row * 180f)),
+                "RollDiveChance" => CreateNode<RollDiveChanceNode>(tree, "Roll Dive Chance", new Vector2(520f, row * 180f)),
                 _ => null
             };
 
-            return condition.invert && condition.condition is not ("HasTarget" or "IsPlayerAttacking" or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently")
+            return condition.invert && condition.condition is not ("HasTarget" or "IsPlayerAttacking" or "IsPlayerGuarding"
+                       or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                       or "IsCurrentState")
                 ? WrapInverter(tree, node, row)
                 : node;
         }
@@ -298,6 +379,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "RequestAttackSlot" => CreateNode<RequestEnemyAttackSlotNode>(tree, "Request Attack Slot", new Vector2(820f, row * 180f)),
                 "ExecuteAttack" => CreateNode<ExecuteEnemyAttackNode>(tree, "Execute Attack", new Vector2(820f, row * 180f)),
                 "Wait" => CreateWaitNode(tree, action.duration, row),
+                // ── 비행 전용 ──
+                "FlyingTransition" => CreateFlyingTransitionNode(tree, action.state, row),
+                "FlyingPatrolOrIdle" => CreateFlyingPatrolOrIdleNode(tree, row),
+                "ResetFlyingCounters" => CreateNode<ResetFlyingCountersNode>(tree, "Reset Flying Counters", new Vector2(820f, row * 180f)),
+                "ResetFlyingAirCounters" => CreateNode<ResetFlyingAirCountersNode>(tree, "Reset Flying Air Counters", new Vector2(820f, row * 180f)),
+                "DescendFlying" => CreateNode<DescendFlyingNode>(tree, "Descend Flying", new Vector2(820f, row * 180f)),
+                "RequestFlyingAttackSlot" => CreateNode<RequestFlyingAttackSlotNode>(tree, "Request Flying Attack Slot", new Vector2(820f, row * 180f)),
+                "SelectFlyingDiveSkill" => CreateNode<SelectFlyingDiveSkillNode>(tree, "Select Flying Dive Skill", new Vector2(820f, row * 180f)),
                 _ => null
             };
         }
@@ -350,6 +439,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return node;
         }
 
+        private static TransitionFlyingEnemyStateNode CreateFlyingTransitionNode(BehaviorTreeAsset tree, string state, int row)
+        {
+            var node = CreateNode<TransitionFlyingEnemyStateNode>(tree, "Flying Transition " + state, new Vector2(820f, row * 180f));
+            node.TargetState = Enum.Parse<FlyingEnemyTransitionStateType>(state);
+            return node;
+        }
+
         private static BTNode CreatePatrolOrIdleNode(BehaviorTreeAsset tree, int row)
         {
             var selector = CreateNode<SelectorNode>(tree, "Patrol Or Idle", new Vector2(820f, row * 180f));
@@ -360,6 +456,27 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             selector.Children.Add(patrolSequence);
             selector.Children.Add(CreateTransitionNode(tree, nameof(EnemyTransitionStateType.Idle), row));
             return selector;
+        }
+
+        private static BTNode CreateFlyingPatrolOrIdleNode(BehaviorTreeAsset tree, int row)
+        {
+            var selector = CreateNode<SelectorNode>(tree, "Flying Patrol Or Idle", new Vector2(820f, row * 180f));
+            var patrolSequence = CreateNode<SequenceNode>(tree, "Flying Patrol If Enabled", new Vector2(1080f, row * 180f));
+            // EnemyFlyingAIContext.EnablePatrol은 별도 노드가 없으므로 Blackboard로 읽는다.
+            patrolSequence.Children.Add(CreateBlackboardBoolNode(tree, "enablePatrol", true, row));
+            patrolSequence.Children.Add(CreateFlyingTransitionNode(tree, nameof(FlyingEnemyTransitionStateType.Patrol), row));
+
+            selector.Children.Add(patrolSequence);
+            selector.Children.Add(CreateFlyingTransitionNode(tree, nameof(FlyingEnemyTransitionStateType.Idle), row));
+            return selector;
+        }
+
+        private static IsCurrentActorStateNode CreateIsCurrentStateNode(BehaviorTreeAsset tree, string stateName, bool expected, int row)
+        {
+            var node = CreateNode<IsCurrentActorStateNode>(tree, (expected ? "Is " : "Is Not ") + stateName, new Vector2(520f, row * 180f));
+            node.StateName = stateName;
+            node.ExpectedValue = expected;
+            return node;
         }
 
         private static WaitNode CreateWaitNode(BehaviorTreeAsset tree, float duration, int row)
@@ -397,6 +514,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             blackboard.SetBool(EnemyBlackboardKeys.HasTarget, false);
             blackboard.SetFloat(EnemyBlackboardKeys.DistanceToTarget, float.MaxValue);
             blackboard.SetString(EnemyBlackboardKeys.CurrentState, "");
+            blackboard.SetFloat(EnemyBlackboardKeys.HpPercent, 1f);
+            blackboard.SetString(EnemyBlackboardKeys.CurrentPhaseName, "");
+            blackboard.SetInt(EnemyBlackboardKeys.PhaseIndex, -1);
+            blackboard.SetBool(EnemyBlackboardKeys.AllowCharge, false);
+            blackboard.SetBool(EnemyBlackboardKeys.AllowFlank, false);
+            blackboard.SetInt(EnemyBlackboardKeys.MaxConsecutiveAttacks, 3);
+            blackboard.SetFloat(EnemyBlackboardKeys.ContinueAttackChance, sourceBehavior?.continueAttackChance ?? 0.3f);
+            blackboard.SetFloat(EnemyBlackboardKeys.GuardChance, sourceBehavior?.guardChance ?? 0.25f);
+            blackboard.SetFloat(EnemyBlackboardKeys.RetreatChance, sourceBehavior?.retreatChance ?? 0.2f);
             blackboard.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
             blackboard.SetFloat(EnemyBlackboardKeys.NextActionAllowedTime, 0f);
 

@@ -37,6 +37,7 @@ namespace UPlayGround.AI.BehaviorTree
         {
             _timer = _tickOnEnter ? _interval : 0f;
             OnServiceEnter();
+            Context?.DebugTrace?.Record(this, "ServiceEnter", BTStatus.Running);
         }
 
         internal void ServiceTick(float deltaTime)
@@ -47,11 +48,13 @@ namespace UPlayGround.AI.BehaviorTree
 
             _timer = 0f;
             OnServiceTick();
+            Context?.DebugTrace?.Record(this, "ServiceTick", BTStatus.Running);
         }
 
         internal void ServiceExit()
         {
             OnServiceExit();
+            Context?.DebugTrace?.Record(this, "ServiceExit", BTStatus.Success);
             _timer = 0f;
         }
 

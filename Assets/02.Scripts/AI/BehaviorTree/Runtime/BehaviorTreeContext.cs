@@ -19,7 +19,7 @@ namespace UPlayGround.AI.BehaviorTree
         public Transform Transform { get; }
         public Blackboard Blackboard { get; }
         public BehaviorTreeRunner Runner { get; }
-        public BehaviorTreeDebugTrace DebugTrace => Runner != null ? Runner.DebugTrace : null;
+        public BehaviorTreeDebugTrace DebugTrace => Runner != null && Runner.DebugMode ? Runner.DebugTrace : null;
 
         public void RequestPause(BTNode node)
         {

@@ -13,7 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Patrol";
         
-        private EnemyBrain _brain;
+        private EnemyAIContext _context;
         
         private Vector3 _targetPosition;
         private float _patrolSpeed;
@@ -32,9 +32,9 @@ namespace UPlayGround.State
         private const float STUCK_TIMEOUT = 2.0f; // 정체 지속 시 포기 시간
         private const int MAX_RETRY = 3;
         
-        public EnemyPatrolState(ActorMovementController controller, EnemyBrain brain) : base(controller)
+        public EnemyPatrolState(ActorMovementController controller, EnemyAIContext context) : base(controller)
         {
-            _brain = brain;
+            _context = context;
         }
 
         public override bool CanTransitionState(string stateName)
@@ -73,7 +73,7 @@ namespace UPlayGround.State
             {
                 _waitTimer += deltaTime;
                 
-                if (_waitTimer >= _brain.PatrolWaitTime)
+                if (_waitTimer >= _context.PatrolWaitTime)
                 {
                     SetNewPatrolPoint();
                     _isWaiting = false;
@@ -229,7 +229,7 @@ namespace UPlayGround.State
 
         private void SetNewPatrolPoint()
         {
-            _targetPosition = _brain.GetRandomPatrolPoint();
+            _targetPosition = _context.GetRandomPatrolPoint();
             _targetPosition.y = motor.TransientPosition.y;
             _lastPosition = motor.TransientPosition;
             _stuckTimer = 0f;

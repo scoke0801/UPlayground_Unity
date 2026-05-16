@@ -17,7 +17,7 @@ namespace UPlayGround.State
         public override string StateName => "Flying_Dive";
         public override bool AdjustGravity => false;
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
 
         private enum Phase { Approach, Telegraph, Diving, Recovery, WaitGround }
         private Phase _phase;
@@ -42,7 +42,7 @@ namespace UPlayGround.State
         private float Cfg_ArrivalDist => _brain.FlyingSettings ? _brain.FlyingSettings.diveApproachArrivalDist : ApproachArrivalDist;
         private float Cfg_ApproachTimeout => _brain.FlyingSettings ? _brain.FlyingSettings.diveApproachTimeout : ApproachTimeout;
 
-        public EnemyFlyingDiveState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingDiveState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

@@ -23,6 +23,8 @@ namespace UPlayGround.AI.BehaviorTree
 
         protected override void OnInitialize()
         {
+            DisposeRuntimeSubtree();
+
             if (_subtreeAsset == null || _subtreeAsset.RootNode == null || Context == null)
                 return;
 
@@ -47,6 +49,21 @@ namespace UPlayGround.AI.BehaviorTree
         protected override void OnReset()
         {
             _runtimeSubRoot?.ResetNode();
+        }
+
+        private void OnDestroy()
+        {
+            DisposeRuntimeSubtree();
+        }
+
+        private void DisposeRuntimeSubtree()
+        {
+            if (_runtimeSubtree == null)
+                return;
+
+            BehaviorTreeAsset.DisposeRuntime(_runtimeSubtree);
+            _runtimeSubtree = null;
+            _runtimeSubRoot = null;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -136,6 +136,7 @@ namespace UPlayGround.Component
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private bool              _cachedCombatState;
         private float             _threatCheckTimer;
+        private readonly Collider[] _threatOverlapBuffer = new Collider[128];
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -282,11 +283,24 @@ namespace UPlayGround.Component
 
         private bool HasThreatNearby()
         {
-            var brains = GetEnemyBrainsInRadius(_threatDetectionRange);
-            foreach (var brain in brains)
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _threatDetectionRange,
+                _threatOverlapBuffer,
+                _targetLayerMask);
+
+            for (int i = 0; i < hitCount; i++)
             {
-                if (brain.HasAggroTarget) return true;
+                var hit = _threatOverlapBuffer[i];
+                if (hit == null)
+                    continue;
+
+                EnemyAIController brain = hit.GetComponent<EnemyAIController>()
+                                        ?? hit.GetComponentInParent<EnemyAIController>();
+                if (brain != null && brain.HasAggroTarget)
+                    return true;
             }
+
             return false;
         }
 
@@ -991,18 +1005,36 @@ namespace UPlayGround.Component
             return bestTarget;
         }
 
-        public List<EnemyBrain> GetEnemyBrainsInRadius(float radius)
+        public List<EnemyAIController> GetEnemyAIControllersInRadius(float radius)
         {
-            var        result = new List<EnemyBrain>();
-            Collider[] hits   = Physics.OverlapSphere(transform.position, radius, _targetLayerMask);
-            foreach (var hit in hits)
+            var        result = new List<EnemyAIController>();
+            FillEnemyAIControllersInRadius(radius, result);
+            return result;
+        }
+
+        public void FillEnemyAIControllersInRadius(float radius, List<EnemyAIController> result)
+        {
+            if (result == null)
+                return;
+
+            result.Clear();
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                radius,
+                _threatOverlapBuffer,
+                _targetLayerMask);
+
+            for (int i = 0; i < hitCount; i++)
             {
-                EnemyBrain brain = hit.GetComponent<EnemyBrain>()
-                                ?? hit.GetComponentInParent<EnemyBrain>();
+                var hit = _threatOverlapBuffer[i];
+                if (hit == null)
+                    continue;
+
+                EnemyAIController brain = hit.GetComponent<EnemyAIController>()
+                                ?? hit.GetComponentInParent<EnemyAIController>();
                 if (brain != null && !result.Contains(brain))
                     result.Add(brain);
             }
-            return result;
         }
 
         #endregion

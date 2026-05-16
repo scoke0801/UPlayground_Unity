@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Component;
@@ -13,7 +13,7 @@ namespace UPlayGround.Data.Event
     {
         public override string GetDisplayName() => "FreezeEnemy";
 
-        private List<EnemyBrain> _frozenBrains = new List<EnemyBrain>();
+        [NonSerialized] private List<EnemyAIController> _frozenEnemyControllers;
         
         public override string GetShortLabel()
         {
@@ -35,8 +35,9 @@ namespace UPlayGround.Data.Event
             }
             
             // 주변 모든 적 Freeze
-            _frozenBrains = combat.GetEnemyBrainsInRadius(30.0f);
-            foreach (var brain in _frozenBrains)
+            _frozenEnemyControllers ??= new List<EnemyAIController>();
+            combat.FillEnemyAIControllersInRadius(30.0f, _frozenEnemyControllers);
+            foreach (var brain in _frozenEnemyControllers)
                 brain.Freeze();
         }
 
@@ -54,7 +55,12 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            foreach (var brain in _frozenBrains)
+            if (_frozenEnemyControllers == null)
+            {
+                return;
+            }
+
+            foreach (var brain in _frozenEnemyControllers)
             {
                 if (brain == null)
                 {

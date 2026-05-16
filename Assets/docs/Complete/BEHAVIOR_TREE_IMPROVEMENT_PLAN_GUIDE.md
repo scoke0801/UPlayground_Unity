@@ -2,9 +2,9 @@
 
 > 작성일: 2026-04-28
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 적용 범위: 커스텀 BT 런타임/에디터 신규 구현 제안. 기존 `EnemyBrain`, `EnemyFlyingBrain`, Enemy State 구조는 직접 수정하지 않는다.
+> 적용 범위: 커스텀 BT 런타임/에디터 신규 구현 제안. 기존 `EnemyAIController`, `EnemyFlyingAIController`, Enemy State 구조는 직접 수정하지 않는다.
 >
-> **2026-05-11 갱신**: 본 문서의 1차 BT 신규 구현 계획은 상당 부분 적용되었다. 그 이후의 AAA 비교 분석 및 EnemyBrain과의 통합 방향 검토는 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md`로 이어진다. 누락 기능 보강은 `BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md` + AAA 분석 문서 §9 참고.
+> **2026-05-11 갱신**: 본 문서의 1차 BT 신규 구현 계획은 상당 부분 적용되었다. 그 이후의 AAA 비교 분석 및 EnemyAIController과의 통합 방향 검토는 `BEHAVIOR_TREE_AAA_REFERENCE_ANALYSIS.md`로 이어진다. 누락 기능 보강은 `BEHAVIOR_TREE_REFERENCE_GAP_IMPLEMENTATION_GUIDE.md` + AAA 분석 문서 §9 참고.
 
 ---
 
@@ -15,7 +15,7 @@ Behavior Designer Pro 3와 유사한 사용성을 목표로, UPlayground 전용 
 핵심 방향은 다음과 같다.
 
 - 현재 프로젝트 AI 구조를 즉시 대체하지 않고, 완성된 BT 시스템을 별도 네임스페이스/컴포넌트로 먼저 구현한다.
-- 기존 `EnemyBrain`, `EnemyFlyingBrain`, `EnemyDetection`, `EnemyTacticalMemory`, `EnemyCombat`, `ActorMovementController`는 초기 BT 구현 단계에서 읽기 전용 레퍼런스로 둔다.
+- 기존 `EnemyAIController`, `EnemyFlyingAIController`, `EnemyDetection`, `EnemyTacticalMemory`, `EnemyCombat`, `ActorMovementController`는 초기 BT 구현 단계에서 읽기 전용 레퍼런스로 둔다.
 - 런타임은 ScriptableObject 기반 BT 에셋 + MonoBehaviour 실행 컴포넌트로 시작하고, 에디터는 Unity UI Toolkit/GraphView 기반 노드 에디터로 구현한다.
 - DOTS/Burst 구조는 1차 목표가 아니다. Behavior Designer Pro 3의 DOTS 구조는 장기 확장 참고로만 둔다.
 - 기존 Enemy AI 전환은 BT 런타임, 디버거, 검증 도구, 최소 1종 테스트 몬스터가 모두 안정화된 뒤 별도 단계에서 진행한다.
@@ -79,7 +79,7 @@ Agent Context
 
 ```
 MonsterActor
-├── EnemyBrain / EnemyFlyingBrain
+├── EnemyAIController / EnemyFlyingAIController
 ├── EnemyDetection
 ├── EnemyTacticalMemory
 ├── EnemyCombat
@@ -91,8 +91,8 @@ MonsterActor
 
 | 클래스 | 현재 역할 | BT 도입 시 관계 |
 |--------|----------|----------------|
-| `EnemyBrain` | 지상 몬스터 의사결정. 감지, 거리, 플레이어 상태, 공격 쿨다운, 그룹 슬롯 기반으로 State 전환 | 초기에는 수정하지 않는다. 이후 BT Action/Condition 노드 설계의 기능 레퍼런스 |
-| `EnemyFlyingBrain` | 비행 몬스터 루프. 지상 추격/공격, 이륙, 공중 선회, 투사체, 급강하/착지 | 초기에는 별도. 비행 BT는 지상 BT 안정화 이후 |
+| `EnemyAIController` | 지상 몬스터 의사결정. 감지, 거리, 플레이어 상태, 공격 쿨다운, 그룹 슬롯 기반으로 State 전환 | 초기에는 수정하지 않는다. 이후 BT Action/Condition 노드 설계의 기능 레퍼런스 |
+| `EnemyFlyingAIController` | 비행 몬스터 루프. 지상 추격/공격, 이륙, 공중 선회, 투사체, 급강하/착지 | 초기에는 별도. 비행 BT는 지상 BT 안정화 이후 |
 | `EnemyDetection` | 타겟 획득, 시야각, 차폐, 타겟 유효성, 아군 탐지 | BT Blackboard/Condition 노드에서 읽을 후보 |
 | `EnemyTacticalMemory` | 플레이어 상태 관찰, 공격/후퇴/피격/가드 기록, 회피/가드 빈도 | BT Blackboard/Condition 노드에서 읽을 후보 |
 | `EnemyCombat` | 스킬 선택, 공격 데이터, 현재 스킬 실행 | BT Action 노드에서 호출할 후보 |
@@ -104,7 +104,7 @@ MonsterActor
 
 | 위험 | 이유 |
 |------|------|
-| `EnemyBrain.MakeDecision()` 즉시 대체 | 공격 슬롯, 전술 기억, 피격/공중/잡힘 상태 예외, 그룹 경보가 한 메서드 흐름에 섞여 있음 |
+| `EnemyAIController.MakeDecision()` 즉시 대체 | 공격 슬롯, 전술 기억, 피격/공중/잡힘 상태 예외, 그룹 경보가 한 메서드 흐름에 섞여 있음 |
 | State 클래스 직접 BT 노드화 | KCC 콜백과 상태 생명주기가 강하게 결합되어 있어 BT tick과 물리 update 타이밍 충돌 가능 |
 | `EnemyBehaviorSO`를 바로 BT Asset으로 교체 | 현재 데이터 에셋과 몬스터 프리팹 연결이 이미 존재하므로 회귀 범위가 큼 |
 | DOTS 기반 선도입 | KCC/Animancer/GameObject 컴포넌트 의존 액션이 대부분이라 초기 비용 대비 이득이 낮음 |
@@ -251,7 +251,7 @@ Unity 직렬화 안정성을 위해 노드는 `ScriptableObject` 서브에셋으
 | `_startOnEnable` | 활성화 시 자동 시작 |
 | `_debugMode` | Play Mode 디버그 정보 수집 여부 |
 
-현재 프로젝트의 `EnemyBrain`도 `_decisionInterval = 0.1f`를 사용하므로, BT 기본 tick도 0.1초로 시작하면 기존 AI 리듬과 비교하기 쉽다.
+현재 프로젝트의 `EnemyAIController`도 `_decisionInterval = 0.1f`를 사용하므로, BT 기본 tick도 0.1초로 시작하면 기존 AI 리듬과 비교하기 쉽다.
 
 ---
 
@@ -381,7 +381,7 @@ UPlayground Enemy AI에서 Abort가 필요한 대표 사례는 다음이다.
 
 | 작업 | 설명 |
 |------|------|
-| 기존 AI 수정 금지 | `EnemyBrain`, `EnemyFlyingBrain`, Enemy State, `EnemyBehaviorSO` 직접 변경 없음 |
+| 기존 AI 수정 금지 | `EnemyAIController`, `EnemyFlyingAIController`, Enemy State, `EnemyBehaviorSO` 직접 변경 없음 |
 | 신규 경로 분리 | `Assets/02.Scripts/AI/BehaviorTree/` 아래 신규 작성 |
 | 네임스페이스 분리 | `UPlayGround.AI.BehaviorTree` |
 | 테스트 대상 분리 | 새 테스트 프리팹 또는 빈 GameObject에서 BT Runner 검증 |
@@ -398,7 +398,7 @@ UPlayground Enemy AI에서 Abort가 필요한 대표 사례는 다음이다.
 #### 완료 조건
 
 - 신규 BT 파일이 기존 Enemy AI 파일과 섞이지 않는다.
-- 기존 몬스터 프리팹과 `EnemyBrain` 동작에 변경이 없다.
+- 기존 몬스터 프리팹과 `EnemyAIController` 동작에 변경이 없다.
 - 이후 Phase에서 사용할 테스트 대상이 명확하다.
 
 ### Phase 1: 순수 BT 런타임
@@ -508,7 +508,7 @@ UPlayground Enemy AI에서 Abort가 필요한 대표 사례는 다음이다.
 | `IsTargetInRangeNode` | `EnemyDetection.DistanceToTarget` 거리 비교 |
 | `IsCurrentActorStateNode` | `ActorMovementController.CurrentState.StateName` 확인 |
 | `CanUseEnemySkillNode` | `EnemyCombat.HasAvailableSkillAtDistance()` 확인 |
-| `IsEnemyPatrolEnabledNode` | `EnemyBrain.EnablePatrol` 확인 |
+| `IsEnemyPatrolEnabledNode` | `EnemyAIController.EnablePatrol` 확인 |
 | `SyncEnemyBlackboardNode` | 타겟, 거리, 현재 State를 Blackboard에 복사 |
 | `TransitionEnemyStateNode` | 테스트용 `Idle`, `Patrol`, `Chase`, `Attack`, `Retreat` State 전환 |
 | `ExecuteEnemyAttackNode` | 사용 가능한 스킬이 있을 때 `EnemyAttackState` 진입 |
@@ -537,7 +537,7 @@ JSON에는 다음 정보가 저장된다.
 
 | 파일 | 설명 |
 |------|------|
-| `Assets/10.Datas/AI/BehaviorTree/Json/BT_EnemyGroundBasic_Test.json` | 현재 지상 `EnemyBrain` 기본 흐름을 테스트용 BT JSON으로 옮긴 데이터 |
+| `Assets/10.Datas/AI/BehaviorTree/Json/BT_EnemyGroundBasic_Test.json` | 현재 지상 `EnemyAIController` 기본 흐름을 테스트용 BT JSON으로 옮긴 데이터 |
 
 이 JSON은 다음 흐름을 담는다.
 
@@ -686,7 +686,7 @@ Root Selector
 
 ## 주의 사항
 
-- 기존 `EnemyBrain`과 `EnemyFlyingBrain`은 BT 구현이 완성될 때까지 변경하지 않는다.
+- 기존 `EnemyAIController`과 `EnemyFlyingAIController`은 BT 구현이 완성될 때까지 변경하지 않는다.
 - BT Runner는 동일 GameObject에서 기존 Brain과 동시에 State 전환을 시도하면 안 된다. 병렬 검증 시에는 프리팹을 분리한다.
 - ScriptableObject 노드에 런타임 상태를 직접 저장하지 않는다. 동일 BT Asset을 여러 객체가 공유할 때 상태가 섞인다.
 - GraphView는 Editor 전용 API이므로 Runtime asmdef와 Editor asmdef를 분리하는 것이 좋다.
@@ -697,7 +697,7 @@ Root Selector
 
 ## 결론
 
-UPlayground에는 이미 `EnemyBrain` 중심의 반응형 AI가 존재하므로, 커스텀 BT는 “즉시 교체용”이 아니라 “완성 후 교체 가능한 독립 AI 저작/디버깅 시스템”으로 구현하는 것이 맞다.
+UPlayground에는 이미 `EnemyAIController` 중심의 반응형 AI가 존재하므로, 커스텀 BT는 “즉시 교체용”이 아니라 “완성 후 교체 가능한 독립 AI 저작/디버깅 시스템”으로 구현하는 것이 맞다.
 
 가장 현실적인 1차 목표는 Behavior Designer Pro 3의 전체 기능 복제가 아니라 다음 네 가지다.
 

@@ -18,7 +18,7 @@ namespace UPlayGround.State
         public override string StateName => "Flying_AirCircle";
         public override bool AdjustGravity => false;
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
 
         // 선회
         private float _orbitAngle;
@@ -50,7 +50,7 @@ namespace UPlayGround.State
         private float Cfg_DirChangeMin => _brain.FlyingSettings ? _brain.FlyingSettings.dirChangeTimeMin : 1.5f;
         private float Cfg_DirChangeMax => _brain.FlyingSettings ? _brain.FlyingSettings.dirChangeTimeMax : 3.5f;
 
-        public EnemyFlyingAirCircleState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingAirCircleState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

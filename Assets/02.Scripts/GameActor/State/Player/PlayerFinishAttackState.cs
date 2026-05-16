@@ -27,7 +27,7 @@ namespace UPlayGround.State
 
         private readonly Transform _finishTarget;
         private PlayerCombat _combat;
-        private List<EnemyBrain> _frozenBrains = new List<EnemyBrain>();
+        private List<EnemyAIController> _frozenEnemyControllers = new List<EnemyAIController>();
 
         private Vector3 _targetPosition;
         private bool _isSliding;
@@ -80,20 +80,20 @@ namespace UPlayGround.State
             }
 
             // 주변 모든 적 Freeze
-            _frozenBrains = _combat.GetEnemyBrainsInRadius(FREEZE_RADIUS);
-            foreach (var brain in _frozenBrains)
+            _combat.FillEnemyAIControllersInRadius(FREEZE_RADIUS, _frozenEnemyControllers);
+            foreach (var brain in _frozenEnemyControllers)
                 brain.Freeze();
         }
 
         public override void OnExit(GameActorState toState)
         {
             // 모든 적 Unfreeze
-            foreach (var brain in _frozenBrains)
+            foreach (var brain in _frozenEnemyControllers)
             {
                 if (brain != null)
                     brain.Unfreeze();
             }
-            _frozenBrains.Clear();
+            _frozenEnemyControllers.Clear();
 
             base.OnExit(toState);
         }

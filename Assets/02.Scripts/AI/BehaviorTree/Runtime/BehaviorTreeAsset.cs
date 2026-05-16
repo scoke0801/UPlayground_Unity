@@ -72,6 +72,35 @@ namespace UPlayGround.AI.BehaviorTree
                 tree._blackboard = _blackboard?.Clone() ?? new Blackboard();
             return tree;
         }
+
+        /// <summary>
+        /// CloneRuntime으로 만들어진 런타임 인스턴스를 명시적으로 해제한다.
+        /// 인스펙터/원본 에셋이 아닌 클론 트리에서만 호출해야 한다 (원본 에셋에 호출 시 데이터 소실 위험).
+        /// </summary>
+        public static void DisposeRuntime(BehaviorTreeAsset runtimeTree)
+        {
+            if (runtimeTree == null)
+                return;
+
+            foreach (var node in runtimeTree._nodes)
+            {
+                if (node == null)
+                    continue;
+
+                if (Application.isPlaying)
+                    UnityEngine.Object.Destroy(node);
+                else
+                    UnityEngine.Object.DestroyImmediate(node);
+            }
+
+            runtimeTree._nodes.Clear();
+            runtimeTree._rootNode = null;
+
+            if (Application.isPlaying)
+                UnityEngine.Object.Destroy(runtimeTree);
+            else
+                UnityEngine.Object.DestroyImmediate(runtimeTree);
+        }
     }
 
     [Serializable]

@@ -455,7 +455,7 @@ GenerateActorDescStep.Execute(ctx)
 | `{name}_Behavior` | `EnemyBehaviorSO` | 1페이즈 기본 행동 |
 | `{name}_Attack01` | `EnemyAttackDataSO` | 1단 히트박스 기본값 |
 
-생성된 SO는 `AttachActorComponentsStep` 종료 후 `AssignStatsStep`에서 `MonsterActor`/`EnemyCombat`/`EnemyBrain`의 SerializedField에 SerializedObject API로 주입.
+생성된 SO는 `AttachActorComponentsStep` 종료 후 `AssignStatsStep`에서 `MonsterActor`/`EnemyCombat`/`EnemyAIController`의 SerializedField에 SerializedObject API로 주입.
 
 ### 5.3 프리팹 빌드 파이프라인
 
@@ -792,7 +792,7 @@ public sealed class EnemyActorTemplate : IActorTemplate
 
         Undo.AddComponent<EnemyMovementController>(root);
         var actor    = Undo.AddComponent<MonsterActor>(root);
-        Undo.AddComponent<EnemyBrain>(root);
+        Undo.AddComponent<EnemyAIController>(root);
         Undo.AddComponent<EnemyDetection>(root);
         Undo.AddComponent<EnemyCombat>(root);
         Undo.AddComponent<PoiseStat>(root);
@@ -828,7 +828,7 @@ public sealed class EnemyActorTemplate : IActorTemplate
                                CharacterBuildConfig cfg)
     {
         var actor  = root.GetComponent<MonsterActor>();
-        var brain  = root.GetComponent<EnemyBrain>();
+        var brain  = root.GetComponent<EnemyAIController>();
         var combat = root.GetComponent<EnemyCombat>();
 
         var stats    = gen.OfType<EnemyStatsSO>().FirstOrDefault()

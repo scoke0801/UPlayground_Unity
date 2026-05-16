@@ -117,7 +117,7 @@ Assets/
 
 ### Phase 3 — 추후 가치
 
-- `EnemyBrain` 의사결정 분기 (페이즈 전환, 행동 선택)
+- `EnemyAIController` 의사결정 분기 (페이즈 전환, 행동 선택)
 - `PartyManager` 캐릭터 해금 / 교체
 - `QuestManager` 목표 추적
 - 상태별 `UpdateVelocity` 결과 검증 (KCC 의존이라 Stub 필요)

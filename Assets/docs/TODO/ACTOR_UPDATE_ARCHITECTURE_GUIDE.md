@@ -43,8 +43,8 @@ GameManager.LateUpdate()   → IManager.OnLateUpdate()
 | 컴포넌트 | 위치 | 매 프레임 수행 작업 |
 |----------|------|---------------------|
 | `ActorMovementController` | `MovementController/ActorMovementController.cs:94` | 현재 상태머신 `UpdateState(deltaTime)` 호출 |
-| `EnemyBrain` | `Component/Enemy/EnemyBrain.cs:184` | `_decisionTimer` 누적, 인터벌 도달 시 `MakeDecision()` |
-| `EnemyFlyingBrain` | `Component/Enemy/EnemyFlyingBrain.cs` | 위와 동일 (비행 적) |
+| `EnemyAIController` | `Component/Enemy/EnemyAIController.cs:184` | `_decisionTimer` 누적, 인터벌 도달 시 `MakeDecision()` |
+| `EnemyFlyingAIController` | `Component/Enemy/EnemyFlyingAIController.cs` | 위와 동일 (비행 적) |
 | `EnemyDetection` | `Component/Enemy/EnemyDetection.cs` | 시야/거리 감지 갱신 |
 | 그 외 컴포넌트 | — | 각자 자체 Update |
 
@@ -95,7 +95,7 @@ protected virtual void Update()
 ### AI 의사결정 인터벌
 
 ```csharp
-// EnemyBrain.cs:184
+// EnemyAIController.cs:184
 protected virtual void Update()
 {
     _decisionTimer += Time.deltaTime;
@@ -142,7 +142,7 @@ public void SetGlobalTimeScaleExceptPlayer(float timeScale, float duration = 0f)
 ### 권장 게이팅 위치
 
 1. **거리 1차 게이팅** — `EnemyDetection`이 플레이어와의 거리로 빠르게 판단.
-2. **컴포넌트 단위 비활성화** — 일정 거리 밖에서 `EnemyBrain.enabled = false` + 감지 주기 연장.
+2. **컴포넌트 단위 비활성화** — 일정 거리 밖에서 `EnemyAIController.enabled = false` + 감지 주기 연장.
 3. **Motor 슬립** — `Motor.enabled = false`로 KCC 비용 절감.
 
 `GameObjectManager._allActors`가 이미 등록 컨테이너로 존재하므로, 매니저에서 후보를 순회해 일괄 토글하는 구조가 자연스럽습니다.
@@ -171,5 +171,5 @@ KCC는 매 프레임 중력/지면 추적을 굴려 위치를 유지합니다. �
 | 액터 등록/해제 | `Assets/02.Scripts/Manager/Object/GameObjectManager.cs` |
 | 액터 베이스 | `Assets/02.Scripts/GameActor/Base/GameActor.cs` |
 | 상태머신 호스트 | `Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs` |
-| 적 의사결정 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyBrain.cs` |
+| 적 의사결정 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs` |
 | 적 감지 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs` |

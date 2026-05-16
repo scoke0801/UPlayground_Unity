@@ -14,7 +14,7 @@ namespace UPlayGround.State
         public override string StateName => "Flying_Land";
         public override bool AdjustGravity => false;
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
 
         private bool _groundReached;
         private float _timer;
@@ -28,7 +28,7 @@ namespace UPlayGround.State
         private float Cfg_DescentSpeed => _brain.FlyingSettings ? _brain.FlyingSettings.landDescentSpeed : 6f;
         private float Cfg_ApproachSpeed => _brain.FlyingSettings ? _brain.FlyingSettings.landApproachSpeed : 2f;
 
-        public EnemyFlyingLandState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingLandState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

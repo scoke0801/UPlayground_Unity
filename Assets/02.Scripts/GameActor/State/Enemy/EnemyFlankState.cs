@@ -20,7 +20,7 @@ namespace UPlayGround.State
         public override string StateName => "Flank";
 
         private readonly EnemyCombat _combat;
-        private readonly EnemyBrain _brain;
+        private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
 
         private Vector3 _flankTarget;
@@ -38,11 +38,11 @@ namespace UPlayGround.State
         public EnemyFlankState(
             ActorMovementController controller,
             EnemyCombat combat,
-            EnemyBrain brain,
+            EnemyAIContext context,
             EnemyDetection detection) : base(controller)
         {
             _combat    = combat;
-            _brain     = brain;
+            _context   = context;
             _detection = detection;
         }
 
@@ -114,14 +114,14 @@ namespace UPlayGround.State
                 _hasReachedFlank = true;
                 // 측면 도달 → 공격
                 controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _brain, _detection));
+                    new EnemyAttackState(controller, _combat, _context, _detection));
                 return;
             }
 
             if (_flankTimer >= MAX_FLANK_DURATION)
             {
                 controller.TransitionToState(
-                    new EnemyChaseState(controller, _brain, _detection));
+                    new EnemyChaseState(controller, _context, _detection));
                 return;
             }
 

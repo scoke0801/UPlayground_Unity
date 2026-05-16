@@ -361,8 +361,8 @@ namespace UPlayGround.Actor.Editor
                 spawnInfoMap.TryGetValue(actor.GetInstanceID(), out var info);
                 if (info?.group != null)
                     groupName = info.group.name;
-                else if (actor is MonsterActor m && m.Brain?.Group != null)
-                    groupName = m.Brain.Group.name;
+                else if (actor is MonsterActor m && m.AIController?.Group != null)
+                    groupName = m.AIController.Group.name;
 
                 // 태그 정보 수집
                 string tagsText = "-";

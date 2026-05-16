@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace UPlayGround.Data.Enemy
 {
     /// <summary>
     /// 비행 몬스터 State들의 튜닝 값을 모아둔 SO.
-    /// EnemyFlyingBrain이 참조하고, 각 State가 Brain을 통해 접근한다.
+    /// EnemyFlyingAIController이 참조하고, 각 State가 Brain을 통해 접근한다.
     /// </summary>
     [CreateAssetMenu(menuName = "UPlayGround/Enemy/Flying Settings", fileName = "EnemyFlyingSettings")]
     public class EnemyFlyingSettingsSO : ScriptableObject

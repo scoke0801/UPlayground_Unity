@@ -14,7 +14,7 @@ namespace UPlayGround.State
         public override string StateName => "Flying_TakeOff";
         public override bool AdjustGravity => false; // 이륙 중 중력 무시
 
-        private readonly EnemyFlyingBrain _brain;
+        private readonly EnemyFlyingAIContext _brain;
         private float _timer;
         private bool _motionDone;
         private float _targetHeight;
@@ -26,7 +26,7 @@ namespace UPlayGround.State
         private float Cfg_AscentMin => _brain.FlyingSettings ? _brain.FlyingSettings.ascentSpeedMin : 2f;
         private float Cfg_AscentMax => _brain.FlyingSettings ? _brain.FlyingSettings.ascentSpeedMax : 16f;
 
-        public EnemyFlyingTakeOffState(ActorMovementController controller, EnemyFlyingBrain brain)
+        public EnemyFlyingTakeOffState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller)
         {
             _brain = brain;

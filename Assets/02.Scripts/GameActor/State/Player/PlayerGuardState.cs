@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
@@ -221,7 +221,7 @@ namespace UPlayGround.State
                 // 공격자 경직 + 반격 창 열기
                 if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
                 {
-                    var brain = incomingAttack.attacker.GetComponent<EnemyBrain>();
+                    var brain = incomingAttack.attacker.GetComponent<EnemyAIController>();
                     brain?.OnParried();
                 }
 

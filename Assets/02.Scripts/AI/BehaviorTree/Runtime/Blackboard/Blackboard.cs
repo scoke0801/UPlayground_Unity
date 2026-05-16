@@ -9,6 +9,9 @@ namespace UPlayGround.AI.BehaviorTree
     {
         [SerializeField] private List<BlackboardEntry> _entries = new();
 
+        [NonSerialized] private Dictionary<string, BlackboardEntry> _entryLookup;
+        [NonSerialized] private int _lookupEntryCount;
+
         public IReadOnlyList<BlackboardEntry> Entries => _entries;
 
         public Blackboard Clone()
@@ -32,6 +35,7 @@ namespace UPlayGround.AI.BehaviorTree
                 Key = key,
                 ValueType = valueType
             });
+            InvalidateLookup();
         }
 
         public void RemoveAt(int index)
@@ -40,6 +44,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return;
 
             _entries.RemoveAt(index);
+            InvalidateLookup();
         }
 
         public BlackboardEntry FindEntry(string key)
@@ -47,7 +52,8 @@ namespace UPlayGround.AI.BehaviorTree
             if (string.IsNullOrWhiteSpace(key))
                 return null;
 
-            return _entries.Find(entry => entry.Key == key);
+            EnsureLookup();
+            return _entryLookup.TryGetValue(key, out var entry) ? entry : null;
         }
 
         public bool TryGetBool(string key, out bool value)
@@ -193,7 +199,33 @@ namespace UPlayGround.AI.BehaviorTree
                 ValueType = valueType
             };
             _entries.Add(entry);
+            _entryLookup ??= new Dictionary<string, BlackboardEntry>(_entries.Count);
+            _entryLookup[key] = entry;
+            _lookupEntryCount = _entries.Count;
             return entry;
+        }
+
+        private void EnsureLookup()
+        {
+            if (_entryLookup != null && _lookupEntryCount == _entries.Count)
+                return;
+
+            _entryLookup = new Dictionary<string, BlackboardEntry>(_entries.Count);
+            foreach (var entry in _entries)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Key) || _entryLookup.ContainsKey(entry.Key))
+                    continue;
+
+                _entryLookup.Add(entry.Key, entry);
+            }
+
+            _lookupEntryCount = _entries.Count;
+        }
+
+        private void InvalidateLookup()
+        {
+            _entryLookup = null;
+            _lookupEntryCount = 0;
         }
     }
 }

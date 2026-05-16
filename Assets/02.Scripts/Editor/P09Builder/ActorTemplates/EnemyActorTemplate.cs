@@ -44,7 +44,7 @@ namespace Game.Editor.P09Builder
 
             // Actor 본체 + 컴포넌트
             var actor   = GetOrAdd<MonsterActor>(root);
-            var brain   = GetOrAdd<EnemyBrain>(root);
+            var aiController = GetOrAdd<EnemyAIController>(root);
             var detect  = GetOrAdd<EnemyDetection>(root);
             var combat  = GetOrAdd<EnemyCombat>(root);
             var poise   = GetOrAdd<PoiseStat>(root);
@@ -66,7 +66,7 @@ namespace Game.Editor.P09Builder
             }
 
             // Actor에 컴포넌트 참조 주입 (private SerializeField)
-            ReflectionUtil.SetField(actor, "_brain", brain);
+            ReflectionUtil.SetField(actor, "_aiController", aiController);
             ReflectionUtil.SetField(actor, "_combat", combat);
             ReflectionUtil.SetField(actor, "_detection", detect);
             ReflectionUtil.SetField(actor, "_poiseStat", poise);
@@ -116,7 +116,7 @@ namespace Game.Editor.P09Builder
             if (root == null) return;
 
             var actor  = root.GetComponent<MonsterActor>();
-            var brain  = root.GetComponent<EnemyBrain>();
+            var aiController = root.GetComponent<EnemyAIController>();
             var combat = root.GetComponent<EnemyCombat>();
 
             var stats = FindFirst<EnemyStatsSO>(generatedDescs)
@@ -138,8 +138,8 @@ namespace Game.Editor.P09Builder
             if (poise != null && poiseData != null)
                 ReflectionUtil.SetField(poise, "_data", poiseData);
 
-            if (brain != null && behavior != null)
-                ReflectionUtil.SetField(brain, "_behaviorData", behavior);
+            if (aiController != null && behavior != null)
+                ReflectionUtil.SetField(aiController, "_behaviorData", behavior);
 
             if (combat != null && attackData != null)
                 ReflectionUtil.SetField(combat, "_attackData", attackData);

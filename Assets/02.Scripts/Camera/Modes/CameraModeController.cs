@@ -37,13 +37,15 @@ namespace UPlayGround.CameraSystem
 
             if (CurrentMode == nextMode)
             {
-                CurrentMode.OnEnter(_context, enterParams ?? CameraModeEnterParams.Empty);
+                _context.ActiveEnterParams = enterParams ?? CameraModeEnterParams.Empty;
+                CurrentMode.OnEnter(_context, _context.ActiveEnterParams);
                 return true;
             }
 
             CurrentMode?.OnExit(_context);
             CurrentMode = nextMode;
-            CurrentMode.OnEnter(_context, enterParams ?? CameraModeEnterParams.Empty);
+            _context.ActiveEnterParams = enterParams ?? CameraModeEnterParams.Empty;
+            CurrentMode.OnEnter(_context, _context.ActiveEnterParams);
             return true;
         }
 
@@ -57,7 +59,8 @@ namespace UPlayGround.CameraSystem
 
             if (CurrentMode == nextMode)
             {
-                CurrentMode.OnEnter(_context, enterParams ?? CameraModeEnterParams.Empty);
+                _context.ActiveEnterParams = enterParams ?? CameraModeEnterParams.Empty;
+                CurrentMode.OnEnter(_context, _context.ActiveEnterParams);
                 return true;
             }
 
@@ -66,7 +69,8 @@ namespace UPlayGround.CameraSystem
 
             CurrentMode?.OnExit(_context);
             CurrentMode = nextMode;
-            CurrentMode.OnEnter(_context, enterParams ?? CameraModeEnterParams.Empty);
+            _context.ActiveEnterParams = enterParams ?? CameraModeEnterParams.Empty;
+            CurrentMode.OnEnter(_context, _context.ActiveEnterParams);
             return true;
         }
 
@@ -78,7 +82,8 @@ namespace UPlayGround.CameraSystem
             ICameraMode previousMode = _modeStack.Pop();
             CurrentMode?.OnExit(_context);
             CurrentMode = previousMode;
-            CurrentMode.OnEnter(_context, enterParams ?? CameraModeEnterParams.Empty);
+            _context.ActiveEnterParams = enterParams ?? CameraModeEnterParams.Empty;
+            CurrentMode.OnEnter(_context, _context.ActiveEnterParams);
             return true;
         }
 

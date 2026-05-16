@@ -1,6 +1,6 @@
 # Behavior Tree 시스템 통합 가이드
 
-> 최초 작성: 2026-04-28 / 통합 갱신: 2026-05-15
+> 최초 작성: 2026-04-28 / 통합 갱신: 2026-05-16
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 적용 범위: `Assets/02.Scripts/AI/BehaviorTree/` 커스텀 BT 런타임·에디터, `Assets/02.Scripts/GameActor/Component/Enemy/` Enemy AI, BT 기반 몬스터 행동 데이터 파이프라인
 >
@@ -186,51 +186,59 @@ public class MyNewNode : BTActionNode
 ```
 인스펙터에서 `Target Key (Object)` 드롭다운으로 Blackboard에 등록된 Object 타입 키만 표시된다.
 
-## 2.2 Phase R1: Runner 실행 제어 보강
+## 2.2 Phase R1: Runner 실행 제어 보강 (구현 완료)
 
 ### 목표
 Behavior Designer Behavior Manager 옵션 중 UPlayground에 필요한 실행 제어를 `BehaviorTreeRunner`에 추가한다.
 
-### 구현 항목
+### 구현 항목 (모두 `BehaviorTreeRunner.cs`에 구현 완료)
 
-| 항목 | 설명 |
-|------|------|
-| `EnableBehavior()` | 정지 또는 일시정지된 BT 실행 시작 |
-| `DisableBehavior(bool pause)` | `pause = true`면 현재 Running 상태 유지, `false`면 Abort 후 정지 |
-| `PauseTree()` | tick만 멈추고 런타임 트리와 노드 상태는 보존 |
-| `ResumeTree()` | Pause 이전 Running 상태에서 이어서 실행 |
-| `TickOnce()` | Manual Tick 모드에서 외부 호출로 1회 tick |
-| `_restartWhenComplete` | Root가 Success/Failure가 되면 자동 재시작 |
-| `_resetValuesOnRestart` | 재시작 시 Blackboard 값을 기본값으로 되돌릴지 선택 |
-| `_tickMode` | `UpdateInterval`, `EveryFrame`, `Manual` 중 선택 |
+| 항목 | 설명 | 코드 위치 |
+|------|------|-----------|
+| `EnableBehavior()` | 정지 또는 일시정지된 BT 실행 시작 (Paused면 Resume, Stopped면 Start) | `BehaviorTreeRunner.cs:103-113` |
+| `DisableBehavior(bool pause)` | `pause = true`면 PauseTree, `false`면 StopTree | `BehaviorTreeRunner.cs:115-121` |
+| `PauseTree()` | tick만 멈추고 런타임 트리와 노드 상태는 보존, `OnAbort` 호출하지 않음 | `BehaviorTreeRunner.cs:123-127` |
+| `ResumeTree()` | Pause 이전 Running 상태에서 이어서 실행 | `BehaviorTreeRunner.cs:129-133` |
+| `TickOnce()` / `StepTick()` | Manual Tick 모드 또는 Pause 상태에서 외부 호출로 1회 tick | `BehaviorTreeRunner.cs:135-143` |
+| `_restartWhenComplete` | Root가 Success/Failure가 되면 다음 tick에 자동 재시작 | `BehaviorTreeRunner.cs:16, 163-164` |
+| `_resetValuesOnRestart` | 재시작 시 Blackboard 값을 기본값으로 되돌릴지 선택 | `BehaviorTreeRunner.cs:17, 100, 164` |
+| `_tickMode` | `UpdateInterval`, `EveryFrame`, `Manual` 중 선택. Manual은 `Update()`에서 자동 tick 차단 | `BehaviorTreeRunner.cs:14, 52` / `BehaviorTreeRunnerMode.cs` |
+| `RequestPauseFromNode(BTNode)` | Breakpoint 노드가 Tick 종료 후 Runner를 Pause 상태로 전환 요청 | `BehaviorTreeRunner.cs:145-150, 170-171` |
 
-### 완료 조건
-- Play Mode에서 `PauseTree()` 호출 시 Running 노드가 Abort되지 않는다.
-- `ResumeTree()` 호출 후 같은 런타임 트리에서 이어서 tick 된다.
-- Manual Tick 모드에서는 `Update()`가 자동 tick 하지 않는다.
-- `Restart When Complete`가 켜진 경우 Root 완료 후 다음 tick에 재시작한다.
+### 완료 조건 (모두 충족)
+- `PauseTree()` 호출 시 Running 노드가 Abort되지 않는다 — `_state` 전환만 수행.
+- `ResumeTree()` 호출 후 같은 런타임 트리에서 이어서 tick 된다 — `_runtimeTree` 재생성 없음.
+- Manual Tick 모드에서는 `Update()`가 자동 tick 하지 않는다 — `BehaviorTreeRunner.cs:52` 조기 return.
+- `Restart When Complete`가 켜진 경우 Root 완료 후 다음 tick에 `RestartRuntimeTree` 호출.
 
-## 2.3 Phase R2: Composite Abort/Reset 규칙 보강
+### 잔여 작업
+- Pause/Resume Play Mode 검증 (부록 C.1 최소 테스트 그래프 활용).
+- `RequestPauseFromNode`를 사용하는 Breakpoint UI(그래프/Inspector 토글)는 §2.6 R5 잔여 작업으로 남음.
+
+## 2.3 Phase R2: Composite Abort/Reset 규칙 보강 (구현 완료)
 
 ### 목표
 Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을 명확하게 정리하도록 만든다.
 
-### 구현 항목
+### 구현 항목 (모두 완료)
 
-| 항목 | 설명 |
-|------|------|
-| Running sibling 정리 | Sequence/Selector가 완료될 때 실행 중이던 자식이 남지 않도록 정리 |
-| `OnStop` 하위 Abort 정책 | Composite 종료 시 필요한 자식만 Abort |
-| Parallel 실패 시 Abort | `requireAllSuccess`에서 하나가 Failure면 나머지 Running 자식 Abort |
-| Parallel 성공 시 Abort | `requireAllSuccess = false`에서 하나가 Success면 나머지 Running 자식 Abort |
-| Reset 안정화 | Composite 재시작 시 `_currentIndex`와 Running 자식 상태 초기화 |
+| 항목 | 설명 | 코드 위치 |
+|------|------|-----------|
+| Running sibling 정리 | Sequence/Selector `OnStop`에서 `AbortRunningChildren()` 호출 + `_currentIndex` 리셋 | `SequenceNode.cs:54-58`, `SelectorNode.cs:57-61` |
+| `OnStop` 하위 Abort 정책 | `BTCompositeNode.AbortRunningChildren(except)` 헬퍼 — `IsStarted`인 자식만 선택 Abort | `BTCompositeNode.cs:15-24` |
+| Parallel 실패 시 Abort | `requireAllSuccess = true`에서 하나가 Failure면 `AbortRunningChildren(child)` 호출 후 즉시 Failure 반환 | `ParallelNode.cs:42-47` |
+| Parallel 성공 시 Abort | `requireAllSuccess = false`에서 하나가 Success면 다른 Running 자식 Abort 후 즉시 Success 반환 | `ParallelNode.cs:49-57` |
+| Reset 안정화 | `OnReset`에서 `_currentIndex = 0` (Sequence/Selector), `_childStatuses = null` (Parallel) | `SequenceNode.cs:49-52`, `SelectorNode.cs:52-55`, `ParallelNode.cs:84-87` |
 
-### 완료 조건
+### 완료 조건 (모두 충족)
 - Parallel에서 실패가 확정되면 다른 Running 자식의 `OnAbort`가 호출된다.
 - Selector가 Success로 종료된 뒤 이전 Running 자식이 다음 실행에 남지 않는다.
 - Sequence/Selector가 재시작될 때 `_currentIndex`가 항상 0에서 시작한다.
 
-## 2.4 Phase R3: Conditional Abort 구현
+### 잔여 작업
+- 부록 C.2 Parallel Abort 테스트 그래프로 Play Mode 검증 필요.
+
+## 2.4 Phase R3: Conditional Abort 구현 (기본 동작 완료 / Monitor 최적화 미진행)
 
 ### 개념 정리
 
@@ -241,16 +249,23 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 | `LowerPriority` | 더 오른쪽 낮은 우선순위 브랜치가 Running 중일 때 왼쪽 조건을 재평가해 중단 |
 | `Both` | `Self`와 `LowerPriority`를 모두 수행 |
 
-### 구현 접근
-초기 구현은 Behavior Designer의 모든 최적화 구조를 복제하지 않고, UPlayground에 필요한 안정성을 우선한다.
+### 현재 구현 상태
 
-1. `BTConditionNode`에 마지막 평가 결과를 저장한다.
-2. `BTCompositeNode`가 자식 중 Conditional 후보를 수집한다.
-3. `SequenceNode`, `SelectorNode` tick 시작 시 abort 대상 조건을 재평가한다.
-4. 결과가 바뀌면 현재 Running 자식을 Abort하고 `_currentIndex`를 재계산한다.
-5. Debug Trace에 Abort 원인과 대상 노드를 기록한다.
+초기 구현 5단계가 모두 코드에 반영되었다. UE/Anguelov Monitor 방식의 등록제 평가는 아직 도입하지 않았다.
 
-중장기로는 Anguelov Monitor 방식(§1.3.1)으로 폴링을 등록제 평가로 교체해 깊은 트리 비용을 O(monitored)로 고정한다.
+| 단계 | 설명 | 코드 위치 |
+|------|------|-----------|
+| ① 마지막 평가 결과 저장 | `BTConditionNode.LastAbortEvaluation`, `HasAbortEvaluation` 필드 + `EvaluateForAbort()` / `EvaluateAbortChanged()` API | `BTConditionNode.cs:5-33` |
+| ② Composite의 Conditional 후보 수집 | `EnumerateConditions` 재귀 탐색 (현재는 매 평가 시 재귀 폴링) | `BTCompositeNode.cs:129-142` |
+| ③ Sequence/Selector tick 시 재평가 | `TryHandleConditionalAbort()`가 tick 시작 시 abort 평가 수행 | `SequenceNode.cs:60-89`, `SelectorNode.cs:63-92` |
+| ④ 결과가 바뀌면 Abort + 인덱스 재계산 | `runningChild.Abort()` + `_currentIndex = 0` | `SequenceNode.cs:74-86`, `SelectorNode.cs:77-89` |
+| ⑤ Debug Trace 기록 | `Context.DebugTrace.Record(..., "ConditionalAbort", ...)`로 원인 조건 노드 기록 | `SequenceNode.cs:78,86`, `SelectorNode.cs:78,86` |
+
+`TryEvaluateSelfAbort` / `TryEvaluateLowerPriorityAbort` 보조 메서드는 `BTCompositeNode.cs:80-127`에 위치하며 `runningIndex` 기준으로 자기 브랜치와 더 높은 우선순위 형제만 평가하도록 분리되어 있다.
+
+### 잔여 작업 (Monitor 최적화)
+
+중장기로는 Anguelov Monitor 방식(§1.3.1)으로 폴링을 등록제 평가로 교체해 깊은 트리 비용을 O(monitored)로 고정한다. 현재 구조는 `EnumerateConditions`가 자식 트리를 재귀로 도므로 트리 깊이에 비례해 평가 비용이 누적된다 — §4.4 위험 표 참고.
 
 ### UPlayground 적용 예시
 
@@ -263,24 +278,27 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 | Retreat 중 거리가 충분히 벌어짐 | `Self` |
 
 ### 완료 조건
-- `BT_EnemyGroundBasic_Test.json` 흐름에서 Patrol 중 `HasTarget`이 true가 되면 Patrol 브랜치가 중단될 수 있다.
-- Running Action이 중단될 때 `Abort()`와 `OnAbort()`가 호출된다.
-- Abort 발생 원인이 Debug Trace에 기록된다.
-- 기존 `AbortType = None` 그래프의 동작은 변경되지 않는다.
+- `BT_EnemyGroundBasic_Test.json` 흐름에서 Patrol 중 `HasTarget`이 true가 되면 Patrol 브랜치가 중단될 수 있다. (Play Mode 검증 필요)
+- Running Action이 중단될 때 `Abort()`와 `OnAbort()`가 호출된다. ✅ 코드 경로 존재
+- Abort 발생 원인이 Debug Trace에 기록된다. ✅ 코드 경로 존재
+- 기존 `AbortType = None` 그래프의 동작은 변경되지 않는다. ✅ `TryHandleConditionalAbort`가 `selfAbort`/`lowerPriorityAbort` 모두 false면 즉시 false 반환
 
-## 2.5 Phase R4: Decorator 노드 확장
+## 2.5 Phase R4: Decorator 노드 확장 (부분 완료)
 
 ### 추가 후보
 
-| 노드 | 동작 |
-|------|------|
-| `ReturnSuccessNode` | 자식 결과와 무관하게 자식 완료 시 Success 반환 |
-| `ReturnFailureNode` | 자식 결과와 무관하게 자식 완료 시 Failure 반환 |
-| `UntilSuccessNode` | 자식이 Success가 될 때까지 반복 |
-| `UntilFailureNode` | 자식이 Failure가 될 때까지 반복 |
-| `TimeoutNode` | 지정 시간 안에 자식이 완료되지 않으면 Failure 반환 및 자식 Abort |
-| `GuardConditionNode` | 조건 노드가 Success인 동안만 자식 실행 |
-| `ForceAbortNode` | 특정 Blackboard 조건 변화 시 자식 Abort |
+| 노드 | 동작 | 상태 |
+|------|------|------|
+| `ReturnSuccessNode` | 자식 결과와 무관하게 자식 완료 시 Success 반환 | 완료 — `Nodes/Decorator/ReturnSuccessNode.cs` |
+| `ReturnFailureNode` | 자식 결과와 무관하게 자식 완료 시 Failure 반환 | 완료 — `Nodes/Decorator/ReturnFailureNode.cs` |
+| `UntilSuccessNode` | 자식이 Success가 될 때까지 반복 | 완료 — `Nodes/Decorator/UntilSuccessNode.cs` |
+| `UntilFailureNode` | 자식이 Failure가 될 때까지 반복 | 완료 — `Nodes/Decorator/UntilFailureNode.cs` |
+| `TimeoutNode` | 지정 시간 안에 자식이 완료되지 않으면 Failure 반환 및 자식 Abort | 완료 — `Nodes/Decorator/TimeoutNode.cs` |
+| `InverterNode` | 자식 결과 반전 | 완료 — `Nodes/Decorator/InverterNode.cs` |
+| `CooldownNode` | 일정 시간 안에는 자식 실행 차단 | 완료 — `Nodes/Decorator/CooldownNode.cs` |
+| `RepeatNode` | N회 반복 | 완료 — `Nodes/Decorator/RepeatNode.cs` |
+| `GuardConditionNode` | 조건 노드가 Success인 동안만 자식 실행 | 미구현 |
+| `ForceAbortNode` | 특정 Blackboard 조건 변화 시 자식 Abort | 미구현 |
 
 ### Decorator 공통 규칙
 
@@ -291,24 +309,25 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 | 종료 처리 | Decorator가 Success/Failure로 확정되면 Running 자식은 남지 않아야 한다 |
 | Reset 처리 | 반복형 Decorator는 반복 사이클마다 자식 상태를 명확히 Reset한다 |
 
-## 2.6 Phase R5: Debug Trace, Breakpoint, Disable Node
+## 2.6 Phase R5: Debug Trace, Breakpoint, Disable Node (부분 구현)
 
 ### 구현 항목
 
-| 항목 | 설명 |
-|------|------|
-| Debug Trace | tick 순서, 노드 GUID, 상태 변화, Abort 원인 기록 |
-| Breakpoint | 특정 노드 진입 시 Runner를 pause |
-| Disable Node | 에디터에서 특정 노드를 실행 제외 |
-| Step Tick | Pause 상태에서 1 tick만 실행 |
-| Runtime Blackboard View | 실행 중 Blackboard 값 표시 |
-| Last Active Path | 마지막 실행 경로 하이라이트 |
+| 항목 | 설명 | 상태 |
+|------|------|------|
+| Debug Trace | tick 순서, 노드 GUID, 상태 변화, Abort 원인 기록 | 완료 — `BehaviorTreeDebugTrace` 큐 + `Record()` API (`BehaviorTreeRunner.cs:204-255`). Conditional Abort/ServicesTick 등은 호출부에서 기록. Service Tick 자체는 미반영 |
+| Breakpoint Pause (백엔드) | 노드가 `Context.Runner.RequestPauseFromNode(this)`를 호출하면 Tick 종료 후 Runner가 Paused로 전환 | 완료 — `BehaviorTreeRunner.cs:145-150, 170-171` |
+| Breakpoint UI 토글 | 노드 우클릭 또는 Inspector에서 Breakpoint on/off | 미구현 — `_breakpointEnabled` 같은 노드 필드와 GraphView UI 필요 |
+| Step Tick | Pause 상태에서 1 tick만 실행 | 완료 — `BehaviorTreeRunner.StepTick()` (`BehaviorTreeRunner.cs:140-143`) |
+| Disable Node | 에디터에서 특정 노드를 실행 제외 | 부분 — `BTServiceNode.Disabled` 필드는 존재해 Service만 토글 가능. 일반 노드 Disable은 미구현 |
+| Runtime Blackboard View | 실행 중 Blackboard 값 표시 | 미구현 |
+| Last Active Path | 마지막 실행 경로 그래프 하이라이트 | 부분 — 데이터(`DebugTrace.Records`)는 쌓이지만 GraphView 시각화 미완 |
 
 ### 완료 조건
-- 노드 우클릭 또는 Inspector에서 Breakpoint를 켜고 끌 수 있다.
-- Breakpoint 노드가 시작되면 Runner가 Pause 상태가 된다.
-- Disable Node는 Validate에서 Warning으로 표시되고 런타임에서 해당 노드를 건너뛴다.
-- Debug Trace를 통해 최근 tick 결과를 에디터에서 확인할 수 있다.
+- 노드 우클릭 또는 Inspector에서 Breakpoint를 켜고 끌 수 있다. (미구현 — Pause 백엔드는 있으나 트리거할 노드 UI 부재)
+- Breakpoint 노드가 시작되면 Runner가 Pause 상태가 된다. (백엔드 완료 — `RequestPauseFromNode` → Tick 종료 후 Pause)
+- Disable Node는 Validate에서 Warning으로 표시되고 런타임에서 해당 노드를 건너뛴다. (미구현)
+- Debug Trace를 통해 최근 tick 결과를 에디터에서 확인할 수 있다. (Debug Trace 큐는 동작, 에디터 뷰어 별도 검증 필요)
 
 ## 2.7 Phase R6: Validator와 Error Window 고도화
 
@@ -338,16 +357,16 @@ Sequence, Selector, Parallel이 Running 자식과 실패/성공 확정 상황을
 
 ## 2.8 권장 구현 순서
 
-| 순서 | Phase | 이유 |
-|------|-------|------|
-| 1 | R1 Runner 실행 제어 | Pause/Manual Tick/Restart가 있어야 디버깅·테스트가 쉬워진다 |
-| 2 | R2 Composite Abort/Reset | 런타임 안정성의 기반 |
-| 3 | R4 Decorator 확장 | 공식 Decorator 기준 충족, 그래프 표현력 확대 |
-| 4 | R5 Debug Trace/Breakpoint | Conditional Abort 구현 전 관찰 도구 확보 |
-| 5 | R3 Conditional Abort | 가장 중요하지만 디버깅 난도가 높아 기반 기능 이후 진행 |
-| 6 | R6 Error Window 고도화 | 기능 안정화 후 UX 정리 |
+| 순서 | Phase | 이유 | 현재 상태 |
+|------|-------|------|-----------|
+| 1 | R1 Runner 실행 제어 | Pause/Manual Tick/Restart가 있어야 디버깅·테스트가 쉬워진다 | 완료 |
+| 2 | R2 Composite Abort/Reset | 런타임 안정성의 기반 | 완료 |
+| 3 | R4 Decorator 확장 | 공식 Decorator 기준 충족, 그래프 표현력 확대 | 부분 — 8종 완료, GuardCondition/ForceAbort 미구현 |
+| 4 | R5 Debug Trace/Breakpoint | Conditional Abort 구현 전 관찰 도구 확보 | 부분 — DebugTrace/StepTick/Pause 백엔드 완료, Breakpoint·Disable Node UI 미구현 |
+| 5 | R3 Conditional Abort | 가장 중요하지만 디버깅 난도가 높아 기반 기능 이후 진행 | 기본 동작 완료, Monitor 최적화 미진행 |
+| 6 | R6 Error Window 고도화 | 기능 안정화 후 UX 정리 | 부분 |
 
-Conditional Abort는 중요하지만, 바로 구현하면 문제 원인 추적이 어렵다. 먼저 Runner 제어와 Debug Trace를 갖춘 뒤 도입하는 것이 안전하다.
+순서 1~3은 기반이 끝났으므로 다음 작업은 R5 잔여(Breakpoint UI/Disable Node/Blackboard View) → R3 Monitor 최적화 → R6 UX 정리 흐름이 자연스럽다. Conditional Abort 기본 동작은 이미 코드에 들어 있어 §4.7 권고대로 Phase 5 BT 전환을 우선 진행해도 무방하다.
 
 ## 2.9 구현 시 주의 사항
 
@@ -1287,34 +1306,38 @@ BT 완전 전환은 다음 조건을 모두 만족해야 완료로 본다.
 
 ## 4.7 결론
 
-BT 인프라는 §2.1 4.1 단계 완료로 핵심 5개 갭(Service, WeightedSelector, Subtree, BlackboardKey 타입화) 중 4개가 해소되었고, 몬스터 AI 전환은 Phase 1/1.5/3/4 완료 + `EnemyAIContext` 골격 도입까지 진척되어 BT 노드가 더 이상 `EnemyBrain` 클래스에 직접 묶이지 않으며 플레이어 상태 반응형 분기까지 BT 경로에서 동작한다. 남은 핵심 차단 요소:
+BT 인프라는 §2.1 4.1 단계로 핵심 5개 갭(Service/WeightedSelector/Subtree/BlackboardKey 타입화) 중 4개가 해소되었고, 코드 점검 결과 R1 Runner 실행 제어와 R2 Composite Abort/Reset도 이미 구현 완료, R3 Conditional Abort는 기본 평가 경로(`TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort`)까지 들어가 있다. 몬스터 AI 전환은 Phase 1/1.5/3/4 완료 + `EnemyAIContext` 골격 도입까지 진척되어 BT 노드가 더 이상 `EnemyBrain` 클래스에 직접 묶이지 않으며 플레이어 상태 반응형 분기까지 BT 경로에서 동작한다.
 
-- **Monitor Decorator 부재** (Phase R3) — Conditional Abort의 비용 한계
-- **Skeleton 프리팹 BT 미연결 + 기존 자산 정리 미진행** — Phase 2의 마지막 단계 (부록 A.2 참고)
-- **Phase 5 미착수** — 페이즈 시스템이 BT 경로에 없어 HP 임계값에 따른 행동 전환이 BT에서 표현되지 않는다
+남은 핵심 차단 요소(2026-05-16 기준 재정리):
+
+- **부록 A.2 자산 이동 + Skeleton 프리팹 BT Runner 연결** — Phase 2 종료의 마지막 1마일. 코드 변경 없이 사용자 작업.
+- **Phase 5 미착수** — `SyncEnemyPhaseService` 및 `EnemyAIContext.CurrentPhase`/`UpdatePhase` 멤버 부재로 HP 임계값에 따른 행동 전환이 BT에서 표현되지 않는다.
+- **Phase 6 미착수** — `EnemyFlyingBrain`은 `BehaviorTreeRunner` 참조가 0건으로 Phase 3 가드 미적용. 비행형은 여전히 100% 레거시 경로.
+- **Monitor Decorator 부재** (Phase R3 최적화) — 기본 Conditional Abort 동작은 있으나 `EnumerateConditions` 재귀 폴링이라 트리 깊이에 비례한 비용 누적. 적 수가 늘면 부담.
+- **R5 잔여 UI** — Breakpoint Pause 백엔드/StepTick은 있으나 노드 단위 Breakpoint·Disable Node·Blackboard 런타임 뷰는 미구현.
 
 다음 액션 순서 권고:
 
-1. 부록 A.2의 자산 이동·리네임 수행 → Skeleton 프리팹에 BT Runner를 붙이고 Play Mode 검증 → Phase 2 종료
-2. Phase 5 (`SyncEnemyPhaseService` 추가) — 페이즈 인지 가중치/조건 지원
-3. Phase R1 Runner 실행 제어 + Phase R5 Debug Trace를 보강한 뒤 Phase R3 Conditional Abort로 진입
-4. Phase 6 비행형 전환 (`EnemyFlyingBrain` 가드 패턴 적용 포함)
-5. 시범 보스 1마리를 BT로 작성해 옵션 A vs B를 본격 판단
+1. 부록 A.2 자산 이동·리네임 수행 → Skeleton 프리팹에 `BehaviorTreeRunner` + BT Asset 연결 → 부록 C.1/C.2/C.3 테스트 그래프 및 §4.5 지상형 체크리스트로 Play Mode 검증 → Phase 2 종료.
+2. Phase 5 — `SyncEnemyPhaseService` 추가 + `EnemyAIContext`에 페이즈 멤버 도입. 페이즈 인지 가중치/조건 노드 작성.
+3. R5 잔여 UI(Breakpoint 토글/Disable Node/Blackboard View) → R3 Monitor Decorator로 폴링 비용 최적화.
+4. Phase 6 비행형 전환 — `EnemyFlyingBrain`에도 `_behaviorTreeRunner.IsRunning` 가드 패턴 적용 후 단계적 이전.
+5. 시범 보스 1마리를 BT로 작성해 옵션 A vs B를 본격 판단.
 
 ---
 
 # 부록 A. 진행 상태
 
-## A.1 2026-05-15 기준 스냅샷
+## A.1 2026-05-16 기준 스냅샷
 
 | 단계 | 상태 | 반영 내용 | 남은 작업 |
 |------|------|-----------|-----------|
 | §2.1 4.1 즉시 가치 (Service/BlackboardKeySelector/WeightedRandom/Subtree) | 완료 | 12개 파일 추가/수정. AAA §1.2.1 핵심 5개 중 4개 해소 | DebugTrace에 Service tick 반영, 기존 6개 노드 BlackboardKeySelector 마이그레이션, Subtree 클론 누수 정리 |
-| §2.2 R1 Runner 실행 제어 | 미착수 | — | Pause/Resume/Manual Tick/RestartWhenComplete 구현 |
-| §2.3 R2 Composite Abort/Reset | 부분 | Sequence/Selector/Parallel 기본 동작 | Parallel Abort 정책, Running sibling 정리 |
-| §2.4 R3 Conditional Abort | 미착수 | `BTAbortType` enum만 존재 | Self/LowerPriority/Both 동작 |
-| §2.5 R4 Decorator 확장 | 부분 | Inverter/Cooldown/Repeat/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/Timeout 존재 | GuardCondition/ForceAbort 미구현 |
-| §2.6 R5 Debug Trace/Breakpoint | 부분 | DebugTrace 큐 데이터는 쌓임 | Breakpoint Pause, Disable Node, GraphView 시각화 |
+| §2.2 R1 Runner 실행 제어 | 완료 | `EnableBehavior`/`DisableBehavior`/`PauseTree`/`ResumeTree`/`TickOnce`/`StepTick`/`RequestPauseFromNode` + `_tickMode`(Manual 포함)/`_restartWhenComplete`/`_resetValuesOnRestart` 모두 `BehaviorTreeRunner.cs`에 구현 | 부록 C.1 테스트 그래프로 Play Mode 검증 |
+| §2.3 R2 Composite Abort/Reset | 완료 | Sequence/Selector `OnStop`에서 `AbortRunningChildren` + `_currentIndex` 리셋, Parallel 양방향(`requireAllSuccess` true/false) Abort 전부 구현 | 부록 C.2 Parallel Abort 테스트로 Play Mode 검증 |
+| §2.4 R3 Conditional Abort | 부분 | `BTConditionNode.EvaluateAbortChanged` + `BTCompositeNode.TryEvaluateSelfAbort`/`TryEvaluateLowerPriorityAbort` + Sequence/Selector `TryHandleConditionalAbort` 구현. Debug Trace 기록까지 완료 | Monitor Decorator 도입(폴링→등록제), 부록 C.3 테스트로 Play Mode 검증 |
+| §2.5 R4 Decorator 확장 | 부분 | Inverter/Cooldown/Repeat/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/Timeout 8종 완료 | GuardConditionNode/ForceAbortNode 미구현 |
+| §2.6 R5 Debug Trace/Breakpoint | 부분 | DebugTrace 큐 + `Record()` API, `RequestPauseFromNode` 백엔드, `StepTick`까지 완료. ServiceNode `Disabled` 토글 존재 | 노드 단위 Breakpoint UI, 일반 노드 Disable, Blackboard 런타임 뷰, GraphView 마지막 활성 경로 하이라이트 |
 | §2.7 R6 Validator 고도화 | 부분 | 기본 Validator 동작 | 오류 클릭 이동, JSON Import 자동 Validate |
 | §3.7.1 Phase 1 안전장치 | 완료 | `EnemyBlackboardKeys`, `IsBlockedEnemyStateNode`, `HasEnemyActionDelayElapsedNode`, `KeepCurrentStateNode`, `RequestEnemyAttackSlotNode`, `ExecuteEnemyAttackNode` 슬롯/통지 | Play Mode 검증 |
 | §3.7.2 Phase 1.5 JSON 파이프라인 | 완료 | `MonsterBehaviorTreeJsonImporter`, `EnemyBehaviorJsonExporter`, Skeleton JSON 샘플 | — |

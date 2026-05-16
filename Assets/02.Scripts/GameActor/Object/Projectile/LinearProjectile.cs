@@ -27,7 +27,7 @@ namespace UPlayGround
         
         private void Awake()
         {
-            _projectileType = ProjectileType.AOEProjectile;
+            _projectileType = ProjectileType.LinearProjectile;
         }
         
         public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)

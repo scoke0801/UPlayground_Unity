@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.AI.BehaviorTree;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
@@ -13,7 +14,7 @@ namespace UPlayGround.Component
     /// 플레이어 상태를 관찰하여 반응형으로 행동을 결정한다.
     /// 공격적 접근 + 불확실한 전환 + 빠른 리듬이 핵심.
     /// </summary>
-    public class EnemyBrain : MonoBehaviour
+    public class EnemyBrain : EnemyAIContext
     {
         [Header("Data")]
         [SerializeField] private EnemyBehaviorSO _behaviorData;
@@ -23,6 +24,7 @@ namespace UPlayGround.Component
         [SerializeField] private ActorMovementController _movementController;
         [SerializeField] private EnemyCombat             _combat;
         [SerializeField] private EnemyTacticalMemory     _memory;
+        [SerializeField] private BehaviorTreeRunner      _behaviorTreeRunner;
 
         [Header("Decision Interval")]
         [SerializeField] private float _decisionInterval = 0.1f;
@@ -60,11 +62,11 @@ namespace UPlayGround.Component
         public float PatrolRadius    => data?.patrolRadius    ?? 5f;
         public float PatrolWaitTime  => data?.patrolWaitTime  ?? 2f;
         public Vector3 SpawnPosition => _spawnPosition;
-        public bool EnablePatrol     => data?.enablePatrol    ?? true;
-        public float GuardDuration   => data?.guardDuration   ?? 1.5f;
-        public float RetreatDistance => data?.retreatDistance  ?? 3f;
-        public float CircleDuration  => data?.circleDuration  ?? 2.5f;
-        public bool HasGuardMotion   => _hasGuardMotion;
+        public override bool EnablePatrol     => data?.enablePatrol    ?? true;
+        public override float GuardDuration   => data?.guardDuration   ?? 1.5f;
+        public override float RetreatDistance => data?.retreatDistance  ?? 3f;
+        public override float CircleDuration  => data?.circleDuration  ?? 2.5f;
+        public override bool HasGuardMotion   => _hasGuardMotion;
         public MonsterGroupController Group => _groupController;
         /// <summary> 현재 플레이어(타겟)를 인식하고 추적 중인지 여부 </summary>
         public bool HasAggroTarget   => _detection != null && _detection.HasTarget;
@@ -116,6 +118,7 @@ namespace UPlayGround.Component
             _movementController ??= GetComponent<ActorMovementController>();
             _combat             ??= GetComponent<EnemyCombat>();
             _memory             ??= GetComponent<EnemyTacticalMemory>();
+            _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
 
@@ -189,7 +192,8 @@ namespace UPlayGround.Component
             if (_decisionTimer >= _decisionInterval)
             {
                 _decisionTimer = 0f;
-                MakeDecision();
+                if (_behaviorTreeRunner == null || !_behaviorTreeRunner.IsRunning)
+                    MakeDecision();
             }
 
             if (_detection != null)
@@ -732,13 +736,13 @@ namespace UPlayGround.Component
                 new EnemyAttackState(_movementController, _combat, this, _detection));
         }
 
-        public bool CanUseSkill()
+        public override bool CanUseSkill()
         {
             if (_combat?.AttackData == null) return false;
             return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
         }
 
-        public bool TryRequestAttackSlot()
+        public override bool TryRequestAttackSlot()
         {
             if (_groupController == null || _monster == null)
                 return true;
@@ -746,7 +750,7 @@ namespace UPlayGround.Component
             return _groupController.RequestAttackSlot(_monster, _myAttackType);
         }
 
-        public void NotifyBTAttackStarted()
+        public override void NotifyBTAttackStarted()
         {
             _lastAttackTime = Time.time;
             _actionCooldownTimer = 0f;
@@ -808,7 +812,7 @@ namespace UPlayGround.Component
         }
 
         /// <summary> EnemyAttackState.OnExit에서 호출. 점유한 슬롯을 반환한다. </summary>
-        public void ReleaseGroupSlot()
+        public override void ReleaseGroupSlot()
         {
             if (_monster != null)
                 _groupController?.ReleaseAttackSlot(_monster);

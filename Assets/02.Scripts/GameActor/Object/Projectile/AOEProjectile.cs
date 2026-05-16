@@ -30,6 +30,7 @@ namespace UPlayGround
         private float currentRadius;
         private bool hasTriggered;
         private float spawnTimer;
+        private float baseDamage;
 
         private void Awake()
         {
@@ -44,6 +45,7 @@ namespace UPlayGround
             currentRadius = 0f;
             hasTriggered = false;
             spawnTimer = 0f;
+            baseDamage = attackData.damage;
 
             _damageCooldowns.Clear();
             
@@ -56,6 +58,16 @@ namespace UPlayGround
         public void InitAOEProjectile()
         {
             
+        }
+
+        public void SetCenterPosition(Vector3 centerPosition)
+        {
+            transform.position = centerPosition;
+
+            if (attachToGround)
+            {
+                AttachToGround(transform.position);
+            }
         }
 
         protected override void InitFromMonsterActor(MonsterActor ownerObject)
@@ -180,7 +192,7 @@ namespace UPlayGround
                 float damageMultiplier = damageFalloff.Evaluate(distance / aoeRadius);
 
                 // AttackData 업데이트
-                attackData.damage = attackData.damage * damageMultiplier;
+                attackData.damage = baseDamage * damageMultiplier;
                 attackData.hitTarget = target;
                 attackData.hitPoint = hit.ClosestPoint(transform.position);
                 attackData.attackDirection = (target.transform.position - transform.position).normalized;

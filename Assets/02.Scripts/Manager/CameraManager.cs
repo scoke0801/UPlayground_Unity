@@ -542,7 +542,9 @@ namespace UPlayGround.Manager
 
             _modeController = new CameraModeController(_cameraContext);
             _modeController.Register(new InGameCameraMode());
+            _modeController.Register(new FreeCameraMode());
             _modeController.Register(new DialogueCameraMode());
+            _modeController.Register(new CameraSnapshotSequenceMode());
             _modeController.SetMode(CameraModeType.InGame);
         }
 
@@ -562,6 +564,7 @@ namespace UPlayGround.Manager
             _cameraContext.CombatStateProvider = _combatStateProvider;
             _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
             _cameraContext.StartCameraAlign = StartCameraAlign;
+            _cameraContext.PopCameraMode = PopCameraMode;
             _cameraContext.LookAtOverride = _lookAtOverride;
             _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
             _cameraContext.CollisionLayers = _collisionLayers;
@@ -764,6 +767,71 @@ namespace UPlayGround.Manager
                 SecondaryTarget = listener,
                 Offset = offset
             });
+        }
+
+        public bool PushFreeCamera(float moveSpeed = 6f, float lookSensitivity = 0.12f)
+        {
+            return PushCameraMode(CameraModeType.Free, new CameraModeEnterParams
+            {
+                FreeCameraMoveSpeed = moveSpeed,
+                FreeCameraLookSensitivity = lookSensitivity
+            });
+        }
+
+        public bool IsFreeCameraActive => CurrentCameraMode == CameraModeType.Free;
+
+        public bool PushCameraSnapshotSequence(CameraSnapshotProfile profile, Transform actorAnchor = null, Transform lookAtTarget = null, System.Action onComplete = null)
+        {
+            if (profile == null)
+            {
+                Debug.LogWarning("[CameraManager] CameraSnapshotProfile이 null입니다.");
+                return false;
+            }
+
+            if (!CanPushCameraSnapshotSequence(profile))
+                return false;
+
+            return PushCameraMode(CameraModeType.CameraSnapshotSequence, new CameraModeEnterParams
+            {
+                PrimaryTarget = actorAnchor != null ? actorAnchor : _target,
+                SecondaryTarget = lookAtTarget,
+                SnapshotProfile = profile,
+                RestorePreviousOnExit = profile.restorePreviousModeOnFinish,
+                OnComplete = onComplete
+            });
+        }
+
+        public bool IsCameraSnapshotSequenceActive(CameraSnapshotProfile profile = null)
+        {
+            if (_modeController?.CurrentMode is not CameraSnapshotSequenceMode snapshotMode)
+                return false;
+
+            return profile == null || snapshotMode.ActiveProfile == profile;
+        }
+
+        public bool StopCameraSnapshotSequence(CameraSnapshotProfile profile = null)
+        {
+            if (!IsCameraSnapshotSequenceActive(profile))
+                return false;
+
+            return PopCameraMode();
+        }
+
+        private bool CanPushCameraSnapshotSequence(CameraSnapshotProfile profile)
+        {
+            if (_modeController?.CurrentMode is not CameraSnapshotSequenceMode currentSnapshot)
+                return true;
+
+            switch (profile.interruptPolicy)
+            {
+                case CameraSnapshotInterruptPolicy.Ignore:
+                    return false;
+                case CameraSnapshotInterruptPolicy.OverrideIfHigherPriority:
+                    return profile.priority > currentSnapshot.ActivePriority;
+                case CameraSnapshotInterruptPolicy.Restart:
+                default:
+                    return true;
+            }
         }
 
         public Transform           GetTarget()         => _target;

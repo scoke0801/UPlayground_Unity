@@ -1,11 +1,19 @@
-﻿using System;
-using System.Numerics;
+using System;
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
-using Vector3 = UnityEngine.Vector3;
+using UPlayGround.Component;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
+    public enum ProjectileTargetMode
+    {
+        Forward,
+        LockOnTarget,
+        EnemySkillTarget,
+        TargetPosition,
+        TelegraphPosition
+    }
+
     /// <summary>
     /// 투사체 발사 이벤트
     /// </summary>
@@ -19,15 +27,23 @@ namespace UPlayGround.Data.Event
         public Vector3 rotationOffset;            // 방향 보정 오일러 각도
         public bool useSpawnRotation = true;      // 스폰 포인트 회전을 기준으로 할지
         public float damage = 10f;
-        
+
+        [Header("Targeting Setting")]
+        public ProjectileTargetMode targetMode = ProjectileTargetMode.Forward;
+        public Vector3 targetOffset;
+        public bool projectTargetToGround;
+        public LayerMask groundLayerMask = -1;
+        public float groundProbeHeight = 10f;
+        public float groundProbeDistance = 20f;
+
         [Header("Move Setting")]
         public float speed = 10f;
         public float duration = 3f;
-        
+
         [Header("Hit Setting")]
         public LayerMask targetHitLayer;
         public string hitParticleName;
-        
+
         public override string GetDisplayName() => "Projectile";
 
         public override string GetShortLabel()
@@ -43,12 +59,12 @@ namespace UPlayGround.Data.Event
 
             var actor = target.GetComponent<GameActor>();
             if (actor == null) return;
-    
+
             // 스폰 기준점 (무기 본/트랜스폼)
             Transform spawnPoint = string.IsNullOrEmpty(spawnPointName)
                 ? target.transform
                 : FindTransformByName(target.transform, spawnPointName) ?? target.transform;
-    
+
             // 물리적 이동 궤적 (캐릭터 정면 수평)
             Vector3 flyDirection = target.transform.forward;
             flyDirection.y = 0f;
@@ -57,26 +73,156 @@ namespace UPlayGround.Data.Event
 
             // 무기의 현재 회전값 및 축 보정
             Quaternion weaponRot = useSpawnRotation ? spawnPoint.rotation : target.transform.rotation;
-            weaponRot *= Quaternion.Euler(rotationOffset); 
+            weaponRot *= Quaternion.Euler(rotationOffset);
 
-            Vector3 weaponUp = weaponRot * Vector3.up; 
+            Vector3 weaponUp = weaponRot * Vector3.up;
             Vector3 projectedUp = Vector3.ProjectOnPlane(weaponUp, flyDirection).normalized;
 
-            if (projectedUp == Vector3.zero) 
+            if (projectedUp == Vector3.zero)
             {
-                projectedUp = Vector3.up; 
+                projectedUp = Vector3.up;
             }
-            Quaternion finalRot = Quaternion.LookRotation(flyDirection, projectedUp);
 
             Vector3 worldPos = spawnPoint.TransformPoint(spawnOffset);
-    
+            bool hasTargetPosition = TryResolveTargetPosition(actor, worldPos, flyDirection, out Vector3 targetPosition);
+
+            if (hasTargetPosition)
+            {
+                targetPosition += targetOffset;
+                if (projectTargetToGround)
+                    targetPosition = ProjectToGround(targetPosition);
+
+                Vector3 targetDirection = targetPosition - worldPos;
+                if (targetDirection.sqrMagnitude > 0.001f)
+                {
+                    flyDirection = targetDirection.normalized;
+                    projectedUp = Vector3.ProjectOnPlane(weaponUp, flyDirection).normalized;
+                    if (projectedUp == Vector3.zero)
+                        projectedUp = Vector3.up;
+                }
+
+                if (projectilePrefab is AOEProjectile)
+                    worldPos = targetPosition;
+            }
+
+            Quaternion finalRot = Quaternion.LookRotation(flyDirection, projectedUp);
             var instance = GameObject.Instantiate(projectilePrefab, worldPos, finalRot);
             var projectile = instance.GetComponent<BaseProjectile>();
-    
+
             if (projectile != null)
             {
                 projectile.Initialize(worldPos, flyDirection, damage, speed, actor, duration, targetHitLayer, hitParticleName);
+
+                if (hasTargetPosition && projectile is AOEProjectile aoeProjectile)
+                    aoeProjectile.SetCenterPosition(targetPosition);
             }
+        }
+
+        private bool TryResolveTargetPosition(GameActor actor, Vector3 spawnPosition, Vector3 fallbackDirection, out Vector3 position)
+        {
+            position = spawnPosition + fallbackDirection.normalized * Mathf.Max(0f, speed);
+            Vector3 resolvedPosition;
+
+            switch (targetMode)
+            {
+                case ProjectileTargetMode.Forward:
+                    return false;
+
+                case ProjectileTargetMode.LockOnTarget:
+                    if (TryGetLockOnTargetPosition(out resolvedPosition))
+                    {
+                        position = resolvedPosition;
+                        return true;
+                    }
+                    return false;
+
+                case ProjectileTargetMode.EnemySkillTarget:
+                    if (TryGetEnemySkillTargetPosition(actor, out resolvedPosition))
+                    {
+                        position = resolvedPosition;
+                        return true;
+                    }
+                    return false;
+
+                case ProjectileTargetMode.TargetPosition:
+                    if (TryGetPrimaryTargetPosition(actor, out resolvedPosition))
+                    {
+                        position = resolvedPosition;
+                        return true;
+                    }
+                    return false;
+
+                case ProjectileTargetMode.TelegraphPosition:
+                    if (TryGetTelegraphPosition(actor, out resolvedPosition))
+                    {
+                        position = resolvedPosition;
+                        return true;
+                    }
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool TryGetPrimaryTargetPosition(GameActor actor, out Vector3 position)
+        {
+            if (TryGetEnemySkillTargetPosition(actor, out position))
+                return true;
+
+            return TryGetLockOnTargetPosition(out position);
+        }
+
+        private static bool TryGetLockOnTargetPosition(out Vector3 position)
+        {
+            position = default;
+
+            Transform lockOnTarget = CameraManager.Instance != null
+                ? CameraManager.Instance.GetLockOnTarget()
+                : null;
+            if (lockOnTarget == null)
+                return false;
+
+            position = lockOnTarget.position;
+            return true;
+        }
+
+        private static bool TryGetEnemySkillTargetPosition(GameActor actor, out Vector3 position)
+        {
+            position = default;
+
+            EnemyCombat combat = actor != null ? actor.GetComponent<EnemyCombat>() : null;
+            if (combat == null || combat.SkillTargetList == null || combat.SkillTargetList.Count == 0)
+                return false;
+
+            Transform targetTransform = combat.SkillTargetList[0]?.GetTransform();
+            if (targetTransform == null)
+                return false;
+
+            position = targetTransform.position;
+            return true;
+        }
+
+        private static bool TryGetTelegraphPosition(GameActor actor, out Vector3 position)
+        {
+            position = default;
+
+            EnemyCombat combat = actor != null ? actor.GetComponent<EnemyCombat>() : null;
+            if (combat == null)
+                return false;
+
+            position = combat.GetCurrentAttackPosition();
+            return true;
+        }
+
+        private Vector3 ProjectToGround(Vector3 position)
+        {
+            Vector3 origin = position + Vector3.up * Mathf.Max(0f, groundProbeHeight);
+            float distance = Mathf.Max(0.01f, groundProbeHeight + groundProbeDistance);
+
+            return Physics.Raycast(origin, Vector3.down, out RaycastHit hit, distance, groundLayerMask, QueryTriggerInteraction.Ignore)
+                ? hit.point
+                : position;
         }
 
         private Transform FindTransformByName(Transform parent, string name)
@@ -92,5 +238,4 @@ namespace UPlayGround.Data.Event
         {
         }
     }
-
 }

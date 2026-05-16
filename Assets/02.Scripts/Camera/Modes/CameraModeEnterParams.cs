@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
 {
@@ -15,6 +16,10 @@ namespace UPlayGround.CameraSystem
         public float Duration;
         public AnimationCurve BlendCurve;
         public bool RestorePreviousOnExit = true;
+        public CameraSnapshotProfile SnapshotProfile;
+        public System.Action OnComplete;
+        public float FreeCameraMoveSpeed;
+        public float FreeCameraLookSensitivity;
 
         public static readonly CameraModeEnterParams Empty = new CameraModeEnterParams();
     }

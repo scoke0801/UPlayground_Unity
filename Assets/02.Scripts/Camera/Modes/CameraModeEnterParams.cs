@@ -17,6 +17,10 @@ namespace UPlayGround.CameraSystem
         public AnimationCurve BlendCurve;
         public bool RestorePreviousOnExit = true;
         public CameraSnapshotProfile SnapshotProfile;
+        public bool HasSnapshotActorAnchorOverride;
+        public CameraSnapshotActorReference SnapshotActorAnchor;
+        public bool HasSnapshotLookAtTargetOverride;
+        public CameraSnapshotActorReference SnapshotLookAtTarget;
         public System.Action OnComplete;
         public float FreeCameraMoveSpeed;
         public float FreeCameraLookSensitivity;

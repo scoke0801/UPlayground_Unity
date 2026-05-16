@@ -343,7 +343,8 @@ Assets/
 | [STORY_SYSTEM_GUIDE.md](STORY_SYSTEM_GUIDE.md) | Story 시스템 — 진행도 단조 증가, storyId 1회 트리거, StoryEntrySO Variants, StoryTriggerZone, Markdown 일괄 생성 |
 | [CAMERA_SYSTEM_GUIDE.md](CAMERA_SYSTEM_GUIDE.md) | Camera 시스템 — CameraManager 오케스트레이터, LockOn/Collision/Distance/Effect/Shaker/KillCam 서브시스템, ICameraEffect 블렌딩 |
 | [CAMERA_MODE_ARCHITECTURE_DESIGN.md](CAMERA_MODE_ARCHITECTURE_DESIGN.md) | Camera Mode Architecture 설계 — InGame/Free/Dialogue 모드 분리, 스킬 카메라 시퀀스, Cinemachine 연동 검토 |
-| [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 고도화 방안 |
+| [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 맵 트리거 |
+| [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
 | [TIME_HITSTOP_GUIDE.md](TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
 

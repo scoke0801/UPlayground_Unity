@@ -18,6 +18,34 @@ MonoBehaviour:
   lockCameraInput: 1
   releaseLockOnOnEnter: 1
   applyFirstShotImmediately: 1
+  useCollision: 0
+  entryBlendDuration: 0
+  entryBlendCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  priority: 0
+  interruptPolicy: 0
   shots:
   - shotName: Shot 1
     space: 1
@@ -49,6 +77,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 2
     space: 1
     position: {x: 1.7578039, y: 1.0552521, z: 0.41044396}
@@ -79,6 +110,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 3
     space: 1
     position: {x: 1.0495508, y: 0.7811099, z: -0.73842657}
@@ -109,6 +143,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 4
     space: 1
     position: {x: -0.6900253, y: 0.2517198, z: -1.2865951}
@@ -139,6 +176,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 5
     space: 1
     position: {x: -1.9830507, y: 0.13954097, z: 0.5082536}
@@ -169,6 +209,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 6
     space: 1
     position: {x: -0.3891278, y: 0.26388106, z: 1.5836456}
@@ -199,6 +242,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 7
     space: 1
     position: {x: 2.2945154, y: 0.12483968, z: 1.212227}
@@ -229,6 +275,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1
   - shotName: Shot 8
     space: 1
     position: {x: 0.37533003, y: 1.1525711, z: 0.547132}
@@ -259,3 +308,6 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    moveType: 1
+    orbitDirection: 0
+    keepLookAtTargetDuringBlend: 1

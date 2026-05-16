@@ -10,6 +10,7 @@
 - `CameraSnapshotSequenceMode`가 `ICameraMode`로 등록되어 기존 `InGame`, `Dialogue`, `Free` 모드와 같은 전환 경로 사용
 - `MotionEvent`에서 프로필을 실행해 공격/스킬 애니메이션 타임라인과 카메라 시퀀스를 동기화
 - 월드 좌표와 액터 상대 좌표를 모두 지원해 고정 컷신과 캐릭터 기준 스킬 연출을 분리 가능
+- 액터 상대 좌표는 런타임 `Transform` 참조가 아니라 Actor ID와 `ActorSocketType`으로 기준을 저장하고, 사용할 때 Actor/Socket을 찾아 해석
 - 전용 에디터 창에서 프리카메라, 현재 카메라 캡처, 시퀀스 미리보기, 샷 순서 편집 지원
 
 ---
@@ -19,10 +20,11 @@
 ```
 MotionSetAsset
 └── CameraSnapshotSequenceEvent
-    └── CameraManager.PushCameraSnapshotSequence(profile, actorAnchor, lookAtTarget)
+    └── CameraManager.PushCameraSnapshotSequence(profile, actorAnchorRef, lookAtRef)
         └── CameraModeController.PushMode(CameraSnapshotSequence)
             └── CameraSnapshotSequenceMode
                 ├── CameraSnapshotProfile
+                ├── CameraSnapshotActorReferenceResolver
                 ├── CameraSnapshotShot.ResolveWorldPose(...)
                 ├── CameraEffectState 합성
                 └── profile.restorePreviousModeOnFinish이면 PopCameraMode()
@@ -42,6 +44,9 @@ Assets/02.Scripts/
 │   ├── CameraModeType.cs
 │   ├── CameraModeEnterParams.cs
 │   └── CameraSnapshotSequenceMode.cs
+├── Camera/
+│   ├── CameraSnapshotActorReferenceResolver.cs
+│   └── CameraSnapshotSequenceTrigger.cs
 └── Manager/
     └── CameraManager.cs
 
@@ -68,8 +73,11 @@ Assets/10.Datas/Camera/SnapShot/
 | `useCollision` | 스냅샷 위치에 카메라 충돌 보정 적용 |
 | `entryBlendDuration` | 현재 카메라에서 첫 샷으로 진입하는 전용 블렌드 시간 |
 | `entryBlendCurve` | 진입 블렌드 보간 커브 |
+| `playbackSpeed` | 전체 시퀀스 재생 속도. `2`면 샷 간 전환 시간이 절반으로 줄어듦 |
 | `priority` | 다른 스냅샷 시퀀스와 충돌할 때 비교하는 우선순위 |
 | `interruptPolicy` | 이미 스냅샷 시퀀스가 재생 중일 때 처리 정책 |
+| `actorAnchor` | Actor ID와 Socket 기준 액터 상대 좌표 해석 기준 |
+| `lookAtTarget` | Actor ID와 Socket 기준 LookAt 기준 |
 | `shots` | 순차 재생할 `CameraSnapshotShot` 목록 |
 | `TotalDuration` | 모든 샷의 `duration` 합산값 |
 
@@ -78,6 +86,29 @@ Assets/10.Datas/Camera/SnapShot/
 ```csharp
 [CreateAssetMenu(fileName = "CameraSnapshotProfile", menuName = "UPlayGround/SO/Camera/Camera Snapshot Profile")]
 ```
+
+### CameraSnapshotActorReference
+
+`CameraSnapshotActorReference`는 런타임 `Transform`을 직접 저장하지 않고, Actor ID와 Socket 타입만 저장한다.
+
+| 필드 | 설명 |
+|------|------|
+| `useActivePlayerWhenEmpty` | Actor ID가 비어 있을 때 현재 활성 플레이어를 사용 |
+| `actorIdType` | 자동 생성 `ActorIdType` enum |
+| `actorId` | `actorIdType == None`일 때 사용하는 문자열 Actor ID |
+| `socketType` | `ActorSocketType`. `None`이면 Actor 루트 Transform 사용 |
+
+해석 순서:
+
+1. `actorIdType != None`이면 `actorIdType.ToActorId()` 사용
+2. 아니면 `actorId` 문자열 사용
+3. Actor ID가 비어 있고 `useActivePlayerWhenEmpty == true`면 `GameObjectManager.Player` 사용
+4. `GameObjectManager.AllActors`에서 Actor ID가 같은 런타임 Actor 검색
+5. 없으면 `ActorSpawnManager.GetSpawnedActors(actorId)` 첫 항목 사용
+6. Actor를 찾았고 `socketType != None`이면 `GameActor.TryGetSocket(socketType)`로 Socket Transform 사용
+7. Socket이 없으면 Actor 루트 Transform 사용
+
+프로필, MotionEvent, 맵 트리거에는 Transform 참조가 직렬화되지 않는다. 씬/런타임에서 실제 Actor 인스턴스가 바뀌어도 Actor ID와 Socket 규칙만 맞으면 같은 프로필을 재사용할 수 있다.
 
 ### CameraSnapshotShot
 
@@ -90,6 +121,9 @@ Assets/10.Datas/Camera/SnapShot/
 | `fieldOfView` | 샷 FOV |
 | `duration` | 이전 포즈에서 이 샷으로 보간하는 시간 |
 | `blendCurve` | `rawT`를 보정하는 커브 |
+| `moveType` | 이전 샷에서 현재 샷으로 이동할 때의 위치 보간 방식 |
+| `orbitDirection` | `OrbitAroundAnchor` 이동 시 공전 방향 |
+| `keepLookAtTargetDuringBlend` | 공전 보간 중 중심점을 계속 바라볼지 여부 |
 
 주요 API:
 
@@ -103,7 +137,22 @@ public void ResolveWorldPose(Transform actorAnchor, out Vector3 worldPosition, o
 | Space | 저장 방식 | 권장 용도 |
 |------|-----------|----------|
 | `World` | 카메라 월드 위치/회전 그대로 저장 | 고정 장소 컷신, 환경 연출 |
-| `ActorRelative` | `actorAnchor` 기준 로컬 위치/회전으로 저장 | 스킬, 처형, 캐릭터 중심 연출 |
+| `ActorRelative` | `actorAnchor`가 해석한 Actor Socket 기준 로컬 위치/회전으로 저장 | 스킬, 처형, 캐릭터 중심 연출 |
+
+이동 방식:
+
+| MoveType | 설명 | 권장 용도 |
+|----------|------|----------|
+| `Linear` | 기존 방식. 이전 카메라 위치에서 다음 샷 위치까지 직선 보간 | 컷 사이가 짧거나 직선 이동이 자연스러운 경우 |
+| `OrbitAroundAnchor` | 중심점을 기준으로 수평 각도, 반지름, 높이를 보간해 공전하듯 이동 | 캐릭터/타겟을 중심에 두고 둘러보는 스킬·시네마틱 |
+
+공전 중심 우선순위:
+
+1. `lookAtTarget`
+2. `actorAnchor`
+3. 다음 샷의 `PivotPosition`
+
+`OrbitAroundAnchor`는 수평면 기준 각도를 보간하고, 높이와 반지름은 각각 선형 보간한다. 시작/도착 위치가 중심점에 너무 가까우면 안전하게 `Linear` 보간으로 폴백한다.
 
 ### CameraSnapshotSequenceMode
 
@@ -121,14 +170,15 @@ public void ResolveWorldPose(Transform actorAnchor, out Vector3 worldPosition, o
 
 재생 흐름:
 
-1. `OnEnter()`에서 프로필, 액터 앵커, LookAt 타겟, 시작 포즈를 캐시한다.
+1. `OnEnter()`에서 프로필과 Actor/Socket 참조 값을 선택한다. 실제 Transform은 캐시하지 않는다.
 2. `entryBlendDuration > 0`이고 `applyFirstShotImmediately == false`이면 현재 카메라에서 첫 샷까지 전용 진입 블렌드를 먼저 처리한다.
 3. `EvaluatePose()`에서 현재 샷의 경과 시간과 블렌드 커브를 평가한다.
-4. `BuildPoseFromShot()`이 샷 좌표를 월드 포즈로 변환한다.
-5. `lookAtTarget`이 있으면 샷 회전 대신 해당 타겟을 바라보는 회전을 사용한다.
+4. `BuildPoseFromShot()`이 `CameraSnapshotActorReferenceResolver`로 Actor/Socket을 찾아 샷 좌표를 월드 포즈로 변환한다.
+5. `lookAtTarget` Actor/Socket을 찾으면 샷 회전 대신 해당 타겟을 바라보는 회전을 사용한다.
 6. `useCollision`이 켜져 있으면 액터 앵커에서 카메라 위치 방향으로 `CameraCollision.Evaluate()`를 적용한다.
-7. `CameraEffectState`의 위치, 회전, 거리, FOV 델타를 합성한다.
-8. 마지막 샷 종료 시 `OnComplete`를 호출하고, `restorePreviousModeOnFinish`가 `true`면 `PopCameraMode()`를 호출한다.
+7. 샷의 `moveType`이 `Linear`면 직선 보간, `OrbitAroundAnchor`면 중심 기준 공전 보간을 적용한다.
+8. `CameraEffectState`의 위치, 회전, 거리, FOV 델타를 합성한다.
+9. 마지막 샷 종료 시 `OnComplete`를 호출하고, `restorePreviousModeOnFinish`가 `true`면 `PopCameraMode()`를 호출한다.
 
 주의할 점:
 
@@ -149,16 +199,19 @@ _modeController.Register(new CameraSnapshotSequenceMode());
 ```csharp
 public bool PushCameraSnapshotSequence(
     CameraSnapshotProfile profile,
-    Transform actorAnchor = null,
-    Transform lookAtTarget = null,
+    System.Action onComplete = null)
+
+public bool PushCameraSnapshotSequence(
+    CameraSnapshotProfile profile,
+    CameraSnapshotActorReference? actorAnchor,
+    CameraSnapshotActorReference? lookAtTarget,
     System.Action onComplete = null)
 ```
 
 동작:
 
 - `profile == null`이면 경고 후 `false`
-- `actorAnchor`가 없으면 현재 `_target`을 `PrimaryTarget`으로 사용
-- `lookAtTarget`은 `SecondaryTarget`으로 전달
+- Actor/Socket override가 없으면 `CameraSnapshotProfile.actorAnchor`, `CameraSnapshotProfile.lookAtTarget` 사용
 - `SnapshotProfile`과 `RestorePreviousOnExit`을 `CameraModeEnterParams`에 넣고 `PushCameraMode(CameraSnapshotSequence, ...)` 호출
 - 현재 모드가 이미 `CameraSnapshotSequence`이면 새 프로필의 `interruptPolicy`와 `priority`로 재생 가능 여부를 판단
 
@@ -178,8 +231,10 @@ MotionSet 타임라인에서 카메라 스냅샷 시퀀스를 실행하는 이�
 | 필드 | 설명 |
 |------|------|
 | `profile` | 실행할 `CameraSnapshotProfile` |
-| `actorAnchorName` | `target` 하위 Transform 이름. 비어 있거나 찾지 못하면 `target.transform` 사용 |
-| `lookAtTargetName` | `target` 하위 Transform 이름. 지정하면 시퀀스 중 해당 Transform을 바라봄 |
+| `overrideActorAnchor` | 프로필의 Actor Anchor 대신 이벤트의 Actor/Socket 참조 사용 |
+| `actorAnchor` | 이벤트에서 override할 Actor/Socket 참조 |
+| `overrideLookAtTarget` | 프로필의 LookAt Target 대신 이벤트의 Actor/Socket 참조 사용 |
+| `lookAtTarget` | 이벤트에서 override할 LookAt Actor/Socket 참조 |
 | `restorePreviousOnComplete` | 이벤트 완료 시 현재 모드가 `CameraSnapshotSequence`이면 `PopCameraMode()` 호출 |
 
 주요 API:
@@ -229,8 +284,8 @@ MotionSet 이벤트 타임라인에 `CameraSnapshotSequenceEvent`를 추가한�
 | 필드 | 권장값 |
 |------|--------|
 | `profile` | 연출용 `CameraSnapshotProfile` |
-| `actorAnchorName` | 캐릭터 루트가 아닌 소켓 기준이면 소켓 Transform 이름 |
-| `lookAtTargetName` | 얼굴, 상체, 타격 대상 등 바라볼 하위 Transform 이름 |
+| `overrideActorAnchor` / `actorAnchor` | 프로필 기준과 다른 Actor/Socket을 사용할 때만 지정 |
+| `overrideLookAtTarget` / `lookAtTarget` | 프로필 기준과 다른 LookAt Actor/Socket을 사용할 때만 지정 |
 | `restorePreviousOnComplete` | 프로필 자동 복귀와 중복될 수 있으므로 이벤트 길이 설계에 맞춰 결정 |
 
 ---
@@ -249,15 +304,10 @@ namespace UPlayGround.CameraSystem
     public class CameraSnapshotSequenceStarter : MonoBehaviour
     {
         [SerializeField] private CameraSnapshotProfile _profile;
-        [SerializeField] private Transform _actorAnchor;
-        [SerializeField] private Transform _lookAtTarget;
 
         public void Play()
         {
-            CameraManager.Instance.PushCameraSnapshotSequence(
-                _profile,
-                _actorAnchor,
-                _lookAtTarget);
+            CameraManager.Instance.PushCameraSnapshotSequence(_profile);
         }
     }
 }
@@ -270,12 +320,10 @@ public override void Execute(GameObject target)
 {
     if (profile == null || CameraManager.Instance == null) return;
 
-    Transform actorAnchor = ResolveTransform(target, actorAnchorName);
-    if (actorAnchor == null && target != null)
-        actorAnchor = target.transform;
-
-    Transform lookAtTarget = ResolveTransform(target, lookAtTargetName);
-CameraManager.Instance.PushCameraSnapshotSequence(profile, actorAnchor, lookAtTarget);
+    CameraManager.Instance.PushCameraSnapshotSequence(
+        profile,
+        overrideActorAnchor ? actorAnchor : null,
+        overrideLookAtTarget ? lookAtTarget : null);
 }
 ```
 
@@ -302,11 +350,12 @@ UPlayGround/Camera/Camera Snapshot Sequence Trigger
 | 필드 | 설명 |
 |------|------|
 | `_profile` | 재생할 `CameraSnapshotProfile` |
-| `_actorAnchor` | `ActorRelative` 샷 기준 Transform. 비어 있으면 진입한 플레이어 Transform 사용 |
-| `_lookAtTarget` | 시퀀스 중 바라볼 Transform |
+| `_overrideActorAnchor` | 프로필의 액터 기준 대신 트리거의 Actor/Socket 참조 사용 |
+| `_actorAnchor` | 트리거에서 override할 Actor/Socket 참조 |
+| `_overrideLookAtTarget` | 프로필의 LookAt 기준 대신 트리거의 Actor/Socket 참조 사용 |
+| `_lookAtTarget` | 트리거에서 override할 LookAt Actor/Socket 참조 |
 | `_playerTag` | 진입 판정 태그. 기본값 `Player` |
 | `_triggerOnce` | 한 번만 발동 |
-| `_useEnteringPlayerAsAnchor` | 항상 진입한 플레이어 Transform을 앵커로 사용 |
 | `_disableColliderAfterTrigger` | 발동 후 Collider 비활성화 |
 | `_onSequenceStarted` | 시퀀스 시작 시 호출할 UnityEvent |
 | `_onSequenceCompleted` | 프로필 정상 완료 시 호출할 UnityEvent |
@@ -317,7 +366,7 @@ UPlayGround/Camera/Camera Snapshot Sequence Trigger
 2. `Is Trigger`를 켠다. 컴포넌트의 `Awake()`/`OnValidate()`에서도 자동으로 `isTrigger = true`를 보정한다.
 3. `CameraSnapshotSequenceTrigger`를 추가한다.
 4. `_profile`에 재생할 프로필을 연결한다.
-5. 캐릭터 기준 연출이면 `_actorAnchor`를 지정하거나 `_useEnteringPlayerAsAnchor`를 켠다.
+5. 캐릭터 기준 연출이면 프로필의 `actorAnchor`에 Actor ID와 Socket을 지정하거나, 트리거에서 override를 켠다.
 6. 플레이어가 영역에 들어오면 `CameraManager.PushCameraSnapshotSequence()`가 호출된다.
 
 ---
@@ -337,10 +386,11 @@ UPlayGround/Camera/Camera Snapshot 에디터
 | 기능 | 설명 |
 |------|------|
 | 프로필 선택/생성 | `CameraSnapshotProfile` 선택 또는 새 에셋 생성 |
-| 프로필 설정 | 입력 잠금, 락온 해제, 충돌 보정, 진입 블렌드, 우선순위, 인터럽트 정책 편집 |
+| 프로필 설정 | 입력 잠금, 락온 해제, 충돌 보정, 진입 블렌드, 재생 속도, 우선순위, 인터럽트 정책, Actor/Socket 기준 편집 |
 | 현재 카메라 스냅샷 추가 | 현재 카메라 위치, 회전, FOV를 샷으로 저장 |
 | 샷 순서 변경 | 목록의 `▲`, `▼` 버튼으로 순서 변경 |
 | 샷 편집 | 이름, 좌표계, 위치, 회전, FOV, 지속 시간, 블렌드 커브 수정 |
+| 이동 방식 편집 | 샷별 `Linear`/`OrbitAroundAnchor`, 공전 방향, 보간 중 중심 바라보기 설정 |
 | 현재 카메라로 덮어쓰기 | 선택 샷을 현재 카메라 포즈로 갱신 |
 | 카메라를 이 위치로 이동 | 선택 샷의 월드 포즈로 카메라 이동 |
 | 시퀀스 재생 | 에디터 모드에서는 카메라 직접 이동, PlayMode에서는 `CameraManager` 모드로 재생 |
@@ -390,9 +440,9 @@ Ctrl 감속
 ## 주의 사항
 
 1. `restorePreviousModeOnFinish`와 `restorePreviousOnComplete`를 동시에 켜면 복귀 호출이 중복될 수 있다. 현재 `OnCompleteEvent()`는 현재 모드가 `CameraSnapshotSequence`인지 확인하지만, 이벤트 종료 타이밍이 프로필 종료보다 늦으면 이미 복귀된 상태일 수 있다.
-2. `CameraSnapshotSequenceMode`는 충돌 보정을 사용하지 않는다. 액션 중 벽 근처에서 카메라가 지형을 관통할 수 있다.
-3. `ActorRelative` 샷은 `actorAnchor` 회전까지 곱해진다. 스킬 중 캐릭터가 급회전하면 의도한 연출과 다르게 카메라도 함께 회전한다.
-4. `lookAtTarget`이 지정되면 샷에 저장된 회전은 무시되고, 위치에서 타겟을 바라보는 회전으로 덮인다.
+2. `CameraSnapshotSequenceMode`의 인터페이스 속성 `UseCollision`은 `false`지만, 프로필 `useCollision`을 켜면 스냅샷 위치 계산 단계에서 충돌 보정이 적용된다.
+3. `ActorRelative` 샷은 해석된 Actor Socket 회전까지 곱해진다. 스킬 중 캐릭터가 급회전하면 의도한 연출과 다르게 카메라도 함께 회전한다.
+4. `lookAtTarget` Actor/Socket이 해석되면 샷에 저장된 회전은 무시되고, 위치에서 타겟을 바라보는 회전으로 덮인다.
 5. `CameraSnapshotEditorWindow.PreviewShotInCameraManager()`는 HideAndDontSave 런타임 프로필을 만들고 `duration = 9999f`로 유지한다. PlayMode 미리보기 후 반드시 정지 또는 모드 복귀를 확인해야 한다.
 6. 현재 `CameraModeEnterParams.OnComplete`는 `PushCameraSnapshotSequence()`에서 설정하지 않는다. 코드 직접 호출자가 완료 콜백을 쓰려면 별도 API 확장이 필요하다.
 
@@ -478,7 +528,7 @@ public LayerMask collisionMaskOverride;
 | 선택 샷 단독 미리보기 토글 | `9999f` 런타임 프로필 대신 명시적 Preview 모드 관리 |
 | 샷별 메모 필드 | 연출 의도 기록 |
 | SceneView 프러스텀 기즈모 | 카메라 포즈를 씬에서 직접 확인 |
-| Transform 이름 드롭다운 | `actorAnchorName`, `lookAtTargetName` 오타 방지 |
+| Actor/Socket 검증 | 프로필, MotionEvent, 트리거에 지정된 Actor ID와 Socket 누락 검사 |
 | Addressables 라벨/경로 규칙 | 프로필 로딩 정책 표준화 |
 
 ### 6단계: 인터럽트와 우선순위 - 기본 구현 완료
@@ -510,7 +560,7 @@ public enum CameraSnapshotInterruptPolicy
 - `releaseLockOnOnEnter`가 켜진 시퀀스 진입 시 락온 해제
 - MotionEvent 실행 후 애니메이션 종료/인터럽트 상황에서 카메라 모드가 남지 않음
 - 히트스톱 중 `useUnscaledTime` 설정에 따라 시퀀스 진행 속도가 의도대로 동작
-- `lookAtTargetName`을 지정한 샷이 대상 Transform을 정상 추적
+- LookAt Actor/Socket 참조가 대상 Transform으로 정상 해석되고 추적
 
 ---
 

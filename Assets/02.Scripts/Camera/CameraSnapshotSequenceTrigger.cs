@@ -14,11 +14,12 @@ namespace UPlayGround.CameraSystem
     public class CameraSnapshotSequenceTrigger : MonoBehaviour
     {
         [SerializeField] private CameraSnapshotProfile _profile;
-        [SerializeField] private Transform _actorAnchor;
-        [SerializeField] private Transform _lookAtTarget;
+        [SerializeField] private bool _overrideActorAnchor = false;
+        [SerializeField] private CameraSnapshotActorReference _actorAnchor = CameraSnapshotActorReference.ActivePlayer();
+        [SerializeField] private bool _overrideLookAtTarget = false;
+        [SerializeField] private CameraSnapshotActorReference _lookAtTarget = CameraSnapshotActorReference.None();
         [SerializeField] private string _playerTag = "Player";
         [SerializeField] private bool _triggerOnce = true;
-        [SerializeField] private bool _useEnteringPlayerAsAnchor = false;
         [SerializeField] private bool _disableColliderAfterTrigger = false;
         [SerializeField] private UnityEvent _onSequenceStarted;
         [SerializeField] private UnityEvent _onSequenceCompleted;
@@ -38,27 +39,18 @@ namespace UPlayGround.CameraSystem
             if (_triggered && _triggerOnce) return;
             if (!other.CompareTag(_playerTag)) return;
 
-            Transform anchor = _actorAnchor;
-            if (_useEnteringPlayerAsAnchor || anchor == null)
-                anchor = other.transform;
-
-            Play(anchor);
+            Play();
         }
 
         public void Play()
-        {
-            Play(_actorAnchor);
-        }
-
-        public void Play(Transform actorAnchor)
         {
             if (_profile == null || CameraManager.Instance == null)
                 return;
 
             bool played = CameraManager.Instance.PushCameraSnapshotSequence(
                 _profile,
-                actorAnchor,
-                _lookAtTarget,
+                _overrideActorAnchor ? _actorAnchor : null,
+                _overrideLookAtTarget ? _lookAtTarget : null,
                 HandleSequenceCompleted);
 
             if (!played)
@@ -86,16 +78,22 @@ namespace UPlayGround.CameraSystem
 
         private void OnDrawGizmosSelected()
         {
-            if (_actorAnchor != null)
+            Transform actorAnchor = _overrideActorAnchor
+                ? CameraSnapshotActorReferenceResolver.Resolve(_actorAnchor)
+                : null;
+            if (actorAnchor != null)
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(transform.position, _actorAnchor.position);
+                Gizmos.DrawLine(transform.position, actorAnchor.position);
             }
 
-            if (_lookAtTarget != null)
+            Transform lookAtTarget = _overrideLookAtTarget
+                ? CameraSnapshotActorReferenceResolver.Resolve(_lookAtTarget)
+                : null;
+            if (lookAtTarget != null)
             {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(transform.position, _lookAtTarget.position);
+                Gizmos.DrawLine(transform.position, lookAtTarget.position);
             }
         }
 #endif

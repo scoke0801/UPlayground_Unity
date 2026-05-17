@@ -231,14 +231,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             EnsureAssetDirectory(outputAssetPath);
 
             var finalAssetName = Path.GetFileNameWithoutExtension(outputAssetPath);
-            var tempAssetPath = GetTempAssetPath(outputAssetPath);
             BehaviorTreeAsset tree = null;
+            var persistedOutputAsset = false;
 
             try
             {
                 tree = ScriptableObject.CreateInstance<BehaviorTreeAsset>();
                 tree.name = finalAssetName;
-                AssetDatabase.CreateAsset(tree, tempAssetPath);
 
                 var root = CreateNode<SelectorNode>(tree, "Root", new Vector2(0f, 0f));
                 root.Services.Add(CreateNode<SyncEnemyBlackboardService>(tree, "Sync Enemy Blackboard", new Vector2(-260f, -160f)));
@@ -258,17 +257,29 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 ApplyTopDownLayout(tree);
 
-                EditorUtility.SetDirty(tree);
-                foreach (var node in tree.Nodes)
-                    EditorUtility.SetDirty(node);
-
-                ReplaceAssetWithTemp(tempAssetPath, outputAssetPath);
+                PersistGeneratedAsset(tree, outputAssetPath);
+                persistedOutputAsset = true;
                 tree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) ?? tree;
             }
             catch
             {
-                if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(tempAssetPath) != null)
-                    AssetDatabase.DeleteAsset(tempAssetPath);
+                var treeAssetPath = tree != null ? AssetDatabase.GetAssetPath(tree) : null;
+                if ((persistedOutputAsset || treeAssetPath == outputAssetPath)
+                    && AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(outputAssetPath) != null)
+                {
+                    AssetDatabase.DeleteAsset(outputAssetPath);
+                }
+                else if (tree != null)
+                {
+                    for (var i = tree.Nodes.Count - 1; i >= 0; --i)
+                    {
+                        if (tree.Nodes[i] != null)
+                            UnityEngine.Object.DestroyImmediate(tree.Nodes[i]);
+                    }
+
+                    UnityEngine.Object.DestroyImmediate(tree);
+                }
+
                 throw;
             }
 
@@ -282,18 +293,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return tree;
         }
 
-        private static string GetTempAssetPath(string outputAssetPath)
-        {
-            var directory = Path.GetDirectoryName(outputAssetPath)?.Replace("\\", "/");
-            var fileName = Path.GetFileNameWithoutExtension(outputAssetPath);
-            var tempPath = string.IsNullOrEmpty(directory)
-                ? $".{fileName}_Importing.asset"
-                : $"{directory}/.{fileName}_Importing.asset";
-
-            return AssetDatabase.GenerateUniqueAssetPath(tempPath);
-        }
-
-        private static void ReplaceAssetWithTemp(string tempAssetPath, string outputAssetPath)
+        private static void PersistGeneratedAsset(BehaviorTreeAsset tree, string outputAssetPath)
         {
             if (AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) != null
                 && !AssetDatabase.DeleteAsset(outputAssetPath))
@@ -301,9 +301,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 throw new IOException($"기존 BehaviorTreeAsset을 삭제할 수 없습니다. {outputAssetPath}");
             }
 
-            var moveError = AssetDatabase.MoveAsset(tempAssetPath, outputAssetPath);
-            if (!string.IsNullOrEmpty(moveError))
-                throw new IOException($"임시 BehaviorTreeAsset을 결과 경로로 이동할 수 없습니다. {moveError}");
+            AssetDatabase.CreateAsset(tree, outputAssetPath);
+
+            foreach (var node in tree.Nodes)
+            {
+                if (node == null)
+                    continue;
+
+                AssetDatabase.AddObjectToAsset(node, tree);
+                EditorUtility.SetDirty(node);
+            }
+
+            EditorUtility.SetDirty(tree);
         }
 
         private static void ApplyTopDownLayout(BehaviorTreeAsset tree)
@@ -814,7 +823,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             node.DisplayName = displayName;
             node.EditorPosition = position;
             node.EnsureGuid();
-            AssetDatabase.AddObjectToAsset(node, tree);
             tree.Nodes.Add(node);
             return node;
         }

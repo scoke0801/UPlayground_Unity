@@ -33,7 +33,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public void Redraw()
         {
             Clear();
-            Add(new IMGUIContainer(DrawBlackboard));
+
+            var scroll = new ScrollView(ScrollViewMode.Vertical);
+            scroll.style.flexGrow = 1;
+            scroll.Add(new IMGUIContainer(DrawBlackboard));
+            Add(scroll);
         }
 
         private void DrawBlackboard()
@@ -49,6 +53,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var entries = blackboard.FindPropertyRelative("_entries");
 
             var runtimeBlackboard = ResolveRuntimeBlackboard();
+            DrawEntryToolbar(entries);
 
             for (var i = 0; i < entries.arraySize; i++)
             {
@@ -86,16 +91,93 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 EditorGUILayout.EndVertical();
             }
 
+            EditorGUILayout.Space(6f);
             if (GUILayout.Button("Key 추가"))
-            {
-                entries.InsertArrayElementAtIndex(entries.arraySize);
-                var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
-                entry.FindPropertyRelative("_key").stringValue = "NewKey";
-                entry.FindPropertyRelative("_valueType").enumValueIndex = (int)BlackboardValueType.Bool;
-            }
+                AddNewEntry(entries);
 
             _serializedTree.ApplyModifiedProperties();
             DrawRuntimeOnlyEntries(runtimeBlackboard, entries);
+        }
+
+        private void DrawEntryToolbar(SerializedProperty entries)
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            if (GUILayout.Button(new GUIContent("Key 추가", "새 Blackboard Key를 추가합니다."), EditorStyles.toolbarButton))
+                AddNewEntry(entries);
+
+            if (GUILayout.Button(new GUIContent("Enemy 기본 Key 보강", "몬스터 BT에서 자주 쓰는 기본 Blackboard Key 중 누락된 항목을 추가합니다."), EditorStyles.toolbarButton))
+                AddMissingEnemyDefaultEntries(entries);
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField($"{entries.arraySize} keys", EditorStyles.miniLabel, GUILayout.Width(54f));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(4f);
+        }
+
+        private static void AddNewEntry(SerializedProperty entries)
+        {
+            AddEntry(entries, "NewKey", BlackboardValueType.Bool);
+        }
+
+        private static void AddMissingEnemyDefaultEntries(SerializedProperty entries)
+        {
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.HasTarget, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.Target, BlackboardValueType.Object);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.DistanceToTarget, BlackboardValueType.Float, floatValue: float.MaxValue);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.CurrentState, BlackboardValueType.String);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.HpPercent, BlackboardValueType.Float, floatValue: 1f);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.CurrentPhaseName, BlackboardValueType.String);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.PhaseIndex, BlackboardValueType.Int, intValue: -1);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.AllowCharge, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.AllowFlank, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.MaxConsecutiveAttacks, BlackboardValueType.Int, intValue: 3);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.ContinueAttackChance, BlackboardValueType.Float, floatValue: 0.3f);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.GuardChance, BlackboardValueType.Float, floatValue: 0.25f);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.RetreatChance, BlackboardValueType.Float, floatValue: 0.2f);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerAttacking, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerGuarding, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerStaggered, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerRecovering, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerDodgingFrequently, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.CanUseSkill, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.HasAttackSlot, BlackboardValueType.Bool);
+            AddEntryIfMissing(entries, EnemyBlackboardKeys.NextActionAllowedTime, BlackboardValueType.Float);
+        }
+
+        private static void AddEntryIfMissing(
+            SerializedProperty entries,
+            string key,
+            BlackboardValueType type,
+            bool boolValue = false,
+            int intValue = 0,
+            float floatValue = 0f,
+            string stringValue = "")
+        {
+            if (HasAssetEntry(entries, key))
+                return;
+
+            AddEntry(entries, key, type, boolValue, intValue, floatValue, stringValue);
+        }
+
+        private static void AddEntry(
+            SerializedProperty entries,
+            string key,
+            BlackboardValueType type,
+            bool boolValue = false,
+            int intValue = 0,
+            float floatValue = 0f,
+            string stringValue = "")
+        {
+            entries.InsertArrayElementAtIndex(entries.arraySize);
+            var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
+            entry.FindPropertyRelative("_key").stringValue = key;
+            entry.FindPropertyRelative("_valueType").enumValueIndex = (int)type;
+            entry.FindPropertyRelative("_boolValue").boolValue = boolValue;
+            entry.FindPropertyRelative("_intValue").intValue = intValue;
+            entry.FindPropertyRelative("_floatValue").floatValue = floatValue;
+            entry.FindPropertyRelative("_stringValue").stringValue = stringValue;
+            entry.FindPropertyRelative("_vector3Value").vector3Value = Vector3.zero;
+            entry.FindPropertyRelative("_objectValue").objectReferenceValue = null;
         }
 
         private Blackboard ResolveRuntimeBlackboard()

@@ -1,6 +1,6 @@
 ---
 name: generate-bt-json
-description: UPlayGround 프로젝트의 BehaviorTreeAsset import용 BT(Behavior Tree) JSON을 생성한다. 사용자가 "BT 만들어줘", "Behavior Tree JSON", "BT json 짜줘", "적 AI 행동트리 만들어", "BT_xxx.json 생성", "근거리/원거리/비행 몬스터 BT 만들어", "보스 페이즈 BT" 등을 언급하거나, 새로운 적 AI 행동 패턴을 JSON으로 작성해야 할 때 반드시 이 스킬을 사용한다. 자연어로 받은 AI 요구사항(추격/공격/회피/순찰/페이즈 등)을 Composite/Decorator/Action/Condition/Service 노드 트리 구조로 변환하여 `BehaviorTreeJsonUtility.ImportFromJsonFile`이 그대로 읽을 수 있는 JSON 파일을 만든다. 기존 BT JSON 수정/확장에도 동일하게 사용한다.
+description: "UPlayGround 프로젝트 적 AI용 BT(Behavior Tree) JSON 파일을 새로 작성하거나 기존 것을 수정/확장한다. 다음 상황에서 반드시 이 스킬을 사용한다: (1) BT JSON 파일 생성 — '만들어줘', '짜줘', '작성해줘', '써줘', '생성해줘' 등의 동사와 'BT', 'bt', 'behavior tree', '행동트리', '행동 트리' 키워드가 함께 등장할 때. (2) 경로 명시 생성 — 'BT_xxx.json 만들어', 'Assets/.../Json/ 경로에 BT 저장해줘'. (3) AI 로직의 BT 변환 — '~로직을 BehaviorTree JSON으로 표현', '적 AI가 ~하는 behavior tree JSON'. (4) 기존 BT 수정 — '기존 BT에 분기 추가', 'BT_xxx.json에 ~조건 붙여줘'. 근거리/원거리/비행/보스/페이즈/쿨다운 등 모든 적 유형과 전투 패턴에 적용. 반대로 'BehaviorTreeAsset 연결 방법', 'Behavior Tree 에디터 오류', 'EnemyBrain 디버깅' 등 JSON 파일 생성이 아닌 설명·디버깅·에디터 조작 요청에는 이 스킬을 사용하지 않는다."
 ---
 
 # Generate BT JSON

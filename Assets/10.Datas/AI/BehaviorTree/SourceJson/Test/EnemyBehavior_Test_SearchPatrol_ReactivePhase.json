@@ -12,7 +12,7 @@
         "personalSpaceDistance": 0.85,
         "guardChance": 0.28,
         "retreatChance": 0.18,
-        "circleWeight": 1.1,
+        "circleWeight": 0.35,
         "aggression": 0.55,
         "reactionChance": 0.45,
         "counterChance": 0.22,
@@ -87,8 +87,8 @@
                     "select": "WeightedRandom",
                     "choices": [
                         { "weightKey": "revengeChance", "action": "Transition", "state": "Counter" },
-                        { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
-                        { "weight": 0.20, "action": "Transition", "state": "Circle" }
+                        { "weight": 0.16, "action": "Transition", "state": "Guard", "cooldownId": "ReactiveGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "Transition", "state": "Flank" }
                     ]
                 },
                 {
@@ -103,7 +103,7 @@
                     "choices": [
                         { "weightKey": "dodgeChance", "action": "Transition", "state": "Dodge" },
                         { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
-                        { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" }
+                        { "weight": 0.12, "action": "Transition", "state": "Guard", "cooldownId": "ReactiveGuard", "cooldownDuration": 2.8 }
                     ]
                 }
             ]
@@ -123,13 +123,14 @@
                     ],
                     "select": "WeightedRandom",
                     "choices": [
-                        { "weight": 0.35, "action": "Transition", "state": "Guard" },
-                        { "weight": 0.45, "action": "Transition", "state": "Dodge" },
-                        { "weight": 0.20, "action": "Transition", "state": "Retreat" }
+                        { "weight": 0.20, "action": "Transition", "state": "Guard", "cooldownId": "ReadGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.50, "action": "Transition", "state": "Dodge" },
+                        { "weight": 0.20, "action": "Transition", "state": "Retreat" },
+                        { "weight": 0.10, "action": "Transition", "state": "Counter" }
                     ]
                 },
                 {
-                    "name": "Phase1SkillPressure",
+                    "name": "Phase1PressureBeat",
                     "priority": 860,
                     "when": [
                         { "condition": "HasTarget" },
@@ -138,9 +139,12 @@
                         { "condition": "DistanceLessOrEqual", "value": "3.4" },
                         { "condition": "CanUseSkill" }
                     ],
-                    "do": [
-                        { "action": "RequestAttackSlot" },
-                        { "action": "ExecuteAttack" }
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.45, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.24, "action": "Transition", "state": "Flank", "cooldownId": "PressureReposition", "cooldownDuration": 1.8 },
+                        { "weight": 0.12, "action": "Transition", "state": "Circle", "cooldownId": "PressureReposition", "cooldownDuration": 1.8 },
+                        { "weight": 0.10, "action": "Transition", "state": "Guard", "cooldownId": "PressureGuard", "cooldownDuration": 2.8 }
                     ]
                 },
                 {
@@ -164,6 +168,24 @@
             "priority": 800,
             "rules": [
                 {
+                    "name": "ComboResetJumpBack",
+                    "priority": 835,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "2" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CooldownReady", "value": "ComboReset" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.48, "action": "Transition", "state": "JumpBack", "cooldownId": "ComboReset", "cooldownDuration": 3.2 },
+                        { "weight": 0.12, "action": "Transition", "state": "Guard", "cooldownId": "ComboReset", "cooldownDuration": 2.8 },
+                        { "weight": 0.18, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.10, "action": "Transition", "state": "Counter", "cooldownId": "ComboReset", "cooldownDuration": 2.4 }
+                    ]
+                },
+                {
                     "name": "ReactGuardOrDodgeWhenTargetAttacks",
                     "priority": 840,
                     "when": [
@@ -173,14 +195,66 @@
                     ],
                     "select": "WeightedRandom",
                     "choices": [
-                        { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
-                        { "weight": 0.32, "action": "Transition", "state": "Dodge" },
+                        { "weight": 0.18, "action": "Transition", "state": "Guard", "cooldownId": "ReadGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.38, "action": "Transition", "state": "Dodge" },
                         { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
-                        { "weight": 0.16, "action": "Transition", "state": "Circle" }
+                        { "weight": 0.20, "action": "Transition", "state": "Counter" }
                     ]
                 },
                 {
-                    "name": "AttackRollBasicHeavySkill",
+                    "name": "CloseRangeFootwork",
+                    "priority": 805,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "minCombatDistance" },
+                        { "condition": "CooldownReady", "value": "CloseFootwork" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.16, "action": "Transition", "state": "Circle", "cooldownId": "CloseFootwork", "cooldownDuration": 2.2 },
+                        { "weight": 0.30, "action": "Transition", "state": "Flank", "cooldownId": "CloseFootwork", "cooldownDuration": 2.2 },
+                        { "weight": 0.14, "action": "Transition", "state": "Guard", "cooldownId": "CloseGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "Transition", "state": "Counter", "cooldownId": "CloseFootwork", "cooldownDuration": 2.2 }
+                    ]
+                },
+                {
+                    "name": "RetreatFromPointBlank",
+                    "priority": 790,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" },
+                        { "condition": "CooldownReady", "value": "CloseRetreat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.36, "action": "Transition", "state": "JumpBack", "cooldownId": "CloseRetreat", "cooldownDuration": 2.6 },
+                        { "weight": 0.20, "action": "Transition", "state": "Retreat", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 },
+                        { "weight": 0.30, "action": "Transition", "state": "Dodge", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 },
+                        { "weight": 0.20, "action": "Transition", "state": "Flank", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 },
+                        { "weight": 0.08, "action": "Transition", "state": "Guard", "cooldownId": "CloseGuard", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "OpeningComboPressure",
+                    "priority": 775,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountLessThan", "value": "2" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.58, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.24, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.10, "action": "Transition", "state": "Counter", "cooldownId": "PressureReposition", "cooldownDuration": 1.2 },
+                        { "weight": 0.04, "action": "Transition", "state": "Guard", "cooldownId": "PressureGuard", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "CombatBeatAttackOrReposition",
                     "priority": 760,
                     "when": [
                         { "condition": "HasTarget" },
@@ -190,20 +264,12 @@
                     ],
                     "select": "WeightedRandom",
                     "choices": [
-                        { "weight": 0.55, "action": "ExecuteAttack", "attackCategory": "Basic" },
-                        { "weight": 0.30, "action": "ExecuteAttack", "attackCategory": "Heavy" },
-                        { "weight": 0.15, "action": "ExecuteAttack", "attackCategory": "Skill" }
-                    ]
-                },
-                {
-                    "name": "RetreatFromPointBlank",
-                    "priority": 700,
-                    "when": [
-                        { "condition": "HasTarget" },
-                        { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" }
-                    ],
-                    "do": [
-                        { "action": "Transition", "state": "Retreat" }
+                        { "weight": 0.36, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.24, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.08, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.08, "action": "Transition", "state": "Circle", "cooldownId": "PressureReposition", "cooldownDuration": 1.8 },
+                        { "weight": 0.10, "action": "Transition", "state": "Flank", "cooldownId": "PressureReposition", "cooldownDuration": 1.8 },
+                        { "weight": 0.08, "action": "Transition", "state": "Guard", "cooldownId": "PressureGuard", "cooldownDuration": 2.8 }
                     ]
                 }
             ]
@@ -224,17 +290,19 @@
                     ]
                 },
                 {
-                    "name": "TargetOrbitAndSpacing",
+                    "name": "CooldownHoldOrShortReposition",
                     "priority": 220,
                     "when": [
-                        { "condition": "HasTarget" }
+                        { "condition": "HasTarget" },
+                        { "condition": "CooldownReady", "value": "SpacingBeat" }
                     ],
                     "select": "WeightedRandom",
                     "choices": [
-                        { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
-                        { "weight": 0.40, "action": "Transition", "state": "Flank" },
-                        { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
-                        { "weightKey": "guardChance", "action": "Transition", "state": "Guard" }
+                        { "weight": 0.12, "action": "Transition", "state": "Guard", "cooldownId": "SpacingGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.36, "action": "Transition", "state": "Flank", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.22, "action": "Transition", "state": "Chase", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.12, "action": "Transition", "state": "Circle", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.06, "action": "Transition", "state": "Retreat", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 }
                     ]
                 }
             ]

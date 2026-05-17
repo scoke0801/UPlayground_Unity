@@ -93,6 +93,9 @@ namespace UPlayGround.State
                 _combat.IsGuarding = false;
             }
 
+            // Guard 모션의 InfiniteLoop(유지 구간) 해제 → 다음 모션으로 진행 허용
+            playerActor.Animator.BreakAllInfiniteLoops();
+
             base.OnExit(toState);
         }
         

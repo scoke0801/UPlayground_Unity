@@ -108,7 +108,15 @@
       "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json-workspace\")",
       "Bash(python validate_bt_json.py \"C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json/references/example.json\")",
       "Bash(python -c \"import webbrowser; print\\('webbrowser ok'\\)\")",
-      "Skill(skill-creator:skill-creator)"
+      "Skill(skill-creator:skill-creator)",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\scoke\\\\AppData\\\\Local\\\\Temp\\\\eval_review_generate-bt-json.html\")",
+      "PowerShell(pip install *)",
+      "PowerShell(python -c \"import anthropic; print\\('OK', anthropic.__version__\\)\")",
+      "PowerShell(if \\($env:ANTHROPIC_API_KEY\\) { Write-Output \"API key found \\(length: $\\($env:ANTHROPIC_API_KEY.Length\\)\\)\" } else { Write-Output \"ANTHROPIC_API_KEY not set\" })",
+      "PowerShell(python -m scripts.package_skill $skillPath --output $outDir 2>&1)",
+      "PowerShell($skillCreatorPath = \"C:\\\\Users\\\\scoke\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\skill-creator\\\\unknown\\\\skills\\\\skill-creator\")",
+      "PowerShell($skillPath = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json\")",
+      "PowerShell($outDir = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json-workspace\")"
     ]
   }
 }

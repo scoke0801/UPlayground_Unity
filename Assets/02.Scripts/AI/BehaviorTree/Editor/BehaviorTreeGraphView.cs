@@ -181,7 +181,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             ClearSelection();
             AddToSelection(nodeView);
-            FrameSelection();
+            CenterOnNodeView(nodeView);
             _window.SelectNode(node);
         }
 
@@ -1139,6 +1139,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 0f);
 
             UpdateViewTransform(position, scale);
+        }
+
+        private void CenterOnNodeView(BehaviorTreeNodeView nodeView)
+        {
+            var rect = nodeView.GetPosition();
+            CenterOnContentPosition(rect.center);
+
+            nodeView.BringToFront();
+            nodeView.Focus();
+            nodeView.MarkDirtyRepaint();
+
+            schedule.Execute(() =>
+            {
+                if (nodeView.panel == null)
+                    return;
+
+                ClearSelection();
+                AddToSelection(nodeView);
+                CenterOnContentPosition(nodeView.GetPosition().center);
+            }).ExecuteLater(1);
         }
 
         public void ZoomAroundContentPosition(Vector2 contentPosition, float wheelDelta)

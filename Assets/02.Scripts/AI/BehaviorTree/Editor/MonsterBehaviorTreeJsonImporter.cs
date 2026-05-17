@@ -86,6 +86,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string action;
         public string state;
         public string attackCategory;
+        public string cooldownId;
+        public float cooldownDuration;
         public float duration;
     }
 
@@ -97,6 +99,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string action;
         public string state;
         public string attackCategory;
+        public string cooldownId;
+        public float cooldownDuration;
     }
 
     public static class MonsterBehaviorTreeJsonImporter
@@ -104,9 +108,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const int SupportedSchemaVersion = 1;
         private const string SourceRoot = "Assets/10.Datas/AI/BehaviorTree/SourceJson";
         private const string GeneratedRoot = "Assets/10.Datas/AI/BehaviorTree/Generated";
-        private const float LayoutHorizontalSpacing = 300f;
-        private const float LayoutVerticalSpacing = 170f;
-        private const float LayoutServiceSpacing = 110f;
+        private const float LayoutHorizontalSpacing = 390f;
+        private const float LayoutVerticalSpacing = 270f;
+        private const float LayoutServiceSpacing = 130f;
+        private const float LayoutRootMarginX = 140f;
+        private const float LayoutRootMarginY = 120f;
+        private const float LayoutServiceOffsetX = 340f;
 
         [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json")]
         public static void ImportSelectedJson()
@@ -142,6 +149,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public static bool CanImportSelectedProjectJsons()
         {
             return GetSelectedJsonAssetPaths().Count > 0;
+        }
+
+        [MenuItem("Assets/UPlayGround/AI/Import Monster Behavior Json To BT", false, 2200)]
+        public static void ImportSelectedProjectJsonsFromAssetMenu()
+        {
+            ImportSelectedProjectJsons();
+        }
+
+        [MenuItem("Assets/UPlayGround/AI/Import Monster Behavior Json To BT", true)]
+        public static bool CanImportSelectedProjectJsonsFromAssetMenu()
+        {
+            return CanImportSelectedProjectJsons();
         }
 
         [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import All SourceJson")]
@@ -337,6 +356,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             LayoutTreeTopDown(tree.RootNode, 0f, 0f, new HashSet<BTNode>());
             LayoutServices(tree);
+            NormalizeLayout(tree);
         }
 
         private static void AddJsonDefinedChildren(
@@ -443,10 +463,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 for (var i = 0; i < services.Count; i++)
                 {
                     services[i].EditorPosition = composite.EditorPosition + new Vector2(
-                        -LayoutHorizontalSpacing,
+                        -LayoutServiceOffsetX,
                         startOffset + i * LayoutServiceSpacing);
                 }
             }
+        }
+
+        private static void NormalizeLayout(BehaviorTreeAsset tree)
+        {
+            var layoutNodes = tree.Nodes
+                .Where(node => node != null)
+                .ToList();
+            if (layoutNodes.Count == 0)
+                return;
+
+            var minX = layoutNodes.Min(node => node.EditorPosition.x);
+            var minY = layoutNodes.Min(node => node.EditorPosition.y);
+            var offset = new Vector2(LayoutRootMarginX - minX, LayoutRootMarginY - minY);
+
+            foreach (var node in layoutNodes)
+                node.EditorPosition += offset;
         }
 
         private static List<string> GetSelectedJsonAssetPaths()
@@ -550,6 +586,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 or "IsSelfLowHealth" or "HasAttackSlot" or "CooldownReady" or "RecentlyHitByPlayer"
                 or "WasLastHitHeavy" or "IsPoiseBroken" or "RecentHitCountGreaterOrEqual"
                 or "CanIgnoreLightHit" or "CanRevengeAfterHit"
+                or "ConsecutiveAttackCountLessThan" or "ConsecutiveAttackCountGreaterOrEqual"
                 // ── 비행 전용 ──
                 or "IsCurrentState" or "IsFlyingAirState" or "IsFlyingGroundCombatState"
                 or "IsAirAttackLimitReached" or "ShouldFlyingTakeOff" or "FlyingCanUseSkill"
@@ -616,7 +653,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             foreach (var condition in rule.when ?? new List<MonsterBehaviorConditionJson>())
             {
-                var conditionNode = CreateConditionNode(tree, condition, sourceBehavior, index);
+                var conditionNode = CreateConditionNode(tree, condition, sourceBehavior, blackboard, index);
                 if (conditionNode != null)
                     sequence.Children.Add(conditionNode);
             }
@@ -654,6 +691,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             BehaviorTreeAsset tree,
             MonsterBehaviorConditionJson condition,
             EnemyBehaviorSO sourceBehavior,
+            MonsterBehaviorBlackboardJson blackboard,
             int row)
         {
             BTNode node = condition.condition switch
@@ -661,8 +699,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "HasTarget" => CreateHasTargetNode(tree, !condition.invert, row),
                 "IsBlockedEnemyState" => CreateNode<IsBlockedEnemyStateNode>(tree, "Is Blocked Enemy State", new Vector2(520f, row * 180f)),
                 "IsEnemyPhase" => CreateEnemyPhaseNode(tree, condition.value, row),
-                "DistanceLessOrEqual" => CreateRangeNode(tree, FloatComparisonType.LessOrEqual, condition.value, sourceBehavior, row),
-                "DistanceGreater" => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, sourceBehavior, row),
+                "DistanceLessOrEqual" => CreateRangeNode(tree, FloatComparisonType.LessOrEqual, condition.value, sourceBehavior, blackboard, row),
+                "DistanceGreater" => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, sourceBehavior, blackboard, row),
                 "ActionDelayElapsed" => CreateNode<HasEnemyActionDelayElapsedNode>(tree, "Action Delay Elapsed", new Vector2(520f, row * 180f)),
                 "CanUseSkill" => CreateNode<CanUseEnemySkillNode>(tree, "Can Use Enemy Skill", new Vector2(520f, row * 180f)),
                 "IsPlayerAttacking" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerAttacking, !condition.invert, row),
@@ -677,6 +715,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "WasLastHitHeavy" => CreateNode<WasLastHitHeavyNode>(tree, "WasLastHitHeavy", new Vector2(520f, row * 180f)),
                 "IsPoiseBroken" => CreateNode<IsPoiseBrokenNode>(tree, "IsPoiseBroken", new Vector2(520f, row * 180f)),
                 "RecentHitCountGreaterOrEqual" => CreateRecentHitCountNode(tree, condition.value, row),
+                "ConsecutiveAttackCountLessThan" => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.LessThan, row),
+                "ConsecutiveAttackCountGreaterOrEqual" => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.GreaterOrEqual, row),
                 "CanIgnoreLightHit" => CreateNode<CanIgnoreLightHitNode>(tree, "CanIgnoreLightHit", new Vector2(520f, row * 180f)),
                 "CanRevengeAfterHit" => CreateRevengeAfterHitNode(tree, condition.value, row),
                 // ── 비행 전용 ──
@@ -705,7 +745,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             {
                 "KeepCurrentState" => CreateNode<KeepCurrentStateNode>(tree, "Keep Current State", new Vector2(820f, row * 180f)),
                 "PatrolOrIdle" => CreatePatrolOrIdleNode(tree, row),
-                "Transition" => CreateTransitionNode(tree, action.state, row),
+                "Transition" => CreateTransitionNode(tree, action.state, row, action.cooldownId, action.cooldownDuration),
                 "RequestAttackSlot" => CreateNode<RequestEnemyAttackSlotNode>(tree, "Request Attack Slot", new Vector2(820f, row * 180f)),
                 "ExecuteAttack" => CreateExecuteAttackNode(tree, action.attackCategory, row),
                 "Wait" => CreateWaitNode(tree, action.duration, row),
@@ -725,7 +765,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             return CreateActionNode(
                 tree,
-                new MonsterBehaviorActionJson { action = choice.action, state = choice.state, attackCategory = choice.attackCategory },
+                new MonsterBehaviorActionJson
+                {
+                    action = choice.action,
+                    state = choice.state,
+                    attackCategory = choice.attackCategory,
+                    cooldownId = choice.cooldownId,
+                    cooldownDuration = choice.cooldownDuration
+                },
                 row + column);
         }
 
@@ -749,15 +796,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             FloatComparisonType comparison,
             string value,
             EnemyBehaviorSO sourceBehavior,
+            MonsterBehaviorBlackboardJson blackboard,
             int row)
         {
             var node = CreateNode<IsTargetInRangeNode>(tree, comparison.ToString(), new Vector2(520f, row * 180f));
             node.Comparison = comparison;
-            var resolved = ResolveFloat(value, sourceBehavior, 0f);
+            var resolved = ResolveFloat(value, sourceBehavior, blackboard, 0f);
             if (comparison == FloatComparisonType.LessOrEqual)
                 node.MaxDistance = resolved;
             else
+            {
                 node.MinDistance = resolved;
+                node.MaxDistance = float.MaxValue;
+            }
 
             return node;
         }
@@ -770,10 +821,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return node;
         }
 
-        private static TransitionEnemyStateNode CreateTransitionNode(BehaviorTreeAsset tree, string state, int row)
+        private static TransitionEnemyStateNode CreateTransitionNode(BehaviorTreeAsset tree, string state, int row, string cooldownId = null, float cooldownDuration = 0f)
         {
             var node = CreateNode<TransitionEnemyStateNode>(tree, "Transition " + state, new Vector2(820f, row * 180f));
             node.TargetState = Enum.Parse<EnemyTransitionStateType>(state);
+            node.CooldownId = cooldownId;
+            node.CooldownDuration = cooldownDuration;
             return node;
         }
 
@@ -846,6 +899,21 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static RecentHitCountGreaterOrEqualNode CreateRecentHitCountNode(BehaviorTreeAsset tree, string value, int row)
         {
             var node = CreateNode<RecentHitCountGreaterOrEqualNode>(tree, "RecentHitCountGreaterOrEqual", new Vector2(520f, row * 180f));
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threshold))
+                node.Threshold = threshold;
+            return node;
+        }
+
+        private static ConsecutiveAttackCountNode CreateConsecutiveAttackCountNode(
+            BehaviorTreeAsset tree,
+            string value,
+            IntComparisonType comparison,
+            int row)
+        {
+            var node = CreateNode<ConsecutiveAttackCountNode>(tree, comparison == IntComparisonType.LessThan
+                ? "ConsecutiveAttackCountLessThan"
+                : "ConsecutiveAttackCountGreaterOrEqual", new Vector2(520f, row * 180f));
+            node.Comparison = comparison;
             if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threshold))
                 node.Threshold = threshold;
             return node;

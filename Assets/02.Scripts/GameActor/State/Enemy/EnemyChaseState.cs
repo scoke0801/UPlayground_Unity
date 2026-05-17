@@ -18,6 +18,15 @@ namespace UPlayGround.State
         private float _chaseSpeed;
         private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
         private AnimKey _lastLocoKey = AnimKey.None;
+        private Collider[] _selfColliders;
+        private Collider[] _targetColliders;
+        private Transform _cachedTarget;
+        private float _targetContactTimer;
+        private bool _hasTargetContact;
+        private float _nextContactCheckTime;
+
+        private const float TARGET_CONTACT_BREAK_TIME = 0.08f;
+        private const float TARGET_CONTACT_CHECK_INTERVAL = 0.05f;
         
         public EnemyChaseState(ActorMovementController controller, EnemyAIContext context, EnemyDetection detection) : base(controller)
         {
@@ -36,8 +45,12 @@ namespace UPlayGround.State
 
             _chaseSpeed = controller.MaxRunMoveSpeed * _context.ChaseSpeedMultiplier;
             _strafeSign = Random.value > 0.5f ? 1f : -1f;
-            _lastLocoKey = AnimKey.Run;
-            gameActor.Animator.PlayMotion(AnimKey.Run, 0.25f);
+            _lastLocoKey = AnimKey.None;
+            _targetContactTimer = 0f;
+            _hasTargetContact = false;
+            _nextContactCheckTime = 0f;
+            CacheContactColliders();
+            UpdateChaseAnimation(0.25f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -53,8 +66,18 @@ namespace UPlayGround.State
                 return;
             }
 
-            EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
-                EnemyLocomotionHelper.LocoStyle.Run);
+            if (ShouldBreakTargetContact(deltaTime))
+            {
+                controller.TransitionToState(
+                    new EnemyJumpBackState(
+                        controller,
+                        _context,
+                        _detection,
+                        gameActor.GetComponent<EnemyTacticalMemory>()));
+                return;
+            }
+
+            UpdateChaseAnimation();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -82,6 +105,7 @@ namespace UPlayGround.State
         {
             if (!_detection.HasTarget)
             {
+                _hasTargetContact = false;
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
                     Vector3.zero,
@@ -89,12 +113,22 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (_hasTargetContact)
+            {
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity,
+                    Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * 2f * deltaTime));
+                return;
+            }
+
             Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
             toTarget.y       = 0;
             float dist       = toTarget.magnitude;
 
-            // chaseStopDistance 이하면 제자리 정지 — Brain의 행동 결정 대기
-            if (dist <= _context.ChaseStopDistance)
+            // 전투 최소 거리 안에서는 절대 계속 밀고 들어가지 않는다.
+            float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
+            if (dist <= stopDistance)
             {
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
@@ -132,6 +166,143 @@ namespace UPlayGround.State
                 currentVelocity,
                 targetVelocity,
                 1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+        }
+
+        public override void OnMovementHit(
+            Collider hitCollider,
+            Vector3 hitNormal,
+            Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (!_detection.HasTarget || !IsTargetCollider(hitCollider))
+                return;
+
+            _hasTargetContact = true;
+            controller.TransitionToState(
+                new EnemyJumpBackState(
+                    controller,
+                    _context,
+                    _detection,
+                    gameActor.GetComponent<EnemyTacticalMemory>()));
+        }
+
+        private bool ShouldBreakTargetContact(float deltaTime)
+        {
+            if (Time.time >= _nextContactCheckTime)
+            {
+                _nextContactCheckTime = Time.time + TARGET_CONTACT_CHECK_INTERVAL;
+                _hasTargetContact = IsTouchingTargetCollider();
+            }
+
+            if (_hasTargetContact)
+            {
+                _targetContactTimer += deltaTime;
+                return _targetContactTimer >= TARGET_CONTACT_BREAK_TIME;
+            }
+
+            _targetContactTimer = 0f;
+            return false;
+        }
+
+        private void CacheContactColliders()
+        {
+            _selfColliders = gameActor.GetComponentsInChildren<Collider>();
+            _cachedTarget = _detection.CurrentTarget;
+            _targetColliders = _detection.CurrentTarget != null
+                ? _detection.CurrentTarget.GetComponentsInChildren<Collider>()
+                : null;
+        }
+
+        private bool IsTouchingTargetCollider()
+        {
+            if (_detection.CurrentTarget == null)
+                return false;
+
+            if (_cachedTarget != _detection.CurrentTarget || _targetColliders == null || _targetColliders.Length == 0)
+                CacheContactColliders();
+
+            if (_selfColliders == null || _targetColliders == null)
+                return false;
+
+            for (int i = 0; i < _selfColliders.Length; i++)
+            {
+                var self = _selfColliders[i];
+                if (!IsUsableCollider(self))
+                    continue;
+
+                for (int j = 0; j < _targetColliders.Length; j++)
+                {
+                    var target = _targetColliders[j];
+                    if (!IsUsableCollider(target))
+                        continue;
+
+                    if (Physics.ComputePenetration(
+                            self,
+                            self.transform.position,
+                            self.transform.rotation,
+                            target,
+                            target.transform.position,
+                            target.transform.rotation,
+                            out _,
+                            out _))
+                    {
+                        return true;
+                    }
+
+                    if ((self.ClosestPoint(target.bounds.center) - target.ClosestPoint(self.bounds.center)).sqrMagnitude <= 0.0025f)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsUsableCollider(Collider collider)
+        {
+            return collider != null && collider.enabled && !collider.isTrigger;
+        }
+
+        private bool IsTargetCollider(Collider hitCollider)
+        {
+            if (hitCollider == null || _detection.CurrentTarget == null)
+                return false;
+
+            return hitCollider.transform == _detection.CurrentTarget
+                   || hitCollider.transform.IsChildOf(_detection.CurrentTarget)
+                   || _detection.CurrentTarget.IsChildOf(hitCollider.transform);
+        }
+
+        private void UpdateChaseAnimation(float crossfade = 0.15f)
+        {
+            if (_hasTargetContact || IsWithinStopDistance())
+            {
+                if (_lastLocoKey != AnimKey.Idle)
+                {
+                    gameActor.Animator.PlayMotion(AnimKey.Idle, crossfade);
+                    _lastLocoKey = AnimKey.Idle;
+                }
+                return;
+            }
+
+            EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
+                EnemyLocomotionHelper.LocoStyle.Run, crossfade);
+
+            if (_lastLocoKey == AnimKey.None)
+            {
+                gameActor.Animator.PlayMotion(AnimKey.Run, crossfade);
+                _lastLocoKey = AnimKey.Run;
+            }
+        }
+
+        private bool IsWithinStopDistance()
+        {
+            if (!_detection.HasTarget)
+                return false;
+
+            Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+            toTarget.y = 0f;
+            float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
+            return toTarget.sqrMagnitude <= stopDistance * stopDistance;
         }
     }
 }

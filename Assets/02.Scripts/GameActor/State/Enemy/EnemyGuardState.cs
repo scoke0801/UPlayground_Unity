@@ -46,6 +46,8 @@ namespace UPlayGround.State
                 _memory = gameActor.GetComponent<UPlayGround.Component.EnemyTacticalMemory>();
                 if (_combat != null)
                     _combat.IsGuarding = true;
+
+                _memory?.NotifyGuardStarted();
             }
             
             _guardTimer = 0f;

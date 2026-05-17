@@ -1,0 +1,82 @@
+[
+  {
+    "query": "슬라임 지상 근접 적 BT JSON 만들어줘. 추격하다가 사거리 1.5m 이내 들어오면 공격, 0.5m 이내면 후퇴",
+    "should_trigger": true
+  },
+  {
+    "query": "BT_BossGoblin.json 짜줘 - 페이즈 0(HP 100~50%)에서 일반 공격 패턴, 페이즈 1(HP 50~0%)에서 차지+플랭크 공격 허용",
+    "should_trigger": true
+  },
+  {
+    "query": "원거리 몬스터 AI 행동 트리 작성해줘. 공격 범위 5~8m, 공격 쿨다운 3초, 1.5m 이내면 후퇴",
+    "should_trigger": true
+  },
+  {
+    "query": "기존 BT_EnemyGroundBasic_Test.json에 guard 분기 추가해줘 — HP 50% 이하 상태에서 공격받으면 Guard State 시도",
+    "should_trigger": true
+  },
+  {
+    "query": "flying enemy BT json 필요해. 공중 서클링하다가 다이브 공격, 지상 착지 후 근접 전투로 전환",
+    "should_trigger": true
+  },
+  {
+    "query": "적 AI가 타겟이 있으면 공격하고 없으면 순찰하는 behavior tree JSON 써줘",
+    "should_trigger": true
+  },
+  {
+    "query": "Assets/10.Datas/AI/BehaviorTree/Json/ 경로에 BT_SpiderMinion.json 생성해줘 - 근접 공격 기본, 독 스킬은 쿨다운 5초",
+    "should_trigger": true
+  },
+  {
+    "query": "EnemyBehavior SO에서 페이즈 전환 로직을 BehaviorTree JSON으로 표현하고 싶어. HP 70/40/10% 구간마다 다른 공격 패턴",
+    "should_trigger": true
+  },
+  {
+    "query": "보스 2페이즈 BT 만들어줘. 1페이즈는 chase → attack, 2페이즈는 charge 추가해서 더 공격적으로",
+    "should_trigger": true
+  },
+  {
+    "query": "bt json 짜줘. 적 2m 이내면 공격, 너무 가까우면 후퇴, 멀어지면 추격, 타겟 없으면 idle",
+    "should_trigger": true
+  },
+  {
+    "query": "EnemyBrain.cs의 HasTarget 체크 로직 디버깅 도와줘. EnemyDetection이 null 반환하는 것 같아",
+    "should_trigger": false
+  },
+  {
+    "query": "BehaviorTreeAsset 새로 만들어서 ScriptableObject 에디터에서 연결하는 방법 알려줘",
+    "should_trigger": false
+  },
+  {
+    "query": "MonsterActor 상태 머신 구조 전체를 설명해줘. EnemyActorState 클래스 계층을 이해하고 싶어",
+    "should_trigger": false
+  },
+  {
+    "query": "EnemyDetection.cs에서 시야각 감지 로직이 왜 안 작동하는지 확인해줘",
+    "should_trigger": false
+  },
+  {
+    "query": "UIManager에서 보스 HP 게이지 UI 만들어줘",
+    "should_trigger": false
+  },
+  {
+    "query": "EnemyStatsSO에 새 float 필드 _chargeCooldown 추가하는 법 알려줘",
+    "should_trigger": false
+  },
+  {
+    "query": "PlayerActorState에서 공격 입력 처리 부분 찾아줘. PlayerCombat.cs 쪽인 것 같아",
+    "should_trigger": false
+  },
+  {
+    "query": "Behavior Tree 에디터에서 SequenceNode 자식이 연결이 안 됨. 왜 그런지 봐줘",
+    "should_trigger": false
+  },
+  {
+    "query": "EnemyBrain이 MonsterActor에 붙어 있는데 이게 EnemyMovementController랑 어떻게 연결되는지 설명해줘",
+    "should_trigger": false
+  },
+  {
+    "query": "Addressables에서 BehaviorTreeAsset을 런타임에 로드하는 코드 짜줘. AssetManager 통해서",
+    "should_trigger": false
+  }
+]

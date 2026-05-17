@@ -20,6 +20,8 @@ namespace UPlayGround.Component
         public float LastBlockTime     { get; private set; } = -999f;
         public float LastAttackTime    { get; private set; } = -999f;
         public float LastRetreatTime   { get; private set; } = -999f;
+        public float LastGuardStartTime { get; private set; } = -999f;
+        public int ConsecutiveGuardCount { get; private set; }
 
         // ── 피격 반응 기억 ──
         public AttackReactionType LastHitReactionType { get; private set; } = AttackReactionType.None;
@@ -165,6 +167,7 @@ namespace UPlayGround.Component
         public void NotifyAttackLanded()
         {
             ConsecutiveAttackCount++;
+            ConsecutiveGuardCount = 0;
             TotalHitsLanded++;
             LastAttackTime = Time.time;
             LastCombatActionTime = Time.time;
@@ -172,6 +175,7 @@ namespace UPlayGround.Component
 
         public void NotifyAttackMissed()
         {
+            ConsecutiveGuardCount = 0;
             _playerDodgeCount++;
             _dodgeWindowTimer = 0f;
             TotalHitsMissed++;
@@ -185,6 +189,7 @@ namespace UPlayGround.Component
             _lastHitCountRefreshTime = Time.time;
             RecentHitCount++;
             ConsecutiveAttackCount = 0;
+            ConsecutiveGuardCount = 0;
         }
 
         public void NotifyTookDamage(AttackData attackData, bool poiseBroken)
@@ -202,6 +207,14 @@ namespace UPlayGround.Component
             LastCombatActionTime = Time.time;
         }
 
+        public void NotifyGuardStarted()
+        {
+            LastGuardStartTime = Time.time;
+            LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount++;
+            ConsecutiveAttackCount = 0;
+        }
+
         public void NotifyPlayerGuarded()
         {
             _playerGuardCount++;
@@ -212,11 +225,13 @@ namespace UPlayGround.Component
         {
             LastRetreatTime = Time.time;
             LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount = 0;
         }
 
         public void NotifyCombatAction()
         {
             LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount = 0;
         }
 
         public void ResetAttackCount() => ConsecutiveAttackCount = 0;
@@ -269,6 +284,14 @@ namespace UPlayGround.Component
 
         public bool DidBlockRecently(float blockWindow = 1.5f)
             => Time.time - LastBlockTime < blockWindow;
+
+        public bool CanStartGuard(float cooldown = 2.2f, int maxConsecutive = 1)
+        {
+            if (ConsecutiveGuardCount >= maxConsecutive)
+                return false;
+
+            return Time.time - LastGuardStartTime >= cooldown;
+        }
 
         public bool IsPlayerDodgingFrequently(int threshold = 2)
             => _playerDodgeCount >= threshold;

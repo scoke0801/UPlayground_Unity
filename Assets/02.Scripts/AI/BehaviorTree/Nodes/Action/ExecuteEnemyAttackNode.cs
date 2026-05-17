@@ -10,6 +10,8 @@ namespace UPlayGround.AI.BehaviorTree
     {
         [SerializeField] private EnemyAttackCategory _attackCategory = EnemyAttackCategory.None;
 
+        private bool _attackStarted;
+
         public EnemyAttackCategory AttackCategory
         {
             get => _attackCategory;
@@ -22,11 +24,17 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (controller.CurrentState?.StateName == "Attack")
-                return BTStatus.Running;
-
             if (controller.CurrentState?.StateName is "Death" or "Hit" or "Grabbed" or "Airborne")
                 return BTStatus.Failure;
+
+            if (controller.CurrentState?.StateName == "Attack")
+            {
+                _attackStarted = true;
+                return BTStatus.Running;
+            }
+
+            if (_attackStarted)
+                return BTStatus.Success;
 
             var combat = Context.GetComponentCached<EnemyCombat>();
             var context = Context.GetComponentCached<EnemyAIContext>();
@@ -47,7 +55,18 @@ namespace UPlayGround.AI.BehaviorTree
             combat.ReserveAttackCategory(_attackCategory);
             context.NotifyBTAttackStarted();
             controller.TransitionToState(new EnemyAttackState(controller, combat, context, detection));
+            _attackStarted = true;
             return BTStatus.Running;
+        }
+
+        protected override void OnStart()
+        {
+            _attackStarted = false;
+        }
+
+        protected override void OnStop()
+        {
+            _attackStarted = false;
         }
     }
 }

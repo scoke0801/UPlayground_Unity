@@ -12,7 +12,8 @@ namespace UPlayGround.AI.BehaviorTree
         Charge = 7,
         Flank = 8,
         Counter = 9,
-        Dodge = 10
+        Dodge = 10,
+        JumpBack = 11
     }
 
     public static class EnemyBlackboardKeys

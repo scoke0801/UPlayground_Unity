@@ -1,0 +1,141 @@
+Split: 12 train, 8 test (holdout=0.4)
+
+============================================================
+Iteration 1/5
+Description: UPlayGround 프로젝트의 BehaviorTreeAsset import용 BT(Behavior Tree) JSON을 생성한다. 사용자가 "BT 만들어줘", "Behavior Tree JSON", "BT json 짜줘", "적 AI 행동트리 만들어", "BT_xxx.json 생성", "근거리/원거리/비행 몬스터 BT 만들어", "보스 페이즈 BT" 등을 언급하거나, 새로운 적 AI 행동 패턴을 JSON으로 작성해야 할 때 반드시 이 스킬을 사용한다. 자연어로 받은 AI 요구사항(추격/공격/회피/순찰/페이즈 등)을 Composite/Decorator/Action/Condition/Service 노드 트리 구조로 변환하여 `BehaviorTreeJsonUtility.ImportFromJsonFile`이 그대로 읽을 수 있는 JSON 파일을 만든다. 기존 BT JSON 수정/확장에도 동일하게 사용한다.
+============================================================
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Warning: query failed: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Train: 18/36 correct, precision=100% recall=0% accuracy=50% (2.1s)
+  [FAIL] rate=0/3 expected=True: 적 AI가 타겟이 있으면 공격하고 없으면 순찰하는 behavior tree JSON 써줘
+  [FAIL] rate=0/3 expected=True: Assets/10.Datas/AI/BehaviorTree/Json/ 경로에 BT_SpiderMinion.js
+  [FAIL] rate=0/3 expected=True: bt json 짜줘. 적 2m 이내면 공격, 너무 가까우면 후퇴, 멀어지면 추격, 타겟 없으면 idle
+  [FAIL] rate=0/3 expected=True: flying enemy BT json 필요해. 공중 서클링하다가 다이브 공격, 지상 착지 후 근접 전투로 전
+  [FAIL] rate=0/3 expected=True: 슬라임 지상 근접 적 BT JSON 만들어줘. 추격하다가 사거리 1.5m 이내 들어오면 공격, 0.5m 이내
+  [FAIL] rate=0/3 expected=True: BT_BossGoblin.json 짜줘 - 페이즈 0(HP 100~50%)에서 일반 공격 패턴, 페이즈 1(
+  [PASS] rate=0/3 expected=False: BehaviorTreeAsset 새로 만들어서 ScriptableObject 에디터에서 연결하는 방법 알려줘
+  [PASS] rate=0/3 expected=False: EnemyBrain이 MonsterActor에 붙어 있는데 이게 EnemyMovementController랑
+  [PASS] rate=0/3 expected=False: Behavior Tree 에디터에서 SequenceNode 자식이 연결이 안 됨. 왜 그런지 봐줘
+  [PASS] rate=0/3 expected=False: EnemyBrain.cs의 HasTarget 체크 로직 디버깅 도와줘. EnemyDetection이 null
+  [PASS] rate=0/3 expected=False: PlayerActorState에서 공격 입력 처리 부분 찾아줘. PlayerCombat.cs 쪽인 것 같아
+  [PASS] rate=0/3 expected=False: Addressables에서 BehaviorTreeAsset을 런타임에 로드하는 코드 짜줘. AssetMana
+Test : 12/24 correct, precision=100% recall=0% accuracy=50% (0.0s)
+  [FAIL] rate=0/3 expected=True: EnemyBehavior SO에서 페이즈 전환 로직을 BehaviorTree JSON으로 표현하고 싶어. H
+  [FAIL] rate=0/3 expected=True: 기존 BT_EnemyGroundBasic_Test.json에 guard 분기 추가해줘 — HP 50% 이하 
+  [FAIL] rate=0/3 expected=True: 원거리 몬스터 AI 행동 트리 작성해줘. 공격 범위 5~8m, 공격 쿨다운 3초, 1.5m 이내면 후퇴
+  [FAIL] rate=0/3 expected=True: 보스 2페이즈 BT 만들어줘. 1페이즈는 chase → attack, 2페이즈는 charge 추가해서 더 공
+  [PASS] rate=0/3 expected=False: EnemyDetection.cs에서 시야각 감지 로직이 왜 안 작동하는지 확인해줘
+  [PASS] rate=0/3 expected=False: EnemyStatsSO에 새 float 필드 _chargeCooldown 추가하는 법 알려줘
+  [PASS] rate=0/3 expected=False: MonsterActor 상태 머신 구조 전체를 설명해줘. EnemyActorState 클래스 계층을 이해하고
+  [PASS] rate=0/3 expected=False: UIManager에서 보스 HP 게이지 UI 만들어줘
+
+Improving description...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\scoke\.claude\plugins\cache\claude-plugins-official\skill-creator\unknown\skills\skill-creator\scripts\run_loop.py", line 332, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\scoke\.claude\plugins\cache\claude-plugins-official\skill-creator\unknown\skills\skill-creator\scripts\run_loop.py", line 297, in main
+    output = run_loop(
+        eval_set=eval_set,
+    ...<11 lines>...
+        log_dir=log_dir,
+    )
+  File "C:\Users\scoke\.claude\plugins\cache\claude-plugins-official\skill-creator\unknown\skills\skill-creator\scripts\run_loop.py", line 202, in run_loop
+    new_description = improve_description(
+        client=client,
+    ...<7 lines>...
+        iteration=iteration,
+    )
+  File "C:\Users\scoke\.claude\plugins\cache\claude-plugins-official\skill-creator\unknown\skills\skill-creator\scripts\improve_description.py", line 114, in improve_description
+    response = client.messages.create(
+        model=model,
+    ...<5 lines>...
+        messages=[{"role": "user", "content": prompt}],
+    )
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_utils\_utils.py", line 294, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\resources\messages\messages.py", line 1003, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/v1/messages",
+        ^^^^^^^^^^^^^^^
+    ...<30 lines>...
+        stream_cls=Stream[RawMessageStreamEvent],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_base_client.py", line 1374, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_base_client.py", line 1064, in request
+    request = self._build_request(options, retries_taken=retries_taken)
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_base_client.py", line 522, in _build_request
+    headers = self._build_headers(options, retries_taken=retries_taken)
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_base_client.py", line 452, in _build_headers
+    self._validate_headers(headers_dict, custom_headers)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\scoke\AppData\Local\Programs\Python\Python313\Lib\site-packages\anthropic\_client.py", line 385, in _validate_headers
+    raise TypeError(
+        '"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"'
+    )
+TypeError: "Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"

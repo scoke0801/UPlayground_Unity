@@ -1,5 +1,8 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -72,7 +75,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             style.left = Node.EditorPosition.x;
             style.top = Node.EditorPosition.y;
-            style.width = 160f;
+            style.width = 224f;
             style.borderTopWidth = 1.5f;
             style.borderRightWidth = 1.5f;
             style.borderBottomWidth = 1.5f;
@@ -404,12 +407,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static void RefreshParamBlock(VisualElement block, BTNode node)
         {
             block.Clear();
-            block.Add(CreateParamRow("role", GetChildSummary(node)));
+            block.style.display = DisplayStyle.Flex;
+
+            var summary = new VisualElement();
+            summary.style.flexDirection = FlexDirection.Row;
+            summary.style.flexWrap = Wrap.Wrap;
+            summary.style.marginBottom = 4f;
+            summary.Add(CreateInfoChip(GetChildSummary(node), new Color(0.18f, 0.18f, 0.22f)));
             if (node is SequenceNode sequence)
-                block.Add(CreateParamRow("abort", sequence.AbortType.ToString()));
+                summary.Add(CreateInfoChip($"abort {sequence.AbortType}", new Color(0.22f, 0.18f, 0.28f)));
             else if (node is SelectorNode selector)
-                block.Add(CreateParamRow("abort", selector.AbortType.ToString()));
-            else
+                summary.Add(CreateInfoChip($"abort {selector.AbortType}", new Color(0.22f, 0.18f, 0.28f)));
+            block.Add(summary);
+
+            if (node is WeightedRandomSelectorNode weighted)
+                block.Add(CreateWeightBlock(weighted));
+
+            foreach (var row in GetNodeSummaryRows(node))
+                block.Add(CreateParamRow(row.Key, row.Value));
+
+            if (block.childCount <= 1 && summary.childCount == 1)
                 block.style.display = DisplayStyle.None;
         }
 
@@ -417,20 +434,146 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
-            row.style.justifyContent = Justify.SpaceBetween;
+            row.style.alignItems = Align.Center;
             row.style.marginBottom = 2f;
+            row.style.minHeight = 15f;
 
             var keyLabel = new Label(key);
+            keyLabel.style.width = 74f;
+            keyLabel.style.flexShrink = 0f;
             keyLabel.style.fontSize = 10f;
             keyLabel.style.color = new Color(1f, 1f, 1f, 0.40f);
             row.Add(keyLabel);
 
             var valueLabel = new Label(value);
+            valueLabel.style.flexGrow = 1f;
+            valueLabel.style.flexShrink = 1f;
             valueLabel.style.fontSize = 10f;
             valueLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             valueLabel.style.color = new Color(1f, 1f, 1f, 0.76f);
             valueLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            valueLabel.style.whiteSpace = WhiteSpace.NoWrap;
+            valueLabel.style.overflow = Overflow.Hidden;
+            valueLabel.style.textOverflow = TextOverflow.Ellipsis;
             row.Add(valueLabel);
+            return row;
+        }
+
+        private static Label CreateInfoChip(string text, Color color)
+        {
+            var chip = new Label(text);
+            chip.style.fontSize = 9f;
+            chip.style.unityFontStyleAndWeight = FontStyle.Bold;
+            chip.style.color = new Color(0.82f, 0.86f, 0.88f);
+            chip.style.backgroundColor = color;
+            chip.style.paddingLeft = 6f;
+            chip.style.paddingRight = 6f;
+            chip.style.paddingTop = 2f;
+            chip.style.paddingBottom = 2f;
+            chip.style.marginRight = 4f;
+            chip.style.marginBottom = 4f;
+            chip.style.borderTopLeftRadius = 7f;
+            chip.style.borderTopRightRadius = 7f;
+            chip.style.borderBottomLeftRadius = 7f;
+            chip.style.borderBottomRightRadius = 7f;
+            return chip;
+        }
+
+        private static VisualElement CreateWeightBlock(WeightedRandomSelectorNode node)
+        {
+            var block = new VisualElement();
+            block.style.marginTop = 2f;
+            block.style.marginBottom = 5f;
+            block.style.paddingLeft = 6f;
+            block.style.paddingRight = 6f;
+            block.style.paddingTop = 5f;
+            block.style.paddingBottom = 5f;
+            block.style.backgroundColor = new Color(0.04f, 0.05f, 0.055f, 0.72f);
+            block.style.borderTopLeftRadius = 5f;
+            block.style.borderTopRightRadius = 5f;
+            block.style.borderBottomLeftRadius = 5f;
+            block.style.borderBottomRightRadius = 5f;
+
+            var totalWeight = 0f;
+            for (var i = 0; i < node.Children.Count; i++)
+                totalWeight += node.GetWeight(i);
+
+            var header = new Label(totalWeight > 0f ? $"Weights  total {totalWeight:0.##}" : "Weights  uniform fallback");
+            header.style.fontSize = 9f;
+            header.style.unityFontStyleAndWeight = FontStyle.Bold;
+            header.style.color = new Color(0.76f, 0.78f, 0.82f);
+            header.style.marginBottom = 4f;
+            block.Add(header);
+
+            var visibleCount = Mathf.Min(node.Children.Count, 4);
+            for (var i = 0; i < visibleCount; i++)
+                block.Add(CreateWeightRow(node, i, totalWeight));
+
+            if (node.Children.Count > visibleCount)
+            {
+                var more = new Label($"+ {node.Children.Count - visibleCount} children");
+                more.style.fontSize = 9f;
+                more.style.color = BehaviorTreeEditorStyles.TextDim;
+                more.style.unityTextAlign = TextAnchor.MiddleRight;
+                more.style.marginTop = 2f;
+                block.Add(more);
+            }
+
+            return block;
+        }
+
+        private static VisualElement CreateWeightRow(WeightedRandomSelectorNode node, int index, float totalWeight)
+        {
+            var weight = node.GetWeight(index);
+            var chance = totalWeight > 0f ? weight / totalWeight : 0f;
+            var childName = node.Children[index] != null
+                ? BehaviorTreeDisplayNameRegistry.GetNodeTitle(node.Children[index])
+                : "null";
+
+            var row = new VisualElement();
+            row.style.marginBottom = 3f;
+
+            var labels = new VisualElement();
+            labels.style.flexDirection = FlexDirection.Row;
+            labels.style.alignItems = Align.Center;
+            labels.style.justifyContent = Justify.SpaceBetween;
+
+            var nameLabel = new Label(TrimText(childName, 20));
+            nameLabel.style.fontSize = 9f;
+            nameLabel.style.color = new Color(0.84f, 0.86f, 0.88f);
+            nameLabel.style.flexGrow = 1f;
+            nameLabel.style.overflow = Overflow.Hidden;
+            nameLabel.style.textOverflow = TextOverflow.Ellipsis;
+            labels.Add(nameLabel);
+
+            var valueLabel = new Label($"w {weight:0.##}  {chance:P0}");
+            valueLabel.style.fontSize = 9f;
+            valueLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            valueLabel.style.color = new Color(0.92f, 0.82f, 0.46f);
+            valueLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            labels.Add(valueLabel);
+            row.Add(labels);
+
+            var track = new VisualElement();
+            track.style.height = 3f;
+            track.style.marginTop = 2f;
+            track.style.backgroundColor = new Color(1f, 1f, 1f, 0.08f);
+            track.style.borderTopLeftRadius = 2f;
+            track.style.borderTopRightRadius = 2f;
+            track.style.borderBottomLeftRadius = 2f;
+            track.style.borderBottomRightRadius = 2f;
+
+            var fill = new VisualElement();
+            fill.style.width = Length.Percent(Mathf.Clamp01(chance) * 100f);
+            fill.style.height = 3f;
+            fill.style.backgroundColor = new Color(0.92f, 0.72f, 0.28f);
+            fill.style.borderTopLeftRadius = 2f;
+            fill.style.borderTopRightRadius = 2f;
+            fill.style.borderBottomLeftRadius = 2f;
+            fill.style.borderBottomRightRadius = 2f;
+            track.Add(fill);
+            row.Add(track);
+
             return row;
         }
 
@@ -469,6 +612,91 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (node is BTDecoratorNode)
                 return $"child:{node.Children.Count}/1";
             return "leaf";
+        }
+
+        private static IEnumerable<(string Key, string Value)> GetNodeSummaryRows(BTNode node)
+        {
+            if (node is WeightedRandomSelectorNode weighted)
+            {
+                yield return ("mode", weighted.Children.Count > 0 ? "pick once, retry on fail" : "empty");
+            }
+
+            foreach (var field in GetSummaryFields(node.GetType()))
+            {
+                if (field.Name is "_weights" or "m_Script")
+                    continue;
+
+                if (!TryFormatField(field, node, out var key, out var value))
+                    continue;
+
+                yield return (key, value);
+            }
+        }
+
+        private static IEnumerable<FieldInfo> GetSummaryFields(Type type)
+        {
+            while (type != null && type != typeof(BTNode))
+            {
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                {
+                    if (field.IsNotSerialized)
+                        continue;
+
+                    if (field.IsPublic || field.GetCustomAttribute<SerializeField>() != null)
+                        yield return field;
+                }
+
+                type = type.BaseType;
+            }
+        }
+
+        private static bool TryFormatField(FieldInfo field, BTNode node, out string key, out string value)
+        {
+            key = ToDisplayKey(field.Name);
+            value = string.Empty;
+
+            var fieldType = field.FieldType;
+            var rawValue = field.GetValue(node);
+            if (fieldType == typeof(bool))
+                value = (bool)rawValue ? "true" : "false";
+            else if (fieldType == typeof(int))
+                value = rawValue.ToString();
+            else if (fieldType == typeof(float))
+                value = $"{(float)rawValue:0.###}";
+            else if (fieldType == typeof(string))
+                value = string.IsNullOrWhiteSpace(rawValue as string) ? "<empty>" : rawValue as string;
+            else if (fieldType.IsEnum)
+                value = rawValue.ToString();
+            else if (fieldType == typeof(BlackboardKeySelector))
+            {
+                var selector = (BlackboardKeySelector)rawValue;
+                value = selector.HasKey
+                    ? $"{BehaviorTreeDisplayNameRegistry.GetBlackboardLabel(selector.Key)} ({selector.ExpectedType})"
+                    : $"<unset {selector.ExpectedType}>";
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))
+                value = rawValue != null ? ((UnityEngine.Object)rawValue).name : "null";
+            else if (typeof(IList).IsAssignableFrom(fieldType) && rawValue is IList list)
+                value = $"count:{list.Count}";
+            else
+                return false;
+
+            value = TrimText(value, 28);
+            return true;
+        }
+
+        private static string ToDisplayKey(string fieldName)
+        {
+            var key = fieldName.TrimStart('_');
+            return string.IsNullOrEmpty(key) ? fieldName : key;
+        }
+
+        private static string TrimText(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+                return value;
+
+            return value.Substring(0, Mathf.Max(0, maxLength - 1)) + "…";
         }
 
         private static Label CreateIssueLabel(BTNode node)

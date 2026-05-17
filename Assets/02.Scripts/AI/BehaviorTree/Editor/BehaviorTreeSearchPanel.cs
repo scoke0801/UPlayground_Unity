@@ -102,11 +102,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                     if (entry.Key.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
+                        var referenceCount = BehaviorTreeBlackboardKeyRenamer.CountReferences(_tree, entry.Key);
                         hits.Add(new SearchHit
                         {
                             Kind = HitKind.BlackboardKey,
+                            Node = FindFirstNodeReferencingKey(entry.Key),
                             DisplayTitle = $"[Blackboard] {entry.Key}",
-                            DisplayDetail = $"Type: {entry.ValueType}, 참조 {BehaviorTreeBlackboardKeyRenamer.CountReferences(_tree, entry.Key)}개",
+                            DisplayDetail = $"Type: {entry.ValueType}, 참조 {referenceCount}개" +
+                                            (referenceCount > 0 ? ", 클릭 시 첫 참조 노드로 이동" : string.Empty),
                         });
                     }
                 }
@@ -236,6 +239,36 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                    string.Equals(field.Name, "key", StringComparison.Ordinal) ||
                    field.Name.EndsWith("Key", StringComparison.Ordinal) ||
                    field.Name.EndsWith("_key", StringComparison.Ordinal);
+        }
+
+        private BTNode FindFirstNodeReferencingKey(string key)
+        {
+            if (_tree == null || string.IsNullOrWhiteSpace(key))
+                return null;
+
+            foreach (var node in _tree.Nodes)
+            {
+                if (node == null)
+                    continue;
+
+                foreach (var field in GetSerializableFields(node.GetType()))
+                {
+                    if (field.FieldType == typeof(BlackboardKeySelector))
+                    {
+                        var selector = (BlackboardKeySelector)field.GetValue(node);
+                        if (selector.HasKey && string.Equals(selector.Key, key, StringComparison.Ordinal))
+                            return node;
+                    }
+                    else if (field.FieldType == typeof(string) && IsBlackboardKeyField(field))
+                    {
+                        var legacyKey = field.GetValue(node) as string;
+                        if (string.Equals(legacyKey, key, StringComparison.Ordinal))
+                            return node;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static IEnumerable<FieldInfo> GetSerializableFields(Type type)

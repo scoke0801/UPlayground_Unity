@@ -9,6 +9,8 @@ namespace UPlayGround.AI.BehaviorTree
     {
         [SerializeField] private EnemyTransitionStateType _targetState = EnemyTransitionStateType.Idle;
         [SerializeField] private bool _skipIfAlreadyInState = true;
+        [SerializeField] private string _cooldownId;
+        [SerializeField] private float _cooldownDuration;
 
         public EnemyTransitionStateType TargetState
         {
@@ -22,22 +24,67 @@ namespace UPlayGround.AI.BehaviorTree
             set => _skipIfAlreadyInState = value;
         }
 
+        public string CooldownId
+        {
+            get => _cooldownId;
+            set => _cooldownId = value;
+        }
+
+        public float CooldownDuration
+        {
+            get => _cooldownDuration;
+            set => _cooldownDuration = Mathf.Max(0f, value);
+        }
+
         protected override BTStatus OnUpdate()
         {
             var controller = Context?.GetComponentCached<ActorMovementController>();
             if (controller == null || IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState))
                 return BTStatus.Failure;
 
+            if (!IsCooldownReady())
+                return BTStatus.Failure;
+
+            if (_targetState == EnemyTransitionStateType.Guard && !CanStartGuard())
+                return BTStatus.Failure;
+
             var targetName = GetStateName(_targetState);
             if (_skipIfAlreadyInState && controller.CurrentState?.StateName == targetName)
+            {
+                RecordCooldown();
                 return BTStatus.Success;
+            }
 
             var nextState = CreateState(controller);
             if (nextState == null)
                 return BTStatus.Failure;
 
             controller.TransitionToState(nextState);
+            RecordCooldown();
             return BTStatus.Success;
+        }
+
+        private void RecordCooldown()
+        {
+            if (Context?.Blackboard == null || string.IsNullOrWhiteSpace(_cooldownId) || _cooldownDuration <= 0f)
+                return;
+
+            Context.Blackboard.SetFloat($"Cooldown.{_cooldownId}.ReadyTime", Time.time + _cooldownDuration);
+        }
+
+        private bool IsCooldownReady()
+        {
+            if (Context?.Blackboard == null || string.IsNullOrWhiteSpace(_cooldownId))
+                return true;
+
+            return !Context.Blackboard.TryGetFloat($"Cooldown.{_cooldownId}.ReadyTime", out var readyTime)
+                   || Time.time >= readyTime;
+        }
+
+        private bool CanStartGuard()
+        {
+            var memory = Context?.GetComponentCached<EnemyTacticalMemory>();
+            return memory == null || memory.CanStartGuard();
         }
 
         private GameActorState CreateState(ActorMovementController controller)
@@ -59,6 +106,7 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Charge when context != null && detection != null && combat != null => new EnemyChargeState(controller, combat, context, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
                 EnemyTransitionStateType.Flank when context != null && detection != null && combat != null => new EnemyFlankState(controller, combat, context, detection),
                 EnemyTransitionStateType.Counter when context != null && detection != null && combat != null => new EnemyCounterState(controller, combat, context, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
+                EnemyTransitionStateType.JumpBack when context != null && detection != null => new EnemyJumpBackState(controller, context, detection, Context.GetComponentCached<EnemyTacticalMemory>()),
                 _ => null
             };
         }
@@ -78,6 +126,7 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Charge => "Charge",
                 EnemyTransitionStateType.Flank => "Flank",
                 EnemyTransitionStateType.Counter => "Counter",
+                EnemyTransitionStateType.JumpBack => "JumpBack",
                 _ => ""
             };
         }

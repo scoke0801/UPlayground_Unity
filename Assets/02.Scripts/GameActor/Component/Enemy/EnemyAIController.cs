@@ -199,6 +199,19 @@ namespace UPlayGround.Component
             {
                 _nextActionDelay += Random.Range(0.6f, 1.2f);
             }
+            else
+            {
+                var maxComboPressure = 2;
+                var blackboard = _behaviorTreeRunner?.Context?.Blackboard;
+                if (blackboard != null
+                    && blackboard.TryGetInt(EnemyBlackboardKeys.MaxComboPressureCount, out var configuredMax))
+                {
+                    maxComboPressure = Mathf.Max(1, configuredMax);
+                }
+
+                if (_memory != null && _memory.ConsecutiveAttackCount < maxComboPressure)
+                    _nextActionDelay = Random.Range(0.12f, 0.38f);
+            }
 
             _behaviorTreeRunner?.Context?.Blackboard?.SetFloat(
                 EnemyBlackboardKeys.NextActionAllowedTime,

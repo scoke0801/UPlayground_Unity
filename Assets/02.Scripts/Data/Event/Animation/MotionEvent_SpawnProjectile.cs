@@ -117,6 +117,9 @@ namespace UPlayGround.Data.Event
 
                 if (hasTargetPosition && projectile is AOEProjectile aoeProjectile)
                     aoeProjectile.SetCenterPosition(targetPosition);
+
+                if (hasTargetPosition && projectile is ArcingProjectile arcingProjectile)
+                    arcingProjectile.SetTargetPosition(targetPosition);
             }
         }
 

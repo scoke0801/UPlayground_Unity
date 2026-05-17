@@ -57,6 +57,7 @@ namespace UPlayGround.Component
         private int _currentHitPhaseIndex = 0;
 
         private SkillType _reservedSkillType = SkillType.None;
+        private EnemyAttackCategory _reservedAttackCategory = EnemyAttackCategory.None;
         private bool _isCollisionEnabled;
 
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
@@ -79,6 +80,7 @@ namespace UPlayGround.Component
         public int               CurrentLevel     => Mathf.Max(1, _ownerActor?.Stat?.level ?? 1);
         public bool              IsPossibleCollide => _isCollisionEnabled;
         public SkillType         ReservedSkillType => _reservedSkillType;
+        public EnemyAttackCategory ReservedAttackCategory => _reservedAttackCategory;
         public List<IDamageable> SkillTargetList  => _skillTargets;
         public bool              IsGuarding { get; set; } = false;
 
@@ -184,6 +186,11 @@ namespace UPlayGround.Component
 
         public EnemyAttackInfo SelectAndExecuteSkill(float distanceToTarget)
         {
+            return SelectAndExecuteSkill(distanceToTarget, ConsumeReservedAttackCategory());
+        }
+
+        public EnemyAttackInfo SelectAndExecuteSkill(float distanceToTarget, EnemyAttackCategory attackCategory)
+        {
             if (_attackData == null || _attackData.skills.Count == 0)
             {
                 return null;
@@ -191,7 +198,7 @@ namespace UPlayGround.Component
 
             _spawnedUnits.RemoveAll(unit => unit == null);
 
-            var availableSkills = GetAvailableSkills(distanceToTarget);
+            var availableSkills = GetAvailableSkills(distanceToTarget, attackCategory);
             if (availableSkills == null || availableSkills.Count == 0)
                 return null;
 
@@ -207,7 +214,7 @@ namespace UPlayGround.Component
             return _currentSkill;
         }
 
-        private List<EnemyAttackInfo> GetAvailableSkills(float distanceToTarget)
+        private List<EnemyAttackInfo> GetAvailableSkills(float distanceToTarget, EnemyAttackCategory attackCategory = EnemyAttackCategory.None)
         {
             if (_attackData == null || _attackData.skills.Count == 0)
                 return null;
@@ -220,6 +227,7 @@ namespace UPlayGround.Component
                 if (skill.isAerialSkill)                     continue;
                 if (_skillCooldowns.ContainsKey(skill))       continue;
                 if (!skill.CanUse(distanceToTarget, context)) continue;
+                if (!MatchesAttackCategory(skill, attackCategory)) continue;
 
                 availableSkills.Add(skill);
             }
@@ -229,6 +237,30 @@ namespace UPlayGround.Component
 
         public bool HasAvailableSkillAtDistance(float distanceToTarget)
             => GetAvailableSkills(distanceToTarget)?.Count > 0;
+
+        public bool HasAvailableSkillAtDistance(float distanceToTarget, EnemyAttackCategory attackCategory)
+            => GetAvailableSkills(distanceToTarget, attackCategory)?.Count > 0;
+
+        public void ReserveAttackCategory(EnemyAttackCategory attackCategory)
+        {
+            _reservedAttackCategory = attackCategory;
+        }
+
+        private EnemyAttackCategory ConsumeReservedAttackCategory()
+        {
+            var category = _reservedAttackCategory;
+            _reservedAttackCategory = EnemyAttackCategory.None;
+            return category;
+        }
+
+        private static bool MatchesAttackCategory(EnemyAttackInfo skill, EnemyAttackCategory attackCategory)
+        {
+            if (attackCategory == EnemyAttackCategory.None)
+                return true;
+
+            return skill != null
+                   && (skill.attackCategory == attackCategory || skill.attackCategory == EnemyAttackCategory.None);
+        }
 
         private void ExecuteSkill(EnemyAttackInfo skill)
         {

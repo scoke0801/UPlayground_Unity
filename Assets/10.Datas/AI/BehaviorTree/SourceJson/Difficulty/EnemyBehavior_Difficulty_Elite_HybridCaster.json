@@ -1,0 +1,111 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Difficulty_Elite_HybridCaster",
+    "displayName": "Difficulty Elite Hybrid Caster",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_lich.asset",
+    "blackboard": {
+        "tickInterval": 0.06,
+        "enablePatrol": true,
+        "optimalCombatDistance": 6.0,
+        "minCombatDistance": 2.0,
+        "personalSpaceDistance": 1.1,
+        "guardChance": 0.2,
+        "retreatChance": 0.35,
+        "circleWeight": 1.2
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "PatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "EmergencyMelee",
+            "priority": 880,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "1.7" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "DodgePressure",
+            "priority": 830,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerAttacking" },
+                { "condition": "DistanceLessOrEqual", "value": "2.5" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Dodge" }
+            ]
+        },
+        {
+            "name": "CastFromSafeRange",
+            "priority": 760,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceGreater", "value": "2.5" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "MaintainRange",
+            "priority": 620,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Retreat" }
+            ]
+        },
+        {
+            "name": "ApproachCastRange",
+            "priority": 420,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "EliteIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
+                { "weightKey": "guardChance", "action": "Transition", "state": "Guard" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,124 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Difficulty_Hard_Reactive",
+    "displayName": "Difficulty Hard Reactive",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_golem.asset",
+    "blackboard": {
+        "tickInterval": 0.08,
+        "enablePatrol": true,
+        "optimalCombatDistance": 3.0,
+        "minCombatDistance": 1.4,
+        "personalSpaceDistance": 0.9,
+        "guardChance": 0.35,
+        "retreatChance": 0.12,
+        "circleWeight": 1.1
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "PatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "DodgeCloseAttack",
+            "priority": 880,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerAttacking" },
+                { "condition": "DistanceLessOrEqual", "value": "1.8" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Dodge" }
+            ]
+        },
+        {
+            "name": "CounterMidAttack",
+            "priority": 860,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerAttacking" },
+                { "condition": "DistanceLessOrEqual", "value": "2.8" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Counter" }
+            ]
+        },
+        {
+            "name": "PunishStaggeredPlayer",
+            "priority": 830,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerStaggered" },
+                { "condition": "DistanceLessOrEqual", "value": "3.5" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "ChargeFromMidRange",
+            "priority": 780,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "2.8" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Charge" }
+            ]
+        },
+        {
+            "name": "HardAttack",
+            "priority": 720,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "3.0" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "Approach",
+            "priority": 420,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "HardIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weight": 1.2, "action": "Transition", "state": "Flank" },
+                { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" }
+            ]
+        }
+    ]
+}

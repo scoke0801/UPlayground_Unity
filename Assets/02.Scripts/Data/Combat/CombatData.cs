@@ -99,6 +99,10 @@ namespace UPlayGround.Data
         [Header("Skill Type")]
         public SkillType skillType = SkillType.Attack;
 
+        [Header("AI Selection")]
+        [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 카테고리 요청에 포함된다.")]
+        public EnemyAttackCategory attackCategory = EnemyAttackCategory.None;
+
         [Header("Unlock")]
         [Min(1)]
         [Tooltip("이 레벨 이상인 몬스터만 이 스킬을 선택할 수 있습니다.")]

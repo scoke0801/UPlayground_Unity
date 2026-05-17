@@ -28,6 +28,18 @@
     public enum AttackType { Melee, Ranged } // 공격 유형 정의
 
     /// <summary>
+    /// 적 AI가 BT에서 요청하는 공격 선택 카테고리.
+    /// None은 기존 동작처럼 전체 사용 가능 공격 풀을 의미한다.
+    /// </summary>
+    public enum EnemyAttackCategory
+    {
+        None = 0,
+        Basic = 1,
+        Heavy = 2,
+        Skill = 3,
+    }
+
+    /// <summary>
     /// 공격 종류 — 스킬 게이지 충전량 구분용
     /// </summary>
     public enum AttackKind

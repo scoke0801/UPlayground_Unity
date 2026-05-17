@@ -36,33 +36,4 @@ namespace UPlayGround.AI.BehaviorTree
         }
     }
 
-    public class HasEnemyActionDelayElapsedNode : BTConditionNode
-    {
-        protected override BTStatus OnUpdate()
-        {
-            if (Context?.Blackboard == null)
-                return BTStatus.Success;
-
-            return Context.Blackboard.TryGetFloat(EnemyBlackboardKeys.NextActionAllowedTime, out var nextAllowedTime)
-                && Time.time < nextAllowedTime
-                    ? BTStatus.Failure
-                    : BTStatus.Success;
-        }
-    }
-
-    public class IsBlockedEnemyStateNode : BTConditionNode
-    {
-        protected override BTStatus OnUpdate()
-        {
-            var controller = Context?.GetComponentCached<ActorMovementController>();
-            return IsBlockedState(controller?.CurrentState?.StateName) ? BTStatus.Success : BTStatus.Failure;
-        }
-
-        public static bool IsBlockedState(string stateName)
-        {
-            return stateName is "Death" or "Hit" or "Grabbed" or "Airborne" or "Attack" or "Counter" or "Dodge"
-                or "Land" or "TakeOff" or "Aerial" or "AerialAttack"
-                or "Flying_TakeOff" or "Flying_GroundAttack" or "Flying_Dive" or "Flying_Land";
-        }
-    }
 }

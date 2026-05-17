@@ -29,6 +29,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -52,6 +53,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -75,6 +77,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -98,6 +101,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -121,6 +125,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -144,6 +149,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -167,6 +173,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -190,6 +197,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -213,6 +221,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -236,6 +245,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -259,6 +269,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -282,6 +293,7 @@ MonoBehaviour:
         knockBackForce: 5
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -305,6 +317,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -328,6 +341,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -351,6 +365,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 2
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
@@ -374,6 +389,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 3
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -397,6 +413,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 3
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -420,6 +437,7 @@ MonoBehaviour:
         knockBackForce: 0
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 3
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -443,6 +461,7 @@ MonoBehaviour:
         knockBackForce: 6
         grabDuration: 1.5
     skillType: 1
+    attackCategory: 3
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5

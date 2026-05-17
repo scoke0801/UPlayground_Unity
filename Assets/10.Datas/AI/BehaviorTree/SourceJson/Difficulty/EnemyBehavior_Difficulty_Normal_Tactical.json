@@ -1,0 +1,111 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Difficulty_Normal_Tactical",
+    "displayName": "Difficulty Normal Tactical",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_humanoid.asset",
+    "blackboard": {
+        "tickInterval": 0.12,
+        "enablePatrol": true,
+        "optimalCombatDistance": 2.4,
+        "minCombatDistance": 1.2,
+        "personalSpaceDistance": 0.75,
+        "guardChance": 0.25,
+        "retreatChance": 0.2,
+        "circleWeight": 1.0
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "PatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "PunishPlayerRecovery",
+            "priority": 820,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerRecovering" },
+                { "condition": "DistanceLessOrEqual", "value": "2.8" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "GuardIncomingAttack",
+            "priority": 760,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsPlayerAttacking" },
+                { "condition": "DistanceLessOrEqual", "value": "2.2" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Guard" }
+            ]
+        },
+        {
+            "name": "StandardAttack",
+            "priority": 700,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "2.4" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "Spacing",
+            "priority": 580,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Retreat" }
+            ]
+        },
+        {
+            "name": "Approach",
+            "priority": 420,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "NormalIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
+                { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,99 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Test_HealerMonster",
+    "displayName": "Test Healer Monster",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_dryad.asset",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": true,
+        "optimalCombatDistance": 5.0,
+        "minCombatDistance": 2.5,
+        "personalSpaceDistance": 1.8,
+        "guardChance": 0.2,
+        "retreatChance": 0.45,
+        "circleWeight": 0.9
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "PatrolOrIdle" }
+            ]
+        },
+        {
+            "name": "EvadeCloseTarget",
+            "priority": 830,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Retreat" }
+            ]
+        },
+        {
+            "name": "HealSkillWindow",
+            "priority": 780,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceGreater", "value": "minCombatDistance" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "SelfDefenseAttack",
+            "priority": 700,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "3.0" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "MaintainSupportRange",
+            "priority": 500,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "SupportIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
+                { "weightKey": "guardChance", "action": "Transition", "state": "Guard" }
+            ]
+        }
+    ]
+}

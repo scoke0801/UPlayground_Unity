@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.EnumType;
 using UnityEditor;
 using UnityEngine;
 
@@ -69,6 +70,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         public string action;
         public string state;
+        public string attackCategory;
         public float duration;
     }
 
@@ -79,6 +81,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string weightKey;
         public string action;
         public string state;
+        public string attackCategory;
     }
 
     public static class MonsterBehaviorTreeJsonImporter
@@ -559,6 +562,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (action.action == "FlyingTransition" && !Enum.TryParse<FlyingEnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 FlyingEnemyTransitionStateType입니다. {action.state}");
 
+            if (!string.IsNullOrWhiteSpace(action.attackCategory)
+                && !Enum.TryParse<EnemyAttackCategory>(action.attackCategory, true, out _))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyAttackCategory입니다. {action.attackCategory}");
+
             if (actorKind == ActorKind.Flying && GroundOnlyActions.Contains(action.action))
                 throw new InvalidDataException($"{ruleName}: 지상 전용 action '{action.action}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 액션(예: FlyingTransition / FlyingPatrolOrIdle / RequestFlyingAttackSlot)으로 교체하세요.");
 
@@ -568,7 +575,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static void ValidateChoice(MonsterBehaviorChoiceJson choice, string ruleName, ActorKind actorKind)
         {
-            ValidateAction(new MonsterBehaviorActionJson { action = choice.action, state = choice.state }, ruleName, actorKind);
+            ValidateAction(new MonsterBehaviorActionJson { action = choice.action, state = choice.state, attackCategory = choice.attackCategory }, ruleName, actorKind);
         }
 
         private static BTNode CreateRuleNode(
@@ -662,7 +669,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "PatrolOrIdle" => CreatePatrolOrIdleNode(tree, row),
                 "Transition" => CreateTransitionNode(tree, action.state, row),
                 "RequestAttackSlot" => CreateNode<RequestEnemyAttackSlotNode>(tree, "Request Attack Slot", new Vector2(820f, row * 180f)),
-                "ExecuteAttack" => CreateNode<ExecuteEnemyAttackNode>(tree, "Execute Attack", new Vector2(820f, row * 180f)),
+                "ExecuteAttack" => CreateExecuteAttackNode(tree, action.attackCategory, row),
                 "Wait" => CreateWaitNode(tree, action.duration, row),
                 // ── 비행 전용 ──
                 "FlyingTransition" => CreateFlyingTransitionNode(tree, action.state, row),
@@ -680,8 +687,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             return CreateActionNode(
                 tree,
-                new MonsterBehaviorActionJson { action = choice.action, state = choice.state },
+                new MonsterBehaviorActionJson { action = choice.action, state = choice.state, attackCategory = choice.attackCategory },
                 row + column);
+        }
+
+        private static ExecuteEnemyAttackNode CreateExecuteAttackNode(BehaviorTreeAsset tree, string attackCategory, int row)
+        {
+            var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", new Vector2(820f, row * 180f));
+            if (Enum.TryParse<EnemyAttackCategory>(attackCategory, true, out var parsed))
+                node.AttackCategory = parsed;
+            return node;
         }
 
         private static HasTargetNode CreateHasTargetNode(BehaviorTreeAsset tree, bool expected, int row)

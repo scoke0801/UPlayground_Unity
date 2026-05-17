@@ -1,0 +1,1967 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7999309219122983549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Flank
+  m_EditorClassIdentifier: 
+  _guid: 6e8ce3767b97433ba6cfeb3ba3b1b3e0
+  _displayName: Transition Flank
+  _comment: 
+  _editorPosition: {x: 14100, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 8
+  _skipIfAlreadyInState: 1
+--- !u!114 &-7640176656586186487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: 2e13d9f3ef89468296d9548ab3939cfd
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 12600, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-7637910392915781665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Chase
+  m_EditorClassIdentifier: 
+  _guid: 231ab6817b654897911005bba2c66cb7
+  _displayName: Transition Chase
+  _comment: 
+  _editorPosition: {x: 13200, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 2
+  _skipIfAlreadyInState: 1
+--- !u!114 &-7546147566782482443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e109138ad34ea58998b526a5a1a1a1, type: 3}
+  m_Name: Is Enemy Phase 1
+  m_EditorClassIdentifier: 
+  _guid: bba0218f31514c15ab12c25b8cff7550
+  _displayName: Is Enemy Phase 1
+  _comment: 
+  _editorPosition: {x: 4200, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _phaseName: 
+  _phaseIndex: 1
+--- !u!114 &-7210936778384734686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93a863a9f765f5b44a77922292dd173f, type: 3}
+  m_Name: IsPlayerAttacking
+  m_EditorClassIdentifier: 
+  _guid: e48b9191a45643059f7391907d556a2a
+  _displayName: IsPlayerAttacking
+  _comment: 
+  _editorPosition: {x: 7800, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: IsPlayerAttacking
+  _expectedValue: 1
+--- !u!114 &-6901882589350447705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack Skill
+  m_EditorClassIdentifier: 
+  _guid: fa65c383692248ffa3327a9d41adb9be
+  _displayName: Execute Attack Skill
+  _comment: 
+  _editorPosition: {x: 11400, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 3
+--- !u!114 &-6892420499803824857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e109138ad34ea58998b526a5a1a1a1, type: 3}
+  m_Name: Is Enemy Phase 0
+  m_EditorClassIdentifier: 
+  _guid: 8d5f856840374c59a415815caf187298
+  _displayName: Is Enemy Phase 0
+  _comment: 
+  _editorPosition: {x: 6300, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _phaseName: 
+  _phaseIndex: 0
+--- !u!114 &-6863963591301350788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Retreat
+  m_EditorClassIdentifier: 
+  _guid: 513282eb33b244d0925fc86d1c4ba1f8
+  _displayName: Transition Retreat
+  _comment: 
+  _editorPosition: {x: 12300, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 4
+  _skipIfAlreadyInState: 1
+--- !u!114 &-6860368044910579390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: SearchFailedPatrol
+  m_EditorClassIdentifier: 
+  _guid: e282b177292941e48bbce416df5019d9
+  _displayName: SearchFailedPatrol
+  _comment: 
+  _editorPosition: {x: 1050, y: 340}
+  _children:
+  - {fileID: -2432181171333576846}
+  - {fileID: -1712460569591563182}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-6216498425343431482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Guard
+  m_EditorClassIdentifier: 
+  _guid: 74af7e8f357d4df1ae109cd00826c643
+  _displayName: Transition Guard
+  _comment: 
+  _editorPosition: {x: 14700, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 6
+  _skipIfAlreadyInState: 1
+--- !u!114 &-6208413553910104504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: e662edaea7be40e18d1578a0f995b6b0
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 11700, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-6118880481046270666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Guard
+  m_EditorClassIdentifier: 
+  _guid: 0e06f37d7a6347cbad115caa04e74255
+  _displayName: Transition Guard
+  _comment: 
+  _editorPosition: {x: 3000, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 6
+  _skipIfAlreadyInState: 1
+--- !u!114 &-5924369743630599324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: ReactGuardOrDodgeWhenTargetAttacks Weighted
+  m_EditorClassIdentifier: 
+  _guid: e0590165d58b4daebab85719700b9b0d
+  _displayName: ReactGuardOrDodgeWhenTargetAttacks Weighted
+  _comment: 
+  _editorPosition: {x: 8850, y: 510}
+  _children:
+  - {fileID: 8231110259357048960}
+  - {fileID: 8849921832022064376}
+  - {fileID: -1408194635245005371}
+  - {fileID: 1643668381356056306}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 0.1
+  - 0.32
+  - 0.2
+  - 0.16
+--- !u!114 &-5918382256388920497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: ApproachSearchSuccessTarget
+  m_EditorClassIdentifier: 
+  _guid: cf7b65ab23604282967160f3b9f5722f
+  _displayName: ApproachSearchSuccessTarget
+  _comment: 
+  _editorPosition: {x: 12900, y: 340}
+  _children:
+  - {fileID: -7640176656586186487}
+  - {fileID: 263733352782621732}
+  - {fileID: -7637910392915781665}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-5878253292454161992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 02 Phase Branch
+  m_EditorClassIdentifier: 
+  _guid: 87107481a13a4e3888902e5b0d984bc3
+  _displayName: 02 Phase Branch
+  _comment: 
+  _editorPosition: {x: 4500, y: 170}
+  _children:
+  - {fileID: 225181858961545146}
+  - {fileID: 7507778447586987912}
+  - {fileID: 7239629969131182005}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-5176394656305153503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf87ffdd65b267419ffbdedab18533e, type: 3}
+  m_Name: Is Blocked Enemy State
+  m_EditorClassIdentifier: 
+  _guid: 0321075c6ad34be08ce6a224abb5adc2
+  _displayName: Is Blocked Enemy State
+  _comment: 
+  _editorPosition: {x: 0, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-4911057645665740436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: a75128427508450285c0f22fb2650118
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 1800, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-3649094097491488330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93a863a9f765f5b44a77922292dd173f, type: 3}
+  m_Name: IsPlayerAttacking
+  m_EditorClassIdentifier: 
+  _guid: 758bf8e4209d4590812c2e6053423c63
+  _displayName: IsPlayerAttacking
+  _comment: 
+  _editorPosition: {x: 2400, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: IsPlayerAttacking
+  _expectedValue: 1
+--- !u!114 &-3481432101291395991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Retreat
+  m_EditorClassIdentifier: 
+  _guid: ba961eaecf5148ee96efc38401caa340
+  _displayName: Transition Retreat
+  _comment: 
+  _editorPosition: {x: 14400, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 4
+  _skipIfAlreadyInState: 1
+--- !u!114 &-3232433908322127437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: d20f274341ca44e79402b8db513c20ab
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 9600, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-3202850021549685955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: AttackRollBasicHeavySkill Weighted
+  m_EditorClassIdentifier: 
+  _guid: 653bb7d907964ec68e0f75dfc903b310
+  _displayName: AttackRollBasicHeavySkill Weighted
+  _comment: 
+  _editorPosition: {x: 11100, y: 510}
+  _children:
+  - {fileID: 8756843984874007774}
+  - {fileID: -1552930759197680356}
+  - {fileID: -6901882589350447705}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 0.55
+  - 0.3
+  - 0.15
+--- !u!114 &-2973261416090108891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 03 Target Combat
+  m_EditorClassIdentifier: 
+  _guid: db85df4e71804883802a321d5f3ee32e
+  _displayName: 03 Target Combat
+  _comment: 
+  _editorPosition: {x: 9900, y: 170}
+  _children:
+  - {fileID: 4961903204316833017}
+  - {fileID: 1353865475044547977}
+  - {fileID: 7202037392549117512}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-2565812154062786776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 169fde101537b144a9eebbcd357478bd, type: 3}
+  m_Name: Can Use Enemy Skill
+  m_EditorClassIdentifier: 
+  _guid: 1f66e7029da04644822a5db0be962efd
+  _displayName: Can Use Enemy Skill
+  _comment: 
+  _editorPosition: {x: 5100, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _requireTarget: 1
+--- !u!114 &-2432181171333576846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has No Target
+  m_EditorClassIdentifier: 
+  _guid: 8156bd889bfb47e8a8002652e2c10297
+  _displayName: Has No Target
+  _comment: 
+  _editorPosition: {x: 600, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 0
+--- !u!114 &-2362458153735495609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: Phase1AggressiveReactToAttack Weighted
+  m_EditorClassIdentifier: 
+  _guid: 5c321d5d38a14325ac0ec70541221a37
+  _displayName: Phase1AggressiveReactToAttack Weighted
+  _comment: 
+  _editorPosition: {x: 3300, y: 510}
+  _children:
+  - {fileID: -6118880481046270666}
+  - {fileID: 8841408191938540817}
+  - {fileID: 6160626043858812393}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 0.35
+  - 0.45
+  - 0.2
+--- !u!114 &-2282287343243637251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: d3f4fba59c8140aa99e534e200763e33
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 3900, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-2218036948680054522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 04 Positioning
+  m_EditorClassIdentifier: 
+  _guid: 5252611025b54710977863474d8bed71
+  _displayName: 04 Positioning
+  _comment: 
+  _editorPosition: {x: 13650, y: 170}
+  _children:
+  - {fileID: -5918382256388920497}
+  - {fileID: 1530512609889909214}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-2130741883148297624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 01 Interrupt And Target Search
+  m_EditorClassIdentifier: 
+  _guid: c701293a44e94dc987cf88de01b2beb9
+  _displayName: 01 Interrupt And Target Search
+  _comment: 
+  _editorPosition: {x: 750, y: 170}
+  _children:
+  - {fileID: 118707982503941322}
+  - {fileID: -6860368044910579390}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-1712460569591563182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Patrol Or Idle
+  m_EditorClassIdentifier: 
+  _guid: 708a6afeb0d14b0c9982e756431b5ce8
+  _displayName: Patrol Or Idle
+  _comment: 
+  _editorPosition: {x: 1200, y: 510}
+  _children:
+  - {fileID: 834001857013501082}
+  - {fileID: 7938830953732148355}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-1552930759197680356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack Heavy
+  m_EditorClassIdentifier: 
+  _guid: 0ec1e92d85c74f44b6fa64823b17605c
+  _displayName: Execute Attack Heavy
+  _comment: 
+  _editorPosition: {x: 11100, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 2
+--- !u!114 &-1408194635245005371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Retreat
+  m_EditorClassIdentifier: 
+  _guid: 64412be6492d43578b555051d2f372ee
+  _displayName: Transition Retreat
+  _comment: 
+  _editorPosition: {x: 9000, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 4
+  _skipIfAlreadyInState: 1
+--- !u!114 &-1254617769180591286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: 5f486b440d1741f3891f352452e2230c
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 7500, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-581270222221026009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90c10d704244a84aa8307cd72c98e7f, type: 3}
+  m_Name: Sync Enemy Memory
+  m_EditorClassIdentifier: 
+  _guid: ecc6d167aab44901bb4da8e705a8698d
+  _displayName: Sync Enemy Memory
+  _comment: 
+  _editorPosition: {x: 7050, y: 0}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &-381543581852300509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack
+  m_EditorClassIdentifier: 
+  _guid: b97874db71f94f628a2c1cb6b758720b
+  _displayName: Execute Attack
+  _comment: 
+  _editorPosition: {x: 5700, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 0
+--- !u!114 &-33094583384016379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Chase
+  m_EditorClassIdentifier: 
+  _guid: 86bf84faa877425096cd580b83faa857
+  _displayName: Transition Chase
+  _comment: 
+  _editorPosition: {x: 6900, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 2
+  _skipIfAlreadyInState: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
+  m_Name: BT_EnemyBehavior_Test_SearchPatrol_ReactivePhase
+  m_EditorClassIdentifier: 
+  _rootNode: {fileID: 6751305378796225856}
+  _nodes:
+  - {fileID: 6751305378796225856}
+  - {fileID: 3762472031777224332}
+  - {fileID: -581270222221026009}
+  - {fileID: 3297172703834302015}
+  - {fileID: -2130741883148297624}
+  - {fileID: 118707982503941322}
+  - {fileID: -5176394656305153503}
+  - {fileID: 1687102644576276923}
+  - {fileID: -6860368044910579390}
+  - {fileID: -2432181171333576846}
+  - {fileID: -1712460569591563182}
+  - {fileID: 834001857013501082}
+  - {fileID: 5919010142718054082}
+  - {fileID: 738514697141914899}
+  - {fileID: 7938830953732148355}
+  - {fileID: -5878253292454161992}
+  - {fileID: 225181858961545146}
+  - {fileID: -4911057645665740436}
+  - {fileID: 3097019063968821155}
+  - {fileID: -3649094097491488330}
+  - {fileID: 9197001341273075174}
+  - {fileID: -2362458153735495609}
+  - {fileID: -6118880481046270666}
+  - {fileID: 8841408191938540817}
+  - {fileID: 6160626043858812393}
+  - {fileID: 7507778447586987912}
+  - {fileID: -2282287343243637251}
+  - {fileID: -7546147566782482443}
+  - {fileID: 6894543024063243103}
+  - {fileID: 3527928997634902660}
+  - {fileID: -2565812154062786776}
+  - {fileID: 4942879295773123869}
+  - {fileID: -381543581852300509}
+  - {fileID: 7239629969131182005}
+  - {fileID: 2335146780297353333}
+  - {fileID: -6892420499803824857}
+  - {fileID: 776754102742601528}
+  - {fileID: 8027547058598243134}
+  - {fileID: -33094583384016379}
+  - {fileID: 7096388574028334585}
+  - {fileID: -2973261416090108891}
+  - {fileID: 4961903204316833017}
+  - {fileID: -1254617769180591286}
+  - {fileID: -7210936778384734686}
+  - {fileID: 6171691268669736961}
+  - {fileID: -5924369743630599324}
+  - {fileID: 8231110259357048960}
+  - {fileID: 8849921832022064376}
+  - {fileID: -1408194635245005371}
+  - {fileID: 1643668381356056306}
+  - {fileID: 1353865475044547977}
+  - {fileID: -3232433908322127437}
+  - {fileID: 4641034030743640673}
+  - {fileID: 3608279416520971944}
+  - {fileID: 3181528157062773155}
+  - {fileID: -3202850021549685955}
+  - {fileID: 8756843984874007774}
+  - {fileID: -1552930759197680356}
+  - {fileID: -6901882589350447705}
+  - {fileID: 7202037392549117512}
+  - {fileID: -6208413553910104504}
+  - {fileID: 8528277890896423969}
+  - {fileID: -6863963591301350788}
+  - {fileID: -2218036948680054522}
+  - {fileID: -5918382256388920497}
+  - {fileID: -7640176656586186487}
+  - {fileID: 263733352782621732}
+  - {fileID: -7637910392915781665}
+  - {fileID: 1530512609889909214}
+  - {fileID: 7137578786054010913}
+  - {fileID: 6013741452276442519}
+  - {fileID: 3418153935460934106}
+  - {fileID: -7999309219122983549}
+  - {fileID: -3481432101291395991}
+  - {fileID: -6216498425343431482}
+  _blackboard:
+    _entries:
+    - _key: HasTarget
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: Target
+      _valueType: 5
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: DistanceToTarget
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 3.4028235e+38
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: CurrentState
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: HpPercent
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: CurrentPhaseName
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: PhaseIndex
+      _valueType: 1
+      _boolValue: 0
+      _intValue: -1
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: AllowCharge
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: AllowFlank
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: MaxConsecutiveAttacks
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 3
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: ContinueAttackChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.35
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: GuardChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: RetreatChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.2
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: IsPlayerAttacking
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: IsPlayerGuarding
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: IsPlayerStaggered
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: IsPlayerRecovering
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: IsPlayerDodgingFrequently
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: CanUseSkill
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: HasAttackSlot
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: NextActionAllowedTime
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: enablePatrol
+      _valueType: 0
+      _boolValue: 1
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: optimalCombatDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 2.8
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: minCombatDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1.2
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: personalSpaceDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.85
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: guardChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.28
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: retreatChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.18
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _key: circleWeight
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1.1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+  _editorGroups: []
+--- !u!114 &118707982503941322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: BlockedState
+  m_EditorClassIdentifier: 
+  _guid: ac7650da7da24f87aa1a23228a955016
+  _displayName: BlockedState
+  _comment: 
+  _editorPosition: {x: 150, y: 340}
+  _children:
+  - {fileID: -5176394656305153503}
+  - {fileID: 1687102644576276923}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &225181858961545146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Phase1AggressiveReactToAttack
+  m_EditorClassIdentifier: 
+  _guid: 06c79d39a64e4686b177ce15756237f9
+  _displayName: Phase1AggressiveReactToAttack
+  _comment: 
+  _editorPosition: {x: 2700, y: 340}
+  _children:
+  - {fileID: -4911057645665740436}
+  - {fileID: 3097019063968821155}
+  - {fileID: -3649094097491488330}
+  - {fileID: 9197001341273075174}
+  - {fileID: -2362458153735495609}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &263733352782621732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: GreaterOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 766a02d20cb2499ea6e79bce97e5b0de
+  _displayName: GreaterOrEqual
+  _comment: 
+  _editorPosition: {x: 12900, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 1
+  _minDistance: 2.2
+  _maxDistance: 3
+--- !u!114 &738514697141914899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Patrol
+  m_EditorClassIdentifier: 
+  _guid: 058836f4eb504702bc7fc24058a1cc12
+  _displayName: Transition Patrol
+  _comment: 
+  _editorPosition: {x: 1200, y: 850}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 1
+  _skipIfAlreadyInState: 1
+--- !u!114 &776754102742601528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: GreaterOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 70b021e53a284271900c32049c06e81a
+  _displayName: GreaterOrEqual
+  _comment: 
+  _editorPosition: {x: 6600, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 1
+  _minDistance: 2.2
+  _maxDistance: 3
+--- !u!114 &834001857013501082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Patrol If Enabled
+  m_EditorClassIdentifier: 
+  _guid: 52054ecbc57b488db3dbe47714f66a36
+  _displayName: Patrol If Enabled
+  _comment: 
+  _editorPosition: {x: 1050, y: 680}
+  _children:
+  - {fileID: 5919010142718054082}
+  - {fileID: 738514697141914899}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1353865475044547977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: AttackRollBasicHeavySkill
+  m_EditorClassIdentifier: 
+  _guid: 664bc631898342c6886564eb02df07ba
+  _displayName: AttackRollBasicHeavySkill
+  _comment: 
+  _editorPosition: {x: 10500, y: 340}
+  _children:
+  - {fileID: -3232433908322127437}
+  - {fileID: 4641034030743640673}
+  - {fileID: 3608279416520971944}
+  - {fileID: 3181528157062773155}
+  - {fileID: -3202850021549685955}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1530512609889909214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: TargetOrbitAndSpacing
+  m_EditorClassIdentifier: 
+  _guid: 5ea9a4e2c98e4734a0ef79b5be5d74cd
+  _displayName: TargetOrbitAndSpacing
+  _comment: 
+  _editorPosition: {x: 14100, y: 340}
+  _children:
+  - {fileID: 7137578786054010913}
+  - {fileID: 6013741452276442519}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1643668381356056306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Circle
+  m_EditorClassIdentifier: 
+  _guid: c93347a4eca64316a77cbc1842b7ab88
+  _displayName: Transition Circle
+  _comment: 
+  _editorPosition: {x: 9300, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 5
+  _skipIfAlreadyInState: 1
+--- !u!114 &1687102644576276923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aa96e7241c54b34bb28a75be459a3cc, type: 3}
+  m_Name: Keep Current State
+  m_EditorClassIdentifier: 
+  _guid: 014ced1f0cc043beb3de24d298a056d2
+  _displayName: Keep Current State
+  _comment: 
+  _editorPosition: {x: 300, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &2335146780297353333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: 5e05b2e9571a41a38b505afe93007608
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 6000, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &3097019063968821155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e109138ad34ea58998b526a5a1a1a1, type: 3}
+  m_Name: Is Enemy Phase 1
+  m_EditorClassIdentifier: 
+  _guid: b9d152f76b284cf9a6d219eba2c458f0
+  _displayName: Is Enemy Phase 1
+  _comment: 
+  _editorPosition: {x: 2100, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _phaseName: 
+  _phaseIndex: 1
+--- !u!114 &3181528157062773155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 169fde101537b144a9eebbcd357478bd, type: 3}
+  m_Name: Can Use Enemy Skill
+  m_EditorClassIdentifier: 
+  _guid: a9f9c7264cc8476d85986b98113676f0
+  _displayName: Can Use Enemy Skill
+  _comment: 
+  _editorPosition: {x: 10500, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _requireTarget: 1
+--- !u!114 &3297172703834302015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56005f5a9cb54df886689cd85da20772, type: 3}
+  m_Name: Sync Enemy Phase
+  m_EditorClassIdentifier: 
+  _guid: 68af597b3b2544ef9eb8f386b78cd6fe
+  _displayName: Sync Enemy Phase
+  _comment: 
+  _editorPosition: {x: 7050, y: 110}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &3418153935460934106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Circle
+  m_EditorClassIdentifier: 
+  _guid: 62a4206b00d24b4e998d65ce0e0f69ef
+  _displayName: Transition Circle
+  _comment: 
+  _editorPosition: {x: 13800, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 5
+  _skipIfAlreadyInState: 1
+--- !u!114 &3527928997634902660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 4e8064ae34b44610ba711b11ac39ede8
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 4800, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 3.4
+--- !u!114 &3608279416520971944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 4bed8b916847473781bb12a3e6a5847e
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 10200, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.2
+--- !u!114 &3762472031777224332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e6be670b4b2cdb4ebe1999b2f551b6b, type: 3}
+  m_Name: Sync Enemy Blackboard
+  m_EditorClassIdentifier: 
+  _guid: f7a39653320b4ef3909f16543e8e5d67
+  _displayName: Sync Enemy Blackboard
+  _comment: 
+  _editorPosition: {x: 7050, y: -110}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+  _hasTargetKey: HasTarget
+  _targetKey: Target
+  _distanceKey: DistanceToTarget
+  _stateKey: CurrentState
+--- !u!114 &4641034030743640673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: Action Delay Elapsed
+  m_EditorClassIdentifier: 
+  _guid: 3a7eb699b0484f1a81763c27f0774074
+  _displayName: Action Delay Elapsed
+  _comment: 
+  _editorPosition: {x: 9900, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &4942879295773123869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 826a4a47726b99746be8d13f266d5139, type: 3}
+  m_Name: Request Attack Slot
+  m_EditorClassIdentifier: 
+  _guid: cdd2744543a64d48a4ab30fa8a041392
+  _displayName: Request Attack Slot
+  _comment: 
+  _editorPosition: {x: 5400, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &4961903204316833017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: ReactGuardOrDodgeWhenTargetAttacks
+  m_EditorClassIdentifier: 
+  _guid: db32a64339dd47d6a1fc4d2ef03a0806
+  _displayName: ReactGuardOrDodgeWhenTargetAttacks
+  _comment: 
+  _editorPosition: {x: 8400, y: 340}
+  _children:
+  - {fileID: -1254617769180591286}
+  - {fileID: -7210936778384734686}
+  - {fileID: 6171691268669736961}
+  - {fileID: -5924369743630599324}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &5919010142718054082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b541d85ae1c27d41a595bb8e94279b5, type: 3}
+  m_Name: Is Patrol Enabled
+  m_EditorClassIdentifier: 
+  _guid: b7bf4cd7f5424a148433086df6a63b52
+  _displayName: Is Patrol Enabled
+  _comment: 
+  _editorPosition: {x: 900, y: 850}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &6013741452276442519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: TargetOrbitAndSpacing Weighted
+  m_EditorClassIdentifier: 
+  _guid: e1ed23fbfbbc4fabaea3dfaba535c7c4
+  _displayName: TargetOrbitAndSpacing Weighted
+  _comment: 
+  _editorPosition: {x: 14250, y: 510}
+  _children:
+  - {fileID: 3418153935460934106}
+  - {fileID: -7999309219122983549}
+  - {fileID: -3481432101291395991}
+  - {fileID: -6216498425343431482}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 1
+  - 0.4
+  - 0.2
+  - 0.1
+--- !u!114 &6160626043858812393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Retreat
+  m_EditorClassIdentifier: 
+  _guid: 34218b07d8734189920dfed87aa5c37c
+  _displayName: Transition Retreat
+  _comment: 
+  _editorPosition: {x: 3600, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 4
+  _skipIfAlreadyInState: 1
+--- !u!114 &6171691268669736961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 901c1c2513b04bcca7d6054c01e8194c
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 8100, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.8
+--- !u!114 &6751305378796225856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Root
+  m_EditorClassIdentifier: 
+  _guid: 245baea8a7a4449a9e327c5cb1b3b241
+  _displayName: Root
+  _comment: 
+  _editorPosition: {x: 7350, y: 0}
+  _children:
+  - {fileID: -2130741883148297624}
+  - {fileID: -5878253292454161992}
+  - {fileID: -2973261416090108891}
+  - {fileID: -2218036948680054522}
+  _disabled: 0
+  _breakpoint: 0
+  _services:
+  - {fileID: 3762472031777224332}
+  - {fileID: -581270222221026009}
+  - {fileID: 3297172703834302015}
+  _abortType: 0
+--- !u!114 &6894543024063243103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: Action Delay Elapsed
+  m_EditorClassIdentifier: 
+  _guid: 1c469fa5cbc34f91b77d86d35e60047e
+  _displayName: Action Delay Elapsed
+  _comment: 
+  _editorPosition: {x: 4500, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &7096388574028334585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Circle
+  m_EditorClassIdentifier: 
+  _guid: 5e6a419a27024b3b889ef9e00dfe7247
+  _displayName: Transition Circle
+  _comment: 
+  _editorPosition: {x: 7200, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 5
+  _skipIfAlreadyInState: 1
+--- !u!114 &7137578786054010913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: 
+  _guid: 7484b43801db4401bf9f2922f014bb37
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 13500, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &7202037392549117512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: RetreatFromPointBlank
+  m_EditorClassIdentifier: 
+  _guid: 90b16a7dbf6444b1a6648d2176b82e05
+  _displayName: RetreatFromPointBlank
+  _comment: 
+  _editorPosition: {x: 12000, y: 340}
+  _children:
+  - {fileID: -6208413553910104504}
+  - {fileID: 8528277890896423969}
+  - {fileID: -6863963591301350788}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &7239629969131182005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Phase0KeepPressure
+  m_EditorClassIdentifier: 
+  _guid: 26f8bdf09e6144999a15c4b45f46c446
+  _displayName: Phase0KeepPressure
+  _comment: 
+  _editorPosition: {x: 6600, y: 340}
+  _children:
+  - {fileID: 2335146780297353333}
+  - {fileID: -6892420499803824857}
+  - {fileID: 776754102742601528}
+  - {fileID: 8027547058598243134}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &7507778447586987912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Phase1SkillPressure
+  m_EditorClassIdentifier: 
+  _guid: 3a30b0c85d4b4f80be248560c92e86dc
+  _displayName: Phase1SkillPressure
+  _comment: 
+  _editorPosition: {x: 4800, y: 340}
+  _children:
+  - {fileID: -2282287343243637251}
+  - {fileID: -7546147566782482443}
+  - {fileID: 6894543024063243103}
+  - {fileID: 3527928997634902660}
+  - {fileID: -2565812154062786776}
+  - {fileID: 4942879295773123869}
+  - {fileID: -381543581852300509}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &7938830953732148355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Idle
+  m_EditorClassIdentifier: 
+  _guid: 6887574ebaa54293905429f22f284040
+  _displayName: Transition Idle
+  _comment: 
+  _editorPosition: {x: 1500, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 0
+  _skipIfAlreadyInState: 1
+--- !u!114 &8027547058598243134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: Phase0KeepPressure Weighted
+  m_EditorClassIdentifier: 
+  _guid: a1d7b977d4924030a4ac0fd66d81d39a
+  _displayName: Phase0KeepPressure Weighted
+  _comment: 
+  _editorPosition: {x: 7050, y: 510}
+  _children:
+  - {fileID: -33094583384016379}
+  - {fileID: 7096388574028334585}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 0.65
+  - 0.35
+--- !u!114 &8231110259357048960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Guard
+  m_EditorClassIdentifier: 
+  _guid: 83616d2f440f4a56b51d603daa8a9c23
+  _displayName: Transition Guard
+  _comment: 
+  _editorPosition: {x: 8400, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 6
+  _skipIfAlreadyInState: 1
+--- !u!114 &8528277890896423969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 7d65086e64794aa6b7d8208f711bcb28
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 12000, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 0.8
+--- !u!114 &8756843984874007774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack Basic
+  m_EditorClassIdentifier: 
+  _guid: d54c438bdca34fb9b4e23ba3a08e990c
+  _displayName: Execute Attack Basic
+  _comment: 
+  _editorPosition: {x: 10800, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 1
+--- !u!114 &8841408191938540817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Dodge
+  m_EditorClassIdentifier: 
+  _guid: f08d375e17af4263b76832b2ccd3eadf
+  _displayName: Transition Dodge
+  _comment: 
+  _editorPosition: {x: 3300, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 10
+  _skipIfAlreadyInState: 1
+--- !u!114 &8849921832022064376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Dodge
+  m_EditorClassIdentifier: 
+  _guid: a6562201ed91471d80a9c333d8cca6c1
+  _displayName: Transition Dodge
+  _comment: 
+  _editorPosition: {x: 8700, y: 680}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 10
+  _skipIfAlreadyInState: 1
+--- !u!114 &9197001341273075174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: 
+  _guid: 719cdb7cc60e40af99ddc52e0e46aa20
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 2700, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.6

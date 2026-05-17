@@ -1,0 +1,100 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Boss_MainPlant_Phase",
+    "displayName": "Boss Main Plant Phase",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_MainPlant.asset",
+    "blackboard": {
+        "tickInterval": 0.08,
+        "enablePatrol": false,
+        "optimalCombatDistance": 5.0,
+        "minCombatDistance": 2.0,
+        "personalSpaceDistance": 1.2,
+        "guardChance": 0.0,
+        "retreatChance": 0.2,
+        "circleWeight": 0.8
+    },
+    "rules": [
+        {
+            "name": "BlockedState",
+            "priority": 1000,
+            "when": [
+                { "condition": "IsBlockedEnemyState" }
+            ],
+            "do": [
+                { "action": "KeepCurrentState" }
+            ]
+        },
+        {
+            "name": "NoTarget",
+            "priority": 900,
+            "when": [
+                { "condition": "HasTarget", "invert": true }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Idle" }
+            ]
+        },
+        {
+            "name": "DesperationPhaseBurst",
+            "priority": 860,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsEnemyPhase", "value": "0" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "7.0" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "DesperationRetreatSpacing",
+            "priority": 820,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "IsEnemyPhase", "value": "0" },
+                { "condition": "DistanceLessOrEqual", "value": "1.8" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Retreat" }
+            ]
+        },
+        {
+            "name": "RootPatternAttack",
+            "priority": 720,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "ActionDelayElapsed" },
+                { "condition": "DistanceLessOrEqual", "value": "5.0" },
+                { "condition": "CanUseSkill" }
+            ],
+            "do": [
+                { "action": "RequestAttackSlot" },
+                { "action": "ExecuteAttack" }
+            ]
+        },
+        {
+            "name": "Recenter",
+            "priority": 500,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+            ],
+            "do": [
+                { "action": "Transition", "state": "Chase" }
+            ]
+        },
+        {
+            "name": "BossIdle",
+            "priority": 100,
+            "select": "WeightedRandom",
+            "choices": [
+                { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" },
+                { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" }
+            ]
+        }
+    ]
+}

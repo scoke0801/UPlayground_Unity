@@ -268,13 +268,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var textBlock = new VisualElement();
             textBlock.style.flexGrow = 1;
 
-            var title = new Label(node.DisplayName);
+            var title = new Label(BehaviorTreeDisplayNameRegistry.GetNodeTitle(node));
             title.style.fontSize = 13f;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
             title.style.color = BehaviorTreeEditorStyles.Text;
             textBlock.Add(title);
 
-            var meta = new Label($"{GetCategoryName(node)} · {node.GetType().Name} · {ShortGuid(node.Guid)}");
+            var meta = new Label($"{GetCategoryName(node)} · {node.GetType().Name} · {node.DisplayName} · {ShortGuid(node.Guid)}");
             meta.style.fontSize = 10f;
             meta.style.color = BehaviorTreeEditorStyles.TextDim;
             textBlock.Add(meta);

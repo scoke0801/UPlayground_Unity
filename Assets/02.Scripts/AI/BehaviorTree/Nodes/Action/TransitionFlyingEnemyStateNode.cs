@@ -29,7 +29,7 @@ namespace UPlayGround.AI.BehaviorTree
         protected override BTStatus OnUpdate()
         {
             var controller = Context?.GetComponentCached<ActorMovementController>();
-            if (controller == null || IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState?.StateName))
+            if (controller == null || IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState))
                 return BTStatus.Failure;
 
             var targetName = GetStateName(_targetState);

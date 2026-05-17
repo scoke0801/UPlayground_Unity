@@ -48,7 +48,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var contents = new GUIContent[options.Count];
             for (var i = 0; i < options.Count; i++)
-                contents[i] = new GUIContent(options[i]);
+            {
+                var option = options[i];
+                var optionLabelText = option == NoneLabel || option.EndsWith("(missing)")
+                    ? option
+                    : BehaviorTreeDisplayNameRegistry.FormatWithRawName(
+                        BehaviorTreeDisplayNameRegistry.GetBlackboardLabel(option),
+                        option);
+                contents[i] = new GUIContent(optionLabelText);
+            }
 
             EditorGUI.BeginProperty(position, label, property);
 

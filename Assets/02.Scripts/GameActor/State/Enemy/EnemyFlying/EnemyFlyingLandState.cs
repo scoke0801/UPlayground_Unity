@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyFlyingLandState : GameActorState
     {
         public override string StateName => "Flying_Land";
+        public override bool BlocksBehaviorTree => true;
         public override bool AdjustGravity => false;
 
         private readonly EnemyFlyingAIContext _brain;

@@ -14,6 +14,7 @@ namespace UPlayGround.State
     public class EnemyGrabbedState : GameActorState
     {
         public override string StateName => "Grabbed";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly AttackData _attackData;
         private float _remainingDuration;

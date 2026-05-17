@@ -14,6 +14,7 @@ namespace UPlayGround.State
     public class EnemyHitState : GameActorState
     {
         public override string StateName => "Hit";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly AttackData _attackData;
         public EnemyHitState(ActorMovementController controller, AttackData attackData = null) : base(controller)
@@ -31,7 +32,8 @@ namespace UPlayGround.State
             controller.MotionWarp?.ClearTarget();
 
             var memory = gameActor.GetComponent<EnemyTacticalMemory>();
-            memory?.NotifyTookDamage();
+            if (memory != null && !memory.WasHitRecently(0.05f))
+                memory.NotifyTookDamage();
 
             // reactionType에 따라 경직 애니 선택
             AnimKey hitAnim    = GetHitAnimKey();

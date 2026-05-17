@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class EnemyFlyingGroundAttackState : GameActorState
     {
         public override string StateName => "Flying_GroundAttack";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyFlyingAIContext _brain;
         private EnemyCombat _combat;

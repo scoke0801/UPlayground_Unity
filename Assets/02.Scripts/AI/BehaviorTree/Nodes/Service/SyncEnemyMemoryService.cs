@@ -20,18 +20,29 @@ namespace UPlayGround.AI.BehaviorTree
             var isStaggered = memory != null && memory.IsPlayerStaggered();
             var isRecovering = memory != null && memory.IsPlayerRecovering();
             var isDodgingFrequently = memory != null && memory.IsPlayerDodgingFrequently();
+            var poise = Context.GetComponentCached<PoiseStat>();
+            var wasHitRecently = memory != null && memory.WasHitRecently();
+            var recentHitCount = memory?.RecentHitCount ?? 0;
+            var lastHitReactionType = memory?.LastHitReactionType.ToString() ?? "";
+            var poiseRatio = poise != null ? poise.PoisePercent : 1f;
+            var isPoiseBroken = poise != null && poise.IsPoiseBroken;
 
             Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerAttacking, isAttacking);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerGuarding, isGuarding);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerStaggered, isStaggered);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerRecovering, isRecovering);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerDodgingFrequently, isDodgingFrequently);
+            Context.Blackboard.SetBool(EnemyBlackboardKeys.RecentlyHitByPlayer, wasHitRecently);
+            Context.Blackboard.SetInt(EnemyBlackboardKeys.RecentHitCount, recentHitCount);
+            Context.Blackboard.SetString(EnemyBlackboardKeys.LastHitReactionType, lastHitReactionType);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.PoiseRatio, poiseRatio);
+            Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPoiseBroken, isPoiseBroken);
 
             Context.DebugTrace?.Record(
                 this,
                 "MemoryWrite",
                 BTStatus.Success,
-                $"Attacking={isAttacking}, Guarding={isGuarding}, Staggered={isStaggered}, Recovering={isRecovering}, DodgingFreq={isDodgingFrequently}");
+                $"Attacking={isAttacking}, Guarding={isGuarding}, Staggered={isStaggered}, Recovering={isRecovering}, DodgingFreq={isDodgingFrequently}, HitRecently={wasHitRecently}, PoiseBroken={isPoiseBroken}");
         }
     }
 }

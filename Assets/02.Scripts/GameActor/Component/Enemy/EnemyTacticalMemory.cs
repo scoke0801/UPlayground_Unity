@@ -1,4 +1,6 @@
 using UnityEngine;
+using UPlayGround.Data;
+using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
@@ -18,6 +20,18 @@ namespace UPlayGround.Component
         public float LastBlockTime     { get; private set; } = -999f;
         public float LastAttackTime    { get; private set; } = -999f;
         public float LastRetreatTime   { get; private set; } = -999f;
+
+        // ── 피격 반응 기억 ──
+        public AttackReactionType LastHitReactionType { get; private set; } = AttackReactionType.None;
+        public int RecentHitCount { get; private set; }
+        public bool WasLastHitPoiseBreak { get; private set; }
+        public Vector3 LastHitDirection { get; private set; }
+
+        [Header("Hit Reaction Memory")]
+        [SerializeField] private float _recentHitWindow = 2f;
+        [SerializeField] private float _hitCountResetWindow = 3f;
+
+        private float _lastHitCountRefreshTime = -999f;
 
         // ── 플레이어 행동 관찰 ──
         private int   _playerDodgeCount;
@@ -66,6 +80,9 @@ namespace UPlayGround.Component
 
             // 플레이어 이동 관찰
             UpdatePlayerObservation(dt);
+
+            if (Time.time - _lastHitCountRefreshTime >= _hitCountResetWindow)
+                RecentHitCount = 0;
         }
 
         // ══════════════════════════════════════════
@@ -165,7 +182,18 @@ namespace UPlayGround.Component
         public void NotifyTookDamage()
         {
             LastHitTime = Time.time;
+            _lastHitCountRefreshTime = Time.time;
+            RecentHitCount++;
             ConsecutiveAttackCount = 0;
+        }
+
+        public void NotifyTookDamage(AttackData attackData, bool poiseBroken)
+        {
+            NotifyTookDamage();
+
+            LastHitReactionType = attackData?.reactionType ?? AttackReactionType.None;
+            WasLastHitPoiseBreak = poiseBroken;
+            LastHitDirection = attackData?.attackDirection ?? Vector3.zero;
         }
 
         public void NotifyBlocked()
@@ -207,6 +235,37 @@ namespace UPlayGround.Component
 
         public bool WasHitRecently(float hitWindow = 2f)
             => Time.time - LastHitTime < hitWindow;
+
+        public bool WasHitRecently()
+            => WasHitRecently(_recentHitWindow);
+
+        public bool IsRecentHitCountGreaterOrEqual(int threshold)
+            => RecentHitCount >= threshold && WasHitRecently(_hitCountResetWindow);
+
+        public bool WasLastHitHeavy()
+            => LastHitReactionType is AttackReactionType.Heavy or AttackReactionType.KnockBack
+                or AttackReactionType.Stun or AttackReactionType.Airborne or AttackReactionType.Knockdown
+                or AttackReactionType.Grab;
+
+        public bool CanIgnoreLightHit(PoiseStat poise)
+        {
+            if (!WasHitRecently())
+                return false;
+
+            var lightReaction = LastHitReactionType is AttackReactionType.None or AttackReactionType.Light;
+            if (!lightReaction)
+                return false;
+
+            return !WasLastHitPoiseBreak && (poise == null || !poise.IsPoiseBroken);
+        }
+
+        public bool CanRevengeAfterHit(PoiseStat poise, float cooldown = 1.5f)
+        {
+            if (!WasHitRecently() || WasLastHitPoiseBreak || (poise != null && poise.IsPoiseBroken))
+                return false;
+
+            return Time.time - LastCombatActionTime >= cooldown;
+        }
 
         public bool DidBlockRecently(float blockWindow = 1.5f)
             => Time.time - LastBlockTime < blockWindow;

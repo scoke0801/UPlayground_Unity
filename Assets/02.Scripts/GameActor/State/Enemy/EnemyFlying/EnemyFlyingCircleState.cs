@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class EnemyFlyingCircleState : GameActorState
     {
         public override string StateName => "Flying_Circle";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyFlyingAIContext _brain;
         private float _duration;

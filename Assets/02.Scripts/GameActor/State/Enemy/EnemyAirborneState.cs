@@ -11,6 +11,7 @@ namespace UPlayGround.State
     public class EnemyAirborneState : GameActorState
     {
         public override string StateName => "Airborne";
+        public override bool BlocksBehaviorTree => true;
         public override bool AdjustGravity => false;
         private bool _landStarted = false;
         private bool _hasLeftGround;

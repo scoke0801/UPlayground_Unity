@@ -18,6 +18,7 @@ namespace UPlayGround.State
     public class EnemyFlankState : GameActorState
     {
         public override string StateName => "Flank";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyCombat _combat;
         private readonly EnemyAIContext _context;

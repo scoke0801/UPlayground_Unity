@@ -15,6 +15,7 @@ namespace UPlayGround.State
     public class EnemyFlyingDiveState : GameActorState
     {
         public override string StateName => "Flying_Dive";
+        public override bool BlocksBehaviorTree => true;
         public override bool AdjustGravity => false;
 
         private readonly EnemyFlyingAIContext _brain;

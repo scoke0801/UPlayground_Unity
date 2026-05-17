@@ -209,6 +209,8 @@ namespace UPlayGround
                 poiseBroken = _poiseStat.IsPoiseBroken;
             }
 
+            GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, poiseBroken);
+
             if (attackData != null && poiseBroken)
             {
                 switch (attackData.reactionType)

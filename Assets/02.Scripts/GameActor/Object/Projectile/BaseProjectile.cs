@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
@@ -32,6 +33,7 @@ namespace UPlayGround
         protected AttackData attackData;
         protected GameActor owner;
         protected string hitEffectKey;
+        protected PlayerCombat _ownerPlayerCombat;
         
         public bool IsActive => isActive;
         public ProjectileType ProjectileType => _projectileType;
@@ -57,6 +59,7 @@ namespace UPlayGround
             isActive = true;
             _hitTargets.Clear();
             hitEffectKey = hitParticleName;
+            _ownerPlayerCombat = null;
             
             if (trailEffect != null)
                 trailEffect.Play();
@@ -76,6 +79,15 @@ namespace UPlayGround
 
         protected virtual void InitFromPlayer(PlayerActor ownerObject)
         {
+            _ownerPlayerCombat = ownerObject != null ? ownerObject.GetCombat() : null;
+
+            // 투사체 히트가 어떤 종류의 공격으로 집계될지 결정.
+            // 스폰 시점의 PlayerCombat.CurrentAttackData.attackKind를 상속한다.
+            // (스킬 모션에서 발사된 투사체는 SkillAttack → 게이지 충전 0과 일치)
+            if (_ownerPlayerCombat != null && _ownerPlayerCombat.CurrentAttackData != null)
+            {
+                attackData.attackKind = _ownerPlayerCombat.CurrentAttackData.attackKind;
+            }
         }
 
         protected virtual void InitFromMonsterActor(MonsterActor ownerObject)
@@ -142,6 +154,10 @@ namespace UPlayGround
                 {
                     CameraManager.Instance.Punch(transform.forward, 0.12f, 0.12f);
                     CameraManager.Instance.StartShake(CameraShakeIdType.LiteHit);
+
+                    // 스킬 게이지 등 후속 처리. PlayerCombat의 OnAttackHit를 동일하게 발화시킨다.
+                    if (_ownerPlayerCombat != null)
+                        _ownerPlayerCombat.NotifyAttackHit(attackData);
                 }
                 // 이펙트 표시
                 // GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);

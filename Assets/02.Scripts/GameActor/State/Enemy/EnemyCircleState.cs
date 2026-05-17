@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyCircleState : GameActorState
     {
         public override string StateName => "Circle";
+        public override bool BlocksBehaviorTree => true;
 
         private EnemyAIContext _context;
         private EnemyDetection _detection;

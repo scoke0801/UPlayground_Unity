@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyFlyingTakeOffState : GameActorState
     {
         public override string StateName => "Flying_TakeOff";
+        public override bool BlocksBehaviorTree => true;
         public override bool AdjustGravity => false; // 이륙 중 중력 무시
 
         private readonly EnemyFlyingAIContext _brain;

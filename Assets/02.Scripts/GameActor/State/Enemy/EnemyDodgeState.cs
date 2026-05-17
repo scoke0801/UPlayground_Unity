@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyDodgeState : GameActorState
     {
         public override string StateName => "Dodge";
+        public override bool BlocksBehaviorTree => true;
         public override bool GrantsInvincibility => true;
         public override bool SuppressesHitReaction => true;
 

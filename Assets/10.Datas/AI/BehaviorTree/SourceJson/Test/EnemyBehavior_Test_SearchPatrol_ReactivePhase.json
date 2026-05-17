@@ -12,7 +12,22 @@
         "personalSpaceDistance": 0.85,
         "guardChance": 0.28,
         "retreatChance": 0.18,
-        "circleWeight": 1.1
+        "circleWeight": 1.1,
+        "aggression": 0.55,
+        "reactionChance": 0.45,
+        "counterChance": 0.22,
+        "dodgeChance": 0.34,
+        "punishRecoveryChance": 0.36,
+        "antiGuardChance": 0.32,
+        "minRetreatCooldown": 1.5,
+        "maxComboPressureCount": 3,
+        "preferredRange": 2.8,
+        "recentHitCount": 0,
+        "lastHitReactionType": "",
+        "poiseRatio": 1.0,
+        "isPoiseBroken": false,
+        "hitReactionLockTime": 0.0,
+        "revengeChance": 0.28
     },
     "groups": [
         {
@@ -42,7 +57,59 @@
             ]
         },
         {
-            "name": "02 Phase Branch",
+            "name": "02 Emergency Reactions",
+            "priority": 950,
+            "rules": [
+                {
+                    "name": "PoiseBreakRetreatOrCounter",
+                    "priority": 950,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "IsPoiseBroken" },
+                        { "condition": "CooldownReady", "value": "PoiseBreakReaction" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "dodgeChance", "action": "Transition", "state": "Dodge" },
+                        { "weight": 0.35, "action": "Transition", "state": "Retreat" },
+                        { "weightKey": "counterChance", "action": "Transition", "state": "Counter" }
+                    ]
+                },
+                {
+                    "name": "RevengeAfterLightHit",
+                    "priority": 900,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "RecentlyHitByPlayer" },
+                        { "condition": "CanIgnoreLightHit" },
+                        { "condition": "CanRevengeAfterHit", "value": "1.5" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "revengeChance", "action": "Transition", "state": "Counter" },
+                        { "weightKey": "guardChance", "action": "Transition", "state": "Guard" },
+                        { "weight": 0.20, "action": "Transition", "state": "Circle" }
+                    ]
+                },
+                {
+                    "name": "RepeatedHitDisengage",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "HasTarget" },
+                        { "condition": "RecentHitCountGreaterOrEqual", "value": "3" },
+                        { "condition": "CooldownReady", "value": "RepeatedHitReaction" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "dodgeChance", "action": "Transition", "state": "Dodge" },
+                        { "weightKey": "retreatChance", "action": "Transition", "state": "Retreat" },
+                        { "weightKey": "circleWeight", "action": "Transition", "state": "Circle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "03 Phase Branch",
             "priority": 900,
             "rules": [
                 {
@@ -93,7 +160,7 @@
             ]
         },
         {
-            "name": "03 Target Combat",
+            "name": "04 Target Combat",
             "priority": 800,
             "rules": [
                 {
@@ -142,7 +209,7 @@
             ]
         },
         {
-            "name": "04 Positioning",
+            "name": "05 Positioning",
             "priority": 600,
             "rules": [
                 {

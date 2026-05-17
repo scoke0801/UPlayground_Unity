@@ -38,5 +38,23 @@ namespace UPlayGround.AI.BehaviorTree
         public const string CanUseSkill = "CanUseSkill";
         public const string HasAttackSlot = "HasAttackSlot";
         public const string NextActionAllowedTime = "NextActionAllowedTime";
+
+        public const string Aggression = "aggression";
+        public const string ReactionChance = "reactionChance";
+        public const string CounterChance = "counterChance";
+        public const string DodgeChance = "dodgeChance";
+        public const string PunishRecoveryChance = "punishRecoveryChance";
+        public const string AntiGuardChance = "antiGuardChance";
+        public const string MinRetreatCooldown = "minRetreatCooldown";
+        public const string MaxComboPressureCount = "maxComboPressureCount";
+        public const string PreferredRange = "preferredRange";
+
+        public const string RecentlyHitByPlayer = "RecentlyHitByPlayer";
+        public const string RecentHitCount = "recentHitCount";
+        public const string LastHitReactionType = "lastHitReactionType";
+        public const string PoiseRatio = "poiseRatio";
+        public const string IsPoiseBroken = "isPoiseBroken";
+        public const string HitReactionLockTime = "hitReactionLockTime";
+        public const string RevengeChance = "revengeChance";
     }
 }

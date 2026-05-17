@@ -14,4 +14,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
   motionSets:
-    _serializedList: []
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: b38b2d83303d877418e063ae607b3cd2, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: f143c3b476f3fd3438d60e3c97c02dea, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: 45e5755c54d3b1b4482fee93cb25f453, type: 2}
+    - Key: 10
+      Value: {fileID: 11400000, guid: 0b47e76103f3a03468368ac84355d521, type: 2}
+    - Key: 11
+      Value: {fileID: 11400000, guid: 8b41b5ca6f1eea944986895c60439353, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: dee12220a10af1848a068d5c367d00a6, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 59c87d629ad2b794988edd4770880dce, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: 7e1afc03da063f8438fffbe3431af937, type: 2}
+    - Key: 200
+      Value: {fileID: 11400000, guid: 53faad08a2ced454c9f77c6ebfb673c5, type: 2}
+    - Key: 400
+      Value: {fileID: 11400000, guid: a9b7e573723bd604393f1b2cd65c007c, type: 2}
+    - Key: 401
+      Value: {fileID: 11400000, guid: 98e6ee0881ca4c5499f9b673de2c1522, type: 2}
+    - Key: 402
+      Value: {fileID: 11400000, guid: 1b2b0439622e1434b83cb201ae830959, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: d5c61b55305657f4aa6724958d7f26d8, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 72bb82cb328b9a348a2b42d07e51276c, type: 2}
+    - Key: 502
+      Value: {fileID: 11400000, guid: caf69bb45c99a9441aab43c6de6beac6, type: 2}
+    - Key: 503
+      Value: {fileID: 11400000, guid: b20a49c132a7b8d498dbd021167c0847, type: 2}
+    - Key: 530
+      Value: {fileID: 11400000, guid: f421a5bb9f53a9348ab2e61ab1207c47, type: 2}
+    - Key: 531
+      Value: {fileID: 11400000, guid: f421a5bb9f53a9348ab2e61ab1207c47, type: 2}
+    - Key: 550
+      Value: {fileID: 11400000, guid: 94ab168a944d21a4083f26fc61a84223, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: 02243d7bd2837ac41918d63c74418f30, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 7e4144cb22646f044ba36672a411bbf9, type: 2}
+    - Key: 860
+      Value: {fileID: 11400000, guid: 002ae5b074816a34fa7708f78a3da754, type: 2}
+    - Key: 840
+      Value: {fileID: 11400000, guid: 4d8078692a3aacc4aa60d95c6f244756, type: 2}

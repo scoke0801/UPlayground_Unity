@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partyOrder: 010000000500000009000000080000000200000003000000040000000a0000000b000000
   maxBattleSize: 4
-  defaultBattleOrder: 0500000008000000010000000b000000
+  defaultBattleOrder: 050000000a00000001000000
   startActiveIndex: 0
   growthData:
   - {fileID: 11400000, guid: 6a9e249a46228914d8b03ca4d6ac6fc3, type: 2}

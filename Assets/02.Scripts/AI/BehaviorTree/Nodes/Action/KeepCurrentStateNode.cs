@@ -7,7 +7,7 @@ namespace UPlayGround.AI.BehaviorTree
         protected override BTStatus OnUpdate()
         {
             var controller = Context?.GetComponentCached<ActorMovementController>();
-            return IsBlockedEnemyStateNode.IsBlockedState(controller?.CurrentState?.StateName)
+            return IsBlockedEnemyStateNode.IsBlockedState(controller?.CurrentState)
                 ? BTStatus.Running
                 : BTStatus.Failure;
         }

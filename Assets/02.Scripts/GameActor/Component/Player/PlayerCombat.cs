@@ -227,6 +227,16 @@ namespace UPlayGround.Component
         public event Action<AttackData>                        OnAttackStarted;
         public event Action<AttackData>                        OnAttackHit;
         public event Action                                    OnComboReset;
+
+        /// <summary>
+        /// 외부(투사체 등)에서 히트가 성립했음을 알릴 때 호출.
+        /// OnAttackHit 이벤트를 발화시켜 스킬 게이지 등 후속 처리가 이어지게 한다.
+        /// </summary>
+        public void NotifyAttackHit(AttackData attackData)
+        {
+            if (attackData == null) return;
+            OnAttackHit?.Invoke(attackData);
+        }
         
         private void Awake()
         {

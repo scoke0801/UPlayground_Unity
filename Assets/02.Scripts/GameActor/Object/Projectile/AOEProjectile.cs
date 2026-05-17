@@ -199,8 +199,12 @@ namespace UPlayGround
                 attackData.attacker = owner;
                 
                 _damageCooldowns[damageable] = damageCooldown;
-                
+
                 damageable.TakeDamage(attackData);
+
+                // 플레이어 소유 AOE: 스킬 게이지 등 후속 처리를 위해 OnAttackHit 발화
+                if (_ownerPlayerCombat != null)
+                    _ownerPlayerCombat.NotifyAttackHit(attackData);
             }
         }
 

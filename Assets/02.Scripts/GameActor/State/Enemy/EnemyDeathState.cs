@@ -14,6 +14,7 @@ namespace UPlayGround.State
     public class EnemyDeathState : GameActorState
     {
         public override string StateName => "Death";
+        public override bool BlocksBehaviorTree => true;
         
         private bool _isDestoryCalled = false;
         private PlayerEquipment _equipment;

@@ -56,11 +56,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 var keyProp = entry.FindPropertyRelative("_key");
                 var typeProp = entry.FindPropertyRelative("_valueType");
                 var currentKey = keyProp.stringValue;
+                var keyLabel = BehaviorTreeDisplayNameRegistry.GetBlackboardLabel(currentKey);
                 var runtimeEntry = runtimeBlackboard != null && !string.IsNullOrWhiteSpace(currentKey)
                     ? runtimeBlackboard.FindEntry(currentKey)
                     : null;
 
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                if (!string.IsNullOrWhiteSpace(currentKey))
+                    EditorGUILayout.LabelField(BehaviorTreeDisplayNameRegistry.FormatWithRawName(keyLabel, currentKey), EditorStyles.boldLabel);
 
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PropertyField(keyProp, GUIContent.none);

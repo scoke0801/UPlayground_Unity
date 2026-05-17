@@ -44,6 +44,21 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public float guardChance = -1f;
         public float retreatChance = -1f;
         public float circleWeight = 1f;
+        public float aggression = 0.5f;
+        public float reactionChance = 0.35f;
+        public float counterChance = 0.2f;
+        public float dodgeChance = 0.3f;
+        public float punishRecoveryChance = 0.35f;
+        public float antiGuardChance = 0.3f;
+        public float minRetreatCooldown = 1.5f;
+        public int maxComboPressureCount = 3;
+        public float preferredRange = -1f;
+        public int recentHitCount = 0;
+        public string lastHitReactionType = "";
+        public float poiseRatio = 1f;
+        public bool isPoiseBroken = false;
+        public float hitReactionLockTime = 0f;
+        public float revengeChance = 0.25f;
     }
 
     [Serializable]
@@ -348,7 +363,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                     foreach (var rule in orderedRules)
                     {
-                        var child = CreateRuleNode(tree, rule, sourceBehavior, row++);
+                        var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++);
                         if (child != null)
                             groupNode.Children.Add(child);
                     }
@@ -368,7 +383,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             for (var i = 0; i < orderedFlatRules.Count; i++)
             {
-                var child = CreateRuleNode(tree, orderedFlatRules[i], sourceBehavior, i);
+                var child = CreateRuleNode(tree, orderedFlatRules[i], sourceBehavior, data.blackboard, i);
                 if (child != null)
                     root.Children.Add(child);
             }
@@ -532,6 +547,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "IsEnemyPhase" or "DistanceLessOrEqual"
                 or "DistanceGreater" or "ActionDelayElapsed" or "CanUseSkill" or "IsPlayerAttacking"
                 or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                or "IsSelfLowHealth" or "HasAttackSlot" or "CooldownReady" or "RecentlyHitByPlayer"
+                or "WasLastHitHeavy" or "IsPoiseBroken" or "RecentHitCountGreaterOrEqual"
+                or "CanIgnoreLightHit" or "CanRevengeAfterHit"
                 // ── 비행 전용 ──
                 or "IsCurrentState" or "IsFlyingAirState" or "IsFlyingGroundCombatState"
                 or "IsAirAttackLimitReached" or "ShouldFlyingTakeOff" or "FlyingCanUseSkill"
@@ -591,6 +609,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             BehaviorTreeAsset tree,
             MonsterBehaviorRuleJson rule,
             EnemyBehaviorSO sourceBehavior,
+            MonsterBehaviorBlackboardJson blackboard,
             int index)
         {
             var sequence = CreateNode<SequenceNode>(tree, rule.name, new Vector2(260f, index * 180f));
@@ -613,7 +632,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         continue;
 
                     selector.Children.Add(action);
-                    selector.SetWeight(selector.Children.Count - 1, ResolveWeight(choice, sourceBehavior));
+                    selector.SetWeight(selector.Children.Count - 1, ResolveWeight(choice, sourceBehavior, blackboard));
                 }
 
                 sequence.Children.Add(selector);
@@ -651,6 +670,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "IsPlayerStaggered" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerStaggered, !condition.invert, row),
                 "IsPlayerRecovering" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerRecovering, !condition.invert, row),
                 "IsPlayerDodgingFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerDodgingFrequently, !condition.invert, row),
+                "RecentlyHitByPlayer" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.RecentlyHitByPlayer, !condition.invert, row),
+                "HasAttackSlot" => CreateNode<HasAttackSlotNode>(tree, "HasAttackSlot", new Vector2(520f, row * 180f)),
+                "CooldownReady" => CreateCooldownReadyNode(tree, condition.value, row),
+                "IsSelfLowHealth" => CreateSelfLowHealthNode(tree, condition.value, row),
+                "WasLastHitHeavy" => CreateNode<WasLastHitHeavyNode>(tree, "WasLastHitHeavy", new Vector2(520f, row * 180f)),
+                "IsPoiseBroken" => CreateNode<IsPoiseBrokenNode>(tree, "IsPoiseBroken", new Vector2(520f, row * 180f)),
+                "RecentHitCountGreaterOrEqual" => CreateRecentHitCountNode(tree, condition.value, row),
+                "CanIgnoreLightHit" => CreateNode<CanIgnoreLightHitNode>(tree, "CanIgnoreLightHit", new Vector2(520f, row * 180f)),
+                "CanRevengeAfterHit" => CreateRevengeAfterHitNode(tree, condition.value, row),
                 // ── 비행 전용 ──
                 "IsCurrentState" => CreateIsCurrentStateNode(tree, condition.value, !condition.invert, row),
                 "IsFlyingAirState" => CreateNode<IsFlyingAirStateNode>(tree, "Is Flying Air State", new Vector2(520f, row * 180f)),
@@ -665,6 +693,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             return condition.invert && condition.condition is not ("HasTarget" or "IsPlayerAttacking" or "IsPlayerGuarding"
                        or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                       or "RecentlyHitByPlayer"
                        or "IsCurrentState")
                 ? WrapInverter(tree, node, row)
                 : node;
@@ -799,6 +828,37 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return node;
         }
 
+        private static CooldownReadyNode CreateCooldownReadyNode(BehaviorTreeAsset tree, string cooldownId, int row)
+        {
+            var node = CreateNode<CooldownReadyNode>(tree, "CooldownReady", new Vector2(520f, row * 180f));
+            node.CooldownId = cooldownId;
+            return node;
+        }
+
+        private static IsSelfLowHealthNode CreateSelfLowHealthNode(BehaviorTreeAsset tree, string value, int row)
+        {
+            var node = CreateNode<IsSelfLowHealthNode>(tree, "IsSelfLowHealth", new Vector2(520f, row * 180f));
+            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var threshold))
+                node.Threshold = threshold;
+            return node;
+        }
+
+        private static RecentHitCountGreaterOrEqualNode CreateRecentHitCountNode(BehaviorTreeAsset tree, string value, int row)
+        {
+            var node = CreateNode<RecentHitCountGreaterOrEqualNode>(tree, "RecentHitCountGreaterOrEqual", new Vector2(520f, row * 180f));
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threshold))
+                node.Threshold = threshold;
+            return node;
+        }
+
+        private static CanRevengeAfterHitNode CreateRevengeAfterHitNode(BehaviorTreeAsset tree, string value, int row)
+        {
+            var node = CreateNode<CanRevengeAfterHitNode>(tree, "CanRevengeAfterHit", new Vector2(520f, row * 180f));
+            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var cooldown))
+                node.Cooldown = cooldown;
+            return node;
+        }
+
         private static WaitNode CreateWaitNode(BehaviorTreeAsset tree, float duration, int row)
         {
             var node = CreateNode<WaitNode>(tree, "Wait", new Vector2(820f, row * 180f));
@@ -851,6 +911,22 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             blackboard.SetBool(EnemyBlackboardKeys.CanUseSkill, false);
             blackboard.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
             blackboard.SetFloat(EnemyBlackboardKeys.NextActionAllowedTime, 0f);
+            blackboard.SetFloat(EnemyBlackboardKeys.Aggression, Mathf.Clamp01(data.blackboard.aggression));
+            blackboard.SetFloat(EnemyBlackboardKeys.ReactionChance, Mathf.Clamp01(data.blackboard.reactionChance));
+            blackboard.SetFloat(EnemyBlackboardKeys.CounterChance, Mathf.Clamp01(data.blackboard.counterChance));
+            blackboard.SetFloat(EnemyBlackboardKeys.DodgeChance, Mathf.Clamp01(data.blackboard.dodgeChance));
+            blackboard.SetFloat(EnemyBlackboardKeys.PunishRecoveryChance, Mathf.Clamp01(data.blackboard.punishRecoveryChance));
+            blackboard.SetFloat(EnemyBlackboardKeys.AntiGuardChance, Mathf.Clamp01(data.blackboard.antiGuardChance));
+            blackboard.SetFloat(EnemyBlackboardKeys.MinRetreatCooldown, Mathf.Max(0f, data.blackboard.minRetreatCooldown));
+            blackboard.SetInt(EnemyBlackboardKeys.MaxComboPressureCount, Mathf.Max(0, data.blackboard.maxComboPressureCount));
+            blackboard.SetFloat(EnemyBlackboardKeys.PreferredRange, ResolveBlackboardValue(data.blackboard.preferredRange, data.blackboard.optimalCombatDistance >= 0f ? data.blackboard.optimalCombatDistance : sourceBehavior?.optimalCombatDistance ?? 2.5f));
+            blackboard.SetBool(EnemyBlackboardKeys.RecentlyHitByPlayer, false);
+            blackboard.SetInt(EnemyBlackboardKeys.RecentHitCount, Mathf.Max(0, data.blackboard.recentHitCount));
+            blackboard.SetString(EnemyBlackboardKeys.LastHitReactionType, data.blackboard.lastHitReactionType ?? "");
+            blackboard.SetFloat(EnemyBlackboardKeys.PoiseRatio, Mathf.Clamp01(data.blackboard.poiseRatio));
+            blackboard.SetBool(EnemyBlackboardKeys.IsPoiseBroken, data.blackboard.isPoiseBroken);
+            blackboard.SetFloat(EnemyBlackboardKeys.HitReactionLockTime, Mathf.Max(0f, data.blackboard.hitReactionLockTime));
+            blackboard.SetFloat(EnemyBlackboardKeys.RevengeChance, Mathf.Clamp01(data.blackboard.revengeChance));
 
             blackboard.SetBool("enablePatrol", data.blackboard.enablePatrol);
             blackboard.SetFloat("optimalCombatDistance", ResolveBlackboardValue(data.blackboard.optimalCombatDistance, sourceBehavior?.optimalCombatDistance ?? 2.5f));
@@ -884,11 +960,34 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return fallback;
         }
 
-        private static float ResolveWeight(MonsterBehaviorChoiceJson choice, EnemyBehaviorSO sourceBehavior)
+        private static float ResolveWeight(MonsterBehaviorChoiceJson choice, EnemyBehaviorSO sourceBehavior, MonsterBehaviorBlackboardJson blackboard)
         {
             return string.IsNullOrWhiteSpace(choice.weightKey)
                 ? Mathf.Max(0f, choice.weight)
-                : Mathf.Max(0f, ResolveFloat(choice.weightKey, sourceBehavior, 1f));
+                : Mathf.Max(0f, ResolveFloat(choice.weightKey, sourceBehavior, blackboard, 1f));
+        }
+
+        private static float ResolveFloat(string keyOrValue, EnemyBehaviorSO sourceBehavior, MonsterBehaviorBlackboardJson blackboard, float fallback)
+        {
+            if (string.IsNullOrWhiteSpace(keyOrValue))
+                return fallback;
+
+            if (float.TryParse(keyOrValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var numeric))
+                return numeric;
+
+            if (blackboard != null)
+            {
+                var blackboardField = typeof(MonsterBehaviorBlackboardJson).GetField(keyOrValue, BindingFlags.Instance | BindingFlags.Public);
+                if (blackboardField != null)
+                {
+                    if (blackboardField.FieldType == typeof(float))
+                        return (float)blackboardField.GetValue(blackboard);
+                    if (blackboardField.FieldType == typeof(int))
+                        return (int)blackboardField.GetValue(blackboard);
+                }
+            }
+
+            return ResolveFloat(keyOrValue, sourceBehavior, fallback);
         }
 
         private static EnemyBehaviorSO LoadSourceBehavior(MonsterBehaviorTreeJson data)

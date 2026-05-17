@@ -25,7 +25,7 @@ namespace UPlayGround.AI.BehaviorTree
         protected override BTStatus OnUpdate()
         {
             var controller = Context?.GetComponentCached<ActorMovementController>();
-            if (controller == null || IsBlockedState(controller.CurrentState?.StateName))
+            if (controller == null || IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState))
                 return BTStatus.Failure;
 
             var targetName = GetStateName(_targetState);
@@ -80,11 +80,6 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Counter => "Counter",
                 _ => ""
             };
-        }
-
-        private static bool IsBlockedState(string stateName)
-        {
-            return IsBlockedEnemyStateNode.IsBlockedState(stateName);
         }
     }
 }

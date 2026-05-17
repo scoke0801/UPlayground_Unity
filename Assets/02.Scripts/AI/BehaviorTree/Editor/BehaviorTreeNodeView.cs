@@ -168,8 +168,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         public void RefreshView()
         {
-            _displayNameLabel.text = Node.DisplayName;
-            _categoryLabel.text = $"{Node.GetType().Name} · #{_nodeIndex}";
+            _displayNameLabel.text = BehaviorTreeDisplayNameRegistry.GetNodeTitle(Node);
+            _categoryLabel.text = $"{Node.GetType().Name} · {Node.DisplayName} · #{_nodeIndex}";
             RefreshParamBlock(_paramBlock, Node);
             RefreshEditorFlags(_flagsRow, Node);
 
@@ -369,7 +369,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             block.style.paddingTop = 8f;
             block.style.paddingBottom = 5f;
 
-            displayName = new Label(node.DisplayName);
+            displayName = new Label(BehaviorTreeDisplayNameRegistry.GetNodeTitle(node));
             displayName.style.fontSize = 12f;
             displayName.style.unityFontStyleAndWeight = FontStyle.Bold;
             displayName.style.color = new Color(0.92f, 0.92f, 0.92f);
@@ -378,7 +378,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             displayName.style.textOverflow = TextOverflow.Ellipsis;
             block.Add(displayName);
 
-            category = new Label($"{node.GetType().Name} · #{index}");
+            category = new Label($"{node.GetType().Name} · {node.DisplayName} · #{index}");
             category.style.fontSize = 10f;
             category.style.color = BehaviorTreeEditorStyles.TextDim;
             category.style.marginTop = 3f;

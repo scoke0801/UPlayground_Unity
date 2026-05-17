@@ -1,0 +1,12 @@
+{
+    "eval_id": 2,
+    "eval_name": "phase-based-boss",
+    "prompt": "보스 적의 BT JSON 만들어줘. 페이즈 인덱스 0(HP 100~50%)에선 일반 추격+공격만, 페이즈 1(HP 50~0%)에선 charge 허용해서 공격적으로 굴어. 페이즈 판정은 IsEnemyPhaseNode 사용. 매 분기 진입 전에 SyncEnemyBlackboard로 타겟/거리 상태 갱신 필요. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_PhaseBoss.json.",
+    "assertions": [
+        {"text": "validator 모든 체크 PASS"},
+        {"text": "IsEnemyPhaseNode가 _phaseIndex=0과 _phaseIndex=1 각각 사용 (또는 _phaseName 사용)"},
+        {"text": "페이즈 1 분기에 TransitionEnemyStateNode(_targetState=Charge) 포함"},
+        {"text": "SyncEnemyBlackboardNode가 분기 진입 직전에 위치"},
+        {"text": "출력 보고에 'SyncEnemyPhaseService는 JSON으로 부착 불가하므로 에디터에서 수동 부착 필요' 안내 포함 (페이즈 키를 자동 갱신할 수단이 없으면 BT가 런타임에 작동하지 않으므로)"}
+    ]
+}

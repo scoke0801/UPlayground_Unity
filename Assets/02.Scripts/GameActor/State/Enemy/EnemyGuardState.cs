@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class EnemyGuardState : GameActorState
     {
         public override string StateName => "Guard";
+        public override bool BlocksBehaviorTree => true;
         
         private EnemyAIContext _context;
         private EnemyDetection _detection;

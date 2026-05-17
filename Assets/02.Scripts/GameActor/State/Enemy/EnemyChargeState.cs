@@ -17,6 +17,7 @@ namespace UPlayGround.State
     public class EnemyChargeState : GameActorState
     {
         public override string StateName => "Charge";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyCombat _combat;
         private readonly EnemyAIContext _context;

@@ -1,6 +1,11 @@
 {
   "permissions": {
     "allow": [
+      "Write(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
+      "Edit(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
+      "Bash(mkdir:*)",
+      "Bash(python validate_bt_json.py:*)",
+      "Bash(python C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json-workspace/validate_bt_json.py:*)",
       "Bash(claude plugin:*)",
       "Bash(cat /c/Users/scoke/.claude/plugins/cache/code-review-graph/code-review-graph/1.8.3/skills/*.md)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''mcpServers'''', {}\\), indent=2\\)\\)\")",
@@ -98,7 +103,12 @@
       "PowerShell(head *)",
       "Bash(dotnet build *)",
       "Bash(python -c \"import uuid; print\\(uuid.uuid4\\(\\).hex\\)\")",
-      "Bash(powershell -NoProfile -Command \"[guid]::NewGuid\\(\\).ToString\\('N'\\)\")"
+      "Bash(powershell -NoProfile -Command \"[guid]::NewGuid\\(\\).ToString\\('N'\\)\")",
+      "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json/evals\")",
+      "Bash(mkdir -p \"C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json-workspace\")",
+      "Bash(python validate_bt_json.py \"C:/UsingProject/UnityProject/UPlayground/.claude/skills/generate-bt-json/references/example.json\")",
+      "Bash(python -c \"import webbrowser; print\\('webbrowser ok'\\)\")",
+      "Skill(skill-creator:skill-creator)"
     ]
   }
 }

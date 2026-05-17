@@ -1,0 +1,14 @@
+{
+    "eval_id": 1,
+    "eval_name": "ground-melee-basic",
+    "prompt": "근접 전투형 지상 적의 BT JSON 만들어줘. 동작은 이렇게: 타겟이 있으면 (1) 사거리 1.5m 안에 있고 스킬이 있으면 공격, (2) 0.8m보다 가까우면 후퇴, (3) 2.5m 넘으면 추격, (4) 셋 다 아니면 idle. 타겟 없으면 EnablePatrol이 true면 patrol, false면 idle. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_GroundMelee.json에 저장.",
+    "assertions": [
+        {"text": "validator 모든 체크 PASS (구조 + 값 포맷)"},
+        {"text": "Root는 SelectorNode이며 자식 2개 (전투 분기 / 비전투 분기)"},
+        {"text": "전투 분기는 HasTargetNode(_expectedValue=True)로 게이팅"},
+        {"text": "공격 분기에 CanUseEnemySkillNode + ExecuteEnemyAttackNode 포함"},
+        {"text": "거리 비교는 IsTargetInRangeNode + 적절한 FloatComparisonType (LessOrEqual/GreaterOrEqual/Between)"},
+        {"text": "TransitionEnemyStateNode의 _targetState 값은 enum 이름 형식 (Idle/Patrol/Chase/Retreat 등) — 대소문자 정확"},
+        {"text": "비전투 분기에 IsEnemyPatrolEnabledNode 포함"}
+    ]
+}

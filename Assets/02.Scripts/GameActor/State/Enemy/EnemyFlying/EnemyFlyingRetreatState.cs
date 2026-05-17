@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyFlyingRetreatState : GameActorState
     {
         public override string StateName => "Flying_Retreat";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyFlyingAIContext _brain;
         private float _retreatSpeed;

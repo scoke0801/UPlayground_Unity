@@ -16,6 +16,7 @@ namespace UPlayGround.State
     public class EnemyFlyingAirCircleState : GameActorState
     {
         public override string StateName => "Flying_AirCircle";
+        public override bool BlocksBehaviorTree => true;
         public override bool AdjustGravity => false;
 
         private readonly EnemyFlyingAIContext _brain;

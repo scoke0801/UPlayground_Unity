@@ -139,8 +139,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static string GetDisplayName(Type type)
         {
-            var name = type.Name;
-            return name.EndsWith("Node", StringComparison.Ordinal) ? name[..^4] : name;
+            var label = BehaviorTreeDisplayNameRegistry.GetNodeTypeLabel(type);
+            var rawName = type.Name.EndsWith("Node", StringComparison.Ordinal) ? type.Name[..^4] : type.Name;
+            return BehaviorTreeDisplayNameRegistry.FormatWithRawName(label, rawName);
         }
     }
 }

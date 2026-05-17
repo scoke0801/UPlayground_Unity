@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class EnemyRetreatState : GameActorState
     {
         public override string StateName => "Retreat";
+        public override bool BlocksBehaviorTree => true;
 
         private EnemyAIContext _context;
         private EnemyDetection _detection;

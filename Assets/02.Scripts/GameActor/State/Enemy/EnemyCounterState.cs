@@ -14,6 +14,7 @@ namespace UPlayGround.State
     public class EnemyCounterState : GameActorState
     {
         public override string StateName => "Counter";
+        public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyCombat _combat;
         private readonly EnemyAIContext _context;

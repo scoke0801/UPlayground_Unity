@@ -12,6 +12,7 @@ namespace UPlayGround.State
     public class EnemyLandState : GameActorState
     {
         public override string StateName => "Land";
+        public override bool BlocksBehaviorTree => true;
 
         private bool _groundSnapRestored;
         private bool _landAnimDone;

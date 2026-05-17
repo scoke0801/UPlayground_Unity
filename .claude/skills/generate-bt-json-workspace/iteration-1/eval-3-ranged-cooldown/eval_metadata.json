@@ -1,0 +1,12 @@
+{
+    "eval_id": 3,
+    "eval_name": "ranged-cooldown",
+    "prompt": "원거리형 적 BT JSON. 거리 3~6m 사이에서만 스킬 공격 시도하고, 한 번 공격하면 4초 쿨다운. 1.5m보다 가까워지면 후퇴. 사정거리 밖이면 추격. 타겟 없으면 idle. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_RangedCooldown.json.",
+    "assertions": [
+        {"text": "validator 모든 체크 PASS"},
+        {"text": "공격 분기가 CooldownNode 데코레이터로 감싸져 있고 _cooldown=4 (float, '4' 또는 '4.0')"},
+        {"text": "공격 사거리 조건이 IsTargetInRangeNode + _comparison=Between + _minDistance=3 + _maxDistance=6"},
+        {"text": "후퇴 분기에 IsTargetInRangeNode(LessOrEqual, _maxDistance=1.5)"},
+        {"text": "추격 분기에 IsTargetInRangeNode(GreaterOrEqual, _minDistance=6) 또는 다른 적절한 거리 표현"}
+    ]
+}

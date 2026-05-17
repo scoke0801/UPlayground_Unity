@@ -24,6 +24,11 @@ namespace UPlayGround.State
         /// true이면 데미지는 받지만 피격 리액션/경직 전환은 무시한다.
         /// </summary>
         public virtual bool SuppressesHitReaction => false;
+
+        /// <summary>
+        /// true이면 BT가 이 상태를 중간에 다른 판단으로 덮지 않고 상태 자체의 종료 로직을 기다린다.
+        /// </summary>
+        public virtual bool BlocksBehaviorTree => false;
         
         public GameActorState(ActorMovementController controller)
         {

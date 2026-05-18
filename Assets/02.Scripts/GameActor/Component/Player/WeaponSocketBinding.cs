@@ -18,7 +18,16 @@ namespace UPlayGround.Component
         public string[] aliases;
 
         private ParentConstraint _resolvedConstraint;
-        public ParentConstraint Constraint => _resolvedConstraint;
+        public ParentConstraint Constraint
+        {
+            get
+            {
+                if (_resolvedConstraint == null)
+                    _resolvedConstraint = constraint != null ? constraint : GetComponent<ParentConstraint>();
+
+                return _resolvedConstraint;
+            }
+        }
 
         private void Awake()
         {

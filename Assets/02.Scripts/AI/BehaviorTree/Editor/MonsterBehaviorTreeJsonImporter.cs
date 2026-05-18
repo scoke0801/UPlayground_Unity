@@ -30,6 +30,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         public string name;
         public int priority;
+        public List<MonsterBehaviorConditionJson> when = new();
         public List<MonsterBehaviorRuleJson> rules = new();
     }
 
@@ -375,7 +376,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 var row = 0;
                 foreach (var group in orderedGroups)
                 {
-                    var groupNode = CreateNode<SelectorNode>(tree, group.name, Vector2.zero);
+                    var groupNode = CreateGroupNode(tree, group, sourceBehavior, data.blackboard, row);
+                    var groupSelector = GetGroupRuleParent(groupNode);
+                    if (groupSelector == null)
+                        throw new InvalidDataException($"{data.id}: group '{group.name}'의 rule parent를 생성할 수 없습니다.");
+
                     var orderedRules = group.rules
                         .OrderByDescending(rule => rule.priority)
                         .ThenBy(rule => group.rules.IndexOf(rule))
@@ -385,10 +390,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     {
                         var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++);
                         if (child != null)
-                            groupNode.Children.Add(child);
+                            groupSelector.Children.Add(child);
                     }
 
-                    if (groupNode.Children.Count > 0)
+                    if (groupSelector.Children.Count > 0)
                         root.Children.Add(groupNode);
                 }
 
@@ -528,6 +533,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                     if (group.rules == null || group.rules.Count == 0)
                         throw new InvalidDataException($"{data.id}: group '{group.name}'의 rules가 비어 있습니다.");
+
+                    foreach (var condition in group.when ?? new List<MonsterBehaviorConditionJson>())
+                        ValidateCondition(condition, group.name, actorKind);
                 }
             }
 
@@ -685,6 +693,36 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             return sequence.Children.Count == 0 ? null : sequence;
+        }
+
+        private static BTNode CreateGroupNode(
+            BehaviorTreeAsset tree,
+            MonsterBehaviorRuleGroupJson group,
+            EnemyBehaviorSO sourceBehavior,
+            MonsterBehaviorBlackboardJson blackboard,
+            int row)
+        {
+            if (group.when == null || group.when.Count == 0)
+                return CreateNode<SelectorNode>(tree, group.name, Vector2.zero);
+
+            var sequence = CreateNode<SequenceNode>(tree, group.name, Vector2.zero);
+            foreach (var condition in group.when)
+            {
+                var conditionNode = CreateConditionNode(tree, condition, sourceBehavior, blackboard, row);
+                if (conditionNode != null)
+                    sequence.Children.Add(conditionNode);
+            }
+
+            sequence.Children.Add(CreateNode<SelectorNode>(tree, group.name + " Rules", Vector2.zero));
+            return sequence;
+        }
+
+        private static BTCompositeNode GetGroupRuleParent(BTNode groupNode)
+        {
+            if (groupNode is SequenceNode sequence && sequence.Children.Count > 0)
+                return sequence.Children[^1] as BTCompositeNode;
+
+            return groupNode as BTCompositeNode;
         }
 
         private static BTNode CreateConditionNode(

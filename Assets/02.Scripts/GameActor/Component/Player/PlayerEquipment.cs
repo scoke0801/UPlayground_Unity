@@ -641,10 +641,11 @@ namespace UPlayGround.Component
             if (weaponObj == null) return;
 
             var dissolve = weaponObj.GetComponent<DissolveController>();
-            if (dissolve == null) return; // 디졸브된 적 없음 — 복원 불필요
-
-            dissolve.ResetDissolve();
-            Destroy(dissolve);
+            if (dissolve != null)
+            {
+                dissolve.ResetDissolve();
+                Destroy(dissolve);
+            }
 
             foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
                 r.enabled = true;

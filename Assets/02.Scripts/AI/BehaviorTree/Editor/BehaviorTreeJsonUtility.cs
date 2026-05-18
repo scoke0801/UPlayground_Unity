@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
@@ -64,7 +65,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             typeof(BTAbortType),
             typeof(BlackboardValueType),
             typeof(FloatComparisonType),
-            typeof(EnemyTransitionStateType)
+            typeof(EnemyTransitionStateType),
+            typeof(IntComparisonType),
+            typeof(EnemyAttackCategory),
+            typeof(List<float>)
         };
 
         [MenuItem("UPlayGround/Character/AI/Behavior Tree Json/Export Selected")]
@@ -88,39 +92,95 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             ExportToJsonFile(tree, path);
         }
 
+        public static void ExportToJsonFile(BehaviorTreeAsset tree, string absolutePath)
+        {
+            var data = ExportToData(tree);
+            var json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(absolutePath, json);
+            AssetDatabase.Refresh();
+            Debug.Log($"[BT] Json Export 완료: {absolutePath}");
+        }
+
         [MenuItem("UPlayGround/Character/AI/Behavior Tree Json/Import Json")]
-        public static void ImportJson()
+        public static void ImportJsonMenu()
         {
             var jsonPath = EditorUtility.OpenFilePanel("Behavior Tree Json Import", Application.dataPath, "json");
             if (string.IsNullOrWhiteSpace(jsonPath))
                 return;
 
-            if (LooksLikeMonsterBehaviorJson(File.ReadAllText(jsonPath)))
-            {
-                var monsterTree = ImportMonsterBehaviorJsonWithReflection(jsonPath, null);
-                EditorGUIUtility.PingObject(monsterTree);
-                BehaviorTreeEditorWindow.Open(monsterTree);
-                LogValidation(monsterTree);
-                return;
-            }
-
+            var defaultName = Path.GetFileNameWithoutExtension(jsonPath) + ".asset";
             var assetPath = EditorUtility.SaveFilePanelInProject(
-                "Behavior Tree Asset 저장",
-                Path.GetFileNameWithoutExtension(jsonPath),
+                "Behavior Tree Asset 저장 경로",
+                defaultName,
                 "asset",
-                "JSON에서 생성할 BehaviorTreeAsset 저장 위치를 선택하세요.",
-                "Assets/10.Datas/AI/BehaviorTree");
+                "Import 결과 BehaviorTreeAsset을 저장할 경로를 지정하세요.");
 
             if (string.IsNullOrWhiteSpace(assetPath))
                 return;
 
             var tree = ImportFromJsonFile(jsonPath, assetPath);
+            if (tree == null)
+                return;
+
             EditorGUIUtility.PingObject(tree);
             BehaviorTreeEditorWindow.Open(tree);
             LogValidation(tree);
         }
 
-        private static void LogValidation(BehaviorTreeAsset tree)
+        [MenuItem("Assets/UPlayGround/AI/Import Behavior Tree Json", false, 2210)]
+        public static void ImportSelectedJsonAsset()
+        {
+            var jsonAssetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (string.IsNullOrWhiteSpace(jsonAssetPath) || !jsonAssetPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var absoluteJsonPath = Path.GetFullPath(jsonAssetPath);
+            var defaultName = Path.GetFileNameWithoutExtension(jsonAssetPath) + ".asset";
+            var assetPath = EditorUtility.SaveFilePanelInProject(
+                "Behavior Tree Asset 저장 경로",
+                defaultName,
+                "asset",
+                "Import 결과 BehaviorTreeAsset을 저장할 경로를 지정하세요.");
+
+            if (string.IsNullOrWhiteSpace(assetPath))
+                return;
+
+            var tree = ImportFromJsonFile(absoluteJsonPath, assetPath);
+            if (tree == null)
+                return;
+
+            EditorGUIUtility.PingObject(tree);
+            BehaviorTreeEditorWindow.Open(tree);
+            LogValidation(tree);
+        }
+
+        [MenuItem("Assets/UPlayGround/AI/Import Behavior Tree Json", true)]
+        public static bool CanImportSelectedJsonAsset()
+        {
+            var path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            return !string.IsNullOrWhiteSpace(path) && path.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static BehaviorTreeAsset ImportFromJsonFile(string absoluteJsonPath, string assetPath)
+        {
+            if (!File.Exists(absoluteJsonPath))
+            {
+                Debug.LogError($"[BT] Json Import 실패: 파일을 찾을 수 없습니다. {absoluteJsonPath}");
+                return null;
+            }
+
+            var json = File.ReadAllText(absoluteJsonPath);
+            var data = JsonUtility.FromJson<BehaviorTreeJsonData>(json);
+            if (data == null)
+            {
+                Debug.LogError($"[BT] Json Import 실패: JSON 파싱 실패. {absoluteJsonPath}");
+                return null;
+            }
+
+            return ImportFromData(data, assetPath);
+        }
+
+        public static void LogValidation(BehaviorTreeAsset tree)
         {
             if (tree == null)
                 return;
@@ -151,66 +211,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             Debug.Log($"[BT] '{tree.name}' Validate 완료: Error {errorCount}개 / Warning {warningCount}개.", tree);
-        }
-
-        public static void ExportToJsonFile(BehaviorTreeAsset tree, string absolutePath)
-        {
-            var data = ExportToData(tree);
-            var json = JsonUtility.ToJson(data, true);
-            File.WriteAllText(absolutePath, json);
-            AssetDatabase.Refresh();
-            Debug.Log($"[BT] Json Export 완료: {absolutePath}");
-        }
-
-        public static BehaviorTreeAsset ImportFromJsonFile(string absoluteJsonPath, string assetPath)
-        {
-            var json = File.ReadAllText(absoluteJsonPath);
-            if (LooksLikeMonsterBehaviorJson(json))
-            {
-                return ImportMonsterBehaviorJsonWithReflection(absoluteJsonPath, assetPath);
-            }
-
-            var data = JsonUtility.FromJson<BehaviorTreeJsonData>(json);
-            if (data?.nodes == null || data.nodes.Count == 0)
-            {
-                throw new InvalidDataException(
-                    "BT Json에 nodes가 없습니다. " +
-                    "BehaviorTreeAsset에서 Export한 JSON인지 확인하세요.");
-            }
-
-            return ImportFromData(data, assetPath);
-        }
-
-        private static bool LooksLikeMonsterBehaviorJson(string json)
-        {
-            return !string.IsNullOrWhiteSpace(json)
-                   && json.Contains("\"schemaVersion\"")
-                   && json.Contains("\"rules\"")
-                   && !json.Contains("\"nodes\"");
-        }
-
-        private static BehaviorTreeAsset ImportMonsterBehaviorJsonWithReflection(string absoluteJsonPath, string assetPath)
-        {
-            var importerType = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Select(assembly => assembly.GetType("UPlayGround.AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter"))
-                .FirstOrDefault(type => type != null);
-
-            var method = importerType?.GetMethod(
-                "ImportFromMonsterBehaviorJson",
-                BindingFlags.Public | BindingFlags.Static,
-                null,
-                new[] { typeof(string), typeof(string) },
-                null);
-
-            if (method == null)
-            {
-                throw new InvalidDataException(
-                    "Monster Behavior Json 임포터를 찾을 수 없습니다. " +
-                    "UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json 메뉴가 컴파일되어 있는지 확인하세요.");
-            }
-
-            return method.Invoke(null, new object[] { absoluteJsonPath, assetPath }) as BehaviorTreeAsset;
         }
 
         public static BehaviorTreeJsonData ExportToData(BehaviorTreeAsset tree)
@@ -402,6 +402,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return JsonUtility.ToJson(new Vector2Wrapper { value = (Vector2)value });
             if (type == typeof(Vector3))
                 return JsonUtility.ToJson(new Vector3Wrapper { value = (Vector3)value });
+            if (type == typeof(List<float>))
+                return JsonUtility.ToJson(new FloatListWrapper { value = (List<float>)value ?? new List<float>() });
             if (type.IsEnum)
                 return value.ToString();
             if (type == typeof(float))
@@ -423,6 +425,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return JsonUtility.FromJson<Vector2Wrapper>(value).value;
             if (type == typeof(Vector3))
                 return JsonUtility.FromJson<Vector3Wrapper>(value).value;
+            if (type == typeof(List<float>))
+                return JsonUtility.FromJson<FloatListWrapper>(value).value ?? new List<float>();
             if (type.IsEnum)
                 return Enum.Parse(type, value);
             return null;
@@ -448,6 +452,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private struct Vector3Wrapper
         {
             public Vector3 value;
+        }
+
+        [Serializable]
+        private struct FloatListWrapper
+        {
+            public List<float> value;
         }
     }
 }

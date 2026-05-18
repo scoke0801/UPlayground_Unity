@@ -116,7 +116,10 @@
       "PowerShell(python -m scripts.package_skill $skillPath --output $outDir 2>&1)",
       "PowerShell($skillCreatorPath = \"C:\\\\Users\\\\scoke\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\skill-creator\\\\unknown\\\\skills\\\\skill-creator\")",
       "PowerShell($skillPath = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json\")",
-      "PowerShell($outDir = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json-workspace\")"
+      "PowerShell($outDir = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json-workspace\")",
+      "Skill(generate-bt-json)",
+      "WebFetch(domain:www.gamedeveloper.com)",
+      "WebFetch(domain:gerlogu.com)"
     ]
   }
 }

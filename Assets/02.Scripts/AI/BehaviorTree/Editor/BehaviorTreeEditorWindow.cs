@@ -170,7 +170,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             operationsToolbar.Add(CreateToolbarButton("Save", SaveTree, ToolbarButtonStyle.Primary));
             operationsToolbar.Add(CreateToolbarButton("New", CreateTreeAsset, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarSeparator());
-            operationsToolbar.Add(CreateToolbarButton("Import", BehaviorTreeJsonUtility.ImportJson, ToolbarButtonStyle.Ghost));
+            operationsToolbar.Add(CreateToolbarButton("Import", AIBehaviorJsonDispatcher.ImportFromFilePanel, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Export", BehaviorTreeJsonUtility.ExportSelected, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Validate", ValidateTree, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Fit All", () => _graphView?.FrameAllNodes(), ToolbarButtonStyle.Ghost));

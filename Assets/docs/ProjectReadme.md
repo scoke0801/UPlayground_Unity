@@ -331,6 +331,7 @@ Assets/
 | [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
+| [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
 | [TARGETED_PROJECTILE_AOE_GUIDE.md](TARGETED_PROJECTILE_AOE_GUIDE.md) | 타게팅 투사체 AOE — 락온 대상, 몬스터 스킬 대상, 텔레그래프 예약 위치 기반 범위 투사체 설계 |
 | [PARTY_LEVEL_POWER_DESIGN.md](PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |

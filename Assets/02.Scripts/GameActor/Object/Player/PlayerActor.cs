@@ -34,6 +34,7 @@ namespace UPlayGround
         // 교체 시 캐릭터별 체력·스킬 게이지 저장소
         private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
         private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
+        private bool _hasInitializedCharacterRuntime;
 
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
@@ -123,6 +124,19 @@ namespace UPlayGround
             _playerActorAnimator           = _animator as PlayerActorAnimator;
 
             InitComponents();
+
+            // base.Awake() 시점의 _animator.Init(this)는 InitComponents 이전이라
+            // PlayerEquipment / PlayerCombat 참조를 null로 캡처한다. 컴포넌트 세팅이 끝난
+            // 지금 한 번 더 Init을 호출해 캐시 참조를 채운다.
+            _playerActorAnimator?.Init(this);
+        }
+
+        // RefreshForCharacter가 sibling 컴포넌트(_skillGauge / _combat 등)의 Awake 완료를
+        // 전제하므로 Awake가 아닌 Start에서 호출한다. (Awake 순서는 보장되지 않는다.)
+        protected override void Start()
+        {
+            base.Start();
+            EnsureInitialCharacterModelInitialized();
         }
 
         private void OnEnable()
@@ -481,14 +495,16 @@ namespace UPlayGround
             CharacterModelData data,
             ActorAnimator.MotionPlaybackSnapshot animationSnapshot = default)
         {
-            // 현재 캐릭터 상태 저장 (최초 호출 시에는 None이므로 스킵)
-            if (_characterActorType != CharacterActorType.None)
+            // 현재 캐릭터 상태 저장. 씬 직렬화 값은 실제 활성 모델과 다를 수 있으므로
+            // 런타임에서 한 번 이상 정상 초기화된 뒤에만 이전 캐릭터 상태로 인정한다.
+            if (_hasInitializedCharacterRuntime && _characterActorType != CharacterActorType.None)
             {
                 _characterHealthMap[_characterActorType] = _currentHealth;
                 _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
             }
 
             _characterActorType = data.characterType;
+            _hasInitializedCharacterRuntime = true;
 
             // 체력 복원 (처음 등장 시 최대치)
             _maxHealth     = data.maxHealth;
@@ -639,6 +655,32 @@ namespace UPlayGround
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
             // SetCombatStateProvider는 OnEnable/OnDisable에서 관리
+        }
+
+        private void EnsureInitialCharacterModelInitialized()
+        {
+            CharacterModelData activeModel = null;
+            var models = GetComponentsInChildren<CharacterModelData>(true);
+            for (int i = 0; i < models.Length; i++)
+            {
+                if (models[i] != null && models[i].gameObject.activeInHierarchy)
+                {
+                    activeModel = models[i];
+                    break;
+                }
+            }
+
+            if (activeModel == null)
+                return;
+
+            bool needsRefresh =
+                !_hasInitializedCharacterRuntime ||
+                _characterActorType != activeModel.characterType ||
+                _equipment == null ||
+                _equipment.GetMainWeaponType() != activeModel.defaultWeaponType;
+
+            if (needsRefresh)
+                RefreshForCharacter(activeModel);
         }
     }
 

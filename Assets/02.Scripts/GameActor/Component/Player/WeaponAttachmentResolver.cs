@@ -27,7 +27,22 @@ namespace UPlayGround.Component
     {
         public static Transform FindWeaponRoot(Transform root)
         {
-            return FindChildRecursive(root, "Weapon");
+            if (root == null)
+                return null;
+
+            Transform directWeaponRoot = FindDirectWeaponRoot(root, requireConstraint: true);
+            if (directWeaponRoot != null)
+                return directWeaponRoot;
+
+            directWeaponRoot = FindDirectWeaponRoot(root, requireConstraint: false);
+            if (directWeaponRoot != null)
+                return directWeaponRoot;
+
+            Transform recursiveWeaponRoot = FindChildRecursive(root, "Weapon", requireConstraint: true);
+            if (recursiveWeaponRoot != null)
+                return recursiveWeaponRoot;
+
+            return FindChildRecursive(root, "Weapon", requireConstraint: false);
         }
 
         public static void CollectBindings(
@@ -168,17 +183,34 @@ namespace UPlayGround.Component
             return alias ?? fallback ?? GetSingleConstraintForPosition(equipPosition, weaponType, constraints);
         }
 
-        private static Transform FindChildRecursive(Transform root, string childName)
+        private static Transform FindDirectWeaponRoot(Transform root, bool requireConstraint)
+        {
+            foreach (Transform child in root)
+            {
+                if (child.name != "Weapon")
+                    continue;
+
+                if (!requireConstraint || child.GetComponentInChildren<ParentConstraint>(true) != null)
+                    return child;
+            }
+
+            return null;
+        }
+
+        private static Transform FindChildRecursive(Transform root, string childName, bool requireConstraint)
         {
             if (root == null)
                 return null;
 
-            if (root.name == childName)
+            if (root.name == childName &&
+                (!requireConstraint || root.GetComponentInChildren<ParentConstraint>(true) != null))
+            {
                 return root;
+            }
 
             foreach (Transform child in root)
             {
-                Transform found = FindChildRecursive(child, childName);
+                Transform found = FindChildRecursive(child, childName, requireConstraint);
                 if (found != null)
                     return found;
             }

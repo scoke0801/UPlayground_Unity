@@ -33,6 +33,7 @@ namespace UPlayGround.Editor
         private float _playerBaseDamage = 10f;
         private float _enemyBaseDamage = 8f;
         private float _poiseDamageRatio = 3f;
+        private float _breakDamageRatio = 1f;
         private float _motionDurationWeight = 0.15f;
         private float _comboStepWeight = 0.08f;
         private Vector2 _scroll;
@@ -154,10 +155,11 @@ namespace UPlayGround.Editor
                 _applyBalancedDamage = EditorGUILayout.ToggleLeft("밸런싱 대미지 자동 설정", _applyBalancedDamage);
                 using (new EditorGUI.DisabledScope(!_applyBalancedDamage))
                 {
-                    _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise도 갱신", _overwriteExistingDamage);
+                    _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise/Break도 갱신", _overwriteExistingDamage);
                     _playerBaseDamage = EditorGUILayout.FloatField("플레이어 기준 대미지", Mathf.Max(0f, _playerBaseDamage));
                     _enemyBaseDamage = EditorGUILayout.FloatField("적 기준 대미지", Mathf.Max(0f, _enemyBaseDamage));
                     _poiseDamageRatio = EditorGUILayout.FloatField("Poise 배율", Mathf.Max(0f, _poiseDamageRatio));
+                    _breakDamageRatio = EditorGUILayout.FloatField("Break 배율", Mathf.Max(0f, _breakDamageRatio));
                     _motionDurationWeight = EditorGUILayout.Slider("모션 길이 반영", _motionDurationWeight, 0f, 0.5f);
                     _comboStepWeight = EditorGUILayout.Slider("콤보 순번 반영", _comboStepWeight, 0f, 0.25f);
                 }
@@ -444,7 +446,11 @@ namespace UPlayGround.Editor
             {
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
+                breakDamage = source.breakDamage,
                 reactionType = source.reactionType,
+                reactionDuration = source.reactionDuration,
+                forceReaction = source.forceReaction,
+                forceBreakExpose = source.forceBreakExpose,
                 attackOffset = source.attackOffset,
                 attackRadius = source.attackRadius,
                 hitHeightRange = source.hitHeightRange,
@@ -488,11 +494,22 @@ namespace UPlayGround.Editor
             {
                 HitPhaseData phase = phases[i];
                 if (phase == null) continue;
-                if (!overwriteDamage && phase.damage != 0f && !Mathf.Approximately(phase.damage, 10f)) continue;
+                bool canOverwriteDamage = overwriteDamage || phase.damage == 0f || Mathf.Approximately(phase.damage, 10f);
+                bool canOverwriteBreak = overwriteDamage || phase.breakDamage == 0f || Mathf.Approximately(phase.breakDamage, 10f);
 
-                float damage = totalWeight > 0f ? totalDamage * weights[i] / totalWeight : totalDamage;
-                phase.damage = Mathf.Round(damage);
-                phase.poiseDamage = Mathf.Round(phase.damage * _poiseDamageRatio);
+                if (canOverwriteDamage)
+                {
+                    float damage = totalWeight > 0f ? totalDamage * weights[i] / totalWeight : totalDamage;
+                    phase.damage = Mathf.Round(damage);
+                    phase.poiseDamage = Mathf.Round(phase.damage * _poiseDamageRatio);
+                }
+
+                if (canOverwriteBreak)
+                {
+                    float breakDamage = CalculateTotalBreakDamage(entry);
+                    float weightedBreakDamage = totalWeight > 0f ? breakDamage * weights[i] / totalWeight : breakDamage;
+                    phase.breakDamage = Mathf.Round(weightedBreakDamage);
+                }
             }
         }
 
@@ -509,6 +526,19 @@ namespace UPlayGround.Editor
             return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
         }
 
+        private float CalculateTotalBreakDamage(ScanEntry entry)
+        {
+            if (entry == null || _targetKind == TargetKind.Enemy) return 0f;
+
+            float baseBreakDamage = Mathf.Max(0f, _playerBaseDamage * _breakDamageRatio);
+            float categoryMultiplier = GetCategoryBreakMultiplier(entry.Category);
+            float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
+            float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
+            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.12f;
+
+            return Mathf.Max(0f, baseBreakDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
+        }
+
         private static float GetCategoryDamageMultiplier(AttackCategory category)
         {
             return category switch
@@ -522,6 +552,23 @@ namespace UPlayGround.Editor
                 AttackCategory.Entry => 1.15f,
                 AttackCategory.SwapSpecial => 2.40f,
                 AttackCategory.Charge => 1.35f,
+                _ => 1.00f,
+            };
+        }
+
+        private static float GetCategoryBreakMultiplier(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 1.00f,
+                AttackCategory.Heavy => 1.80f,
+                AttackCategory.Dash => 1.35f,
+                AttackCategory.Jump => 1.25f,
+                AttackCategory.Skill => 2.25f,
+                AttackCategory.Counter => 2.50f,
+                AttackCategory.Entry => 1.60f,
+                AttackCategory.SwapSpecial => 2.50f,
+                AttackCategory.Charge => 2.25f,
                 _ => 1.00f,
             };
         }

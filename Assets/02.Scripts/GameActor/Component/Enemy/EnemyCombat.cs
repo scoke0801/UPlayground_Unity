@@ -355,6 +355,10 @@ namespace UPlayGround.Component
                 {
                     damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                     poiseDamage        = phase.poiseDamage,
+                    breakDamage        = phase.breakDamage,
+                    reactionDuration   = phase.reactionDuration,
+                    forceReaction      = phase.forceReaction,
+                    forceBreakExpose   = phase.forceBreakExpose,
                     criticalMultiplier = 1.0f,
                     hitPoint           = hitCollider.ClosestPoint(attackPosition),
                     attackDirection    = _attackOrigin.forward,

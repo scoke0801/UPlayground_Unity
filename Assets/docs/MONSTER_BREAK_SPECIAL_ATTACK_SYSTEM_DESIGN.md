@@ -30,6 +30,119 @@
 
 ---
 
+## 현재 구현 상태
+
+> 갱신일: 2026-05-18
+
+### 완료
+
+| 구분 | 완료 내용 | 주요 파일 |
+|------|----------|----------|
+| 행동 불능 데이터 | `HitPhaseData` / `AttackData`에 `breakDamage`, `reactionDuration`, `forceReaction`, `forceBreakExpose` 추가 | `CombatData.cs` |
+| 공격 데이터 전달 | 플레이어/몬스터 공격 생성 경로에서 신규 필드를 `AttackData`로 전달 | `PlayerCombat.cs`, `EnemyCombat.cs` |
+| 플레이어 행동 불능 | `PlayerStunState`, `PlayerKnockdownState` 추가. `PlayerActor.OnDamaged()`에서 `Stun`/`Knockdown` 전용 상태로 라우팅 | `PlayerStunState.cs`, `PlayerKnockdownState.cs`, `PlayerActor.cs` |
+| 몬스터 행동 불능 | `EnemyStunState`, `EnemyKnockdownState` 추가. `MonsterActor.OnDamaged()`에서 `Stun`/`Knockdown` 전용 상태로 라우팅 | `EnemyStunState.cs`, `EnemyKnockdownState.cs`, `MonsterActor.cs` |
+| 브레이크 데이터 | `MonsterBreakGaugeSO`, `MonsterBreakGradePolicy` 추가 | `MonsterBreakGaugeSO.cs` |
+| 브레이크 런타임 | `MonsterBreakGauge` 추가. 누적, 노출, 시간 만료, 소비 리셋, 노출 중 피해 배율 처리 | `MonsterBreakGauge.cs` |
+| ActorDefinition 연결 | `ActorDefinitionSO.breakGaugeData` 추가. 데이터가 있으면 런타임에 `MonsterBreakGauge`를 자동 부착 | `ActorDefinitionSO.cs`, `MonsterActor.cs` |
+| 노출 상태 | `EnemyBreakExposedState` 추가. 게이지 최대치에서 몬스터 AI/이동을 멈추는 상태로 전환 | `EnemyBreakExposedState.cs`, `MonsterActor.cs` |
+| 특수공격 1차 실행 | `PlayerSpecialBreakAttackState`, `EnemySpecialBreakVictimState` 추가. 강공격 입력으로 노출 타겟에게 최대 HP 비례 피해 적용 | `PlayerSpecialBreakAttackState.cs`, `EnemySpecialBreakVictimState.cs` |
+| 입력 우선순위 | 강공격 입력 기준 `FinishAttack > SpecialBreakAttack > 일반 강공격` 순으로 라우팅 | `PlayerAttackState.cs` |
+| HP바 확장 | `UI_ActorHpBar`에 선택형 브레이크 게이지 이미지 필드와 업데이트 API 추가 | `UI_ActorHpBar.cs` |
+| 에디터 표시 | HitPhase 카드에 브레이크 데미지, 반응 지속시간, 반응 강제, 브레이크 노출 강제 필드 표시 | `PlayerAttackDataSODrawer.cs` |
+
+### 부분 완료
+
+| 구분 | 현재 상태 | 남은 작업 |
+|------|----------|----------|
+| UI 프롬프트 | 타겟 탐색과 입력 실행은 연결됨 | 화면 프롬프트 표시/숨김 UI는 아직 미구현 |
+| 브레이크 게이지 UI | 코드 필드는 추가됨 | HP바 프리팹에 `_fillBreakImage`, `_fillBreakDelayImage` 연결 필요 |
+| 특수공격 연출 | `SpecialBreakAttackAsset` 기반 모션/위치 보정/카메라/히트스톱/피해 데이터화 연결됨. 미연결 시 기존 `FinishAttack` 또는 `Attack_1` 모션 폴백 | 전용 에셋 생성 및 `PlayerCombat` 연결, 전용 MotionSet/CameraSnapshotProfile/VFX/SFX 에셋 제작 필요 |
+| 브레이크 특수공격 피해 | `SpecialBreakAttackAsset.damageByMaxHpRate`, `fixedDamage`로 데이터화됨. 미연결 시 최대 HP 20% 폴백 | 캐릭터/몬스터/등급별 에셋 값 튜닝 필요 |
+| 몬스터 등급 정책 | 게이지 최대치 등급 배율은 구현 | 보스 페이즈당 제한, 스턴/다운 변환 정책은 추가 필요 |
+
+### 에디터에서 할 일
+
+1. `MonsterBreakGaugeSO` 에셋 생성
+   - 메뉴: `Create > UPlayGround > Enemy > Break Gauge`
+   - 1차 추천값: `maxGauge = 100`, `exposedDuration = 4`, `damageTakenMultiplierWhileExposed = 1.15`
+   - Boss는 `bossGaugeMultiplier`를 높이고 `allowRepeatBreak` 또는 `repeatBreakCooldown`을 보수적으로 설정한다.
+
+2. 몬스터 `ActorDefinitionSO`에 `breakGaugeData` 연결
+   - `breakGaugeData`가 있으면 런타임에 `MonsterBreakGauge`가 자동 부착된다.
+   - 프리팹에 직접 `MonsterBreakGauge`를 붙여도 된다.
+
+3. 플레이어 공격 데이터의 `HitPhaseData.breakDamage` 설정
+   - 일반 공격: 8~10
+   - 콤보 마지막: 14
+   - 강 공격: 18
+   - 차지 공격: 25~45
+   - 패리/퍼펙트 도지 반격: 40~55
+
+4. 강제 노출 테스트용 공격 설정
+   - 특정 테스트 공격의 `forceBreakExpose = true`를 켜면 게이지 잔량과 무관하게 즉시 `BreakExposed`를 확인할 수 있다.
+
+5. HP바 프리팹 브레이크 게이지 연결
+   - `UI_ActorHpBar`의 `_fillBreakImage`, `_fillBreakDelayImage`에 별도 Image를 연결한다.
+   - 연결하지 않아도 런타임 오류는 나지 않지만 브레이크 게이지는 보이지 않는다.
+
+6. 몬스터 MotionSet 확인
+   - `EnemyBreakExposedState`는 `GuardBreak`가 있으면 우선 사용하고, 없으면 `Hit_F`로 폴백한다.
+   - `EnemySpecialBreakVictimState`는 `Grabbed`가 있으면 우선 사용하고, 없으면 `Hit_F`로 폴백한다.
+
+7. 플레이어 MotionSet 확인
+   - `PlayerSpecialBreakAttackState`는 `FinishAttack`이 있으면 우선 사용하고, 없으면 `Attack_1`로 폴백한다.
+
+8. `SpecialBreakAttackAsset` 에셋 생성 및 연결
+   - 메뉴: `Create > UPlayGround > SO > Combat > Special Break Attack`
+   - 1차 추천값:
+     - `animKey = FinishAttack`
+     - `duration = 1.2`
+     - `fallbackHitTime = 0.15`
+     - `searchRange = 4`
+     - `searchAngle = 110`
+     - `startDistance = 1.5`
+     - `damageByMaxHpRate = 0.2`
+     - `fixedDamage = 0`
+     - `hitStopDuration = 0.08`
+   - 생성한 에셋을 플레이어 프리팹 또는 런타임 플레이어의 `PlayerCombat._specialBreakAttackData`에 연결한다.
+   - 연결하지 않아도 기본값으로 동작하지만, 캐릭터/무기별 피해와 연출 튜닝은 불가능하다.
+
+9. 특수공격 MotionSet 타격 타이밍 설정
+   - 전용 특수공격 MotionSet을 만들거나 기존 `FinishAttack` MotionSet을 임시 재사용한다.
+   - 실제 타격 프레임에 `SpecialBreakAttackEvent`를 추가한다.
+   - 이벤트가 없으면 `SpecialBreakAttackAsset.fallbackHitTime` 시점에 피해가 1회 적용된다.
+   - 같은 MotionSet에 `SpecialBreakAttackEvent`가 여러 번 들어가도 피해는 상태 내부에서 1회만 적용된다.
+
+10. 특수공격 카메라 프로필 연결
+   - 필요하면 `CameraSnapshotProfile` 에셋을 만들고 `SpecialBreakAttackAsset.cameraProfile`에 연결한다.
+   - 카메라는 플레이어 `Center` 소켓을 앵커로, 타겟 몬스터 `Center` 소켓을 LookAt 대상으로 사용한다.
+   - 프로필을 연결하지 않으면 일반 전투 카메라 상태에서 특수공격이 실행된다.
+
+11. VFX/SFX 에셋 제작 및 연결
+   - `SpecialBreakAttackAsset.startVfxKey`, `hitVfxKey`, `finishVfxKey` 필드는 데이터 필드만 준비되어 있다.
+   - 실제 VFX/SFX 재생 연결은 별도 MotionEvent 또는 후속 런타임 코드에서 처리해야 한다.
+   - 현재 즉시 사용 가능한 연출 필드는 모션, 위치 보정, 카메라, 히트스톱이다.
+
+12. 보스/대형 몬스터 튜닝
+   - 대형 몬스터는 `startDistance`를 2.0 이상으로 높여 플레이어가 콜라이더 안쪽으로 들어가지 않게 조정한다.
+   - 보스는 `damageByMaxHpRate`를 0.08~0.12 범위에서 시작하고, `MonsterBreakGaugeSO.repeatBreakCooldown` 또는 `allowRepeatBreak`로 반복 브레이크를 제한한다.
+   - 보스 전용 컷신형 특수공격이 필요하면 별도 `SpecialBreakAttackAsset`과 `CameraSnapshotProfile`을 만든다.
+
+### 추가 개발 예정
+
+| 우선순위 | 작업 | 설명 |
+|----------|------|------|
+| 1 | 브레이크 프롬프트 UI | `BreakExposed` 타겟 머리 위 또는 락온 UI 주변에 입력 아이콘 표시 |
+| 1 | 특수공격 VFX/SFX 연결 | `SpecialBreakAttackAsset`의 VFX 키와 SFX를 실제 MotionEvent 또는 런타임 실행 경로에 연결 |
+| 2 | 대형 몬스터 앵커 처리 | 현재는 타겟 루트 기준 `startDistance` 보정. 몬스터별 `SpecialAttackAnchor` 소켓 또는 반지름 데이터 추가 필요 |
+| 2 | 보스 제한 정책 | 페이즈당 횟수, 내부 쿨타임, `Stun`/`Knockdown` → `Groggy` 변환 |
+| 2 | 브레이크 UI 연출 | 노출 중 타이머 감소, 깜빡임, 색상 변화, 보스 HP바 전용 표시 |
+| 3 | 캐릭터별 특수공격 | `CharacterActorType`별 모션/피해/VFX 분리 |
+| 3 | BT 조건 노드 | `IsBreakExposed`, `CanSpecialBreak` 등 BT/Blackboard 연동 |
+
+---
+
 ## 설계 목표
 
 - 기존 `PoiseStat`과 충돌하지 않는 브레이크 게이지를 설계한다.
@@ -64,22 +177,33 @@
 AttackData / HitPhaseData
     ├── damage
     ├── poiseDamage
+    ├── breakDamage
     ├── reactionType
+    ├── reactionDuration / forceReaction / forceBreakExpose
     ├── pullForce / airborneForce / knockbackForce / knockbackDrag
     └── grabDuration / victimForcedAnimKey
 
 MonsterActor.TakeDamage()
     ├── HP 데미지 처리
     ├── PoiseStat.TakePoiseDamage()
+    ├── MonsterBreakGauge.TakeBreakDamage()
     ├── EnemyTacticalMemory.NotifyTookDamage()
     ├── AttackReactionType별 물리 힘 적용
-    └── EnemyHitState / EnemyAirborneState / EnemyGrabbedState 전환
+    ├── EnemyHitState / EnemyAirborneState / EnemyGrabbedState 전환
+    └── EnemyStunState / EnemyKnockdownState / EnemyBreakExposedState 전환
 
 PlayerActor.OnDamaged()
     ├── 슈퍼아머 / 피격 반응 억제 확인
     ├── AttackReactionType별 물리 힘 적용
     ├── PlayerHitState / PlayerAirborneState / PlayerGrabbedState 전환
+    ├── PlayerStunState / PlayerKnockdownState 전환
     └── 카메라 쉐이크 / FX / 피격 플래시
+
+PlayerAttackState.TryEnter()
+    └── HeavyAttack 입력
+            ├── HP 조건 피니시 타겟 있음: PlayerFinishAttackState
+            ├── BreakExposed 타겟 있음: PlayerSpecialBreakAttackState
+            └── 일반 강공격
 ```
 
 ### 관련 파일
@@ -89,14 +213,23 @@ PlayerActor.OnDamaged()
 | `Assets/02.Scripts/Data/Enum/AttackInfo.cs` | `AttackReactionType`, `AttackKind` 정의 |
 | `Assets/02.Scripts/Data/Combat/CombatData.cs` | `HitPhaseData`, `AttackData`, 공격별 반응 데이터 |
 | `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs` | 강인도 런타임 컴포넌트 |
+| `Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs` | 브레이크 게이지 런타임 컴포넌트 |
+| `Assets/02.Scripts/Data/Actor/Enemy/MonsterBreakGaugeSO.cs` | 브레이크 게이지 데이터 |
 | `Assets/02.Scripts/Data/Actor/Enemy/PoiseSO.cs` | 강인도 데이터 |
 | `Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs` | 몬스터 데미지/피격/사망 처리 |
 | `Assets/02.Scripts/GameActor/Object/Player/PlayerActor.cs` | 플레이어 데미지/피격/사망 처리 |
 | `Assets/02.Scripts/GameActor/State/Player/PlayerHitState.cs` | 플레이어 기본 피격 경직, 캔슬 윈도우 처리 |
+| `Assets/02.Scripts/GameActor/State/Player/PlayerStunState.cs` | 플레이어 스턴 행동 불능 |
+| `Assets/02.Scripts/GameActor/State/Player/PlayerKnockdownState.cs` | 플레이어 다운/기상 행동 불능 |
+| `Assets/02.Scripts/GameActor/State/Player/PlayerSpecialBreakAttackState.cs` | 브레이크 특수공격 실행 상태 |
 | `Assets/02.Scripts/GameActor/State/Player/PlayerGrabbedState.cs` | 플레이어 잡힘 행동 불능 |
 | `Assets/02.Scripts/GameActor/State/Player/PlayerGuardBreakState.cs` | 플레이어 가드 브레이크 행동 불능 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyHitState.cs` | 몬스터 기본 피격 경직 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyAirborneState.cs` | 몬스터 공중 행동 불능 |
+| `Assets/02.Scripts/GameActor/State/Enemy/EnemyStunState.cs` | 몬스터 스턴 행동 불능 |
+| `Assets/02.Scripts/GameActor/State/Enemy/EnemyKnockdownState.cs` | 몬스터 다운/기상 행동 불능 |
+| `Assets/02.Scripts/GameActor/State/Enemy/EnemyBreakExposedState.cs` | 브레이크 특수공격 입력 대기 상태 |
+| `Assets/02.Scripts/GameActor/State/Enemy/EnemySpecialBreakVictimState.cs` | 브레이크 특수공격 피격자 고정 상태 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyGrabbedState.cs` | 몬스터 잡힘 행동 불능 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs` | 최근 피격/강한 피격/Poise Break 기억 |
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` | 피니시 타겟 탐색, 공격 데이터 생성 후보 |
@@ -662,9 +795,10 @@ Any Player Combat State
 
 - 플레이어가 타겟 앞으로 짧게 보정 이동
 - 타겟은 `EnemySpecialBreakVictimState`로 고정
-- 플레이어는 캐릭터 공통 특수공격 모션 재생
-- MotionSet `CollisionEvent` 타이밍에 데미지 적용
-- 짧은 히트스톱, 카메라 쉐이크, 슬로모션 적용
+- 플레이어는 `SpecialBreakAttackAsset.animKey` 기준 특수공격 모션 재생
+- MotionSet `SpecialBreakAttackEvent` 타이밍에 데미지 적용
+- 이벤트가 없는 임시 모션은 `fallbackHitTime`에 데미지 적용
+- 짧은 히트스톱, 카메라 스냅샷, 슬로모션 적용
 - 종료 후 플레이어는 `Idle` 또는 `GroundMove`, 몬스터는 생존 시 `Hit` 또는 `Idle/Chase` 복귀
 
 ### 2차 구현
@@ -683,11 +817,17 @@ namespace UPlayGround.Data.Combat
     [CreateAssetMenu(fileName = "SpecialBreakAttack", menuName = "UPlayGround/SO/Combat/Special Break Attack")]
     public class SpecialBreakAttackAsset : ScriptableObject
     {
-        public CharacterActorType ownerType;
+        public CharacterActorType ownerType = CharacterActorType.None;
+        public AnimKey animKey = AnimKey.FinishAttack;
         public MotionSetAsset motionSet;
+        public float duration = 1.2f;
+        public float fallbackHitTime = 0.15f;
         public CameraSnapshotProfile cameraProfile;
         public float searchRange = 4f;
+        public float searchAngle = 110f;
         public float startDistance = 1.5f;
+        public float maxSlideSpeed = 18f;
+        public float slideDuration = 0.25f;
         public float damageByMaxHpRate = 0.2f;
         public float fixedDamage = 0f;
         public float hitStopDuration = 0.08f;
@@ -702,64 +842,93 @@ namespace UPlayGround.Data.Combat
 
 ## 구현 단계
 
-### Phase 1: 행동 불능 정리
+### Phase 1: 행동 불능 정리 — 완료
 
-- `AttackReactionType`별 플레이어/몬스터 정책 확정
-- `PlayerHitState`의 기존 캔슬 정책 유지
-- `PlayerStunState`, `PlayerKnockdownState` 필요 여부 결정
-- `EnemyStunState`, `EnemyKnockdownState`, `EnemyGroggyState` 추가 여부 결정
-- 몬스터 등급별 반응 허용 정책 정의
+- `AttackReactionType`별 플레이어/몬스터 정책을 문서화했다.
+- `PlayerHitState`의 기존 캔슬 정책을 유지했다.
+- `PlayerStunState`, `PlayerKnockdownState`를 추가했다.
+- `EnemyStunState`, `EnemyKnockdownState`를 추가했다.
+- `PlayerActor.OnDamaged()` / `MonsterActor.OnDamaged()`에서 전용 상태 라우팅을 추가했다.
 
 완료 기준:
 
 - 같은 공격 데이터가 플레이어/몬스터에게 어떤 상태를 만드는지 문서와 코드가 일치한다.
 - 플레이어는 일반 피격에서 불필요하게 긴 조작 불능에 빠지지 않는다.
-- 몬스터는 소형/중형/엘리트/보스별 경직 허용 범위가 다르다.
+- `Stun`/`Knockdown`은 전용 State로 분리되어 후속 확장이 가능하다.
 
-### Phase 2: 데이터와 런타임 게이지
+남은 작업:
 
-- `MonsterBreakGaugeSO` 추가
-- `MonsterBreakGauge` 컴포넌트 추가
-- `ActorDefinitionSO` 또는 몬스터 프리팹에 브레이크 데이터 연결
-- `HitPhaseData` / `AttackData`에 `breakDamage` 추가
-- `MonsterActor.TakeDamage()`에서 브레이크 누적 호출
-- `UI_ActorHpBar`에 브레이크 게이지 표시 추가
+- `EnemyGroggyState`는 아직 추가하지 않았다.
+- 몬스터 등급별 리액션 면역/변환 정책은 데이터화가 필요하다.
+
+### Phase 2: 데이터와 런타임 게이지 — 완료
+
+- `MonsterBreakGaugeSO`를 추가했다.
+- `MonsterBreakGauge` 컴포넌트를 추가했다.
+- `ActorDefinitionSO.breakGaugeData`를 추가했다.
+- `breakGaugeData`가 있으면 런타임에 `MonsterBreakGauge`를 자동 부착한다.
+- `HitPhaseData` / `AttackData`에 `breakDamage`를 추가했다.
+- `MonsterActor.TakeDamage()`에서 브레이크 누적을 호출한다.
+- `UI_ActorHpBar`에 브레이크 게이지 표시용 선택 필드를 추가했다.
 
 완료 기준:
 
-- 공격 적중 시 몬스터 HP바에 브레이크 게이지가 증가한다.
+- 공격 적중 시 `MonsterBreakGauge`가 누적된다.
 - 게이지 최대치에서 `IsExposed == true`가 된다.
 - 일정 시간 후 게이지가 정책대로 리셋된다.
+- 특수공격 소비 시 게이지가 정책대로 리셋된다.
 
-### Phase 3: 노출 상태와 입력 프롬프트
+에디터 필요 작업:
 
-- `EnemyBreakExposedState` 추가
-- `MonsterBreakGauge.OnBreakExposed`에서 상태 전환 요청
-- `SpecialBreakAttackController`에서 타겟 탐색
-- UI 프롬프트 표시/숨김
-- 입력 레이어와 연동
+- `MonsterBreakGaugeSO` 에셋을 생성하고 `ActorDefinitionSO.breakGaugeData`에 연결한다.
+- HP바 프리팹에 `_fillBreakImage`, `_fillBreakDelayImage`를 연결한다.
+
+### Phase 3: 노출 상태와 입력 프롬프트 — 부분 완료
+
+- `EnemyBreakExposedState`를 추가했다.
+- `MonsterBreakGauge.OnBreakExposed`에서 상태 전환 요청을 연결했다.
+- `PlayerCombat.FindSpecialBreakAttackTarget()`로 노출 타겟 탐색을 추가했다.
+- `PlayerAttackState`에서 강공격 입력으로 브레이크 특수공격 진입을 연결했다.
 
 완료 기준:
 
 - 게이지 완료 시 몬스터가 공격을 멈춘다.
-- 플레이어가 가까이 가면 특수공격 입력 프롬프트가 뜬다.
-- 시간 만료 시 프롬프트가 사라지고 몬스터가 복귀한다.
+- 플레이어가 가까이 있고 강공격 입력을 누르면 브레이크 특수공격이 실행된다.
+- 시간 만료 시 몬스터가 복귀한다.
 
-### Phase 4: 특수공격 실행
+남은 작업:
 
-- `PlayerSpecialBreakAttackState` 추가
-- `EnemySpecialBreakVictimState` 추가
-- `SpecialBreakAttackAsset` 추가
-- MotionSet 이벤트로 데미지/VFX/히트스톱 실행
-- 특수공격 후 게이지 리셋
+- 화면 프롬프트 UI 표시/숨김은 아직 미구현이다.
+- 입력 레이어 전용 차단/우선순위 UI 정책은 추가 구현이 필요하다.
+
+### Phase 4: 특수공격 실행 — 부분 완료
+
+- `PlayerSpecialBreakAttackState`를 추가했다.
+- `EnemySpecialBreakVictimState`를 추가했다.
+- `SpecialBreakAttackAsset`을 추가하고 `PlayerCombat`에서 연결할 수 있게 했다.
+- 특수공격 입력 시 에셋의 `damageByMaxHpRate`, `fixedDamage` 기준 피해를 적용한다.
+- 에셋이 없으면 몬스터 최대 HP 20% 피해를 폴백으로 적용한다.
+- 특수공격 후 `MonsterBreakGauge.ConsumeBySpecialAttack()`으로 게이지를 리셋한다.
+- 1차 모션은 에셋의 `animKey`를 우선 사용하고, 없으면 `FinishAttack`, `Attack_1` 순으로 폴백한다.
+- `SpecialBreakAttackEvent`가 있으면 MotionSet 이벤트 타이밍에 피해를 적용한다.
+- 이벤트가 없으면 `fallbackHitTime`에 피해를 1회 적용한다.
+- 플레이어를 타겟 앞 `startDistance` 위치로 짧게 보정한다.
+- `CameraSnapshotProfile`을 연결하면 특수공격 중 카메라 스냅샷 시퀀스를 재생한다.
 
 완료 기준:
 
-- 입력 시 플레이어와 몬스터가 위치 보정 후 전용 모션을 재생한다.
-- 타격 타이밍에 데미지와 연출이 발생한다.
+- 입력 시 플레이어와 몬스터가 전용 상태에 들어간다.
+- 데미지와 히트스톱이 발생한다.
 - 종료 후 양쪽 상태가 정상 복구된다.
 
-### Phase 5: 캐릭터/몬스터별 확장
+남은 작업:
+
+- 에디터에서 `SpecialBreakAttackAsset` 에셋을 생성하고 `PlayerCombat._specialBreakAttackData`에 연결해야 한다.
+- 전용 MotionSet에 `SpecialBreakAttackEvent`를 실제 타격 프레임에 배치해야 한다.
+- VFX/SFX 키는 데이터 필드만 준비되어 있어 실제 재생 경로 연결이 필요하다.
+- 대형 몬스터용 `SpecialAttackAnchor` 소켓 또는 반지름 기반 위치 보정 데이터가 필요하다.
+
+### Phase 5: 캐릭터/몬스터별 확장 — 예정
 
 - `CharacterActorType`별 특수공격 데이터 분리
 - 보스 등급별 게이지/피해/반복 제한 적용
@@ -785,13 +954,23 @@ namespace UPlayGround.Data.Combat
 
 ## 오픈 질문
 
-- `PlayerKnockdownState`를 1차부터 만들 것인가, `PlayerHitState`에서 임시 처리할 것인가?
+### 결정됨
+
+- `PlayerKnockdownState`는 1차부터 별도 State로 구현했다.
+- `PlayerStunState`도 별도 State로 구현했다.
+- 특수공격은 즉사가 아니라 큰 피해로 시작한다. 현재 1차 구현은 최대 HP 20% 피해다.
+- 특수공격 입력은 기존 강공격 입력을 사용한다.
+- 입력 우선순위는 `FinishAttack > SpecialBreakAttack > 일반 강공격`이다.
+- `Poise` 게이지는 유지하고, `Break Gauge`는 별도 게이지로 추가한다.
+- 1차 특수공격은 캐릭터별 데이터 없이 공통 임시 모션으로 검증한다.
+
+### 남은 질문
+
 - 보스의 `Poise Break`와 `Break Gauge Full`을 같은 `Groggy`로 합칠 것인가, 별도 상태로 둘 것인가?
-- 특수공격은 몬스터를 즉사시키는가, 큰 피해만 주는가?
 - 보스에게도 동일하게 컷신형 특수공격을 허용할 것인가?
-- 특수공격 입력 키를 기존 상호작용 키와 공유할 것인가?
-- `Poise` 게이지 UI를 유지하면서 `Break Gauge`를 추가할 것인가, 기존 Poise UI를 브레이크 UI로 재해석할 것인가?
-- 캐릭터별 특수공격을 1차부터 만들 것인가, 공통 모션 1개로 먼저 검증할 것인가?
+- 브레이크 특수공격 프롬프트를 타겟 머리 위에 둘 것인가, 락온 UI 주변에 둘 것인가?
+- 보스의 반복 제한을 페이즈당 1회로 할 것인가, 쿨타임 기반으로 할 것인가?
+- `SpecialBreakAttackAsset`을 캐릭터별로 둘 것인가, 무기별로 둘 것인가?
 
 ---
 

@@ -79,11 +79,17 @@ namespace UPlayGround.Component
         public float WarpMinDistance => _warpMinDistance;
         public float WarpMaxDistance => _warpMaxDistance;
         public float WarpMaxSpeed    => _warpMaxSpeed;
+        public SpecialBreakAttackAsset SpecialBreakAttackData => _specialBreakAttackData;
 
         [Header("Finish Attack Settings")]
         [SerializeField] private float _finishAttackSearchRange     = 0.5f;
         [SerializeField] private float _finishAttackSearchAngle     = 90f;
         [SerializeField] private float _finishAttackDamageThreshold = 30f;
+
+        [Header("Special Break Attack Settings")]
+        [SerializeField] private SpecialBreakAttackAsset _specialBreakAttackData;
+        [SerializeField] private float _specialBreakAttackSearchRange = 4f;
+        [SerializeField] private float _specialBreakAttackSearchAngle = 110f;
 
         // ── 퍼펙트 도지 ──────────────────────────────────────────────
         [Header("Perfect Dodge Settings")]
@@ -448,6 +454,10 @@ namespace UPlayGround.Component
                 animKey          = _attackData.chargeAnimKey,
                 damage           = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                 poiseDamage      = phase.poiseDamage,
+                breakDamage      = phase.breakDamage,
+                reactionDuration = phase.reactionDuration,
+                forceReaction    = phase.forceReaction,
+                forceBreakExpose = phase.forceBreakExpose,
                 canBeInterrupted = stage.canBeInterrupted,
                 reactionType     = phase.reactionType,
                 hitRange         = phase.attackRadius,
@@ -606,6 +616,7 @@ namespace UPlayGround.Component
                 animKey          = AnimKey.FinishAttack,
                 damage           = 9999f,
                 poiseDamage      = 9999f,
+                breakDamage      = 0f,
                 canBeInterrupted = false,
                 reactionType     = AttackReactionType.Knockdown,
                 hitRange         = 1.5f,
@@ -629,6 +640,10 @@ namespace UPlayGround.Component
                 animKey          = attackInfo.baseInfo.animKey,
                 damage           = UPlayGround.Util.ApplyRandomValue(phase0.damage, -0.2f, 0.2f),
                 poiseDamage      = phase0.poiseDamage,
+                breakDamage      = phase0.breakDamage,
+                reactionDuration = phase0.reactionDuration,
+                forceReaction    = phase0.forceReaction,
+                forceBreakExpose = phase0.forceBreakExpose,
                 canBeInterrupted = attackInfo.canBeInterrupted,
                 reactionType     = phase0.reactionType,
                 hitRange         = phase0.attackRadius,
@@ -807,6 +822,10 @@ namespace UPlayGround.Component
             _currentAttackData.hitPhaseIndex   = index;
             _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
             _currentAttackData.poiseDamage     = phase.poiseDamage;
+            _currentAttackData.breakDamage     = phase.breakDamage;
+            _currentAttackData.reactionDuration = phase.reactionDuration;
+            _currentAttackData.forceReaction   = phase.forceReaction;
+            _currentAttackData.forceBreakExpose = phase.forceBreakExpose;
             _currentAttackData.reactionType    = phase.reactionType;
             _currentAttackData.hitRange        = phase.attackRadius;
             _currentAttackData.hitHeightOffset = phase.attackOffset.y;
@@ -1012,6 +1031,51 @@ namespace UPlayGround.Component
                     bestTarget = hit.transform;
                 }
             }
+            return bestTarget;
+        }
+
+        public Transform FindSpecialBreakAttackTarget()
+        {
+            Vector3 origin = transform.position;
+            Vector3 forward = transform.forward;
+            float searchRange = _specialBreakAttackData != null
+                ? _specialBreakAttackData.searchRange
+                : _specialBreakAttackSearchRange;
+            float searchAngle = _specialBreakAttackData != null
+                ? _specialBreakAttackData.searchAngle
+                : _specialBreakAttackSearchAngle;
+            Collider[] hits = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
+
+            Transform bestTarget = null;
+            float bestDistSq = float.MaxValue;
+            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+
+            foreach (var hit in hits)
+            {
+                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
+
+                MonsterActor monsterActor = hit.GetComponent<MonsterActor>()
+                                            ?? hit.GetComponentInParent<MonsterActor>();
+                if (monsterActor == null || monsterActor.BreakGauge == null || !monsterActor.BreakGauge.IsExposed)
+                    continue;
+
+                Vector3 dir = monsterActor.transform.position - origin;
+                dir.y = 0f;
+                if (dir.sqrMagnitude <= 0.001f) continue;
+                if (Vector3.Angle(forward, dir) > searchAngle) continue;
+
+                if (lockOnTarget != null &&
+                    (monsterActor.transform == lockOnTarget || lockOnTarget.IsChildOf(monsterActor.transform)))
+                    return monsterActor.transform;
+
+                float distSq = dir.sqrMagnitude;
+                if (distSq < bestDistSq)
+                {
+                    bestDistSq = distSq;
+                    bestTarget = monsterActor.transform;
+                }
+            }
+
             return bestTarget;
         }
 

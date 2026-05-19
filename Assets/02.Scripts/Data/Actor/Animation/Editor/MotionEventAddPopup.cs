@@ -490,6 +490,7 @@ namespace UPlayGround.Animation.Editor
                     Meta<DisableCollisionEvent>("DisableCollision", Combat, "공격 판정을 명시적으로 끕니다.", "hitbox off", "collision off", "판정 종료"),
                     Meta<ComboWindowEvent>("ComboWindow", Combat, "다음 콤보 입력을 받을 수 있는 구간을 엽니다.", "combo", "cancel", "chain", "연계", "콤보"),
                     Meta<FinishAttackEvent>("FinishAttack", Combat, "피니시 공격 처리 타이밍을 발생시킵니다.", "finish", "execution", "처형", "피니시"),
+                    Meta<SpecialBreakAttackEvent>("SpecialBreakAttack", Combat, "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.", "break", "special", "groggy", "브레이크", "특수공격"),
                     Meta<InvincibilityEvent>("Invincibility", Combat, "피격 무적 구간을 설정합니다.", "iframe", "invincible", "무적", "회피"),
                     Meta<HealSkillEvent>("HealSkill", Combat, "회복 스킬 판정을 실행합니다.", "heal", "recovery", "힐", "회복"),
 
@@ -557,6 +558,17 @@ namespace UPlayGround.Animation.Editor
                             Timed(new FinishAttackEvent(), start + 0.45f, 0.05f),
                         },
                         "camera", "shake", "attack", "카메라", "연출"),
+
+                    new EventPreset(
+                        "special_break_attack",
+                        "브레이크 특수공격",
+                        "SpecialBreakAttackEvent와 CameraEffect를 기본 타이밍으로 추가합니다.",
+                        start => new MotionEventBase[]
+                        {
+                            Timed(new CameraEffectEvent(), start + 0.00f, 0.25f),
+                            Timed(new SpecialBreakAttackEvent(), start + 0.18f, 0.05f),
+                        },
+                        "break", "special", "finish", "브레이크", "특수공격", "처형"),
 
                     new EventPreset(
                         "projectile_basic",

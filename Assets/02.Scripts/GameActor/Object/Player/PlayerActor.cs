@@ -933,6 +933,10 @@ namespace UPlayGround
                         MovementController.TransitionToState(new PlayerAirborneState(MovementController));
                     else if (attackData?.reactionType == AttackReactionType.Grab)
                         MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
+                    else if (attackData?.reactionType == AttackReactionType.Stun)
+                        MovementController.TransitionToState(new PlayerStunState(MovementController, attackData));
+                    else if (attackData?.reactionType == AttackReactionType.Knockdown)
+                        MovementController.TransitionToState(new PlayerKnockdownState(MovementController, attackData));
                     else
                         MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
                 }

@@ -82,6 +82,8 @@ namespace UPlayGround.State
             bool isHeavyPending = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat.FindFinishableTarget() != null)
                 return true;
+            if (isHeavyPending && combat.FindSpecialBreakAttackTarget() != null)
+                return true;
 
             AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending);
             if (peekedKey == AnimKey.None) return false;
@@ -96,6 +98,29 @@ namespace UPlayGround.State
         public static bool TryEnter(PlayerMovementController controller)
         {
             if (!CanEnter(controller)) return false;
+
+            var playerActor = controller.GetComponent<PlayerActor>();
+            var combat = playerActor != null ? playerActor.GetCombat() : null;
+            bool isHeavyPending = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            if (isHeavyPending && combat != null)
+            {
+                Transform finishTarget = combat.FindFinishableTarget();
+                if (finishTarget != null)
+                {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
+                    return true;
+                }
+
+                Transform breakTarget = combat.FindSpecialBreakAttackTarget();
+                if (breakTarget != null)
+                {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    controller.TransitionToState(new PlayerSpecialBreakAttackState(controller, breakTarget));
+                    return true;
+                }
+            }
+
             controller.TransitionToState(new PlayerAttackState(controller));
             return true;
         }

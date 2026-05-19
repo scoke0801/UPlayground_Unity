@@ -12,6 +12,9 @@ public class UI_ActorHpBar : MonoBehaviour
     
     [SerializeField] private Image _fillPoiseImage;
     [SerializeField] private Image _fillPoiseDelayImage;
+
+    [SerializeField] private Image _fillBreakImage;
+    [SerializeField] private Image _fillBreakDelayImage;
     
     [SerializeField] private float _delayFillSpeed = 3f;
     [SerializeField] private TextMeshProUGUI _textHp;
@@ -31,6 +34,7 @@ public class UI_ActorHpBar : MonoBehaviour
 
     private float _targetHpFill;
     private float _targetPoiseFill;
+    private float _targetBreakFill;
     
     private bool _isInitialized;
     private bool _isShowing = false;
@@ -60,14 +64,17 @@ public class UI_ActorHpBar : MonoBehaviour
         _mainCamera = targetCamera;
         _parentCanvasRect = parentCanvas.GetComponent<RectTransform>();
 
-        _fillHpImage.fillAmount = 1f;
-        _fillHpDelayImage.fillAmount = 1f;
+        if (_fillHpImage != null) _fillHpImage.fillAmount = 1f;
+        if (_fillHpDelayImage != null) _fillHpDelayImage.fillAmount = 1f;
         
-        _fillPoiseDelayImage.fillAmount = 1f;
-        _fillPoiseImage.fillAmount = 1f;
+        if (_fillPoiseDelayImage != null) _fillPoiseDelayImage.fillAmount = 1f;
+        if (_fillPoiseImage != null) _fillPoiseImage.fillAmount = 1f;
+        if (_fillBreakDelayImage != null) _fillBreakDelayImage.fillAmount = 0f;
+        if (_fillBreakImage != null) _fillBreakImage.fillAmount = 0f;
         
         _targetHpFill = 1f;
         _targetPoiseFill = 1f;
+        _targetBreakFill = 0f;
 
         _isInitialized = true;
     }
@@ -141,7 +148,7 @@ public class UI_ActorHpBar : MonoBehaviour
 
     private void UpdateDelayFill()
     {
-        if (_fillHpDelayImage.fillAmount > _targetHpFill)
+        if (_fillHpDelayImage != null && _fillHpDelayImage.fillAmount > _targetHpFill)
         {
             _fillHpDelayImage.fillAmount = Mathf.Lerp(
                 _fillHpDelayImage.fillAmount,
@@ -150,11 +157,20 @@ public class UI_ActorHpBar : MonoBehaviour
             );
         }
         
-        if (_fillPoiseDelayImage.fillAmount > _targetPoiseFill)
+        if (_fillPoiseDelayImage != null && _fillPoiseDelayImage.fillAmount > _targetPoiseFill)
         {
             _fillPoiseDelayImage.fillAmount = Mathf.Lerp(
                 _fillPoiseDelayImage.fillAmount,
                 _targetPoiseFill,
+                Time.deltaTime * _delayFillSpeed
+            );
+        }
+
+        if (_fillBreakDelayImage != null && _fillBreakDelayImage.fillAmount > _targetBreakFill)
+        {
+            _fillBreakDelayImage.fillAmount = Mathf.Lerp(
+                _fillBreakDelayImage.fillAmount,
+                _targetBreakFill,
                 Time.deltaTime * _delayFillSpeed
             );
         }
@@ -165,11 +181,13 @@ public class UI_ActorHpBar : MonoBehaviour
     {
         Show();
         
-        _targetHpFill = Mathf.Clamp01(current / max);
-        _fillHpImage.fillAmount = _targetHpFill;
+        _targetHpFill = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        if (_fillHpImage != null)
+            _fillHpImage.fillAmount = _targetHpFill;
 
         int displayCurrent = current > 0f ? Mathf.CeilToInt(current) : 0;
-        _textHp.text = $"{displayCurrent}/{Mathf.CeilToInt(max)}";
+        if (_textHp != null)
+            _textHp.text = $"{displayCurrent}/{Mathf.CeilToInt(max)}";
         
         _lastDisplayedTime = Time.time;
     }
@@ -178,7 +196,23 @@ public class UI_ActorHpBar : MonoBehaviour
     {
         Show();
         
-        _targetPoiseFill = Mathf.Clamp01(current / max);
-        _fillPoiseImage.fillAmount = _targetPoiseFill;
+        _targetPoiseFill = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        if (_fillPoiseImage != null)
+            _fillPoiseImage.fillAmount = _targetPoiseFill;
+    }
+
+    public void UpdateBreakGauge(float current, float max)
+    {
+        if (_fillBreakImage == null && _fillBreakDelayImage == null)
+            return;
+
+        Show();
+
+        _targetBreakFill = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        if (_fillBreakImage != null)
+            _fillBreakImage.fillAmount = _targetBreakFill;
+
+        if (_fillBreakDelayImage != null && _fillBreakDelayImage.fillAmount < _targetBreakFill)
+            _fillBreakDelayImage.fillAmount = _targetBreakFill;
     }
 }

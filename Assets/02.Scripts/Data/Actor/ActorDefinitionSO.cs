@@ -42,6 +42,9 @@ namespace UPlayGround.Data.Actor
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;
 
+        [Tooltip("몬스터 브레이크 게이지 데이터. null이면 프리팹에 설정된 값 사용.")]
+        public MonsterBreakGaugeSO breakGaugeData;
+
         [Header("NPC 데이터")]
         [Tooltip("NpcActor에 주입할 NPC 전용 대화/상호작용 데이터. NPC가 아니면 비워둔다.")]
         public NpcActorSO npcData;

@@ -22,6 +22,7 @@ namespace UPlayGround
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
         [SerializeField] private PoiseStat _poiseStat = null;
+        [SerializeField] private MonsterBreakGauge _breakGauge = null;
         
         [Header("Drop")]
         [SerializeField] private EnemyDropTableSO _dropTable;
@@ -50,6 +51,7 @@ namespace UPlayGround
         public EnemyAIController GroundAIController => _groundAIController;
         public EnemyFlyingAIController FlyingAIController => _flyingAIController;
         public EnemyCombat Combat => _combat;
+        public MonsterBreakGauge BreakGauge => _breakGauge;
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
         public MonsterActorGrade Grade => _stats != null ? _stats.grade : MonsterActorGrade.Normal;
@@ -68,6 +70,8 @@ namespace UPlayGround
             if (_flyingAIController == null) _flyingAIController = GetComponent<EnemyFlyingAIController>();
             if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
+            if (_breakGauge == null) _breakGauge = GetComponent<MonsterBreakGauge>();
+            BindBreakGauge();
         }
 
         protected override void Start()
@@ -86,6 +90,9 @@ namespace UPlayGround
 
                 if (_poiseStat != null)
                     _poiseStat.ConnectUiBar(_uiHpBar);
+
+                if (_breakGauge != null)
+                    _breakGauge.ConnectUiBar(_uiHpBar);
             }
                 
             _uiHpBar?.UpdateHealth(_currentHealth, _maxHealth);
@@ -114,7 +121,8 @@ namespace UPlayGround
             float attackerPower = attackData.attacker != null ? attackData.attacker.Stats.AttackPower : 1f;
             float defenseRate   = Mathf.Clamp01(Stats.Defense);
 
-            float finalDamage = attackData.damage * attackerPower * (1f - defenseRate);
+            float breakExposedMultiplier = _breakGauge != null ? _breakGauge.DamageTakenMultiplier : 1f;
+            float finalDamage = attackData.damage * attackerPower * (1f - defenseRate) * breakExposedMultiplier;
 
             if (attackData.criticalMultiplier > 1.0f)
             {
@@ -146,6 +154,43 @@ namespace UPlayGround
             MovementController.AddVelocity(attackDirection.normalized * 30.0f);
             GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath(null);
+        }
+
+        /// <summary>
+        /// 브레이크 특수공격 전용 데미지 진입점.
+        /// 호출자는 타겟이 `BreakGauge.IsExposed` 상태임을 보장해야 한다.
+        /// 일반 데미지 가드(`_isInvincible`, Guard, `OnDamaged` 흐름)를 의도적으로 우회한다.
+        /// </summary>
+        public void OnTakeSpecialBreakAttack(GameActor attacker, float damageByMaxHpRate, float fixedDamage)
+        {
+            if (!IsAlive()) return;
+
+            float rateDamage = _maxHealth * Mathf.Max(0f, damageByMaxHpRate);
+            float finalDamage = Mathf.Max(0f, fixedDamage) + rateDamage;
+            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
+
+            if (_uiHpBar == null) AttachHpUI();
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            AIController?.UpdatePhase(GetHealthPercent());
+
+            _breakGauge?.ConsumeBySpecialAttack();
+            _colorChanger.OnHit();
+
+            Vector3 floaterPos = TryGetSocket(ActorSocketType.Center, out var center)
+                ? center.position
+                : transform.position;
+            UIManager.Instance.ShowDamageFloater(floaterPos, finalDamage, FloatStyle.Critical);
+
+            if (_currentHealth <= 0)
+            {
+                var attackData = new AttackData
+                {
+                    attacker = attacker,
+                    attackKind = AttackKind.FinishAttack,
+                    reactionType = AttackReactionType.Knockdown,
+                };
+                OnDeath(attackData);
+            }
         }
         
         public bool IsAlive()          => _currentHealth > 0;
@@ -210,8 +255,18 @@ namespace UPlayGround
             }
 
             GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, poiseBroken);
+            _breakGauge?.TakeBreakDamage(attackData);
 
-            if (attackData != null && poiseBroken)
+            // BreakExposed는 자체 상태/모션이 고정되므로 일반 리액션(물리·상태 전환)을 건너뛴다.
+            // 단, 피격 플래시는 일반 피격과 동일하게 유지한다.
+            if (_breakGauge != null && _breakGauge.IsExposed)
+            {
+                _colorChanger.OnHit();
+                return;
+            }
+
+            bool shouldReact = poiseBroken || (attackData?.forceReaction ?? false);
+            if (attackData != null && shouldReact)
             {
                 switch (attackData.reactionType)
                 {
@@ -246,12 +301,16 @@ namespace UPlayGround
                 }
             }
 
-            if (poiseBroken)
+            if (shouldReact)
             {
                 if (attackData?.reactionType == AttackReactionType.Airborne)
                     MovementController.TransitionToState(new EnemyAirborneState(MovementController));
                 else if (attackData?.reactionType == AttackReactionType.Grab)
                     MovementController.TransitionToState(new EnemyGrabbedState(MovementController, attackData));
+                else if (attackData?.reactionType == AttackReactionType.Stun)
+                    MovementController.TransitionToState(new EnemyStunState(MovementController, attackData));
+                else if (attackData?.reactionType == AttackReactionType.Knockdown)
+                    MovementController.TransitionToState(new EnemyKnockdownState(MovementController, attackData));
                 else
                     MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
             }
@@ -334,8 +393,52 @@ namespace UPlayGround
             if (definition.poiseData != null && _poiseStat != null)
                 _poiseStat.Init(definition.poiseData);
 
+            if (definition.breakGaugeData != null && _breakGauge == null)
+            {
+                _breakGauge = gameObject.AddComponent<MonsterBreakGauge>();
+                BindBreakGauge();
+            }
+
+            if (definition.breakGaugeData != null && _breakGauge != null)
+                _breakGauge.Init(definition.breakGaugeData);
+
             if (definition.dropTable != null)
                 _dropTable = definition.dropTable;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (_breakGauge == null) return;
+            _breakGauge.OnBreakExposed -= OnBreakExposed;
+            _breakGauge.OnBreakRecovered -= OnBreakRecovered;
+        }
+
+        private void OnBreakExposed(MonsterBreakGauge breakGauge)
+        {
+            if (_isDead || MovementController == null) return;
+            string stateName = MovementController.CurrentState?.StateName;
+            if (stateName is "Death" or "Grabbed" or "BreakExposed") return;
+            MovementController.TransitionToState(new EnemyBreakExposedState(MovementController, breakGauge));
+        }
+
+        private void OnBreakRecovered(MonsterBreakGauge breakGauge)
+        {
+            if (_isDead || MovementController == null) return;
+            if (MovementController.CurrentState?.StateName == "BreakExposed")
+                MovementController.TransitionToState(new EnemyIdleState(MovementController));
+        }
+
+        private void BindBreakGauge()
+        {
+            if (_breakGauge == null) return;
+            _breakGauge.OnBreakExposed -= OnBreakExposed;
+            _breakGauge.OnBreakExposed += OnBreakExposed;
+            _breakGauge.OnBreakRecovered -= OnBreakRecovered;
+            _breakGauge.OnBreakRecovered += OnBreakRecovered;
+
+            if (_uiHpBar != null)
+                _breakGauge.ConnectUiBar(_uiHpBar);
         }
 
         /// <summary>

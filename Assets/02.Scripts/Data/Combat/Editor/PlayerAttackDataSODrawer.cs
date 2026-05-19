@@ -82,18 +82,23 @@ namespace UPlayGround.Editor
             public static bool   HasData    { get; private set; }
             public static string DisplayStr { get; private set; } = "";
 
-            private static float   _damage, _poiseDamage;
+            private static float   _damage, _poiseDamage, _breakDamage, _reactionDuration;
             private static float   _pullForce, _airborneForce, _knockBackForce, _knockBackDrag;
             private static float   _attackRadius, _hitHeightRange, _grabDuration;
             private static Vector3 _attackOffset;
             private static int     _reactionType, _victimForcedAnimKey;
+            private static bool    _forceReaction, _forceBreakExpose;
             private static string  _hitParticleName;
 
             public static void Copy(SerializedProperty phase)
             {
                 _damage              = phase.FindPropertyRelative("damage").floatValue;
                 _poiseDamage         = phase.FindPropertyRelative("poiseDamage").floatValue;
+                _breakDamage         = phase.FindPropertyRelative("breakDamage").floatValue;
                 _reactionType        = phase.FindPropertyRelative("reactionType").enumValueIndex;
+                _reactionDuration    = phase.FindPropertyRelative("reactionDuration").floatValue;
+                _forceReaction       = phase.FindPropertyRelative("forceReaction").boolValue;
+                _forceBreakExpose    = phase.FindPropertyRelative("forceBreakExpose").boolValue;
                 _attackOffset        = phase.FindPropertyRelative("attackOffset").vector3Value;
                 _attackRadius        = phase.FindPropertyRelative("attackRadius").floatValue;
                 _hitHeightRange      = phase.FindPropertyRelative("hitHeightRange").floatValue;
@@ -106,7 +111,7 @@ namespace UPlayGround.Editor
                 _victimForcedAnimKey = phase.FindPropertyRelative("victimForcedAnimKey").enumValueIndex;
 
                 HasData    = true;
-                DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  반경 {_attackRadius:F1}";
+                DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  브레이크 {_breakDamage:F0}  반경 {_attackRadius:F1}";
             }
 
             public static void Paste(SerializedProperty phase)
@@ -114,7 +119,11 @@ namespace UPlayGround.Editor
                 if (!HasData) return;
                 phase.FindPropertyRelative("damage").floatValue              = _damage;
                 phase.FindPropertyRelative("poiseDamage").floatValue         = _poiseDamage;
+                phase.FindPropertyRelative("breakDamage").floatValue         = _breakDamage;
                 phase.FindPropertyRelative("reactionType").enumValueIndex    = _reactionType;
+                phase.FindPropertyRelative("reactionDuration").floatValue    = _reactionDuration;
+                phase.FindPropertyRelative("forceReaction").boolValue        = _forceReaction;
+                phase.FindPropertyRelative("forceBreakExpose").boolValue     = _forceBreakExpose;
                 phase.FindPropertyRelative("attackOffset").vector3Value      = _attackOffset;
                 phase.FindPropertyRelative("attackRadius").floatValue        = _attackRadius;
                 phase.FindPropertyRelative("hitHeightRange").floatValue      = _hitHeightRange;
@@ -279,14 +288,18 @@ namespace UPlayGround.Editor
             {
                 SerializedProperty ph     = phasesP.GetArrayElementAtIndex(i);
                 float  damage             = ph.FindPropertyRelative("damage").floatValue;
+                float  breakDamage        = ph.FindPropertyRelative("breakDamage").floatValue;
                 float  radius             = ph.FindPropertyRelative("attackRadius").floatValue;
                 float  af                 = ph.FindPropertyRelative("airborneForce").floatValue;
                 float  kf                 = ph.FindPropertyRelative("knockBackForce").floatValue;
+                bool   forceBreakExpose   = ph.FindPropertyRelative("forceBreakExpose").boolValue;
                 SerializedProperty rxProp = ph.FindPropertyRelative("reactionType");
                 string rxName             = rxProp.enumDisplayNames[rxProp.enumValueIndex];
 
                 if (damage == 0f)  result.Warnings.Add($"Phase {i}: 대미지 0");
                 if (radius <= 0f)  result.Errors.Add($"Phase {i}: 히트박스 반경 0 이하");
+                if (breakDamage <= 0f && !forceBreakExpose)
+                    result.Warnings.Add($"Phase {i}: 브레이크 데미지 0");
                 if ((rxName == "Airborne" || rxName == "KnockBack") && af == 0f && kf == 0f)
                     result.Warnings.Add($"Phase {i}: {rxName} 타입이지만 반응 힘이 모두 0");
             }
@@ -568,6 +581,7 @@ namespace UPlayGround.Editor
 
             SerializedProperty damageP   = phase.FindPropertyRelative("damage");
             SerializedProperty poiseP    = phase.FindPropertyRelative("poiseDamage");
+            SerializedProperty breakP    = phase.FindPropertyRelative("breakDamage");
             SerializedProperty reactionP = phase.FindPropertyRelative("reactionType");
 
             bool fold    = folds[index];
@@ -576,7 +590,7 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_phaseStyle);
 
             string reactionLabel = reactionP.enumDisplayNames[reactionP.enumValueIndex];
-            string summary = $"  Phase {index}  |  데미지 {damageP.floatValue:F0}  |  포이즈 {poiseP.floatValue:F0}  |  {reactionLabel}";
+            string summary = $"  Phase {index}  |  데미지 {damageP.floatValue:F0}  |  포이즈 {poiseP.floatValue:F0}  |  브레이크 {breakP.floatValue:F0}  |  {reactionLabel}";
             Color  phBg    = new Color(accent.r * 0.5f, accent.g * 0.5f, accent.b * 0.5f, 0.20f);
 
             // 헤더 (복사/붙여넣기 버튼 포함)
@@ -594,8 +608,14 @@ namespace UPlayGround.Editor
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.PropertyField(damageP, new GUIContent("데미지"));
                     EditorGUILayout.PropertyField(poiseP,  new GUIContent("포이즈 데미지"));
+                    EditorGUILayout.PropertyField(breakP,  new GUIContent("브레이크 데미지"));
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.PropertyField(reactionP, new GUIContent("반응 타입"));
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("reactionDuration"), new GUIContent("반응 지속시간"));
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceReaction"), new GUIContent("반응 강제"));
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceBreakExpose"), new GUIContent("브레이크 노출 강제"));
+                    EditorGUILayout.EndHorizontal();
                 }
 
                 // 대미지 시각화 바

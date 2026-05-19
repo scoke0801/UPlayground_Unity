@@ -31,7 +31,15 @@ namespace UPlayGround.Data
         public float damage = 10f;
         [Tooltip("적중 시 Poise를 깎는 양. 0이면 항상 경직")]
         public float poiseDamage = 30f;
+        [Tooltip("몬스터 Break Gauge를 누적시키는 양. 0이면 기본 브레이크 누적 없음")]
+        public float breakDamage = 10f;
         public AttackReactionType reactionType = AttackReactionType.Hit;
+        [Tooltip("0이면 상태/애니메이션 기본 지속시간을 사용한다.")]
+        public float reactionDuration = 0f;
+        [Tooltip("true면 Poise가 남아 있어도 해당 리액션 상태 전환을 강제한다.")]
+        public bool forceReaction = false;
+        [Tooltip("true면 Break Gauge 잔량과 무관하게 즉시 BreakExposed를 요청한다.")]
+        public bool forceBreakExpose = false;
 
         [Header("Hitbox")]
         public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
@@ -86,6 +94,7 @@ namespace UPlayGround.Data
         public float attackRadius              => GetHitPhase(0).attackRadius;
         public float damage                    => GetHitPhase(0).damage;
         public float poiseDamage               => GetHitPhase(0).poiseDamage;
+        public float breakDamage               => GetHitPhase(0).breakDamage;
     }
 
     /// <summary>
@@ -206,6 +215,10 @@ namespace UPlayGround.Data
         public AnimKey animKey;
         public float damage;
         public float poiseDamage = 30f;
+        public float breakDamage = 10f;
+        public float reactionDuration = 0f;
+        public bool forceReaction = false;
+        public bool forceBreakExpose = false;
         public bool canBeInterrupted;
         public AttackKind attackKind = AttackKind.NormalAttack;
 

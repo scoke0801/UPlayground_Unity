@@ -51,6 +51,7 @@ namespace UPlayGround.Animation.Editor
             if (type == typeof(HealSkillEvent))          return Make(COL_MOVEMENT,   "💚");
             if (type == typeof(HideTargetEvent))         return Make(COL_MISC,       "👁");
             if (type == typeof(FinishAttackEvent))       return Make(COL_COLLISION,  "✔");
+            if (type == typeof(SpecialBreakAttackEvent)) return Make(COL_COLLISION,  "◆");
             if (type == typeof(FinishSideViewEvent))     return Make(COL_CAMERA,     "🎬");
             if (type == typeof(CustomCallbackEvent))     return Make(COL_MISC,       "⚙");
             if (type == typeof(LoopEvent))               return Make(COL_LOOKAT,     "🔁");

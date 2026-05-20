@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_Honoka
   m_EditorClassIdentifier: 
+  behaviorTree: {fileID: 11400000, guid: 0104eeed10a6e994ba346a7280083b02, type: 2}
+  aiRole: 0
   optimalCombatDistance: 2.2
   minCombatDistance: 1
   maintainDistance: 1
@@ -39,6 +41,20 @@ MonoBehaviour:
     allowCharge: 1
     allowFlank: 1
     maxConsecutiveAttacks: 4
+    attackWeight: 1
+    punishWeight: 1
+    counterWeight: 1
+    pressureWeight: 1
+    chaseWeight: 1
+    retreatWeight: 1
+    keepDistanceWeight: 1
+    defendWeight: 1
+    recoverWeight: 1
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12
   - phaseName: "\uAD11\uC804\uC0AC (HP 30% \uC774\uD558)"
     hpThreshold: 0.3
     continueAttackChance: 0.6
@@ -50,3 +66,17 @@ MonoBehaviour:
     allowCharge: 1
     allowFlank: 1
     maxConsecutiveAttacks: 5
+    attackWeight: 1
+    punishWeight: 1
+    counterWeight: 1
+    pressureWeight: 1
+    chaseWeight: 1
+    retreatWeight: 1
+    keepDistanceWeight: 1
+    defendWeight: 1
+    recoverWeight: 1
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12

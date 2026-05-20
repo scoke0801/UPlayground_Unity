@@ -162,6 +162,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "IsPlayerStaggered" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerStaggered, !condition.invert, row),
                 "IsPlayerRecovering" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerRecovering, !condition.invert, row),
                 "IsPlayerDodgingFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerDodgingFrequently, !condition.invert, row),
+                "IsPlayerAttackingFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerAttackingFrequently, !condition.invert, row),
+                "IsPlayerGuardingFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerGuardingFrequently, !condition.invert, row),
+                "IsPlayerRecoveringFrequently" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.IsPlayerRecoveringFrequently, !condition.invert, row),
                 "RecentlyHitByPlayer" => CreateBlackboardBoolNode(tree, EnemyBlackboardKeys.RecentlyHitByPlayer, !condition.invert, row),
                 "HasAttackSlot" => CreateNode<HasAttackSlotNode>(tree, "HasAttackSlot", new Vector2(520f, row * 180f)),
                 "CooldownReady" => CreateCooldownReadyNode(tree, condition.value, row),
@@ -173,6 +176,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 "ConsecutiveAttackCountGreaterOrEqual" => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.GreaterOrEqual, row),
                 "CanIgnoreLightHit" => CreateNode<CanIgnoreLightHitNode>(tree, "CanIgnoreLightHit", new Vector2(520f, row * 180f)),
                 "CanRevengeAfterHit" => CreateRevengeAfterHitNode(tree, condition.value, row),
+                "SelectedIntent" => CreateBlackboardStringNode(tree, EnemyBlackboardKeys.SelectedIntent, condition.value, !condition.invert, row),
                 // ── 비행 전용 ──
                 "IsCurrentState" => CreateIsCurrentStateNode(tree, condition.value, !condition.invert, row),
                 "IsFlyingAirState" => CreateNode<IsFlyingAirStateNode>(tree, "Is Flying Air State", new Vector2(520f, row * 180f)),
@@ -187,7 +191,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             return condition.invert && condition.condition is not ("HasTarget" or "IsPlayerAttacking" or "IsPlayerGuarding"
                        or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                       or "IsPlayerAttackingFrequently" or "IsPlayerGuardingFrequently" or "IsPlayerRecoveringFrequently"
                        or "RecentlyHitByPlayer"
+                       or "SelectedIntent"
                        or "IsCurrentState")
                 ? WrapInverter(tree, node, row)
                 : node;
@@ -273,6 +279,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             SetPrivateField(node, "_key", key);
             SetPrivateField(node, "_expectedValue", expected);
             return node;
+        }
+
+        private static BTNode CreateBlackboardStringNode(BehaviorTreeAsset tree, string key, string expectedValue, bool expected, int row)
+        {
+            var node = CreateNode<BlackboardStringConditionNode>(tree, $"{key} == {expectedValue}", new Vector2(520f, row * 180f));
+            node.Key = key;
+            node.ExpectedValue = expectedValue;
+
+            return expected ? node : WrapInverter(tree, node, row);
         }
 
         private static TransitionEnemyStateNode CreateTransitionNode(BehaviorTreeAsset tree, string state, int row, string cooldownId = null, float cooldownDuration = 0f)

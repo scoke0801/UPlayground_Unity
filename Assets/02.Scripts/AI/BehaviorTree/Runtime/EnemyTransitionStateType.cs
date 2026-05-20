@@ -36,6 +36,13 @@ namespace UPlayGround.AI.BehaviorTree
         public const string IsPlayerStaggered = "IsPlayerStaggered";
         public const string IsPlayerRecovering = "IsPlayerRecovering";
         public const string IsPlayerDodgingFrequently = "IsPlayerDodgingFrequently";
+        public const string IsPlayerAttackingFrequently = "IsPlayerAttackingFrequently";
+        public const string IsPlayerGuardingFrequently = "IsPlayerGuardingFrequently";
+        public const string IsPlayerRecoveringFrequently = "IsPlayerRecoveringFrequently";
+        public const string PlayerDodgeCount = "PlayerDodgeCount";
+        public const string PlayerGuardCount = "PlayerGuardCount";
+        public const string PlayerAttackCount = "PlayerAttackCount";
+        public const string PlayerRecoverCount = "PlayerRecoverCount";
         public const string CanUseSkill = "CanUseSkill";
         public const string HasAttackSlot = "HasAttackSlot";
         public const string NextActionAllowedTime = "NextActionAllowedTime";
@@ -57,5 +64,29 @@ namespace UPlayGround.AI.BehaviorTree
         public const string IsPoiseBroken = "isPoiseBroken";
         public const string HitReactionLockTime = "hitReactionLockTime";
         public const string RevengeChance = "revengeChance";
+
+        public const string SelectedIntent = "SelectedIntent";
+        public const string LastIntent = "LastIntent";
+        public const string ConsecutiveIntentCount = "ConsecutiveIntentCount";
+        public const string IntentScoreAttack = "IntentScore_Attack";
+        public const string IntentScorePunish = "IntentScore_Punish";
+        public const string IntentScoreCounter = "IntentScore_Counter";
+        public const string IntentScorePressure = "IntentScore_Pressure";
+        public const string IntentScoreChase = "IntentScore_Chase";
+        public const string IntentScoreRetreat = "IntentScore_Retreat";
+        public const string IntentScoreKeepDistance = "IntentScore_KeepDistance";
+        public const string IntentScoreDefend = "IntentScore_Defend";
+        public const string IntentScoreRecover = "IntentScore_Recover";
+        public const string CombatRhythmPhase = "CombatRhythmPhase";
+        public const string EnemyAIRole = "EnemyAIRole";
+        public const string IntentWeightAttack = "IntentWeight_Attack";
+        public const string IntentWeightPunish = "IntentWeight_Punish";
+        public const string IntentWeightCounter = "IntentWeight_Counter";
+        public const string IntentWeightPressure = "IntentWeight_Pressure";
+        public const string IntentWeightChase = "IntentWeight_Chase";
+        public const string IntentWeightRetreat = "IntentWeight_Retreat";
+        public const string IntentWeightKeepDistance = "IntentWeight_KeepDistance";
+        public const string IntentWeightDefend = "IntentWeight_Defend";
+        public const string IntentWeightRecover = "IntentWeight_Recover";
     }
 }

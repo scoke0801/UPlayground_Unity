@@ -110,10 +110,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "IsEnemyPhase" or "DistanceLessOrEqual"
                 or "DistanceGreater" or "ActionDelayElapsed" or "CanUseSkill" or "IsPlayerAttacking"
                 or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
+                or "IsPlayerAttackingFrequently" or "IsPlayerGuardingFrequently" or "IsPlayerRecoveringFrequently"
                 or "IsSelfLowHealth" or "HasAttackSlot" or "CooldownReady" or "RecentlyHitByPlayer"
                 or "WasLastHitHeavy" or "IsPoiseBroken" or "RecentHitCountGreaterOrEqual"
                 or "CanIgnoreLightHit" or "CanRevengeAfterHit"
                 or "ConsecutiveAttackCountLessThan" or "ConsecutiveAttackCountGreaterOrEqual"
+                or "SelectedIntent"
                 // ── 비행 전용 ──
                 or "IsCurrentState" or "IsFlyingAirState" or "IsFlyingGroundCombatState"
                 or "IsAirAttackLimitReached" or "ShouldFlyingTakeOff" or "FlyingCanUseSkill"
@@ -127,6 +129,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             if (condition.condition == "IsEnemyPhase" && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: IsEnemyPhase는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
+
+            if (condition.condition == "SelectedIntent" && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: SelectedIntent는 value(CombatIntent 이름)가 필요합니다.");
 
             if (actorKind == ActorKind.Flying && GroundOnlyConditions.Contains(condition.condition))
                 throw new InvalidDataException($"{ruleName}: 지상 전용 condition '{condition.condition}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 노드(예: FlyingCanUseSkill)로 교체하세요.");

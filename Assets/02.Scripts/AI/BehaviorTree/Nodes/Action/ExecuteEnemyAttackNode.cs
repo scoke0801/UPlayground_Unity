@@ -55,6 +55,7 @@ namespace UPlayGround.AI.BehaviorTree
             combat.ReserveAttackCategory(_attackCategory);
             context.NotifyBTAttackStarted();
             controller.TransitionToState(new EnemyAttackState(controller, combat, context, detection));
+            CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
             _attackStarted = true;
             return BTStatus.Running;
         }

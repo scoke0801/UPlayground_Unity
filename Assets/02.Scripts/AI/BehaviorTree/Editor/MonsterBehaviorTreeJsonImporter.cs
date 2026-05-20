@@ -274,6 +274,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 {
                     root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));
                     root.Services.Add(CreateNode<SyncEnemyPhaseService>(tree, "Sync Enemy Phase", new Vector2(-260f, -40f)));
+                    root.Services.Add(CreateNode<EvaluateEnemyCombatIntentService>(tree, "Evaluate Enemy Combat Intent", new Vector2(-260f, 20f)));
                 }
                 tree.RootNode = root;
 

@@ -30,6 +30,16 @@ namespace UPlayGround.AI.BehaviorTree
             Context.Blackboard.SetFloat(EnemyBlackboardKeys.ContinueAttackChance, phase?.continueAttackChance ?? context.BehaviorData?.continueAttackChance ?? 0.3f);
             Context.Blackboard.SetFloat(EnemyBlackboardKeys.GuardChance, phase?.guardChance ?? context.BehaviorData?.guardChance ?? 0.25f);
             Context.Blackboard.SetFloat(EnemyBlackboardKeys.RetreatChance, phase?.retreatChance ?? context.BehaviorData?.retreatChance ?? 0.2f);
+            Context.Blackboard.SetString(EnemyBlackboardKeys.EnemyAIRole, context.BehaviorData?.aiRole.ToString() ?? "Melee");
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightAttack, phase?.attackWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightPunish, phase?.punishWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightCounter, phase?.counterWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightPressure, phase?.pressureWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightChase, phase?.chaseWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightRetreat, phase?.retreatWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightKeepDistance, phase?.keepDistanceWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightDefend, phase?.defendWeight ?? 1f);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentWeightRecover, phase?.recoverWeight ?? 1f);
             return BTStatus.Success;
         }
 

@@ -11,8 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_skeleton_common
-  m_EditorClassIdentifier:
-  behaviorTree: {fileID: 11400000, guid: 683ed5e0908c92d498a1ea33bd9f1ee2, type: 2}
+  m_EditorClassIdentifier: 
+  behaviorTree: {fileID: 11400000, guid: 0104eeed10a6e994ba346a7280083b02, type: 2}
+  aiRole: 0
   optimalCombatDistance: 2.5
   minCombatDistance: 1.5
   maintainDistance: 1

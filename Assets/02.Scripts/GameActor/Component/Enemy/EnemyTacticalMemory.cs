@@ -40,8 +40,14 @@ namespace UPlayGround.Component
         private float _dodgeWindowTimer;
         private int   _playerGuardCount;
         private float _guardWindowTimer;
+        private int   _playerAttackCount;
+        private float _attackWindowTimer;
+        private int   _playerRecoverCount;
+        private float _recoverWindowTimer;
         private const float DODGE_WINDOW = 5f;
         private const float GUARD_WINDOW = 6f;
+        private const float ATTACK_WINDOW = 5f;
+        private const float RECOVER_WINDOW = 7f;
 
         // ── 플레이어 상태 추적 ──
         private Transform _playerTransform;
@@ -49,6 +55,8 @@ namespace UPlayGround.Component
         private Vector3 _lastPlayerPosition;
         private float _playerIdleTimer;            // 플레이어가 움직이지 않는 시간
         private bool  _isPlayerTracked;
+        private string _lastObservedPlayerStateName = "";
+        private bool _wasPlayerRecovering;
 
         // ── 전투 리듬 (공격 후 얼마나 빠르게 다음 행동을 할지) ──
         /// <summary> 마지막으로 전투 행동(공격/가드/차지 등)을 완료한 시점 </summary>
@@ -80,6 +88,20 @@ namespace UPlayGround.Component
                 _playerGuardCount = 0;
             }
 
+            _attackWindowTimer += dt;
+            if (_attackWindowTimer >= ATTACK_WINDOW)
+            {
+                _attackWindowTimer = 0f;
+                _playerAttackCount = 0;
+            }
+
+            _recoverWindowTimer += dt;
+            if (_recoverWindowTimer >= RECOVER_WINDOW)
+            {
+                _recoverWindowTimer = 0f;
+                _playerRecoverCount = 0;
+            }
+
             // 플레이어 이동 관찰
             UpdatePlayerObservation(dt);
 
@@ -99,6 +121,8 @@ namespace UPlayGround.Component
                 _isPlayerTracked = false;
                 _playerTransform = null;
                 _playerController = null;
+                _lastObservedPlayerStateName = "";
+                _wasPlayerRecovering = false;
                 return;
             }
 
@@ -106,6 +130,8 @@ namespace UPlayGround.Component
             _playerController = player.GetComponent<ActorMovementController>();
             _lastPlayerPosition = player.position;
             _playerIdleTimer = 0f;
+            _lastObservedPlayerStateName = GetPlayerStateName();
+            _wasPlayerRecovering = false;
             _isPlayerTracked = true;
         }
 
@@ -120,6 +146,30 @@ namespace UPlayGround.Component
                 _playerIdleTimer += dt;
             else
                 _playerIdleTimer = 0f;
+
+            UpdatePlayerStateRead();
+        }
+
+        private void UpdatePlayerStateRead()
+        {
+            string stateName = GetPlayerStateName();
+            if (stateName != _lastObservedPlayerStateName)
+            {
+                if (IsPlayerDodgeState(stateName))
+                    NotifyPlayerDodgeObserved();
+                if (IsPlayerGuardState(stateName))
+                    NotifyPlayerGuardObserved();
+                if (IsPlayerAttackState(stateName))
+                    NotifyPlayerAttackObserved();
+
+                _lastObservedPlayerStateName = stateName;
+            }
+
+            var isRecovering = IsPlayerRecovering();
+            if (isRecovering && !_wasPlayerRecovering)
+                NotifyPlayerRecoverObserved();
+
+            _wasPlayerRecovering = isRecovering;
         }
 
         /// <summary> 플레이어의 현재 State 이름 </summary>
@@ -132,13 +182,13 @@ namespace UPlayGround.Component
         public bool IsPlayerAttacking()
         {
             string s = GetPlayerStateName();
-            return s is "Attack" or "DashAttack" or "JumpAttack" or "FinishAttack" or "HeavyAttack";
+            return IsPlayerAttackState(s);
         }
 
         /// <summary> 플레이어가 가드 중인가 </summary>
         public bool IsPlayerGuarding()
         {
-            return GetPlayerStateName() == "Guard";
+            return IsPlayerGuardState(GetPlayerStateName());
         }
 
         /// <summary> 플레이어가 피격 경직 중인가 </summary>
@@ -159,6 +209,16 @@ namespace UPlayGround.Component
             string s = GetPlayerStateName();
             return s == "Idle" && _playerIdleTimer >= 1.2f;
         }
+
+        private static bool IsPlayerAttackState(string stateName)
+            => stateName is "Attack" or "DashAttack" or "JumpAttack" or "JumpDashAttack"
+                or "FinishAttack" or "Charge" or "SpecialBreakAttack" or "HeavyAttack";
+
+        private static bool IsPlayerDodgeState(string stateName)
+            => stateName == "Dodge";
+
+        private static bool IsPlayerGuardState(string stateName)
+            => stateName == "Guard";
 
         // ══════════════════════════════════════════
         // 외부 알림
@@ -217,8 +277,31 @@ namespace UPlayGround.Component
 
         public void NotifyPlayerGuarded()
         {
+            NotifyPlayerGuardObserved();
+        }
+
+        private void NotifyPlayerDodgeObserved()
+        {
+            _playerDodgeCount++;
+            _dodgeWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerGuardObserved()
+        {
             _playerGuardCount++;
             _guardWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerAttackObserved()
+        {
+            _playerAttackCount++;
+            _attackWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerRecoverObserved()
+        {
+            _playerRecoverCount++;
+            _recoverWindowTimer = 0f;
         }
 
         public void NotifyRetreated()
@@ -242,6 +325,14 @@ namespace UPlayGround.Component
             TotalHitsLanded = 0;
             TotalHitsMissed = 0;
             ConsecutiveAttackCount = 0;
+            _playerDodgeCount = 0;
+            _playerGuardCount = 0;
+            _playerAttackCount = 0;
+            _playerRecoverCount = 0;
+            _dodgeWindowTimer = 0f;
+            _guardWindowTimer = 0f;
+            _attackWindowTimer = 0f;
+            _recoverWindowTimer = 0f;
         }
 
         // ══════════════════════════════════════════
@@ -298,6 +389,20 @@ namespace UPlayGround.Component
 
         public bool IsPlayerGuardingFrequently(int threshold = 2)
             => _playerGuardCount >= threshold;
+
+        public bool IsPlayerAttackingFrequently(int threshold = 3)
+            => _playerAttackCount >= threshold;
+
+        public bool IsPlayerRecoveringFrequently(int threshold = 2)
+            => _playerRecoverCount >= threshold;
+
+        public int PlayerDodgeCount => _playerDodgeCount;
+        public int PlayerGuardCount => _playerGuardCount;
+        public int PlayerAttackCount => _playerAttackCount;
+        public int PlayerRecoverCount => _playerRecoverCount;
+
+        public string BuildPlayerReadSummary()
+            => $"Dodge={_playerDodgeCount}, Guard={_playerGuardCount}, Attack={_playerAttackCount}, Recover={_playerRecoverCount}";
 
         public bool IsOverAttacking(int limit = 3)
             => ConsecutiveAttackCount >= limit;

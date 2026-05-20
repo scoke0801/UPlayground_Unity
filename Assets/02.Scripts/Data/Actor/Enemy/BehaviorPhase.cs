@@ -30,6 +30,17 @@ namespace UPlayGround.Data.Enemy
         [Header("연속 공격 한계")]
         public int maxConsecutiveAttacks = 3;
 
+        [Header("Intent 가중치")]
+        [Min(0f)] public float attackWeight       = 1f;
+        [Min(0f)] public float punishWeight       = 1f;
+        [Min(0f)] public float counterWeight      = 1f;
+        [Min(0f)] public float pressureWeight     = 1f;
+        [Min(0f)] public float chaseWeight        = 1f;
+        [Min(0f)] public float retreatWeight      = 1f;
+        [Min(0f)] public float keepDistanceWeight = 1f;
+        [Min(0f)] public float defendWeight       = 1f;
+        [Min(0f)] public float recoverWeight      = 1f;
+
         [Header("공중 행동 오버라이드 (AerialBehaviorSO 값을 덮어씀)")]
         [Tooltip("true = 아래 공중 수치를 이 페이즈에서 오버라이드")]
         public bool overrideAerial = false;

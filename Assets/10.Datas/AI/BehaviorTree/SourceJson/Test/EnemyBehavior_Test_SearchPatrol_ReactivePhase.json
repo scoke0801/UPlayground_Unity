@@ -128,7 +128,170 @@
             ]
         },
         {
-            "name": "03 Player Read Reactions",
+            "name": "04 Execute Selected Intent",
+            "priority": 910,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "ExecutePunishIntentPower",
+                    "priority": 910,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.58, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.42, "action": "ExecuteAttack", "attackCategory": "Skill" }
+                    ]
+                },
+                {
+                    "name": "ExecutePunishIntentBasic",
+                    "priority": 905,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "ExecuteCounterIntent",
+                    "priority": 900,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Counter" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CooldownReady", "value": "IntentCounter" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.42, "action": "Transition", "state": "Counter", "cooldownId": "IntentCounter", "cooldownDuration": 1.8 },
+                        { "weight": 0.22, "action": "Transition", "state": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.6 },
+                        { "weight": 0.20, "action": "Transition", "state": "Dodge", "cooldownId": "IntentCounter", "cooldownDuration": 1.8 },
+                        { "weight": 0.16, "action": "Transition", "state": "JumpBack", "cooldownId": "IntentCounter", "cooldownDuration": 1.8 }
+                    ]
+                },
+                {
+                    "name": "ExecuteAttackIntentPower",
+                    "priority": 890,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.60, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.40, "action": "ExecuteAttack", "attackCategory": "Skill" }
+                    ]
+                },
+                {
+                    "name": "ExecuteAttackIntentBasic",
+                    "priority": 885,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "ExecutePressureIntent",
+                    "priority": 880,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Pressure" },
+                        { "condition": "CooldownReady", "value": "IntentPressure" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.42, "action": "Transition", "state": "Circle", "cooldownId": "IntentPressure", "cooldownDuration": 1.6 },
+                        { "weight": 0.36, "action": "Transition", "state": "Flank", "cooldownId": "IntentPressure", "cooldownDuration": 1.6 },
+                        { "weight": 0.14, "action": "Transition", "state": "Chase", "cooldownId": "IntentPressure", "cooldownDuration": 1.0 },
+                        { "weight": 0.08, "action": "Transition", "state": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "ExecuteRetreatIntent",
+                    "priority": 870,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Retreat" },
+                        { "condition": "CooldownReady", "value": "IntentRetreat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.46, "action": "Transition", "state": "JumpBack", "cooldownId": "IntentRetreat", "cooldownDuration": 2.4 },
+                        { "weight": 0.34, "action": "Transition", "state": "Retreat", "cooldownId": "IntentRetreat", "cooldownDuration": 2.4 },
+                        { "weight": 0.20, "action": "Transition", "state": "Dodge", "cooldownId": "IntentRetreat", "cooldownDuration": 2.0 }
+                    ]
+                },
+                {
+                    "name": "ExecuteChaseIntent",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Chase" },
+                        { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "Transition", "state": "Chase" }
+                    ]
+                },
+                {
+                    "name": "ExecuteKeepDistanceIntent",
+                    "priority": 850,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "KeepDistance" },
+                        { "condition": "CooldownReady", "value": "IntentKeepDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.36, "action": "Transition", "state": "Circle", "cooldownId": "IntentKeepDistance", "cooldownDuration": 1.8 },
+                        { "weight": 0.28, "action": "Transition", "state": "Flank", "cooldownId": "IntentKeepDistance", "cooldownDuration": 1.8 },
+                        { "weight": 0.22, "action": "Transition", "state": "Retreat", "cooldownId": "IntentKeepDistance", "cooldownDuration": 2.2 },
+                        { "weight": 0.14, "action": "Transition", "state": "JumpBack", "cooldownId": "IntentKeepDistance", "cooldownDuration": 2.2 }
+                    ]
+                },
+                {
+                    "name": "ExecuteDefendIntent",
+                    "priority": 840,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Defend" },
+                        { "condition": "CooldownReady", "value": "IntentDefend" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.50, "action": "Transition", "state": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "Transition", "state": "Circle", "cooldownId": "IntentDefend", "cooldownDuration": 2.0 },
+                        { "weight": 0.16, "action": "Transition", "state": "Dodge", "cooldownId": "IntentDefend", "cooldownDuration": 2.0 },
+                        { "weight": 0.10, "action": "Transition", "state": "Flank", "cooldownId": "IntentDefend", "cooldownDuration": 2.0 }
+                    ]
+                },
+                {
+                    "name": "ExecuteRecoverIntent",
+                    "priority": 830,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Recover" },
+                        { "condition": "CooldownReady", "value": "IntentRecover" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.44, "action": "Transition", "state": "Retreat", "cooldownId": "IntentRecover", "cooldownDuration": 2.8 },
+                        { "weight": 0.32, "action": "Transition", "state": "Guard", "cooldownId": "IntentRecover", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "Transition", "state": "Circle", "cooldownId": "IntentRecover", "cooldownDuration": 2.4 }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "05 Player Read Reactions",
             "priority": 900,
             "when": [
                 { "condition": "HasTarget" }
@@ -272,7 +435,7 @@
             ]
         },
         {
-            "name": "04 Combat Pressure",
+            "name": "06 Combat Pressure",
             "priority": 800,
             "when": [
                 { "condition": "HasTarget" }
@@ -332,6 +495,18 @@
                     ]
                 },
                 {
+                    "name": "OpeningBasicPressureFallback",
+                    "priority": 765,
+                    "when": [
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountLessThan", "value": "2" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
                     "name": "CombatBeatAttackOrReposition",
                     "priority": 760,
                     "when": [
@@ -352,7 +527,7 @@
             ]
         },
         {
-            "name": "05 Close Range Footwork",
+            "name": "07 Close Range Footwork",
             "priority": 700,
             "when": [
                 { "condition": "HasTarget" }
@@ -393,7 +568,7 @@
             ]
         },
         {
-            "name": "06 Positioning",
+            "name": "08 Positioning",
             "priority": 600,
             "when": [
                 { "condition": "HasTarget" }

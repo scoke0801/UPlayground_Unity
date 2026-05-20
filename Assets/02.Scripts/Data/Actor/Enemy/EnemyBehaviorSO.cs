@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.AI.BehaviorTree;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Enemy
 {
@@ -13,6 +14,10 @@ namespace UPlayGround.Data.Enemy
         [Header("Behavior Tree")]
         [Tooltip("이 몬스터의 행동을 결정할 BT Asset. EnemyAIController가 런타임에 BehaviorTreeRunner로 주입한다.")]
         public BehaviorTreeAsset behaviorTree;
+
+        [Header("AI 역할")]
+        [Tooltip("Intent 점수 보정에 사용하는 역할. 기본값 Melee는 기존 동작과 최대한 유사한 중립 보정이다.")]
+        public EnemyAIRole aiRole = EnemyAIRole.Melee;
 
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;

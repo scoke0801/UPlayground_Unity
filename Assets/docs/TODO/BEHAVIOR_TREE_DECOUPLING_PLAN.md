@@ -62,6 +62,34 @@ Cooldown.IntentCounter.ReadyTime
 
 `IsCurrentState`, `IsBlockedEnemyState`, 비행 상태 조건은 구체 상태명 또는 특정 상태 클래스 목록에 의존한다. 상태가 추가되거나 이름이 바뀌면 BT 조건도 같이 바뀐다.
 
+### 1.5 Blackboard 동기화 코드와 조건 노드 폭증
+
+현재 일부 동기화 코드는 `EnemyTacticalMemory`, `PoiseStat` 등의 값을 하나씩 읽어 블랙보드에 직접 기록한다.
+
+```csharp
+var memory = Context.GetComponentCached<EnemyTacticalMemory>();
+var isAttacking = memory != null && memory.IsPlayerAttacking();
+var isGuarding = memory != null && memory.IsPlayerGuarding();
+var recentHitCount = memory?.RecentHitCount ?? 0;
+var poiseRatio = poise != null ? poise.PoisePercent : 1f;
+
+Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerAttacking, isAttacking);
+Context.Blackboard.SetBool(EnemyBlackboardKeys.IsPlayerGuarding, isGuarding);
+Context.Blackboard.SetInt(EnemyBlackboardKeys.RecentHitCount, recentHitCount);
+Context.Blackboard.SetFloat(EnemyBlackboardKeys.PoiseRatio, poiseRatio);
+```
+
+이 패턴은 필드가 늘어날수록 다음 항목이 같이 증가한다.
+
+- 동기화 코드의 지역변수와 `SetXxx` 호출
+- `EnemyBlackboardKeys` 상수
+- `Blackboard` 초기값
+- 전용 ConditionNode (`IsPoiseBrokenNode`, `WasLastHitHeavyNode` 등)
+- importer의 `condition` switch
+- JSON condition 이름
+
+모든 상태 검사가 전용 `IsXxxNode`가 되어야 하는 것은 아니다. 이미 블랙보드에 값이 존재하고 단순 비교만 하면 되는 조건은 범용 비교 노드로 통합하는 것이 맞다.
+
 ---
 
 ## 2. 목표 구조
@@ -158,6 +186,41 @@ BT 조건은 다음처럼 바뀐다.
 
 `IsBlockedEnemyState`는 장기적으로 `HasStateTag(InterruptLocked)`의 별칭이 된다.
 
+### 2.5 Blackboard 동기화는 Snapshot 단위로 묶는다
+
+`EnemyTacticalMemory`, `PoiseStat`, `EnemyDetection`, `ActorMovementController`의 값을 한 메서드에서 모두 풀어쓰지 않고, 소유권 기준으로 동기화 단위를 나눈다.
+
+1차 정리:
+
+```csharp
+SyncTargetFacts(blackboard, detection);
+SyncPlayerReadMemory(blackboard, memory);
+SyncHitMemory(blackboard, memory);
+SyncPoise(blackboard, poise);
+SyncStateFacts(blackboard, controller);
+```
+
+장기 목표:
+
+```csharp
+var snapshot = EnemyBlackboardSnapshot.From(Context);
+snapshot.WriteTo(Context.Blackboard);
+```
+
+`EnemyBlackboardSnapshot`은 런타임 사실을 읽는 책임과 블랙보드에 기록하는 책임을 한 곳으로 모은다. BT 노드와 importer는 이 값들이 어디서 계산됐는지 알 필요가 없다.
+
+권장 snapshot 분리:
+
+| Snapshot | 입력 | 출력 네임스페이스 |
+|---|---|---|
+| `TargetBlackboardSnapshot` | `EnemyDetection` | `Target.*` |
+| `PlayerReadBlackboardSnapshot` | `EnemyTacticalMemory` | `Memory.Player.*` |
+| `HitMemoryBlackboardSnapshot` | `EnemyTacticalMemory` | `Memory.Hit.*` |
+| `PoiseBlackboardSnapshot` | `PoiseStat` | `Self.Poise*` |
+| `StateBlackboardSnapshot` | `ActorMovementController` | `Self.State*` |
+
+초기 구현에서는 별도 struct까지 만들지 않고 private sync 메서드 분리만 해도 충분하다. 핵심은 동기화 코드가 필드 추가 때마다 긴 지역변수 목록으로 커지지 않게 하는 것이다.
+
 ---
 
 ## 3. JSON DSL 개선안
@@ -184,7 +247,39 @@ BT 조건은 다음처럼 바뀐다.
 
 이렇게 하면 새 비교 조건을 추가할 때마다 노드 클래스를 늘리지 않아도 된다.
 
-### 3.2 새 액션은 RequestAction을 기본으로 한다
+### 3.2 전용 조건 노드와 범용 비교 노드 기준
+
+모든 조건을 전용 노드로 만들지 않는다. 조건 노드 선택 기준은 다음과 같다.
+
+| 분류 | 기준 | 예시 |
+|---|---|---|
+| 전용 노드 | 계산이 필요하거나 게임 규칙을 캡슐화해야 함 | `HasTarget`, `ActionDelayElapsed`, `CanUseSkill`, `HasAttackSlot`, `CooldownReady` |
+| 범용 비교 노드 | 블랙보드 값 하나를 비교하면 충분함 | `Memory.Player.IsAttacking == true`, `Memory.Hit.RecentCount >= 3`, `Self.PoiseRatio <= 0.2` |
+| alias | JSON 가독성을 위한 짧은 이름. 내부 구현은 범용 비교로 변환 가능 | `IsPoiseBroken`, `RecentlyHitByPlayer`, `SelectedIntent` |
+
+예시:
+
+```json
+{ "condition": "BlackboardCompare", "key": "Memory.Hit.RecentCount", "op": "GreaterOrEqual", "value": 3 }
+{ "condition": "BlackboardCompare", "key": "Self.PoiseRatio", "op": "LessOrEqual", "value": 0.2 }
+{ "condition": "BlackboardCompare", "key": "Memory.Player.IsAttacking", "op": "Equal", "value": true }
+```
+
+기존 alias는 유지할 수 있다.
+
+```json
+{ "condition": "IsPoiseBroken" }
+```
+
+내부 의미:
+
+```json
+{ "condition": "BlackboardCompare", "key": "Self.IsPoiseBroken", "op": "Equal", "value": true }
+```
+
+따라서 `IsPoiseBrokenNode` 같은 전용 노드는 반드시 필요하지 않다. 단, Poise 판정이 단순 bool이 아니라 최근 피격, 경직 면역, 페이즈 보정까지 포함하는 도메인 규칙이 되면 전용 노드로 승격할 수 있다.
+
+### 3.3 새 액션은 RequestAction을 기본으로 한다
 
 기존:
 
@@ -249,11 +344,44 @@ BT 조건은 다음처럼 바뀐다.
 | `EvaluateEnemyCombatIntentService` 확장 | `SelectedIntent`와 `Decision.SelectedIntent`를 같이 기록 |
 | 쿨다운 키 헬퍼 추가 | `EnemyBlackboardKeys.CooldownReadyTime(cooldownId)`로 포맷 통합 |
 | Editor 표시명 추가 | 신키도 `BehaviorTreeDisplayNameRegistry`에 한글 표시명 제공 |
+| sync 메서드 분리 | player read, hit memory, poise, target facts를 별도 메서드로 분리 |
+| snapshot 도입 검토 | 필드가 더 늘면 `EnemyBlackboardSnapshot` 값 객체로 승격 |
 
 검증:
 
 - 기존 조건 노드가 구키로 계속 동작해야 한다.
 - 새 `BlackboardCompare` 조건이 신키로 동작해야 한다.
+
+### Phase D2.5: 범용 Blackboard 조건 도입
+
+목표: 단순 상태 검사마다 전용 `IsXxxNode`를 만들지 않도록 한다.
+
+| 작업 | 설명 |
+|---|---|
+| `BlackboardCompareNode` 추가 | bool/int/float/string 비교를 하나의 조건 노드로 처리 |
+| 비교 연산 enum 추가 | `Equal`, `NotEqual`, `Less`, `LessOrEqual`, `Greater`, `GreaterOrEqual` |
+| JSON 필드 확장 | `condition`, `key`, `op`, `value`, `valueKey` 지원 |
+| alias 변환 추가 | `IsPoiseBroken`, `RecentlyHitByPlayer`, `SelectedIntent` 등을 내부적으로 `BlackboardCompare`로 변환 |
+| 기존 전용 노드 유지 | 이미 쓰이는 노드는 삭제하지 않고 호환 경로로 유지 |
+
+전용 노드로 유지할 후보:
+
+- `HasTarget`: Detection 컴포넌트와 타겟 object 유효성을 함께 판단할 수 있음
+- `ActionDelayElapsed`: 시간 계산과 전투 템포 규칙 포함
+- `CanUseSkill` / `FlyingCanUseSkill`: 스킬/모션/쿨다운/거리 조건을 포함할 여지 있음
+- `HasAttackSlot`: 그룹 전투 규칙 포함
+- `CooldownReady`: 키 포맷과 시간 비교를 캡슐화
+
+범용 비교로 전환할 후보:
+
+- `IsPlayerAttacking`
+- `IsPlayerGuarding`
+- `IsPlayerStaggered`
+- `IsPlayerRecovering`
+- `IsPlayerDodgingFrequently`
+- `RecentHitCountGreaterOrEqual`
+- `SelectedIntent`
+- `IsPoiseBroken` (단순 bool로 쓰는 동안)
 
 ### Phase D3: State Tag 도입
 
@@ -318,6 +446,8 @@ BT 조건은 다음처럼 바뀐다.
 - BT는 의사결정 계층, 상태 머신은 실행 계층으로 역할을 분리한다.
 - 지상/비행 차이는 JSON 분기가 아니라 Resolver 능력 판정으로 흡수한다.
 - 블랙보드 키는 문자열 저장을 유지하되, 코드 접근은 상수/selector/schema를 통해 제한한다.
+- 블랙보드 동기화는 값의 소유권과 갱신 주기 기준으로 나눈다.
+- 단순 블랙보드 값 비교는 범용 조건 노드를 우선 사용하고, 전용 노드는 도메인 규칙이 있는 경우에만 추가한다.
 - 하드 매핑을 한 번에 없애려 하지 않는다. 먼저 한 곳으로 모은 뒤, 다음 단계에서 데이터화한다.
 
 ---
@@ -330,5 +460,7 @@ BT 조건은 다음처럼 바뀐다.
 - `TransitionEnemyStateNode`는 구버전 호환 경로로만 남는다.
 - `EnemyActionResolver`가 상태 전환 실패 사유를 DebugTrace에 기록한다.
 - 새 블랙보드 키는 `Target.*`, `Self.*`, `AI.*`, `Memory.*`, `Decision.*`, `Cooldown.*` 네임스페이스를 따른다.
+- player read, hit memory, poise 동기화 코드가 섹션별 메서드 또는 snapshot으로 분리되어 있다.
+- `BlackboardCompare`로 단순 bool/int/float/string 조건을 표현할 수 있다.
 - `IsBlockedEnemyState` 계열 판단이 상태명 목록이 아니라 `ActorStateTag.InterruptLocked`를 우선 사용한다.
 - SourceJson 기준 샘플 1개 이상이 `Transition` 중심에서 `RequestAction` 중심으로 변환되어 있다.

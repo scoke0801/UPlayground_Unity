@@ -119,7 +119,8 @@
       "PowerShell($outDir = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\.claude\\\\skills\\\\generate-bt-json-workspace\")",
       "Skill(generate-bt-json)",
       "WebFetch(domain:www.gamedeveloper.com)",
-      "WebFetch(domain:gerlogu.com)"
+      "WebFetch(domain:gerlogu.com)",
+      "PowerShell(Get-Content *)"
     ]
   }
 }

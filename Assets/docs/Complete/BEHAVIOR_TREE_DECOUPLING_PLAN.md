@@ -1,10 +1,31 @@
 # Behavior Tree State/Node/Blackboard 결합도 개선 계획
 
 > 작성일: 2026-05-20  
+> 완료일: 2026-05-22  
+> 상태: 1차 완료  
 > 대상: `Assets/02.Scripts/AI/BehaviorTree/`, `Assets/10.Datas/AI/BehaviorTree/SourceJson/`  
 > 관련 문서: [BEHAVIOR_TREE_SYSTEM_GUIDE.md](../BEHAVIOR_TREE_SYSTEM_GUIDE.md), [MONSTER_BT_ADVANCEMENT_GOAL_GUIDE.md](../MONSTER_BT_ADVANCEMENT_GOAL_GUIDE.md), [BEHAVIOR_TREE_CODE_CLEANUP_PLAN.md](BEHAVIOR_TREE_CODE_CLEANUP_PLAN.md)
 
 ---
+
+## 완료 요약
+
+2026-05-22 기준으로 결합도 개선 1차 작업을 완료했다.
+
+- `RequestEnemyActionNode`, `EnemyActionRequest`, `EnemyActionIntent`, `EnemyActionStyle`, `EnemyActionResolver`를 추가해 BT가 구체 상태 대신 전술 의도를 요청하는 경로를 만들었다.
+- `TransitionEnemyStateNode`는 구버전 JSON 호환용 래퍼로 축소하고, 실제 상태 선택은 `EnemyActionResolver`가 담당하도록 정리했다.
+- `Target.*`, `Self.*`, `AI.*`, `Memory.*`, `Decision.*`, `Cooldown.*` 네임스페이스 블랙보드 키를 추가하고 구키와 병행 기록하도록 동기화 서비스와 기본 블랙보드를 확장했다.
+- `BlackboardCompareNode`와 `BlackboardComparisonType`을 추가하고, `IsPlayerAttacking`, `RecentlyHitByPlayer`, `RecentHitCountGreaterOrEqual`, `SelectedIntent`, `IsPoiseBroken` 등 단순 조건 alias를 범용 비교 노드로 변환하도록 importer를 확장했다.
+- `ActorStateTag`, `GameActorState.StateTags`, `HasStateTagNode`를 추가하고 `IsBlockedEnemyStateNode`가 `ActorStateTag.InterruptLocked`를 우선 보도록 했다.
+- `SyncEnemyMemoryService`는 player read, hit memory, poise 동기화 메서드로 분리했다.
+- 기준 샘플 `EnemyBehavior_Test_IntentRolePlayerRead_AllInOne.json`의 `Transition` 액션을 모두 `RequestAction` 중심으로 변환했다.
+- SourceJson 전체 import를 실행해 Generated BT asset 4개를 갱신했다.
+
+검증:
+
+- `dotnet build UPlayground.sln --no-restore`: 성공, 오류 0개.
+- Unity batch import `UPlayGround.AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter.ImportAllSourceJson`: 성공, SourceJson 4개 import 완료.
+- Unity import 로그에서 `No script asset for BlackboardCompareNode` 경고가 재발하지 않음을 확인했다.
 
 ## 개요
 
@@ -456,11 +477,11 @@ snapshot.WriteTo(Context.Blackboard);
 
 다음 조건을 만족하면 결합도 개선 1차 완료로 본다.
 
-- 새 BT JSON에서 `RequestAction`만으로 회피, 추격, 방어, 공격 요청을 표현할 수 있다.
-- `TransitionEnemyStateNode`는 구버전 호환 경로로만 남는다.
-- `EnemyActionResolver`가 상태 전환 실패 사유를 DebugTrace에 기록한다.
-- 새 블랙보드 키는 `Target.*`, `Self.*`, `AI.*`, `Memory.*`, `Decision.*`, `Cooldown.*` 네임스페이스를 따른다.
-- player read, hit memory, poise 동기화 코드가 섹션별 메서드 또는 snapshot으로 분리되어 있다.
-- `BlackboardCompare`로 단순 bool/int/float/string 조건을 표현할 수 있다.
-- `IsBlockedEnemyState` 계열 판단이 상태명 목록이 아니라 `ActorStateTag.InterruptLocked`를 우선 사용한다.
-- SourceJson 기준 샘플 1개 이상이 `Transition` 중심에서 `RequestAction` 중심으로 변환되어 있다.
+- [x] 새 BT JSON에서 `RequestAction`만으로 회피, 추격, 방어, 공격 요청을 표현할 수 있다.
+- [x] `TransitionEnemyStateNode`는 구버전 호환 경로로만 남는다.
+- [x] `EnemyActionResolver`가 상태 전환 실패 사유를 DebugTrace에 기록한다.
+- [x] 새 블랙보드 키는 `Target.*`, `Self.*`, `AI.*`, `Memory.*`, `Decision.*`, `Cooldown.*` 네임스페이스를 따른다.
+- [x] player read, hit memory, poise 동기화 코드가 섹션별 메서드 또는 snapshot으로 분리되어 있다.
+- [x] `BlackboardCompare`로 단순 bool/int/float/string 조건을 표현할 수 있다.
+- [x] `IsBlockedEnemyState` 계열 판단이 상태명 목록이 아니라 `ActorStateTag.InterruptLocked`를 우선 사용한다.
+- [x] SourceJson 기준 샘플 1개 이상이 `Transition` 중심에서 `RequestAction` 중심으로 변환되어 있다.

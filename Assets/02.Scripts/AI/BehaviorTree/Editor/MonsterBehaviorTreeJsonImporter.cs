@@ -75,13 +75,18 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         public string condition;
         public bool invert;
+        public string key;
+        public string op;
         public string value;
+        public string valueKey;
     }
 
     [Serializable]
     public class MonsterBehaviorActionJson
     {
         public string action;
+        public string intent;
+        public string style;
         public string state;
         public string attackCategory;
         public string cooldownId;
@@ -95,6 +100,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public float weight = 1f;
         public string weightKey;
         public string action;
+        public string intent;
+        public string style;
         public string state;
         public string attackCategory;
         public string cooldownId;

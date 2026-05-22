@@ -13,7 +13,12 @@ namespace UPlayGround.AI.BehaviorTree
 
         public static bool IsBlockedState(GameActorState state)
         {
-            return state?.BlocksBehaviorTree == true;
+            if (state == null)
+                return false;
+
+            return (state.StateTags & ActorStateTag.InterruptLocked) == ActorStateTag.InterruptLocked
+                   || state.BlocksBehaviorTree;
         }
     }
+
 }

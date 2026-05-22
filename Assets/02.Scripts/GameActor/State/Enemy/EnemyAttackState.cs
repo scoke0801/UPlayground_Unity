@@ -19,7 +19,9 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyAttackState : GameActorState
     {
-        public override string StateName => "Attack";
+        public const string StateNameValue = "Attack";
+
+        public override string StateName => StateNameValue;
         public override bool BlocksBehaviorTree => true;
 
         private EnemyCombat    _combat;

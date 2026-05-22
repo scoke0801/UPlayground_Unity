@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -106,7 +108,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 AddNewEntry(entries);
 
             if (GUILayout.Button(new GUIContent("Enemy 기본 Key 보강", "몬스터 BT에서 자주 쓰는 기본 Blackboard Key 중 누락된 항목을 추가합니다."), EditorStyles.toolbarButton))
-                AddMissingEnemyDefaultEntries(entries);
+                EnemyBlackboardDefaultEntryRegistry.AddMissingEntries(entries);
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.LabelField($"{entries.arraySize} keys", EditorStyles.miniLabel, GUILayout.Width(54f));
@@ -117,46 +119,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static void AddNewEntry(SerializedProperty entries)
         {
             AddEntry(entries, "NewKey", BlackboardValueType.Bool);
-        }
-
-        private static void AddMissingEnemyDefaultEntries(SerializedProperty entries)
-        {
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.HasTarget, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.Target, BlackboardValueType.Object);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.DistanceToTarget, BlackboardValueType.Float, floatValue: float.MaxValue);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.CurrentState, BlackboardValueType.String);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.HpPercent, BlackboardValueType.Float, floatValue: 1f);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.CurrentPhaseName, BlackboardValueType.String);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.PhaseIndex, BlackboardValueType.Int, intValue: -1);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.AllowCharge, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.AllowFlank, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.MaxConsecutiveAttacks, BlackboardValueType.Int, intValue: 3);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.ContinueAttackChance, BlackboardValueType.Float, floatValue: 0.3f);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.GuardChance, BlackboardValueType.Float, floatValue: 0.25f);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.RetreatChance, BlackboardValueType.Float, floatValue: 0.2f);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerAttacking, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerGuarding, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerStaggered, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerRecovering, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.IsPlayerDodgingFrequently, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.CanUseSkill, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.HasAttackSlot, BlackboardValueType.Bool);
-            AddEntryIfMissing(entries, EnemyBlackboardKeys.NextActionAllowedTime, BlackboardValueType.Float);
-        }
-
-        private static void AddEntryIfMissing(
-            SerializedProperty entries,
-            string key,
-            BlackboardValueType type,
-            bool boolValue = false,
-            int intValue = 0,
-            float floatValue = 0f,
-            string stringValue = "")
-        {
-            if (HasAssetEntry(entries, key))
-                return;
-
-            AddEntry(entries, key, type, boolValue, intValue, floatValue, stringValue);
         }
 
         private static void AddEntry(
@@ -375,6 +337,115 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
         }
+    }
+
+    internal readonly struct EnemyBlackboardDefaultEntry
+    {
+        public readonly string Key;
+        public readonly BlackboardValueType Type;
+        public readonly string Label;
+        public readonly bool BoolValue;
+        public readonly int IntValue;
+        public readonly float FloatValue;
+        public readonly string StringValue;
+
+        public EnemyBlackboardDefaultEntry(
+            string key,
+            BlackboardValueType type,
+            string label,
+            bool boolValue = false,
+            int intValue = 0,
+            float floatValue = 0f,
+            string stringValue = "")
+        {
+            Key = key;
+            Type = type;
+            Label = label;
+            BoolValue = boolValue;
+            IntValue = intValue;
+            FloatValue = floatValue;
+            StringValue = stringValue;
+        }
+    }
+
+    internal static class EnemyBlackboardDefaultEntryRegistry
+    {
+        public static IReadOnlyList<EnemyBlackboardDefaultEntry> Entries => BehaviorTreeEditorRegistryData.BlackboardEntries;
+
+        public static bool TryGetEntry(string key, out EnemyBlackboardDefaultEntry entry)
+            => BehaviorTreeEditorRegistryData.TryGetBlackboardEntry(key, out entry);
+
+        public static void ApplyDefaults(Blackboard blackboard)
+        {
+            if (blackboard == null)
+                return;
+
+            foreach (var entry in Entries)
+                ApplyDefault(blackboard, entry);
+        }
+
+        public static void AddMissingEntries(SerializedProperty entries)
+        {
+            foreach (var entry in Entries)
+            {
+                if (HasAssetEntry(entries, entry.Key))
+                    continue;
+
+                AddEntry(entries, entry);
+            }
+        }
+
+        private static void AddEntry(SerializedProperty entries, EnemyBlackboardDefaultEntry definition)
+        {
+            entries.InsertArrayElementAtIndex(entries.arraySize);
+            var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
+            entry.FindPropertyRelative("_key").stringValue = definition.Key;
+            entry.FindPropertyRelative("_valueType").enumValueIndex = (int)definition.Type;
+            entry.FindPropertyRelative("_boolValue").boolValue = definition.BoolValue;
+            entry.FindPropertyRelative("_intValue").intValue = definition.IntValue;
+            entry.FindPropertyRelative("_floatValue").floatValue = definition.FloatValue;
+            entry.FindPropertyRelative("_stringValue").stringValue = definition.StringValue;
+            entry.FindPropertyRelative("_vector3Value").vector3Value = Vector3.zero;
+            entry.FindPropertyRelative("_objectValue").objectReferenceValue = null;
+        }
+
+        private static void ApplyDefault(Blackboard blackboard, EnemyBlackboardDefaultEntry entry)
+        {
+            switch (entry.Type)
+            {
+                case BlackboardValueType.Bool:
+                    blackboard.SetBool(entry.Key, entry.BoolValue);
+                    break;
+                case BlackboardValueType.Int:
+                    blackboard.SetInt(entry.Key, entry.IntValue);
+                    break;
+                case BlackboardValueType.Float:
+                    blackboard.SetFloat(entry.Key, entry.FloatValue);
+                    break;
+                case BlackboardValueType.String:
+                    blackboard.SetString(entry.Key, entry.StringValue);
+                    break;
+                case BlackboardValueType.Vector3:
+                    blackboard.SetVector3(entry.Key, Vector3.zero);
+                    break;
+                case BlackboardValueType.Object:
+                    blackboard.SetObject(entry.Key, null);
+                    break;
+            }
+        }
+
+        private static bool HasAssetEntry(SerializedProperty entries, string key)
+        {
+            for (var i = 0; i < entries.arraySize; i++)
+            {
+                var keyProp = entries.GetArrayElementAtIndex(i).FindPropertyRelative("_key");
+                if (string.Equals(keyProp.stringValue, key, StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
     }
 }
 #endif

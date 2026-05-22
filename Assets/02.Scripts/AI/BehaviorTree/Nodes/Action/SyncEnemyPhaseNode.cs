@@ -5,7 +5,7 @@ namespace UPlayGround.AI.BehaviorTree
 {
     /// <summary>
     /// SyncEnemyPhaseService의 1회 Tick 버전 Action. JSON으로 만든 BT가 Service 부착 없이도
-    /// HP 기반 페이즈 정보(HpPercent / CurrentPhaseName / PhaseIndex / AllowCharge / AllowFlank /
+    /// HP 기반 페이즈 정보(Self.HpPercent / Self.PhaseName / Self.PhaseIndex / AllowCharge / AllowFlank /
     /// MaxConsecutiveAttacks / ContinueAttackChance / GuardChance / RetreatChance)를
     /// Blackboard에 채울 수 있도록 한다. 페이즈 분기를 사용하는 Sequence의 맨 앞에 둔다.
     /// </summary>
@@ -21,9 +21,10 @@ namespace UPlayGround.AI.BehaviorTree
             context.UpdatePhase(hpPercent);
 
             var phase = context.CurrentPhase;
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.HpPercent, hpPercent);
-            Context.Blackboard.SetString(EnemyBlackboardKeys.CurrentPhaseName, phase?.phaseName ?? "");
-            Context.Blackboard.SetInt(EnemyBlackboardKeys.PhaseIndex, GetPhaseIndex(context.BehaviorData, phase));
+            var phaseIndex = GetPhaseIndex(context.BehaviorData, phase);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.SelfHpPercent, hpPercent);
+            Context.Blackboard.SetString(EnemyBlackboardKeys.SelfPhaseName, phase?.phaseName ?? "");
+            Context.Blackboard.SetInt(EnemyBlackboardKeys.SelfPhaseIndex, phaseIndex);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.AllowCharge, phase?.allowCharge ?? false);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.AllowFlank, phase?.allowFlank ?? false);
             Context.Blackboard.SetInt(EnemyBlackboardKeys.MaxConsecutiveAttacks, phase?.maxConsecutiveAttacks ?? 3);

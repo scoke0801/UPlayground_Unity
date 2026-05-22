@@ -1,3 +1,4 @@
+using UPlayGround.AI.CombatDecision;
 using UPlayGround.Component;
 
 namespace UPlayGround.AI.BehaviorTree
@@ -25,23 +26,63 @@ namespace UPlayGround.AI.BehaviorTree
             if (!evaluator.TryEvaluate(Context.Blackboard, out var evaluation))
                 return;
 
-            Context.Blackboard.SetString(EnemyBlackboardKeys.SelectedIntent, evaluation.SelectedIntent.ToString());
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreAttack, evaluation.AttackScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScorePunish, evaluation.PunishScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreCounter, evaluation.CounterScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScorePressure, evaluation.PressureScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreChase, evaluation.ChaseScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreRetreat, evaluation.RetreatScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreKeepDistance, evaluation.KeepDistanceScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreDefend, evaluation.DefendScore);
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.IntentScoreRecover, evaluation.RecoverScore);
-            Context.Blackboard.SetString(EnemyBlackboardKeys.CombatRhythmPhase, evaluation.RhythmPhase);
+            CombatIntentBlackboardSnapshot.From(evaluation).WriteTo(Context.Blackboard);
 
             Context.DebugTrace?.Record(
                 this,
                 "IntentEvaluate",
                 BTStatus.Success,
                 evaluation.Reason);
+        }
+    }
+
+    internal readonly struct CombatIntentBlackboardSnapshot
+    {
+        private readonly string _selectedIntent;
+        private readonly float _attackScore;
+        private readonly float _punishScore;
+        private readonly float _counterScore;
+        private readonly float _pressureScore;
+        private readonly float _chaseScore;
+        private readonly float _retreatScore;
+        private readonly float _keepDistanceScore;
+        private readonly float _defendScore;
+        private readonly float _recoverScore;
+        private readonly string _rhythmPhase;
+
+        private CombatIntentBlackboardSnapshot(CombatIntentEvaluation evaluation)
+        {
+            _selectedIntent = evaluation.SelectedIntent.ToString();
+            _attackScore = evaluation.AttackScore;
+            _punishScore = evaluation.PunishScore;
+            _counterScore = evaluation.CounterScore;
+            _pressureScore = evaluation.PressureScore;
+            _chaseScore = evaluation.ChaseScore;
+            _retreatScore = evaluation.RetreatScore;
+            _keepDistanceScore = evaluation.KeepDistanceScore;
+            _defendScore = evaluation.DefendScore;
+            _recoverScore = evaluation.RecoverScore;
+            _rhythmPhase = evaluation.RhythmPhase;
+        }
+
+        public static CombatIntentBlackboardSnapshot From(CombatIntentEvaluation evaluation)
+        {
+            return new CombatIntentBlackboardSnapshot(evaluation);
+        }
+
+        public void WriteTo(Blackboard blackboard)
+        {
+            BlackboardWriteUtility.SetString(blackboard, _selectedIntent, EnemyBlackboardKeys.DecisionSelectedIntent);
+            BlackboardWriteUtility.SetFloat(blackboard, _attackScore, EnemyBlackboardKeys.DecisionIntentScoreAttack);
+            BlackboardWriteUtility.SetFloat(blackboard, _punishScore, EnemyBlackboardKeys.DecisionIntentScorePunish);
+            BlackboardWriteUtility.SetFloat(blackboard, _counterScore, EnemyBlackboardKeys.DecisionIntentScoreCounter);
+            BlackboardWriteUtility.SetFloat(blackboard, _pressureScore, EnemyBlackboardKeys.DecisionIntentScorePressure);
+            BlackboardWriteUtility.SetFloat(blackboard, _chaseScore, EnemyBlackboardKeys.DecisionIntentScoreChase);
+            BlackboardWriteUtility.SetFloat(blackboard, _retreatScore, EnemyBlackboardKeys.DecisionIntentScoreRetreat);
+            BlackboardWriteUtility.SetFloat(blackboard, _keepDistanceScore, EnemyBlackboardKeys.DecisionIntentScoreKeepDistance);
+            BlackboardWriteUtility.SetFloat(blackboard, _defendScore, EnemyBlackboardKeys.DecisionIntentScoreDefend);
+            BlackboardWriteUtility.SetFloat(blackboard, _recoverScore, EnemyBlackboardKeys.DecisionIntentScoreRecover);
+            BlackboardWriteUtility.SetString(blackboard, _rhythmPhase, EnemyBlackboardKeys.DecisionCombatRhythmPhase);
         }
     }
 }

@@ -18,9 +18,10 @@ namespace UPlayGround.AI.BehaviorTree
             context.UpdatePhase(hpPercent);
 
             var phase = context.CurrentPhase;
-            Context.Blackboard.SetFloat(EnemyBlackboardKeys.HpPercent, hpPercent);
-            Context.Blackboard.SetString(EnemyBlackboardKeys.CurrentPhaseName, phase?.phaseName ?? "");
-            Context.Blackboard.SetInt(EnemyBlackboardKeys.PhaseIndex, GetPhaseIndex(context.BehaviorData, phase));
+            var phaseIndex = GetPhaseIndex(context.BehaviorData, phase);
+            Context.Blackboard.SetFloat(EnemyBlackboardKeys.SelfHpPercent, hpPercent);
+            Context.Blackboard.SetString(EnemyBlackboardKeys.SelfPhaseName, phase?.phaseName ?? "");
+            Context.Blackboard.SetInt(EnemyBlackboardKeys.SelfPhaseIndex, phaseIndex);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.AllowCharge, phase?.allowCharge ?? false);
             Context.Blackboard.SetBool(EnemyBlackboardKeys.AllowFlank, phase?.allowFlank ?? false);
             Context.Blackboard.SetInt(EnemyBlackboardKeys.MaxConsecutiveAttacks, phase?.maxConsecutiveAttacks ?? 3);

@@ -3,34 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UPlayGround.Data.EnumType;
+using UPlayGround.State;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public static partial class MonsterBehaviorTreeJsonImporter
     {
         private enum ActorKind { Ground, Flying }
-
-        private static readonly HashSet<string> GroundOnlyConditions = new()
-        {
-            "CanUseSkill"
-        };
-
-        private static readonly HashSet<string> FlyingOnlyConditions = new()
-        {
-            "IsFlyingAirState", "IsFlyingGroundCombatState", "IsAirAttackLimitReached",
-            "ShouldFlyingTakeOff", "FlyingCanUseSkill", "HasDiveSkillAvailable", "RollDiveChance"
-        };
-
-        private static readonly HashSet<string> GroundOnlyActions = new()
-        {
-            "PatrolOrIdle", "Transition", "RequestAttackSlot", "ExecuteAttack"
-        };
-
-        private static readonly HashSet<string> FlyingOnlyActions = new()
-        {
-            "FlyingTransition", "FlyingPatrolOrIdle", "ResetFlyingCounters",
-            "ResetFlyingAirCounters", "DescendFlying", "RequestFlyingAttackSlot", "SelectFlyingDiveSkill"
-        };
 
         private static void Validate(MonsterBehaviorTreeJson data, string sourcePath)
         {
@@ -107,22 +86,26 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static void ValidateCondition(MonsterBehaviorConditionJson condition, string ruleName, ActorKind actorKind)
         {
-            var known = condition.condition is "HasTarget" or "IsBlockedEnemyState" or "IsEnemyPhase" or "DistanceLessOrEqual"
-                or "DistanceGreater" or "ActionDelayElapsed" or "CanUseSkill" or "IsPlayerAttacking"
-                or "IsPlayerGuarding" or "IsPlayerStaggered" or "IsPlayerRecovering" or "IsPlayerDodgingFrequently"
-                or "IsPlayerAttackingFrequently" or "IsPlayerGuardingFrequently" or "IsPlayerRecoveringFrequently"
-                or "IsSelfLowHealth" or "HasAttackSlot" or "CooldownReady" or "RecentlyHitByPlayer"
-                or "WasLastHitHeavy" or "IsPoiseBroken" or "RecentHitCountGreaterOrEqual"
-                or "CanIgnoreLightHit" or "CanRevengeAfterHit"
-                or "ConsecutiveAttackCountLessThan" or "ConsecutiveAttackCountGreaterOrEqual"
-                or "SelectedIntent"
-                // ── 비행 전용 ──
-                or "IsCurrentState" or "IsFlyingAirState" or "IsFlyingGroundCombatState"
-                or "IsAirAttackLimitReached" or "ShouldFlyingTakeOff" or "FlyingCanUseSkill"
-                or "HasDiveSkillAvailable" or "RollDiveChance";
+            if (condition == null || !ConditionNodeDefinitions.TryGetValue(condition.condition, out var definition))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 condition입니다. {condition?.condition}");
 
-            if (!known)
-                throw new InvalidDataException($"{ruleName}: 알 수 없는 condition입니다. {condition.condition}");
+            if (condition.condition == "HasStateTag"
+                && !Enum.TryParse<ActorStateTag>(condition.value, true, out _))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 ActorStateTag입니다. {condition.value}");
+
+            if (condition.condition == "BlackboardCompare")
+            {
+                if (string.IsNullOrWhiteSpace(condition.key))
+                    throw new InvalidDataException($"{ruleName}: BlackboardCompare는 key가 필요합니다.");
+
+                if (!string.IsNullOrWhiteSpace(condition.op)
+                    && !Enum.TryParse<BlackboardComparisonType>(condition.op, true, out _))
+                    throw new InvalidDataException($"{ruleName}: 알 수 없는 BlackboardComparisonType입니다. {condition.op}");
+
+                if (string.IsNullOrWhiteSpace(condition.value)
+                    && string.IsNullOrWhiteSpace(condition.valueKey))
+                    throw new InvalidDataException($"{ruleName}: BlackboardCompare는 value 또는 valueKey가 필요합니다.");
+            }
 
             if (condition.condition == "IsCurrentState" && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: IsCurrentState는 value(상태 이름)가 필요합니다.");
@@ -133,24 +116,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (condition.condition == "SelectedIntent" && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: SelectedIntent는 value(CombatIntent 이름)가 필요합니다.");
 
-            if (actorKind == ActorKind.Flying && GroundOnlyConditions.Contains(condition.condition))
-                throw new InvalidDataException($"{ruleName}: 지상 전용 condition '{condition.condition}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 노드(예: FlyingCanUseSkill)로 교체하세요.");
-
-            if (actorKind == ActorKind.Ground && FlyingOnlyConditions.Contains(condition.condition))
-                throw new InvalidDataException($"{ruleName}: 비행 전용 condition '{condition.condition}'은 actorKind=Ground에서 사용할 수 없습니다.");
+            ValidateActorScope(definition.Scope, actorKind, ruleName, "condition", condition.condition);
         }
 
         private static void ValidateAction(MonsterBehaviorActionJson action, string ruleName, ActorKind actorKind)
         {
-            var known = action.action is "KeepCurrentState" or "PatrolOrIdle" or "Transition"
-                or "RequestAttackSlot" or "ExecuteAttack" or "Wait"
-                // ── 비행 전용 ──
-                or "FlyingTransition" or "FlyingPatrolOrIdle" or "ResetFlyingCounters"
-                or "ResetFlyingAirCounters" or "DescendFlying" or "RequestFlyingAttackSlot"
-                or "SelectFlyingDiveSkill";
-
-            if (!known)
-                throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action.action}");
+            if (action == null || !ActionNodeDefinitions.TryGetValue(action.action, out var definition))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action?.action}");
 
             if (action.action == "Transition" && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyTransitionStateType입니다. {action.state}");
@@ -158,20 +130,52 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (action.action == "FlyingTransition" && !Enum.TryParse<FlyingEnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 FlyingEnemyTransitionStateType입니다. {action.state}");
 
+            if (action.action == "RequestAction")
+            {
+                if (!Enum.TryParse<EnemyActionIntent>(action.intent, true, out _))
+                    throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyActionIntent입니다. {action.intent}");
+
+                if (!string.IsNullOrWhiteSpace(action.style)
+                    && !Enum.TryParse<EnemyActionStyle>(action.style, true, out _))
+                    throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyActionStyle입니다. {action.style}");
+            }
+
             if (!string.IsNullOrWhiteSpace(action.attackCategory)
                 && !Enum.TryParse<EnemyAttackCategory>(action.attackCategory, true, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyAttackCategory입니다. {action.attackCategory}");
 
-            if (actorKind == ActorKind.Flying && GroundOnlyActions.Contains(action.action))
-                throw new InvalidDataException($"{ruleName}: 지상 전용 action '{action.action}'은 actorKind=Flying에서 사용할 수 없습니다. 비행 대응 액션(예: FlyingTransition / FlyingPatrolOrIdle / RequestFlyingAttackSlot)으로 교체하세요.");
+            ValidateActorScope(definition.Scope, actorKind, ruleName, "action", action.action);
+        }
 
-            if (actorKind == ActorKind.Ground && FlyingOnlyActions.Contains(action.action))
-                throw new InvalidDataException($"{ruleName}: 비행 전용 action '{action.action}'은 actorKind=Ground에서 사용할 수 없습니다.");
+        private static void ValidateActorScope(
+            JsonNodeActorScope scope,
+            ActorKind actorKind,
+            string ruleName,
+            string nodeKind,
+            string nodeName)
+        {
+            if (actorKind == ActorKind.Flying && scope == JsonNodeActorScope.GroundOnly)
+                throw new InvalidDataException($"{ruleName}: 지상 전용 {nodeKind} '{nodeName}'은 actorKind=Flying에서 사용할 수 없습니다.");
+
+            if (actorKind == ActorKind.Ground && scope == JsonNodeActorScope.FlyingOnly)
+                throw new InvalidDataException($"{ruleName}: 비행 전용 {nodeKind} '{nodeName}'은 actorKind=Ground에서 사용할 수 없습니다.");
         }
 
         private static void ValidateChoice(MonsterBehaviorChoiceJson choice, string ruleName, ActorKind actorKind)
         {
-            ValidateAction(new MonsterBehaviorActionJson { action = choice.action, state = choice.state, attackCategory = choice.attackCategory }, ruleName, actorKind);
+            ValidateAction(
+                new MonsterBehaviorActionJson
+                {
+                    action = choice.action,
+                    intent = choice.intent,
+                    style = choice.style,
+                    state = choice.state,
+                    attackCategory = choice.attackCategory,
+                    cooldownId = choice.cooldownId,
+                    cooldownDuration = choice.cooldownDuration
+                },
+                ruleName,
+                actorKind);
         }
     }
 }

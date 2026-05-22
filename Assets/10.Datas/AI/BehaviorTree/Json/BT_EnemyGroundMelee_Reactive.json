@@ -436,15 +436,16 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_is_player_attacking",
             "displayName": "Condition_IsPlayerAttacking",
-            "comment": "Blackboard[IsPlayerAttacking] == true (SyncEnemyMemoryNode가 채움).",
+            "comment": "Blackboard[Memory.Player.IsAttacking] == true (SyncEnemyMemoryNode가 채움).",
             "position": { "x": -460.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerAttacking" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsAttacking" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" }
             ]
         },
         {
@@ -526,15 +527,16 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_is_player_recovering",
             "displayName": "Condition_IsPlayerRecovering",
-            "comment": "Blackboard[IsPlayerRecovering] == true",
+            "comment": "Blackboard[Memory.Player.IsRecovering] == true",
             "position": { "x": -80.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerRecovering" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsRecovering" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" }
             ]
         },
         {
@@ -594,15 +596,16 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_is_player_staggered",
             "displayName": "Condition_IsPlayerStaggered",
-            "comment": "Blackboard[IsPlayerStaggered] == true",
+            "comment": "Blackboard[Memory.Player.IsStaggered] == true",
             "position": { "x": 400.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerStaggered" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsStaggered" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" }
             ]
         },
         {
@@ -647,15 +650,16 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_is_player_guarding",
             "displayName": "Condition_IsPlayerGuarding",
-            "comment": "Blackboard[IsPlayerGuarding] == true",
+            "comment": "Blackboard[Memory.Player.IsGuarding] == true",
             "position": { "x": 660.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerGuarding" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsGuarding" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" }
             ]
         },
         {

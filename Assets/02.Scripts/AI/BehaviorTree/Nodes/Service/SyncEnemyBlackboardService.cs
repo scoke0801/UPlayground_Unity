@@ -1,6 +1,6 @@
 using UPlayGround.Component;
 using UPlayGround.MovementController;
-using UnityEngine;
+using UPlayGround.State;
 
 namespace UPlayGround.AI.BehaviorTree
 {
@@ -11,11 +11,6 @@ namespace UPlayGround.AI.BehaviorTree
     /// </summary>
     public class SyncEnemyBlackboardService : BTServiceNode
     {
-        [SerializeField] private string _hasTargetKey = "HasTarget";
-        [SerializeField] private string _targetKey = "Target";
-        [SerializeField] private string _distanceKey = "DistanceToTarget";
-        [SerializeField] private string _stateKey = "CurrentState";
-
         protected override void OnServiceTick()
         {
             if (Context?.Blackboard == null)
@@ -23,17 +18,62 @@ namespace UPlayGround.AI.BehaviorTree
 
             var detection = Context.GetComponentCached<EnemyDetection>();
             var controller = Context.GetComponentCached<ActorMovementController>();
-            var hasTarget = detection != null && detection.HasTarget;
+            var snapshot = TargetStateBlackboardSnapshot.From(detection, controller);
+            snapshot.WriteTo(Context.Blackboard);
 
-            Context.Blackboard.SetBool(_hasTargetKey, hasTarget);
-            Context.Blackboard.SetObject(_targetKey, hasTarget ? detection.CurrentTarget : null);
-            Context.Blackboard.SetFloat(_distanceKey, hasTarget ? detection.DistanceToTarget : float.MaxValue);
-            Context.Blackboard.SetString(_stateKey, controller?.CurrentState?.StateName ?? "");
             Context.DebugTrace?.Record(
                 this,
                 "BlackboardWrite",
                 BTStatus.Success,
-                $"{_hasTargetKey}={hasTarget}, {_targetKey}={(hasTarget && detection.CurrentTarget != null ? detection.CurrentTarget.name : "null")}, {_distanceKey}={(hasTarget ? detection.DistanceToTarget : float.MaxValue):0.00}, {_stateKey}={controller?.CurrentState?.StateName ?? ""}");
+                snapshot.ToDebugString());
+        }
+    }
+
+    internal readonly struct TargetStateBlackboardSnapshot
+    {
+        private readonly bool _hasTarget;
+        private readonly UnityEngine.Object _target;
+        private readonly float _distance;
+        private readonly string _stateName;
+        private readonly ActorStateTag _stateTags;
+
+        private TargetStateBlackboardSnapshot(
+            bool hasTarget,
+            UnityEngine.Object target,
+            float distance,
+            string stateName,
+            ActorStateTag stateTags)
+        {
+            _hasTarget = hasTarget;
+            _target = target;
+            _distance = distance;
+            _stateName = stateName;
+            _stateTags = stateTags;
+        }
+
+        public static TargetStateBlackboardSnapshot From(EnemyDetection detection, ActorMovementController controller)
+        {
+            var hasTarget = detection != null && detection.HasTarget;
+            return new TargetStateBlackboardSnapshot(
+                hasTarget,
+                hasTarget ? detection.CurrentTarget : null,
+                hasTarget ? detection.DistanceToTarget : float.MaxValue,
+                controller?.CurrentState?.StateName ?? "",
+                controller?.CurrentState?.StateTags ?? ActorStateTag.None);
+        }
+
+        public void WriteTo(Blackboard blackboard)
+        {
+            BlackboardWriteUtility.SetBool(blackboard, _hasTarget, EnemyBlackboardKeys.TargetHas);
+            BlackboardWriteUtility.SetObject(blackboard, _target, EnemyBlackboardKeys.TargetObject);
+            BlackboardWriteUtility.SetFloat(blackboard, _distance, EnemyBlackboardKeys.TargetDistance);
+            BlackboardWriteUtility.SetString(blackboard, _stateName, EnemyBlackboardKeys.SelfStateId);
+            BlackboardWriteUtility.SetInt(blackboard, (int)_stateTags, EnemyBlackboardKeys.SelfStateTags);
+        }
+
+        public string ToDebugString()
+        {
+            return $"{EnemyBlackboardKeys.TargetHas}={_hasTarget}, {EnemyBlackboardKeys.TargetObject}={(_target != null ? _target.name : "null")}, {EnemyBlackboardKeys.TargetDistance}={_distance:0.00}, {EnemyBlackboardKeys.SelfStateId}={_stateName}, {EnemyBlackboardKeys.SelfStateTags}={_stateTags}";
         }
     }
 }

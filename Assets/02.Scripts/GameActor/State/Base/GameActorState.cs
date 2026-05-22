@@ -1,9 +1,22 @@
 ﻿using KinematicCharacterController;
+using System;
 using UnityEngine;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
+    [Flags]
+    public enum ActorStateTag
+    {
+        None = 0,
+        Locomotion = 1 << 0,
+        Combat = 1 << 1,
+        Defensive = 1 << 2,
+        Airborne = 1 << 3,
+        InterruptLocked = 1 << 4,
+        Recovery = 1 << 5
+    }
+
     /// <summary>
     /// 모든 Actor 이동 상태의 베이스 클래스
     /// </summary>
@@ -29,6 +42,19 @@ namespace UPlayGround.State
         /// true이면 BT가 이 상태를 중간에 다른 판단으로 덮지 않고 상태 자체의 종료 로직을 기다린다.
         /// </summary>
         public virtual bool BlocksBehaviorTree => false;
+
+        /// <summary>
+        /// 서브클래스가 켤 추가 상태 태그. InterruptLocked는 BlocksBehaviorTree로부터 자동 합성되므로
+        /// 여기서 다시 켤 필요 없음.
+        /// </summary>
+        protected virtual ActorStateTag StateTagsCore => ActorStateTag.None;
+
+        /// <summary>
+        /// BT 조건/동기화에서 구체 상태명 대신 사용할 상태 태그.
+        /// BlocksBehaviorTree가 true면 InterruptLocked가 항상 포함된다.
+        /// </summary>
+        public ActorStateTag StateTags =>
+            StateTagsCore | (BlocksBehaviorTree ? ActorStateTag.InterruptLocked : ActorStateTag.None);
         
         public GameActorState(ActorMovementController controller)
         {

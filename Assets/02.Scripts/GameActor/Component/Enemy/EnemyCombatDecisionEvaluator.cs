@@ -48,15 +48,15 @@ namespace UPlayGround.Component
             var optimalDistance = ReadFloat(blackboard, "optimalCombatDistance", _context?.OptimalCombatDistance ?? behavior?.optimalCombatDistance ?? 2.5f);
             var minDistance = ReadFloat(blackboard, "minCombatDistance", _context?.MinCombatDistance ?? behavior?.minCombatDistance ?? 1.5f);
             var personalSpace = ReadFloat(blackboard, "personalSpaceDistance", _context?.PersonalSpaceDistance ?? behavior?.personalSpaceDistance ?? 0.8f);
-            var preferredRange = ReadFloat(blackboard, EnemyBlackboardKeys.PreferredRange, optimalDistance);
-            var aggression = Read01(blackboard, EnemyBlackboardKeys.Aggression, DefaultAggression);
-            var reactionChance = Read01(blackboard, EnemyBlackboardKeys.ReactionChance, DefaultReactionChance);
-            var counterChance = Read01(blackboard, EnemyBlackboardKeys.CounterChance, DefaultCounterChance);
-            var punishChance = Read01(blackboard, EnemyBlackboardKeys.PunishRecoveryChance, DefaultPunishChance);
+            var preferredRange = ReadFloat(blackboard, EnemyBlackboardKeys.AIPreferredRange, optimalDistance);
+            var aggression = Read01(blackboard, EnemyBlackboardKeys.AIAggression, DefaultAggression);
+            var reactionChance = Read01(blackboard, EnemyBlackboardKeys.AIReactionChance, DefaultReactionChance);
+            var counterChance = Read01(blackboard, EnemyBlackboardKeys.AICounterChance, DefaultCounterChance);
+            var punishChance = Read01(blackboard, EnemyBlackboardKeys.AIPunishRecoveryChance, DefaultPunishChance);
             var retreatChance = Read01(blackboard, EnemyBlackboardKeys.RetreatChance, behavior?.retreatChance ?? DefaultRetreatChance);
             var guardChance = Read01(blackboard, EnemyBlackboardKeys.GuardChance, behavior?.guardChance ?? DefaultGuardChance);
             var circleWeight = ReadFloat(blackboard, "circleWeight", DefaultCircleWeight);
-            var minRetreatCooldown = ReadFloat(blackboard, EnemyBlackboardKeys.MinRetreatCooldown, 1.5f);
+            var minRetreatCooldown = ReadFloat(blackboard, EnemyBlackboardKeys.AIMinRetreatCooldown, 1.5f);
 
             var isPlayerAttacking = _memory != null && _memory.IsPlayerAttacking();
             var isPlayerGuarding = _memory != null && _memory.IsPlayerGuarding();
@@ -357,11 +357,11 @@ namespace UPlayGround.Component
 
         private static void ApplyLastIntentPenalty(Blackboard blackboard, ref float score, CombatIntent intent)
         {
-            if (!blackboard.TryGetString(EnemyBlackboardKeys.LastIntent, out var lastIntent)
+            if (!blackboard.TryGetString(EnemyBlackboardKeys.DecisionLastIntent, out var lastIntent)
                 || lastIntent != intent.ToString())
                 return;
 
-            var repeatCount = blackboard.TryGetInt(EnemyBlackboardKeys.ConsecutiveIntentCount, out var count)
+            var repeatCount = blackboard.TryGetInt(EnemyBlackboardKeys.DecisionConsecutiveIntentCount, out var count)
                 ? Mathf.Clamp(count, 1, 3)
                 : 1;
             score *= Mathf.Pow(0.85f, repeatCount);

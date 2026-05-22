@@ -1,16 +1,11 @@
 using UPlayGround.Component;
 using UPlayGround.MovementController;
-using UnityEngine;
+using UPlayGround.State;
 
 namespace UPlayGround.AI.BehaviorTree
 {
     public class SyncEnemyBlackboardNode : BTActionNode
     {
-        [SerializeField] private string _hasTargetKey = "HasTarget";
-        [SerializeField] private string _targetKey = "Target";
-        [SerializeField] private string _distanceKey = "DistanceToTarget";
-        [SerializeField] private string _stateKey = "CurrentState";
-
         protected override BTStatus OnUpdate()
         {
             if (Context?.Blackboard == null)
@@ -18,17 +13,14 @@ namespace UPlayGround.AI.BehaviorTree
 
             var detection = Context.GetComponentCached<EnemyDetection>();
             var controller = Context.GetComponentCached<ActorMovementController>();
-            var hasTarget = detection != null && detection.HasTarget;
+            var snapshot = TargetStateBlackboardSnapshot.From(detection, controller);
+            snapshot.WriteTo(Context.Blackboard);
 
-            Context.Blackboard.SetBool(_hasTargetKey, hasTarget);
-            Context.Blackboard.SetObject(_targetKey, hasTarget ? detection.CurrentTarget : null);
-            Context.Blackboard.SetFloat(_distanceKey, hasTarget ? detection.DistanceToTarget : float.MaxValue);
-            Context.Blackboard.SetString(_stateKey, controller?.CurrentState?.StateName ?? "");
             Context.DebugTrace?.Record(
                 this,
                 "BlackboardWrite",
                 BTStatus.Success,
-                $"{_hasTargetKey}={hasTarget}, {_targetKey}={(hasTarget && detection.CurrentTarget != null ? detection.CurrentTarget.name : "null")}, {_distanceKey}={(hasTarget ? detection.DistanceToTarget : float.MaxValue):0.00}, {_stateKey}={controller?.CurrentState?.StateName ?? ""}");
+                snapshot.ToDebugString());
             return BTStatus.Success;
         }
     }

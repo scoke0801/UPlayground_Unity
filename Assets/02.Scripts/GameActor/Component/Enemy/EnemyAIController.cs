@@ -204,7 +204,7 @@ namespace UPlayGround.Component
                 var maxComboPressure = 2;
                 var blackboard = _behaviorTreeRunner?.Context?.Blackboard;
                 if (blackboard != null
-                    && blackboard.TryGetInt(EnemyBlackboardKeys.MaxComboPressureCount, out var configuredMax))
+                    && blackboard.TryGetInt(EnemyBlackboardKeys.AIMaxComboPressureCount, out var configuredMax))
                 {
                     maxComboPressure = Mathf.Max(1, configuredMax);
                 }

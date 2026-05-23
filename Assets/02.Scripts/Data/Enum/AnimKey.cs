@@ -13,8 +13,20 @@ namespace UPlayGround.Data.EnumType
         Run,
         Sprint,
         
+        // 단순 (방향 무관)
         Dodge = 10,
         Dash = 11,
+        
+        // 방향성
+        Dodge_F = 12,
+        Dodge_B = 13,
+        Dodge_L = 14,
+        Dodge_R = 15,
+        
+        Dash_F = 16,
+        Dash_B = 17,
+        Dash_L = 18,
+        Dash_R = 19,
         
         Jump = 20,
         Fall,
@@ -201,9 +213,6 @@ namespace UPlayGround.Data.EnumType
         Sprint_Turn_180,
 
         #endregion
-
-
-        Mixer_Locomotion,
 
         #region 방향성 이동 (몬스터 로코모션)
 

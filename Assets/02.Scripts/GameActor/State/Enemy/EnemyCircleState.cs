@@ -37,6 +37,12 @@ namespace UPlayGround.State
         private float _directionChangeTimer;
         private float _nextDirectionChangeTime;
         private AnimKey _lastLocoKey = AnimKey.None;
+        private AnimKey _pendingLocoKey = AnimKey.None;
+        private float _pendingLocoKeyTimer;
+        private bool _usesFormationSlot;
+        private bool _movingToFormationSlot;
+        private bool _formationSlotAcquired;
+        private float _stationaryAnimTimer;
 
         private const float BASE_SPEED_RATIO = 0.5f;
         private const float NOISE_SPEED = 0.8f;            // 노이즈 변화 속도
@@ -44,6 +50,9 @@ namespace UPlayGround.State
         private const float SPEED_NOISE_MIN = 0.4f;         // 최소 속도 배율
         private const float SPEED_NOISE_MAX = 1.0f;         // 최대 속도 배율
         private const float RADIAL_NOISE_STRENGTH = 0.4f;   // 거리 보정 흔들림
+        private const float STATIONARY_ANIM_DELAY = 0.12f;  // 실제 이동이 없을 때 Idle 전환 지연
+        private const float LOCO_KEY_SWITCH_DELAY = 0.18f;  // 방향 키가 잠깐 튀는 경우 모션 재시작 방지
+        private const float FORMATION_SLOT_ARRIVAL_DISTANCE = 0.75f;
 
         public EnemyCircleState(
             ActorMovementController controller,
@@ -83,13 +92,21 @@ namespace UPlayGround.State
             _directionChangeTimer = 0f;
             ScheduleNextDirectionChange();
 
-            _lastLocoKey = AnimKey.Walk;
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+            _stationaryAnimTimer = 0f;
+            _lastLocoKey = AnimKey.Idle;
+            _pendingLocoKey = AnimKey.None;
+            _pendingLocoKeyTimer = 0f;
+            _movingToFormationSlot = false;
+            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.15f);
+            _usesFormationSlot = _context.TryGetFormationSlotPosition(_context.RetreatDistance, out _);
+            _formationSlotAcquired = !_usesFormationSlot;
         }
 
         public override void OnExit(GameActorState toState)
         {
             base.OnExit(toState);
+            if (_usesFormationSlot)
+                _context.ReleaseFormationSlot();
         }
 
         public override void UpdateState(float deltaTime)
@@ -127,13 +144,95 @@ namespace UPlayGround.State
 
             UpdatePause(deltaTime);
             UpdateDirectionChange(deltaTime);
+        }
 
-            // 정지 중이 아닐 때만 방향성 로코모션 갱신
+        public override void AfterCharacterUpdate(float deltaTime)
+        {
             if (!_isPaused)
+                UpdateLocomotionAnimation(deltaTime);
+        }
+
+        private void UpdateLocomotionAnimation(float deltaTime)
+        {
+            var velocity = motor.Velocity;
+            velocity.y = 0f;
+
+            if (velocity.sqrMagnitude < EnemyLocomotionHelper.MIN_SPEED_SQ)
             {
-                EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
-                    EnemyLocomotionHelper.LocoStyle.Walk);
+                _stationaryAnimTimer += deltaTime;
+                if (_stationaryAnimTimer >= STATIONARY_ANIM_DELAY && _lastLocoKey != AnimKey.Idle)
+                {
+                    gameActor.Animator.PlayMotion(AnimKey.Idle, 0.15f);
+                    _lastLocoKey = AnimKey.Idle;
+                    _pendingLocoKey = AnimKey.None;
+                    _pendingLocoKeyTimer = 0f;
+                }
+                return;
             }
+
+            _stationaryAnimTimer = 0f;
+
+            if (_movingToFormationSlot)
+            {
+                UpdateFormationMoveAnimation();
+                return;
+            }
+
+            float localAngle = 0f;
+            AnimKey nextKey;
+            if (gameActor.Animator.HasFallbackMotionSet)
+            {
+                Vector3 localVelocity = gameActor.transform.InverseTransformDirection(velocity);
+                localVelocity.y = 0f;
+                localAngle = Mathf.Atan2(localVelocity.x, localVelocity.z) * Mathf.Rad2Deg;
+                nextKey = EnemyLocomotionHelper.GetKey(localAngle, EnemyLocomotionHelper.LocoStyle.Walk);
+            }
+            else
+            {
+                nextKey = EnemyLocomotionHelper.BasicKey(EnemyLocomotionHelper.LocoStyle.Walk);
+            }
+
+            if (nextKey == _lastLocoKey)
+            {
+                _pendingLocoKey = AnimKey.None;
+                _pendingLocoKeyTimer = 0f;
+                return;
+            }
+
+            if (_lastLocoKey != AnimKey.None && _lastLocoKey != AnimKey.Idle)
+            {
+                if (nextKey != _pendingLocoKey)
+                {
+                    _pendingLocoKey = nextKey;
+                    _pendingLocoKeyTimer = 0f;
+                    return;
+                }
+
+                _pendingLocoKeyTimer += deltaTime;
+                if (_pendingLocoKeyTimer < LOCO_KEY_SWITCH_DELAY)
+                    return;
+            }
+
+            gameActor.Animator.PlayMotion(nextKey, 0.15f);
+            _lastLocoKey = nextKey;
+            _pendingLocoKey = AnimKey.None;
+            _pendingLocoKeyTimer = 0f;
+        }
+
+        private void UpdateFormationMoveAnimation()
+        {
+            const AnimKey nextKey = AnimKey.Walk;
+            if (_lastLocoKey == nextKey)
+            {
+                _pendingLocoKey = AnimKey.None;
+                _pendingLocoKeyTimer = 0f;
+                return;
+            }
+
+            gameActor.Animator.PlayMotion(nextKey, 0.15f);
+            _lastLocoKey = nextKey;
+            _pendingLocoKey = AnimKey.None;
+            _pendingLocoKeyTimer = 0f;
         }
 
         private void UpdatePause(float deltaTime)
@@ -145,7 +244,11 @@ namespace UPlayGround.State
                 {
                     _isPaused = false;
                     _pauseTimer = 0f;
+                    _stationaryAnimTimer = 0f;
                     _lastLocoKey = AnimKey.None; // 재개 시 방향 재평가 강제
+                    _pendingLocoKey = AnimKey.None;
+                    _pendingLocoKeyTimer = 0f;
+                    _movingToFormationSlot = false;
                     ScheduleNextPause();
                 }
             }
@@ -156,8 +259,13 @@ namespace UPlayGround.State
                 {
                     _isPaused = true;
                     _pauseTimer = 0f;
+                    _stationaryAnimTimer = 0f;
                     _pauseDuration = Random.Range(0.3f, 0.8f);
                     gameActor.Animator.PlayMotion(AnimKey.Idle, 0.2f);
+                    _lastLocoKey = AnimKey.Idle;
+                    _pendingLocoKey = AnimKey.None;
+                    _pendingLocoKeyTimer = 0f;
+                    _movingToFormationSlot = false;
                 }
             }
         }
@@ -208,12 +316,14 @@ namespace UPlayGround.State
         {
             if (!_detection.HasTarget || !motor.GroundingStatus.IsStableOnGround)
             {
+                _movingToFormationSlot = false;
                 currentVelocity = Vector3.Lerp(currentVelocity, Vector3.zero,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
                 return;
             }
 
             // 정지 중이면 감속
+            _movingToFormationSlot = false;
             if (_isPaused)
             {
                 currentVelocity = Vector3.Lerp(currentVelocity, Vector3.zero,
@@ -225,9 +335,38 @@ namespace UPlayGround.State
             toTarget.y = 0;
             float currentDistance = toTarget.magnitude;
 
-            if (currentDistance < 0.1f) return;
+            if (currentDistance < 0.1f)
+            {
+                currentVelocity = Vector3.Lerp(currentVelocity, Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
 
             Vector3 dirToTarget = toTarget / currentDistance;
+
+            if (_usesFormationSlot
+                && !_formationSlotAcquired
+                && _context.TryGetFormationSlotPosition(_context.RetreatDistance, out var formationTarget))
+            {
+                var toFormation = formationTarget - motor.TransientPosition;
+                toFormation.y = 0f;
+                if (toFormation.sqrMagnitude > FORMATION_SLOT_ARRIVAL_DISTANCE * FORMATION_SLOT_ARRIVAL_DISTANCE)
+                {
+                    _movingToFormationSlot = true;
+                    var formationVelocity = toFormation.normalized * _baseSpeed;
+                    formationVelocity = motor.GetDirectionTangentToSurface(
+                        formationVelocity,
+                        motor.GroundingStatus.GroundNormal) * formationVelocity.magnitude;
+
+                    currentVelocity = Vector3.Lerp(
+                        currentVelocity,
+                        formationVelocity,
+                        1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                    return;
+                }
+
+                _formationSlotAcquired = true;
+            }
 
             float time = _circleTimer;
 

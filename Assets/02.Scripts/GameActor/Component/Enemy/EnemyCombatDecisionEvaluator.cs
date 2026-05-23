@@ -2,6 +2,7 @@ using UPlayGround.AI.BehaviorTree;
 using UPlayGround.AI.CombatDecision;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Group;
 using UnityEngine;
 
 namespace UPlayGround.Component
@@ -57,19 +58,20 @@ namespace UPlayGround.Component
             var guardChance = Read01(blackboard, EnemyBlackboardKeys.GuardChance, behavior?.guardChance ?? DefaultGuardChance);
             var circleWeight = ReadFloat(blackboard, EnemyBlackboardKeys.CircleWeight, DefaultCircleWeight);
             var minRetreatCooldown = ReadFloat(blackboard, EnemyBlackboardKeys.AIMinRetreatCooldown, 1.5f);
+            var groupMemory = _context?.CurrentGroupMemory;
 
-            var isPlayerAttacking = _memory != null && _memory.IsPlayerAttacking();
-            var isPlayerGuarding = _memory != null && _memory.IsPlayerGuarding();
-            var isPlayerStaggered = _memory != null && _memory.IsPlayerStaggered();
-            var isPlayerRecovering = _memory != null && _memory.IsPlayerRecovering();
-            var isPlayerDodgingFrequently = _memory != null && _memory.IsPlayerDodgingFrequently();
-            var isPlayerAttackingFrequently = _memory != null && _memory.IsPlayerAttackingFrequently();
-            var isPlayerGuardingFrequently = _memory != null && _memory.IsPlayerGuardingFrequently();
-            var isPlayerRecoveringFrequently = _memory != null && _memory.IsPlayerRecoveringFrequently();
+            var isPlayerAttacking = groupMemory != null ? groupMemory.IsPlayerAttacking : _memory != null && _memory.IsPlayerAttacking();
+            var isPlayerGuarding = groupMemory != null ? groupMemory.IsPlayerGuarding : _memory != null && _memory.IsPlayerGuarding();
+            var isPlayerStaggered = groupMemory != null ? groupMemory.IsPlayerStaggered : _memory != null && _memory.IsPlayerStaggered();
+            var isPlayerRecovering = groupMemory != null ? groupMemory.IsPlayerRecovering : _memory != null && _memory.IsPlayerRecovering();
+            var isPlayerDodgingFrequently = groupMemory != null ? groupMemory.IsPlayerDodgingFrequently() : _memory != null && _memory.IsPlayerDodgingFrequently();
+            var isPlayerAttackingFrequently = groupMemory != null ? groupMemory.IsPlayerAttackingFrequently() : _memory != null && _memory.IsPlayerAttackingFrequently();
+            var isPlayerGuardingFrequently = groupMemory != null ? groupMemory.IsPlayerGuardingFrequently() : _memory != null && _memory.IsPlayerGuardingFrequently();
+            var isPlayerRecoveringFrequently = groupMemory != null ? groupMemory.IsPlayerRecoveringFrequently() : _memory != null && _memory.IsPlayerRecoveringFrequently();
             var wasHitRecently = _memory != null && _memory.WasHitRecently();
             var timeSinceRetreat = _memory?.TimeSinceLastRetreat() ?? 999f;
-            var hitAccuracy = _memory?.GetHitAccuracy() ?? 0.5f;
-            var playerReadSummary = _memory?.BuildPlayerReadSummary() ?? "Dodge=0, Guard=0, Attack=0, Recover=0";
+            var hitAccuracy = groupMemory != null ? groupMemory.HitAccuracyAgainstPlayer : _memory?.GetHitAccuracy() ?? 0.5f;
+            var playerReadSummary = groupMemory != null ? groupMemory.BuildPlayerReadSummary() : _memory?.BuildPlayerReadSummary() ?? "Dodge=0, Guard=0, Attack=0, Recover=0";
             var isPoiseBroken = _poise != null && _poise.IsPoiseBroken;
             var hpPercent = _context?.HealthPercent ?? 1f;
             var canUseSkill = _context?.CanUseSkill() ?? false;
@@ -77,63 +79,72 @@ namespace UPlayGround.Component
             var actionDelayElapsed = !blackboard.TryGetFloat(EnemyBlackboardKeys.NextActionAllowedTime, out var nextActionTime)
                                      || Time.time >= nextActionTime;
 
-            var inAttackRange = distance <= optimalDistance && hasAvailableAttack;
-            var tooClose = distance <= personalSpace;
-            var underPreferredRange = distance < Mathf.Max(personalSpace, preferredRange - 0.45f);
             var overPreferredRange = distance > preferredRange + 0.75f;
-            var lowHealth = hpPercent <= 0.35f;
+            var hasGuardMotion = _context != null && _context.HasGuardMotion;
 
-            var attackScore = 0.10f + aggression * 0.42f;
-            if (inAttackRange && actionDelayElapsed) attackScore += 0.45f;
-            if (canUseSkill) attackScore += 0.08f;
-            if (isPlayerStaggered) attackScore += 0.18f;
-            if (isPlayerRecoveringFrequently) attackScore += 0.10f;
-            if (!hasAvailableAttack || !actionDelayElapsed) attackScore *= 0.55f;
+            var ctx = new IntentEvaluationContext
+            {
+                Distance = distance,
+                OptimalDistance = optimalDistance,
+                MinDistance = minDistance,
+                PersonalSpace = personalSpace,
+                PreferredRange = preferredRange,
+                HealthPercent = hpPercent,
+                Aggression = aggression,
+                ReactionChance = reactionChance,
+                PunishChance = punishChance,
+                CounterChance = counterChance,
+                RetreatChance = retreatChance,
+                GuardChance = guardChance,
+                CircleWeight = circleWeight,
+                MinRetreatCooldown = minRetreatCooldown,
+                TimeSinceRetreat = timeSinceRetreat,
+                ActionDelayElapsed = actionDelayElapsed,
+                CanUseSkill = canUseSkill,
+                HasAvailableAttack = hasAvailableAttack,
+                HasGuardMotion = hasGuardMotion,
+                IsPlayerAttacking = isPlayerAttacking,
+                IsPlayerGuarding = isPlayerGuarding,
+                IsPlayerStaggered = isPlayerStaggered,
+                IsPlayerRecovering = isPlayerRecovering,
+                IsPlayerDodgingFrequently = isPlayerDodgingFrequently,
+                IsPlayerAttackingFrequently = isPlayerAttackingFrequently,
+                IsPlayerGuardingFrequently = isPlayerGuardingFrequently,
+                IsPlayerRecoveringFrequently = isPlayerRecoveringFrequently,
+                WasHitRecently = wasHitRecently,
+                IsPoiseBroken = isPoiseBroken
+            };
 
-            var punishScore = 0.03f + punishChance * 0.45f;
-            if (isPlayerRecovering || isPlayerStaggered) punishScore += 0.45f;
-            if (isPlayerDodgingFrequently) punishScore += 0.18f;
-            if (isPlayerRecoveringFrequently) punishScore += 0.18f;
-            if (inAttackRange && actionDelayElapsed) punishScore += 0.22f;
-            if (!hasAvailableAttack || !actionDelayElapsed) punishScore *= 0.45f;
+            var weightsSO = ResolveIntentWeights(phase, behavior);
 
-            var counterScore = 0.04f + counterChance * 0.5f;
-            if (isPlayerAttacking && distance <= optimalDistance) counterScore += reactionChance * 0.45f + 0.16f;
-            if (tooClose && isPlayerAttacking) counterScore += 0.16f;
-            if (isPlayerAttackingFrequently) counterScore += 0.20f;
-            if (!actionDelayElapsed) counterScore *= 0.65f;
+            float attackScore, punishScore, counterScore, pressureScore, chaseScore;
+            float retreatScore, keepDistanceScore, defendScore, recoverScore;
 
-            var pressureScore = 0.12f + aggression * 0.24f + Mathf.Max(0f, circleWeight) * 0.22f;
-            if (!isPlayerAttacking && distance <= preferredRange + 1.5f) pressureScore += 0.16f;
-            if (isPlayerGuarding || isPlayerDodgingFrequently) pressureScore += 0.12f;
-            if (isPlayerGuardingFrequently) pressureScore += 0.14f;
-            if (!actionDelayElapsed) pressureScore += 0.10f;
-
-            var chaseScore = overPreferredRange ? 0.55f + aggression * 0.25f : 0.05f;
-            if (distance > optimalDistance + 1.5f) chaseScore += 0.18f;
-
-            var retreatScore = 0.02f + retreatChance * 0.42f;
-            if (tooClose) retreatScore += 0.35f;
-            if (wasHitRecently) retreatScore += 0.18f;
-            if (isPoiseBroken) retreatScore += 0.30f;
-            if (lowHealth) retreatScore += 0.18f;
-            if (isPlayerAttackingFrequently && tooClose) retreatScore += 0.12f;
-            if (timeSinceRetreat < minRetreatCooldown) retreatScore *= 0.35f;
-
-            var keepDistanceScore = 0.05f;
-            if (underPreferredRange) keepDistanceScore += 0.34f;
-            if (isPlayerAttacking && distance <= minDistance) keepDistanceScore += 0.20f;
-            if (isPlayerAttackingFrequently && distance <= optimalDistance) keepDistanceScore += 0.12f;
-            if (overPreferredRange) keepDistanceScore *= 0.45f;
-
-            var defendScore = 0.04f + guardChance * 0.38f;
-            if (_context?.HasGuardMotion == true && isPlayerAttacking && distance <= optimalDistance) defendScore += 0.30f;
-            if (wasHitRecently && !isPoiseBroken) defendScore += 0.12f;
-            if (isPlayerAttackingFrequently) defendScore += 0.16f;
-
-            var recoverScore = lowHealth ? 0.22f : 0.02f;
-            if (wasHitRecently && lowHealth) recoverScore += 0.18f;
-            if (tooClose || isPlayerAttacking) recoverScore *= 0.55f;
+            if (weightsSO != null)
+            {
+                attackScore       = IntentScoreComputer.Compute(weightsSO.attack,       in ctx);
+                punishScore       = IntentScoreComputer.Compute(weightsSO.punish,       in ctx);
+                counterScore      = IntentScoreComputer.Compute(weightsSO.counter,      in ctx);
+                pressureScore     = IntentScoreComputer.Compute(weightsSO.pressure,     in ctx);
+                chaseScore        = IntentScoreComputer.Compute(weightsSO.chase,        in ctx);
+                retreatScore      = IntentScoreComputer.Compute(weightsSO.retreat,      in ctx);
+                keepDistanceScore = IntentScoreComputer.Compute(weightsSO.keepDistance, in ctx);
+                defendScore       = IntentScoreComputer.Compute(weightsSO.defend,       in ctx);
+                recoverScore      = IntentScoreComputer.Compute(weightsSO.recover,      in ctx);
+            }
+            else
+            {
+                var s = LegacyIntentScoring.Compute(in ctx);
+                attackScore       = s.attack;
+                punishScore       = s.punish;
+                counterScore      = s.counter;
+                pressureScore     = s.pressure;
+                chaseScore        = s.chase;
+                retreatScore      = s.retreat;
+                keepDistanceScore = s.keepDistance;
+                defendScore       = s.defend;
+                recoverScore      = s.recover;
+            }
 
             ApplyPhaseWeights(
                 phase,
@@ -158,6 +169,18 @@ namespace UPlayGround.Component
                 ref keepDistanceScore,
                 ref defendScore,
                 ref recoverScore);
+
+            var groupBias = _context != null ? _context.CurrentGroupIntentBias : GroupIntentBias.Neutral;
+            WriteGroupDebugBlackboard(blackboard, groupBias);
+
+            ApplyGroupIntentBias(
+                groupBias,
+                ref attackScore,
+                ref punishScore,
+                ref counterScore,
+                ref pressureScore,
+                ref retreatScore,
+                ref keepDistanceScore);
 
             var rhythmPhase = ResolveRhythmPhase(actionDelayElapsed, attackScore, pressureScore, retreatScore, overPreferredRange);
 
@@ -209,6 +232,13 @@ namespace UPlayGround.Component
             _memory ??= GetComponent<EnemyTacticalMemory>();
             _context ??= GetComponent<EnemyAIContext>();
             _poise ??= GetComponent<PoiseStat>();
+        }
+
+        private static EnemyIntentWeightsSO ResolveIntentWeights(BehaviorPhase phase, EnemyBehaviorSO behavior)
+        {
+            if (phase != null && phase.intentWeightsOverride != null)
+                return phase.intentWeightsOverride;
+            return behavior != null ? behavior.intentWeights : null;
         }
 
         private void FillScores(
@@ -344,6 +374,36 @@ namespace UPlayGround.Component
             }
         }
 
+        private static void ApplyGroupIntentBias(
+            GroupIntentBias bias,
+            ref float attack,
+            ref float punish,
+            ref float counter,
+            ref float pressure,
+            ref float retreat,
+            ref float keepDistance)
+        {
+            attack *= Mathf.Max(0f, bias.AttackMultiplier);
+            punish *= Mathf.Max(0f, bias.PunishMultiplier);
+            counter *= Mathf.Max(0f, bias.CounterMultiplier);
+            pressure += bias.PressureBonus;
+            retreat += bias.RetreatBonus;
+            keepDistance += bias.KeepDistanceBonus;
+        }
+
+        private static void WriteGroupDebugBlackboard(Blackboard blackboard, GroupIntentBias bias)
+        {
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentAttackMultiplier, bias.AttackMultiplier);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentPunishMultiplier, bias.PunishMultiplier);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentCounterMultiplier, bias.CounterMultiplier);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentPressureBonus, bias.PressureBonus);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentKeepDistanceBonus, bias.KeepDistanceBonus);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentRetreatBonus, bias.RetreatBonus);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupBreatherRemainingTime, bias.BreatherRemainingTime);
+            blackboard.SetInt(EnemyBlackboardKeys.GroupFormationSlotIndex, bias.FormationSlotIndex);
+            blackboard.SetFloat(EnemyBlackboardKeys.GroupAggroFitness, bias.AggroFitness);
+        }
+
         private float GetScore(CombatIntent intent)
         {
             for (var i = 0; i < _scores.Length; i++)
@@ -361,10 +421,16 @@ namespace UPlayGround.Component
                 || lastIntent != intent.ToString())
                 return;
 
+            var maxRepeatPenaltyCount = intent is CombatIntent.Pressure or CombatIntent.KeepDistance or CombatIntent.Chase
+                ? 4
+                : 3;
+            var repeatBase = intent is CombatIntent.Pressure or CombatIntent.KeepDistance or CombatIntent.Chase
+                ? 0.65f
+                : 0.85f;
             var repeatCount = blackboard.TryGetInt(EnemyBlackboardKeys.DecisionConsecutiveIntentCount, out var count)
-                ? Mathf.Clamp(count, 1, 3)
+                ? Mathf.Clamp(count, 1, maxRepeatPenaltyCount)
                 : 1;
-            score *= Mathf.Pow(0.85f, repeatCount);
+            score *= Mathf.Pow(repeatBase, repeatCount);
         }
 
         private static string ResolveRhythmPhase(bool actionDelayElapsed, float attackScore, float pressureScore, float retreatScore, bool overPreferredRange)

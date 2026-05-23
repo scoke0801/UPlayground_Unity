@@ -255,6 +255,7 @@ namespace UPlayGround
             }
 
             GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, poiseBroken);
+            AIController?.Group?.Memory?.NotifyMemberTookDamage();
             _breakGauge?.TakeBreakDamage(attackData);
 
             // BreakExposed는 자체 상태/모션이 고정되므로 일반 리액션(물리·상태 전환)을 건너뛴다.

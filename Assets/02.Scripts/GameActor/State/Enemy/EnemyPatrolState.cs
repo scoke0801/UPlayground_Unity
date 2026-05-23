@@ -14,6 +14,7 @@ namespace UPlayGround.State
         public override string StateName => "Patrol";
         
         private EnemyAIContext _context;
+        private EnemyDetection _detection;
         
         private Vector3 _targetPosition;
         private float _patrolSpeed;
@@ -35,6 +36,7 @@ namespace UPlayGround.State
         public EnemyPatrolState(ActorMovementController controller, EnemyAIContext context) : base(controller)
         {
             _context = context;
+            _detection = controller.GetComponent<EnemyDetection>();
         }
 
         public override bool CanTransitionState(string stateName)
@@ -66,6 +68,12 @@ namespace UPlayGround.State
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
+                return;
+            }
+
+            if (_detection != null && _detection.HasTarget)
+            {
+                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
                 return;
             }
             

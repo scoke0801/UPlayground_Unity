@@ -80,5 +80,14 @@ namespace UPlayGround.AI.BehaviorTree
         public const string MinCombatDistance = "minCombatDistance";
         public const string PersonalSpaceDistance = "personalSpaceDistance";
         public const string CircleWeight = "circleWeight";
+        public const string GroupIntentAttackMultiplier = "Group.Intent.AttackMultiplier";
+        public const string GroupIntentPunishMultiplier = "Group.Intent.PunishMultiplier";
+        public const string GroupIntentCounterMultiplier = "Group.Intent.CounterMultiplier";
+        public const string GroupIntentPressureBonus = "Group.Intent.PressureBonus";
+        public const string GroupIntentKeepDistanceBonus = "Group.Intent.KeepDistanceBonus";
+        public const string GroupIntentRetreatBonus = "Group.Intent.RetreatBonus";
+        public const string GroupBreatherRemainingTime = "Group.BreatherRemainingTime";
+        public const string GroupFormationSlotIndex = "Group.FormationSlotIndex";
+        public const string GroupAggroFitness = "Group.AggroFitness";
     }
 }

@@ -28,6 +28,7 @@ namespace UPlayGround.State
         private float _flankSpeed;
         private float _flankTimer;
         private bool _hasReachedFlank;
+        private bool _usesFormationSlot;
         private AnimKey _lastLocoKey = AnimKey.None;
 
         private const float FLANK_SPEED_RATIO   = 1.1f;
@@ -58,6 +59,11 @@ namespace UPlayGround.State
             _flankSpeed      = controller.MaxRunMoveSpeed * FLANK_SPEED_RATIO;
 
             CalculateFlankTarget();
+            if (_context.TryGetFormationSlotPosition(FLANK_OFFSET_DIST, out var formationTarget))
+            {
+                _flankTarget = formationTarget;
+                _usesFormationSlot = true;
+            }
             _lastLocoKey = AnimKey.Run;
             gameActor.Animator.PlayMotion(AnimKey.Run, 0.2f);
         }
@@ -65,6 +71,8 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             base.OnExit(toState);
+            if (_usesFormationSlot)
+                _context.ReleaseFormationSlot();
         }
 
         /// <summary>
@@ -105,6 +113,8 @@ namespace UPlayGround.State
             }
 
             _flankTimer += deltaTime;
+            if (_usesFormationSlot)
+                _context.TryGetFormationSlotPosition(FLANK_OFFSET_DIST, out _flankTarget);
 
             float distToFlank = Vector3.Distance(
                 new Vector3(motor.TransientPosition.x, 0, motor.TransientPosition.z),

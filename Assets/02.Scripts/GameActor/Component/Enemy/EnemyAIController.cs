@@ -77,6 +77,11 @@ namespace UPlayGround.Component
         public bool  MaintainDistance       => data?.maintainDistance       ?? true;
         public override float ChaseStopDistance      => data?.chaseStopDistance      ?? 2.0f;
         public override float PersonalSpaceDistance  => data?.personalSpaceDistance  ?? 0.8f;
+        public override GroupIntentBias CurrentGroupIntentBias
+            => _groupController != null && _monster != null
+                ? _groupController.GetIntentBias(_monster, _myAttackType)
+                : GroupIntentBias.Neutral;
+        public override MonsterGroupMemory CurrentGroupMemory => _groupController != null ? _groupController.Memory : null;
 
         #region Mono & Init
         public void Init(EnemyBehaviorSO data)
@@ -94,6 +99,8 @@ namespace UPlayGround.Component
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
+            if (_detection != null)
+                _detection.OnTargetAcquiredExternally += HandleTargetAcquired;
             EnsureBehaviorTreeRunner();
 
         }
@@ -130,6 +137,8 @@ namespace UPlayGround.Component
 
         protected virtual void OnDestroy()
         {
+            if (_detection != null)
+                _detection.OnTargetAcquiredExternally -= HandleTargetAcquired;
         }
 
         protected virtual void Update()
@@ -140,6 +149,8 @@ namespace UPlayGround.Component
             {
                 if(_detection.HasTarget && _memory != null)
                     _memory.SetPlayerTarget(_detection.CurrentTarget);
+                if (_detection.HasTarget)
+                    _groupController?.Memory?.SetPlayerTarget(_detection.CurrentTarget);
             }
         }
 
@@ -156,6 +167,18 @@ namespace UPlayGround.Component
 
             if (isActiveAndEnabled && !_behaviorTreeRunner.IsRunning && !_behaviorTreeRunner.IsPaused)
                 _behaviorTreeRunner.StartTree();
+        }
+
+        private void HandleTargetAcquired()
+        {
+            if (_movementController == null || _detection == null || !_detection.HasTarget)
+                return;
+
+            var stateName = _movementController.CurrentState?.StateName;
+            if (stateName is not ("Idle" or "Patrol"))
+                return;
+
+            _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
         }
 
         #region 페이즈
@@ -191,6 +214,8 @@ namespace UPlayGround.Component
         {
             if (attackHit) _memory?.NotifyAttackLanded();
             else           _memory?.NotifyAttackMissed();
+            if (attackHit) _groupController?.Memory?.NotifyAttackLanded();
+            else           _groupController?.Memory?.NotifyAttackMissed();
 
             _actionCooldownTimer = 0f;
             RollNextActionDelay();
@@ -236,6 +261,20 @@ namespace UPlayGround.Component
                 return true;
 
             return _groupController.RequestAttackSlot(_monster, _myAttackType);
+        }
+
+        public override bool TryGetFormationSlotPosition(float radius, out Vector3 position)
+        {
+            position = default;
+            if (_groupController == null || _monster == null || _detection == null || !_detection.HasTarget)
+                return false;
+
+            return _groupController.TryGetFormationSlotPosition(
+                _monster,
+                _detection.CurrentTarget.position,
+                _detection.CurrentTarget.forward,
+                radius,
+                out position);
         }
 
         public override void NotifyBTAttackStarted()
@@ -289,7 +328,13 @@ namespace UPlayGround.Component
         public override void ReleaseGroupSlot()
         {
             if (_monster != null)
-                _groupController?.ReleaseAttackSlot(_monster);
+                _groupController?.NotifyMemberAttackEnded(_monster);
+        }
+
+        public override void ReleaseFormationSlot()
+        {
+            if (_monster != null)
+                _groupController?.ReleaseFormationSlot(_monster);
         }
 
         /// <summary> AerialBehaviorLayer가 페이즈 오버라이드 접근에 사용 </summary>

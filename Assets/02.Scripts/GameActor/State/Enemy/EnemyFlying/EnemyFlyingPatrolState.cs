@@ -49,8 +49,11 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 타겟 발견 이후의 전환은 BT가 처리
-            if (_brain.Detection.HasTarget) return;
+            if (_brain.Detection.HasTarget)
+            {
+                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                return;
+            }
 
             if (_isWaiting)
             {

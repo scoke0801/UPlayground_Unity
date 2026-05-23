@@ -50,6 +50,8 @@ namespace UPlayGround.Manager
         // ──── 런타임 상태 (내부는 string 키로 관리) ────
         private readonly Dictionary<string, QuestRuntimeData> _activeQuests     = new();
         private readonly HashSet<string>                      _completedQuestIds = new();
+        private readonly HashSet<string>                      _pendingAcceptQuestIds = new();
+        private readonly HashSet<string>                      _pendingReachedLocationIds = new();
 
         // DB 로드 전에 LoadGame()이 호출될 경우 보관
         private QuestSaveData _pendingLoad;
@@ -71,6 +73,8 @@ namespace UPlayGround.Manager
         {
             _activeQuests.Clear();
             _completedQuestIds.Clear();
+            _pendingAcceptQuestIds.Clear();
+            _pendingReachedLocationIds.Clear();
             if (_dbHandle.IsValid())
                 Addressables.Release(_dbHandle);
         }
@@ -103,6 +107,8 @@ namespace UPlayGround.Manager
 
                 if (_pendingLoad != null)
                     ApplyPendingLoad();
+
+                FlushPendingQuestRequests();
 
                 Debug.Log("[QuestManager] QuestDatabase 로드 완료");
             }
@@ -177,11 +183,17 @@ namespace UPlayGround.Manager
 
         private bool AcceptQuestById(string questId)
         {
-            if (!IsDBLoaded) return false;
             if (string.IsNullOrEmpty(questId))
             {
                 Debug.LogWarning("[QuestManager] AcceptQuest: questId가 비어있습니다. QuestIdType.None을 사용했나요?");
                 return false;
+            }
+
+            if (!IsDBLoaded)
+            {
+                _pendingAcceptQuestIds.Add(questId);
+                Debug.Log($"[QuestManager] DB 로드 전 퀘스트 수락 요청 보류: {questId}");
+                return true;
             }
 
             var questSO = _db.GetQuest(questId);
@@ -356,6 +368,15 @@ namespace UPlayGround.Manager
         /// </summary>
         public void NotifyLocationReached(string locationId)
         {
+            if (string.IsNullOrEmpty(locationId)) return;
+
+            if (!IsDBLoaded)
+            {
+                _pendingReachedLocationIds.Add(locationId);
+                Debug.Log($"[QuestManager] DB 로드 전 위치 도달 알림 보류: {locationId}");
+                return;
+            }
+
             var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
             foreach (var runtime in runtimes)
             {
@@ -539,6 +560,27 @@ namespace UPlayGround.Manager
             }
 
             Debug.Log($"[QuestManager] 로드 완료 — 완료: {_completedQuestIds.Count}개, 진행 중: {_activeQuests.Count}개");
+        }
+
+        private void FlushPendingQuestRequests()
+        {
+            if (_pendingAcceptQuestIds.Count > 0)
+            {
+                var questIds = new List<string>(_pendingAcceptQuestIds);
+                _pendingAcceptQuestIds.Clear();
+
+                foreach (var questId in questIds)
+                    AcceptQuestById(questId);
+            }
+
+            if (_pendingReachedLocationIds.Count > 0)
+            {
+                var locationIds = new List<string>(_pendingReachedLocationIds);
+                _pendingReachedLocationIds.Clear();
+
+                foreach (var locationId in locationIds)
+                    NotifyLocationReached(locationId);
+            }
         }
 
         #endregion

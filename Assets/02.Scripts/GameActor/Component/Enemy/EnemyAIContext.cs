@@ -39,13 +39,17 @@ namespace UPlayGround.Component
         public abstract float RetreatDistance { get; }
         public abstract float CircleDuration { get; }
         public abstract float GuardDuration { get; }
+        public abstract GroupIntentBias CurrentGroupIntentBias { get; }
+        public abstract MonsterGroupMemory CurrentGroupMemory { get; }
 
         public abstract bool CanUseSkill();
         public abstract bool TryRequestAttackSlot();
+        public abstract bool TryGetFormationSlotPosition(float radius, out Vector3 position);
         public abstract void NotifyBTAttackStarted();
         public abstract void UpdatePhase(float hpPercent);
         public abstract void DecidePostAttack(bool attackHit);
         public abstract Vector3 GetRandomPatrolPoint();
         public abstract void ReleaseGroupSlot();
+        public abstract void ReleaseFormationSlot();
     }
 }

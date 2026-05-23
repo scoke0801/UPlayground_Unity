@@ -19,6 +19,10 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("Intent 점수 보정에 사용하는 역할. 기본값 Melee는 기존 동작과 최대한 유사한 중립 보정이다.")]
         public EnemyAIRole aiRole = EnemyAIRole.Melee;
 
+        [Header("Intent Weights")]
+        [Tooltip("Intent 점수 계산에 사용할 가중치 SO. null이면 레거시 하드코딩 경로로 폴백 (기존 동작 유지)")]
+        public EnemyIntentWeightsSO intentWeights;
+
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;
         public float minCombatDistance      = 1.5f;

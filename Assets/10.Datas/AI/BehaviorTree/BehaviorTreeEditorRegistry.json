@@ -142,6 +142,15 @@
     { "key": "optimalCombatDistance", "type": 2, "label": "최적 교전 거리", "floatValue": 2.5 },
     { "key": "minCombatDistance", "type": 2, "label": "최소 교전 거리", "floatValue": 1.5 },
     { "key": "personalSpaceDistance", "type": 2, "label": "개인 공간 거리", "floatValue": 0.8 },
-    { "key": "circleWeight", "type": 2, "label": "원형 이동 가중치" }
+    { "key": "circleWeight", "type": 2, "label": "원형 이동 가중치" },
+    { "key": "Group.Intent.AttackMultiplier", "type": 2, "label": "그룹 공격 의도 배율", "floatValue": 1.0 },
+    { "key": "Group.Intent.PunishMultiplier", "type": 2, "label": "그룹 응징 의도 배율", "floatValue": 1.0 },
+    { "key": "Group.Intent.CounterMultiplier", "type": 2, "label": "그룹 반격 의도 배율", "floatValue": 1.0 },
+    { "key": "Group.Intent.PressureBonus", "type": 2, "label": "그룹 압박 의도 보너스" },
+    { "key": "Group.Intent.KeepDistanceBonus", "type": 2, "label": "그룹 거리 유지 의도 보너스" },
+    { "key": "Group.Intent.RetreatBonus", "type": 2, "label": "그룹 후퇴 의도 보너스" },
+    { "key": "Group.BreatherRemainingTime", "type": 2, "label": "그룹 브리더 잔여 시간" },
+    { "key": "Group.FormationSlotIndex", "type": 1, "label": "그룹 포메이션 슬롯 인덱스", "intValue": -1 },
+    { "key": "Group.AggroFitness", "type": 2, "label": "그룹 어그로 적합도" }
   ]
 }

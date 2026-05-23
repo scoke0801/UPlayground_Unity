@@ -120,7 +120,8 @@
       "Skill(generate-bt-json)",
       "WebFetch(domain:www.gamedeveloper.com)",
       "WebFetch(domain:gerlogu.com)",
-      "PowerShell(Get-Content *)"
+      "PowerShell(Get-Content *)",
+      "Bash(not exist *)"
     ]
   }
 }

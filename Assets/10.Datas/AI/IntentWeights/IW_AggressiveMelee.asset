@@ -1,0 +1,357 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782adebf3c7bbf649b036b04ad9103bb, type: 3}
+  m_Name: IW_AggressiveMelee
+  m_EditorClassIdentifier: 
+  attack:
+    baseScore: 0.18
+    baseContinuous:
+    - valueId: 1
+      coefficient: 0.55
+    bonuses:
+    - label: InAttackRange&Delay
+      mode: 0
+      terms:
+      - conditionId: 1
+        negate: 0
+      - conditionId: 12
+        negate: 0
+      amount: 0.55
+      continuous: []
+    - label: CanUseSkill
+      mode: 0
+      terms:
+      - conditionId: 13
+        negate: 0
+      amount: 0.08
+      continuous: []
+    - label: PlayerStaggered
+      mode: 0
+      terms:
+      - conditionId: 18
+        negate: 0
+      amount: 0.18
+      continuous: []
+    - label: PlayerRecoverFrequent
+      mode: 0
+      terms:
+      - conditionId: 23
+        negate: 0
+      amount: 0.1
+      continuous: []
+    multipliers:
+    - label: NoAttack|NotReady
+      mode: 1
+      terms:
+      - conditionId: 14
+        negate: 1
+      - conditionId: 12
+        negate: 1
+      factor: 0.55
+  punish:
+    baseScore: 0.03
+    baseContinuous:
+    - valueId: 3
+      coefficient: 0.45
+    bonuses:
+    - label: PlayerRecover|Stagger
+      mode: 1
+      terms:
+      - conditionId: 19
+        negate: 0
+      - conditionId: 18
+        negate: 0
+      amount: 0.55
+      continuous: []
+    - label: PlayerDodgeFrequent
+      mode: 0
+      terms:
+      - conditionId: 20
+        negate: 0
+      amount: 0.18
+      continuous: []
+    - label: PlayerRecoverFrequent
+      mode: 0
+      terms:
+      - conditionId: 23
+        negate: 0
+      amount: 0.18
+      continuous: []
+    - label: InAttackRange&Delay
+      mode: 0
+      terms:
+      - conditionId: 1
+        negate: 0
+      - conditionId: 12
+        negate: 0
+      amount: 0.3
+      continuous: []
+    multipliers:
+    - label: NoAttack|NotReady
+      mode: 1
+      terms:
+      - conditionId: 14
+        negate: 1
+      - conditionId: 12
+        negate: 1
+      factor: 0.45
+  counter:
+    baseScore: 0.04
+    baseContinuous:
+    - valueId: 4
+      coefficient: 0.5
+    bonuses:
+    - label: PlayerAttack&WithinOptimal
+      mode: 0
+      terms:
+      - conditionId: 16
+        negate: 0
+      - conditionId: 5
+        negate: 0
+      amount: 0.16
+      continuous:
+      - valueId: 2
+        coefficient: 0.45
+    - label: TooClose&PlayerAttack
+      mode: 0
+      terms:
+      - conditionId: 2
+        negate: 0
+      - conditionId: 16
+        negate: 0
+      amount: 0.16
+      continuous: []
+    - label: PlayerAttackFrequent
+      mode: 0
+      terms:
+      - conditionId: 21
+        negate: 0
+      amount: 0.2
+      continuous: []
+    multipliers:
+    - label: NotReady
+      mode: 0
+      terms:
+      - conditionId: 12
+        negate: 1
+      factor: 0.65
+  pressure:
+    baseScore: 0.18
+    baseContinuous:
+    - valueId: 1
+      coefficient: 0.32
+    - valueId: 7
+      coefficient: 0.22
+    bonuses:
+    - label: '!PlayerAttack&WithinPreferred'
+      mode: 0
+      terms:
+      - conditionId: 16
+        negate: 1
+      - conditionId: 6
+        negate: 0
+      amount: 0.16
+      continuous: []
+    - label: PlayerGuard|DodgeFrequent
+      mode: 1
+      terms:
+      - conditionId: 17
+        negate: 0
+      - conditionId: 20
+        negate: 0
+      amount: 0.12
+      continuous: []
+    - label: PlayerGuardFrequent
+      mode: 0
+      terms:
+      - conditionId: 22
+        negate: 0
+      amount: 0.14
+      continuous: []
+    - label: NotReady
+      mode: 0
+      terms:
+      - conditionId: 12
+        negate: 1
+      amount: 0.1
+      continuous: []
+    multipliers: []
+  chase:
+    baseScore: 0.05
+    baseContinuous: []
+    bonuses:
+    - label: OverPreferred
+      mode: 0
+      terms:
+      - conditionId: 4
+        negate: 0
+      amount: 0.5
+      continuous:
+      - valueId: 1
+        coefficient: 0.25
+    - label: FarFromOptimal
+      mode: 0
+      terms:
+      - conditionId: 8
+        negate: 0
+      amount: 0.18
+      continuous: []
+    multipliers: []
+  retreat:
+    baseScore: 0
+    baseContinuous:
+    - valueId: 5
+      coefficient: 0.25
+    bonuses:
+    - label: TooClose
+      mode: 0
+      terms:
+      - conditionId: 2
+        negate: 0
+      amount: 0.35
+      continuous: []
+    - label: WasHitRecently
+      mode: 0
+      terms:
+      - conditionId: 24
+        negate: 0
+      amount: 0.18
+      continuous: []
+    - label: PoiseBroken
+      mode: 0
+      terms:
+      - conditionId: 10
+        negate: 0
+      amount: 0.3
+      continuous: []
+    - label: LowHealth
+      mode: 0
+      terms:
+      - conditionId: 9
+        negate: 0
+      amount: 0.18
+      continuous: []
+    - label: PlayerAttackFreq&TooClose
+      mode: 0
+      terms:
+      - conditionId: 21
+        negate: 0
+      - conditionId: 2
+        negate: 0
+      amount: 0.12
+      continuous: []
+    multipliers:
+    - label: RetreatCooldown
+      mode: 0
+      terms:
+      - conditionId: 11
+        negate: 0
+      factor: 0.2
+  keepDistance:
+    baseScore: 0.05
+    baseContinuous: []
+    bonuses:
+    - label: UnderPreferred
+      mode: 0
+      terms:
+      - conditionId: 3
+        negate: 0
+      amount: 0.34
+      continuous: []
+    - label: PlayerAttack&WithinMin
+      mode: 0
+      terms:
+      - conditionId: 16
+        negate: 0
+      - conditionId: 7
+        negate: 0
+      amount: 0.2
+      continuous: []
+    - label: PlayerAttackFreq&WithinOptimal
+      mode: 0
+      terms:
+      - conditionId: 21
+        negate: 0
+      - conditionId: 5
+        negate: 0
+      amount: 0.12
+      continuous: []
+    multipliers:
+    - label: OverPreferred
+      mode: 0
+      terms:
+      - conditionId: 4
+        negate: 0
+      factor: 0.45
+  defend:
+    baseScore: 0.02
+    baseContinuous:
+    - valueId: 6
+      coefficient: 0.25
+    bonuses:
+    - label: GuardMotion&PlayerAttack&WithinOptimal
+      mode: 0
+      terms:
+      - conditionId: 15
+        negate: 0
+      - conditionId: 16
+        negate: 0
+      - conditionId: 5
+        negate: 0
+      amount: 0.3
+      continuous: []
+    - label: Hit&NotPoiseBroken
+      mode: 0
+      terms:
+      - conditionId: 24
+        negate: 0
+      - conditionId: 10
+        negate: 1
+      amount: 0.12
+      continuous: []
+    - label: PlayerAttackFrequent
+      mode: 0
+      terms:
+      - conditionId: 21
+        negate: 0
+      amount: 0.16
+      continuous: []
+    multipliers: []
+  recover:
+    baseScore: 0.02
+    baseContinuous: []
+    bonuses:
+    - label: LowHealth
+      mode: 0
+      terms:
+      - conditionId: 9
+        negate: 0
+      amount: 0.2
+      continuous: []
+    - label: Hit&LowHealth
+      mode: 0
+      terms:
+      - conditionId: 24
+        negate: 0
+      - conditionId: 9
+        negate: 0
+      amount: 0.18
+      continuous: []
+    multipliers:
+    - label: TooClose|PlayerAttack
+      mode: 1
+      terms:
+      - conditionId: 2
+        negate: 0
+      - conditionId: 16
+        negate: 0
+      factor: 0.55

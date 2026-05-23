@@ -70,6 +70,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return BTStatus.Failure;
             }
 
+            CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
             return BTStatus.Success;
         }
 

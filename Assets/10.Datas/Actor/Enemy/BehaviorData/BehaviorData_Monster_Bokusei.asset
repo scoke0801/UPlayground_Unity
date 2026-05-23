@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   behaviorTree: {fileID: 11400000, guid: 0104eeed10a6e994ba346a7280083b02, type: 2}
   aiRole: 0
+  intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
   optimalCombatDistance: 2.5
   minCombatDistance: 1.5
   maintainDistance: 1

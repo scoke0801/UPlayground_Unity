@@ -40,7 +40,9 @@ namespace UPlayGround.State
 
             gameActor.Animator.ApplyRootMotion(true);
 
-            var animState = gameActor.Animator.PlayMotion(AnimKey.Dodge, 0.25f);
+            AnimKey dodgeKey = ResolveDirectionalMotionKey(
+                AnimKey.Dodge_F, AnimKey.Dodge_B, AnimKey.Dodge_L, AnimKey.Dodge_R, AnimKey.Dodge);
+            var animState = gameActor.Animator.PlayMotion(dodgeKey, 0.25f);
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
         }

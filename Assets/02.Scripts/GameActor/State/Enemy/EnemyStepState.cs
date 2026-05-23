@@ -8,7 +8,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 짧은 스텝 회피 상태.
     /// Dodge보다 짧고 빠른 방향성 이동으로 압박 라인에서 살짝 빠지거나 옆걸음으로 각을 만든다.
-    /// 모션 우선순위: Step_F/B/L/R → Dodge_F/B/L/R → Dodge. 모두 없으면 EnemyActionResolver에서 진입을 차단한다.
+    /// 계산된 방향의 Step_F/B/L/R 모션이 있을 때만 실행한다.
     /// 무적은 부여하지 않고, BT는 차단한다.
     /// </summary>
     public class EnemyStepState : GameActorState
@@ -18,6 +18,7 @@ namespace UPlayGround.State
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
+        private readonly AnimKey _motionKey;
 
         private Vector3 _stepDirection;
         private float _stepTimer;
@@ -33,27 +34,49 @@ namespace UPlayGround.State
         public EnemyStepState(
             ActorMovementController controller,
             EnemyAIContext context,
-            EnemyDetection detection) : base(controller)
+            EnemyDetection detection,
+            Vector3 stepDirection,
+            AnimKey motionKey) : base(controller)
         {
             _context = context;
             _detection = detection;
+            _stepDirection = stepDirection.sqrMagnitude > 0.01f
+                ? stepDirection.normalized
+                : -controller.Actor.transform.forward;
+            _motionKey = motionKey;
         }
 
         /// <summary>
-        /// 이 액터가 Step 상태를 실행할 수 있는지 — Step_F/B/L/R 또는 Dodge 계열 모션이 하나라도 있어야 한다.
+        /// 이 액터가 Step 상태를 실행할 수 있는지 — Step_F/B/L/R 중 하나라도 있어야 한다.
         /// </summary>
         public static bool CanExecute(GameActor actor)
         {
             var animator = actor?.Animator;
             if (animator == null) return false;
-            if (animator.HasMotion(AnimKey.Step_F)
+            return animator.HasMotion(AnimKey.Step_F)
                 || animator.HasMotion(AnimKey.Step_B)
                 || animator.HasMotion(AnimKey.Step_L)
-                || animator.HasMotion(AnimKey.Step_R))
-            {
-                return true;
-            }
-            return EnemyDodgeState.CanExecute(actor);
+                || animator.HasMotion(AnimKey.Step_R);
+        }
+
+        public static bool TryResolveStepMotion(
+            GameActor actor,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            Vector3 actorPosition,
+            out Vector3 stepDirection,
+            out AnimKey motionKey)
+        {
+            stepDirection = CalculateStepDirection(actor, context, detection, actorPosition);
+            motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(
+                stepDirection,
+                actor.transform,
+                AnimKey.Step_F,
+                AnimKey.Step_B,
+                AnimKey.Step_L,
+                AnimKey.Step_R);
+
+            return actor.Animator != null && actor.Animator.HasMotion(motionKey);
         }
 
         public override bool CanTransitionState(string stateName)
@@ -69,43 +92,16 @@ namespace UPlayGround.State
             _motionEnded = false;
             _movementDuration = STEP_DURATION;
             _motionLockDuration = FALLBACK_STEP_LOCK_DURATION;
-            _stepDirection = CalculateStepDirection();
 
-            // Step 방향성 → Dodge 방향성 → Dodge → 가용한 다른 방향성 순으로 폴백.
-            // CanExecute가 최소 1개 보유를 보장하므로 None이 반환되지 않는다.
-            AnimKey stepKey = EnemyLocomotionHelper.ResolveDirectionalKey(
-                _stepDirection,
-                gameActor.transform,
-                AnimKey.Step_F,
-                AnimKey.Step_B,
-                AnimKey.Step_L,
-                AnimKey.Step_R);
-
-            AnimKey dodgeKey = EnemyLocomotionHelper.ResolveDirectionalKey(
-                _stepDirection,
-                gameActor.transform,
-                AnimKey.Dodge_F,
-                AnimKey.Dodge_B,
-                AnimKey.Dodge_L,
-                AnimKey.Dodge_R);
-
-            AnimKey motionKey = EnemyLocomotionHelper.PickFirstAvailable(
-                gameActor.Animator,
-                stepKey,
-                dodgeKey,
-                AnimKey.Dodge,
-                AnimKey.Step_B, AnimKey.Step_L, AnimKey.Step_R, AnimKey.Step_F,
-                AnimKey.Dodge_B, AnimKey.Dodge_L, AnimKey.Dodge_R, AnimKey.Dodge_F);
-
-            if (motionKey != AnimKey.None)
+            if (_motionKey != AnimKey.None)
             {
-                var duration = gameActor.Animator.GetMotionSetDuration(motionKey);
+                var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
                 _motionLockDuration = duration > 0f
-                    ? Mathf.Max(STEP_DURATION, duration)
+                    ? Mathf.Max(_movementDuration, duration)
                     : FALLBACK_STEP_LOCK_DURATION;
 
                 gameActor.Animator.OnMotionSetCompleted += OnStepMotionCompleted;
-                gameActor.Animator.PlayMotion(motionKey, 0.05f);
+                gameActor.Animator.PlayMotion(_motionKey, 0.05f);
             }
             else
             {
@@ -186,10 +182,9 @@ namespace UPlayGround.State
                 targetVelocity,
                 motor.GroundingStatus.GroundNormal) * targetVelocity.magnitude;
 
-            currentVelocity = Vector3.Lerp(
-                currentVelocity,
-                targetVelocity,
-                1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            var verticalVelocity = currentVelocity.y;
+            currentVelocity = targetVelocity;
+            currentVelocity.y = verticalVelocity;
         }
 
         public override void OnMovementHit(
@@ -204,25 +199,29 @@ namespace UPlayGround.State
 
             _stepDirection = Vector3.ProjectOnPlane(_stepDirection, hitNormal).normalized;
             if (_stepDirection.sqrMagnitude <= 0.01f)
-                _stepDirection = CalculateStepDirection();
+                _stepDirection = CalculateStepDirection(gameActor, _context, _detection, motor.TransientPosition);
         }
 
-        private Vector3 CalculateStepDirection()
+        private static Vector3 CalculateStepDirection(
+            GameActor actor,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            Vector3 actorPosition)
         {
-            if (!_detection.HasTarget)
-                return -gameActor.transform.forward;
+            if (actor == null || detection == null || !detection.HasTarget)
+                return actor != null ? -actor.transform.forward : Vector3.back;
 
-            var toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+            var toTarget = detection.CurrentTarget.position - actorPosition;
             toTarget.y = 0f;
             if (toTarget.sqrMagnitude <= 0.01f)
-                return -gameActor.transform.forward;
+                return -actor.transform.forward;
 
             var dirToTarget = toTarget.normalized;
             var side = Random.value > 0.5f ? 1f : -1f;
             var lateral = Vector3.Cross(Vector3.up, dirToTarget).normalized * side;
 
             // Step은 Dodge보다 측면 비중을 더 키운다 (짧게 옆걸음 위주)
-            var tooClose = _detection.DistanceToTarget <= _context.PersonalSpaceDistance + 0.4f;
+            var tooClose = context != null && detection.DistanceToTarget <= context.PersonalSpaceDistance + 0.4f;
             var away = -dirToTarget;
             var direction = tooClose
                 ? away * 0.5f + lateral * 0.5f

@@ -7,8 +7,8 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// 액션성 회피 상태.
-    /// 짧은 무적 시간 동안 타겟 공격 축에서 벗어나며, 방향성 Dodge(Dodge_F/B/L/R) → Dodge 순으로 모션을 선택한다.
-    /// 둘 다 정의되지 않은 액터는 이 상태로 진입할 수 없다(EnemyActionResolver에서 차단).
+    /// 짧은 무적 시간 동안 타겟 공격 축에서 벗어난다.
+    /// 계산된 방향의 Dodge_F/B/L/R 모션을 우선 사용하고, 없으면 기본 Dodge 모션으로 실행한다.
     /// </summary>
     public class EnemyDodgeState : GameActorState
     {
@@ -19,6 +19,7 @@ namespace UPlayGround.State
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
+        private readonly AnimKey _motionKey;
 
         private Vector3 _dodgeDirection;
         private float _dodgeTimer;
@@ -26,13 +27,13 @@ namespace UPlayGround.State
         private float _motionLockDuration;
         private float _movementDuration;
 
-        private const float DODGE_DURATION = 0.35f;
+        private const float DODGE_DURATION = 0.32f;
         private const float FALLBACK_DODGE_LOCK_DURATION = 0.45f;
-        private const float DODGE_SPEED_RATIO = 1.85f;
+        private const float DODGE_SPEED_RATIO = 1.55f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
 
         /// <summary>
-        /// 이 액터가 Dodge 상태를 실행할 수 있는지 — Dodge_F/B/L/R 또는 Dodge 모션이 하나라도 있어야 한다.
+        /// 이 액터가 Dodge 상태를 실행할 수 있는지 — Dodge_F/B/L/R 또는 기본 Dodge 모션이 있어야 한다.
         /// </summary>
         public static bool CanExecute(GameActor actor)
         {
@@ -45,13 +46,46 @@ namespace UPlayGround.State
                 || animator.HasMotion(AnimKey.Dodge);
         }
 
+        public static bool TryResolveDodgeMotion(
+            GameActor actor,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            Vector3 actorPosition,
+            out Vector3 dodgeDirection,
+            out AnimKey motionKey)
+        {
+            dodgeDirection = CalculateDodgeDirection(actor, context, detection, actorPosition);
+            motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(
+                dodgeDirection,
+                actor.transform,
+                AnimKey.Dodge_F,
+                AnimKey.Dodge_B,
+                AnimKey.Dodge_L,
+                AnimKey.Dodge_R);
+
+            if (actor.Animator == null)
+                return false;
+
+            if (actor.Animator.HasMotion(motionKey))
+                return true;
+
+            motionKey = AnimKey.Dodge;
+            return actor.Animator.HasMotion(motionKey);
+        }
+
         public EnemyDodgeState(
             ActorMovementController controller,
             EnemyAIContext context,
-            EnemyDetection detection) : base(controller)
+            EnemyDetection detection,
+            Vector3 dodgeDirection,
+            AnimKey motionKey) : base(controller)
         {
             _context = context;
             _detection = detection;
+            _dodgeDirection = dodgeDirection.sqrMagnitude > 0.01f
+                ? dodgeDirection.normalized
+                : -controller.Actor.transform.forward;
+            _motionKey = motionKey;
         }
 
         public override bool CanTransitionState(string stateName)
@@ -67,36 +101,16 @@ namespace UPlayGround.State
             _motionEnded = false;
             _movementDuration = DODGE_DURATION;
             _motionLockDuration = FALLBACK_DODGE_LOCK_DURATION;
-            _dodgeDirection = CalculateDodgeDirection();
 
-            // 방향성 키 우선 → Dodge → 가용한 다른 방향성 순으로 폴백.
-            // CanExecute가 최소 1개 보유를 보장하므로 None이 반환되지 않는다.
-            AnimKey directionalKey = EnemyLocomotionHelper.ResolveDirectionalKey(
-                _dodgeDirection,
-                gameActor.transform,
-                AnimKey.Dodge_F,
-                AnimKey.Dodge_B,
-                AnimKey.Dodge_L,
-                AnimKey.Dodge_R);
-
-            AnimKey motionKey = EnemyLocomotionHelper.PickFirstAvailable(
-                gameActor.Animator,
-                directionalKey,
-                AnimKey.Dodge,
-                AnimKey.Dodge_B,
-                AnimKey.Dodge_L,
-                AnimKey.Dodge_R,
-                AnimKey.Dodge_F);
-
-            if (motionKey != AnimKey.None)
+            if (_motionKey != AnimKey.None)
             {
-                var duration = gameActor.Animator.GetMotionSetDuration(motionKey);
+                var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
                 _motionLockDuration = duration > 0f
                     ? Mathf.Max(DODGE_DURATION, duration)
                     : FALLBACK_DODGE_LOCK_DURATION;
 
                 gameActor.Animator.OnMotionSetCompleted += OnDodgeMotionCompleted;
-                gameActor.Animator.PlayMotion(motionKey, 0.05f);
+                gameActor.Animator.PlayMotion(_motionKey, 0.05f);
             }
             else
             {
@@ -177,10 +191,9 @@ namespace UPlayGround.State
                 targetVelocity,
                 motor.GroundingStatus.GroundNormal) * targetVelocity.magnitude;
 
-            currentVelocity = Vector3.Lerp(
-                currentVelocity,
-                targetVelocity,
-                1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            var verticalVelocity = currentVelocity.y;
+            currentVelocity = targetVelocity;
+            currentVelocity.y = verticalVelocity;
         }
 
         public override void OnMovementHit(
@@ -195,25 +208,29 @@ namespace UPlayGround.State
 
             _dodgeDirection = Vector3.ProjectOnPlane(_dodgeDirection, hitNormal).normalized;
             if (_dodgeDirection.sqrMagnitude <= 0.01f)
-                _dodgeDirection = CalculateDodgeDirection();
+                _dodgeDirection = CalculateDodgeDirection(gameActor, _context, _detection, motor.TransientPosition);
         }
 
-        private Vector3 CalculateDodgeDirection()
+        private static Vector3 CalculateDodgeDirection(
+            GameActor actor,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            Vector3 actorPosition)
         {
-            if (!_detection.HasTarget)
-                return -gameActor.transform.forward;
+            if (actor == null || detection == null || !detection.HasTarget)
+                return actor != null ? -actor.transform.forward : Vector3.back;
 
-            var toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+            var toTarget = detection.CurrentTarget.position - actorPosition;
             toTarget.y = 0f;
             if (toTarget.sqrMagnitude <= 0.01f)
-                return -gameActor.transform.forward;
+                return -actor.transform.forward;
 
             var dirToTarget = toTarget.normalized;
             var away = -dirToTarget;
             var side = Random.value > 0.5f ? 1f : -1f;
             var lateral = Vector3.Cross(Vector3.up, dirToTarget).normalized * side;
 
-            var tooClose = _detection.DistanceToTarget <= _context.PersonalSpaceDistance + 0.4f;
+            var tooClose = context != null && detection.DistanceToTarget <= context.PersonalSpaceDistance + 0.4f;
             var direction = tooClose
                 ? away * 0.75f + lateral * 0.25f
                 : lateral * 0.8f + away * 0.2f;

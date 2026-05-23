@@ -95,5 +95,30 @@ namespace UPlayGround.State
         {
             playerController = controller as PlayerMovementController;
         }
+
+        /// <summary>
+        /// 이동 입력 방향을 캐릭터 기준 4방향(F/B/L/R)으로 분류해 해당 모션 키를 반환.
+        /// 매칭되는 모션이 없거나 입력이 없으면 fallbackKey 반환.
+        /// </summary>
+        protected AnimKey ResolveDirectionalMotionKey(
+            AnimKey forwardKey, AnimKey backKey, AnimKey leftKey, AnimKey rightKey, AnimKey fallbackKey)
+        {
+            var animator = gameActor?.Animator;
+            if (animator == null)
+                return fallbackKey;
+
+            if (playerController == null || playerController.HasMoveInput() == false)
+                return animator.HasMotion(forwardKey, true) ? forwardKey : fallbackKey;
+
+            Vector3 input = playerController.MoveInputVector.normalized;
+            float forwardDot = Vector3.Dot(input, motor.CharacterForward);
+            float rightDot   = Vector3.Dot(input, motor.CharacterRight);
+
+            AnimKey candidate = Mathf.Abs(forwardDot) >= Mathf.Abs(rightDot)
+                ? (forwardDot >= 0f ? forwardKey : backKey)
+                : (rightDot   >= 0f ? rightKey   : leftKey);
+
+            return animator.HasMotion(candidate, true) ? candidate : fallbackKey;
+        }
     }
 }

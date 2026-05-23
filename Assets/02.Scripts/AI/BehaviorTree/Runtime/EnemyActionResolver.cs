@@ -185,11 +185,23 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (!EnemyDodgeState.CanExecute(controller.Actor))
             {
-                failureReason = "Dodge 모션(Dodge_F/B/L/R 또는 Dodge)이 정의되지 않았습니다.";
+                failureReason = "Dodge 모션(Dodge 또는 Dodge_F/B/L/R)이 정의되지 않았습니다.";
                 return null;
             }
 
-            return new EnemyDodgeState(controller, aiContext, detection);
+            if (!EnemyDodgeState.TryResolveDodgeMotion(
+                    controller.Actor,
+                    aiContext,
+                    detection,
+                    controller.Motor.TransientPosition,
+                    out var dodgeDirection,
+                    out var dodgeMotionKey))
+            {
+                failureReason = $"계산된 Dodge 방향 모션과 기본 Dodge 모션이 없습니다. motion={dodgeMotionKey}";
+                return null;
+            }
+
+            return new EnemyDodgeState(controller, aiContext, detection, dodgeDirection, dodgeMotionKey);
         }
 
         private static GameActorState CreateStepState(
@@ -207,11 +219,23 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (!EnemyStepState.CanExecute(controller.Actor))
             {
-                failureReason = "Step 모션(Step_F/B/L/R 또는 Dodge 계열)이 정의되지 않았습니다.";
+                failureReason = "Step 방향성 모션(Step_F/B/L/R)이 정의되지 않았습니다.";
                 return null;
             }
 
-            return new EnemyStepState(controller, aiContext, detection);
+            if (!EnemyStepState.TryResolveStepMotion(
+                    controller.Actor,
+                    aiContext,
+                    detection,
+                    controller.Motor.TransientPosition,
+                    out var stepDirection,
+                    out var stepMotionKey))
+            {
+                failureReason = $"계산된 Step 방향 모션이 없습니다. motion={stepMotionKey}";
+                return null;
+            }
+
+            return new EnemyStepState(controller, aiContext, detection, stepDirection, stepMotionKey);
         }
 
         private static GameActorState CreateGuardState(

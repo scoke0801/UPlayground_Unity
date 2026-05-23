@@ -8,8 +8,8 @@ using UPlayGround.MovementController;
 namespace UPlayGround.State
 {
     /// <summary>
-    /// 타겟과 너무 붙었거나 압박 루프를 끊어야 할 때 쓰는 장거리 후방 점프.
-    /// 일반 Retreat보다 빠르게 거리를 벌리고 착지 후 BT가 다음 패턴을 고르게 한다.
+    /// 타겟과 너무 붙었거나 압박 루프를 끊어야 할 때 쓰는 짧은 후방 점프.
+    /// 일반 Retreat보다 빠르게 압박만 끊고 착지 후 BT가 다음 패턴을 고르게 한다.
     /// </summary>
     public class EnemyJumpBackState : GameActorState
     {
@@ -30,11 +30,12 @@ namespace UPlayGround.State
 
         private const float MIN_DURATION = 0.32f;
         private const float MAX_DURATION = 1.15f;
-        private const float HORIZONTAL_SPEED_RATIO = 2.25f;
-        private const float JUMP_SPEED_RATIO = 0.62f;
+        private const float HORIZONTAL_SPEED_RATIO = 1.45f;
+        private const float JUMP_SPEED_RATIO = 0.78f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
         private const float LOCK_ON_SAFE_DISTANCE_FALLBACK = 12f;
         private const float TARGET_DISTANCE_SAFETY_MARGIN = 0.75f;
+        private const float TARGET_DISTANCE_EXTRA_MARGIN = 1.1f;
 
         public EnemyJumpBackState(
             ActorMovementController controller,
@@ -184,6 +185,13 @@ namespace UPlayGround.State
         private float ResolveMaxSafeTargetDistance()
         {
             var safeDistance = LOCK_ON_SAFE_DISTANCE_FALLBACK;
+            if (_context != null)
+            {
+                var tacticalDistance = Mathf.Max(
+                    _context.OptimalCombatDistance + TARGET_DISTANCE_EXTRA_MARGIN,
+                    _context.PersonalSpaceDistance + TARGET_DISTANCE_EXTRA_MARGIN);
+                safeDistance = Mathf.Min(safeDistance, tacticalDistance);
+            }
 
             if (_detection != null)
                 safeDistance = Mathf.Min(

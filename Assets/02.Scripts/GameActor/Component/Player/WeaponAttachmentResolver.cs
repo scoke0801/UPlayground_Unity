@@ -167,11 +167,13 @@ namespace UPlayGround.Component
                 if (constraint == null)
                     continue;
 
-                if (GuessEquipPosition(constraint, weaponType) != equipPosition)
-                    continue;
-
+                // constraint 이름이 weapon type과 정확히 매칭되면 GuessEquipPosition 추정을 우회한다.
+                // source bone 이름(예: "Hand_L")이 합쳐져 "handl"로 LeftHand 오판되는 케이스 대응.
                 if (MatchesExactWeaponType(constraint, weaponType))
                     return constraint;
+
+                if (GuessEquipPosition(constraint, weaponType) != equipPosition)
+                    continue;
 
                 if (alias == null && MatchesWeaponAlias(constraint, weaponType, definitions))
                     alias = constraint;

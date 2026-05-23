@@ -8,7 +8,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public partial class BehaviorTreeEditorWindow : EditorWindow
     {
-        private const double DebugRefreshInterval = 0.05d;
+        private const double DebugRefreshInterval = 0.15d;
         private const int BreadcrumbMaxDepth = 12;
 
         private BehaviorTreeAsset _tree;
@@ -22,12 +22,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private VisualElement _variablesPanel;
         private VisualElement _errorsPanel;
         private VisualElement _tracePanel;
+        private VisualElement _timelinePanel;
         private VisualElement _searchPanel;
         private VisualElement _traceBox;
         private ToolbarToggle _inspectorTab;
         private ToolbarToggle _variablesTab;
         private ToolbarToggle _errorsTab;
         private ToolbarToggle _traceTab;
+        private ToolbarToggle _timelineTab;
         private ToolbarToggle _searchTab;
         private Label _errorCountLabel;
         private Label _debugStateLabel;
@@ -36,6 +38,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private Label _runtimeBanner;
         private VisualElement _breadcrumbBar;
         private BehaviorTreeSearchPanel _searchPanelView;
+        private IntentScoreTimelineView _timelineView;
         private BehaviorTreeMiniMapView _miniMapView;
         private ToolbarToggle _miniMapToggle;
         private ObjectField _treeField;
@@ -59,6 +62,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Variables,
             Errors,
             Trace,
+            Timeline,
             Search
         }
 
@@ -137,6 +141,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _runnerField?.SetValueWithoutNotify(candidate);
             ResetDebugUiCache();
             _blackboardView?.SetDebugRunner(_debugRunner);
+            _timelineView?.SetDebugRunner(_debugRunner);
             RefreshDebugState();
         }
 
@@ -219,6 +224,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     _runnerField?.SetValueWithoutNotify(runner);
                     ResetDebugUiCache();
                     _blackboardView?.SetDebugRunner(_debugRunner);
+                    _timelineView?.SetDebugRunner(_debugRunner);
                     RefreshDebugState();
                 }
             }
@@ -258,6 +264,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             AssetDatabase.SaveAssets();
             ValidateTree();
+        }
+
+        private void LoadReplayJson()
+        {
+            var replay = EncounterReplayLoader.LoadFromFilePanel();
+            if (replay == null)
+                return;
+
+            SelectPropertyTab(PropertyTab.Timeline);
+            _timelineView?.SetReplay(replay);
         }
 
         private void ValidateTree()

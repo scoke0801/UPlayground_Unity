@@ -116,9 +116,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (!debugActive && !graphNeedsClear && !debugStateChanged)
                 return;
 
+            if (debugActive && _debugRunner.State == BehaviorTreeRunnerState.Running && !debugStateChanged && now < _nextDebugRefreshTime)
+                return;
+
             if (debugActive && !traceChanged && !debugStateChanged)
             {
-                if (_debugRunner.State != BehaviorTreeRunnerState.Running || now < _nextDebugRefreshTime)
+                if (_debugRunner.State != BehaviorTreeRunnerState.Running)
                     return;
             }
 
@@ -131,8 +134,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (debugActive || graphNeedsClear || traceChanged)
             {
                 _graphView.UpdateDebugState(runtimeTree, trace);
-                _miniMapView?.MarkDirtyRepaint();
-                _blackboardView?.MarkDirtyRepaint();
+                if (_miniMapView != null && _miniMapToggle?.value == true)
+                    _miniMapView.MarkDirtyRepaint();
+                if (_activeTab == PropertyTab.Variables)
+                    _blackboardView?.MarkDirtyRepaint();
+                if (_activeTab == PropertyTab.Timeline)
+                    _timelineView?.RefreshIfNeeded();
             }
             FocusBreakpointNodeIfNeeded();
             UpdateBreadcrumb(debugActive);

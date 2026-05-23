@@ -66,10 +66,12 @@ namespace UPlayGround.AI.BehaviorTree
             var request = CreateRequest();
             if (!EnemyActionResolver.TryTransition(Context, request, _skipIfAlreadyInState, out var failureReason))
             {
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, failureReason ?? string.Empty);
                 Context?.DebugTrace?.Record(this, "RequestActionFailure", BTStatus.Failure, failureReason);
                 return BTStatus.Failure;
             }
 
+            Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, string.Empty);
             CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
             return BTStatus.Success;
         }
@@ -102,29 +104,41 @@ namespace UPlayGround.AI.BehaviorTree
             var request = CreateRequest();
             if (EnemyActionResolver.IsTransitionBlockedByActionLock(controller.CurrentState, request, out var lockReason))
             {
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, lockReason ?? string.Empty);
                 Context?.DebugTrace?.Record(this, "RequestAttackBlocked", BTStatus.Failure, lockReason);
                 return BTStatus.Failure;
             }
 
             if (!EnemyActionResolver.IsCooldownReady(Context, _cooldownId))
+            {
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, $"쿨다운이 준비되지 않았습니다. cooldownId={_cooldownId}");
                 return BTStatus.Failure;
+            }
 
             var combat = Context.GetComponentCached<EnemyCombat>();
             var aiContext = Context.GetComponentCached<EnemyAIContext>();
             var detection = Context.GetComponentCached<EnemyDetection>();
             if (combat == null || aiContext == null || detection == null || !detection.HasTarget)
+            {
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, "공격 요청에 필요한 Combat/AIContext/Detection/Target이 없습니다.");
                 return BTStatus.Failure;
+            }
 
             if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget, _attackCategory))
+            {
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, $"현재 거리에서 사용 가능한 공격이 없습니다. distance={detection.DistanceToTarget:0.00}, category={_attackCategory}");
                 return BTStatus.Failure;
+            }
 
             if (!aiContext.TryRequestAttackSlot())
             {
                 Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, "공격 슬롯을 확보하지 못했습니다.");
                 return BTStatus.Failure;
             }
 
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
+            Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, string.Empty);
             combat.ReserveAttackCategory(_attackCategory);
             aiContext.NotifyBTAttackStarted();
             controller.TransitionToState(new EnemyAttackState(controller, combat, aiContext, detection));

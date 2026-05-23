@@ -1,5 +1,7 @@
 using UPlayGround.AI.CombatDecision;
+using UPlayGround.AI.Debugging;
 using UPlayGround.Component;
+using UnityEngine;
 
 namespace UPlayGround.AI.BehaviorTree
 {
@@ -27,6 +29,8 @@ namespace UPlayGround.AI.BehaviorTree
                 return;
 
             CombatIntentBlackboardSnapshot.From(evaluation).WriteTo(Context.Blackboard);
+            Context.GetComponentCached<IntentScoreTimeline>()?.Record(evaluation, Time.time, Context.Blackboard);
+            Context.GetComponentCached<EncounterReplayRecorder>()?.RecordFrame(evaluation, Context.Blackboard);
 
             Context.DebugTrace?.Record(
                 this,

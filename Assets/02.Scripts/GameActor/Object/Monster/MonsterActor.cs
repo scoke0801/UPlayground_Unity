@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.AI.Debugging;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
@@ -326,6 +327,7 @@ namespace UPlayGround
 
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
+            GetComponent<EncounterReplayRecorder>()?.EndAndSave("death", "몬스터 사망");
             AIController?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 

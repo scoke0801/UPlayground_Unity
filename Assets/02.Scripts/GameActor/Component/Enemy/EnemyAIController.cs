@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.AI.BehaviorTree;
+using UPlayGround.AI.Debugging;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
@@ -97,6 +98,12 @@ namespace UPlayGround.Component
             _combat             ??= GetComponent<EnemyCombat>();
             _memory             ??= GetComponent<EnemyTacticalMemory>();
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
+#if UNITY_EDITOR
+            if (GetComponent<IntentScoreTimeline>() == null)
+                gameObject.AddComponent<IntentScoreTimeline>();
+            if (GetComponent<EncounterReplayRecorder>() == null)
+                gameObject.AddComponent<EncounterReplayRecorder>();
+#endif
             _monster             = GetComponent<MonsterActor>();
             _spawnPosition       = transform.position;
             if (_detection != null)

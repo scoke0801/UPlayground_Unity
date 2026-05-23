@@ -63,6 +63,7 @@ namespace UPlayGround.Component
         /// EnemyAIController이 구독해서 즉시 Chase로 전환한다.
         /// </summary>
         public event System.Action OnTargetAcquiredExternally;
+        public event System.Action OnTargetLost;
         
         private void UpdateDetection()
         {
@@ -161,11 +162,16 @@ namespace UPlayGround.Component
             Debug.Log($"[EnemyDetection] 타겟 상실: {_currentTarget?.name}");
             _currentTarget = null;
             _targetAcquiredExternally = false;
+            OnTargetLost?.Invoke();
         }
 
         public void ForceResetTarget()
         {
+            bool hadTarget = _currentTarget != null;
             _currentTarget = null;
+            _targetAcquiredExternally = false;
+            if (hadTarget)
+                OnTargetLost?.Invoke();
         }
             
         #region Ally Detection

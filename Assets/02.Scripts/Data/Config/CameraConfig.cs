@@ -15,6 +15,7 @@ namespace UPlayGround.Data.Config
 //             "Default",
             "Npc",
             "Projectile",
+            "Trigger"
         };
 
         public static readonly LayerMask LockOnOutlineLayerMask = LayerMask.NameToLayer("LockOnOutline");

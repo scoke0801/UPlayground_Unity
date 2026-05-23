@@ -87,6 +87,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 _autoDetectedRunner = false;
                 ResetDebugUiCache();
                 _blackboardView?.SetDebugRunner(_debugRunner);
+                _timelineView?.SetDebugRunner(_debugRunner);
                 RefreshDebugState();
             });
             debugToolbar.Add(CreateToolbarLabel("Debug Runner"));
@@ -95,6 +96,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             debugToolbar.Add(CreateToolbarButton("Pause", () => _debugRunner?.PauseTree(), ToolbarButtonStyle.Ghost));
             debugToolbar.Add(CreateToolbarButton("Step", () => _debugRunner?.StepTick(), ToolbarButtonStyle.Ghost));
             debugToolbar.Add(CreateToolbarButton("Stop", () => _debugRunner?.StopTree(), ToolbarButtonStyle.Danger));
+            debugToolbar.Add(CreateToolbarSeparator());
+            debugToolbar.Add(CreateToolbarButton("Load Replay", LoadReplayJson, ToolbarButtonStyle.Ghost));
             debugToolbar.Add(new ToolbarSpacer { style = { flexGrow = 1 } });
             _debugStateLabel = CreateStatusBadge("Stopped", new Color(0.30f, 0.30f, 0.30f));
             debugToolbar.Add(_debugStateLabel);
@@ -127,6 +130,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _graphView.PopulateView(_tree);
             _blackboardView.Bind(_tree);
             _blackboardView.SetDebugRunner(_debugRunner);
+            _timelineView.SetDebugRunner(_debugRunner);
             RefreshGraphTitle();
             RefreshDebugState();
             ValidateTree();
@@ -271,11 +275,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _variablesTab = CreatePropertyTab("Variables", PropertyTab.Variables);
             _errorsTab = CreatePropertyTab("Errors", PropertyTab.Errors);
             _traceTab = CreatePropertyTab("Trace", PropertyTab.Trace);
+            _timelineTab = CreatePropertyTab("Timeline", PropertyTab.Timeline);
             _searchTab = CreatePropertyTab("Search", PropertyTab.Search);
             tabs.Add(_inspectorTab);
             tabs.Add(_variablesTab);
             tabs.Add(_errorsTab);
             tabs.Add(_traceTab);
+            tabs.Add(_timelineTab);
             tabs.Add(_searchTab);
             panel.Add(tabs);
 
@@ -309,6 +315,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _traceBox.style.flexGrow = 1;
             traceScroll.Add(_traceBox);
             _tracePanel = traceScroll;
+
+            _timelineView = new IntentScoreTimelineView();
+            _timelineView.SetDebugRunner(_debugRunner);
+            _timelinePanel = _timelineView;
 
             _searchPanelView = new BehaviorTreeSearchPanel(node =>
             {
@@ -381,11 +391,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _variablesTab?.SetValueWithoutNotify(tab == PropertyTab.Variables);
             _errorsTab?.SetValueWithoutNotify(tab == PropertyTab.Errors);
             _traceTab?.SetValueWithoutNotify(tab == PropertyTab.Trace);
+            _timelineTab?.SetValueWithoutNotify(tab == PropertyTab.Timeline);
             _searchTab?.SetValueWithoutNotify(tab == PropertyTab.Search);
             StylePropertyTab(_inspectorTab, tab == PropertyTab.Inspector);
             StylePropertyTab(_variablesTab, tab == PropertyTab.Variables);
             StylePropertyTab(_errorsTab, tab == PropertyTab.Errors);
             StylePropertyTab(_traceTab, tab == PropertyTab.Trace);
+            StylePropertyTab(_timelineTab, tab == PropertyTab.Timeline);
             StylePropertyTab(_searchTab, tab == PropertyTab.Search);
 
             if (_propertyContent == null)
@@ -397,6 +409,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 PropertyTab.Variables => _variablesPanel,
                 PropertyTab.Errors => _errorsPanel,
                 PropertyTab.Trace => _tracePanel,
+                PropertyTab.Timeline => _timelinePanel,
                 PropertyTab.Search => _searchPanel,
                 _ => _inspectorPanel
             };
@@ -412,6 +425,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             else if (tab == PropertyTab.Search)
             {
                 _searchPanelView?.Bind(_tree);
+            }
+            else if (tab == PropertyTab.Timeline)
+            {
+                _timelineView?.RefreshIfNeeded(force: true);
             }
         }
 

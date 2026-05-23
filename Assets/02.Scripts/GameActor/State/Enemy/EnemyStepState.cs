@@ -6,48 +6,50 @@ using UPlayGround.MovementController;
 namespace UPlayGround.State
 {
     /// <summary>
-    /// 액션성 회피 상태.
-    /// 짧은 무적 시간 동안 타겟 공격 축에서 벗어나며, 방향성 Dodge(Dodge_F/B/L/R) → Dodge 순으로 모션을 선택한다.
-    /// 둘 다 정의되지 않은 액터는 이 상태로 진입할 수 없다(EnemyActionResolver에서 차단).
+    /// 짧은 스텝 회피 상태.
+    /// Dodge보다 짧고 빠른 방향성 이동으로 압박 라인에서 살짝 빠지거나 옆걸음으로 각을 만든다.
+    /// 모션 우선순위: Step_F/B/L/R → Dodge_F/B/L/R → Dodge. 모두 없으면 EnemyActionResolver에서 진입을 차단한다.
+    /// 무적은 부여하지 않고, BT는 차단한다.
     /// </summary>
-    public class EnemyDodgeState : GameActorState
+    public class EnemyStepState : GameActorState
     {
-        public override string StateName => "Dodge";
+        public override string StateName => "Step";
         public override bool BlocksBehaviorTree => true;
-        public override bool GrantsInvincibility => true;
-        public override bool SuppressesHitReaction => true;
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
 
-        private Vector3 _dodgeDirection;
-        private float _dodgeTimer;
+        private Vector3 _stepDirection;
+        private float _stepTimer;
 
-        private const float DODGE_DURATION = 0.35f;
-        private const float DODGE_SPEED_RATIO = 1.85f;
+        private const float STEP_DURATION = 0.22f;
+        private const float STEP_SPEED_RATIO = 1.2f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
 
-        /// <summary>
-        /// 이 액터가 Dodge 상태를 실행할 수 있는지 — Dodge_F/B/L/R 또는 Dodge 모션이 하나라도 있어야 한다.
-        /// </summary>
-        public static bool CanExecute(GameActor actor)
-        {
-            var animator = actor?.Animator;
-            if (animator == null) return false;
-            return animator.HasMotion(AnimKey.Dodge_F)
-                || animator.HasMotion(AnimKey.Dodge_B)
-                || animator.HasMotion(AnimKey.Dodge_L)
-                || animator.HasMotion(AnimKey.Dodge_R)
-                || animator.HasMotion(AnimKey.Dodge);
-        }
-
-        public EnemyDodgeState(
+        public EnemyStepState(
             ActorMovementController controller,
             EnemyAIContext context,
             EnemyDetection detection) : base(controller)
         {
             _context = context;
             _detection = detection;
+        }
+
+        /// <summary>
+        /// 이 액터가 Step 상태를 실행할 수 있는지 — Step_F/B/L/R 또는 Dodge 계열 모션이 하나라도 있어야 한다.
+        /// </summary>
+        public static bool CanExecute(GameActor actor)
+        {
+            var animator = actor?.Animator;
+            if (animator == null) return false;
+            if (animator.HasMotion(AnimKey.Step_F)
+                || animator.HasMotion(AnimKey.Step_B)
+                || animator.HasMotion(AnimKey.Step_L)
+                || animator.HasMotion(AnimKey.Step_R))
+            {
+                return true;
+            }
+            return EnemyDodgeState.CanExecute(actor);
         }
 
         public override bool CanTransitionState(string stateName)
@@ -59,13 +61,21 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            _dodgeTimer = 0f;
-            _dodgeDirection = CalculateDodgeDirection();
+            _stepTimer = 0f;
+            _stepDirection = CalculateStepDirection();
 
-            // 방향성 키 우선 → Dodge → 가용한 다른 방향성 순으로 폴백.
+            // Step 방향성 → Dodge 방향성 → Dodge → 가용한 다른 방향성 순으로 폴백.
             // CanExecute가 최소 1개 보유를 보장하므로 None이 반환되지 않는다.
-            AnimKey directionalKey = EnemyLocomotionHelper.ResolveDirectionalKey(
-                _dodgeDirection,
+            AnimKey stepKey = EnemyLocomotionHelper.ResolveDirectionalKey(
+                _stepDirection,
+                gameActor.transform,
+                AnimKey.Step_F,
+                AnimKey.Step_B,
+                AnimKey.Step_L,
+                AnimKey.Step_R);
+
+            AnimKey dodgeKey = EnemyLocomotionHelper.ResolveDirectionalKey(
+                _stepDirection,
                 gameActor.transform,
                 AnimKey.Dodge_F,
                 AnimKey.Dodge_B,
@@ -74,12 +84,11 @@ namespace UPlayGround.State
 
             AnimKey motionKey = EnemyLocomotionHelper.PickFirstAvailable(
                 gameActor.Animator,
-                directionalKey,
+                stepKey,
+                dodgeKey,
                 AnimKey.Dodge,
-                AnimKey.Dodge_B,
-                AnimKey.Dodge_L,
-                AnimKey.Dodge_R,
-                AnimKey.Dodge_F);
+                AnimKey.Step_B, AnimKey.Step_L, AnimKey.Step_R, AnimKey.Step_F,
+                AnimKey.Dodge_B, AnimKey.Dodge_L, AnimKey.Dodge_R, AnimKey.Dodge_F);
 
             if (motionKey != AnimKey.None)
                 gameActor.Animator.PlayMotion(motionKey, 0.05f);
@@ -93,9 +102,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            _dodgeTimer += deltaTime;
+            _stepTimer += deltaTime;
 
-            if (_dodgeTimer < DODGE_DURATION)
+            if (_stepTimer < STEP_DURATION)
                 return;
 
             if (!_detection.HasTarget)
@@ -141,9 +150,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            var normalizedTime = Mathf.Clamp01(_dodgeTimer / DODGE_DURATION);
+            var normalizedTime = Mathf.Clamp01(_stepTimer / STEP_DURATION);
             var speedScale = 1f - normalizedTime * normalizedTime;
-            var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * DODGE_SPEED_RATIO * speedScale);
+            var targetVelocity = _stepDirection * (controller.MaxRunMoveSpeed * STEP_SPEED_RATIO * speedScale);
 
             targetVelocity = motor.GetDirectionTangentToSurface(
                 targetVelocity,
@@ -161,16 +170,16 @@ namespace UPlayGround.State
             Vector3 hitPoint,
             ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
         {
-            var dot = Vector3.Dot(_dodgeDirection, hitNormal);
+            var dot = Vector3.Dot(_stepDirection, hitNormal);
             if (dot >= WALL_REDIRECT_MIN_DOT)
                 return;
 
-            _dodgeDirection = Vector3.ProjectOnPlane(_dodgeDirection, hitNormal).normalized;
-            if (_dodgeDirection.sqrMagnitude <= 0.01f)
-                _dodgeDirection = CalculateDodgeDirection();
+            _stepDirection = Vector3.ProjectOnPlane(_stepDirection, hitNormal).normalized;
+            if (_stepDirection.sqrMagnitude <= 0.01f)
+                _stepDirection = CalculateStepDirection();
         }
 
-        private Vector3 CalculateDodgeDirection()
+        private Vector3 CalculateStepDirection()
         {
             if (!_detection.HasTarget)
                 return -gameActor.transform.forward;
@@ -181,17 +190,18 @@ namespace UPlayGround.State
                 return -gameActor.transform.forward;
 
             var dirToTarget = toTarget.normalized;
-            var away = -dirToTarget;
             var side = Random.value > 0.5f ? 1f : -1f;
             var lateral = Vector3.Cross(Vector3.up, dirToTarget).normalized * side;
 
+            // Step은 Dodge보다 측면 비중을 더 키운다 (짧게 옆걸음 위주)
             var tooClose = _detection.DistanceToTarget <= _context.PersonalSpaceDistance + 0.4f;
+            var away = -dirToTarget;
             var direction = tooClose
-                ? away * 0.75f + lateral * 0.25f
-                : lateral * 0.8f + away * 0.2f;
+                ? away * 0.5f + lateral * 0.5f
+                : lateral * 0.9f + away * 0.1f;
 
             direction.y = 0f;
-            return direction.sqrMagnitude > 0.01f ? direction.normalized : away;
+            return direction.sqrMagnitude > 0.01f ? direction.normalized : lateral;
         }
     }
 }

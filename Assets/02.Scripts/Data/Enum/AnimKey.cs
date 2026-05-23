@@ -27,7 +27,13 @@ namespace UPlayGround.Data.EnumType
         Dash_B = 17,
         Dash_L = 18,
         Dash_R = 19,
-        
+
+        // 짧은 스텝 (방향성 회피) — Dodge보다 짧고 빠른 이동, 무적은 없음
+        Step_F = 35,
+        Step_B = 36,
+        Step_L = 37,
+        Step_R = 38,
+
         Jump = 20,
         Fall,
         Land,

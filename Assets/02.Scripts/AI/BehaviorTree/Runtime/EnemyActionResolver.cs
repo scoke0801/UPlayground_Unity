@@ -72,6 +72,7 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Counter => new EnemyActionRequest(EnemyActionIntent.Counter, cooldownId: cooldownId, cooldownDuration: cooldownDuration),
                 EnemyTransitionStateType.Dodge => new EnemyActionRequest(EnemyActionIntent.Evade, EnemyActionStyle.Dodge, cooldownId: cooldownId, cooldownDuration: cooldownDuration),
                 EnemyTransitionStateType.JumpBack => new EnemyActionRequest(EnemyActionIntent.Evade, EnemyActionStyle.JumpBack, cooldownId: cooldownId, cooldownDuration: cooldownDuration),
+                EnemyTransitionStateType.Step => new EnemyActionRequest(EnemyActionIntent.Evade, EnemyActionStyle.Step, cooldownId: cooldownId, cooldownDuration: cooldownDuration),
                 _ => new EnemyActionRequest(EnemyActionIntent.None, cooldownId: cooldownId, cooldownDuration: cooldownDuration)
             };
         }
@@ -114,6 +115,10 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (state == EnemyTransitionStateType.Guard)
                 return CreateGuardState(controller, aiContext, detection, memory, out failureReason);
+            if (state == EnemyTransitionStateType.Dodge)
+                return CreateDodgeState(controller, aiContext, detection, out failureReason);
+            if (state == EnemyTransitionStateType.Step)
+                return CreateStepState(controller, aiContext, detection, out failureReason);
 
             return state switch
             {
@@ -122,7 +127,6 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Chase when aiContext != null && detection != null => new EnemyChaseState(controller, aiContext, detection),
                 EnemyTransitionStateType.Attack when aiContext != null && detection != null && combat != null => new EnemyAttackState(controller, combat, aiContext, detection),
                 EnemyTransitionStateType.Retreat when aiContext != null && detection != null => new EnemyRetreatState(controller, aiContext, detection, aiContext.RetreatDistance),
-                EnemyTransitionStateType.Dodge when aiContext != null && detection != null => new EnemyDodgeState(controller, aiContext, detection),
                 EnemyTransitionStateType.Circle when aiContext != null && detection != null => new EnemyCircleState(controller, aiContext, detection, aiContext.CircleDuration),
                 EnemyTransitionStateType.Charge when aiContext != null && detection != null && combat != null => new EnemyChargeState(controller, combat, aiContext, detection, memory),
                 EnemyTransitionStateType.Flank when aiContext != null && detection != null && combat != null => new EnemyFlankState(controller, combat, aiContext, detection),
@@ -130,6 +134,50 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.JumpBack when aiContext != null && detection != null => new EnemyJumpBackState(controller, aiContext, detection, memory),
                 _ => null
             };
+        }
+
+        private static GameActorState CreateDodgeState(
+            ActorMovementController controller,
+            EnemyAIContext aiContext,
+            EnemyDetection detection,
+            out string failureReason)
+        {
+            failureReason = null;
+            if (aiContext == null || detection == null)
+            {
+                failureReason = "Dodge 전이에 필요한 AIContext/Detection이 없습니다.";
+                return null;
+            }
+
+            if (!EnemyDodgeState.CanExecute(controller.Actor))
+            {
+                failureReason = "Dodge 모션(Dodge_F/B/L/R 또는 Dodge)이 정의되지 않았습니다.";
+                return null;
+            }
+
+            return new EnemyDodgeState(controller, aiContext, detection);
+        }
+
+        private static GameActorState CreateStepState(
+            ActorMovementController controller,
+            EnemyAIContext aiContext,
+            EnemyDetection detection,
+            out string failureReason)
+        {
+            failureReason = null;
+            if (aiContext == null || detection == null)
+            {
+                failureReason = "Step 전이에 필요한 AIContext/Detection이 없습니다.";
+                return null;
+            }
+
+            if (!EnemyStepState.CanExecute(controller.Actor))
+            {
+                failureReason = "Step 모션(Step_F/B/L/R 또는 Dodge 계열)이 정의되지 않았습니다.";
+                return null;
+            }
+
+            return new EnemyStepState(controller, aiContext, detection);
         }
 
         private static GameActorState CreateGuardState(
@@ -169,6 +217,7 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyActionStyle.Patrol => EnemyTransitionStateType.Patrol,
                 EnemyActionStyle.Dodge => EnemyTransitionStateType.Dodge,
                 EnemyActionStyle.JumpBack => EnemyTransitionStateType.JumpBack,
+                EnemyActionStyle.Step => EnemyTransitionStateType.Step,
                 EnemyActionStyle.Guard => EnemyTransitionStateType.Guard,
                 EnemyActionStyle.Circle => EnemyTransitionStateType.Circle,
                 EnemyActionStyle.Flank => EnemyTransitionStateType.Flank,

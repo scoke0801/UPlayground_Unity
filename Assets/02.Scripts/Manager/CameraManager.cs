@@ -854,6 +854,7 @@ namespace UPlayGround.Manager
         public float               GetCurrentFOV()     => _mainCamera != null ? _mainCamera.fieldOfView : settings.fovExplore;
         public float               GetBaseFOV()        => _distanceCtrl?.BaseFOV ?? settings.fovExplore;
         public float               GetTargetFOV()      => settings.fovExplore;
+        public float               GetLockOnRange()    => settings != null ? settings.lockOnRange : 13f;
 
         public void SetDistance(float distance) =>
             _targetDistance = Mathf.Clamp(distance, settings.minDistance, settings.maxDistance);

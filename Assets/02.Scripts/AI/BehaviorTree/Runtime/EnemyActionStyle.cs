@@ -17,6 +17,7 @@ namespace UPlayGround.AI.BehaviorTree
         Land = 8,
         TakeOff = 9,
         Patrol = 10,
-        Idle = 11
+        Idle = 11,
+        Step = 12
     }
 }

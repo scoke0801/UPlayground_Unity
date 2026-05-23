@@ -2,6 +2,7 @@ using UnityEngine;
 using Animancer;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -25,12 +26,15 @@ namespace UPlayGround.State
         private bool _hasLeftGround;
         private bool _landing;
         private AnimancerState _landState;
+        private float _maxSafeTargetDistance;
 
         private const float MIN_DURATION = 0.32f;
         private const float MAX_DURATION = 1.15f;
         private const float HORIZONTAL_SPEED_RATIO = 2.25f;
         private const float JUMP_SPEED_RATIO = 0.62f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
+        private const float LOCK_ON_SAFE_DISTANCE_FALLBACK = 12f;
+        private const float TARGET_DISTANCE_SAFETY_MARGIN = 0.75f;
 
         public EnemyJumpBackState(
             ActorMovementController controller,
@@ -56,6 +60,7 @@ namespace UPlayGround.State
             _hasLeftGround = false;
             _landing = false;
             _jumpDirection = CalculateJumpDirection();
+            _maxSafeTargetDistance = ResolveMaxSafeTargetDistance();
 
             _memory?.NotifyRetreated();
             gameActor.Animator.PlayMotion(
@@ -117,6 +122,8 @@ namespace UPlayGround.State
 
             var horizontalVelocity = _jumpDirection
                                      * (controller.MaxRunMoveSpeed * HORIZONTAL_SPEED_RATIO * horizontalScale);
+            ClampHorizontalVelocityToSafeDistance(ref horizontalVelocity, deltaTime);
+
             var verticalVelocity = currentVelocity.y;
 
             if (!_hasLeftGround && _timer <= 0.08f)
@@ -172,6 +179,53 @@ namespace UPlayGround.State
             var lateral = Vector3.Cross(Vector3.up, -awayDir).normalized * side;
             var direction = (awayDir * 0.86f + lateral * 0.14f).normalized;
             return direction.sqrMagnitude > 0.01f ? direction : awayDir;
+        }
+
+        private float ResolveMaxSafeTargetDistance()
+        {
+            var safeDistance = LOCK_ON_SAFE_DISTANCE_FALLBACK;
+
+            if (_detection != null)
+                safeDistance = Mathf.Min(
+                    safeDistance,
+                    Mathf.Max(0f, _detection.LostTargetRadius - TARGET_DISTANCE_SAFETY_MARGIN));
+
+            var cameraManager = CameraManager.Instance;
+            if (cameraManager != null)
+                safeDistance = Mathf.Min(
+                    safeDistance,
+                    Mathf.Max(0f, cameraManager.GetLockOnRange() - TARGET_DISTANCE_SAFETY_MARGIN));
+
+            return safeDistance > 0.1f ? safeDistance : LOCK_ON_SAFE_DISTANCE_FALLBACK;
+        }
+
+        private void ClampHorizontalVelocityToSafeDistance(ref Vector3 horizontalVelocity, float deltaTime)
+        {
+            if (_detection == null || !_detection.HasTarget || deltaTime <= 0f)
+                return;
+
+            var away = motor.TransientPosition - _detection.CurrentTarget.position;
+            away.y = 0f;
+            var currentDistance = away.magnitude;
+            if (currentDistance <= 0.001f)
+                return;
+
+            var awayDir = away / currentDistance;
+            var outwardSpeed = Vector3.Dot(horizontalVelocity, awayDir);
+            if (outwardSpeed <= 0f)
+                return;
+
+            var remainingDistance = _maxSafeTargetDistance - currentDistance;
+            var maxOutwardSpeed = remainingDistance > 0f
+                ? remainingDistance / deltaTime
+                : 0f;
+
+            if (outwardSpeed <= maxOutwardSpeed)
+                return;
+
+            horizontalVelocity -= awayDir * (outwardSpeed - maxOutwardSpeed);
+            if (horizontalVelocity.sqrMagnitude <= 0.01f)
+                horizontalVelocity = Vector3.zero;
         }
 
         private void OnLanded()

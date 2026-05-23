@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.State
@@ -81,6 +82,47 @@ namespace UPlayGround.State
             LocoStyle.Run => AnimKey.Run,
             _             => AnimKey.Walk,
         };
+
+        /// <summary>
+        /// 월드 방향 벡터를 액터 로컬 기준 4사분면으로 변환해 F/B/L/R AnimKey를 반환한다.
+        /// Dodge/Step 같은 일회성 방향 모션 선택에 사용.
+        /// </summary>
+        public static AnimKey ResolveDirectionalKey(
+            Vector3 worldDirection,
+            Transform actorTransform,
+            AnimKey forward,
+            AnimKey back,
+            AnimKey left,
+            AnimKey right)
+        {
+            Vector3 local = actorTransform.InverseTransformDirection(worldDirection);
+            local.y = 0f;
+            if (local.sqrMagnitude < 0.001f) return forward;
+
+            float angle = Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg;
+            float abs   = Mathf.Abs(angle);
+
+            if (abs <= 45f)  return forward;
+            if (abs >= 135f) return back;
+            return angle > 0f ? right : left;
+        }
+
+        /// <summary>
+        /// 우선순위 리스트에서 액터가 보유한 첫 AnimKey를 반환한다.
+        /// 부분 방향성 모션 보유 시 무모션 폴백을 막기 위해 Dodge/Step의 모션 선택에 사용.
+        /// 보유 키가 하나도 없으면 AnimKey.None — 호출 측은 CanExecute로 사전 차단했다고 가정한다.
+        /// </summary>
+        public static AnimKey PickFirstAvailable(ActorAnimator animator, params AnimKey[] candidates)
+        {
+            if (animator == null || candidates == null) return AnimKey.None;
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                var key = candidates[i];
+                if (key != AnimKey.None && animator.HasMotion(key))
+                    return key;
+            }
+            return AnimKey.None;
+        }
 
         /// <summary>
         /// UpdateState에서 매 프레임 호출 — 키가 바뀔 때만 PlayMotion을 실행한다.

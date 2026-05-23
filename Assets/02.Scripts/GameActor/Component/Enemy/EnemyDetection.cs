@@ -30,6 +30,7 @@ namespace UPlayGround.Component
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
         public float DistanceToTarget => HasTarget ? Vector3.Distance(transform.position, _currentTarget.position) : float.MaxValue;
+        public float LostTargetRadius => _lostTargetRadius;
         public float AllyDetectionRadius => _allyDetectionRadius;
         public LayerMask AllyLayer => _allyLayer;
         

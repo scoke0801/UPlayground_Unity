@@ -13,6 +13,7 @@ namespace UPlayGround.AI.BehaviorTree
         Flank = 8,
         Counter = 9,
         Dodge = 10,
-        JumpBack = 11
+        JumpBack = 11,
+        Step = 12
     }
 }

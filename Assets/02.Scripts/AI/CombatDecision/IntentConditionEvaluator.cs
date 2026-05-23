@@ -64,6 +64,17 @@ namespace UPlayGround.AI.CombatDecision
                 case IntentConditionId.IsPlayerRecoveringFrequently:
                     return ctx.IsPlayerRecoveringFrequently;
 
+                case IntentConditionId.HasPredictionConfidence:
+                    return ctx.PredictionConfidence >= 0.45f;
+                case IntentConditionId.PredictedPlayerActionIsDodge:
+                    return ctx.PredictedNextPlayerAction == PlayerActionToken.Dodge;
+                case IntentConditionId.PredictedPlayerActionIsGuard:
+                    return ctx.PredictedNextPlayerAction is PlayerActionToken.Guard or PlayerActionToken.GuardBreak;
+                case IntentConditionId.PredictedPlayerActionIsAttack:
+                    return ctx.PredictedNextPlayerAction is PlayerActionToken.Attack or PlayerActionToken.HeavyAttack;
+                case IntentConditionId.PredictedPlayerActionIsRecover:
+                    return ctx.PredictedNextPlayerAction == PlayerActionToken.Recover;
+
                 case IntentConditionId.WasHitRecently:
                     return ctx.WasHitRecently;
 
@@ -84,6 +95,7 @@ namespace UPlayGround.AI.CombatDecision
                 case ContinuousValueId.RetreatChance:   return ctx.RetreatChance;
                 case ContinuousValueId.GuardChance:     return ctx.GuardChance;
                 case ContinuousValueId.CircleWeight:    return Mathf.Max(0f, ctx.CircleWeight);
+                case ContinuousValueId.PredictionConfidence: return Mathf.Clamp01(ctx.PredictionConfidence);
                 case ContinuousValueId.None:
                 default:                                return 0f;
             }

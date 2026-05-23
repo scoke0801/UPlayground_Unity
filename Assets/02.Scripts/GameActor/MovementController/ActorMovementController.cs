@@ -140,6 +140,7 @@ namespace UPlayGround.MovementController
         // 상태 관리
         private GameActorState _currentState;
         public GameActorState CurrentState => _currentState;
+        public event Action<GameActorState, GameActorState> OnStateChanged;
 
         /// <summary>
         /// 상태 전환
@@ -182,6 +183,7 @@ namespace UPlayGround.MovementController
             
             // 새 상태 진입
             _currentState.OnEnter(oldState);
+            OnStateChanged?.Invoke(oldState, _currentState);
         }
     }
     

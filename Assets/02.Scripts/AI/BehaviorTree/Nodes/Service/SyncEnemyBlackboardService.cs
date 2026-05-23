@@ -1,4 +1,5 @@
 using UPlayGround.Component;
+using UPlayGround.AI.CombatDecision;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 
@@ -36,19 +37,34 @@ namespace UPlayGround.AI.BehaviorTree
         private readonly float _distance;
         private readonly string _stateName;
         private readonly ActorStateTag _stateTags;
+        private readonly string _predictedNextPlayerAction;
+        private readonly float _predictionConfidence;
+        private readonly string _playerActionLastToken;
+        private readonly float _playerActionTimeSinceLast;
 
         private TargetStateBlackboardSnapshot(
             bool hasTarget,
             UnityEngine.Object target,
             float distance,
             string stateName,
-            ActorStateTag stateTags)
+            ActorStateTag stateTags,
+            PlayerBehaviorPredictor predictor)
         {
             _hasTarget = hasTarget;
             _target = target;
             _distance = distance;
             _stateName = stateName;
             _stateTags = stateTags;
+
+            _predictionConfidence = 0f;
+            var predicted = predictor != null
+                ? predictor.PredictNext(out _predictionConfidence)
+                : PlayerActionToken.None;
+            _predictedNextPlayerAction = predicted.ToString();
+            _playerActionLastToken = predictor != null ? predictor.LastToken.ToString() : PlayerActionToken.None.ToString();
+            _playerActionTimeSinceLast = predictor != null && !float.IsPositiveInfinity(predictor.TimeSinceLastAction)
+                ? predictor.TimeSinceLastAction
+                : float.MaxValue;
         }
 
         public static TargetStateBlackboardSnapshot From(EnemyDetection detection, ActorMovementController controller)
@@ -59,7 +75,8 @@ namespace UPlayGround.AI.BehaviorTree
                 hasTarget ? detection.CurrentTarget : null,
                 hasTarget ? detection.DistanceToTarget : float.MaxValue,
                 controller?.CurrentState?.StateName ?? "",
-                controller?.CurrentState?.StateTags ?? ActorStateTag.None);
+                controller?.CurrentState?.StateTags ?? ActorStateTag.None,
+                hasTarget ? detection.CurrentTarget.GetComponent<PlayerBehaviorPredictor>() : null);
         }
 
         public void WriteTo(Blackboard blackboard)
@@ -69,11 +86,15 @@ namespace UPlayGround.AI.BehaviorTree
             BlackboardWriteUtility.SetFloat(blackboard, _distance, EnemyBlackboardKeys.TargetDistance);
             BlackboardWriteUtility.SetString(blackboard, _stateName, EnemyBlackboardKeys.SelfStateId);
             BlackboardWriteUtility.SetInt(blackboard, (int)_stateTags, EnemyBlackboardKeys.SelfStateTags);
+            BlackboardWriteUtility.SetString(blackboard, _predictedNextPlayerAction, EnemyBlackboardKeys.PredictedNextPlayerAction);
+            BlackboardWriteUtility.SetFloat(blackboard, _predictionConfidence, EnemyBlackboardKeys.PredictionConfidence);
+            BlackboardWriteUtility.SetString(blackboard, _playerActionLastToken, EnemyBlackboardKeys.PlayerActionLastToken);
+            BlackboardWriteUtility.SetFloat(blackboard, _playerActionTimeSinceLast, EnemyBlackboardKeys.PlayerActionTimeSinceLast);
         }
 
         public string ToDebugString()
         {
-            return $"{EnemyBlackboardKeys.TargetHas}={_hasTarget}, {EnemyBlackboardKeys.TargetObject}={(_target != null ? _target.name : "null")}, {EnemyBlackboardKeys.TargetDistance}={_distance:0.00}, {EnemyBlackboardKeys.SelfStateId}={_stateName}, {EnemyBlackboardKeys.SelfStateTags}={_stateTags}";
+            return $"{EnemyBlackboardKeys.TargetHas}={_hasTarget}, {EnemyBlackboardKeys.TargetObject}={(_target != null ? _target.name : "null")}, {EnemyBlackboardKeys.TargetDistance}={_distance:0.00}, {EnemyBlackboardKeys.SelfStateId}={_stateName}, {EnemyBlackboardKeys.SelfStateTags}={_stateTags}, Prediction={_predictedNextPlayerAction}/{_predictionConfidence:0.00}";
         }
     }
 }

@@ -19,6 +19,7 @@ using UPlayGround.Manager.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
+using UPlayGround.AI.CombatDecision;
 
 namespace UPlayGround
 {
@@ -41,6 +42,7 @@ namespace UPlayGround
         [SerializeField] private PlayerSkillGauge _skillGauge;
         [SerializeField] private PlayerCombatWeaponStateController _combatWeaponStateController;
         [SerializeField] private FootIKController _footIK;
+        [SerializeField] private PlayerBehaviorPredictor _behaviorPredictor;
         private PlayerSwapBehaviour _swapBehaviour;
 
         [Header("Hit Shake Keys")]
@@ -651,6 +653,7 @@ namespace UPlayGround
                 _combatWeaponStateController = gameObject.GetOrAddComponent<PlayerCombatWeaponStateController>();
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
             if (_swapBehaviour == null) _swapBehaviour = GetComponent<PlayerSwapBehaviour>();
+            if (_behaviorPredictor == null) _behaviorPredictor = gameObject.GetOrAddComponent<PlayerBehaviorPredictor>();
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
@@ -723,6 +726,7 @@ namespace UPlayGround
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+            _behaviorPredictor?.NotifyAction(PlayerActionToken.Hit);
            
             Vector3 floaterPos = attackData.hitPoint != Vector3.zero
                 ? attackData.hitPoint
@@ -986,6 +990,7 @@ namespace UPlayGround
                 transform.SetPositionAndRotation(position, rotation);
 
             MovementController.TransitionToState(new PlayerIdleState(MovementController));
+            _behaviorPredictor?.ResetHistory();
             CameraManager.Instance?.SnapToTarget(position);
 
             Debug.Log($"[PlayerActor] {gameObject.name} 부활 — 위치: {position}");

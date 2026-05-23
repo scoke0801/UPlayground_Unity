@@ -1,0 +1,626 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Test_SmartPlayerPredict_GroundMelee",
+    "displayName": "Test Smart Player Predict Ground Melee",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Bokusei.asset",
+    "blackboard": {
+        "tickInterval": 0.06,
+        "enablePatrol": true,
+        "optimalCombatDistance": 2.8,
+        "minCombatDistance": 1.25,
+        "personalSpaceDistance": 0.85,
+        "guardChance": 0.34,
+        "retreatChance": 0.20,
+        "circleWeight": 0.38,
+        "aggression": 0.66,
+        "reactionChance": 0.64,
+        "counterChance": 0.36,
+        "dodgeChance": 0.46,
+        "punishRecoveryChance": 0.54,
+        "antiGuardChance": 0.44,
+        "minRetreatCooldown": 1.6,
+        "maxComboPressureCount": 2,
+        "preferredRange": 2.8,
+        "recentHitCount": 0,
+        "lastHitReactionType": "",
+        "poiseRatio": 1.0,
+        "isPoiseBroken": false,
+        "hitReactionLockTime": 0.0,
+        "revengeChance": 0.36
+    },
+    "groups": [
+        {
+            "name": "01 Interrupt And Target Search",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedState",
+                    "priority": 1000,
+                    "when": [
+                        { "condition": "IsBlockedEnemyState" }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "SearchFailedPatrol",
+                    "priority": 900,
+                    "when": [
+                        { "condition": "HasTarget", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "PatrolOrIdle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "02 Survival And Damage Reactions",
+            "priority": 970,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PoiseBreakEscapeOrDesperationCounter",
+                    "priority": 970,
+                    "when": [
+                        { "condition": "IsPoiseBroken" },
+                        { "condition": "CooldownReady", "value": "PoiseBreakReaction" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.34, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "PoiseBreakReaction", "cooldownDuration": 2.6 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "PoiseBreakReaction", "cooldownDuration": 2.6 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PoiseBreakReaction", "cooldownDuration": 2.2 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "PoiseBreakGuard", "cooldownDuration": 3.0 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Counter", "cooldownId": "PoiseBreakReaction", "cooldownDuration": 2.6 }
+                    ]
+                },
+                {
+                    "name": "HeavyHitResetSpacing",
+                    "priority": 940,
+                    "when": [
+                        { "condition": "RecentlyHitByPlayer" },
+                        { "condition": "WasLastHitHeavy" },
+                        { "condition": "CooldownReady", "value": "HeavyHitReaction" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "HeavyHitReaction", "cooldownDuration": 2.8 },
+                        { "weight": 0.25, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "HeavyHitReaction", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "HeavyHitReaction", "cooldownDuration": 2.2 },
+                        { "weight": 0.13, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "ReactiveGuard", "cooldownDuration": 3.0 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Counter", "cooldownId": "HeavyHitCounter", "cooldownDuration": 2.4 }
+                    ]
+                },
+                {
+                    "name": "RepeatedHitStopTrading",
+                    "priority": 910,
+                    "when": [
+                        { "condition": "RecentHitCountGreaterOrEqual", "value": "3" },
+                        { "condition": "CooldownReady", "value": "RepeatedHitReaction" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.28, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "RepeatedHitReaction", "cooldownDuration": 2.5 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "RepeatedHitReaction", "cooldownDuration": 2.0 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "RepeatedHitReaction", "cooldownDuration": 2.5 },
+                        { "weightKey": "retreatChance", "action": "RequestAction", "intent": "Retreat", "cooldownId": "RepeatedHitReaction", "cooldownDuration": 2.5 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "ReactiveGuard", "cooldownDuration": 2.8 }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "03 Predictive Player Reads",
+            "priority": 950,
+            "when": [
+                { "condition": "HasTarget" },
+                { "condition": "BlackboardCompare", "key": "Prediction.Confidence", "op": "GreaterOrEqual", "value": "0.55" }
+            ],
+            "rules": [
+                {
+                    "name": "PredictedAttackCloseDeflectOrSlip",
+                    "priority": 950,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "Attack" },
+                        { "condition": "CooldownReady", "value": "PredictAttackRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.28, "action": "RequestAction", "intent": "Counter", "cooldownId": "PredictAttackRead", "cooldownDuration": 1.8 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "PredictAttackRead", "cooldownDuration": 1.4 },
+                        { "weight": 0.22, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PredictAttackRead", "cooldownDuration": 1.2 },
+                        { "weight": 0.16, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "PredictAttackGuard", "cooldownDuration": 2.4 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PredictAttackRead", "cooldownDuration": 1.4 }
+                    ]
+                },
+                {
+                    "name": "PredictedHeavyAttackHardEvade",
+                    "priority": 945,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "HeavyAttack" },
+                        { "condition": "CooldownReady", "value": "PredictHeavyRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.34, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "PredictHeavyRead", "cooldownDuration": 1.8 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "PredictHeavyRead", "cooldownDuration": 2.0 },
+                        { "weight": 0.22, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PredictHeavyRead", "cooldownDuration": 1.5 },
+                        { "weight": 0.18, "action": "RequestAction", "intent": "Counter", "cooldownId": "PredictHeavyCounter", "cooldownDuration": 2.2 }
+                    ]
+                },
+                {
+                    "name": "PredictedDodgeCatchEndLag",
+                    "priority": 935,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "Dodge" },
+                        { "condition": "CooldownReady", "value": "PredictDodgeCatch" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PredictDodgeCatch", "cooldownDuration": 2.2 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PredictDodgeCatch", "cooldownDuration": 1.6 },
+                        { "weight": 0.22, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "PredictDodgeCatch", "cooldownDuration": 2.2 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Chase", "cooldownId": "PredictDodgeCatch", "cooldownDuration": 1.4 }
+                    ]
+                },
+                {
+                    "name": "PredictedGuardBreakOrAngle",
+                    "priority": 925,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "Guard" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "CooldownReady", "value": "PredictGuardBreak" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.32, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.24, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PredictGuardBreak", "cooldownDuration": 2.4 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Pressure", "style": "Charge", "cooldownId": "PredictGuardBreak", "cooldownDuration": 2.4 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PredictGuardBreak", "cooldownDuration": 1.8 }
+                    ]
+                },
+                {
+                    "name": "PredictedRecoverCommitPunish",
+                    "priority": 915,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "Recover" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.42, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.28, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.18, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PredictRecoverAngle", "cooldownDuration": 1.6 }
+                    ]
+                },
+                {
+                    "name": "PredictedDashApproachIntercept",
+                    "priority": 905,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Prediction.Player.NextAction", "op": "Equal", "value": "DashApproach" },
+                        { "condition": "CooldownReady", "value": "PredictDashApproach" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "RequestAction", "intent": "Counter", "cooldownId": "PredictDashApproach", "cooldownDuration": 2.0 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "PredictDashApproach", "cooldownDuration": 1.5 },
+                        { "weight": 0.20, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "PredictDashGuard", "cooldownDuration": 2.4 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "PredictDashApproach", "cooldownDuration": 1.8 }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "04 Execute Selected Intent",
+            "priority": 890,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "ExecutePunishIntentPower",
+                    "priority": 890,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.55, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.35, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PunishAngle", "cooldownDuration": 1.6 }
+                    ]
+                },
+                {
+                    "name": "ExecuteCounterIntent",
+                    "priority": 880,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Counter" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CooldownReady", "value": "IntentCounter" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.36, "action": "RequestAction", "intent": "Counter", "cooldownId": "IntentCounter", "cooldownDuration": 1.8 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "IntentCounter", "cooldownDuration": 1.5 },
+                        { "weight": 0.18, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "IntentCounter", "cooldownDuration": 1.8 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.6 },
+                        { "weight": 0.08, "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "ExecuteAttackIntent",
+                    "priority": 870,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.52, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.22, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "AttackAngle", "cooldownDuration": 1.4 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "AttackMicroStep", "cooldownDuration": 1.2 },
+                        { "weight": 0.06, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "AttackGuardBeat", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "ExecutePressureIntent",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Pressure" },
+                        { "condition": "CooldownReady", "value": "IntentPressure" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.32, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "IntentPressure", "cooldownDuration": 1.6 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "IntentPressure", "cooldownDuration": 1.6 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "IntentPressure", "cooldownDuration": 1.4 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Chase", "cooldownId": "IntentPressure", "cooldownDuration": 1.0 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "ExecuteRetreatIntent",
+                    "priority": 850,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Retreat" },
+                        { "condition": "CooldownReady", "value": "IntentRetreat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.38, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "IntentRetreat", "cooldownDuration": 2.4 },
+                        { "weight": 0.28, "action": "RequestAction", "intent": "Retreat", "cooldownId": "IntentRetreat", "cooldownDuration": 2.4 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "IntentRetreat", "cooldownDuration": 1.8 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "IntentRetreat", "cooldownDuration": 2.0 }
+                    ]
+                },
+                {
+                    "name": "ExecuteChaseIntent",
+                    "priority": 840,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Chase" },
+                        { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "RequestAction", "intent": "Chase" }
+                    ]
+                },
+                {
+                    "name": "ExecuteKeepDistanceIntent",
+                    "priority": 830,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "KeepDistance" },
+                        { "condition": "CooldownReady", "value": "IntentKeepDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.34, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "IntentKeepDistance", "cooldownDuration": 1.8 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "IntentKeepDistance", "cooldownDuration": 1.8 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "IntentKeepDistance", "cooldownDuration": 1.5 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Retreat", "cooldownId": "IntentKeepDistance", "cooldownDuration": 2.2 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "IntentKeepDistance", "cooldownDuration": 2.2 }
+                    ]
+                },
+                {
+                    "name": "ExecuteDefendIntent",
+                    "priority": 820,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Defend" },
+                        { "condition": "CooldownReady", "value": "IntentDefend" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.42, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "IntentDefend", "cooldownDuration": 2.8 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "IntentDefend", "cooldownDuration": 1.8 },
+                        { "weight": 0.16, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "IntentDefend", "cooldownDuration": 2.0 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "IntentDefend", "cooldownDuration": 2.0 },
+                        { "weight": 0.06, "action": "RequestAction", "intent": "Counter", "cooldownId": "IntentDefendCounter", "cooldownDuration": 2.4 }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "05 Direct Player State Reactions",
+            "priority": 810,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "ClosePlayerAttackReactiveLayer",
+                    "priority": 810,
+                    "when": [
+                        { "condition": "IsPlayerAttacking" },
+                        { "condition": "DistanceLessOrEqual", "value": "2.7" },
+                        { "condition": "CooldownReady", "value": "ReadPlayerAttack" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "dodgeChance", "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "ReadPlayerAttack", "cooldownDuration": 1.0 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "ReadPlayerAttack", "cooldownDuration": 0.9 },
+                        { "weightKey": "guardChance", "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "ReadGuard", "cooldownDuration": 2.4 },
+                        { "weightKey": "counterChance", "action": "RequestAction", "intent": "Counter", "cooldownId": "ReadCounter", "cooldownDuration": 1.8 }
+                    ]
+                },
+                {
+                    "name": "PunishPlayerRecovery",
+                    "priority": 800,
+                    "when": [
+                        { "condition": "IsPlayerRecovering" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "punishRecoveryChance", "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.26, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.14, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PunishReposition", "cooldownDuration": 1.6 }
+                    ]
+                },
+                {
+                    "name": "BreakPlayerGuard",
+                    "priority": 790,
+                    "when": [
+                        { "condition": "IsPlayerGuarding" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weightKey": "antiGuardChance", "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.26, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.18, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "AntiGuardReposition", "cooldownDuration": 1.8 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "AntiGuardStep", "cooldownDuration": 1.4 }
+                    ]
+                },
+                {
+                    "name": "PunishStaggeredPlayer",
+                    "priority": 780,
+                    "when": [
+                        { "condition": "IsPlayerStaggered" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.55, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.30, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.15, "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "06 Pattern Memory Reactions",
+            "priority": 760,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "FrequentAttackCounterOrSlip",
+                    "priority": 760,
+                    "when": [
+                        { "condition": "IsPlayerAttackingFrequently" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CooldownReady", "value": "FrequentAttackRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.28, "action": "RequestAction", "intent": "Counter", "cooldownId": "FrequentAttackRead", "cooldownDuration": 2.0 },
+                        { "weight": 0.24, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "FrequentAttackRead", "cooldownDuration": 1.5 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "ReadGuard", "cooldownDuration": 2.6 },
+                        { "weight": 0.16, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "FrequentAttackRead", "cooldownDuration": 2.0 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "FrequentAttackRead", "cooldownDuration": 2.0 }
+                    ]
+                },
+                {
+                    "name": "FrequentDodgeDelayedCatch",
+                    "priority": 750,
+                    "when": [
+                        { "condition": "IsPlayerDodgingFrequently" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CooldownReady", "value": "AntiDodge" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.34, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "AntiDodge", "cooldownDuration": 3.0 },
+                        { "weight": 0.24, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "AntiDodge", "cooldownDuration": 2.0 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "AntiDodge", "cooldownDuration": 3.0 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Pressure", "style": "Charge", "cooldownId": "AntiDodge", "cooldownDuration": 3.0 }
+                    ]
+                },
+                {
+                    "name": "FrequentGuardAngleOrBreak",
+                    "priority": 740,
+                    "when": [
+                        { "condition": "IsPlayerGuardingFrequently" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "CooldownReady", "value": "FrequentGuardRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.24, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.22, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "FrequentGuardRead", "cooldownDuration": 2.2 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "FrequentGuardRead", "cooldownDuration": 1.6 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Charge", "cooldownId": "FrequentGuardRead", "cooldownDuration": 2.2 }
+                    ]
+                },
+                {
+                    "name": "FrequentRecoverCommit",
+                    "priority": 730,
+                    "when": [
+                        { "condition": "IsPlayerRecoveringFrequently" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.40, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.30, "action": "ExecuteAttack", "attackCategory": "Skill" },
+                        { "weight": 0.18, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Chase" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "07 Combat Rhythm And Pressure",
+            "priority": 680,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "ComboResetAfterTwoBeats",
+                    "priority": 680,
+                    "when": [
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "2" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+                        { "condition": "CooldownReady", "value": "ComboReset" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.34, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "ComboReset", "cooldownDuration": 2.4 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "ComboReset", "cooldownDuration": 3.0 },
+                        { "weight": 0.18, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "ComboReset", "cooldownDuration": 2.8 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Counter", "cooldownId": "ComboResetCounter", "cooldownDuration": 2.2 },
+                        { "weight": 0.08, "action": "ExecuteAttack", "attackCategory": "Heavy" }
+                    ]
+                },
+                {
+                    "name": "OpeningPressureWithMicroStep",
+                    "priority": 660,
+                    "when": [
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountLessThan", "value": "2" },
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.46, "action": "ExecuteAttack", "attackCategory": "Basic" },
+                        { "weight": 0.20, "action": "ExecuteAttack", "attackCategory": "Heavy" },
+                        { "weight": 0.16, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "MicroStepBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "PressureReposition", "cooldownDuration": 1.4 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "PressureGuard", "cooldownDuration": 2.8 }
+                    ]
+                },
+                {
+                    "name": "PredictionLowConfidenceDoNotOvercommit",
+                    "priority": 640,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Prediction.Confidence", "op": "Less", "value": "0.35" },
+                        { "condition": "CooldownReady", "value": "UncertainReadBeat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.38, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "UncertainReadBeat", "cooldownDuration": 1.6 },
+                        { "weight": 0.28, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "UncertainReadBeat", "cooldownDuration": 1.6 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "UncertainReadBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Chase", "cooldownId": "UncertainReadBeat", "cooldownDuration": 1.2 }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "08 Spacing And Approach",
+            "priority": 600,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PointBlankCreateRoom",
+                    "priority": 600,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" },
+                        { "condition": "CooldownReady", "value": "CloseRetreat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "CloseRetreat", "cooldownDuration": 2.6 },
+                        { "weight": 0.26, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "CloseRetreat", "cooldownDuration": 1.8 },
+                        { "weight": 0.22, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 },
+                        { "weight": 0.12, "action": "RequestAction", "intent": "Retreat", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 },
+                        { "weight": 0.10, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "CloseRetreat", "cooldownDuration": 2.0 }
+                    ]
+                },
+                {
+                    "name": "ApproachOrCircle",
+                    "priority": 580,
+                    "when": [
+                        { "condition": "DistanceGreater", "value": "optimalCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.48, "action": "RequestAction", "intent": "Chase" },
+                        { "weightKey": "circleWeight", "action": "RequestAction", "intent": "KeepDistance", "style": "Circle" },
+                        { "weight": 0.14, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "ApproachAngle", "cooldownDuration": 1.6 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "ApproachStep", "cooldownDuration": 1.4 }
+                    ]
+                },
+                {
+                    "name": "HoldSpacingBeat",
+                    "priority": 560,
+                    "when": [
+                        { "condition": "CooldownReady", "value": "SpacingBeat" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.30, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.22, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.18, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "SpacingBeat", "cooldownDuration": 1.2 },
+                        { "weight": 0.16, "action": "RequestAction", "intent": "Chase", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 },
+                        { "weight": 0.08, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "SpacingGuard", "cooldownDuration": 2.8 },
+                        { "weight": 0.06, "action": "RequestAction", "intent": "Retreat", "cooldownId": "SpacingBeat", "cooldownDuration": 1.4 }
+                    ]
+                }
+            ]
+        }
+    ],
+    "rules": []
+}

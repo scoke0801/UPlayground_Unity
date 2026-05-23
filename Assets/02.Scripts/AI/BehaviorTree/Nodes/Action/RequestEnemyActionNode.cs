@@ -90,9 +90,6 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState))
-                return BTStatus.Failure;
-
             if (controller.CurrentState?.StateName == EnemyAttackState.StateNameValue)
             {
                 _attackStarted = true;
@@ -101,6 +98,13 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (_attackStarted)
                 return BTStatus.Success;
+
+            var request = CreateRequest();
+            if (EnemyActionResolver.IsTransitionBlockedByActionLock(controller.CurrentState, request, out var lockReason))
+            {
+                Context?.DebugTrace?.Record(this, "RequestAttackBlocked", BTStatus.Failure, lockReason);
+                return BTStatus.Failure;
+            }
 
             if (!EnemyActionResolver.IsCooldownReady(Context, _cooldownId))
                 return BTStatus.Failure;

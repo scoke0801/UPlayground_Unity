@@ -3,6 +3,7 @@
 > 작성일: 2026-05-23
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 관련 시스템: `EnemyTacticalMemory`, `EnemyCombatDecisionEvaluator`
+> 구현 상태: Phase A~D 완료, Phase E~F 미진행
 
 ---
 
@@ -11,6 +12,21 @@
 `EnemyTacticalMemory`의 플레이어 관찰 기능을 **빈도 카운팅 → 시퀀스 패턴 인식**으로 확장한다. "최근 5초 동안 회피 5회"라는 정보만 알던 시스템이 "회피 직후 공격하는 패턴이 자주 나타난다"는 시퀀스적 정보까지 활용하도록 만든다.
 
 ROI 중상. 보스/엘리트의 "지능적" 인상에 직접 기여. 단, 본 문서의 1차 목표는 **기존 Intent 점수에 예측 입력을 제공하는 것**이며, `Bait`(유인/페인트) Intent는 후속 확장으로 분리한다.
+
+### 0.1 구현 완료 범위
+
+2026-05-23 기준으로 모션 자산 없이 진행 가능한 Phase A~D를 구현 완료했다.
+
+| Phase | 상태 | 구현 내용 |
+|------|------|----------|
+| Phase A | 완료 | `PlayerActionToken`, `PlayerActionTokenMapper`, `PlayerBehaviorPredictor` 추가. Ring Buffer 기반 최근 행동 기록과 Bigram 전이 카운트 기반 예측 구현 |
+| Phase B | 완료 | `ActorMovementController.OnStateChanged` 이벤트 추가. `PlayerActor`가 `PlayerBehaviorPredictor`를 자동 보장하고 피격/리스폰 이벤트를 연결 |
+| Phase C | 완료 | `EnemyBlackboardKeys` 예측 키 추가. `SyncEnemyBlackboardService`가 현재 타겟의 예측 결과를 Blackboard에 동기화 |
+| Phase D | 완료 | `EnemyCombatDecisionEvaluator`가 예측 결과를 기존 `Punish`, `Counter`, `Pressure`, `Chase`, `Defend` 점수 보정에 반영. `IntentConditionId`, `ContinuousValueId`, `IntentEvaluationContext`에 예측 조건/연속값 입력 추가 |
+| Phase E | 미진행 | `Bait` 전용 Intent/State는 페인트 모션과 캔슬 타이밍 자산이 없어 진행하지 않는다 |
+| Phase F | 미진행 | `bait` 전용 가중치 엔트리는 Phase E 미진행에 따라 추가하지 않는다 |
+
+현재 구현은 전용 `Bait` 없이도 플레이어 행동 예측을 기존 Intent 점수에 반영한다. `Bait`는 연출 신호가 필요한 기능이므로, 페인트 전용 모션 또는 공격 시작부 캔슬 가능한 모션 자산이 준비될 때까지 진행하지 않는다.
 
 ---
 
@@ -45,7 +61,7 @@ ROI 중상. 보스/엘리트의 "지능적" 인상에 직접 기여. 단, 본 �
 2. **간단한 마코프 테이블 추정** — `P(다음 = X | 직전 = Y)`
 3. **신뢰도 메트릭** — 예측 정확도 추적, 낮은 신뢰도에서는 사용 안 함
 4. **Blackboard 노출** — 예측 결과를 BT가 읽을 수 있는 키로 노출
-5. **신규 Intent `Bait` 기반** — 예측 신뢰도가 높을 때만 발동되는 페인트 Intent 추가
+5. **신규 Intent `Bait` 기반** — 예측 신뢰도가 높을 때만 발동되는 페인트 Intent 추가. 단, 현재 구현에서는 진행하지 않는다.
 
 ---
 
@@ -84,7 +100,7 @@ public readonly struct PlayerActionRecord
 {
     public readonly PlayerActionToken Token;
     public readonly float StartTime;
-    public readonly float Duration;        // 이전 토큰 종료 후 이 토큰 시작까지의 지연
+    public readonly float TimeSincePreviousAction; // 이전 토큰 시작 후 이 토큰 시작까지의 경과 시간
 }
 ```
 
@@ -205,9 +221,11 @@ public PlayerActionToken PredictNext(out float confidence)
 
 ## 5. 신규 Intent: `Bait`
 
+> 현재 결정: Phase E~F는 진행하지 않는다. `Bait`는 페인트 모션, 공격 시작부 캔슬 타이밍, 플레이어가 읽을 수 있는 명확한 연출 신호가 필요하다. 해당 모션 자산 없이 상태만 추가하면 적이 부자연스럽게 멈칫하거나 기존 공격 의도와 구분되지 않을 가능성이 높으므로 현재 완료 범위에서 제외한다.
+
 ### 5.1 추가
 
-`EnemyActionIntent` 및 `CombatIntent` enum에 `Bait = 11` 추가.
+미진행. `EnemyActionIntent` 및 `CombatIntent` enum에 `Bait`를 추가하지 않는다.
 
 ### 5.2 의미
 
@@ -264,7 +282,7 @@ public PlayerActionToken PredictNext(out float confidence)
 |----|---------|
 | 7.1 | 플레이어가 "회피→공격" 패턴을 10회 반복. 11회째 회피 직후 `PredictNext == Attack`, `confidence >= 0.7` |
 | 7.2 | 플레이어가 무작위 패턴 사용 시 `OverallConfidence`가 0.4 이하로 떨어지고 `Bait` Intent 발동 안 함 |
-| 7.3 | 적이 `Bait` 발동 → 플레이어 회피 → 적이 0.5초 후 Punish 진입 (BT Trace로 확인) |
+| 7.3 | 미진행 항목. `Bait`는 전용 모션 자산 준비 후 별도 검증 |
 | 7.4 | 플레이어 사망/리스폰 시 history 초기화, 신뢰도 0으로 리셋 |
 
 ---
@@ -273,15 +291,21 @@ public PlayerActionToken PredictNext(out float confidence)
 
 | 위치 | 변경 종류 | 비고 |
 |------|----------|------|
-| `Assets/02.Scripts/GameActor/Player/PlayerBehaviorPredictor.cs` | 신규 | 본 설계의 중심 |
+| `Assets/02.Scripts/GameActor/Component/Player/PlayerBehaviorPredictor.cs` | 신규 | 본 설계의 중심 |
 | `Assets/02.Scripts/AI/CombatDecision/PlayerActionToken.cs` | 신규 | enum + Mapper |
 | `Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.cs` | 키 추가 | 4개 |
 | `Assets/02.Scripts/AI/BehaviorTree/Nodes/Service/SyncEnemyBlackboardService.cs` | 확장 | 예측 결과 동기화 |
-| `Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyActionIntent.cs` | enum 추가 | `Bait` |
-| `Assets/02.Scripts/AI/CombatDecision/CombatIntent.cs` | enum 추가 | `Bait` |
-| `Assets/02.Scripts/State/Enemy/EnemyBaitState.cs` | 신규 (Phase 2) | 페인트 State |
-| `Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyActionResolver.cs` | 분기 추가 | Bait → BaitState |
-| `Assets/02.Scripts/GameActor/PlayerActor.*.cs` | 훅 추가 | `OnStateChanged` 이벤트 |
+| `Assets/02.Scripts/AI/CombatDecision/IntentEvaluationContext.cs` | 확장 | 예측 토큰/신뢰도 입력 |
+| `Assets/02.Scripts/AI/CombatDecision/IntentConditionId.cs` | 확장 | 예측 조건 식별자 |
+| `Assets/02.Scripts/AI/CombatDecision/ContinuousValueId.cs` | 확장 | 예측 신뢰도 연속값 |
+| `Assets/02.Scripts/AI/CombatDecision/IntentConditionEvaluator.cs` | 확장 | 예측 조건/연속값 평가 |
+| `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombatDecisionEvaluator.cs` | 확장 | 기존 Intent 점수 예측 보정 |
+| `Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs` | 확장 | `OnStateChanged` 이벤트 |
+| `Assets/02.Scripts/GameActor/Object/Player/PlayerActor.cs` | 확장 | 예측 컴포넌트 자동 보장, 피격/리스폰 연결 |
+| `Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyActionIntent.cs` | 미진행 | `Bait` 미추가 |
+| `Assets/02.Scripts/AI/CombatDecision/CombatIntent.cs` | 미진행 | `Bait` 미추가 |
+| `Assets/02.Scripts/State/Enemy/EnemyBaitState.cs` | 미진행 | 페인트 모션 자산 필요 |
+| `Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyActionResolver.cs` | 미진행 | `Bait` 분기 미추가 |
 
 ---
 
@@ -291,10 +315,10 @@ public PlayerActionToken PredictNext(out float confidence)
 2. **Phase B (반일)** — `PlayerActor`에 `OnStateChanged` 이벤트 추가 또는 폴링 기반 관찰 연결
 3. **Phase C (반일)** — `EnemyBlackboardKeys` 확장 + `SyncEnemyBlackboardService` 동기화
 4. **Phase D (반일)** — 기존 `Punish`/`Counter`/`Pressure` Intent Weight에 예측 조건 연결
-5. **Phase E (1일)** — `Bait` enum 추가 + `EnemyBaitState` (모션 자산 의존), `EnemyActionResolver` 분기
-6. **Phase F (반일)** — `EnemyIntentWeightsSO`(선행 문서)에 `bait` 엔트리 추가, 기본값 튜닝
+5. **Phase E (미진행)** — `Bait` enum 추가 + `EnemyBaitState` (모션 자산 의존), `EnemyActionResolver` 분기
+6. **Phase F (미진행)** — `EnemyIntentWeightsSO`(선행 문서)에 `bait` 엔트리 추가, 기본값 튜닝
 
-총 3~4.5일. Phase A~D는 모션 자산 없이도 가능, Phase E 이상부터 모션 의존.
+Phase A~D만 완료 범위로 확정한다. Phase E~F는 전용 페인트 모션 또는 캔슬 가능한 공격 모션 자산이 준비되기 전까지 진행하지 않는다.
 
 ---
 

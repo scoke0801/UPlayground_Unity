@@ -31,6 +31,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             blackboard.SetFloat(EnemyBlackboardKeys.RevengeChance, Mathf.Clamp01(data.blackboard.revengeChance));
             blackboard.SetInt(EnemyBlackboardKeys.MemoryHitRecentCount, Mathf.Max(0, data.blackboard.recentHitCount));
             blackboard.SetString(EnemyBlackboardKeys.MemoryHitLastReactionType, data.blackboard.lastHitReactionType ?? "");
+            blackboard.SetString(EnemyBlackboardKeys.PredictedNextPlayerAction, "None");
+            blackboard.SetFloat(EnemyBlackboardKeys.PredictionConfidence, 0f);
+            blackboard.SetString(EnemyBlackboardKeys.PlayerActionLastToken, "None");
+            blackboard.SetFloat(EnemyBlackboardKeys.PlayerActionTimeSinceLast, 0f);
             blackboard.SetFloat(EnemyBlackboardKeys.SelfPoiseRatio, Mathf.Clamp01(data.blackboard.poiseRatio));
             blackboard.SetBool(EnemyBlackboardKeys.SelfIsPoiseBroken, data.blackboard.isPoiseBroken);
             blackboard.SetString(EnemyBlackboardKeys.EnemyAIRole, sourceBehavior?.aiRole.ToString() ?? "Melee");

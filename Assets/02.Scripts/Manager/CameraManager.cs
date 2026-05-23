@@ -253,9 +253,15 @@ namespace UPlayGround.Manager
             Quaternion rotation = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
             Vector3    camDir   = rotation * Vector3.back;
 
+            // 캡슐 클리어런스를 먼저 계산: 유저 줌이 캐릭터 바디 안쪽으로 파고들지 못하게 하한으로 사용한다.
+            ComputeCapsuleClearance(_cameraPivot.position, camDir,
+                out float backClearance, out float frontClearance);
+
+            float clampedDesired = Mathf.Max(desiredDistance, backClearance);
+
             float finalDist = _collision != null
-                ? _collision.Evaluate(_cameraPivot.position, camDir, desiredDistance)
-                : desiredDistance;
+                ? _collision.Evaluate(_cameraPivot.position, camDir, clampedDesired)
+                : clampedDesired;
 
             Vector3 backPos = _cameraPivot.position + camDir * finalDist;
 
@@ -299,10 +305,6 @@ namespace UPlayGround.Manager
                     }
                 }
             }
-
-            // 캡슐 콜라이더 기반: 카메라가 몸 안으로 들어가는 임계 거리 / 전방 배치 거리 계산
-            ComputeCapsuleClearance(_cameraPivot.position, camDir,
-                out float backClearance, out float frontClearance);
 
             float backDist    = Vector3.Distance(_cameraPivot.position, backPos);
             float targetBlend = backDist < backClearance ? 1f : 0f;

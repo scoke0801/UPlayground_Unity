@@ -78,6 +78,8 @@ namespace UPlayGround.Component
             var hasAvailableAttack = _combat != null && _combat.HasAvailableSkillAtDistance(distance);
             var actionDelayElapsed = !blackboard.TryGetFloat(EnemyBlackboardKeys.NextActionAllowedTime, out var nextActionTime)
                                      || Time.time >= nextActionTime;
+            var predictedNextPlayerAction = ReadPlayerActionToken(blackboard, EnemyBlackboardKeys.PredictedNextPlayerAction);
+            var predictionConfidence = Read01(blackboard, EnemyBlackboardKeys.PredictionConfidence, 0f);
 
             var overPreferredRange = distance > preferredRange + 0.75f;
             var hasGuardMotion = _context != null && _context.HasGuardMotion;
@@ -111,6 +113,8 @@ namespace UPlayGround.Component
                 IsPlayerAttackingFrequently = isPlayerAttackingFrequently,
                 IsPlayerGuardingFrequently = isPlayerGuardingFrequently,
                 IsPlayerRecoveringFrequently = isPlayerRecoveringFrequently,
+                PredictedNextPlayerAction = predictedNextPlayerAction,
+                PredictionConfidence = predictionConfidence,
                 WasHitRecently = wasHitRecently,
                 IsPoiseBroken = isPoiseBroken
             };
@@ -145,6 +149,16 @@ namespace UPlayGround.Component
                 defendScore       = s.defend;
                 recoverScore      = s.recover;
             }
+
+            ApplyPredictionBias(
+                in ctx,
+                ref attackScore,
+                ref punishScore,
+                ref counterScore,
+                ref pressureScore,
+                ref chaseScore,
+                ref retreatScore,
+                ref defendScore);
 
             ApplyPhaseWeights(
                 phase,
@@ -391,6 +405,49 @@ namespace UPlayGround.Component
             keepDistance += bias.KeepDistanceBonus;
         }
 
+        private static void ApplyPredictionBias(
+            in IntentEvaluationContext ctx,
+            ref float attack,
+            ref float punish,
+            ref float counter,
+            ref float pressure,
+            ref float chase,
+            ref float retreat,
+            ref float defend)
+        {
+            if (ctx.PredictionConfidence < 0.45f)
+                return;
+
+            var confidence = Mathf.Clamp01(ctx.PredictionConfidence);
+            switch (ctx.PredictedNextPlayerAction)
+            {
+                case PlayerActionToken.Dodge:
+                    punish += 0.18f * confidence;
+                    pressure += 0.10f * confidence;
+                    attack *= 1f - 0.18f * confidence;
+                    break;
+
+                case PlayerActionToken.Guard:
+                case PlayerActionToken.GuardBreak:
+                    pressure += 0.16f * confidence;
+                    punish += 0.08f * confidence;
+                    break;
+
+                case PlayerActionToken.Attack:
+                case PlayerActionToken.HeavyAttack:
+                    counter += 0.22f * confidence;
+                    defend += 0.18f * confidence;
+                    if (ctx.Distance <= ctx.MinDistance)
+                        retreat += 0.10f * confidence;
+                    break;
+
+                case PlayerActionToken.Recover:
+                    punish += 0.20f * confidence;
+                    chase += 0.12f * confidence;
+                    break;
+            }
+        }
+
         private static void WriteGroupDebugBlackboard(Blackboard blackboard, GroupIntentBias bias)
         {
             blackboard.SetFloat(EnemyBlackboardKeys.GroupIntentAttackMultiplier, bias.AttackMultiplier);
@@ -455,6 +512,15 @@ namespace UPlayGround.Component
 
         private static float Read01(Blackboard blackboard, string key, float fallback)
             => Mathf.Clamp01(ReadFloat(blackboard, key, fallback));
+
+        private static PlayerActionToken ReadPlayerActionToken(Blackboard blackboard, string key)
+        {
+            if (!blackboard.TryGetString(key, out var value)
+                || !System.Enum.TryParse(value, out PlayerActionToken token))
+                return PlayerActionToken.None;
+
+            return token;
+        }
 
         private readonly struct IntentScore
         {

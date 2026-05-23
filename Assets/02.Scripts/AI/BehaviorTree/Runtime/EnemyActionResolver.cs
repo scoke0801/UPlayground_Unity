@@ -22,12 +22,6 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
-            if (IsBlockedEnemyStateNode.IsBlockedState(controller.CurrentState))
-            {
-                failureReason = $"현재 상태가 전환 불가 상태입니다. state={controller.CurrentState?.StateName ?? "null"}";
-                return false;
-            }
-
             if (!IsCooldownReady(context, request.CooldownId))
             {
                 failureReason = $"쿨다운이 준비되지 않았습니다. cooldownId={request.CooldownId}";
@@ -42,14 +36,54 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
+            if (IsTransitionBlockedByActionLock(controller.CurrentState, request, out failureReason))
+                return false;
+
             if (skipIfAlreadyInState && controller.CurrentState?.StateName == nextState.StateName)
             {
                 RecordCooldown(context, request.CooldownId, request.CooldownDuration);
                 return true;
             }
 
-            controller.TransitionToState(nextState);
+            if (!controller.TryTransitionToState(nextState))
+            {
+                failureReason = $"상태 전환 조건을 통과하지 못했습니다. from={controller.CurrentState?.StateName ?? "null"}, to={nextState.StateName}";
+                return false;
+            }
+
             RecordCooldown(context, request.CooldownId, request.CooldownDuration);
+            return true;
+        }
+
+        public static bool IsTransitionBlockedByActionLock(
+            GameActorState currentState,
+            EnemyActionRequest request,
+            out string failureReason)
+        {
+            failureReason = null;
+
+            if (currentState == null)
+                return false;
+
+            if (IsHardLockedState(currentState))
+            {
+                failureReason = $"현재 상태가 전환 불가 상태입니다. state={currentState.StateName}";
+                return true;
+            }
+
+            if (!IsProtectedActionState(currentState))
+                return false;
+
+            if (IsEvadeActionState(currentState))
+            {
+                failureReason = $"회피 액션 모션 재생 중이라 BT 전환 요청을 차단했습니다. state={currentState.StateName}, intent={request.Intent}, style={request.Style}";
+                return true;
+            }
+
+            if (IsLocomotionRequest(request))
+                return false;
+
+            failureReason = $"보호 액션 모션 재생 중이라 다른 액션 요청을 차단했습니다. state={currentState.StateName}, intent={request.Intent}, style={request.Style}";
             return true;
         }
 
@@ -298,6 +332,66 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyActionIntent.Recover => FlyingEnemyTransitionStateType.Idle,
                 _ => null
             };
+        }
+
+        private static bool IsProtectedActionState(GameActorState state)
+        {
+            if (state == null)
+                return false;
+
+            if (!IsBlockedEnemyStateNode.IsBlockedState(state))
+                return false;
+
+            return !IsLocomotionState(state);
+        }
+
+        private static bool IsHardLockedState(GameActorState state)
+        {
+            return state?.StateName is
+                "Death" or
+                "Hit" or
+                "Stun" or
+                "Knockdown" or
+                "Grabbed" or
+                "Airborne" or
+                "Land" or
+                "BreakExposed" or
+                "SpecialBreakVictim";
+        }
+
+        private static bool IsLocomotionState(GameActorState state)
+        {
+            return state is
+                EnemyIdleState or
+                EnemyPatrolState or
+                EnemyChaseState or
+                EnemyCircleState or
+                EnemyRetreatState;
+        }
+
+        private static bool IsEvadeActionState(GameActorState state)
+        {
+            return state is
+                EnemyDodgeState or
+                EnemyStepState or
+                EnemyJumpBackState;
+        }
+
+        private static bool IsLocomotionRequest(EnemyActionRequest request)
+        {
+            if (request.Style is
+                EnemyActionStyle.Idle or
+                EnemyActionStyle.Patrol or
+                EnemyActionStyle.Circle)
+            {
+                return true;
+            }
+
+            return request.Intent is
+                EnemyActionIntent.Chase or
+                EnemyActionIntent.Retreat or
+                EnemyActionIntent.KeepDistance or
+                EnemyActionIntent.Recover;
         }
     }
 }

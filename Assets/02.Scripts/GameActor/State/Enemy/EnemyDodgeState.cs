@@ -22,8 +22,12 @@ namespace UPlayGround.State
 
         private Vector3 _dodgeDirection;
         private float _dodgeTimer;
+        private bool _motionEnded;
+        private float _motionLockDuration;
+        private float _movementDuration;
 
         private const float DODGE_DURATION = 0.35f;
+        private const float FALLBACK_DODGE_LOCK_DURATION = 0.45f;
         private const float DODGE_SPEED_RATIO = 1.85f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
 
@@ -60,6 +64,9 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _dodgeTimer = 0f;
+            _motionEnded = false;
+            _movementDuration = DODGE_DURATION;
+            _motionLockDuration = FALLBACK_DODGE_LOCK_DURATION;
             _dodgeDirection = CalculateDodgeDirection();
 
             // 방향성 키 우선 → Dodge → 가용한 다른 방향성 순으로 폴백.
@@ -82,7 +89,25 @@ namespace UPlayGround.State
                 AnimKey.Dodge_F);
 
             if (motionKey != AnimKey.None)
+            {
+                var duration = gameActor.Animator.GetMotionSetDuration(motionKey);
+                _motionLockDuration = duration > 0f
+                    ? Mathf.Max(DODGE_DURATION, duration)
+                    : FALLBACK_DODGE_LOCK_DURATION;
+
+                gameActor.Animator.OnMotionSetCompleted += OnDodgeMotionCompleted;
                 gameActor.Animator.PlayMotion(motionKey, 0.05f);
+            }
+            else
+            {
+                _motionEnded = true;
+            }
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnDodgeMotionCompleted;
+            base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
@@ -95,7 +120,10 @@ namespace UPlayGround.State
 
             _dodgeTimer += deltaTime;
 
-            if (_dodgeTimer < DODGE_DURATION)
+            if (_dodgeTimer < _movementDuration)
+                return;
+
+            if (!_motionEnded && _dodgeTimer < _motionLockDuration)
                 return;
 
             if (!_detection.HasTarget)
@@ -141,7 +169,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            var normalizedTime = Mathf.Clamp01(_dodgeTimer / DODGE_DURATION);
+            var normalizedTime = Mathf.Clamp01(_dodgeTimer / _movementDuration);
             var speedScale = 1f - normalizedTime * normalizedTime;
             var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * DODGE_SPEED_RATIO * speedScale);
 
@@ -192,6 +220,12 @@ namespace UPlayGround.State
 
             direction.y = 0f;
             return direction.sqrMagnitude > 0.01f ? direction.normalized : away;
+        }
+
+        private void OnDodgeMotionCompleted()
+        {
+            if (controller.CurrentState == this)
+                _motionEnded = true;
         }
     }
 }

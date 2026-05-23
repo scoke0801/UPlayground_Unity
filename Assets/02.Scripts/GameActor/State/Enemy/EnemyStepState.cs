@@ -21,8 +21,12 @@ namespace UPlayGround.State
 
         private Vector3 _stepDirection;
         private float _stepTimer;
+        private bool _motionEnded;
+        private float _motionLockDuration;
+        private float _movementDuration;
 
         private const float STEP_DURATION = 0.22f;
+        private const float FALLBACK_STEP_LOCK_DURATION = 0.32f;
         private const float STEP_SPEED_RATIO = 1.2f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
 
@@ -62,6 +66,9 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _stepTimer = 0f;
+            _motionEnded = false;
+            _movementDuration = STEP_DURATION;
+            _motionLockDuration = FALLBACK_STEP_LOCK_DURATION;
             _stepDirection = CalculateStepDirection();
 
             // Step 방향성 → Dodge 방향성 → Dodge → 가용한 다른 방향성 순으로 폴백.
@@ -91,7 +98,25 @@ namespace UPlayGround.State
                 AnimKey.Dodge_B, AnimKey.Dodge_L, AnimKey.Dodge_R, AnimKey.Dodge_F);
 
             if (motionKey != AnimKey.None)
+            {
+                var duration = gameActor.Animator.GetMotionSetDuration(motionKey);
+                _motionLockDuration = duration > 0f
+                    ? Mathf.Max(STEP_DURATION, duration)
+                    : FALLBACK_STEP_LOCK_DURATION;
+
+                gameActor.Animator.OnMotionSetCompleted += OnStepMotionCompleted;
                 gameActor.Animator.PlayMotion(motionKey, 0.05f);
+            }
+            else
+            {
+                _motionEnded = true;
+            }
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnStepMotionCompleted;
+            base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
@@ -104,7 +129,10 @@ namespace UPlayGround.State
 
             _stepTimer += deltaTime;
 
-            if (_stepTimer < STEP_DURATION)
+            if (_stepTimer < _movementDuration)
+                return;
+
+            if (!_motionEnded && _stepTimer < _motionLockDuration)
                 return;
 
             if (!_detection.HasTarget)
@@ -150,7 +178,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            var normalizedTime = Mathf.Clamp01(_stepTimer / STEP_DURATION);
+            var normalizedTime = Mathf.Clamp01(_stepTimer / _movementDuration);
             var speedScale = 1f - normalizedTime * normalizedTime;
             var targetVelocity = _stepDirection * (controller.MaxRunMoveSpeed * STEP_SPEED_RATIO * speedScale);
 
@@ -202,6 +230,12 @@ namespace UPlayGround.State
 
             direction.y = 0f;
             return direction.sqrMagnitude > 0.01f ? direction.normalized : lateral;
+        }
+
+        private void OnStepMotionCompleted()
+        {
+            if (controller.CurrentState == this)
+                _motionEnded = true;
         }
     }
 }

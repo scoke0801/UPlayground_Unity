@@ -48,6 +48,10 @@ namespace UPlayGround.AI.CombatDecision
         public bool IsPlayerGuardingFrequently;
         public bool IsPlayerRecoveringFrequently;
 
+        // 플레이어 행동 예측
+        public PlayerActionToken PredictedNextPlayerAction;
+        public float PredictionConfidence;
+
         // 피격 기록
         public bool WasHitRecently;
         public bool IsPoiseBroken;

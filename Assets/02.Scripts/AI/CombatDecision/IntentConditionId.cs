@@ -41,6 +41,13 @@ namespace UPlayGround.AI.CombatDecision
         IsPlayerGuardingFrequently,
         IsPlayerRecoveringFrequently,
 
+        // 플레이어 행동 예측
+        HasPredictionConfidence,
+        PredictedPlayerActionIsDodge,
+        PredictedPlayerActionIsGuard,
+        PredictedPlayerActionIsAttack,
+        PredictedPlayerActionIsRecover,
+
         // 피격 기록
         WasHitRecently
     }

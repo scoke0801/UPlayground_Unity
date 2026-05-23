@@ -13,6 +13,7 @@ namespace UPlayGround.AI.CombatDecision
         CounterChance,
         RetreatChance,
         GuardChance,
-        CircleWeight
+        CircleWeight,
+        PredictionConfidence
     }
 }

@@ -425,6 +425,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static Color GetNodeColor(BTNode node)
         {
+            if (node is WeightedRandomSelectorNode)
+                return BehaviorTreeEditorStyles.WeightedSelector;
+            if (node is SequenceNode)
+                return BehaviorTreeEditorStyles.Sequence;
+            if (node is SelectorNode)
+                return BehaviorTreeEditorStyles.Selector;
+            if (node is ParallelNode)
+                return BehaviorTreeEditorStyles.Parallel;
             if (node is BTCompositeNode)
                 return BehaviorTreeEditorStyles.Composite;
             if (node is BTDecoratorNode)

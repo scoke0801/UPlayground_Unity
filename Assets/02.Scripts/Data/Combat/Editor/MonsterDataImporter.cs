@@ -126,7 +126,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string _log;
 
-        [MenuItem("UPlayGround/Character/Actor/Data/Import Monster Data")]
+        [MenuItem("UPlayGround/Character/Actor/Data/Import Monster Data", priority =  101)]
         public static void Open() => GetWindow<MonsterDataImporter>("Monster Data Importer");
 
         private void OnGUI()

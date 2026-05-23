@@ -15,7 +15,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public int schemaVersion = 1;
         public string id;
         public string displayName;
-        public string actorKind = "Ground";
+        public string actorKind = MonsterBehaviorJsonNodeKeys.ActorKinds.Ground;
         public string sourceBehaviorSo;
         public MonsterBehaviorBlackboardJson blackboard = new();
         public List<MonsterBehaviorRuleGroupJson> groups = new();
@@ -114,7 +114,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const string SourceRoot = "Assets/10.Datas/AI/BehaviorTree/SourceJson";
         private const string GeneratedRoot = "Assets/10.Datas/AI/BehaviorTree/Generated";
 
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Json")]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import Selected Json")]
         public static void ImportSelectedJson()
         {
             var jsonPath = EditorUtility.OpenFilePanel("Monster Behavior Json Import", Application.dataPath, "json");
@@ -128,7 +128,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             BehaviorTreeEditorWindow.Open(tree);
         }
 
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Folder")]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import Folder")]
         public static void ImportFolder()
         {
             var absoluteFolder = EditorUtility.OpenFolderPanel("Monster Behavior Json Folder Import", Application.dataPath, "");
@@ -138,13 +138,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             ImportJsonFolder(absoluteFolder, "폴더");
         }
 
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Project Jsons")]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import Selected Project Jsons")]
         public static void ImportSelectedProjectJsons()
         {
             ImportJsonFiles(GetSelectedJsonAssetPaths().Select(Path.GetFullPath), "선택 JSON");
         }
 
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import Selected Project Jsons", true)]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import Selected Project Jsons", true)]
         public static bool CanImportSelectedProjectJsons()
         {
             return GetSelectedJsonAssetPaths().Count > 0;
@@ -162,7 +162,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return CanImportSelectedProjectJsons();
         }
 
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Import All SourceJson")]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import All SourceJson")]
         public static void ImportAllSourceJson()
         {
             ImportJsonFolder(Path.GetFullPath(SourceRoot), "SourceJson 전체");
@@ -276,7 +276,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 root.Services.Add(CreateNode<SyncEnemyBlackboardService>(tree, "Sync Enemy Blackboard", new Vector2(-260f, -160f)));
 
                 // 비행형은 EnemyTacticalMemory / EnemyAIContext 페이즈 모델을 쓰지 않으므로 Memory / Phase 서비스 미부착.
-                var isFlying = string.Equals(data.actorKind, "Flying", StringComparison.OrdinalIgnoreCase);
+                var isFlying = string.Equals(data.actorKind, MonsterBehaviorJsonNodeKeys.ActorKinds.Flying, StringComparison.OrdinalIgnoreCase);
                 if (!isFlying)
                 {
                     root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));

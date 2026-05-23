@@ -50,6 +50,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static Color GetCategoryColor(BTNode node)
         {
+            if (node is WeightedRandomSelectorNode)
+                return BehaviorTreeEditorStyles.WeightedSelector;
+            if (node is SequenceNode)
+                return BehaviorTreeEditorStyles.Sequence;
+            if (node is SelectorNode)
+                return BehaviorTreeEditorStyles.Selector;
+            if (node is ParallelNode)
+                return BehaviorTreeEditorStyles.Parallel;
             if (node is BTCompositeNode)
                 return BehaviorTreeEditorStyles.Composite;
             if (node is BTDecoratorNode)
@@ -61,6 +69,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static string GetCategoryName(BTNode node)
         {
+            if (node is SequenceNode)
+                return "SEQ ALL";
+            if (node is WeightedRandomSelectorNode)
+                return "SEL WGT";
+            if (node is SelectorNode)
+                return "SEL ANY";
+            if (node is ParallelNode)
+                return "PARALLEL";
             if (node is BTCompositeNode)
                 return "COMPOSITE";
             if (node is BTDecoratorNode)
@@ -68,6 +84,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (node is BTConditionNode)
                 return "CONDITION";
             return "ACTION";
+        }
+
+        private static string GetFlowRuleText(BTNode node)
+        {
+            if (node is SequenceNode)
+                return "ALL children must succeed";
+            if (node is WeightedRandomSelectorNode)
+                return "Weighted pick until one succeeds";
+            if (node is SelectorNode)
+                return "First child that succeeds wins";
+            if (node is ParallelNode)
+                return "Children run in parallel";
+            return string.Empty;
         }
 
         private static Color GetHeaderColor(BTNode node)

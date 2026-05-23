@@ -62,7 +62,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static ActorKind ResolveActorKind(string raw)
         {
-            if (string.Equals(raw, "Flying", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(raw, MonsterBehaviorJsonNodeKeys.ActorKinds.Flying, StringComparison.OrdinalIgnoreCase))
                 return ActorKind.Flying;
             return ActorKind.Ground;
         }
@@ -89,14 +89,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (condition == null || !ConditionNodeDefinitions.TryGetValue(condition.condition, out var definition))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 condition입니다. {condition?.condition}");
 
-            if (condition.condition == "HasStateTag"
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.HasStateTag
                 && !Enum.TryParse<ActorStateTag>(condition.value, true, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 ActorStateTag입니다. {condition.value}");
 
-            if (condition.condition == "BlackboardCompare")
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.BlackboardCompare)
             {
                 if (string.IsNullOrWhiteSpace(condition.key))
-                    throw new InvalidDataException($"{ruleName}: BlackboardCompare는 key가 필요합니다.");
+                    throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.BlackboardCompare}는 key가 필요합니다.");
 
                 if (!string.IsNullOrWhiteSpace(condition.op)
                     && !Enum.TryParse<BlackboardComparisonType>(condition.op, true, out _))
@@ -104,17 +104,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 if (string.IsNullOrWhiteSpace(condition.value)
                     && string.IsNullOrWhiteSpace(condition.valueKey))
-                    throw new InvalidDataException($"{ruleName}: BlackboardCompare는 value 또는 valueKey가 필요합니다.");
+                    throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.BlackboardCompare}는 value 또는 valueKey가 필요합니다.");
             }
 
-            if (condition.condition == "IsCurrentState" && string.IsNullOrWhiteSpace(condition.value))
-                throw new InvalidDataException($"{ruleName}: IsCurrentState는 value(상태 이름)가 필요합니다.");
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.IsCurrentState && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.IsCurrentState}는 value(상태 이름)가 필요합니다.");
 
-            if (condition.condition == "IsEnemyPhase" && string.IsNullOrWhiteSpace(condition.value))
-                throw new InvalidDataException($"{ruleName}: IsEnemyPhase는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase}는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
 
-            if (condition.condition == "SelectedIntent" && string.IsNullOrWhiteSpace(condition.value))
-                throw new InvalidDataException($"{ruleName}: SelectedIntent는 value(CombatIntent 이름)가 필요합니다.");
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent && string.IsNullOrWhiteSpace(condition.value))
+                throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent}는 value(CombatIntent 이름)가 필요합니다.");
 
             ValidateActorScope(definition.Scope, actorKind, ruleName, "condition", condition.condition);
         }
@@ -124,13 +124,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (action == null || !ActionNodeDefinitions.TryGetValue(action.action, out var definition))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action?.action}");
 
-            if (action.action == "Transition" && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
+            if (action.action == MonsterBehaviorJsonNodeKeys.Actions.Transition && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyTransitionStateType입니다. {action.state}");
 
-            if (action.action == "FlyingTransition" && !Enum.TryParse<FlyingEnemyTransitionStateType>(action.state, out _))
+            if (action.action == MonsterBehaviorJsonNodeKeys.Actions.FlyingTransition && !Enum.TryParse<FlyingEnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 FlyingEnemyTransitionStateType입니다. {action.state}");
 
-            if (action.action == "RequestAction")
+            if (action.action == MonsterBehaviorJsonNodeKeys.Actions.RequestAction)
             {
                 if (!Enum.TryParse<EnemyActionIntent>(action.intent, true, out _))
                     throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyActionIntent입니다. {action.intent}");

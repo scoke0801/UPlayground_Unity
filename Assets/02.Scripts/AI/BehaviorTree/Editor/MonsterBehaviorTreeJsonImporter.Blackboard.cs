@@ -35,13 +35,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             blackboard.SetBool(EnemyBlackboardKeys.SelfIsPoiseBroken, data.blackboard.isPoiseBroken);
             blackboard.SetString(EnemyBlackboardKeys.EnemyAIRole, sourceBehavior?.aiRole.ToString() ?? "Melee");
 
-            blackboard.SetBool("enablePatrol", data.blackboard.enablePatrol);
-            blackboard.SetFloat("optimalCombatDistance", ResolveBlackboardValue(data.blackboard.optimalCombatDistance, sourceBehavior?.optimalCombatDistance ?? 2.5f));
-            blackboard.SetFloat("minCombatDistance", ResolveBlackboardValue(data.blackboard.minCombatDistance, sourceBehavior?.minCombatDistance ?? 1.5f));
-            blackboard.SetFloat("personalSpaceDistance", ResolveBlackboardValue(data.blackboard.personalSpaceDistance, sourceBehavior?.personalSpaceDistance ?? 0.8f));
-            blackboard.SetFloat("guardChance", ResolveBlackboardValue(data.blackboard.guardChance, sourceBehavior?.guardChance ?? 0.25f));
-            blackboard.SetFloat("retreatChance", ResolveBlackboardValue(data.blackboard.retreatChance, sourceBehavior?.retreatChance ?? 0.2f));
-            blackboard.SetFloat("circleWeight", Mathf.Max(0f, data.blackboard.circleWeight));
+            blackboard.SetBool(EnemyBlackboardKeys.EnablePatrol, data.blackboard.enablePatrol);
+            blackboard.SetFloat(EnemyBlackboardKeys.OptimalCombatDistance, ResolveBlackboardValue(data.blackboard.optimalCombatDistance, sourceBehavior?.optimalCombatDistance ?? 2.5f));
+            blackboard.SetFloat(EnemyBlackboardKeys.MinCombatDistance, ResolveBlackboardValue(data.blackboard.minCombatDistance, sourceBehavior?.minCombatDistance ?? 1.5f));
+            blackboard.SetFloat(EnemyBlackboardKeys.PersonalSpaceDistance, ResolveBlackboardValue(data.blackboard.personalSpaceDistance, sourceBehavior?.personalSpaceDistance ?? 0.8f));
+            blackboard.SetFloat(EnemyBlackboardKeys.GuardChance, ResolveBlackboardValue(data.blackboard.guardChance, sourceBehavior?.guardChance ?? 0.25f));
+            blackboard.SetFloat(EnemyBlackboardKeys.RetreatChance, ResolveBlackboardValue(data.blackboard.retreatChance, sourceBehavior?.retreatChance ?? 0.2f));
+            blackboard.SetFloat(EnemyBlackboardKeys.CircleWeight, Mathf.Max(0f, data.blackboard.circleWeight));
         }
 
         private static float ResolveBlackboardValue(float value, float fallback)

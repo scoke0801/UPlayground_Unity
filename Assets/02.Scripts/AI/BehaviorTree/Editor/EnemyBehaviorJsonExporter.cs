@@ -8,7 +8,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public static class EnemyBehaviorJsonExporter
     {
-        [MenuItem("UPlayGround/Character/AI/Monster Behavior Json/Export From Selected BehaviorSO")]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Export From Selected BehaviorSO")]
         public static void ExportFromSelectedBehaviorSO()
         {
             if (Selection.activeObject is not EnemyBehaviorSO behavior)
@@ -42,7 +42,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 schemaVersion = 1,
                 id = id,
                 displayName = behavior.name,
-                actorKind = "Ground",
+                actorKind = MonsterBehaviorJsonNodeKeys.ActorKinds.Ground,
                 sourceBehaviorSo = sourcePath,
                 blackboard = new MonsterBehaviorBlackboardJson
                 {
@@ -60,15 +60,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     {
                         name = "BlockedState",
                         priority = 1000,
-                        when = { new MonsterBehaviorConditionJson { condition = "IsBlockedEnemyState" } },
-                        @do = { new MonsterBehaviorActionJson { action = "KeepCurrentState" } }
+                        when = { new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.IsBlockedEnemyState } },
+                        @do = { new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.KeepCurrentState } }
                     },
                     new MonsterBehaviorRuleJson
                     {
                         name = "NoTarget",
                         priority = 900,
-                        when = { new MonsterBehaviorConditionJson { condition = "HasTarget", invert = true } },
-                        @do = { new MonsterBehaviorActionJson { action = "PatrolOrIdle" } }
+                        when = { new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.HasTarget, invert = true } },
+                        @do = { new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.PatrolOrIdle } }
                     },
                     new MonsterBehaviorRuleJson
                     {
@@ -76,10 +76,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         priority = 800,
                         when =
                         {
-                            new MonsterBehaviorConditionJson { condition = "HasTarget" },
-                            new MonsterBehaviorConditionJson { condition = "DistanceLessOrEqual", value = "personalSpaceDistance" }
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.HasTarget },
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.DistanceLessOrEqual, value = "personalSpaceDistance" }
                         },
-                        @do = { new MonsterBehaviorActionJson { action = "Transition", state = "Retreat" } }
+                        @do = { new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.Transition, state = nameof(EnemyTransitionStateType.Retreat) } }
                     },
                     new MonsterBehaviorRuleJson
                     {
@@ -87,14 +87,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         priority = 700,
                         when =
                         {
-                            new MonsterBehaviorConditionJson { condition = "HasTarget" },
-                            new MonsterBehaviorConditionJson { condition = "ActionDelayElapsed" },
-                            new MonsterBehaviorConditionJson { condition = "CanUseSkill" }
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.HasTarget },
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.ActionDelayElapsed },
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.CanUseSkill }
                         },
                         @do =
                         {
-                            new MonsterBehaviorActionJson { action = "RequestAttackSlot" },
-                            new MonsterBehaviorActionJson { action = "ExecuteAttack" }
+                            new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.RequestAttackSlot },
+                            new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack }
                         }
                     },
                     new MonsterBehaviorRuleJson
@@ -103,21 +103,21 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         priority = 500,
                         when =
                         {
-                            new MonsterBehaviorConditionJson { condition = "HasTarget" },
-                            new MonsterBehaviorConditionJson { condition = "DistanceGreater", value = "optimalCombatDistance" }
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.HasTarget },
+                            new MonsterBehaviorConditionJson { condition = MonsterBehaviorJsonNodeKeys.Conditions.DistanceGreater, value = "optimalCombatDistance" }
                         },
-                        @do = { new MonsterBehaviorActionJson { action = "Transition", state = "Chase" } }
+                        @do = { new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.Transition, state = nameof(EnemyTransitionStateType.Chase) } }
                     },
                     new MonsterBehaviorRuleJson
                     {
                         name = "CombatIdle",
                         priority = 100,
-                        select = "WeightedRandom",
+                        select = MonsterBehaviorJsonNodeKeys.SelectKinds.WeightedRandom,
                         choices =
                         {
-                            new MonsterBehaviorChoiceJson { weightKey = "guardChance", action = "Transition", state = "Guard" },
-                            new MonsterBehaviorChoiceJson { weightKey = "retreatChance", action = "Transition", state = "Retreat" },
-                            new MonsterBehaviorChoiceJson { weightKey = "circleWeight", action = "Transition", state = "Circle" }
+                            new MonsterBehaviorChoiceJson { weightKey = "guardChance", action = MonsterBehaviorJsonNodeKeys.Actions.Transition, state = nameof(EnemyTransitionStateType.Guard) },
+                            new MonsterBehaviorChoiceJson { weightKey = "retreatChance", action = MonsterBehaviorJsonNodeKeys.Actions.Transition, state = nameof(EnemyTransitionStateType.Retreat) },
+                            new MonsterBehaviorChoiceJson { weightKey = "circleWeight", action = MonsterBehaviorJsonNodeKeys.Actions.Transition, state = nameof(EnemyTransitionStateType.Circle) }
                         }
                     }
                 }

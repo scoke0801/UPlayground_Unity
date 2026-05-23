@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-04-27 23:18
+// Generated: 2026-05-23 00:22
 namespace UPlayGround.Data.Actor
 {
     /// <summary>ActorIdType — Actor 키 열거형 (자동 생성)</summary>
@@ -39,6 +39,13 @@ namespace UPlayGround.Data.Actor
         RootPlant_3 = 30,
         Dryad = 31,
         Training_Dummy = 32,
+        Enemy_M_DualSword_001 = 33,
+        Enemy_M_DualSword_002 = 34,
+        Enemy_M_SwordShield_002 = 35,
+        Enemy_F_SwordShield_001 = 36,
+        Enemy_Random_M_SwordShield_001 = 37,
+        Enemy_Random_M_DualSword_001 = 38,
+        Enemy_Random_F_Spear_002 = 39,
     }
 
     public static class ActorIdTypeExtensions
@@ -78,6 +85,13 @@ namespace UPlayGround.Data.Actor
             ActorIdType.RootPlant_3 => "RootPlant_3",
             ActorIdType.Dryad => "Dryad",
             ActorIdType.Training_Dummy => "Training_Dummy",
+            ActorIdType.Enemy_M_DualSword_001 => "Enemy_M_DualSword_001",
+            ActorIdType.Enemy_M_DualSword_002 => "Enemy_M_DualSword_002",
+            ActorIdType.Enemy_M_SwordShield_002 => "Enemy_M_SwordShield_002",
+            ActorIdType.Enemy_F_SwordShield_001 => "Enemy_F_SwordShield_001",
+            ActorIdType.Enemy_Random_M_SwordShield_001 => "Enemy_Random_M_SwordShield_001",
+            ActorIdType.Enemy_Random_M_DualSword_001 => "Enemy_Random_M_DualSword_001",
+            ActorIdType.Enemy_Random_F_Spear_002 => "Enemy_Random_F_Spear_002",
             _ => string.Empty,
         };
     }

@@ -179,6 +179,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     internal sealed class EnemyBlackboardDefaultEntryDefinition
     {
         public string key;
+        public string identifier;
         public BlackboardValueType type;
         public string label;
         public bool boolValue;

@@ -87,7 +87,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             displayName.style.textOverflow = TextOverflow.Ellipsis;
             block.Add(displayName);
 
-            category = new Label($"{node.GetType().Name} · {node.DisplayName} · #{index}");
+            category = new Label($"{GetCategoryName(node)} · {node.GetType().Name} · {node.DisplayName} · #{index}");
             category.style.fontSize = 10f;
             category.style.color = BehaviorTreeEditorStyles.TextDim;
             category.style.marginTop = 3f;
@@ -120,6 +120,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             summary.style.flexWrap = Wrap.Wrap;
             summary.style.marginBottom = 4f;
             summary.Add(CreateInfoChip(GetChildSummary(node), new Color(0.18f, 0.18f, 0.22f)));
+
+            var flowRule = GetFlowRuleText(node);
+            if (!string.IsNullOrWhiteSpace(flowRule))
+                summary.Add(CreateInfoChip(flowRule, BehaviorTreeEditorStyles.WithAlpha(GetCategoryColor(node), 0.42f)));
+
             if (node is SequenceNode sequence)
                 summary.Add(CreateInfoChip($"abort {sequence.AbortType}", new Color(0.22f, 0.18f, 0.28f)));
             else if (node is SelectorNode selector)

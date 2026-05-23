@@ -51,10 +51,12 @@ namespace UPlayGround.Editor
             }),
             ("Character / AI", new[]
             {
-                Tool("Behavior Tree Editor",            "UPlayGround/Character/AI/Behavior Tree Editor", "몬스터 AI Behavior Tree를 편집합니다.", "BehaviorTreeAsset 노드 그래프를 만들고 조건/액션/데코레이터/서비스 노드를 구성하는 AI 편집기입니다."),
-                Tool("Generate BT Ground Test",         "UPlayGround/Character/AI/Behavior Tree/Generate Enemy Ground Basic Test", "지상 몬스터 기본 BT 테스트 에셋을 생성합니다.", "Enemy Ground Basic 테스트용 BehaviorTree/EnemyBehavior 데이터를 빠르게 재생성합니다."),
-                Tool("BT Json Export",                  "UPlayGround/Character/AI/Behavior Tree Json/Export Selected", "선택한 BT 에셋을 JSON으로 내보냅니다.", "BT 구조를 외부 검토, 백업, 비교용 JSON으로 저장합니다."),
-                Tool("BT Json Import",                  "UPlayGround/Character/AI/Behavior Tree Json/Import Json", "JSON에서 BT 에셋을 가져옵니다.", "외부에서 편집한 Behavior Tree JSON을 프로젝트 에셋으로 복원합니다."),
+                Tool("Behavior Tree Editor",            "UPlayGround/Behavior Tree/Editor", "몬스터 AI Behavior Tree를 편집합니다.", "BehaviorTreeAsset 노드 그래프를 만들고 조건/액션/데코레이터/서비스 노드를 구성하는 AI 편집기입니다."),
+                Tool("Import AI Json",                  "UPlayGround/Behavior Tree/Json/Import AI Json (Auto Detect)", "AI JSON 포맷을 자동 판별해 BT 에셋으로 가져옵니다.", "BT Node JSON과 Monster Rules JSON을 자동 감지해 알맞은 importer로 라우팅합니다. 포맷을 확신하지 못할 때 기본으로 사용합니다."),
+                Tool("BT Json Export",                  "UPlayGround/Behavior Tree/Json/BT Node/Export Selected", "선택한 BT 에셋을 JSON으로 내보냅니다.", "BT 구조를 외부 검토, 백업, 비교용 JSON으로 저장합니다."),
+                Tool("BT Json Import",                  "UPlayGround/Behavior Tree/Json/BT Node/Import Json", "BT Node JSON에서 BT 에셋을 가져옵니다.", "BehaviorTreeAsset을 그대로 표현한 JSON을 프로젝트 에셋으로 복원합니다. Rules JSON은 Import AI Json 또는 Monster Rules Import를 사용합니다."),
+                Tool("Monster Rules Export",            "UPlayGround/Behavior Tree/Json/Export From Selected BehaviorSO", "선택한 EnemyBehaviorSO에서 Rules JSON 초안을 내보냅니다.", "기존 EnemyBehaviorSO 값을 기반으로 Monster Behavior Rules JSON의 기본 blackboard/rule 구조를 생성합니다."),
+                Tool("Monster Rules Import",            "UPlayGround/Behavior Tree/Json/Import Selected Json", "Monster Rules JSON을 BT 에셋으로 변환합니다.", "id/groups/rules 기반의 몬스터 행동 규칙 JSON을 Generated 폴더의 BehaviorTreeAsset으로 변환합니다."),
             }),
             ("Gameplay / Combat", new[]
             {
@@ -137,7 +139,7 @@ namespace UPlayGround.Editor
         private static ToolEntry Tool(string name, string menuPath, string summary, string detail) =>
             new ToolEntry(name, menuPath, summary, detail);
 
-        [MenuItem("UPlayGround/Tools Launcher", priority = 1)]
+        [MenuItem("UPlayGround/Tools Launcher", priority = -100)]
         public static void Open()
         {
             var win = GetWindow<UPlaygroundToolsLauncher>("Tools Launcher");

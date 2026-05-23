@@ -62,7 +62,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Search
         }
 
-        [MenuItem("UPlayGround/Character/AI/Behavior Tree Editor")]
+        [MenuItem("UPlayGround/Behavior Tree/Editor")]
         public static void Open()
         {
             var window = GetWindow<BehaviorTreeEditorWindow>();

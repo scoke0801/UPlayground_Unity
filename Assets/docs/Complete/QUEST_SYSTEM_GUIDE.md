@@ -10,6 +10,7 @@ UPlayground의 퀘스트 시스템은 **ScriptableObject 기반의 목표 추적
 - **타입 안전 API**: 자동 생성 `QuestIdType` enum으로 문자열 오타 없이 퀘스트 참조
 - **세이브/로드 연동**: `ISaveable` 구현으로 완료 목록 및 진행 중 목표 카운트 영속 저장
 - **EventManager 연동**: 수락·완료·목표 갱신 시 `QuestEvent`로 UI에 브로드캐스트
+- **HUD / 미니맵 연동**: `UI_HudQuest`는 퀘스트 추적 HUD, `UI_Minimap`은 활성 퀘스트의 위치/NPC 목표 마커 표시 담당
 - **선행 조건 지원**: 완료 필요 퀘스트 목록 + 스토리 진행도 이중 게이팅
 - **비주얼 에디터**: 좌우 2패널 `QuestEditorWindow`로 QuestSO 생성·편집·DB 갱신·Enum 재생성
 
@@ -34,6 +35,16 @@ QuestDatabase  InventoryManager  EventManager
 (Addressable)  (보상 지급,       (QuestEvent
                ItemCollect       브로드캐스트)
                진행도 조회)
+                                      │
+                                      ├─→ UI_HudQuest
+                                      │   (퀘스트 추적 HUD 갱신)
+                                      └─→ UI_Minimap
+                                          (퀘스트 마커 새로고침)
+
+미니맵 위치 마커 흐름:
+  MinimapMarkerRegistrar ──→ MinimapMarkerRegistry ──→ UI_Minimap
+                                                        ↑
+                         QuestManager.GetActiveQuests() ┘
 
 외부 Notify 흐름:
   MonsterActor ──→ NotifyMonsterKill()  ──┐
@@ -60,6 +71,15 @@ QuestDatabase  InventoryManager  EventManager
 매니저 계층 (Assets/02.Scripts/Manager/Quest/)
 └── QuestManager        — 수락·완료·포기·알림·보상·세이브
 
+UI 계층
+├── UI_HudQuest         — HUD 퀘스트 추적기
+└── UI_Minimap          — 활성 퀘스트 ReachLocation / ItemDeliver 목표 마커 표시
+
+미니맵 계층
+├── MinimapMarkerRegistrar — 씬 오브젝트 위치를 LocationId로 등록
+├── MinimapMarkerRegistry  — 등록된 LocationId → 월드 위치 조회 테이블
+└── MinimapIconConfigSO    — 퀘스트/정적/액터 마커 아이콘 및 표시 옵션
+
 에디터 도구 (Assets/02.Scripts/Data/Quest/Editor/)
 ├── QuestEditorWindow   — 좌우 2패널 메인 에디터 창
 ├── QuestSOEditor       — QuestSO 인스펙터 커스텀 에디터
@@ -74,6 +94,9 @@ QuestDatabase  InventoryManager  EventManager
 Assets/
 ├── 02.Scripts/
 │   ├── Data/
+│   │   ├── UI/
+│   │   │   ├── MinimapIconConfigSO.cs  — 미니맵 아이콘/표시 옵션
+│   │   │   └── MapConfigDatabaseSO.cs  — MapID별 미니맵 Config 조회
 │   │   ├── Quest/
 │   │   │   ├── QuestObjectiveType.cs   — 목표 타입 enum
 │   │   │   ├── QuestObjectiveData.cs   — 목표 데이터 클래스
@@ -93,9 +116,23 @@ Assets/
 │   │   └── Save/
 │   │       └── GameSaveData.cs         — QuestSaveData 포함
 │   │
-│   └── Manager/
-│       └── Quest/
-│           └── QuestManager.cs
+│   ├── Manager/
+│   │   └── Quest/
+│   │       └── QuestManager.cs
+│
+│   └── UI/
+│       ├── HUD/
+│       │   ├── Quest/
+│       │   │   └── UI_HudQuest.cs
+│       │   └── Minimap/
+│       │       ├── UI_Minimap.cs
+│       │       ├── MinimapMarkerRegistrar.cs
+│       │       ├── MinimapMarkerRegistry.cs
+│       │       ├── MinimapEntityIcon.cs
+│       │       └── MinimapUserMarkerSystem.cs
+│       └── Scene/
+│           └── Quest/
+│               └── UI_QuestMenu.cs
 │
 └── 10.Datas/
     └── Quest/
@@ -306,6 +343,95 @@ EventManager.Instance.Subscribe<QuestEvent, QuestObjectiveEventData>(
 
 ---
 
+## HUD / 미니맵 연동
+
+### UI_HudQuest
+
+`UI_HudQuest`는 HUD 레이어에 표시되는 퀘스트 추적 UI입니다. 현재 스크립트는 `UI_Base` 생명주기 골격만 있으며, 실제 표시 로직은 아래 이벤트를 구독해 구현합니다.
+
+| 이벤트 | 사용 목적 |
+|--------|-----------|
+| `QuestEvent.QuestAccepted` | 새 활성 퀘스트를 HUD 추적 목록에 추가 |
+| `QuestEvent.QuestObjectiveUpdated` | 목표 설명과 `CurrentCount / RequiredCount` 진행도 갱신 |
+| `QuestEvent.QuestCompleted` | 완료 연출 후 HUD 목록에서 제거 또는 완료 상태 표시 |
+| `QuestEvent.QuestFailed` | 실패 상태 표시 후 제거 |
+
+권장 동작:
+- `OnShow()`에서 `QuestManager.Instance.GetActiveQuests()`로 현재 활성 퀘스트를 한 번 그린다.
+- `OnShow()`에서 `EventManager` 구독, `OnHide()` 또는 `OnDispose()`에서 반드시 해제한다.
+- `QuestObjectiveData.description`을 표시 텍스트로 사용하고, 목표가 완료되면 체크/흐림 상태로 갱신한다.
+- `autoComplete=false` 퀘스트는 모든 목표 완료 후 `CompleteQuest()`를 호출할 버튼 또는 상호작용 안내를 별도로 제공한다.
+
+```csharp
+private void OnShowQuestHud()
+{
+    foreach (var runtime in QuestManager.Instance.GetActiveQuests())
+        DrawOrUpdateQuest(runtime);
+
+    EventManager.Instance.Subscribe<QuestEvent, QuestStateEventData>(
+        QuestEvent.QuestAccepted, OnQuestStateChanged);
+    EventManager.Instance.Subscribe<QuestEvent, QuestObjectiveEventData>(
+        QuestEvent.QuestObjectiveUpdated, OnQuestObjectiveUpdated);
+    EventManager.Instance.Subscribe<QuestEvent, QuestStateEventData>(
+        QuestEvent.QuestCompleted, OnQuestStateChanged);
+    EventManager.Instance.Subscribe<QuestEvent, QuestStateEventData>(
+        QuestEvent.QuestFailed, OnQuestStateChanged);
+}
+```
+
+### UI_Minimap
+
+`UI_Minimap`은 활성 퀘스트의 위치성 목표만 미니맵에 표시합니다.
+
+| 퀘스트 목표 타입 | LocationId 해석 | 사용 아이콘 |
+|------------------|-----------------|-------------|
+| `ReachLocation` | `QuestObjectiveData.targetStringId` | `MinimapIconConfigSO.questTarget` |
+| `ItemDeliver` | `npc_{QuestObjectiveData.npcId}` | `MinimapIconConfigSO.questNpc` |
+
+동작 흐름:
+1. `UI_Minimap.OnShow()`에서 `QuestManager.Instance.GetActiveQuests()`를 조회한다.
+2. 아직 완료되지 않은 `ReachLocation` / `ItemDeliver` 목표만 마커 후보가 된다.
+3. 후보의 LocationId가 `MinimapMarkerRegistry`에 등록되어 있으면 `_questContainer`에 아이콘을 생성한다.
+4. `QuestAccepted`, `QuestCompleted`, `QuestFailed` 이벤트를 받으면 전체 퀘스트 마커를 다시 만든다.
+5. 씬 오브젝트가 늦게 생성되어 `MinimapMarkerRegistrar`가 추가되면, 활성 퀘스트와 LocationId가 맞는 경우 즉시 마커를 추가한다.
+
+미니맵 마커 표시 조건:
+- 현재 맵의 `MapConfigDatabaseSO`에서 `MinimapIconConfigSO`가 정상 조회되어야 한다.
+- `MinimapIconConfigSO.showQuestMarkers`가 `true`여야 한다.
+- `questTarget` 또는 `questNpc` 아이콘 엔트리에 `sprite`가 설정되어 있어야 한다.
+- 목표 위치 오브젝트에 `MinimapMarkerRegistrar`가 있고 `LocationId`가 퀘스트 목표와 일치해야 한다.
+- `QuestManager.IsDBLoaded == true`인 상태에서 활성 퀘스트를 조회할 수 있어야 한다.
+
+### MinimapMarkerRegistrar 설정 규칙
+
+`ReachLocation` 목표:
+
+```csharp
+// QuestObjectiveData
+type = QuestObjectiveType.ReachLocation;
+targetStringId = "forest_gate";
+
+// 씬 목표 오브젝트의 MinimapMarkerRegistrar
+LocationId = "forest_gate";
+MarkerType = MinimapMarkerType.QuestTarget;
+```
+
+`ItemDeliver` 목표:
+
+```csharp
+// QuestObjectiveData
+type = QuestObjectiveType.ItemDeliver;
+npcId = 101;
+
+// 전달 대상 NPC 또는 NPC 위치 오브젝트의 MinimapMarkerRegistrar
+LocationId = "npc_101";
+MarkerType = MinimapMarkerType.QuestTarget;
+```
+
+> **주의**: `MinimapMarkerType.QuestTarget`은 활성 퀘스트 조건을 만족할 때만 퀘스트 마커로 표시됩니다. 항상 보이는 고정 NPC/마을/포탈 마커는 `Npc`, `Town`, `Portal` 타입을 사용하세요.
+
+---
+
 ## 셋업 방법
 
 ### 1. 폴더 생성
@@ -359,6 +485,24 @@ Quest Editor 툴바 → **`[Enum 생성]`** 클릭
 ### 8. GameManager에 이미 등록됨
 
 `GameManager.InitializeManagers()`에 `QuestManager.Instance`가 등록되어 있으므로 추가 작업 불필요.
+
+### 9. HUD 퀘스트 UI 연결
+
+HUD Canvas에 `UI_HudQuest` 프리팹/오브젝트를 배치하고, `OnShow()` 시점에 활성 퀘스트 목록과 `QuestEvent`를 기준으로 표시를 갱신하도록 구현합니다.
+
+필수 구독 이벤트:
+- `QuestAccepted`
+- `QuestObjectiveUpdated`
+- `QuestCompleted`
+- `QuestFailed`
+
+### 10. 미니맵 퀘스트 마커 연결
+
+1. HUD 미니맵 프리팹의 `UI_Minimap`에 `_questContainer`, `_iconContainer`, `_playerIcon`, `_mapBackground`, `_minimapMask`, `_mapConfigDB`를 할당합니다.
+2. 현재 `SceneManager.CurrentMapID`에 대응하는 `MinimapIconConfigSO`를 `MapConfigDatabaseSO`에 등록합니다.
+3. `MinimapIconConfigSO.showQuestMarkers`를 켜고 `questTarget`, `questNpc` 아이콘을 설정합니다.
+4. `ReachLocation` 목표 지점 또는 `ItemDeliver` 대상 NPC에 `MinimapMarkerRegistrar`를 추가합니다.
+5. `LocationId`를 `targetStringId` 또는 `npc_{npcId}` 규칙에 맞춥니다.
 
 ---
 
@@ -447,6 +591,35 @@ public class QuestLocationTrigger : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         QuestManager.Instance.NotifyLocationReached(locationId);
     }
+}
+```
+
+### 위치 목표 미니맵 마커 등록
+
+```csharp
+// 별도 코드 호출은 필요 없습니다.
+// 목표 지점 GameObject에 MinimapMarkerRegistrar를 붙이고 Inspector에서 설정합니다.
+
+LocationId = "forest_gate";                 // QuestObjectiveData.targetStringId와 동일
+MarkerType = MinimapMarkerType.QuestTarget; // 활성 퀘스트일 때 UI_Minimap에 표시
+```
+
+### 아이템 전달 NPC 미니맵 마커 등록
+
+```csharp
+// npcId = 101인 ItemDeliver 목표라면
+LocationId = "npc_101";
+MarkerType = MinimapMarkerType.QuestTarget;
+```
+
+### HUD 퀘스트 추적기 이벤트 갱신
+
+```csharp
+private void OnObjectiveUpdated(QuestObjectiveEventData data)
+{
+    // data.QuestId, data.ObjectiveId 기준으로 HUD 항목을 찾아 진행도 갱신
+    _questTracker.SetProgress(data.QuestId, data.ObjectiveId,
+                              data.CurrentCount, data.RequiredCount);
 }
 ```
 
@@ -716,6 +889,19 @@ private void OnDisable()
 }
 ```
 
+### 미니맵 목표 타입 확장
+
+현재 `UI_Minimap.ResolveQuestLocationId()`는 `ReachLocation`, `ItemDeliver`만 위치 마커로 변환합니다. 대화 완료, 특정 오브젝트 조사처럼 위치 표시가 필요한 목표 타입을 추가하면 이 메서드와 `GetQuestMarkerEntry()`에 매핑을 추가하세요.
+
+```csharp
+private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch
+{
+    QuestObjectiveType.ReachLocation => obj.targetStringId,
+    QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
+    _                               => null,
+};
+```
+
 ---
 
 ## 참고 자료
@@ -729,6 +915,12 @@ private void OnDisable()
 | 이벤트 타입 | `Assets/02.Scripts/Data/Enum/QuestEventType.cs` |
 | 세이브 데이터 | `Assets/02.Scripts/Data/Save/GameSaveData.cs` |
 | 매니저 | `Assets/02.Scripts/Manager/Quest/QuestManager.cs` |
+| HUD 퀘스트 UI | `Assets/02.Scripts/UI/HUD/Quest/UI_HudQuest.cs` |
+| 퀘스트 메뉴 UI | `Assets/02.Scripts/UI/Scene/Quest/UI_QuestMenu.cs` |
+| 미니맵 HUD | `Assets/02.Scripts/UI/HUD/Minimap/UI_Minimap.cs` |
+| 미니맵 마커 등록 | `Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs` |
+| 미니맵 마커 레지스트리 | `Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistry.cs` |
+| 미니맵 아이콘 설정 | `Assets/02.Scripts/Data/UI/MinimapIconConfigSO.cs` |
 | 에디터 도구 | `Assets/02.Scripts/Data/Quest/Editor/` |
 | ID Enum Generator | `Assets/02.Scripts/Tool/Editor/IdEnumGeneratorWindow.cs` |
 | QuestSO 에셋 | `Assets/10.Datas/Quest/` |
@@ -743,5 +935,9 @@ private void OnDisable()
 | `InventoryManager` | ItemCollect 진행도 조회, 보상 아이템 지급 |
 | `StoryManager` | 선행 조건 스토리 진행도 확인 |
 | `RecipeManager` | OnCraftingCompleted → NotifyItemCrafted 연동 |
+| `UI_HudQuest` | 활성 퀘스트 목록과 목표 진행도를 HUD에 표시 |
+| `UI_Minimap` | 활성 퀘스트의 ReachLocation / ItemDeliver 목표 마커 표시 |
+| `MinimapMarkerRegistry` | 퀘스트 LocationId와 씬 오브젝트 월드 위치 연결 |
+| `MinimapIconConfigSO` | 퀘스트 마커 표시 여부와 아이콘 설정 |
 | `GlobalFlagManager` | 대화/플래그 조건과 퀘스트 조건 병행 사용 가능 |
 | ID Enum Generator | QuestIdType 자동 생성 (다른 DB enum과 동일 도구) |

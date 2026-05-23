@@ -51,61 +51,61 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static readonly Dictionary<string, ConditionNodeDefinition> ConditionNodeDefinitions = new(StringComparer.Ordinal)
         {
-            ["HasTarget"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateHasTargetNode(tree, !condition.invert, row)),
-            ["IsBlockedEnemyState"] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateNode<IsBlockedEnemyStateNode>(tree, "Is Blocked Enemy State", new Vector2(520f, row * 180f))),
-            ["HasStateTag"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateHasStateTagNode(tree, condition.value, !condition.invert, row)),
-            ["BlackboardCompare"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardCompareNode(tree, condition, row)),
-            ["IsEnemyPhase"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateEnemyPhaseCompareNode(tree, condition, row)),
-            ["DistanceLessOrEqual"] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.LessOrEqual, condition.value, source, blackboard, row)),
-            ["DistanceGreater"] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, source, blackboard, row)),
-            ["ActionDelayElapsed"] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateNode<HasEnemyActionDelayElapsedNode>(tree, "Action Delay Elapsed", new Vector2(520f, row * 180f))),
-            ["CanUseSkill"] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateNode<CanUseEnemySkillNode>(tree, "Can Use Enemy Skill", new Vector2(520f, row * 180f))),
-            ["IsPlayerAttacking"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerGuarding"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerStaggered"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerRecovering"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerDodgingFrequently"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerAttackingFrequently"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerGuardingFrequently"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsPlayerRecoveringFrequently"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["RecentlyHitByPlayer"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["HasAttackSlot"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["CooldownReady"] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateCooldownReadyNode(tree, condition.value, row)),
-            ["IsSelfLowHealth"] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateSelfLowHealthNode(tree, condition.value, row)),
-            ["WasLastHitHeavy"] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateNode<WasLastHitHeavyNode>(tree, "WasLastHitHeavy", new Vector2(520f, row * 180f))),
-            ["IsPoiseBroken"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["RecentHitCountGreaterOrEqual"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["ConsecutiveAttackCountLessThan"] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.LessThan, row)),
-            ["ConsecutiveAttackCountGreaterOrEqual"] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.GreaterOrEqual, row)),
-            ["CanIgnoreLightHit"] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateNode<CanIgnoreLightHitNode>(tree, "CanIgnoreLightHit", new Vector2(520f, row * 180f))),
-            ["CanRevengeAfterHit"] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateRevengeAfterHitNode(tree, condition.value, row)),
-            ["SelectedIntent"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            ["IsCurrentState"] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateIsCurrentStateNode(tree, condition.value, !condition.invert, row)),
-            ["IsFlyingAirState"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<IsFlyingAirStateNode>(tree, "Is Flying Air State", new Vector2(520f, row * 180f))),
-            ["IsFlyingGroundCombatState"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<IsFlyingGroundCombatStateNode>(tree, "Is Flying Ground Combat State", new Vector2(520f, row * 180f))),
-            ["IsAirAttackLimitReached"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<IsAirAttackLimitReachedNode>(tree, "Air Attack Limit Reached", new Vector2(520f, row * 180f))),
-            ["ShouldFlyingTakeOff"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<ShouldFlyingTakeOffNode>(tree, "Should Flying Take Off", new Vector2(520f, row * 180f))),
-            ["FlyingCanUseSkill"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<FlyingCanUseSkillNode>(tree, "Flying Can Use Skill", new Vector2(520f, row * 180f))),
-            ["HasDiveSkillAvailable"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<HasDiveSkillAvailableNode>(tree, "Has Dive Skill Available", new Vector2(520f, row * 180f))),
-            ["RollDiveChance"] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateNode<RollDiveChanceNode>(tree, "Roll Dive Chance", new Vector2(520f, row * 180f)))
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasTarget] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateHasTargetNode(tree, !condition.invert, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsBlockedEnemyState] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<IsBlockedEnemyStateNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasStateTag] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateHasStateTagNode(tree, condition.value, !condition.invert, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.BlackboardCompare] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardCompareNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateEnemyPhaseCompareNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.DistanceLessOrEqual] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.LessOrEqual, condition.value, source, blackboard, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.DistanceGreater] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, source, blackboard, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.ActionDelayElapsed] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyActionDelayElapsedNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CanUseSkill] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<CanUseEnemySkillNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerAttacking] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerGuarding] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerStaggered] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerRecovering] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerDodgingFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerAttackingFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerGuardingFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerRecoveringFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.RecentlyHitByPlayer] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackSlot] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CooldownReady] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateCooldownReadyNode(tree, condition.value, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsSelfLowHealth] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateSelfLowHealthNode(tree, condition.value, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.WasLastHitHeavy] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<WasLastHitHeavyNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPoiseBroken] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.RecentHitCountGreaterOrEqual] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.ConsecutiveAttackCountLessThan] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.LessThan, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.ConsecutiveAttackCountGreaterOrEqual] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateConsecutiveAttackCountNode(tree, condition.value, IntComparisonType.GreaterOrEqual, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CanIgnoreLightHit] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<CanIgnoreLightHitNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CanRevengeAfterHit] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateRevengeAfterHitNode(tree, condition.value, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsCurrentState] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateIsCurrentStateNode(tree, condition.value, !condition.invert, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsFlyingAirState] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsFlyingAirStateNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsFlyingGroundCombatState] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsFlyingGroundCombatStateNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsAirAttackLimitReached] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsAirAttackLimitReachedNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.ShouldFlyingTakeOff] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<ShouldFlyingTakeOffNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.FlyingCanUseSkill] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<FlyingCanUseSkillNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasDiveSkillAvailable] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<HasDiveSkillAvailableNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.RollDiveChance] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<RollDiveChanceNode>(tree, row))
         };
 
         private static readonly Dictionary<string, ActionNodeDefinition> ActionNodeDefinitions = new(StringComparer.Ordinal)
         {
-            ["KeepCurrentState"] = new(JsonNodeActorScope.Common, (tree, _, row) => CreateNode<KeepCurrentStateNode>(tree, "Keep Current State", new Vector2(820f, row * 180f))),
-            ["PatrolOrIdle"] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreatePatrolOrIdleNode(tree, row)),
-            ["Transition"] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateTransitionNode(tree, action.state, row, action.cooldownId, action.cooldownDuration)),
-            ["RequestAction"] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateRequestActionNode(tree, action, row)),
-            ["RequestAttackSlot"] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreateNode<RequestEnemyAttackSlotNode>(tree, "Request Attack Slot", new Vector2(820f, row * 180f))),
-            ["ExecuteAttack"] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateExecuteAttackNode(tree, action.attackCategory, row)),
-            ["Wait"] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateWaitNode(tree, action.duration, row)),
-            ["FlyingTransition"] = new(JsonNodeActorScope.FlyingOnly, (tree, action, row) => CreateFlyingTransitionNode(tree, action.state, row)),
-            ["FlyingPatrolOrIdle"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateFlyingPatrolOrIdleNode(tree, row)),
-            ["ResetFlyingCounters"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateNode<ResetFlyingCountersNode>(tree, "Reset Flying Counters", new Vector2(820f, row * 180f))),
-            ["ResetFlyingAirCounters"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateNode<ResetFlyingAirCountersNode>(tree, "Reset Flying Air Counters", new Vector2(820f, row * 180f))),
-            ["DescendFlying"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateNode<DescendFlyingNode>(tree, "Descend Flying", new Vector2(820f, row * 180f))),
-            ["RequestFlyingAttackSlot"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateNode<RequestFlyingAttackSlotNode>(tree, "Request Flying Attack Slot", new Vector2(820f, row * 180f))),
-            ["SelectFlyingDiveSkill"] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateNode<SelectFlyingDiveSkillNode>(tree, "Select Flying Dive Skill", new Vector2(820f, row * 180f)))
+            [MonsterBehaviorJsonNodeKeys.Actions.KeepCurrentState] = new(JsonNodeActorScope.Common, (tree, _, row) => CreateActionLeaf<KeepCurrentStateNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.PatrolOrIdle] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreatePatrolOrIdleNode(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.Transition] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateTransitionNode(tree, action.state, row, action.cooldownId, action.cooldownDuration)),
+            [MonsterBehaviorJsonNodeKeys.Actions.RequestAction] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateRequestActionNode(tree, action, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.RequestAttackSlot] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreateActionLeaf<RequestEnemyAttackSlotNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateExecuteAttackNode(tree, action.attackCategory, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.Wait] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateWaitNode(tree, action.duration, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.FlyingTransition] = new(JsonNodeActorScope.FlyingOnly, (tree, action, row) => CreateFlyingTransitionNode(tree, action.state, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.FlyingPatrolOrIdle] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateFlyingPatrolOrIdleNode(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.ResetFlyingCounters] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateActionLeaf<ResetFlyingCountersNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.ResetFlyingAirCounters] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateActionLeaf<ResetFlyingAirCountersNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.DescendFlying] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateActionLeaf<DescendFlyingNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.RequestFlyingAttackSlot] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateActionLeaf<RequestFlyingAttackSlotNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.SelectFlyingDiveSkill] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateActionLeaf<SelectFlyingDiveSkillNode>(tree, row))
         };
 
         private static void AddJsonDefinedChildren(
@@ -169,7 +169,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MonsterBehaviorBlackboardJson blackboard,
             int index)
         {
-            var sequence = CreateNode<SequenceNode>(tree, rule.name, new Vector2(260f, index * 180f));
+            var sequence = CreateNode<SequenceNode>(tree, rule.name, new Vector2(SequenceColumnX, index * NodeRowHeight));
 
             foreach (var condition in rule.when ?? new List<MonsterBehaviorConditionJson>())
             {
@@ -178,9 +178,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     sequence.Children.Add(conditionNode);
             }
 
-            if (rule.select == "WeightedRandom")
+            if (rule.select == MonsterBehaviorJsonNodeKeys.SelectKinds.WeightedRandom)
             {
-                var selector = CreateNode<WeightedRandomSelectorNode>(tree, rule.name + " Weighted", new Vector2(560f, index * 180f));
+                var selector = CreateNode<WeightedRandomSelectorNode>(tree, rule.name + " Weighted", new Vector2(WeightedSelectorColumnX, index * NodeRowHeight));
                 for (var i = 0; i < rule.choices.Count; i++)
                 {
                     var choice = rule.choices[i];
@@ -284,7 +284,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static ExecuteEnemyAttackNode CreateExecuteAttackNode(BehaviorTreeAsset tree, string attackCategory, int row)
         {
-            var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", new Vector2(820f, row * 180f));
+            var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", ActionPosition(row));
             if (Enum.TryParse<EnemyAttackCategory>(attackCategory, true, out var parsed))
                 node.AttackCategory = parsed;
             return node;
@@ -292,7 +292,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static HasTargetNode CreateHasTargetNode(BehaviorTreeAsset tree, bool expected, int row)
         {
-            var node = CreateNode<HasTargetNode>(tree, expected ? "Has Target" : "Has No Target", new Vector2(520f, row * 180f));
+            var node = CreateNode<HasTargetNode>(tree, expected ? "Has Target" : "Has No Target", ConditionPosition(row));
             node.ExpectedValue = expected;
             return node;
         }
@@ -305,7 +305,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MonsterBehaviorBlackboardJson blackboard,
             int row)
         {
-            var node = CreateNode<IsTargetInRangeNode>(tree, comparison.ToString(), new Vector2(520f, row * 180f));
+            var node = CreateNode<IsTargetInRangeNode>(tree, comparison.ToString(), ConditionPosition(row));
             node.Comparison = comparison;
             var resolved = ResolveFloat(value, sourceBehavior, blackboard, 0f);
             if (comparison == FloatComparisonType.LessOrEqual)
@@ -369,9 +369,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             var comparison = condition.invert ? BlackboardComparisonType.NotEqual : BlackboardComparisonType.Equal;
             if (int.TryParse(condition.value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
-                return CreateBlackboardCompareNode(tree, "Self.PhaseIndex", comparison, condition.value, null, row);
+                return CreateBlackboardCompareNode(tree, EnemyBlackboardKeys.SelfPhaseIndex, comparison, condition.value, null, row);
 
-            return CreateBlackboardCompareNode(tree, "Self.PhaseName", comparison, condition.value, null, row);
+            return CreateBlackboardCompareNode(tree, EnemyBlackboardKeys.SelfPhaseName, comparison, condition.value, null, row);
         }
 
         private static BlackboardCompareNode CreateBlackboardCompareNode(
@@ -383,7 +383,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             int row)
         {
             var right = string.IsNullOrWhiteSpace(valueKey) ? value : $"${valueKey}";
-            var node = CreateNode<BlackboardCompareNode>(tree, $"{key} {comparison} {right}", new Vector2(520f, row * 180f));
+            var node = CreateNode<BlackboardCompareNode>(tree, $"{key} {comparison} {right}", ConditionPosition(row));
             node.Key = key;
             node.Comparison = comparison;
             node.Value = value;
@@ -396,7 +396,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (!Enum.TryParse<ActorStateTag>(tagName, true, out var tag))
                 throw new System.IO.InvalidDataException($"알 수 없는 ActorStateTag입니다. {tagName}");
 
-            var node = CreateNode<HasStateTagNode>(tree, (expected ? "Has " : "Has No ") + tag, new Vector2(520f, row * 180f));
+            var node = CreateNode<HasStateTagNode>(tree, (expected ? "Has " : "Has No ") + tag, ConditionPosition(row));
             node.Tag = tag;
             node.ExpectedValue = expected;
             return node;
@@ -420,7 +420,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var displayName = style == EnemyActionStyle.None
                 ? $"Request {intent}"
                 : $"Request {intent} {style}";
-            var node = CreateNode<RequestEnemyActionNode>(tree, displayName, new Vector2(820f, row * 180f));
+            var node = CreateNode<RequestEnemyActionNode>(tree, displayName, ActionPosition(row));
             node.Intent = intent;
             node.Style = style;
             node.AttackCategory = attackCategory;
@@ -434,7 +434,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (!Enum.TryParse<EnemyTransitionStateType>(state, out var parsed))
                 throw new System.IO.InvalidDataException($"알 수 없는 EnemyTransitionStateType입니다. {state}");
 
-            var node = CreateNode<TransitionEnemyStateNode>(tree, "Transition " + state, new Vector2(820f, row * 180f));
+            var node = CreateNode<TransitionEnemyStateNode>(tree, "Transition " + state, ActionPosition(row));
             node.TargetState = parsed;
             node.CooldownId = cooldownId;
             node.CooldownDuration = cooldownDuration;
@@ -446,16 +446,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (!Enum.TryParse<FlyingEnemyTransitionStateType>(state, out var parsed))
                 throw new System.IO.InvalidDataException($"알 수 없는 FlyingEnemyTransitionStateType입니다. {state}");
 
-            var node = CreateNode<TransitionFlyingEnemyStateNode>(tree, "Flying Transition " + state, new Vector2(820f, row * 180f));
+            var node = CreateNode<TransitionFlyingEnemyStateNode>(tree, "Flying Transition " + state, ActionPosition(row));
             node.TargetState = parsed;
             return node;
         }
 
         private static BTNode CreatePatrolOrIdleNode(BehaviorTreeAsset tree, int row)
         {
-            var selector = CreateNode<SelectorNode>(tree, "Patrol Or Idle", new Vector2(820f, row * 180f));
-            var patrolSequence = CreateNode<SequenceNode>(tree, "Patrol If Enabled", new Vector2(1080f, row * 180f));
-            patrolSequence.Children.Add(CreateNode<IsEnemyPatrolEnabledNode>(tree, "Is Patrol Enabled", new Vector2(1320f, row * 180f)));
+            var selector = CreateNode<SelectorNode>(tree, "Patrol Or Idle", ActionPosition(row));
+            var patrolSequence = CreateNode<SequenceNode>(tree, "Patrol If Enabled", new Vector2(SelectorChildColumnX, row * NodeRowHeight));
+            patrolSequence.Children.Add(CreateNode<IsEnemyPatrolEnabledNode>(tree, "Is Patrol Enabled", new Vector2(SelectorGrandchildColumnX, row * NodeRowHeight)));
             patrolSequence.Children.Add(CreateTransitionNode(tree, nameof(EnemyTransitionStateType.Patrol), row));
 
             selector.Children.Add(patrolSequence);
@@ -465,10 +465,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static BTNode CreateFlyingPatrolOrIdleNode(BehaviorTreeAsset tree, int row)
         {
-            var selector = CreateNode<SelectorNode>(tree, "Flying Patrol Or Idle", new Vector2(820f, row * 180f));
-            var patrolSequence = CreateNode<SequenceNode>(tree, "Flying Patrol If Enabled", new Vector2(1080f, row * 180f));
+            var selector = CreateNode<SelectorNode>(tree, "Flying Patrol Or Idle", ActionPosition(row));
+            var patrolSequence = CreateNode<SequenceNode>(tree, "Flying Patrol If Enabled", new Vector2(SelectorChildColumnX, row * NodeRowHeight));
             // EnemyFlyingAIContext.EnablePatrol은 별도 노드가 없으므로 Blackboard로 읽는다.
-            patrolSequence.Children.Add(CreateBlackboardCompareNode(tree, "enablePatrol", BlackboardComparisonType.Equal, "true", null, row));
+            patrolSequence.Children.Add(CreateBlackboardCompareNode(tree, EnemyBlackboardKeys.EnablePatrol, BlackboardComparisonType.Equal, "true", null, row));
             patrolSequence.Children.Add(CreateFlyingTransitionNode(tree, nameof(FlyingEnemyTransitionStateType.Patrol), row));
 
             selector.Children.Add(patrolSequence);
@@ -478,7 +478,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static IsCurrentActorStateNode CreateIsCurrentStateNode(BehaviorTreeAsset tree, string stateName, bool expected, int row)
         {
-            var node = CreateNode<IsCurrentActorStateNode>(tree, (expected ? "Is " : "Is Not ") + stateName, new Vector2(520f, row * 180f));
+            var node = CreateNode<IsCurrentActorStateNode>(tree, (expected ? "Is " : "Is Not ") + stateName, ConditionPosition(row));
             node.StateName = stateName;
             node.ExpectedValue = expected;
             return node;
@@ -486,14 +486,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static CooldownReadyNode CreateCooldownReadyNode(BehaviorTreeAsset tree, string cooldownId, int row)
         {
-            var node = CreateNode<CooldownReadyNode>(tree, "CooldownReady", new Vector2(520f, row * 180f));
+            var node = CreateConditionLeaf<CooldownReadyNode>(tree, row);
             node.CooldownId = cooldownId;
             return node;
         }
 
         private static IsSelfLowHealthNode CreateSelfLowHealthNode(BehaviorTreeAsset tree, string value, int row)
         {
-            var node = CreateNode<IsSelfLowHealthNode>(tree, "IsSelfLowHealth", new Vector2(520f, row * 180f));
+            var node = CreateConditionLeaf<IsSelfLowHealthNode>(tree, row);
             if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var threshold))
                 node.Threshold = threshold;
             return node;
@@ -501,7 +501,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static RecentHitCountGreaterOrEqualNode CreateRecentHitCountNode(BehaviorTreeAsset tree, string value, int row)
         {
-            var node = CreateNode<RecentHitCountGreaterOrEqualNode>(tree, "RecentHitCountGreaterOrEqual", new Vector2(520f, row * 180f));
+            var node = CreateConditionLeaf<RecentHitCountGreaterOrEqualNode>(tree, row);
             if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threshold))
                 node.Threshold = threshold;
             return node;
@@ -513,9 +513,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             IntComparisonType comparison,
             int row)
         {
-            var node = CreateNode<ConsecutiveAttackCountNode>(tree, comparison == IntComparisonType.LessThan
-                ? "ConsecutiveAttackCountLessThan"
-                : "ConsecutiveAttackCountGreaterOrEqual", new Vector2(520f, row * 180f));
+            var conditionKey = comparison == IntComparisonType.LessThan
+                ? MonsterBehaviorJsonNodeKeys.Conditions.ConsecutiveAttackCountLessThan
+                : MonsterBehaviorJsonNodeKeys.Conditions.ConsecutiveAttackCountGreaterOrEqual;
+            var label = BehaviorTreeEditorRegistryData.TryGetNodeLabel(conditionKey, out var registered)
+                ? registered
+                : conditionKey;
+            var node = CreateNode<ConsecutiveAttackCountNode>(tree, label, ConditionPosition(row));
             node.Comparison = comparison;
             if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threshold))
                 node.Threshold = threshold;
@@ -524,7 +528,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static CanRevengeAfterHitNode CreateRevengeAfterHitNode(BehaviorTreeAsset tree, string value, int row)
         {
-            var node = CreateNode<CanRevengeAfterHitNode>(tree, "CanRevengeAfterHit", new Vector2(520f, row * 180f));
+            var node = CreateConditionLeaf<CanRevengeAfterHitNode>(tree, row);
             if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var cooldown))
                 node.Cooldown = cooldown;
             return node;
@@ -532,7 +536,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static WaitNode CreateWaitNode(BehaviorTreeAsset tree, float duration, int row)
         {
-            var node = CreateNode<WaitNode>(tree, "Wait", new Vector2(820f, row * 180f));
+            var node = CreateActionLeaf<WaitNode>(tree, row);
             SetPrivateField(node, "_duration", Mathf.Max(0f, duration));
             return node;
         }
@@ -542,10 +546,28 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (child == null)
                 return null;
 
-            var inverter = CreateNode<InverterNode>(tree, "Invert " + child.DisplayName, new Vector2(500f, row * 180f));
+            var inverter = CreateNode<InverterNode>(tree, "Invert " + child.DisplayName, new Vector2(InverterColumnX, row * NodeRowHeight));
             inverter.Children.Add(child);
             return inverter;
         }
+
+        private const float SequenceColumnX = 260f;
+        private const float ConditionColumnX = 520f;
+        private const float InverterColumnX = 500f;
+        private const float WeightedSelectorColumnX = 560f;
+        private const float ActionColumnX = 820f;
+        private const float SelectorChildColumnX = 1080f;
+        private const float SelectorGrandchildColumnX = 1320f;
+        private const float NodeRowHeight = 180f;
+
+        private static Vector2 ConditionPosition(int row) => new(ConditionColumnX, row * NodeRowHeight);
+        private static Vector2 ActionPosition(int row) => new(ActionColumnX, row * NodeRowHeight);
+
+        private static T CreateConditionLeaf<T>(BehaviorTreeAsset tree, int row) where T : BTNode
+            => CreateNode<T>(tree, BehaviorTreeDisplayNameRegistry.GetNodeTypeLabel(typeof(T)), ConditionPosition(row));
+
+        private static T CreateActionLeaf<T>(BehaviorTreeAsset tree, int row) where T : BTNode
+            => CreateNode<T>(tree, BehaviorTreeDisplayNameRegistry.GetNodeTypeLabel(typeof(T)), ActionPosition(row));
 
         private static T CreateNode<T>(BehaviorTreeAsset tree, string displayName, Vector2 position) where T : BTNode
         {

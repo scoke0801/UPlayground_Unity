@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-04-27 23:18
+// Generated: 2026-05-23 00:22
 namespace UPlayGround.Data.Item
 {
     /// <summary>ItemIdType — Item int ID 열거형 (자동 생성). 값 자체가 ID이므로 (int)type으로 변환한다.</summary>

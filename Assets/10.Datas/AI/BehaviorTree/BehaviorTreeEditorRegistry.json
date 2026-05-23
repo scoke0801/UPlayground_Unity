@@ -34,7 +34,25 @@
     { "key": "ConsecutiveAttackCountNode", "label": "연속 공격 횟수 조건" },
     { "key": "CanIgnoreLightHitNode", "label": "약경직 무시 가능" },
     { "key": "CanRevengeAfterHitNode", "label": "피격 후 보복 가능" },
-    { "key": "WasLastHitHeavyNode", "label": "마지막 피격이 강함" }
+    { "key": "WasLastHitHeavyNode", "label": "마지막 피격이 강함" },
+    { "key": "IsBlockedEnemyStateNode", "label": "차단 상태" },
+    { "key": "HasEnemyActionDelayElapsedNode", "label": "행동 딜레이 경과" },
+    { "key": "CanUseEnemySkillNode", "label": "스킬 사용 가능" },
+    { "key": "IsFlyingAirStateNode", "label": "비행: 공중 상태" },
+    { "key": "IsFlyingGroundCombatStateNode", "label": "비행: 지상 전투 상태" },
+    { "key": "IsAirAttackLimitReachedNode", "label": "공중 공격 한계 도달" },
+    { "key": "ShouldFlyingTakeOffNode", "label": "이륙 필요" },
+    { "key": "FlyingCanUseSkillNode", "label": "비행: 스킬 사용 가능" },
+    { "key": "HasDiveSkillAvailableNode", "label": "다이브 스킬 사용 가능" },
+    { "key": "RollDiveChanceNode", "label": "다이브 확률 판정" },
+    { "key": "KeepCurrentStateNode", "label": "현재 상태 유지" },
+    { "key": "RequestEnemyAttackSlotNode", "label": "공격 슬롯 요청" },
+    { "key": "ResetFlyingCountersNode", "label": "비행 카운터 리셋" },
+    { "key": "ResetFlyingAirCountersNode", "label": "공중 카운터 리셋" },
+    { "key": "DescendFlyingNode", "label": "하강" },
+    { "key": "RequestFlyingAttackSlotNode", "label": "비행 공격 슬롯 요청" },
+    { "key": "SelectFlyingDiveSkillNode", "label": "다이브 스킬 선택" },
+    { "key": "WaitNode", "label": "대기" }
   ],
   "blackboardConditionAliases": [
     { "condition": "IsPlayerAttacking", "key": "Memory.Player.IsAttacking", "comparison": 0, "value": "true" },
@@ -119,6 +137,11 @@
     { "key": "Decision.IntentScore.KeepDistance", "type": 2, "label": "거리 유지 의도 점수" },
     { "key": "Decision.IntentScore.Defend", "type": 2, "label": "방어 의도 점수" },
     { "key": "Decision.IntentScore.Recover", "type": 2, "label": "회복 의도 점수" },
-    { "key": "Decision.CombatRhythmPhase", "type": 3, "label": "전투 리듬 단계" }
+    { "key": "Decision.CombatRhythmPhase", "type": 3, "label": "전투 리듬 단계" },
+    { "key": "enablePatrol", "type": 0, "label": "순찰 활성화" },
+    { "key": "optimalCombatDistance", "type": 2, "label": "최적 교전 거리", "floatValue": 2.5 },
+    { "key": "minCombatDistance", "type": 2, "label": "최소 교전 거리", "floatValue": 1.5 },
+    { "key": "personalSpaceDistance", "type": 2, "label": "개인 공간 거리", "floatValue": 0.8 },
+    { "key": "circleWeight", "type": 2, "label": "원형 이동 가중치" }
   ]
 }

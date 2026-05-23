@@ -45,9 +45,9 @@ namespace UPlayGround.Component
             var behavior = _context?.BehaviorData;
             var phase = _context?.CurrentPhase;
 
-            var optimalDistance = ReadFloat(blackboard, "optimalCombatDistance", _context?.OptimalCombatDistance ?? behavior?.optimalCombatDistance ?? 2.5f);
-            var minDistance = ReadFloat(blackboard, "minCombatDistance", _context?.MinCombatDistance ?? behavior?.minCombatDistance ?? 1.5f);
-            var personalSpace = ReadFloat(blackboard, "personalSpaceDistance", _context?.PersonalSpaceDistance ?? behavior?.personalSpaceDistance ?? 0.8f);
+            var optimalDistance = ReadFloat(blackboard, EnemyBlackboardKeys.OptimalCombatDistance, _context?.OptimalCombatDistance ?? behavior?.optimalCombatDistance ?? 2.5f);
+            var minDistance = ReadFloat(blackboard, EnemyBlackboardKeys.MinCombatDistance, _context?.MinCombatDistance ?? behavior?.minCombatDistance ?? 1.5f);
+            var personalSpace = ReadFloat(blackboard, EnemyBlackboardKeys.PersonalSpaceDistance, _context?.PersonalSpaceDistance ?? behavior?.personalSpaceDistance ?? 0.8f);
             var preferredRange = ReadFloat(blackboard, EnemyBlackboardKeys.AIPreferredRange, optimalDistance);
             var aggression = Read01(blackboard, EnemyBlackboardKeys.AIAggression, DefaultAggression);
             var reactionChance = Read01(blackboard, EnemyBlackboardKeys.AIReactionChance, DefaultReactionChance);
@@ -55,7 +55,7 @@ namespace UPlayGround.Component
             var punishChance = Read01(blackboard, EnemyBlackboardKeys.AIPunishRecoveryChance, DefaultPunishChance);
             var retreatChance = Read01(blackboard, EnemyBlackboardKeys.RetreatChance, behavior?.retreatChance ?? DefaultRetreatChance);
             var guardChance = Read01(blackboard, EnemyBlackboardKeys.GuardChance, behavior?.guardChance ?? DefaultGuardChance);
-            var circleWeight = ReadFloat(blackboard, "circleWeight", DefaultCircleWeight);
+            var circleWeight = ReadFloat(blackboard, EnemyBlackboardKeys.CircleWeight, DefaultCircleWeight);
             var minRetreatCooldown = ReadFloat(blackboard, EnemyBlackboardKeys.AIMinRetreatCooldown, 1.5f);
 
             var isPlayerAttacking = _memory != null && _memory.IsPlayerAttacking();

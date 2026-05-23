@@ -22,6 +22,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public static readonly Color Action = new(0.34f, 0.78f, 0.52f);
         public static readonly Color Condition = new(0.90f, 0.62f, 0.24f);
         public static readonly Color Decorator = new(0.72f, 0.42f, 0.86f);
+        public static readonly Color Sequence = new(0.26f, 0.78f, 0.76f);
+        public static readonly Color Selector = new(0.42f, 0.58f, 0.96f);
+        public static readonly Color WeightedSelector = new(0.94f, 0.68f, 0.24f);
+        public static readonly Color Parallel = new(0.86f, 0.38f, 0.48f);
 
         public static readonly Color Running = new(0.36f, 0.95f, 0.52f);
         public static readonly Color Success = new(0.30f, 0.82f, 0.42f);
@@ -170,7 +174,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public void RefreshView()
         {
             _displayNameLabel.text = BehaviorTreeDisplayNameRegistry.GetNodeTitle(Node);
-            _categoryLabel.text = $"{Node.GetType().Name} · {Node.DisplayName} · #{_nodeIndex}";
+            _categoryLabel.text = $"{GetCategoryName(Node)} · {Node.GetType().Name} · {Node.DisplayName} · #{_nodeIndex}";
             RefreshParamBlock(_paramBlock, Node);
             RefreshEditorFlags(_flagsRow, Node);
 

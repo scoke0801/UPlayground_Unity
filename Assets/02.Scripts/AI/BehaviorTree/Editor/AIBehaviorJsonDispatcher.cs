@@ -20,7 +20,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MonsterBehaviorRules
         }
 
-        [MenuItem("UPlayGround/Character/AI/Import AI Json (Auto Detect)", false, -100)]
+        [MenuItem("UPlayGround/Behavior Tree/Json/Import AI Json (Auto Detect)", false)]
         public static void ImportFromFilePanel()
         {
             var jsonPath = EditorUtility.OpenFilePanel("AI Json Import (Auto Detect)", Application.dataPath, "json");

@@ -19,7 +19,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 28
         poiseDamage: 28
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -27,12 +31,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 6
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -42,7 +61,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 25
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -50,12 +73,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 6
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -65,7 +103,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 25
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 7
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -73,12 +115,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 7
         knockBackForce: 5
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -88,7 +145,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -96,12 +157,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -111,7 +187,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 20
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -119,12 +199,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -134,7 +229,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -142,12 +241,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -157,7 +271,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -165,12 +283,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 6
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -180,7 +313,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -188,12 +325,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 6
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -203,7 +355,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -211,12 +367,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 30
     minRange: 0
     maxRange: 2.5
     cooldown: 2
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -226,7 +397,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 10
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -234,12 +409,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
     cooldown: 5
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -249,7 +439,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 10
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -257,12 +451,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
     cooldown: 5
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -272,7 +481,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 20
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 9
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 0, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -280,12 +493,27 @@ MonoBehaviour:
         pullForce: 0
         airborneForce: 0
         knockBackForce: 0
+        knockBackDrag: 20
         grabDuration: 1.5
+        victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
     cooldown: 5
+    useTelegraph: 1
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
     conditionGroup:
       conditionOperator: 0
       conditions: []

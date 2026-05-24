@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_PlantChild
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 34b0e7b4071a8c845a07f3750060ebe8, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
   optimalCombatDistance: 2.5

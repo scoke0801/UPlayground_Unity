@@ -195,8 +195,6 @@ public class UI_PartySelect : UI_Base
         UpdateBattleSizeText(battleOrder.Count, maxBattle);
         UpdateFieldPreviews(battleOrder);
 
-        bool canSwap = partyManager.CanSwap();
-
         for (int i = 0; i < slotCount; ++i)
         {
             if (i < battleOrder.Count)
@@ -208,7 +206,7 @@ public class UI_PartySelect : UI_Base
                     : maxHp;
                 bool isActive = (i == partyManager.ActiveIndex);
 
-                bool canSelect = _rosterOpen || (canSwap && !isActive && currentHp > 0f);
+                bool canSelect = _rosterOpen || partyManager.CanSwapTo(i);
 
                 _slots[i].InitBattle(this, i, type, currentHp, maxHp, isActive, canSelect);
             }

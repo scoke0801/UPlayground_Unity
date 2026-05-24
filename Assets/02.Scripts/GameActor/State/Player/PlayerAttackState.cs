@@ -183,6 +183,7 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
             _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
             if (_isCounter)
@@ -240,6 +241,7 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
             _homingTarget = null;
             _motionWarp?.ClearTarget();
+            ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             base.OnExit(toState);
         }
 

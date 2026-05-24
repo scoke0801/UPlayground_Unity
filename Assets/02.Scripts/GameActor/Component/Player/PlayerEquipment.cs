@@ -236,6 +236,7 @@ namespace UPlayGround.Component
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
             ForceSyncWeaponState(equipPosition, false);
+            ActorWeaponTrailController.RefreshAttackTrails(this);
         }
         public void SetRightWeaponType(WeaponType type)
         {
@@ -690,6 +691,8 @@ namespace UPlayGround.Component
             {
                 RestoreBuiltInSubWeapons();
             }
+
+            ActorWeaponTrailController.RefreshAttackTrails(this);
         }
 
         private void RestoreBuiltInSubWeapons()

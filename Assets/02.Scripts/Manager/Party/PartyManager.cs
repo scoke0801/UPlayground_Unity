@@ -33,9 +33,9 @@ namespace UPlayGround.Manager
         private List<CharacterActorType> _battleOrder = new();
         private readonly Dictionary<CharacterActorType, PartyMemberGrowthSO> _growthLookup = new();
         private readonly Dictionary<CharacterActorType, int> _levels = new();
+        private readonly Dictionary<CharacterActorType, float> _swapCooldownEndTimes = new();
         private int                    _activeIndex  = 0;
         private int                    _maxBattleSize = 4;
-        private float                  _lastSwapTime = -999f;
         private bool                   _isSwapping   = false;
         private PlayerCombat           _subscribedCombat;
 
@@ -56,6 +56,10 @@ namespace UPlayGround.Manager
         public int                       MaxBattleSize       => _maxBattleSize;
         public IReadOnlyList<CharacterActorType> Roster      => _roster;
         public IReadOnlyList<CharacterActorType> BattleOrder => _battleOrder;
+        public float                     SwapCooldownDuration => Mathf.Max(0f, _swapCooldown);
+        public float                     SwapCooldownRemaining => GetSwapCooldownRemaining(ActiveCharacterType);
+        public float                     SwapCooldownRatio => SwapCooldownDuration > 0f ? SwapCooldownRemaining / SwapCooldownDuration : 0f;
+        public bool                      IsSwapOnCooldown => HasAnySwapCooldown();
 
         public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
         
@@ -75,6 +79,8 @@ namespace UPlayGround.Manager
             {
                 var handle = Addressables.LoadAssetAsync<PartyConfigSO>(AddressableKey);
                 _config = await handle.Task;
+                if (_config != null)
+                    _swapCooldown = Mathf.Max(0f, _config.swapCooldown);
             }
             catch (Exception e)
             {
@@ -113,6 +119,7 @@ namespace UPlayGround.Manager
             _battleOrder.Clear();
             _growthLookup.Clear();
             _levels.Clear();
+            _swapCooldownEndTimes.Clear();
         }
 
         public void OnUpdate()
@@ -146,15 +153,28 @@ namespace UPlayGround.Manager
 
         // ─── 교체 요청 ────────────────────────────────────────────────────
 
-        public bool RequestSwapNext() => RequestSwapTo((_activeIndex + 1) % _battleOrder.Count);
+        public bool RequestSwapNext()
+        {
+            if (_battleOrder.Count < 2) return false;
+
+            for (int offset = 1; offset < _battleOrder.Count; offset++)
+            {
+                int targetIndex = (_activeIndex + offset) % _battleOrder.Count;
+                if (RequestSwapTo(targetIndex))
+                    return true;
+            }
+
+            return false;
+        }
 
         public bool RequestSwapTo(int targetIndex)
         {
-            if (!CanSwap())                                            return false;
+            if (!CanSwapTo(targetIndex))                               return false;
             if (targetIndex == _activeIndex)                           return false;
             if (targetIndex < 0 || targetIndex >= _battleOrder.Count) return false;
 
             var targetType = _battleOrder[targetIndex];
+            var previousType = ActiveCharacterType;
 
             if (_player.GetHealthForCharacter(targetType) <= 0f)      return false;
 
@@ -184,7 +204,7 @@ namespace UPlayGround.Manager
             }
 
             _activeIndex  = targetIndex;
-            _lastSwapTime = Time.time;
+            RecordSwapCooldown(previousType);
             _isSwapping   = false;
 
             NotifyActivePlayerChanged();
@@ -464,15 +484,56 @@ namespace UPlayGround.Manager
 
         public bool CanSwap()
         {
-            if (_isSwapping)                                return false;
-            if (Time.time - _lastSwapTime < _swapCooldown) return false;
-            if (_battleOrder.Count < 2)                    return false;
+            if (_isSwapping)             return false;
+            if (_battleOrder.Count < 2) return false;
 
             var state = _player?.PlayerController?.CurrentState?.StateName;
             if (state == "Death")   return false;
             if (state == "Grabbed") return false;
 
             return true;
+        }
+
+        public bool CanSwapTo(int targetIndex)
+        {
+            if (!CanSwap()) return false;
+            if (targetIndex == _activeIndex) return false;
+            if (targetIndex < 0 || targetIndex >= _battleOrder.Count) return false;
+
+            CharacterActorType targetType = _battleOrder[targetIndex];
+            if (IsSwapCooldownActive(targetType)) return false;
+            if (_player != null && _player.GetHealthForCharacter(targetType) <= 0f) return false;
+
+            return true;
+        }
+
+        public bool IsSwapCooldownActive(CharacterActorType type) => GetSwapCooldownRemaining(type) > 0f;
+
+        public float GetSwapCooldownRemaining(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return 0f;
+            if (!_swapCooldownEndTimes.TryGetValue(type, out float endTime)) return 0f;
+            return Mathf.Clamp(endTime - Time.time, 0f, SwapCooldownDuration);
+        }
+
+        public float GetSwapCooldownRatio(CharacterActorType type)
+        {
+            float duration = SwapCooldownDuration;
+            return duration > 0f ? GetSwapCooldownRemaining(type) / duration : 0f;
+        }
+
+        private bool HasAnySwapCooldown()
+        {
+            if (SwapCooldownDuration <= 0f) return false;
+            if (_swapCooldownEndTimes.Count == 0) return false;
+
+            foreach (var pair in _swapCooldownEndTimes)
+            {
+                if (pair.Value > Time.time)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -483,13 +544,22 @@ namespace UPlayGround.Manager
         {
             if (_player == null) return false;
 
+            CharacterActorType previousType = ActiveCharacterType;
             var swap = _player.GetComponent<PlayerSwapBehaviour>();
             if (swap == null || !swap.SwapTo(targetType)) return false;
 
-            _lastSwapTime = Time.time;
+            RecordSwapCooldown(previousType);
             NotifyActivePlayerChanged();
             OnSwapCompleted?.Invoke(_player);
             return true;
+        }
+
+        private void RecordSwapCooldown(CharacterActorType type)
+        {
+            float duration = SwapCooldownDuration;
+            if (type == CharacterActorType.None || duration <= 0f) return;
+
+            _swapCooldownEndTimes[type] = Time.time + duration;
         }
 
         /// <summary>
@@ -516,8 +586,10 @@ namespace UPlayGround.Manager
             _player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
             _roster.Clear();
             _battleOrder.Clear();
+            _swapCooldownEndTimes.Clear();
 
             _maxBattleSize = _config != null ? Mathf.Max(1, _config.maxBattleSize) : 4;
+            _swapCooldown = _config != null ? Mathf.Max(0f, _config.swapCooldown) : Mathf.Max(0f, _swapCooldown);
             BuildGrowthLookup();
 
             if (_config != null && _config.partyOrder.Count > 0)

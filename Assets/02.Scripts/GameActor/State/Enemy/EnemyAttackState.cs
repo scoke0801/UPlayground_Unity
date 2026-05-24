@@ -59,6 +59,7 @@ namespace UPlayGround.State
             _motionWarp     = controller.MotionWarp;
 
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(true);
+            ActorWeaponTrailController.StartAttackTrails(gameActor);
 
             float distanceToTarget = _detection.DistanceToTarget;
             _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
@@ -101,6 +102,7 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _combat.ClearTelegraphs();
             _combat.ClearTelegraphHitPositions();
+            ActorWeaponTrailController.StopAttackTrails(gameActor);
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);

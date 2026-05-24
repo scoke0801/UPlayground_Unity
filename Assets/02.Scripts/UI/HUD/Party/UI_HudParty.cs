@@ -11,6 +11,7 @@ public class UI_HudParty : UI_Base
     [SerializeField] private List<UIHudPartyEntry> _entries = new();
 
     private PlayerActor _subscribedPlayer;
+    private bool _hasSwapCooldownVisible;
 
     protected override void OnShow()
     {
@@ -71,6 +72,15 @@ public class UI_HudParty : UI_Base
 
         SubscribePlayer(pm.ActiveCharacter);
         RefreshEntryValues();
+        RefreshSwapCooldown();
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        if (_hasSwapCooldownVisible || PartyManager.Instance?.IsSwapOnCooldown == true)
+            RefreshSwapCooldown();
     }
 
     private void SubscribePlayer(PlayerActor player)
@@ -93,6 +103,7 @@ public class UI_HudParty : UI_Base
     private void OnSwapCompleted(PlayerActor player)
     {
         RefreshEntryValues();
+        RefreshSwapCooldown();
     }
 
     private void OnActiveHpChanged(float current, float max)
@@ -156,5 +167,33 @@ public class UI_HudParty : UI_Base
                 player.GetSkillGaugeForCharacter(type),
                 player.GetMaxSkillGaugeForCharacter(type));
         }
+
+        RefreshSwapCooldown();
+    }
+
+    private void RefreshSwapCooldown()
+    {
+        var pm = PartyManager.Instance;
+        if (pm == null)
+        {
+            _hasSwapCooldownVisible = false;
+            return;
+        }
+
+        float duration = pm.SwapCooldownDuration;
+        bool hasVisibleCooldown = false;
+
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var entry = _entries[i];
+            if (entry == null || entry.BoundType == UPlayGround.Data.EnumType.CharacterActorType.None)
+                continue;
+
+            float remaining = pm.GetSwapCooldownRemaining(entry.BoundType);
+            if (remaining > 0f) hasVisibleCooldown = true;
+            entry.SetSwapCooldown(remaining, duration);
+        }
+
+        _hasSwapCooldownVisible = hasVisibleCooldown;
     }
 }

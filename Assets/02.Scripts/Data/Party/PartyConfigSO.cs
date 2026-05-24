@@ -27,6 +27,11 @@ namespace UPlayGround.Data.Party
         [Min(0)]
         public int startActiveIndex = 0;
 
+        [Header("Swap")]
+        [Tooltip("다른 출전 파티원으로 교체한 뒤, 교체되어 나간 캐릭터에게 적용할 개별 스왑 쿨타임.")]
+        [Min(0f)]
+        public float swapCooldown = 3f;
+
         [Header("Growth")]
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
         public List<PartyMemberGrowthSO> growthData = new();

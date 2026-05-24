@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
 using System.Collections.Generic;
+using INab.Common;
 using UnityEngine;
 using UnityEngine.Animations;
 using UPlayGround.Animation;
@@ -65,6 +66,20 @@ namespace UPlayGround.Component
 
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
+
+        public bool IsWeaponTrailDrawable(WeaponTrailEffect trail)
+        {
+            if (trail == null) return false;
+
+            Transform trailTransform = trail.transform;
+            if (IsMainWeaponEquipped && IsTrailUnderWeaponSlot(trailTransform, _currentMainWeaponObj, _mainWeaponConstraint))
+                return true;
+
+            if (IsSubWeaponEquipped && IsTrailUnderWeaponSlot(trailTransform, _currentSubWeaponObj, _subWeaponConstraint))
+                return true;
+
+            return false;
+        }
         
         // [TODO] 테스트 기능
         public void SetWeaponType(WeaponType type)
@@ -314,6 +329,9 @@ namespace UPlayGround.Component
 
             SetWeaponDrawn(_mainWeaponConstraint, drawn);
             IsMainWeaponEquipped = drawn;
+            if (!drawn)
+                ActorWeaponTrailController.SuppressAttackTrails(this);
+
             if (drawn)
                 PlayWeaponDrawFx(_currentMainWeaponObj, _mainWeaponConstraint);
 
@@ -332,6 +350,9 @@ namespace UPlayGround.Component
 
             SetWeaponDrawn(_subWeaponConstraint, drawn);
             IsSubWeaponEquipped = drawn;
+            if (!drawn)
+                ActorWeaponTrailController.SuppressAttackTrails(this);
+
             if (drawn)
                 PlayWeaponDrawFx(_currentSubWeaponObj, _subWeaponConstraint);
         }
@@ -352,6 +373,7 @@ namespace UPlayGround.Component
             if (!drawn)
             {
                 DissolveDrawnWeapons();
+                ActorWeaponTrailController.SuppressAttackTrails(this);
                 IsMainWeaponEquipped = false;
                 _requestedMainWeaponDrawn = null;
                 onComplete?.Invoke();
@@ -428,6 +450,7 @@ namespace UPlayGround.Component
             else
             {
                 CompleteHideDrawnWeapons();
+                ActorWeaponTrailController.SuppressAttackTrails(this);
             }
         }
 
@@ -693,6 +716,19 @@ namespace UPlayGround.Component
             }
 
             ActorWeaponTrailController.RefreshAttackTrails(this);
+        }
+
+        private static bool IsTrailUnderWeaponSlot(
+            Transform trailTransform,
+            GameObject weaponObj,
+            ParentConstraint constraint)
+        {
+            if (trailTransform == null) return false;
+
+            if (weaponObj != null && trailTransform.IsChildOf(weaponObj.transform))
+                return true;
+
+            return constraint != null && trailTransform.IsChildOf(constraint.transform);
         }
 
         private void RestoreBuiltInSubWeapons()

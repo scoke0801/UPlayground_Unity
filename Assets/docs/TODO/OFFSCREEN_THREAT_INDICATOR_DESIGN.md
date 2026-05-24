@@ -2,7 +2,7 @@
 
 > 작성일: 2026-05-24  
 > 대상 버전: Unity 6 (6000.0.60f1), URP  
-> 상태: 설계(미구현) — TODO
+> 상태: 1차(MVP) 코드 작성 완료 / 에디터 와이어링 대기 (2026-05-24)
 
 ---
 
@@ -28,7 +28,7 @@
 ### 기술 일반론
 
 **오프스크린 인디케이터 수학**  
-월드→스크린 변환 → 화면 밖 판정 → 화면 가장자리 클램핑 → `atan2`로 방향각 회전이 표준이다. 화면 사각형 경계와의 교점으로 클램핑하는 것이 정상(원형 클램프 아님).
+월드→스크린 변환 → 화면 밖 판정 → 가장자리 클램핑 → `atan2`로 방향각 회전이 표준이다. 클램핑 형태는 두 갈래가 있다 — (a) 화면 사각형 경계 교점, (b) 화면 중앙 기준 원형 테두리(방사형). 명조/원신 식 방사형 인디케이터에 가까운 **(b) 원형 테두리**를 이 프로젝트의 최종 방식으로 채택한다(아래 "원형 테두리 배치 수학" 참조).
 
 **공격 텔레그래프와 반응시간**  
 공격은 예비(Anticipation, 약 0.25~1.0초) → 공격(Attack) → 회복(Recovery) 3단계로 구성된다. 예비 단계가 플레이어 반응 시간을 제공한다. (출처: Game Developer, GDKeys 등 — 하단 출처 참조.)
@@ -61,7 +61,7 @@
 
 | 등급 | 조건 | 비주얼(방향) | 비고 |
 |------|------|------|------|
-| **공격 임박** (주 트리거) | 위 필수 조건 + `MonsterActor.MovementController.CurrentState.StateName == "Attack"` | 붉은색 + 펄스 애니메이션 + "!" 심볼 (+ 옵션 경고 SFX) | 강조됨. 주 기능. |
+| **공격 임박** (주 트리거) | 위 필수 조건 + `MonsterActor.MovementController.CurrentState.StateName == "Attack"` | 붉은색 + 펄스 애니메이션 + 큰 크기 (+ 옵션 경고 SFX) | 강조됨. 주 기능. |
 | **인식만** (약한 표시) | 위 필수 조건 충족, 공격 상태 아님 | 주황/회색, 작게, 펄스 없음 | 보조 표시. Config로 비활성화 가능. |
 
 > 과제의 핵심 요구는 "공격하려 함"이므로 **공격 임박 등급이 주 기능**이다.
@@ -87,14 +87,26 @@
 
 ---
 
-## 화면 가장자리 클램프 수학
+## 원형 테두리(Ring) 배치 수학
+
+마커는 화면 사각형 가장자리가 아니라, **화면 중앙 기준 가상 원형 테두리** 위에 놓는다(명조/원신 식 방사형 인디케이터). 구현은 카메라 투영을 후보당 1회(`WorldToViewportPoint`)만 사용한다.
 
 ### 개념
 
-1. **카메라 뒤 처리**: `z <= 0`일 때 적 방향 벡터를 카메라 평면에 사영해 화면상의 방향각을 산출한다(투영 반전 방지).
-2. **방향 벡터**: 적 스크린 좌표(또는 사영 방향)와 화면 중심을 잇는 벡터를 구한다.
-3. **교점 계산**: 방향 벡터가 화면 사각형 경계(여백 마진 적용, 마진 값 TBD)와 만나는 교점을 인디케이터 위치로 사용한다.
-4. **회전각**: 화살표 회전각 = `atan2(dir.y, dir.x)`로 적 방향을 가리키게 한다.
+1. **뷰포트 1회 투영**: `WorldToViewportPoint`로 적의 뷰포트 좌표를 구한다. `z <= 0`이면 카메라 뒤로 판정한다(가드 먼저).
+2. **방향 벡터**: 뷰포트 델타 `(vx-0.5, vy-0.5)`를 화면 비율로 환산(`*Screen.width`, `*Screen.height`)해 화면상의 실제 방향을 얻는다. 카메라 뒤면 부호를 반전한다.
+3. **각도**: `angle = atan2(dy, dx)`.
+4. **링 위 좌표**: 마커 컨테이너 로컬 좌표 = `(cos angle, sin angle) * ringRadius`. 사각형 교점 계산이 필요 없다.
+5. **회전각**: 화살표 회전 `Z = angle*Rad2Deg + markerForwardAngleOffset`로 적 방향을 가리킨다. 보정각은 스프라이트 기본 향함에 맞춘다 — 오른쪽(+X) 향함이면 `0`, 위(+Y) 향함이면 `-90`.
+
+### 성능(핫패스) 설계
+
+`LateUpdate`가 매 프레임 돌므로 후보당 비용을 최소화한다.
+
+- **카메라 투영 1회**: 사각형 클램프 방식이 쓰던 두 번째 투영(`WorldToScreenPoint`)과 `RectTransformUtility.ScreenPointToLocalPointInRectangle` 호출을 제거. 오프스크린 판정에 쓴 `WorldToViewportPoint` 결과를 방향 계산에 재사용한다.
+- **싼 필터 우선**: 인식 여부(`HasTarget`/`CurrentTarget`) → 거리 `sqrMagnitude` → 카메라 투영 → 상태명 조회 순. 투영은 "플레이어를 타겟으로 잡은 + 거리 내" 후보에만 수행한다.
+- **루프 밖 호이스팅**: 설정값(색/스케일/펄스/ringRadius), 플레이어 위치, `Screen.width/height`를 루프 전 지역 변수로 1회만 읽는다.
+- **무할당**: 루프 내 `new Vector2/3`는 구조체라 GC 없음. 마커는 풀링.
 
 ---
 
@@ -102,7 +114,7 @@
 
 ### 이중 부호화
 
-색상(공격 임박=붉은, 인식=주황)만으로 구분하지 않고 화살표 **형태**와 "!" **심볼**을 함께 사용한다. 옵션으로 경고 SFX를 추가할 수 있다. 색맹 사용자도 형태/심볼로 식별 가능하게 한다.
+색상(공격 임박=붉은, 인식=주황)만으로 구분하지 않고 **화살표 방향 + 크기 + 펄스 유무**를 함께 사용한다(색맹 대비 이중 부호화). 1차 구현에서는 별도 "!" 심볼 없이 화살표 단독으로 두되, 공격 임박은 큰 크기 + 펄스로 구분한다. 옵션 경고 SFX는 future work.
 
 ### 외부화
 
@@ -143,9 +155,9 @@
 
 | 파일/식별자 | 역할 | 신규/기존 |
 |------|------|------|
-| `Assets/02.Scripts/UI/HUD/UI_OffscreenThreatIndicator.cs` | HUD 인디케이터 메인. `UI_Base` 상속, HUD 캔버스 레이어 | 신규 |
-| `Assets/02.Scripts/UI/HUD/OffscreenThreatMarker.cs` | 개별 화살표 마커 컴포넌트(풀링) | 신규 |
-| `Assets/02.Scripts/Data/UI/OffscreenThreatConfigSO.cs` | 색 팔레트·거리 임계값·마진·펄스 등 수치 외부화 SO | 신규 |
+| `Assets/02.Scripts/UI/HUD/UI_HudOffscreenThreatIndicator.cs` | HUD 인디케이터 메인. `UI_Base` 상속, HUD 캔버스 레이어 | 신규 |
+| `Assets/02.Scripts/UI/HUD/UIOffscreenThreatMarker.cs` | 개별 화살표 마커 컴포넌트(풀링) | 신규 |
+| `Assets/02.Scripts/Data/UI/OffscreenThreatConfigSO.cs` | 색 팔레트·거리 임계값·링 반경·펄스 등 수치 외부화 SO | 신규 |
 | `Assets/03.Prefabs/UI/` | 인디케이터 프리팹 배치 위치 | 신규 |
 | `Assets/10.Datas/UI/` | Config 에셋 배치 위치 | 신규 |
 | `GameObjectManager.AllActors` / `Player` / `OnActorRegistered` / `OnActorUnregistered` | 적 후보 수집·플레이어 참조 | 기존 |
@@ -160,7 +172,7 @@
 
 ## 신규 HUD 등록 절차
 
-1. `UI_OffscreenThreatIndicator`를 `UI_Base` 상속으로 작성하고 `_layer`를 HUD 레이어로 설정한다.
+1. `UI_HudOffscreenThreatIndicator`를 `UI_Base` 상속으로 작성하고 `_layer`를 HUD 레이어로 설정한다.
 2. 프리팹을 `Assets/03.Prefabs/UI/`에 만들고 루트에 Canvas + 컴포넌트를 부착한다.
 3. `UIKeyType`은 자동 생성 파일이므로 직접 수정하지 말고 "UPlayGround/ID Enum Generator" 창에서 키를 추가·재생성한다.
 4. `UIPrefabDatabase.asset`에 key·prefab·defaultLayer(HUD)를 등록한다.
@@ -172,13 +184,29 @@
 
 ### 1차 (MVP)
 
-- 프러스텀 밖 판정(viewport/z)
-- 공격 임박 등급
-- 사각형 클램프
-- 마커 풀링
-- Config 외부화
-- 카메라 모드 게이트
-- 파티 스왑 반영
+**코드 작성 완료 (2026-05-24)** — 아래 3개 스크립트:
+- `Assets/02.Scripts/Data/UI/OffscreenThreatConfigSO.cs`
+- `Assets/02.Scripts/UI/HUD/UIOffscreenThreatMarker.cs`
+- `Assets/02.Scripts/UI/HUD/UI_HudOffscreenThreatIndicator.cs`
+
+구현 항목:
+- [x] 프러스텀 밖 판정(viewport/z, 카메라 뒤 가드)
+- [x] 공격 임박 등급(`CurrentState.StateName == "Attack"`) + 인식만 보조 등급
+- [x] 가상 원형 테두리(ring) 배치 + atan2 회전 (사각형 클램프에서 변경)
+- [x] 마커 풀링
+- [x] Config 외부화(`OffscreenThreatConfigSO`)
+- [x] 카메라 모드 게이트(`CurrentCameraMode != InGame` 시 숨김)
+- [x] 파티 스왑 반영(`PartyManager.OnSwapCompleted`)
+- [x] `UIKeyType.OffscreenThreatIndicator` 키 생성(ID Enum Generator) + `UI_GamePlay`에 `ShowUI`/`HideUI` 배선
+
+> 마커는 색맹 대비 "!" 심볼 없이 화살표 단독으로 변경됨(색+형태+방향으로 구분). 클래스명: `UIOffscreenThreatMarker`, `UI_HudOffscreenThreatIndicator`.
+
+**남은 에디터 와이어링 (Unity 내 수동 작업):**
+- [ ] `OffscreenThreatConfig` 에셋 생성(메뉴: `UPlayGround/UI/OffscreenThreatConfig`) → `10.Datas/UI/`
+- [ ] 마커 프리팹(화살표 Image +Y 향함) + 인디케이터 프리팹(풀스크린 stretch 마커 컨테이너, pivot 0.5) → `03.Prefabs/UI/`
+- [ ] `UIPrefabDatabase.asset`에 `OffscreenThreatIndicator` 키·프리팹·HUD 레이어 등록
+
+**Unity 실행 후 튜닝/확인:** 루트 위치 보정(키 큰 적은 발끝 기준이라 머리가 화면 안인데 off-screen 처리될 수 있음 → 필요 시 `+up*height` 보정), 거리/링 반경/펄스 수치(TBD).
 
 ### Future
 
@@ -205,7 +233,7 @@
 
 ### 수치 정의
 
-거리 임계값·마진·펄스 속도 등 모든 튜닝 수치: TBD.
+거리 임계값·링 반경·펄스 속도 등 모든 튜닝 수치: TBD.
 
 ---
 

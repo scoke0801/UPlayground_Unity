@@ -101,7 +101,10 @@ namespace UPlayGround.CameraSystem
                                    + effectState.distanceDelta;
             state.CameraOffset += effectState.offsetDelta;
 
+            bool isLockOn = context.LockOn?.IsActive ?? false;
             float posSmoothTime = effectState.positionSmoothTimeOverride ?? settings.positionSmoothTime;
+            if (!isLockOn && context.LookAtOverride == null && !effectState.positionSmoothTimeOverride.HasValue)
+                posSmoothTime = 0f;
             float rotSmoothTime = effectState.rotationSmoothTimeOverride ?? settings.rotationSmoothTime;
 
             Vector3 pivotPosition;
@@ -207,8 +210,13 @@ namespace UPlayGround.CameraSystem
         {
             if (!context.IsInputLocked)
             {
+                bool isLockOn = context.LockOn?.IsActive ?? false;
                 Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
-                targetOffset += ComputeLookAheadOffset(context, settings);
+                if (isLockOn)
+                    targetOffset += ComputeLookAheadOffset(context, settings);
+                else
+                    ResetLookAheadOffset();
+
                 state.CameraOffset = Vector3.SmoothDamp(
                     state.CameraOffset,
                     targetOffset,
@@ -239,11 +247,19 @@ namespace UPlayGround.CameraSystem
                 ? context.LookAtOverride.position + context.LookAtOverrideOffset
                 : context.Target.position + state.CameraOffset;
 
-            state.SmoothPosition = Vector3.SmoothDamp(
-                state.SmoothPosition,
-                pivotBase,
-                ref state.PositionVelocity,
-                smoothTime);
+            if (smoothTime <= 0f)
+            {
+                state.SmoothPosition = pivotBase;
+                state.PositionVelocity = Vector3.zero;
+            }
+            else
+            {
+                state.SmoothPosition = Vector3.SmoothDamp(
+                    state.SmoothPosition,
+                    pivotBase,
+                    ref state.PositionVelocity,
+                    smoothTime);
+            }
 
             pivotPosition = state.SmoothPosition;
 
@@ -286,6 +302,12 @@ namespace UPlayGround.CameraSystem
 
             _lookAheadOffset.y = 0f;
             return _lookAheadOffset;
+        }
+
+        private void ResetLookAheadOffset()
+        {
+            _lookAheadOffset = Vector3.zero;
+            _lookAheadVelocity = Vector3.zero;
         }
 
         private static Vector3 ResolveSafeBackPosition(

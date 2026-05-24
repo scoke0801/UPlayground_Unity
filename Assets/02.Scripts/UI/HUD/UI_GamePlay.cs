@@ -34,11 +34,11 @@ class UI_GamePlay : UI_Base
         UIManager.Instance.ShowUI(UIKeyType.Minimap);
 
         _hudParty = UIManager.Instance.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HudParty>();
-        UIManager.Instance.ShowUI(UIKeyType.HudParty);
 
         _hudQuest = UIManager.Instance.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
-        UIManager.Instance.ShowUI(UIKeyType.HudQuest);
-        
+
+        UIManager.Instance.ShowUI(UIKeyType.OffscreenThreatIndicator);
+
         if (GameObjectManager.Instance != null)
         {
             _playerActor = GameObjectManager.Instance.Player;
@@ -55,6 +55,7 @@ class UI_GamePlay : UI_Base
         UIManager.Instance.HideUI(UIKeyType.Minimap);
         UIManager.Instance.HideUI(UIKeyType.HudParty);
         UIManager.Instance.HideUI(UIKeyType.HudQuest);
+        UIManager.Instance.HideUI(UIKeyType.OffscreenThreatIndicator);
 
         if (_playerCombat == null)
         {

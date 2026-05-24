@@ -14,6 +14,7 @@ namespace UPlayGround.State
         public override bool AdjustGravity => true;
 
         private PlayerCombat _combat;
+        private PlayerEquipment _equipment;
         private AttackData   _attackData;
         private float        _timer;
         private bool         _comboInputted;
@@ -36,7 +37,9 @@ namespace UPlayGround.State
             _changingState = false;
 
             _combat = playerActor.GetCombat();
-            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
+            _equipment = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
+            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
             _attackData = _startAsFinish
                 ? _combat?.ExecuteJumpFinishAttack()
                 : _combat?.ExecuteJumpAttack(false);
@@ -51,6 +54,7 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _combat?.ClearHitTargets();
+            ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             base.OnExit(toState);
         }
 

@@ -14,6 +14,7 @@ namespace UPlayGround.State
         private float _decelerationDuration = 0.5f;
 
         private PlayerCombat _combat;
+        private PlayerEquipment _equipment;
         private AttackData   _attackData;
         private bool         _changingState;
         private Vector3      _attackDirection;
@@ -38,7 +39,9 @@ namespace UPlayGround.State
             _elapsed         = 0f;
             _attackDirection = motor.CharacterForward;
             _combat          = playerActor.GetCombat();
-            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
+            _equipment       = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
+            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
             _attackData      = _combat?.ExecuteJumpDashAttack();
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpDashAttack_1;
@@ -56,6 +59,7 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _combat?.ClearHitTargets();
+            ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             base.OnExit(toState);
         }
 

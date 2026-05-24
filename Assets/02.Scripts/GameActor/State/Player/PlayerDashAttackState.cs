@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
@@ -13,6 +14,7 @@ namespace UPlayGround.State
         public override string StateName => "JumpAttack";
 
         private AttackData _attackData;
+        private PlayerEquipment _equipment;
         
         public PlayerDashAttackState(ActorMovementController controller) : base(controller)
         {
@@ -28,7 +30,9 @@ namespace UPlayGround.State
 
             SnapToLockOnTarget();
 
-            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
+            _equipment = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
+            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
             playerActor.GetCombat()?.ExecuteDashAttack();
 
             var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);
@@ -41,6 +45,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
+            ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             
             base.OnExit(toState);
         }

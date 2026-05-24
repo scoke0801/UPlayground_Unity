@@ -28,6 +28,7 @@ namespace UPlayGround.State
         public override string StateName => "Charge";
 
         private PlayerCombat _combat;
+        private PlayerEquipment _equipment;
 
         // 차지 시간 (InfiniteLoop 진입 후 카운트)
         private float _chargeTime;
@@ -71,7 +72,8 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
             _combat             = playerActor.GetCombat();
-            playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
+            _equipment          = playerActor.GetPlayerEquipment();
+            _equipment?.SetMainWeaponDrawn(true);
             _chargeTime         = 0f;
             _chargeRatio        = 0f;
             _isInLoop           = false;
@@ -114,6 +116,7 @@ namespace UPlayGround.State
 
             _combat.SetEnableCollision(false);
             _combat.ClearHitTargets();
+            ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
 
             playerActor.Animator.ApplyRootMotion(false);
             _softRotationTarget = null;
@@ -214,6 +217,7 @@ namespace UPlayGround.State
             int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
             var attackData = _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
             _combat.ClearHitTargets();
+            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
             // 락온 없을 때: 발동 후 방향 보정을 위한 소프트 타겟 확보
             // → UpdateRotation의 _softRotationTarget 추적이 이어지도록

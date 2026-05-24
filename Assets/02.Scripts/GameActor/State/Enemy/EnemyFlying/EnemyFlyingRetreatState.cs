@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 비행 몬스터 후퇴. 타겟 반대 방향으로 거리 확보 후 Chase 복귀.
     /// 이륙/공격 전환 판단은 BT가 담당한다.
     /// </summary>
-    public class EnemyFlyingRetreatState : GameActorState
+    public class EnemyFlyingRetreatState : EnemyActorState
     {
         public override string StateName => "Flying_Retreat";
         public override bool BlocksBehaviorTree => true;
@@ -36,7 +36,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

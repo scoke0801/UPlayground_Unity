@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.MovementController;
@@ -8,7 +8,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 추적 상태 - 타겟을 향해 이동
     /// </summary>
-    public class EnemyChaseState : GameActorState
+    public class EnemyChaseState : EnemyActorState
     {
         public override string StateName => "Chase";
         
@@ -55,7 +55,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

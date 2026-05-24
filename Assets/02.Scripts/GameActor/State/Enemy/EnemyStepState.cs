@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// 계산된 방향의 Step_F/B/L/R 모션이 있을 때만 실행한다.
     /// 무적은 부여하지 않고, BT는 차단한다.
     /// </summary>
-    public class EnemyStepState : GameActorState
+    public class EnemyStepState : EnemyActorState
     {
         public override string StateName => "Step";
         public override bool BlocksBehaviorTree => true;
@@ -117,7 +117,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

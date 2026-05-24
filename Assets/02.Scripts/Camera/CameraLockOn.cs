@@ -17,6 +17,8 @@ namespace UPlayGround.CameraSystem
         private readonly Transform _player;
         private readonly UnityEngine.Camera _camera;
         private readonly LayerMask _lockOnLayer;
+        private System.Func<Vector3> _playerVelocityProvider;
+        private System.Func<(bool isColliding, float sustainedSec)> _collisionTelemetryProvider;
 
         // 내부 상태
         private CapsuleCollider _targetCollider;
@@ -24,9 +26,8 @@ namespace UPlayGround.CameraSystem
         private int _currentIndex = -1;
         private float _lastSwitchTime;
 
-        // Y축 스무딩
+        // 포커스 스무딩
         private float _smoothY;
-        private float _yVelocity;
 
         // 오비탈 오프셋
         private float _signedOffsetAngle;
@@ -36,6 +37,10 @@ namespace UPlayGround.CameraSystem
         private float _freeFactorVelocity;
         private bool _orbitInitialized;
         private bool _wasSkipping; // skip→active 전환 감지 (복귀 시 부드러운 재보간)
+        private Vector3 _activeFocusPos;
+        private Vector3 _activeFocusVelocity;
+        private float _lastSideFlipTime = -999f;
+        private float _sideFlipSignOverride;
 
         private const float FREE_FACTOR_SMOOTH_TIME = 0.15f;
         private const float ORBIT_FREE_PULL_MAX_SMOOTH = 5f;
@@ -65,6 +70,16 @@ namespace UPlayGround.CameraSystem
             _lockOnLayer = lockOnLayer;
         }
 
+        public void SetPlayerVelocityProvider(System.Func<Vector3> provider)
+        {
+            _playerVelocityProvider = provider;
+        }
+
+        public void SetCollisionTelemetryProvider(System.Func<(bool isColliding, float sustainedSec)> provider)
+        {
+            _collisionTelemetryProvider = provider;
+        }
+
         // ── 토글 ──
 
         /// <summary>
@@ -89,7 +104,6 @@ namespace UPlayGround.CameraSystem
             IsActive = false;
             _targets.Clear();
             _currentIndex = -1;
-            _yVelocity = 0f;
             _isTransitioning = false;
             _orbitInitialized = false;
             _wasSkipping = false;
@@ -97,6 +111,9 @@ namespace UPlayGround.CameraSystem
             _offsetAngleVelocity = 0f;
             _freeFactor = 0f;
             _freeFactorVelocity = 0f;
+            _activeFocusVelocity = Vector3.zero;
+            _lastSideFlipTime = -999f;
+            _sideFlipSignOverride = 0f;
         }
 
         // ── 대상 전환 ──
@@ -172,15 +189,20 @@ namespace UPlayGround.CameraSystem
                 return false;
             }
 
-            // Y축 스무딩
             float heightOffset = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
-            float rawY = CurrentTarget.position.y - heightOffset;
-            _smoothY = Mathf.SmoothDamp(_smoothY, rawY, ref _yVelocity, _settings.lockOnYSmoothTime);
+            Vector3 targetFocus = CurrentTarget.position;
+            targetFocus.y -= heightOffset;
+            _activeFocusPos = Vector3.SmoothDamp(
+                _activeFocusPos,
+                targetFocus,
+                ref _activeFocusVelocity,
+                _settings.lockOnFocusSmoothTime);
+            _smoothY = _activeFocusPos.y;
 
             // XZ 방향
             Vector3 toTargetXZ = new Vector3(
-                CurrentTarget.position.x - _player.position.x, 0f,
-                CurrentTarget.position.z - _player.position.z);
+                _activeFocusPos.x - _player.position.x, 0f,
+                _activeFocusPos.z - _player.position.z);
             float flatDist = toTargetXZ.magnitude;
             float enemyYaw = flatDist > 0.001f
                 ? Mathf.Atan2(toTargetXZ.x, toTargetXZ.z) * Mathf.Rad2Deg
@@ -239,8 +261,12 @@ namespace UPlayGround.CameraSystem
             float sign = _signedOffsetAngle > SIGN_DEAD_ZONE_DEG ? 1f :
                          _signedOffsetAngle < -SIGN_DEAD_ZONE_DEG ? -1f :
                          _signedOffsetAngle >= 0f ? 1f : -1f;
+            ClearSideFlipOverrideIfRecovered();
+            if (Mathf.Abs(_sideFlipSignOverride) > 0.5f)
+                sign = _sideFlipSignOverride;
             float targetSignedAngle = targetMag * sign;
             _lastEnemyYaw = enemyYaw;
+            bool sideFlipTriggered = TryTriggerSideFlip(ref targetSignedAngle);
 
             // 적응형 SmoothDamp: 차이가 클수록 빠르게 수렴
             float offsetDelta = Mathf.Abs(targetSignedAngle - _signedOffsetAngle);
@@ -248,7 +274,9 @@ namespace UPlayGround.CameraSystem
                 _settings.lockOnOrbitSmoothTime * ORBIT_SMOOTH_MIN_MULT,
                 _settings.lockOnOrbitSmoothTime,
                 1f - Mathf.Clamp01(offsetDelta / ORBIT_OFFSET_MAX_DELTA));
-            float pullSmoothTime = Mathf.Lerp(adaptiveSmoothTime, ORBIT_FREE_PULL_MAX_SMOOTH, freeFactor);
+            float pullSmoothTime = sideFlipTriggered
+                ? _settings.sideFlipSmoothTime
+                : Mathf.Lerp(adaptiveSmoothTime, ORBIT_FREE_PULL_MAX_SMOOTH, freeFactor);
             _signedOffsetAngle = Mathf.SmoothDamp(
                 _signedOffsetAngle, targetSignedAngle, ref _offsetAngleVelocity, pullSmoothTime);
             yaw = enemyYaw + _signedOffsetAngle;
@@ -312,6 +340,9 @@ namespace UPlayGround.CameraSystem
             _targetCollider = t.GetComponent<CapsuleCollider>();
             t.GetComponent<IDamageable>()?.LockOn();
             InitSmoothY();
+            _activeFocusPos = GetCurrentTargetFocusPosition();
+            _activeFocusVelocity = Vector3.zero;
+            _sideFlipSignOverride = 0f;
             _orbitInitialized = false;
         }
 
@@ -320,7 +351,17 @@ namespace UPlayGround.CameraSystem
             if (CurrentTarget == null) return;
             float h = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
             _smoothY = CurrentTarget.position.y - h;
-            _yVelocity = 0f;
+        }
+
+        private Vector3 GetCurrentTargetFocusPosition()
+        {
+            if (CurrentTarget == null)
+                return Vector3.zero;
+
+            float h = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
+            Vector3 pos = CurrentTarget.position;
+            pos.y -= h;
+            return pos;
         }
 
         private void StartTransition(float yaw, float pitch)
@@ -348,15 +389,7 @@ namespace UPlayGround.CameraSystem
             Collider[] hits = Physics.OverlapSphere(origin, _settings.lockOnRange, _lockOnLayer);
             _targets.Clear();
 
-            // 카메라 정면 방향 (XZ 평면 기준)
-            Vector3 camForwardXZ = Vector3.forward;
-            if (_camera != null)
-            {
-                camForwardXZ = _camera.transform.forward;
-                camForwardXZ.y = 0f;
-                if (camForwardXZ.sqrMagnitude > 0.001f)
-                    camForwardXZ.Normalize();
-            }
+            Vector3 priorityForwardXZ = GetPriorityForwardXZ();
 
             float maxRange = Mathf.Max(_settings.lockOnRange, 0.001f);
             // 카메라 방향 가중치: 같은 거리라도 정면에 있는 대상이 먼저 선택됨
@@ -371,7 +404,7 @@ namespace UPlayGround.CameraSystem
                     continue;
 
                 var dmg = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
-                if (dmg == null || !dmg.CanTakeDamage())
+                if (dmg == null || !dmg.IsAlive())
                     continue;
 
                 Vector3 p = hit.transform.position;
@@ -382,13 +415,28 @@ namespace UPlayGround.CameraSystem
                 // distScore: 0(바로 옆) ~ 1(최대 사거리)
                 float distScore = distXZ / maxRange;
 
-                // angleScore: 0(카메라 정면) ~ 1(카메라 뒤쪽)
+                // angleScore: 0(기준 방향 정면) ~ 1(기준 방향 뒤쪽)
                 float dot = distXZ > 0.001f
-                    ? Vector3.Dot(camForwardXZ, toTargetXZ / distXZ)
+                    ? Vector3.Dot(priorityForwardXZ, toTargetXZ / distXZ)
                     : 1f;
                 float angleScore = (1f - dot) * 0.5f;
 
-                float sortScore = distScore + angleScore * cameraWeight;
+                float sortScore = _settings.lockOnPriorityMode switch
+                {
+                    LockOnPriorityMode.Distance => distScore,
+                    LockOnPriorityMode.MovementDirection => distScore + angleScore * cameraWeight,
+                    _ => distScore + angleScore * cameraWeight
+                };
+
+                if (_camera != null)
+                {
+                    Vector3 viewport = _camera.WorldToViewportPoint(p);
+                    bool outsideView = viewport.z <= 0f
+                                       || viewport.x < 0f || viewport.x > 1f
+                                       || viewport.y < 0f || viewport.y > 1f;
+                    if (outsideView)
+                        sortScore += 1f;
+                }
 
                 infos.Add(new TargetInfo { transform = hit.transform, distanceSq = dSq, sortScore = sortScore });
             }
@@ -427,7 +475,58 @@ namespace UPlayGround.CameraSystem
             if (t == null) return false;
             if (Vector3.Distance(_player.position, t.position) > _settings.lockOnRange) return false;
             var dmg = t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>();
-            return dmg != null && dmg.CanTakeDamage();
+            return dmg != null && dmg.IsAlive();
+        }
+
+        private Vector3 GetPriorityForwardXZ()
+        {
+            if (_settings.lockOnPriorityMode == LockOnPriorityMode.MovementDirection && _playerVelocityProvider != null)
+            {
+                Vector3 velocity = _playerVelocityProvider.Invoke();
+                velocity.y = 0f;
+                if (velocity.sqrMagnitude > 0.01f)
+                    return velocity.normalized;
+            }
+
+            if (_camera != null)
+            {
+                Vector3 camForwardXZ = _camera.transform.forward;
+                camForwardXZ.y = 0f;
+                if (camForwardXZ.sqrMagnitude > 0.001f)
+                    return camForwardXZ.normalized;
+            }
+
+            return Vector3.forward;
+        }
+
+        private void ClearSideFlipOverrideIfRecovered()
+        {
+            if (Mathf.Abs(_sideFlipSignOverride) <= 0.5f || _collisionTelemetryProvider == null)
+                return;
+
+            var telemetry = _collisionTelemetryProvider.Invoke();
+            if (!telemetry.isColliding)
+                _sideFlipSignOverride = 0f;
+        }
+
+        private bool TryTriggerSideFlip(ref float targetSignedAngle)
+        {
+            if (!_settings.enableLockOnSideFlip || _collisionTelemetryProvider == null)
+                return false;
+
+            var telemetry = _collisionTelemetryProvider.Invoke();
+            if (!telemetry.isColliding || telemetry.sustainedSec < _settings.sustainedCollisionSec)
+                return false;
+
+            if (Time.time - _lastSideFlipTime < _settings.sideFlipCooldown)
+                return false;
+
+            _lastSideFlipTime = Time.time;
+            _offsetAngleVelocity = 0f;
+            float currentSign = _signedOffsetAngle >= 0f ? 1f : -1f;
+            _sideFlipSignOverride = -currentSign;
+            targetSignedAngle = Mathf.Abs(targetSignedAngle) * _sideFlipSignOverride;
+            return true;
         }
 
         private static void NotifyUnLockOn(Transform t)

@@ -8,7 +8,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 비행 몬스터 순찰. 기존 EnemyPatrolState 로직을 EnemyFlyingAIController 참조로 재구현.
     /// </summary>
-    public class EnemyFlyingPatrolState : GameActorState
+    public class EnemyFlyingPatrolState : EnemyActorState
     {
         public override string StateName => "Flying_Patrol";
 
@@ -43,7 +43,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

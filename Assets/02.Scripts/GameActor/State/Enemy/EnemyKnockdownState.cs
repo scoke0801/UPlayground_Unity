@@ -5,7 +5,7 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
-    public class EnemyKnockdownState : GameActorState
+    public class EnemyKnockdownState : EnemyActorState
     {
         public override string StateName => "Knockdown";
         public override bool BlocksBehaviorTree => true;

@@ -57,6 +57,9 @@ namespace UPlayGround
         [Tooltip("패리 성공 시 재생할 VFX 이름")]
         [SerializeField] private string _parryFxName = "ParryFX";
 
+        // 기본 Airborne 수치(7~8)는 피격 경직으로 처리하고, 전용 launch급 공격만 공중 상태로 보낸다.
+        private const float MinAirborneStateForce = 10f;
+
         public event Action<float, float> OnHpChanged;
         public event Action<float, float> OnSkillGaugeChanged;
 
@@ -916,10 +919,12 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
+                        Vector3 airborneVelocity = ShouldEnterAirborneState(attackData)
+                            ? Vector3.up * attackData.airborneForce
+                            : Vector3.zero;
                         MovementController.AddImpulse(
-                            launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce,
+                            launchDir * attackData.knockbackForce + airborneVelocity,
                             attackData.knockbackDrag);
-                        MovementController.Motor.ForceUnground();
                         break;
                     }
 
@@ -933,7 +938,7 @@ namespace UPlayGround
             {
                 if (MovementController.CurrentState.CanTransitionState("Hit"))
                 {
-                    if (attackData?.reactionType == AttackReactionType.Airborne)
+                    if (ShouldEnterAirborneState(attackData))
                         MovementController.TransitionToState(new PlayerAirborneState(MovementController));
                     else if (attackData?.reactionType == AttackReactionType.Grab)
                         MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
@@ -961,6 +966,17 @@ namespace UPlayGround
             GameObjectManager.Instance.ShowFX(attackData?.hitParticleName, fxPos);
 
             _colorChanger.OnHit();
+        }
+
+        private bool ShouldEnterAirborneState(AttackData attackData)
+        {
+            if (attackData == null || attackData.reactionType != AttackReactionType.Airborne)
+                return false;
+
+            if (attackData.airborneForce >= MinAirborneStateForce)
+                return true;
+
+            return false;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 대기 상태 - 지면에 서있고 움직이지 않는 상태
     /// </summary>
-    public class EnemyIdleState : GameActorState
+    public class EnemyIdleState : EnemyActorState
     {
         public override string StateName => "Idle";
         
@@ -33,7 +33,7 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             // 지면에서 떨어지면 Airborne 상태로 전환
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

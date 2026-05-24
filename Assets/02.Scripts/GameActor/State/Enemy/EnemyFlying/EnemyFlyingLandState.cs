@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 비행 몬스터 일반 착지 (Dive가 아닌 부드러운 하강).
     /// 하강 → 지면 도달 → 착지 모션 → Brain.OnDiveLanded()로 루프 복귀.
     /// </summary>
-    public class EnemyFlyingLandState : GameActorState
+    public class EnemyFlyingLandState : EnemyActorState
     {
         public override string StateName => "Flying_Land";
         public override bool BlocksBehaviorTree => true;

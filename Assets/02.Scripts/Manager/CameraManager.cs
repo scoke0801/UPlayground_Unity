@@ -6,6 +6,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
+using UPlayGround.MovementController;
 using UPlayGround.State;
 
 namespace UPlayGround.Manager
@@ -37,6 +38,7 @@ namespace UPlayGround.Manager
         private Camera    _mainCamera;
         private Transform _target;
         private Transform _cameraPivot;
+        private ActorMovementController _targetMovement;
 
         private float _currentYaw;
         private float _currentPitch;
@@ -68,6 +70,7 @@ namespace UPlayGround.Manager
         private bool _isInputLocked;
 
         private System.Func<bool> _combatStateProvider;
+        private System.Func<Vector3> _playerVelocityProvider;
 
         private CameraShakeDatabase _cameraShakeDatabase;
         private DialogueCameraSettingsSO _dialogueCameraSettings;
@@ -93,8 +96,11 @@ namespace UPlayGround.Manager
             if (_target != null)
             {
                 _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
+                _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+                _lockOn.SetCollisionTelemetryProvider(GetCameraCollisionTelemetry);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
+                _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
             }
 
             _rotTransition = new CameraRotationTransition();
@@ -167,8 +173,11 @@ namespace UPlayGround.Manager
             if (_target != null)
             {
                 _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
+                _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+                _lockOn.SetCollisionTelemetryProvider(GetCameraCollisionTelemetry);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
+                _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
             }
 
             SyncCameraContext();
@@ -343,6 +352,15 @@ namespace UPlayGround.Manager
                 : null;
         }
 
+        private void CacheMovementController()
+        {
+            _targetMovement = _target != null
+                ? _target.GetComponent<ActorMovementController>()
+                  ?? _target.GetComponentInParent<ActorMovementController>()
+                  ?? _target.GetComponentInChildren<ActorMovementController>()
+                : null;
+        }
+
         /// <summary>
         /// 캡슐 콜라이더 기하학으로 후방/전방 클리어런스를 계산.
         /// backClearance  : 카메라가 캡슐 밖에 있으려면 pivot에서 camDir 방향으로 필요한 최소 거리
@@ -480,7 +498,12 @@ namespace UPlayGround.Manager
         private void InitializeCamera()
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) { _target = player.transform; CacheCapsule(); }
+            if (player != null)
+            {
+                _target = player.transform;
+                CacheCapsule();
+                CacheMovementController();
+            }
 
             _mainCamera = UnityEngine.Camera.main;
             if (_mainCamera == null)
@@ -564,6 +587,7 @@ namespace UPlayGround.Manager
             _cameraContext.DistanceController = _distanceCtrl;
             _cameraContext.RotationTransition = _rotTransition;
             _cameraContext.CombatStateProvider = _combatStateProvider;
+            _cameraContext.PlayerVelocityProvider = _playerVelocityProvider ?? GetPlayerVelocity;
             _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
             _cameraContext.StartCameraAlign = StartCameraAlign;
             _cameraContext.PopCameraMode = PopCameraMode;
@@ -575,6 +599,8 @@ namespace UPlayGround.Manager
             _cameraContext.IsAligning = _isAligning;
             _cameraContext.AlignTimer = _alignTimer;
             _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
+            _cameraContext.IsCameraColliding = _collision?.IsColliding ?? false;
+            _cameraContext.CollisionSustainedSec = _collision?.CollisionSustainedSec ?? 0f;
         }
 
         private void SyncRigStateFromFields()
@@ -608,6 +634,21 @@ namespace UPlayGround.Manager
             _smoothPosition = _rigState.SmoothPosition;
             _positionVelocity = _rigState.PositionVelocity;
             _offsetVelocity = _rigState.OffsetVelocity;
+        }
+
+        private Vector3 GetPlayerVelocity()
+        {
+            if (_target == null) return Vector3.zero;
+
+            if (_targetMovement == null)
+                CacheMovementController();
+
+            return _targetMovement?.Motor != null ? _targetMovement.Motor.Velocity : Vector3.zero;
+        }
+
+        private (bool isColliding, float sustainedSec) GetCameraCollisionTelemetry()
+        {
+            return (_collision?.IsColliding ?? false, _collision?.CollisionSustainedSec ?? 0f);
         }
 
         private void ApplyCameraPose(CameraRigPose pose)
@@ -690,6 +731,7 @@ namespace UPlayGround.Manager
         {
             _target = newTarget;
             CacheCapsule();
+            CacheMovementController();
             SyncCameraContext();
             if (_target == null || _cameraPivot == null) return;
 
@@ -888,6 +930,14 @@ namespace UPlayGround.Manager
         public void SetCombatStateProvider(System.Func<bool> p)
         {
             _combatStateProvider = p;
+            SyncCameraContext();
+        }
+
+        public void SetPlayerVelocityProvider(System.Func<Vector3> provider)
+        {
+            _playerVelocityProvider = provider;
+            _distanceCtrl?.SetPlayerVelocityProvider(provider ?? GetPlayerVelocity);
+            _lockOn?.SetPlayerVelocityProvider(provider ?? GetPlayerVelocity);
             SyncCameraContext();
         }
 

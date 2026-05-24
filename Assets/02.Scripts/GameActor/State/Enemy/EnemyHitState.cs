@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// PoiseStat에 의해 Poise가 소진됐을 때만 진입한다.
     /// reactionType에 따라 경직 강도(애니 길이)가 달라진다.
     /// </summary>
-    public class EnemyHitState : GameActorState
+    public class EnemyHitState : EnemyActorState
     {
         public override string StateName => "Hit";
         public override bool BlocksBehaviorTree => true;

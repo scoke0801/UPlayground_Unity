@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 몬스터 사망 상태
     /// </summary>
-    public class EnemyDeathState : GameActorState
+    public class EnemyDeathState : EnemyActorState
     {
         public override string StateName => "Death";
         public override bool BlocksBehaviorTree => true;

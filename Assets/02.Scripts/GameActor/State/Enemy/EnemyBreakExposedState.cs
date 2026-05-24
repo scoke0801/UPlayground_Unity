@@ -5,7 +5,7 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
-    public class EnemyBreakExposedState : GameActorState
+    public class EnemyBreakExposedState : EnemyActorState
     {
         public override string StateName => "BreakExposed";
         public override bool BlocksBehaviorTree => true;

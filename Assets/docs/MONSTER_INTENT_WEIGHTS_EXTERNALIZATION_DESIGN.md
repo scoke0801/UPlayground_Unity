@@ -1,8 +1,25 @@
 # 몬스터 Intent 가중치 외부화 설계 문서
 
 > 작성일: 2026-05-23
+> 최근 갱신: 2026-05-23 (구현 진행 상태 반영)
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 관련 시스템: `EnemyCombatDecisionEvaluator`, `EnemyBehaviorSO`, `BehaviorTreeRunner`
+
+---
+
+## 구현 진행 상태 (2026-05-23 기준)
+
+| Phase | 목표 | 상태 | 참고 |
+|-------|------|------|------|
+| **A** | `IntentEvaluationContext`, `IntentConditionId`, `IntentConditionEvaluator` 신설 | ✅ 완료 | 모든 클래스 존재, 입력 모음 구조체화 완료 |
+| **B** | `EnemyIntentWeightsSO` 신설, `IntentScoreComputer` 도입 | ✅ 완료 | SO 9개 Intent 엔트리 완성, 정적 클래스로 분리됨¹ |
+| **C** | `IW_Default_Melee` 자산 생성 + 회귀 테스트 | ✅ 완료 | 기본값 프로파일 4개 모두 존재 |
+| **D** | `IW_AggressiveMelee` / `IW_DefensiveShield` / `IW_RangedCaster` 작성 | ✅ 완료 | 4개 자산 모두 생성됨 |
+| **E** | Intent 선택 안정화 보정 (`DecisionIntentLockedUntil` 등) | 🟡 부분 | 반복 패널티만 구현; 유지 보너스, 전환 비용, 최소 유지 시간 미정 |
+| **F** | `EnemyActionStyleProfileSO` 도입, Archetype Style Profile | ⬜ 미진행 | 별도 마일스톤 (구현 대기 중) |
+| **G** | 매직 넘버 fallback 제거, 인스펙터 미리보기 | ⬜ 미진행 | fallback 경로 (`LegacyIntentScoring`) 여전히 살아있음 (의도된 이중 경로) |
+
+> ¹ 설계 문서에서는 `EnemyCombatDecisionEvaluator` 내부 메서드 `ComputeIntentScore`로 명시했으나, 실제 구현에서는 `IntentScoreComputer` 정적 클래스로 분리됨.
 
 ---
 
@@ -243,7 +260,7 @@ public class WeightedActionStyle
 
 ## 4. 점수 계산 알고리즘
 
-`EnemyCombatDecisionEvaluator`의 9개 점수 계산 블록을 다음 단일 메서드로 교체:
+`EnemyCombatDecisionEvaluator`의 9개 점수 계산 블록을 다음 단일 메서드로 교체¹:
 
 ```csharp
 private float ComputeIntentScore(IntentWeightEntry weights, in IntentEvaluationContext ctx)
@@ -266,6 +283,8 @@ private float ComputeIntentScore(IntentWeightEntry weights, in IntentEvaluationC
 }
 ```
 
+> ¹ **참고:** 실제 구현에서는 이 메서드가 `IntentScoreComputer` 정적 클래스의 `Compute(IntentWeightEntry, in IntentEvaluationContext)` 메서드로 분리되어 있다. `EnemyCombatDecisionEvaluator`에서는 `IntentScoreComputer.Compute()` 호출로 점수를 산출한다. (122~151줄 참조)
+
 ### 4.1 연속값 보너스 (Aggression 같은 0~1 계수)
 
 `baseScore = 0.10f + aggression * 0.42f` 같은 패턴은 별도 처리. `IntentWeightEntry`에 다음 추가:
@@ -282,23 +301,25 @@ public float reactionChanceInfluence = 0f;
 
 `baseScore + aggressionInfluence * ctx.Aggression`을 최종 base로 사용.
 
+> **참고:** 실제 구현에서는 `IntentWeightEntry`에 이러한 연속값 필드들이 통합되어 있으며, `IntentScoreComputer.Compute()` 내부에서 기본값 계산 시 참고된다.
+
 ### 4.2 Intent 선택 안정화
 
-점수 외부화 후에는 같은 입력에서도 SO 값 변화로 Intent가 더 자주 흔들릴 수 있다. 이를 막기 위해 선택 단계에 다음 보정을 둔다.
+점수 외부화 후에는 같은 입력에서도 SO 값 변화로 Intent가 더 자주 흔들릴 수 있다. 이를 막기 위해 선택 단계에 다음 보정을 둔다. (Phase E)
 
-| 보정 | 목적 |
-|------|------|
-| 유지 보너스 | 직전 Intent가 아직 유효하면 짧은 시간 동안 유지 |
-| 반복 패널티 | 같은 Intent가 과도하게 반복되면 감쇠. 현재 `DecisionConsecutiveIntentCount`와 연동 |
-| 전환 비용 | `Attack → Retreat`, `Retreat → Attack` 같은 급전환은 강한 조건이 있을 때만 허용 |
-| 최소 유지 시간 | 선택된 Intent는 기본 0.4~1.0초 유지. 피격/PoiseBreak/타겟 상실은 즉시 예외 |
+| 보정 | 목적 | 상태 |
+|------|------|------|
+| 유지 보너스 | 직전 Intent가 아직 유효하면 짧은 시간 동안 유지 | ⬜ 미정 |
+| 반복 패널티 | 같은 Intent가 과도하게 반복되면 감쇠. 현재 `DecisionConsecutiveIntentCount`와 연동 | ✅ 구현됨 (`ApplyLastIntentPenalty`) |
+| 전환 비용 | `Attack → Retreat`, `Retreat → Attack` 같은 급전환은 강한 조건이 있을 때만 허용 | ⬜ 미정 |
+| 최소 유지 시간 | 선택된 Intent는 기본 0.4~1.0초 유지. 피격/PoiseBreak/타겟 상실은 즉시 예외 | ⬜ 미정 |
 
-추가 Blackboard 키:
+추가 Blackboard 키 (설계된 것 — 현재 미정):
 
 ```csharp
-DecisionIntentLockedUntil      // float
-DecisionIntentSwitchCost       // float, 디버그용
-DecisionIntentStickinessBonus  // float, 디버그용
+DecisionIntentLockedUntil      // float — 미정
+DecisionIntentSwitchCost       // float, 디버그용 — 미정
+DecisionIntentStickinessBonus  // float, 디버그용 — 미정
 ```
 
 이 보정은 Intent 점수 계산 이후, `SelectWeightedTopIntent` 직전에 적용한다.
@@ -307,30 +328,28 @@ DecisionIntentStickinessBonus  // float, 디버그용
 
 ## 5. 기본값 SO 자산
 
-다음 4개 기본 SO를 `Assets/10.Datas/AI/IntentWeights/`에 배치한다.
+다음 4개 기본 SO를 `Assets/10.Datas/AI/IntentWeights/`에 배치한다. (Phase F의 `IW_Skirmisher`, `IW_Bruiser`는 별도 마일스톤에서 추가 예정)
 
-| 자산 이름 | 목적 |
-|----------|------|
-| `IW_Default_Melee.asset` | 현재 매직 넘버와 동일한 결과 (기준선) |
-| `IW_AggressiveMelee.asset` | Attack/Punish/Pressure 가중치 ↑, Retreat 가중치 ↓ |
-| `IW_DefensiveShield.asset` | Defend/KeepDistance 가중치 ↑↑, Counter 보너스 강화 |
-| `IW_RangedCaster.asset` | KeepDistance/Retreat 가중치 ↑, Attack은 거리 조건 강화 |
-| `IW_Skirmisher.asset` | Flank/Pressure/Retreat 성향. 짧게 들어가고 빠지는 적 |
-| `IW_Bruiser.asset` | 피격을 감수하고 압박. Counter/Punish/Attack 성향 |
+| 자산 이름 | 목적 | 상태 |
+|----------|------|------|
+| `IW_Default_Melee.asset` | 현재 매직 넘버와 동일한 결과 (기준선) | ✅ 존재 |
+| `IW_AggressiveMelee.asset` | Attack/Punish/Pressure 가중치 ↑, Retreat 가중치 ↓ | ✅ 존재 |
+| `IW_DefensiveShield.asset` | Defend/KeepDistance 가중치 ↑↑, Counter 보너스 강화 | ✅ 존재 |
+| `IW_RangedCaster.asset` | KeepDistance/Retreat 가중치 ↑, Attack은 거리 조건 강화 | ✅ 존재 |
 
 각 자산은 인스펙터에서 보너스 리스트 형태로 직접 편집 가능.
 
-### 5.1 AI Archetype 권장 세트
+### 5.1 AI Archetype 권장 세트 (Phase F — 별도 마일스톤)
 
-개별 몬스터마다 BT를 복제하지 않고, Intent Weight + Action Style Profile 조합으로 성격을 만든다.
+개별 몬스터마다 BT를 복제하지 않고, Intent Weight + Action Style Profile 조합으로 성격을 만든다. 다음은 설계 당시 권장 세트이며, 실제 Phase F 구현 시 조정될 수 있다.
 
 | Archetype | Intent Weight | Action Style Profile | 설명 |
 |-----------|---------------|----------------------|------|
-| Bruiser | `IW_Bruiser` | `ASP_Bruiser` | 높은 Poise, 근접 압박, Counter/Punish 선호 |
-| Skirmisher | `IW_Skirmisher` | `ASP_Skirmisher` | Flank, Dodge, 짧은 교전 후 이탈 |
-| Guardian | `IW_DefensiveShield` | `ASP_Guardian` | Guard/Counter 중심 |
-| RangedCaster | `IW_RangedCaster` | `ASP_RangedCaster` | KeepDistance, 원거리 스킬, 거리 재조정 |
-| FlyingHarasser | `IW_RangedCaster` 또는 전용 | `ASP_FlyingHarasser` | 공중 유지, Dive 쿨다운 압박 |
+| Bruiser | `IW_Bruiser` (미구현) | `ASP_Bruiser` (미구현) | 높은 Poise, 근접 압박, Counter/Punish 선호 |
+| Skirmisher | `IW_Skirmisher` (미구현) | `ASP_Skirmisher` (미구현) | Flank, Dodge, 짧은 교전 후 이탈 |
+| Guardian | `IW_DefensiveShield` | `ASP_Guardian` (미구현) | Guard/Counter 중심 |
+| RangedCaster | `IW_RangedCaster` | `ASP_RangedCaster` (미구현) | KeepDistance, 원거리 스킬, 거리 재조정 |
+| FlyingHarasser | `IW_RangedCaster` 또는 전용 | `ASP_FlyingHarasser` (미구현) | 공중 유지, Dive 쿨다운 압박 |
 
 ---
 
@@ -338,17 +357,17 @@ DecisionIntentStickinessBonus  // float, 디버그용
 
 ### 6.1 호환성 원칙
 
-- `EnemyBehaviorSO.intentWeights`가 null이면 **현행 하드코딩 매직 넘버를 그대로 사용**한다 (Defaults.Fallback 경로)
+- `EnemyBehaviorSO.intentWeights`가 null이면 **현행 하드코딩 매직 넘버를 그대로 사용**한다 (Defaults.Fallback 경로 — `LegacyIntentScoring`)
 - 신규 SO를 채택한 적만 새 알고리즘으로 점수 계산
 - 기존 BT 에셋, 기존 적 프리팹 변경 없음
 
-### 6.2 마이그레이션 단계
+### 6.2 마이그레이션 단계 (✅ Phase A~D 완료, Phase E 부분 진행)
 
-1. `IW_Default_Melee.asset`을 생성하고 `EnemyCombatDecisionEvaluator`의 매직 넘버와 동일한 값으로 채운다
-2. 기준 적 1마리(예: 가장 단순한 잡몹)의 `EnemyBehaviorSO.intentWeights`에 연결
-3. 점수 분포가 변경 전과 동일한지 BT Debug Trace로 확인 (검증 시나리오 7.1)
-4. 나머지 적의 `EnemyBehaviorSO`에 순차 연결
-5. 모든 적이 SO를 사용하는 것이 확인되면 매직 넘버 fallback 경로 제거 (별도 마일스톤)
+1. ✅ `IW_Default_Melee.asset`을 생성하고 `EnemyCombatDecisionEvaluator`의 매직 넘버와 동일한 값으로 채운다 — 완료
+2. ✅ 기준 적 1마리(예: 가장 단순한 잡몹)의 `EnemyBehaviorSO.intentWeights`에 연결 — 완료
+3. ✅ 점수 분포가 변경 전과 동일한지 BT Debug Trace로 확인 (검증 시나리오 7.1) — 완료
+4. ✅ 나머지 적의 `EnemyBehaviorSO`에 순차 연결 — 완료
+5. ⬜ 모든 적이 SO를 사용하는 것이 확인되면 매직 넘버 fallback 경로 제거 (Phase G — 별도 마일스톤)
 
 ---
 
@@ -386,30 +405,36 @@ DecisionIntentStickinessBonus  // float, 디버그용
 
 ## 9. 신규/변경 클래스 요약
 
-| 위치 | 변경 종류 | 비고 |
-|------|----------|------|
-| `Assets/02.Scripts/Data/Actor/Enemy/EnemyIntentWeightsSO.cs` | 신규 | 본 설계의 중심 |
-| `Assets/02.Scripts/Data/Actor/Enemy/EnemyActionStyleProfileSO.cs` | 신규 (후속) | Intent별 실행 Style 후보 |
-| `Assets/02.Scripts/Data/Actor/Enemy/IntentConditionId.cs` | 신규 | 조건 열거형 |
-| `Assets/02.Scripts/Data/Actor/Enemy/IntentEvaluationContext.cs` | 신규 | readonly struct |
-| `Assets/02.Scripts/AI/CombatDecision/IntentConditionEvaluator.cs` | 신규 | 조건 평가 정적 클래스 |
-| `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombatDecisionEvaluator.cs` | 리팩토링 | 9개 점수 블록 → 단일 `ComputeIntentScore` 호출 |
-| `Assets/02.Scripts/Data/Actor/Enemy/EnemyBehaviorSO.cs` | 필드 추가 | `intentWeights`, `actionStyleProfile`, `BehaviorPhase.intentWeightsOverride` |
-| `Assets/10.Datas/AI/IntentWeights/IW_*.asset` | 신규 (4개) | 기본 프로파일 |
+| 위치 | 변경 종류 | 상태 | 비고 |
+|------|----------|------|------|
+| `Assets/02.Scripts/Data/Actor/Enemy/EnemyIntentWeightsSO.cs` | 신규 | ✅ 완료 | 본 설계의 중심, 9개 Intent 엔트리 |
+| `Assets/02.Scripts/Data/Actor/Enemy/EnemyActionStyleProfileSO.cs` | 신규 | ⬜ 미진행 | Intent별 실행 Style 후보 (Phase F) |
+| `Assets/02.Scripts/Data/Actor/Enemy/IntentConditionId.cs` | 신규 | ✅ 완료 | 조건 열거형 |
+| `Assets/02.Scripts/Data/Actor/Enemy/IntentEvaluationContext.cs` | 신규 | ✅ 완료 | readonly struct |
+| `Assets/02.Scripts/AI/CombatDecision/IntentConditionEvaluator.cs` | 신규 | ✅ 완료 | 조건 평가 정적 클래스 |
+| `Assets/02.Scripts/AI/CombatDecision/IntentScoreComputer.cs` | 신규 | ✅ 완료 | 점수 계산 정적 클래스¹ |
+| `Assets/02.Scripts/AI/CombatDecision/LegacyIntentScoring.cs` | 신규 | ✅ 완료 | SO null 시 fallback 경로 |
+| `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombatDecisionEvaluator.cs` | 리팩토링 | ✅ 완료 | 9개 점수 블록 → `IntentScoreComputer.Compute()` 호출 |
+| `Assets/02.Scripts/Data/Actor/Enemy/EnemyBehaviorSO.cs` | 필드 추가 | 🟡 부분 | `intentWeights` ✅ / `BehaviorPhase.intentWeightsOverride` ✅ / `actionStyleProfile` ⬜ (Phase F) |
+| `Assets/10.Datas/AI/IntentWeights/IW_*.asset` | 신규 (4개) | ✅ 완료 | 기본 프로파일: Melee, AggressiveMelee, DefensiveShield, RangedCaster |
+
+> ¹ 설계 문서에서는 `ComputeIntentScore` 메서드를 `EnemyCombatDecisionEvaluator` 내부에 배치하도록 기술했으나, 실제 구현에서는 `IntentScoreComputer` 정적 클래스로 분리되어 재사용성을 높임.
 
 ---
 
 ## 10. 작업 순서
 
-1. **Phase A (1일)** — `IntentEvaluationContext`, `IntentConditionId`, `IntentConditionEvaluator` 신설. 매직 넘버는 그대로 두고 입력 모음만 구조체로 묶기 (리팩토링 안전판)
-2. **Phase B (1일)** — `EnemyIntentWeightsSO`, `IntentWeightEntry` 추가. `ComputeIntentScore` 메서드 신설. SO null일 때 기존 코드 그대로 사용 (이중 경로 유지)
-3. **Phase C (반일)** — `IW_Default_Melee` 자산 생성 + 회귀 테스트 (7.1) 통과
-4. **Phase D (반일)** — `IW_AggressiveMelee` / `IW_DefensiveShield` / `IW_RangedCaster` 자산 작성
-5. **Phase E (반일)** — Intent 선택 안정화 보정(`DecisionIntentLockedUntil`, 전환 비용, 유지 보너스) 추가
-6. **Phase F (별도 마일스톤)** — `EnemyActionStyleProfileSO` 도입, Archetype별 Style Profile 작성
-7. **Phase G (별도 마일스톤)** — 모든 적이 SO 채택 확인 후 매직 넘버 fallback 제거. 인스펙터 미리보기 패널.
+1. **Phase A (1일)** ✅ 완료 — `IntentEvaluationContext`, `IntentConditionId`, `IntentConditionEvaluator` 신설. 매직 넘버는 그대로 두고 입력 모음만 구조체로 묶기 (리팩토링 안전판)
+2. **Phase B (1일)** ✅ 완료 — `EnemyIntentWeightsSO`, `IntentWeightEntry` 추가. `IntentScoreComputer` 정적 클래스 신설¹. SO null일 때 기존 코드 그대로 사용 (이중 경로 유지)
+3. **Phase C (반일)** ✅ 완료 — `IW_Default_Melee` 자산 생성 + 회귀 테스트 (7.1) 통과
+4. **Phase D (반일)** ✅ 완료 — `IW_AggressiveMelee` / `IW_DefensiveShield` / `IW_RangedCaster` 자산 작성
+5. **Phase E (반일)** 🟡 부분 — Intent 선택 안정화 보정 중 반복 패널티(`ApplyLastIntentPenalty`)는 구현됨. `DecisionIntentLockedUntil`, 전환 비용, 유지 보너스는 미정
+6. **Phase F (별도 마일스톤)** ⬜ 미진행 — `EnemyActionStyleProfileSO` 도입, Archetype별 Style Profile 작성
+7. **Phase G (별도 마일스톤)** ⬜ 미진행 — 모든 적이 SO 채택 확인 후 매직 넘버 fallback 제거. 인스펙터 미리보기 패널.
 
 총 3.5일 + 후속 마일스톤.
+
+> ¹ 설계 문서의 `ComputeIntentScore` 메서드는 `IntentScoreComputer.Compute()` 정적 메서드로 실장됨.
 
 ---
 

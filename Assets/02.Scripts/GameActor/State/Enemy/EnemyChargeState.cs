@@ -14,7 +14,7 @@ namespace UPlayGround.State
     ///   - 타겟이 일정 거리 이상 떨어져 있을 때 (먼 거리에서 갑자기 쇄도)
     ///   - 플레이어가 자주 회피해서 일반 추격으로 따라잡기 어려울 때
     /// </summary>
-    public class EnemyChargeState : GameActorState
+    public class EnemyChargeState : EnemyActorState
     {
         public override string StateName => "Charge";
         public override bool BlocksBehaviorTree => true;
@@ -80,7 +80,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

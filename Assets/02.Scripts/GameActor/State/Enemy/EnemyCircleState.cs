@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 배회 상태 - 타겟 주변을 자연스럽게 움직이며 거리를 유지
     /// Perlin Noise 기반 방향/속도 변화 + 간헐적 정지/방향 전환
     /// </summary>
-    public class EnemyCircleState : GameActorState
+    public class EnemyCircleState : EnemyActorState
     {
         public override string StateName => "Circle";
         public override bool BlocksBehaviorTree => true;
@@ -111,7 +111,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

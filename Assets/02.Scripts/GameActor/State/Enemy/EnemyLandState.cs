@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 공중 → 지상 착지 State.
     ///
     /// </summary>
-    public class EnemyLandState : GameActorState
+    public class EnemyLandState : EnemyActorState
     {
         public override string StateName => "Land";
         public override bool BlocksBehaviorTree => true;

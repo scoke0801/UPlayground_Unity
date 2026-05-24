@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// - Brain._airAttackCount가 유일한 카운터
     /// - 발사 모션 완료(또는 타임아웃) → Brain.OnAirAttackFinished()
     /// </summary>
-    public class EnemyFlyingAirCircleState : GameActorState
+    public class EnemyFlyingAirCircleState : EnemyActorState
     {
         public override string StateName => "Flying_AirCircle";
         public override bool BlocksBehaviorTree => true;

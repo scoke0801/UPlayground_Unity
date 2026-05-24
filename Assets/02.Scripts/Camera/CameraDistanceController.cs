@@ -12,6 +12,7 @@ namespace UPlayGround.CameraSystem
         private readonly CameraSettings _s;
         private readonly Transform _player;
         private readonly LayerMask _lockOnLayer;
+        private System.Func<Vector3> _playerVelocityProvider;
 
         // FOV
         private float _baseFOV;
@@ -43,16 +44,32 @@ namespace UPlayGround.CameraSystem
         /// <summary>
         /// FOV를 상태에 맞게 부드럽게 전환한다.
         /// </summary>
+        public void SetPlayerVelocityProvider(System.Func<Vector3> provider)
+        {
+            _playerVelocityProvider = provider;
+        }
+
         public void UpdateFOV(bool isLockOn, bool isCombat)
         {
+            float baseTarget;
             if (isLockOn)
-                _targetFOV = _s.fovLockOn;
+                baseTarget = _s.fovLockOn;
             else if (isCombat)
-                _targetFOV = _s.fovCombat;
+                baseTarget = _s.fovCombat;
             else
-                _targetFOV = _s.fovExplore;
+                baseTarget = _s.fovExplore;
 
-            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, _s.fovSmoothTime);
+            float addFov = 0f;
+            if (_s.enableSpeedFOV && _playerVelocityProvider != null)
+            {
+                Vector3 velocity = _playerVelocityProvider.Invoke();
+                float speed = Vector3.ProjectOnPlane(velocity, Vector3.up).magnitude;
+                addFov = Mathf.Clamp01(speed / Mathf.Max(_s.speedForMaxFOV, 0.01f)) * _s.speedFOVMax;
+            }
+
+            _targetFOV = baseTarget + addFov;
+            float smoothTime = _s.enableSpeedFOV ? _s.speedFOVSmoothTime : _s.fovSmoothTime;
+            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
         }
 
         /// <summary>

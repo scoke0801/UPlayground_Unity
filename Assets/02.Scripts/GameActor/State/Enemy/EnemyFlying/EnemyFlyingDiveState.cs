@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// 비행 몬스터 급강하.
     /// Approach(타겟 전방 상공으로 이동) → Telegraph(날개 접기) → Dive(대각선 돌진) → Recovery(후딜)
     /// </summary>
-    public class EnemyFlyingDiveState : GameActorState
+    public class EnemyFlyingDiveState : EnemyActorState
     {
         public override string StateName => "Flying_Dive";
         public override bool BlocksBehaviorTree => true;

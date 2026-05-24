@@ -45,6 +45,9 @@ namespace UPlayGround
         protected bool _isDead = false;
         
         protected UI_ActorHpBar _uiHpBar;
+
+        // 기본 Airborne 수치(7~8)는 피격 경직으로 처리하고, 전용 launch급 공격만 공중 상태로 보낸다.
+        private const float MinAirborneStateForce = 10f;
         
         public event Action<float, float> OnHealthChanged; // (current, max)
         public EnemyDetection Detection => _detection;
@@ -291,10 +294,12 @@ namespace UPlayGround
                     {
                         Vector3 launchDir = attackData.attackDirection.normalized;
                         launchDir.y = 0f;
+                        Vector3 airborneVelocity = ShouldEnterAirborneState(attackData)
+                            ? Vector3.up * attackData.airborneForce
+                            : Vector3.zero;
                         MovementController.AddImpulse(
-                            launchDir * attackData.knockbackForce + Vector3.up * attackData.airborneForce,
+                            launchDir * attackData.knockbackForce + airborneVelocity,
                             attackData.knockbackDrag);
-                        MovementController.Motor.ForceUnground();
                         break;
                     }
 
@@ -305,7 +310,7 @@ namespace UPlayGround
 
             if (shouldReact)
             {
-                if (attackData?.reactionType == AttackReactionType.Airborne)
+                if (ShouldEnterAirborneState(attackData))
                     MovementController.TransitionToState(new EnemyAirborneState(MovementController));
                 else if (attackData?.reactionType == AttackReactionType.Grab)
                     MovementController.TransitionToState(new EnemyGrabbedState(MovementController, attackData));
@@ -318,6 +323,17 @@ namespace UPlayGround
             }
 
             _colorChanger.OnHit();
+        }
+
+        private bool ShouldEnterAirborneState(AttackData attackData)
+        {
+            if (attackData == null || attackData.reactionType != AttackReactionType.Airborne)
+                return false;
+
+            if (attackData.airborneForce >= MinAirborneStateForce)
+                return true;
+
+            return false;
         }
 
         protected virtual void OnDeath(AttackData attackData)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 타겟 주변을 배회하다 duration 만료 시 Chase로 복귀.
     /// 이륙/공격 전환 판단은 BT가 담당한다.
     /// </summary>
-    public class EnemyFlyingCircleState : GameActorState
+    public class EnemyFlyingCircleState : EnemyActorState
     {
         public override string StateName => "Flying_Circle";
         public override bool BlocksBehaviorTree => true;
@@ -42,7 +42,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

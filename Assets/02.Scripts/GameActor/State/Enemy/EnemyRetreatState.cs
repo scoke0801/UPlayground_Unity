@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 후퇴 상태 - 타겟 반대 방향으로 뒷걸음치며 거리 확보
     /// 후퇴 완료 후 Circle 상태로 전환하여 대상 주변을 배회
     /// </summary>
-    public class EnemyRetreatState : GameActorState
+    public class EnemyRetreatState : EnemyActorState
     {
         public override string StateName => "Retreat";
         public override bool BlocksBehaviorTree => true;
@@ -59,7 +59,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

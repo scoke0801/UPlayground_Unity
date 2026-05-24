@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// 타겟과 너무 붙었거나 압박 루프를 끊어야 할 때 쓰는 짧은 후방 점프.
     /// 일반 Retreat보다 빠르게 압박만 끊고 착지 후 BT가 다음 패턴을 고르게 한다.
     /// </summary>
-    public class EnemyJumpBackState : GameActorState
+    public class EnemyJumpBackState : EnemyActorState
     {
         public override string StateName => "JumpBack";
         public override bool BlocksBehaviorTree => true;
@@ -24,18 +24,20 @@ namespace UPlayGround.State
         private Vector3 _jumpDirection;
         private float _timer;
         private bool _hasLeftGround;
-        private bool _landing;
-        private AnimancerState _landState;
+        private bool _canJumpBack;
+        private bool _launchStarted;
+        private AnimancerState _motionState;
         private float _maxSafeTargetDistance;
 
-        private const float MIN_DURATION = 0.32f;
-        private const float MAX_DURATION = 1.15f;
-        private const float HORIZONTAL_SPEED_RATIO = 1.45f;
-        private const float JUMP_SPEED_RATIO = 0.78f;
+        private const float HORIZONTAL_SPEED_RATIO = 1.75f;
+        private const float JUMP_SPEED_RATIO = 0.42f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
         private const float LOCK_ON_SAFE_DISTANCE_FALLBACK = 12f;
         private const float TARGET_DISTANCE_SAFETY_MARGIN = 0.75f;
         private const float TARGET_DISTANCE_EXTRA_MARGIN = 1.1f;
+        private const float MIN_RETREAT_ROOM = 0.35f;
+        private const float MIN_HORIZONTAL_LAUNCH_SPEED = 1.2f;
+        private const float HORIZONTAL_DAMPING = 2.2f;
 
         public EnemyJumpBackState(
             ActorMovementController controller,
@@ -59,24 +61,28 @@ namespace UPlayGround.State
 
             _timer = 0f;
             _hasLeftGround = false;
-            _landing = false;
+            _launchStarted = false;
             _jumpDirection = CalculateJumpDirection();
             _maxSafeTargetDistance = ResolveMaxSafeTargetDistance();
+            _canJumpBack = HasRetreatRoom();
 
             _memory?.NotifyRetreated();
-            gameActor.Animator.PlayMotion(
-                gameActor.Animator.HasMotion(AnimKey.Jump) ? AnimKey.Jump : AnimKey.Dodge,
+            _motionState = gameActor.Animator.PlayMotion(
+                ResolveMotionKey(),
                 0.05f);
 
-            motor.ForceUnground();
+            if (_motionState != null)
+                _motionState.OwnedEvents.OnEnd = ChangeToNextState;
+            else
+                ChangeToNextState();
         }
 
         public override void OnExit(GameActorState toState)
         {
-            if (_landState != null)
+            if (_motionState != null)
             {
-                _landState.OwnedEvents.OnEnd = null;
-                _landState = null;
+                _motionState.OwnedEvents.OnEnd = null;
+                _motionState = null;
             }
 
             base.OnExit(toState);
@@ -85,18 +91,6 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             _timer += deltaTime;
-
-            if (_landing)
-                return;
-
-            if (_timer >= MAX_DURATION)
-            {
-                ChangeToNextState();
-                return;
-            }
-
-            if (_timer >= MIN_DURATION && _hasLeftGround && motor.GroundingStatus.IsStableOnGround)
-                OnLanded();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -118,19 +112,39 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            var normalizedTime = Mathf.Clamp01(_timer / MAX_DURATION);
-            var horizontalScale = Mathf.Lerp(1f, 0.35f, normalizedTime);
+            if (!_canJumpBack)
+            {
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity,
+                    Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
+
+            float horizontalScale = Mathf.Lerp(1f, 0.35f, 1f - Mathf.Exp(-HORIZONTAL_DAMPING * _timer));
 
             var horizontalVelocity = _jumpDirection
                                      * (controller.MaxRunMoveSpeed * HORIZONTAL_SPEED_RATIO * horizontalScale);
             ClampHorizontalVelocityToSafeDistance(ref horizontalVelocity, deltaTime);
 
             var verticalVelocity = currentVelocity.y;
+            bool hasRetreatVelocity =
+                horizontalVelocity.sqrMagnitude >= MIN_HORIZONTAL_LAUNCH_SPEED * MIN_HORIZONTAL_LAUNCH_SPEED;
 
-            if (!_hasLeftGround && _timer <= 0.08f)
+            if (!_hasLeftGround && _timer <= 0.08f && hasRetreatVelocity)
+            {
+                _launchStarted = true;
+                motor.ForceUnground();
                 verticalVelocity = Mathf.Max(verticalVelocity, controller.JumpSpeed * JUMP_SPEED_RATIO);
+            }
+            else if (!_hasLeftGround && !_launchStarted)
+            {
+                verticalVelocity = Mathf.Min(verticalVelocity, 0f);
+            }
             else
+            {
                 verticalVelocity += controller.Gravity.y * controller.RiseGravityMultiplier * deltaTime;
+            }
 
             currentVelocity = horizontalVelocity;
             currentVelocity.y = verticalVelocity;
@@ -141,13 +155,6 @@ namespace UPlayGround.State
             if (!_hasLeftGround && !motor.GroundingStatus.IsStableOnGround)
                 _hasLeftGround = true;
 
-            if (_timer >= MIN_DURATION
-                && _hasLeftGround
-                && motor.GroundingStatus.IsStableOnGround
-                && !motor.LastGroundingStatus.IsStableOnGround)
-            {
-                OnLanded();
-            }
         }
 
         public override void OnMovementHit(
@@ -182,6 +189,14 @@ namespace UPlayGround.State
             return direction.sqrMagnitude > 0.01f ? direction : awayDir;
         }
 
+        private AnimKey ResolveMotionKey()
+        {
+            if (_canJumpBack && gameActor.Animator.HasMotion(AnimKey.Jump))
+                return AnimKey.Jump;
+
+            return AnimKey.Dodge;
+        }
+
         private float ResolveMaxSafeTargetDistance()
         {
             var safeDistance = LOCK_ON_SAFE_DISTANCE_FALLBACK;
@@ -205,6 +220,16 @@ namespace UPlayGround.State
                     Mathf.Max(0f, cameraManager.GetLockOnRange() - TARGET_DISTANCE_SAFETY_MARGIN));
 
             return safeDistance > 0.1f ? safeDistance : LOCK_ON_SAFE_DISTANCE_FALLBACK;
+        }
+
+        private bool HasRetreatRoom()
+        {
+            if (_detection == null || !_detection.HasTarget)
+                return true;
+
+            var away = motor.TransientPosition - _detection.CurrentTarget.position;
+            away.y = 0f;
+            return _maxSafeTargetDistance - away.magnitude >= MIN_RETREAT_ROOM;
         }
 
         private void ClampHorizontalVelocityToSafeDistance(ref Vector3 horizontalVelocity, float deltaTime)
@@ -236,31 +261,15 @@ namespace UPlayGround.State
                 horizontalVelocity = Vector3.zero;
         }
 
-        private void OnLanded()
-        {
-            if (_landing)
-                return;
-
-            _landing = true;
-            var land = gameActor.Animator.PlayMotion(AnimKey.Land, 0.12f);
-            if (land != null)
-            {
-                _landState = land;
-                _landState.OwnedEvents.OnEnd = ChangeToNextState;
-            }
-            else
-                ChangeToNextState();
-        }
-
         private void ChangeToNextState()
         {
             if (controller.CurrentState != this)
                 return;
 
-            if (_landState != null)
+            if (_motionState != null)
             {
-                _landState.OwnedEvents.OnEnd = null;
-                _landState = null;
+                _motionState.OwnedEvents.OnEnd = null;
+                _motionState = null;
             }
 
             if (!_detection.HasTarget)

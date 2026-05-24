@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 비행 보스 이륙.
     /// Fly_Start 모션 재생 → 수직 상승 → 모션 완료 시 Air_Circle로 전환.
     /// </summary>
-    public class EnemyFlyingTakeOffState : GameActorState
+    public class EnemyFlyingTakeOffState : EnemyActorState
     {
         public override string StateName => "Flying_TakeOff";
         public override bool BlocksBehaviorTree => true;

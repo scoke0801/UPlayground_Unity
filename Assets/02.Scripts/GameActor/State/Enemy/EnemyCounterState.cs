@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// Guard 블록 성공 직후 진입. 빠른 전진 + 공격으로 Guard를 의미있게 만든다.
     /// 별도 애니메이션 없이 Attack 애니를 활용하되, 진입 시 빠른 전진 속도를 부여해 체감을 차별화한다.
     /// </summary>
-    public class EnemyCounterState : GameActorState
+    public class EnemyCounterState : EnemyActorState
     {
         public override string StateName => "Counter";
         public override bool BlocksBehaviorTree => true;

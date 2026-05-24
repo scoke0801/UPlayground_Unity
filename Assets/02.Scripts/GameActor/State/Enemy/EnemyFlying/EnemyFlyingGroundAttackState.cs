@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 비행 몬스터 지상 근접 공격.
     /// 모션 완료 or 타임아웃 → Brain.OnGroundAttackFinished()
     /// </summary>
-    public class EnemyFlyingGroundAttackState : GameActorState
+    public class EnemyFlyingGroundAttackState : EnemyActorState
     {
         public override string StateName => "Flying_GroundAttack";
         public override bool BlocksBehaviorTree => true;

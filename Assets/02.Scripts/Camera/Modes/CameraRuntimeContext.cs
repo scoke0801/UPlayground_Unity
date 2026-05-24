@@ -21,6 +21,7 @@ namespace UPlayGround.CameraSystem
         public CameraDistanceController DistanceController { get; set; }
         public CameraRotationTransition RotationTransition { get; set; }
         public Func<bool> CombatStateProvider { get; set; }
+        public Func<Vector3> PlayerVelocityProvider { get; set; }
         public Func<float> ComputeSlopePitchOffset { get; set; }
         public Action StartCameraAlign { get; set; }
         public Func<CameraModeEnterParams, bool> PopCameraMode { get; set; }
@@ -32,6 +33,8 @@ namespace UPlayGround.CameraSystem
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
         public bool HasActiveEffects { get; set; }
+        public bool IsCameraColliding { get; set; }
+        public float CollisionSustainedSec { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 
         public CameraRuntimeContext(CameraRigState state)

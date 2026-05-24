@@ -4,7 +4,7 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
-    public class EnemySpecialBreakVictimState : GameActorState
+    public class EnemySpecialBreakVictimState : EnemyActorState
     {
         public override string StateName => "SpecialBreakVictim";
         public override bool BlocksBehaviorTree => true;

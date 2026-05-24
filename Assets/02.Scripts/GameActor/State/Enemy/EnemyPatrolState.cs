@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 순찰 상태 - 랜덤 포인트로 이동 후 대기
     /// 지형/몬스터 충돌 시 타임아웃으로 안전하게 다음 지점 재설정
     /// </summary>
-    public class EnemyPatrolState : GameActorState
+    public class EnemyPatrolState : EnemyActorState
     {
         public override string StateName => "Patrol";
         
@@ -65,7 +65,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

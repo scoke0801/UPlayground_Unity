@@ -14,6 +14,8 @@ namespace UPlayGround.CameraSystem
     {
         private float _frontCameraBlend;
         private float _frontCameraBlendVel;
+        private Vector3 _lookAheadOffset;
+        private Vector3 _lookAheadVelocity;
 
         private const float FRONT_BLEND_RETURN_SPEED = 0.12f;
         private const float FRONT_BLEND_PULL_SPEED = 0f;
@@ -103,7 +105,7 @@ namespace UPlayGround.CameraSystem
             float rotSmoothTime = effectState.rotationSmoothTimeOverride ?? settings.rotationSmoothTime;
 
             Vector3 pivotPosition;
-            Vector3 cameraPosition = EvaluateCameraPosition(context, settings, state, posSmoothTime, effectDistance, out pivotPosition);
+            Vector3 cameraPosition = EvaluateCameraPosition(context, settings, state, posSmoothTime, effectDistance, deltaTime, out pivotPosition);
             Quaternion cameraRotation = EvaluateCameraRotation(context.MainCamera, state, rotSmoothTime);
             cameraPosition += effectState.positionDelta;
 
@@ -197,7 +199,7 @@ namespace UPlayGround.CameraSystem
             state.CurrentPitch = Mathf.Clamp(state.CurrentPitch, dynamicMin, settings.maxVerticalAngle);
         }
 
-        private static void UpdateOffsetAndDistance(
+        private void UpdateOffsetAndDistance(
             CameraRuntimeContext context,
             CameraSettings settings,
             CameraRigState state,
@@ -206,6 +208,7 @@ namespace UPlayGround.CameraSystem
             if (!context.IsInputLocked)
             {
                 Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
+                targetOffset += ComputeLookAheadOffset(context, settings);
                 state.CameraOffset = Vector3.SmoothDamp(
                     state.CameraOffset,
                     targetOffset,
@@ -229,6 +232,7 @@ namespace UPlayGround.CameraSystem
             CameraRigState state,
             float smoothTime,
             float desiredDistance,
+            float deltaTime,
             out Vector3 pivotPosition)
         {
             Vector3 pivotBase = context.LookAtOverride != null
@@ -253,7 +257,35 @@ namespace UPlayGround.CameraSystem
             Vector3 backPos = pivotPosition + camDir * finalDist;
             backPos = ResolveSafeBackPosition(context, settings, pivotBase, backPos);
             backPos = ResolveGroundPenetration(context, settings, pivotPosition, camDir, backPos);
+            context.Collision?.ApplyFloorRescue(pivotPosition, ref backPos, deltaTime);
             return ResolveFrontCameraBlend(context, settings, pivotPosition, camDir, backPos);
+        }
+
+        private Vector3 ComputeLookAheadOffset(CameraRuntimeContext context, CameraSettings settings)
+        {
+            Vector3 targetLookAhead = Vector3.zero;
+            if (settings.enableLookAhead && context.PlayerVelocityProvider != null)
+            {
+                Vector3 velocity = Vector3.ProjectOnPlane(context.PlayerVelocityProvider.Invoke(), Vector3.up);
+                float speed = velocity.magnitude;
+                if (speed > 0.01f)
+                {
+                    float factor = Mathf.Clamp01(speed / Mathf.Max(settings.lookAheadSpeedRef, 0.01f));
+                    targetLookAhead = velocity.normalized * (factor * settings.lookAheadDistance);
+
+                    if (context.LockOn?.IsActive ?? false)
+                        targetLookAhead *= settings.lockOnLookAheadMultiplier;
+                }
+            }
+
+            _lookAheadOffset = Vector3.SmoothDamp(
+                _lookAheadOffset,
+                targetLookAhead,
+                ref _lookAheadVelocity,
+                settings.lookAheadSmoothTime);
+
+            _lookAheadOffset.y = 0f;
+            return _lookAheadOffset;
         }
 
         private static Vector3 ResolveSafeBackPosition(

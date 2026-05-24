@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 짧은 무적 시간 동안 타겟 공격 축에서 벗어난다.
     /// 계산된 방향의 Dodge_F/B/L/R 모션을 우선 사용하고, 없으면 기본 Dodge 모션으로 실행한다.
     /// </summary>
-    public class EnemyDodgeState : GameActorState
+    public class EnemyDodgeState : EnemyActorState
     {
         public override string StateName => "Dodge";
         public override bool BlocksBehaviorTree => true;
@@ -126,7 +126,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

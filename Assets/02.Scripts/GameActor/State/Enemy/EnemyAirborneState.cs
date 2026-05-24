@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Tag;
@@ -8,7 +8,7 @@ namespace UPlayGround.State
     /// <summary>
     /// 공중 상태 - 점프/낙하
     /// </summary>
-    public class EnemyAirborneState : GameActorState
+    public class EnemyAirborneState : EnemyActorState
     {
         public override string StateName => "Airborne";
         public override bool BlocksBehaviorTree => true;

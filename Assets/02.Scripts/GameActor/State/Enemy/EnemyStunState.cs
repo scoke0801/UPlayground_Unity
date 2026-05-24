@@ -5,7 +5,7 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
-    public class EnemyStunState : GameActorState
+    public class EnemyStunState : EnemyActorState
     {
         public override string StateName => "Stun";
         public override bool BlocksBehaviorTree => true;

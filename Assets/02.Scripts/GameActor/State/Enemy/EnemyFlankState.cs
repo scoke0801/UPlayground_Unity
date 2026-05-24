@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -15,7 +15,7 @@ namespace UPlayGround.State
     ///   - 일반 공격이 자주 빗나갈 때 (플레이어가 회피 잘함)
     ///   - 페이즈 2 이상에서 확률적으로 선택
     /// </summary>
-    public class EnemyFlankState : GameActorState
+    public class EnemyFlankState : EnemyActorState
     {
         public override string StateName => "Flank";
         public override bool BlocksBehaviorTree => true;
@@ -100,7 +100,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 가드 상태 - 전투 중 경계 자세로 타겟을 주시하며 대기
     /// Guard 모션이 있는 액터만 사용 가능
     /// </summary>
-    public class EnemyGuardState : GameActorState
+    public class EnemyGuardState : EnemyActorState
     {
         public override string StateName => "Guard";
         public override bool BlocksBehaviorTree => true;
@@ -65,7 +65,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

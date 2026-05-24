@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// 공격자가 FireForcedMotionReleased()를 호출하면 즉시 해제되며,
     /// 호출 없이 grabDuration이 만료되면 자동 탈출한다.
     /// </summary>
-    public class EnemyGrabbedState : GameActorState
+    public class EnemyGrabbedState : EnemyActorState
     {
         public override string StateName => "Grabbed";
         public override bool BlocksBehaviorTree => true;

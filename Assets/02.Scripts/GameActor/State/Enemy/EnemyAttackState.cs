@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Data;
@@ -17,7 +17,7 @@ namespace UPlayGround.State
     ///   공격 MotionSet 타임라인에 MotionEvent_MotionWarp 이벤트 추가.
     ///   endTime을 Collision 이벤트 startTime 직전으로 맞추면 된다.
     /// </summary>
-    public class EnemyAttackState : GameActorState
+    public class EnemyAttackState : EnemyActorState
     {
         public const string StateNameValue = "Attack";
 
@@ -109,6 +109,9 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (TryTransitionToAirborne(deltaTime))
+                return;
+
             if (!_isAttackActive || _currentSkill == null) return;
 
             _attackTimer += deltaTime;
@@ -120,16 +123,22 @@ namespace UPlayGround.State
 
         private void OnAttackAnimationEnd()
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
-            {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+            if (TryTransitionToAirborne(gameActor != null ? gameActor.DeltaTime : Time.deltaTime))
                 return;
-            }
 
             if (!_isAttackActive) return;
 
             _combat.ClearHitTargets();
             TransitionToNextState();
+        }
+
+        private bool TryTransitionToAirborne(float deltaTime)
+        {
+            if (!ShouldTransitionToAirborne(deltaTime))
+                return false;
+
+            controller.TransitionToState(new EnemyAirborneState(controller));
+            return true;
         }
 
         private void TransitionToNextState()

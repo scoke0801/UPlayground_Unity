@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// 비행 보스 지상 추격.
     /// 기존 EnemyChaseState와 유사하나, Brain 판단을 FlyingBrain에 위임.
     /// </summary>
-    public class EnemyFlyingChaseState : GameActorState
+    public class EnemyFlyingChaseState : EnemyActorState
     {
         public override string StateName => "Flying_Chase";
 
@@ -34,7 +34,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!motor.GroundingStatus.IsStableOnGround)
+            if (ShouldTransitionToAirborne(deltaTime))
             {
                 controller.TransitionToState(new EnemyAirborneState(controller));
                 return;

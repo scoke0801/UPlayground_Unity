@@ -494,6 +494,7 @@ $RECYCLE.BIN/
 *.vsconfig
 
 **/TextMesh Pro
+**/unsave
 **/03.Prefabs
 **/04.Images
 **/05.Models

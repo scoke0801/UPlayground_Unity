@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -11,32 +12,21 @@ public class UI_HudParty : UI_Base
     [SerializeField] private List<UIHudPartyEntry> _entries = new();
 
     private PlayerActor _subscribedPlayer;
+    private bool _isSubscribedToPartyEvents;
     private bool _hasSwapCooldownVisible;
 
     protected override void OnShow()
     {
         base.OnShow();
 
-        if (PartyManager.Instance != null)
-        {
-            PartyManager.Instance.OnBattleOrderChanged += Refresh;
-            PartyManager.Instance.OnSwapCompleted      += OnSwapCompleted;
-            PartyManager.Instance.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
-        }
-
+        SubscribePartyEvents();
         Refresh();
     }
 
     protected override void OnHide()
     {
         UnsubscribePlayer();
-
-        if (PartyManager.Instance != null)
-        {
-            PartyManager.Instance.OnBattleOrderChanged -= Refresh;
-            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
-            PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
-        }
+        UnsubscribePartyEvents();
 
         foreach (var entry in _entries)
             entry.Unbind();
@@ -45,13 +35,33 @@ public class UI_HudParty : UI_Base
     protected override void OnDispose()
     {
         UnsubscribePlayer();
+        UnsubscribePartyEvents();
+    }
 
-        if (PartyManager.Instance != null)
+    private void SubscribePartyEvents()
+    {
+        if (_isSubscribedToPartyEvents || PartyManager.Instance == null) return;
+
+        PartyManager.Instance.OnBattleOrderChanged += Refresh;
+        PartyManager.Instance.OnSwapCompleted += OnSwapCompleted;
+        PartyManager.Instance.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
+        PartyManager.Instance.OnSwapCooldownChanged += OnSwapCooldownChanged;
+        _isSubscribedToPartyEvents = true;
+    }
+
+    private void UnsubscribePartyEvents()
+    {
+        if (!_isSubscribedToPartyEvents || PartyManager.Instance == null)
         {
-            PartyManager.Instance.OnBattleOrderChanged -= Refresh;
-            PartyManager.Instance.OnSwapCompleted      -= OnSwapCompleted;
-            PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
+            _isSubscribedToPartyEvents = false;
+            return;
         }
+
+        PartyManager.Instance.OnBattleOrderChanged -= Refresh;
+        PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
+        PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
+        PartyManager.Instance.OnSwapCooldownChanged -= OnSwapCooldownChanged;
+        _isSubscribedToPartyEvents = false;
     }
 
     private void Refresh()
@@ -79,7 +89,7 @@ public class UI_HudParty : UI_Base
     {
         base.Update();
 
-        if (_hasSwapCooldownVisible || PartyManager.Instance?.IsSwapOnCooldown == true)
+        if (IsVisible && (_hasSwapCooldownVisible || PartyManager.Instance?.IsSwapOnCooldown == true))
             RefreshSwapCooldown();
     }
 
@@ -146,6 +156,20 @@ public class UI_HudParty : UI_Base
         }
     }
 
+    private void OnSwapCooldownChanged(CharacterActorType type, float remaining, float duration)
+    {
+        _hasSwapCooldownVisible = remaining > 0f || _hasSwapCooldownVisible;
+
+        foreach (var entry in _entries)
+        {
+            if (entry != null && entry.BoundType == type)
+            {
+                entry.SetSwapCooldown(remaining, duration);
+                break;
+            }
+        }
+    }
+
     private void RefreshEntryValues()
     {
         var pm = PartyManager.Instance;
@@ -177,6 +201,8 @@ public class UI_HudParty : UI_Base
         if (pm == null)
         {
             _hasSwapCooldownVisible = false;
+            foreach (var entry in _entries)
+                entry?.SetSwapCooldown(0f, 0f);
             return;
         }
 

@@ -71,11 +71,10 @@ namespace UPlayGround.Component
         {
             if (trail == null) return false;
 
-            Transform trailTransform = trail.transform;
-            if (IsMainWeaponEquipped && IsTrailUnderWeaponSlot(trailTransform, _currentMainWeaponObj, _mainWeaponConstraint))
+            if (IsMainWeaponEquipped && IsTrailUnderWeaponSlot(trail, _currentMainWeaponObj, _mainWeaponConstraint))
                 return true;
 
-            if (IsSubWeaponEquipped && IsTrailUnderWeaponSlot(trailTransform, _currentSubWeaponObj, _subWeaponConstraint))
+            if (IsSubWeaponEquipped && IsTrailUnderWeaponSlot(trail, _currentSubWeaponObj, _subWeaponConstraint))
                 return true;
 
             return false;
@@ -718,17 +717,30 @@ namespace UPlayGround.Component
             ActorWeaponTrailController.RefreshAttackTrails(this);
         }
 
-        private static bool IsTrailUnderWeaponSlot(
-            Transform trailTransform,
+        private static bool IsTrailUnderWeaponSlot(WeaponTrailEffect trail, GameObject weaponObj, ParentConstraint constraint)
+        {
+            if (trail == null) return false;
+
+            if (IsTransformUnderWeaponSlot(trail.transform, weaponObj, constraint))
+                return true;
+
+            if (IsTransformUnderWeaponSlot(trail.lineTipTransform, weaponObj, constraint))
+                return true;
+
+            return IsTransformUnderWeaponSlot(trail.lineBottomTransform, weaponObj, constraint);
+        }
+
+        private static bool IsTransformUnderWeaponSlot(
+            Transform target,
             GameObject weaponObj,
             ParentConstraint constraint)
         {
-            if (trailTransform == null) return false;
+            if (target == null) return false;
 
-            if (weaponObj != null && trailTransform.IsChildOf(weaponObj.transform))
+            if (weaponObj != null && target.IsChildOf(weaponObj.transform))
                 return true;
 
-            return constraint != null && trailTransform.IsChildOf(constraint.transform);
+            return constraint != null && target.IsChildOf(constraint.transform);
         }
 
         private void RestoreBuiltInSubWeapons()

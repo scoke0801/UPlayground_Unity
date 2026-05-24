@@ -49,6 +49,7 @@ namespace UPlayGround.Manager
         public event Action                           OnBattleOrderChanged;
         public event Action<CharacterActorType>       OnPartyProgressionChanged;
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
+        public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
 
         public PlayerActor               ActiveCharacter     => _player;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
@@ -560,6 +561,7 @@ namespace UPlayGround.Manager
             if (type == CharacterActorType.None || duration <= 0f) return;
 
             _swapCooldownEndTimes[type] = Time.time + duration;
+            OnSwapCooldownChanged?.Invoke(type, duration, duration);
         }
 
         /// <summary>

@@ -45,6 +45,13 @@ namespace UPlayGround.Component
             GetOrAdd(owner).RefreshTrails();
         }
 
+        public static void SuppressAttackTrails(UnityEngine.Component owner)
+        {
+            if (owner == null) return;
+
+            GetOrAdd(owner).StopCachedAttackTrails(immediate: true);
+        }
+
         public void MarkDirty()
         {
             _isDirty = true;
@@ -55,6 +62,8 @@ namespace UPlayGround.Component
             _trails.Clear();
             GetComponentsInChildren(true, _trails);
             _isDirty = false;
+
+            StopCachedAttackTrails(immediate: true);
 
             if (_debugLog)
                 Debug.Log($"[ActorWeaponTrailController] RefreshTrails owner={name}, count={_trails.Count}");
@@ -82,12 +91,18 @@ namespace UPlayGround.Component
                 var trail = _trails[i];
                 if (!CanUseTrail(trail, i)) continue;
 
+                ResetTrailForStart(trail);
                 trail.SetTrailLength(DefaultTrailLengthLifetime);
                 trail.StartTrail(DefaultFadeInDuration);
             }
         }
 
         private void StopCachedAttackTrails()
+        {
+            StopCachedAttackTrails(immediate: false);
+        }
+
+        private void StopCachedAttackTrails(bool immediate)
         {
             EnsureCache();
 
@@ -97,8 +112,13 @@ namespace UPlayGround.Component
             for (int i = 0; i < _trails.Count; i++)
             {
                 var trail = _trails[i];
-                if (!CanUseTrail(trail, i)) continue;
+                if (immediate)
+                {
+                    StopTrailImmediate(trail);
+                    continue;
+                }
 
+                if (!CanUseTrail(trail, i)) continue;
                 trail.StopTrail(DefaultFadeOutDuration);
             }
         }
@@ -116,6 +136,14 @@ namespace UPlayGround.Component
             {
                 if (_debugLog)
                     Debug.LogWarning($"[ActorWeaponTrailController] Trail[{index}] is inactive. trail={trail.name}, owner={name}");
+                return false;
+            }
+
+            if (TryGetComponent(out PlayerEquipment equipment) &&
+                !equipment.IsWeaponTrailDrawable(trail))
+            {
+                if (_debugLog)
+                    Debug.LogWarning($"[ActorWeaponTrailController] Trail[{index}] is not on a drawn weapon. trail={trail.name}, owner={name}");
                 return false;
             }
 
@@ -139,6 +167,22 @@ namespace UPlayGround.Component
             }
 
             return true;
+        }
+
+        private static void ResetTrailForStart(WeaponTrailEffect trail)
+        {
+            if (trail == null || trail.vfxComponent == null) return;
+
+            trail.vfxComponent.Reinit();
+            trail.SetProperty_EffectActive(false);
+            trail.SetProperty_EffectAlive(0f);
+        }
+
+        private static void StopTrailImmediate(WeaponTrailEffect trail)
+        {
+            if (trail == null || trail.vfxComponent == null) return;
+
+            trail.StopTrail(0f);
         }
 
         private void TryInstantiateTrailPrefab(WeaponTrailEffect trail)

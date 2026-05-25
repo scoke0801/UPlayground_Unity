@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterLianLian
+  m_EditorClassIdentifier: 
+  actorId: MonsterLianLian
+  displayName: "\uB9AC\uC548"
+  description: 
+  actorType: 2
+  characterType: 4
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 2701479759165243214, guid: 622399a055305144ea3c7fbf16e9ba06, type: 3}
+  stats: {fileID: 11400000, guid: 43e60724fb5810a4a9e02d65733577fa, type: 2}
+  statData: {fileID: 11400000, guid: 53c204472f326f240832b4c01459b718, type: 2}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 2
+  level: 10
+  attackData: {fileID: 11400000, guid: a255e5e2aedba8741ae4ce248ae892b6, type: 2}
+  behaviorData: {fileID: 11400000, guid: 40fff4a47f6178a4fb0775a39e4082c0, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

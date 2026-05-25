@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterSera
+  m_EditorClassIdentifier: 
+  actorId: MonsterSera
+  displayName: "\uC138\uB77C"
+  description: 
+  actorType: 2
+  characterType: 6
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 1831979147185291544, guid: af61dcb1cb9a6604daa7ae53e99fd33c, type: 3}
+  stats: {fileID: 11400000, guid: d1eb157072ae3f949b1ea3c6c5954193, type: 2}
+  statData: {fileID: 0}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 2
+  level: 10
+  attackData: {fileID: 11400000, guid: 37531016fd86e4e4ea6bd66458033da6, type: 2}
+  behaviorData: {fileID: 11400000, guid: afd7a52267a75c84cb707d64f035d941, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

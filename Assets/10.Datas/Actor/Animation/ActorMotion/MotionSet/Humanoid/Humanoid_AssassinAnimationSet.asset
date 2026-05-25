@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Humanoid_AssassinAnimationSet
+  m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
+  motionSets:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 11400000, guid: 8c009d9c999f15b4db05a6685c05ca6e, type: 2}
+    - Key: 3
+      Value: {fileID: 11400000, guid: 78f7228b3ab41c24b9ddc71c50efacf4, type: 2}
+    - Key: 10
+      Value: {fileID: 11400000, guid: d17b6adae6205704a8257bad1c3bc84f, type: 2}
+    - Key: 100
+      Value: {fileID: 11400000, guid: b23e0edcc8cbc654799294323e4ef2e7, type: 2}
+    - Key: 101
+      Value: {fileID: 11400000, guid: 9add4f772216efa4383a176d19eb20c9, type: 2}
+    - Key: 102
+      Value: {fileID: 11400000, guid: 374a07c28052920479e36cf5268e714c, type: 2}
+    - Key: 103
+      Value: {fileID: 11400000, guid: b86b444c531043b42876bee46d8c6f04, type: 2}
+    - Key: 104
+      Value: {fileID: 11400000, guid: fb18d7bcb1a23ba4f99bca2256c99158, type: 2}
+    - Key: 105
+      Value: {fileID: 11400000, guid: 4bddf80c345b3424bbff4a70f8eecc6b, type: 2}
+    - Key: 106
+      Value: {fileID: 11400000, guid: 851fe1d16af863a4c935d938caaa3f90, type: 2}
+    - Key: 107
+      Value: {fileID: 11400000, guid: 88599d9a74c37604b897b8a689481875, type: 2}
+    - Key: 108
+      Value: {fileID: 11400000, guid: 6e369f221a814f945a89578f84a36088, type: 2}
+    - Key: 109
+      Value: {fileID: 11400000, guid: f2f71c53f67b24847a17836222bf5935, type: 2}
+    - Key: 200
+      Value: {fileID: 11400000, guid: 2de8404199c53264f81c4fec7939ecff, type: 2}
+    - Key: 201
+      Value: {fileID: 11400000, guid: 324057a268d88a643b4478bcc817b661, type: 2}
+    - Key: 202
+      Value: {fileID: 11400000, guid: f776dffd7d3a4184694f140684318aca, type: 2}
+    - Key: 203
+      Value: {fileID: 11400000, guid: 414b693fd13e7fa4baeab201d7783ef1, type: 2}
+    - Key: 204
+      Value: {fileID: 11400000, guid: 9c60fbc1a60832241ad842154f6bcd93, type: 2}
+    - Key: 205
+      Value: {fileID: 11400000, guid: 8e8063c0af89a1f43b0b0b5d04b0c131, type: 2}
+    - Key: 500
+      Value: {fileID: 11400000, guid: c8e531aeede7856478bd786aaccfecaf, type: 2}
+    - Key: 501
+      Value: {fileID: 11400000, guid: 855f592a4053ed145abc458900170046, type: 2}
+    - Key: 502
+      Value: {fileID: 11400000, guid: 7bc7e3d1870a4064893c2f35cc96058c, type: 2}
+    - Key: 503
+      Value: {fileID: 11400000, guid: 9537648bdb5d2b84c977293f7c6b0fa1, type: 2}
+    - Key: 504
+      Value: {fileID: 11400000, guid: 98f80544c11a0c146b68168d44ff1d2c, type: 2}
+    - Key: 700
+      Value: {fileID: 11400000, guid: e7f2cb837d011a845b1267a6506c5854, type: 2}
+    - Key: 800
+      Value: {fileID: 11400000, guid: 6e2210734ce901d4aa012ce3565dbe86, type: 2}
+    - Key: 820
+      Value: {fileID: 11400000, guid: 74c869b5a57fd4641a0636d4be075be5, type: 2}
+    - Key: 860
+      Value: {fileID: 11400000, guid: e40c3b087522bb545a0b2410a9017e18, type: 2}
+    - Key: 900
+      Value: {fileID: 11400000, guid: 30421002cfa414a4e8498b19ffc3ffcb, type: 2}
+    - Key: 901
+      Value: {fileID: 11400000, guid: e796f3cfd7bf1de4c9332c7a1d441c08, type: 2}
+    - Key: 555
+      Value: {fileID: 11400000, guid: f1bc29195ad42dc459672fed43d4c5fc, type: 2}
+    - Key: 12
+      Value: {fileID: 11400000, guid: d0ee520ecee25ac4eb557a5ff5e6153a, type: 2}
+    - Key: 13
+      Value: {fileID: 11400000, guid: f6f639da0aa400a45aead789485b83e2, type: 2}
+    - Key: 14
+      Value: {fileID: 11400000, guid: ba557938ba4a70b47a416ad82a562fa0, type: 2}
+    - Key: 15
+      Value: {fileID: 11400000, guid: 31114bec9ffd18d40837cf3677c0ac2a, type: 2}
+    - Key: 16
+      Value: {fileID: 11400000, guid: c49010d3877b7b44996d98f6ec1a6666, type: 2}
+    - Key: 17
+      Value: {fileID: 11400000, guid: b2a2d9f751f407d4f9d25afb06408fad, type: 2}
+    - Key: 18
+      Value: {fileID: 11400000, guid: c49f7ca2896741f49b0db537570fa176, type: 2}
+    - Key: 19
+      Value: {fileID: 11400000, guid: b5a155c1e6ce2e944820df4c0e569466, type: 2}
+    - Key: 11
+      Value: {fileID: 11400000, guid: c49010d3877b7b44996d98f6ec1a6666, type: 2}

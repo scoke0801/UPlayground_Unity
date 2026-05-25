@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Humanoid_Bow_Attack_5
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: Motion_0
+      motionClip: {fileID: 3376393187596492422, guid: 03fb6a481fb1aa94dbe113d4c4df4f39, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452679253098636
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7432452679253098636
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8563021
+        endTime: 1.3563018
+        globalStartTimeOffset: 0
+        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        spawnPointName: 
+        spawnOffset: {x: 0, y: 1, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 1
+        damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
+        speed: 10
+        duration: 3
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 0
+        hitParticleName: 

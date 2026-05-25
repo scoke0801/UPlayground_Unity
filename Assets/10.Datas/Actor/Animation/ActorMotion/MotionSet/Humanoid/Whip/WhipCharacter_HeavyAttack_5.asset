@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: WhipCharacter_HeavyAttack_5
+  m_EditorClassIdentifier: 
+  motionSet:
+    motionSetName: 
+    motions:
+    - motionName: 
+      motionClip: {fileID: -1245080158489763494, guid: 72b53cbc8461bff46aadf52e39c95364, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917016132091904
+      - rid: 5792125030652444811
+      - rid: 5792125030652444812
+      - rid: 5792125030652444813
+      - rid: 5792125030652444814
+      - rid: 5792125030652444815
+    globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5792125030652444811
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8293522
+        endTime: 1.0344973
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 1
+    - rid: 5792125030652444812
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.1855263
+        endTime: 1.3906713
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 2
+    - rid: 5792125030652444813
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8803475
+        endTime: 2.0854926
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 3
+    - rid: 5792125030652444814
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.4035254
+        endTime: 2.7880397
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 4
+    - rid: 5792125030652444815
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 3.1076243
+        endTime: 3.3261638
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 5
+    - rid: 7399917016132091904
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.25978407
+        endTime: 0.505391
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterBokusei
+  m_EditorClassIdentifier: 
+  actorId: MonsterBokusei
+  displayName: "\uBCF4\uCFE0\uC138\uC774"
+  description: 
+  actorType: 2
+  characterType: 1
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 296616552295036336, guid: d6f2b1e946a1ac441ae719cca391151f, type: 3}
+  stats: {fileID: 11400000, guid: 1f50c9e8f93793d4fbb9788469651ccf, type: 2}
+  statData: {fileID: 11400000, guid: 0032876e9690d0b4d8916ef0b1f67c32, type: 2}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 2
+  level: 10
+  attackData: {fileID: 11400000, guid: ea8a2fedf6d1489449206b04f96c8823, type: 2}
+  behaviorData: {fileID: 0}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

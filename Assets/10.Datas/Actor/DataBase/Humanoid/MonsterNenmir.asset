@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterNenmir
+  m_EditorClassIdentifier: 
+  actorId: MonsterNenmir
+  displayName: "\uB128\uBBF8\uB974"
+  description: 
+  actorType: 2
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 840251747694296994, guid: ace15b46b1b2bdf4fb21a2a6e7de8bae, type: 3}
+  stats: {fileID: 11400000, guid: 8538d8b948ff1d74786bc78c94f2bf7e, type: 2}
+  statData: {fileID: 0}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 2
+  level: 10
+  attackData: {fileID: 11400000, guid: 8c0b40f19285def46b7b710687c0954b, type: 2}
+  behaviorData: {fileID: 11400000, guid: 75d44947841926b4ca054751da809546, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

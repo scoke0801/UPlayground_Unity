@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterKomoe
+  m_EditorClassIdentifier: 
+  actorId: MonsterKomoe
+  displayName: "\uCF54\uBAA8\uC5D0"
+  description: 
+  actorType: 2
+  characterType: 10
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 6421260818008614621, guid: f0a5c8948f6d5224594c83389c0eaa8b, type: 3}
+  stats: {fileID: 11400000, guid: d3982f254c20be94bba1b792a35cfe6a, type: 2}
+  statData: {fileID: 0}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 2
+  level: 10
+  attackData: {fileID: 11400000, guid: 24c4331990bf3dd41b3d764f53e4ab66, type: 2}
+  behaviorData: {fileID: 11400000, guid: 5a59d1b2d44bd754fbc5bc3fe37f6f1d, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

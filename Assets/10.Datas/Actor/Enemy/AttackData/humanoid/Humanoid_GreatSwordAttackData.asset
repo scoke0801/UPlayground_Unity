@@ -17,9 +17,13 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 8
+        poiseDamage: 24
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -31,6 +35,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -38,6 +44,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -49,9 +63,13 @@ MonoBehaviour:
       animKey: 101
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 9
+        poiseDamage: 27
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -63,6 +81,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -70,6 +90,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -83,7 +111,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 10
         poiseDamage: 30
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -95,6 +127,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -102,6 +136,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -113,9 +155,13 @@ MonoBehaviour:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 11
+        poiseDamage: 33
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -127,6 +173,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -134,6 +182,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -145,9 +201,13 @@ MonoBehaviour:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 11
+        poiseDamage: 33
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -159,6 +219,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -166,6 +228,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -177,9 +247,13 @@ MonoBehaviour:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 12
+        poiseDamage: 36
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -191,6 +265,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -198,6 +274,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -209,9 +293,13 @@ MonoBehaviour:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 12
+        poiseDamage: 36
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -223,6 +311,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -230,6 +320,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -241,9 +339,13 @@ MonoBehaviour:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 13
+        poiseDamage: 39
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -255,6 +357,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -262,6 +366,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -273,9 +385,13 @@ MonoBehaviour:
       animKey: 108
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 14
+        poiseDamage: 42
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -287,6 +403,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -294,6 +412,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -305,9 +431,13 @@ MonoBehaviour:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 17
+        poiseDamage: 51
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -319,6 +449,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -326,6 +458,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -337,9 +477,13 @@ MonoBehaviour:
       animKey: 200
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 7
+        poiseDamage: 21
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -350,9 +494,13 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 10
-        poiseDamage: 30
+      - damage: 9
+        poiseDamage: 27
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -364,6 +512,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -371,6 +521,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -382,9 +540,13 @@ MonoBehaviour:
       animKey: 201
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 8
+        poiseDamage: 24
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -397,7 +559,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 10
         poiseDamage: 30
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -409,6 +575,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -416,6 +584,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -427,9 +603,13 @@ MonoBehaviour:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 17
+        poiseDamage: 51
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -441,6 +621,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -448,6 +630,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -459,9 +649,13 @@ MonoBehaviour:
       animKey: 203
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 15
+        poiseDamage: 45
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -473,6 +667,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -480,6 +676,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -491,9 +695,13 @@ MonoBehaviour:
       animKey: 204
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 19
+        poiseDamage: 57
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -505,6 +713,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -512,6 +722,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -523,9 +741,13 @@ MonoBehaviour:
       animKey: 205
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 20
+        poiseDamage: 60
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -537,6 +759,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -544,6 +768,14 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -555,9 +787,13 @@ MonoBehaviour:
       animKey: 206
       attackType: 0
       hitPhases:
-      - damage: 10
-        poiseDamage: 30
+      - damage: 22
+        poiseDamage: 66
+        breakDamage: 0
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -569,6 +805,8 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
     selectionWeight: 10
     minRange: 0
     maxRange: 2.5
@@ -576,6 +814,261 @@ MonoBehaviour:
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 500
+      attackType: 0
+      hitPhases:
+      - damage: 22
+        poiseDamage: 66
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 501
+      attackType: 0
+      hitPhases:
+      - damage: 25
+        poiseDamage: 75
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 502
+      attackType: 0
+      hitPhases:
+      - damage: 27
+        poiseDamage: 81
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 530
+      attackType: 0
+      hitPhases:
+      - damage: 15
+        poiseDamage: 45
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+  - baseInfo:
+      animKey: 531
+      attackType: 0
+      hitPhases:
+      - damage: 9
+        poiseDamage: 27
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 11
+        poiseDamage: 33
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    minRange: 0
+    maxRange: 2.5
+    cooldown: 2
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15

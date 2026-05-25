@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
+  m_Name: BehaviorData_Hichi
+  m_EditorClassIdentifier: 
+  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
+  aiRole: 0
+  intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  optimalCombatDistance: 2.2
+  minCombatDistance: 1
+  maintainDistance: 1
+  chaseStopDistance: 2
+  personalSpaceDistance: 0.8
+  continueAttackChance: 0.35
+  guardChance: 0.3
+  retreatChance: 0.2
+  chaseSpeedMultiplier: 1.2
+  circleDuration: 2.5
+  guardDuration: 1.5
+  retreatDistance: 3
+  enablePatrol: 1
+  patrolRadius: 5
+  patrolWaitTime: 2
+  phases:
+  - phaseName: "\uACF5\uC138 (HP 60% \uC774\uD558)"
+    hpThreshold: 0.6
+    continueAttackChance: 0.45
+    guardChance: 0.2
+    retreatChance: 0.1
+    chargeChance: 0.25
+    flankChance: 0.35
+    chaseSpeedMultiplier: 1.4
+    allowCharge: 1
+    allowFlank: 1
+    maxConsecutiveAttacks: 4
+    attackWeight: 1
+    punishWeight: 1
+    counterWeight: 1
+    pressureWeight: 1
+    chaseWeight: 1
+    retreatWeight: 1
+    keepDistanceWeight: 1
+    defendWeight: 1
+    recoverWeight: 1
+    intentWeightsOverride: {fileID: 0}
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12
+  - phaseName: "\uAD11\uC804\uC0AC (HP 30% \uC774\uD558)"
+    hpThreshold: 0.3
+    continueAttackChance: 0.6
+    guardChance: 0.1
+    retreatChance: 0.05
+    chargeChance: 0.45
+    flankChance: 0.45
+    chaseSpeedMultiplier: 1.6
+    allowCharge: 1
+    allowFlank: 1
+    maxConsecutiveAttacks: 5
+    attackWeight: 1
+    punishWeight: 1
+    counterWeight: 1
+    pressureWeight: 1
+    chaseWeight: 1
+    retreatWeight: 1
+    keepDistanceWeight: 1
+    defendWeight: 1
+    recoverWeight: 1
+    intentWeightsOverride: {fileID: 0}
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12

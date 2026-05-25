@@ -38,9 +38,19 @@ MonoBehaviour:
         preset: 1
         modifierType: 0
         targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
         translationWeight: 1
         rotationWeight: 1
         ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
         overrideDistance: 0
         minDistance: 0.3
         maxDistance: 4
@@ -65,4 +75,4 @@ MonoBehaviour:
         startTime: 0.9694824
         endTime: 1.090332
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 1

@@ -21,12 +21,6 @@ MonoBehaviour:
       clipEndTime: -1
       playbackSpeed: 1
       events: []
-    - motionName: Frank_RPG_Assassin_Step_F
-      motionClip: {fileID: 7400000, guid: 5355aae20ee3abe4b804d051e95391d2, type: 3}
-      clipStartTime: -1
-      clipEndTime: -1
-      playbackSpeed: 1
-      events: []
     globalEvents: []
   references:
     version: 2

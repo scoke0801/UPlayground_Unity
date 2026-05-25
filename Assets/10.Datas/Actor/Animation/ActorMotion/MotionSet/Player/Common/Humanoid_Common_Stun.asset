@@ -16,12 +16,28 @@ MonoBehaviour:
     motionSetName: 
     motions:
     - motionName: Motion_0
-      motionClip: {fileID: 3094330708855449807, guid: 6bc3ab383df35674db1c49d5c09cf9f3, type: 3}
+      motionClip: {fileID: 1827226128182048838, guid: 527e6b16556707248af6135393850cdb, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    - motionName: Motion_1
+      motionClip: {fileID: 1827226128182048838, guid: 399bd0f53002a504ab2c3a68a0555ff1, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452881168728195
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7432452881168728195
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.98809713
+        globalStartTimeOffset: 0
+        mode: 2
+        loopCount: 1
+        freezeDuration: 0

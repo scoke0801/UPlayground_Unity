@@ -70,7 +70,19 @@
     public enum CombatSkillType
     {
         None = 0,
-     
+
+    }
+
+    /// <summary>
+    /// 플레이어가 이 공격에 대해 취할 수 있는 방어 대응 분류.
+    /// Danger Ring 색(패링 가능=노랑 / 불가=빨강)과 퍼펙트 가드 카운터 성립 여부를 결정한다.
+    /// 기존 동작(모든 공격 카운터 가능) 보존을 위해 기본값은 Parryable.
+    /// </summary>
+    public enum AttackDefenseType
+    {
+        Parryable,     // 퍼펙트 가드 시 패링/카운터 성립 (기본) — 노란 링
+        GuardableOnly, // 막을 수는 있으나 카운터 불가 — 노란 링(카운터 표시 없음)
+        Unblockable,   // 가드 불가, 회피 필수 (명조 Red Warning / 세키로 危) — 붉은 링
     }
     
 }

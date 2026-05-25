@@ -144,6 +144,18 @@ namespace UPlayGround.Data
         [Tooltip("true면 TelegraphEvent에서 예약한 위치를 실제 Collision 판정 위치로 사용한다. TargetPosition AOE에 사용한다.")]
         public bool useTelegraphPositionForHit = false;
 
+        [Header("Danger Ring (UI)")]
+        [Tooltip("공격 윈드업 동안 적 몸통(락온 포커스 지점)에 수축 타이밍 링을 표시할지 여부. useTelegraph와 독립이다.")]
+        public bool useDangerRing = false;
+        [Tooltip("Danger Ring 수축 시간(초) — 보통 비워둠(0). 기본은 타임라인의 다음 Collision 이벤트까지 자동 산출된다. 공격자 타임라인에 Collision 이벤트가 없는 투사체 공격 등에서만 폴백으로 수동 지정. 0 이하면 자동/기본값(0.6초) 사용.")]
+        public float dangerRingDuration = 0f;
+        [Tooltip("비워두면 기본 Danger Ring 프리팹(UIPrefabDatabase의 \"DangerRing\" 키)을 사용한다.")]
+        public string dangerRingPrefabKey;
+
+        [Header("Defense")]
+        [Tooltip("이 공격에 대한 플레이어 방어 대응 분류. Danger Ring 색과 패링(카운터) 성립 여부를 결정한다.")]
+        public AttackDefenseType defenseType = AttackDefenseType.Parryable;
+
         [Header("Aerial")]
         [Tooltip("true = EnemyAerialState에서만 선택되는 공중 전용 스킬")]
         public bool isAerialSkill = false;
@@ -237,6 +249,9 @@ namespace UPlayGround.Data
         public bool isCounterAttack;
         public Vector3 attackDirection;
         public string hitParticleName = "LiteHit";
+
+        // 방어 대응 분류 — 퍼펙트 가드 카운터 성립 여부 판단에 사용. 기본 Parryable로 기존 동작 유지.
+        public AttackDefenseType defenseType = AttackDefenseType.Parryable;
 
         // 반응 파라미터
         public float pullForce      = 10f;

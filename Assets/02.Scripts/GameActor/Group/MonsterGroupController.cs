@@ -104,7 +104,7 @@ namespace UPlayGround.Group
 
     /// <summary>
     /// 그룹 내 모든 멤버가 사망했을 때 1회 발동.
-    /// GroupStoryTrigger 등 외부에서 구독해 후속 처리를 연결한다.
+    /// TriggerComposer 등 외부에서 구독해 후속 처리를 연결한다.
     /// </summary>
     public event Action OnGroupDefeated;
 

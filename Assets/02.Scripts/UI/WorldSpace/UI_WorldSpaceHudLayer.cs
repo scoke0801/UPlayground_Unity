@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.UI;
 using UPlayGround.Manager;
 using UPlayGround.UI;
@@ -16,6 +17,7 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
     private Camera _mainCamera;
 
     private GameObject _hpBarPrefab;
+    private GameObject _dangerRingPrefab;
 
     private GameObject              _floaterPrefab;
     private DamageFloaterConfigSO   _floaterConfig;
@@ -42,6 +44,29 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         var hpBar = Instantiate(_hpBarPrefab, transform)?.GetComponent<UI_ActorHpBar>();
         hpBar?.Init(actor, _mainCamera, _parentCanvas);
         return hpBar;
+    }
+
+    // ── Danger Ring ───────────────────────────────────────────────────
+
+    public void SetDangerRingPrefab(GameObject dangerRingPrefab) => _dangerRingPrefab = dangerRingPrefab;
+
+    /// <param name="prefabOverride">스킬별 프리팹 키로 해석된 프리팹. null이면 기본 프리팹 사용.</param>
+    public UI_DangerRing CreateDangerRing(GameActor actor, float duration, AttackDefenseType defenseType, GameObject prefabOverride = null)
+    {
+        GameObject prefab = prefabOverride != null ? prefabOverride : _dangerRingPrefab;
+        if (prefab == null) return null;
+        if (_mainCamera == null) _mainCamera = Camera.main;
+
+        var instance = Instantiate(prefab, transform);
+        var ring = instance.GetComponent<UI_DangerRing>();
+        if (ring == null)
+        {
+            // 프리팹에 UI_DangerRing 컴포넌트가 없으면 인스턴스가 떠돌지 않도록 즉시 파괴.
+            Destroy(instance);
+            return null;
+        }
+        ring.Init(actor, _mainCamera, _parentCanvas, duration, defenseType);
+        return ring;
     }
 
     // ── 데미지 플로터 ─────────────────────────────────────────────────

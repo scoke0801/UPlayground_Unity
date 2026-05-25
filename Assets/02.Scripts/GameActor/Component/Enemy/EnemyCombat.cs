@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -12,6 +14,7 @@ namespace UPlayGround.Component
     public class EnemyCombat : MonoBehaviour
     {
         private const string DefaultCircleTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
+        private const float  DefaultDangerRingDuration   = 0.6f;
 
         private sealed class TelegraphInstance
         {
@@ -66,6 +69,9 @@ namespace UPlayGround.Component
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
 
+        // Danger Ring UI — 공격당 1개. 바닥 텔레그래프와 독립.
+        private UI_DangerRing _dangerRing;
+
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
         private MotionWarpController _motionWarp;
@@ -77,7 +83,7 @@ namespace UPlayGround.Component
 
         public EnemyAttackDataSO AttackData       => _attackData;
         public EnemyAttackInfo   CurrentSkill     => _currentSkill;
-        public int               CurrentLevel     => Mathf.Max(1, _ownerActor?.Stat?.level ?? 1);
+        public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
         public bool              IsPossibleCollide => _isCollisionEnabled;
         public SkillType         ReservedSkillType => _reservedSkillType;
         public EnemyAttackCategory ReservedAttackCategory => _reservedAttackCategory;
@@ -100,6 +106,13 @@ namespace UPlayGround.Component
             _motionWarp = GetComponent<MotionWarpController>();
             if (_motionWarp == null)
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
+        }
+
+        /// <summary> MonsterActor.SetDefinition() 등에서 공격 데이터를 주입할 때 사용. </summary>
+        public void Init(EnemyAttackDataSO data)
+        {
+            if (data != null)
+                _attackData = data;
         }
 
         private void Update()
@@ -373,6 +386,7 @@ namespace UPlayGround.Component
                     hitHeightRange        = phase.hitHeightRange,
                     attacker              = _ownerActor,
                     victimForcedAnimKey   = phase.victimForcedAnimKey,
+                    defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                 };
 
                 _hitTargets.Add(damageable);
@@ -394,20 +408,36 @@ namespace UPlayGround.Component
             BeginTelegraph(0, false);
         }
 
+        /// <summary>
+        /// 공격 예고 디스패처. 바닥 원형 FX(useTelegraph)와 Danger Ring(useDangerRing)을
+        /// 각자 플래그로 독립 분기한다. 바닥 텔레그래프가 꺼져 있어도 Danger Ring은 단독 출력될 수 있다.
+        /// </summary>
         public void BeginTelegraph(int hitPhaseIndex, bool lockPositionOnStart)
         {
             ClearTelegraphs();
 
-            if (_currentSkill == null || !_currentSkill.useTelegraph)
+            if (_currentSkill == null)
                 return;
 
+            int clampedHitPhaseIndex = GetClampedHitPhaseIndex(hitPhaseIndex);
+
+            // 분기 1: 바닥 원형 FX 텔레그래프 — useTelegraph 일 때만
+            if (_currentSkill.useTelegraph)
+                BeginGroundTelegraph(clampedHitPhaseIndex, lockPositionOnStart);
+
+            // 분기 2: Danger Ring UI — useDangerRing 일 때만 (텔레그래프와 무관)
+            if (_currentSkill.useDangerRing)
+                BeginDangerRing();
+        }
+
+        private void BeginGroundTelegraph(int clampedHitPhaseIndex, bool lockPositionOnStart)
+        {
             if (_currentSkill.telegraphShape != TelegraphShape.Circle)
             {
                 Debug.LogWarning($"[EnemyCombat] 현재 Circle 텔레그래프만 지원합니다: {_currentSkill.telegraphShape}");
                 return;
             }
 
-            int clampedHitPhaseIndex = GetClampedHitPhaseIndex(hitPhaseIndex);
             Vector3 position = GetTelegraphPosition(clampedHitPhaseIndex);
             Quaternion rotation = GetTelegraphRotation();
             string fxKey = GetTelegraphFXKey(_currentSkill);
@@ -418,6 +448,28 @@ namespace UPlayGround.Component
             _telegraphHitPositions[clampedHitPhaseIndex] = position;
             ApplyTelegraphScale(instance, clampedHitPhaseIndex);
             RegisterTelegraph(instance, clampedHitPhaseIndex, lockPositionOnStart, position, rotation);
+        }
+
+        private void BeginDangerRing()
+        {
+            float duration = ResolveDangerRingDuration(_currentSkill);
+            _dangerRing = UIManager.Instance?.CreateDangerRing(_ownerActor, _currentSkill, duration);
+        }
+
+        private float ResolveDangerRingDuration(EnemyAttackInfo skill)
+        {
+            // 1순위: 타임라인의 다음 Collision 이벤트까지 자동 산출 — 수동 오써링 불필요.
+            // 수축이 가장 작아지는 순간이 실제 타격(Collision)과 자동 정렬된다.
+            if (_ownerActor?.Animator != null &&
+                _ownerActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent>(out float untilCollision) &&
+                untilCollision > 0f)
+                return untilCollision;
+
+            // 2순위: 명시 오버라이드 (공격자 타임라인에 Collision 이벤트가 없는 투사체 공격 등).
+            if (skill != null && skill.dangerRingDuration > 0f)
+                return skill.dangerRingDuration;
+
+            return DefaultDangerRingDuration;
         }
 
         public void UpdateTelegraphs()
@@ -490,6 +542,13 @@ namespace UPlayGround.Component
             }
 
             _telegraphInstances.Clear();
+
+            // Danger Ring 정리 (바닥 FX와 함께)
+            if (_dangerRing != null)
+            {
+                _dangerRing.Release();
+                _dangerRing = null;
+            }
         }
 
         public void ClearTelegraphHitPositions()
@@ -497,8 +556,17 @@ namespace UPlayGround.Component
             _telegraphHitPositions.Clear();
         }
 
-        public void SetEnableCollision(bool isCollisionEnable) =>
+        public void SetEnableCollision(bool isCollisionEnable)
+        {
             _isCollisionEnabled = isCollisionEnable;
+
+            // 충돌 판정이 켜지는 순간 = 실제 타격 순간. Danger Ring 수축을 최소 크기로 완료/해제한다.
+            if (isCollisionEnable && _dangerRing != null)
+            {
+                _dangerRing.CompleteNow();
+                _dangerRing = null;
+            }
+        }
 
         public void SetTargetLayer(LayerMask targetLayer) =>
             _targetLayer = targetLayer;

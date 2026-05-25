@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using UPlayGround.Data;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.UI;
 using UPlayGround.UREnum;
@@ -28,6 +30,7 @@ namespace UPlayGround.Manager
     {
         private const string DATABASE_PATH       = "UIPrefabDatabase";
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
+        private const string DANGER_RING_KEY     = "DangerRing"; // UIPrefabDatabase 키. enum 미생성 상태 대비 문자열 사용.
         private const string UI_ROOT_PREFAB_PATH = "UIRoot";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
@@ -126,6 +129,9 @@ namespace UPlayGround.Manager
             IsInitialized = true;
 
             _worldSpaceHudLayer.SetHpBarPrefab(GetUIPrefabEntry(UIKeyType.ActorHpBar.ToKey()));
+
+            // Danger Ring 기본 프리팹 — DB에 없으면 null이고 CreateDangerRing이 조용히 스킵한다.
+            _worldSpaceHudLayer.SetDangerRingPrefab(GetUIPrefabEntry(DANGER_RING_KEY));
 
             var floaterPrefab = GetUIPrefabEntry(UIKeyType.DamageFloater.ToKey());
             if (floaterPrefab != null)
@@ -444,6 +450,21 @@ namespace UPlayGround.Manager
         public UI_ActorHpBar CreateHpBar(GameActor actor)
         {
             return _worldSpaceHudLayer?.CreateHpBar(actor);
+        }
+
+        /// <summary>
+        /// 몬스터 공격 윈드업 Danger Ring 생성. skill.dangerRingPrefabKey가 있으면 해당 프리팹,
+        /// 없으면 기본 프리팹을 사용한다. 프리팹 미등록 시 null 반환(조용히 스킵).
+        /// </summary>
+        public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, float duration)
+        {
+            if (_worldSpaceHudLayer == null || skill == null) return null;
+
+            GameObject overridePrefab = !string.IsNullOrWhiteSpace(skill.dangerRingPrefabKey)
+                ? GetUIPrefabEntry(skill.dangerRingPrefabKey)
+                : GetUIPrefabEntry(DANGER_RING_KEY);
+
+            return _worldSpaceHudLayer.CreateDangerRing(actor, duration, skill.defenseType, overridePrefab);
         }
 
         public void ShowDamageFloater(Vector3 worldPos, float damage, FloatStyle style = FloatStyle.Normal)

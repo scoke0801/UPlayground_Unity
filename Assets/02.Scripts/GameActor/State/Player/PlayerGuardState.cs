@@ -137,37 +137,8 @@ namespace UPlayGround.State
             }
         }
         
-         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // Lock-On 타겟이 있으면 타겟 방향으로 회전
-            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            if (lockOnTarget != null)
-            {
-                Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
-                directionToTarget.y = 0f;
-                
-                if (directionToTarget.sqrMagnitude > 0.01f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-                    currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
-                }
-            }
-            else
-            {
-                // Guard 중에는 Look 방향으로 회전 (적을 바라보도록)
-                Vector3 lookDirection = playerController.LookInputVector;
-            
-                if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)
-                {
-                    Vector3 smoothedLookInputDirection = Vector3.Slerp(
-                        motor.CharacterForward, 
-                        lookDirection, 
-                        1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
-                
-                    currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
-                }
-            }
-
             currentRotation = currentRotation.normalized;
         }
         
@@ -189,6 +160,8 @@ namespace UPlayGround.State
         /// </summary>
         public void OnAttackBlocked(AttackData incomingAttack)
         {
+            FaceIncomingAttack(incomingAttack);
+
             // 일반 가드 드롭 스폰
             Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
             GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
@@ -222,14 +195,18 @@ namespace UPlayGround.State
                 CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
                 CameraManager.Instance?.PlayEffect(PerfectGuardFOVData);
 
-                // 공격자 경직 + 반격 창 열기
-                if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
+                // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
+                // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)
+                if (incomingAttack.defenseType == AttackDefenseType.Parryable)
                 {
-                    var monster = incomingAttack.attacker.GetComponent<MonsterActor>();
-                    monster?.AIController?.OnParried();
-                }
+                    if (incomingAttack.attacker != null && incomingAttack.attacker.HasActorType(ActorType.Monster))
+                    {
+                        var monster = incomingAttack.attacker.GetComponent<MonsterActor>();
+                        monster?.OnParried();
+                    }
 
-                _combat.OpenPerfectGuardCounterWindow();
+                    _combat.OpenPerfectGuardCounterWindow();
+                }
             }
             else
             {
@@ -248,7 +225,7 @@ namespace UPlayGround.State
 
             controller.TransitionToState(new PlayerGuardBreakState(controller));
         }
-        
+
         private void TransitionToIdleOrMove()
         {
             if (playerController.HasMoveInput())

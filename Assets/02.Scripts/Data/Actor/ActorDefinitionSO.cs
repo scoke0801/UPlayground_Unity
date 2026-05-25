@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Stat;
@@ -44,6 +45,21 @@ namespace UPlayGround.Data.Actor
 
         [Tooltip("몬스터 브레이크 게이지 데이터. null이면 프리팹에 설정된 값 사용.")]
         public MonsterBreakGaugeSO breakGaugeData;
+
+        [Header("몬스터 메타")]
+        [Tooltip("몬스터 등급. 킬캠/브레이크 게이지/일부 전투 규칙에서 사용. (이전 EnemyStatsSO.grade)")]
+        public MonsterActorGrade grade = MonsterActorGrade.Normal;
+
+        [Min(1)]
+        [Tooltip("생성/밸런싱 기준 레벨. 공격 데이터 레벨 스케일링 등에 사용. (이전 EnemyStatsSO.level)")]
+        public int level = 1;
+
+        [Header("전투/AI 데이터")]
+        [Tooltip("적 공격 데이터. null이면 프리팹의 EnemyCombat에 설정된 값 사용.")]
+        public EnemyAttackDataSO attackData;
+
+        [Tooltip("적 행동(AI) 프로필. null이면 프리팹의 EnemyAIController에 설정된 값 사용.")]
+        public EnemyBehaviorSO behaviorData;
 
         [Header("NPC 데이터")]
         [Tooltip("NpcActor에 주입할 NPC 전용 대화/상호작용 데이터. NPC가 아니면 비워둔다.")]

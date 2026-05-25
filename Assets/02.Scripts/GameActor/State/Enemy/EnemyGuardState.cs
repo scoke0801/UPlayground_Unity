@@ -82,21 +82,6 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (_detection.HasTarget)
-            {
-                Vector3 directionToTarget = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
-                directionToTarget.y = 0;
-                
-                if (directionToTarget.sqrMagnitude > 0.01f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-                    currentRotation = Quaternion.Slerp(
-                        currentRotation,
-                        targetRotation,
-                        1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime));
-                }
-            }
-            
             currentRotation = currentRotation.normalized;
         }
 
@@ -113,6 +98,7 @@ namespace UPlayGround.State
 
         public void OnAttackBlocked(AttackData incomingAttack)
         {
+            FaceIncomingAttack(incomingAttack);
             _memory?.NotifyBlocked();
 
             // 블록 성공 → 카운터 공격으로 즉시 전환

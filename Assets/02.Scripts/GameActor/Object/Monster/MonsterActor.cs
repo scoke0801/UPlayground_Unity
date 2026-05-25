@@ -19,7 +19,11 @@ namespace UPlayGround
     public partial class MonsterActor : GameActor, IDamageable
     {  
         [Header("Monster Stats")]
-        [SerializeField] private EnemyStatsSO _stats;
+        [Tooltip("등급. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
+        [SerializeField] private MonsterActorGrade _grade = MonsterActorGrade.Normal;
+        [Min(1)]
+        [Tooltip("기준 레벨. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
+        [SerializeField] private int _level = 1;
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
         [SerializeField] private PoiseStat _poiseStat = null;
@@ -58,8 +62,8 @@ namespace UPlayGround
         public MonsterBreakGauge BreakGauge => _breakGauge;
         public float MaxHealth => _maxHealth;
         public float CurrentHealth => _currentHealth;
-        public MonsterActorGrade Grade => _stats != null ? _stats.grade : MonsterActorGrade.Normal;
-        public EnemyStatsSO Stat => _stats;
+        public MonsterActorGrade Grade => _grade;
+        public int Level => Mathf.Max(1, _level);
         
         protected override void Awake()
         {
@@ -394,8 +398,9 @@ namespace UPlayGround
 
             if (definition == null) return;
 
-            if (definition.stats != null)
-                _stats         = definition.stats;
+            // 메타(등급/레벨)는 정의가 권위 소스. 정의 값으로 덮어쓴다.
+            _grade = definition.grade;
+            _level = Mathf.Max(1, definition.level);
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)
@@ -423,6 +428,12 @@ namespace UPlayGround
 
             if (definition.dropTable != null)
                 _dropTable = definition.dropTable;
+
+            if (definition.attackData != null && _combat != null)
+                _combat.Init(definition.attackData);
+
+            if (definition.behaviorData != null && _groundAIController != null)
+                _groundAIController.Init(definition.behaviorData);
         }
 
         protected override void OnDestroy()
@@ -462,7 +473,7 @@ namespace UPlayGround
 
         /// <summary>
         /// 플레이어 패리에 의해 공격이 무효화됐을 때 호출.
-        /// AI 컨트롤러에 패리 알림 후 경직 상태로 강제 전환한다.
+        /// AI 컨트롤러에 패리 알림 후 스턴 상태로 강제 전환한다.
         /// </summary>
         public void OnParried()
         {
@@ -470,15 +481,14 @@ namespace UPlayGround
 
             AIController?.OnParried();
 
-            // 패리 경직: Light 반응 타입으로 EnemyHitState 전환
-            var staggerData = new AttackData
+            var stunData = new AttackData
             {
-                reactionType   = AttackReactionType.Light,
+                reactionType   = AttackReactionType.Stun,
                 damage         = 0f,
                 poiseDamage    = 0f,
                 knockbackForce = 0f,
             };
-            MovementController.TransitionToState(new EnemyHitState(MovementController, staggerData));
+            MovementController.TransitionToState(new EnemyStunState(MovementController, stunData));
         }
 
         private void ResetHealthFromStats()

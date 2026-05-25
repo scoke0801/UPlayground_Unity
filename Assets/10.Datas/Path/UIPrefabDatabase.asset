@@ -121,3 +121,7 @@ MonoBehaviour:
     prefab: {fileID: 4067184472566723530, guid: 6808aee09db3ae943832d29a60763817, type: 3}
     defaultLayer: 0
     description: 
+  - key: DangerRing
+    prefab: {fileID: 6521251916219708486, guid: cb14e14086ec7ef4ca48f8f4a332f3a6, type: 3}
+    defaultLayer: 10000
+    description: 

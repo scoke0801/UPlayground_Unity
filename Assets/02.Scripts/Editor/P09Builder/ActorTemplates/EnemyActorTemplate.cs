@@ -131,8 +131,13 @@ namespace Game.Editor.P09Builder
             var poiseData = FindFirst<PoiseSO>(generatedDescs)
                             ?? (config?.Stats?.existingPoiseSo as PoiseSO);
 
+            // MonsterActor는 더 이상 EnemyStatsSO를 직접 물지 않는다.
+            // 등급/레벨 메타만 프리팹 폴백 필드로 투영한다. (정의 주입 시 ActorDefinitionSO가 덮어씀)
             if (actor != null && stats != null)
-                ReflectionUtil.SetField(actor, "_stats", stats);
+            {
+                ReflectionUtil.SetField(actor, "_grade", stats.grade);
+                ReflectionUtil.SetField(actor, "_level", Mathf.Max(1, stats.level));
+            }
 
             var poise = root.GetComponent<PoiseStat>();
             if (poise != null && poiseData != null)

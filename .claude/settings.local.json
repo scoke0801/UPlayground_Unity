@@ -150,7 +150,11 @@
       "WebFetch(domain:wutheringwaves.fandom.com)",
       "Bash(Select-String -Path \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\docs\\\\TODO\\\\CAMERA_ENHANCEMENT_ROADMAP_DESIGN.md\" -Pattern \"^## 14|^### 14\\\\.5|^## 부록: FAQ\")",
       "Bash(Select-Object LineNumber, Line)",
-      "Bash(findstr /V \"^warning\")"
+      "Bash(findstr /V \"^warning\")",
+      "WebFetch(domain:guildjen.com)",
+      "WebFetch(domain:twinfinite.net)",
+      "WebFetch(domain:wutheringwaves.gg)",
+      "WebFetch(domain:wuthering.gg)"
     ]
   }
 }

@@ -41,13 +41,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -83,13 +87,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -125,13 +133,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -167,13 +179,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -209,13 +225,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -251,13 +271,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -293,13 +317,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -335,13 +363,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -377,13 +409,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 2
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -419,13 +455,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 5
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -461,13 +501,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 5
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15
@@ -503,13 +547,17 @@ MonoBehaviour:
     minRange: 0
     maxRange: 2.5
     cooldown: 5
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
     telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
+    dangerRingPrefabKey: 
+    defenseType: 0
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15

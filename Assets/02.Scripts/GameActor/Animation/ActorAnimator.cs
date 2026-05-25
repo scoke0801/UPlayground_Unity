@@ -104,6 +104,44 @@ namespace UPlayGround.Animation
         public bool HasFallbackMotionSet => _motionSet != null && _motionSet.fallbackMotionSet != null;
         public ActorAnimationMotionSet MotionSet => _motionSet;
 
+        /// <summary>
+        /// 현재 재생 중인 타임라인에서 현재 시점(_globalTime) 이후 처음으로 시작되는 T 이벤트까지
+        /// 남은 시간(초)을 반환한다. globalStartTimeOffset은 PlayMotionSet 시점에 이미 계산되어 있다.
+        /// 예: Danger Ring 수축 시간을 다음 Collision 이벤트까지로 자동 산출.
+        /// 그래프 Speed ≈ 1 가정(히트스톱 등으로 어긋나도 호출부의 Collision 스냅이 보정).
+        /// </summary>
+        public bool TryGetTimeUntilNextEvent<T>(out float seconds) where T : MotionEventBase
+        {
+            seconds = 0f;
+            if (!_isPlayingMotionSet || _currentMotionSet == null) return false;
+
+            float now   = _globalTime;
+            float best  = float.MaxValue;
+            bool  found = false;
+
+            void Consider(MotionEventBase evt)
+            {
+                if (evt is not T) return;
+                float abs = evt.startTime + evt.globalStartTimeOffset;
+                if (abs >= now && abs < best)
+                {
+                    best  = abs;
+                    found = true;
+                }
+            }
+
+            if (_currentMotionSet.globalEvents != null)
+                foreach (var evt in _currentMotionSet.globalEvents) Consider(evt);
+
+            if (_currentMotionSet.motions != null)
+                foreach (var motion in _currentMotionSet.motions)
+                    if (motion?.events != null)
+                        foreach (var evt in motion.events) Consider(evt);
+
+            if (found) seconds = Mathf.Max(0f, best - now);
+            return found;
+        }
+
         private void Awake()
         {
             _animator      = GetComponentInChildren<AnimancerComponent>();

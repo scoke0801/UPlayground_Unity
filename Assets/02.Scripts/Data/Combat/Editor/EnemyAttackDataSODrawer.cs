@@ -129,6 +129,10 @@ namespace UPlayGround.Editor
             var useMotionEventTelegraphP = prop.FindPropertyRelative("useMotionEventTelegraph");
             var telegraphAnchorTypeP = prop.FindPropertyRelative("telegraphAnchorType");
             var useTelegraphPositionForHitP = prop.FindPropertyRelative("useTelegraphPositionForHit");
+            var useDangerRingP   = prop.FindPropertyRelative("useDangerRing");
+            var dangerRingDurationP = prop.FindPropertyRelative("dangerRingDuration");
+            var dangerRingPrefabKeyP = prop.FindPropertyRelative("dangerRingPrefabKey");
+            var defenseTypeP = prop.FindPropertyRelative("defenseType");
             var aerialP      = prop.FindPropertyRelative("isAerialSkill");
             var diveP        = prop.FindPropertyRelative("isDiveAttack");
             var diveSpeedP   = prop.FindPropertyRelative("diveDescentSpeed");
@@ -202,6 +206,29 @@ namespace UPlayGround.Editor
                     else if (HasStrongReaction(phasesP))
                     {
                         EditorGUILayout.HelpBox("강한 리액션(Heavy/KnockBack/Airborne/Knockdown/Grab)이 포함되어 있습니다. 강공격이면 텔레그래프 사용 여부를 확인하세요.", MessageType.Warning);
+                    }
+                }
+
+                // 방어 타입 (패링 가능/불가)
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("방어 타입", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(defenseTypeP, new GUIContent("방어 대응"));
+                    // Unblockable = 2 (Parryable=0, GuardableOnly=1, Unblockable=2)
+                    if (defenseTypeP.enumValueIndex == 2)
+                        EditorGUILayout.HelpBox("Unblockable: 퍼펙트 가드해도 카운터가 열리지 않습니다. Danger Ring은 붉은색으로 표시됩니다.", MessageType.Info);
+                }
+
+                // Danger Ring (UI) — 텔레그래프와 독립
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("Danger Ring (UI)", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(useDangerRingP, new GUIContent("Danger Ring 사용"));
+                    if (useDangerRingP.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(dangerRingDurationP, new GUIContent("수축 시간(초, 0=자동)"));
+                        EditorGUILayout.PropertyField(dangerRingPrefabKeyP, new GUIContent("프리팹 키(선택)"));
+                        EditorGUILayout.HelpBox("0→1 채움이 가득 차는 순간이 실제 타격과 맞도록 '채우는 시간'을 윈드업→타격 간격에 맞추세요. 텔레그래프 사용 여부와 무관하게 단독 표시됩니다. 프리팹 키가 비면 기본 'DangerRing' 프리팹을 사용합니다.", MessageType.Info);
                     }
                 }
 

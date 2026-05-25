@@ -50,9 +50,12 @@
         Head,
         
         UI_HpBar,
-        
+
         Weapon,
-        
+
         GuardPosition,
+
+        // 신규 항목은 반드시 끝에 추가한다 — 중간 삽입은 직렬화된 enum 정수값을 밀어내 기존 프리팹의 소켓 참조를 깨뜨린다.
+        UI_DangerRing,
     }
 }

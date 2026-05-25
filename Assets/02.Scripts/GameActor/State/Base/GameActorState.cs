@@ -1,6 +1,7 @@
 ﻿using KinematicCharacterController;
 using System;
 using UnityEngine;
+using UPlayGround.Data;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -139,9 +140,28 @@ namespace UPlayGround.State
         /// <summary>
         /// 이동 중 충돌 시 호출
         /// </summary>
-        public virtual void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, 
+        public virtual void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref HitStabilityReport hitStabilityReport)
         {
+        }
+
+        /// <summary>
+        /// 들어온 공격 방향으로 즉시 1회 스냅 회전한다(가드 블록 시점 등).
+        /// 공격자 위치를 우선 사용하고, 없으면 -attackDirection을 사용한다.
+        /// </summary>
+        protected void FaceIncomingAttack(AttackData incomingAttack)
+        {
+            Vector3 direction = Vector3.zero;
+
+            if (incomingAttack?.attacker != null)
+                direction = incomingAttack.attacker.transform.position - motor.TransientPosition;
+            else if (incomingAttack != null && incomingAttack.attackDirection != Vector3.zero)
+                direction = -incomingAttack.attackDirection;
+
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= 0.0001f) return;
+
+            motor.SetRotation(Quaternion.LookRotation(direction.normalized, motor.CharacterUp));
         }
     }
 }

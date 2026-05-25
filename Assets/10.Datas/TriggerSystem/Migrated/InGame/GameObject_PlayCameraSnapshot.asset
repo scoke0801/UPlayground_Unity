@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6015db968ee65284ca186d9755a361dd, type: 3}
+  m_Name: GameObject_PlayCameraSnapshot
+  m_EditorClassIdentifier: 
+  _profile: {fileID: 11400000, guid: 173bde0e94e104f44b5bfed078642dd1, type: 2}
+  _overrideActorAnchor: 0
+  _actorAnchor:
+    enabled: 1
+    useActivePlayerWhenEmpty: 1
+    actorIdType: 0
+    actorId: 
+    socketType: 3
+  _overrideLookAtTarget: 0
+  _lookAtTarget:
+    enabled: 0
+    useActivePlayerWhenEmpty: 1
+    actorIdType: 0
+    actorId: 
+    socketType: 4
+  _waitForCompleted: 1
+  _invokeSceneRelayEvents: 1

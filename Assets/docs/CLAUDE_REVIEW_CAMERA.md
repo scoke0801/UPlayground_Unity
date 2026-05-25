@@ -326,6 +326,55 @@ _zoomRate = Mathf.Lerp(_zoomRate, _zoomRateOrigin, Time.deltaTime * 2f);   // :4
 
 ---
 
+# F. 락온 원거리 — 플레이어 가시성 손실 진단 (보고된 증상)
+
+> **증상:** 락온 시 타겟과의 거리가 멀수록 카메라가 캐릭터보다 타겟 위치 기준으로 많이 당겨지고, 심하면 카메라가 캐릭터보다 앞으로 가버려 캐릭터가 화면에서 사라진다.
+> **근본:** 카메라가 캐릭터가 아니라 **포커스(`tpos`)** 기준으로 배치되는데, 포커스는 타겟 쪽으로 당겨지고 **암 길이는 거리(D)에 따라 커지지 못하게 maxDistance에 캡**된 비대칭 구조.
+
+## F-1. 기하 — 플레이어 가시 조건 `arm > r·D`
+
+`CalcCameraTfm`(`SRControllableCameraBase.cs`):
+```csharp
+var camRenderDist = Mathf.LerpUnclamped(minDistance, maxDistance, zoomRate); // :695  암 길이
+var cameraVector  = (Vector3.back * camRenderDist) + viewportVec;            // :706
+rpos = tpos + (rrot * cameraVector);                                         // :711  ← tpos(포커스) 기준 배치
+```
+`카메라 = 포커스 − forward·arm`. 포커스 `F = lerp(P_플레이어, E_타겟, r)` → `|F−P| = r·D` (D = 플레이어‑타겟 거리).
+
+**전제:** 락온 카메라가 yaw(`_cameraRotY`)를 타겟 방향으로 맞춘다(통상 락온 동작 — 해당 산출은 파생 클래스라 미확인, 버그 성립의 전제 조건으로 명시). 이 전제 하 카메라 forward ≈ (플레이어→타겟) 방향이므로:
+```
+(P − 카메라)·forward > 0  ⟺  arm − r·D > 0  ⟺  arm > r·D
+```
+→ **`r·D ≥ arm` 이 되는 순간 플레이어가 카메라 뒤로 넘어가 사라진다.** D가 커질수록 `r·D`가 커져 증상과 일치.
+
+## F-2. 🔴 구조적 원인 (본 파일에서 짚을 수 있는 부분)
+
+암 길이가 D를 따라 커질 수단이 없다:
+- **`:695` 암이 maxDistance 하드 캡.** `zoomRate ≤ 1`이면 `camRenderDist ≤ maxDistance`. 포커스가 `r·D`만큼 밀렸을 때 `r·D > maxDistance`면 프리셋 범위 내 **어떤 암 길이로도 플레이어를 앞에 둘 수 없음**. ← 하드 천장.
+- **`:711` 카메라가 포커스(`tpos`) 기준 배치.** `cameraVector`(`:706`)에 D 보상항이 전혀 없어 포커스 오프셋이 커져도 암은 불변.
+→ "포커스는 타겟 쪽으로 당기면서, 그 당김을 상쇄할 암 신장은 maxDistance에서 막힌" 비대칭이 본질.
+
+## F-3. 트리거 — 포커스 블렌딩 + 보호 로직 (파생 클래스, 본 4개 파일엔 없음)
+
+상태 필드만 존재, 본문 미포함:
+- **포커스 블렌딩** `LockOnState.ActiveFocusRatio`/`ActiveFocusPos`/`BlendT`(`LockOnState.cs:24,61‑64`). 증상이 성립하려면 `r`이 D와 함께 증가해야 하며 이는 필드 명명·주석("focus 위치/비율")과 부합 — **다만 `r` 공식 자체는 본 파일에 없으므로 파생 락온 카메라 확인 필요.** 올바른 설계라면 D가 커질 때 `r`을 **줄여** `r·D`를 암 아래로 묶어야 함.
+- **의도된 보호 장치 `ComputeMinSafeArmLengthForPlayerVisibility`(→ `ZoomCollisionState.SmoothedMinSafeArm`, `ZoomCollisionState.cs:17‑20`)가 두 겹으로 실패:**
+  1. **하드 천장(우선):** 암을 늘려도 §F-2의 maxDistance 캡에 막혀 `r·D`를 못 따라감.
+  2. **증가 방향 rate‑limit 지연(추가):** 주석상 증가만 m/s cap으로 추종, 감소는 즉시. 타겟이 급히 멀어지면 `minSafeArm`은 즉시 뛰지만 실제 암은 캡 속도로 늦게 따라가 → 그 사이 `arm < r·D` → 일시적으로도 사라짐.
+
+## F-4. 🟡 추가 악화요인 — 벽 충돌 (개방공간 주원인 아님)
+
+벽이 있을 때 한정. 충돌 보정이 모두 `tpos`(포커스) 기준이라, fallback `cldCamPos = tpos`(`GameCameraCalculator.cs:410, :485`)로 스냅되거나 `tpos + axisDir·bestProjLen`(`:398`)로 당겨지면 카메라가 타겟 쪽 포커스로 더 끌려가 플레이어 앞으로 간다. (개방공간의 거리‑스케일 증상은 F-2가 주원인이며, 이는 벽이 있을 때 같은 방향으로 더 악화시키는 별개 메커니즘.)
+
+## F-5. 수정 우선순위
+
+1. **🔴 암 캡 해제 / D 보상** — `CalcCameraTfm:695`에서 락온 시 `camRenderDist`가 `r·D + 여유마진`을 보장(또는 `zoomRate>1` 허용해 maxDistance 초과 허용). **하드 천장을 먼저 풀어야 모든 보호 로직이 의미를 가짐.** 단일 조치로 가장 확실.
+2. **포커스 비율 `r` 거리‑인지화** — D가 클수록 `r`을 줄여 `r·D` 억제 (파생 클래스 `ActiveFocusRatio` 산출).
+3. **`SmoothedMinSafeArm` 지연 보완** — 증가 방향 rate‑limit을 가시성이 깨질 때는 즉시 반영하는 예외.
+4. **충돌 스냅 기준 클램프** — fallback `cldCamPos = tpos`를 "플레이어가 보이는 최소 암" 지점으로 클램프(2차 악화 방지). §E-2/§E-4와 함께 정리.
+
+---
+
 ## 부록. 검토 범위
 
 | 파일 | 검토 | 비고 |

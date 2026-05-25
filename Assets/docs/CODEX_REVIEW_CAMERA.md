@@ -1957,6 +1957,125 @@ MultiProbe의 디졸브 처리와 동일한 문제가 있다.
 
 즉 락온 중 카메라가 왼쪽/오른쪽/후방 후보 중 어느 쪽으로 가야 하는지 판단할 때, 각 후보 위치까지의 reach를 계산해 비교하려는 의도로 보인다.
 
+### 락온 시 타겟이 멀수록 카메라가 캐릭터 앞쪽으로 넘어가는 문제
+
+증상:
+
+- 락온 타겟과 플레이어 사이 거리가 멀수록 카메라 기준점이 캐릭터보다 타겟 위치 쪽으로 많이 당겨진다.
+- 그 결과 카메라가 플레이어 뒤가 아니라 플레이어와 타겟 사이, 심하면 플레이어보다 앞쪽에 배치된다.
+- 플레이어 캐릭터가 화면에서 사라지거나, 카메라 뒤쪽/프레임 밖으로 밀린다.
+
+핵심 원인:
+
+- `CalcCameraTfm`은 전달받은 `tpos`를 카메라 배치 기준점으로 그대로 사용한다.
+
+```csharp
+var camRenderDist = Mathf.LerpUnclamped(_cameraPreset.minDistance, _cameraPreset.maxDistance, zoomRate);
+var cameraVector = (Vector3.back * camRenderDist) + viewportVec;
+rpos = tpos + (rrot * cameraVector);
+```
+
+- 즉 `tpos`가 플레이어 위치라면 카메라는 플레이어 기준으로 배치된다.
+- 반대로 락온 로직에서 `tpos`를 플레이어와 타겟 사이 focus로 바꾸면, 카메라 전체가 그 focus 기준으로 이동한다.
+- `LockOnState`에는 이 현상과 직접 관련 있어 보이는 상태가 있다.
+
+```csharp
+public Vector3 TargetPos;
+public float BlendT;
+public Vector3 ActiveFocusPos;
+public float ActiveFocusRatio;
+public float FreeFactor;
+```
+
+문제의 수학적 형태:
+
+```csharp
+Vector3 focus = Vector3.Lerp(playerPos, targetPos, focusRatio);
+Vector3 cameraPos = focus + cameraBackVector;
+```
+
+플레이어와 타겟 사이 거리를 `L`, 카메라가 focus 뒤로 빠지는 거리를 `D`, focus 비율을 `a`라고 하면 플레이어 기준 카메라의 전후 위치는 대략 다음처럼 된다.
+
+```text
+player 기준 카메라 전방 이동량 ~= a * L - D
+```
+
+따라서 다음 조건이 되면 카메라가 플레이어보다 앞쪽으로 넘어갈 수 있다.
+
+```text
+a * L > D
+```
+
+중요한 점:
+
+- `focusRatio`가 작아도 타겟 거리 `L`이 커지면 `a * L`은 계속 커진다.
+- 즉 “비율 기반 focus”는 원거리 락온에서 월드 이동량이 과도하게 커지는 구조다.
+- 이 문제는 충돌 보정만으로 해결되지 않는다. 충돌 보정은 `tpos -> cpos` 사이 장애물을 처리할 뿐, `tpos` 자체가 플레이어에서 멀어진 문제를 되돌리지 않는다.
+
+확인해야 할 부분:
+
+- 락온 로직에서 `ActiveFocusPos`, `ActiveFocusRatio`, `BlendT`, `TargetPos`를 계산하는 코드.
+- `UpdateCamProperty(Vector3 targetPos)` 또는 그 호출부에서 전달되는 `targetPos`가 실제 플레이어 위치인지, 락온 focus 위치인지.
+- 타겟 거리가 증가할 때 `ActiveFocusRatio`가 고정 비율로 유지되는지, 또는 월드 거리 상한이 있는지.
+- 최종 카메라 위치 계산 후 플레이어가 viewport 안에 남아 있는지 검사하는 로직이 있는지.
+
+수정 방향:
+
+1. focus 이동을 비율만으로 계산하지 말고 월드 거리 상한을 둔다.
+
+```csharp
+Vector3 toTarget = targetPos - playerPos;
+float targetDistance = toTarget.magnitude;
+Vector3 dirToTarget = targetDistance > 1e-5f ? toTarget / targetDistance : Vector3.forward;
+
+float focusOffset = Mathf.Min(targetDistance * focusRatio, maxFocusOffsetFromPlayer);
+Vector3 focus = playerPos + dirToTarget * focusOffset;
+```
+
+2. 카메라 뒤 거리보다 focus 전진량이 커지지 않도록 상한을 둔다.
+
+```csharp
+float maxFocusOffset = Mathf.Max(0f, cameraBackDistance - minPlayerBehindCameraMargin);
+focusOffset = Mathf.Min(focusOffset, maxFocusOffset);
+```
+
+3. ratio 상한을 거리 기반으로 계산한다.
+
+```csharp
+float maxRatioByCameraDistance = (cameraBackDistance - minPlayerBehindCameraMargin) / Mathf.Max(targetDistance, 1e-5f);
+focusRatio = Mathf.Min(focusRatio, maxRatioByCameraDistance);
+```
+
+4. 최종 카메라 위치에서 플레이어 가시성을 검증한다.
+
+```csharp
+Vector3 camToPlayer = playerPos - cameraPos;
+float playerDepth = Vector3.Dot(camToPlayer, cameraForward);
+if (playerDepth <= minPlayerDepth)
+{
+    // focus를 player 쪽으로 되돌리거나 cameraBackDistance를 늘린다.
+}
+```
+
+5. viewport 기준도 함께 검사한다.
+
+```csharp
+Vector3 playerViewport = camera.WorldToViewportPoint(playerPos);
+bool playerVisible =
+    playerViewport.z > 0f &&
+    playerViewport.x >= minViewportX &&
+    playerViewport.x <= maxViewportX &&
+    playerViewport.y >= minViewportY &&
+    playerViewport.y <= maxViewportY;
+```
+
+권장 결론:
+
+- 원거리 락온에서 focus를 타겟 쪽으로 당기는 것은 연출상 필요할 수 있다.
+- 그러나 focus는 반드시 “플레이어 기준 최대 이동 거리” 또는 “카메라 뒤 거리 기준 상한”을 가져야 한다.
+- 락온 카메라의 불변 조건은 `타겟을 본다`가 아니라 `플레이어와 타겟을 모두 관리 가능한 화면 관계에 둔다`여야 한다.
+- 이 증상은 `GameCameraCalculator`의 충돌 수식보다 `LockOnState.ActiveFocusPos/ActiveFocusRatio`를 소비해 `CalcCameraTfm`의 `tpos`로 넘기는 락온 pivot/focus 산정 로직에서 먼저 잡아야 한다.
+
 ### 락온 sign 결정에서 필요한 수학적 성질
 
 락온 후보 비교 함수는 다음 성질이 있어야 한다.

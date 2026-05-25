@@ -18,23 +18,20 @@ namespace UPlayGround
 {
     public partial class MonsterActor : GameActor, IDamageable
     {  
-        [Header("Monster Stats")]
         [Tooltip("등급. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
-        [SerializeField] private MonsterActorGrade _grade = MonsterActorGrade.Normal;
+        [HideInInspector, SerializeField] private MonsterActorGrade _grade = MonsterActorGrade.Normal;
         [Min(1)]
         [Tooltip("기준 레벨. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
-        [SerializeField] private int _level = 1;
+        [HideInInspector, SerializeField] private int _level = 1;
         [SerializeField] private bool _isInvincible = false;
         [SerializeField] private GameObject _lockOnDecal = null;
         [SerializeField] private PoiseStat _poiseStat = null;
         [SerializeField] private MonsterBreakGauge _breakGauge = null;
         
-        [Header("Drop")]
-        [SerializeField] private EnemyDropTableSO _dropTable;
+        [HideInInspector, SerializeField] private EnemyDropTableSO _dropTable;
 
-        [Header("Recruit")]
         [Tooltip("처치 시 파티에 합류시킬 캐릭터 타입. None이면 합류 없음.")]
-        [SerializeField] private CharacterActorType _recruitableAs = CharacterActorType.None;
+        [HideInInspector, SerializeField] private CharacterActorType _recruitableAs = CharacterActorType.None;
 
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
@@ -80,6 +77,7 @@ namespace UPlayGround
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
             if (_breakGauge == null) _breakGauge = GetComponent<MonsterBreakGauge>();
             BindBreakGauge();
+            ApplyDefinitionData(Definition);
         }
 
         protected override void Start()
@@ -395,12 +393,17 @@ namespace UPlayGround
         public override void SetDefinition(ActorDefinitionSO definition)
         {
             base.SetDefinition(definition);
+            ApplyDefinitionData(definition);
+        }
 
+        private void ApplyDefinitionData(ActorDefinitionSO definition)
+        {
             if (definition == null) return;
 
             // 메타(등급/레벨)는 정의가 권위 소스. 정의 값으로 덮어쓴다.
             _grade = definition.grade;
             _level = Mathf.Max(1, definition.level);
+            _recruitableAs = definition.recruitableAs;
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)
@@ -414,8 +417,7 @@ namespace UPlayGround
             ResetHealthFromStats();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
-            if (definition.poiseData != null && _poiseStat != null)
-                _poiseStat.Init(definition.poiseData);
+            _poiseStat?.Init(definition);
 
             if (definition.breakGaugeData != null && _breakGauge == null)
             {
@@ -423,17 +425,13 @@ namespace UPlayGround
                 BindBreakGauge();
             }
 
-            if (definition.breakGaugeData != null && _breakGauge != null)
-                _breakGauge.Init(definition.breakGaugeData);
+            _breakGauge?.Init(definition);
 
-            if (definition.dropTable != null)
-                _dropTable = definition.dropTable;
+            _dropTable = definition.dropTable;
 
-            if (definition.attackData != null && _combat != null)
-                _combat.Init(definition.attackData);
+            _combat?.Init(definition);
 
-            if (definition.behaviorData != null && _groundAIController != null)
-                _groundAIController.Init(definition.behaviorData);
+            _groundAIController?.Init(definition);
         }
 
         protected override void OnDestroy()

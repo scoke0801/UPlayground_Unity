@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround.AI.BehaviorTree;
 using UPlayGround.AI.Debugging;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
@@ -17,8 +18,7 @@ namespace UPlayGround.Component
     /// </summary>
     public class EnemyAIController : EnemyAIContext, IEnemyAIController
     {
-        [Header("Data")]
-        [SerializeField] private EnemyBehaviorSO _behaviorData;
+        [HideInInspector, SerializeField] private EnemyBehaviorSO _behaviorData;
 
         [Header("References")]
         [SerializeField] private EnemyDetection          _detection;
@@ -91,6 +91,12 @@ namespace UPlayGround.Component
             EnsureBehaviorTreeRunner();
         }
 
+        public void Init(ActorDefinitionSO definition)
+        {
+            if (definition?.behaviorData == null) return;
+            Init(definition.behaviorData);
+        }
+
         protected virtual void Awake()
         {
             _detection          ??= GetComponent<EnemyDetection>();
@@ -105,6 +111,8 @@ namespace UPlayGround.Component
                 gameObject.AddComponent<EncounterReplayRecorder>();
 #endif
             _monster             = GetComponent<MonsterActor>();
+            if (_monster?.Definition != null)
+                Init(_monster.Definition);
             _spawnPosition       = transform.position;
             if (_detection != null)
                 _detection.OnTargetAcquiredExternally += HandleTargetAcquired;

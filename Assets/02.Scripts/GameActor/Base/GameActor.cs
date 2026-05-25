@@ -16,12 +16,14 @@ namespace UPlayGround
         private const string PlayerDefaultTargetLayerName = "Enemy";
         private const string MonsterDefaultTargetLayerName = "Player";
 
-        [SerializeField] protected ActorType _actorType = ActorType.None;
-        [SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
+        [HideInInspector, SerializeField] protected ActorType _actorType = ActorType.None;
+        [HideInInspector, SerializeField] protected CharacterActorType _characterActorType = CharacterActorType.None;
+
+        [Header("Actor Definition")]
+        [SerializeField] private ActorDefinitionSO _definition;
 
         [Header("Actor Identity")]
-        [SerializeField] private string _actorId = "";
-        private ActorDefinitionSO _definition;
+        [HideInInspector, SerializeField] private string _actorId = "";
 
         [SerializeField] protected SerializedDictionary<ActorSocketType, Transform> _socketDict;
 
@@ -98,8 +100,7 @@ namespace UPlayGround
         public virtual void SetDefinition(ActorDefinitionSO definition)
         {
             _definition = definition;
-            if (definition != null && !string.IsNullOrEmpty(definition.actorId))
-                _actorId = definition.actorId;
+            ApplyBaseDefinition();
         }
 
         public ActorMovementController ActorController => MovementController;
@@ -108,6 +109,7 @@ namespace UPlayGround
         {
             Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
             Stats = gameObject.GetOrAddComponent<ActorStatContainer>();
+            ApplyBaseDefinition();
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponentInChildren<ActorAnimator>();
             if (_animator != null)
@@ -118,6 +120,17 @@ namespace UPlayGround
             
             // 매니저에 등록
             GameObjectManager.Instance?.RegisterActor(this);
+        }
+
+        private void ApplyBaseDefinition()
+        {
+            if (_definition == null) return;
+
+            if (!string.IsNullOrEmpty(_definition.actorId))
+                _actorId = _definition.actorId;
+
+            _actorType = _definition.actorType;
+            _characterActorType = _definition.characterType;
         }
 
         

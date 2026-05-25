@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 
 namespace UPlayGround.Component
@@ -9,7 +10,7 @@ namespace UPlayGround.Component
     /// </summary>
     public class PoiseStat : MonoBehaviour
     {
-        [SerializeField] private PoiseSO _data;
+        [HideInInspector, SerializeField] private PoiseSO _data;
 
         private float _currentPoise;
         private float _recoveryTimer;
@@ -22,13 +23,26 @@ namespace UPlayGround.Component
 
         public bool IsPoiseBroken => _isBroken;
         
-        private void Awake() => InitFromData();
+        private void Awake()
+        {
+            var actor = GetComponent<GameActor>();
+            if (actor?.Definition != null)
+                Init(actor.Definition);
+            else
+                InitFromData();
+        }
 
         /// <summary> MonsterActor.Init() 등에서 SO를 주입할 때 사용 </summary>
         public void Init(PoiseSO data)
         {
             _data = data;
             InitFromData();
+        }
+
+        public void Init(ActorDefinitionSO definition)
+        {
+            if (definition?.poiseData == null) return;
+            Init(definition.poiseData);
         }
 
         private void InitFromData()

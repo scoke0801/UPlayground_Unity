@@ -130,6 +130,7 @@ namespace UPlayGround.Data.EnumType
         
         Guard = 840,
         GuardBreak = 841,
+        Stun = 850, 
         Block = 860,
         
         Knockback = 900,

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 
@@ -8,7 +9,7 @@ namespace UPlayGround.Component
 {
     public class MonsterBreakGauge : MonoBehaviour
     {
-        [SerializeField] private MonsterBreakGaugeSO _data;
+        [HideInInspector, SerializeField] private MonsterBreakGaugeSO _data;
 
         private MonsterActor _owner;
         private UI_ActorHpBar _actorUIBar;
@@ -43,6 +44,8 @@ namespace UPlayGround.Component
         private void Awake()
         {
             _owner = GetComponent<MonsterActor>();
+            if (_owner?.Definition != null)
+                Init(_owner.Definition);
             RefreshUi();
         }
 
@@ -64,6 +67,12 @@ namespace UPlayGround.Component
         {
             _data = data;
             ResetGauge(0f);
+        }
+
+        public void Init(ActorDefinitionSO definition)
+        {
+            if (definition?.breakGaugeData == null) return;
+            Init(definition.breakGaugeData);
         }
 
         public void ConnectUiBar(UI_ActorHpBar actorUIBar)

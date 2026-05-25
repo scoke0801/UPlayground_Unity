@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -26,9 +27,9 @@ namespace UPlayGround.Component
         }
 
         [Header("Combat Settings")]
-        [SerializeField] private EnemyAttackDataSO _attackData;
+        [HideInInspector, SerializeField] private EnemyAttackDataSO _attackData;
         [SerializeField] private Transform _attackOrigin;
-        [SerializeField] private LayerMask _targetLayer;
+        [HideInInspector, SerializeField] private LayerMask _targetLayer;
 
         [Header("Motion Warp Settings")]
         [Tooltip("워프 최소 거리. 이 거리 이내에 이미 있으면 워프 미적용")]
@@ -101,6 +102,8 @@ namespace UPlayGround.Component
             _ownerDamageable = GetComponent<IDamageable>();
             _detection       = GetComponent<EnemyDetection>();
             _ownerActor      = GetComponent<MonsterActor>();
+            if (_ownerActor?.Definition != null)
+                Init(_ownerActor.Definition);
 
             // 워프 진실 소스는 MotionWarpController. 컴포넌트가 없으면 즉시 부착.
             _motionWarp = GetComponent<MotionWarpController>();
@@ -113,6 +116,17 @@ namespace UPlayGround.Component
         {
             if (data != null)
                 _attackData = data;
+        }
+
+        public void Init(ActorDefinitionSO definition)
+        {
+            if (definition == null) return;
+
+            Init(definition.attackData);
+            if (_ownerActor != null)
+                SetTargetLayer(_ownerActor.GetAttackTargetLayerMask());
+            else if (definition.targetLayerMask.value != 0)
+                SetTargetLayer(definition.targetLayerMask);
         }
 
         private void Update()

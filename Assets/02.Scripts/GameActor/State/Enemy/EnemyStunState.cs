@@ -51,6 +51,7 @@ namespace UPlayGround.State
 
         private AnimKey GetStunAnimKey()
         {
+            if (gameActor.Animator.HasMotion(AnimKey.Stun, true)) return AnimKey.Stun;
             if (gameActor.Animator.HasMotion(AnimKey.GuardBreak, true)) return AnimKey.GuardBreak;
             if (gameActor.Animator.HasMotion(AnimKey.Hit_F, true)) return AnimKey.Hit_F;
             return AnimKey.Idle;

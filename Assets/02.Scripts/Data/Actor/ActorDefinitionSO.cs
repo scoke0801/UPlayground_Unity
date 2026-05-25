@@ -69,6 +69,10 @@ namespace UPlayGround.Data.Actor
         [Tooltip("사망 시 드랍 테이블. null이면 프리팹에 설정된 값 사용.")]
         public EnemyDropTableSO dropTable;
 
+        [Header("합류")]
+        [Tooltip("처치 시 파티에 합류시킬 캐릭터 타입. None이면 합류 없음.")]
+        public CharacterActorType recruitableAs = CharacterActorType.None;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

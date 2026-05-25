@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
-  m_Name: quest_main_001
+  m_Name: quest_main_002
   m_EditorClassIdentifier: 
-  questId: main_001
-  questName: "\uBAAC\uC2A4\uD130 \uC815\uC218 \uC218\uC9D1"
-  questDescription: "\uBAAC\uC2A4\uD130 \uC815\uC218\uB97C 3\uAC1C \uC218\uC9D1\uD558\uC138\uC694"
-  requiredQuestIds: []
+  questId: main_002
+  questName: "\uC2A4\uCF08\uB808\uD1A4 \uCC98\uCE58"
+  questDescription: "\uC2A4\uCF08\uB808\uD1A4\uC744 3\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
+  requiredQuestIds:
+  - main_001
   requiredStoryProgress: 0
-  autoAcceptNextQuestIds:
-  - main_002
+  autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: 100005
-    description: "\uBAAC\uC2A4\uD130 \uC815\uC218\uB97C 3\uAC1C \uC218\uC9D1\uD558\uC138\uC694"
-    type: 0
+    description: "\uC2A4\uCF08\uB808\uD1A4\uC744 1\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
+    type: 3
     targetId: 100005
     npcId: 0
     targetStringId: 
-    requiredCount: 3
+    requiredCount: 1
   reward:
     gold: 0
     items:
-    - itemId: 2002
-      count: 1
+    - itemId: 200001
+      count: 5
   isRepeatable: 0
   autoComplete: 1

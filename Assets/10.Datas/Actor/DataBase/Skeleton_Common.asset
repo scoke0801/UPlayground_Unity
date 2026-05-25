@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
   m_Name: Skeleton_Common
   m_EditorClassIdentifier: 
-  actorId: SkeletonCommon
+  actorId: 100005
   displayName: "\uC2A4\uCF08\uB808\uD1A4"
   description: 
   actorType: 2
@@ -21,11 +21,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
-  stats: {fileID: 11400000, guid: 16964d20fc8a7eb4295010aa70db94ee, type: 2}
   statData: {fileID: 11400000, guid: 5e30fbc8a5b704b4daeeb5b9eecf548b, type: 2}
   poiseData: {fileID: 11400000, guid: 876157c6a32f968498948c1120a773b9, type: 2}
   breakGaugeData: {fileID: 0}
-  grade: 0
+  grade: 3
   level: 1
   attackData: {fileID: 11400000, guid: 0a83c6fe953652946a93776bae25fa2b, type: 2}
   behaviorData: {fileID: 11400000, guid: 352f4ac55adc9194c9541ca9e86d0ff5, type: 2}

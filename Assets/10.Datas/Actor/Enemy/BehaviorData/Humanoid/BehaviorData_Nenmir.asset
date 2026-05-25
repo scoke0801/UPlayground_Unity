@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: BehaviorData_Nenmir
   m_EditorClassIdentifier: 
   behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
-  aiRole: 0
-  intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  aiRole: 2
+  intentWeights: {fileID: 11400000, guid: 5640bb3e39693e847a591a57f9210cde, type: 2}
   optimalCombatDistance: 2.2
   minCombatDistance: 1
   maintainDistance: 1

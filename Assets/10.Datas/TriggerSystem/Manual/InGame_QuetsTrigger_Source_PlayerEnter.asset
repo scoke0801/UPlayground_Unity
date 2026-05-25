@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 84d49a7c1ed622942930ecf8c34d47d4, type: 3}
-  m_Name: InGame_QuetsTrigger_Source_PlayerEnter 1
+  m_Name: InGame_QuetsTrigger_Source_PlayerEnter
   m_EditorClassIdentifier: 
   _actorFilter: 1
   _fallbackTag: Player

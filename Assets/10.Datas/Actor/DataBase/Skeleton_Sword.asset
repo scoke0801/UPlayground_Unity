@@ -24,7 +24,7 @@ MonoBehaviour:
   statData: {fileID: 11400000, guid: 080043ae8a3b1bf41867032121d434f6, type: 2}
   poiseData: {fileID: 11400000, guid: 4bd7e852f5bd43a45b4d54f93ab15955, type: 2}
   breakGaugeData: {fileID: 0}
-  grade: 0
+  grade: 3
   level: 1
   attackData: {fileID: 11400000, guid: ff4d069e1d781754aa64890955c0bdee, type: 2}
   behaviorData: {fileID: 11400000, guid: 2a7c9f0b05cf58f4c86b535ab3e0281e, type: 2}

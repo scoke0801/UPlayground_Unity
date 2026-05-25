@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
-  m_Name: Character_CommonAnimationSet
+  m_Name: Humanoid_Player_CommonAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
   motionSets:
@@ -26,7 +26,7 @@ MonoBehaviour:
     - Key: 4
       Value: {fileID: 11400000, guid: 0b0c2a8dbe065fb42a6096de0a13ede1, type: 2}
     - Key: 10
-      Value: {fileID: 11400000, guid: ee7479be355d9694caffcb3093b6c814, type: 2}
+      Value: {fileID: 11400000, guid: f2bd32539a0b98d4ca6449de69640efd, type: 2}
     - Key: 20
       Value: {fileID: 11400000, guid: a2719b64174d2504c988c902d6a04633, type: 2}
     - Key: 21
@@ -87,3 +87,27 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: acba8476db5812b4ca2fbc13a51e79a3, type: 2}
     - Key: 901
       Value: {fileID: 11400000, guid: 367ff34d065e5e944958b74f4c3a5be3, type: 2}
+    - Key: 11
+      Value: {fileID: 11400000, guid: 733f335644f729146b1eda0a5d76591b, type: 2}
+    - Key: 12
+      Value: {fileID: 11400000, guid: f2bd32539a0b98d4ca6449de69640efd, type: 2}
+    - Key: 13
+      Value: {fileID: 11400000, guid: 536146088df8e304cabf273e27001730, type: 2}
+    - Key: 14
+      Value: {fileID: 11400000, guid: 095a20ce5d60f0c4e89cfabb45e1579f, type: 2}
+    - Key: 15
+      Value: {fileID: 11400000, guid: d021c155c6eff2c4d837ea43efd21d7c, type: 2}
+    - Key: 16
+      Value: {fileID: 11400000, guid: 733f335644f729146b1eda0a5d76591b, type: 2}
+    - Key: 17
+      Value: {fileID: 11400000, guid: 75bfa8df59e25564c9b6e6e102074680, type: 2}
+    - Key: 18
+      Value: {fileID: 11400000, guid: f76eaca90e3fb52458a9425316bdc4e3, type: 2}
+    - Key: 19
+      Value: {fileID: 11400000, guid: 00cccc6334cc9294fa722416ab2414a4, type: 2}
+    - Key: 23
+      Value: {fileID: 11400000, guid: 36b07f0038a96624d94d05f8379f827e, type: 2}
+    - Key: 850
+      Value: {fileID: 11400000, guid: 72e99de2c3be32242a5d605c6cc36faf, type: 2}
+    - Key: 902
+      Value: {fileID: 11400000, guid: 256f0d1ebd15c354086fab30f933c3f0, type: 2}

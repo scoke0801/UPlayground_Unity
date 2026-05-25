@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be592edd0ab34c119345129b1cc49c1d, type: 3}
-  m_Name: Player_AnimationSet
+  m_Name: Humanoid_Player_AnimationSet
   m_EditorClassIdentifier: Assembly-CSharp:UPlayGround.Data.Actor.Animation:PlayerActorAnimationMotionSet
   motionSets:
     _serializedList:

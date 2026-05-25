@@ -9,6 +9,7 @@
 ## 0. 결론 (사용자 질문 직답: "계산상 틀린 부분이 없는가?")
 
 - **산술(arithmetic) 계산이 틀린 곳은 없다.** 모든 수식 — 부호, 정규화, 내적/외적, 투영, 최종 위치 합성 — 은 구문별로 검증한 결과 내부적으로 일관되고 정확하다. (근거는 §A-4)
+  - 단 **"산술이 정확함 ≠ 의미론적으로 올바름"**. 산술은 맞지만 *목적 대비* 결함인 곳이 있다 — 대표 사례가 floor rescue 임계(바닥 관통 허용, §E-2). CODEX 교차검증으로 보완.
 - **단, 거동상 잘못된 결과를 내는 곳이 1곳 있다:** `GetCameraColliderPos`(`:434`)의 **기준축 선택 오류**. 산술이 틀린 게 아니라, 캐스트의 기하 기준을 "카메라 실제 위치"가 아닌 "카메라 회전"에서 잡는 **로직(축 선택) 오류**다. → §A-1
 - **잠재(조건부) 오류 2건:** 레이어 이름 미발견 시 마스크 오염(`-1 → 1<<31`, §A-2), 멀티 터레인에서 타일 불일치(§A-3).
 - **의미론적 의심 1건:** 바닥 구제(수직 보정)가 `CamColliderHit`(=줌 인터럽트)을 켠다. → §A-5(1)
@@ -40,7 +41,7 @@
 | `ProbeCameraReachMultiProbe` | `:149` | ✅ | 축 투영 최소값. n=0 시 0-나눗셈 안전 |
 | `IsCameraPositionClear` | `:188` | ✅ | center+ring 검사 |
 | `EnsureGroundClearance` | `:221` | ⚠️ | 수식 정확, fallback 지면 상이 가능 |
-| `EnsureCameraNotBelowFloor` | `:263` | ✅⚠️ | `safeT` 수식 정확, 수평 빠짐 사각지대 |
+| `EnsureCameraNotBelowFloor` | `:263` | ✅산술 / ❌의미론 | `safeT` 산술 정확하나 임계가 바닥 관통 허용(§E-2) |
 | `GetTerrainPos` | `:303` | ⚠️ | 높이 공식 정확, 타일 불일치(A-3) |
 | `GetCameraColliderPosMultiProbe` | `:332` | ✅ | 투영·끼임 fallback 정확 |
 | `GetCameraColliderPos` | `:434` | ❌ | 축 선택 로직 오류(A-1) |
@@ -129,9 +130,10 @@ public static bool GetTerrainPos(ref Vector3 cpos, out Vector3 rpos, ref Vector3
 **(1) skin push 방향 — `:113-120`** ✅
 `axisDir=(curPos-targetPos)정규화`(타겟→카메라). 사이 벽 정면 normal은 광선(`tpos→cpos`=+axisDir) 반대 = `-axisDir` 쪽 → `Dot(hitNormal,-axisDir)≈+1`. push `+hitNormal`(벽→타겟)로 카메라를 당겨 밀착 방지. 방향 정확. clamp `Min(Max(0,skin), r*0.5)` 정상.
 
-**(2) floor rescue `safeT` — `:291-296`** ✅
-`axisDir.y<-1e-3` 보장 하 `safeT=-r/axisDir.y>0`. `t=safeT` 의 y오프셋 `= axisDir.y·(-r/axisDir.y)=-r` → 카메라 y를 `tpos.y-r` 로. `currentT=Dot(cldCamPos-tpos,axisDir)=axisLen`, `currentT>safeT` 일 때만 당김(단조 후퇴). 정확.
+**(2) floor rescue `safeT` 산술 — `:291-296`** ✅(산술 한정)
+`axisDir.y<-1e-3` 보장 하 `safeT=-r/axisDir.y>0`. `t=safeT` 의 y오프셋 `= axisDir.y·(-r/axisDir.y)=-r` → 카메라 y를 `tpos.y-r` 로. `currentT=Dot(cldCamPos-tpos,axisDir)=axisLen`, `currentT>safeT` 일 때만 당김(단조 후퇴). **산술은 정확**.
 ⚠️ 한계: `axisDir.y`가 `-1e-3` 근접(거의 수평)이면 `safeT` 폭증 → 수평으로 빠진 케이스 미구제.
+❌ **의미론(§E-2에서 CODEX 반론 채택):** 발동 임계 `cy >= groundY-r → 미구제`(`:287`)는 구체가 지면을 관통해도(중심이 지면 아래 `r` 미만) 통과시킴 — 무관통 경계는 `groundY+r`이므로 약 `2r` band가 미구제. 또 목표 `tpos.y-r`는 pivot 상대(지면/경사 무관). "바닥 관통 방지" 목적 미충족.
 
 **(3) 축 투영 최소값 — `:160,177,366,384`** ✅
 `Dot(hit.point-tpos, axisDir)` = 축 투영 거리, 중앙+링 최소값 = 축상 최근접 장애물, `Max(0,...)` 음수 클램프. 정확.
@@ -275,6 +277,52 @@ _zoomRate = Mathf.Lerp(_zoomRate, _zoomRateOrigin, Time.deltaTime * 2f);   // :4
 3. **D-2 보간 모델 일원화** — zoomRate-Lerp vs length-SmoothDamp 정책 확정.
 4. **D-3 정렬/회전 상태 결합 정리** + `CheckIsStop` 에 각도 조건 추가.
 5. **D-4 LockOnState 분할** + 센티넬 상수화.
+
+---
+
+# E. CODEX 리뷰 교차검증 반영 (`CODEX_REVIEW_CAMERA.md` 대조)
+
+별도 진행된 CODEX 리뷰와 상호 대조했다. **두 리뷰가 독립적으로 다음 11개에 수렴**(상호 검증 완료): A-1 축 선택 로직 오류 · A-2 레이어 `-1` 오염 · A-3 터레인 타일 불일치 · A-5.1 floor 플래그↔줌인터럽트 · A-5.2 skin 재검증 부재 · D-1 프로덕션이 단일 캐스트 경로 사용 · D-1 `nextZoomRate` 미클램프 · D-2 프레임률 의존 Lerp · D-2 두 보간 모델 공존 · D-3 `CheckIsStop` 속도-only · D-4 `LockOnState` 과밀. → 핵심 결론은 양쪽 동일.
+
+아래는 CODEX가 **추가로 정확히 짚어 본 문서에 채택**하는 항목.
+
+## E-1. 🟠 MultiProbe ring 기하 — 반지름 튜브가 아닌 pivot 부채꼴 (신규)
+모든 ring probe가 `Linecast(tpos, cpos+offset)` 로 **동일 pivot에서 출발**한다(`:382, :175, :212` 검증). 의도(코너 지터 완화)는 이해되나 결과는 반지름 원통 검사가 아닌 pivot 고정 부채꼴이다:
+- **pivot 근처**: probe가 한 점으로 수렴 → 반지름 측면 커버리지 소멸(좁은 기둥/문틀 보호 약화).
+- **카메라 근처**: probe가 반지름보다 넓게 벌어짐 → 과보수적(실제보다 먼 벽 감지).
+→ 진짜 반지름 검사가 목표면 `Linecast(tpos+offset, cpos+offset)`(평행 probe). pivot 근처 보호는 center probe로 별도. (투영 수식 자체는 §A-4(3)대로 정확 — 기하와 별개 문제.)
+
+## E-2. ❌ floor rescue 임계가 바닥 관통 허용 (§A-4(2) 판정 보완 — CODEX 반론 채택)
+앞서 `EnsureCameraNotBelowFloor` 를 "산술 정확"으로만 평가했으나 CODEX 반론이 타당해 보완한다. **safeT 산술은 여전히 정확**하지만 임계·기준이 목적을 못 채운다:
+- 발동 조건 `cldCamPos.y >= groundY - r → 미구제`(`:287`) — 카메라 중심이 지면보다 `r` 이상 아래여야 발동.
+- 구체(중심 cy, 반지름 r) 무관통 경계는 `cy >= groundY + r`. 임계는 그보다 `2r` 낮음 → **중심이 지면 아래로 잠겨도 구제 안 되는 band 존재**.
+- `EnsureGroundClearance` 는 카메라에서 **아래로** raycast → 카메라 머리 위 바닥(카메라가 바닥 밑)인 이 band를 못 잡음 → 두 함수 사이 사각지대.
+- 보정 목표 `tpos.y - r` 는 **pivot 상대**(지면/경사 무관, 높은 pivot에서 과당김).
+→ ground 기준 권장: `safeY = groundY + r`, `safeT = (safeY - tpos.y)/axisDir.y` 후 `[0, axisLen]` clamp. (§0의 "산술 정확 ≠ 의미론적 정확" 대표 사례.)
+
+## E-3. 🟠 `minNormalAlignment` 가 hit 채택에 미반영 (신규)
+`ProcessColliderReviseMultiProbe(... minNormalAlignment ...)` 가 이 값을 **skin 적용(`:114`)에만** 쓰고, 실제 hit를 고르는 `GetCameraColliderPosMultiProbe` 엔 **전달조차 안 함**(`:103-104`). 내부는 `projLen<bestProjLen` 만으로 모든 hit 채택(`:367,385`) → **거의 평행하게 스친 표면/모서리 hit도 카메라를 당김**. 파라미터 이름이 "hit를 거른다"는 오해를 줌. → 채택 시점에 `Dot(hit.normal, -axisDir) >= minNormalAlignment` 필터 추가.
+
+## E-4. 🟠 락온 sign 결정 ↔ 최종 보정 기준 불일치 (충돌·락온 상호작용, 신규)
+`ProbeCameraReachMultiProbe` 는 주석(`:146`)상 **락온 좌/우 sign 결정용 reach 비교**에 쓰인다. 그런데:
+- reach 함수엔 skin·normal alignment·CheckSphere fallback이 **없고**, 최종 보정 `ProcessColliderReviseMultiProbe` 엔 **있다** → **고른 방향(reach 기준)과 실제 카메라 도달 위치(최종 기준)가 다름.**
+- ring basis가 후보 축마다 새로 계산(E-1) → 좌/우 후보가 **같은 월드 방향을 비교하지 않음** → 대칭 장애물에서도 reach 비대칭 → **좁은 모서리에서 sign 매 프레임 flip**(흔들림 증폭). `LockOnState.SideFlip*`/`SustainedCollidingElapsedSec`(§D-4)가 이를 막으려는 흔적.
+- floor rescue가 reach엔 없는 건 **올바름**(sign은 "어느 쪽이 덜 막히나"여야 함). 단 skin은 3D push 대신 축거리 `reach - skinWidth` 로 반영해야 비교가 안정적.
+→ 권장: ① sign 비교는 side-effect 없는 reach만, ② 평행 probe(E-1)로 좌우 대칭 보장, ③ `ReachRatio = reach/desired` + 시간·거리 hysteresis(예: 0.3m·0.15s)로 flip 억제.
+
+## E-5. 🟡 소항목 (CODEX 추가, 채택)
+- **skin push 대안:** 축 유지가 목적이면 `bestProjLen -= skinWidth` 가 normal push보다 예측가능(§A-5.2 보완).
+- **오타** `ShpereCast`(XML 주석 `:71,74` 등) → `SphereCast`.
+- **`IsCameraPositionClear`** 가 후보 위치 자체의 `CheckSphere` overlap 미검사(중심선+ring line만) → 라인이 안 걸치는 매립은 통과 가능.
+- **`dropThresholdM`**(floor rescue) 입력 음수 가드 없음 → 음수면 거의 항상 발동.
+- **`probeCount`** 미clamp(≥1) → 0이면 함수명과 달리 center-only.
+
+## E-6. CODEX의 조건부/미수용에 대한 본 문서 입장
+- **`ContainsFrustum` near/far clip**(CODEX 조건부): §A-4(5) 유지 — 화면방향 판정이면 무해, **락온 가시성 필터로 쓰면** near/far+bounds 필요. CODEX와 동일 결론.
+- **`SRGameManager.Instance` null 접근**(CODEX #8): `IsValidActorController` 가 Instance/ActorController 비null을 보장하는지 미공개 → 단정 보류. 단 디졸브 분리(§B-1) 시 의존 자체가 소멸.
+
+## E-7. 우선순위 갱신 반영
+기존 §C·§D-5에 더해: **E-2 floor 임계 ground 기준화**, **E-3 normal alignment hit 필터**, **E-1 평행 probe 전환**(E-4 락온 sign 안정화와 동반), **E-4 sign hysteresis**. 특히 E-1↔E-4는 한 수정(평행 probe)으로 충돌 정확도와 락온 흔들림을 동시 개선.
 
 ---
 

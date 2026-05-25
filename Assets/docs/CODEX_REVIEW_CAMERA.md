@@ -19,6 +19,59 @@
 
 가장 큰 구조적 문제는 한 정적 클래스가 너무 많은 책임을 가진다는 점이다. 현재 파일은 프러스텀 판정, 충돌 거리 계산, 바닥 보정, Terrain 보정, 캐릭터 디졸브 이벤트까지 모두 처리한다. 이 때문에 각 보정의 기준이 서로 달라지고, 하나를 고치면 다른 경로가 다른 결과를 내기 쉽다.
 
+## CLAUDE_REVIEW_CAMERA.md 교차 검토 반영
+
+`Assets/docs/CLAUDE_REVIEW_CAMERA.md`를 대조한 결과, 다음 항목은 타당하므로 이 문서의 판단에 반영한다.
+
+### 수용한 지적
+
+1. **`GetCameraColliderPos`의 핵심 문제는 산술 부호 자체보다 기준축 선택 오류다.**
+   `Dot`, `SphereCast`, `tpos + dir * distance`라는 계산 형태는 수식으로는 일관된다. 문제는 `dir`과 `distance`를 실제 위치축 `(cpos - tpos)`가 아니라 카메라 회전축 `-(curRot * Vector3.forward)`에서 가져온다는 점이다. 따라서 이 버그는 “벡터 산술 오타”라기보다 “충돌 경로의 기준축을 잘못 선택한 로직 오류”로 보는 것이 더 정확하다.
+
+2. **레이어 마스크 오염 설명은 정확하다.**
+   `LayerMask.NameToLayer` 실패값 `-1`은 C# shift count 마스킹 때문에 예외 없이 `1 << 31` 계열의 비트로 변질될 수 있다. 이 문제는 단순 null/0 문제가 아니라 “잘못된 레이어 비트가 조용히 켜지는” 문제다.
+
+3. **`GetTerrainPos`의 높이 공식 자체는 맞지만 Terrain 선택 기준이 위험하다.**
+   `terrain.GetPosition().y + terrain.SampleHeight(cpos)`는 선택된 Terrain에 대해서는 월드 높이를 얻는 공식으로 볼 수 있다. 다만 Terrain을 `tpos`로 고르고 샘플은 `cpos`로 하기 때문에 멀티 Terrain에서 타일 불일치가 발생한다. 이 문서의 기존 판단을 “공식 오류”가 아니라 “Terrain 선택 로직 오류”로 해석하는 것이 더 정확하다.
+
+4. **floor rescue가 `CamColliderHit`를 켜는 의미론적 문제는 중요하다.**
+   `moved |= EnsureCameraNotBelowFloor(...)` 때문에 벽 충돌이 아닌 수직 바닥 구제도 `CamColliderHit`로 합쳐질 수 있다. 호출부에서 `CamColliderHit`를 줌 인터럽트나 충돌 상태로 해석하면, 바닥 보정만으로 줌 복구/중단 상태가 바뀔 수 있다. 충돌 플래그와 바닥 구제 플래그는 분리해야 한다.
+
+5. **skin push 후 재검증 부재는 실제 코너 매립 위험이다.**
+   `cldPos += hitNormal * clampedSkin` 뒤에 `CheckSphere`나 재 probe가 없다. 좁은 코너에서는 A 벽 normal로 민 결과가 B 벽 내부로 들어갈 수 있다. `colliderRadius * 0.5f` clamp는 위험을 줄일 뿐 보장하지 않는다.
+
+6. **`SRControllableCameraBase.UpdateCamProperty`가 단일 SphereCast 경로를 실제로 사용한다.**
+   `unsave/SRControllableCameraBase.cs`의 `UpdateCamProperty`는 `GameCameraCalculator.ProcessColliderRevise(...)`를 호출한다. 따라서 `GetCameraColliderPos`의 회전축 기반 오류는 참고 코드 내부에서 실제 통합 경로에 연결되어 있다. MultiProbe 경로가 더 안정적인 의도라면, 이 호출부가 아직 옛 경로를 쓰는 것이 별도 리스크다.
+
+7. **`nextZoomRate` 미클램프와 `LerpUnclamped` 전파는 타당한 지적이다.**
+   `nextZoomRate = (newcamLength - min) / (max - min)` 결과가 [0, 1]로 clamp되지 않고, 이후 `_zoomRate`와 `UpdateCameraTfm(float zoomRate, ...)`에 전달된다. float 인자 오버로드는 내부에서 clamp하지 않고 `CalcCameraTfm(..., zoomRate)`로 넘긴다. 충돌 길이가 min보다 짧거나 max보다 길게 계산되면 줌 레이트가 범위 밖으로 흐를 수 있다.
+
+8. **줌 블렌딩의 프레임률 의존성은 맞다.**
+   `_zoomRate = Mathf.Lerp(_zoomRate, nextZoomRate, lerpVal * Time.deltaTime)`와 복구부의 `Mathf.Lerp(_zoomRate, _zoomRateOrigin, Time.deltaTime * 2f)`는 `k * deltaTime` 방식의 반복 Lerp다. `Mathf.Lerp`는 t를 clamp하므로 오버슈트보다는 저 FPS에서 목표로 급격히 붙는 스냅 성향이 문제다. 회전 쪽은 `SmoothDampAngle(..., Time.deltaTime)`이므로 두 보간 정책이 다르다.
+
+9. **`ZoomCollisionState`와 기존 zoomRate-Lerp 모델이 공존한다.**
+   `ZoomCollisionState.cs`는 length 도메인 SmoothDamp 모델을 설명하지만, `SRControllableCameraBase.UpdateCamProperty`는 zoomRate 기반 Lerp 모델을 쓴다. 둘 중 어느 쪽이 최신 경로인지 명확하지 않으면 충돌 복구 정책이 이중화된다.
+
+10. **`CheckIsStopX/Y`가 속도만 보고 회전 종료를 판단하는 문제는 타당하다.**
+    `Mathf.Abs(_rotationVelocityX/Y) < 0.1f`만 보고 멈춘다. 목표 각도와 현재 각도의 잔여 오차를 보지 않으므로, 속도가 임계 아래로 떨어진 순간 목표에 덜 도달했어도 회전 상태를 끌 수 있다.
+
+11. **`LockOnState`는 상태 구조체가 과밀하다.**
+    로직은 없지만 `TargetPosVelocity`, `BlendTVelocity`, `OrbitPitchVelocity`, `OffsetAngleVelocity`, `FreeFactorVelocity`, `InitialReleaseFactorVelocity`, `ActiveFocusPosVelocity`, `ActiveFocusRatioVelocity` 등 독립 smoothing 채널이 많다. 락온 카메라의 side flip, focus, free orbit, transition 상태를 하위 구조체로 나누는 것이 추적성에 좋다.
+
+### 조건부 또는 미수용한 지적
+
+1. **“산술 계산이 전부 정확하다”는 결론은 너무 강하다.**
+   `safeT = -radius / axisDir.y`가 “pivot.y - radius 지점으로 후퇴”한다는 산술 자체는 맞다. 그러나 floor rescue의 목적이 ground 위로 끌어올리는 것이라면 기준 y가 `pivot.y - radius`인 것은 의미론적으로 틀릴 수 있다. 특히 `cldCamPos.y >= groundY - radius` 판정은 구체가 ground를 관통해도 통과시키므로, 이 문서는 여전히 충돌 의미 기준의 오류로 본다.
+
+2. **`ContainsFrustum`의 near/far clip 미반영은 용도에 따라 무해할 수 있지만, 락온 후보 필터라면 위험하다.**
+   화면 방향성만 볼 목적이면 `z > 0`과 x/y 범위만으로 충분할 수 있다. 그러나 함수명이 frustum 포함 여부를 말하고, 락온 후보/가시성 필터에 쓰인다면 near/far clip과 bounds 판정을 추가해야 한다.
+
+3. **MultiProbe 투영 최소값은 수학 형태만 보면 일관되지만, probe 기하 자체가 부정확하다.**
+   `Dot(hit.point - pivot, axisDir)`로 축 투영 거리를 구하는 방식은 계산 형태로는 맞다. 하지만 ring probe가 `pivot -> desired + offset`으로 나가는 순간 cast 방향과 projection 축이 달라진다. 따라서 “투영 수식이 맞다”와 “카메라 반지름 충돌 모델로 맞다”는 별개의 문제다. 이 문서는 후자를 문제로 본다.
+
+4. **락온 로직 전체는 제공된 파일에 없다.**
+   `LockOnState.cs`는 상태 구조체이고 실제 sign/free-factor/side-flip 로직은 없다. 따라서 락온 관련 판단은 `ProbeCameraReachMultiProbe`가 락온 sign 비교에 쓰인다는 주석과 상태 구조를 기반으로 한 위험 분석이다. 실제 최종 결론은 소비 로직까지 봐야 확정된다.
+
 ## 계산상 주요 오류 또는 위험
 
 ### 1. 단일 SphereCast 방향이 실제 카메라 위치 방향과 다를 수 있음
@@ -579,7 +632,10 @@ public static CameraCollisionResult Evaluate(
 5. `EnsureCameraNotBelowFloor`의 safe 위치를 pivot 기준이 아니라 ground 기준으로 계산한다.
 6. 디졸브 처리를 충돌 계산 함수 밖으로 분리한다.
 7. `GetTerrainPos`, `EnsureGroundClearance`, `EnsureCameraNotBelowFloor`를 하나의 ground 보정 모듈로 합친다.
-8. 미사용 using, 미사용 파라미터, 대량 주석 코드를 제거한다.
+8. `CamColliderHit`, `FloorRescued`, `DissolveTriggered`처럼 결과 플래그를 분리해 바닥 보정이 줌 인터럽트로 오인되지 않게 한다.
+9. `SRControllableCameraBase.UpdateCamProperty` 같은 소비 경로에서는 `nextZoomRate`를 `Clamp01`하고, 반복 `Mathf.Lerp(current, target, k * deltaTime)`를 `SmoothDamp` 또는 지수 평활로 교체한다.
+10. 락온 후보 비교는 side effect 없는 reach 함수만 사용하고, 후보 전환에는 reach ratio와 hysteresis를 둔다.
+11. 미사용 using, 미사용 파라미터, 대량 주석 코드를 제거한다.
 
 ## 최종 판단
 

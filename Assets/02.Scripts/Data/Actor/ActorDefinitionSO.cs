@@ -34,9 +34,6 @@ namespace UPlayGround.Data.Actor
         public GameObject prefab;
 
         [Header("스탯 데이터")]
-        [Tooltip("레거시 몬스터 튜닝 데이터. 체력은 런타임에 사용하지 않고 ActorStatSO 생성 입력으로만 사용됨.")]
-        public EnemyStatsSO stats;
-
         [Tooltip("통합 스탯 SO. 자동 생성기로 모든 ActorDefinitionSO에 연결되어 있어야 한다.")]
         public ActorStatSO statData;
 
@@ -47,11 +44,11 @@ namespace UPlayGround.Data.Actor
         public MonsterBreakGaugeSO breakGaugeData;
 
         [Header("몬스터 메타")]
-        [Tooltip("몬스터 등급. 킬캠/브레이크 게이지/일부 전투 규칙에서 사용. (이전 EnemyStatsSO.grade)")]
+        [Tooltip("몬스터 등급. 킬캠/브레이크 게이지/일부 전투 규칙에서 사용.")]
         public MonsterActorGrade grade = MonsterActorGrade.Normal;
 
         [Min(1)]
-        [Tooltip("생성/밸런싱 기준 레벨. 공격 데이터 레벨 스케일링 등에 사용. (이전 EnemyStatsSO.level)")]
+        [Tooltip("생성/밸런싱 기준 레벨. 공격 데이터 레벨 스케일링 등에 사용.")]
         public int level = 1;
 
         [Header("전투/AI 데이터")]

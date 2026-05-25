@@ -8,12 +8,7 @@ namespace Game.Editor.P09Builder
     public class StatsAssignment
     {
         // ---------- Enemy ----------
-        public bool createNewStats = true;
-        public ScriptableObject existingStatsSo;
         public float defaultHp = 100f;
-        public float defaultWalkSpeed = 2f;
-        public float defaultRunSpeed = 4f;
-        public float defaultDetectionRadius = 10f;
         public bool createNewPoise = true;
         public ScriptableObject existingPoiseSo;
         public float defaultMaxPoise = 100f;

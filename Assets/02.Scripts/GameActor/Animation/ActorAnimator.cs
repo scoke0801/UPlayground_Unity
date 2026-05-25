@@ -142,6 +142,26 @@ namespace UPlayGround.Animation
             return found;
         }
 
+        /// <summary>
+        /// 두 이벤트 타입(T1, T2) 중 현재 시점 이후 더 먼저 시작되는 쪽까지 남은 시간(초)을 반환한다.
+        /// 한쪽만 존재하면 그쪽 시간, 둘 다 없으면 false.
+        /// 예: Danger Ring이 근접 공격(Collision)과 원거리 공격(SpawnProjectile)을 동일 규칙으로 목표 삼도록.
+        /// </summary>
+        public bool TryGetTimeUntilNextEvent<T1, T2>(out float seconds)
+            where T1 : MotionEventBase
+            where T2 : MotionEventBase
+        {
+            bool has1 = TryGetTimeUntilNextEvent<T1>(out float t1);
+            bool has2 = TryGetTimeUntilNextEvent<T2>(out float t2);
+
+            if (has1 && has2) seconds = Mathf.Min(t1, t2);
+            else if (has1)    seconds = t1;
+            else if (has2)    seconds = t2;
+            else            { seconds = 0f; return false; }
+
+            return true;
+        }
+
         private void Awake()
         {
             _animator      = GetComponentInChildren<AnimancerComponent>();

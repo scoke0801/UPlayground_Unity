@@ -109,8 +109,6 @@ namespace Game.Editor.P09Builder
                     yield return "Stats 설정이 비어있습니다.";
                     yield break;
                 }
-                if (!Stats.createNewStats && Stats.existingStatsSo == null)
-                    yield return "기존 Stats SO를 선택해야 합니다.";
                 if (!Stats.createNewPoise && Stats.existingPoiseSo == null)
                     yield return "기존 Poise SO를 선택해야 합니다.";
                 if (!Stats.createNewBehavior && Stats.existingBehaviorSo == null)

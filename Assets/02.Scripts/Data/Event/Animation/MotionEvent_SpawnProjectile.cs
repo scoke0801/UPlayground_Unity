@@ -121,6 +121,9 @@ namespace UPlayGround.Data.Event
                 if (hasTargetPosition && projectile is ArcingProjectile arcingProjectile)
                     arcingProjectile.SetTargetPosition(targetPosition);
             }
+
+            if (actor is MonsterActor monsterActor)
+                monsterActor.Combat?.CompleteDangerRing();
         }
 
         private LayerMask ResolveTargetHitLayer(GameActor actor)

@@ -55,7 +55,6 @@ namespace UPlayGround.Tool.Editor.Stat
         private const string PlayerSavePath  = "Assets/10.Datas/Stat/Player";
         private const float ColCheck = 22f;
         private const float ColName  = 200f;
-        private const float ColStats = 120f;
         private const float ColPoise = 90f;
         private const float ColCurrent = 130f;
         private const float ColPlanned = 200f;
@@ -170,7 +169,6 @@ namespace UPlayGround.Tool.Editor.Stat
             x += ColCheck;
 
             DrawHeaderCell("ActorDefinitionSO", ref x, ColName, rect.y, rect.height);
-            DrawHeaderCell("EnemyStats", ref x, ColStats, rect.y, rect.height);
             DrawHeaderCell("PoiseSO",    ref x, ColPoise, rect.y, rect.height);
             DrawHeaderCell("기존 statData", ref x, ColCurrent, rect.y, rect.height);
             DrawHeaderCell("생성 예정", ref x, ColPlanned, rect.y, rect.height);
@@ -204,9 +202,6 @@ namespace UPlayGround.Tool.Editor.Stat
                 x += ColName;
 
                 // 소스
-                DrawSourceLabel(new Rect(x, rect.y, ColStats, rect.height), row.SourceStats != null);
-                x += ColStats;
-
                 DrawSourceLabel(new Rect(x, rect.y, ColPoise, rect.height), row.SourcePoise != null);
                 x += ColPoise;
 
@@ -272,7 +267,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
             EditorGUILayout.HelpBox(
                 "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
-                "EnemyStatsSO.maxHealth → MaxHealth, PoiseSO 값 → MaxPoise/Recovery* 로 초기 마이그레이션됩니다.",
+                "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.",
                 MessageType.Info);
         }
 
@@ -293,7 +288,6 @@ namespace UPlayGround.Tool.Editor.Stat
                 _migrationRows.Add(new MigrationRow
                 {
                     Definition = def,
-                    SourceStats = def.stats,
                     SourcePoise = def.poiseData,
                     ExistingStat = def.statData,
                     PlannedAssetName = MakePlannedAssetName(def),
@@ -359,7 +353,6 @@ namespace UPlayGround.Tool.Editor.Stat
                 var row = new MigrationRow
                 {
                     Definition = def,
-                    SourceStats = def.stats,
                     SourcePoise = def.poiseData,
                     PlannedAssetName = MakePlannedAssetName(def),
                 };
@@ -398,7 +391,6 @@ namespace UPlayGround.Tool.Editor.Stat
                     var row = new MigrationRow
                     {
                         Definition = def,
-                        SourceStats = def.stats,
                         SourcePoise = def.poiseData,
                         PlannedAssetName = MakePlannedAssetName(def),
                     };
@@ -435,13 +427,8 @@ namespace UPlayGround.Tool.Editor.Stat
             var so = ScriptableObject.CreateInstance<ActorStatSO>();
             so.EditorFillMissing();
 
-            // 등급에 따른 기본 템플릿 적용 (있는 경우)
-            if (row.SourceStats != null)
-                ApplyGradeTemplate(so, row.SourceStats.grade);
-
-            // EnemyStatsSO → MaxHealth
-            if (row.SourceStats != null)
-                so.EditorSet(StatType.MaxHealth, row.SourceStats.maxHealth);
+            // 정의에 작성된 등급에 따라 기본 템플릿 적용
+            ApplyGradeTemplate(so, row.Definition != null ? row.Definition.grade : MonsterActorGrade.Normal);
 
             // PoiseSO → MaxPoise / PoiseRecoveryRate / PoiseRecoveryDelay
             if (row.SourcePoise != null)
@@ -1031,7 +1018,6 @@ namespace UPlayGround.Tool.Editor.Stat
         private class MigrationRow
         {
             public ActorDefinitionSO Definition;
-            public EnemyStatsSO      SourceStats;
             public PoiseSO           SourcePoise;
             public ActorStatSO       ExistingStat;
             public string            PlannedAssetName;

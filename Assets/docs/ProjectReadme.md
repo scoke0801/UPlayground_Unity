@@ -330,6 +330,7 @@ Assets/
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
+| [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md) | 레벨 / 등급 기반 전투 시간 밸런스 정책 — 저레벨·동레벨 Normal, Elite, Boss 기준 전투 시간과 검증 절차 |
 | [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
 | [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
 | [TARGETED_PROJECTILE_AOE_GUIDE.md](TARGETED_PROJECTILE_AOE_GUIDE.md) | 타게팅 투사체 AOE — 락온 대상, 몬스터 스킬 대상, 텔레그래프 예약 위치 기반 범위 투사체 설계 |
@@ -350,6 +351,7 @@ Assets/
 | [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
 | [TIME_HITSTOP_GUIDE.md](TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
+| [BALANCE_DESIGNER_TOOL_GUIDE.md](BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
 
 ---
 
@@ -374,6 +376,7 @@ Assets/
 | `UPlayGround/Stat/Stat Data Generator` | StatDataGeneratorWindow | EnemyStatsSO/PoiseSO 기반 ActorStatSO 생성, 연결, 전체 보정 |
 | `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
 | `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
+| `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
 
 ---
 

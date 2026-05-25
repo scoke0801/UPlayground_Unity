@@ -90,11 +90,7 @@ namespace Game.Editor.P09Builder
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
         {
-            // Stats: createNewStats=true일 때만 생성
-            if (config != null && config.Stats != null && config.Stats.createNewStats)
-                yield return new EnemyStatsDescDef();
-
-            // 런타임 전투 스탯. MonsterActor는 EnemyStatsSO가 아니라 ActorDefinitionSO.statData를 사용한다.
+            // 런타임 전투 스탯. MonsterActor는 ActorDefinitionSO.statData(ActorStatSO)를 사용한다.
             if (config != null && config.Stats != null)
                 yield return new ActorStatDescDef();
 
@@ -119,9 +115,6 @@ namespace Game.Editor.P09Builder
             var aiController = root.GetComponent<EnemyAIController>();
             var combat = root.GetComponent<EnemyCombat>();
 
-            var stats = FindFirst<EnemyStatsSO>(generatedDescs)
-                        ?? (config?.Stats?.existingStatsSo as EnemyStatsSO);
-
             var behavior = FindFirst<EnemyBehaviorSO>(generatedDescs)
                            ?? (config?.Stats?.existingBehaviorSo as EnemyBehaviorSO);
 
@@ -131,12 +124,12 @@ namespace Game.Editor.P09Builder
             var poiseData = FindFirst<PoiseSO>(generatedDescs)
                             ?? (config?.Stats?.existingPoiseSo as PoiseSO);
 
-            // MonsterActor는 더 이상 EnemyStatsSO를 직접 물지 않는다.
-            // 등급/레벨 메타만 프리팹 폴백 필드로 투영한다. (정의 주입 시 ActorDefinitionSO가 덮어씀)
-            if (actor != null && stats != null)
+            // 등급/레벨 메타를 프리팹 폴백 필드로 투영한다.
+            // (런타임엔 MonsterActor.ApplyDefinitionData가 ActorDefinitionSO 값으로 덮어씀)
+            if (actor != null && config?.Stats != null)
             {
-                ReflectionUtil.SetField(actor, "_grade", stats.grade);
-                ReflectionUtil.SetField(actor, "_level", Mathf.Max(1, stats.level));
+                ReflectionUtil.SetField(actor, "_grade", config.Stats.grade);
+                ReflectionUtil.SetField(actor, "_level", Mathf.Max(1, config.Stats.level));
             }
 
             var poise = root.GetComponent<PoiseStat>();
@@ -243,33 +236,6 @@ namespace Game.Editor.P09Builder
         }
 
         // ---------- DescDefs ----------
-        private sealed class EnemyStatsDescDef : IDescDef
-        {
-            public Type DescType => typeof(EnemyStatsSO);
-            public string Suffix => "_Stats";
-
-            public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
-            {
-                if (so is not EnemyStatsSO stats) return;
-                if (config?.Stats == null)
-                {
-                    EditorUtility.SetDirty(so);
-                    return;
-                }
-
-                var tuning = EnemyStatTuningUtility.Calculate(config);
-
-                stats.level            = Mathf.Max(1, config.Stats.level);
-                stats.maxHealth        = config.Stats.defaultHp * tuning.HealthMultiplier;
-                stats.walkSpeed        = config.Stats.defaultWalkSpeed * tuning.MoveSpeedMultiplier;
-                stats.runSpeed         = config.Stats.defaultRunSpeed * tuning.MoveSpeedMultiplier;
-                stats.detectionRadius  = config.Stats.defaultDetectionRadius;
-                stats.grade            = config.Stats.grade;
-
-                EditorUtility.SetDirty(so);
-            }
-        }
-
         private sealed class PoiseDescDef : IDescDef
         {
             public Type DescType => typeof(PoiseSO);
@@ -312,15 +278,10 @@ namespace Game.Editor.P09Builder
                 }
 
                 var tuning = EnemyStatTuningUtility.Calculate(config);
-                var sourceStats = stats.existingStatsSo as EnemyStatsSO;
                 var sourcePoise = stats.existingPoiseSo as PoiseSO;
 
-                float maxHealth = stats.createNewStats || sourceStats == null
-                    ? stats.defaultHp * tuning.HealthMultiplier
-                    : sourceStats.maxHealth;
-                float moveSpeed = stats.createNewStats || sourceStats == null
-                    ? tuning.MoveSpeedMultiplier
-                    : Mathf.Max(0.01f, sourceStats.runSpeed / Mathf.Max(0.01f, stats.defaultRunSpeed));
+                float maxHealth = stats.defaultHp * tuning.HealthMultiplier;
+                float moveSpeed = tuning.MoveSpeedMultiplier;
 
                 stat.EditorSet(StatType.MaxHealth, maxHealth);
                 stat.EditorSet(StatType.AttackPower, tuning.AttackMultiplier);

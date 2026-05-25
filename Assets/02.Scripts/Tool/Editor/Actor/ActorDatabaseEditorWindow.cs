@@ -52,8 +52,24 @@ namespace UPlayGround.Actor.Editor
         // ── 레이아웃 상수 ────────────────────────────────────────────
         private const float ListWidth    = 240f;
         private const float ItemHeight   = 36f;
+        private const float DividerWidth = 2f;
+        private const float ToolbarHeight = 21f;
         private const string DefaultSavePath   = "Assets/10.Datas/Actor/DataBase";
         private const string EnumOutputPath    = "Assets/02.Scripts/Data/Actor/ActorIdType.cs";
+
+        private readonly struct VisibleActorEntry
+        {
+            public readonly int Index;
+            public readonly ActorDefinitionSO Definition;
+            public readonly string Label;
+
+            public VisibleActorEntry(int index, ActorDefinitionSO definition, string label)
+            {
+                Index      = index;
+                Definition = definition;
+                Label      = label;
+            }
+        }
 
         // ── 메뉴 ─────────────────────────────────────────────────────
         [MenuItem("UPlayGround/Character/Actor/Actor Database Editor", priority =  101)]
@@ -84,19 +100,39 @@ namespace UPlayGround.Actor.Editor
                 Repaint();
             }
 
+            var toolbarRect = new Rect(0f, 0f, position.width, ToolbarHeight);
+            GUILayout.BeginArea(toolbarRect);
             DrawToolbar();
+            GUILayout.EndArea();
+
+            var contentRect = new Rect(
+                0f,
+                toolbarRect.yMax,
+                position.width,
+                Mathf.Max(0f, position.height - toolbarRect.yMax));
 
             if (_database == null)
             {
+                GUILayout.BeginArea(contentRect);
                 DrawNoDatabaseMessage();
+                GUILayout.EndArea();
                 return;
             }
 
-            EditorGUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
-            DrawListPanel();
-            DrawDivider();
+            var listRect = new Rect(contentRect.x, contentRect.y, ListWidth, contentRect.height);
+            var dividerRect = new Rect(listRect.xMax, contentRect.y, DividerWidth, contentRect.height);
+            var detailRect = new Rect(
+                dividerRect.xMax,
+                contentRect.y,
+                Mathf.Max(0f, contentRect.width - ListWidth - DividerWidth),
+                contentRect.height);
+
+            DrawListPanel(listRect);
+            DrawDivider(dividerRect);
+
+            GUILayout.BeginArea(detailRect);
             DrawDetailPanel();
-            EditorGUILayout.EndHorizontal();
+            GUILayout.EndArea();
         }
 
         private void HandleKeyboardShortcuts()
@@ -129,6 +165,9 @@ namespace UPlayGround.Actor.Editor
             if (_database != null && GUILayout.Button("새 Actor 추가", EditorStyles.toolbarButton, GUILayout.Width(100)))
                 CreateNewDefinition();
 
+            if (_database != null && GUILayout.Button("SO 자동 동기화", EditorStyles.toolbarButton, GUILayout.Width(100)))
+                SyncActorDefinitionsFromProject();
+
             if (_database != null && GUILayout.Button("Enum 생성", EditorStyles.toolbarButton, GUILayout.Width(76)))
                 GenerateActorIdEnum();
 
@@ -157,26 +196,18 @@ namespace UPlayGround.Actor.Editor
         }
 
         // ── 목록 패널 ─────────────────────────────────────────────────
-        private void DrawListPanel()
+        private void DrawListPanel(Rect panelRect)
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(ListWidth), GUILayout.ExpandHeight(true));
+            var searchRect = new Rect(panelRect.x, panelRect.y, panelRect.width, ToolbarHeight);
+            var typeRect = new Rect(panelRect.x, searchRect.yMax, panelRect.width, ToolbarHeight);
+            var scrollRect = new Rect(
+                panelRect.x,
+                typeRect.yMax,
+                panelRect.width,
+                Mathf.Max(0f, panelRect.yMax - typeRect.yMax));
 
-            // 텍스트 검색 행
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("검색", EditorStyles.toolbarButton, GUILayout.Width(36));
-            _searchFilter = EditorGUILayout.TextField(_searchFilter, EditorStyles.toolbarSearchField);
-            if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(20)))
-                _searchFilter = "";
-            EditorGUILayout.EndHorizontal();
-
-            // ActorType 필터 행
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("타입", EditorStyles.toolbarButton, GUILayout.Width(36));
-            _filterActorType = (ActorType)EditorGUILayout.EnumFlagsField(
-                _filterActorType, EditorStyles.toolbarPopup);
-            if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(20)))
-                _filterActorType = ActorType.None;
-            EditorGUILayout.EndHorizontal();
+            DrawListSearchRow(searchRect);
+            DrawListTypeFilterRow(typeRect);
 
             // 필터 없을 때만 드래그 순서 변경 허용
             bool canReorder = string.IsNullOrEmpty(_searchFilter) && _filterActorType == ActorType.None;
@@ -184,10 +215,8 @@ namespace UPlayGround.Actor.Editor
             _itemTopYs.Clear();
             _itemMidYs.Clear();
 
-            _listScroll = EditorGUILayout.BeginScrollView(_listScroll);
-
             var all = _database.All;
-            bool anyShown = false;
+            var visibleEntries = new List<VisibleActorEntry>();
             for (int i = 0; i < all.Count; i++)
             {
                 var def = all[i];
@@ -205,10 +234,26 @@ namespace UPlayGround.Actor.Editor
                 if (_filterActorType != ActorType.None && (def.actorType & _filterActorType) == 0)
                     continue;
 
-                anyShown = true;
+                visibleEntries.Add(new VisibleActorEntry(i, def, label));
+            }
+
+            float scrollbarWidth = GUI.skin.verticalScrollbar.fixedWidth;
+            float contentWidth = Mathf.Max(1f, scrollRect.width - scrollbarWidth - 4f);
+            float contentHeight = Mathf.Max(scrollRect.height + 1f, visibleEntries.Count * ItemHeight);
+            var viewRect = new Rect(0f, 0f, contentWidth, contentHeight);
+
+            HandleListScrollWheel(scrollRect, contentHeight);
+            _listScroll = GUI.BeginScrollView(scrollRect, _listScroll, viewRect, false, true);
+
+            for (int entryIndex = 0; entryIndex < visibleEntries.Count; entryIndex++)
+            {
+                var entry = visibleEntries[entryIndex];
+                int i = entry.Index;
+                var def = entry.Definition;
+                string label = entry.Label;
                 bool isSelected = _selected == def;
 
-                Rect itemRect = GUILayoutUtility.GetRect(ListWidth - 4, ItemHeight);
+                Rect itemRect = new Rect(0f, entryIndex * ItemHeight, contentWidth, ItemHeight);
 
                 if (canReorder)
                 {
@@ -276,8 +321,8 @@ namespace UPlayGround.Actor.Editor
                 }
             }
 
-            if (!anyShown)
-                GUILayout.Label("항목 없음", EditorStyles.centeredGreyMiniLabel, GUILayout.ExpandWidth(true));
+            if (visibleEntries.Count == 0)
+                GUI.Label(new Rect(0f, 4f, contentWidth, 20f), "항목 없음", EditorStyles.centeredGreyMiniLabel);
 
             // ── 드래그 드롭 위치 표시 ──────────────────────────────────
             if (_dragIndex >= 0 && canReorder && _itemMidYs.Count > 0)
@@ -310,14 +355,52 @@ namespace UPlayGround.Actor.Editor
                 }
             }
 
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
+            GUI.EndScrollView();
+        }
+
+        private void DrawListSearchRow(Rect rect)
+        {
+            GUI.Box(rect, GUIContent.none, EditorStyles.toolbar);
+
+            var labelRect = new Rect(rect.x, rect.y, 36f, rect.height);
+            var clearRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
+            var fieldRect = new Rect(labelRect.xMax, rect.y + 2f, Mathf.Max(1f, rect.width - 56f), rect.height - 4f);
+
+            GUI.Label(labelRect, "검색", EditorStyles.toolbarButton);
+            _searchFilter = EditorGUI.TextField(fieldRect, _searchFilter, EditorStyles.toolbarSearchField);
+            if (GUI.Button(clearRect, "✕", EditorStyles.toolbarButton))
+                _searchFilter = "";
+        }
+
+        private void DrawListTypeFilterRow(Rect rect)
+        {
+            GUI.Box(rect, GUIContent.none, EditorStyles.toolbar);
+
+            var labelRect = new Rect(rect.x, rect.y, 36f, rect.height);
+            var clearRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
+            var fieldRect = new Rect(labelRect.xMax, rect.y + 1f, Mathf.Max(1f, rect.width - 56f), rect.height - 2f);
+
+            GUI.Label(labelRect, "타입", EditorStyles.toolbarButton);
+            _filterActorType = (ActorType)EditorGUI.EnumFlagsField(fieldRect, _filterActorType, EditorStyles.toolbarPopup);
+            if (GUI.Button(clearRect, "✕", EditorStyles.toolbarButton))
+                _filterActorType = ActorType.None;
+        }
+
+        private void HandleListScrollWheel(Rect scrollRect, float contentHeight)
+        {
+            var e = Event.current;
+            if (e.type != EventType.ScrollWheel || !scrollRect.Contains(e.mousePosition))
+                return;
+
+            float maxScrollY = Mathf.Max(0f, contentHeight - scrollRect.height);
+            _listScroll.y = Mathf.Clamp(_listScroll.y + e.delta.y * ItemHeight * 0.5f, 0f, maxScrollY);
+            e.Use();
+            Repaint();
         }
 
         // ── 구분선 ────────────────────────────────────────────────────
-        private void DrawDivider()
+        private void DrawDivider(Rect rect)
         {
-            var rect = GUILayoutUtility.GetRect(2, float.MaxValue, GUILayout.Width(2), GUILayout.ExpandHeight(true));
             EditorGUI.DrawRect(rect, ColorSeparator);
         }
 
@@ -481,6 +564,73 @@ namespace UPlayGround.Actor.Editor
             _database.AddDefinition(def);
             SelectDefinition(def);
             MarkUnsaved();
+        }
+
+        private void SyncActorDefinitionsFromProject()
+        {
+            if (_database == null) return;
+
+            Undo.RecordObject(_database, "Sync ActorDefinitions From Project");
+
+            var registeredDefinitions = new HashSet<ActorDefinitionSO>();
+            var registeredIds = new HashSet<string>();
+            foreach (var def in _database.All)
+            {
+                if (def == null) continue;
+
+                registeredDefinitions.Add(def);
+                if (!string.IsNullOrEmpty(def.actorId))
+                    registeredIds.Add(def.actorId);
+            }
+
+            int added = 0;
+            int skippedDuplicateId = 0;
+            int filledEmptyId = 0;
+
+            string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var definition = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (definition == null || registeredDefinitions.Contains(definition))
+                    continue;
+
+                if (string.IsNullOrEmpty(definition.actorId))
+                {
+                    Undo.RecordObject(definition, "Fill ActorDefinition ActorId");
+                    definition.actorId = definition.name;
+                    EditorUtility.SetDirty(definition);
+                    filledEmptyId++;
+                }
+
+                if (!registeredIds.Add(definition.actorId))
+                {
+                    skippedDuplicateId++;
+                    Debug.LogWarning($"[ActorDatabase] actorId 중복으로 자동 동기화 건너뜀: '{definition.actorId}' ({path})");
+                    continue;
+                }
+
+                _database.AddDefinition(definition);
+                registeredDefinitions.Add(definition);
+                added++;
+            }
+
+            if (added > 0 || filledEmptyId > 0)
+            {
+                _database.InvalidateLookup();
+                EditorUtility.SetDirty(_database);
+                MarkUnsaved();
+                Repaint();
+            }
+
+            string message = $"ActorDefinitionSO 자동 동기화 완료\n추가: {added}개";
+            if (filledEmptyId > 0)
+                message += $"\n비어있는 actorId 자동 설정: {filledEmptyId}개";
+            if (skippedDuplicateId > 0)
+                message += $"\n중복 actorId로 건너뜀: {skippedDuplicateId}개";
+
+            EditorUtility.DisplayDialog("SO 자동 동기화", message, "확인");
+            Debug.Log($"[ActorDatabase] ActorDefinitionSO 자동 동기화 완료: 추가 {added}개, actorId 설정 {filledEmptyId}개, 중복 건너뜀 {skippedDuplicateId}개");
         }
 
         private void ApplyReorder()

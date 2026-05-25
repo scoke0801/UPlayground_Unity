@@ -11,16 +11,15 @@ using UPlayGround.Data.EnumType;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// EnemyStatsSO / PoiseSO / EnemyBehaviorSO / EnemyAttackDataSO → MonsterData.json 역변환
+    /// PoiseSO / EnemyBehaviorSO / EnemyAttackDataSO → MonsterData.json 역변환
     /// Tools > UPlayGround > Export Monster Data
     ///
     /// ID 추출 규칙:
-    ///   StatData_{id}.asset / PoiseData_{id}.asset / BehaviorData_{id}.asset / {id}.asset
-    /// 4종 중 하나라도 있으면 monster 블록이 생성된다.
+    ///   PoiseData_{id}.asset / BehaviorData_{id}.asset / {id}.asset
+    /// 3종 중 하나라도 있으면 monster 블록이 생성된다.
     /// </summary>
     public class MonsterDataExporter : EditorWindow
     {
-        private string _statDataPath    = "Assets/10.Datas/Actor/Enemy/StatData";
         private string _poiseDataPath   = "Assets/10.Datas/Actor/Enemy/PoiseData";
         private string _behaviorPath    = "Assets/10.Datas/Actor/Enemy/BehaviorData";
         private string _attackDataPath  = "Assets/10.Datas/Actor/Enemy/AttackData";
@@ -40,7 +39,6 @@ namespace UPlayGround.Editor
             EditorGUILayout.LabelField("Monster Data Exporter", EditorStyles.boldLabel);
             EditorGUILayout.Space(4);
 
-            _statDataPath   = EditorGUILayout.TextField("StatData 경로",    _statDataPath);
             _poiseDataPath  = EditorGUILayout.TextField("PoiseData 경로",   _poiseDataPath);
             _behaviorPath   = EditorGUILayout.TextField("BehaviorData 경로",_behaviorPath);
             _attackDataPath = EditorGUILayout.TextField("AttackData 경로",  _attackDataPath);
@@ -67,14 +65,12 @@ namespace UPlayGround.Editor
         private void Export()
         {
             // 각 폴더에서 SO 로드 후 id → SO 딕셔너리 구성
-            var stats     = LoadSODict<EnemyStatsSO>   (_statDataPath,   "StatData_");
             var poises    = LoadSODict<PoiseSO>         (_poiseDataPath,  "PoiseData_");
             var behaviors = LoadSODict<EnemyBehaviorSO> (_behaviorPath,   "BehaviorData_");
             var attacks   = LoadSODict<EnemyAttackDataSO>(_attackDataPath, "");
 
             // 전체 id 수집 (합집합)
             var ids = new HashSet<string>();
-            foreach (var k in stats.Keys)     ids.Add(k);
             foreach (var k in poises.Keys)    ids.Add(k);
             foreach (var k in behaviors.Keys) ids.Add(k);
             foreach (var k in attacks.Keys)   ids.Add(k);
@@ -91,18 +87,17 @@ namespace UPlayGround.Editor
             // JSON 직렬화
             var sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendLine(I(1) + "\"_comment\": \"EnemyAttackDataSO + EnemyStatsSO + PoiseSO + EnemyBehaviorSO 역변환 파일\",");
+            sb.AppendLine(I(1) + "\"_comment\": \"EnemyAttackDataSO + PoiseSO + EnemyBehaviorSO 역변환 파일\",");
             sb.AppendLine(I(1) + "\"monsters\": [");
 
             for (int i = 0; i < sortedIds.Count; i++)
             {
                 string id = sortedIds[i];
-                stats.TryGetValue(id,     out var stat);
                 poises.TryGetValue(id,    out var poise);
                 behaviors.TryGetValue(id, out var behavior);
                 attacks.TryGetValue(id,   out var attack);
 
-                WriteMonster(sb, id, stat, poise, behavior, attack);
+                WriteMonster(sb, id, poise, behavior, attack);
 
                 if (i < sortedIds.Count - 1) sb.AppendLine(I(2) + ",");
                 else sb.AppendLine();
@@ -125,42 +120,17 @@ namespace UPlayGround.Editor
 
         private void WriteMonster(
             StringBuilder sb, string id,
-            EnemyStatsSO stat, PoiseSO poise,
+            PoiseSO poise,
             EnemyBehaviorSO behavior, EnemyAttackDataSO attack)
         {
             sb.AppendLine(I(2) + "{");
             sb.AppendLine(I(3) + $"\"_id\": \"{id}\",");
 
-            WriteStats(sb, stat);
             WritePoise(sb, poise);
             WriteBehavior(sb, behavior);
             WriteAttack(sb, attack);
 
             sb.Append(I(2) + "}");
-        }
-
-        // ── StatData ────────────────────────────────────────────────
-
-        private void WriteStats(StringBuilder sb, EnemyStatsSO s)
-        {
-            sb.AppendLine(I(3) + "\"stats\": {");
-            if (s == null) { sb.AppendLine(I(3) + "},"); return; }
-
-            sb.AppendLine(N("level",                s.level,                4, true));
-            sb.AppendLine(F("maxHealth",            s.maxHealth,            4, true));
-            sb.AppendLine(F("walkSpeed",            s.walkSpeed,            4, true));
-            sb.AppendLine(F("runSpeed",             s.runSpeed,             4, true));
-            sb.AppendLine(F("chaseSpeedMultiplier", s.chaseSpeedMultiplier, 4, true));
-            sb.AppendLine(F("detectionRadius",      s.detectionRadius,      4, true));
-            sb.AppendLine(F("lostTargetRadius",     s.lostTargetRadius,     4, true));
-            sb.AppendLine(F("fieldOfView",          s.fieldOfView,          4, true));
-            sb.AppendLine(F("attackRange",          s.attackRange,          4, true));
-            sb.AppendLine(F("attackCooldown",       s.attackCooldown,       4, true));
-            sb.AppendLine(B("enablePatrol",         s.enablePatrol,         4, true));
-            sb.AppendLine(F("patrolRadius",         s.patrolRadius,         4, true));
-            sb.AppendLine(F("patrolWaitTime",       s.patrolWaitTime,       4, false));
-
-            sb.AppendLine(I(3) + "},");
         }
 
         // ── PoiseData ────────────────────────────────────────────────
@@ -352,10 +322,6 @@ namespace UPlayGround.Editor
 
         // float 필드 한 줄
         private static string F(string key, float val, int depth, bool comma)
-            => $"{I(depth)}\"{key}\": {val}{(comma ? "," : "")}";
-
-        // int 필드 한 줄
-        private static string N(string key, int val, int depth, bool comma)
             => $"{I(depth)}\"{key}\": {val}{(comma ? "," : "")}";
 
         // bool 필드 한 줄

@@ -6,10 +6,12 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Editor
 {
@@ -21,6 +23,7 @@ namespace UPlayGround.Editor
         private enum TargetKind { Player, Enemy }
         private enum ExistingPolicy { Skip, SyncPhaseCount, Replace }
 
+        private ActorDefinitionSO _actorDefinition;
         private ActorAnimationMotionSet _motionSet;
         private AttackDataSO _attackData;
         private TargetKind _targetKind = TargetKind.Player;
@@ -30,6 +33,11 @@ namespace UPlayGround.Editor
         private bool _normalizeCollisionPhaseIndex = true;
         private bool _applyBalancedDamage = true;
         private bool _overwriteExistingDamage = false;
+        private bool _useActorStatAndLevel = true;
+        private bool _normalizeRuntimeAttackPower = true;
+        private ActorStatSO _sourceStatData;
+        private int _sourceLevel = 1;
+        private float _levelDamageGrowth = 0.04f;
         private float _playerBaseDamage = 10f;
         private float _enemyBaseDamage = 8f;
         private float _poiseDamageRatio = 3f;
@@ -98,6 +106,36 @@ namespace UPlayGround.Editor
                     _targetKind = selectedAttackData is EnemyAttackDataSO ? TargetKind.Enemy : TargetKind.Player;
                 }
             }
+            else if (Selection.activeObject is ActorDefinitionSO selectedActor)
+            {
+                if (overwriteExisting || _actorDefinition == null)
+                    BindActorDefinition(selectedActor, overwriteExisting);
+            }
+        }
+
+        private void BindActorDefinition(ActorDefinitionSO actor, bool overwriteExisting)
+        {
+            _actorDefinition = actor;
+            if (actor == null)
+                return;
+
+            _sourceStatData = actor.statData != null ? actor.statData : _sourceStatData;
+            _sourceLevel = Mathf.Max(1, actor.level);
+
+            if ((actor.actorType & ActorType.Monster) != 0)
+            {
+                _targetKind = TargetKind.Enemy;
+                if (overwriteExisting || _attackData == null)
+                    _attackData = actor.attackData;
+                _enemyBaseDamage = GetDefaultEnemyBaseDamage(actor);
+            }
+
+            if (actor.prefab != null)
+            {
+                var animator = actor.prefab.GetComponentInChildren<ActorAnimator>(true);
+                if (animator != null && animator.MotionSet != null && (overwriteExisting || _motionSet == null))
+                    _motionSet = animator.MotionSet;
+            }
         }
 
         private void OnGUI()
@@ -124,6 +162,11 @@ namespace UPlayGround.Editor
         {
             EditorGUILayout.Space(8);
             EditorGUI.BeginChangeCheck();
+            var newActor = (ActorDefinitionSO)EditorGUILayout.ObjectField(
+                "ActorDefinitionSO", _actorDefinition, typeof(ActorDefinitionSO), false);
+            if (newActor != _actorDefinition)
+                BindActorDefinition(newActor, true);
+
             _motionSet = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
                 "Animation MotionSet", _motionSet, typeof(ActorAnimationMotionSet), false);
             _attackData = (AttackDataSO)EditorGUILayout.ObjectField(
@@ -156,6 +199,15 @@ namespace UPlayGround.Editor
                 using (new EditorGUI.DisabledScope(!_applyBalancedDamage))
                 {
                     _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise/Break도 갱신", _overwriteExistingDamage);
+                    _useActorStatAndLevel = EditorGUILayout.ToggleLeft("Actor Stat/Level 반영", _useActorStatAndLevel);
+                    using (new EditorGUI.DisabledScope(!_useActorStatAndLevel))
+                    {
+                        _sourceStatData = (ActorStatSO)EditorGUILayout.ObjectField("기준 StatData", _sourceStatData, typeof(ActorStatSO), false);
+                        _sourceLevel = EditorGUILayout.IntField("기준 레벨", Mathf.Max(1, _sourceLevel));
+                        _levelDamageGrowth = EditorGUILayout.Slider("레벨당 피해 성장률", _levelDamageGrowth, 0f, 0.2f);
+                        _normalizeRuntimeAttackPower = EditorGUILayout.ToggleLeft("AttackPower 런타임 곱셈 역보정", _normalizeRuntimeAttackPower);
+                        EditorGUILayout.HelpBox("런타임에서 HitPhaseData.damage에 공격자 AttackPower가 다시 곱해집니다. 역보정을 켜면 최종 목표 피해는 레벨/등급을 반영하되 AttackPower가 중복 적용되지 않도록 저장 피해를 나눠서 생성합니다.", MessageType.Info);
+                    }
                     _playerBaseDamage = EditorGUILayout.FloatField("플레이어 기준 대미지", Mathf.Max(0f, _playerBaseDamage));
                     _enemyBaseDamage = EditorGUILayout.FloatField("적 기준 대미지", Mathf.Max(0f, _enemyBaseDamage));
                     _poiseDamageRatio = EditorGUILayout.FloatField("Poise 배율", Mathf.Max(0f, _poiseDamageRatio));
@@ -186,6 +238,7 @@ namespace UPlayGround.Editor
             }
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
+            float enemyTotalWeight = _targetKind == TargetKind.Enemy ? CalculateEnemyTotalWeight(_scanEntries) : 0f;
             foreach (ScanEntry entry in _scanEntries)
             {
                 using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
@@ -195,6 +248,16 @@ namespace UPlayGround.Editor
                     GUILayout.Label($"Collision {entry.CollisionCount}", GUILayout.Width(90f));
                     GUILayout.Label($"Phase {entry.PhaseCount}", GUILayout.Width(70f));
                     GUILayout.Label($"DMG {CalculateTotalDamage(entry):F0}", GUILayout.Width(80f));
+                    if (_targetKind == TargetKind.Enemy)
+                    {
+                        float weight = GetEnemySelectionWeight(entry.Category);
+                        float chance = enemyTotalWeight > 0f ? weight / enemyTotalWeight : 0f;
+                        float runtimeDamage = CalculateRuntimeExpectedDamage(entry);
+                        GUILayout.Label($"Final {runtimeDamage:F0}", GUILayout.Width(70f));
+                        GUILayout.Label($"W {weight:F0}", GUILayout.Width(46f));
+                        GUILayout.Label($"{chance * 100f:F0}%", GUILayout.Width(46f));
+                        GUILayout.Label(IsStrongEnemyAttack(entry.Category) ? "Ring" : "-", GUILayout.Width(46f));
+                    }
                     GUILayout.FlexibleSpace();
                     EditorGUILayout.ObjectField(entry.Asset, typeof(MotionSetAsset), false, GUILayout.Width(180f));
                 }
@@ -343,7 +406,10 @@ namespace UPlayGround.Editor
                 if (_existingPolicy == ExistingPolicy.Replace)
                     ReplaceEnemyAttack(existing, entry);
                 else
+                {
                     SyncHitPhases(existing.baseInfo, entry.PhaseCount);
+                    SyncEnemyAttackMetadata(existing, entry);
+                }
                 ApplyBalancedDamage(existing.baseInfo, entry,
                     _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
                 updated++;
@@ -406,13 +472,92 @@ namespace UPlayGround.Editor
         private void ReplaceEnemyAttack(EnemyAttackInfo attack, ScanEntry entry)
         {
             attack.baseInfo = CreateBaseInfo(entry);
-            attack.selectionWeight = 10f;
+            SyncEnemyAttackMetadata(attack, entry);
+        }
+
+        private void SyncEnemyAttackMetadata(EnemyAttackInfo attack, ScanEntry entry)
+        {
+            if (attack == null || entry == null) return;
+
+            if (attack.baseInfo != null)
+                attack.baseInfo.animKey = entry.Key;
+            attack.attackCategory = ToEnemyAttackCategory(entry.Category);
+            attack.selectionWeight = GetEnemySelectionWeight(entry.Category);
             attack.minRange = 0f;
-            attack.maxRange = 2.5f;
-            attack.cooldown = 2f;
+            attack.maxRange = entry.Category == AttackCategory.Dash ? 4f : 2.5f;
+            attack.cooldown = GetEnemyCooldown(entry.Category);
             attack.skillType = SkillType.Attack;
             attack.isAerialSkill = entry.Key == AnimKey.Fly_Attack;
+            attack.useDangerRing = IsStrongEnemyAttack(entry.Category);
+            attack.dangerRingDuration = 0f;
         }
+
+        private float CalculateEnemyTotalWeight(List<ScanEntry> entries)
+        {
+            if (entries == null)
+                return 0f;
+
+            float total = 0f;
+            for (int i = 0; i < entries.Count; i++)
+                total += GetEnemySelectionWeight(entries[i].Category);
+            return total;
+        }
+
+        private static EnemyAttackCategory ToEnemyAttackCategory(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Heavy => EnemyAttackCategory.Heavy,
+                AttackCategory.Skill or AttackCategory.Counter => EnemyAttackCategory.Skill,
+                _ => EnemyAttackCategory.Basic,
+            };
+        }
+
+        private float GetEnemySelectionWeight(AttackCategory category)
+            => GetEnemySelectionWeight(category, _actorDefinition != null ? _actorDefinition.grade : MonsterActorGrade.Normal);
+
+        private static float GetEnemySelectionWeight(AttackCategory category, MonsterActorGrade grade)
+        {
+            if (category == AttackCategory.Heavy)
+            {
+                return grade switch
+                {
+                    MonsterActorGrade.Boss => 7f,
+                    MonsterActorGrade.Elite => 5f,
+                    MonsterActorGrade.Normal => 3f,
+                    _ => 3f,
+                };
+            }
+
+            if (category is AttackCategory.Skill or AttackCategory.Counter)
+            {
+                return grade switch
+                {
+                    MonsterActorGrade.Boss => 7f,
+                    MonsterActorGrade.Elite => 4f,
+                    MonsterActorGrade.Normal => 1f,
+                    _ => 1f,
+                };
+            }
+
+            return category switch
+            {
+                _ => 10f,
+            };
+        }
+
+        private static float GetEnemyCooldown(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Heavy or AttackCategory.Counter => 3f,
+                AttackCategory.Skill => 4f,
+                _ => 2f,
+            };
+        }
+
+        private static bool IsStrongEnemyAttack(AttackCategory category)
+            => category is AttackCategory.Heavy or AttackCategory.Skill or AttackCategory.Counter;
 
         private AttackInfoBase CreateBaseInfo(ScanEntry entry)
         {
@@ -522,8 +667,9 @@ namespace UPlayGround.Editor
             float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
             float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
             float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
+            float statLevelMultiplier = GetStatLevelDamageMultiplier();
 
-            return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
+            return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
         }
 
         private float CalculateTotalBreakDamage(ScanEntry entry)
@@ -535,8 +681,39 @@ namespace UPlayGround.Editor
             float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
             float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
             float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.12f;
+            float statLevelMultiplier = GetStatLevelDamageMultiplier();
 
-            return Mathf.Max(0f, baseBreakDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
+            return Mathf.Max(0f, baseBreakDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
+        }
+
+        private float CalculateRuntimeExpectedDamage(ScanEntry entry)
+        {
+            float storedDamage = CalculateTotalDamage(entry);
+            return _targetKind == TargetKind.Enemy
+                ? storedDamage * ResolveAttackPower()
+                : storedDamage;
+        }
+
+        private float GetStatLevelDamageMultiplier()
+        {
+            if (!_useActorStatAndLevel)
+                return 1f;
+
+            float levelMultiplier = 1f + Mathf.Max(0, _sourceLevel - 1) * Mathf.Max(0f, _levelDamageGrowth);
+            float attackPower = ResolveAttackPower();
+            float attackPowerMultiplier = _normalizeRuntimeAttackPower
+                ? 1f / Mathf.Max(0.01f, attackPower)
+                : attackPower;
+
+            return Mathf.Max(0.01f, levelMultiplier * attackPowerMultiplier);
+        }
+
+        private float ResolveAttackPower()
+        {
+            if (_sourceStatData != null)
+                return Mathf.Max(0.01f, _sourceStatData.GetBase(StatType.AttackPower));
+
+            return ActorStatSO.GetDefault(StatType.AttackPower);
         }
 
         private static float GetCategoryDamageMultiplier(AttackCategory category)
@@ -554,6 +731,13 @@ namespace UPlayGround.Editor
                 AttackCategory.Charge => 1.35f,
                 _ => 1.00f,
             };
+        }
+
+        private static float GetDefaultEnemyBaseDamage(ActorDefinitionSO actor)
+        {
+            return actor != null && actor.grade == MonsterActorGrade.Boss ? 18f
+                : actor != null && actor.grade == MonsterActorGrade.Elite ? 12f
+                : 8f;
         }
 
         private static float GetCategoryBreakMultiplier(AttackCategory category)

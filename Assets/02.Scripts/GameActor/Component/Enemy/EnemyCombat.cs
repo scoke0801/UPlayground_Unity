@@ -472,14 +472,15 @@ namespace UPlayGround.Component
 
         private float ResolveDangerRingDuration(EnemyAttackInfo skill)
         {
-            // 1순위: 타임라인의 다음 Collision 이벤트까지 자동 산출 — 수동 오써링 불필요.
-            // 수축이 가장 작아지는 순간이 실제 타격(Collision)과 자동 정렬된다.
+            // 1순위: 타임라인의 다음 Collision/투사체 발사 이벤트 중 더 먼저 시작되는 것까지 자동 산출 — 수동 오써링 불필요.
+            // 수축이 가장 작아지는 순간이 실제 타격(Collision) 또는 투사체 발사와 자동 정렬된다.
+            // UI_DangerRing.TryGetCollisionProgress와 반드시 동일한 목표 선택 규칙을 사용해야 한다.
             if (_ownerActor?.Animator != null &&
-                _ownerActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent>(out float untilCollision) &&
-                untilCollision > 0f)
-                return untilCollision;
+                _ownerActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent, SpawnProjectileEvent>(out float untilTarget) &&
+                untilTarget > 0f)
+                return untilTarget;
 
-            // 2순위: 명시 오버라이드 (공격자 타임라인에 Collision 이벤트가 없는 투사체 공격 등).
+            // 2순위: 명시 오버라이드 (공격자 타임라인에 Collision/투사체 이벤트가 모두 없는 경우 등).
             if (skill != null && skill.dangerRingDuration > 0f)
                 return skill.dangerRingDuration;
 
@@ -575,11 +576,17 @@ namespace UPlayGround.Component
             _isCollisionEnabled = isCollisionEnable;
 
             // 충돌 판정이 켜지는 순간 = 실제 타격 순간. Danger Ring 수축을 최소 크기로 완료/해제한다.
-            if (isCollisionEnable && _dangerRing != null)
-            {
-                _dangerRing.CompleteNow();
-                _dangerRing = null;
-            }
+            if (isCollisionEnable)
+                CompleteDangerRing();
+        }
+
+        public void CompleteDangerRing()
+        {
+            if (_dangerRing == null)
+                return;
+
+            _dangerRing.CompleteNow();
+            _dangerRing = null;
         }
 
         public void SetTargetLayer(LayerMask targetLayer) =>

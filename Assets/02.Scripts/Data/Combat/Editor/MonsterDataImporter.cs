@@ -10,7 +10,7 @@ using UPlayGround.Data.EnumType;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// MonsterData.json → EnemyStatsSO / PoiseSO / EnemyBehaviorSO / EnemyAttackDataSO 일괄 생성
+    /// MonsterData.json → PoiseSO / EnemyBehaviorSO / EnemyAttackDataSO 일괄 생성
     /// Tools > UPlayGround > Import Monster Data
     /// </summary>
     public class MonsterDataImporter : EditorWindow
@@ -22,23 +22,9 @@ namespace UPlayGround.Editor
         [Serializable] private class MonsterJson
         {
             public string _id;
-            public StatsJson    stats;
             public PoiseJson    poise;
             public BrainJson    brain;
             public AttackDataJson attackData;
-        }
-
-        [Serializable] private class StatsJson
-        {
-            public int level = 1;
-            public float maxHealth = 100;
-            public float walkSpeed = 2; public float runSpeed = 4;
-            public float chaseSpeedMultiplier = 1.2f;
-            public float detectionRadius = 10; public float lostTargetRadius = 15;
-            public float fieldOfView = 120;
-            public float attackRange = 2.5f; public float attackCooldown = 1.5f;
-            public bool  enablePatrol = true;
-            public float patrolRadius = 5; public float patrolWaitTime = 2;
         }
 
         [Serializable] private class PoiseJson
@@ -120,7 +106,6 @@ namespace UPlayGround.Editor
 
         private TextAsset _jsonAsset;
         private string _attackDataPath = "Assets/10.Datas/Actor/Enemy/AttackData";
-        private string _statDataPath   = "Assets/10.Datas/Actor/Enemy/StatData";
         private string _poiseDataPath  = "Assets/10.Datas/Actor/Enemy/PoiseData";
         private string _behaviorPath   = "Assets/10.Datas/Actor/Enemy/BehaviorData";
         private Vector2 _scroll;
@@ -138,7 +123,6 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(4);
 
             _jsonAsset      = (TextAsset)EditorGUILayout.ObjectField("JSON 파일", _jsonAsset, typeof(TextAsset), false);
-            _statDataPath   = EditorGUILayout.TextField("StatData 경로",   _statDataPath);
             _poiseDataPath  = EditorGUILayout.TextField("PoiseData 경로",  _poiseDataPath);
             _behaviorPath   = EditorGUILayout.TextField("BehaviorData 경로", _behaviorPath);
             _attackDataPath = EditorGUILayout.TextField("AttackData 경로", _attackDataPath);
@@ -170,7 +154,6 @@ namespace UPlayGround.Editor
             if (root?.monsters == null || root.monsters.Count == 0)
             { _log = "monsters 배열이 비어 있습니다."; return; }
 
-            EnsureDirectory(_statDataPath);
             EnsureDirectory(_poiseDataPath);
             EnsureDirectory(_behaviorPath);
             EnsureDirectory(_attackDataPath);
@@ -181,7 +164,6 @@ namespace UPlayGround.Editor
             foreach (var m in root.monsters)
             {
                 if (string.IsNullOrEmpty(m._id)) continue;
-                WriteStatSO(m, sb);
                 WritePoiseSO(m, sb);
                 WriteBehaviorSO(m, sb);
                 WriteAttackSO(m, sb);
@@ -192,32 +174,6 @@ namespace UPlayGround.Editor
             AssetDatabase.Refresh();
             _log = $"{count}개 몬스터 처리 완료.\n\n{sb}";
             Debug.Log(_log);
-        }
-
-        // ── StatData ────────────────────────────────────────────────
-
-        private void WriteStatSO(MonsterJson m, System.Text.StringBuilder sb)
-        {
-            string path = $"{_statDataPath}/StatData_{m._id}.asset";
-            var so = LoadOrCreate<EnemyStatsSO>(path);
-            var s  = m.stats ?? new StatsJson();
-
-            so.level                = Mathf.Max(1, s.level);
-            so.maxHealth            = s.maxHealth;
-            so.walkSpeed            = s.walkSpeed;
-            so.runSpeed             = s.runSpeed;
-            so.chaseSpeedMultiplier = s.chaseSpeedMultiplier;
-            so.detectionRadius      = s.detectionRadius;
-            so.lostTargetRadius     = s.lostTargetRadius;
-            so.fieldOfView          = s.fieldOfView;
-            so.attackRange          = s.attackRange;
-            so.attackCooldown       = s.attackCooldown;
-            so.enablePatrol         = s.enablePatrol;
-            so.patrolRadius         = s.patrolRadius;
-            so.patrolWaitTime       = s.patrolWaitTime;
-
-            EditorUtility.SetDirty(so);
-            sb.AppendLine($"[Stat]     {m._id} → {path}");
         }
 
         // ── PoiseData ────────────────────────────────────────────────

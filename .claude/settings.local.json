@@ -154,7 +154,15 @@
       "WebFetch(domain:guildjen.com)",
       "WebFetch(domain:twinfinite.net)",
       "WebFetch(domain:wutheringwaves.gg)",
-      "WebFetch(domain:wuthering.gg)"
+      "WebFetch(domain:wuthering.gg)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Remove-Item *)",
+      "Bash(echo \"=== ActorStatSO.cs.meta guid ===\")",
+      "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/02.Scripts/Data/Stat/**)",
+      "Bash(echo \"=== sample asset m_Script lines ===\")",
+      "Bash(echo '--- __TRACKED_VAR__ ---')",
+      "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/10.Datas/Actor/Enemy/StatData/**)",
+      "Bash(python *)"
     ]
   }
 }

@@ -17,8 +17,17 @@ MonoBehaviour:
   description: 
   actorType: 2
   characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
   prefab: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
-  stats: {fileID: 11400000, guid: 1d638cd2a544a464a8145a585e1d8ae9, type: 2}
   statData: {fileID: 11400000, guid: d9c97b9e7d69eea4e8d4b4a3901d2b3a, type: 2}
   poiseData: {fileID: 11400000, guid: 41b2a809b9969bb489611b75c98075ee, type: 2}
+  breakGaugeData: {fileID: 0}
+  grade: 0
+  level: 1
+  attackData: {fileID: 11400000, guid: dc7cb307aa61dfe44ae958154e72b88a, type: 2}
+  behaviorData: {fileID: 11400000, guid: 8346cadf303f29a4dbe20c365470a33d, type: 2}
+  npcData: {fileID: 0}
   dropTable: {fileID: 0}
+  recruitableAs: 0

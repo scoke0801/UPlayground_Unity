@@ -35,7 +35,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 1
     requiredLevel: 1
     selectionWeight: 10
     minRange: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 1
     requiredLevel: 1
     selectionWeight: 10
     minRange: 0
@@ -127,7 +127,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 1
     requiredLevel: 1
     selectionWeight: 10
     minRange: 0
@@ -173,7 +173,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 1
     requiredLevel: 1
     selectionWeight: 10
     minRange: 0
@@ -219,7 +219,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 1
     requiredLevel: 1
     selectionWeight: 10
     minRange: 0
@@ -265,12 +265,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -278,7 +278,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -311,12 +311,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -324,7 +324,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -357,12 +357,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -370,7 +370,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -403,12 +403,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -416,7 +416,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -449,12 +449,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -462,7 +462,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -495,12 +495,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 3
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -508,7 +508,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
@@ -541,12 +541,12 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
     skillType: 1
-    attackCategory: 0
+    attackCategory: 3
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 1
     minRange: 0
     maxRange: 2.5
-    cooldown: 2
+    cooldown: 3
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -554,7 +554,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0

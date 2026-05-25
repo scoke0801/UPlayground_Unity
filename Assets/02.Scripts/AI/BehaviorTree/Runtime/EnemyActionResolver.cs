@@ -213,13 +213,13 @@ namespace UPlayGround.AI.BehaviorTree
             failureReason = null;
             if (aiContext == null || detection == null)
             {
-                failureReason = "Step 전이에 필요한 AIContext/Detection이 없습니다.";
+                failureReason = "Dash 전이에 필요한 AIContext/Detection이 없습니다.";
                 return null;
             }
 
             if (!EnemyStepState.CanExecute(controller.Actor))
             {
-                failureReason = "Step 방향성 모션(Step_F/B/L/R)이 정의되지 않았습니다.";
+                failureReason = "Dash 방향성 모션(Dash_F/B/L/R)이 정의되지 않았습니다.";
                 return null;
             }
 
@@ -231,7 +231,7 @@ namespace UPlayGround.AI.BehaviorTree
                     out var stepDirection,
                     out var stepMotionKey))
             {
-                failureReason = $"계산된 Step 방향 모션이 없습니다. motion={stepMotionKey}";
+                failureReason = $"계산된 Dash 방향 모션이 없습니다. motion={stepMotionKey}";
                 return null;
             }
 

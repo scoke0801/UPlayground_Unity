@@ -8,12 +8,12 @@ namespace UPlayGround.State
     /// <summary>
     /// 짧은 스텝 회피 상태.
     /// Dodge보다 짧고 빠른 방향성 이동으로 압박 라인에서 살짝 빠지거나 옆걸음으로 각을 만든다.
-    /// 계산된 방향의 Step_F/B/L/R 모션이 있을 때만 실행한다.
+    /// 계산된 방향의 Dash F/B/L/R 모션이 있을 때만 실행한다.
     /// 무적은 부여하지 않고, BT는 차단한다.
     /// </summary>
     public class EnemyStepState : EnemyActorState
     {
-        public override string StateName => "Step";
+        public override string StateName => "Dash";
         public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyAIContext _context;
@@ -47,16 +47,16 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// 이 액터가 Step 상태를 실행할 수 있는지 — Step_F/B/L/R 중 하나라도 있어야 한다.
+        /// 이 액터가 Step 상태를 실행할 수 있는지 — Dash_F/B/L/R 중 하나라도 있어야 한다.
         /// </summary>
         public static bool CanExecute(GameActor actor)
         {
             var animator = actor?.Animator;
             if (animator == null) return false;
-            return animator.HasMotion(AnimKey.Step_F)
-                || animator.HasMotion(AnimKey.Step_B)
-                || animator.HasMotion(AnimKey.Step_L)
-                || animator.HasMotion(AnimKey.Step_R);
+            return animator.HasMotion(AnimKey.Dash_F)
+                || animator.HasMotion(AnimKey.Dash_B)
+                || animator.HasMotion(AnimKey.Dash_L)
+                || animator.HasMotion(AnimKey.Dash_R);
         }
 
         public static bool TryResolveStepMotion(
@@ -71,10 +71,10 @@ namespace UPlayGround.State
             motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(
                 stepDirection,
                 actor.transform,
-                AnimKey.Step_F,
-                AnimKey.Step_B,
-                AnimKey.Step_L,
-                AnimKey.Step_R);
+                AnimKey.Dash_F,
+                AnimKey.Dash_B,
+                AnimKey.Dash_L,
+                AnimKey.Dash_R);
 
             return actor.Animator != null && actor.Animator.HasMotion(motionKey);
         }

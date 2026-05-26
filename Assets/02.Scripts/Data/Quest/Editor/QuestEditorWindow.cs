@@ -331,6 +331,7 @@ namespace UPlayGround.Editor
                 if (q.isRepeatable) tags.Add("반복");
                 if (q.autoComplete) tags.Add("자동완료");
                 if (q.requiredQuestIds?.Count > 0) tags.Add($"선행{q.requiredQuestIds.Count}");
+                if (q.autoAcceptNextQuestIds?.Count > 0) tags.Add($"연계{q.autoAcceptNextQuestIds.Count}");
                 GUILayout.Label(string.Join("  |  ", tags), EditorStyles.miniLabel);
                 GUI.color = Color.white;
 
@@ -427,6 +428,8 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(4);
             DrawDetailPrerequisites();
             EditorGUILayout.Space(4);
+            DrawDetailAutoAcceptNextQuests();
+            EditorGUILayout.Space(4);
             DrawDetailObjectives();
             EditorGUILayout.Space(4);
             DrawDetailReward();
@@ -464,6 +467,14 @@ namespace UPlayGround.Editor
             GUILayout.Label("선행 조건", EditorStyles.boldLabel);
             DrawProp("requiredQuestIds",      "완료 필요 퀘스트 ID");
             DrawProp("requiredStoryProgress", "필요 스토리 진행도");
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawDetailAutoAcceptNextQuests()
+        {
+            EditorGUILayout.BeginVertical(_sectionStyle);
+            GUILayout.Label("자동 연계", EditorStyles.boldLabel);
+            DrawProp("autoAcceptNextQuestIds", "완료 후 자동 수락 퀘스트 ID");
             EditorGUILayout.EndVertical();
         }
 

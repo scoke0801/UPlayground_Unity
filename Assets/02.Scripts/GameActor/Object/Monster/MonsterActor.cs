@@ -349,6 +349,7 @@ namespace UPlayGround
             AIController?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
+            NotifyQuestMonsterKill();
             SpawnDropItems();
             TryRecruitToParty();
 
@@ -359,6 +360,22 @@ namespace UPlayGround
             }
             
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
+        }
+
+        private void NotifyQuestMonsterKill()
+        {
+            if (QuestManager.Instance == null)
+            {
+                return;
+            }
+
+            if (int.TryParse(ActorId, out int monsterId))
+            {
+                QuestManager.Instance.NotifyMonsterKill(monsterId);
+                return;
+            }
+
+            Debug.LogWarning($"[MonsterActor] 퀘스트 처치 알림 실패: ActorId '{ActorId}'를 int ID로 변환할 수 없습니다.", this);
         }
 
         private void TryRecruitToParty()

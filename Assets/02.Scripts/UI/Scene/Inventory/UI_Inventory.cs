@@ -156,9 +156,9 @@ public class UI_Inventory : UI_Base
         _selectedItemPrefab.SetActive(true);
         _selectedItemImage.sprite = itemData.icon;
         _selectedItemImage.enabled = true;
-        _selectedItemCountText.text = count.ToString();
-        _selectedItemNameText.text = itemData.name;
-        _selectedItemTypeText.text = itemData.itemType.ToString();
+        _selectedItemCountText.text = "보유: " + count.ToString();
+        _selectedItemNameText.text = itemData.itemName;
+        _selectedItemTypeText.text = itemData.itemType.ToDisplayString();
         _selectedItemDescText.text = itemData.itemDescription;
     }
 

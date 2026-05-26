@@ -60,6 +60,11 @@ namespace UPlayGround.Manager
 
         public void AddItem(int itemId, ItemInstance itemInstance)
         {
+            if (itemInstance == null || itemInstance.count <= 0)
+            {
+                return;
+            }
+
             if (_itemPair.ContainsKey(itemId) == false)
             {
                 _itemPair.TryAdd(itemId, itemInstance);
@@ -70,6 +75,8 @@ namespace UPlayGround.Manager
             {
                 _itemPair[itemId].count += itemInstance.count;
             }
+
+            NotifyQuestItemCollected(itemId, itemInstance.count);
         }
 
         public void RemoveItem(int itemId)
@@ -105,10 +112,20 @@ namespace UPlayGround.Manager
         public void AddItem(int itemId, int count)
         {
             if (count <= 0) return;
+            AddItemInternal(itemId, count, true);
+        }
+
+        private void AddItemInternal(int itemId, int count, bool notifyQuest)
+        {
+            if (count <= 0) return;
 
             if (_itemPair.TryGetValue(itemId, out var existing))
             {
                 existing.count += count;
+                if (notifyQuest)
+                {
+                    NotifyQuestItemCollected(itemId, count);
+                }
                 return;
             }
 
@@ -120,6 +137,22 @@ namespace UPlayGround.Manager
             }
 
             _itemPair[itemId] = new ItemInstance { data = itemData, count = count };
+
+            if (notifyQuest)
+            {
+                NotifyQuestItemCollected(itemId, count);
+            }
+        }
+
+        // QuestManager 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
+        private void NotifyQuestItemCollected(int itemId, int count)
+        {
+            if (QuestManager.Instance == null)
+            {
+                return;
+            }
+
+            QuestManager.Instance.NotifyItemCollected(itemId, count);
         }
 
         public int GetItemCount(int itemId)
@@ -223,7 +256,7 @@ namespace UPlayGround.Manager
             _itemPair.Clear();
             foreach (var entry in _pendingLoad.items ?? new System.Collections.Generic.List<ItemSaveEntry>())
             {
-                AddItem(entry.itemId, entry.count);
+                AddItemInternal(entry.itemId, entry.count, false);
                 if (_itemPair.TryGetValue(entry.itemId, out var instance))
                     instance.inventorySlotKey = entry.slotKey;
             }

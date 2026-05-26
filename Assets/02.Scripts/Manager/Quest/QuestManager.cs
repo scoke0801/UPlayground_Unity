@@ -42,6 +42,7 @@ namespace UPlayGround.Manager
     public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable
     {
         private const string QUEST_DATABASE_KEY = "QuestDatabase";
+        private const int MAX_AUTO_ACCEPT_CHAIN_DEPTH = 32;
 
         // ──── 데이터 ────
         private QuestDatabase _db;
@@ -55,6 +56,7 @@ namespace UPlayGround.Manager
 
         // DB 로드 전에 LoadGame()이 호출될 경우 보관
         private QuestSaveData _pendingLoad;
+        private int _autoAcceptChainDepth;
 
         public bool IsDBLoaded { get; private set; } = false;
 
@@ -249,6 +251,8 @@ namespace UPlayGround.Manager
             GiveRewards(runtime.QuestSO.reward);
             SendQuestEvent(QuestEvent.QuestCompleted, questId);
             Debug.Log($"[QuestManager] 퀘스트 완료: {runtime.QuestSO.questName}");
+
+            AutoAcceptNextQuests(runtime.QuestSO);
             return true;
         }
 
@@ -477,6 +481,50 @@ namespace UPlayGround.Manager
             if (!runtime.QuestSO.autoComplete) return;
             if (!runtime.AreAllObjectivesComplete()) return;
             CompleteQuestById(runtime.QuestSO.questId);
+        }
+
+        private void AutoAcceptNextQuests(QuestSO completedQuest)
+        {
+            if (completedQuest?.autoAcceptNextQuestIds == null ||
+                completedQuest.autoAcceptNextQuestIds.Count == 0)
+            {
+                Debug.Log($"[QuestManager] 자동 연계 퀘스트 없음: {completedQuest?.questId}");
+                return;
+            }
+
+            if (_autoAcceptChainDepth >= MAX_AUTO_ACCEPT_CHAIN_DEPTH)
+            {
+                Debug.LogWarning($"[QuestManager] 자동 연계 깊이 제한 초과: {completedQuest.questId}");
+                return;
+            }
+
+            _autoAcceptChainDepth++;
+            try
+            {
+                foreach (var nextQuestId in completedQuest.autoAcceptNextQuestIds)
+                {
+                    if (string.IsNullOrEmpty(nextQuestId))
+                    {
+                        continue;
+                    }
+
+                    if (nextQuestId == completedQuest.questId)
+                    {
+                        Debug.LogWarning($"[QuestManager] 자기 자신으로 자동 연계할 수 없습니다: {completedQuest.questId}");
+                        continue;
+                    }
+
+                    Debug.Log($"[QuestManager] 자동 연계 퀘스트 수락 시도: {completedQuest.questId} -> {nextQuestId}");
+                    if (!AcceptQuestById(nextQuestId))
+                    {
+                        Debug.LogWarning($"[QuestManager] 자동 연계 퀘스트 수락 실패: {completedQuest.questId} -> {nextQuestId}");
+                    }
+                }
+            }
+            finally
+            {
+                _autoAcceptChainDepth--;
+            }
         }
 
         #endregion

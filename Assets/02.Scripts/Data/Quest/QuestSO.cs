@@ -35,6 +35,10 @@ namespace UPlayGround.Data.Quest
         [Tooltip("이 퀘스트를 수락하기 위해 필요한 스토리 진행도 (0이면 조건 없음)")]
         public int requiredStoryProgress = 0;
 
+        [Header("자동 연계")]
+        [Tooltip("이 퀘스트 완료 직후 자동으로 수락할 후속 퀘스트 ID 목록")]
+        public List<string> autoAcceptNextQuestIds = new List<string>();
+
         [Header("목표")]
         public List<QuestObjectiveData> objectives = new List<QuestObjectiveData>();
 

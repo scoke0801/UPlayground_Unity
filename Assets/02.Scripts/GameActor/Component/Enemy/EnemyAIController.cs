@@ -357,7 +357,8 @@ namespace UPlayGround.Component
 
         public void Freeze()
         {
-            if (_movementController.CurrentState.StateName == "Death") return;
+            if (this == null) return;
+            if (_movementController == null || _movementController.CurrentState?.StateName == "Death") return;
             _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
             _movementController.TransitionToState(new EnemyIdleState(_movementController));
@@ -365,6 +366,7 @@ namespace UPlayGround.Component
 
         public void Unfreeze()
         {
+            if (this == null) return;
             enabled = true;
             _behaviorTreeRunner?.EnableBehavior();
         }

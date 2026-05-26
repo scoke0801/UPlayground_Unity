@@ -30,7 +30,7 @@ namespace UPlayGround.State
         private float _maxSafeTargetDistance;
 
         private const float HORIZONTAL_SPEED_RATIO = 1.75f;
-        private const float JUMP_SPEED_RATIO = 1f;
+        private const float JUMP_SPEED_RATIO = 0.52f;
         private const float WALL_REDIRECT_MIN_DOT = -0.35f;
         private const float LOCK_ON_SAFE_DISTANCE_FALLBACK = 12f;
         private const float TARGET_DISTANCE_SAFETY_MARGIN = 0.75f;

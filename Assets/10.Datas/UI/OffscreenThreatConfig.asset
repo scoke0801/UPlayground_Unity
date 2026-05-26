@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxDistance: 20
   ringRadius: 550
+  markerForwardAngleOffset: 0
   attackImminentColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   attackImminentScale: 1.2
   pulseSpeed: 3
   pulseAmount: 0.2
   showDetectedOnly: 1
-  detectedColor: {r: 1, g: 0.6, b: 0.1, a: 0.7}
+  detectedColor: {r: 1, g: 0.99198014, b: 0.10196078, a: 0.7}
   detectedScale: 0.85

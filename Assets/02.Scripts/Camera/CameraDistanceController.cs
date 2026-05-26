@@ -79,7 +79,7 @@ namespace UPlayGround.CameraSystem
         public float EvaluateDistance(bool isLockOn, bool isCombat, float currentTargetDist)
         {
             // 군중 줌아웃
-            UpdateCrowdZoom(isLockOn, isCombat);
+            UpdateCrowdZoom(isCombat);
 
             if (isLockOn)
             {
@@ -90,7 +90,12 @@ namespace UPlayGround.CameraSystem
                     _lockOnVelocity = 0f;
                     _lockOnActive = true;
                 }
-                float target = Mathf.Clamp(_s.lockOnDistance, _s.minDistance, _s.maxDistance);
+
+                float target = _s.lockOnDistance;
+                if (_crowdActive)
+                    target = Mathf.Max(target, _crowdDistance);
+
+                target = Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
                 _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity, _s.lockOnTransitionDuration);
                 return _lockOnDistance;
             }
@@ -107,9 +112,9 @@ namespace UPlayGround.CameraSystem
             return -1f; // 유저 줌 존중
         }
 
-        private void UpdateCrowdZoom(bool isLockOn, bool isCombat)
+        private void UpdateCrowdZoom(bool isCombat)
         {
-            if (isLockOn || !isCombat || _player == null)
+            if (!isCombat || _player == null)
             {
                 _crowdActive = false;
                 _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity, _s.crowdZoomSmoothTime);

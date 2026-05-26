@@ -338,13 +338,15 @@ namespace UPlayGround.Component
 
         public void Freeze()
         {
-            if (_movementController.CurrentState?.StateName == "Death") return;
+            if (this == null) return;
+            if (_movementController == null || _movementController.CurrentState?.StateName == "Death") return;
             _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
         }
 
         public void Unfreeze()
         {
+            if (this == null) return;
             enabled = true;
             _behaviorTreeRunner?.EnableBehavior();
         }

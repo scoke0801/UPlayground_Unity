@@ -24,6 +24,7 @@ namespace UPlayGround.Editor
         private SerializedProperty _questDescription;
         private SerializedProperty _requiredQuestIds;
         private SerializedProperty _requiredStoryProgress;
+        private SerializedProperty _autoAcceptNextQuestIds;
         private SerializedProperty _objectives;
         private SerializedProperty _reward;
         private SerializedProperty _isRepeatable;
@@ -80,6 +81,7 @@ namespace UPlayGround.Editor
             _questDescription      = serializedObject.FindProperty("questDescription");
             _requiredQuestIds      = serializedObject.FindProperty("requiredQuestIds");
             _requiredStoryProgress = serializedObject.FindProperty("requiredStoryProgress");
+            _autoAcceptNextQuestIds = serializedObject.FindProperty("autoAcceptNextQuestIds");
             _objectives            = serializedObject.FindProperty("objectives");
             _reward                = serializedObject.FindProperty("reward");
             _isRepeatable          = serializedObject.FindProperty("isRepeatable");
@@ -133,6 +135,8 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(4);
             DrawPrerequisites();
             EditorGUILayout.Space(4);
+            DrawAutoAcceptNextQuests();
+            EditorGUILayout.Space(4);
             DrawObjectives();
             EditorGUILayout.Space(4);
             DrawReward();
@@ -179,6 +183,14 @@ namespace UPlayGround.Editor
             EditorGUILayout.LabelField("선행 조건", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_requiredQuestIds,      new GUIContent("완료 필요 퀘스트"));
             EditorGUILayout.PropertyField(_requiredStoryProgress, new GUIContent("필요 스토리 진행도"));
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawAutoAcceptNextQuests()
+        {
+            EditorGUILayout.BeginVertical(_sectionStyle);
+            EditorGUILayout.LabelField("자동 연계", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_autoAcceptNextQuestIds, new GUIContent("완료 후 자동 수락 퀘스트 ID"));
             EditorGUILayout.EndVertical();
         }
 

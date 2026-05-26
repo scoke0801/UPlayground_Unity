@@ -38,7 +38,10 @@ namespace UPlayGround.Data.Event
             _frozenEnemyControllers ??= new List<IEnemyAIController>();
             combat.FillEnemyAIControllersInRadius(30.0f, _frozenEnemyControllers);
             foreach (var brain in _frozenEnemyControllers)
-                brain.Freeze();
+            {
+                if (IsValidAIController(brain))
+                    brain.Freeze();
+            }
         }
 
         public override void OnCompleteEvent(GameObject target)
@@ -62,12 +65,17 @@ namespace UPlayGround.Data.Event
 
             foreach (var brain in _frozenEnemyControllers)
             {
-                if (brain == null)
+                if (!IsValidAIController(brain))
                 {
                     continue;
                 }
                 brain.Unfreeze();
             }
+        }
+
+        private static bool IsValidAIController(IEnemyAIController controller)
+        {
+            return controller is UnityEngine.Object unityObject && unityObject != null;
         }
     }
 

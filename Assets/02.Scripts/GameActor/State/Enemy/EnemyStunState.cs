@@ -24,7 +24,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
-            _remainingDuration = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.5f;
+            _remainingDuration = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 2.5f;
             gameActor.Animator.PlayMotion(GetStunAnimKey(), 0.15f);
         }
 

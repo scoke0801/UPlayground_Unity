@@ -82,7 +82,10 @@ namespace UPlayGround.State
             // 주변 모든 적 Freeze
             _combat.FillEnemyAIControllersInRadius(FREEZE_RADIUS, _frozenEnemyControllers);
             foreach (var brain in _frozenEnemyControllers)
-                brain.Freeze();
+            {
+                if (IsValidAIController(brain))
+                    brain.Freeze();
+            }
         }
 
         public override void OnExit(GameActorState toState)
@@ -90,7 +93,7 @@ namespace UPlayGround.State
             // 모든 적 Unfreeze
             foreach (var brain in _frozenEnemyControllers)
             {
-                if (brain != null)
+                if (IsValidAIController(brain))
                     brain.Unfreeze();
             }
             _frozenEnemyControllers.Clear();
@@ -154,6 +157,11 @@ namespace UPlayGround.State
                 controller.TransitionToState(new PlayerGroundMoveState(controller));
             else
                 controller.TransitionToState(new PlayerIdleState(controller));
+        }
+
+        private static bool IsValidAIController(IEnemyAIController controller)
+        {
+            return controller is UnityEngine.Object unityObject && unityObject != null;
         }
     }
 }

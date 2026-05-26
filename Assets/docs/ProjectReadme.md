@@ -349,6 +349,7 @@ Assets/
 | [CAMERA_MODE_ARCHITECTURE_DESIGN.md](CAMERA_MODE_ARCHITECTURE_DESIGN.md) | Camera Mode Architecture 설계 — InGame/Free/Dialogue 모드 분리, 스킬 카메라 시퀀스, Cinemachine 연동 검토 |
 | [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 맵 트리거 |
 | [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
+| [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
 | [TIME_HITSTOP_GUIDE.md](TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
 | [BALANCE_DESIGNER_TOOL_GUIDE.md](BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |

@@ -32,7 +32,16 @@
 
 ## 현재 구현 상태
 
-> 갱신일: 2026-05-18
+> 갱신일: 2026-05-28
+
+> **⚠ 설계 개정 (2026-05-28) — 노출(Exposed) 동작 변경**
+>
+> 초기 설계의 `EnemyBreakExposedState`(게이지 최대치에서 몬스터 AI/이동을 멈추는 "무방비 경직" 상태)는 **폐기**되었다. 본 문서 하단의 일부 구설계 서술(핵심 용어·상태 다이어그램·로드맵에 등장하는 `BreakExposed` **State**)은 이 개정으로 대체되므로, 동작 기준은 아래를 따른다.
+>
+> 1. **무방비 경직 제거** — 게이지가 가득 차도 몬스터는 상태 전환 없이 계속 정상 행동한다. "노출(Exposed)"은 별도 State가 아니라 `MonsterBreakGauge.IsExposed`로 표현되는 **브레이크 공격 가능 윈도우**(기본 `exposedDuration` 4초)다. 노출 중 받는 피해 배율(`damageTakenMultiplierWhileExposed`)과 시간 만료/소비 리셋 로직은 그대로 유지된다.
+> 2. **F키 프롬프트 구현** — `UI_BreakPrompt`(월드스페이스, 적 `Center` 소켓 추적)로 "브레이크 공격 가능"을 표시한다. `PlayerCombat`가 매 프레임 `FindSpecialBreakAttackTarget()`로 **지금 F를 누르면 실제로 브레이크될 단일 적**을 선정해 그 적에게만 표시한다(노출된 모든 적이 아님). 플레이어가 `Hit`/`Stun`/`Death`/`Grabbed`/`Knockdown`이면 숨긴다.
+> 3. **브레이크 공격 후 다운** — 특수공격이 적중하면(생존 시) 몬스터는 `EnemyKnockdownState`로 진입한다. `Knockdown` 모션이 없으면 `EnemyStunState`로 폴백한다. 연출 동안 적은 기존처럼 `EnemySpecialBreakVictimState`로 고정되었다가 타격 순간 넘어진다.
+> 4. **삭제/정리** — `EnemyBreakExposedState.cs` 삭제, `EnemyActionResolver`의 hard-lock 목록에서 `"BreakExposed"` 제거.
 
 ### 완료
 
@@ -45,7 +54,9 @@
 | 브레이크 데이터 | `MonsterBreakGaugeSO`, `MonsterBreakGradePolicy` 추가 | `MonsterBreakGaugeSO.cs` |
 | 브레이크 런타임 | `MonsterBreakGauge` 추가. 누적, 노출, 시간 만료, 소비 리셋, 노출 중 피해 배율 처리 | `MonsterBreakGauge.cs` |
 | ActorDefinition 연결 | `ActorDefinitionSO.breakGaugeData` 추가. 데이터가 있으면 런타임에 `MonsterBreakGauge`를 자동 부착 | `ActorDefinitionSO.cs`, `MonsterActor.cs` |
-| 노출 상태 | `EnemyBreakExposedState` 추가. 게이지 최대치에서 몬스터 AI/이동을 멈추는 상태로 전환 | `EnemyBreakExposedState.cs`, `MonsterActor.cs` |
+| 노출 동작(개정) | 무방비 경직 폐기. 노출은 `MonsterBreakGauge.IsExposed` 윈도우로만 표현하고 몬스터는 정상 행동 유지 | `MonsterActor.cs`, `MonsterBreakGauge.cs` |
+| F키 프롬프트 | `UI_BreakPrompt` 월드 UI 구현. 노출 적 레지스트리 기반으로 `PlayerCombat`가 실제 브레이크 타겟 1개에만 표시 | `UI_BreakPrompt.cs`, `UI_WorldSpaceHudLayer.cs`, `UIManager.cs`, `PlayerCombat.cs`, `MonsterActor.cs` |
+| 브레이크 후 다운 | 특수공격 적중 후 생존 시 `EnemyKnockdownState`(모션 없으면 `EnemyStunState`) 전환 | `MonsterActor.OnTakeSpecialBreakAttack` |
 | 특수공격 1차 실행 | `PlayerSpecialBreakAttackState`, `EnemySpecialBreakVictimState` 추가. 강공격 입력으로 노출 타겟에게 최대 HP 비례 피해 적용 | `PlayerSpecialBreakAttackState.cs`, `EnemySpecialBreakVictimState.cs` |
 | 입력 우선순위 | 강공격 입력 기준 `FinishAttack > SpecialBreakAttack > 일반 강공격` 순으로 라우팅 | `PlayerAttackState.cs` |
 | HP바 확장 | `UI_ActorHpBar`에 선택형 브레이크 게이지 이미지 필드와 업데이트 API 추가 | `UI_ActorHpBar.cs` |
@@ -55,13 +66,36 @@
 
 | 구분 | 현재 상태 | 남은 작업 |
 |------|----------|----------|
-| UI 프롬프트 | 타겟 탐색과 입력 실행은 연결됨 | 화면 프롬프트 표시/숨김 UI는 아직 미구현 |
 | 브레이크 게이지 UI | 코드 필드는 추가됨 | HP바 프리팹에 `_fillBreakImage`, `_fillBreakDelayImage` 연결 필요 |
 | 특수공격 연출 | `SpecialBreakAttackAsset` 기반 모션/위치 보정/카메라/히트스톱/피해 데이터화 연결됨. 미연결 시 기존 `FinishAttack` 또는 `Attack_1` 모션 폴백 | 전용 에셋 생성 및 `PlayerCombat` 연결, 전용 MotionSet/CameraSnapshotProfile/VFX/SFX 에셋 제작 필요 |
 | 브레이크 특수공격 피해 | `SpecialBreakAttackAsset.damageByMaxHpRate`, `fixedDamage`로 데이터화됨. 미연결 시 최대 HP 20% 폴백 | 캐릭터/몬스터/등급별 에셋 값 튜닝 필요 |
 | 몬스터 등급 정책 | 게이지 최대치 등급 배율은 구현 | 보스 페이즈당 제한, 스턴/다운 변환 정책은 추가 필요 |
 
 ### 에디터에서 할 일
+
+> **★ 신규 필수 작업 (2026-05-28 개정)** — 아래 번호 목록(1~12)에 더해 다음을 반드시 수행한다.
+>
+> **A. `UI_BreakPrompt` 프리팹 생성 및 등록 — F키 프롬프트 (이게 없으면 아이콘이 안 보임)**
+>
+> 1. 월드 HUD 프롬프트 프리팹 생성
+>    - 루트 `GameObject`에 `RectTransform` + `CanvasGroup` + `UI_BreakPrompt` 컴포넌트를 붙인다.
+>    - 자식에 F키 아이콘 `Image`(또는 TMP 텍스트)를 배치한다. 키 표기는 입력 바인딩에 맞춰 디자인.
+>    - `UI_BreakPrompt` 인스펙터 값:
+>      - `_worldOffset` — 기본 `(0, 0.5, 0)`. 적 `Center` 소켓 기준 오프셋(소켓이 없으면 루트 기준).
+>      - `_pulseAmplitude` — 기본 `0.12`(주목용 스케일 펄스 진폭, 0이면 펄스 없음).
+>      - `_pulseFrequency` — 기본 `2.5`Hz.
+> 2. `UIPrefabDatabase` 에셋에 항목 등록
+>    - 에셋 위치: Addressables 키 `UIPrefabDatabase`로 로드되는 SO(`Create > UPlayGround > PathDatabase/UI`).
+>    - `prefabs` 리스트에 항목 추가:
+>      - `key` = **`BreakPrompt`** (대소문자까지 정확히 — `UIManager.BREAK_PROMPT_KEY`와 일치해야 함)
+>      - `prefab` = 위에서 만든 프리팹
+>      - `defaultLayer` — 실제 부모는 코드(`UI_WorldSpaceHudLayer`)가 지정하므로 표시에는 영향 없음. 관례상 월드 HUD 계열로 둔다.
+>    - 미등록이어도 컴파일·플레이는 정상이지만 **F키 아이콘이 표시되지 않는다**(`CreateBreakPrompt`가 조용히 `null` 반환).
+>    - 참고: 기존 `DangerRing` 프리팹 등록 절차와 동일하다.
+>
+> **B. 몬스터 다운 모션 확인**
+> - 특수공격 적중 후 몬스터는 `Knockdown` 모션이 있으면 `EnemyKnockdownState`, 없으면 `EnemyStunState`로 진입한다.
+> - 자연스러운 마무리를 위해 몬스터 MotionSet에 `Knockdown`(가능하면 `Knockdown_Getup` 포함) 모션을 추가하는 것을 권장한다.
 
 1. `MonsterBreakGaugeSO` 에셋 생성
    - 메뉴: `Create > UPlayGround > Enemy > Break Gauge`
@@ -80,15 +114,16 @@
    - 패리/퍼펙트 도지 반격: 40~55
 
 4. 강제 노출 테스트용 공격 설정
-   - 특정 테스트 공격의 `forceBreakExpose = true`를 켜면 게이지 잔량과 무관하게 즉시 `BreakExposed`를 확인할 수 있다.
+   - 특정 테스트 공격의 `forceBreakExpose = true`를 켜면 게이지 잔량과 무관하게 즉시 노출(브레이크 공격 가능) 상태를 확인할 수 있다.
 
 5. HP바 프리팹 브레이크 게이지 연결
    - `UI_ActorHpBar`의 `_fillBreakImage`, `_fillBreakDelayImage`에 별도 Image를 연결한다.
    - 연결하지 않아도 런타임 오류는 나지 않지만 브레이크 게이지는 보이지 않는다.
 
 6. 몬스터 MotionSet 확인
-   - `EnemyBreakExposedState`는 `GuardBreak`가 있으면 우선 사용하고, 없으면 `Hit_F`로 폴백한다.
-   - `EnemySpecialBreakVictimState`는 `Grabbed`가 있으면 우선 사용하고, 없으면 `Hit_F`로 폴백한다.
+   - 노출(브레이크 가능) 진입 시 몬스터는 더 이상 별도 경직 모션을 재생하지 않는다(무방비 경직 폐기). 정상 행동을 유지한다.
+   - `EnemySpecialBreakVictimState`(특수공격 연출 중 고정)는 `Grabbed`가 있으면 우선 사용하고, 없으면 `Hit_F`로 폴백한다.
+   - 특수공격 적중 후 다운 모션은 위 "★ 신규 필수 작업 B"를 참고한다(`Knockdown` 권장, 없으면 `Stun` 계열 폴백).
 
 7. 플레이어 MotionSet 확인
    - `PlayerSpecialBreakAttackState`는 `FinishAttack`이 있으면 우선 사용하고, 없으면 `Attack_1`로 폴백한다.
@@ -133,7 +168,7 @@
 
 | 우선순위 | 작업 | 설명 |
 |----------|------|------|
-| 1 | 브레이크 프롬프트 UI | `BreakExposed` 타겟 머리 위 또는 락온 UI 주변에 입력 아이콘 표시 |
+| ✔ 완료 | 브레이크 프롬프트 UI | `UI_BreakPrompt`로 구현(적 `Center` 소켓, 실제 브레이크 타겟 1개에만 표시). 남은 것은 아이콘 아트·입력 바인딩 표기 |
 | 1 | 특수공격 VFX/SFX 연결 | `SpecialBreakAttackAsset`의 VFX 키와 SFX를 실제 MotionEvent 또는 런타임 실행 경로에 연결 |
 | 2 | 대형 몬스터 앵커 처리 | 현재는 타겟 루트 기준 `startDistance` 보정. 몬스터별 `SpecialAttackAnchor` 소켓 또는 반지름 데이터 추가 필요 |
 | 2 | 보스 제한 정책 | 페이즈당 횟수, 내부 쿨타임, `Stun`/`Knockdown` → `Groggy` 변환 |
@@ -164,7 +199,7 @@
 | `Poise Break` | `PoiseStat`이 0 이하가 되어 경직/행동 불능 상태 진입이 허용된 상태 |
 | `Break Gauge` | 몬스터가 피격될 때 누적되는 특수공격 준비 게이지 |
 | `Break Damage` | 공격이 브레이크 게이지에 주는 누적량 |
-| `BreakExposed` | 게이지가 가득 차 특수공격 입력을 받을 수 있는 취약 상태 |
+| `BreakExposed` | 게이지가 가득 차 특수공격 입력을 받을 수 있는 취약 상태. **(개정)** 별도 State가 아니라 `MonsterBreakGauge.IsExposed` 윈도우이며 몬스터는 행동을 멈추지 않는다 |
 | `Special Break Attack` | 브레이크 노출 중 플레이어가 발동하는 특수공격 |
 | `Groggy` | 몬스터가 큰 공격/처형/특수공격을 받을 수 있는 장시간 취약 상태 |
 | `Break Lock` | 특수공격 연출 중 플레이어/몬스터/AI/카메라를 잠그는 상태 |
@@ -190,7 +225,8 @@ MonsterActor.TakeDamage()
     ├── EnemyTacticalMemory.NotifyTookDamage()
     ├── AttackReactionType별 물리 힘 적용
     ├── EnemyHitState / EnemyAirborneState / EnemyGrabbedState 전환
-    └── EnemyStunState / EnemyKnockdownState / EnemyBreakExposedState 전환
+    └── EnemyStunState / EnemyKnockdownState 전환
+        (노출은 상태 전환 없음 — IsExposed 윈도우만 갱신)
 
 PlayerActor.OnDamaged()
     ├── 슈퍼아머 / 피격 반응 억제 확인
@@ -202,7 +238,7 @@ PlayerActor.OnDamaged()
 PlayerAttackState.TryEnter()
     └── HeavyAttack 입력
             ├── HP 조건 피니시 타겟 있음: PlayerFinishAttackState
-            ├── BreakExposed 타겟 있음: PlayerSpecialBreakAttackState
+            ├── 노출(IsExposed) 타겟 있음: PlayerSpecialBreakAttackState
             └── 일반 강공격
 ```
 
@@ -228,8 +264,9 @@ PlayerAttackState.TryEnter()
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyAirborneState.cs` | 몬스터 공중 행동 불능 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyStunState.cs` | 몬스터 스턴 행동 불능 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyKnockdownState.cs` | 몬스터 다운/기상 행동 불능 |
-| `Assets/02.Scripts/GameActor/State/Enemy/EnemyBreakExposedState.cs` | 브레이크 특수공격 입력 대기 상태 |
+| ~~`.../Enemy/EnemyBreakExposedState.cs`~~ | **삭제됨(2026-05-28 개정)**. 노출은 더 이상 별도 State가 아님 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemySpecialBreakVictimState.cs` | 브레이크 특수공격 피격자 고정 상태 |
+| `Assets/02.Scripts/UI/WorldSpace/UI_BreakPrompt.cs` | 브레이크 공격 가능 F키 프롬프트(월드, `Center` 소켓) |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyGrabbedState.cs` | 몬스터 잡힘 행동 불능 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs` | 최근 피격/강한 피격/Poise Break 기억 |
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` | 피니시 타겟 탐색, 공격 데이터 생성 후보 |
@@ -639,9 +676,9 @@ public readonly struct ReactionDecision
 | State | 용도 |
 |-------|------|
 | `EnemyStunState` | 일반/엘리트 스턴 |
-| `EnemyKnockdownState` | 지상 다운/기상 |
+| `EnemyKnockdownState` | 지상 다운/기상. **브레이크 특수공격 적중 후 진입(개정)** |
 | `EnemyGroggyState` | 엘리트/보스 장시간 취약 |
-| `EnemyBreakExposedState` | 특수공격 입력 대기 |
+| ~~`EnemyBreakExposedState`~~ | **폐기(개정)**. 노출은 `MonsterBreakGauge.IsExposed` 윈도우로 대체 |
 | `EnemySpecialBreakVictimState` | 특수공격 연출 중 피해자 고정 |
 
 ### 몬스터 상태 전이
@@ -655,14 +692,13 @@ Any Combat State
     │       ├── Stun → EnemyStunState
     │       └── Knockdown → EnemyKnockdownState
     │
-    └── Break Gauge Full
-            └── EnemyBreakExposedState
-                    ├── SpecialBreakAttack 입력
-                    │       └── EnemySpecialBreakVictimState
-                    │               ├── HP 0: EnemyDeathState
-                    │               └── 생존: EnemyHitState / EnemyIdleState / EnemyChaseState
-                    └── 시간 만료
-                            └── EnemyIdleState / EnemyChaseState
+    └── Break Gauge Full  (개정: 상태 전환 없음 — IsExposed 윈도우만 켜짐, 정상 행동 유지)
+            ├── SpecialBreakAttack 입력
+            │       └── EnemySpecialBreakVictimState (연출 중 고정)
+            │               ├── 타격 적중 + HP 0: EnemyDeathState
+            │               └── 타격 적중 + 생존: EnemyKnockdownState (Knockdown 모션 없으면 EnemyStunState)
+            └── 시간 만료
+                    └── 게이지 정책대로 리셋 (상태 전환 없음)
 ```
 
 ### 플레이어 상태 전이
@@ -883,23 +919,28 @@ namespace UPlayGround.Data.Combat
 - `MonsterBreakGaugeSO` 에셋을 생성하고 `ActorDefinitionSO.breakGaugeData`에 연결한다.
 - HP바 프리팹에 `_fillBreakImage`, `_fillBreakDelayImage`를 연결한다.
 
-### Phase 3: 노출 상태와 입력 프롬프트 — 부분 완료
+### Phase 3: 노출 윈도우와 입력 프롬프트 — 완료 (2026-05-28 개정)
 
-- `EnemyBreakExposedState`를 추가했다.
-- `MonsterBreakGauge.OnBreakExposed`에서 상태 전환 요청을 연결했다.
-- `PlayerCombat.FindSpecialBreakAttackTarget()`로 노출 타겟 탐색을 추가했다.
+> 초기 Phase 3은 `EnemyBreakExposedState`(무방비 경직)로 구현됐으나, 2026-05-28 개정으로 **경직 상태를 폐기**하고 노출은 행동을 멈추지 않는 윈도우 + F키 프롬프트로 재구성했다.
+
+- ~~`EnemyBreakExposedState`~~ **폐기**. 노출 시 몬스터는 상태 전환 없이 정상 행동을 유지한다(`MonsterActor.OnBreakExposed`는 레지스트리 등록만 수행).
+- `MonsterActor`에 노출 적 정적 레지스트리(`ExposedMonsters`)와 `SetBreakPromptActive(bool)` API를 추가했다.
+- `PlayerCombat.FindSpecialBreakAttackTarget()`로 노출 타겟 탐색을 추가했다(락온 우선 → 범위·각도 내 최근접 단일 타겟).
 - `PlayerAttackState`에서 강공격 입력으로 브레이크 특수공격 진입을 연결했다.
+- `UI_BreakPrompt`(월드, `Center` 소켓) + `UI_WorldSpaceHudLayer.CreateBreakPrompt` + `UIManager.CreateBreakPrompt`(키 `"BreakPrompt"`)로 프롬프트를 구현했다.
+- `PlayerCombat.Update`의 드라이버가 매 프레임 현재 브레이크 타겟을 평가해 그 적 1개에만 프롬프트를 토글한다(노출된 적이 0이면 물리 탐색 생략, 플레이어가 행동 불능이면 숨김).
 
 완료 기준:
 
-- 게이지 완료 시 몬스터가 공격을 멈춘다.
-- 플레이어가 가까이 있고 강공격 입력을 누르면 브레이크 특수공격이 실행된다.
-- 시간 만료 시 몬스터가 복귀한다.
+- 게이지 완료 시 몬스터는 **행동을 멈추지 않고** 노출 윈도우로 진입한다.
+- 실제 브레이크 가능한 단일 적(거리·각도·락온)에만 F키 프롬프트가 표시된다.
+- 플레이어가 강공격 입력을 누르면 브레이크 특수공격이 실행된다.
+- 시간 만료/특수공격 소비 시 게이지가 정책대로 리셋되고 프롬프트가 사라진다.
 
 남은 작업:
 
-- 화면 프롬프트 UI 표시/숨김은 아직 미구현이다.
-- 입력 레이어 전용 차단/우선순위 UI 정책은 추가 구현이 필요하다.
+- 프롬프트 아이콘 아트·입력 바인딩 표기, 노출 게이지 깜빡임 등 연출 폴리시.
+- `UI_BreakPrompt` 프리팹 제작 및 `UIPrefabDatabase`에 `"BreakPrompt"` 키 등록(에디터 작업, 위 "★ 신규 필수 작업 A" 참고).
 
 ### Phase 4: 특수공격 실행 — 부분 완료
 
@@ -919,6 +960,7 @@ namespace UPlayGround.Data.Combat
 
 - 입력 시 플레이어와 몬스터가 전용 상태에 들어간다.
 - 데미지와 히트스톱이 발생한다.
+- **(2026-05-28 개정)** 특수공격 적중 후 생존 시 몬스터는 `EnemyKnockdownState`(`Knockdown` 모션 없으면 `EnemyStunState`)로 진입한다.
 - 종료 후 양쪽 상태가 정상 복구된다.
 
 남은 작업:

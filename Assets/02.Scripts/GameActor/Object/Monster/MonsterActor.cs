@@ -318,7 +318,7 @@ namespace UPlayGround
                     MovementController.TransitionToState(new EnemyGrabbedState(MovementController, attackData));
                 else if (attackData?.reactionType == AttackReactionType.Stun)
                     MovementController.TransitionToState(new EnemyStunState(MovementController, attackData));
-                else if (attackData?.reactionType == AttackReactionType.Knockdown)
+                else if (CanEnterKnockdownState(attackData))
                     MovementController.TransitionToState(new EnemyKnockdownState(MovementController, attackData));
                 else
                     MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
@@ -336,6 +336,14 @@ namespace UPlayGround
                 return true;
 
             return false;
+        }
+
+        private bool CanEnterKnockdownState(AttackData attackData)
+        {
+            if (attackData == null || attackData.reactionType != AttackReactionType.Knockdown)
+                return false;
+
+            return Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
         }
 
         protected virtual void OnDeath(AttackData attackData)

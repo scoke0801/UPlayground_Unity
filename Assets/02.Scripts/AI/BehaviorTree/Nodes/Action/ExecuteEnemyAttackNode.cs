@@ -24,14 +24,14 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (controller.CurrentState?.StateName is "Death" or "Hit" or "Grabbed" or "Airborne")
-                return BTStatus.Failure;
-
             if (controller.CurrentState?.StateName == "Attack")
             {
                 _attackStarted = true;
                 return BTStatus.Running;
             }
+
+            if (controller.CurrentState?.BlocksBehaviorTree == true)
+                return BTStatus.Failure;
 
             if (_attackStarted)
                 return BTStatus.Success;

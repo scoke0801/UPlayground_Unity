@@ -12,6 +12,7 @@ namespace UPlayGround.State
 
         private readonly AttackData _attackData;
         private bool _getupStarted;
+        private bool _knockdownMotionEnded;
         private float _downTimer;
 
         public EnemyKnockdownState(ActorMovementController controller, AttackData attackData = null) : base(controller)
@@ -26,6 +27,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
             _getupStarted = false;
+            _knockdownMotionEnded = false;
             _downTimer = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.0f;
 
             AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Knockdown, true)
@@ -33,7 +35,9 @@ namespace UPlayGround.State
                 : AnimKey.Knockback;
             var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
             if (state != null)
-                state.OwnedEvents.OnEnd = BeginGetup;
+                state.OwnedEvents.OnEnd = OnKnockdownMotionEnd;
+            else
+                _knockdownMotionEnded = true;
         }
 
         public override void UpdateState(float deltaTime)
@@ -41,7 +45,7 @@ namespace UPlayGround.State
             if (_getupStarted) return;
 
             _downTimer -= deltaTime;
-            if (_downTimer <= 0f)
+            if (_downTimer <= 0f && _knockdownMotionEnded)
                 BeginGetup();
         }
 
@@ -57,6 +61,11 @@ namespace UPlayGround.State
                 currentVelocity,
                 Vector3.zero,
                 1f - Mathf.Exp(controller.StableMovementSharpness * -deltaTime));
+        }
+
+        private void OnKnockdownMotionEnd()
+        {
+            _knockdownMotionEnded = true;
         }
 
         private void BeginGetup()

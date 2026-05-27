@@ -1,8 +1,47 @@
 # 캐릭터 스왑 잔류 공격 시스템 설계 문서
 
 > 작성일: 2026-05-26  
+> 구현 갱신: 2026-05-27  
 > 대상 버전: Unity 6 (6000.0.60f1), URP  
 > 레퍼런스: 명조 `Intro / Outro Skill`, 퀵스왑 잔류 공격
+
+---
+
+## 구현 현황
+
+2026-05-27 기준으로 Phase 1 기반 런타임 구조와 전체 플레이어 공격 상태 잔류 허용까지 구현했다.
+
+| 항목 | 상태 | 구현 파일 |
+|------|------|-----------|
+| 공격 스냅샷 생성 | 완료 | `PlayerCombat.TryCreateResidualAttackSnapshot()` |
+| MotionEvent 전투 타겟 인터페이스 | 완료 | `IMotionEventCombatTarget` |
+| Collision 이벤트 라우팅 확장 | 완료 | `MotionEvent_Collision`, `MotionEvent_DisableCollision` |
+| 잔류 전용 히트 판정 | 완료 | `ResidualPlayerCombat` |
+| 잔류 모델 러너 | 완료 | `SwapResidualAttackRunner` |
+| 스왑 시 잔류 러너 생성 | 완료 | `PlayerSwapBehaviour.SwapTo()` |
+| 잔류 옵션 데이터 | 완료 | `PartyConfigSO`, `PartyManager` 읽기 전용 프로퍼티 |
+| 빌드 검증 | 완료 | `dotnet build UPlayground.sln --no-restore` 성공 |
+
+현재 구현 정책:
+
+- 잔류 공격 시스템은 항상 활성화한다. `PartyConfigSO.enableResidualAttackOnSwap` 필드는 과거 설계 옵션으로 남아 있어도 런타임에서는 끄기 스위치로 사용하지 않는다.
+- 잔류 허용 공격은 현재 `PlayerCombat.CurrentAttackData`가 있고 공격 MotionSet 스냅샷이 유효한 모든 플레이어 공격 상태다. 현재 포함 상태는 `Attack`, `JumpAttack`, `JumpDashAttack`, `Charge`, `FinishAttack`, `SpecialBreakAttack`이다.
+- 잔류 모델은 원본 모델을 분리하지 않고 복제본을 사용한다.
+- 잔류 모델은 `PlayerActor`가 아니며, 입력 / 피격 / KCC 상태 머신을 갖지 않는다.
+- 잔류 공격은 `ResidualPlayerCombat`가 별도 `AttackData` 복사본과 `_hitTargets`를 사용한다.
+- `MotionEventExecutor.SetTargetObject()`로 이벤트 타겟을 잔류 러너 루트에 명시 지정한다.
+- 루트모션은 `PartyConfigSO.residualAttackUseRootMotion` 기본값 `false`로 둔다.
+- 잔류 공격 `OnAttackHit`는 `PartyManager.OnPlayerAttackHit`에 연결하지 않는다. 따라서 1차 정책상 파티 스킬 게이지 중복 충전은 발생하지 않는다.
+- 차지 공격처럼 `AttackInfoBase`가 없는 공격은 스냅샷에 `HitPhaseData` 목록을 별도로 보존해 Collision 이벤트의 `hitPhaseIndex`를 처리한다.
+- `FinishAttackEvent`, `SpecialBreakAttackEvent`는 잔류 전용 인터페이스를 우선 확인해 기존 `PlayerActorState` 없이도 잔류 러너에서 발동할 수 있다.
+- 종료 처리는 MotionSet 완료 또는 타임아웃 시 즉시 제거한다. `residualAttackFadeOutDuration` 필드는 후속 페이드/디졸브 구현을 위한 데이터만 먼저 둔다.
+
+아직 Phase 2/3을 남긴 이유:
+
+1. 우선순위는 “공격 중 스왑해도 이전 모델의 남은 MotionSet 이벤트가 독립 실행된다”는 런타임 구조 안정화다.
+2. Phase 2의 카메라, 히트스톱, 트레일, 디졸브는 체감 품질 영역이라 실제 플레이 확인 후 강도와 중복 억제 정책을 정해야 한다.
+3. Phase 3의 Intro / Outro, `swapSpecialAttack`, 버프, HUD는 전투 밸런스와 데이터 구조 변경 범위가 커서 잔류 러너 안정화 후 분리 구현하는 편이 안전하다.
+4. 루트모션/워프/차지/스킬 공격까지 한 번에 열면 KCC 없는 잔류 모델의 위치 보정, 벽 관통, 무한 루프, 보상 중복 문제가 동시에 생긴다.
 
 ---
 
@@ -126,7 +165,7 @@ SwapResidualAttackRunner
 
 | 필드 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
-| `enableResidualAttackOnSwap` | `bool` | `true` | 공격 중 스왑 시 잔류 공격 사용 여부 |
+| `enableResidualAttackOnSwap` | `bool` | `true` | 과거 설계 옵션. 2026-05-27 이후 런타임에서는 잔류 공격을 항상 활성화한다. |
 | `residualAttackMaxLifetime` | `float` | `1.8f` | 무한 루프/이벤트 누락 대비 최대 생존 시간 |
 | `residualAttackFadeOutDuration` | `float` | `0.25f` | 종료 시 디졸브 또는 알파 페이드 시간 |
 | `residualAttackAllowHitStop` | `bool` | `true` | 잔류 공격 히트 시 히트스톱/카메라 피드백 허용 |
@@ -221,7 +260,6 @@ public bool TryCreateResidualAttackSnapshot(out PlayerResidualAttackSnapshot sna
 ```csharp
 public interface IMotionEventCombatTarget
 {
-    bool IsPlayerCombatTarget { get; }
     void SetTargetLayerMask(LayerMask targetLayerMask);
     void SetHitPhaseIndex(int hitPhaseIndex);
     void SetEnableCollision(bool enabled);
@@ -312,7 +350,8 @@ PartyManager.QueueEntryAttack() 또는 QueueSwapAssist()
 | 현재 상태가 `Attack` | 허용 |
 | `CurrentAttackData` 있음 | 허용 |
 | 공격 MotionSet 재생 중 | 허용 |
-| `FinishAttack`, `SpecialBreakAttack`, `Ultimate` | 1차 구현에서는 제외 |
+| `FinishAttack`, `SpecialBreakAttack` | 허용 |
+| `Ultimate` | 별도 시퀀스 연동 지점 확인 전까지 미구현 |
 | Hit/Death/Grabbed 상태 | 제외 |
 
 ### 2단계: MotionEvent 라우팅 확장
@@ -411,24 +450,26 @@ _playerActor.RefreshForCharacter(_activeModel, movementSnapshot);
 |----------|----------|------|
 | 일반 약공격 | 허용 | 가장 기대되는 퀵스왑 감각 |
 | 일반 강공격 | 허용 | 후딜 긴 공격을 스왑으로 이어붙이는 재미 |
-| 대시 공격 | 조건부 | 위치 이동이 커서 루트모션/워프 문제 가능 |
-| 점프 공격 | 보류 | 공중 위치와 KCC 없이 낙하 처리 문제가 있음 |
-| 차지 공격 | 보류 | InfiniteLoop와 입력 해제 타이밍 의존 |
-| 스킬 공격 | 2차 | 캐릭터별 밸런스 영향 큼 |
-| 피니시 공격 | 제외 | 연출/카메라/타겟 고정이 강함 |
-| 브레이크 특수공격 | 제외 | 별도 시퀀스성 공격 |
-| 궁극기 | 제외 | `UltimateSequence`와 충돌 가능 |
+| 대시 공격 | 허용 | 공격 MotionSet 스냅샷과 Collision 이벤트를 잔류 러너가 이어받는다. |
+| 점프 공격 | 허용 | KCC 낙하 처리는 복제하지 않고 현재 위치의 잔류 모션/히트 실행으로 제한한다. |
+| 차지 공격 | 허용 | 차지 릴리즈 후 생성된 `CurrentAttackData`와 `HitPhaseData` 스냅샷을 사용한다. |
+| 스킬 공격 | 허용 | 게이지 충전 이벤트는 연결하지 않아 보상 중복을 막는다. |
+| 피니시 공격 | 허용 | 처형 타겟을 스냅샷으로 보존하고 `FinishAttackEvent`가 잔류 인터페이스로 발동한다. |
+| 브레이크 특수공격 | 허용 | 브레이크 타겟과 피해율/고정 피해를 스냅샷으로 보존하고 전용 이벤트가 잔류 인터페이스로 발동한다. |
+| 궁극기 | 미구현 | 현재 별도 `UltimateSequence` 연동 지점이 확인되지 않았다. 추가 시 별도 시퀀스 스냅샷 정책이 필요하다. |
 
 ### MotionSet 이벤트 정책
 
 | 이벤트 | 잔류 러너 처리 |
 |--------|----------------|
 | `BeginCollisionEvent` | 처리 |
-| `MotionEvent_ComboWindow` | 무시 |
+| `MotionEvent_ComboWindow` | 잔류 러너에는 `PlayerActor`가 없으므로 자연스럽게 무시 |
 | `MotionEvent_MotionWarp` | 1차 무시 |
 | `MotionEvent_AddForce` | 1차 무시 |
 | VFX/SFX 이벤트 | 처리 |
-| Camera 이벤트 | 기본 비활성 또는 약화 |
+| `FinishAttackEvent` | 처리 |
+| `SpecialBreakAttackEvent` | 처리 |
+| Camera 이벤트 | 기존 이벤트별 타겟 해석에 따름. 잔류 전용 보정은 Phase 2에서 정리 |
 | TimeScale 이벤트 | 기본 비활성 |
 | Projectile Spawn | 처리 가능. 단 owner를 `PlayerActor`로 넘길지 별도 검토 |
 
@@ -483,7 +524,7 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 4. `ResidualPlayerCombat` 추가
 5. `SwapResidualAttackRunner` 추가
 6. `PlayerSwapBehaviour.SwapTo()`에서 공격 중이면 잔류 러너 생성
-7. 일반 약/강 공격만 허용
+7. 모든 `CurrentAttackData` 기반 플레이어 공격 상태 허용
 
 완료 기준:
 
@@ -516,11 +557,15 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 | `PlayerSwapBehaviour.cs` | 스왑 전 잔류 공격 스폰 훅 추가 |
 | `PlayerCombat.cs` | 잔류 공격 스냅샷 생성 API, AttackData 복사 유틸 추가 |
 | `MotionEvent_Collision.cs` | `IMotionEventCombatTarget` 우선 라우팅 |
+| `MotionEvent_DisableCollision.cs` | `IMotionEventCombatTarget` 우선 라우팅 |
+| `MotionEventExecutor.cs` | 명시 타겟 지정용 `SetTargetObject()` 추가 |
 | `PartyConfigSO.cs` | 잔류 공격 옵션 추가 |
+| `PartyManager.cs` | 잔류 공격 옵션 읽기 전용 프로퍼티 추가 |
 | `SwapResidualAttackRunner.cs` | 신규 런타임 러너 |
 | `ResidualPlayerCombat.cs` | 신규 잔류 히트 판정 컴포넌트 |
 | `PlayerResidualAttackSnapshot.cs` | 신규 스냅샷 타입 |
-| `PlayerAttackDataSODrawer.cs` | 필요 시 잔류 허용 플래그 표시 |
+| `IMotionEventCombatTarget.cs` | 신규 MotionEvent 전투 타겟 인터페이스 |
+| `PlayerAttackDataSODrawer.cs` | 필요 시 잔류 허용 플래그 표시. 2026-05-27 구현에서는 미변경 |
 
 ---
 
@@ -531,6 +576,8 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 | 약공격 히트 직전 스왑 | 퇴장 모델이 남아 히트 후 사라진다. |
 | 약공격 히트 후 스왑 | 남은 모션만 재생하고 추가 히트가 없으면 사라진다. |
 | 다단 히트 공격 중 스왑 | 아직 지나지 않은 Collision 이벤트만 실행된다. |
+| 대시/점프/차지/스킬 공격 중 스왑 | 퇴장 모델이 남은 MotionSet 이벤트를 실행한다. |
+| 피니시/브레이크 특수공격 중 스왑 | 잔류 러너가 보존된 타겟에 전용 MotionEvent를 적용한다. |
 | 스왑 직후 incoming 등장 공격 | incoming 공격과 outgoing 잔류 공격이 모두 독립 판정된다. |
 | 잔류 중 씬 전환 | 잔류 오브젝트가 즉시 정리된다. |
 | 잔류 중 같은 캐릭터로 재교체 | 기존 잔류 오브젝트가 제거되고 원본 모델이 활성화된다. |

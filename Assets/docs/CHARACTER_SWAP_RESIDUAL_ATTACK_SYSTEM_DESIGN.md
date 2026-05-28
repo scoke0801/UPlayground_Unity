@@ -2,6 +2,7 @@
 
 > 작성일: 2026-05-26  
 > 구현 갱신: 2026-05-27  
+> 위치 정책 설계 갱신: 2026-05-29  
 > 대상 버전: Unity 6 (6000.0.60f1), URP  
 > 레퍼런스: 명조 `Intro / Outro Skill`, 퀵스왑 잔류 공격
 
@@ -28,6 +29,10 @@
 - 잔류 허용 공격은 현재 `PlayerCombat.CurrentAttackData`가 있고 공격 MotionSet 스냅샷이 유효한 모든 플레이어 공격 상태다. 현재 포함 상태는 `Attack`, `JumpAttack`, `JumpDashAttack`, `Charge`, `FinishAttack`, `SpecialBreakAttack`이다.
 - 잔류 모델은 원본 모델을 분리하지 않고 복제본을 사용한다.
 - 잔류 모델은 `PlayerActor`가 아니며, 입력 / 피격 / KCC 상태 머신을 갖지 않는다.
+- 잔류 러너 루트와 `ResidualPlayerCombat` 판정 위치는 스왑 시점의 원래 위치를 유지한다.
+- 캐릭터 위치는 별도 오프셋으로 밀어내지 않는다. 공격 중 스왑 시 outgoing 잔류 모델과 incoming 원본 모델은 스왑 시점의 기본 위치 정책을 따른다.
+- 같은 캐릭터 타입의 잔류 모델이 아직 필드에 남아 있으면, 해당 캐릭터로 재스왑할 때는 그 잔류 모델 위치로 복귀하는 정책만 예외로 둔다.
+- 콤보 카운트는 단일 `PlayerCombat` 전역 상태가 아니라 캐릭터 타입별로 보존한다. 예를 들어 1번 캐릭터가 2타까지 진행한 뒤 2번 캐릭터로 1타를 치고 다시 1번으로 돌아오면, 1번 캐릭터는 3타 콤보를 이어간다.
 - 잔류 공격은 `ResidualPlayerCombat`가 별도 `AttackData` 복사본과 `_hitTargets`를 사용한다.
 - `MotionEventExecutor.SetTargetObject()`로 이벤트 타겟을 잔류 러너 루트에 명시 지정한다.
 - 루트모션은 `PartyConfigSO.residualAttackUseRootMotion` 기본값 `false`로 둔다.
@@ -70,14 +75,35 @@
 | Intro / Outro | Concerto Energy가 가득 찬 상태에서 교체하면 퇴장 캐릭터의 Outro와 입장 캐릭터의 Intro가 발동한다. | 퇴장 캐릭터와 입장 캐릭터가 짧은 시간 동시에 전투 기여를 한다는 전투 감각을 목표로 한다. |
 | 동시 실행 | Intro와 Outro가 동시에 실행되어 짧은 창 동안 두 캐릭터가 배치되고 피해를 준다는 설명이 있다. | 잔류 모델은 `PlayerActor`가 아니지만, 필드에 남아 별도 공격 판정을 실행한다. |
 | 퀵스왑 | 일부 가이드에서는 빠른 스왑으로 버프 유지나 캐릭터 잔류 상태를 활용할 수 있다고 설명한다. | 일반 공격 도중 스왑해도 퇴장 모델이 남은 공격 프레임을 끝내고 사라지는 방향으로 해석한다. |
+| 스왑 캔슬 | 커뮤니티/가이드 자료는 긴 공격 애니메이션 중 교체해도 이전 캐릭터의 공격이 끝까지 실행되는 것을 퀵스왑 핵심으로 설명한다. | outgoing 캐릭터는 스왑 시점 위치에 남아 남은 MotionSet을 실행한다. |
+| 위치 처리 | 공개 텍스트 자료는 좌표 계산 방식까지 공식적으로 설명하지 않는다. | UPlayground는 임의 오프셋 이동을 하지 않고, 이후 잔류 모델의 루트모션을 고도화해 공격 모션 자체가 자연스럽게 전진하도록 처리한다. |
 | 게이지 기반 강화 | Intro / Outro는 일반적으로 게이지가 찼을 때 강한 효과로 발동한다. | 1차 구현은 공격 중 스왑 잔류만 처리하고, 이후 `swapSpecialAttack` / 파티 스킬 게이지와 연결한다. |
 
 참고 자료:
 
 - WutheringWaves.gg, Intro & Outro Skill System Guide: https://wutheringwaves.gg/intro-outro-explained/
 - Game8, Concerto Energy Guide: https://game8.co/games/Wuthering-Waves/archives/456637
+- Pro Game Guides, What is Swap Canceling in Wuthering Waves: https://progameguides.com/wuthering-waves/what-is-swap-canceling-in-wuthering-waves/
+- Destructoid, How to Swap Cancel in Wuthering Waves: https://www.destructoid.com/how-to-swap-cancel-in-wuthering-waves/
 - Wuthering Waves Wiki, Concerto Energy: https://wutheringwaves.fandom.com/wiki/Concerto_Energy
 - Reddit 플레이어 설명 사례, Outro 시 캐릭터 잔류 언급: https://www.reddit.com/r/WutheringWavesGuide/comments/1d2pgea/is_there_indicators_when_a_character_does_their/
+- Reddit 플레이어 설명 사례, 퀵스왑 시 공격 후 짧은 필드 잔류 언급: https://www.reddit.com/r/WutheringWavesGuide/comments/1t9nznr/how_to_quickswap_properly_and_what/
+
+### 명조 위치 정책 해석
+
+웹 자료로 확실히 확인되는 부분은 다음이다.
+
+1. Concerto가 가득 찬 상태에서 교체하면 outgoing Outro와 incoming Intro가 연결된다.
+2. 퀵스왑/스왑 캔슬은 긴 공격 애니메이션 도중 교체해도 이전 캐릭터의 공격이 계속 실행되는 플레이로 설명된다.
+3. 일부 플레이어 설명은 공격 후 이전 캐릭터가 짧게 필드에 남는다고 말한다.
+
+반대로, 공개 텍스트 자료만으로는 명조가 내부적으로 어떤 좌표 알고리즘을 쓰는지 확정할 수 없다. 따라서 좌표 정책은 “명조 내부 복제”가 아니라, 사용자가 관찰한 명조식 체감과 위 레퍼런스가 확인하는 퀵스왑 구조를 UPlayground에 맞춰 해석한 설계로 둔다.
+
+UPlayground의 후속 위치 정책은 다음을 우선한다.
+
+1. 공격 중 스왑하면 outgoing 잔류 모델은 스왑 시점 위치에서 공격을 계속한다.
+2. incoming 캐릭터 또는 잔류 모델을 별도 오프셋으로 밀어내지 않는다.
+3. 같은 캐릭터 타입으로 다시 스왑할 때 해당 캐릭터의 잔류 모델이 아직 존재하면, 그 잔류 모델 위치로 복귀하는 정책은 별도 검토한다.
 
 ### UPlayground에 맞춘 해석
 
@@ -85,8 +111,11 @@
 
 1. 스왑은 전투를 끊는 버튼이 아니라 콤보를 이어붙이는 버튼이다.
 2. 퇴장 캐릭터의 마지막 행동은 즉시 취소되지 않고 짧게 완주할 수 있다.
-3. 입장 캐릭터의 등장 공격과 퇴장 캐릭터의 잔류 공격이 겹치면 순간적으로 2인 협공처럼 보인다.
-4. 이중 조작 캐릭터가 생기면 시스템 복잡도가 급증하므로, 잔류 캐릭터는 입력/피격/이동 상태를 갖지 않는 공격 러너로 제한한다.
+3. 입장 캐릭터와 퇴장 캐릭터 위치는 별도 오프셋으로 분리하지 않는다.
+4. 잔류 캐릭터의 전진/이탈감은 좌표 오프셋이 아니라 루트모션 또는 루트모션 보정 이벤트로 만든다.
+5. 입장 캐릭터의 등장 공격과 퇴장 캐릭터의 잔류 공격이 겹치면 순간적으로 2인 협공처럼 보인다.
+6. 캐릭터별 콤보 진행도는 스왑으로 즉시 초기화하지 않고, 각 캐릭터가 마지막으로 남긴 콤보 인덱스와 유효 시간을 유지한다.
+7. 이중 조작 캐릭터가 생기면 시스템 복잡도가 급증하므로, 잔류 캐릭터는 입력/피격/이동 상태를 갖지 않는 공격 러너로 제한한다.
 
 ---
 
@@ -143,6 +172,8 @@ SwapResidualAttackRunner
 ├── ResidualPlayerCombat residualCombat
 ├── float maxLifetime
 ├── bool followRootMotion
+├── Vector3 residualModelPosition
+├── Quaternion residualModelRotation
 └── OnMotionSetCompleted / timeout / cancel 조건에서 정리
 ```
 
@@ -153,7 +184,66 @@ SwapResidualAttackRunner
 3. 잔류 공격은 독립 `ResidualPlayerCombat`가 처리한다.
 4. 잔류 모델은 입력, 피격, HP, 스킬 게이지, 파티 슬롯 상태를 변경하지 않는다.
 5. 스왑 시점에 진행 중이던 공격 MotionSet의 남은 구간만 실행한다.
-6. 새 캐릭터의 `entryAttack`은 기존 방식대로 `PlayerAttackState`에서 실행한다.
+6. 캐릭터 위치는 별도 오프셋으로 밀어내지 않는다.
+7. 잔류 모델의 자연스러운 전진은 후속 루트모션 고도화로 처리한다.
+8. 콤보 진행도는 캐릭터 타입별로 보존해 빠른 스왑 후 복귀해도 해당 캐릭터의 다음 콤보 타수를 이어갈 수 있게 한다.
+9. 새 캐릭터의 `entryAttack`은 기존 방식대로 `PlayerAttackState`에서 실행한다.
+
+### 위치 정책
+
+기본 위치 정책은 “별도 위치 밀어내기 없음”이다.
+
+| 상황 | 위치 처리 |
+|------|----------|
+| 공격 중 A에서 B로 스왑 | A 잔류 러너는 스왑 시점 위치에 생성한다. B 원본 모델도 기존 스왑 흐름의 기본 위치를 유지한다. |
+| A 잔류 중 B에서 A로 재스왑 | 같은 캐릭터 잔류 위치 복귀는 후속 검토 항목으로 둔다. 구현 전까지는 기존 스왑 위치를 유지한다. |
+| 잔류 모델 전진 필요 | 별도 좌표 오프셋 대신 루트모션 또는 루트모션 보정 이벤트로 처리한다. |
+| 벽/타겟 관통 위험 | 루트모션 고도화 단계에서 충돌 보정과 이동 제한을 함께 처리한다. |
+
+이 정책은 임의 좌표 보정으로 캐릭터가 튀는 문제를 피하고, 공격 애니메이션 자체의 이동감으로 잔류 공격을 읽히게 만드는 방향이다.
+
+### 캐릭터별 콤보 상태 정책
+
+현재 단일 `PlayerActor` 구조에서는 `PlayerCombat.CurrentComboIndex`, `LastAttackTime`, `CanCombo`, `_attackState`가 활성 캐릭터 교체와 함께 사실상 전역 상태처럼 취급될 수 있다. 후속 구현에서는 이 값을 캐릭터 타입별로 저장/복원한다.
+
+목표 예시:
+
+```
+1번 캐릭터: 1타 → 2타
+스왑: 2번 캐릭터
+2번 캐릭터: 1타
+스왑: 1번 캐릭터
+1번 캐릭터: 3타
+```
+
+권장 데이터:
+
+```csharp
+public struct CharacterComboState
+{
+    public CharacterActorType characterType;
+    public int currentComboIndex;
+    public float lastAttackTime;
+    public bool canCombo;
+    public AttackState attackState;
+    public AnimKey lastAttackAnimKey;
+}
+```
+
+저장 위치는 `PlayerCombat` 내부 딕셔너리 또는 `PlayerActor`의 캐릭터별 런타임 상태 저장소가 후보가 된다. `PartyManager`는 파티/교체 정책을 관리하고, 실제 콤보 판정과 공격 데이터 선택은 `PlayerCombat` 책임으로 남기는 편이 낫다.
+
+운영 규칙:
+
+| 상황 | 처리 |
+|------|------|
+| 캐릭터가 공격을 시작함 | 해당 캐릭터 타입의 `CharacterComboState`를 갱신한다. |
+| 다른 캐릭터로 스왑 | outgoing 캐릭터의 콤보 인덱스와 마지막 공격 시간을 저장한다. incoming 캐릭터의 저장된 콤보 상태를 복원한다. |
+| 같은 캐릭터로 빠르게 복귀 | 콤보 유효 시간이 남아 있으면 다음 콤보 인덱스부터 공격한다. |
+| 콤보 유효 시간 초과 | 해당 캐릭터의 콤보 상태를 0타 시작 상태로 초기화한다. |
+| 잔류 공격 실행 중 | 잔류 러너는 콤보 상태를 갱신하지 않는다. 콤보 진행은 실제 조작 가능한 `PlayerCombat`만 갱신한다. |
+| entryAttack / swapAssist | 일반 콤보 인덱스를 소비할지 별도 정책 필요. 1차 권장은 일반 콤보 상태를 변경하지 않는 것이다. |
+
+이 정책은 “캐릭터마다 자기 콤보 흐름을 들고 있다”는 감각을 만든다. 단, 스왑만으로 후딜 제거와 고타수 콤보 유지가 동시에 가능해지므로 콤보 유효 시간은 현재보다 짧게 잡거나, 스왑 중 경과 시간도 그대로 계산해야 한다.
 
 ---
 
@@ -172,8 +262,14 @@ SwapResidualAttackRunner
 | `residualAttackAllowComboWindowEvents` | `bool` | `false` | 잔류 모델의 콤보 입력 창 이벤트 무시 여부 |
 | `residualAttackUseRootMotion` | `bool` | `false` | 잔류 모델 루트모션 이동 허용 여부 |
 | `residualAttackMaxCount` | `int` | `1` | 동시에 남을 수 있는 퇴장 모델 수 |
+| `residualAttackReturnToSameCharacterRunner` | `bool` | `true` | 후속 설계. 같은 캐릭터 타입 잔류 러너가 있으면 해당 위치로 복귀 |
+| `residualAttackReturnPositionMaxAge` | `float` | `1.8` | 후속 설계. 너무 오래된 잔류 위치로 복귀하지 않기 위한 최대 유효 시간 |
+| `preserveComboStatePerCharacter` | `bool` | `true` | 후속 설계. 캐릭터 타입별 콤보 인덱스/유효 시간을 저장하고 복원 |
+| `comboStateMaxCarryTime` | `float` | 기존 콤보 유효 시간 사용 | 후속 설계. 스왑 후 복귀 시 콤보를 이어갈 수 있는 최대 시간 |
 
 권장: 1차 구현에서는 `residualAttackUseRootMotion = false`로 둔다. 현재 `PlayerAttackState`의 이동은 KCC + MotionWarpController가 계산하므로, 잔류 모델에 동일 이동을 적용하면 벽 통과/타겟 관통 문제가 생길 수 있다.
+
+후속 개선은 위치 오프셋이 아니라 `residualAttackUseRootMotion`을 고도화하는 방향이다. 잔류 모델이 공격 애니메이션의 루트모션을 따라 자연스럽게 앞으로 나가되, KCC 없는 러너 환경에서도 벽 관통/타겟 관통/무한 이동이 생기지 않도록 충돌 보정과 최대 이동 거리 제한을 함께 둔다.
 
 ### `SwapResidualAttackRunner`
 
@@ -182,6 +278,8 @@ SwapResidualAttackRunner
 주요 책임:
 
 - 스왑 시점의 모델 프리팹/인스턴스를 받아 잔류용 오브젝트를 만든다.
+- 잔류 러너 루트와 모델 인스턴스는 별도 오프셋 없이 스냅샷 위치에 생성한다.
+- 후속 위치 정책에서는 잔류 모델 위치 기록, 같은 캐릭터 복귀 위치 제공, 루트모션 보정 실행을 책임으로 둔다.
 - `ActorAnimator.MotionPlaybackSnapshot` 또는 공격 스냅샷으로 MotionSet 진행률을 복원한다.
 - `MotionEventExecutor`의 타겟을 잔류 컨텍스트로 지정한다.
 - `ActorAnimator.OnMotionSetCompleted` 또는 타임아웃 시 종료한다.
@@ -296,14 +394,31 @@ PartyManager.RequestSwapTo(targetIndex)
 PlayerSwapBehaviour.SwapTo(targetType)
         │
         ├── TryCreateResidualAttackSnapshot()
-        ├── SwapResidualAttackRunner 생성
-        ├── outgoing 모델 잔류 실행 시작
+        ├── outgoing SwapResidualAttackRunner 생성
+        ├── outgoing 모델은 현재 위치에서 잔류 공격 실행
         ├── incoming 모델 활성화
         └── PlayerActor.RefreshForCharacter(incoming)
                 │
                 ▼
 PartyManager.QueueEntryAttack() 또는 QueueSwapAssist()
 ```
+
+### 같은 캐릭터 잔류 위치로 복귀
+
+```
+B 조작 중 A로 스왑 요청
+        │
+        ├── ActiveRunners에서 ownerType == A 탐색
+        │
+        ├── A 잔류 러너가 있고 유효 시간 내라면
+        │       ├── 후속 정책에 따라 A 잔류 모델 위치/회전 복귀 여부 판단
+        │       ├── A 잔류 러너 Cancel(Replaced 또는 Consumed)
+        │       └── 원본 A 모델 활성화
+        │
+        └── A 잔류 러너가 없으면 기존 스왑 위치 유지
+```
+
+같은 캐릭터 잔류 위치 복귀는 임의 오프셋과 다르게 “이미 필드에 남아 있던 해당 캐릭터 위치로 돌아간다”는 정책이다. 다만 이 기능도 충돌/카메라/락온 처리 확인 전까지는 후속 구현으로 둔다.
 
 ### 잔류 러너 종료
 
@@ -425,6 +540,8 @@ _playerActor.RefreshForCharacter(_activeModel, movementSnapshot);
 
 `movementSnapshot`은 지금처럼 이동/로코모션 복원용으로 유지한다. 공격 스냅샷은 잔류 러너로 넘기고 incoming 모델에는 복원하지 않는다. 공격 중 스왑 후 incoming 모델이 같은 공격 진행률을 복원하면 연출이 어색해진다.
 
+후속 위치 정책에서도 incoming 모델을 별도 위치로 밀어내지 않는다. 공격 중 스왑의 이동감은 잔류 러너 루트모션을 자연스럽게 적용하는 방식으로 개선한다.
+
 ### 6단계: 데이터 확장
 
 `PartyConfigSO`에 기본 옵션을 추가한다.
@@ -484,6 +601,9 @@ _playerActor.RefreshForCharacter(_activeModel, movementSnapshot);
 | 퇴장 캐릭터별 스왑 쿨다운 | 기존 `PartyConfigSO.swapCooldown` 유지 | 무한 퀵스왑 방지 |
 | 잔류 러너 수 | 1 | 다중 잔상 누적 방지 |
 | 잔류 생존 시간 | 1.2~1.8초 | 긴 스킬 잔류 남용 방지 |
+| 잔류 루트모션 | 공격별 최대 이동 거리 제한 | 별도 위치 오프셋 없이 공격 모션 자체가 자연스럽게 전진하도록 처리 |
+| 같은 캐릭터 잔류 위치 복귀 | 후속 검토 | 이전에 남겨둔 캐릭터로 돌아가는 감각 강화. 임의 오프셋과는 분리 |
+| 캐릭터별 콤보 상태 유지 | 기존 콤보 유효 시간 안에서만 허용 | 빠른 스왑 복귀 시 자기 콤보를 이어가되 무한 고타수 유지 방지 |
 | 스킬 게이지 충전 | 1차 비활성 | 자기 증폭 루프 방지 |
 | 히트스톱 | 약공격 기준만 허용 | 화면 피드백 과잉 방지 |
 | 보스 경직 | 기존 Poise / Break 정책 따름 | 잔류 공격만 예외 처리하지 않음 |
@@ -504,6 +624,12 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 
 `PlayerSwapBehaviour`의 기존 `CaptureMovementPlaybackSnapshot()`은 이동 모션 복원용이다. 공격 중 스왑에서는 incoming 모델에 공격 진행률을 복원하지 말고, 잔류 러너에만 공격 스냅샷을 넘겨야 한다.
 
+### 콤보 진행도는 캐릭터별로 저장한다
+
+단일 `PlayerCombat`를 쓰더라도 콤보 인덱스는 전역으로 공유하지 않는다. 스왑 직전 outgoing 캐릭터의 콤보 상태를 저장하고, incoming 캐릭터의 저장 상태를 복원한다. 저장 상태가 없거나 콤보 유효 시간이 지났으면 0타 시작으로 초기화한다.
+
+잔류 러너는 조작 가능한 캐릭터가 아니므로 콤보 상태를 증가시키지 않는다. 예를 들어 1번 캐릭터가 2타 중 스왑되어 잔류 공격을 마무리하더라도, 그 잔류 히트가 1번 캐릭터의 콤보 인덱스를 3타 이후로 밀어서는 안 된다. 다음 조작 입력이 들어올 때 저장된 2타 상태와 시간 조건을 보고 3타를 선택한다.
+
 ### 이벤트 타겟을 명확히 한다
 
 `MotionEventExecutor.TargetObject`는 현재 부모 `GameActor`를 자동 탐색한다. 잔류 러너에서는 이 자동 탐색이 실제 `PlayerActor`로 빠지면 안 된다. 잔류 복제본에는 명시적으로 `_targetObject` 또는 인터페이스 타겟을 지정해야 한다.
@@ -511,6 +637,12 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 ### 루트모션 이동은 2차로 미룬다
 
 현재 공격 이동은 `PlayerAttackState.UpdateVelocity()`와 `MotionWarpController`가 담당한다. 잔류 모델은 KCC가 없으므로 같은 이동을 재현하기 어렵다. 1차 구현은 제자리 잔류 + 회전 고정 + 히트박스 실행으로 시작하고, 캐릭터별로 필요한 공격만 별도 이동 이벤트를 추가한다.
+
+### 위치 오프셋은 사용하지 않는다
+
+잔류 모델 또는 incoming 캐릭터를 별도 오프셋으로 밀어내지 않는다. 위치를 인위적으로 분리하면 히트 판정 중심, 무기 궤적, 카메라 타겟, 락온 거리 해석이 공격 데이터와 어긋날 수 있다.
+
+후속 개선은 루트모션을 고도화해 처리한다. 잔류 러너가 KCC를 갖지 않더라도 공격 애니메이션의 루트 이동을 제한적으로 반영하고, 필요하면 충돌 보정/최대 이동 거리/타겟 방향 클램프를 둔다. 목표는 “스폰 후 앞으로 자연스럽게 튀어나가는 공격”이지, 스왑 순간 좌표를 임의로 밀어내는 것이 아니다.
 
 ---
 
@@ -535,10 +667,14 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 
 ### Phase 2: 전투 피드백 정리
 
-1. 잔류 공격 히트스톱 강도 별도 설정
-2. 카메라 쉐이크 중복 억제
-3. 무기 트레일/디졸브 페이드 정리
-4. 데미지 플로터에 outgoing 캐릭터 타입 표시 옵션 추가
+1. 잔류 루트모션 고도화
+2. 루트모션 이동 거리 제한, 충돌 보정, 타겟 방향 클램프 정리
+3. 캐릭터 타입별 콤보 상태 저장/복원
+4. 같은 캐릭터 타입 잔류 위치 복귀 정책 검토
+5. 잔류 공격 히트스톱 강도 별도 설정
+6. 카메라 쉐이크 중복 억제
+7. 무기 트레일/디졸브 페이드 정리
+8. 데미지 플로터에 outgoing 캐릭터 타입 표시 옵션 추가
 
 ### Phase 3: 명조식 Intro / Outro 확장
 
@@ -561,11 +697,12 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 | `MotionEventExecutor.cs` | 명시 타겟 지정용 `SetTargetObject()` 추가 |
 | `PartyConfigSO.cs` | 잔류 공격 옵션 추가 |
 | `PartyManager.cs` | 잔류 공격 옵션 읽기 전용 프로퍼티 추가 |
-| `SwapResidualAttackRunner.cs` | 신규 런타임 러너 |
+| `SwapResidualAttackRunner.cs` | 신규 런타임 러너, 후속 구현에서 루트모션 보정 및 캐릭터 타입별 잔류 위치 조회 API 추가 |
 | `ResidualPlayerCombat.cs` | 신규 잔류 히트 판정 컴포넌트 |
 | `PlayerResidualAttackSnapshot.cs` | 신규 스냅샷 타입 |
 | `IMotionEventCombatTarget.cs` | 신규 MotionEvent 전투 타겟 인터페이스 |
 | `PlayerAttackDataSODrawer.cs` | 필요 시 잔류 허용 플래그 표시. 2026-05-27 구현에서는 미변경 |
+| `PlayerCombat.cs` | 후속 구현에서 캐릭터 타입별 콤보 상태 저장/복원 API 추가 |
 
 ---
 
@@ -574,6 +711,12 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 | 시나리오 | 기대 결과 |
 |----------|----------|
 | 약공격 히트 직전 스왑 | 퇴장 모델이 남아 히트 후 사라진다. |
+| 공격 중 스왑 후 위치 확인 | 잔류 모델과 incoming 캐릭터는 별도 오프셋으로 밀려나지 않는다. |
+| 후속 루트모션 정책: 공격 중 스왑 | 잔류 모델이 공격 애니메이션의 루트 이동으로 자연스럽게 전진하되, 최대 이동 거리와 충돌 보정을 따른다. |
+| 후속 루트모션 정책: 벽/타겟 관통 위험 | 루트모션 이동이 제한되거나 클램프되어 벽 관통과 과도한 타겟 통과가 발생하지 않는다. |
+| 후속 콤보 정책: 1번 2타 후 2번 1타, 다시 1번 | 1번 캐릭터의 콤보 유효 시간이 남아 있으면 3타 콤보가 나간다. |
+| 후속 콤보 정책: 복귀 시간이 늦음 | 캐릭터별 콤보 유효 시간이 만료되면 해당 캐릭터는 1타부터 다시 시작한다. |
+| 후속 콤보 정책: 잔류 히트 발생 | 잔류 러너의 히트는 조작 캐릭터의 콤보 카운트를 증가시키지 않는다. |
 | 약공격 히트 후 스왑 | 남은 모션만 재생하고 추가 히트가 없으면 사라진다. |
 | 다단 히트 공격 중 스왑 | 아직 지나지 않은 Collision 이벤트만 실행된다. |
 | 대시/점프/차지/스킬 공격 중 스왑 | 퇴장 모델이 남은 MotionSet 이벤트를 실행한다. |

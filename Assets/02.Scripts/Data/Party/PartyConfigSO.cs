@@ -32,6 +32,28 @@ namespace UPlayGround.Data.Party
         [Min(0f)]
         public float swapCooldown = 3f;
 
+        [Header("Residual Attack")]
+        [Tooltip("공격 중 교체 시 퇴장 캐릭터 모델 복제본이 남은 공격 타임라인을 실행한다.")]
+        public bool enableResidualAttackOnSwap = true;
+
+        [Tooltip("잔류 공격 오브젝트 최대 생존 시간. 이벤트 누락/무한 루프 방지용.")]
+        [Min(0.1f)]
+        public float residualAttackMaxLifetime = 1.8f;
+
+        [Tooltip("향후 페이드/디졸브 정리용 지속 시간. 1차 구현에서는 즉시 제거 폴백을 사용한다.")]
+        [Min(0f)]
+        public float residualAttackFadeOutDuration = 0.25f;
+
+        [Tooltip("잔류 공격 히트 시 히트스톱 피드백을 허용한다.")]
+        public bool residualAttackAllowHitStop = true;
+
+        [Tooltip("잔류 모델 루트모션 이동 허용. KCC를 사용하지 않으므로 기본값은 false 권장.")]
+        public bool residualAttackUseRootMotion = false;
+
+        [Tooltip("동시에 유지할 수 있는 잔류 공격 모델 수.")]
+        [Min(1)]
+        public int residualAttackMaxCount = 1;
+
         [Header("Growth")]
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
         public List<PartyMemberGrowthSO> growthData = new();

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Event
@@ -20,6 +21,17 @@ namespace UPlayGround.Data.Event
 
         private void SetCollision(GameObject target, bool enable)
         {
+            var combatTarget = target.GetComponent<IMotionEventCombatTarget>()
+                               ?? target.GetComponentInParent<IMotionEventCombatTarget>()
+                               ?? target.GetComponentInChildren<IMotionEventCombatTarget>();
+            if (combatTarget != null)
+            {
+                Debug.Log($"[ResidualAttack] MotionEvent DisableCollision route. target={target.name}, enable={enable}, handler={combatTarget.GetType().Name}");
+                if (enable) combatTarget.ClearHitTargets();
+                combatTarget.SetEnableCollision(enable);
+                return;
+            }
+
             var actor = target.GetComponent<GameActor>();
             if (actor == null) return;
 

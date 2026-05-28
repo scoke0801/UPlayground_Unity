@@ -54,7 +54,7 @@ namespace UPlayGround.State
             _combat = playerActor.GetCombat();
             playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _stateTimer = 0f;
-            _combat.SetupFinishAttackData();
+            _combat.SetupFinishAttackData(_finishTarget);
 
             // 슬라이딩 목표 위치 계산
             if (_finishTarget != null)

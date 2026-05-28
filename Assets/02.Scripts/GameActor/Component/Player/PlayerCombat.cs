@@ -135,6 +135,11 @@ namespace UPlayGround.Component
 
         private AttackData        _currentAttackData;
         private AttackInfoBase    _currentAttackInfoBase;
+        private IReadOnlyList<HitPhaseData> _currentResidualHitPhases;
+        private MonsterActor      _currentFinishTarget;
+        private MonsterActor      _currentSpecialBreakTarget;
+        private float             _currentSpecialBreakDamageByMaxHpRate;
+        private float             _currentSpecialBreakFixedDamage;
         private AttackState       _attackState         = AttackState.NormalAttack;
         private float             _lastCombatEventTime = -999f;
         private bool              _isCollideCollisionEnable;
@@ -234,6 +239,60 @@ namespace UPlayGround.Component
         public event Action<AttackData>                        OnAttackHit;
         public event Action                                    OnComboReset;
 
+        public bool TryCreateResidualAttackSnapshot(
+            CharacterModelData sourceModel,
+            out PlayerResidualAttackSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (_playerActor == null || sourceModel == null)
+            {
+                Debug.LogWarning($"[ResidualAttack] Snapshot failed: actor/model missing. actor={_playerActor != null}, sourceModel={sourceModel != null}");
+                return false;
+            }
+
+            string stateName = _playerActor.PlayerController?.CurrentState?.StateName;
+            if (!IsResidualAttackState(stateName))
+            {
+                Debug.Log($"[ResidualAttack] Snapshot skipped: unsupported state. state={stateName}, animKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}");
+                return false;
+            }
+
+            if (_currentAttackData == null)
+                Debug.Log($"[ResidualAttack] Snapshot will be visual-only: current attack data is null. state={stateName}, model={sourceModel.characterType}");
+
+            var playbackSnapshot = _actorAnimator != null
+                ? _actorAnimator.CapturePlaybackSnapshot()
+                : ActorAnimator.MotionPlaybackSnapshot.Empty;
+            if (!playbackSnapshot.IsValid || playbackSnapshot.Key == AnimKey.None)
+            {
+                Debug.LogWarning($"[ResidualAttack] Snapshot failed: playback snapshot invalid. state={stateName}, attackAnimKey={_currentAttackData?.animKey}, animator={_actorAnimator != null}");
+                return false;
+            }
+
+            if (_currentAttackData != null && playbackSnapshot.Key != _currentAttackData.animKey)
+                Debug.Log($"[ResidualAttack] Snapshot allows anim key mismatch for residual presentation. state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData.animKey}, kind={_currentAttackData.attackKind}");
+
+            snapshot = new PlayerResidualAttackSnapshot(
+                _playerActor,
+                sourceModel,
+                sourceModel.characterType,
+                CopyAttackData(_currentAttackData),
+                _currentAttackInfoBase,
+                _currentResidualHitPhases,
+                playbackSnapshot,
+                _playerActor.GetAttackTargetLayerMask(),
+                sourceModel.transform.position,
+                sourceModel.transform.rotation,
+                _currentFinishTarget,
+                _currentSpecialBreakTarget,
+                _currentSpecialBreakDamageByMaxHpRate,
+                _currentSpecialBreakFixedDamage);
+
+            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={_currentAttackData == null}, hitRange={_currentAttackData?.hitRange}, hitAngle={_currentAttackData?.hitAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
+            return true;
+        }
+
         /// <summary>
         /// 외부(투사체 등)에서 히트가 성립했음을 알릴 때 호출.
         /// OnAttackHit 이벤트를 발화시켜 스킬 게이지 등 후속 처리가 이어지게 한다.
@@ -275,6 +334,63 @@ namespace UPlayGround.Component
                 PerformHitDetection();
 
             UpdateCombatState();
+            UpdateBreakPromptTarget();
+        }
+
+        // ── Break Prompt 게이팅 ───────────────────────────────────────
+        // '노출된 모든 적'이 아니라 '지금 F를 누르면 실제로 브레이크될 단일 적'에게만
+        // 프롬프트를 표시한다. 선정 기준은 FindSpecialBreakAttackTarget과 동일 소스를 사용한다.
+        private MonsterActor _currentBreakPromptTarget;
+        private float _breakPromptTickTimer;
+        private const float BreakPromptTickInterval = 0.1f;
+
+        private void UpdateBreakPromptTarget()
+        {
+            // 매 프레임 Physics.OverlapSphere를 도는 비용을 막기 위해 100ms 단위로 갱신.
+            _breakPromptTickTimer += Time.deltaTime;
+            if (_breakPromptTickTimer < BreakPromptTickInterval) return;
+            _breakPromptTickTimer = 0f;
+
+            // 노출된 적이 하나도 없으면 물리 탐색 없이 즉시 정리(상시 비용 0).
+            if (MonsterActor.ExposedMonsters.Count == 0)
+            {
+                SetBreakPromptTarget(null);
+                return;
+            }
+
+            // 플레이어가 F를 누를 수 없는 상태(피격·스턴·사망·잡힘)에선 프롬프트도 숨긴다.
+            string playerState = _playerActor.PlayerController?.CurrentState?.StateName;
+            if (playerState is "Hit" or "Stun" or "Death" or "Grabbed" or "Knockdown")
+            {
+                SetBreakPromptTarget(null);
+                return;
+            }
+
+            Transform targetTf = FindSpecialBreakAttackTarget();
+            MonsterActor target = targetTf != null
+                ? targetTf.GetComponent<MonsterActor>() ?? targetTf.GetComponentInParent<MonsterActor>()
+                : null;
+            SetBreakPromptTarget(target);
+        }
+
+        private void OnDisable()
+        {
+            // 컷씬·씬 전환 등으로 비활성화될 때 프롬프트가 남지 않도록 정리.
+            SetBreakPromptTarget(null);
+        }
+
+        private void SetBreakPromptTarget(MonsterActor target)
+        {
+            if (_currentBreakPromptTarget == target) return;
+
+            // Unity의 != null은 파괴된 오브젝트에 false를 반환하므로 안전.
+            if (_currentBreakPromptTarget != null)
+                _currentBreakPromptTarget.SetBreakPromptActive(false);
+
+            _currentBreakPromptTarget = target;
+
+            if (_currentBreakPromptTarget != null)
+                _currentBreakPromptTarget.SetBreakPromptActive(true);
         }
 
         private void UpdateCombatState()
@@ -380,6 +496,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteAttack(bool isCombo)
         {
+            ClearResidualAttackContext();
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
             _attackState      = AttackState.NormalAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
@@ -393,6 +510,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
+            ClearResidualAttackContext();
             if (_attackState == AttackState.NormalAttack) ResetCombo();
             _attackState      = AttackState.HeavyAttack;
             CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
@@ -428,6 +546,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteChargeAttack(int stageIndex, float chargeRatio)
         {
+            ClearResidualAttackContext();
             if (_attackData.chargeStages == null || _attackData.chargeStages.Count == 0) return null;
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
@@ -438,6 +557,7 @@ namespace UPlayGround.Component
             int clampedStage = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
 
             _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[clampedStage], chargeRatio, 0);
+            _currentResidualHitPhases = _attackData.chargeStages[clampedStage].hitPhases;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -478,6 +598,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteCounterAttack()
         {
+            ClearResidualAttackContext();
             var source = _attackData.counterAttack?.baseInfo != null
                 ? _attackData.counterAttack
                 : (_attackData.heavyComboAttackList.Count > 0 ? _attackData.heavyComboAttackList[0] : null);
@@ -495,6 +616,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteEntryAttack()
         {
+            ClearResidualAttackContext();
             var source = _attackData.entryAttack?.baseInfo != null
                 ? _attackData.entryAttack
                 : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null);
@@ -512,6 +634,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteSwapSpecialAttack()
         {
+            ClearResidualAttackContext();
             var source = _attackData.swapSpecialAttack?.baseInfo != null
                 ? _attackData.swapSpecialAttack
                 : (_attackData.skillAttackList.Count > 0 && _attackData.skillAttackList[0]?.baseInfo != null
@@ -531,6 +654,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteParryCounterAttack()
         {
+            ClearResidualAttackContext();
             var source = _attackData.parryCounterAttack?.baseInfo != null
                 ? _attackData.parryCounterAttack
                 : (_attackData.counterAttack?.baseInfo != null
@@ -550,6 +674,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
+            ClearResidualAttackContext();
             if (_attackData.skillAttackList.Count <= skillIndex) return null;
             _currentAttackData = ConvertToAttackData(_attackData.skillAttackList[skillIndex], AttackKind.SkillAttack);
             LastAttackTime = Time.time;
@@ -560,6 +685,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteJumpAttack(bool isCombo = false)
         {
+            ClearResidualAttackContext();
             if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
             if (_attackState != AttackState.JumpAttack) ResetCombo();
             _attackState      = AttackState.JumpAttack;
@@ -575,6 +701,7 @@ namespace UPlayGround.Component
         // jumpAttackList의 마지막 항목을 피니시 공격으로 실행
         public AttackData ExecuteJumpFinishAttack()
         {
+            ClearResidualAttackContext();
             if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
             _attackState      = AttackState.JumpAttack;
             CurrentComboIndex = _attackData.jumpAttackList.Count - 1;
@@ -587,6 +714,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteDashAttack()
         {
+            ClearResidualAttackContext();
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
             ResetCombo();
@@ -598,6 +726,7 @@ namespace UPlayGround.Component
 
         public AttackData ExecuteJumpDashAttack()
         {
+            ClearResidualAttackContext();
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
             _currentAttackData.animKey = AnimKey.JumpDashAttack_1;
@@ -608,9 +737,13 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
-        public void SetupFinishAttackData()
+        public void SetupFinishAttackData(Transform finishTarget = null)
         {
+            ClearResidualAttackContext();
             _currentAttackInfoBase = null;
+            _currentFinishTarget = finishTarget != null
+                ? finishTarget.GetComponent<MonsterActor>() ?? finishTarget.GetComponentInParent<MonsterActor>()
+                : null;
             _currentAttackData     = new AttackData
             {
                 animKey          = AnimKey.FinishAttack,
@@ -630,9 +763,54 @@ namespace UPlayGround.Component
             OnAttackStarted?.Invoke(_currentAttackData);
         }
 
+        public void SetupSpecialBreakAttackData(SpecialBreakAttackAsset specialBreakAttack, MonsterActor target)
+        {
+            // 어셋 누락 시 매직 디폴트(20% MaxHP)로 일반 모션을 발화하지 않도록 fail-fast.
+            // 상태 진입은 호출부에서 막지 못해도, 여기서 데미지 흐름을 끊는다.
+            if (specialBreakAttack == null)
+            {
+                Debug.LogError($"[PlayerCombat] SetupSpecialBreakAttackData: SpecialBreakAttackAsset이 null입니다. target={target?.name}");
+                return;
+            }
+
+            ClearResidualAttackContext();
+            _currentAttackInfoBase = null;
+            _currentSpecialBreakTarget = target;
+            _currentSpecialBreakDamageByMaxHpRate = Mathf.Max(0f, specialBreakAttack.damageByMaxHpRate);
+            _currentSpecialBreakFixedDamage = Mathf.Max(0f, specialBreakAttack.fixedDamage);
+            _currentAttackData = new AttackData
+            {
+                animKey = ResolveSpecialBreakMotionKey(specialBreakAttack),
+                damage = _currentSpecialBreakFixedDamage,
+                poiseDamage = 0f,
+                breakDamage = 0f,
+                canBeInterrupted = false,
+                reactionType = AttackReactionType.Heavy,
+                hitRange = 1.5f,
+                hitAngle = 90f,
+                hitHeightOffset = 1.0f,
+                hitParticleName = "HeavyHit",
+                attackKind = AttackKind.SkillAttack,
+            };
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+        }
+
+        private AnimKey ResolveSpecialBreakMotionKey(SpecialBreakAttackAsset specialBreakAttack)
+        {
+            if (specialBreakAttack.animKey != AnimKey.None)
+                return specialBreakAttack.animKey;
+
+            if (_actorAnimator != null && _actorAnimator.HasMotion(AnimKey.FinishAttack, true))
+                return AnimKey.FinishAttack;
+
+            return AnimKey.Attack_1;
+        }
+
         private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo, AttackKind attackKind)
         {
             _currentAttackInfoBase = attackInfo.baseInfo;
+            _currentResidualHitPhases = attackInfo.baseInfo.hitPhases;
             var phase0 = attackInfo.baseInfo.GetHitPhase(0);
 
             return new AttackData
@@ -658,6 +836,44 @@ namespace UPlayGround.Component
                 hitPhaseIndex          = 0,
                 attackKind             = attackKind,
                 victimForcedAnimKey    = phase0.victimForcedAnimKey,
+            };
+        }
+
+        private static AttackData CopyAttackData(AttackData source)
+        {
+            if (source == null) return null;
+
+            return new AttackData
+            {
+                animKey = source.animKey,
+                damage = source.damage,
+                poiseDamage = source.poiseDamage,
+                breakDamage = source.breakDamage,
+                reactionDuration = source.reactionDuration,
+                forceReaction = source.forceReaction,
+                forceBreakExpose = source.forceBreakExpose,
+                canBeInterrupted = source.canBeInterrupted,
+                attackKind = source.attackKind,
+                reactionType = source.reactionType,
+                attacker = source.attacker,
+                hitRange = source.hitRange,
+                hitAngle = source.hitAngle,
+                hitHeightOffset = source.hitHeightOffset,
+                hitHeightRange = source.hitHeightRange,
+                hitPoint = source.hitPoint,
+                hitTarget = source.hitTarget,
+                criticalMultiplier = source.criticalMultiplier,
+                isCounterAttack = source.isCounterAttack,
+                attackDirection = source.attackDirection,
+                hitParticleName = source.hitParticleName,
+                defenseType = source.defenseType,
+                pullForce = source.pullForce,
+                airborneForce = source.airborneForce,
+                knockbackForce = source.knockbackForce,
+                knockbackDrag = source.knockbackDrag,
+                grabDuration = source.grabDuration,
+                victimForcedAnimKey = source.victimForcedAnimKey,
+                hitPhaseIndex = source.hitPhaseIndex,
             };
         }
 
@@ -817,8 +1033,11 @@ namespace UPlayGround.Component
 
         public void SetHitPhaseIndex(int index)
         {
-            if (_currentAttackData == null || _currentAttackInfoBase == null) return;
-            var phase = _currentAttackInfoBase.GetHitPhase(index);
+            if (_currentAttackData == null) return;
+            var phase = _currentAttackInfoBase != null
+                ? _currentAttackInfoBase.GetHitPhase(index)
+                : GetHitPhase(_currentResidualHitPhases, index);
+            if (phase == null) return;
             _currentAttackData.hitPhaseIndex   = index;
             _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
             _currentAttackData.poiseDamage     = phase.poiseDamage;
@@ -835,6 +1054,31 @@ namespace UPlayGround.Component
             _currentAttackData.airborneForce   = phase.airborneForce;
             _currentAttackData.knockbackForce  = phase.knockBackForce;
             _currentAttackData.knockbackDrag   = phase.knockBackDrag;
+        }
+
+        private static bool IsResidualAttackState(string stateName)
+        {
+            return stateName is "Attack"
+                or "JumpAttack"
+                or "JumpDashAttack"
+                or "Charge"
+                or "FinishAttack"
+                or "SpecialBreakAttack";
+        }
+
+        private void ClearResidualAttackContext()
+        {
+            _currentResidualHitPhases = null;
+            _currentFinishTarget = null;
+            _currentSpecialBreakTarget = null;
+            _currentSpecialBreakDamageByMaxHpRate = 0f;
+            _currentSpecialBreakFixedDamage = 0f;
+        }
+
+        private static HitPhaseData GetHitPhase(IReadOnlyList<HitPhaseData> phases, int index)
+        {
+            if (phases == null || phases.Count == 0) return null;
+            return phases[Mathf.Clamp(index, 0, phases.Count - 1)];
         }
 
         private static string GetHitFxKey(AttackData attackData)

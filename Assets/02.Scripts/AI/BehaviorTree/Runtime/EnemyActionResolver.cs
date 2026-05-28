@@ -379,7 +379,6 @@ namespace UPlayGround.AI.BehaviorTree
                 "Grabbed" or
                 "Airborne" or
                 "Land" or
-                "BreakExposed" or
                 "SpecialBreakVictim";
         }
 

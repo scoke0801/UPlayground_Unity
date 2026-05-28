@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.AI.Debugging;
 using UPlayGround.Component;
@@ -46,6 +47,7 @@ namespace UPlayGround
         protected bool _isDead = false;
         
         protected UI_ActorHpBar _uiHpBar;
+        private UI_BreakPrompt _breakPrompt;   // 노출(브레이크 가능) 동안만 존재하는 F키 프롬프트
 
         // 기본 Airborne 수치(7~8)는 피격 경직으로 처리하고, 전용 launch급 공격만 공중 상태로 보낸다.
         private const float MinAirborneStateForce = 10f;
@@ -196,6 +198,16 @@ namespace UPlayGround
                     reactionType = AttackReactionType.Knockdown,
                 };
                 OnDeath(attackData);
+                return;
+            }
+
+            // 생존 시 — 브레이크 공격 마무리로 넘어뜨린다. Knockdown 모션이 없으면 Stun.
+            if (MovementController != null)
+            {
+                bool hasKnockdown = Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
+                MovementController.TransitionToState(hasKnockdown
+                    ? new EnemyKnockdownState(MovementController)
+                    : new EnemyStunState(MovementController));
             }
         }
         
@@ -264,13 +276,8 @@ namespace UPlayGround
             AIController?.Group?.Memory?.NotifyMemberTookDamage();
             _breakGauge?.TakeBreakDamage(attackData);
 
-            // BreakExposed는 자체 상태/모션이 고정되므로 일반 리액션(물리·상태 전환)을 건너뛴다.
-            // 단, 피격 플래시는 일반 피격과 동일하게 유지한다.
-            if (_breakGauge != null && _breakGauge.IsExposed)
-            {
-                _colorChanger.OnHit();
-                return;
-            }
+            // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
+            // 받는 피해 증가(DamageTakenMultiplier)는 TakeDamage 단계에서 이미 적용된다.
 
             bool shouldReact = poiseBroken || (attackData?.forceReaction ?? false);
             if (attackData != null && shouldReact)
@@ -366,7 +373,10 @@ namespace UPlayGround
                 OnHealthChanged -= _uiHpBar.UpdateHealth;
                 Destroy(_uiHpBar.gameObject);
             }
-            
+
+            UnregisterExposed();
+            HideBreakPrompt();
+
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
         }
 
@@ -462,24 +472,68 @@ namespace UPlayGround
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            UnregisterExposed();
+            HideBreakPrompt();
             if (_breakGauge == null) return;
             _breakGauge.OnBreakExposed -= OnBreakExposed;
             _breakGauge.OnBreakRecovered -= OnBreakRecovered;
         }
 
+        // 현재 노출(브레이크 가능) 중인 몬스터 레지스트리.
+        // 프롬프트는 "노출됨"이 아니라 "플레이어가 실제로 브레이크 가능한 단일 타겟"에게만 표시되므로,
+        // PlayerCombat 드라이버가 매 프레임 이 목록을 게이트로 삼아 현재 타겟을 선정한다.
+        private static readonly List<MonsterActor> _exposedMonsters = new List<MonsterActor>();
+        public static IReadOnlyList<MonsterActor> ExposedMonsters => _exposedMonsters;
+
+        // 도메인 리로드 비활성(Enter Play Mode Options) 환경에서 이전 세션의 destroyed 참조가 잔존하지 않도록 초기화.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => _exposedMonsters.Clear();
+
         private void OnBreakExposed(MonsterBreakGauge breakGauge)
         {
-            if (_isDead || MovementController == null) return;
-            string stateName = MovementController.CurrentState?.StateName;
-            if (stateName is "Death" or "Grabbed" or "BreakExposed") return;
-            MovementController.TransitionToState(new EnemyBreakExposedState(MovementController, breakGauge));
+            if (_isDead) return;
+            // 무방비 경직 없음 — 적은 계속 정상 행동하고, '브레이크 공격 가능'만 레지스트리에 등록한다.
+            // 실제 프롬프트 표시 여부는 PlayerCombat 드라이버가 거리·각도·락온으로 판정한다.
+            RegisterExposed();
         }
 
         private void OnBreakRecovered(MonsterBreakGauge breakGauge)
         {
-            if (_isDead || MovementController == null) return;
-            if (MovementController.CurrentState?.StateName == "BreakExposed")
-                MovementController.TransitionToState(new EnemyIdleState(MovementController));
+            UnregisterExposed();
+            HideBreakPrompt();
+        }
+
+        private void RegisterExposed()
+        {
+            if (!_exposedMonsters.Contains(this))
+                _exposedMonsters.Add(this);
+        }
+
+        private void UnregisterExposed()
+        {
+            _exposedMonsters.Remove(this);
+        }
+
+        /// <summary>
+        /// PlayerCombat 드라이버가 호출 — 이 몬스터가 현재 브레이크 타겟이면 true.
+        /// </summary>
+        public void SetBreakPromptActive(bool active)
+        {
+            if (active) ShowBreakPrompt();
+            else HideBreakPrompt();
+        }
+
+        private void ShowBreakPrompt()
+        {
+            if (_breakPrompt != null || _isDead || UIManager.Instance == null) return;
+            _breakPrompt = UIManager.Instance.CreateBreakPrompt(this);
+        }
+
+        private void HideBreakPrompt()
+        {
+            if (_breakPrompt == null) return;
+            Destroy(_breakPrompt.gameObject);
+            _breakPrompt = null;
         }
 
         private void BindBreakGauge()

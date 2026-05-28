@@ -39,6 +39,12 @@ namespace UPlayGround.Animation
             }
         }
 
+        public void SetTargetObject(GameObject target)
+        {
+            _targetObject = target;
+            _resolvedTarget = target;
+        }
+
         /// <summary>
         /// 모션 셋 재생 시작
         /// </summary>

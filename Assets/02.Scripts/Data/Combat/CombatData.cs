@@ -38,7 +38,7 @@ namespace UPlayGround.Data
         public float reactionDuration = 0f;
         [Tooltip("true면 Poise가 남아 있어도 해당 리액션 상태 전환을 강제한다.")]
         public bool forceReaction = false;
-        [Tooltip("true면 Break Gauge 잔량과 무관하게 즉시 BreakExposed를 요청한다.")]
+        [Tooltip("true면 Break Gauge 잔량과 무관하게 즉시 노출(브레이크 공격 가능) 상태로 만든다.")]
         public bool forceBreakExpose = false;
 
         [Header("Hitbox")]

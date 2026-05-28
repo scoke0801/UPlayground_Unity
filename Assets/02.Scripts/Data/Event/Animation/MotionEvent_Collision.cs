@@ -21,6 +21,9 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            if (HandleMotionEventCombatTarget(target, true))
+                return;
+
             GameActor actor = target.GetComponent<GameActor>();
             if (actor == null) return;
 
@@ -32,6 +35,9 @@ namespace UPlayGround.Data.Event
 
         public override void OnCompleteEvent(GameObject target)
         {
+            if (HandleMotionEventCombatTarget(target, false))
+                return;
+
             GameActor actor = target.GetComponent<GameActor>();
             if (actor == null) return;
 
@@ -39,6 +45,21 @@ namespace UPlayGround.Data.Event
                 HandlePlayerCombat(actor as PlayerActor, false);
             else if (actor.HasActorType(ActorType.Monster))
                 HandleMonsterCombat(actor as MonsterActor, false);
+        }
+
+        private bool HandleMotionEventCombatTarget(GameObject target, bool isCollisionEnable)
+        {
+            var combatTarget = target.GetComponent<IMotionEventCombatTarget>()
+                               ?? target.GetComponentInParent<IMotionEventCombatTarget>()
+                               ?? target.GetComponentInChildren<IMotionEventCombatTarget>();
+            if (combatTarget == null) return false;
+
+            Debug.Log($"[ResidualAttack] MotionEvent Collision route. target={target.name}, enable={isCollisionEnable}, phase={hitPhaseIndex}, handler={combatTarget.GetType().Name}");
+            combatTarget.ClearHitTargets();
+            if (isCollisionEnable)
+                combatTarget.SetHitPhaseIndex(hitPhaseIndex);
+            combatTarget.SetEnableCollision(isCollisionEnable);
+            return true;
         }
 
         private void HandlePlayerCombat(PlayerActor playerActor, bool isCollisionEnable)

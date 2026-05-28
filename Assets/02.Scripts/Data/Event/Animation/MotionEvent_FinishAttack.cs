@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -18,6 +19,16 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            var residualTarget = target.GetComponent<IFinishAttackMotionEventTarget>()
+                                 ?? target.GetComponentInParent<IFinishAttackMotionEventTarget>()
+                                 ?? target.GetComponentInChildren<IFinishAttackMotionEventTarget>();
+            if (residualTarget != null)
+            {
+                Debug.Log($"[ResidualAttack] MotionEvent FinishAttack route. target={target.name}, handler={residualTarget.GetType().Name}");
+                residualTarget.ApplyFinishAttackFromMotionEvent();
+                return;
+            }
+
             GameActor actor = target.GetComponent<GameActor>();
             if(actor == null)
             {

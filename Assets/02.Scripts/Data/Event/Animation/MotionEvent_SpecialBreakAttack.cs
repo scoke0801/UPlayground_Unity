@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -15,6 +16,16 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            var residualTarget = target.GetComponent<ISpecialBreakAttackMotionEventTarget>()
+                                 ?? target.GetComponentInParent<ISpecialBreakAttackMotionEventTarget>()
+                                 ?? target.GetComponentInChildren<ISpecialBreakAttackMotionEventTarget>();
+            if (residualTarget != null)
+            {
+                Debug.Log($"[ResidualAttack] MotionEvent SpecialBreak route. target={target.name}, handler={residualTarget.GetType().Name}");
+                residualTarget.ApplySpecialBreakAttackFromMotionEvent();
+                return;
+            }
+
             GameActor actor = target.GetComponent<GameActor>();
             if (actor == null || !actor.HasActorType(ActorType.Player))
                 return;

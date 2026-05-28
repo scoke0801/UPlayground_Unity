@@ -68,7 +68,11 @@ namespace UPlayGround.Component
         /// </summary>
         public bool SwapTo(CharacterActorType type)
         {
-            if (_activeModel?.characterType == type) return false;
+            if (_activeModel?.characterType == type)
+            {
+                Debug.Log($"[ResidualAttack] Swap skipped: already active. character={type}");
+                return false;
+            }
 
             var target = _models.Find(m => m.characterType == type);
             if (target == null)
@@ -80,6 +84,8 @@ namespace UPlayGround.Component
             ActorAnimator.MotionPlaybackSnapshot animationSnapshot =
                 _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
                 ?? ActorAnimator.MotionPlaybackSnapshot.Empty;
+
+            TrySpawnResidualAttack(_activeModel);
 
             _activeModel?.gameObject.SetActive(false);
             _activeModel = target;
@@ -102,6 +108,44 @@ namespace UPlayGround.Component
 
         public CharacterModelData GetModelData(CharacterActorType type)
             => _models.Find(m => m.characterType == type);
+
+        private void TrySpawnResidualAttack(CharacterModelData sourceModel)
+        {
+            var partyManager = PartyManager.Instance;
+            if (partyManager != null && !partyManager.EnableResidualAttackOnSwap)
+            {
+                Debug.LogWarning("[ResidualAttack] Spawn skipped: PartyManager disabled residual attack.");
+                return;
+            }
+
+            if (_playerActor == null || sourceModel == null)
+            {
+                Debug.LogWarning($"[ResidualAttack] Spawn skipped: actor/model missing. actor={_playerActor != null}, sourceModel={sourceModel != null}");
+                return;
+            }
+
+            var combat = _playerActor.GetCombat();
+            if (combat == null || !combat.TryCreateResidualAttackSnapshot(sourceModel, out var snapshot))
+            {
+                Debug.Log($"[ResidualAttack] Spawn skipped: snapshot unavailable. combat={combat != null}, sourceCharacter={sourceModel.characterType}");
+                return;
+            }
+
+            float maxLifetime = partyManager != null ? partyManager.ResidualAttackMaxLifetime : 1.8f;
+            float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.25f;
+            bool allowHitStop = partyManager == null || partyManager.ResidualAttackAllowHitStop;
+            bool useRootMotion = partyManager != null && partyManager.ResidualAttackUseRootMotion;
+            int maxCount = partyManager != null ? partyManager.ResidualAttackMaxCount : 1;
+
+            var request = new SwapResidualAttackRequest(
+                snapshot,
+                maxLifetime,
+                fadeOutDuration,
+                allowHitStop,
+                useRootMotion);
+            Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, animKey={snapshot.PlaybackSnapshot.Key}, lifetime={maxLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
+            SwapResidualAttackRunner.Spawn(request, maxCount);
+        }
 
         private void PlaySwapFx()
         {

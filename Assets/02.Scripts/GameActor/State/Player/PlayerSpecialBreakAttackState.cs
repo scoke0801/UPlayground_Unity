@@ -55,6 +55,7 @@ namespace UPlayGround.State
             var combat = playerActor.GetCombat();
             combat?.RefreshCombatState();
             _attackData = combat?.SpecialBreakAttackData;
+            combat?.SetupSpecialBreakAttackData(_attackData, _targetMonster);
 
             _elapsedTime = 0f;
             _remainingDuration = Duration;

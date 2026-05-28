@@ -61,6 +61,12 @@ namespace UPlayGround.Manager
         public float                     SwapCooldownRemaining => GetSwapCooldownRemaining(ActiveCharacterType);
         public float                     SwapCooldownRatio => SwapCooldownDuration > 0f ? SwapCooldownRemaining / SwapCooldownDuration : 0f;
         public bool                      IsSwapOnCooldown => HasAnySwapCooldown();
+        public bool                      EnableResidualAttackOnSwap => _config == null || _config.enableResidualAttackOnSwap;
+        public float                     ResidualAttackMaxLifetime => _config != null ? Mathf.Max(0.1f, _config.residualAttackMaxLifetime) : 1.8f;
+        public float                     ResidualAttackFadeOutDuration => _config != null ? Mathf.Max(0f, _config.residualAttackFadeOutDuration) : 0.25f;
+        public bool                      ResidualAttackAllowHitStop => _config == null || _config.residualAttackAllowHitStop;
+        public bool                      ResidualAttackUseRootMotion => _config != null && _config.residualAttackUseRootMotion;
+        public int                       ResidualAttackMaxCount => _config != null ? Mathf.Max(1, _config.residualAttackMaxCount) : 1;
 
         public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
         

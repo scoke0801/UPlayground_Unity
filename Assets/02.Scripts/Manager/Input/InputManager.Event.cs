@@ -149,10 +149,16 @@ namespace UPlayGround.Manager
 
         // PlayerAction 액션맵에 한해 차단. UI/메뉴 등 다른 맵은 통과시켜 모션 툴 사용 중에도 메뉴 조작이 가능해야 한다.
         // actionMap.name 비교는 Unity Input System 액션맵 이름이 InputMapNames.PlayerAction 상수와 동일하게 유지되어야 안전.
+        // Look(카메라 회전)은 _allowLookDuringSuppression이 켜져 있으면 통과 — 모션 프리뷰 중 시점 회전용.
         private bool ShouldSuppressPlayerActionInput(InputAction.CallbackContext context)
         {
-            return _isPlayerActionInputSuppressed &&
-                   context.action?.actionMap?.name == InputMapNames.PlayerAction;
+            if (!_isPlayerActionInputSuppressed) return false;
+            var action = context.action;
+            if (action == null) return false;
+            if (action.actionMap?.name != InputMapNames.PlayerAction) return false;
+            // 참조 비교: InitInputAction에서 캐시된 동일 인스턴스이므로 문자열 비교보다 저렴.
+            if (_allowLookDuringSuppression && action == _cachedLookAction) return false;
+            return true;
         }
 
         // 다른 시스템에서 InputBuffer에 접근할 수 있도록 하는 프로퍼티

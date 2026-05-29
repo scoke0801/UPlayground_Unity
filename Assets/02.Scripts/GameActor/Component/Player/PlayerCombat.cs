@@ -334,35 +334,35 @@ namespace UPlayGround.Component
                 PerformHitDetection();
 
             UpdateCombatState();
-            UpdateBreakPromptTarget();
+            UpdateBreakInteractionTarget();
         }
 
-        // ── Break Prompt 게이팅 ───────────────────────────────────────
+        // ── Break Interaction 게이팅 ──────────────────────────────────
         // '노출된 모든 적'이 아니라 '지금 F를 누르면 실제로 브레이크될 단일 적'에게만
-        // 프롬프트를 표시한다. 선정 기준은 FindSpecialBreakAttackTarget과 동일 소스를 사용한다.
-        private MonsterActor _currentBreakPromptTarget;
-        private float _breakPromptTickTimer;
-        private const float BreakPromptTickInterval = 0.1f;
+        // 상호작용 UI를 표시한다. 선정 기준은 FindSpecialBreakAttackTarget과 동일 소스를 사용한다.
+        private MonsterActor _currentBreakInteractionTarget;
+        private float _breakInteractionTickTimer;
+        private const float BreakInteractionTickInterval = 0.1f;
 
-        private void UpdateBreakPromptTarget()
+        private void UpdateBreakInteractionTarget()
         {
             // 매 프레임 Physics.OverlapSphere를 도는 비용을 막기 위해 100ms 단위로 갱신.
-            _breakPromptTickTimer += Time.deltaTime;
-            if (_breakPromptTickTimer < BreakPromptTickInterval) return;
-            _breakPromptTickTimer = 0f;
+            _breakInteractionTickTimer += Time.deltaTime;
+            if (_breakInteractionTickTimer < BreakInteractionTickInterval) return;
+            _breakInteractionTickTimer = 0f;
 
             // 노출된 적이 하나도 없으면 물리 탐색 없이 즉시 정리(상시 비용 0).
             if (MonsterActor.ExposedMonsters.Count == 0)
             {
-                SetBreakPromptTarget(null);
+                SetBreakInteractionTarget(null);
                 return;
             }
 
-            // 플레이어가 F를 누를 수 없는 상태(피격·스턴·사망·잡힘)에선 프롬프트도 숨긴다.
+            // 플레이어가 F를 누를 수 없는 상태(피격·스턴·사망·잡힘)에선 상호작용 UI도 숨긴다.
             string playerState = _playerActor.PlayerController?.CurrentState?.StateName;
             if (playerState is "Hit" or "Stun" or "Death" or "Grabbed" or "Knockdown")
             {
-                SetBreakPromptTarget(null);
+                SetBreakInteractionTarget(null);
                 return;
             }
 
@@ -370,27 +370,27 @@ namespace UPlayGround.Component
             MonsterActor target = targetTf != null
                 ? targetTf.GetComponent<MonsterActor>() ?? targetTf.GetComponentInParent<MonsterActor>()
                 : null;
-            SetBreakPromptTarget(target);
+            SetBreakInteractionTarget(target);
         }
 
         private void OnDisable()
         {
-            // 컷씬·씬 전환 등으로 비활성화될 때 프롬프트가 남지 않도록 정리.
-            SetBreakPromptTarget(null);
+            // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
+            SetBreakInteractionTarget(null);
         }
 
-        private void SetBreakPromptTarget(MonsterActor target)
+        private void SetBreakInteractionTarget(MonsterActor target)
         {
-            if (_currentBreakPromptTarget == target) return;
+            if (_currentBreakInteractionTarget == target) return;
 
             // Unity의 != null은 파괴된 오브젝트에 false를 반환하므로 안전.
-            if (_currentBreakPromptTarget != null)
-                _currentBreakPromptTarget.SetBreakPromptActive(false);
+            if (_currentBreakInteractionTarget != null)
+                _currentBreakInteractionTarget.SetBreakInteractionActive(false);
 
-            _currentBreakPromptTarget = target;
+            _currentBreakInteractionTarget = target;
 
-            if (_currentBreakPromptTarget != null)
-                _currentBreakPromptTarget.SetBreakPromptActive(true);
+            if (_currentBreakInteractionTarget != null)
+                _currentBreakInteractionTarget.SetBreakInteractionActive(true);
         }
 
         private void UpdateCombatState()

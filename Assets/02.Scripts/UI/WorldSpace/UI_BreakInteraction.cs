@@ -4,14 +4,14 @@ using UPlayGround.Data.EnumType;
 
 /// <summary>
 /// 적의 Break 게이지가 가득 차 '브레이크 공격 가능' 상태(노출)가 되었을 때
-/// 적 몸통(Center 소켓) 위에 표시되는 입력 프롬프트(F키 아이콘 등).
+/// 적 몸통(Center 소켓) 위에 표시되는 입력 상호작용 표시(F키 아이콘 등).
 ///
 /// 노출 상태 동안에만 존재하며, 생성/파괴는 <see cref="MonsterActor"/>가
 /// <c>MonsterBreakGauge.OnBreakExposed / OnBreakRecovered</c> 이벤트로 제어한다.
 /// 위치 추적·카메라 뒤 처리는 UI_ActorHpBar / UI_DangerRing 패턴을 그대로 따른다.
 /// Screen Space Canvas(UI_WorldSpaceHudLayer) 아래에 부착된다.
 /// </summary>
-public class UI_BreakPrompt : MonoBehaviour
+public class UI_BreakInteraction : MonoBehaviour
 {
     [Header("Anchor")]
     [Tooltip("Center 소켓 기준(소켓 없으면 루트 기준) 월드 오프셋.")]

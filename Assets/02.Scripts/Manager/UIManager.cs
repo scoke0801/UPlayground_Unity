@@ -31,7 +31,7 @@ namespace UPlayGround.Manager
         private const string DATABASE_PATH       = "UIPrefabDatabase";
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
         private const string DANGER_RING_KEY     = "DangerRing"; // UIPrefabDatabase 키. enum 미생성 상태 대비 문자열 사용.
-        private const string BREAK_PROMPT_KEY    = "BreakPrompt"; // 브레이크 공격 가능 프롬프트 프리팹 키.
+        private const string BREAK_INTERACTION_KEY = "BreakInteraction"; // 브레이크 공격 가능 상호작용 UI 프리팹 키.
         private const string UI_ROOT_PREFAB_PATH = "UIRoot";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
@@ -134,8 +134,8 @@ namespace UPlayGround.Manager
             // Danger Ring 기본 프리팹 — DB에 없으면 null이고 CreateDangerRing이 조용히 스킵한다.
             _worldSpaceHudLayer.SetDangerRingPrefab(GetUIPrefabEntry(DANGER_RING_KEY));
 
-            // Break Prompt 프리팹 — DB에 없으면 null이고 CreateBreakPrompt가 조용히 스킵한다.
-            _worldSpaceHudLayer.SetBreakPromptPrefab(GetUIPrefabEntry(BREAK_PROMPT_KEY));
+            // Break Interaction 프리팹 — DB에 없으면 null이고 CreateBreakInteraction이 조용히 스킵한다.
+            _worldSpaceHudLayer.SetBreakInteractionPrefab(GetUIPrefabEntry(BREAK_INTERACTION_KEY));
 
             var floaterPrefab = GetUIPrefabEntry(UIKeyType.DamageFloater.ToKey());
             if (floaterPrefab != null)
@@ -457,11 +457,11 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 브레이크 공격 가능(노출) 표시 프롬프트 생성. 프리팹 미등록 시 null 반환(조용히 스킵).
+        /// 브레이크 공격 가능(노출) 표시 상호작용 UI 생성. 프리팹 미등록 시 null 반환(조용히 스킵).
         /// </summary>
-        public UI_BreakPrompt CreateBreakPrompt(GameActor actor)
+        public UI_BreakInteraction CreateBreakInteraction(GameActor actor)
         {
-            return _worldSpaceHudLayer?.CreateBreakPrompt(actor);
+            return _worldSpaceHudLayer?.CreateBreakInteraction(actor);
         }
 
         /// <summary>

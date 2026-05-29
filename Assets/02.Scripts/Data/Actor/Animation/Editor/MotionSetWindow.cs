@@ -14,7 +14,7 @@ using PlayerActorAnimatorType = UPlayGround.Animation.PlayerActorAnimator;
 
 namespace UPlayGround.Animation.Editor
 {
-    public class MotionSetEditorWindow : EditorWindow
+    public partial class MotionSetEditorWindow : EditorWindow
     {
         MotionSetAsset  _asset;
         ActorAnimationMotionSet _actorAnimationSet;
@@ -46,6 +46,7 @@ namespace UPlayGround.Animation.Editor
         bool            _isMotionToolInputLocked;
         InputLayer      _previousInputLayerBeforeMotionTool = InputLayer.Level_0;
         PlayerActor     _suppressedPlayerActor;
+        bool            _allowCameraLookInPreview = true;
 
         // _targetActor 가 바뀔 때만 GetComponent 재실행하기 위한 캐시
         GameObject       _cachedActorKey;
@@ -143,6 +144,7 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_TEST_MODE           = "MotionSetWindow_TestMode";
         const string PREFS_PLAYER_SET_PATH     = "MotionSetWindow_PlayerSetPath";
         const string PREFS_PLAYER_WEAPON       = "MotionSetWindow_PlayerWeapon";
+        const string PREFS_ALLOW_CAMERA_LOOK   = "MotionSetWindow_AllowCameraLook";
 
         void OnEnable()
         {
@@ -150,6 +152,7 @@ namespace UPlayGround.Animation.Editor
 
             // ⑤ EditorPrefs 복원
             LoadEditorPrefs();
+            LoadRootMotionPrefs();
 
             // Selection이 MotionSetAsset이면 자동 바인딩
             TryBindFromSelection();
@@ -166,6 +169,7 @@ namespace UPlayGround.Animation.Editor
         {
             // ⑤ EditorPrefs 저장
             SaveEditorPrefs();
+            SaveRootMotionPrefs();
 
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
@@ -197,6 +201,7 @@ namespace UPlayGround.Animation.Editor
             if (_playerActorAnimationSet != null)
                 EditorPrefs.SetString(PREFS_PLAYER_SET_PATH, AssetDatabase.GetAssetPath(_playerActorAnimationSet));
             EditorPrefs.SetInt(PREFS_PLAYER_WEAPON, (int)_selectedPlayerWeaponType);
+            EditorPrefs.SetBool(PREFS_ALLOW_CAMERA_LOOK, _allowCameraLookInPreview);
         }
 
         // ⑤ 상태 복원
@@ -224,6 +229,7 @@ namespace UPlayGround.Animation.Editor
             if (!string.IsNullOrEmpty(playerSetPath))
                 _playerActorAnimationSet = AssetDatabase.LoadAssetAtPath<PlayerActorAnimationMotionSet>(playerSetPath);
             _selectedPlayerWeaponType = (WeaponType)EditorPrefs.GetInt(PREFS_PLAYER_WEAPON, (int)WeaponType.NoWeapon);
+            _allowCameraLookInPreview = EditorPrefs.GetBool(PREFS_ALLOW_CAMERA_LOOK, true);
             if (_testActorMode == TestActorMode.Player && _playerActorAnimationSet != null)
                 SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
         }
@@ -243,6 +249,7 @@ namespace UPlayGround.Animation.Editor
             }
             else if (state == PlayModeStateChange.ExitingPlayMode)
             {
+                EndRootMotionPreview();
                 _spawnedTestActor = null;
                 _scenePlayer = null;
                 _targetActor = null;
@@ -251,6 +258,7 @@ namespace UPlayGround.Animation.Editor
                 _availableCharacterTypes = null;
                 _characterTypeNames = null;
                 _selectedCharacterType = CharacterActorType.None;
+                RefreshRootMotionCache();
                 Repaint();
             }
         }
@@ -322,6 +330,7 @@ namespace UPlayGround.Animation.Editor
                 _availableCharacterTypes = null;
                 _characterTypeNames = null;
                 _selectedCharacterType = CharacterActorType.None;
+                RefreshRootMotionCache();
             }
         }
 
@@ -332,6 +341,7 @@ namespace UPlayGround.Animation.Editor
             if (modelData?.AnimancerComponent != null)
                 _animancer = modelData.AnimancerComponent;
             ForceDrawPlayerWeapons();
+            RefreshRootMotionCache();
         }
 
         void RefreshTargetActorCache()
@@ -401,11 +411,13 @@ namespace UPlayGround.Animation.Editor
             {
                 InputManager.Instance.InputBuffer?.Clear();
                 InputManager.Instance.SetPlayerActionInputSuppressed(true);
+                InputManager.Instance.SetPlayerActionLookAllowed(_allowCameraLookInPreview);
                 return;
             }
 
             _previousInputLayerBeforeMotionTool = InputManager.Instance.CurrentLayer;
             InputManager.Instance.SetPlayerActionInputSuppressed(true);
+            InputManager.Instance.SetPlayerActionLookAllowed(_allowCameraLookInPreview);
             InputManager.Instance.InputBuffer?.Clear();
             InputManager.Instance.SetInputLayer(InputLayer.Level_3);
             _isMotionToolInputLocked = true;
@@ -419,6 +431,7 @@ namespace UPlayGround.Animation.Editor
             _suppressedPlayerActor?.SetInputSuppressed(false);
             _suppressedPlayerActor = null;
             InputManager.Instance.SetPlayerActionInputSuppressed(false);
+            InputManager.Instance.SetPlayerActionLookAllowed(false);
             InputManager.Instance.InputBuffer?.Clear();
             InputManager.Instance.SetInputLayer(_previousInputLayerBeforeMotionTool);
             _isMotionToolInputLocked = false;
@@ -550,6 +563,7 @@ namespace UPlayGround.Animation.Editor
 
                 ExecuteActiveEvents(currentSet);
                 ForceDrawPlayerWeapons();
+                TickRootMotionPreview();
 
                 _drawer.cursorTime = _playbackTime;
                 _previousTime      = _playbackTime;
@@ -698,6 +712,9 @@ namespace UPlayGround.Animation.Editor
             // Loop/Freeze 상태 리셋
             ResetEditorLoopState();
 
+            // 루트 모션 누적 위치 리셋
+            ResetRootMotionPreviewPose();
+
             // 이벤트 상태 리셋
             if (_activeEvents != null && _targetActor != null)
             {
@@ -750,6 +767,8 @@ namespace UPlayGround.Animation.Editor
 
         void OnSceneGUI(SceneView sceneView)
         {
+            DrawRootMotionGizmo();
+
             if (!_showSceneEventOverlay) return;
             if (!_isPlaying || _targetActor == null) return;
 
@@ -1733,6 +1752,7 @@ namespace UPlayGround.Animation.Editor
                           ?? go.GetComponentInChildren<AnimancerComponent>();
                 if (_animancer == null)
                     Debug.LogWarning($"[MotionEditor] '{go.name}'에서 AnimancerComponent를 찾을 수 없습니다.");
+                RefreshRootMotionCache();
             }
 
             // 엔트리에 Idle 클립이 지정된 경우 적용
@@ -2013,6 +2033,7 @@ namespace UPlayGround.Animation.Editor
                     _drawer.cursorTime = loopStart;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
+                    ResetRootMotionPreviewPose();
                 }
                 EditorGUI.EndDisabledGroup();
                 
@@ -2065,6 +2086,18 @@ namespace UPlayGround.Animation.Editor
 
                 GUILayout.Space(10);
 
+                bool newAllowLook = EditorGUILayout.ToggleLeft(
+                    new GUIContent("카메라 회전", "프리뷰 중에도 마우스 Look 입력을 통과시켜 인게임 카메라를 회전시킨다."),
+                    _allowCameraLookInPreview, GUILayout.Width(95));
+                if (newAllowLook != _allowCameraLookInPreview)
+                {
+                    _allowCameraLookInPreview = newAllowLook;
+                    if (_isMotionToolInputLocked && InputManager.Instance != null)
+                        InputManager.Instance.SetPlayerActionLookAllowed(_allowCameraLookInPreview);
+                }
+
+                GUILayout.Space(10);
+
                 // ③ 프레임 스텝 버튼
                 float frameStep = _drawer.fps > 0 ? 1f / _drawer.fps : 1f / 30f;
                 var motionSetForStep = GetCurrentMotionSet();
@@ -2080,6 +2113,7 @@ namespace UPlayGround.Animation.Editor
                     _drawer.cursorTime = _playbackTime;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
+                    ResetRootMotionPreviewPose();
                     Repaint();
                 }
                 // ◀ 한 프레임 뒤로
@@ -2090,6 +2124,7 @@ namespace UPlayGround.Animation.Editor
                     _drawer.cursorTime = _playbackTime;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
+                    ResetRootMotionPreviewPose();
                     Repaint();
                 }
                 // ▶ 한 프레임 앞으로
@@ -2100,6 +2135,7 @@ namespace UPlayGround.Animation.Editor
                     _drawer.cursorTime = _playbackTime;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
+                    ResetRootMotionPreviewPose();
                     Repaint();
                 }
                 // ▶| 끝으로
@@ -2111,6 +2147,7 @@ namespace UPlayGround.Animation.Editor
                     _drawer.cursorTime = _playbackTime;
                     _executedEvents?.Clear();
                     UpdateAnimancerPlayback();
+                    ResetRootMotionPreviewPose();
                     Repaint();
                 }
 
@@ -2199,6 +2236,8 @@ namespace UPlayGround.Animation.Editor
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.EndHorizontal();
+
+            DrawRootMotionControls();
         }
         
         void StartPlayback()
@@ -2243,6 +2282,8 @@ namespace UPlayGround.Animation.Editor
                 if (motionSet.GetMotionAtTime(_playbackTime, out int startIdx, out _))
                     _currentMotionIndex = startIdx;
             }
+
+            BeginRootMotionPreview();
         }
         void PausePlayback()
         {
@@ -2262,6 +2303,8 @@ namespace UPlayGround.Animation.Editor
         
         void StopPlayback()
         {
+            EndRootMotionPreview();
+
             _isPlaying = false;
             _isPaused = false;
             ReleaseMotionToolInputLock();
@@ -2347,8 +2390,10 @@ namespace UPlayGround.Animation.Editor
         void SeekToTime(float time)
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
-      
+
             ResetEditorLoopState();
+            // 스크럽 시 누적된 루트모션 위치를 초기 포즈로 되돌린다 (시간축 점프와 일관)
+            ResetRootMotionPreviewPose();
 
             // Seek 시에는 현재 활성 이벤트를 모두 종료하고 상태를 리셋함
             if (_activeEvents != null && _targetActor != null)

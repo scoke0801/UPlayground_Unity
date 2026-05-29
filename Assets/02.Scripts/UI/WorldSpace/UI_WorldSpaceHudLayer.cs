@@ -18,7 +18,7 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     private GameObject _hpBarPrefab;
     private GameObject _dangerRingPrefab;
-    private GameObject _breakPromptPrefab;
+    private GameObject _breakInteractionPrefab;
 
     private GameObject              _floaterPrefab;
     private DamageFloaterConfigSO   _floaterConfig;
@@ -70,28 +70,28 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         return ring;
     }
 
-    // ── Break Prompt ──────────────────────────────────────────────────
+    // ── Break Interaction ─────────────────────────────────────────────
 
-    public void SetBreakPromptPrefab(GameObject breakPromptPrefab) => _breakPromptPrefab = breakPromptPrefab;
+    public void SetBreakInteractionPrefab(GameObject breakInteractionPrefab) => _breakInteractionPrefab = breakInteractionPrefab;
 
     /// <summary>
-    /// 브레이크 공격 가능(노출) 표시 프롬프트 생성. 프리팹이 없으면 조용히 null 반환.
+    /// 브레이크 공격 가능(노출) 표시 상호작용 UI 생성. 프리팹이 없으면 조용히 null 반환.
     /// </summary>
-    public UI_BreakPrompt CreateBreakPrompt(GameActor actor)
+    public UI_BreakInteraction CreateBreakInteraction(GameActor actor)
     {
-        if (_breakPromptPrefab == null) return null;
+        if (_breakInteractionPrefab == null) return null;
         if (_mainCamera == null) _mainCamera = Camera.main;
 
-        var instance = Instantiate(_breakPromptPrefab, transform);
-        var prompt = instance.GetComponent<UI_BreakPrompt>();
-        if (prompt == null)
+        var instance = Instantiate(_breakInteractionPrefab, transform);
+        var interaction = instance.GetComponent<UI_BreakInteraction>();
+        if (interaction == null)
         {
-            // 프리팹에 UI_BreakPrompt 컴포넌트가 없으면 인스턴스가 떠돌지 않도록 즉시 파괴.
+            // 프리팹에 UI_BreakInteraction 컴포넌트가 없으면 인스턴스가 떠돌지 않도록 즉시 파괴.
             Destroy(instance);
             return null;
         }
-        prompt.Init(actor, _mainCamera, _parentCanvas);
-        return prompt;
+        interaction.Init(actor, _mainCamera, _parentCanvas);
+        return interaction;
     }
 
     // ── 데미지 플로터 ─────────────────────────────────────────────────

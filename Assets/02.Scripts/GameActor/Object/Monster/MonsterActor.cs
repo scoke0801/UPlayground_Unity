@@ -47,7 +47,7 @@ namespace UPlayGround
         protected bool _isDead = false;
         
         protected UI_ActorHpBar _uiHpBar;
-        private UI_BreakPrompt _breakPrompt;   // 노출(브레이크 가능) 동안만 존재하는 F키 프롬프트
+        private UI_BreakInteraction _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
 
         // 기본 Airborne 수치(7~8)는 피격 경직으로 처리하고, 전용 launch급 공격만 공중 상태로 보낸다.
         private const float MinAirborneStateForce = 10f;
@@ -375,7 +375,7 @@ namespace UPlayGround
             }
 
             UnregisterExposed();
-            HideBreakPrompt();
+            HideBreakInteraction();
 
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
         }
@@ -473,7 +473,7 @@ namespace UPlayGround
         {
             base.OnDestroy();
             UnregisterExposed();
-            HideBreakPrompt();
+            HideBreakInteraction();
             if (_breakGauge == null) return;
             _breakGauge.OnBreakExposed -= OnBreakExposed;
             _breakGauge.OnBreakRecovered -= OnBreakRecovered;
@@ -500,7 +500,7 @@ namespace UPlayGround
         private void OnBreakRecovered(MonsterBreakGauge breakGauge)
         {
             UnregisterExposed();
-            HideBreakPrompt();
+            HideBreakInteraction();
         }
 
         private void RegisterExposed()
@@ -517,23 +517,23 @@ namespace UPlayGround
         /// <summary>
         /// PlayerCombat 드라이버가 호출 — 이 몬스터가 현재 브레이크 타겟이면 true.
         /// </summary>
-        public void SetBreakPromptActive(bool active)
+        public void SetBreakInteractionActive(bool active)
         {
-            if (active) ShowBreakPrompt();
-            else HideBreakPrompt();
+            if (active) ShowBreakInteraction();
+            else HideBreakInteraction();
         }
 
-        private void ShowBreakPrompt()
+        private void ShowBreakInteraction()
         {
-            if (_breakPrompt != null || _isDead || UIManager.Instance == null) return;
-            _breakPrompt = UIManager.Instance.CreateBreakPrompt(this);
+            if (_breakInteraction != null || _isDead || UIManager.Instance == null) return;
+            _breakInteraction = UIManager.Instance.CreateBreakInteraction(this);
         }
 
-        private void HideBreakPrompt()
+        private void HideBreakInteraction()
         {
-            if (_breakPrompt == null) return;
-            Destroy(_breakPrompt.gameObject);
-            _breakPrompt = null;
+            if (_breakInteraction == null) return;
+            Destroy(_breakInteraction.gameObject);
+            _breakInteraction = null;
         }
 
         private void BindBreakGauge()

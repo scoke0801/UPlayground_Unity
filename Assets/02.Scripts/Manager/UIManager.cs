@@ -484,6 +484,11 @@ namespace UPlayGround.Manager
             _worldSpaceHudLayer?.ShowFloater(worldPos, damage, style);
         }
 
+        public void ShowDamageFloaterLabel(Vector3 worldPos, string label, FloatStyle style = FloatStyle.Normal)
+        {
+            _worldSpaceHudLayer?.ShowFloaterLabel(worldPos, label, style);
+        }
+
         public void ShowDamageFloaterMiss(Vector3 worldPos)
         {
             _worldSpaceHudLayer?.ShowFloaterMiss(worldPos);

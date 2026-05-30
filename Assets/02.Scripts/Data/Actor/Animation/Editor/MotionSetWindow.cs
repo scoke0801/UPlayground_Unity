@@ -153,6 +153,7 @@ namespace UPlayGround.Animation.Editor
             // ⑤ EditorPrefs 복원
             LoadEditorPrefs();
             LoadRootMotionPrefs();
+            LoadWarpTargetPrefs();
 
             // Selection이 MotionSetAsset이면 자동 바인딩
             TryBindFromSelection();
@@ -170,6 +171,9 @@ namespace UPlayGround.Animation.Editor
             // ⑤ EditorPrefs 저장
             SaveEditorPrefs();
             SaveRootMotionPrefs();
+            SaveWarpTargetPrefs();
+
+            DestroyWarpTarget();
 
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
@@ -250,6 +254,7 @@ namespace UPlayGround.Animation.Editor
             else if (state == PlayModeStateChange.ExitingPlayMode)
             {
                 EndRootMotionPreview();
+                DestroyWarpTarget();
                 _spawnedTestActor = null;
                 _scenePlayer = null;
                 _targetActor = null;
@@ -564,6 +569,7 @@ namespace UPlayGround.Animation.Editor
                 ExecuteActiveEvents(currentSet);
                 ForceDrawPlayerWeapons();
                 TickRootMotionPreview();
+                InjectWarpTarget();
 
                 _drawer.cursorTime = _playbackTime;
                 _previousTime      = _playbackTime;
@@ -768,6 +774,7 @@ namespace UPlayGround.Animation.Editor
         void OnSceneGUI(SceneView sceneView)
         {
             DrawRootMotionGizmo();
+            DrawWarpTargetSceneHandle();
 
             if (!_showSceneEventOverlay) return;
             if (!_isPlaying || _targetActor == null) return;
@@ -2238,6 +2245,7 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.EndHorizontal();
 
             DrawRootMotionControls();
+            DrawWarpTargetControls();
         }
         
         void StartPlayback()

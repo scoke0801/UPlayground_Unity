@@ -34,6 +34,15 @@ namespace UPlayGround.Component
             ChargeAttack,
         }
 
+        private struct CharacterComboState
+        {
+            public int CurrentComboIndex;
+            public float LastAttackTime;
+            public bool CanCombo;
+            public AttackState AttackState;
+            public AnimKey LastAttackAnimKey;
+        }
+
         [FormerlySerializedAs("equipment")]
         [Header("References")]
         [SerializeField] private PlayerEquipment _equipment;
@@ -141,6 +150,8 @@ namespace UPlayGround.Component
         private float             _currentSpecialBreakDamageByMaxHpRate;
         private float             _currentSpecialBreakFixedDamage;
         private AttackState       _attackState         = AttackState.NormalAttack;
+        private CharacterActorType _comboCharacterType = CharacterActorType.None;
+        private readonly Dictionary<CharacterActorType, CharacterComboState> _comboStatesByCharacter = new();
         private float             _lastCombatEventTime = -999f;
         private bool              _isCollideCollisionEnable;
         private PlayerActor       _playerActor;
@@ -499,7 +510,7 @@ namespace UPlayGround.Component
             ClearResidualAttackContext();
             if (_attackState == AttackState.HeavyAttack) ResetCombo();
             _attackState      = AttackState.NormalAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            CurrentComboIndex = ((isCombo || CanCombo) && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
              _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
@@ -513,7 +524,7 @@ namespace UPlayGround.Component
             ClearResidualAttackContext();
             if (_attackState == AttackState.NormalAttack) ResetCombo();
             _attackState      = AttackState.HeavyAttack;
-            CurrentComboIndex = (isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
+            CurrentComboIndex = ((isCombo || CanCombo) && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
             _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
@@ -623,10 +634,9 @@ namespace UPlayGround.Component
 
             if (source == null) return null;
 
-            _attackState = AttackState.NormalAttack;
-            ResetCombo();
+            var comboState = CaptureComboState();
             _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
-            LastAttackTime = Time.time;
+            RestoreComboState(comboState);
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
@@ -1115,6 +1125,14 @@ namespace UPlayGround.Component
         public void OpenComboWindow()  => CanCombo = true;
         public void CloseComboWindow() => CanCombo = false;
 
+        public bool CanUseStoredCombo(bool isHeavyAttack)
+        {
+            AttackState desiredState = isHeavyAttack ? AttackState.HeavyAttack : AttackState.NormalAttack;
+            return CanCombo
+                   && _attackState == desiredState
+                   && CurrentComboIndex < GetComboLength(desiredState) - 1;
+        }
+
         // ── Peek API (side-effect-free) ───────────────────────────────
         // PlayerAttackState 진입 가능 여부 판정용. CurrentComboIndex / _attackState /
         // _currentAttackData 등 어떠한 상태도 변경하지 않는다.
@@ -1219,23 +1237,130 @@ namespace UPlayGround.Component
         // ──────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// 캐릭터 교체 시 공격 데이터 SO를 교체하고 콤보를 초기화한다.
+        /// 모델 교체 직전 현재 캐릭터의 조작 콤보 상태를 저장한다.
+        /// 잔류 러너의 후속 히트는 이 상태를 갱신하지 않는다.
         /// </summary>
+        public void SaveComboState(CharacterActorType characterType)
+        {
+            if (characterType == CharacterActorType.None) return;
+
+            _comboStatesByCharacter[characterType] = CaptureComboState();
+            _comboCharacterType = characterType;
+        }
+
+        /// <summary>
+        /// 캐릭터 교체 시 공격 데이터 SO를 교체하고, 캐릭터별 콤보 상태를 복원한다.
+        /// </summary>
+        public void RefreshAttackData(
+            PlayerAttackDataSO newData,
+            CharacterActorType characterType,
+            bool preserveComboState = true,
+            float comboStateMaxCarryTime = 1.8f)
+        {
+            if (_comboCharacterType != CharacterActorType.None && _comboCharacterType != characterType)
+                SaveComboState(_comboCharacterType);
+
+            _attackData = newData;
+            _comboCharacterType = characterType;
+
+            if (preserveComboState && TryRestoreComboState(characterType, comboStateMaxCarryTime))
+                return;
+
+            ResetCombo();
+        }
+
         public void RefreshAttackData(PlayerAttackDataSO newData)
         {
-            _attackData = newData;
-            ResetCombo();
+            RefreshAttackData(newData, _comboCharacterType, false);
         }
 
         public void ResetCombo()
         {
+            ResetCombo(true);
+        }
+
+        private void ResetCombo(bool clearInputBuffer)
+        {
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
             CanCombo          = false;
+            ApplyComboTags();
+            OnComboReset?.Invoke();
+            if (clearInputBuffer)
+                InputManager.Instance.InputBuffer.Clear();
+        }
+
+        private CharacterComboState CaptureComboState()
+        {
+            return new CharacterComboState
+            {
+                CurrentComboIndex = CurrentComboIndex,
+                LastAttackTime = LastAttackTime,
+                CanCombo = CanCombo,
+                AttackState = _attackState,
+                LastAttackAnimKey = _currentAttackData != null ? _currentAttackData.animKey : AnimKey.None,
+            };
+        }
+
+        private bool TryRestoreComboState(CharacterActorType characterType, float maxCarryTime)
+        {
+            if (characterType == CharacterActorType.None)
+                return false;
+
+            if (!_comboStatesByCharacter.TryGetValue(characterType, out var state))
+                return false;
+
+            bool isExpired = maxCarryTime > 0f && Time.time - state.LastAttackTime > maxCarryTime;
+            if (isExpired)
+            {
+                _comboStatesByCharacter.Remove(characterType);
+                return false;
+            }
+
+            _attackState = state.AttackState;
+            CurrentComboIndex = Mathf.Clamp(state.CurrentComboIndex, 0, Mathf.Max(0, GetComboLength(_attackState) - 1));
+            LastAttackTime = state.LastAttackTime;
+            CanCombo = state.CanCombo || (state.LastAttackAnimKey != AnimKey.None && GetComboLength(_attackState) > 1);
+            ApplyComboTags();
+            return true;
+        }
+
+        private void RestoreComboState(CharacterComboState state)
+        {
+            _attackState = state.AttackState;
+            CurrentComboIndex = state.CurrentComboIndex;
+            LastAttackTime = state.LastAttackTime;
+            CanCombo = state.CanCombo;
+            ApplyComboTags();
+        }
+
+        private int GetComboLength(AttackState attackState)
+        {
+            if (_attackData == null) return 0;
+
+            return attackState switch
+            {
+                AttackState.NormalAttack => _attackData.liteComboAttackList?.Count ?? 0,
+                AttackState.HeavyAttack  => _attackData.heavyComboAttackList?.Count ?? 0,
+                AttackState.JumpAttack   => _attackData.jumpAttackList?.Count ?? 0,
+                AttackState.DashAttack   => _attackData.dashAttackList?.Count ?? 0,
+                AttackState.SkillAttack  => _attackData.skillAttackList?.Count ?? 0,
+                AttackState.ChargeAttack => 0,
+                _                        => 0,
+            };
+        }
+
+        private void ApplyComboTags()
+        {
             _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
             _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Heavy);
-            OnComboReset?.Invoke();
-            InputManager.Instance.InputBuffer.Clear();
+
+            if (CurrentComboIndex <= 0) return;
+
+            if (_attackState == AttackState.NormalAttack)
+                _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
+            else if (_attackState == AttackState.HeavyAttack)
+                _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
         }
         #endregion
 

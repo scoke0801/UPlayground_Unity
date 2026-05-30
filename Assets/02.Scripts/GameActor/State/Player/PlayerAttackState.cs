@@ -200,7 +200,13 @@ namespace UPlayGround.State
                 Debug.Log("[ParryCounter] 패리 반격 진입");
             }
 
-            _combat.ResetCombo();
+            bool shouldResetCombo = !_isCounter
+                                    && !_isParryCounter
+                                    && !_isEntryAttack
+                                    && !_isSwapSpecialAttack
+                                    && !_combat.CanUseStoredCombo(_isHeavyAttack);
+            if (shouldResetCombo)
+                _combat.ResetCombo();
             _attackTimer = 0f;
 
             if (_isHeavyAttack)

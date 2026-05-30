@@ -63,19 +63,37 @@ namespace UPlayGround.Component
         public readonly float FadeOutDuration;
         public readonly bool AllowHitStop;
         public readonly bool UseRootMotion;
+        public readonly float RootMotionMaxDistance;
+        public readonly LayerMask RootMotionBlocker;
+        public readonly float FeedbackMinInterval;
+        public readonly float HitStopDuration;
+        public readonly float HitStopTimeScale;
+        public readonly bool ShowCharacterOnDamageFloater;
 
         public SwapResidualAttackRequest(
             PlayerResidualAttackSnapshot snapshot,
             float maxLifetime,
             float fadeOutDuration,
             bool allowHitStop,
-            bool useRootMotion)
+            bool useRootMotion,
+            float rootMotionMaxDistance,
+            LayerMask rootMotionBlocker,
+            float feedbackMinInterval,
+            float hitStopDuration,
+            float hitStopTimeScale,
+            bool showCharacterOnDamageFloater)
         {
             Snapshot = snapshot;
             MaxLifetime = maxLifetime;
             FadeOutDuration = fadeOutDuration;
             AllowHitStop = allowHitStop;
             UseRootMotion = useRootMotion;
+            RootMotionMaxDistance = rootMotionMaxDistance;
+            RootMotionBlocker = rootMotionBlocker;
+            FeedbackMinInterval = feedbackMinInterval;
+            HitStopDuration = hitStopDuration;
+            HitStopTimeScale = hitStopTimeScale;
+            ShowCharacterOnDamageFloater = showCharacterOnDamageFloater;
         }
     }
 }

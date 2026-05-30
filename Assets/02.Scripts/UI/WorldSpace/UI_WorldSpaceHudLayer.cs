@@ -115,6 +115,12 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         GetFloaterFromPool().Play(worldPos, Mathf.RoundToInt(damage).ToString(), style);
     }
 
+    public void ShowFloaterLabel(Vector3 worldPos, string label, FloatStyle style)
+    {
+        if (!_isPoolReady || string.IsNullOrWhiteSpace(label)) return;
+        GetFloaterFromPool().Play(worldPos, label, style);
+    }
+
     public void ShowFloaterMiss(Vector3 worldPos)
     {
         if (!_isPoolReady) return;

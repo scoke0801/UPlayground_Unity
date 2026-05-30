@@ -506,6 +506,7 @@ namespace UPlayGround
             {
                 _characterHealthMap[_characterActorType] = _currentHealth;
                 _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
+                _combat?.SaveComboState(_characterActorType);
             }
 
             _characterActorType = data.characterType;
@@ -533,7 +534,12 @@ namespace UPlayGround
 
             // 전투 컴포넌트 참조 갱신 + 공격 데이터 교체
             _combat.RefreshComponentReferences();
-            _combat.RefreshAttackData(data.attackData);
+            var partyManager = PartyManager.Instance;
+            _combat.RefreshAttackData(
+                data.attackData,
+                data.characterType,
+                partyManager == null || partyManager.PreserveComboStatePerCharacter,
+                partyManager != null ? partyManager.ComboStateMaxCarryTime : 1.8f);
             _combatWeaponStateController?.RefreshReferences();
 
             // 새 모델의 ParentConstraint 기본 weight는 prefab 세팅에 의존하므로,

@@ -3,6 +3,8 @@
 > 작성일: 2026-05-26  
 > 구현 갱신: 2026-05-27  
 > 위치 정책 설계 갱신: 2026-05-29  
+> 콤보 상태 구현 갱신: 2026-05-29  
+> Phase 2 피드백 구현 갱신: 2026-05-29  
 > 대상 버전: Unity 6 (6000.0.60f1), URP  
 > 레퍼런스: 명조 `Intro / Outro Skill`, 퀵스왑 잔류 공격
 
@@ -21,7 +23,15 @@
 | 잔류 모델 러너 | 완료 | `SwapResidualAttackRunner` |
 | 스왑 시 잔류 러너 생성 | 완료 | `PlayerSwapBehaviour.SwapTo()` |
 | 잔류 옵션 데이터 | 완료 | `PartyConfigSO`, `PartyManager` 읽기 전용 프로퍼티 |
-| 빌드 검증 | 완료 | `dotnet build UPlayground.sln --no-restore` 성공 |
+| 캐릭터별 콤보 상태 저장/복원 | 완료 | `PlayerCombat.SaveComboState()`, `PlayerCombat.RefreshAttackData(...)` |
+| 같은 캐릭터 재교체 시 잔류 러너 정리 | 완료 | `SwapResidualAttackRunner.CancelRunnersForCharacter()` |
+| 같은 캐릭터 잔류 위치 복귀 | 완료 | `SwapResidualAttackRunner.TryConsumeRunnerPosition()`, `PlayerSwapBehaviour.TryReturnToResidualRunner()` |
+| 잔류 공격 히트스톱 별도 설정 | 완료 | `PartyConfigSO.residualAttackHitStopDuration`, `residualAttackHitStopTimeScale` |
+| 잔류 피드백 중복 억제 | 완료 | `PartyConfigSO.residualAttackFeedbackMinInterval` |
+| 잔류 트레일/디졸브 정리 | 완료 | `SwapResidualAttackRunner.Cancel()`, `DissolveController` |
+| 잔류 데미지 플로터 캐릭터 표시 옵션 | 완료 | `residualAttackShowCharacterOnDamageFloater`, `ShowDamageFloaterLabel()` |
+| 잔류 루트모션 제한 이동 | 부분 완료 | `residualAttackUseRootMotion`, 최대 이동 거리, blocker SphereCast. 플레이 검증 필요 |
+| 빌드 검증 | 부분 완료 | 런타임 `dotnet build Assembly-CSharp.csproj --no-restore` 성공. 전체 솔루션은 별도 에디터 파일 `MotionSetWindow.cs` 누락 메서드로 실패 |
 
 현재 구현 정책:
 
@@ -31,15 +41,17 @@
 - 잔류 모델은 `PlayerActor`가 아니며, 입력 / 피격 / KCC 상태 머신을 갖지 않는다.
 - 잔류 러너 루트와 `ResidualPlayerCombat` 판정 위치는 스왑 시점의 원래 위치를 유지한다.
 - 캐릭터 위치는 별도 오프셋으로 밀어내지 않는다. 공격 중 스왑 시 outgoing 잔류 모델과 incoming 원본 모델은 스왑 시점의 기본 위치 정책을 따른다.
-- 같은 캐릭터 타입의 잔류 모델이 아직 필드에 남아 있으면, 해당 캐릭터로 재스왑할 때는 그 잔류 모델 위치로 복귀하는 정책만 예외로 둔다.
+- 같은 캐릭터 타입의 잔류 모델이 아직 필드에 남아 있고 `residualAttackReturnToSameCharacterRunner`가 켜져 있으면, 해당 캐릭터로 재스왑할 때 잔류 러너 위치로 복귀한 뒤 러너를 제거한다.
 - 콤보 카운트는 단일 `PlayerCombat` 전역 상태가 아니라 캐릭터 타입별로 보존한다. 예를 들어 1번 캐릭터가 2타까지 진행한 뒤 2번 캐릭터로 1타를 치고 다시 1번으로 돌아오면, 1번 캐릭터는 3타 콤보를 이어간다.
+- 캐릭터별 콤보 상태는 `PartyConfigSO.preserveComboStatePerCharacter`와 `comboStateMaxCarryTime`으로 제어한다. 등장 공격은 일반 콤보 상태를 소비하지 않도록 별도 실행한다.
+- 같은 캐릭터 타입의 잔류 모델이 남아 있는 상태에서 해당 캐릭터로 다시 교체하면, `residualAttackReturnPositionMaxAge` 안의 러너 위치/회전으로 플레이어 KCC를 이동시킨 뒤 원본 모델을 활성화한다.
 - 잔류 공격은 `ResidualPlayerCombat`가 별도 `AttackData` 복사본과 `_hitTargets`를 사용한다.
 - `MotionEventExecutor.SetTargetObject()`로 이벤트 타겟을 잔류 러너 루트에 명시 지정한다.
 - 루트모션은 `PartyConfigSO.residualAttackUseRootMotion` 기본값 `false`로 둔다.
 - 잔류 공격 `OnAttackHit`는 `PartyManager.OnPlayerAttackHit`에 연결하지 않는다. 따라서 1차 정책상 파티 스킬 게이지 중복 충전은 발생하지 않는다.
 - 차지 공격처럼 `AttackInfoBase`가 없는 공격은 스냅샷에 `HitPhaseData` 목록을 별도로 보존해 Collision 이벤트의 `hitPhaseIndex`를 처리한다.
 - `FinishAttackEvent`, `SpecialBreakAttackEvent`는 잔류 전용 인터페이스를 우선 확인해 기존 `PlayerActorState` 없이도 잔류 러너에서 발동할 수 있다.
-- 종료 처리는 MotionSet 완료 또는 타임아웃 시 즉시 제거한다. `residualAttackFadeOutDuration` 필드는 후속 페이드/디졸브 구현을 위한 데이터만 먼저 둔다.
+- 종료 처리는 MotionSet 완료 또는 타임아웃 시 콜리전/트레일을 끄고, `residualAttackFadeOutDuration`이 0보다 크면 디졸브 후 제거한다. 교체/씬 전환 등 강제 취소는 즉시 제거한다.
 
 아직 Phase 2/3을 남긴 이유:
 
@@ -667,14 +679,14 @@ incoming 캐릭터의 공격과 outgoing 잔류 공격이 같은 `PlayerCombat`�
 
 ### Phase 2: 전투 피드백 정리
 
-1. 잔류 루트모션 고도화
-2. 루트모션 이동 거리 제한, 충돌 보정, 타겟 방향 클램프 정리
-3. 캐릭터 타입별 콤보 상태 저장/복원
-4. 같은 캐릭터 타입 잔류 위치 복귀 정책 검토
-5. 잔류 공격 히트스톱 강도 별도 설정
-6. 카메라 쉐이크 중복 억제
-7. 무기 트레일/디졸브 페이드 정리
-8. 데미지 플로터에 outgoing 캐릭터 타입 표시 옵션 추가
+1. 잔류 루트모션 고도화 - 부분 완료. 루트모션 델타 기반 러너 이동, 최대 이동 거리, blocker SphereCast를 추가했다. 캐릭터별 애니메이션에서 `ActorAnimator.DeltaPosition` 품질은 플레이 검증이 필요하다.
+2. 루트모션 이동 거리 제한, 충돌 보정, 타겟 방향 클램프 정리 - 부분 완료. 이동 거리 제한과 blocker 보정은 구현, 타겟 방향 클램프는 후속.
+3. 캐릭터 타입별 콤보 상태 저장/복원 - 완료.
+4. 같은 캐릭터 타입 잔류 위치 복귀 정책 검토 - 완료. 옵션으로 켜고 끌 수 있다.
+5. 잔류 공격 히트스톱 강도 별도 설정 - 완료.
+6. 카메라 쉐이크 중복 억제 - 완료. 잔류 공격은 별도 카메라 쉐이크를 발생시키지 않고 히트스톱 재발동 간격만 제한한다.
+7. 무기 트레일/디졸브 페이드 정리 - 완료.
+8. 데미지 플로터에 outgoing 캐릭터 타입 표시 옵션 추가 - 완료.
 
 ### Phase 3: 명조식 Intro / Outro 확장
 

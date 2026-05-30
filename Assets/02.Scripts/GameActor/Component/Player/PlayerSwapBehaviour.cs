@@ -85,6 +85,8 @@ namespace UPlayGround.Component
                 _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
                 ?? ActorAnimator.MotionPlaybackSnapshot.Empty;
 
+            TryReturnToResidualRunner(type);
+            SwapResidualAttackRunner.CancelRunnersForCharacter(type);
             TrySpawnResidualAttack(_activeModel);
 
             _activeModel?.gameObject.SetActive(false);
@@ -135,6 +137,12 @@ namespace UPlayGround.Component
             float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.25f;
             bool allowHitStop = partyManager == null || partyManager.ResidualAttackAllowHitStop;
             bool useRootMotion = partyManager != null && partyManager.ResidualAttackUseRootMotion;
+            float rootMotionMaxDistance = partyManager != null ? partyManager.ResidualAttackRootMotionMaxDistance : 2.5f;
+            LayerMask rootMotionBlocker = partyManager != null ? partyManager.ResidualAttackRootMotionBlocker : 0;
+            float feedbackMinInterval = partyManager != null ? partyManager.ResidualAttackFeedbackMinInterval : 0.08f;
+            float hitStopDuration = partyManager != null ? partyManager.ResidualAttackHitStopDuration : 0.04f;
+            float hitStopTimeScale = partyManager != null ? partyManager.ResidualAttackHitStopTimeScale : 0.2f;
+            bool showCharacterOnDamageFloater = partyManager != null && partyManager.ResidualAttackShowCharacterOnDamageFloater;
             int maxCount = partyManager != null ? partyManager.ResidualAttackMaxCount : 1;
 
             var request = new SwapResidualAttackRequest(
@@ -142,9 +150,35 @@ namespace UPlayGround.Component
                 maxLifetime,
                 fadeOutDuration,
                 allowHitStop,
-                useRootMotion);
+                useRootMotion,
+                rootMotionMaxDistance,
+                rootMotionBlocker,
+                feedbackMinInterval,
+                hitStopDuration,
+                hitStopTimeScale,
+                showCharacterOnDamageFloater);
             Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, animKey={snapshot.PlaybackSnapshot.Key}, lifetime={maxLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
             SwapResidualAttackRunner.Spawn(request, maxCount);
+        }
+
+        private void TryReturnToResidualRunner(CharacterActorType targetType)
+        {
+            var partyManager = PartyManager.Instance;
+            if (partyManager != null && !partyManager.ResidualAttackReturnToSameCharacterRunner)
+                return;
+
+            float maxAge = partyManager != null ? partyManager.ResidualAttackReturnPositionMaxAge : 1.8f;
+            if (!SwapResidualAttackRunner.TryConsumeRunnerPosition(targetType, maxAge, out var position, out var rotation))
+                return;
+
+            var motor = _playerActor?.ActorController?.Motor;
+            if (motor != null)
+                motor.SetPositionAndRotation(position, rotation);
+            else if (_playerActor != null)
+                _playerActor.transform.SetPositionAndRotation(position, rotation);
+
+            CameraManager.Instance?.SnapToTarget(position);
+            Debug.Log($"[ResidualAttack] Returned to residual runner position. character={targetType}, position={position}");
         }
 
         private void PlaySwapFx()

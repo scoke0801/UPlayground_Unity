@@ -29,6 +29,12 @@ namespace UPlayGround.Component
         private LayerMask _targetLayerMask = -1;
         private bool _isCollisionEnabled;
         private bool _allowHitStop = true;
+        private CharacterActorType _ownerType;
+        private float _feedbackMinInterval = 0.08f;
+        private float _hitStopDuration = 0.04f;
+        private float _hitStopTimeScale = 0.2f;
+        private float _lastFeedbackTime = -999f;
+        private bool _showCharacterOnDamageFloater;
         private MonsterActor _finishTarget;
         private MonsterActor _specialBreakTarget;
         private float _specialBreakDamageByMaxHpRate;
@@ -36,14 +42,25 @@ namespace UPlayGround.Component
 
         public event Action<AttackData> OnAttackHit;
 
-        public void Initialize(PlayerResidualAttackSnapshot snapshot, bool allowHitStop)
+        public void Initialize(
+            PlayerResidualAttackSnapshot snapshot,
+            bool allowHitStop,
+            float feedbackMinInterval = 0.08f,
+            float hitStopDuration = 0.04f,
+            float hitStopTimeScale = 0.2f,
+            bool showCharacterOnDamageFloater = false)
         {
             _ownerPlayer = snapshot.OwnerPlayer;
+            _ownerType = snapshot.CharacterType;
             _attackData = CopyAttackData(snapshot.CurrentAttackData);
             _attackInfoBase = snapshot.CurrentAttackInfoBase;
             _hitPhases = snapshot.HitPhases;
             _targetLayerMask = snapshot.TargetLayerMask;
             _allowHitStop = allowHitStop;
+            _feedbackMinInterval = Mathf.Max(0f, feedbackMinInterval);
+            _hitStopDuration = Mathf.Max(0f, hitStopDuration);
+            _hitStopTimeScale = Mathf.Clamp(hitStopTimeScale, 0.01f, 1f);
+            _showCharacterOnDamageFloater = showCharacterOnDamageFloater;
             _finishTarget = snapshot.FinishTarget;
             _specialBreakTarget = snapshot.SpecialBreakTarget;
             _specialBreakDamageByMaxHpRate = snapshot.SpecialBreakDamageByMaxHpRate;
@@ -51,7 +68,7 @@ namespace UPlayGround.Component
             _isCollisionEnabled = false;
             _hitTargets.Clear();
 
-            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, animKey={_attackData?.animKey}, kind={_attackData?.attackKind}, range={_attackData?.hitRange}, angle={_attackData?.hitAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
+            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, character={_ownerType}, animKey={_attackData?.animKey}, kind={_attackData?.attackKind}, range={_attackData?.hitRange}, angle={_attackData?.hitAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
         }
 
         private void Update()
@@ -265,21 +282,26 @@ namespace UPlayGround.Component
                 ? FloatStyle.Critical
                 : FloatStyle.Normal;
 
-            UIManager.Instance?.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
+            if (_showCharacterOnDamageFloater && _ownerType != CharacterActorType.None)
+            {
+                string label = $"{_ownerType} {Mathf.RoundToInt(attackData.damage)}";
+                UIManager.Instance?.ShowDamageFloaterLabel(attackData.hitPoint, label, style);
+            }
+            else
+            {
+                UIManager.Instance?.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
+            }
         }
 
         private void ApplyHitFeedback()
         {
             if (!_allowHitStop || GameCombatManager.Instance == null) return;
+            if (_feedbackMinInterval > 0f && Time.unscaledTime - _lastFeedbackTime < _feedbackMinInterval)
+                return;
 
-            var intensity = _attackData.attackKind is AttackKind.HeavyAttack
-                                                or AttackKind.DashAttack
-                                                or AttackKind.JumpAttack
-                ? GameHitStopHandler.HitStopIntensity.Heavy
-                : GameHitStopHandler.HitStopIntensity.Light;
-
-            GameCombatManager.Instance.GameHitStop.ResetActorTimeScale();
-            GameCombatManager.Instance.GameHitStop.Execute(intensity);
+            _lastFeedbackTime = Time.unscaledTime;
+            if (_hitStopDuration > 0f)
+                GameCombatManager.Instance.GameHitStop.Execute(_hitStopDuration, _hitStopTimeScale);
         }
 
         private static string GetHitFxKey(AttackData attackData)

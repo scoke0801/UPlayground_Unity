@@ -50,9 +50,45 @@ namespace UPlayGround.Data.Party
         [Tooltip("잔류 모델 루트모션 이동 허용. KCC를 사용하지 않으므로 기본값은 false 권장.")]
         public bool residualAttackUseRootMotion = false;
 
+        [Tooltip("잔류 루트모션 이동 허용 시 최대 누적 이동 거리.")]
+        [Min(0f)]
+        public float residualAttackRootMotionMaxDistance = 2.5f;
+
+        [Tooltip("잔류 루트모션 이동 중 막히는 레이어. 0이면 충돌 보정을 하지 않는다.")]
+        public LayerMask residualAttackRootMotionBlocker = 0;
+
         [Tooltip("동시에 유지할 수 있는 잔류 공격 모델 수.")]
         [Min(1)]
         public int residualAttackMaxCount = 1;
+
+        [Tooltip("같은 캐릭터 타입 잔류 러너가 남아 있으면 그 위치로 복귀한다.")]
+        public bool residualAttackReturnToSameCharacterRunner = true;
+
+        [Tooltip("같은 캐릭터 복귀 위치로 인정할 최대 잔류 러너 나이.")]
+        [Min(0f)]
+        public float residualAttackReturnPositionMaxAge = 1.8f;
+
+        [Tooltip("잔류 공격 히트스톱 최소 재발동 간격.")]
+        [Min(0f)]
+        public float residualAttackFeedbackMinInterval = 0.08f;
+
+        [Tooltip("잔류 공격 히트스톱 지속 시간.")]
+        [Min(0f)]
+        public float residualAttackHitStopDuration = 0.04f;
+
+        [Tooltip("잔류 공격 히트스톱 타임스케일.")]
+        [Range(0.01f, 1f)]
+        public float residualAttackHitStopTimeScale = 0.2f;
+
+        [Tooltip("잔류 공격 데미지 플로터에 퇴장 캐릭터 타입을 함께 표시한다.")]
+        public bool residualAttackShowCharacterOnDamageFloater = false;
+
+        [Tooltip("교체 후 다시 돌아왔을 때 캐릭터별 일반 콤보 진행도를 복원한다.")]
+        public bool preserveComboStatePerCharacter = true;
+
+        [Tooltip("저장된 콤보 진행도를 이어갈 수 있는 최대 시간. 0 이하면 시간 제한 없이 저장값을 사용한다.")]
+        [Min(0f)]
+        public float comboStateMaxCarryTime = 1.8f;
 
         [Header("Growth")]
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]

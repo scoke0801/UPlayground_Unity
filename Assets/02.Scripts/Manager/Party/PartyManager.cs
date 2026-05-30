@@ -66,7 +66,17 @@ namespace UPlayGround.Manager
         public float                     ResidualAttackFadeOutDuration => _config != null ? Mathf.Max(0f, _config.residualAttackFadeOutDuration) : 0.25f;
         public bool                      ResidualAttackAllowHitStop => _config == null || _config.residualAttackAllowHitStop;
         public bool                      ResidualAttackUseRootMotion => _config != null && _config.residualAttackUseRootMotion;
+        public float                     ResidualAttackRootMotionMaxDistance => _config != null ? Mathf.Max(0f, _config.residualAttackRootMotionMaxDistance) : 2.5f;
+        public LayerMask                 ResidualAttackRootMotionBlocker => _config != null ? _config.residualAttackRootMotionBlocker : 0;
         public int                       ResidualAttackMaxCount => _config != null ? Mathf.Max(1, _config.residualAttackMaxCount) : 1;
+        public bool                      ResidualAttackReturnToSameCharacterRunner => _config == null || _config.residualAttackReturnToSameCharacterRunner;
+        public float                     ResidualAttackReturnPositionMaxAge => _config != null ? Mathf.Max(0f, _config.residualAttackReturnPositionMaxAge) : 1.8f;
+        public float                     ResidualAttackFeedbackMinInterval => _config != null ? Mathf.Max(0f, _config.residualAttackFeedbackMinInterval) : 0.08f;
+        public float                     ResidualAttackHitStopDuration => _config != null ? Mathf.Max(0f, _config.residualAttackHitStopDuration) : 0.04f;
+        public float                     ResidualAttackHitStopTimeScale => _config != null ? Mathf.Clamp(_config.residualAttackHitStopTimeScale, 0.01f, 1f) : 0.2f;
+        public bool                      ResidualAttackShowCharacterOnDamageFloater => _config != null && _config.residualAttackShowCharacterOnDamageFloater;
+        public bool                      PreserveComboStatePerCharacter => _config == null || _config.preserveComboStatePerCharacter;
+        public float                     ComboStateMaxCarryTime => _config != null ? Mathf.Max(0f, _config.comboStateMaxCarryTime) : 1.8f;
 
         public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
         
@@ -120,6 +130,7 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            SwapResidualAttackRunner.CancelAll();
             UnsubscribeCombatEvents();
             UnregisterSwapInputs();
             _roster.Clear();
@@ -148,6 +159,7 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            SwapResidualAttackRunner.CancelAll();
             UnsubscribeCombatEvents();
             BuildPartyFromScene();
             if (_player != null && _battleOrder.Count > 0)

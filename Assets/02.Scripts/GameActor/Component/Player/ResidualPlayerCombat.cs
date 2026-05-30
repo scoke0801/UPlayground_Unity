@@ -242,7 +242,7 @@ namespace UPlayGround.Component
                 reactionDuration = source.reactionDuration,
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,
-                canBeInterrupted = source.canBeInterrupted,
+                interruptActions = source.interruptActions,
                 attackKind = source.attackKind,
                 reactionType = source.reactionType,
                 attacker = source.attacker,

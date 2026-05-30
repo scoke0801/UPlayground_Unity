@@ -37,6 +37,8 @@ namespace UPlayGround.Component
         private struct CharacterComboState
         {
             public int CurrentComboIndex;
+            public int NormalComboIndex;   // 약 체인 보존 인덱스(-1 = 미시작)
+            public int HeavyComboIndex;    // 강 체인 보존 인덱스(-1 = 미시작)
             public float LastAttackTime;
             public bool CanCombo;
             public AttackState AttackState;
@@ -150,6 +152,10 @@ namespace UPlayGround.Component
         private float             _currentSpecialBreakDamageByMaxHpRate;
         private float             _currentSpecialBreakFixedDamage;
         private AttackState       _attackState         = AttackState.NormalAttack;
+        // 약/강 콤보 체인별 보존 인덱스. -1 = 미시작. 약↔강 전환 시 서로 리셋하지 않고 각자 진행도 유지.
+        // (ResetCombo에서만 -1 초기화 → 콤보가 실제로 끝날 때만 리셋)
+        private int               _normalComboIndex    = -1;
+        private int               _heavyComboIndex     = -1;
         private CharacterActorType _comboCharacterType = CharacterActorType.None;
         private readonly Dictionary<CharacterActorType, CharacterComboState> _comboStatesByCharacter = new();
         private float             _lastCombatEventTime = -999f;
@@ -174,6 +180,12 @@ namespace UPlayGround.Component
         public bool IsGuarding    = false;
         public bool IsInCombat    => Time.time - _lastCombatEventTime < _combatStateDuration;
         public bool IsPossibleCollide => _isCollideCollisionEnable;
+
+        /// <summary>
+        /// 캔슬(인터럽트) 허용 구간 여부. 현재 규칙: 히트박스 콜리전이 비활성인 구간
+        /// (윈드업/리커버리/멀티히트 간격). 액티브 히트 구간에는 닫힌다.
+        /// </summary>
+        public bool IsCancelWindowOpen => !IsPossibleCollide;
 
         // ── 가드 내구도 ───────────────────────────────────────────────
         [Header("Guard Settings")]
@@ -508,10 +520,16 @@ namespace UPlayGround.Component
         public AttackData ExecuteAttack(bool isCombo)
         {
             ClearResidualAttackContext();
-            if (_attackState == AttackState.HeavyAttack) ResetCombo();
-            _attackState      = AttackState.NormalAttack;
-            CurrentComboIndex = ((isCombo || CanCombo) && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
-             _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
+            _attackState      = AttackState.NormalAttack;          // 전환(ResetCombo 호출 제거 — 강 체인 보존)
+            CurrentComboIndex = _normalComboIndex;                 // 약 체인 보존 인덱스 복원(-1 = 미시작)
+            // stale 콤보 윈도우 닫기: 전환 시 ResetCombo가 하던 CanCombo=false 대체.
+            // advance 평가 전에 닫아, 캔슬 경로(isCombo=false)가 이전 공격의 열린 윈도우에 기대지 않게 한다.
+            CanCombo          = false;
+            CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _normalComboIndex = CurrentComboIndex;                 // 약 체인 저장
+            // 태그 상호배타: ResetCombo(반대태그 제거)가 사라졌으므로 직접 반대태그 제거 후 추가.
+            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Heavy);
+            _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -522,9 +540,12 @@ namespace UPlayGround.Component
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
             ClearResidualAttackContext();
-            if (_attackState == AttackState.NormalAttack) ResetCombo();
-            _attackState      = AttackState.HeavyAttack;
-            CurrentComboIndex = ((isCombo || CanCombo) && CanContinueCombo()) ? CurrentComboIndex + 1 : 0; 
+            _attackState      = AttackState.HeavyAttack;           // 전환(ResetCombo 호출 제거 — 약 체인 보존)
+            CurrentComboIndex = _heavyComboIndex;                  // 강 체인 보존 인덱스 복원(-1 = 미시작)
+            CanCombo          = false;                             // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)
+            CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            _heavyComboIndex  = CurrentComboIndex;                 // 강 체인 저장
+            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
             _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
@@ -551,6 +572,9 @@ namespace UPlayGround.Component
         }
 
         public AnimKey GetFirstChargeAttackAnimKey() => _attackData.chargeAnimKey;
+
+        /// <summary> 차지(홀드) 도중 캔슬 가능한 입력 액션 마스크. </summary>
+        public PlayerInterruptAction GetChargeInterruptActions() => _attackData.chargeInterruptActions;
 
         public (string key, ActorSocketType socket, Vector3 offset) GetFullChargeVfxData()
             => (_attackData.fullChargeVfxKey, _attackData.fullChargeVfxSocket, _attackData.fullChargeVfxOffset);
@@ -589,7 +613,7 @@ namespace UPlayGround.Component
                 reactionDuration = phase.reactionDuration,
                 forceReaction    = phase.forceReaction,
                 forceBreakExpose = phase.forceBreakExpose,
-                canBeInterrupted = stage.canBeInterrupted,
+                interruptActions = stage.interruptActions,
                 reactionType     = phase.reactionType,
                 hitRange         = phase.attackRadius,
                 hitAngle         = stage.hitAngle,
@@ -760,7 +784,7 @@ namespace UPlayGround.Component
                 damage           = 9999f,
                 poiseDamage      = 9999f,
                 breakDamage      = 0f,
-                canBeInterrupted = false,
+                interruptActions = PlayerInterruptAction.None,
                 reactionType     = AttackReactionType.Knockdown,
                 hitRange         = 1.5f,
                 hitAngle         = 90f,
@@ -794,7 +818,7 @@ namespace UPlayGround.Component
                 damage = _currentSpecialBreakFixedDamage,
                 poiseDamage = 0f,
                 breakDamage = 0f,
-                canBeInterrupted = false,
+                interruptActions = PlayerInterruptAction.None,
                 reactionType = AttackReactionType.Heavy,
                 hitRange = 1.5f,
                 hitAngle = 90f,
@@ -832,7 +856,7 @@ namespace UPlayGround.Component
                 reactionDuration = phase0.reactionDuration,
                 forceReaction    = phase0.forceReaction,
                 forceBreakExpose = phase0.forceBreakExpose,
-                canBeInterrupted = attackInfo.canBeInterrupted,
+                interruptActions = attackInfo.interruptActions,
                 reactionType     = phase0.reactionType,
                 hitRange         = phase0.attackRadius,
                 hitAngle         = attackInfo.hitAngle,
@@ -862,7 +886,7 @@ namespace UPlayGround.Component
                 reactionDuration = source.reactionDuration,
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,
-                canBeInterrupted = source.canBeInterrupted,
+                interruptActions = source.interruptActions,
                 attackKind = source.attackKind,
                 reactionType = source.reactionType,
                 attacker = source.attacker,
@@ -1214,14 +1238,13 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
-        /// 다음 콤보 인덱스를 미리 계산 (CurrentComboIndex를 변경하지 않음).
-        /// 동일 attackState 안에서 isCombo==true 이고 다음 인덱스가 존재할 때만 +1, 그 외에는 0.
-        /// 다른 attackState로 전환되는 경우 Execute 시점에서 ResetCombo가 일어나므로 0이 된다.
+        /// 다음 콤보 인덱스를 미리 계산 (인덱스를 변경하지 않음).
+        /// 해당 체인의 보존 인덱스(_normalComboIndex/_heavyComboIndex)를 기준으로 Execute와 동일한 규칙으로 예측한다.
+        /// 미시작(-1) 또는 isCombo==false 또는 끝까지 진행했으면 0, 그 외 보존 인덱스+1.
+        /// (크로스타입 전환 시에도 Execute가 상대 체인을 리셋하지 않으므로 peek도 보존 인덱스를 따라야 일치한다.)
         /// </summary>
         private int PeekNextComboIndex(AttackState desiredState, bool isCombo)
         {
-            if (desiredState != _attackState) return 0;
-
             int length = desiredState switch
             {
                 AttackState.NormalAttack => _attackData.liteComboAttackList.Count,
@@ -1230,8 +1253,15 @@ namespace UPlayGround.Component
             };
             if (length <= 0) return 0;
 
-            bool canContinue = CurrentComboIndex < length - 1;
-            int nextIndex = (isCombo && canContinue) ? CurrentComboIndex + 1 : 0;
+            int baseIndex = desiredState switch
+            {
+                AttackState.NormalAttack => _normalComboIndex,
+                AttackState.HeavyAttack  => _heavyComboIndex,
+                _                        => CurrentComboIndex,
+            };
+
+            bool canContinue = baseIndex >= 0 && baseIndex < length - 1;
+            int nextIndex = (isCombo && canContinue) ? baseIndex + 1 : 0;
             return Mathf.Clamp(nextIndex, 0, length - 1);
         }
         // ──────────────────────────────────────────────────────────────
@@ -1276,13 +1306,28 @@ namespace UPlayGround.Component
 
         public void ResetCombo()
         {
-            ResetCombo(true);
+            ResetCombo(true, true);
         }
 
-        private void ResetCombo(bool clearInputBuffer)
+        /// <summary>
+        /// 콤보 인덱스/윈도우/태그/입력버퍼는 초기화하되 약·강 체인 분기 메모리(_normalComboIndex/_heavyComboIndex)는 보존한다.
+        /// 공격 상태 재진입(크로스타입 캔슬 등)에서 호출 — 진짜 콤보 종료가 아니므로 분기 진행도를 잇기 위함.
+        /// </summary>
+        public void ResetComboPreserveChains()
+        {
+            ResetCombo(true, false);
+        }
+
+        private void ResetCombo(bool clearInputBuffer, bool resetChains)
         {
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
+            if (resetChains)
+            {
+                // 약/강 체인 보존 인덱스 초기화 — 콤보가 실제로 끝나는 경로에서만(피격/타임아웃/Idle 복귀/점프 등).
+                _normalComboIndex = -1;
+                _heavyComboIndex  = -1;
+            }
             CanCombo          = false;
             ApplyComboTags();
             OnComboReset?.Invoke();
@@ -1295,6 +1340,8 @@ namespace UPlayGround.Component
             return new CharacterComboState
             {
                 CurrentComboIndex = CurrentComboIndex,
+                NormalComboIndex = _normalComboIndex,
+                HeavyComboIndex = _heavyComboIndex,
                 LastAttackTime = LastAttackTime,
                 CanCombo = CanCombo,
                 AttackState = _attackState,
@@ -1319,6 +1366,8 @@ namespace UPlayGround.Component
 
             _attackState = state.AttackState;
             CurrentComboIndex = Mathf.Clamp(state.CurrentComboIndex, 0, Mathf.Max(0, GetComboLength(_attackState) - 1));
+            _normalComboIndex = Mathf.Clamp(state.NormalComboIndex, -1, GetComboLength(AttackState.NormalAttack) - 1);
+            _heavyComboIndex  = Mathf.Clamp(state.HeavyComboIndex,  -1, GetComboLength(AttackState.HeavyAttack) - 1);
             LastAttackTime = state.LastAttackTime;
             CanCombo = state.CanCombo || (state.LastAttackAnimKey != AnimKey.None && GetComboLength(_attackState) > 1);
             ApplyComboTags();
@@ -1329,6 +1378,8 @@ namespace UPlayGround.Component
         {
             _attackState = state.AttackState;
             CurrentComboIndex = state.CurrentComboIndex;
+            _normalComboIndex = state.NormalComboIndex;
+            _heavyComboIndex  = state.HeavyComboIndex;
             LastAttackTime = state.LastAttackTime;
             CanCombo = state.CanCombo;
             ApplyComboTags();

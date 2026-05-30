@@ -133,8 +133,9 @@ namespace UPlayGround.Component
                 return;
             }
 
-            float maxLifetime = partyManager != null ? partyManager.ResidualAttackMaxLifetime : 1.8f;
-            float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.25f;
+            float maxLifetime = partyManager != null ? partyManager.ResidualAttackMaxLifetime : 2.4f;
+            float minVisibleLifetime = partyManager != null ? partyManager.ResidualAttackMinVisibleLifetime : 0.45f;
+            float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.55f;
             bool allowHitStop = partyManager == null || partyManager.ResidualAttackAllowHitStop;
             bool useRootMotion = partyManager != null && partyManager.ResidualAttackUseRootMotion;
             float rootMotionMaxDistance = partyManager != null ? partyManager.ResidualAttackRootMotionMaxDistance : 2.5f;
@@ -148,6 +149,7 @@ namespace UPlayGround.Component
             var request = new SwapResidualAttackRequest(
                 snapshot,
                 maxLifetime,
+                minVisibleLifetime,
                 fadeOutDuration,
                 allowHitStop,
                 useRootMotion,
@@ -157,7 +159,7 @@ namespace UPlayGround.Component
                 hitStopDuration,
                 hitStopTimeScale,
                 showCharacterOnDamageFloater);
-            Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, animKey={snapshot.PlaybackSnapshot.Key}, lifetime={maxLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
+            Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, animKey={snapshot.PlaybackSnapshot.Key}, lifetime={maxLifetime}, minVisible={minVisibleLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
             SwapResidualAttackRunner.Spawn(request, maxCount);
         }
 

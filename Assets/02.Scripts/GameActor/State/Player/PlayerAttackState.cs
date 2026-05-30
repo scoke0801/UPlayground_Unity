@@ -41,6 +41,7 @@ namespace UPlayGround.State
         private bool _isParryCounter;
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
+        private readonly PlayerInterruptAction _forcedAttackAction;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -50,6 +51,11 @@ namespace UPlayGround.State
 
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
+        }
+
+        private PlayerAttackState(ActorMovementController controller, PlayerInterruptAction forcedAttackAction) : base(controller)
+        {
+            _forcedAttackAction = forcedAttackAction;
         }
 
         public override bool CanTransitionState(string stateName)
@@ -67,6 +73,9 @@ namespace UPlayGround.State
         /// false 반환 시 현재 상태를 그대로 유지해도 안전하다.
         /// </summary>
         public static bool CanEnter(PlayerMovementController controller)
+            => CanEnter(controller, PlayerInterruptAction.None);
+
+        public static bool CanEnter(PlayerMovementController controller, PlayerInterruptAction forcedAttackAction)
         {
             if (controller == null) return false;
 
@@ -79,13 +88,16 @@ namespace UPlayGround.State
 
             // 강 공격 입력이 들어와 있고 피니시 가능한 타겟이 있다면
             // PlayerFinishAttackState로 라우팅된다 → AttackState 진입은 항상 허용.
-            bool isHeavyPending = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
+            bool isHeavyPending = hasForcedAttack
+                ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
+                : InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat.FindFinishableTarget() != null)
                 return true;
             if (isHeavyPending && combat.FindSpecialBreakAttackTarget() != null)
                 return true;
 
-            AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending);
+            AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending, forcedAttackAction);
             if (peekedKey == AnimKey.None) return false;
 
             return animator.HasMotion(peekedKey, true);
@@ -96,12 +108,18 @@ namespace UPlayGround.State
         /// 모션이 없으면 진입 자체를 막아 기존 애니메이션이 끊기는 스터터를 방지한다.
         /// </summary>
         public static bool TryEnter(PlayerMovementController controller)
+            => TryEnter(controller, PlayerInterruptAction.None);
+
+        public static bool TryEnter(PlayerMovementController controller, PlayerInterruptAction forcedAttackAction)
         {
-            if (!CanEnter(controller)) return false;
+            if (!CanEnter(controller, forcedAttackAction)) return false;
 
             var playerActor = controller.GetComponent<PlayerActor>();
             var combat = playerActor != null ? playerActor.GetCombat() : null;
-            bool isHeavyPending = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
+            bool isHeavyPending = hasForcedAttack
+                ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
+                : InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat != null)
             {
                 Transform finishTarget = combat.FindFinishableTarget();
@@ -121,7 +139,9 @@ namespace UPlayGround.State
                 }
             }
 
-            controller.TransitionToState(new PlayerAttackState(controller));
+            controller.TransitionToState(hasForcedAttack
+                ? new PlayerAttackState(controller, forcedAttackAction)
+                : new PlayerAttackState(controller));
             return true;
         }
 
@@ -133,8 +153,29 @@ namespace UPlayGround.State
             PlayerActor playerActor,
             PlayerMovementController controller,
             PlayerCombat combat,
-            bool isHeavyAttack)
+            bool isHeavyAttack,
+            PlayerInterruptAction forcedAttackAction)
         {
+            if ((forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
+                return combat.PeekNormalAttackAnimKey(false);
+
+            if ((forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
+                return combat.PeekHeavyAttackAnimKey(false);
+
+            if ((forcedAttackAction & PlayerInterruptAction.Skill) != 0)
+            {
+                var forcedSkillGauge = playerActor.SkillGauge;
+                for (int i = 0; i < 10; i++)
+                {
+                    if (!controller.HasSkillInput(i)) continue;
+                    if (forcedSkillGauge != null && !forcedSkillGauge.CanUseSkill(i)) continue;
+
+                    return combat.PeekSkillAttackAnimKey(i);
+                }
+
+                return AnimKey.None;
+            }
+
             // 0순위: 패리 반격
             if (combat.IsParryCounterAvailable)
                 return combat.PeekParryCounterAttackAnimKey();
@@ -173,7 +214,9 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Combat_Attack);
 
-            _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+            bool hasForcedAttack = _forcedAttackAction != PlayerInterruptAction.None;
+            _isHeavyAttack = !hasForcedAttack
+                             && InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
@@ -185,19 +228,30 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
-            _isCounter = gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+            _isCounter = !hasForcedAttack
+                         && (gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
             if (_isCounter)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
 
-            _isSwapSpecialAttack = playerActor.ConsumeSwapSpecialAttackPending();
-            _isEntryAttack = playerActor.ConsumeEntryAttackPending();
+            _isSwapSpecialAttack = !hasForcedAttack && playerActor.ConsumeSwapSpecialAttackPending();
+            _isEntryAttack = !hasForcedAttack && playerActor.ConsumeEntryAttackPending();
 
-            _isParryCounter = _combat.IsParryCounterAvailable;
+            _isParryCounter = !hasForcedAttack && _combat.IsParryCounterAvailable;
             if (_isParryCounter)
             {
                 _combat.CloseParryCounterWindow();
                 GameCombatManager.Instance.GameHitStop.Stop();
                 Debug.Log("[ParryCounter] 패리 반격 진입");
+            }
+
+            if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
+            {
+                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                _isHeavyAttack = false;
+            }
+            else if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
+            {
+                _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
             }
 
             bool shouldResetCombo = !_isCounter
@@ -206,7 +260,9 @@ namespace UPlayGround.State
                                     && !_isSwapSpecialAttack
                                     && !_combat.CanUseStoredCombo(_isHeavyAttack);
             if (shouldResetCombo)
-                _combat.ResetCombo();
+                // 공격 상태 재진입(크로스타입 캔슬 포함)은 진짜 콤보 종료가 아니므로 약/강 체인 분기 메모리는 보존한다.
+                // (진입 체인은 ExecuteAttack/ExecuteHeavyAttack이 isCombo=false → index 0으로 알아서 시작)
+                _combat.ResetComboPreserveChains();
             _attackTimer = 0f;
 
             if (_isHeavyAttack)
@@ -255,26 +311,13 @@ namespace UPlayGround.State
         {
             _attackTimer += deltaTime;
 
-            if (_currentAttack.canBeInterrupted)
-            {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
-                {
-                    controller.TransitionToState(new PlayerDodgeState(controller));
-                    return;
-                }
-
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) != null)
-                {
-                    controller.TransitionToState(new PlayerAirborneState(controller));
-                    return;
-                }
-
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
-                {
-                    if (playerController.TryTransitionToState(new PlayerDashState(controller)))
-                        return;
-                }
-            }
+            // 인터럽트(캔슬): 허용 액션은 데이터(interruptActions) 마스크로, 허용 구간은
+            // 캔슬 윈도우(히트박스 콜리전 비활성 구간)로 제어한다. 액티브 히트 중엔 캔슬 불가.
+            // 콤보 검사보다 먼저 실행되어 둘 다 성립하면 캔슬이 우선한다.
+            // Dash가 입력만 소비하고 전환에 실패하면 false가 반환되어 아래 콤보 로직으로 fall-through 한다.
+            if (_combat.IsCancelWindowOpen
+                && PlayerInterruptResolver.TryInterrupt(playerController, _currentAttack.interruptActions))
+                return;
 
             if (_combat.CanCombo)
             {
@@ -388,10 +431,24 @@ namespace UPlayGround.State
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
             }
 
+            if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
+            {
+                _currentAttack = _combat.ExecuteAttack(false);
+                return _currentAttack?.animKey ?? AnimKey.None;
+            }
+
+            if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
+            {
+                _currentAttack = _combat.ExecuteHeavyAttack(false);
+                return _currentAttack?.animKey ?? AnimKey.None;
+            }
+
             var skillGauge = playerActor.SkillGauge;
 
             // 1순위: 숫자 키 스킬
-            for (int i = 0; i < 10; i++)
+            bool skillAllowed = _forcedAttackAction == PlayerInterruptAction.None
+                                || (_forcedAttackAction & PlayerInterruptAction.Skill) != 0;
+            for (int i = 0; skillAllowed && i < 10; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;
 

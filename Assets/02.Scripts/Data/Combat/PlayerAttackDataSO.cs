@@ -50,6 +50,9 @@ namespace UPlayGround.Data.Combat
         [Tooltip("차지 단계 전환 비율 임계값 (0~1).\n요소 수 = chargeStages.Count - 1.\n예) 3단계 → { 0.35, 0.70 }\n비워두면 단계 수에 맞게 균등 분배된다.")]
         public List<float> chargeStageThresholds = new List<float>();
 
+        [Tooltip("차지(홀드) 도중 캔슬 가능한 입력 액션 마스크. None이면 차지 중 캔슬 불가.")]
+        public PlayerInterruptAction chargeInterruptActions = PlayerInterruptAction.Dodge;
+
         [Header("Full Charge VFX")]
         [Tooltip("풀 차지 도달 시 재생할 VFX 키 (GameObjectManager FX Pool)")]
         public string fullChargeVfxKey;

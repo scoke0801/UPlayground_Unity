@@ -193,8 +193,8 @@ namespace UPlayGround.Data
         [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]
         public List<HitPhaseData> hitPhases = new List<HitPhaseData> { new HitPhaseData() };
 
-        [Tooltip("공격 중 끊을 수 있는지 여부")]
-        public bool canBeInterrupted;
+        [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]
+        public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
 
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
@@ -214,8 +214,8 @@ namespace UPlayGround.Data
     {
         public AttackInfoBase baseInfo;
 
-        [Tooltip("공격 중 끊을 수 있는지 여부")]
-        public bool canBeInterrupted;
+        [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]
+        public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
 
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
@@ -231,7 +231,7 @@ namespace UPlayGround.Data
         public float reactionDuration = 0f;
         public bool forceReaction = false;
         public bool forceBreakExpose = false;
-        public bool canBeInterrupted;
+        public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
         public AttackKind attackKind = AttackKind.NormalAttack;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;

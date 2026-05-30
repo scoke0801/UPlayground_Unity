@@ -41,7 +41,7 @@ namespace UPlayGround.Editor
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
         private SerializedProperty _counter, _parryCounter, _entry, _swapSpecial;
-        private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds;
+        private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds, _chargeInterruptActions;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
 
         // ─── 폴드아웃 / 검색 상태 ───────────────────────────────────────
@@ -155,6 +155,7 @@ namespace UPlayGround.Editor
             _chargeAnimKey    = so.FindProperty("chargeAnimKey");
             _chargeStages     = so.FindProperty("chargeStages");
             _chargeThresholds = so.FindProperty("chargeStageThresholds");
+            _chargeInterruptActions = so.FindProperty("chargeInterruptActions");
             _vfxKey           = so.FindProperty("fullChargeVfxKey");
             _vfxSocket        = so.FindProperty("fullChargeVfxSocket");
             _vfxOffset        = so.FindProperty("fullChargeVfxOffset");
@@ -461,7 +462,7 @@ namespace UPlayGround.Editor
             SerializedProperty animKeyP   = baseInfo.FindPropertyRelative("animKey");
             SerializedProperty typeP      = baseInfo.FindPropertyRelative("attackType");
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
-            SerializedProperty interruptP = prop.FindPropertyRelative("canBeInterrupted");
+            SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             // 총 대미지 (모든 Phase 합산)
@@ -479,7 +480,7 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_cardStyle);
 
             string animLabel = animKeyP.enumDisplayNames[animKeyP.enumValueIndex];
-            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   총DMG {totalDmg:F0}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.boolValue ? "캔슬 O" : "캔슬 X")}";
+            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   총DMG {totalDmg:F0}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
 
             // 오류=붉은, 경고=노랑, 정상=accent 배경
             Color bgColor = validation.Errors.Count > 0
@@ -514,7 +515,7 @@ namespace UPlayGround.Editor
                     EditorGUILayout.LabelField("기본 정보", EditorStyles.miniBoldLabel);
                     EditorGUILayout.PropertyField(animKeyP,   new GUIContent("AnimKey"));
                     EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
-                    EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 가능"));
+                    EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                     EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
                 }
 
@@ -801,7 +802,7 @@ namespace UPlayGround.Editor
             SerializedProperty animKeyP   = baseInfo.FindPropertyRelative("animKey");
             SerializedProperty typeP      = baseInfo.FindPropertyRelative("attackType");
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
-            SerializedProperty interruptP = prop.FindPropertyRelative("canBeInterrupted");
+            SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             ValidationResult validation = ValidateAttack(prop);
@@ -820,7 +821,7 @@ namespace UPlayGround.Editor
                 EditorGUILayout.LabelField("기본 정보", EditorStyles.miniBoldLabel);
                 EditorGUILayout.PropertyField(animKeyP,   new GUIContent("AnimKey"));
                 EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
-                EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 가능"));
+                EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                 EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
             }
 
@@ -844,6 +845,7 @@ namespace UPlayGround.Editor
             {
                 EditorGUILayout.LabelField("공통 설정", EditorStyles.miniBoldLabel);
                 EditorGUILayout.PropertyField(_chargeAnimKey, new GUIContent("차지 AnimKey"));
+                EditorGUILayout.PropertyField(_chargeInterruptActions, new GUIContent("차지 캔슬 액션"));
                 EditorGUILayout.HelpBox("MotionSet 안의 InfiniteLoop 수 = chargeStages 수와 일치시켜야 합니다.", MessageType.Info);
             }
 
@@ -958,7 +960,7 @@ namespace UPlayGround.Editor
             SerializedProperty stage, int index, int total, Color accent)
         {
             SerializedProperty phasesP    = stage.FindPropertyRelative("hitPhases");
-            SerializedProperty interruptP = stage.FindPropertyRelative("canBeInterrupted");
+            SerializedProperty interruptP = stage.FindPropertyRelative("interruptActions");
             SerializedProperty angleP     = stage.FindPropertyRelative("hitAngle");
 
             ValidationResult validation = ValidateAttack(stage);
@@ -969,7 +971,7 @@ namespace UPlayGround.Editor
 
             EditorGUILayout.BeginVertical(_cardStyle);
 
-            string summary = $"  [{index + 1}단계]  Phase {phasesP.arraySize}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.boolValue ? "캔슬 O" : "캔슬 X")}";
+            string summary = $"  [{index + 1}단계]  Phase {phasesP.arraySize}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
             Color  bgColor = validation.Errors.Count > 0
                 ? new Color(0.80f, 0.15f, 0.15f, 0.25f)
                 : validation.Warnings.Count > 0
@@ -994,7 +996,7 @@ namespace UPlayGround.Editor
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
                     EditorGUILayout.LabelField("단계 설정", EditorStyles.miniBoldLabel);
-                    EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 가능"));
+                    EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                     EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
                 }
                 EditorGUILayout.Space(4);

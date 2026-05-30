@@ -38,11 +38,15 @@ namespace UPlayGround.Data.Party
 
         [Tooltip("잔류 공격 오브젝트 최대 생존 시간. 이벤트 누락/무한 루프 방지용.")]
         [Min(0.1f)]
-        public float residualAttackMaxLifetime = 1.8f;
+        public float residualAttackMaxLifetime = 2.4f;
 
-        [Tooltip("향후 페이드/디졸브 정리용 지속 시간. 1차 구현에서는 즉시 제거 폴백을 사용한다.")]
+        [Tooltip("잔류 공격이 아주 짧게 끝나도 최소한 화면에 유지할 시간.")]
         [Min(0f)]
-        public float residualAttackFadeOutDuration = 0.25f;
+        public float residualAttackMinVisibleLifetime = 0.45f;
+
+        [Tooltip("잔류 공격 종료 후 디졸브로 정리되는 지속 시간.")]
+        [Min(0f)]
+        public float residualAttackFadeOutDuration = 0.55f;
 
         [Tooltip("잔류 공격 히트 시 히트스톱 피드백을 허용한다.")]
         public bool residualAttackAllowHitStop = true;
@@ -66,7 +70,7 @@ namespace UPlayGround.Data.Party
 
         [Tooltip("같은 캐릭터 복귀 위치로 인정할 최대 잔류 러너 나이.")]
         [Min(0f)]
-        public float residualAttackReturnPositionMaxAge = 1.8f;
+        public float residualAttackReturnPositionMaxAge = 2.4f;
 
         [Tooltip("잔류 공격 히트스톱 최소 재발동 간격.")]
         [Min(0f)]

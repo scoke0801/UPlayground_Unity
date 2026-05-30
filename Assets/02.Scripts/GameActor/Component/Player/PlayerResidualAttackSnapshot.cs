@@ -60,6 +60,7 @@ namespace UPlayGround.Component
     {
         public readonly PlayerResidualAttackSnapshot Snapshot;
         public readonly float MaxLifetime;
+        public readonly float MinVisibleLifetime;
         public readonly float FadeOutDuration;
         public readonly bool AllowHitStop;
         public readonly bool UseRootMotion;
@@ -73,6 +74,7 @@ namespace UPlayGround.Component
         public SwapResidualAttackRequest(
             PlayerResidualAttackSnapshot snapshot,
             float maxLifetime,
+            float minVisibleLifetime,
             float fadeOutDuration,
             bool allowHitStop,
             bool useRootMotion,
@@ -85,6 +87,7 @@ namespace UPlayGround.Component
         {
             Snapshot = snapshot;
             MaxLifetime = maxLifetime;
+            MinVisibleLifetime = minVisibleLifetime;
             FadeOutDuration = fadeOutDuration;
             AllowHitStop = allowHitStop;
             UseRootMotion = useRootMotion;

@@ -1,7 +1,6 @@
 using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
-using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -20,7 +19,8 @@ namespace UPlayGround.State
     ///   6. 루프 해제 후 애니메이션이 공격 구간으로 진행 → OnMotionSetCompleted → 상태 종료
     ///
     /// 취소:
-    ///   - Dodge 입력 시 BreakInfiniteLoop 후 DodgeState로 전환
+    ///   - chargeInterruptActions 마스크에 포함된 입력(기본 Dodge) 시 해당 상태로 전환
+    ///     (BreakInfiniteLoop는 OnExit에서 처리)
     ///   - 피격(Hit) 시 CanTransitionState → true (BreakInfiniteLoop는 OnExit에서 처리)
     /// </summary>
     public class PlayerChargeState : PlayerActorState
@@ -125,12 +125,12 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // ── 취소: 회피 ──────────────────────────────────────────────
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
-            {
-                controller.TransitionToState(new PlayerDodgeState(controller));
+            // ── 취소: 데이터(chargeInterruptActions) + 캔슬 윈도우(콜리전 비활성)로 제어 ──
+            // 차지 루프는 콜리전이 강제 비활성이라 윈도우가 열려 회피 캔슬이 유지되고,
+            // 발동 스윙(콜리전 활성) 중에는 캔슬되지 않는다.
+            if (_combat.IsCancelWindowOpen
+                && PlayerInterruptResolver.TryInterrupt(playerController, _combat.GetChargeInterruptActions()))
                 return;
-            }
 
             // IsChargeAttackHeld: 버튼을 현재 누르고 있는지 (threshold 초과 여부 포함)
             // 버튼을 뗀 순간부터 false가 되므로 1프레임 플래그보다 신뢰성 높음

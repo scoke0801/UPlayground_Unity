@@ -465,7 +465,10 @@ namespace UPlayGround.Editor
         private void ReplacePlayerAttack(PlayerAttackInfo attack, ScanEntry entry)
         {
             attack.baseInfo = CreateBaseInfo(entry);
-            attack.canBeInterrupted = entry.Category is AttackCategory.Light or AttackCategory.Skill;
+            // 약공/스킬은 기존 동작 보존을 위해 Dodge|Jump|Dash 캔슬 허용, 그 외는 캔슬 불가.
+            attack.interruptActions = entry.Category is AttackCategory.Light or AttackCategory.Skill
+                ? PlayerInterruptAction.Dodge | PlayerInterruptAction.Jump | PlayerInterruptAction.Dash
+                : PlayerInterruptAction.None;
             attack.hitAngle = entry.Category is AttackCategory.Jump ? 90f : 60f;
         }
 

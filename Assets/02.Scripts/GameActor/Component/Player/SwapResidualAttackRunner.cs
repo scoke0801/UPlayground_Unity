@@ -23,8 +23,10 @@ namespace UPlayGround.Component
 
         private ActorAnimator _animator;
         private ResidualPlayerCombat _combat;
+        private DissolveController _sourceDissolveController;
         private GameObject _modelInstance;
         private float _maxLifetime = 1.8f;
+        private float _minVisibleLifetime = 0.45f;
         private float _fadeOutDuration;
         private bool _useRootMotion;
         private float _rootMotionMaxDistance;
@@ -33,6 +35,8 @@ namespace UPlayGround.Component
         private float _elapsed;
         private bool _isCancelling;
         private bool _isFinishing;
+        private bool _hasDeferredCancel;
+        private SwapResidualAttackCancelReason _deferredCancelReason;
 
         public CharacterActorType OwnerType { get; private set; }
         public float Elapsed => _elapsed;
@@ -123,14 +127,17 @@ namespace UPlayGround.Component
             var snapshot = request.Snapshot;
             OwnerType = snapshot.CharacterType;
             _maxLifetime = Mathf.Max(0.1f, request.MaxLifetime);
+            _minVisibleLifetime = Mathf.Min(_maxLifetime, Mathf.Max(0f, request.MinVisibleLifetime));
             _fadeOutDuration = Mathf.Max(0f, request.FadeOutDuration);
             _useRootMotion = request.UseRootMotion;
             _rootMotionMaxDistance = Mathf.Max(0f, request.RootMotionMaxDistance);
             _rootMotionBlocker = request.RootMotionBlocker;
+            _sourceDissolveController = snapshot.SourceModel.GetComponentInParent<DissolveController>();
 
             _modelInstance = Instantiate(snapshot.SourceModel.gameObject, snapshot.Position, snapshot.Rotation, transform);
             _modelInstance.name = $"{snapshot.SourceModel.name}_Residual";
             _modelInstance.SetActive(true);
+            PrepareResidualVisuals();
 
             _combat = gameObject.AddComponent<ResidualPlayerCombat>();
             _combat.Initialize(
@@ -184,6 +191,13 @@ namespace UPlayGround.Component
             ApplyRootMotionDelta();
 
             _elapsed += Time.deltaTime;
+            if (_hasDeferredCancel && _elapsed >= _minVisibleLifetime)
+            {
+                _hasDeferredCancel = false;
+                Cancel(_deferredCancelReason);
+                return;
+            }
+
             if (_elapsed >= _maxLifetime)
                 Cancel(SwapResidualAttackCancelReason.Timeout);
         }
@@ -228,9 +242,20 @@ namespace UPlayGround.Component
         private void Cancel(SwapResidualAttackCancelReason reason, bool forceImmediate)
         {
             if (_isCancelling && !forceImmediate) return;
+
+            if (!forceImmediate
+                && reason == SwapResidualAttackCancelReason.Completed
+                && _elapsed < _minVisibleLifetime)
+            {
+                _hasDeferredCancel = true;
+                _deferredCancelReason = reason;
+                Debug.Log($"[ResidualAttack] Runner completion deferred. elapsed={_elapsed:0.000}, minVisible={_minVisibleLifetime:0.000}, object={name}");
+                return;
+            }
+
             _isCancelling = true;
 
-            Debug.Log($"[ResidualAttack] Runner cancel. reason={reason}, elapsed={_elapsed:0.000}, object={name}");
+            Debug.Log($"[ResidualAttack] Runner cancel. reason={reason}, elapsed={_elapsed:0.000}, minVisible={_minVisibleLifetime:0.000}, object={name}");
 
             if (_combat != null)
                 _combat.SetEnableCollision(false);
@@ -255,6 +280,20 @@ namespace UPlayGround.Component
                 Destroy(gameObject);
         }
 
+        private void PrepareResidualVisuals()
+        {
+            if (_modelInstance == null) return;
+
+            var renderers = _modelInstance.GetComponentsInChildren<Renderer>(true);
+            foreach (var renderer in renderers)
+            {
+                if (renderer == null) continue;
+
+                renderer.enabled = true;
+                renderer.SetPropertyBlock(null);
+            }
+        }
+
         private void FinishWithDissolve()
         {
             if (_isFinishing) return;
@@ -262,6 +301,7 @@ namespace UPlayGround.Component
 
             var dissolve = gameObject.GetComponent<DissolveController>()
                            ?? gameObject.AddComponent<DissolveController>();
+            
             dissolve.RefreshRenderers();
             dissolve.StartDissolve(_fadeOutDuration);
         }

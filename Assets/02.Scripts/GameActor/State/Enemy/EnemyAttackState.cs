@@ -50,6 +50,13 @@ namespace UPlayGround.State
             return true;
         }
 
+        public override bool CanPlayHitReaction(AttackData attackData)
+        {
+            return base.CanPlayHitReaction(attackData)
+                   && _combat != null
+                   && !_combat.IsPossibleCollide;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);

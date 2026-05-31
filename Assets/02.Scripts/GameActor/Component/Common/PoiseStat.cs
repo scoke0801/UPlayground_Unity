@@ -22,6 +22,8 @@ namespace UPlayGround.Component
         public float PoisePercent       => _data != null ? _currentPoise / _data.maxPoise : 1f;
 
         public bool IsPoiseBroken => _isBroken;
+        public float CurrentPoise => _currentPoise;
+        public float MaxPoise => _data != null ? _data.maxPoise : 100f;
         
         private void Awake()
         {
@@ -72,7 +74,7 @@ namespace UPlayGround.Component
                     
                     
                     if(_actorUIBar != null)
-                        _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
+                        _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
                 }
                 return;
             }
@@ -85,28 +87,27 @@ namespace UPlayGround.Component
                     _currentPoise = Mathf.Min(_currentPoise + _data.recoveryRate * Time.deltaTime, _data.maxPoise);
                     
                     if(_actorUIBar != null)
-                        _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
+                        _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
                 }
             }
         }
 
         /// <summary>
         /// 피격 시 호출.
-        /// true → Poise Break, Hit State 진입 필요.
-        /// false → Poise로 버팀, Hit State 불필요.
-        /// poiseDamage == 0 → 무조건 true (Poise 무시 공격).
+        /// true → 이번 피격으로 Poise Break 발생.
+        /// false → Poise가 남아 있거나 이미 Broken 상태.
+        /// Hit Reaction 재생 여부는 상태별 피격 허용 정책에서 별도로 결정한다.
         /// </summary>
         public bool TakePoiseDamage(float poiseDamage)
         {
-            if (poiseDamage <= 0f) return true;
-            if (_isHyperArmorActive) return false;
+            if (poiseDamage <= 0f) return false;
             if (_isBroken) return false;
 
             _currentPoise -= poiseDamage;
             _recoveryTimer = 0f;
             
             if(_actorUIBar != null)
-                _actorUIBar.UpdatePoise(_currentPoise, _data.maxPoise);
+                _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
             
             if (_currentPoise <= 0f)
             {
@@ -128,6 +129,9 @@ namespace UPlayGround.Component
             _currentPoise  = 0f;
             _isBroken      = true;
             _recoveryTimer = 0f;
+            
+            if(_actorUIBar != null)
+                _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
     }
 }

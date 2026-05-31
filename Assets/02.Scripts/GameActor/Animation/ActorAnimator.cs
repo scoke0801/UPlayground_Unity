@@ -104,6 +104,12 @@ namespace UPlayGround.Animation
         public bool HasFallbackMotionSet => _motionSet != null && _motionSet.fallbackMotionSet != null;
         public ActorAnimationMotionSet MotionSet => _motionSet;
 
+        // ── 모션워프 지연 캐싱 키 구성용 접근자 ──
+        // delta-warp 가 윈도우 총 루트모션을 (motionSetName, motionIndex, window) 키로 캐시할 때 사용.
+        public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
+        public int    CurrentMotionIndex   => _currentMotionIndex;
+        public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
+
         /// <summary>
         /// 현재 재생 중인 타임라인에서 현재 시점(_globalTime) 이후 처음으로 시작되는 T 이벤트까지
         /// 남은 시간(초)을 반환한다. globalStartTimeOffset은 PlayMotionSet 시점에 이미 계산되어 있다.

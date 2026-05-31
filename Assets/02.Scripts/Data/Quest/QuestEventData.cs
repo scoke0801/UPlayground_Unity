@@ -6,6 +6,7 @@ namespace UPlayGround.Data.Quest
     public class QuestStateEventData : IEventData
     {
         public string QuestId;
+        public string QuestName;
     }
 
     /// <summary> 퀘스트 목표 진행도 변경 이벤트 데이터 </summary>

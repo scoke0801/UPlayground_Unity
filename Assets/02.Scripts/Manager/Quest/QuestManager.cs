@@ -53,6 +53,8 @@ namespace UPlayGround.Manager
         private readonly HashSet<string>                      _completedQuestIds = new();
         private readonly HashSet<string>                      _pendingAcceptQuestIds = new();
         private readonly HashSet<string>                      _pendingReachedLocationIds = new();
+        private string _trackedQuestId;
+        private bool _isQuestTrackingSuppressed;
 
         // DB 로드 전에 LoadGame()이 호출될 경우 보관
         private QuestSaveData _pendingLoad;
@@ -77,6 +79,8 @@ namespace UPlayGround.Manager
             _completedQuestIds.Clear();
             _pendingAcceptQuestIds.Clear();
             _pendingReachedLocationIds.Clear();
+            _trackedQuestId = null;
+            _isQuestTrackingSuppressed = false;
             if (_dbHandle.IsValid())
                 Addressables.Release(_dbHandle);
         }
@@ -159,6 +163,51 @@ namespace UPlayGround.Manager
         /// <summary> 진행 중인 모든 퀘스트 런타임 데이터 </summary>
         public IEnumerable<QuestRuntimeData> GetActiveQuests() => _activeQuests.Values;
 
+        /// <summary>현재 HUD에서 추적 중인 퀘스트 ID. 없으면 null.</summary>
+        public string TrackedQuestId => _trackedQuestId;
+
+        /// <summary>플레이어가 HUD 퀘스트 추적을 수동 해제했는지 여부.</summary>
+        public bool IsQuestTrackingSuppressed => _isQuestTrackingSuppressed;
+
+        /// <summary>현재 HUD에서 추적 중인 퀘스트 런타임 데이터. 없으면 null.</summary>
+        public QuestRuntimeData GetTrackedQuestRuntime()
+        {
+            if (string.IsNullOrEmpty(_trackedQuestId))
+            {
+                return null;
+            }
+
+            _activeQuests.TryGetValue(_trackedQuestId, out var runtime);
+            return runtime;
+        }
+
+        /// <summary>퀘스트를 HUD 추적 대상으로 지정한다.</summary>
+        public bool TrackQuest(QuestIdType questId) => TrackQuestById(questId.ToQuestId());
+
+        /// <summary>퀘스트를 HUD 추적 대상으로 지정한다.</summary>
+        public bool TrackQuest(string questId) => TrackQuestById(questId);
+
+        /// <summary>현재 HUD 추적 대상을 해제한다.</summary>
+        public bool UntrackQuest()
+        {
+            if (string.IsNullOrEmpty(_trackedQuestId) && _isQuestTrackingSuppressed)
+            {
+                return false;
+            }
+
+            string previousQuestId = _trackedQuestId;
+            _trackedQuestId = null;
+            _isQuestTrackingSuppressed = true;
+            SendQuestEvent(QuestEvent.QuestUntracked, previousQuestId);
+            return true;
+        }
+
+        /// <summary>지정한 퀘스트가 현재 HUD 추적 대상인지 반환한다.</summary>
+        public bool IsQuestTracked(QuestIdType questId) => IsQuestTracked(questId.ToQuestId());
+
+        /// <summary>지정한 퀘스트가 현재 HUD 추적 대상인지 반환한다.</summary>
+        public bool IsQuestTracked(string questId) => !string.IsNullOrEmpty(questId) && _trackedQuestId == questId;
+
         /// <summary>
         /// 수락 가능한 퀘스트 목록 (선행 조건 충족, 완료/진행 중 아닌 것)
         /// </summary>
@@ -229,7 +278,12 @@ namespace UPlayGround.Manager
             // ItemCollect 목표는 수락 시 인벤토리 현황으로 즉시 갱신
             RefreshItemCollectObjectives(runtime);
 
-            SendQuestEvent(QuestEvent.QuestAccepted, questId);
+            if (string.IsNullOrEmpty(_trackedQuestId) && !_isQuestTrackingSuppressed)
+            {
+                TrackQuestById(questId, false);
+            }
+
+            SendQuestEvent(QuestEvent.QuestAccepted, questId, questSO.questName);
             Debug.Log($"[QuestManager] 퀘스트 수락: {questSO.questName}");
             return true;
         }
@@ -248,8 +302,15 @@ namespace UPlayGround.Manager
             _activeQuests.Remove(questId);
             _completedQuestIds.Add(questId);
 
+            if (_trackedQuestId == questId)
+            {
+                _trackedQuestId = null;
+                _isQuestTrackingSuppressed = false;
+                TrackFirstActiveQuest(false);
+            }
+
             GiveRewards(runtime.QuestSO.reward);
-            SendQuestEvent(QuestEvent.QuestCompleted, questId);
+            SendQuestEvent(QuestEvent.QuestCompleted, questId, runtime.QuestSO.questName);
             Debug.Log($"[QuestManager] 퀘스트 완료: {runtime.QuestSO.questName}");
 
             AutoAcceptNextQuests(runtime.QuestSO);
@@ -260,6 +321,12 @@ namespace UPlayGround.Manager
         {
             if (!_activeQuests.TryGetValue(questId, out var runtime)) return false;
             _activeQuests.Remove(questId);
+            if (_trackedQuestId == questId)
+            {
+                _trackedQuestId = null;
+                _isQuestTrackingSuppressed = false;
+                TrackFirstActiveQuest();
+            }
             Debug.Log($"[QuestManager] 퀘스트 포기: {runtime.QuestSO.questName}");
             return true;
         }
@@ -271,6 +338,50 @@ namespace UPlayGround.Manager
             if (_completedQuestIds.Contains(questId))
                 return QuestStatus.Completed;
             return QuestStatus.Available;
+        }
+
+        private bool TrackQuestById(string questId, bool sendEvent = true)
+        {
+            if (string.IsNullOrEmpty(questId))
+            {
+                return false;
+            }
+
+            if (!_activeQuests.TryGetValue(questId, out var runtime))
+            {
+                Debug.LogWarning($"[QuestManager] 진행 중인 퀘스트만 추적할 수 있습니다: {questId}");
+                return false;
+            }
+
+            _trackedQuestId = questId;
+            _isQuestTrackingSuppressed = false;
+
+            if (sendEvent)
+            {
+                SendQuestEvent(QuestEvent.QuestTracked, questId, runtime.QuestSO.questName);
+            }
+
+            return true;
+        }
+
+        private void TrackFirstActiveQuest(bool sendEvent = true)
+        {
+            foreach (var runtime in _activeQuests.Values)
+            {
+                if (runtime?.QuestSO == null)
+                {
+                    continue;
+                }
+
+                TrackQuestById(runtime.QuestSO.questId, sendEvent);
+                return;
+            }
+
+            _isQuestTrackingSuppressed = false;
+            if (sendEvent)
+            {
+                SendQuestEvent(QuestEvent.QuestUntracked, null);
+            }
         }
 
         #endregion
@@ -534,9 +645,18 @@ namespace UPlayGround.Manager
 
         private void SendQuestEvent(QuestEvent eventType, string questId)
         {
+            SendQuestEvent(eventType, questId, null);
+        }
+
+        private void SendQuestEvent(QuestEvent eventType, string questId, string questName)
+        {
             EventManager.Instance.Send<QuestEvent, QuestStateEventData>(
                 eventType,
-                new QuestStateEventData { QuestId = questId });
+                new QuestStateEventData
+                {
+                    QuestId = questId,
+                    QuestName = questName
+                });
         }
 
         private void SendObjectiveEvent(QuestRuntimeData runtime, QuestObjectiveData obj)
@@ -562,6 +682,8 @@ namespace UPlayGround.Manager
         public void ExportSaveData(GameSaveData saveData)
         {
             saveData.quest.completedQuestIds = new List<string>(_completedQuestIds);
+            saveData.quest.trackedQuestId = _trackedQuestId;
+            saveData.quest.questTrackingSuppressed = _isQuestTrackingSuppressed;
 
             saveData.quest.activeQuests.Clear();
             foreach (var kv in _activeQuests)
@@ -605,6 +727,22 @@ namespace UPlayGround.Manager
                         runtime.SetProgress(kv.Key, kv.Value);
 
                 _activeQuests[entry.questId] = runtime;
+            }
+
+            _trackedQuestId = null;
+            if (!string.IsNullOrEmpty(data.trackedQuestId) && _activeQuests.ContainsKey(data.trackedQuestId))
+            {
+                _trackedQuestId = data.trackedQuestId;
+                _isQuestTrackingSuppressed = false;
+            }
+            else if (data.questTrackingSuppressed)
+            {
+                _isQuestTrackingSuppressed = true;
+            }
+            else
+            {
+                _isQuestTrackingSuppressed = false;
+                TrackFirstActiveQuest(false);
             }
 
             Debug.Log($"[QuestManager] 로드 완료 — 완료: {_completedQuestIds.Count}개, 진행 중: {_activeQuests.Count}개");

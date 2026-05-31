@@ -38,7 +38,9 @@ namespace UPlayGround.Data.Enemy
         [Header("Exposed")]
         [Min(0.1f)] public float exposedDuration = 4f;
         [Min(0f)] public float damageTakenMultiplierWhileExposed = 1.15f;
+        [Tooltip("노출 시간이 끝났을 때 이미 깎인 비율. 0.25면 잔량 75%에서 재시작")]
         [Range(0f, 1f)] public float resetGaugeRatioOnExpire = 0.25f;
+        [Tooltip("특수 브레이크 공격으로 소비했을 때 이미 깎인 비율. 0이면 잔량 100%로 재시작")]
         [Range(0f, 1f)] public float resetGaugeRatioOnSpecialAttack = 0f;
 
         [Header("Grade")]

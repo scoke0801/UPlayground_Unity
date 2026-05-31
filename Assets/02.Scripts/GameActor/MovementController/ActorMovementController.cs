@@ -308,7 +308,10 @@ namespace UPlayGround.MovementController
     {
         Additive,
         Scale,
-        Skew
+        Skew,
+        // delta-warp: 원본 루트 델타를 재생하며 잔여 보정을 루트모션 비례 분배 → 커브 보존 + 정확 착지.
+        // 신규 표준 경로. Additive/Scale/Skew 는 레거시(기존 .asset 호환)로 보존.
+        DeltaWarp
     }
 
     public enum MotionWarpTargetPolicy
@@ -360,6 +363,21 @@ namespace UPlayGround.MovementController
         // Predictive 정책에서 타겟 속도를 어느 정도 가산할지 (0~1). 0 = Live 와 동일.
         public float predictionFactor;
 
+        // ── 루트모션 속도 증폭 (직교 프리멀티플라이어) ──
+        // 타겟 워프와 별개로, 루트모션 고유 속도 곡선에 게인을 곱해 증폭한다.
+        // 타겟이 없어도 동작하며, 타겟이 있으면 증폭된 속도 위에서 워프가 합성된다.
+        public bool amplifyEnabled;
+        // 정규화 시간 t(0~1) → 게인 배율. null/빈 커브면 증폭 없음.
+        // 접지 프레임 ≈1, 버스트 구간만 >1 로 두어 풋 슬라이딩을 최소화한다.
+        public AnimationCurve amplifyGainCurve;
+        // 증폭 결과 수평 속력의 자체 상한. 기존 워프 maxSpeed 와 분리.
+        public float amplifyMaxSpeed;
+
+        // ── delta-warp 캐시 키용 윈도우 절대 시간 (MotionEvent 의 start/endTime) ──
+        // 액션 재생 간 동일 → 윈도우 총 루트모션 캐시 키의 일부.
+        public float windowStartTime;
+        public float windowEndTime;
+
         public static MotionWarpWindowSettings Default(float duration)
         {
             return new MotionWarpWindowSettings
@@ -379,6 +397,11 @@ namespace UPlayGround.MovementController
                 targetOffset = Vector3.zero,
                 rotationCurve = null,
                 predictionFactor = 0.5f,
+                amplifyEnabled = false,
+                amplifyGainCurve = null,
+                amplifyMaxSpeed = 25f,
+                windowStartTime = 0f,
+                windowEndTime = 0f,
             };
         }
 
@@ -455,6 +478,34 @@ namespace UPlayGround.MovementController
         private bool _warpStartCaptured;
         // ──────────────────────────────────────────────────────────────
 
+        // ── delta-warp 모델 (C-exact 지연 캐싱) ──────────────────────────
+        // 윈도우 동안 누적되는 "순수 애니메이션 루트 변위" — 매 프레임 raw DeltaPosition 을
+        // 그 프레임의 액터 회전 역변환으로 애니메이션 로컬프레임에 투영해 합산(회전 불변).
+        // 스티어링/월드 facing 과 무관하므로 액션 정체성만으로 캐시 가능.
+        private Vector3 _accumRootLocal;
+        private float   _accumRootPath;   // 누적 경로 길이(스칼라)
+        // 활성 윈도우의 캐시 키/총량. 키는 윈도우 시작 시 액터 ActorAnimator 에서 조립.
+        private WarpKey _activeWarpKey;
+        private bool    _hasActiveWarpKey;
+        private RootMotionTotal _activeTotal;
+        private bool    _hasActiveTotal;  // true 면 캐시 히트(play-2+) → 정확 delta-warp.
+        // 캐시 저장 허용 여부. BeginWarpWindow 에서 true, 인터럽트(Cancel/ClearTarget/조기 EndMotionWarp)
+        // 에서 false. 부분 측정(중단된 첫 캐스트)이 캐시를 영구 오염시키는 것을 막는다.
+        // 자연 완료(OnCompleteEvent→EndWarpWindow)는 EndWarpWindow 가 인터럽트보다 먼저 호출되어 true 유지.
+        private bool    _warpStoreCommittable;
+        // 정적 공유 캐시. 키에 lossyScale 버킷이 포함되므로 동일 스케일끼리만 공유돼 리그 스케일
+        // 교차오염이 없다. 인스턴스 단위였을 때의 "스폰마다 첫 캐스트 재측정"을 "(액션,스케일)당
+        // 세션 1회 측정"으로 축소한다.
+        // 한계(stopgap): 각 (액션,스케일)의 세션 첫 시전은 여전히 play-1 feel 폴백(정확 착지 미보장).
+        //                완전 제거하려면 BeginWarpWindow 시드(에디터 베이크) 필요 — 별도 작업.
+        private static readonly Dictionary<WarpKey, RootMotionTotal> _rootTotalCache = new();
+
+        // 도메인 리로드 비활성(Enter Play Mode Options) 시 정적 캐시가 세션 간 잔존해
+        // 클립/윈도우 편집 후 stale 총량을 반환할 수 있다. 매 플레이 진입 시 비운다.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRootTotalCache() => _rootTotalCache.Clear();
+        // ──────────────────────────────────────────────────────────────
+
         // ── 타겟 속도 추적 (Phase 4 Predictive) ──────────────────────────
         // 활성 타겟의 이전 위치 / 추정 속도. Predictive 정책에서 미래 위치 가산용.
         private Vector3 _targetPreviousPosition;
@@ -470,6 +521,62 @@ namespace UPlayGround.MovementController
 
         // 히트스톱 등 로컬 타임스케일 반영용. 없으면 Time.deltaTime 폴백.
         private GameActor _actor;
+
+        // ── delta-warp 캐시 타입 ─────────────────────────────────────────
+        // 윈도우 총 루트모션 캐시 키: 액션 정체성(motionSetName) + 모션 인덱스 + 윈도우(start,end)
+        //                          + 양자화 lossyScale 버킷.
+        // 재생 속도/타겟/히트스톱과 독립이라 액션 재생 간 안정적.
+        // ScaleBucket: 캐시 총량은 월드 공간 raw 루트모션에서 측정돼 lossyScale 이 반영되므로,
+        //              동일 스케일끼리만 공유해야 한다(다른 스케일 = 다른 버킷 → 교차오염 차단).
+        //              0.01 단위로 양자화해 float 노이즈에 의한 키 미스를 막는다.
+        private readonly struct WarpKey : IEquatable<WarpKey>
+        {
+            public readonly string     MotionSetName;
+            public readonly int        MotionIndex;
+            public readonly float      StartTime;
+            public readonly float      EndTime;
+            public readonly Vector3Int ScaleBucket;
+
+            public WarpKey(string motionSetName, int motionIndex, float startTime, float endTime, Vector3Int scaleBucket)
+            {
+                MotionSetName = motionSetName;
+                MotionIndex   = motionIndex;
+                StartTime     = startTime;
+                EndTime       = endTime;
+                ScaleBucket   = scaleBucket;
+            }
+
+            public bool IsValid => !string.IsNullOrEmpty(MotionSetName);
+
+            public bool Equals(WarpKey o) =>
+                MotionIndex == o.MotionIndex &&
+                StartTime.Equals(o.StartTime) &&
+                EndTime.Equals(o.EndTime) &&
+                ScaleBucket == o.ScaleBucket &&
+                MotionSetName == o.MotionSetName;
+
+            public override bool Equals(object o) => o is WarpKey k && Equals(k);
+            public override int GetHashCode() =>
+                System.HashCode.Combine(MotionSetName, MotionIndex, StartTime, EndTime, ScaleBucket);
+        }
+
+        // 윈도우의 "순수 애니메이션 루트 변위" 총량 — facing-불변 고유 로컬프레임 기준.
+        // (rawHoriz = R·localRoot 를 매 프레임 Inverse(R) 로 투영·합산하므로 액터 회전 R 이 해석적으로
+        //  소거된다. 따라서 시작 프레임 스냅샷이 아니라 클립 고유의 로컬 변위. 액터 스티어/회전과 무관.)
+        private readonly struct RootMotionTotal
+        {
+            // 클립 고유 수평 총 변위(facing-불변). normalized 만 방향 추정에 사용 — 굽은 루트 클립이면
+            // 방향이 "평균 로컬 헤딩" 으로 무뎌지나 PathLen 은 항상 정확.
+            public readonly Vector3 LocalTotal;
+            public readonly float   PathLen;    // 총 경로 길이(스칼라)
+            public RootMotionTotal(Vector3 localTotal, float pathLen)
+            {
+                LocalTotal = localTotal;
+                PathLen    = pathLen;
+            }
+            public bool IsValid => PathLen > 0.0001f;
+        }
+        // ──────────────────────────────────────────────────────────────
 
         /// <summary>
         /// 워프가 명시적으로 캔슬될 때 발화 (정상 종료에서는 미발화).
@@ -569,6 +676,9 @@ namespace UPlayGround.MovementController
         {
             _warpRemainingTime = 0f;
             _outOfRangeAccumulator = 0f;
+            // 조기 종료일 수 있으므로 부분 측정 저장을 막는다. 자연 완료 경로는
+            // EndWarpWindow 가 이 호출보다 먼저 실행되어 이미 캐시 저장을 마친 뒤다.
+            _warpStoreCommittable = false;
         }
 
         /// <summary>
@@ -579,6 +689,7 @@ namespace UPlayGround.MovementController
             bool wasWarping = _warpRemainingTime > 0f;
             _warpRemainingTime = 0f;
             _outOfRangeAccumulator = 0f;
+            _warpStoreCommittable = false; // 중단된 윈도우의 부분 측정 저장 차단
             if (wasWarping)
                 OnWarpCancelled?.Invoke(reason);
         }
@@ -614,10 +725,55 @@ namespace UPlayGround.MovementController
             _feasibilityChecked = false;
             _isApplicable = false;
             _lastFailureReason = string.Empty;
+
+            // ── delta-warp 윈도우 초기화: 캐시 키 조립 + 히트 조회 + 누적기 리셋 ──
+            _warpStartCaptured = false;       // 시작 위치/회전을 첫 applicable 프레임에 다시 캡처
+            _accumRootLocal = Vector3.zero;
+            _accumRootPath  = 0f;
+            _warpStoreCommittable = true;     // 인터럽트가 발생하면 false 로 내려가 부분 저장 차단
+
+            _activeWarpKey = BuildWarpKey(settings);
+            _hasActiveWarpKey = _activeWarpKey.IsValid;
+            _hasActiveTotal = _hasActiveWarpKey
+                              && _rootTotalCache.TryGetValue(_activeWarpKey, out _activeTotal)
+                              && _activeTotal.IsValid;
+        }
+
+        // 현재 재생 중인 액션 정체성(ActorAnimator) + 윈도우 시간으로 캐시 키 조립.
+        // 애니메이터/모션셋 미가용 시 무효 키 → 캐시 비활성(항상 play-1 feel 폴백).
+        private WarpKey BuildWarpKey(in MotionWarpWindowSettings settings)
+        {
+            var anim = _actor != null ? _actor.Animator : null;
+            if (anim == null || !anim.IsPlayingMotionSet) return default;
+            string name = anim.CurrentMotionSetName;
+            if (string.IsNullOrEmpty(name)) return default;
+
+            // 캐시 총량은 월드 공간 raw 루트모션 기준이라 lossyScale 이 반영된다.
+            // 0.01 단위 양자화 버킷으로 동일 스케일끼리만 공유한다(성분별 — 비균일 스케일 대응).
+            Vector3 ls = transform.lossyScale;
+            var scaleBucket = new Vector3Int(
+                Mathf.RoundToInt(ls.x * 100f),
+                Mathf.RoundToInt(ls.y * 100f),
+                Mathf.RoundToInt(ls.z * 100f));
+
+            return new WarpKey(name, anim.CurrentMotionIndex, settings.windowStartTime, settings.windowEndTime, scaleBucket);
         }
 
         public void EndWarpWindow()
         {
+            // ── play-1 캐시 저장: 이번 윈도우에서 누적한 순수 루트 변위를 키에 저장 ──
+            // 조건: 캐시 미스(첫 측정) + 유효 키 + 의미있는 누적 + "자연 완료"(_warpStoreCommittable).
+            // 인터럽트(중단)된 윈도우는 부분 측정이라 저장하지 않는다 — 저장 안 하면 다음 재생이 다시 측정(안전).
+            // play-2+ (_hasActiveTotal) 에서는 이미 캐시가 있으므로 재저장하지 않는다.
+            if (_hasActiveWarpKey && !_hasActiveTotal && _warpStoreCommittable && _accumRootPath > 0.0001f)
+                _rootTotalCache[_activeWarpKey] = new RootMotionTotal(_accumRootLocal, _accumRootPath);
+
+            _hasActiveWarpKey = false;
+            _hasActiveTotal = false;
+            _warpStoreCommittable = false;
+            _accumRootLocal = Vector3.zero;
+            _accumRootPath = 0f;
+
             _hasWindowSettings = false;
             _windowSettings = MotionWarpWindowSettings.Default(0f);
             _feasibilityChecked = false;
@@ -693,6 +849,7 @@ namespace UPlayGround.MovementController
             _warpStartCaptured = false;
             _hasTargetVelocityHistory = false;
 
+            _warpStoreCommittable = false; // 전면 리셋(중단) — 부분 측정 저장 차단
             EndWarpWindow();
             _warpRemainingTime = 0f;
             if (wasWarping)
@@ -715,6 +872,7 @@ namespace UPlayGround.MovementController
                 _isApplicable = false;
                 _blendWeight = 0f;
                 _hasTargetVelocityHistory = false;
+                _warpStoreCommittable = false; // 활성 키 타겟 제거(중단) — 부분 측정 저장 차단
                 EndWarpWindow();
                 _warpRemainingTime = 0f;
                 if (wasWarping)
@@ -737,6 +895,34 @@ namespace UPlayGround.MovementController
             if (deltaTime <= 0f)
                 return rootVelocity;
 
+            MotionWarpWindowSettings settings = _hasWindowSettings
+                ? _windowSettings
+                : MotionWarpWindowSettings.Default(totalDuration);
+
+            totalDuration = settings.duration > 0f ? settings.duration : totalDuration;
+
+            // 증폭 전 순수 루트 속도를 보존한다 — delta-warp 의 누적/캐시(윈도우 총 루트모션)와
+            // 잔여 보정 추정은 "애니메이터가 만든 원본 루트모션" 을 기준으로 해야 하기 때문.
+            Vector3 rawRootVelocity = rootVelocity;
+            Vector3 rawHoriz = new Vector3(rawRootVelocity.x, 0f, rawRootVelocity.z);
+            float rawFrameDist = rawHoriz.magnitude * deltaTime;
+
+            // ── delta-warp 누적: 윈도우 전체에 걸쳐(타겟/적용성 게이트 "이전") 측정한다.
+            //    minDistance 안쪽·OOR 프레임까지 포함해야 캐시 총량이 "순수 애니메이션 루트모션"(타겟 독립)이 된다.
+            //    raw(증폭 전)를 액터 회전 역변환으로 애니메이션 로컬프레임에 투영 → facing 무관 누적.
+            if (isWarping && rawFrameDist > 0f)
+            {
+                _accumRootPath  += rawFrameDist;
+                _accumRootLocal += Quaternion.Inverse(transform.rotation) * (rawHoriz * deltaTime);
+            }
+
+            // 루트모션 속도 증폭: 타겟 게이트보다 "앞" 에서 적용한다.
+            // 타겟 없는 단독 증폭이면 아래 early-return 으로 증폭된 rootVelocity 가 그대로 반환된다.
+            // 타겟이 있으면(아래 delta-warp 경로) 증폭값이 gainHoriz(원본 재생 항)로 흡수되어
+            // amplify 와 타겟 워프가 같은 파이프라인에서 합성된다. amplify off 면 gain=1.
+            if (isWarping && settings.amplifyEnabled)
+                rootVelocity = ApplyRootMotionAmplify(rootVelocity, settings, remainingTime, totalDuration);
+
             if (!_activeTarget.IsValid || !isWarping)
             {
                 _feasibilityChecked = false;
@@ -757,18 +943,13 @@ namespace UPlayGround.MovementController
                 return rootVelocity;
             }
 
-            MotionWarpWindowSettings settings = _hasWindowSettings
-                ? _windowSettings
-                : MotionWarpWindowSettings.Default(totalDuration);
-
+            // settings / totalDuration 는 함수 상단에서 이미 해석됨 (증폭 패스와 공유).
             if (settings.overrideDistance)
             {
                 minDistance = settings.minDistance;
                 maxDistance = settings.maxDistance;
                 maxSpeed = settings.maxSpeed;
             }
-
-            totalDuration = settings.duration > 0f ? settings.duration : totalDuration;
 
             // Live(follow) 정책이면 매 프레임 갱신, Snapshot 이면 _snapshotPosition 사용.
             Vector3 targetWorld = _activeTarget.follow
@@ -835,6 +1016,8 @@ namespace UPlayGround.MovementController
 
             Vector3 targetVelocity = settings.modifierType switch
             {
+                MotionWarpModifierType.DeltaWarp => EvaluateDeltaWarpVelocity(
+                    rootVelocity, toTarget, remainingDist, rawFrameDist, deltaTime, eased, maxSpeed),
                 MotionWarpModifierType.Scale => EvaluateScaleVelocity(rootVelocity, toTarget, remainingDist, remainingTime, maxSpeed),
                 MotionWarpModifierType.Skew => EvaluateSkewVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased),
                 _ => EvaluateAdditiveVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased)
@@ -953,6 +1136,100 @@ namespace UPlayGround.MovementController
                 1 => capsule.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z)),
                 _ => capsule.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y))
             };
+        }
+
+        /// <summary>
+        /// delta-warp: 원본 루트 델타를 재생(gainHoriz)하면서, 타겟까지의 잔여 보정을
+        /// "이 프레임이 차지하는 루트모션 비율(share)" 만큼 분배해 더한다.
+        /// 보정이 루트모션 크기에 비례 분배되므로 애니메이션의 가속–감속 커브가 워프를 구동하고,
+        /// 누적 합이 타겟에 수렴해 정확 착지한다(잔여 기준 폐루프 → 스티어링/Live 타겟 드리프트 흡수).
+        ///
+        /// - 캐시 히트(play-2+, _hasActiveTotal): 위 정확 모드.
+        /// - 캐시 미스(play-1): feel 폴백 — 속도 크기(gain×rawSpeed)는 보존하고 방향만 타겟으로
+        ///   스티어. 정확 착지 보장은 없으나 곡선은 보존. 같은 프레임에 누적이 진행돼 다음 재생부터 정확.
+        /// amplify 가 켜지면 gainHoriz 가 증폭돼 "더 빠르고 펀치감 있는 접근" 이 되지만 착지점은
+        /// 여전히 타겟(캐시는 amplify 무관한 순수 애니메이션 총량 저장).
+        /// 반환은 수평 속도(.y 는 호출부 Y 정책이 덮어씀). maxSpeed 로 수평 클램프(폐루프가 다음 프레임 보상).
+        /// </summary>
+        private Vector3 EvaluateDeltaWarpVelocity(
+            Vector3 rootVelocity,
+            Vector3 toTarget,
+            float remainingDist,
+            float rawFrameDist,
+            float deltaTime,
+            float eased,
+            float maxSpeed)
+        {
+            Vector3 gainHoriz = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
+            Vector3 targetDir = remainingDist > 0.0001f ? toTarget / remainingDist : Vector3.zero;
+
+            if (_hasActiveTotal && _activeTotal.PathLen > 0.0001f)
+            {
+                // 정확 모드 — 잔여 기준 폐루프.
+                float remainingPath = Mathf.Max(rawFrameDist, _activeTotal.PathLen - _accumRootPath);
+                Vector3 localDir = _activeTotal.LocalTotal.sqrMagnitude > 1e-6f
+                    ? _activeTotal.LocalTotal.normalized
+                    : Vector3.forward;
+                // 남은 raw 변위를 현재 회전으로 추정(스티어링 흡수).
+                Vector3 remainingRawWorld = transform.rotation * (localDir * remainingPath);
+                remainingRawWorld.y = 0f;
+                Vector3 correctionTotal = toTarget - remainingRawWorld; // 남은 구간서 메울 총 보정
+                // remainingPath==0 (rawFrameDist==0 && accum>=PathLen, 예: settle 꼬리 + Live 타겟)이면
+                // 0/0 → NaN 이 KCC 로 전파된다. 이 경우 share=1 로 디그레이드 —
+                // remainingRawWorld≈0 → correctionTotal≈toTarget → 마지막 간격을 즉시 메운다(maxSpeed 클램프).
+                float share = remainingPath > 1e-5f ? Mathf.Clamp01(rawFrameDist / remainingPath) : 1f;
+
+                Vector3 frameWarped = gainHoriz * deltaTime + correctionTotal * share; // 프레임 변위
+                // 주의: 큰 보정이 마지막 프레임에 집중되면 이 maxSpeed 클램프가 잔여 오프셋을 남길 수 있다
+                // (다음 프레임이 없어 보상 불가). 폐루프가 평소 분산시키므로 드묾.
+                return ClampHorizontal(frameWarped / deltaTime, rootVelocity.y, maxSpeed);
+            }
+
+            // feel 폴백 (play-1) — 크기 보존 + 타겟 스티어.
+            float speed = gainHoriz.magnitude;
+            if (speed <= 0.0001f)
+                return new Vector3(0f, rootVelocity.y, 0f);
+            Vector3 gainDir = gainHoriz / speed;
+            Vector3 steerDir = targetDir.sqrMagnitude > 1e-6f
+                ? Vector3.Slerp(gainDir, targetDir, eased).normalized
+                : gainDir;
+            return ClampHorizontal(steerDir * speed, rootVelocity.y, maxSpeed);
+        }
+
+        // 수평 성분만 maxSpeed 로 클램프하고 Y 는 전달값 유지.
+        private static Vector3 ClampHorizontal(Vector3 velocity, float y, float maxSpeed)
+        {
+            Vector3 h = new Vector3(velocity.x, 0f, velocity.z);
+            if (maxSpeed > 0f && h.magnitude > maxSpeed)
+                h = h.normalized * maxSpeed;
+            return new Vector3(h.x, y, h.z);
+        }
+
+        /// <summary>
+        /// 루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 무관 직교 패스).
+        /// 게인 커브는 정규화 워프 진행도 t(0~1)를 배율로 매핑하며, 수평(XZ)에만 적용하고
+        /// Y(중력/루트 수직)는 보존한다. 결과 수평 속력은 amplifyMaxSpeed 로 자체 클램프.
+        /// </summary>
+        private static Vector3 ApplyRootMotionAmplify(
+            Vector3 rootVelocity,
+            in MotionWarpWindowSettings settings,
+            float remainingTime,
+            float totalDuration)
+        {
+            var curve = settings.amplifyGainCurve;
+            if (curve == null || curve.length == 0)
+                return rootVelocity;
+
+            // 워프 윈도우 진행도 — EvaluateVelocity 본문의 t 정의와 동일 공식.
+            float t = totalDuration > 0f ? 1f - (remainingTime / totalDuration) : 1f;
+            float gain = Mathf.Max(0f, curve.Evaluate(Mathf.Clamp01(t)));
+
+            Vector3 horiz = new Vector3(rootVelocity.x, 0f, rootVelocity.z) * gain;
+            float ceil = settings.amplifyMaxSpeed > 0f ? settings.amplifyMaxSpeed : float.MaxValue;
+            if (horiz.magnitude > ceil)
+                horiz = horiz.normalized * ceil;
+
+            return new Vector3(horiz.x, rootVelocity.y, horiz.z);
         }
 
         private static Vector3 EvaluateAdditiveVelocity(

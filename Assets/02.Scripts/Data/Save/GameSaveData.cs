@@ -65,6 +65,12 @@ namespace UPlayGround.Data.Save
 
         /// <summary> 현재 진행 중인 퀘스트 상태 목록 </summary>
         public List<ActiveQuestSaveEntry> activeQuests = new List<ActiveQuestSaveEntry>();
+
+        /// <summary> HUD에 추적 중인 퀘스트 ID </summary>
+        public string trackedQuestId;
+
+        /// <summary> 플레이어가 HUD 퀘스트 추적을 수동 해제했는지 여부 </summary>
+        public bool questTrackingSuppressed;
     }
 
     [Serializable]

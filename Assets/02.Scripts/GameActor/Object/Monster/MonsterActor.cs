@@ -265,22 +265,26 @@ namespace UPlayGround
 
         protected virtual void OnDamaged(AttackData attackData)
         {
-            bool poiseBroken = true;
+            bool poiseBrokenNow = false;
             if (_poiseStat != null)
-            {
-                _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
-                poiseBroken = _poiseStat.IsPoiseBroken;
-            }
+                poiseBrokenNow = _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
 
-            GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, poiseBroken);
+            bool isPoiseBroken = _poiseStat != null && _poiseStat.IsPoiseBroken;
+            GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, isPoiseBroken);
             AIController?.Group?.Memory?.NotifyMemberTookDamage();
             _breakGauge?.TakeBreakDamage(attackData);
 
             // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
             // 받는 피해 증가(DamageTakenMultiplier)는 TakeDamage 단계에서 이미 적용된다.
 
-            bool shouldReact = poiseBroken || (attackData?.forceReaction ?? false);
-            if (attackData != null && shouldReact)
+            bool canPlayHitReaction = CanPlayHitReaction(attackData);
+            bool shouldPlayHitReaction = attackData != null
+                                         && attackData.reactionType != AttackReactionType.None
+                                         && canPlayHitReaction
+                                         && attackData.forceReaction;
+
+            bool shouldApplyReactionForce = poiseBrokenNow || shouldPlayHitReaction;
+            if (attackData != null && shouldApplyReactionForce)
             {
                 switch (attackData.reactionType)
                 {
@@ -317,7 +321,11 @@ namespace UPlayGround
                 }
             }
 
-            if (shouldReact)
+            if (poiseBrokenNow)
+            {
+                TransitionToPoiseBreakState(attackData);
+            }
+            else if (shouldPlayHitReaction)
             {
                 if (ShouldEnterAirborneState(attackData))
                     MovementController.TransitionToState(new EnemyAirborneState(MovementController));
@@ -332,6 +340,27 @@ namespace UPlayGround
             }
 
             _colorChanger.OnHit();
+        }
+
+        private bool CanPlayHitReaction(AttackData attackData)
+        {
+            var state = MovementController?.CurrentState;
+            if (state == null || state.SuppressesHitReaction)
+                return false;
+
+            return state.StateName is not ("Death" or "Hit" or "Airborne" or "Knockdown" or "Stun" or "Grabbed" or "SpecialBreakVictim")
+                   && state.CanPlayHitReaction(attackData);
+        }
+
+        private void TransitionToPoiseBreakState(AttackData attackData)
+        {
+            if (MovementController == null)
+                return;
+
+            if (CanEnterKnockdownState(attackData))
+                MovementController.TransitionToState(new EnemyKnockdownState(MovementController, attackData));
+            else
+                MovementController.TransitionToState(new EnemyStunState(MovementController, attackData));
         }
 
         private bool ShouldEnterAirborneState(AttackData attackData)

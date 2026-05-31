@@ -51,6 +51,12 @@ namespace UPlayGround.State
 
         public override bool CanTransitionState(string stateName) => true;
 
+        public override bool CanPlayHitReaction(AttackData attackData)
+        {
+            return base.CanPlayHitReaction(attackData)
+                   && _phase is Phase.Approach or Phase.Telegraph or Phase.Recovery;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -373,6 +379,7 @@ namespace UPlayGround.State
                 {
                     damage = phase?.damage ?? 50f,
                     poiseDamage = phase?.poiseDamage ?? 100f,
+                    breakDamage = phase?.breakDamage ?? 0f,
                     attackDirection = (hit.transform.position - impactPos).normalized,
                     hitPoint = hit.ClosestPoint(impactPos),
                     reactionType = phase?.reactionType ?? AttackReactionType.Airborne,

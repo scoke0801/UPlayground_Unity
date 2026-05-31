@@ -30,7 +30,7 @@ namespace UPlayGround.Data.Event
 
         [Header("Warp Modifier")]
         public MotionWarpPreset preset = MotionWarpPreset.Custom;
-        public MotionWarpModifierType modifierType = MotionWarpModifierType.Additive;
+        public MotionWarpModifierType modifierType = MotionWarpModifierType.DeltaWarp;
         public MotionWarpTargetPolicy targetPolicy = MotionWarpTargetPolicy.Snapshot;
 
         [Header("Target Resolver")]
@@ -77,6 +77,16 @@ namespace UPlayGround.Data.Event
 
         [Header("Offset")]
         public Vector3 targetOffset = Vector3.zero;
+
+        [Header("Root Motion Amplify")]
+        [Tooltip("루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 워프와 직교).\n" +
+                 "타겟 없이도 동작하며, 타겟이 있으면 증폭된 속도 위에서 워프가 합성됨.\n" +
+                 "게인 커브: 접지 프레임 ≈1, 도약/런지 버스트 구간만 >1 로 두어 풋 슬라이딩 최소화.")]
+        public bool amplifyEnabled = false;
+        [Tooltip("정규화 워프 진행도 t(0~1) → 게인 배율. 비워두면 증폭 없음(=1).")]
+        public AnimationCurve amplifyGainCurve;
+        [Tooltip("증폭 결과 수평 속력의 자체 상한. 기존 워프 maxSpeed 와 분리.")]
+        public float amplifyMaxSpeed = 25f;
 
         public override string GetDisplayName() => "Motion Warp";
         public override string GetShortLabel()  => $"Warp:{modifierType}";
@@ -166,6 +176,11 @@ namespace UPlayGround.Data.Event
                 targetOffset = targetOffset,
                 rotationCurve = rotationCurve,
                 predictionFactor = predictionFactor,
+                amplifyEnabled = amplifyEnabled,
+                amplifyGainCurve = amplifyGainCurve,
+                amplifyMaxSpeed = amplifyMaxSpeed,
+                windowStartTime = startTime,
+                windowEndTime = endTime,
             };
 
             controller.MotionWarp.BeginWarpWindow(ApplyPreset(settings), key);
@@ -183,7 +198,7 @@ namespace UPlayGround.Data.Event
             switch (settings.preset)
             {
                 case MotionWarpPreset.LightAttack:
-                    settings.modifierType = MotionWarpModifierType.Additive;
+                    settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     settings.targetPolicy = MotionWarpTargetPolicy.Snapshot;
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
@@ -197,9 +212,11 @@ namespace UPlayGround.Data.Event
                         settings.rotationCurve = BuildLightCurve();
                     break;
                 case MotionWarpPreset.HeavyAttack:
-                    settings.modifierType = MotionWarpModifierType.Scale;
+                    settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     settings.targetPolicy = MotionWarpTargetPolicy.Snapshot;
-                    settings.translationWeight = 0.9f;
+                    // DeltaWarp 는 보정이 translationWeight 로 게이팅되므로 정확 착지를 위해 1.0.
+                    // 무게감은 rotationCurve(BuildHeavyCurve)/게인으로 표현.
+                    settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
                     settings.ignoreY = true;
                     settings.yPolicy = WarpYPolicy.IgnoreY;
@@ -211,7 +228,7 @@ namespace UPlayGround.Data.Event
                         settings.rotationCurve = BuildHeavyCurve();
                     break;
                 case MotionWarpPreset.FinishAttack:
-                    settings.modifierType = MotionWarpModifierType.Skew;
+                    settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     settings.targetPolicy = MotionWarpTargetPolicy.Snapshot;
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;
@@ -225,7 +242,7 @@ namespace UPlayGround.Data.Event
                         settings.rotationCurve = BuildFinishCurve();
                     break;
                 case MotionWarpPreset.Grab:
-                    settings.modifierType = MotionWarpModifierType.Skew;
+                    settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     // Grab 은 움직이는 타겟 잡기 — Predictive 로 승격해 떨림 감소 + 도달 정확도 개선.
                     settings.targetPolicy = MotionWarpTargetPolicy.Predictive;
                     settings.predictionFactor = 0.6f;

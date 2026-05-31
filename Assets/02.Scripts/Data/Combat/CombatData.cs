@@ -29,9 +29,9 @@ namespace UPlayGround.Data
     {
         [Header("Damage")]
         public float damage = 10f;
-        [Tooltip("적중 시 Poise를 깎는 양. 0이면 항상 경직")]
+        [Tooltip("적중 시 Poise를 깎는 양. 0이면 Poise를 깎지 않음")]
         public float poiseDamage = 30f;
-        [Tooltip("몬스터 Break Gauge를 누적시키는 양. 0이면 기본 브레이크 누적 없음")]
+        [Tooltip("몬스터 Break Gauge 잔량을 깎는 양. 0이면 Break 피해 없음")]
         public float breakDamage = 10f;
         public AttackReactionType reactionType = AttackReactionType.Hit;
         [Tooltip("0이면 상태/애니메이션 기본 지속시간을 사용한다.")]

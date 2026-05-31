@@ -46,7 +46,10 @@ namespace UPlayGround.Component
             _owner = GetComponent<MonsterActor>();
             if (_owner?.Definition != null)
                 Init(_owner.Definition);
-            RefreshUi();
+            else if (_data != null)
+                ResetGauge(MaxGauge);
+            else
+                RefreshUi();
         }
 
         private void Update()
@@ -66,7 +69,7 @@ namespace UPlayGround.Component
         public void Init(MonsterBreakGaugeSO data)
         {
             _data = data;
-            ResetGauge(0f);
+            ResetGauge(MaxGauge);
         }
 
         public void Init(ActorDefinitionSO definition)
@@ -95,10 +98,10 @@ namespace UPlayGround.Component
             if (breakDamage <= 0f) return;
 
             float finalBreakDamage = breakDamage * (1f - Mathf.Clamp01(_data.breakResist));
-            _currentGauge = Mathf.Min(MaxGauge, _currentGauge + finalBreakDamage);
+            _currentGauge = Mathf.Max(0f, _currentGauge - finalBreakDamage);
             RefreshUi();
 
-            if (_currentGauge >= MaxGauge)
+            if (_currentGauge <= 0f)
                 ForceExpose();
         }
 
@@ -113,7 +116,7 @@ namespace UPlayGround.Component
 
             _isExposed = true;
             _hasBrokenOnce = true;
-            _currentGauge = MaxGauge;
+            _currentGauge = 0f;
             _exposedTimer = Mathf.Max(0.1f, _data.exposedDuration);
             RefreshUi();
             OnBreakExposed?.Invoke(this);
@@ -127,7 +130,7 @@ namespace UPlayGround.Component
             float ratio = consumed
                 ? _data.resetGaugeRatioOnSpecialAttack
                 : _data.resetGaugeRatioOnExpire;
-            _currentGauge = MaxGauge * Mathf.Clamp01(ratio);
+            _currentGauge = MaxGauge * (1f - Mathf.Clamp01(ratio));
             _repeatCooldownTimer = Mathf.Max(0f, _data.repeatBreakCooldown);
             RefreshUi();
             OnBreakRecovered?.Invoke(this);

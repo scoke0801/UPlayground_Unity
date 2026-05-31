@@ -14,7 +14,7 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("초당 Poise 회복량")]
         public float recoveryRate = 40f;
 
-        [Tooltip("공격 모션 중 Hyper Armor 보유 여부")]
+        [Tooltip("공격 모션 중 Hyper Armor 표시용 플래그. Poise 피해 자체는 차단하지 않음")]
         public bool hasHyperArmor = false;
     }
 }

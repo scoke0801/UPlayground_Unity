@@ -18,6 +18,7 @@ public class UI_ActorHpBar : MonoBehaviour
     
     [SerializeField] private float _delayFillSpeed = 3f;
     [SerializeField] private TextMeshProUGUI _textHp;
+    [SerializeField] private TextMeshProUGUI _levelText;
     [SerializeField] private Animator _animator;
     
     [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 1.2f, 0f);
@@ -55,10 +56,12 @@ public class UI_ActorHpBar : MonoBehaviour
         _target = actor.transform;
         _headSocket = actor?.GetSocket(socketType: ActorSocketType.UI_HpBar);
 
+        int level = 1;
         MonsterActor monster = actor as MonsterActor;
         if (monster != null)
         {
             _detection = monster.Detection;
+            level = monster.Level;
         }
         
         _mainCamera = targetCamera;
@@ -75,6 +78,8 @@ public class UI_ActorHpBar : MonoBehaviour
         _targetHpFill = 1f;
         _targetPoiseFill = 1f;
         _targetBreakFill = 0f;
+
+        _levelText.text = $"Lv. {level}";
 
         _isInitialized = true;
     }

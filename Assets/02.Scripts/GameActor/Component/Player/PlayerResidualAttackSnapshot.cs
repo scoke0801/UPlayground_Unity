@@ -62,6 +62,7 @@ namespace UPlayGround.Component
         public readonly float MaxLifetime;
         public readonly float MinVisibleLifetime;
         public readonly float FadeOutDuration;
+        public readonly Color DissolveColor;
         public readonly bool AllowHitStop;
         public readonly bool UseRootMotion;
         public readonly float RootMotionMaxDistance;
@@ -76,6 +77,7 @@ namespace UPlayGround.Component
             float maxLifetime,
             float minVisibleLifetime,
             float fadeOutDuration,
+            Color dissolveColor,
             bool allowHitStop,
             bool useRootMotion,
             float rootMotionMaxDistance,
@@ -89,6 +91,7 @@ namespace UPlayGround.Component
             MaxLifetime = maxLifetime;
             MinVisibleLifetime = minVisibleLifetime;
             FadeOutDuration = fadeOutDuration;
+            DissolveColor = dissolveColor;
             AllowHitStop = allowHitStop;
             UseRootMotion = useRootMotion;
             RootMotionMaxDistance = rootMotionMaxDistance;

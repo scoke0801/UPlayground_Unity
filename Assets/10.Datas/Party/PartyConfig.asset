@@ -17,6 +17,26 @@ MonoBehaviour:
   defaultBattleOrder: 010000000b0000000200000008000000
   startActiveIndex: 0
   swapCooldown: 1
+  enableResidualAttackOnSwap: 1
+  residualAttackMaxLifetime: 2.4
+  residualAttackMinVisibleLifetime: 1
+  residualAttackFadeOutDuration: 0.55
+  residualAttackDissolveColor: {r: 1, g: 1, b: 1, a: 1}
+  residualAttackAllowHitStop: 1
+  residualAttackUseRootMotion: 0
+  residualAttackRootMotionMaxDistance: 2.5
+  residualAttackRootMotionBlocker:
+    serializedVersion: 2
+    m_Bits: 0
+  residualAttackMaxCount: 1
+  residualAttackReturnToSameCharacterRunner: 1
+  residualAttackReturnPositionMaxAge: 2.4
+  residualAttackFeedbackMinInterval: 0.08
+  residualAttackHitStopDuration: 0.04
+  residualAttackHitStopTimeScale: 0.2
+  residualAttackShowCharacterOnDamageFloater: 0
+  preserveComboStatePerCharacter: 1
+  comboStateMaxCarryTime: 1.8
   growthData:
   - {fileID: 11400000, guid: 6a9e249a46228914d8b03ca4d6ac6fc3, type: 2}
   - {fileID: 11400000, guid: 5be62b1cc48ad814f9abf6f1295ce8e9, type: 2}

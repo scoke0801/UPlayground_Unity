@@ -65,6 +65,7 @@ namespace UPlayGround.Manager
         public float                     ResidualAttackMaxLifetime => _config != null ? Mathf.Max(0.1f, _config.residualAttackMaxLifetime) : 2.4f;
         public float                     ResidualAttackMinVisibleLifetime => _config != null ? Mathf.Max(0f, _config.residualAttackMinVisibleLifetime) : 0.45f;
         public float                     ResidualAttackFadeOutDuration => _config != null ? Mathf.Max(0f, _config.residualAttackFadeOutDuration) : 0.55f;
+        public Color                     ResidualAttackDissolveColor => _config != null ? _config.residualAttackDissolveColor : Color.white;
         public bool                      ResidualAttackAllowHitStop => _config == null || _config.residualAttackAllowHitStop;
         public bool                      ResidualAttackUseRootMotion => _config != null && _config.residualAttackUseRootMotion;
         public float                     ResidualAttackRootMotionMaxDistance => _config != null ? Mathf.Max(0f, _config.residualAttackRootMotionMaxDistance) : 2.5f;

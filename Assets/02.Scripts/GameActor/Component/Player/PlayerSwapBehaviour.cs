@@ -136,6 +136,7 @@ namespace UPlayGround.Component
             float maxLifetime = partyManager != null ? partyManager.ResidualAttackMaxLifetime : 2.4f;
             float minVisibleLifetime = partyManager != null ? partyManager.ResidualAttackMinVisibleLifetime : 0.45f;
             float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.55f;
+            Color dissolveColor = partyManager != null ? partyManager.ResidualAttackDissolveColor : Color.white;
             bool allowHitStop = partyManager == null || partyManager.ResidualAttackAllowHitStop;
             bool useRootMotion = partyManager != null && partyManager.ResidualAttackUseRootMotion;
             float rootMotionMaxDistance = partyManager != null ? partyManager.ResidualAttackRootMotionMaxDistance : 2.5f;
@@ -151,6 +152,7 @@ namespace UPlayGround.Component
                 maxLifetime,
                 minVisibleLifetime,
                 fadeOutDuration,
+                dissolveColor,
                 allowHitStop,
                 useRootMotion,
                 rootMotionMaxDistance,

@@ -23,9 +23,11 @@ namespace UPlayGround.Component
 
         private ActorAnimator _animator;
         private ResidualPlayerCombat _combat;
+        private DissolveController _dissolveController;
         private GameObject _modelInstance;
         private float _maxLifetime = 1.8f;
         private float _minVisibleLifetime = 0.45f;
+        private float _fadeOutDuration = 0.55f;
         private bool _useRootMotion;
         private float _rootMotionMaxDistance;
         private LayerMask _rootMotionBlocker;
@@ -125,6 +127,7 @@ namespace UPlayGround.Component
             OwnerType = snapshot.CharacterType;
             _maxLifetime = Mathf.Max(0.1f, request.MaxLifetime);
             _minVisibleLifetime = Mathf.Min(_maxLifetime, Mathf.Max(0f, request.MinVisibleLifetime));
+            _fadeOutDuration = Mathf.Max(0f, request.FadeOutDuration);
             _useRootMotion = request.UseRootMotion;
             _rootMotionMaxDistance = Mathf.Max(0f, request.RootMotionMaxDistance);
             _rootMotionBlocker = request.RootMotionBlocker;
@@ -133,6 +136,10 @@ namespace UPlayGround.Component
             _modelInstance.name = $"{snapshot.SourceModel.name}_Residual";
             _modelInstance.SetActive(true);
             PrepareResidualVisuals();
+            _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
+            _dissolveController.SetDissolveColor(request.DissolveColor);
+            _dissolveController.RefreshRenderers();
+            _dissolveController.WarmupDissolveMaterials();
 
             _combat = gameObject.AddComponent<ResidualPlayerCombat>();
             _combat.Initialize(
@@ -183,6 +190,9 @@ namespace UPlayGround.Component
 
         private void Update()
         {
+            if (_isCancelling)
+                return;
+
             ApplyRootMotionDelta();
 
             _elapsed += Time.deltaTime;
@@ -266,7 +276,13 @@ namespace UPlayGround.Component
 
             ActiveRunners.Remove(this);
 
-            Destroy(gameObject);
+            if (forceImmediate || _fadeOutDuration <= 0f || _dissolveController == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _dissolveController.StartDissolve(_fadeOutDuration, destroyOnComplete: true);
         }
 
         private void PrepareResidualVisuals()

@@ -44,6 +44,9 @@ lilToon 대상 모델에는 이 방식이 적합하지 않다. lilToon 머티리
 - 기본 셰이더 `lts.shader`에 `_DissolveMask`, `_DissolveNoiseMask`, `_DissolveNoiseStrength`, `_DissolveColor`, `_DissolveParams`, `_DissolvePos`가 존재한다.
 - `_DissolveParams` 기본값은 `(0,0,0.5,0.1)`이다.
 - lilToon의 주 텍스처는 `_MainTex`가 메인 프로퍼티이고, `_BaseMap`은 호환용 숨김 프로퍼티로 존재한다.
+- 불투명 기본 셰이더 `lilToon`은 `Tags {"RenderType" = "Opaque" "Queue" = "Geometry"}`이고, 컷아웃 셰이더 `Hidden/lilToonCutout`은 `Tags {"RenderType" = "TransparentCutout" "Queue" = "AlphaTest"}`이다.
+- lilToon 에디터 유틸 `lilMaterialUtils.SetupMaterialWithRenderingMode`는 컷아웃 전환 시 셰이더를 컷아웃 계열로 교체하고 `_SrcBlend = One`, `_DstBlend = Zero`, `_AlphaToMask = 1`, `_ZWrite = 1` 등을 설정한다.
+- `_TransparentMode` 값은 에디터 코드 기준 `0 = Opaque`, `1 = Cutout`, `2 = Transparent`로 취급된다. Multi 셰이더는 같은 셰이더를 유지하면서 `_TransparentMode`와 렌더 큐/태그로 모드를 바꾸는 구조다.
 
 ## 현재 코드 상태
 
@@ -69,6 +72,8 @@ lilToon 대상 모델에는 이 방식이 적합하지 않다. lilToon 머티리
 
 lilToon 머티리얼은 교체하지 않는다. 원본 `sharedMaterials`를 기반으로 런타임 전용 인스턴스를 만들고, 각 인스턴스의 `_DissolveParams`를 직접 제어한다.
 
+단, 원본 lilToon 머티리얼이 불투명 렌더링 모드이면 디졸브가 실제 소거로 보장되지 않는다. 따라서 디졸브용 런타임 인스턴스는 원본이 Opaque여도 컷아웃 렌더링 모드로 강제 전환한다. 이 전환은 원본 머티리얼 에셋이 아니라 `new Material(original)`로 만든 인스턴스에만 적용한다.
+
 기존 커스텀 디졸브 머티리얼 경로는 비-lilToon 폴백으로 남긴다. 프로젝트 안에 lilToon이 아닌 외부 VFX/무기/임시 모델이 섞여 있으므로 전면 제거는 위험하다.
 
 ### 감지 기준
@@ -77,10 +82,95 @@ lilToon 머티리얼은 교체하지 않는다. 원본 `sharedMaterials`를 기�
 
 1. 머티리얼이 null이면 제외.
 2. 셰이더명이 `Particle`을 포함하면 기존처럼 제외.
-3. `material.HasProperty(_DissolveParams)`이면 lilToon 내장 Dissolve 경로.
+3. `material.HasProperty(_DissolveParams)`이면 lilToon 내장 Dissolve 경로 후보로 본다.
 4. 그렇지 않으면 기존 `DissolveMaterial` 교체 경로.
 
-셰이더 이름 문자열로 `lilToon`만 검사하지 않는 이유는 lilToon이 `Hidden/lilToonCutout`, `Hidden/lilToonTransparent`, `Hidden/lilToonMulti` 같은 변형 셰이더를 사용할 수 있기 때문이다. 실제 필요한 기능은 `_DissolveParams` 지원 여부다.
+셰이더 이름 문자열로 일반 `lilToon`만 검사하면 안 된다. ExternalAssets 하위 캐릭터 모델은 `Hidden/lilToon...`, `_lil/[Optional] ...`, `_lil/lilToonMulti` 같은 변형을 사용할 수 있고, Material Variant도 부모 머티리얼의 셰이더/프로퍼티를 상속할 수 있다. 실제 필요한 기능은 “현재 해석된 런타임 머티리얼이 `_DissolveParams`를 지원하는가”다.
+
+보조 판정:
+- `material.HasProperty(_DissolveParams)`는 디졸브 지원 여부의 1차 기준이다.
+- 컷아웃 변환 대상인지는 셰이더 이름 매핑으로 판단한다.
+- 셰이더 이름 매핑이 없더라도 `_DissolveParams`가 있으면 기존 `DissolveMaterial`로 교체하지 않고 lilToon 경로에서 처리한다.
+- `_DissolveParams`는 있지만 컷아웃 셰이더 매핑이 실패한 경우에는 렌더 상태 보정 후 `_DissolveParams`만 적용한다.
+
+### 컷아웃 강제 전환 방침
+
+lilToon 디졸브 대상은 항상 디졸브 시작 전에 컷아웃 대응 상태로 만든다.
+
+원칙:
+- 원본 머티리얼 또는 Material Variant 에셋은 수정하지 않는다.
+- 런타임 인스턴스에만 셰이더/렌더 큐/블렌드 상태를 적용한다.
+- 이미 컷아웃인 머티리얼은 상태를 보정만 한다.
+- 이미 반투명인 머티리얼도 사망 디졸브에서는 정렬 문제를 줄이기 위해 컷아웃으로 전환하는 것을 기본값으로 한다.
+- 필요하면 나중에 `Cutout`, `Transparent`, `KeepOriginal` 모드를 선택하는 enum을 추가할 수 있지만, 이번 요구사항의 기본값은 `Cutout`이다.
+
+Material Variant 대응:
+- Unity Material Variant는 원본 머티리얼의 값을 상속하지만, `new Material(source)`로 런타임 인스턴스를 만들면 현재 해석된 프로퍼티 값을 가진 독립 머티리얼로 다룰 수 있다.
+- 따라서 Variant 여부를 별도 분기하지 않고, 모든 lilToon 소스 머티리얼을 먼저 인스턴스화한 뒤 그 인스턴스를 컷아웃으로 변환한다.
+- 이렇게 하면 Variant 부모/자식 에셋에 변경이 저장되지 않고, `ResetDissolve` 시 원래 `sharedMaterials` 배열로 복구된다.
+
+컷아웃 변환 규칙 관리:
+
+- 셰이더명 문자열 매핑은 `DissolveController` 코드에 하드코딩하지 않는다.
+- 컷아웃 전환이 필요한 셰이더 쌍은 `LilToonDissolveShaderConversionProfile` ScriptableObject에 `Shader` 참조로 등록한다.
+- 컨트롤러는 `sourceShader` 참조 비교로 규칙을 찾고, 규칙이 없으면 셰이더 교체 없이 `_TransparentMode`, `RenderType`, `renderQueue`, 블렌드 상태만 보정한다.
+- 아래 목록은 코드에 넣을 상수가 아니라 프로필 에셋 구성 시 참고할 후보 목록이다.
+
+| 원본 계열 | 컷아웃 대상 |
+| --- | --- |
+| `lilToon` | `Hidden/lilToonCutout` |
+| `Hidden/lilToonCutout` | 그대로 사용 |
+| `Hidden/lilToonTransparent` | `Hidden/lilToonCutout` |
+| `Hidden/lilToonOnePassTransparent` | `Hidden/lilToonCutout` |
+| `Hidden/lilToonTwoPassTransparent` | `Hidden/lilToonCutout` |
+| `Hidden/lilToonOutline` | `Hidden/lilToonCutoutOutline` |
+| `Hidden/lilToonCutoutOutline` | 그대로 사용 |
+| `Hidden/lilToonTransparentOutline` | `Hidden/lilToonCutoutOutline` |
+| `Hidden/lilToonOnePassTransparentOutline` | `Hidden/lilToonCutoutOutline` |
+| `Hidden/lilToonTwoPassTransparentOutline` | `Hidden/lilToonCutoutOutline` |
+| `Hidden/lilToonLite` | `Hidden/lilToonLiteCutout` |
+| `Hidden/lilToonLiteCutout` | 그대로 사용 |
+| `Hidden/lilToonLiteTransparent` | `Hidden/lilToonLiteCutout` |
+| `Hidden/lilToonLiteOnePassTransparent` | `Hidden/lilToonLiteCutout` |
+| `Hidden/lilToonLiteTwoPassTransparent` | `Hidden/lilToonLiteCutout` |
+| `Hidden/lilToonLiteOutline` | `Hidden/lilToonLiteCutoutOutline` |
+| `Hidden/lilToonLiteCutoutOutline` | 그대로 사용 |
+| `Hidden/lilToonLiteTransparentOutline` | `Hidden/lilToonLiteCutoutOutline` |
+| `Hidden/lilToonLiteOnePassTransparentOutline` | `Hidden/lilToonLiteCutoutOutline` |
+| `Hidden/lilToonLiteTwoPassTransparentOutline` | `Hidden/lilToonLiteCutoutOutline` |
+| `Hidden/lilToonTessellation` | `Hidden/lilToonTessellationCutout` |
+| `Hidden/lilToonTessellationCutout` | 그대로 사용 |
+| `Hidden/lilToonTessellationTransparent` | `Hidden/lilToonTessellationCutout` |
+| `Hidden/lilToonTessellationOnePassTransparent` | `Hidden/lilToonTessellationCutout` |
+| `Hidden/lilToonTessellationTwoPassTransparent` | `Hidden/lilToonTessellationCutout` |
+| `Hidden/lilToonTessellationOutline` | `Hidden/lilToonTessellationCutoutOutline` |
+| `Hidden/lilToonTessellationCutoutOutline` | 그대로 사용 |
+| `Hidden/lilToonTessellationTransparentOutline` | `Hidden/lilToonTessellationCutoutOutline` |
+| `Hidden/lilToonTessellationOnePassTransparentOutline` | `Hidden/lilToonTessellationCutoutOutline` |
+| `Hidden/lilToonTessellationTwoPassTransparentOutline` | `Hidden/lilToonTessellationCutoutOutline` |
+| `_lil/lilToonMulti` | 셰이더 유지, `_TransparentMode = 1`, `RenderType = TransparentCutout`, `renderQueue = 2450` |
+| `Hidden/lilToonMultiOutline` | 셰이더 유지, `_TransparentMode = 1`, `RenderType = TransparentCutout`, `renderQueue = 2450` |
+| `Hidden/lilToonMultiFur` | 셰이더 유지, `_TransparentMode = 5`, `RenderType = TransparentCutout`, `renderQueue = 2450` |
+| `Hidden/lilToonMultiGem` | 변환하지 않고 `_DissolveParams`만 적용 |
+| `Hidden/lilToonMultiRefraction` | 변환하지 않고 `_DissolveParams`만 적용 |
+| `Hidden/lilToonFur` | `Hidden/lilToonFurCutout` |
+| `Hidden/lilToonFurCutout` | 그대로 사용 |
+| `Hidden/lilToonFurTwoPass` | `Hidden/lilToonFurCutout` |
+| `_lil/[Optional] lilToonFurOnlyTransparent` | `_lil/[Optional] lilToonFurOnlyCutout` |
+| `_lil/[Optional] lilToonFurOnlyCutout` | 그대로 사용 |
+| `_lil/[Optional] lilToonFurOnlyTwoPass` | `_lil/[Optional] lilToonFurOnlyCutout` |
+| `_lil/[Optional] lilToonOutlineOnly` | `_lil/[Optional] lilToonOutlineOnlyCutout` |
+| `_lil/[Optional] lilToonOutlineOnlyTransparent` | `_lil/[Optional] lilToonOutlineOnlyCutout` |
+| `_lil/[Optional] lilToonOutlineOnlyCutout` | 그대로 사용 |
+
+컷아웃 변환 예외:
+- `Gem`, `Refraction`, `RefractionBlur`, `Overlay`, `FakeShadow`, `ltspass_*`, `ltsother_*` 계열은 시각 의미가 일반 캐릭터 표면과 다르거나 내부 패스 성격이 강하다. 이런 셰이더에 `_DissolveParams`가 있으면 원본 셰이더를 유지하고 `_DissolveParams`만 제어한다.
+- 매핑 대상 셰이더가 `Shader.Find`로 검색되지 않으면 원본 셰이더를 유지하고 렌더 상태만 보정한다.
+
+프로필에 등록되지 않은 lilToon 변형은 두 단계로 처리한다.
+
+1. `_TransparentMode`가 있으면 `_TransparentMode = 1`, `RenderType = TransparentCutout`, `renderQueue = 2450`, `_AlphaToMask = 1`, `_ZWrite = 1`을 설정한다.
+2. 셰이더 교체 없이 원본 셰이더에서 `_DissolveParams`만 제어한다.
 
 ### 데이터 구조 변경안
 
@@ -102,6 +192,7 @@ private struct MaterialSlotInfo
     public Texture baseMap;
     public Texture mainTex;
     public bool supportsLilToonDissolve;
+    public bool requiresLilToonCutoutConversion;
     public Vector4 originalDissolveParams;
 }
 ```
@@ -137,6 +228,7 @@ private static readonly int BaseMapID = Shader.PropertyToID("_BaseMap");
 [SerializeField] private float _lilToonEndRange = 1f;
 [SerializeField] private float _lilToonBlur = 0.1f;
 [SerializeField] private Color _lilToonDissolveColor = Color.white;
+[SerializeField] private bool _forceLilToonCutout = true;
 ```
 
 초기값은 조사 사례와 맞춰 `z = -1`에서 완전 표시, `z = 1`에서 소거 완료로 둔다. 단, 일부 머티리얼에서 완전 소거 임계값이 다를 수 있으므로 인스펙터에서 조절 가능하게 둔다.
@@ -149,6 +241,7 @@ private static readonly int BaseMapID = Shader.PropertyToID("_BaseMap");
 - `_MainTex`가 있으면 `mainTex` 저장.
 - `_BaseMap`이 있으면 `baseMap` 저장.
 - `_DissolveParams`가 있으면 `supportsLilToonDissolve = true`, 원본 벡터 저장.
+- lilToon 계열이고 `_forceLilToonCutout`이 true면 `requiresLilToonCutoutConversion = true`로 저장.
 
 렌더러 제외 여부는 “모든 슬롯이 null 또는 Particle 계열”일 때 제외하는 식으로 바꾼다. 현재처럼 `r.sharedMaterial` 첫 슬롯만 보고 제외하면 멀티 슬롯 모델에서 일부 슬롯이 누락될 수 있다.
 
@@ -158,6 +251,7 @@ private static readonly int BaseMapID = Shader.PropertyToID("_BaseMap");
 
 - 메서드명 후보: `PrepareDissolveMaterials`
 - 각 슬롯이 lilToon Dissolve 지원이면 원본 머티리얼을 `new Material(original)`로 복제한다.
+- 복제 직후 `_forceLilToonCutout`이 켜져 있으면 `ConvertLilToonInstanceToCutout(instance)`를 호출한다.
 - 복제 직후 `_DissolveParams`를 `(1, 0, _lilToonStartRange, _lilToonBlur)`로 초기화한다.
 - `_DissolveColor`가 있으면 `_lilToonDissolveColor`를 설정한다.
 - 비-lilToon 슬롯은 기존처럼 `_dissolveSourceMaterial` 인스턴스를 사용하고, `_MainTex` 또는 `_BaseMap`을 복사한다.
@@ -184,6 +278,60 @@ material.SetFloat(DissolveAmountID, amount);
 ```
 
 `MaterialPropertyBlock`은 커스텀 셰이더 경로에서 유지할 수도 있지만, 통일성과 슬롯별 제어를 위해 인스턴스 머티리얼 직접 설정으로 바꾸는 편이 단순하다. 이미 액터마다 머티리얼 인스턴스를 생성하는 구조라 공유 머티리얼 오염 위험도 없다.
+
+### 5-1단계: lilToon 컷아웃 변환 메서드 추가
+
+런타임 어셈블리에서는 lilToon Editor 네임스페이스를 참조하지 않는다. 필요한 셰이더 이름과 렌더 상태만 직접 설정한다.
+
+```csharp
+private static readonly int TransparentModeID = Shader.PropertyToID("_TransparentMode");
+private static readonly int CutoffID = Shader.PropertyToID("_Cutoff");
+private static readonly int SrcBlendID = Shader.PropertyToID("_SrcBlend");
+private static readonly int DstBlendID = Shader.PropertyToID("_DstBlend");
+private static readonly int AlphaToMaskID = Shader.PropertyToID("_AlphaToMask");
+private static readonly int ZWriteID = Shader.PropertyToID("_ZWrite");
+
+private void ConvertLilToonInstanceToCutout(Material material)
+{
+    LilToonCutoutConversion conversion = FindLilToonCutoutConversion(material.shader.name);
+    if (conversion.targetShader != null)
+    {
+        material.shader = conversion.targetShader;
+    }
+
+    if (material.HasProperty(TransparentModeID))
+        material.SetFloat(TransparentModeID, conversion.transparentMode);
+
+    if (material.HasProperty(CutoffID) && material.GetFloat(CutoffID) <= 0f)
+        material.SetFloat(CutoffID, 0.5f);
+
+    material.SetOverrideTag("RenderType", "TransparentCutout");
+    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+    material.SetInt(SrcBlendID, (int)UnityEngine.Rendering.BlendMode.One);
+    material.SetInt(DstBlendID, (int)UnityEngine.Rendering.BlendMode.Zero);
+    material.SetInt(AlphaToMaskID, 1);
+    material.SetInt(ZWriteID, 1);
+}
+```
+
+`_Cutoff`는 원본 값이 있으면 보존한다. 기본값이 없거나 0 이하로 들어온 경우에만 `0.5f`로 보정한다.
+
+`FindLilToonCutoutConversion`은 단순 `sourceShaderName.Replace("Transparent", "Cutout")` 같은 문자열 규칙으로 만들지 않는다. lilToon은 Lite, Tessellation, Outline, Multi, Fur, Optional 계열의 이름 규칙이 다르고 ExternalAssets 모델마다 셰이더 선택이 다를 수 있으므로, 프로젝트 데이터인 `LilToonDissolveShaderConversionProfile`에 `Shader` 참조 기반 규칙을 둔다.
+
+```csharp
+public class ShaderConversionRule
+{
+    public Shader sourceShader;
+    public Shader cutoutShader;
+    public float transparentMode = 1f;
+    public bool keepSourceShader;
+}
+```
+
+권장 transparent mode:
+- 일반 컷아웃: `1f`
+- Multi Fur 컷아웃: `5f`
+- 변환 예외 또는 프로필 미등록: 원본 `_TransparentMode`가 있으면 fallback 값, 없으면 설정 생략
 
 ### 6단계: Reset/Refresh 복원
 
@@ -218,6 +366,8 @@ private bool IsLilToonDissolveMaterial(Material material)
 private void PrepareDissolveMaterials()
 private Material CreateLilToonDissolveInstance(Material source)
 private Material CreateFallbackDissolveInstance(MaterialSlotInfo slot)
+private void ConvertLilToonInstanceToCutout(Material material)
+private void ApplyCutoutRenderState(Material material, float transparentMode)
 private void SetDissolveAmount(float amount)
 ```
 
@@ -237,6 +387,8 @@ Unity 에디터에서 다음 케이스를 확인한다.
 
 1. lilToon 캐릭터 사망 디졸브
    - 원본 색, 그림자, 림, 아웃라인이 유지되는지 확인.
+   - 일반 `lilToon`뿐 아니라 `Hidden/lilToon...`, `_lil/[Optional] ...`, `_lil/lilToonMulti` 계열도 처리되는지 확인.
+   - 원본 머티리얼이 Opaque여도 디졸브 시작 시 런타임 인스턴스가 컷아웃 상태로 변환되는지 확인.
    - 디졸브가 `duration` 동안 자연스럽게 진행되는지 확인.
    - 완료 후 `destroyOnComplete`가 정상 동작하는지 확인.
 
@@ -250,16 +402,28 @@ Unity 에디터에서 다음 케이스를 확인한다.
 
 4. Reset/Refresh
    - 내장 무기 복원 또는 모델 교체 시 원본 머티리얼로 돌아오는지 확인.
+   - 원본 Material Variant 에셋의 렌더링 모드, 셰이더, `_TransparentMode`, `_Cutoff` 값이 저장 변경되지 않는지 확인.
    - 반복 호출 시 머티리얼 인스턴스 누수나 누적 생성이 없는지 Unity Profiler/Memory로 확인.
 
 5. 로드 실패 폴백
    - Addressables `DissolveMaterial` 로드가 실패해도 lilToon-only 모델은 디졸브가 진행되는지 확인.
    - 비-lilToon 슬롯이 있는 모델은 기존 경고/즉시 파괴 정책이 유지되는지 확인.
 
+6. ExternalAssets 캐릭터 모델
+   - `Assets/ExternalAssets` 하위 캐릭터 프리팹을 대상으로 실제 렌더러 머티리얼의 `shader.name`과 `HasProperty(_DissolveParams)`를 에디터 로그로 수집한다.
+   - 수집된 셰이더가 프로필에 없더라도 디졸브가 실패하지 않고 원본 셰이더 유지 경로로 진행되는지 확인한다.
+   - 컷아웃 셰이더 교체가 필요한 셰이더는 프로필 에셋에 추가한다.
+
 ## 리스크와 대응
 
 - lilToon 머티리얼이 불투명 모드일 때 Dissolve가 기대대로 보이지 않을 수 있다.
-  - 대응: 대상 캐릭터 머티리얼은 컷아웃 또는 반투명 모드에서 Dissolve 설정을 확인한다.
+  - 대응: 디졸브용 런타임 인스턴스를 컷아웃 계열로 강제 전환한다. 원본 에셋은 건드리지 않는다.
+
+- Material Variant를 직접 수정하면 부모/자식 머티리얼 에셋에 의도치 않은 변경이 저장될 수 있다.
+  - 대응: 반드시 `new Material(source)` 인스턴스에만 컷아웃 변환과 `_DissolveParams` 변경을 적용한다.
+
+- 일부 lilToon 변형 셰이더는 단순 이름 매핑으로 컷아웃 대응 셰이더를 찾기 어렵다.
+  - 대응: 코드에는 셰이더명 dictionary를 두지 않고, `LilToonDissolveShaderConversionProfile`에 `Shader` 참조 기반 규칙으로 등록한다. 미등록 변형은 `_TransparentMode`, `RenderType`, `renderQueue`, 블렌드 상태를 보정한 뒤 원본 셰이더로 `_DissolveParams`를 적용한다.
 
 - `_DissolveParams.x = 1`이 투명도 방식이라는 구현 사례에 의존한다.
   - 대응: 로컬 패키지와 에디터 Inspector에서 대상 모델의 Dissolve 모드를 한번 수동 확인한다. 필요하면 `x` 값을 직렬화 필드로 노출한다.
@@ -275,9 +439,10 @@ Unity 에디터에서 다음 케이스를 확인한다.
 `DissolveController`는 다음 형태로 수정한다.
 
 1. lilToon Dissolve 지원 머티리얼은 원본 복제 후 `_DissolveParams.z`를 보간한다.
-2. 비-lilToon 머티리얼만 기존 Addressables `DissolveMaterial` 폴백을 사용한다.
-3. 렌더러 첫 머티리얼이 아니라 모든 머티리얼 슬롯을 수집한다.
-4. 기존 public API와 호출 흐름은 유지한다.
-5. Addressables 로드 실패는 lilToon-only 모델에는 영향을 주지 않게 한다.
+2. lilToon 런타임 인스턴스는 원본이 Opaque, Hidden 계열, Optional 계열, Material Variant여도 가능한 범위에서 컷아웃 계열로 변환한 뒤 디졸브를 적용한다.
+3. 비-lilToon 머티리얼만 기존 Addressables `DissolveMaterial` 폴백을 사용한다.
+4. 렌더러 첫 머티리얼이 아니라 모든 머티리얼 슬롯을 수집한다.
+5. 기존 public API와 호출 흐름은 유지한다.
+6. Addressables 로드 실패는 lilToon-only 모델에는 영향을 주지 않게 한다.
 
 이 방식이 프로젝트에 가장 덜 위험하다. 캐릭터 외형 품질을 유지하면서, 기존 사망/복원/모델 교체 호출부를 흔들지 않고 적용할 수 있다.

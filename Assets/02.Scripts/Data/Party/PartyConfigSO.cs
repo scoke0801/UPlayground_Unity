@@ -48,6 +48,9 @@ namespace UPlayGround.Data.Party
         [Min(0f)]
         public float residualAttackFadeOutDuration = 0.55f;
 
+        [Tooltip("잔류 공격 종료 디졸브 경계 색상. lilToon의 Dissolve Color에 적용된다.")]
+        public Color residualAttackDissolveColor = Color.white;
+
         [Tooltip("잔류 공격 히트 시 히트스톱 피드백을 허용한다.")]
         public bool residualAttackAllowHitStop = true;
 

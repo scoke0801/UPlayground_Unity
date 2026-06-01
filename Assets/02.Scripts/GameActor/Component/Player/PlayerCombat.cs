@@ -586,6 +586,10 @@ namespace UPlayGround.Component
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
 
+            // 연계 라우트 prefix용 Charge 토큰 기록(예: 차지 → 스킬1). 차지 릴리즈는 별도 상태이므로
+            // 여기서 push해야 트래커에 Charge가 남는다.
+            _playerActor?.ComboInputTracker.Push(ComboInputToken.Charge);
+
             // stageIndex = InfiniteLoopStageIndex (0 = 1단계 차지, 1 = 2단계 차지 ...)
             // chargeStages 배열에서 해당 단계의 데이터를 사용한다.
             // hitPhaseIndex는 항상 0으로 시작 (각 스테이지의 첫 번째 히트 페이즈)
@@ -716,6 +720,60 @@ namespace UPlayGround.Component
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
         }
+
+        // ── 연계 라우트 (Combo Route) ────────────────────────────────
+        /// <summary> 현재 캐릭터 공격 데이터의 연계 라우트 목록(없으면 null). </summary>
+        public IReadOnlyList<ComboRouteEntry> ComboRoutes
+            => _attackData != null ? _attackData.comboRoutes : null;
+
+        /// <summary>
+        /// 라우트 자원(스킬 게이지) 충족 여부. Resolve의 resourceFilter로 전달한다.
+        /// 소비하지 않고 가용 여부만 확인한다.
+        /// </summary>
+        public bool CanAffordRoute(ComboRouteEntry route)
+        {
+            if (route == null) return false;
+            if (route.skillGaugeIndex < 0) return true;
+            var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
+            return gauge == null || gauge.CanUseSkill(route.skillGaugeIndex);
+        }
+
+        /// <summary>
+        /// 연계 라우트로 공격을 실행한다. PlayerAttackState가 Resolve 매칭 후 호출.
+        /// 패턴 마지막 토큰으로 AttackKind를 결정하고, 게이지를 소비한다.
+        /// 연계는 단발이므로 약/강 분기 메모리는 보존하되 진행 인덱스는 종료한다(설계 §8).
+        /// </summary>
+        public AttackData ExecuteComboRoute(ComboRouteEntry route)
+        {
+            if (route == null || route.attackInfo?.baseInfo == null) return null;
+            ClearResidualAttackContext();
+
+            // Resolve 단계에서 CanAffordRoute로 가용 확인됨 — 여기서 실제 소비.
+            if (route.skillGaugeIndex >= 0)
+                _playerActor?.SkillGauge?.ConsumeSkill(route.skillGaugeIndex);
+
+            AttackKind kind = RouteAttackKind(route.LastToken);
+            _attackState = kind == AttackKind.HeavyAttack ? AttackState.HeavyAttack
+                         : kind == AttackKind.SkillAttack ? AttackState.SkillAttack
+                         :                                  AttackState.NormalAttack;
+
+            ResetComboPreserveChains();
+
+            _currentAttackData = ConvertToAttackData(route.attackInfo, kind);
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
+        private static AttackKind RouteAttackKind(ComboInputToken lastToken) => lastToken switch
+        {
+            ComboInputToken.HeavyAttack => AttackKind.HeavyAttack,
+            ComboInputToken.Charge      => AttackKind.HeavyAttack,
+            ComboInputToken.Skill1      => AttackKind.SkillAttack,
+            ComboInputToken.Skill2      => AttackKind.SkillAttack,
+            _                           => AttackKind.NormalAttack,
+        };
 
         public AttackData ExecuteJumpAttack(bool isCombo = false)
         {
@@ -1292,6 +1350,10 @@ namespace UPlayGround.Component
 
             _attackData = newData;
             _comboCharacterType = characterType;
+
+            // 캐릭터별 연계 토큰 간격을 트래커에 반영.
+            if (_playerActor != null && newData != null)
+                _playerActor.ComboInputTracker.LinkWindow = newData.comboLinkWindow;
 
             if (preserveComboState && TryRestoreComboState(characterType, comboStateMaxCarryTime))
                 return;

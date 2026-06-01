@@ -19,7 +19,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 21
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -38,7 +42,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 24
         poiseDamage: 0
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -57,7 +65,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -76,7 +88,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 24
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -89,7 +105,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 24
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -108,7 +128,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 27
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -121,7 +145,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 27
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -140,7 +168,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 39
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -159,7 +191,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -172,7 +208,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -191,7 +231,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 11
         poiseDamage: 0
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -204,7 +248,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 11
         poiseDamage: 0
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -217,7 +265,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 11
         poiseDamage: 0
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -236,7 +288,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 45
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -255,7 +311,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 85
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -275,7 +335,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 60
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -294,7 +358,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 65
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -313,7 +381,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 65
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -333,7 +405,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -352,7 +428,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -371,7 +451,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -390,7 +474,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -409,7 +497,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -428,7 +520,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 2
         hitHeightRange: 1.2
@@ -447,7 +543,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 54
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 0}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -467,7 +567,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 48
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -487,7 +591,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 120
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -506,7 +614,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 75
         poiseDamage: 50
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -519,7 +631,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 90
         poiseDamage: 60
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -538,7 +654,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -551,7 +671,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -564,7 +688,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 30
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -577,7 +705,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 50
         poiseDamage: 50
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -590,7 +722,11 @@ MonoBehaviour:
         victimForcedAnimKey: 0
       - damage: 75
         poiseDamage: 65
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -609,7 +745,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 60
         poiseDamage: 60
+        breakDamage: 10
         reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -628,7 +768,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 100
         poiseDamage: 60
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -647,7 +791,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 20
         poiseDamage: 60
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 3
         hitHeightRange: 1.2
@@ -660,6 +808,40 @@ MonoBehaviour:
         victimForcedAnimKey: 0
     interruptActions: 7
     hitAngle: 60
+  comboRoutes:
+  - routeName: New Route 1
+    inputPattern: 00000000000000000000000001000000
+    matchMode: 0
+    requiredTagIds: 
+    blockedTagIds: 
+    groundCondition: 0
+    skillGaugeIndex: 0
+    attackInfo:
+      baseInfo:
+        animKey: 504
+        attackType: 0
+        hitPhases:
+        - damage: 150
+          poiseDamage: 0
+          breakDamage: 0
+          reactionType: 0
+          reactionDuration: 0
+          forceReaction: 0
+          forceBreakExpose: 0
+          attackOffset: {x: 0, y: 0, z: 0}
+          attackRadius: 0
+          hitHeightRange: 0
+          hitParticleName: 
+          pullForce: 0
+          airborneForce: 0
+          knockBackForce: 0
+          knockBackDrag: 0
+          grabDuration: 0
+          victimForcedAnimKey: 0
+      interruptActions: -1
+      hitAngle: 180
+    priority: 0
+  comboLinkWindow: 1
   counterAttack:
     baseInfo:
       animKey: 530
@@ -667,7 +849,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 123
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -687,7 +873,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 123
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -707,7 +897,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 100
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -727,7 +921,11 @@ MonoBehaviour:
       hitPhases:
       - damage: 100
         poiseDamage: 30
+        breakDamage: 10
         reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -745,7 +943,11 @@ MonoBehaviour:
   - hitPhases:
     - damage: 30
       poiseDamage: 30
+      breakDamage: 10
       reactionType: 2
+      reactionDuration: 0
+      forceReaction: 0
+      forceBreakExpose: 0
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       hitHeightRange: 1.2
@@ -758,7 +960,11 @@ MonoBehaviour:
       victimForcedAnimKey: 0
     - damage: 55
       poiseDamage: 30
+      breakDamage: 10
       reactionType: 2
+      reactionDuration: 0
+      forceReaction: 0
+      forceBreakExpose: 0
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       hitHeightRange: 1.2
@@ -771,7 +977,11 @@ MonoBehaviour:
       victimForcedAnimKey: 0
     - damage: 90
       poiseDamage: 30
+      breakDamage: 10
       reactionType: 3
+      reactionDuration: 0
+      forceReaction: 0
+      forceBreakExpose: 0
       attackOffset: {x: 0, y: 1, z: 1.5}
       attackRadius: 1.5
       hitHeightRange: 1.2

@@ -3,6 +3,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
@@ -156,6 +157,16 @@ namespace UPlayGround.State
             bool isHeavyAttack,
             PlayerInterruptAction forcedAttackAction)
         {
+            // ★ 연계 라우트 우선 판정(side effect 없음). 라우트가 매칭되면 그 animKey를 미리 반환해
+            //   CanEnter가 라우트 모션 보유 여부로 진입을 결정하게 한다(설계 §5.3, advisor #2).
+            //   recordToken:false → 트래커에 push하지 않고 가상 append로만 매칭.
+            {
+                var route = ComboRouteRunner.ResolveRoute(playerActor, controller, combat,
+                    isHeavyAttack, forcedAttackAction, recordToken: false);
+                if (route != null)
+                    return route.attackInfo?.baseInfo?.animKey ?? AnimKey.None;
+            }
+
             if ((forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
                 return combat.PeekNormalAttackAnimKey(false);
 
@@ -366,9 +377,16 @@ namespace UPlayGround.State
 
                 // 다음 콤보 키를 미리 조회해 보유 여부를 확인.
                 // 모션이 없으면 콤보 인덱스를 진행시키지 않고 Idle/Move로 이탈.
-                AnimKey peekedKey = _isHeavyAttack
-                    ? _combat.PeekHeavyAttackAnimKey(true)
-                    : _combat.PeekNormalAttackAnimKey(true);
+                // 연계 라우트가 매칭되면 라우트 모션으로 판정(기본 콤보 리스트가 비어 있어도
+                // 라우트 진입이 막히지 않도록 — 콤보 연속 입력은 약/강만 가능).
+                var peekRoute = ComboRouteRunner.ResolveRoute(
+                    playerActor, playerController, _combat,
+                    _isHeavyAttack, PlayerInterruptAction.None, recordToken: false);
+
+                AnimKey peekedKey = peekRoute != null
+                    ? (peekRoute.attackInfo?.baseInfo?.animKey ?? AnimKey.None)
+                    : (_isHeavyAttack ? _combat.PeekHeavyAttackAnimKey(true)
+                                      : _combat.PeekNormalAttackAnimKey(true));
 
                 if (peekedKey == AnimKey.None || !gameActor.Animator.HasMotion(peekedKey, true))
                 {
@@ -429,6 +447,20 @@ namespace UPlayGround.State
             {
                 _currentAttack = _combat.ExecuteEntryAttack();
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
+            // ★ 연계 라우트 — forced/normal 공통 단일 판정점 (설계 §5.3, advisor #1).
+            //   "약약약→강"의 강공은 HeavyAttack 인터럽트(forced)로 들어와 아래 forced 분기로
+            //   빠지므로, forced 분기보다 '앞'에서 라우트를 가로채야 한다.
+            //   여기서 pending 토큰을 트래커에 1회 push(기록)하고, 매칭 시 라우트를 실행한다.
+            {
+                var routeAttack = ComboRouteRunner.TryExecuteRoute(playerActor, playerController, _combat,
+                    _isHeavyAttack, _forcedAttackAction, out var routeAnimKey);
+                if (routeAttack != null)
+                {
+                    _currentAttack = routeAttack;
+                    return routeAnimKey;
+                }
             }
 
             if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)

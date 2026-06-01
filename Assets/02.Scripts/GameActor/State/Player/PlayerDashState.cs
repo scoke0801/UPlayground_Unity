@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Combat;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
@@ -38,6 +39,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Dash);
+            playerActor?.ComboInputTracker.Push(ComboInputToken.Dodge);
 
             _dashDirection = playerController.HasMoveInput()
                 ? playerController.MoveInputVector.normalized

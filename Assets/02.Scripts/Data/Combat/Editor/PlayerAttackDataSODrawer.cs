@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Input;
 
 namespace UPlayGround.Editor
 {
@@ -12,7 +14,7 @@ namespace UPlayGround.Editor
     public class PlayerAttackDataSODrawer
     {
         // ─── 탭 ─────────────────────────────────────────────────────────
-        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "특수" };
+        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "특수", "연계" };
         internal static readonly Color[] TabAccents =
         {
             new Color(0.35f, 0.55f, 1.00f),
@@ -24,6 +26,7 @@ namespace UPlayGround.Editor
             new Color(1.00f, 0.50f, 0.15f),
             new Color(0.20f, 0.85f, 0.95f),
             new Color(1.00f, 0.25f, 0.65f),
+            new Color(0.55f, 0.95f, 0.80f),
         };
         private int _tab;
 
@@ -43,6 +46,11 @@ namespace UPlayGround.Editor
         private SerializedProperty _counter, _parryCounter, _entry, _swapSpecial;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds, _chargeInterruptActions;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
+        private SerializedProperty _comboRoutes;
+
+        // ─── 연계 라우트 시뮬레이터 상태 ────────────────────────────────
+        private readonly List<ComboInputToken> _simTokens = new();
+        private bool _simGrounded = true;
 
         // ─── 폴드아웃 / 검색 상태 ───────────────────────────────────────
         private readonly Dictionary<string, List<bool>>       _cardFold    = new();
@@ -159,6 +167,7 @@ namespace UPlayGround.Editor
             _vfxKey           = so.FindProperty("fullChargeVfxKey");
             _vfxSocket        = so.FindProperty("fullChargeVfxSocket");
             _vfxOffset        = so.FindProperty("fullChargeVfxOffset");
+            _comboRoutes      = so.FindProperty("comboRoutes");
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -186,6 +195,7 @@ namespace UPlayGround.Editor
                 case 6: DrawChargeSection(accent); break;
                 case 7: DrawEntryAttack(accent); break;
                 case 8: DrawSwapSpecialAttack(accent); break;
+                case 9: DrawComboRoutes(accent); break;
             }
         }
 
@@ -205,6 +215,191 @@ namespace UPlayGround.Editor
         }
 
         // ═══════════════════════════════════════════════════════════════
+        //  ⑩ 연계 라우트 (Combo Route) — 저작 + 진단 + 시뮬레이터
+        // ═══════════════════════════════════════════════════════════════
+        private void DrawComboRoutes(Color accent)
+        {
+            if (_comboRoutes == null)
+            {
+                EditorGUILayout.HelpBox("comboRoutes 프로퍼티를 찾을 수 없습니다.", MessageType.Error);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "입력 시퀀스 패턴으로 분기하는 연계스킬.\n" +
+                "토큰: L=약공 H=강공 D=회피 S1=스킬1 S2=스킬2 J=점프 C=차지\n" +
+                "예) L→L→L→H (약약약→강),  D→J→S1 (대시→점프→스킬1)\n" +
+                "Suffix=입력 끝이 패턴과 일치(권장) / Exact=전체 일치. 경합 시 패턴 길이→우선순위 순.",
+                MessageType.Info);
+            EditorGUILayout.Space(2);
+
+            int removeIndex = -1;
+            for (int i = 0; i < _comboRoutes.arraySize; i++)
+                DrawRouteCard(_comboRoutes.GetArrayElementAtIndex(i), i, ref removeIndex);
+            if (removeIndex >= 0)
+                _comboRoutes.DeleteArrayElementAtIndex(removeIndex);
+
+            EditorGUILayout.Space(4);
+            if (GUILayout.Button("＋ 라우트 추가", GUILayout.Height(24)))
+            {
+                _comboRoutes.arraySize++;
+                var ne = _comboRoutes.GetArrayElementAtIndex(_comboRoutes.arraySize - 1);
+                // Unity의 arraySize++는 C# 필드 초기값을 적용하지 않고 0으로 채운다.
+                // skillGaugeIndex는 -1(=소비 없음)이 기본이어야 한다(0은 '게이지 슬롯0 소비'라
+                // 런타임에서 게이지가 비면 라우트가 발동하지 않는다).
+                ne.FindPropertyRelative("routeName").stringValue = $"New Route {_comboRoutes.arraySize}";
+                ne.FindPropertyRelative("priority").intValue = 0;
+                ne.FindPropertyRelative("skillGaugeIndex").intValue = -1;
+                ne.FindPropertyRelative("matchMode").enumValueIndex = 0;            // Suffix
+                ne.FindPropertyRelative("groundCondition").enumValueIndex = 0;      // Any
+                var hitAngle = ne.FindPropertyRelative("attackInfo")?.FindPropertyRelative("hitAngle");
+                if (hitAngle != null) hitAngle.floatValue = 60f;
+            }
+
+            EditorGUILayout.Space(6);
+            DrawRouteDiagnostics();
+            EditorGUILayout.Space(6);
+            DrawRouteSimulator();
+        }
+
+        private void DrawRouteCard(SerializedProperty elem, int index, ref int removeIndex)
+        {
+            var nameProp    = elem.FindPropertyRelative("routeName");
+            var patternProp = elem.FindPropertyRelative("inputPattern");
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    elem.isExpanded = EditorGUILayout.Foldout(
+                        elem.isExpanded, $"[{index}] {nameProp.stringValue}", true);
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label(PatternToString(patternProp), EditorStyles.miniLabel);
+                    if (GUILayout.Button("✕", GUILayout.Width(22)))
+                        removeIndex = index;
+                }
+
+                if (elem.isExpanded)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(nameProp);
+                    EditorGUILayout.PropertyField(patternProp, new GUIContent("입력 패턴"), true);
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("matchMode"));
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("groundCondition"));
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("requiredTagIds"), true);
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("blockedTagIds"), true);
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("skillGaugeIndex"));
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("priority"));
+                    EditorGUILayout.PropertyField(elem.FindPropertyRelative("attackInfo"), true);
+                    EditorGUI.indentLevel--;
+                }
+            }
+        }
+
+        private void DrawRouteDiagnostics()
+        {
+            var so = _so.targetObject as PlayerAttackDataSO;
+            var routes = so != null ? so.comboRoutes : null;
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("⚠ 진단", EditorStyles.boldLabel);
+                if (routes == null || routes.Count == 0)
+                {
+                    EditorGUILayout.LabelField("등록된 라우트 없음.", EditorStyles.miniLabel);
+                    return;
+                }
+
+                var issues = new List<string>();
+                for (int i = 0; i < routes.Count; i++)
+                {
+                    var r = routes[i];
+                    if (r == null) continue;
+                    if (r.IsEmpty)
+                        issues.Add($"[{i}] {r.routeName}: 입력 패턴이 비어 있음");
+                    if (r.attackInfo?.baseInfo == null || r.attackInfo.baseInfo.animKey == AnimKey.None)
+                        issues.Add($"[{i}] {r.routeName}: 실행 공격 animKey가 None");
+                    if (r.skillGaugeIndex >= 0)
+                        issues.Add($"[{i}] {r.routeName}: 스킬 게이지 슬롯 {r.skillGaugeIndex} 소비 — 런타임에서 해당 게이지가 부족하면 발동 안 함(시뮬레이터는 자원 무시). 비용 없으려면 -1.");
+
+                    for (int j = i + 1; j < routes.Count; j++)
+                    {
+                        var r2 = routes[j];
+                        if (r2 == null || r2.IsEmpty || r.IsEmpty) continue;
+                        if (r.matchMode == r2.matchMode && SamePattern(r.inputPattern, r2.inputPattern))
+                            issues.Add($"[{i}]·[{j}] 동일 패턴+모드 중복 ({PatternStr(r.inputPattern)})");
+                    }
+                }
+
+                if (issues.Count == 0)
+                    EditorGUILayout.LabelField("문제 없음 ✓", EditorStyles.miniLabel);
+                else
+                    EditorGUILayout.HelpBox(string.Join("\n", issues), MessageType.Warning);
+            }
+        }
+
+        private void DrawRouteSimulator()
+        {
+            var so = _so.targetObject as PlayerAttackDataSO;
+            var routes = so != null ? so.comboRoutes : null;
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("▶ 입력 시뮬레이터", EditorStyles.boldLabel);
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    foreach (ComboInputToken t in System.Enum.GetValues(typeof(ComboInputToken)))
+                        if (GUILayout.Button(ComboInputTracker.Abbrev(t), GUILayout.Width(36)))
+                            _simTokens.Add(t);
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _simGrounded = EditorGUILayout.ToggleLeft("지상", _simGrounded, GUILayout.Width(60));
+                    GUILayout.Label("스트림: " + PatternStr(_simTokens), EditorStyles.miniLabel);
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("←", GUILayout.Width(30)) && _simTokens.Count > 0)
+                        _simTokens.RemoveAt(_simTokens.Count - 1);
+                    if (GUILayout.Button("초기화", GUILayout.Width(56)))
+                        _simTokens.Clear();
+                }
+
+                // 자원/태그 컨텍스트 없음(에디터): tags=null → required 태그 라우트는 매칭 제외, 자원 게이팅 생략.
+                var match = ComboRouteResolver.Resolve(_simTokens, routes, null, _simGrounded, null);
+                if (match != null)
+                    EditorGUILayout.HelpBox($"매칭 → '{match.routeName}'  [{PatternStr(match.inputPattern)}]", MessageType.Info);
+                else
+                    EditorGUILayout.HelpBox("매칭되는 라우트 없음 (기본 콤보로 폴백)", MessageType.None);
+            }
+        }
+
+        // ─── 연계 라우트 표시 헬퍼 ──────────────────────────────────────
+        private static string PatternToString(SerializedProperty patternProp)
+        {
+            if (patternProp == null || patternProp.arraySize == 0) return "(빈 패턴)";
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < patternProp.arraySize; i++)
+            {
+                if (i > 0) sb.Append(" → ");
+                int ev = patternProp.GetArrayElementAtIndex(i).enumValueIndex;
+                sb.Append(ComboInputTracker.Abbrev((ComboInputToken)ev));
+            }
+            return sb.ToString();
+        }
+
+        private static string PatternStr(List<ComboInputToken> p)
+            => (p == null || p.Count == 0) ? "(빈)" : string.Join(" ", p.ConvertAll(ComboInputTracker.Abbrev));
+
+        private static bool SamePattern(List<ComboInputToken> a, List<ComboInputToken> b)
+        {
+            if (a == null || b == null || a.Count != b.Count) return false;
+            for (int i = 0; i < a.Count; i++)
+                if (a[i] != b[i]) return false;
+            return true;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
         //  ① 탭 바 — 공격 수 배지 + 빈 탭 흐리게
         // ═══════════════════════════════════════════════════════════════
         private int GetTabCount(int tabIndex) => tabIndex switch
@@ -218,6 +413,7 @@ namespace UPlayGround.Editor
             6 => _chargeStages.arraySize,
             7 => 1,
             8 => 1,
+            9 => _comboRoutes != null ? _comboRoutes.arraySize : 0,
             _ => 0,
         };
 

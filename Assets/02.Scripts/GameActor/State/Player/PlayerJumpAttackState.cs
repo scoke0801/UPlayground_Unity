@@ -21,10 +21,15 @@ namespace UPlayGround.State
         private bool         _comboIsFinish;   // 강공격 콤보 입력 → 피니시로 처리
         private bool         _changingState;
         private readonly bool _startAsFinish;  // 공중에서 강공격으로 진입 시 true
+        private readonly PlayerInterruptAction _forcedAttackAction; // 공중 연계 라우트 진입 시 입력 종류(예: Skill)
 
-        public PlayerJumpAttackState(ActorMovementController controller, bool startAsFinish = false) : base(controller)
+        public PlayerJumpAttackState(
+            ActorMovementController controller,
+            bool startAsFinish = false,
+            PlayerInterruptAction forcedAttackAction = PlayerInterruptAction.None) : base(controller)
         {
-            _startAsFinish = startAsFinish;
+            _startAsFinish      = startAsFinish;
+            _forcedAttackAction = forcedAttackAction;
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -40,9 +45,15 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
-            _attackData = _startAsFinish
-                ? _combat?.ExecuteJumpFinishAttack()
-                : _combat?.ExecuteJumpAttack(false);
+
+            // 연계 라우트 우선: 매칭되면 점프 공격 대신 라우트를 실행한다(공중 연계, 예: 대시→점프→스킬1).
+            // PlayerAttackState와 동일한 ComboRouteRunner 오케스트레이션을 공유해 peek/execute 드리프트를 막는다.
+            _attackData = ComboRouteRunner.TryExecuteRoute(
+                playerActor, playerController, _combat, _startAsFinish, _forcedAttackAction, out _);
+            if (_attackData == null)
+                _attackData = _startAsFinish
+                    ? _combat?.ExecuteJumpFinishAttack()
+                    : _combat?.ExecuteJumpAttack(false);
 
             AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
             var state = gameActor.Animator.PlayMotion(animKey, 0.25f);

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Combat;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
@@ -66,6 +67,7 @@ namespace UPlayGround.State
             else
             {
                 gameActor.Tags?.AddTag(GameplayTagId.State_Jump);
+                playerActor?.ComboInputTracker.Push(ComboInputToken.Jump); // 점프 입력 진입 한정(낙하 제외)
                 // 점프 입력으로 진입: UpdateVelocity(HandleJump) 실행을 기다리지 않고 즉시 재생
                 PlayJumpAnimation(true);
                 _jumpAnimPlayed = true;
@@ -104,6 +106,17 @@ namespace UPlayGround.State
                     return;
                 }
             }
+            // 공중 연계 라우트: 스킬 입력 + 매칭 라우트가 있을 때만 라우트 호스트(JumpAttackState)로 전환.
+            // (예: 대시→점프→스킬1) 매칭이 없으면 기존 공중 동작 유지 — 일반 공중 스킬은 미처리.
+            // 캐시된 playerActor/GetCombat 사용(매 프레임 GetComponent 회피). 스킬 미입력 시
+            // ResolveRoute는 TryComputePendingToken에서 즉시 bail → 할당/탐색 비용 없음.
+            if (ComboRouteRunner.ResolveRoute(
+                    playerActor, playerController, playerActor != null ? playerActor.GetCombat() : null,
+                    false, PlayerInterruptAction.Skill, recordToken: false) != null
+                && playerController.TryTransitionToState(
+                    new PlayerJumpAttackState(playerController, startAsFinish: false, forcedAttackAction: PlayerInterruptAction.Skill)))
+                return;
+
             if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
             {
                 if (playerController.TryTransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: false)))

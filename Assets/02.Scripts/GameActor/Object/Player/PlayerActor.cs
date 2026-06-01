@@ -492,6 +492,11 @@ namespace UPlayGround
         public PlayerEquipment GetPlayerEquipment() => _equipment;
         public PlayerCombat    GetCombat()          => _combat;
 
+        // 연계 라우트 입력 토큰 스트림. 상태(대시/점프/공격)가 발동 확정 시 토큰을 push하고,
+        // PlayerAttackState가 Resolve로 라우트를 판정한다. 상태 전환을 넘어 생존한다.
+        private ComboInputTracker _comboInputTracker;
+        public ComboInputTracker ComboInputTracker => _comboInputTracker ??= new ComboInputTracker();
+
         /// <summary>
         /// 모델 교체 시 PlayerSwapBehaviour가 호출.
         /// 이전 캐릭터 상태를 저장하고 새 캐릭터 데이터로 컴포넌트를 일괄 갱신한다.
@@ -511,6 +516,9 @@ namespace UPlayGround
 
             _characterActorType = data.characterType;
             _hasInitializedCharacterRuntime = true;
+
+            // 연계 토큰 스트림은 캐릭터 종속 — 교체 시 비운다(설계 §8).
+            _comboInputTracker?.Clear();
 
             // 체력 복원 (처음 등장 시 최대치)
             _maxHealth     = data.maxHealth;

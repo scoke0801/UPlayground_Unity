@@ -29,6 +29,16 @@ namespace UPlayGround.Data.Combat
         [Tooltip("스킬 공격 리스트")]
         public List<PlayerAttackInfo> skillAttackList  = new List<PlayerAttackInfo>();
 
+        [Header("Combo Routes (연계스킬)")]
+        [Tooltip("입력 시퀀스 패턴 분기 연계스킬 목록. per-character.\n" +
+                 "예) 약약약→강, 대시→점프→스킬1. 통합 윈도우의 '연계 라우트' 탭에서 편집.")]
+        public List<ComboRouteEntry> comboRoutes = new List<ComboRouteEntry>();
+
+        [Tooltip("연계 토큰 간 최대 허용 간격(초). 마지막 입력 이후 이 시간을 넘기면 토큰 스트림 폐기.\n" +
+                 "짧으면 연계 입력이 까다롭고, 길면 의도치 않은 연계가 발생한다. 캐릭터별로 조정 가능.")]
+        [Min(0.05f)]
+        public float comboLinkWindow = 1.0f;
+
         [Tooltip("퍼펙트 가드 반격 공격 데이터. 비어 있으면 강 공격 첫 번째로 대체된다.")]
         public PlayerAttackInfo counterAttack;
 

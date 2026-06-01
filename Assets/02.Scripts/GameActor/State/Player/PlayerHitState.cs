@@ -54,6 +54,9 @@ namespace UPlayGround.State
             // 워프 진행 중이면 즉시 clear (Hit 모션이 우선, 헛스윙도 적용 안 함).
             controller.MotionWarp?.ClearTarget();
 
+            // 피격 시 연계 토큰 스트림을 비워 콤보가 피격을 관통하지 않게 한다(설계 §5.1).
+            playerActor.ComboInputTracker.Clear();
+
             playerActor.GetCombat()?.RefreshCombatState();
 
             // 경직 강도 결정

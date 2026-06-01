@@ -165,7 +165,10 @@ namespace UPlayGround.Component
         {
             OnGaugeChanged?.Invoke(_currentGauge, MaxGauge);
             if (_actorUIBar != null)
+            {
                 _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
+                _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
+            }
         }
 
         private void UpdateUiAsTimer()
@@ -174,7 +177,15 @@ namespace UPlayGround.Component
             float current = Mathf.Clamp(_exposedTimer, 0f, max);
             OnGaugeChanged?.Invoke(current, max);
             if (_actorUIBar != null)
+            {
                 _actorUIBar.UpdateBreakGauge(current, max);
+                _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
+            }
+        }
+
+        private bool ShouldShowBreakGaugeEmptyUi()
+        {
+            return _data != null && _data.useBreakGauge && (_isExposed || _currentGauge <= 0f);
         }
     }
 }

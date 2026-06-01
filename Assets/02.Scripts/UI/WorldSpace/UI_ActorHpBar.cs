@@ -13,8 +13,8 @@ public class UI_ActorHpBar : MonoBehaviour
     [SerializeField] private Image _fillPoiseImage;
     [SerializeField] private Image _fillPoiseDelayImage;
 
-    [SerializeField] private Image _fillBreakImage;
-    [SerializeField] private Image _fillBreakDelayImage;
+    [SerializeField] private Image _fillBreakGaugeImage;
+    [SerializeField] private GameObject _breakGaugeEmptyUi;
     
     [SerializeField] private float _delayFillSpeed = 3f;
     [SerializeField] private TextMeshProUGUI _textHp;
@@ -49,6 +49,9 @@ public class UI_ActorHpBar : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
         if (_canvasGroup == null)
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+        if (_breakGaugeEmptyUi == null)
+            _breakGaugeEmptyUi = transform.Find("breakEffect")?.gameObject;
     }
 
     public void Init(GameActor actor, Camera targetCamera, Canvas parentCanvas)
@@ -72,12 +75,12 @@ public class UI_ActorHpBar : MonoBehaviour
         
         if (_fillPoiseDelayImage != null) _fillPoiseDelayImage.fillAmount = 1f;
         if (_fillPoiseImage != null) _fillPoiseImage.fillAmount = 1f;
-        if (_fillBreakDelayImage != null) _fillBreakDelayImage.fillAmount = 0f;
-        if (_fillBreakImage != null) _fillBreakImage.fillAmount = 0f;
+        if (_fillBreakGaugeImage != null) _fillBreakGaugeImage.fillAmount = 1f;
+        SetBreakGaugeEmptyUiActive(false);
         
         _targetHpFill = 1f;
         _targetPoiseFill = 1f;
-        _targetBreakFill = 0f;
+        _targetBreakFill = 1f;
 
         _levelText.text = $"Lv. {level}";
 
@@ -171,15 +174,6 @@ public class UI_ActorHpBar : MonoBehaviour
             );
         }
 
-        if (_fillBreakDelayImage != null && _fillBreakDelayImage.fillAmount > _targetBreakFill)
-        {
-            _fillBreakDelayImage.fillAmount = Mathf.Lerp(
-                _fillBreakDelayImage.fillAmount,
-                _targetBreakFill,
-                Time.deltaTime * _delayFillSpeed
-            );
-        }
-    
     }
 
     public void UpdateHealth(float current, float max)
@@ -208,16 +202,18 @@ public class UI_ActorHpBar : MonoBehaviour
 
     public void UpdateBreakGauge(float current, float max)
     {
-        if (_fillBreakImage == null && _fillBreakDelayImage == null)
+        if (_fillBreakGaugeImage == null)
             return;
 
         Show();
 
         _targetBreakFill = max > 0f ? Mathf.Clamp01(current / max) : 0f;
-        if (_fillBreakImage != null)
-            _fillBreakImage.fillAmount = _targetBreakFill;
+        _fillBreakGaugeImage.fillAmount = _targetBreakFill;
+    }
 
-        if (_fillBreakDelayImage != null && _fillBreakDelayImage.fillAmount < _targetBreakFill)
-            _fillBreakDelayImage.fillAmount = _targetBreakFill;
+    public void SetBreakGaugeEmptyUiActive(bool active)
+    {
+        if (_breakGaugeEmptyUi != null && _breakGaugeEmptyUi.activeSelf != active)
+            _breakGaugeEmptyUi.SetActive(active);
     }
 }

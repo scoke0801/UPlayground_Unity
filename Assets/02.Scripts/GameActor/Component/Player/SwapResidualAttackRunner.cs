@@ -138,6 +138,8 @@ namespace UPlayGround.Component
             PrepareResidualVisuals();
             _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
             _dissolveController.SetDissolveColor(request.DissolveColor);
+            if (request.DissolveNoiseMask != null)
+                _dissolveController.SetDissolveNoise(request.DissolveNoiseMask, request.DissolveNoiseStrength, request.DissolveNoiseScrollRotate);
             _dissolveController.RefreshRenderers();
             _dissolveController.WarmupDissolveMaterials();
 

@@ -63,6 +63,9 @@ namespace UPlayGround.Component
         public readonly float MinVisibleLifetime;
         public readonly float FadeOutDuration;
         public readonly Color DissolveColor;
+        public readonly Texture DissolveNoiseMask;
+        public readonly float DissolveNoiseStrength;
+        public readonly Vector4 DissolveNoiseScrollRotate;
         public readonly bool AllowHitStop;
         public readonly bool UseRootMotion;
         public readonly float RootMotionMaxDistance;
@@ -78,6 +81,9 @@ namespace UPlayGround.Component
             float minVisibleLifetime,
             float fadeOutDuration,
             Color dissolveColor,
+            Texture dissolveNoiseMask,
+            float dissolveNoiseStrength,
+            Vector4 dissolveNoiseScrollRotate,
             bool allowHitStop,
             bool useRootMotion,
             float rootMotionMaxDistance,
@@ -92,6 +98,9 @@ namespace UPlayGround.Component
             MinVisibleLifetime = minVisibleLifetime;
             FadeOutDuration = fadeOutDuration;
             DissolveColor = dissolveColor;
+            DissolveNoiseMask = dissolveNoiseMask;
+            DissolveNoiseStrength = dissolveNoiseStrength;
+            DissolveNoiseScrollRotate = dissolveNoiseScrollRotate;
             AllowHitStop = allowHitStop;
             UseRootMotion = useRootMotion;
             RootMotionMaxDistance = rootMotionMaxDistance;

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using INab.Common;
 using UnityEngine;
@@ -13,11 +14,14 @@ namespace UPlayGround.Component
         private const float DefaultFadeInDuration = 0.04f;
         private const float DefaultFadeOutDuration = 0.08f;
         private const float DefaultTrailLengthLifetime = 0.35f;
+        private const float MinimumVisibleDuration = 0.12f;
 
         [SerializeField] private bool _debugLog;
 
         private readonly List<WeaponTrailEffect> _trails = new List<WeaponTrailEffect>();
         private bool _isDirty = true;
+        private float _lastStartTime = -999f;
+        private Coroutine _pendingStopCoroutine;
 
         private void Awake()
         {
@@ -82,6 +86,8 @@ namespace UPlayGround.Component
         private void PlayAttackTrails()
         {
             EnsureCache();
+            CancelPendingStop();
+            _lastStartTime = Time.unscaledTime;
 
             if (_debugLog)
                 Debug.Log($"[ActorWeaponTrailController] StartAttackTrails owner={name}, count={_trails.Count}");
@@ -109,6 +115,17 @@ namespace UPlayGround.Component
             if (_debugLog)
                 Debug.Log($"[ActorWeaponTrailController] StopAttackTrails owner={name}, count={_trails.Count}");
 
+            if (!immediate)
+            {
+                float remainingVisibleTime = MinimumVisibleDuration - (Time.unscaledTime - _lastStartTime);
+                if (remainingVisibleTime > 0f)
+                {
+                    CancelPendingStop();
+                    _pendingStopCoroutine = StartCoroutine(CoStopAfterDelay(remainingVisibleTime));
+                    return;
+                }
+            }
+
             for (int i = 0; i < _trails.Count; i++)
             {
                 var trail = _trails[i];
@@ -121,6 +138,21 @@ namespace UPlayGround.Component
                 if (!CanUseTrail(trail, i)) continue;
                 trail.StopTrail(DefaultFadeOutDuration);
             }
+        }
+
+        private IEnumerator CoStopAfterDelay(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            _pendingStopCoroutine = null;
+            StopCachedAttackTrails(immediate: false);
+        }
+
+        private void CancelPendingStop()
+        {
+            if (_pendingStopCoroutine == null) return;
+
+            StopCoroutine(_pendingStopCoroutine);
+            _pendingStopCoroutine = null;
         }
 
         private bool CanUseTrail(WeaponTrailEffect trail, int index)

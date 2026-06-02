@@ -23,6 +23,9 @@ namespace UPlayGround.Tool.Editor.Balance
         private const string AttackPath = "Assets/10.Datas/Actor/Enemy/AttackData/Generated";
         private const string BehaviorPath = "Assets/10.Datas/Actor/Enemy/BehaviorData/Generated";
         private const string BehaviorTreePath = "Assets/10.Datas/AI/BehaviorTree/Generated";
+        private static MonsterScalingSO _cachedScaling;
+        private static bool _didSearchScaling;
+        private static bool _didWarnMultipleScaling;
 
         public static bool HasMissingData(ActorDefinitionSO actor)
         {
@@ -636,9 +639,41 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private static float GetDefaultAttackDamage(ActorDefinitionSO actor)
         {
+            // MonsterScalingSO 커브가 있으면 스탯과 동일한 소스에서 등급별 base 피해를 가져온다.
+            // (레벨 보정과 AttackPower 역보정은 CalculateMotionDamage/CalculateStoredDamage가 유지한다.)
+            MonsterScalingSO scaling = FindFirstScaling();
+            if (scaling != null)
+                return scaling.GetBaseAttackDamage(actor != null ? actor.grade : MonsterActorGrade.Normal);
+
             return actor != null && actor.grade == MonsterActorGrade.Boss ? 18f
                 : actor != null && actor.grade == MonsterActorGrade.Elite ? 12f
                 : 8f;
+        }
+
+        private static MonsterScalingSO FindFirstScaling()
+        {
+            if (_didSearchScaling)
+                return _cachedScaling;
+
+            _didSearchScaling = true;
+            string[] paths = AssetDatabase.FindAssets("t:MonsterScalingSO")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .OrderBy(path => path)
+                .ToArray();
+
+            if (paths.Length > 1 && !_didWarnMultipleScaling)
+            {
+                _didWarnMultipleScaling = true;
+                Debug.LogWarning(
+                    $"MonsterScalingSO가 {paths.Length}개 발견되어 '{paths[0]}'을 사용합니다. " +
+                    "공격 기본 피해 자동 생성 기준을 명확히 하려면 MonsterScalingSO를 하나만 유지하거나 생성 전 정리하세요.");
+            }
+
+            _cachedScaling = paths.Length > 0
+                ? AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(paths[0])
+                : null;
+            return _cachedScaling;
         }
 
         private static string CreateAsset(UnityEngine.Object asset, string folder, string rawName)

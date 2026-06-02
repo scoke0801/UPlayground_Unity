@@ -53,9 +53,11 @@ namespace UPlayGround.Tool.Editor.Stat
         // ── 상수 ──────────────────────────────────────────────────
         private const string DefaultSavePath = "Assets/10.Datas/Stat/Generated";
         private const string PlayerSavePath  = "Assets/10.Datas/Stat/Player";
+        private const string BreakGaugeSavePath = "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated";
         private const float ColCheck = 22f;
         private const float ColName  = 200f;
         private const float ColPoise = 90f;
+        private const float ColBreak = 110f;
         private const float ColCurrent = 130f;
         private const float ColPlanned = 200f;
         private const float RowH = 22f;
@@ -137,7 +139,7 @@ namespace UPlayGround.Tool.Editor.Stat
             GUILayout.Space(6);
 
             bool prevMissing = _onlyMissing;
-            _onlyMissing = GUILayout.Toggle(_onlyMissing, "statData 없는 항목만", EditorStyles.toolbarButton, GUILayout.Width(150));
+            _onlyMissing = GUILayout.Toggle(_onlyMissing, "누락 항목만", EditorStyles.toolbarButton, GUILayout.Width(90));
             if (prevMissing != _onlyMissing) RefreshMigrationRows();
 
             GUILayout.Space(12);
@@ -170,6 +172,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
             DrawHeaderCell("ActorDefinitionSO", ref x, ColName, rect.y, rect.height);
             DrawHeaderCell("PoiseSO",    ref x, ColPoise, rect.y, rect.height);
+            DrawHeaderCell("BreakGaugeSO", ref x, ColBreak, rect.y, rect.height);
             DrawHeaderCell("기존 statData", ref x, ColCurrent, rect.y, rect.height);
             DrawHeaderCell("생성 예정", ref x, ColPlanned, rect.y, rect.height);
         }
@@ -205,6 +208,10 @@ namespace UPlayGround.Tool.Editor.Stat
                 DrawSourceLabel(new Rect(x, rect.y, ColPoise, rect.height), row.SourcePoise != null);
                 x += ColPoise;
 
+                // 브레이크 게이지 데이터
+                DrawSourceLabel(new Rect(x, rect.y, ColBreak, rect.height), row.SourceBreakGauge != null);
+                x += ColBreak;
+
                 // 기존 statData
                 if (row.ExistingStat != null)
                 {
@@ -227,9 +234,10 @@ namespace UPlayGround.Tool.Editor.Stat
                 x += ColPlanned;
 
                 // 단일 생성 버튼
-                if (GUI.Button(new Rect(rect.xMax - 60, rect.y + 1, 56, rect.height - 2), row.ExistingStat != null ? "재생성" : "생성"))
+                string buttonLabel = row.ExistingStat == null ? "생성" : row.SourceBreakGauge == null ? "보정" : "재생성";
+                if (GUI.Button(new Rect(rect.xMax - 60, rect.y + 1, 56, rect.height - 2), buttonLabel))
                 {
-                    GenerateSingle(row);
+                    GenerateSingle(row, buttonLabel == "재생성");
                     GUIUtility.ExitGUI();
                 }
             }
@@ -259,7 +267,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
             using (new EditorGUI.DisabledScope(_migrationRows.Count == 0))
             {
-                if (GUILayout.Button("statData 없는 항목 모두 생성", GUILayout.Height(28)))
+                if (GUILayout.Button("누락 항목 모두 생성", GUILayout.Height(28)))
                     GenerateAllMissing();
             }
 
@@ -267,7 +275,8 @@ namespace UPlayGround.Tool.Editor.Stat
 
             EditorGUILayout.HelpBox(
                 "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
-                "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.",
+                "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.\n" +
+                "몬스터의 breakGaugeData가 비어 있으면 BreakGaugeSO를 생성해 연결합니다.",
                 MessageType.Info);
         }
 
@@ -283,12 +292,13 @@ namespace UPlayGround.Tool.Editor.Stat
                 var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
                 if (def == null) continue;
 
-                if (_onlyMissing && def.statData != null) continue;
+                if (_onlyMissing && !HasMissingMigrationData(def)) continue;
 
                 _migrationRows.Add(new MigrationRow
                 {
                     Definition = def,
                     SourcePoise = def.poiseData,
+                    SourceBreakGauge = def.breakGaugeData,
                     ExistingStat = def.statData,
                     PlannedAssetName = MakePlannedAssetName(def),
                     Selected = def.statData == null,
@@ -297,21 +307,33 @@ namespace UPlayGround.Tool.Editor.Stat
             _migrationRows.Sort((a, b) => string.Compare(a.Definition.name, b.Definition.name, StringComparison.Ordinal));
         }
 
-        private void GenerateSingle(MigrationRow row)
+        private void GenerateSingle(MigrationRow row, bool regenerateStat)
         {
             EnsureFolder(_savePath);
-            var so = BuildFromDefinition(row);
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
-            AssetDatabase.CreateAsset(so, assetPath);
+            EnsureFolder(BreakGaugeSavePath);
+            ActorStatSO so = row.Definition.statData;
+            string assetPath = null;
 
             // Definition에 자동 연결
             var sObj = new SerializedObject(row.Definition);
-            sObj.FindProperty("statData").objectReferenceValue = so;
-            sObj.ApplyModifiedProperties();
+            if (so == null || regenerateStat)
+            {
+                so = BuildFromDefinition(row);
+                assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
+                AssetDatabase.CreateAsset(so, assetPath);
+                sObj.FindProperty("statData").objectReferenceValue = so;
+                sObj.ApplyModifiedProperties();
+            }
+
+            string breakGaugePath = GenerateMissingBreakGauge(row.Definition, so);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 생성 완료: {assetPath} → {row.Definition.name}.statData");
+            Debug.Log(string.IsNullOrEmpty(assetPath) && !string.IsNullOrEmpty(breakGaugePath)
+                ? $"[StatDataGenerator] 보정 완료: {breakGaugePath} → {row.Definition.name}.breakGaugeData"
+                : string.IsNullOrEmpty(breakGaugePath)
+                ? $"[StatDataGenerator] 생성 완료: {assetPath} → {row.Definition.name}.statData"
+                : $"[StatDataGenerator] 생성 완료: {assetPath} / {breakGaugePath} → {row.Definition.name}");
 
             row.ExistingStat = so;
             RefreshMigrationRows();
@@ -320,22 +342,33 @@ namespace UPlayGround.Tool.Editor.Stat
         private void GenerateSelected()
         {
             EnsureFolder(_savePath);
+            EnsureFolder(BreakGaugeSavePath);
             int count = 0;
+            int breakCount = 0;
             foreach (var row in _migrationRows)
             {
                 if (!row.Selected) continue;
-                var so = BuildFromDefinition(row);
-                string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
-                AssetDatabase.CreateAsset(so, assetPath);
+                ActorStatSO so = row.Definition.statData;
 
                 var sObj = new SerializedObject(row.Definition);
-                sObj.FindProperty("statData").objectReferenceValue = so;
+                if (so == null)
+                {
+                    so = BuildFromDefinition(row);
+                    string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
+                    AssetDatabase.CreateAsset(so, assetPath);
+                    sObj.FindProperty("statData").objectReferenceValue = so;
+                    count++;
+                }
+
+                string breakGaugePath = GenerateMissingBreakGauge(row.Definition, so);
+                if (!string.IsNullOrEmpty(breakGaugePath))
+                    breakCount++;
+
                 sObj.ApplyModifiedProperties();
-                count++;
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] {count}개 ActorStatSO 생성 완료");
+            Debug.Log($"[StatDataGenerator] ActorStatSO {count}개 / BreakGaugeSO {breakCount}개 생성 완료");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
         }
@@ -343,32 +376,43 @@ namespace UPlayGround.Tool.Editor.Stat
         private void GenerateAllMissing()
         {
             EnsureFolder(_savePath);
+            EnsureFolder(BreakGaugeSavePath);
             string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
             int count = 0;
+            int breakCount = 0;
             foreach (var guid in guids)
             {
                 var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
-                if (def == null || def.statData != null) continue;
+                if (def == null || !HasMissingMigrationData(def)) continue;
 
                 var row = new MigrationRow
                 {
                     Definition = def,
                     SourcePoise = def.poiseData,
+                    SourceBreakGauge = def.breakGaugeData,
                     PlannedAssetName = MakePlannedAssetName(def),
                 };
 
-                var so = BuildFromDefinition(row);
-                string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
-                AssetDatabase.CreateAsset(so, assetPath);
-
+                ActorStatSO so = def.statData;
                 var sObj = new SerializedObject(def);
-                sObj.FindProperty("statData").objectReferenceValue = so;
+                if (so == null)
+                {
+                    so = BuildFromDefinition(row);
+                    string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
+                    AssetDatabase.CreateAsset(so, assetPath);
+                    sObj.FindProperty("statData").objectReferenceValue = so;
+                    count++;
+                }
+
+                string breakGaugePath = GenerateMissingBreakGauge(def, so);
+                if (!string.IsNullOrEmpty(breakGaugePath))
+                    breakCount++;
+
                 sObj.ApplyModifiedProperties();
-                count++;
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 누락분 {count}개 일괄 생성 완료");
+            Debug.Log($"[StatDataGenerator] 누락분 일괄 생성 완료: ActorStatSO {count}개 / BreakGaugeSO {breakCount}개");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
         }
@@ -376,10 +420,12 @@ namespace UPlayGround.Tool.Editor.Stat
         private void RepairAllDefinitions()
         {
             EnsureFolder(_savePath);
+            EnsureFolder(BreakGaugeSavePath);
 
             string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
             int created = 0;
             int filled = 0;
+            int breakCreated = 0;
 
             foreach (var guid in guids)
             {
@@ -392,6 +438,7 @@ namespace UPlayGround.Tool.Editor.Stat
                     {
                         Definition = def,
                         SourcePoise = def.poiseData,
+                        SourceBreakGauge = def.breakGaugeData,
                         PlannedAssetName = MakePlannedAssetName(def),
                     };
 
@@ -403,6 +450,10 @@ namespace UPlayGround.Tool.Editor.Stat
                     sObj.FindProperty("statData").objectReferenceValue = so;
                     sObj.ApplyModifiedProperties();
                     created++;
+
+                    string breakGaugePath = GenerateMissingBreakGauge(def, so);
+                    if (!string.IsNullOrEmpty(breakGaugePath))
+                        breakCreated++;
                     continue;
                 }
 
@@ -413,11 +464,15 @@ namespace UPlayGround.Tool.Editor.Stat
                     EditorUtility.SetDirty(def.statData);
                     filled++;
                 }
+
+                string createdBreakGaugePath = GenerateMissingBreakGauge(def, def.statData);
+                if (!string.IsNullOrEmpty(createdBreakGaugePath))
+                    breakCreated++;
             }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / 누락 StatType 채움 {filled}개");
+            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / 누락 StatType 채움 {filled}개 / breakGaugeData 생성 {breakCreated}개");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: true);
         }
@@ -440,6 +495,53 @@ namespace UPlayGround.Tool.Editor.Stat
 
             return so;
         }
+
+        private static string GenerateMissingBreakGauge(ActorDefinitionSO def, ActorStatSO stat)
+        {
+            if (!NeedsBreakGauge(def))
+                return null;
+
+            var data = ScriptableObject.CreateInstance<MonsterBreakGaugeSO>();
+            data.name = MakeBreakGaugeAssetName(def);
+            data.maxGauge = CalculateBreakGauge(def, stat);
+            data.gradePolicy = new MonsterBreakGradePolicy
+            {
+                weakGaugeMultiplier = 1f,
+                normalGaugeMultiplier = 1f,
+                eliteGaugeMultiplier = 1f,
+                bossGaugeMultiplier = 1f,
+            };
+
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{BreakGaugeSavePath}/{data.name}.asset");
+            AssetDatabase.CreateAsset(data, assetPath);
+
+            var sObj = new SerializedObject(def);
+            sObj.FindProperty("breakGaugeData").objectReferenceValue = data;
+            sObj.ApplyModifiedProperties();
+            EditorUtility.SetDirty(def);
+
+            return assetPath;
+        }
+
+        private static float CalculateBreakGauge(ActorDefinitionSO def, ActorStatSO stat)
+        {
+            if (stat != null)
+                return Mathf.Max(1f, Mathf.Round(stat.GetBase(StatType.MaxPoise)));
+
+            if (def?.poiseData != null)
+                return Mathf.Max(1f, Mathf.Round(def.poiseData.maxPoise));
+
+            return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxPoise));
+        }
+
+        private static bool HasMissingMigrationData(ActorDefinitionSO def)
+            => def != null && (def.statData == null || NeedsBreakGauge(def));
+
+        private static bool NeedsBreakGauge(ActorDefinitionSO def)
+            => IsMonster(def) && def.breakGaugeData == null;
+
+        private static bool IsMonster(ActorDefinitionSO def)
+            => def != null && (def.actorType & ActorType.Monster) != 0;
 
         // ──────────────────────────────────────────────────────────
         // Player 기본 스탯 탭
@@ -986,6 +1088,17 @@ namespace UPlayGround.Tool.Editor.Stat
             return assetName.Replace('/', '_').Replace('\\', '_');
         }
 
+        private static string MakeBreakGaugeAssetName(ActorDefinitionSO def)
+        {
+            string rawName = def != null && !string.IsNullOrEmpty(def.actorId) ? def.actorId : def != null ? def.name : "Unknown";
+            string assetName = $"MonsterBreakGauge_{rawName}";
+
+            foreach (char invalid in Path.GetInvalidFileNameChars())
+                assetName = assetName.Replace(invalid, '_');
+
+            return assetName.Replace('/', '_').Replace('\\', '_');
+        }
+
         private void BrowseSavePath(ref string targetPath)
         {
             string abs = EditorUtility.OpenFolderPanel("저장 경로 선택", targetPath, "");
@@ -1019,6 +1132,7 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             public ActorDefinitionSO Definition;
             public PoiseSO           SourcePoise;
+            public MonsterBreakGaugeSO SourceBreakGauge;
             public ActorStatSO       ExistingStat;
             public string            PlannedAssetName;
             public bool              Selected;

@@ -137,6 +137,9 @@ namespace UPlayGround.Component
             float minVisibleLifetime = partyManager != null ? partyManager.ResidualAttackMinVisibleLifetime : 0.45f;
             float fadeOutDuration = partyManager != null ? partyManager.ResidualAttackFadeOutDuration : 0.55f;
             Color dissolveColor = partyManager != null ? partyManager.ResidualAttackDissolveColor : Color.white;
+            Texture dissolveNoiseMask = partyManager != null ? partyManager.ResidualAttackDissolveNoiseMask : null;
+            float dissolveNoiseStrength = partyManager != null ? partyManager.ResidualAttackDissolveNoiseStrength : 0.1f;
+            Vector4 dissolveNoiseScrollRotate = partyManager != null ? partyManager.ResidualAttackDissolveNoiseScrollRotate : Vector4.zero;
             bool allowHitStop = partyManager == null || partyManager.ResidualAttackAllowHitStop;
             bool useRootMotion = partyManager != null && partyManager.ResidualAttackUseRootMotion;
             float rootMotionMaxDistance = partyManager != null ? partyManager.ResidualAttackRootMotionMaxDistance : 2.5f;
@@ -153,6 +156,9 @@ namespace UPlayGround.Component
                 minVisibleLifetime,
                 fadeOutDuration,
                 dissolveColor,
+                dissolveNoiseMask,
+                dissolveNoiseStrength,
+                dissolveNoiseScrollRotate,
                 allowHitStop,
                 useRootMotion,
                 rootMotionMaxDistance,

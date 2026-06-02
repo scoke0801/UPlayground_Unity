@@ -51,6 +51,16 @@ namespace UPlayGround.Data.Party
         [Tooltip("잔류 공격 종료 디졸브 경계 색상. lilToon의 Dissolve Color에 적용된다.")]
         public Color residualAttackDissolveColor = Color.white;
 
+        [Tooltip("잔류 공격 종료 디졸브 노이즈 텍스처. 비워두면 원본 머티리얼 설정을 유지한다.")]
+        public Texture2D residualAttackDissolveNoiseMask;
+
+        [Tooltip("잔류 공격 종료 디졸브 노이즈 강도. lilToon의 Dissolve Noise Strength에 적용된다.")]
+        [Min(0f)]
+        public float residualAttackDissolveNoiseStrength = 0.1f;
+
+        [Tooltip("잔류 공격 종료 디졸브 노이즈 스크롤/회전. lilToon의 Dissolve Noise Mask ScrollRotate에 적용된다.")]
+        public Vector4 residualAttackDissolveNoiseScrollRotate = Vector4.zero;
+
         [Tooltip("잔류 공격 히트 시 히트스톱 피드백을 허용한다.")]
         public bool residualAttackAllowHitStop = true;
 

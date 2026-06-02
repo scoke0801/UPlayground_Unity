@@ -44,8 +44,16 @@ namespace UPlayGround.Tool.Editor.Balance
             float playerHealth = Mathf.Max(1f, ReadPlayerStat(scenario, StatType.MaxHealth));
             float playerAttackPower = Mathf.Max(0f, ReadPlayerAttackPower(scenario, fallbackInput));
             float playerDefense = Mathf.Clamp01(ReadPlayerStat(scenario, StatType.Defense));
+            float playerMaxPoise = Mathf.Max(0f, ReadPlayerStat(scenario, StatType.MaxPoise));
+            float playerPoiseRecovery = Mathf.Max(0f, ReadPlayerStat(scenario, StatType.PoiseRecoveryRate));
             result.MonsterHealth = monsterHealth;
+            result.PlayerHealth = playerHealth;
             result.PlayerAttackPower = playerAttackPower;
+            result.PlayerMaxPoise = playerMaxPoise;
+            result.PlayerPoiseRecoveryRate = playerPoiseRecovery;
+            CountSkillUnlock(actor.attackData, monsterLevel, out int unlockedCount, out int lockedCount);
+            result.UnlockedSkillCount = unlockedCount;
+            result.LockedSkillCount = lockedCount;
 
             result.EnemyExpectedDps = EstimateEnemyDps(
                 actor.attackData,
@@ -69,10 +77,34 @@ namespace UPlayGround.Tool.Editor.Balance
             result.MonsterTimeToDeath = result.PlayerExpectedDps > 0f
                 ? monsterHealth / result.PlayerExpectedDps
                 : float.PositiveInfinity;
+            // 플레이어 가드 브레이크는 가드 횟수 기반(포이즈 무관)이므로 '브레이크 시간'은 추정하지 않는다.
+            // 대신 적의 초당 경직 압박이 플레이어 포이즈 회복을 넘어서는지를 순 압박으로 표시한다.
+            result.NetPoisePressure = result.EnemyPoiseDps - playerPoiseRecovery;
 
             result.Status = DecideStatus(result, scenario, fallbackInput);
+            BalanceActorDataValidator.AppendPostAnalysisMessages(result);
             result.Summary = BuildSummary(result);
             return result;
+        }
+
+        private static void CountSkillUnlock(EnemyAttackDataSO data, int level, out int unlocked, out int locked)
+        {
+            unlocked = 0;
+            locked = 0;
+            if (data?.skills == null)
+                return;
+
+            for (int i = 0; i < data.skills.Count; i++)
+            {
+                EnemyAttackInfo skill = data.skills[i];
+                if (skill == null || skill.baseInfo == null || skill.skillType != SkillType.Attack)
+                    continue;
+
+                if (skill.IsUnlockedForLevel(level))
+                    unlocked++;
+                else
+                    locked++;
+            }
         }
 
         private static float EstimateEnemyDps(
@@ -106,6 +138,7 @@ namespace UPlayGround.Tool.Editor.Balance
             float guardMultiplier = 1f - Mathf.Clamp01(guardMitigationRate);
 
             float dps = 0f;
+            float poiseDps = 0f;
             float opportunities = 0f;
             float basicChance = 0f;
             float heavyChance = 0f;
@@ -125,6 +158,12 @@ namespace UPlayGround.Tool.Editor.Balance
 
                 float contribution = chance * expectedDamage / cooldown;
                 dps += contribution;
+
+                // 경직 압박: 방어계수로 줄지 않으며, 실제 피격(회피 보정)만 반영한다.
+                float rawPoise = BalanceAttackAnalyzer.SumPoiseDamage(skill.baseInfo);
+                float poiseContribution = chance * rawPoise * avoidMultiplier / cooldown;
+                poiseDps += poiseContribution;
+
                 opportunities += chance * result.TargetDuration / cooldown;
                 AccumulateCategoryChance(skill, chance, ref basicChance, ref heavyChance, ref skillChance);
 
@@ -132,12 +171,19 @@ namespace UPlayGround.Tool.Editor.Balance
                 {
                     Name = skill.baseInfo.animKey.ToString(),
                     Damage = expectedDamage,
+                    PoiseDamage = rawPoise,
                     Weight = skill.selectionWeight,
                     SelectionChance = chance,
                     Cooldown = cooldown,
                     DpsContribution = contribution,
+                    PoiseContribution = poiseContribution,
                     HitPhaseCount = BalanceAttackAnalyzer.CountHitPhases(skill.baseInfo),
                     Category = skill.attackCategory.ToString(),
+                    IsStrong = BalanceAttackAnalyzer.IsStrongEnemyAttack(skill),
+                    UseDangerRing = skill.useDangerRing,
+                    UseTelegraph = skill.useTelegraph,
+                    DangerRingDuration = skill.dangerRingDuration,
+                    DefenseType = skill.defenseType.ToString(),
                 });
             }
 
@@ -146,6 +192,18 @@ namespace UPlayGround.Tool.Editor.Balance
             result.HeavyAttackChance = heavyChance;
             result.SkillAttackChance = skillChance;
             result.StrongAttackChance = heavyChance + skillChance;
+            result.EnemyPoiseDps = poiseDps;
+
+            // DPS 기여도 내림차순 정렬 + 최대 기여 공격 비중 산출
+            result.SkillBreakdowns.Sort((a, b) => b.DpsContribution.CompareTo(a.DpsContribution));
+            for (int i = 0; i < result.SkillBreakdowns.Count; i++)
+                result.SkillBreakdowns[i].DpsShare = dps > 0f ? result.SkillBreakdowns[i].DpsContribution / dps : 0f;
+            if (result.SkillBreakdowns.Count > 0)
+            {
+                result.TopAttackName = result.SkillBreakdowns[0].Name;
+                result.TopAttackDpsShare = result.SkillBreakdowns[0].DpsShare;
+            }
+
             return dps;
         }
 

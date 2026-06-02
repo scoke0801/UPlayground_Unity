@@ -35,6 +35,17 @@ namespace UPlayGround.Tool.Editor.Balance
             return damage;
         }
 
+        public static float SumPoiseDamage(AttackInfoBase baseInfo)
+        {
+            if (baseInfo?.hitPhases == null || baseInfo.hitPhases.Count == 0)
+                return 0f;
+
+            float poise = 0f;
+            for (int i = 0; i < baseInfo.hitPhases.Count; i++)
+                poise += baseInfo.hitPhases[i]?.poiseDamage ?? 0f;
+            return poise;
+        }
+
         public static int CountHitPhases(AttackInfoBase baseInfo)
             => baseInfo?.hitPhases?.Count ?? 0;
 

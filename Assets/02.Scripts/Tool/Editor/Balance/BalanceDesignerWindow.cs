@@ -339,6 +339,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 DrawCombatSummary(_selectedResult);
                 DrawMessages(_selectedResult);
                 DrawSkillBreakdown(_selectedResult);
+                DrawTargetRecommendation(_selectedResult);
                 EditorGUILayout.EndScrollView();
             }
         }
@@ -354,6 +355,18 @@ namespace UPlayGround.Tool.Editor.Balance
                 EditorStyles.miniLabel);
             EditorGUILayout.LabelField(
                 $"공격 확률 Basic {result.BasicAttackChance * 100f:F0}% / Heavy {result.HeavyAttackChance * 100f:F0}% / Skill {result.SkillAttackChance * 100f:F0}% / 강한 공격 {result.StrongAttackChance * 100f:F0}%",
+                EditorStyles.miniLabel);
+            string netPoise = result.NetPoisePressure > 0f
+                ? $"순 압박 +{result.NetPoisePressure:F1}/s (회복 초과 → 지속 경직 위험)"
+                : $"순 압박 {result.NetPoisePressure:F1}/s (회복으로 상쇄)";
+            EditorGUILayout.LabelField(
+                $"경직 압박 {result.EnemyPoiseDps:F1} poise/s vs 회복 {result.PlayerPoiseRecoveryRate:F0}/s → {netPoise}",
+                EditorStyles.miniLabel);
+            string topShare = string.IsNullOrEmpty(result.TopAttackName)
+                ? "-"
+                : $"{result.TopAttackName} {result.TopAttackDpsShare * 100f:F0}%";
+            EditorGUILayout.LabelField(
+                $"해금 공격 {result.UnlockedSkillCount} / 잠김 {result.LockedSkillCount} / 사용 가능 {result.AvailableSkillCount:F0} | 최대 기여 공격 {topShare}",
                 EditorStyles.miniLabel);
             EditorGUILayout.Space(6f);
         }
@@ -390,41 +403,125 @@ namespace UPlayGround.Tool.Editor.Balance
                 return;
             }
 
+            EditorGUILayout.LabelField("DPS 기여도 내림차순 정렬. DPS% 35% 초과는 빨강, 강공격 Danger Ring 누락은 주황으로 표시.", EditorStyles.centeredGreyMiniLabel);
+
             Rect header = GUILayoutUtility.GetRect(0f, 22f, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(header, new Color(0.13f, 0.13f, 0.15f));
-            DrawSkillCells(header, "AnimKey", "Category", "Chance", "Damage", "CD", "DPS", "Hits", true);
+            DrawSkillCells(header, "AnimKey", "Category", "Chance", "Damage", "Poise", "CD", "DPS", "DPS%", "DR/Tele", true);
 
             for (int i = 0; i < result.SkillBreakdowns.Count; i++)
             {
                 BalanceSkillBreakdown skill = result.SkillBreakdowns[i];
                 Rect row = GUILayoutUtility.GetRect(0f, 22f, GUILayout.ExpandWidth(true));
-                if (i % 2 == 1)
+                if (skill.DpsShare > 0.35f)
+                    EditorGUI.DrawRect(row, new Color(0.82f, 0.16f, 0.16f, 0.22f));
+                else if (skill.IsStrong && !skill.UseDangerRing)
+                    EditorGUI.DrawRect(row, new Color(0.86f, 0.58f, 0.18f, 0.22f));
+                else if (i % 2 == 1)
                     EditorGUI.DrawRect(row, new Color(0f, 0f, 0f, 0.12f));
+
+                string ringLabel = skill.UseDangerRing
+                    ? (skill.DangerRingDuration > 0f ? $"DR {skill.DangerRingDuration:F1}s" : "DR auto")
+                    : "-";
+                string flags = $"{ringLabel}{(skill.UseTelegraph ? " +T" : "")}";
+
                 DrawSkillCells(
                     row,
                     skill.Name,
                     skill.Category,
                     $"{skill.SelectionChance * 100f:F0}%",
                     skill.Damage.ToString("F1"),
+                    skill.PoiseDamage.ToString("F0"),
                     skill.Cooldown.ToString("F1"),
                     skill.DpsContribution.ToString("F1"),
-                    skill.HitPhaseCount.ToString(),
+                    $"{skill.DpsShare * 100f:F0}%",
+                    flags,
                     false);
             }
         }
 
-        private void DrawSkillCells(Rect rect, string name, string category, string chance, string damage, string cooldown, string dps, string hits, bool header)
+        private void DrawSkillCells(Rect rect, string name, string category, string chance, string damage, string poise, string cooldown, string dps, string share, string flags, bool header)
         {
             GUIStyle style = header ? EditorStyles.boldLabel : EditorStyles.label;
             float x = rect.x + 6f;
-            Label(new Rect(x, rect.y + 3f, 150f, 16f), name, style); x += 154f;
-            Label(new Rect(x, rect.y + 3f, 80f, 16f), category, style); x += 84f;
-            Label(new Rect(x, rect.y + 3f, 70f, 16f), chance, style); x += 74f;
-            Label(new Rect(x, rect.y + 3f, 70f, 16f), damage, style); x += 74f;
-            Label(new Rect(x, rect.y + 3f, 54f, 16f), cooldown, style); x += 58f;
-            Label(new Rect(x, rect.y + 3f, 58f, 16f), dps, style); x += 62f;
-            Label(new Rect(x, rect.y + 3f, 44f, 16f), hits, style);
+            Label(new Rect(x, rect.y + 3f, 140f, 16f), name, style); x += 144f;
+            Label(new Rect(x, rect.y + 3f, 72f, 16f), category, style); x += 76f;
+            Label(new Rect(x, rect.y + 3f, 58f, 16f), chance, style); x += 62f;
+            Label(new Rect(x, rect.y + 3f, 64f, 16f), damage, style); x += 68f;
+            Label(new Rect(x, rect.y + 3f, 50f, 16f), poise, style); x += 54f;
+            Label(new Rect(x, rect.y + 3f, 44f, 16f), cooldown, style); x += 48f;
+            Label(new Rect(x, rect.y + 3f, 54f, 16f), dps, style); x += 58f;
+            Label(new Rect(x, rect.y + 3f, 50f, 16f), share, style); x += 54f;
+            Label(new Rect(x, rect.y + 3f, 90f, 16f), flags, style);
         }
+
+        private void DrawTargetRecommendation(BalanceScenarioResult result)
+        {
+            EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField("권장 보정 — 목표 전투시간 역산 (Phase 2)", EditorStyles.boldLabel);
+
+            if (result.Actor == null || result.Status == BalanceCheckStatus.InvalidData)
+            {
+                EditorGUILayout.LabelField("유효한 분석 결과가 필요합니다.", EditorStyles.miniLabel);
+                return;
+            }
+
+            BalanceTargetSolver.Recommendation rec = BalanceTargetSolver.Solve(result);
+
+            EditorGUILayout.LabelField(
+                $"목표 시간 {rec.TargetKillTime:F0}s 기준 (양측 모두 이 시간만큼 버티도록 역산)",
+                EditorStyles.miniLabel);
+
+            // HP 권장
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                string hpText = rec.CanSolveHealth
+                    ? $"HP  현재 {rec.CurrentHealth:F0}  →  권장 {rec.RecommendedHealth:F0}  (플레이어 DPS {result.PlayerExpectedDps:F1} × {rec.TargetKillTime:F0}s)"
+                    : "HP  플레이어 DPS가 0이라 역산 불가";
+                EditorGUILayout.LabelField(hpText, EditorStyles.miniLabel);
+
+                using (new EditorGUI.DisabledScope(!rec.CanSolveHealth || result.Actor.statData == null))
+                {
+                    if (GUILayout.Button("Apply HP", GUILayout.Width(90f)) &&
+                        ConfirmApply($"몬스터 HP를 {rec.CurrentHealth:F0} → {rec.RecommendedHealth:F0}으로 변경합니다.\n(Undo 가능)"))
+                    {
+                        if (BalanceTargetSolver.ApplyHealth(result.Actor, rec.RecommendedHealth))
+                            AnalyzeSelected();
+                    }
+                }
+            }
+
+            // 피해 배율 권장
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                string dmgText = rec.CanSolveDamage
+                    ? $"피해 배율 ×{rec.RecommendedDamageScale:F2}  (목표 적 DPS {result.PlayerHealth / rec.TargetSurvivalTime:F1} / 현재 {rec.CurrentEnemyDps:F1})"
+                    : "피해 배율  적 DPS 또는 플레이어 HP가 0이라 역산 불가";
+                EditorGUILayout.LabelField(dmgText, EditorStyles.miniLabel);
+
+                bool meaningfulScale = rec.CanSolveDamage && !Mathf.Approximately(rec.RecommendedDamageScale, 1f) && rec.RecommendedDamageScale > 0f;
+                using (new EditorGUI.DisabledScope(!meaningfulScale || result.Actor.attackData == null))
+                {
+                    if (GUILayout.Button("Apply Damage", GUILayout.Width(110f)) &&
+                        ConfirmApply($"모든 공격 HitPhase 피해에 ×{rec.RecommendedDamageScale:F2}를 곱합니다.\n(Undo 가능)"))
+                    {
+                        if (BalanceTargetSolver.ApplyDamageScale(result.Actor, rec.RecommendedDamageScale))
+                            AnalyzeSelected();
+                    }
+                }
+            }
+
+            EditorGUILayout.HelpBox(
+                "HP 권장은 처치 시간을, 피해 배율은 플레이어 생존 시간을 목표 시간에 맞춥니다. 적용 전 값과 비교 후 수동 확정하세요.",
+                MessageType.Info);
+        }
+
+        private static bool ConfirmApply(string message)
+            => EditorUtility.DisplayDialog(
+                "권장 보정 적용",
+                $"{message}\n공유 데이터 에셋이면 같은 에셋을 참조하는 다른 몬스터도 함께 변경됩니다.",
+                "적용",
+                "취소");
 
         private void AnalyzeSelected()
         {
@@ -545,7 +642,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 return;
 
             var builder = new StringBuilder();
-            builder.AppendLine("actorId,displayName,level,grade,status,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterHp,playerAttackPower,playerDps,enemyDps,basicChance,heavyChance,skillChance,strongChance,attackOpportunities,availableSkills,summary");
+            builder.AppendLine("actorId,displayName,level,grade,status,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterHp,playerAttackPower,playerDps,enemyDps,enemyPoiseDps,playerPoiseRecovery,netPoisePressure,basicChance,heavyChance,skillChance,strongChance,topAttack,topAttackShare,dangerRingMissing,attackOpportunities,unlockedSkills,lockedSkills,availableSkills,summary");
             for (int i = 0; i < _results.Count; i++)
             {
                 BalanceScenarioResult r = _results[i];
@@ -574,6 +671,12 @@ namespace UPlayGround.Tool.Editor.Balance
                 builder.Append(',');
                 builder.Append(r.EnemyExpectedDps.ToString("F2"));
                 builder.Append(',');
+                builder.Append(r.EnemyPoiseDps.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.PlayerPoiseRecoveryRate.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.NetPoisePressure.ToString("F2"));
+                builder.Append(',');
                 builder.Append(r.BasicAttackChance.ToString("F4"));
                 builder.Append(',');
                 builder.Append(r.HeavyAttackChance.ToString("F4"));
@@ -582,7 +685,17 @@ namespace UPlayGround.Tool.Editor.Balance
                 builder.Append(',');
                 builder.Append(r.StrongAttackChance.ToString("F4"));
                 builder.Append(',');
+                builder.Append(Escape(r.TopAttackName));
+                builder.Append(',');
+                builder.Append(r.TopAttackDpsShare.ToString("F4"));
+                builder.Append(',');
+                builder.Append(CountDangerRingMissing(r));
+                builder.Append(',');
                 builder.Append(r.EnemyAttackOpportunities.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.UnlockedSkillCount);
+                builder.Append(',');
+                builder.Append(r.LockedSkillCount);
                 builder.Append(',');
                 builder.Append(r.AvailableSkillCount.ToString("F0"));
                 builder.Append(',');
@@ -593,6 +706,18 @@ namespace UPlayGround.Tool.Editor.Balance
             File.WriteAllText(path, builder.ToString(), new UTF8Encoding(true));
             AssetDatabase.Refresh();
             EditorUtility.DisplayDialog("Export CSV", $"저장 완료\n{path}", "확인");
+        }
+
+        private static int CountDangerRingMissing(BalanceScenarioResult result)
+        {
+            int count = 0;
+            for (int i = 0; i < result.SkillBreakdowns.Count; i++)
+            {
+                BalanceSkillBreakdown skill = result.SkillBreakdowns[i];
+                if (skill.IsStrong && !skill.UseDangerRing)
+                    count++;
+            }
+            return count;
         }
 
         private static string Escape(string value)

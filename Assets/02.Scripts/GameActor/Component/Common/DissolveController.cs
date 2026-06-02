@@ -44,6 +44,9 @@ namespace UPlayGround.Component
         private static readonly int LilDissolveParamsID = Shader.PropertyToID("_DissolveParams");
         private static readonly int LilDissolvePosID = Shader.PropertyToID("_DissolvePos");
         private static readonly int LilDissolveColorID = Shader.PropertyToID("_DissolveColor");
+        private static readonly int LilDissolveNoiseMaskID = Shader.PropertyToID("_DissolveNoiseMask");
+        private static readonly int LilDissolveNoiseMaskScrollRotateID = Shader.PropertyToID("_DissolveNoiseMask_ScrollRotate");
+        private static readonly int LilDissolveNoiseStrengthID = Shader.PropertyToID("_DissolveNoiseStrength");
         private static readonly int TransparentModeID = Shader.PropertyToID("_TransparentMode");
         private static readonly int CutoffID = Shader.PropertyToID("_Cutoff");
         private static readonly int SrcBlendID = Shader.PropertyToID("_SrcBlend");
@@ -69,6 +72,9 @@ namespace UPlayGround.Component
         [SerializeField] private float _lilToonRangePadding = 0.05f;
         [SerializeField] private float _lilToonBlur = 0.1f;
         [SerializeField] private Color _lilToonDissolveColor = Color.white;
+        [SerializeField] private Texture _lilToonDissolveNoiseMask;
+        [SerializeField] private float _lilToonDissolveNoiseStrength = 0.1f;
+        [SerializeField] private Vector4 _lilToonDissolveNoiseScrollRotate = Vector4.zero;
         [SerializeField] private float _fallbackTransparentMode = 1f;
         [SerializeField] private float _fallbackCutoff = 0.5f;
         [SerializeField] private UnityEngine.Rendering.RenderQueue _cutoutRenderQueue = UnityEngine.Rendering.RenderQueue.AlphaTest;
@@ -79,6 +85,7 @@ namespace UPlayGround.Component
         private readonly Dictionary<Renderer, Material[]> _preparedMaterialSets = new Dictionary<Renderer, Material[]>();
         
         private float _dissolveDuration = 2f;
+        private bool _overrideLilToonDissolveNoise;
         private bool _isDissolvePrepared;
         
         private void Awake()
@@ -261,6 +268,22 @@ namespace UPlayGround.Component
             }
         }
 
+        public void SetDissolveNoise(Texture noiseMask, float strength, Vector4 scrollRotate)
+        {
+            _lilToonDissolveNoiseMask = noiseMask;
+            _lilToonDissolveNoiseStrength = Mathf.Max(0f, strength);
+            _lilToonDissolveNoiseScrollRotate = scrollRotate;
+            _overrideLilToonDissolveNoise = noiseMask != null;
+
+            foreach (var info in _runtimeMaterialInfos)
+            {
+                if (info.material == null || !info.supportsLilToonDissolve)
+                    continue;
+
+                ApplyLilToonDissolveNoise(info.material);
+            }
+        }
+
         public void CompleteDissolve(bool destroyOnComplete = true, System.Action onComplete = null)
         {
             StopAllCoroutines();
@@ -431,6 +454,7 @@ namespace UPlayGround.Component
             SetLilToonDissolve(instance, _lilToonStartRange);
             if (instance.HasProperty(LilDissolveColorID))
                 instance.SetColor(LilDissolveColorID, _lilToonDissolveColor);
+            ApplyLilToonDissolveNoise(instance);
 
             return instance;
         }
@@ -574,6 +598,21 @@ namespace UPlayGround.Component
 
             if (material.HasProperty(LilDissolvePosID))
                 material.SetVector(LilDissolvePosID, dissolvePosition);
+        }
+
+        private void ApplyLilToonDissolveNoise(Material material)
+        {
+            if (!_overrideLilToonDissolveNoise || material == null)
+                return;
+
+            if (material.HasProperty(LilDissolveNoiseMaskID))
+                material.SetTexture(LilDissolveNoiseMaskID, _lilToonDissolveNoiseMask);
+
+            if (material.HasProperty(LilDissolveNoiseStrengthID))
+                material.SetFloat(LilDissolveNoiseStrengthID, _lilToonDissolveNoiseStrength);
+
+            if (material.HasProperty(LilDissolveNoiseMaskScrollRotateID))
+                material.SetVector(LilDissolveNoiseMaskScrollRotateID, _lilToonDissolveNoiseScrollRotate);
         }
 
         private Material CreateFallbackDissolveInstance(MaterialSlotInfo slot)

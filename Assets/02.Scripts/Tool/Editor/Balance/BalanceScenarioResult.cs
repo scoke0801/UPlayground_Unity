@@ -36,12 +36,20 @@ namespace UPlayGround.Tool.Editor.Balance
     {
         public string Name;
         public float Damage;
+        public float PoiseDamage;
         public float Weight;
         public float SelectionChance;
         public float Cooldown;
         public float DpsContribution;
+        public float PoiseContribution;
+        public float DpsShare;
         public int HitPhaseCount;
         public string Category;
+        public bool IsStrong;
+        public bool UseDangerRing;
+        public bool UseTelegraph;
+        public float DangerRingDuration;
+        public string DefenseType;
     }
 
     public sealed class BalanceScenarioResult
@@ -53,15 +61,24 @@ namespace UPlayGround.Tool.Editor.Balance
         public float PlayerTimeToDeath;
         public float MonsterTimeToDeath;
         public float EnemyExpectedDps;
+        public float EnemyPoiseDps;
         public float PlayerExpectedDps;
         public float PlayerAttackPower;
+        public float PlayerHealth;
         public float MonsterHealth;
+        public float PlayerMaxPoise;
+        public float PlayerPoiseRecoveryRate;
+        public float NetPoisePressure;
         public float EnemyAttackOpportunities;
         public float AvailableSkillCount;
+        public int UnlockedSkillCount;
+        public int LockedSkillCount;
         public float BasicAttackChance;
         public float HeavyAttackChance;
         public float SkillAttackChance;
         public float StrongAttackChance;
+        public float TopAttackDpsShare;
+        public string TopAttackName;
         public string Summary;
         public readonly List<BalanceValidationMessage> Messages = new();
         public readonly List<BalanceSkillBreakdown> SkillBreakdowns = new();

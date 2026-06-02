@@ -106,11 +106,20 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (BalanceAttackAnalyzer.SumDamage(skill.baseInfo) <= 0f)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}의 총 damage가 0 이하입니다."));
 
-                if (BalanceAttackAnalyzer.IsStrongEnemyAttack(skill) && !skill.useDangerRing)
+                bool isStrong = BalanceAttackAnalyzer.IsStrongEnemyAttack(skill);
+                if (isStrong && !skill.useDangerRing)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}은 강한 공격(Heavy/Skill)인데 Danger Ring이 꺼져 있습니다."));
 
                 if (skill.useDangerRing && skill.dangerRingDuration <= 0f && BalanceAttackAnalyzer.CountHitPhases(skill.baseInfo) == 0)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}은 Danger Ring 자동 수축 시간 계산에 필요한 공격 Phase가 없습니다."));
+
+                // 넓은 범위/긴 사거리 강공격인데 바닥 텔레그래프가 없으면 경고 (Danger Ring과 별개)
+                bool wideOrLongRange = skill.maxRange >= 4f || skill.telegraphRadiusScale >= 1.5f;
+                if (isStrong && wideOrLongRange && !skill.useTelegraph)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}은 넓은 범위/긴 사거리 강공격인데 useTelegraph가 꺼져 있습니다."));
+
+                if (skill.useTelegraph && skill.useMotionEventTelegraph && skill.baseInfo.attackType == AttackType.Ranged)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Info, $"{label}은 useMotionEventTelegraph 사용 — MotionSet에 TelegraphEvent가 있는지 확인하세요."));
 
                 if (!skill.IsUnlockedForLevel(monsterLevel))
                     continue;
@@ -124,6 +133,50 @@ namespace UPlayGround.Tool.Editor.Balance
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, $"레벨 {monsterLevel}에서 해금된 공격이 없습니다."));
             else if (usableCount == 0)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"기준 거리 {assumedDistance:F1}에서 사용 가능한 공격이 없습니다."));
+        }
+
+        /// <summary>등급별 권장 범위(LEVEL_GRADE_COMBAT_BALANCE_POLICY)의 강한 공격 합산 확률 밴드.</summary>
+        private static (float low, float high) GetStrongChanceBand(MonsterActorGrade grade)
+        {
+            return grade switch
+            {
+                MonsterActorGrade.Boss => (0.40f, 0.65f),
+                MonsterActorGrade.Elite => (0.25f, 0.45f),
+                _ => (0.10f, 0.25f),
+            };
+        }
+
+        /// <summary>
+        /// 정적 추정이 끝난 뒤, 계산된 결과를 기준으로 하는 검증을 결과 메시지에 덧붙인다.
+        /// (Strong% 등급 밴드 이탈, 단일 공격 DPS 과점)
+        /// </summary>
+        public static void AppendPostAnalysisMessages(BalanceScenarioResult result)
+        {
+            if (result?.Actor == null || result.Status == BalanceCheckStatus.InvalidData)
+                return;
+
+            if (result.SkillBreakdowns.Count > 0)
+            {
+                (float low, float high) = GetStrongChanceBand(result.Actor.grade);
+                float strong = result.StrongAttackChance;
+                if (strong > high)
+                {
+                    // 상한 초과: 강한 공격을 너무 자주 던져 과하게 치명적일 수 있음 → 경고
+                    result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning,
+                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {result.Actor.grade} 권장 상한 {high * 100f:F0}%를 초과합니다."));
+                }
+                else if (strong > 0f && strong < low)
+                {
+                    // 강한 공격이 있긴 하나 하한 미만: 의도일 수 있어 정보 수준으로만 안내.
+                    // (강한 공격이 전혀 없는 순수 기본 공격 몬스터는 정상 설계이므로 경고하지 않는다.)
+                    result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Info,
+                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {result.Actor.grade} 권장 하한 {low * 100f:F0}% 미만입니다."));
+                }
+            }
+
+            if (result.TopAttackDpsShare > 0.35f && !string.IsNullOrEmpty(result.TopAttackName))
+                result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning,
+                    $"'{result.TopAttackName}' 단일 공격이 전체 적 DPS의 {result.TopAttackDpsShare * 100f:F0}%를 차지합니다 (권장 35% 이하)."));
         }
     }
 }

@@ -162,7 +162,10 @@
       "Bash(echo \"=== sample asset m_Script lines ===\")",
       "Bash(echo '--- __TRACKED_VAR__ ---')",
       "Read(//mnt/c/UsingProject/UnityProject/UPlayground/Assets/10.Datas/Actor/Enemy/StatData/**)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep -c \".cs$\")",
+      "Bash(awk '/private void GenerateSingle/,/^        }/' \"Assets/02.Scripts/Tool/Editor/Stat/StatDataGeneratorWindow.cs\")"
     ]
   }
 }

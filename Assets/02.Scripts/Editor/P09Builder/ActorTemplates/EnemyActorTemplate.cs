@@ -11,7 +11,6 @@ using UPlayGround.Component;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Stat;
 using UPlayGround.MovementController;
 
 namespace Game.Editor.P09Builder
@@ -90,9 +89,8 @@ namespace Game.Editor.P09Builder
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
         {
-            // 런타임 전투 스탯. MonsterActor는 ActorDefinitionSO.statData(ActorStatSO)를 사용한다.
-            if (config != null && config.Stats != null)
-                yield return new ActorStatDescDef();
+            // 런타임 전투 스탯(ActorStatSO)은 P09에서 생성하지 않는다.
+            // statData는 Stat Data Generator(중앙)에서 등급 템플릿으로 일괄 발급·관리한다.
 
             // Poise: createNewPoise=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewPoise)
@@ -259,48 +257,6 @@ namespace Game.Editor.P09Builder
             }
         }
 
-        private sealed class ActorStatDescDef : IDescDef
-        {
-            public Type DescType => typeof(ActorStatSO);
-            public string Suffix => "_ActorStat";
-
-            public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
-            {
-                if (so is not ActorStatSO stat) return;
-
-                stat.EditorFillMissing();
-
-                var stats = config?.Stats;
-                if (stats == null)
-                {
-                    EditorUtility.SetDirty(so);
-                    return;
-                }
-
-                var tuning = EnemyStatTuningUtility.Calculate(config);
-                var sourcePoise = stats.existingPoiseSo as PoiseSO;
-
-                float maxHealth = stats.defaultHp * tuning.HealthMultiplier;
-                float moveSpeed = tuning.MoveSpeedMultiplier;
-
-                stat.EditorSet(StatType.MaxHealth, maxHealth);
-                stat.EditorSet(StatType.AttackPower, tuning.AttackMultiplier);
-                stat.EditorSet(StatType.MoveSpeed, moveSpeed);
-
-                stat.EditorSet(
-                    StatType.MaxPoise,
-                    stats.createNewPoise || sourcePoise == null ? stats.defaultMaxPoise : sourcePoise.maxPoise);
-                stat.EditorSet(
-                    StatType.PoiseRecoveryRate,
-                    stats.createNewPoise || sourcePoise == null ? stats.defaultPoiseRecoveryRate : sourcePoise.recoveryRate);
-                stat.EditorSet(
-                    StatType.PoiseRecoveryDelay,
-                    stats.createNewPoise || sourcePoise == null ? stats.defaultPoiseRecoveryDelay : sourcePoise.recoveryDelay);
-
-                EditorUtility.SetDirty(so);
-            }
-        }
-
         private sealed class EnemyBehaviorDescDef : IDescDef
         {
             public Type DescType => typeof(EnemyBehaviorSO);
@@ -329,7 +285,7 @@ namespace Game.Editor.P09Builder
             {
                 if (so is EnemyAttackDataSO attackData && config?.Stats != null)
                 {
-                    var tuning = EnemyStatTuningUtility.Calculate(config);
+                    float attackMultiplier = EnemyStatTuningUtility.CalculateAttackMultiplier(config);
                     var skill = new EnemyAttackInfo
                     {
                         baseInfo = new AttackInfoBase
@@ -339,7 +295,7 @@ namespace Game.Editor.P09Builder
                             {
                                 new HitPhaseData
                                 {
-                                    damage = config.Stats.defaultAttackDamage * tuning.AttackMultiplier,
+                                    damage = config.Stats.defaultAttackDamage * attackMultiplier,
                                     poiseDamage = 30f,
                                     reactionType = AttackReactionType.Hit,
                                 }

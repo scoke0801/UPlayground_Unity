@@ -495,6 +495,7 @@ namespace UPlayGround.Animation.Editor
                     Meta<HealSkillEvent>("HealSkill", Combat, "회복 스킬 판정을 실행합니다.", "heal", "recovery", "힐", "회복"),
 
                     Meta<BeginParticleEvent>("Particle", VfxSfx, "파티클/VFX를 생성합니다.", "vfx", "effect", "fx", "이펙트", "파티클"),
+                    Meta<AfterimageEvent>("Afterimage", VfxSfx, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파"),
                     Meta<PlaySoundEvent>("PlaySound", VfxSfx, "오디오 클립을 재생합니다.", "audio", "sfx", "sound", "소리", "사운드"),
                     Meta<FootstepEvent>("Footstep", VfxSfx, "지형 기반 발자국 사운드를 재생합니다.", "foot", "step", "walk", "발소리", "발자국"),
                     Meta<SpawnProjectileEvent>("SpawnProjectile", VfxSfx, "투사체를 지정 위치에서 발사합니다.", "projectile", "bullet", "arrow", "shot", "투사체", "화살"),

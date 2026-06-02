@@ -8,7 +8,8 @@ namespace Game.Editor.P09Builder
     public class StatsAssignment
     {
         // ---------- Enemy ----------
-        public float defaultHp = 100f;
+        // 체력/방어 등 런타임 스탯(ActorStatSO)은 P09에서 발급하지 않는다.
+        // Stat Data Generator(중앙)가 등급 템플릿으로 일괄 관리하므로 여기엔 스탯 베이스 필드가 없다.
         public bool createNewPoise = true;
         public ScriptableObject existingPoiseSo;
         public float defaultMaxPoise = 100f;
@@ -18,11 +19,7 @@ namespace Game.Editor.P09Builder
         public MonsterActorGrade grade = MonsterActorGrade.Normal;
         public int level = 1;
         public bool applyLevelScaling = true;
-        public float healthPerLevel = 0.08f;
         public float attackPerLevel = 0.04f;
-        public bool applyArmorStatBonus = true;
-        public float armorHealthPerTier = 0.025f;
-        public float armorMoveSpeedPerTier = 0.005f;
         public bool applyWeaponAttackBonus = true;
         public float defaultAttackDamage = 10f;
         public float weaponAttackPerTier = 0.04f;
@@ -50,74 +47,34 @@ namespace Game.Editor.P09Builder
         public float wanderRadius = 5f;
     }
 
-    internal readonly struct EnemyStatTuning
-    {
-        public readonly float HealthMultiplier;
-        public readonly float MoveSpeedMultiplier;
-        public readonly float AttackMultiplier;
-
-        public EnemyStatTuning(float healthMultiplier, float moveSpeedMultiplier, float attackMultiplier)
-        {
-            HealthMultiplier = healthMultiplier;
-            MoveSpeedMultiplier = moveSpeedMultiplier;
-            AttackMultiplier = attackMultiplier;
-        }
-    }
-
+    /// <summary>
+    /// 공격 데이터(EnemyAttackDataSO) 생성 시 적용할 공격 배율을 계산한다.
+    /// 체력/이동 등 런타임 스탯 튜닝은 Stat Data Generator(중앙)로 이관됐으므로 더 이상 다루지 않는다.
+    /// </summary>
     internal static class EnemyStatTuningUtility
     {
-        public static EnemyStatTuning Calculate(CharacterBuildConfig config)
+        public static float CalculateAttackMultiplier(CharacterBuildConfig config)
         {
             var stats = config?.Stats;
             if (stats == null)
-                return new EnemyStatTuning(1f, 1f, 1f);
+                return 1f;
 
-            float health = GetGradeHealthMultiplier(stats.grade);
-            float move = 1f;
             float attack = GetGradeAttackMultiplier(stats.grade);
 
             if (stats.applyLevelScaling)
-            {
-                int levelDelta = Mathf.Max(0, stats.level - 1);
-                health *= 1f + stats.healthPerLevel * levelDelta;
-                attack *= 1f + stats.attackPerLevel * levelDelta;
-            }
-
-            if (stats.applyArmorStatBonus)
-            {
-                int armorTier = GetArmorTier(config);
-                health *= 1f + stats.armorHealthPerTier * armorTier;
-                move *= 1f + stats.armorMoveSpeedPerTier * armorTier;
-            }
+                attack *= 1f + stats.attackPerLevel * Mathf.Max(0, stats.level - 1);
 
             if (stats.applyWeaponAttackBonus)
-            {
-                int weaponTier = GetWeaponTier(config);
-                attack *= 1f + stats.weaponAttackPerTier * weaponTier;
-            }
+                attack *= 1f + stats.weaponAttackPerTier * GetWeaponTier(config);
 
             if (stats.randomizeStatsOnBuild)
             {
                 float min = Mathf.Min(stats.randomStatMin, stats.randomStatMax);
                 float max = Mathf.Max(stats.randomStatMin, stats.randomStatMax);
-                health *= UnityEngine.Random.Range(min, max);
-                move *= UnityEngine.Random.Range(min, max);
                 attack *= UnityEngine.Random.Range(min, max);
             }
 
-            return new EnemyStatTuning(
-                Mathf.Max(0.01f, health),
-                Mathf.Max(0.01f, move),
-                Mathf.Max(0.01f, attack));
-        }
-
-        public static int GetArmorTier(CharacterBuildConfig config)
-        {
-            if (config?.ArmorSelections == null) return 0;
-            int presetIndex = ArmorIndexPresetUtility.GetCurrentPresetIndex(config.ArmorSelections);
-            if (presetIndex < 0)
-                presetIndex = config.ArmorSelections.TryGetArmorIndex(BuilderArmorSlot.Chest);
-            return Mathf.Clamp(presetIndex, 0, 30);
+            return Mathf.Max(0.01f, attack);
         }
 
         public static int GetWeaponTier(CharacterBuildConfig config)
@@ -144,17 +101,6 @@ namespace Game.Editor.P09Builder
             return ArmorIndexPresetUtility.TryGetIndex(so, out int index)
                 ? index
                 : 0;
-        }
-
-        private static float GetGradeHealthMultiplier(MonsterActorGrade grade)
-        {
-            return grade switch
-            {
-                MonsterActorGrade.Weak => 0.75f,
-                MonsterActorGrade.Elite => 1.6f,
-                MonsterActorGrade.Boss => 5.0f,
-                _ => 1f,
-            };
         }
 
         private static float GetGradeAttackMultiplier(MonsterActorGrade grade)

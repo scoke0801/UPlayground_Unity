@@ -8,6 +8,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Tool.Editor.Stat
@@ -28,6 +29,8 @@ namespace UPlayGround.Tool.Editor.Stat
         private string _savePath = DefaultSavePath;
         private Vector2 _migrationScroll;
         private bool _allSelected;
+        // 재마이그레이션으로 교체된 기존 statData 에셋을 (다른 정의가 참조하지 않으면) 삭제할지 여부
+        private bool _deleteReplacedStats = true;
 
         // ── 템플릿 상태 ───────────────────────────────────────────
         private TemplateKind _templateKind = TemplateKind.NormalMonster;
@@ -259,6 +262,7 @@ namespace UPlayGround.Tool.Editor.Stat
             EditorGUILayout.BeginHorizontal();
 
             int selectedCount = _migrationRows.FindAll(r => r.Selected).Count;
+            int selectedExisting = _migrationRows.FindAll(r => r.Selected && r.ExistingStat != null).Count;
             using (new EditorGUI.DisabledScope(selectedCount == 0))
             {
                 if (GUILayout.Button($"선택 항목 일괄 생성 ({selectedCount}개)", GUILayout.Height(28)))
@@ -273,10 +277,43 @@ namespace UPlayGround.Tool.Editor.Stat
 
             EditorGUILayout.EndHorizontal();
 
+            // 이미 등록된 statData까지 등급 템플릿으로 재발급(덮어쓰기)한다.
+            EditorGUILayout.BeginHorizontal();
+            using (new EditorGUI.DisabledScope(selectedExisting == 0))
+            {
+                var prevColor = GUI.backgroundColor;
+                GUI.backgroundColor = ColorMissing;
+                if (GUILayout.Button($"선택 항목 재마이그레이션 (기존 {selectedExisting}개 덮어쓰기)", GUILayout.Height(24)))
+                {
+                    string deleteNote = _deleteReplacedStats
+                        ? "교체된 기존 에셋은 다른 정의가 참조하지 않으면 삭제됩니다.\n"
+                        : "기존 에셋은 참조만 끊긴 채 남습니다.\n";
+                    bool ok = EditorUtility.DisplayDialog(
+                        "재마이그레이션",
+                        $"이미 등록된 statData {selectedExisting}개를 등급 템플릿 기준으로 다시 발급해 덮어씁니다.\n" +
+                        "수동으로 조정한 스탯 값이 있다면 초기화됩니다.\n" +
+                        "(새 ActorStatSO를 중앙 저장 경로에 생성해 재연결합니다.)\n" +
+                        deleteNote +
+                        "\n계속할까요?",
+                        "재마이그레이션", "취소");
+                    if (ok)
+                    {
+                        GenerateSelected(forceRegenerate: true);
+                        GUIUtility.ExitGUI();
+                    }
+                }
+                GUI.backgroundColor = prevColor;
+            }
+            _deleteReplacedStats = GUILayout.Toggle(
+                _deleteReplacedStats, "교체된 기존 에셋 삭제", GUILayout.Width(150));
+            EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.HelpBox(
                 "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
                 "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.\n" +
-                "몬스터의 breakGaugeData가 비어 있으면 BreakGaugeSO를 생성해 연결합니다.",
+                "몬스터의 breakGaugeData가 비어 있으면 BreakGaugeSO를 생성해 연결합니다.\n" +
+                "'재마이그레이션'은 이미 등록된 statData도 현재 등급 템플릿으로 다시 발급해 덮어씁니다. ('누락 항목만' 토글을 꺼야 기존 항목이 보입니다.)\n" +
+                "'교체된 기존 에셋 삭제'가 켜져 있으면, 더 이상 어떤 정의도 참조하지 않게 된 기존 statData 에셋을 자동 정리합니다(공유 에셋은 보존).",
                 MessageType.Info);
         }
 
@@ -329,6 +366,8 @@ namespace UPlayGround.Tool.Editor.Stat
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+            // 교체 에셋 삭제는 확인 다이얼로그가 있는 bulk 재마이그레이션(GenerateSelected)에서만 수행한다.
+            // 단일 행 "재생성"은 비파괴 동작을 유지(무확인 삭제 방지).
             Debug.Log(string.IsNullOrEmpty(assetPath) && !string.IsNullOrEmpty(breakGaugePath)
                 ? $"[StatDataGenerator] 보정 완료: {breakGaugePath} → {row.Definition.name}.breakGaugeData"
                 : string.IsNullOrEmpty(breakGaugePath)
@@ -339,25 +378,40 @@ namespace UPlayGround.Tool.Editor.Stat
             RefreshMigrationRows();
         }
 
-        private void GenerateSelected()
+        private void GenerateSelected(bool forceRegenerate = false)
         {
             EnsureFolder(_savePath);
             EnsureFolder(BreakGaugeSavePath);
-            int count = 0;
+            int created = 0;
+            int regenerated = 0;
             int breakCount = 0;
+            var replacedPaths = new List<string>();
             foreach (var row in _migrationRows)
             {
                 if (!row.Selected) continue;
                 ActorStatSO so = row.Definition.statData;
 
                 var sObj = new SerializedObject(row.Definition);
-                if (so == null)
+                // statData가 없으면 신규 생성, forceRegenerate면 이미 등록된 것도 등급 템플릿으로 재발급한다.
+                if (so == null || forceRegenerate)
                 {
+                    ActorStatSO previous = so;
                     so = BuildFromDefinition(row);
                     string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{row.PlannedAssetName}.asset");
                     AssetDatabase.CreateAsset(so, assetPath);
                     sObj.FindProperty("statData").objectReferenceValue = so;
-                    count++;
+                    if (previous != null)
+                    {
+                        // 교체된 기존 에셋 경로를 모아 두었다가 일괄 정리한다.
+                        string prevPath = AssetDatabase.GetAssetPath(previous);
+                        if (!string.IsNullOrEmpty(prevPath))
+                            replacedPaths.Add(prevPath);
+                        regenerated++;
+                    }
+                    else
+                    {
+                        created++;
+                    }
                 }
 
                 string breakGaugePath = GenerateMissingBreakGauge(row.Definition, so);
@@ -368,9 +422,78 @@ namespace UPlayGround.Tool.Editor.Stat
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] ActorStatSO {count}개 / BreakGaugeSO {breakCount}개 생성 완료");
+
+            int deleted = _deleteReplacedStats ? CleanupUnreferencedStats(replacedPaths) : 0;
+
+            Debug.Log($"[StatDataGenerator] ActorStatSO 신규 {created}개 / 재마이그레이션 {regenerated}개 / 기존 에셋 정리 {deleted}개 / BreakGaugeSO {breakCount}개 완료");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
+        }
+
+        /// <summary>
+        /// 교체로 더 이상 어떤 에셋도 직렬화 참조하지 않게 된 ActorStatSO 에셋을 삭제한다.
+        /// 다른 에셋(정의/스케일링/성장)이 여전히 참조 중인 공유 에셋은 보존한다.
+        /// </summary>
+        private static int CleanupUnreferencedStats(List<string> candidatePaths)
+        {
+            if (candidatePaths == null || candidatePaths.Count == 0)
+                return 0;
+
+            var referencedGuids = CollectReferencedStatGuids();
+            int deleted = 0;
+            var seen = new HashSet<string>();
+            foreach (var path in candidatePaths)
+            {
+                if (string.IsNullOrEmpty(path) || !seen.Add(path))
+                    continue;
+
+                string guid = AssetDatabase.AssetPathToGUID(path);
+                if (string.IsNullOrEmpty(guid) || referencedGuids.Contains(guid))
+                    continue; // 다른 정의가 여전히 참조 → 공유 에셋이므로 보존
+
+                if (AssetDatabase.DeleteAsset(path))
+                {
+                    deleted++;
+                    Debug.Log($"[StatDataGenerator] 미참조 기존 statData 삭제: {path}");
+                }
+            }
+
+            if (deleted > 0)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+            return deleted;
+        }
+
+        /// <summary>
+        /// ActorStatSO를 직렬화 참조하는 모든 에셋(ActorDefinitionSO.statData,
+        /// MonsterScalingSO.baseStat, PartyMemberGrowthSO.baseStat)이 현재 가리키는 GUID 집합.
+        /// 새로운 ActorStatSO 참조 타입을 추가하면 여기도 함께 갱신할 것.
+        /// </summary>
+        private static HashSet<string> CollectReferencedStatGuids()
+        {
+            var set = new HashSet<string>();
+
+            void Add(ActorStatSO stat)
+            {
+                if (stat == null) return;
+                string path = AssetDatabase.GetAssetPath(stat);
+                if (string.IsNullOrEmpty(path)) return;
+                string guid = AssetDatabase.AssetPathToGUID(path);
+                if (!string.IsNullOrEmpty(guid)) set.Add(guid);
+            }
+
+            foreach (var guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+                Add(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid))?.statData);
+
+            foreach (var guid in AssetDatabase.FindAssets("t:MonsterScalingSO"))
+                Add(AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(AssetDatabase.GUIDToAssetPath(guid))?.baseStat);
+
+            foreach (var guid in AssetDatabase.FindAssets("t:PartyMemberGrowthSO"))
+                Add(AssetDatabase.LoadAssetAtPath<PartyMemberGrowthSO>(AssetDatabase.GUIDToAssetPath(guid))?.baseStat);
+
+            return set;
         }
 
         private void GenerateAllMissing()
@@ -479,6 +602,11 @@ namespace UPlayGround.Tool.Editor.Stat
 
         private static ActorStatSO BuildFromDefinition(MigrationRow row)
         {
+            // 등급은 definition.grade를 권위로 삼지만, 과거에 빌드된 정의는 grade가 기록되지 않아
+            // 기본값(Normal)으로 남아있다. 프리팹의 MonsterActor에 빌드 시점 등급이 보존돼 있으므로
+            // 템플릿 적용 전에 프리팹 → 정의로 등급/레벨을 백필해 재마이그레이션 정확도를 보장한다.
+            BackfillGradeLevelFromPrefab(row.Definition);
+
             var so = ScriptableObject.CreateInstance<ActorStatSO>();
             so.EditorFillMissing();
 
@@ -494,6 +622,38 @@ namespace UPlayGround.Tool.Editor.Stat
             }
 
             return so;
+        }
+
+        /// <summary>
+        /// 정의의 grade/level이 기본값으로 남아있더라도, 연결된 프리팹의 MonsterActor가
+        /// 빌드 시점 등급/레벨을 보존하고 있으면 그 값을 정의로 백필한다.
+        /// (프리팹이 없거나 MonsterActor가 아니면 아무것도 하지 않는다.)
+        /// </summary>
+        private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO def)
+        {
+            if (def == null || def.prefab == null)
+                return;
+
+            var actor = def.prefab.GetComponent<MonsterActor>();
+            if (actor == null)
+                return;
+
+            bool changed = false;
+            if (def.grade != actor.Grade)
+            {
+                def.grade = actor.Grade;
+                changed = true;
+            }
+
+            int level = Mathf.Max(1, actor.Level);
+            if (def.level != level)
+            {
+                def.level = level;
+                changed = true;
+            }
+
+            if (changed)
+                EditorUtility.SetDirty(def);
         }
 
         private static string GenerateMissingBreakGauge(ActorDefinitionSO def, ActorStatSO stat)

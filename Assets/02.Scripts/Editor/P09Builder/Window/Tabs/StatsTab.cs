@@ -35,41 +35,33 @@ namespace Game.Editor.P09Builder
         {
             EditorGUILayout.LabelField("Enemy Stats", EditorStyles.boldLabel);
 
-            config.Stats.defaultHp = EditorGUILayout.FloatField("체력", config.Stats.defaultHp);
-            config.Stats.grade     = (MonsterActorGrade)EditorGUILayout.EnumPopup("등급", config.Stats.grade);
-            config.Stats.level     = Mathf.Max(1, EditorGUILayout.IntField("레벨", config.Stats.level));
+            EditorGUILayout.HelpBox(
+                "체력/방어/이동 등 런타임 스탯(ActorStatSO)은 여기서 발급하지 않습니다.\n" +
+                "등급을 기준으로 'Stat Data Generator'(UPlayGround/Stat/Stat Data Generator)의 마이그레이션 탭에서 중앙 일괄 관리됩니다.\n" +
+                "아래 등급/레벨/공격 설정은 정의(ActorDefinitionSO)와 공격 데이터 생성에만 사용됩니다.",
+                MessageType.Info);
+            EditorGUILayout.Space(4);
+
+            config.Stats.grade = (MonsterActorGrade)EditorGUILayout.EnumPopup("등급", config.Stats.grade);
+            config.Stats.level = Mathf.Max(1, EditorGUILayout.IntField("레벨", config.Stats.level));
 
             EditorGUILayout.Space(4);
-            config.Stats.applyLevelScaling = EditorGUILayout.Toggle("레벨 스케일링", config.Stats.applyLevelScaling);
+            config.Stats.applyLevelScaling = EditorGUILayout.Toggle("공격 레벨 스케일링", config.Stats.applyLevelScaling);
             if (config.Stats.applyLevelScaling)
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    config.Stats.healthPerLevel = EditorGUILayout.FloatField("레벨당 체력 증가율", config.Stats.healthPerLevel);
                     config.Stats.attackPerLevel = EditorGUILayout.FloatField("레벨당 공격 증가율", config.Stats.attackPerLevel);
                 }
             }
 
-            config.Stats.applyArmorStatBonus = EditorGUILayout.Toggle("갑옷 프리셋 스탯 강화", config.Stats.applyArmorStatBonus);
-            if (config.Stats.applyArmorStatBonus)
-            {
-                using (new EditorGUI.IndentLevelScope())
-                {
-                    config.Stats.armorHealthPerTier = EditorGUILayout.FloatField("갑옷 티어당 체력 증가율", config.Stats.armorHealthPerTier);
-                    config.Stats.armorMoveSpeedPerTier = EditorGUILayout.FloatField("갑옷 티어당 이동 증가율", config.Stats.armorMoveSpeedPerTier);
-                }
-            }
-
-            config.Stats.randomizeStatsOnBuild = EditorGUILayout.Toggle("빌드 시 스탯 랜덤 발급", config.Stats.randomizeStatsOnBuild);
+            config.Stats.randomizeStatsOnBuild = EditorGUILayout.Toggle("빌드 시 공격 랜덤 발급", config.Stats.randomizeStatsOnBuild);
             using (new EditorGUI.DisabledScope(!config.Stats.randomizeStatsOnBuild))
             using (new EditorGUI.IndentLevelScope())
             {
                 config.Stats.randomStatMin = EditorGUILayout.FloatField("랜덤 최소 배율", config.Stats.randomStatMin);
                 config.Stats.randomStatMax = EditorGUILayout.FloatField("랜덤 최대 배율", config.Stats.randomStatMax);
             }
-
-            if (GUILayout.Button("현재 스탯 랜덤 발급"))
-                RandomizeEnemyStats(config);
 
             EditorGUILayout.Space();
 
@@ -145,17 +137,6 @@ namespace Game.Editor.P09Builder
                         "합류 캐릭터", config.Stats.recruitableAs);
                 }
             }
-        }
-
-        private static void RandomizeEnemyStats(CharacterBuildConfig config)
-        {
-            if (config?.Stats == null) return;
-
-            config.Stats.level = UnityEngine.Random.Range(1, 31);
-            config.Stats.defaultHp = Mathf.Round(UnityEngine.Random.Range(80f, 220f));
-            config.Stats.defaultAttackDamage = Mathf.Round(UnityEngine.Random.Range(8f, 28f));
-            config.Stats.grade = (MonsterActorGrade)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(MonsterActorGrade)).Length);
-            GUI.changed = true;
         }
 
         // ---------- Player ----------

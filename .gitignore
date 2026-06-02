@@ -489,6 +489,10 @@ $RECYCLE.BIN/
 **/Logs
 **/UserSettings
 **/build
+# P09Builder 등 소스 코드의 'Build/' 폴더는 빌드 산출물이 아니므로 추적 대상으로 되돌린다.
+# (**/build 규칙이 Windows 대소문자 무시 매칭으로 코드 폴더 'Build'까지 무시하는 문제 보정)
+!Assets/02.Scripts/**/Build/
+!Assets/02.Scripts/**/Build/**
 **/obj
 **/Temp
 *.vsconfig

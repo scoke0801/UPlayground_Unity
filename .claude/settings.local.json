@@ -165,7 +165,12 @@
       "Bash(python *)",
       "Bash(echo \"exit=$?\")",
       "Bash(grep -c \".cs$\")",
-      "Bash(awk '/private void GenerateSingle/,/^        }/' \"Assets/02.Scripts/Tool/Editor/Stat/StatDataGeneratorWindow.cs\")"
+      "Bash(awk '/private void GenerateSingle/,/^        }/' \"Assets/02.Scripts/Tool/Editor/Stat/StatDataGeneratorWindow.cs\")",
+      "WebFetch(domain:lilxyzw.github.io)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(grep -m1 m_Shader: __TRACKED_VAR__.mat)",
+      "Bash(grep -E '_TransparentMode:|_Cutoff:|_DissolveParams:|RenderType|_DissolveMode' __TRACKED_VAR__.mat)",
+      "Bash(grep -rhoP \"statData:\\\\s*\\\\{fileID:\\\\s*\\\\d+,\\\\s*guid:\\\\s*[a-f0-9]+\" Assets --include=\"*.asset\")"
     ]
   }
 }

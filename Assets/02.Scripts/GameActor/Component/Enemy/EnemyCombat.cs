@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
@@ -97,6 +98,8 @@ namespace UPlayGround.Component
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
+        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
+        private readonly List<CombatHit> _detectedMeleeHits = new List<CombatHit>(32);
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
         private float _lastTelegraphStartTime = -999f;
         private float _lastTelegraphDuration;
@@ -109,6 +112,7 @@ namespace UPlayGround.Component
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
         private MotionWarpController _motionWarp;
+        private CombatActionRunner _actionRunner;
 
         public float WarpRemainingTime => _motionWarp != null ? _motionWarp.WarpRemainingTime : 0f;
         public float WarpDuration      => _motionWarp != null ? _motionWarp.WarpDuration : 0f;
@@ -142,6 +146,7 @@ namespace UPlayGround.Component
             _motionWarp = GetComponent<MotionWarpController>();
             if (_motionWarp == null)
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
+            _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
         }
 
         /// <summary> MonsterActor.SetDefinition() 등에서 공격 데이터를 주입할 때 사용. </summary>
@@ -195,10 +200,18 @@ namespace UPlayGround.Component
         }
 
         /// <summary> MotionEvent_MotionWarp.Execute()에서 호출. warpDuration = endTime - startTime. </summary>
-        public void BeginMotionWarp(float warpDuration) => _motionWarp?.BeginMotionWarp(warpDuration);
+        public void BeginMotionWarp(float warpDuration)
+        {
+            _motionWarp?.BeginMotionWarp(warpDuration);
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpStarted, _currentHitPhaseIndex);
+        }
 
         /// <summary> MotionEvent_MotionWarp.OnCompleteEvent()에서 호출. </summary>
-        public void EndMotionWarp() => _motionWarp?.EndMotionWarp();
+        public void EndMotionWarp()
+        {
+            _motionWarp?.EndMotionWarp();
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentHitPhaseIndex);
+        }
 
         private SkillConditionContext CreateContext(float distanceToTarget)
         {
@@ -395,22 +408,18 @@ namespace UPlayGround.Component
                 + _attackOrigin.right   * phase.attackOffset.x
                 + _attackOrigin.up      * phase.attackOffset.y;
 
-            Collider[] hitColliders = Physics.OverlapSphere(attackPosition, phase.attackRadius, _targetLayer);
+            var hitShape = new MeleeHitShape(
+                transform,
+                attackPosition,
+                _attackOrigin.forward,
+                phase.attackRadius,
+                halfAngle: 0f,
+                phase.hitHeightRange,
+                _targetLayer);
+            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedMeleeHits);
 
-            foreach (var hitCollider in hitColliders)
+            foreach (CombatHit hit in _detectedMeleeHits)
             {
-                IDamageable damageable = hitCollider.GetComponent<IDamageable>()
-                                      ?? hitCollider.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage()) continue;
-                if (_hitTargets.Contains(damageable)) continue;
-
-                if (phase.hitHeightRange > 0f)
-                {
-                    float closestY   = hitCollider.ClosestPoint(attackPosition).y;
-                    float heightDiff = Mathf.Abs(closestY - attackPosition.y);
-                    if (heightDiff > phase.hitHeightRange) continue;
-                }
-
                 var attackData = new AttackData
                 {
                     damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
@@ -420,7 +429,7 @@ namespace UPlayGround.Component
                     forceReaction      = phase.forceReaction,
                     forceBreakExpose   = phase.forceBreakExpose,
                     criticalMultiplier = 1.0f,
-                    hitPoint           = hitCollider.ClosestPoint(attackPosition),
+                    hitPoint           = hit.HitPoint,
                     attackDirection    = _attackOrigin.forward,
                     reactionType       = phase.reactionType,
                     hitParticleName    = phase.hitParticleName,
@@ -436,8 +445,8 @@ namespace UPlayGround.Component
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                 };
 
-                _hitTargets.Add(damageable);
-                damageable.TakeDamage(attackData);
+                _hitTargets.Add(hit.Damageable);
+                hit.Damageable.TakeDamage(attackData);
             }
         }
 
@@ -450,6 +459,17 @@ namespace UPlayGround.Component
             _lastTelegraphHitPhaseIndex = 0;
             _lastCollisionStartTime = -999f;
             ClearTelegraphHitPositions();
+
+            if (skill?.baseInfo != null)
+            {
+                _actionRunner?.StartLegacyAction(new AttackData
+                {
+                    attacker = _ownerActor,
+                    animKey = skill.baseInfo.animKey,
+                    hitPhaseIndex = _currentHitPhaseIndex,
+                    defenseType = skill.defenseType,
+                });
+            }
         }
 
         public void ClearHitTargets()     => _hitTargets.Clear();
@@ -614,6 +634,9 @@ namespace UPlayGround.Component
         public void SetEnableCollision(bool isCollisionEnable)
         {
             _isCollisionEnabled = isCollisionEnable;
+            _actionRunner?.HandleTimelineEvent(
+                isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
+                _currentHitPhaseIndex);
 
             // 충돌 판정이 켜지는 순간 = 실제 타격 순간. Danger Ring 수축을 최소 크기로 완료/해제한다.
             if (isCollisionEnable)
@@ -635,8 +658,11 @@ namespace UPlayGround.Component
         public void SetTargetLayer(LayerMask targetLayer) =>
             _targetLayer = targetLayer;
 
-        public void SetHitPhaseIndex(int index) =>
+        public void SetHitPhaseIndex(int index)
+        {
             _currentHitPhaseIndex = index;
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
+        }
 
         public Vector3 GetCurrentAttackPosition()
         {

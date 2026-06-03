@@ -97,7 +97,6 @@ namespace UPlayGround.Manager
             {
                 _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
                 _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-                _lockOn.SetCollisionTelemetryProvider(GetCameraCollisionTelemetry);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
                 _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
@@ -174,7 +173,6 @@ namespace UPlayGround.Manager
             {
                 _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
                 _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-                _lockOn.SetCollisionTelemetryProvider(GetCameraCollisionTelemetry);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
                 _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
@@ -599,8 +597,6 @@ namespace UPlayGround.Manager
             _cameraContext.IsAligning = _isAligning;
             _cameraContext.AlignTimer = _alignTimer;
             _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
-            _cameraContext.IsCameraColliding = _collision?.IsColliding ?? false;
-            _cameraContext.CollisionSustainedSec = _collision?.CollisionSustainedSec ?? 0f;
         }
 
         private void SyncRigStateFromFields()
@@ -644,11 +640,6 @@ namespace UPlayGround.Manager
                 CacheMovementController();
 
             return _targetMovement?.Motor != null ? _targetMovement.Motor.Velocity : Vector3.zero;
-        }
-
-        private (bool isColliding, float sustainedSec) GetCameraCollisionTelemetry()
-        {
-            return (_collision?.IsColliding ?? false, _collision?.CollisionSustainedSec ?? 0f);
         }
 
         private void ApplyCameraPose(CameraRigPose pose)

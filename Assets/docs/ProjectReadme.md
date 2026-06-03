@@ -138,13 +138,14 @@ GameActorState (추상)
 
 | 컴포넌트 | 대상 | 역할 |
 |----------|------|------|
-| `PlayerCombat` | 플레이어 | 공격, 패리, 데미지 처리 |
+| `PlayerCombat` | 플레이어 | 공격 데이터 선택, 콤보, 근접 판정 연동 |
+| `PlayerCombatStateTracker` | 플레이어 | 전투 상태 유지 시간, 위협 탐색, 상태 변화 이벤트 |
 | `PlayerEquipment` | 플레이어 | 무기 장착 / 교체 |
 | `PlayerSkillGauge` | 플레이어 | 스킬 게이지 관리 |
 | `PlayerSwapBehaviour` | 플레이어 | 단일 PlayerActor 하위 모델 교체, 캐릭터별 갱신 |
 | `CharacterModelData` | 플레이어 | 모델 서브루트와 CharacterActorType 연결 |
 | `FootIKController` | 플레이어 | 발 IK |
-| `EnemyCombat` | 몬스터 | 공격 로직, 가드 |
+| `EnemyCombat` | 몬스터 | 스킬 선택, 쿨다운, 타겟 캐시, 근접 판정 연동 |
 | `EnemyAIController` | 지상 몬스터 | AI 의사결정, 페이즈 전환 |
 | `EnemyFlyingAIController` | 비행 몬스터 | 비행 AI |
 | `EnemyDetection` | 몬스터 | 시야 / 거리 감지 |
@@ -153,6 +154,8 @@ GameActorState (추상)
 | `ActorColorChanger` | 공통 | 피격 플래시 |
 | `DissolveController` | 공통 | 사망 디졸브 |
 | `NpcBrain` | NPC | NPC AI |
+
+전투 계산/판정 공통 모듈은 `Assets/02.Scripts/GameActor/Combat/` 아래에 분리되어 있다. `DamageResolver`, `DefenseResolver`, `ReactionResolver`, `CombatHitDetector`, `CombatFeedbackDispatcher`, `CombatActionRunner`가 플레이어/몬스터 공통 경로로 사용된다.
 
 ---
 
@@ -326,6 +329,9 @@ Assets/
 | [MAP_PLACEMENT_TOOL_GUIDE.md](MAP_PLACEMENT_TOOL_GUIDE.md) | 맵 배치 툴 — 씬 클릭 기반 적·NPC·포탈 프리팹 배치 |
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [MOTION_EVENT_ROLE_GUIDE.md](MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
+| [COMBAT_SYSTEM_GUIDE.md](guide/COMBAT_SYSTEM_GUIDE.md) | 전투 시스템 — PlayerCombat/EnemyCombat, 공격 데이터, 판정, 피해 적용, 가드·패리·Poise·Break 흐름 |
+| [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](TODO/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
+| [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](TODO/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |
 | [ENEMY_LOCOMOTION_GUIDE.md](ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
@@ -378,6 +384,7 @@ Assets/
 | `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
 | `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
 | `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
+| `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | PlayerAttackDataSO/EnemyAttackDataSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
 
 ---
 

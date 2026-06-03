@@ -20,7 +20,7 @@ namespace UPlayGround.Tool.Editor.Stat
     public class StatDataGeneratorWindow : EditorWindow
     {
         // ── 탭 ──────────────────────────────────────────────────────
-        private enum Tab { Migration, PlayerCharacter, Template }
+        private enum Tab { Migration, PlayerCharacter, Template, Regenerate }
         private Tab _currentTab = Tab.Migration;
 
         // ── 마이그레이션 상태 ─────────────────────────────────────
@@ -34,9 +34,19 @@ namespace UPlayGround.Tool.Editor.Stat
 
         // ── 템플릿 상태 ───────────────────────────────────────────
         private TemplateKind _templateKind = TemplateKind.NormalMonster;
-        private string _templateName = "ActorStat_New";
-        private int _templateCount = 1;
-        private string _templateSavePath = DefaultSavePath;
+        private string _templateName = "StatTemplate_Normal";
+        private string _templateSavePath = TemplateSavePath;
+        private StatTemplateSO _templateToEdit;
+
+        // ── 재생성 상태 ───────────────────────────────────────────
+        private StatTemplateSO _regenTemplate;
+        private bool _regenOverwrite = true;
+        private bool _regenFillDefaults = true;
+        private bool _regenCreateMissing = true;
+        private string _regenFilter = string.Empty;
+        private readonly List<RegenRow> _regenRows = new();
+        private Vector2 _regenScroll;
+        private bool _regenAllSelected;
 
         // ── 플레이어 캐릭터 상태 ──────────────────────────────────
         private readonly Dictionary<CharacterActorType, bool> _playerSelected = new();
@@ -57,6 +67,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private const string DefaultSavePath = "Assets/10.Datas/Stat/Generated";
         private const string PlayerSavePath  = "Assets/10.Datas/Stat/Player";
         private const string BreakGaugeSavePath = "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated";
+        private const string TemplateSavePath = "Assets/10.Datas/Stat/Template";
         private const float ColCheck = 22f;
         private const float ColName  = 200f;
         private const float ColPoise = 90f;
@@ -79,6 +90,7 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             RefreshMigrationRows();
             RefreshPlayerExisting();
+            RefreshRegenRows();
         }
 
         private void OnGUI()
@@ -89,6 +101,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 case Tab.Migration:       DrawMigrationTab();       break;
                 case Tab.PlayerCharacter: DrawPlayerCharacterTab(); break;
                 case Tab.Template:        DrawTemplateTab();        break;
+                case Tab.Regenerate:      DrawRegenerateTab();      break;
             }
         }
 
@@ -99,6 +112,7 @@ namespace UPlayGround.Tool.Editor.Stat
             DrawTabButton("Definition 마이그레이션", Tab.Migration);
             DrawTabButton("Player 기본 스탯", Tab.PlayerCharacter);
             DrawTabButton("템플릿 생성", Tab.Template);
+            DrawTabButton("스탯 재생성", Tab.Regenerate);
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
         }
@@ -1167,42 +1181,74 @@ namespace UPlayGround.Tool.Editor.Stat
         private void DrawTemplateTab()
         {
             EditorGUILayout.Space(8);
-            EditorGUILayout.LabelField("템플릿 기반 ActorStatSO 일괄 생성", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("재사용 가능한 StatTemplateSO 생성/편집", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "여기서 만든 StatTemplateSO는 '스탯 재생성' 탭에서 선택해 여러 액터의 statData에 일괄 적용할 수 있습니다.\n" +
+                "세부 값은 생성 후 Inspector에서 자유롭게 편집하세요. (템플릿에 없는 StatType은 재생성 시 건드리지 않습니다.)",
+                MessageType.Info);
             EditorGUILayout.Space(6);
 
-            EditorGUILayout.BeginVertical("helpbox");
-            _templateKind  = (TemplateKind)EditorGUILayout.EnumPopup("템플릿 종류", _templateKind);
-            _templateName  = EditorGUILayout.TextField("자산 이름 (접두)", _templateName);
-            _templateCount = Mathf.Max(1, EditorGUILayout.IntField("생성 개수", _templateCount));
-
             EditorGUILayout.BeginHorizontal();
-            _templateSavePath = EditorGUILayout.TextField("저장 경로", _templateSavePath);
+            GUILayout.Label("저장 경로", GUILayout.Width(60));
+            _templateSavePath = EditorGUILayout.TextField(_templateSavePath);
             if (GUILayout.Button("...", GUILayout.Width(28)))
                 BrowseSavePath(ref _templateSavePath);
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.Space(8);
+
+            // ── 프리셋 기반 단일 생성 ──
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("프리셋에서 템플릿 생성", EditorStyles.boldLabel);
+            _templateKind = (TemplateKind)EditorGUILayout.EnumPopup("프리셋 종류", _templateKind);
+            _templateName = EditorGUILayout.TextField("자산 이름", _templateName);
+
+            DrawTemplateKindPreview(_templateKind);
+
+            if (GUILayout.Button("이 프리셋으로 템플릿 생성", GUILayout.Height(28)))
+            {
+                var created = CreateTemplateAsset(_templateKind, _templateName, _templateSavePath);
+                if (created != null)
+                {
+                    _templateToEdit = created;
+                    Selection.activeObject = created;
+                    EditorGUIUtility.PingObject(created);
+                }
+            }
             EditorGUILayout.EndVertical();
 
-            EditorGUILayout.Space(8);
+            EditorGUILayout.Space(6);
 
-            DrawTemplatePreview();
+            if (GUILayout.Button("기본 프리셋 템플릿 5종 일괄 생성 (Weak/Normal/Elite/Boss/Player)", GUILayout.Height(24)))
+                CreateDefaultPresetTemplates(_templateSavePath);
 
-            EditorGUILayout.Space(8);
-            if (GUILayout.Button($"{_templateCount}개 생성", GUILayout.Height(32)))
-                GenerateFromTemplate();
+            EditorGUILayout.Space(10);
+
+            // ── 기존 템플릿 편집 진입 ──
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("기존 템플릿 편집", EditorStyles.boldLabel);
+            _templateToEdit = (StatTemplateSO)EditorGUILayout.ObjectField("템플릿", _templateToEdit, typeof(StatTemplateSO), false);
+            using (new EditorGUI.DisabledScope(_templateToEdit == null))
+            {
+                if (GUILayout.Button("Inspector에서 열기"))
+                {
+                    Selection.activeObject = _templateToEdit;
+                    EditorGUIUtility.PingObject(_templateToEdit);
+                }
+            }
+            EditorGUILayout.EndVertical();
         }
 
-        private void DrawTemplatePreview()
+        private void DrawTemplateKindPreview(TemplateKind kind)
         {
-            EditorGUILayout.LabelField("미리보기 (스탯 값)", EditorStyles.boldLabel);
             var preview = ScriptableObject.CreateInstance<ActorStatSO>();
-            ApplyTemplate(preview, _templateKind);
+            ApplyTemplate(preview, kind);
 
-            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("미리보기", EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginVertical("box");
             foreach (StatType type in System.Enum.GetValues(typeof(StatType)))
             {
-                bool isExplicit = preview.TryGetExplicit(type, out float value);
-                if (!isExplicit) continue;
+                if (!preview.TryGetExplicit(type, out float value)) continue;
                 EditorGUILayout.LabelField($"  {type}", $"{value:0.##}");
             }
             EditorGUILayout.EndVertical();
@@ -1210,21 +1256,260 @@ namespace UPlayGround.Tool.Editor.Stat
             DestroyImmediate(preview);
         }
 
-        private void GenerateFromTemplate()
+        private StatTemplateSO CreateTemplateAsset(TemplateKind kind, string assetName, string savePath)
         {
-            EnsureFolder(_templateSavePath);
-            for (int i = 0; i < _templateCount; i++)
-            {
-                var so = ScriptableObject.CreateInstance<ActorStatSO>();
-                ApplyTemplate(so, _templateKind);
+            EnsureFolder(savePath);
 
-                string baseName = _templateCount == 1 ? _templateName : $"{_templateName}_{i + 1:D2}";
-                string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_templateSavePath}/{baseName}.asset");
-                AssetDatabase.CreateAsset(so, assetPath);
-            }
+            var tmpl = ScriptableObject.CreateInstance<StatTemplateSO>();
+            tmpl.description = $"{kind} 프리셋 기반 템플릿";
+
+            // 임시 ActorStatSO에 프리셋을 적용한 뒤 명시된 항목만 템플릿으로 복사.
+            var tmp = ScriptableObject.CreateInstance<ActorStatSO>();
+            ApplyTemplate(tmp, kind);
+            foreach (var entry in tmp.Entries)
+                tmpl.EditorSet(entry.statType, entry.baseValue);
+            DestroyImmediate(tmp);
+
+            string safeName = string.IsNullOrEmpty(assetName) ? $"StatTemplate_{kind}" : assetName;
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{savePath}/{safeName}.asset");
+            AssetDatabase.CreateAsset(tmpl, assetPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 템플릿 [{_templateKind}] 기반 {_templateCount}개 생성 완료");
+            Debug.Log($"[StatDataGenerator] 템플릿 생성: {assetPath} ({kind})");
+            return tmpl;
+        }
+
+        private void CreateDefaultPresetTemplates(string savePath)
+        {
+            var kinds = new[]
+            {
+                TemplateKind.WeakMonster,
+                TemplateKind.NormalMonster,
+                TemplateKind.EliteMonster,
+                TemplateKind.Boss,
+                TemplateKind.PlayerCharacter,
+            };
+            int count = 0;
+            foreach (var kind in kinds)
+            {
+                CreateTemplateAsset(kind, $"StatTemplate_{kind}", savePath);
+                count++;
+            }
+            EditorUtility.DisplayDialog("템플릿 생성", $"기본 프리셋 템플릿 {count}종을 생성했습니다.\n{savePath}", "확인");
+        }
+
+        // ──────────────────────────────────────────────────────────
+        // 스탯 재생성 탭
+        // ──────────────────────────────────────────────────────────
+
+        private void DrawRegenerateTab()
+        {
+            DrawRegenerateToolbar();
+            DrawRegenerateRows();
+            DrawRegenerateFooter();
+        }
+
+        private void DrawRegenerateToolbar()
+        {
+            EditorGUILayout.Space(6);
+            EditorGUILayout.BeginVertical("helpbox");
+
+            _regenTemplate = (StatTemplateSO)EditorGUILayout.ObjectField(
+                "적용할 템플릿", _regenTemplate, typeof(StatTemplateSO), false);
+
+            if (_regenTemplate != null)
+            {
+                EditorGUILayout.BeginVertical("box");
+                if (_regenTemplate.Entries.Count == 0)
+                    EditorGUILayout.LabelField("  (정의된 스탯 없음)", EditorStyles.miniLabel);
+                foreach (var entry in _regenTemplate.Entries)
+                    EditorGUILayout.LabelField($"  {entry.statType}", $"{entry.baseValue:0.##}");
+                EditorGUILayout.EndVertical();
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            _regenOverwrite     = GUILayout.Toggle(_regenOverwrite, "기존 값 덮어쓰기", "Button", GUILayout.Width(130));
+            _regenFillDefaults  = GUILayout.Toggle(_regenFillDefaults, "누락 StatType 기본값 채움", "Button", GUILayout.Width(180));
+            _regenCreateMissing = GUILayout.Toggle(_regenCreateMissing, "statData 없으면 생성", "Button", GUILayout.Width(150));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.HelpBox(
+                _regenOverwrite
+                    ? "덮어쓰기 ON: 템플릿에 정의된 StatType은 기존 값을 무시하고 템플릿 값으로 교체합니다(수동 조정값 손실 주의)."
+                    : "덮어쓰기 OFF: 대상에 없는(누락된) 항목만 템플릿 값으로 채웁니다. 기존 명시값은 보존됩니다.",
+                MessageType.None);
+
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            if (GUILayout.Button("새로고침", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                RefreshRegenRows();
+            GUILayout.Label("검색", GUILayout.Width(34));
+            _regenFilter = EditorGUILayout.TextField(_regenFilter, GUILayout.MinWidth(160));
+            GUILayout.FlexibleSpace();
+            GUILayout.Label($"총 {_regenRows.Count}개", EditorStyles.toolbarButton, GUILayout.Width(60));
+            EditorGUILayout.EndHorizontal();
+
+            // 컬럼 헤더 + 전체 선택(현재 필터에 보이는 행 대상)
+            var rect = GUILayoutUtility.GetRect(0, RowH, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(rect, ColorHeader);
+            bool newAll = GUI.Toggle(new Rect(rect.x + 4, rect.y + 3, ColCheck, rect.height), _regenAllSelected, GUIContent.none);
+            if (newAll != _regenAllSelected)
+            {
+                _regenAllSelected = newAll;
+                foreach (var row in _regenRows)
+                    if (PassesRegenFilter(row)) row.Selected = _regenAllSelected;
+            }
+            GUI.Label(new Rect(rect.x + ColCheck + 4, rect.y, ColName, rect.height), "ActorDefinitionSO", EditorStyles.boldLabel);
+            GUI.Label(new Rect(rect.x + ColCheck + 4 + ColName, rect.y, ColCurrent, rect.height), "기존 statData", EditorStyles.boldLabel);
+        }
+
+        private bool PassesRegenFilter(RegenRow row)
+        {
+            if (string.IsNullOrEmpty(_regenFilter)) return true;
+            return row.Definition != null &&
+                   row.Definition.name.IndexOf(_regenFilter, System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void DrawRegenerateRows()
+        {
+            _regenScroll = EditorGUILayout.BeginScrollView(_regenScroll);
+            int visible = 0;
+            for (int i = 0; i < _regenRows.Count; i++)
+            {
+                var row = _regenRows[i];
+                if (!PassesRegenFilter(row)) continue;
+
+                var rect = GUILayoutUtility.GetRect(0, RowH, GUILayout.ExpandWidth(true));
+                EditorGUI.DrawRect(rect, visible % 2 == 0 ? ColorRowEven : ColorRowOdd);
+                visible++;
+
+                float x = rect.x;
+                row.Selected = GUI.Toggle(new Rect(x + 4, rect.y + 3, ColCheck, rect.height), row.Selected, GUIContent.none);
+                x += ColCheck;
+
+                if (GUI.Button(new Rect(x + 2, rect.y, ColName - 4, rect.height), row.Definition.name, EditorStyles.label))
+                    EditorGUIUtility.PingObject(row.Definition);
+                x += ColName;
+
+                var prev = GUI.color;
+                if (row.Definition.statData != null)
+                {
+                    GUI.color = ColorOk;
+                    GUI.Label(new Rect(x + 2, rect.y, ColCurrent, rect.height), $"✓ {row.Definition.statData.name}", EditorStyles.miniLabel);
+                }
+                else
+                {
+                    GUI.color = ColorMissing;
+                    GUI.Label(new Rect(x + 2, rect.y, ColCurrent, rect.height), "(없음)", EditorStyles.miniLabel);
+                }
+                GUI.color = prev;
+            }
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawRegenerateFooter()
+        {
+            EditorGUILayout.Space(4);
+
+            int selectedCount = 0;
+            foreach (var row in _regenRows)
+                if (row.Selected && PassesRegenFilter(row)) selectedCount++;
+
+            using (new EditorGUI.DisabledScope(_regenTemplate == null || selectedCount == 0))
+            {
+                var prevColor = GUI.backgroundColor;
+                GUI.backgroundColor = ColorMissing;
+                if (GUILayout.Button($"선택 액터 스탯 재생성 ({selectedCount}개)", GUILayout.Height(30)))
+                {
+                    RegenerateSelected();
+                    GUIUtility.ExitGUI();
+                }
+                GUI.backgroundColor = prevColor;
+            }
+
+            if (_regenTemplate == null)
+                EditorGUILayout.HelpBox("적용할 템플릿을 먼저 선택하세요.", MessageType.Warning);
+
+            EditorGUILayout.HelpBox(
+                "선택한 템플릿을 체크한 액터들의 ActorDefinitionSO.statData에 일괄 적용합니다.\n" +
+                "신규 생성된 statData는 저장 경로(마이그레이션 탭의 '저장 경로')에 만들어져 정의에 연결됩니다.",
+                MessageType.Info);
+        }
+
+        private void RefreshRegenRows()
+        {
+            _regenRows.Clear();
+            string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (def == null) continue;
+                _regenRows.Add(new RegenRow { Definition = def, Selected = false });
+            }
+            _regenRows.Sort((a, b) => string.Compare(a.Definition.name, b.Definition.name, System.StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void RegenerateSelected()
+        {
+            if (_regenTemplate == null) return;
+
+            var targets = new List<RegenRow>();
+            foreach (var row in _regenRows)
+                if (row.Selected && PassesRegenFilter(row)) targets.Add(row);
+            if (targets.Count == 0) return;
+
+            string mode = _regenOverwrite ? "덮어쓰기" : "누락만 채움";
+            bool ok = EditorUtility.DisplayDialog(
+                "스탯 재생성",
+                $"템플릿 [{_regenTemplate.name}]을(를) 선택한 {targets.Count}개 액터에 적용합니다.\n" +
+                $"적용 방식: {mode}\n" +
+                (_regenFillDefaults ? "+ 누락 StatType은 기본값으로 채움\n" : "") +
+                (_regenCreateMissing ? "+ statData가 없으면 새로 생성해 연결\n" : "") +
+                "\n계속할까요?",
+                "재생성", "취소");
+            if (!ok) return;
+
+            EnsureFolder(_savePath);
+            int applied = 0, created = 0, totalChanged = 0;
+
+            foreach (var row in targets)
+            {
+                var def = row.Definition;
+                var stat = def.statData;
+
+                if (stat == null)
+                {
+                    if (!_regenCreateMissing) continue;
+                    stat = ScriptableObject.CreateInstance<ActorStatSO>();
+                    string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_savePath}/{MakePlannedAssetName(def)}.asset");
+                    AssetDatabase.CreateAsset(stat, assetPath);
+
+                    var sObj = new SerializedObject(def);
+                    sObj.FindProperty("statData").objectReferenceValue = stat;
+                    sObj.ApplyModifiedProperties();
+                    created++;
+                }
+                else
+                {
+                    Undo.RecordObject(stat, "Regenerate Actor Stat from Template");
+                }
+
+                int changed = _regenTemplate.EditorApplyTo(stat, _regenOverwrite);
+                if (_regenFillDefaults) stat.EditorFillMissing();
+                EditorUtility.SetDirty(stat);
+                totalChanged += changed;
+                applied++;
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[StatDataGenerator] 재생성 완료: 적용 {applied}개 / 신규 생성 {created}개 / 변경된 StatType {totalChanged}개 (템플릿: {_regenTemplate.name}, {mode})");
+            EditorUtility.DisplayDialog("스탯 재생성 완료",
+                $"적용 {applied}개\n신규 statData 생성 {created}개\n변경된 StatType {totalChanged}개", "확인");
+
+            RefreshMigrationRows();
         }
 
         // ── 템플릿 정의 ───────────────────────────────────────────
@@ -1437,6 +1722,12 @@ namespace UPlayGround.Tool.Editor.Stat
             public MonsterBreakGaugeSO SourceBreakGauge;
             public ActorStatSO       ExistingStat;
             public string            PlannedAssetName;
+            public bool              Selected;
+        }
+
+        private class RegenRow
+        {
+            public ActorDefinitionSO Definition;
             public bool              Selected;
         }
     }

@@ -16,6 +16,7 @@ using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
+using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
@@ -806,46 +807,43 @@ namespace UPlayGround
     {
         public void TakeDamage(AttackData attackData)
         {
-            if (_combat.IsGuarding)
+            DefenseResult defenseResult = DefenseResolver.ResolvePlayerDefense(
+                CreatePlayerDefenseQuery(),
+                attackData);
+
+            switch (defenseResult.Outcome)
             {
-                if (MovementController.CurrentState is PlayerGuardState guardState)
-                {
+                case DefenseOutcome.Guarded:
+                    if (MovementController.CurrentState is not PlayerGuardState guardState)
+                        return;
+
                     guardState.OnAttackBlocked(attackData);
 
                     if (!_combat.IsGuarding)
                         OnGuardBrokenDamage(attackData);
-
                     return;
-                }
-            }
 
-            // 패리: Attack / Charge 상태에서 히트박스가 활성화된 동안 피격 시 발동
-            if (TryParry(attackData))
-                return;
+                case DefenseOutcome.Parried:
+                    OnParrySuccess(attackData);
+                    return;
 
-            if (!CanTakeDamage())
-            {
-                // 도지 중 피격 시도 → 퍼펙트 도지 창 내면 보상 효과 발동
-                if (MovementController.CurrentState is PlayerDodgeState)
+                case DefenseOutcome.PerfectDodged:
                     TryPerfectDodge(attackData);
-                return;
+                    return;
+
+                case DefenseOutcome.Invincible:
+                    return;
             }
 
-            float finalDamage = attackData.damage;
-            
-            if (attackData.criticalMultiplier > 1.0f)
-            {
-                finalDamage *= attackData.criticalMultiplier;
-            }
+            DamageResult damageResult = DamageResolver.ResolvePlayerDamage(attackData);
+            float finalDamage = damageResult.FinalDamage;
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             _behaviorPredictor?.NotifyAction(PlayerActionToken.Hit);
            
-            Vector3 floaterPos = attackData.hitPoint != Vector3.zero
-                ? attackData.hitPoint
-                : transform.position;
-            UIManager.Instance.ShowDamageFloater(floaterPos, finalDamage, FloatStyle.PlayerDamage);
+            CombatFeedbackDispatcher.ShowDamageFloater(
+                CombatFeedbackContext.FromDamageResult(attackData, damageResult, transform.position));
 
             OnDamaged(attackData);
 
@@ -881,6 +879,24 @@ namespace UPlayGround
         }
 
         public void HealPercent(float ratio) => Heal(ratio * _maxHealth);
+
+        private PlayerDefenseQuery CreatePlayerDefenseQuery()
+        {
+            bool alwaysParry = CheatManager.Instance?.IsAlwaysParryEnabled ?? false;
+            bool isAttackState = MovementController.CurrentState.StateName == "Attack";
+            bool isCurrentAttackParryCapable = _combat.CurrentAttackData?.attackKind == AttackKind.NormalAttack;
+
+            return new PlayerDefenseQuery(
+                _combat.IsGuarding,
+                MovementController.CurrentState is PlayerGuardState,
+                isAttackState,
+                _combat.IsPossibleCollide,
+                isCurrentAttackParryCapable,
+                MovementController.CurrentState is PlayerDodgeState,
+                _combat.IsPerfectDodgeWindow,
+                CanTakeDamage(),
+                alwaysParry);
+        }
 
         /// <summary>
         /// Attack 상태에서 히트박스가 활성 상태이고 약공격(NormalAttack) 중일 때 피격되면 패리를 시도한다.
@@ -977,22 +993,23 @@ namespace UPlayGround
         {
             if (!CanTakeDamage()) return;
 
-            _currentHealth = MathF.Max(0, _currentHealth - attackData.damage);
+            DamageResult damageResult = DamageResolver.ResolvePlayerDamage(attackData, includeCritical: false);
+            float finalDamage = damageResult.FinalDamage;
+
+            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
-            Vector3 floaterPos = attackData.hitPoint != Vector3.zero
-                ? attackData.hitPoint
-                : transform.position;
-            UIManager.Instance.ShowDamageFloater(floaterPos, attackData.damage, FloatStyle.PlayerDamage);
+            CombatFeedbackDispatcher.ShowDamageFloater(
+                CombatFeedbackContext.FromDamageResult(attackData, damageResult, transform.position));
 
             CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : attackData.hitPoint;
-            GameObjectManager.Instance.ShowFX(attackData.hitParticleName, fxPos);
+            CombatFeedbackDispatcher.ShowHitFx(attackData.hitParticleName, fxPos);
 
-            _colorChanger.OnHit();
+            CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
 
             if (_currentHealth <= 0)
                 OnDeath(attackData);
@@ -1009,8 +1026,16 @@ namespace UPlayGround
                                  chargeState.HasChargedAtLeastOneStage;
             bool suppressHitReaction = MovementController.CurrentState.SuppressesHitReaction;
             bool ignoreHitReaction = hasSuperArmor || suppressHitReaction;
+            string stateName = MovementController.CurrentState.StateName;
+            ReactionDecision reactionDecision = ReactionResolver.ResolvePlayerReaction(
+                new PlayerReactionQuery(
+                    ignoreHitReaction,
+                    MovementController.CurrentState.CanTransitionState("Hit"),
+                    stateName is "Hit" or "Grabbed",
+                    ShouldEnterAirborneState(attackData)),
+                attackData);
 
-            if (!ignoreHitReaction && attackData != null)
+            if (reactionDecision.ShouldApplyForce && attackData != null)
             {
                 switch (attackData.reactionType)
                 {
@@ -1047,23 +1072,13 @@ namespace UPlayGround
                 }
             }
 
-            string stateName = MovementController.CurrentState.StateName;
-            if (!ignoreHitReaction && stateName != "Hit" && stateName != "Grabbed")
+            if (reactionDecision.ShouldEnterState)
             {
-                if (MovementController.CurrentState.CanTransitionState("Hit"))
-                {
-                    if (ShouldEnterAirborneState(attackData))
-                        MovementController.TransitionToState(new PlayerAirborneState(MovementController));
-                    else if (attackData?.reactionType == AttackReactionType.Grab)
-                        MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
-                    else if (attackData?.reactionType == AttackReactionType.Stun)
-                        MovementController.TransitionToState(new PlayerStunState(MovementController, attackData));
-                    else if (attackData?.reactionType == AttackReactionType.Knockdown)
-                        MovementController.TransitionToState(new PlayerKnockdownState(MovementController, attackData));
-                    else
-                        MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
-                }
+                ApplyPlayerReactionState(reactionDecision.TargetState, attackData);
+            }
 
+            if (reactionDecision.ShouldPlayCameraFeedback)
+            {
                 bool isHeavyReaction = attackData?.reactionType is
                     AttackReactionType.Heavy or
                     AttackReactionType.KnockBack or
@@ -1071,15 +1086,40 @@ namespace UPlayGround
                     AttackReactionType.Knockdown or
                     AttackReactionType.Stun;
 
-                CameraManager.Instance.StartShake(isHeavyReaction ? _shakeKeyHeavyHit : _shakeKeyHit);
+                CombatFeedbackDispatcher.ApplyPlayerDamagedCamera(
+                    isHeavyReaction,
+                    _shakeKeyHit,
+                    _shakeKeyHeavyHit);
             }
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : (attackData?.hitPoint ?? transform.position);
-            GameObjectManager.Instance.ShowFX(attackData?.hitParticleName, fxPos);
+            CombatFeedbackDispatcher.ShowHitFx(attackData?.hitParticleName, fxPos);
 
-            _colorChanger.OnHit();
+            CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
+        }
+
+        private void ApplyPlayerReactionState(CombatReactionState reactionState, AttackData attackData)
+        {
+            switch (reactionState)
+            {
+                case CombatReactionState.Airborne:
+                    MovementController.TransitionToState(new PlayerAirborneState(MovementController));
+                    break;
+                case CombatReactionState.Grabbed:
+                    MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
+                    break;
+                case CombatReactionState.Stun:
+                    MovementController.TransitionToState(new PlayerStunState(MovementController, attackData));
+                    break;
+                case CombatReactionState.Knockdown:
+                    MovementController.TransitionToState(new PlayerKnockdownState(MovementController, attackData));
+                    break;
+                case CombatReactionState.Hit:
+                    MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
+                    break;
+            }
         }
 
         private bool ShouldEnterAirborneState(AttackData attackData)
@@ -1099,8 +1139,7 @@ namespace UPlayGround
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
-            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerDie);
-            CameraManager.Instance.StartShake(_shakeKeyDeath);
+            CombatFeedbackDispatcher.ApplyPlayerDeathFeedback(_shakeKeyDeath);
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }
 

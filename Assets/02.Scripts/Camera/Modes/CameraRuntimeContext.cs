@@ -33,8 +33,6 @@ namespace UPlayGround.CameraSystem
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
         public bool HasActiveEffects { get; set; }
-        public bool IsCameraColliding { get; set; }
-        public float CollisionSustainedSec { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 
         public CameraRuntimeContext(CameraRigState state)

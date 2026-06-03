@@ -5,7 +5,7 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// LockOn 시스템 전체 로직: 대상 탐색/전환/해제, 추적 회전(Mid-Point Camera), 전환 연출.
+    /// LockOn 시스템 전체 로직: 대상 탐색/전환/해제, 거리 기반 오비탈 추적 회전, 전환 연출.
     /// CameraManager에서 매 프레임 UpdateRotation / UpdateTransition을 호출한다.
     /// </summary>
     public class CameraLockOn
@@ -18,7 +18,6 @@ namespace UPlayGround.CameraSystem
         private readonly UnityEngine.Camera _camera;
         private readonly LayerMask _lockOnLayer;
         private System.Func<Vector3> _playerVelocityProvider;
-        private System.Func<(bool isColliding, float sustainedSec)> _collisionTelemetryProvider;
 
         // 내부 상태
         private CapsuleCollider _targetCollider;
@@ -39,8 +38,6 @@ namespace UPlayGround.CameraSystem
         private bool _wasSkipping; // skip→active 전환 감지 (복귀 시 부드러운 재보간)
         private Vector3 _activeFocusPos;
         private Vector3 _activeFocusVelocity;
-        private float _lastSideFlipTime = -999f;
-        private float _sideFlipSignOverride;
 
         private const float FREE_FACTOR_SMOOTH_TIME = 0.15f;
         private const float ORBIT_FREE_PULL_MAX_SMOOTH = 5f;
@@ -75,11 +72,6 @@ namespace UPlayGround.CameraSystem
             _playerVelocityProvider = provider;
         }
 
-        public void SetCollisionTelemetryProvider(System.Func<(bool isColliding, float sustainedSec)> provider)
-        {
-            _collisionTelemetryProvider = provider;
-        }
-
         // ── 토글 ──
 
         /// <summary>
@@ -112,8 +104,6 @@ namespace UPlayGround.CameraSystem
             _freeFactor = 0f;
             _freeFactorVelocity = 0f;
             _activeFocusVelocity = Vector3.zero;
-            _lastSideFlipTime = -999f;
-            _sideFlipSignOverride = 0f;
         }
 
         // ── 대상 전환 ──
@@ -261,12 +251,8 @@ namespace UPlayGround.CameraSystem
             float sign = _signedOffsetAngle > SIGN_DEAD_ZONE_DEG ? 1f :
                          _signedOffsetAngle < -SIGN_DEAD_ZONE_DEG ? -1f :
                          _signedOffsetAngle >= 0f ? 1f : -1f;
-            ClearSideFlipOverrideIfRecovered();
-            if (Mathf.Abs(_sideFlipSignOverride) > 0.5f)
-                sign = _sideFlipSignOverride;
             float targetSignedAngle = targetMag * sign;
             _lastEnemyYaw = enemyYaw;
-            bool sideFlipTriggered = TryTriggerSideFlip(ref targetSignedAngle);
 
             // 적응형 SmoothDamp: 차이가 클수록 빠르게 수렴
             float offsetDelta = Mathf.Abs(targetSignedAngle - _signedOffsetAngle);
@@ -274,9 +260,7 @@ namespace UPlayGround.CameraSystem
                 _settings.lockOnOrbitSmoothTime * ORBIT_SMOOTH_MIN_MULT,
                 _settings.lockOnOrbitSmoothTime,
                 1f - Mathf.Clamp01(offsetDelta / ORBIT_OFFSET_MAX_DELTA));
-            float pullSmoothTime = sideFlipTriggered
-                ? _settings.sideFlipSmoothTime
-                : Mathf.Lerp(adaptiveSmoothTime, ORBIT_FREE_PULL_MAX_SMOOTH, freeFactor);
+            float pullSmoothTime = Mathf.Lerp(adaptiveSmoothTime, ORBIT_FREE_PULL_MAX_SMOOTH, freeFactor);
             _signedOffsetAngle = Mathf.SmoothDamp(
                 _signedOffsetAngle, targetSignedAngle, ref _offsetAngleVelocity, pullSmoothTime);
             yaw = enemyYaw + _signedOffsetAngle;
@@ -342,7 +326,6 @@ namespace UPlayGround.CameraSystem
             InitSmoothY();
             _activeFocusPos = GetCurrentTargetFocusPosition();
             _activeFocusVelocity = Vector3.zero;
-            _sideFlipSignOverride = 0f;
             _orbitInitialized = false;
         }
 
@@ -497,36 +480,6 @@ namespace UPlayGround.CameraSystem
             }
 
             return Vector3.forward;
-        }
-
-        private void ClearSideFlipOverrideIfRecovered()
-        {
-            if (Mathf.Abs(_sideFlipSignOverride) <= 0.5f || _collisionTelemetryProvider == null)
-                return;
-
-            var telemetry = _collisionTelemetryProvider.Invoke();
-            if (!telemetry.isColliding)
-                _sideFlipSignOverride = 0f;
-        }
-
-        private bool TryTriggerSideFlip(ref float targetSignedAngle)
-        {
-            if (!_settings.enableLockOnSideFlip || _collisionTelemetryProvider == null)
-                return false;
-
-            var telemetry = _collisionTelemetryProvider.Invoke();
-            if (!telemetry.isColliding || telemetry.sustainedSec < _settings.sustainedCollisionSec)
-                return false;
-
-            if (Time.time - _lastSideFlipTime < _settings.sideFlipCooldown)
-                return false;
-
-            _lastSideFlipTime = Time.time;
-            _offsetAngleVelocity = 0f;
-            float currentSign = _signedOffsetAngle >= 0f ? 1f : -1f;
-            _sideFlipSignOverride = -currentSign;
-            targetSignedAngle = Mathf.Abs(targetSignedAngle) * _sideFlipSignOverride;
-            return true;
         }
 
         private static void NotifyUnLockOn(Transform t)

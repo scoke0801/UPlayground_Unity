@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
@@ -158,13 +159,14 @@ namespace UPlayGround.Component
         private int               _heavyComboIndex     = -1;
         private CharacterActorType _comboCharacterType = CharacterActorType.None;
         private readonly Dictionary<CharacterActorType, CharacterComboState> _comboStatesByCharacter = new();
-        private float             _lastCombatEventTime = -999f;
         private bool              _isCollideCollisionEnable;
         private PlayerActor       _playerActor;
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
-        private bool              _cachedCombatState;
-        private float             _threatCheckTimer;
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
+        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
+        private readonly List<CombatHit> _detectedHits = new List<CombatHit>(32);
+        private PlayerCombatStateTracker _combatStateTracker;
+        private CombatActionRunner _actionRunner;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -178,7 +180,7 @@ namespace UPlayGround.Component
         // ──────────────────────────────────────────────────────────────
 
         public bool IsGuarding    = false;
-        public bool IsInCombat    => Time.time - _lastCombatEventTime < _combatStateDuration;
+        public bool IsInCombat    => _combatStateTracker != null && _combatStateTracker.IsInCombat;
         public bool IsPossibleCollide => _isCollideCollisionEnable;
 
         /// <summary>
@@ -338,6 +340,19 @@ namespace UPlayGround.Component
             _motionWarp = GetComponent<MotionWarpController>();
             if (_motionWarp == null)
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
+
+            _combatStateTracker = gameObject.GetOrAddComponent<PlayerCombatStateTracker>();
+            _combatStateTracker.Configure(
+                _combatStateDuration,
+                _threatDetectionRange,
+                _threatCheckInterval,
+                _targetLayerMask);
+            _combatStateTracker.OnChangeCombatState -= HandleCombatStateChanged;
+            _combatStateTracker.OnChangeCombatState += HandleCombatStateChanged;
+
+            _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
+            OnAttackStarted -= HandleAttackStartedForRunner;
+            OnAttackStarted += HandleAttackStartedForRunner;
         }
 
         /// <summary>
@@ -356,7 +371,7 @@ namespace UPlayGround.Component
             if (IsPossibleCollide)
                 PerformHitDetection();
 
-            UpdateCombatState();
+            _combatStateTracker?.Tick();
             UpdateBreakInteractionTarget();
         }
 
@@ -416,48 +431,8 @@ namespace UPlayGround.Component
                 _currentBreakInteractionTarget.SetBreakInteractionActive(true);
         }
 
-        private void UpdateCombatState()
-        {
-            // 주기적 위협 탐색: aggro 중인 적이 있으면 전투 상태 타임스탬프 갱신
-            _threatCheckTimer += Time.deltaTime;
-            if (_threatCheckTimer >= _threatCheckInterval)
-            {
-                _threatCheckTimer = 0f;
-                if (HasThreatNearby())
-                    _lastCombatEventTime = Time.time;
-            }
-
-            // 전투 상태 변화 감지 → 이벤트 단일 발화
-            bool current = IsInCombat;
-            if (_cachedCombatState != current)
-            {
-                _cachedCombatState = current;
-                OnChangeCombatState?.Invoke(current);
-            }
-        }
-
-        private bool HasThreatNearby()
-        {
-            int hitCount = Physics.OverlapSphereNonAlloc(
-                transform.position,
-                _threatDetectionRange,
-                _threatOverlapBuffer,
-                _targetLayerMask);
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                var hit = _threatOverlapBuffer[i];
-                if (hit == null)
-                    continue;
-
-                var monster = hit.GetComponent<MonsterActor>()
-                              ?? hit.GetComponentInParent<MonsterActor>();
-                if (monster?.AIController != null && monster.AIController.HasAggroTarget)
-                    return true;
-            }
-
-            return false;
-        }
+        private void HandleCombatStateChanged(bool isInCombat)
+            => OnChangeCombatState?.Invoke(isInCombat);
 
         public bool IsGuardBreak(AttackData incomingAttack)
         {
@@ -490,7 +465,7 @@ namespace UPlayGround.Component
 
         public void RefreshCombatState()
         {
-            _lastCombatEventTime = Time.time;
+            _combatStateTracker?.NotifyCombatEvent();
             // 상태 변화 이벤트는 UpdateCombatState()에서 단일 발화
         }
 
@@ -499,8 +474,7 @@ namespace UPlayGround.Component
         /// </summary>
         public void ForceExitCombat()
         {
-            if (!IsInCombat) return;
-            _lastCombatEventTime = -999f;
+            _combatStateTracker?.ForceExitCombat();
             // UpdateCombatState()에서 다음 프레임에 이벤트 발화
         }
 
@@ -508,12 +482,20 @@ namespace UPlayGround.Component
         /// MotionEvent_MotionWarp.Execute()에서 호출.
         /// warpDuration = 이벤트의 endTime - startTime.
         /// </summary>
-        public void BeginMotionWarp(float warpDuration) => _motionWarp?.BeginMotionWarp(warpDuration);
+        public void BeginMotionWarp(float warpDuration)
+        {
+            _motionWarp?.BeginMotionWarp(warpDuration);
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpStarted, _currentAttackData?.hitPhaseIndex ?? 0);
+        }
 
         /// <summary>
         /// MotionEvent_MotionWarp.OnCompleteEvent()에서 호출.
         /// </summary>
-        public void EndMotionWarp() => _motionWarp?.EndMotionWarp();
+        public void EndMotionWarp()
+        {
+            _motionWarp?.EndMotionWarp();
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentAttackData?.hitPhaseIndex ?? 0);
+        }
 
         #region Execute Attack
 
@@ -1002,8 +984,16 @@ namespace UPlayGround.Component
                 return;
             }
 
-            Vector3    origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
-            Collider[] hits   = Physics.OverlapSphere(origin, _currentAttackData.hitRange, _targetLayerMask);
+            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            var hitShape = new MeleeHitShape(
+                transform,
+                origin,
+                transform.forward,
+                _currentAttackData.hitRange,
+                _currentAttackData.hitAngle,
+                _currentAttackData.hitHeightRange,
+                _targetLayerMask);
+            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedHits);
 
             // 첫 번째 히트 정보만 피드백(킬캠 등)에 사용
             bool    hitOccurred   = false;
@@ -1013,52 +1003,24 @@ namespace UPlayGround.Component
 
             _currentAttackData.attacker = _playerActor;
 
-            foreach (var hit in hits)
+            foreach (CombatHit hit in _detectedHits)
             {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform))
-                    continue;
-
-                Vector3 dirFlat = hit.transform.position - transform.position;
-                dirFlat.y = 0f;
-                if (dirFlat.sqrMagnitude > 0.001f)
-                {
-                    if (Vector3.Angle(transform.forward, dirFlat) > _currentAttackData.hitAngle)
-                        continue;
-                }
-
-                if (_currentAttackData.hitHeightRange > 0f)
-                {
-                    float closestY = hit.ClosestPoint(origin).y;
-                    if (Mathf.Abs(closestY - origin.y) > _currentAttackData.hitHeightRange)
-                        continue;
-                }
-
-                IDamageable damageable = hit.GetComponent<IDamageable>()
-                                         ?? hit.GetComponentInParent<IDamageable>();
-
-                if (damageable == null || !damageable.CanTakeDamage() || _hitTargets.Contains(damageable))
-                    continue;
-
-                Vector3 hitPoint   = hit.ClosestPoint(origin);
-                Vector3 attackDir  = (hit.transform.position - transform.position).normalized;
-
                 // 공유 AttackData에 퍼-타겟 정보 기록 (TakeDamage 및 이벤트 수신자 참조용)
-                _currentAttackData.hitTarget       = hit.gameObject;
-                _currentAttackData.hitPoint        = hitPoint;
-                _currentAttackData.attackDirection = attackDir;
+                _currentAttackData.hitTarget       = hit.HitObject;
+                _currentAttackData.hitPoint        = hit.HitPoint;
+                _currentAttackData.attackDirection = hit.AttackDirection;
 
-                _hitTargets.Add(damageable);
-                damageable.TakeDamage(_currentAttackData);
-                ShowDamageFloater(_currentAttackData);
-                GameObjectManager.Instance.ShowFX(GetHitFxKey(_currentAttackData), hitPoint);
+                _hitTargets.Add(hit.Damageable);
+                hit.Damageable.TakeDamage(_currentAttackData);
+                ShowAttackHitFeedback(_currentAttackData);
                 OnAttackHit?.Invoke(_currentAttackData);
 
                 if (!hitOccurred)
                 {
                     hitOccurred      = true;
-                    firstHitPoint    = hitPoint;
-                    firstHitDir      = attackDir;
-                    firstHitTarget   = hit.gameObject;
+                    firstHitPoint    = hit.HitPoint;
+                    firstHitDir      = hit.AttackDirection;
+                    firstHitTarget   = hit.HitObject;
                 }
             }
 
@@ -1072,16 +1034,19 @@ namespace UPlayGround.Component
             }
         }
 
-        private void ShowDamageFloater(AttackData attackData)
+        private void ShowAttackHitFeedback(AttackData attackData)
         {
-            var style = attackData.attackKind is AttackKind.HeavyAttack
-                                              or AttackKind.SkillAttack
-                                              or AttackKind.FinishAttack
-                                              or AttackKind.ChargeAttack
-                ? FloatStyle.Critical
-                : FloatStyle.Normal;
+            var context = new CombatFeedbackContext(
+                attackData,
+                attackData.hitPoint,
+                attackData.attackDirection,
+                attackData.hitTarget,
+                attackData.damage,
+                CombatFeedbackDispatcher.GetPlayerAttackFloaterStyle(attackData.attackKind),
+                GetHitFxKey(attackData));
 
-            UIManager.Instance.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
+            CombatFeedbackDispatcher.ShowDamageFloater(context);
+            CombatFeedbackDispatcher.ShowHitFx(context);
         }
 
         private void ApplyHitFeedback()
@@ -1090,54 +1055,33 @@ namespace UPlayGround.Component
             // foreach 도중 패리가 발동됐거나 실행 순서상 뒤늦게 호출되는 경우 모두 차단.
             if (IsParryCounterAvailable) return;
 
-            GameCombatManager.Instance.GameHitStop.ResetActorTimeScale();
+            CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
+                _currentAttackData,
+                CreatePlayerAttackHitFeedbackProfile());
+        }
 
-            bool isKillHit = _currentAttackData.hitTarget != null
-                && !(_currentAttackData.hitTarget.GetComponent<IDamageable>()?.IsAlive() ?? true);
-
-            if (isKillHit)
-            {
-                CameraManager.Instance.TryKillCam(_currentAttackData.hitTarget.transform);
-                return;
-            }
-
-            var kind = _currentAttackData.attackKind;
-            var dir  = _currentAttackData.attackDirection;
-
-            var orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
-                ? VitalOrbTrigger.HeavyAttackHit
-                : VitalOrbTrigger.LightAttackHit;
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(orbTrigger, _currentAttackData.hitPoint);
-
-            switch (kind)
-            {
-                case AttackKind.ChargeAttack:
-                case AttackKind.SkillAttack:
-                    CameraManager.Instance.Punch(dir, _punchStrengthSkill, _punchDurationSkill);
-                    CameraManager.Instance.StartShake(_shakeKeyHeavy);
-                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Critical);
-                    break;
-
-                case AttackKind.HeavyAttack:
-                case AttackKind.DashAttack:
-                case AttackKind.JumpAttack:
-                    CameraManager.Instance.Punch(dir, _punchStrengthHeavy, _punchDurationHeavy);
-                    CameraManager.Instance.StartShake(_shakeKeyHeavy);
-                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Heavy);
-                    break;
-
-                default:
-                    CameraManager.Instance.Punch(dir, _punchStrengthLight, _punchDurationLight);
-                    CameraManager.Instance.StartShake(_shakeKeyLight);
-                    GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Light);
-                    break;
-            }
+        private PlayerAttackHitFeedbackProfile CreatePlayerAttackHitFeedbackProfile()
+        {
+            return new PlayerAttackHitFeedbackProfile(
+                _punchStrengthLight,
+                _punchStrengthHeavy,
+                _punchStrengthSkill,
+                _punchDurationLight,
+                _punchDurationHeavy,
+                _punchDurationSkill,
+                _shakeKeyLight,
+                _shakeKeyHeavy);
         }
 
         #endregion
 
-        public void SetEnableCollision(bool isCollisionEnable) =>
+        public void SetEnableCollision(bool isCollisionEnable)
+        {
             _isCollideCollisionEnable = isCollisionEnable;
+            _actionRunner?.HandleTimelineEvent(
+                isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
+                _currentAttackData?.hitPhaseIndex ?? 0);
+        }
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) =>
             _targetLayerMask = targetLayerMask;
@@ -1165,6 +1109,7 @@ namespace UPlayGround.Component
             _currentAttackData.airborneForce   = phase.airborneForce;
             _currentAttackData.knockbackForce  = phase.knockBackForce;
             _currentAttackData.knockbackDrag   = phase.knockBackDrag;
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
         }
 
         private static bool IsResidualAttackState(string stateName)
@@ -1223,8 +1168,20 @@ namespace UPlayGround.Component
             return CurrentComboIndex < length - 1;
         }
 
-        public void OpenComboWindow()  => CanCombo = true;
-        public void CloseComboWindow() => CanCombo = false;
+        public void OpenComboWindow()
+        {
+            CanCombo = true;
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.ComboWindowOpened, _currentAttackData?.hitPhaseIndex ?? 0);
+        }
+
+        public void CloseComboWindow()
+        {
+            CanCombo = false;
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.ComboWindowClosed, _currentAttackData?.hitPhaseIndex ?? 0);
+        }
+
+        private void HandleAttackStartedForRunner(AttackData attackData)
+            => _actionRunner?.StartLegacyAction(attackData);
 
         public bool CanUseStoredCombo(bool isHeavyAttack)
         {

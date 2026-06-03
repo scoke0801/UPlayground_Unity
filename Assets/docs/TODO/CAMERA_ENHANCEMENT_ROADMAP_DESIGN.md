@@ -1,12 +1,12 @@
 # 카메라 시스템 고도화 로드맵 설계
 
-**작성일**: 2026-05-24 | **상태**: Tier 1·2 구현 완료 | 갱신: 2026-05-24 스크린샷 피드백 기반 카메라 튜닝
+**작성일**: 2026-05-24 | **상태**: Tier 1·2 부분 구현, SideFlip 채택 취소 | 갱신: 2026-06-03 락온 SideFlip/충돌 텔레메트리 제거
 
 ---
 
 ## 0. 구현 현황
 
-2026-05-24 기준 Tier 1·2를 프로젝트 코드와 `CameraSettings.asset`에 반영했다.
+2026-06-03 기준 Tier 1·2 중 속도/FOV, Look-ahead, Floor Rescue, MultiProbe, ActiveFocus, 락온 타겟팅 우선순위는 프로젝트 코드와 `CameraSettings.asset`에 반영했다. 락온 차폐 자동 리포지션/SideFlip은 명조식 거리 기반 오비탈 보정과 중복되고 시점 급전환 리스크가 커 제거했다.
 
 ### 0.1 완료 항목
 
@@ -16,8 +16,8 @@
 | Tier 1 | Look-ahead 오프셋 | 완료 | `InGameCameraMode`, `CameraRuntimeContext`, `CameraSettings` |
 | Tier 1 | Floor Rescue | 완료 | `CameraCollision`, `InGameCameraMode`, `CameraSettings` |
 | Tier 2 | MultiProbe 충돌 + Skin Width | 완료 | `CameraCollision`, `CameraSettings` |
-| Tier 2 | 충돌 텔레메트리 | 완료 | `CameraCollision`, `CameraRuntimeContext`, `CameraManager` |
-| Tier 2 | 락온 차폐 자동 리포지션 / SideFlip | 완료 | `CameraLockOn`, `CameraManager`, `CameraSettings` |
+| Tier 2 | 충돌 텔레메트리 | 제거 | SideFlip 전용 의존성 제거 |
+| Tier 2 | 락온 차폐 자동 리포지션 / SideFlip | 채택 취소 | 거리 기반 오비탈 보정 유지 |
 | Tier 2 | ActiveFocus 단일소스 XZ 스무딩 | 완료 | `CameraLockOn`, `CameraSettings` |
 | Tier 2 | 락온 타겟팅 우선순위 옵션 | 완료 | `CameraLockOn`, `CameraSettings` |
 
@@ -27,7 +27,6 @@
 - `enableLookAhead = true`, `lookAheadDistance = 1.2`, `lookAheadSpeedRef = 5`, `lookAheadSmoothTime = 0.25`, `lockOnLookAheadMultiplier = 0.1`
 - `enableFloorRescue = true`, `floorRescueDropThreshold = 1`, `groundClearance = 0.3`
 - `useMultiProbe = true`, `collisionProbeCount = 6`, `collisionSkinWidth = 0.08`, `minNormalAlignment = 0.5`
-- `enableLockOnSideFlip = true`, `sustainedCollisionSec = 0.4`, `sideFlipCooldown = 1`, `sideFlipSmoothTime = 0.2`
 - `lockOnFocusSmoothTime = 0.15`
 - `lockOnPriorityMode = CameraDirection`
 - 명조 케이스 스터디 제안값에서 실제 스크린샷 피드백을 반영해 튜닝: `fovExplore = 50`, `fovCombat = 54`, `fovLockOn = 50`, `defaultDistance = 5.0`, `combatDistance = 5.2`, `lockOnDistance = 4.0`, `maxDistance = 7.0`, `defaultOffset = (0, 1.0, 0)`, `combatOffset = (0.25, 1.0, 0)`, `crowdZoomOutDistance = 7.0`
@@ -103,7 +102,7 @@
 | **T1** | Look-ahead 오프셋 | AAA | InGameCameraMode | 높음 | 낮음 | 낮음~중간 |
 | **T1** | Floor Rescue | unsave | CameraCollision | 높음 | 중간 | 낮음 |
 | **T2** | MultiProbe 충돌 + Skin Width ★ | unsave+AAA | CameraCollision | 높음 | 중간 | 중간 |
-| **T2** | 락온 차폐 자동 리포지션 / SideFlip ★ | unsave+AAA | CameraLockOn + Context | 높음 | 상 | 중간 |
+| **T2** | 락온 차폐 자동 리포지션 / SideFlip | 채택 취소 | - | 낮음 | - | 높음 |
 | **T2** | ActiveFocus 단일소스 XZ 스무딩 | unsave | CameraLockOn | 중~높음 | 중간 | 중간 |
 | **T2** | 락온 타겟팅 우선순위 옵션 (3모드) | 명조 | CameraLockOn | 중~높음 | 낮음~중간 | 낮음 |
 | **T3** | 차폐물 디더 페이드 | AAA | 신규 URP Shader + 검출 | 중간 | 중~상 | 중간 |
@@ -398,6 +397,8 @@ public float collisionSkinWidth = 0.08f;      // 벽에서 뒤로 물러날 거�
 
 ### 4.2 락온 차폐 자동 리포지션 / SideFlip ★
 
+> 2026-06-03 기준 채택 취소. 현재 구조는 충돌 지속 시간으로 좌우 부호를 강제 반전하지 않고, `lockOnOffsetAngleByDistance`, FOV 기반 `maxSafeMag`, `freeFactor`, `lockOnOvercomeSensitivity`로 락온 오비탈 각도를 조정한다. 아래 내용은 과거 검토 기록으로만 유지한다.
+
 #### 목표
 
 락온 중 카메라가 장애물에 가려지면 자동으로 좌우 오프셋 각을 반대로 전환. 플레이어가 일일이 카메라를 조작하지 않아도 적을 계속 볼 수 있다.
@@ -614,7 +615,7 @@ adaptiveDistance = Mathf.Clamp(baseDistance, minDist, maxDist)
 #### 권장 사항
 
 - **주의**: God of War, Sekiro는 실제로 단일 타겟 유지, 다수 적은 카메라 후퇴 또는 전환으로 대응
-- **본 프로젝트**: 기존 `lockOnMidPointWeight` 필드 재활용 (미사용 상태)
+- **본 프로젝트**: `lockOnMidPointWeight` 필드는 2026-06-03 최종 구조 정리에서 제거됨
 - **옵션화**: 소프트 센터로이드로 두 적 **사이**를 본다는 개념, 락온 대체 아님
 
 #### 신규 필드 (기존 활성화)

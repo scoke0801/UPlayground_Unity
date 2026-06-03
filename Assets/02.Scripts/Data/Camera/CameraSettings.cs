@@ -95,19 +95,11 @@ namespace UPlayGround.Data
         [Header("=== 락온 ===")]
         public float lockOnRange = 13f;
         public float lockOnDistance = 4f;
-        public float lockOnMidPointWeight = 0.35f;
-        public float lockOnYSmoothTime = 0.3f;
         public float lockOnTransitionDuration = 0.3f;
         public float targetSwitchCooldown = 0.15f;
 
         [Header("=== 락온 포커스 스무딩 ===")]
         public float lockOnFocusSmoothTime = 0.15f;
-
-        [Header("=== 락온 차폐 자동 리포지션 ===")]
-        public bool enableLockOnSideFlip = true;
-        public float sustainedCollisionSec = 0.4f;
-        public float sideFlipCooldown = 1f;
-        public float sideFlipSmoothTime = 0.2f;
 
         [Header("=== 락온 타겟팅 우선순위 ===")]
         public LockOnPriorityMode lockOnPriorityMode = LockOnPriorityMode.CameraDirection;

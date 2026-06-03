@@ -22,10 +22,27 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917131716100096
+      - rid: 889909585612374148
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909585612374148
+      type: {class: AfterimageEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.4243827
+        globalStartTimeOffset: 0
+        targetObjectName: 
+        alpha: 0.24
+        spawnInterval: 0.07
+        spawnCount: 6
+        poolSize: 8
+        holdDuration: 0.08
+        tintColor: {r: 0.55, g: 0.78, b: 1, a: 0.75}
+        fadeOutDuration: 0.25
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
     - rid: 7399917131716100096
       type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

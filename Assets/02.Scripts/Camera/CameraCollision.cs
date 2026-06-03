@@ -15,15 +15,9 @@ namespace UPlayGround.CameraSystem
         private float _collisionDistance;
         private float _collisionDistanceVel;
         private LayerMask _collisionLayers;
-        private bool _isColliding;
-        private float _collisionSustainedSec;
 
         // 당김은 즉시, 복귀는 부드럽게
         private const float PULL_SPEED = 0f;
-        private const float COLLISION_EPSILON = 0.03f;
-
-        public bool IsColliding => _isColliding;
-        public float CollisionSustainedSec => _collisionSustainedSec;
 
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
@@ -39,7 +33,6 @@ namespace UPlayGround.CameraSystem
         public float Evaluate(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
             float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
-            UpdateCollisionTelemetry(blockedDistance, desiredDistance);
 
             float smoothTime = blockedDistance < _collisionDistance
                 ? PULL_SPEED
@@ -56,8 +49,6 @@ namespace UPlayGround.CameraSystem
         {
             _collisionDistance = distance;
             _collisionDistanceVel = 0f;
-            _isColliding = false;
-            _collisionSustainedSec = 0f;
         }
 
         public void ApplyFloorRescue(Vector3 pivot, ref Vector3 cameraPosition, float deltaTime)
@@ -163,12 +154,5 @@ namespace UPlayGround.CameraSystem
             minReach = Mathf.Min(minReach, Mathf.Clamp(projectedReach, 0f, desiredDistance));
         }
 
-        private void UpdateCollisionTelemetry(float blockedDistance, float desiredDistance)
-        {
-            _isColliding = blockedDistance < desiredDistance - COLLISION_EPSILON;
-            _collisionSustainedSec = _isColliding
-                ? _collisionSustainedSec + Time.deltaTime
-                : 0f;
-        }
     }
 }

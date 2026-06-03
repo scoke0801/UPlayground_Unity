@@ -18,6 +18,22 @@
 
 이 문서는 위 기능을 묶어 밸런스 디자이너용 분석 툴로 확장하기 위한 기준 문서다. 현재 1차 구현은 `Balance Designer` 분석 창, 누락 데이터 자동 생성, MotionSet 기반 공격 데이터 생성 개선까지 포함한다.
 
+### 구현 현황 (2026-06 고도화)
+
+1단계 정적 분석 위에 다음 고도화가 반영되었다.
+
+| 항목 | 내용 |
+|------|------|
+| 경직 압박 분석 | 적 `poiseDamage`로 초당 경직 압박(poise/s)을 계산하고, 플레이어 `PoiseRecoveryRate` 대비 순 압박을 표시. 가드 브레이크는 가드 횟수 기반이라 '브레이크 시간'은 추정하지 않는다 |
+| DPS 기여도 정렬 | 공격 기여도 테이블을 DPS 내림차순 정렬하고 DPS 비중(`DPS%`)을 표시. 단일 공격이 전체 적 DPS의 35%를 넘으면 경고 |
+| Strong% 등급 밴드 | 강한 공격 합산 확률을 등급 권장 밴드와 대조해 상한 초과는 경고, 하한 미만은 정보로 안내 (순수 기본 공격 몬스터는 경고 제외) |
+| 텔레그래프 검증 | 넓은 범위/긴 사거리 강공격인데 `useTelegraph`가 꺼져 있으면 경고 |
+| 해금/잠김 표시 | 현재 레벨 기준 해금·잠김 공격 수와 사용 가능 공격 수, 최대 기여 공격을 요약에 표시 |
+| Danger Ring 프리뷰 | 공격별 `dangerRingDuration`(0이면 런타임 자동) 및 텔레그래프 플래그를 기여도 테이블에 표시 |
+| CSV 확장 | 경직 압박, 순 압박, 최대 기여 공격/비중, Danger Ring 누락 수, 해금/잠김 수 컬럼 추가 |
+
+또한 데이터셋 전반을 한눈에 비교하기 위한 **Balance Data Extractor**(`UPlayGround/Gameplay/Balance/Balance Data Extractor`)를 추가했다. 플레이어 공격 데이터, 몬스터 공격 데이터, 플레이어 스탯, 몬스터 스탯을 프로젝트 전체에서 스캔·요약하고 탭별 CSV로 내보낸다. 스탯의 플레이어/몬스터 분류는 `ActorDefinitionSO.actorType`과 `PartyMemberGrowthSO.baseStat` 참조를 기준으로 한다. 기존 `StatDatabaseEditorWindow`/`StatDataGeneratorWindow`가 스탯 단일 편집/생성에 집중하는 것과 달리, 이 창은 4개 데이터 카테고리를 통합 비교하는 읽기 전용 뷰다.
+
 ---
 
 ## 목표
@@ -84,14 +100,20 @@ BT 쪽 데이터는 두 갈래로 사용한다.
 
 ```
 Assets/02.Scripts/Tool/Editor/Balance/
-├── BalanceDesignerWindow.cs                 신규: 메인 에디터 창
-├── BalanceScenarioAsset.cs                  신규: 분석 조건 ScriptableObject
-├── BalanceScenarioResult.cs                 신규: 분석 결과 DTO
-├── BalanceCombatEstimator.cs                신규: 정적 전투 추정 계산기
-├── BalanceAttackAnalyzer.cs                 신규: AttackDataSO 요약/검증
-├── BalanceActorDataValidator.cs             신규: ActorDefinitionSO 누락 검증
-├── BalanceReplayComparator.cs               신규: EncounterReplay 비교
-└── BalanceDesignerStyles.cs                 신규: UI Toolkit/IMGUI 스타일 분리
+├── BalanceDesignerWindow.cs                 ✅ 메인 에디터 창
+├── BalanceScenarioAsset.cs                  ✅ 분석 조건 ScriptableObject
+├── BalanceScenarioResult.cs                 ✅ 분석 결과 DTO
+├── BalanceCombatEstimator.cs                ✅ 정적 전투 추정 계산기 (경직 압박/정렬/과점 포함)
+├── BalanceAttackAnalyzer.cs                 ✅ AttackDataSO 요약/검증 (damage/poise 합산)
+├── BalanceActorDataValidator.cs             ✅ 누락 검증 + 텔레그래프/Strong밴드/과점 사후 검증
+├── BalanceDataAutoGenerator.cs              ✅ MotionSet 기반 누락 데이터 자동 생성
+├── BalanceScenarioGenerator.cs              ✅ 현재 Player 데이터 기반 시나리오 에셋 자동 생성/갱신
+├── BalanceDataExtractor.cs                  ✅ 4개 데이터 카테고리 스캔/요약 서비스
+├── BalanceDataExtractorWindow.cs            ✅ 데이터 추출 탭 창 + CSV
+├── MonsterStatGeneratorWindow.cs            ✅ 커브 기반 몬스터 스탯 배치 생성/재레벨링
+├── BalanceTargetSolver.cs                   ✅ 목표 전투시간 역산 (권장 HP/피해 배율 + 적용)
+├── BalanceReplayComparator.cs               ⏳ 미구현: EncounterReplay 비교 (인프라 존재)
+└── BalanceDesignerStyles.cs                 ⏳ 미구현: 스타일 분리 (현재 인라인)
 ```
 
 ### 책임 분리
@@ -103,7 +125,36 @@ Assets/02.Scripts/Tool/Editor/Balance/
 | `BalanceCombatEstimator` | HP, 방어, 공격 주기, 쿨다운, 가중치를 이용해 예상 생존 시간 계산 |
 | `BalanceAttackAnalyzer` | `EnemyAttackDataSO`와 `PlayerAttackDataSO`에서 총 피해량, 평균 피해량, 히트 수, 쿨다운, 레벨 해금 정보를 요약 |
 | `BalanceActorDataValidator` | `ActorDefinitionSO` 필수 참조와 공격 데이터 누락을 검사 |
+| `BalanceScenarioGenerator` | `PartyConfigSO`(성장 데이터) + 캐릭터 모델 공격 데이터를 읽어 `BalanceScenarioAsset`을 자동 생성/갱신 |
 | `BalanceReplayComparator` | `EncounterReplay`의 실제 Intent/거리/선택 빈도와 정적 추정치를 비교 |
+
+---
+
+## 현재 Player 데이터 기반 시나리오 자동 생성
+
+`BalanceScenarioAsset`은 분석할 때마다 플레이어 캐릭터·스탯·공격 데이터·레벨을 손으로 채워야 했다. 이를 **현재 Player 데이터에서 자동 생성**하도록 `BalanceScenarioGenerator`를 추가했다. `Balance Designer` 창 툴바의 다음 두 버튼으로 사용한다.
+
+| 버튼 | 동작 |
+|------|------|
+| `Scenario ← Player` | `PartyConfigSO`의 현재 조작 캐릭터(`defaultBattleOrder[startActiveIndex]`, 없으면 `partyOrder`, 둘 다 비면 Bokusei) 1명에 대한 시나리오를 생성/갱신하고 창의 분석 대상으로 자동 연결 |
+| `Scenario ← Party` | `PartyConfig.growthData`에 등록된 모든 파티 캐릭터에 대해 시나리오를 일괄 생성/갱신 |
+
+### 채워지는 값과 보존되는 값
+
+생성기는 **플레이어 파생 4개 필드만** 기록한다.
+
+| 필드 | 출처 |
+|------|------|
+| `playerCharacter` | 해석된 캐릭터 타입 |
+| `playerStatData` | `PartyMemberGrowthSO.baseStat` (캐릭터 타입 일치) |
+| `playerLevel` | `PartyMemberGrowthSO.initialLevel` (없으면 1) |
+| `playerAttackData` | ① Model 프리팹 `CharacterModelData.attackData` → ② 이름에 캐릭터명이 포함된 `PlayerAttackDataSO` → ③ 프로젝트에 `PlayerAttackDataSO`가 하나뿐이면 공용 기본값 → ④ 실패 시 `null`(추정기가 `manualPlayerDps`로 폴백) |
+
+인카운터/방어/임계 가정값(`targetDuration`, `assumedDistance`, `hitReceiveRate`, `guardMitigationRate` 등)은 **건드리지 않는다.** 신규 생성 시에는 `BalanceScenarioAsset`의 필드 기본값을 그대로 쓰고, 기존 에셋을 재생성할 때는 사용자가 손으로 튜닝한 가정값을 보존한 채 플레이어 4개 필드만 새로고침한다(Undo 지원).
+
+### 저장 위치와 갱신 규칙
+
+`Assets/10.Datas/Balance/Scenarios/BalanceScenario_{Character}.asset` 경로에 캐릭터별로 1개씩 결정적 경로로 저장한다. 같은 캐릭터를 다시 생성하면 새 에셋을 만들지 않고 기존 에셋을 제자리 갱신하므로 중복이 쌓이지 않는다.
 
 ---
 
@@ -505,16 +556,39 @@ UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기
 
 ## 확장 포인트
 
-### 레벨 스케일링
+### 레벨 스케일링 (✅ 구현: MonsterScalingSO)
 
-현재 `ActorDefinitionSO.level`은 몬스터 기준 레벨이고, `EnemyAttackInfo.requiredLevel` 필터에 바로 사용할 수 있다. 이후 성장 곡선을 추가할 경우 신규 `BalanceLevelCurveSO`를 두고 다음 값을 분리한다.
+`ActorDefinitionSO.level`은 몬스터 기준 레벨이고, `EnemyAttackInfo.requiredLevel` 필터에 바로 사용된다. 레벨·등급·난이도 → 몬스터 스탯/목표 피해 산출은 `MonsterScalingSO`로 구현했다. 플레이어의 `PartyMemberGrowthSO`/`PartyPowerCalculator`를 미러하되, 플레이어에 없는 등급 배율·난이도 배율 두 축을 추가로 얹는다. 성장 규칙은 플레이어와 동일한 `StatGrowthRule`/`GrowthFormula`를 재사용한다.
 
-| 값 | 설명 |
-|----|------|
-| HP 스케일 | 레벨별 `MaxHealth` 보정 |
-| 공격 스케일 | `AttackPower` 또는 `HitPhaseData.damage` 보정 |
-| 방어 스케일 | `Defense` 보정 |
-| Poise 스케일 | `MaxPoise` / `poiseDamage` 보정 |
+| 구성 | 위치 | 역할 |
+|------|------|------|
+| `MonsterScalingSO` | `Data/Actor/Enemy/` | L1 기준값 + 성장규칙 + 등급 배율 + 난이도 + 공격 base 피해 단일 소스 |
+| `MonsterStatCalculator` | `Data/Actor/Enemy/` | `(scaling, grade, level, difficulty) → 스탯` 순수 계산 (런타임 재사용 가능) |
+| `MonsterStatGeneratorWindow` | `Tool/Editor/Balance/` | `UPlayGround/Gameplay/Balance/Monster Stat Generator`. ActorDatabase 순회, 각 def의 `level`+`grade`로 평가, **누락 statData만 생성 + 프리뷰**, Undo |
+
+| 스케일 축 | 적용 |
+|-----------|------|
+| HP 스케일 | 성장규칙(레벨) × 등급 `healthMultiplier` × 난이도 |
+| 공격 스케일 | `AttackPower` 성장 × 등급 `attackMultiplier` × 난이도, 공격 데이터 `HitPhaseData.damage`는 `GetBaseAttackDamage`로 연동 |
+| 방어 스케일 | 등급 `defenseAdd` 가산 (0~1 클램프) |
+| Poise 스케일 | 성장 × 등급 `poiseMultiplier` |
+
+몬스터는 런타임 레벨 스케일링을 하지 않고(MonsterActor가 `statData`를 직접 사용) 에디터 생성기가 bake하므로, 커브를 한 번 고치고 재생성하면 전체 몬스터 스탯이 일괄 반영된다. 플레이어 레벨별 스탯은 기존 `PartyMemberGrowthSO` + `PartyGrowthEditorWindow`로 이미 완성돼 있어 그대로 사용한다.
+
+#### Phase 2 — 목표 전투시간 역산 (✅ 구현: BalanceTargetSolver)
+
+`BalanceCombatEstimator`가 HP·피해에 선형인 점을 이용해 역산한다. Balance Designer 상세 패널의 "권장 보정" 섹션에서 확인·적용한다.
+
+| 역산 | 공식 |
+|------|------|
+| 권장 HP | `플레이어 예상 DPS × 목표 처치시간` → MonsterTimeToDeath가 목표 시간에 수렴 |
+| 권장 피해 배율 | `(플레이어 HP / 목표 생존시간) / 현재 적 DPS` → 모든 HitPhase.damage에 곱해 PlayerTimeToDeath를 목표 시간에 수렴 |
+
+목표 시간은 `result.TargetDuration`(시나리오/등급 기준)을 사용한다. 적/플레이어 DPS는 이미 방어·회피 가정을 반영한 값이라, 같은 결과 기준의 배율은 가정이 상쇄되어 일관된다. 적용은 `Undo.RecordObject` + 확인 다이얼로그를 거치며, 적용 후 자동 재분석한다. (`BalanceTargetSolver.ApplyHealth` / `ApplyDamageScale`)
+
+#### 몬스터 스탯 배치 재레벨링
+
+`MonsterStatGeneratorWindow`는 누락 생성 외에 **선택 행 덮어쓰기**를 지원한다. 체크한 몬스터(기존 statData 포함)를 커브로 재생성하며, 기존 에셋은 제자리 덮어쓰기(참조 링크 유지) + Undo + 확인 다이얼로그를 거친다. 보스 등 손튜닝 에셋은 체크 해제로 보호한다.
 
 ### 파티/캐릭터별 비교
 

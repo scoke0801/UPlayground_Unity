@@ -286,7 +286,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 if (GUILayout.Button($"선택 항목 재마이그레이션 (기존 {selectedExisting}개 덮어쓰기)", GUILayout.Height(24)))
                 {
                     string deleteNote = _deleteReplacedStats
-                        ? "교체된 기존 에셋은 다른 정의가 참조하지 않으면 삭제됩니다.\n"
+                        ? "교체·고아가 된 기존 prefab-local 에셋은 다른 곳이 참조하지 않으면 휴지통으로 이동됩니다(복구 가능).\n"
                         : "기존 에셋은 참조만 끊긴 채 남습니다.\n";
                     bool ok = EditorUtility.DisplayDialog(
                         "재마이그레이션",
@@ -305,15 +305,24 @@ namespace UPlayGround.Tool.Editor.Stat
                 GUI.backgroundColor = prevColor;
             }
             _deleteReplacedStats = GUILayout.Toggle(
-                _deleteReplacedStats, "교체된 기존 에셋 삭제", GUILayout.Width(150));
+                _deleteReplacedStats, "교체·고아 에셋 정리", GUILayout.Width(150));
             EditorGUILayout.EndHorizontal();
+
+            // 과거 실행에서 이미 중앙으로 리포인트된 뒤 남은 prefab-local 고아를 별도로 정리한다.
+            if (GUILayout.Button("프리팹 폴더 고아 스탯 정리 (미참조 → 휴지통)", GUILayout.Height(22)))
+            {
+                SweepColocatedOrphans();
+                GUIUtility.ExitGUI();
+            }
 
             EditorGUILayout.HelpBox(
                 "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
                 "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.\n" +
                 "몬스터의 breakGaugeData가 비어 있으면 BreakGaugeSO를 생성해 연결합니다.\n" +
                 "'재마이그레이션'은 이미 등록된 statData도 현재 등급 템플릿으로 다시 발급해 덮어씁니다. ('누락 항목만' 토글을 꺼야 기존 항목이 보입니다.)\n" +
-                "'교체된 기존 에셋 삭제'가 켜져 있으면, 더 이상 어떤 정의도 참조하지 않게 된 기존 statData 에셋을 자동 정리합니다(공유 에셋은 보존).",
+                "'교체·고아 에셋 정리'가 켜져 있으면, 처리한 정의 폴더에서 더 이상 참조되지 않는 prefab-local ActorStatSO를 휴지통으로 이동합니다(공유 에셋은 보존).\n" +
+                "'프리팹 폴더 고아 스탯 정리'는 과거 마이그레이션으로 이미 중앙으로 옮겨졌지만 프리팹 Descs 폴더에 남은 미참조 ActorStatSO를 일괄 정리합니다.\n" +
+                "※ 03.Prefabs 경로는 현재 git 추적 대상이 아니므로 삭제는 영구 삭제가 아닌 OS 휴지통 이동으로 처리됩니다.",
                 MessageType.Info);
         }
 
@@ -423,24 +432,36 @@ namespace UPlayGround.Tool.Editor.Stat
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            int deleted = _deleteReplacedStats ? CleanupUnreferencedStats(replacedPaths) : 0;
+            int deleted = 0;
+            if (_deleteReplacedStats)
+            {
+                // 이번 실행에서 교체된 에셋 + 처리한 정의 폴더에 남은 prefab-local 고아까지 함께 정리한다.
+                // (과거 실행에서 이미 중앙으로 리포인트돼 'previous'로 잡히지 않는 고아를 포착)
+                var processed = new List<ActorDefinitionSO>();
+                foreach (var row in _migrationRows)
+                    if (row.Selected) processed.Add(row.Definition);
+                replacedPaths.AddRange(CollectColocatedStatCandidates(processed));
+                deleted = CleanupUnreferencedStats(replacedPaths);
+            }
 
-            Debug.Log($"[StatDataGenerator] ActorStatSO 신규 {created}개 / 재마이그레이션 {regenerated}개 / 기존 에셋 정리 {deleted}개 / BreakGaugeSO {breakCount}개 완료");
+            Debug.Log($"[StatDataGenerator] ActorStatSO 신규 {created}개 / 재마이그레이션 {regenerated}개 / 고아 정리 {deleted}개 / BreakGaugeSO {breakCount}개 완료");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
         }
 
         /// <summary>
-        /// 교체로 더 이상 어떤 에셋도 직렬화 참조하지 않게 된 ActorStatSO 에셋을 삭제한다.
+        /// 후보 경로 중 더 이상 어떤 에셋도 직렬화 참조하지 않게 된 ActorStatSO를 휴지통으로 이동한다.
         /// 다른 에셋(정의/스케일링/성장)이 여전히 참조 중인 공유 에셋은 보존한다.
+        /// prefab-local 경로(03.Prefabs)는 git 추적 대상이 아니므로 영구 삭제(DeleteAsset) 대신
+        /// 복구 가능한 MoveAssetToTrash(OS 휴지통)를 사용한다.
         /// </summary>
-        private static int CleanupUnreferencedStats(List<string> candidatePaths)
+        private static int CleanupUnreferencedStats(List<string> candidatePaths, HashSet<string> referencedGuids = null)
         {
             if (candidatePaths == null || candidatePaths.Count == 0)
                 return 0;
 
-            var referencedGuids = CollectReferencedStatGuids();
-            int deleted = 0;
+            referencedGuids ??= CollectReferencedStatGuids();
+            int moved = 0;
             var seen = new HashSet<string>();
             foreach (var path in candidatePaths)
             {
@@ -449,27 +470,109 @@ namespace UPlayGround.Tool.Editor.Stat
 
                 string guid = AssetDatabase.AssetPathToGUID(path);
                 if (string.IsNullOrEmpty(guid) || referencedGuids.Contains(guid))
-                    continue; // 다른 정의가 여전히 참조 → 공유 에셋이므로 보존
+                    continue; // 다른 곳이 여전히 참조 → 공유 에셋이므로 보존
 
-                if (AssetDatabase.DeleteAsset(path))
+                if (AssetDatabase.MoveAssetToTrash(path))
                 {
-                    deleted++;
-                    Debug.Log($"[StatDataGenerator] 미참조 기존 statData 삭제: {path}");
+                    moved++;
+                    Debug.Log($"[StatDataGenerator] 미참조 statData 휴지통 이동: {path}");
                 }
             }
 
-            if (deleted > 0)
+            if (moved > 0)
             {
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
-            return deleted;
+            return moved;
         }
 
         /// <summary>
-        /// ActorStatSO를 직렬화 참조하는 모든 에셋(ActorDefinitionSO.statData,
-        /// MonsterScalingSO.baseStat, PartyMemberGrowthSO.baseStat)이 현재 가리키는 GUID 집합.
-        /// 새로운 ActorStatSO 참조 타입을 추가하면 여기도 함께 갱신할 것.
+        /// 주어진 정의들과 같은 폴더(하위 폴더 제외)에 위치한 ActorStatSO 에셋 경로를 수집한다.
+        /// P09Builder가 프리팹 Descs 폴더에 만든 prefab-local 스탯을 도출하기 위한 구조적 신호로,
+        /// 경로를 하드코딩하지 않고 정의 위치에서 동적으로 폴더를 얻는다.
+        /// 참조 여부(보존/정리) 판단은 호출부의 CleanupUnreferencedStats가 수행한다.
+        /// </summary>
+        private static List<string> CollectColocatedStatCandidates(IEnumerable<ActorDefinitionSO> defs)
+        {
+            var list = new List<string>();
+            if (defs == null) return list;
+
+            foreach (var def in defs)
+            {
+                if (def == null) continue;
+                string defPath = AssetDatabase.GetAssetPath(def);
+                if (string.IsNullOrEmpty(defPath)) continue;
+
+                string folder = (Path.GetDirectoryName(defPath) ?? string.Empty).Replace('\\', '/');
+                if (string.IsNullOrEmpty(folder)) continue;
+
+                foreach (var guid in AssetDatabase.FindAssets("t:ActorStatSO", new[] { folder }))
+                {
+                    string p = AssetDatabase.GUIDToAssetPath(guid);
+                    string pFolder = (Path.GetDirectoryName(p) ?? string.Empty).Replace('\\', '/');
+                    if (pFolder == folder) // 같은 폴더만(FindAssets는 하위 폴더까지 검색하므로 필터)
+                        list.Add(p);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 모든 ActorDefinitionSO 폴더를 훑어, 정의와 같은 폴더에 있으나 더 이상 어디서도 참조되지 않는
+        /// prefab-local ActorStatSO(= 과거 P09Builder가 만든 대체된 연결의 고아)를 휴지통으로 이동한다.
+        /// 과거 실행에서 이미 중앙으로 리포인트돼 재마이그레이션의 'previous'로 잡히지 않는 고아를 정리하는 진입점.
+        /// </summary>
+        private void SweepColocatedOrphans()
+        {
+            var allDefs = new List<ActorDefinitionSO>();
+            foreach (var guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+            {
+                var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (def != null) allDefs.Add(def);
+            }
+
+            var candidates = CollectColocatedStatCandidates(allDefs);
+            var referenced = CollectReferencedStatGuids();
+            var orphans = new List<string>();
+            var seen = new HashSet<string>();
+            foreach (var p in candidates)
+            {
+                if (string.IsNullOrEmpty(p) || !seen.Add(p)) continue;
+                string g = AssetDatabase.AssetPathToGUID(p);
+                if (string.IsNullOrEmpty(g) || referenced.Contains(g)) continue;
+                orphans.Add(p);
+            }
+
+            if (orphans.Count == 0)
+            {
+                EditorUtility.DisplayDialog("고아 스탯 정리", "정리할 미참조 prefab-local ActorStatSO가 없습니다.", "확인");
+                return;
+            }
+
+            int previewN = Mathf.Min(orphans.Count, 8);
+            string preview = string.Join("\n", orphans.GetRange(0, previewN).ConvertAll(Path.GetFileNameWithoutExtension));
+            if (orphans.Count > previewN) preview += $"\n... 외 {orphans.Count - previewN}개";
+
+            bool ok = EditorUtility.DisplayDialog(
+                "고아 스탯 정리",
+                $"ActorDef와 같은 폴더에 있으나 더 이상 어디서도 참조되지 않는 ActorStatSO {orphans.Count}개를 휴지통으로 이동합니다.\n" +
+                "이 경로(03.Prefabs)는 git 추적 대상이 아니므로 영구 삭제 대신 OS 휴지통으로 이동합니다(복구 가능).\n\n" +
+                preview + "\n\n계속할까요?",
+                "휴지통으로 이동", "취소");
+            if (!ok) return;
+
+            int moved = CleanupUnreferencedStats(orphans, referenced);
+            EditorUtility.DisplayDialog("고아 스탯 정리", $"{moved}개를 휴지통으로 이동했습니다.", "확인");
+            RefreshMigrationRows();
+        }
+
+        /// <summary>
+        /// ActorStatSO를 참조하는 모든 에셋이 현재 가리키는 GUID 집합.
+        /// 1) 알려진 중앙 참조 타입(ActorDefinitionSO.statData, MonsterScalingSO.baseStat,
+        ///    PartyMemberGrowthSO.baseStat)을 명시적으로 수집하고,
+        /// 2) 그 외 프리팹/ScriptableObject가 직렬화 필드로 직접 참조하는 경우까지
+        ///    의존성 스캔으로 포착한다(미탐 참조로 인한 오삭제 방지).
         /// </summary>
         private static HashSet<string> CollectReferencedStatGuids()
         {
@@ -484,6 +587,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 if (!string.IsNullOrEmpty(guid)) set.Add(guid);
             }
 
+            // 1) 알려진 중앙 참조 타입 (빠른 경로)
             foreach (var guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
                 Add(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid))?.statData);
 
@@ -493,7 +597,45 @@ namespace UPlayGround.Tool.Editor.Stat
             foreach (var guid in AssetDatabase.FindAssets("t:PartyMemberGrowthSO"))
                 Add(AssetDatabase.LoadAssetAtPath<PartyMemberGrowthSO>(AssetDatabase.GUIDToAssetPath(guid))?.baseStat);
 
+            AddDependencyReferences(set);
             return set;
+        }
+
+        /// <summary>
+        /// 프리팹/ScriptableObject가 의존성으로 직접 참조하는 ActorStatSO의 GUID를 referenced 집합에 추가한다.
+        /// 알려진 중앙 참조 타입 외의 경로(예: 프리팹 컴포넌트 필드의 직접 참조)로 묶인 스탯이
+        /// 고아로 오판되어 삭제되는 것을 막기 위한 안전망. (에디터 1회성이라 비용은 허용 범위)
+        /// </summary>
+        private static void AddDependencyReferences(HashSet<string> referenced)
+        {
+            // 프로젝트의 모든 ActorStatSO 경로 집합(역참조 교집합 대상)
+            var statPaths = new HashSet<string>();
+            foreach (var guid in AssetDatabase.FindAssets("t:ActorStatSO"))
+                statPaths.Add(AssetDatabase.GUIDToAssetPath(guid));
+            if (statPaths.Count == 0)
+                return;
+
+            void ScanHolders(string filter)
+            {
+                foreach (var guid in AssetDatabase.FindAssets(filter))
+                {
+                    string holderPath = AssetDatabase.GUIDToAssetPath(guid);
+                    if (string.IsNullOrEmpty(holderPath))
+                        continue;
+
+                    foreach (var dep in AssetDatabase.GetDependencies(holderPath, recursive: false))
+                    {
+                        if (dep == holderPath || !statPaths.Contains(dep))
+                            continue;
+                        string depGuid = AssetDatabase.AssetPathToGUID(dep);
+                        if (!string.IsNullOrEmpty(depGuid))
+                            referenced.Add(depGuid);
+                    }
+                }
+            }
+
+            ScanHolders("t:GameObject");        // 프리팹
+            ScanHolders("t:ScriptableObject");  // 그 외 SO 참조
         }
 
         private void GenerateAllMissing()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Path;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Party
@@ -31,6 +32,67 @@ namespace UPlayGround.Data.Party
         [Tooltip("다른 출전 파티원으로 교체한 뒤, 교체되어 나간 캐릭터에게 적용할 개별 스왑 쿨타임.")]
         [Min(0f)]
         public float swapCooldown = 3f;
+
+        [Header("Swap Evade")]
+        [Tooltip("몬스터 공격 타이밍에 맞춘 캐릭터 교체를 회피/카운터로 인정한다.")]
+        public bool enableSwapEvade = true;
+
+        [Tooltip("실제 피격 시점 이전에 스왑 회피 성공으로 인정할 시간.")]
+        [Min(0f)]
+        public float swapEvadeWindowBeforeHit = 0.25f;
+
+        [Tooltip("충돌 활성 직후에도 입력 지연을 보정해 성공으로 인정할 시간.")]
+        [Min(0f)]
+        public float swapEvadeGraceAfterHitStart = 0.08f;
+
+        [Tooltip("스왑 회피 성공 직후 플레이어 피격을 막는 시간.")]
+        [Min(0f)]
+        public float swapEvadeIFrameDuration = 0.35f;
+
+        [Tooltip("스왑 회피 카운터 공격 입력을 유지할 시간.")]
+        [Min(0f)]
+        public float swapEvadeCounterInputWindow = 0.45f;
+
+        [Tooltip("위협 탐색 범위. 0 이하이면 Entry Attack 기본 검출 반경을 사용한다.")]
+        [Min(0f)]
+        public float swapEvadeThreatSearchRange = 6f;
+
+        [Tooltip("공격 반경에 더해 회피 성공으로 인정할 여유 거리.")]
+        [Min(0f)]
+        public float swapEvadeThreatRadiusPadding = 0.5f;
+
+        [Tooltip("스왑 회피 위협으로 탐색할 몬스터 레이어.")]
+        public LayerMask swapEvadeThreatLayer = ~0;
+
+        [Header("Swap Evade Feedback")]
+        [Tooltip("스왑 회피 성공 시 히트스톱을 재생한다.")]
+        public bool swapEvadeEnableHitStop = true;
+
+        [Tooltip("스왑 회피 성공 히트스톱 지속 시간.")]
+        [Min(0f)]
+        public float swapEvadeHitStopDuration = 0.06f;
+
+        [Tooltip("스왑 회피 성공 히트스톱 타임스케일.")]
+        [Range(0.01f, 1f)]
+        public float swapEvadeHitStopTimeScale = 0.08f;
+
+        [Tooltip("스왑 회피 성공 시 재생할 카메라 쉐이크.")]
+        public CameraShakeIdType swapEvadeCameraShakeKey = CameraShakeIdType.LiteHit;
+
+        [Tooltip("스왑 회피 성공 시 재생할 FX 키. 비워두면 FX를 재생하지 않는다.")]
+        public string swapEvadeFxKey = string.Empty;
+
+        [Tooltip("스왑 회피 성공 FX 기준 소켓.")]
+        public ActorSocketType swapEvadeFxSocket = ActorSocketType.Center;
+
+        [Tooltip("스왑 회피 성공 FX 위치 오프셋.")]
+        public Vector3 swapEvadeFxOffset = Vector3.zero;
+
+        [Tooltip("스왑 회피 성공 시 해당 몬스터의 Danger Ring을 즉시 완료 처리한다.")]
+        public bool swapEvadeCompleteDangerRing = true;
+
+        [Tooltip("스왑 회피 성공 시 Dodge 바이탈 오브 보상을 지급한다. 밸런스 영향이 커서 기본값은 false.")]
+        public bool swapEvadeSpawnDodgeVitalOrb = false;
 
         [Header("Residual Attack")]
         [Tooltip("공격 중 교체 시 퇴장 캐릭터 모델 복제본이 남은 공격 타임라인을 실행한다.")]

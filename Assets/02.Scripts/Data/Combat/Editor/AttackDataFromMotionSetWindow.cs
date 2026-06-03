@@ -363,6 +363,7 @@ namespace UPlayGround.Editor
         {
             if (entry.Category != AttackCategory.Counter &&
                 entry.Category != AttackCategory.Entry &&
+                entry.Category != AttackCategory.SwapEvadeCounter &&
                 entry.Category != AttackCategory.SwapSpecial)
                 return false;
 
@@ -370,6 +371,7 @@ namespace UPlayGround.Editor
             {
                 AttackCategory.Counter => data.counterAttack,
                 AttackCategory.Entry => data.entryAttack,
+                AttackCategory.SwapEvadeCounter => data.swapEvadeCounterAttack,
                 AttackCategory.SwapSpecial => data.swapSpecialAttack,
                 _ => null,
             };
@@ -388,6 +390,8 @@ namespace UPlayGround.Editor
                 data.counterAttack = value;
             else if (entry.Category == AttackCategory.Entry)
                 data.entryAttack = value;
+            else if (entry.Category == AttackCategory.SwapEvadeCounter)
+                data.swapEvadeCounterAttack = value;
             else
                 data.swapSpecialAttack = value;
 
@@ -730,6 +734,7 @@ namespace UPlayGround.Editor
                 AttackCategory.Skill => 2.10f,
                 AttackCategory.Counter => 1.75f,
                 AttackCategory.Entry => 1.15f,
+                AttackCategory.SwapEvadeCounter => 1.85f,
                 AttackCategory.SwapSpecial => 2.40f,
                 AttackCategory.Charge => 1.35f,
                 _ => 1.00f,
@@ -754,6 +759,7 @@ namespace UPlayGround.Editor
                 AttackCategory.Skill => 2.25f,
                 AttackCategory.Counter => 2.50f,
                 AttackCategory.Entry => 1.60f,
+                AttackCategory.SwapEvadeCounter => 2.20f,
                 AttackCategory.SwapSpecial => 2.50f,
                 AttackCategory.Charge => 2.25f,
                 _ => 1.00f,
@@ -772,6 +778,7 @@ namespace UPlayGround.Editor
                 AttackCategory.Skill => Mathf.Max(0, value - (int)AnimKey.Skill_1),
                 AttackCategory.Counter => Mathf.Max(0, value - (int)AnimKey.Counter_Attack_1),
                 AttackCategory.Entry => Mathf.Max(0, value - (int)AnimKey.Player_SwapAttack_1),
+                AttackCategory.SwapEvadeCounter => 0,
                 AttackCategory.Charge => Mathf.Max(0, value - (int)AnimKey.ChargeAttack_1),
                 _ => 0,
             };
@@ -918,11 +925,13 @@ namespace UPlayGround.Editor
                 category = AttackCategory.Entry;
             else if (key == AnimKey.Player_SwapSpecialAttack_1)
                 category = AttackCategory.SwapSpecial;
+            else if (key == AnimKey.Player_SwapEvadeCounterAttack_1)
+                category = AttackCategory.SwapEvadeCounter;
             else if (value >= (int)AnimKey.ChargeAttack_1 && value <= (int)AnimKey.ChargeAttack_5)
                 category = AttackCategory.Charge;
 
             if (category == AttackCategory.Unknown) return false;
-            return targetKind == TargetKind.Player || category is not (AttackCategory.Entry or AttackCategory.SwapSpecial or AttackCategory.Charge);
+            return targetKind == TargetKind.Player || category is not (AttackCategory.Entry or AttackCategory.SwapEvadeCounter or AttackCategory.SwapSpecial or AttackCategory.Charge);
         }
 
         private enum AttackCategory
@@ -935,6 +944,7 @@ namespace UPlayGround.Editor
             Skill,
             Counter,
             Entry,
+            SwapEvadeCounter,
             SwapSpecial,
             Charge,
         }
@@ -969,6 +979,7 @@ namespace UPlayGround.Editor
                 AttackCategory.Skill => "스킬",
                 AttackCategory.Counter => "카운터",
                 AttackCategory.Entry => "등장",
+                AttackCategory.SwapEvadeCounter => "회피",
                 AttackCategory.SwapSpecial => "특수",
                 AttackCategory.Charge => "차지",
                 _ => "기타",

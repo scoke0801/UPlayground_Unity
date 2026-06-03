@@ -14,7 +14,7 @@ namespace UPlayGround.Editor
     public class PlayerAttackDataSODrawer
     {
         // ─── 탭 ─────────────────────────────────────────────────────────
-        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "특수", "연계" };
+        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "회피", "특수", "연계" };
         internal static readonly Color[] TabAccents =
         {
             new Color(0.35f, 0.55f, 1.00f),
@@ -25,6 +25,7 @@ namespace UPlayGround.Editor
             new Color(1.00f, 0.85f, 0.00f),
             new Color(1.00f, 0.50f, 0.15f),
             new Color(0.20f, 0.85f, 0.95f),
+            new Color(0.35f, 1.00f, 0.80f),
             new Color(1.00f, 0.25f, 0.65f),
             new Color(0.55f, 0.95f, 0.80f),
         };
@@ -43,7 +44,7 @@ namespace UPlayGround.Editor
         // ─── SerializedObject / Property ────────────────────────────────
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
-        private SerializedProperty _counter, _parryCounter, _entry, _swapSpecial;
+        private SerializedProperty _counter, _parryCounter, _entry, _swapEvadeCounter, _swapSpecial;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds, _chargeInterruptActions;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
         private SerializedProperty _comboRoutes;
@@ -159,6 +160,7 @@ namespace UPlayGround.Editor
             _counter          = so.FindProperty("counterAttack");
             _parryCounter     = so.FindProperty("parryCounterAttack");
             _entry            = so.FindProperty("entryAttack");
+            _swapEvadeCounter = so.FindProperty("swapEvadeCounterAttack");
             _swapSpecial      = so.FindProperty("swapSpecialAttack");
             _chargeAnimKey    = so.FindProperty("chargeAnimKey");
             _chargeStages     = so.FindProperty("chargeStages");
@@ -194,8 +196,9 @@ namespace UPlayGround.Editor
                 case 5: DrawCounterAttack(accent); break;
                 case 6: DrawChargeSection(accent); break;
                 case 7: DrawEntryAttack(accent); break;
-                case 8: DrawSwapSpecialAttack(accent); break;
-                case 9: DrawComboRoutes(accent); break;
+                case 8: DrawSwapEvadeCounterAttack(accent); break;
+                case 9: DrawSwapSpecialAttack(accent); break;
+                case 10: DrawComboRoutes(accent); break;
             }
         }
 
@@ -413,7 +416,8 @@ namespace UPlayGround.Editor
             6 => _chargeStages.arraySize,
             7 => 1,
             8 => 1,
-            9 => _comboRoutes != null ? _comboRoutes.arraySize : 0,
+            9 => 1,
+            10 => _comboRoutes != null ? _comboRoutes.arraySize : 0,
             _ => 0,
         };
 
@@ -424,7 +428,7 @@ namespace UPlayGround.Editor
             {
                 bool active = i == _tab;
                 int  count  = GetTabCount(i);
-                bool empty  = count == 0 && i != 5 && i != 7 && i != 8;
+                bool empty  = count == 0 && i != 5 && i != 7 && i != 8 && i != 9;
 
                 Color prev = GUI.backgroundColor;
                 GUI.backgroundColor = active
@@ -434,7 +438,7 @@ namespace UPlayGround.Editor
                         : new Color(0.25f, 0.25f, 0.25f, 0.8f);
 
                 var style = active ? _tabStyleActive : _tabStyleNormal;
-                string label = (i == 5 || i == 6 || i == 7 || i == 8) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
+                string label = (i == 5 || i == 6 || i == 7 || i == 8 || i == 9) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
 
                 Color prevContent = GUI.contentColor;
                 if (empty && !active) GUI.contentColor = new Color(1f, 1f, 1f, 0.4f);
@@ -977,6 +981,19 @@ namespace UPlayGround.Editor
                 MessageType.Info);
             EditorGUILayout.Space(4);
             DrawCounterAttackField(_entry, "entry", accent);
+        }
+
+        private void DrawSwapEvadeCounterAttack(Color accent)
+        {
+            EnsureFoldLists("swapEvadeCounter", 1);
+
+            DrawSectionHeader("스왑 회피 카운터", accent);
+            EditorGUILayout.HelpBox(
+                "몬스터 공격 타이밍에 맞춘 스왑 회피 성공 시 발동됩니다.\n" +
+                "비워두면 교체 등장 공격, 약 공격 첫 번째 순으로 대체됩니다.",
+                MessageType.Info);
+            EditorGUILayout.Space(4);
+            DrawCounterAttackField(_swapEvadeCounter, "swapEvadeCounter", accent);
         }
 
         private void DrawSwapSpecialAttack(Color accent)

@@ -211,6 +211,17 @@ public class UI_ActorHpBar : MonoBehaviour
         _fillBreakGaugeImage.fillAmount = _targetBreakFill;
     }
 
+    public void UpdateBreakCooldown(float remaining, float duration)
+    {
+        if (_fillBreakGaugeImage == null)
+            return;
+
+        Show();
+
+        _targetBreakFill = duration > 0f ? 1f - Mathf.Clamp01(remaining / duration) : 1f;
+        _fillBreakGaugeImage.fillAmount = _targetBreakFill;
+    }
+
     public void SetBreakGaugeEmptyUiActive(bool active)
     {
         if (_breakGaugeEmptyUi != null && _breakGaugeEmptyUi.activeSelf != active)

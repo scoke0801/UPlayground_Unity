@@ -51,6 +51,15 @@ namespace UPlayGround.State
             // 인터렉션 상태로 전환
             if (playerController.HasInteractInput())
             {
+                PlayerCombat combat = playerActor.GetCombat();
+                Transform breakTarget = combat != null ? combat.FindSpecialBreakAttackTarget() : null;
+                if (breakTarget != null)
+                {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Interact);
+                    playerController.TransitionToState(new PlayerSpecialBreakAttackState(playerController, breakTarget));
+                    return;
+                }
+
                 playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }

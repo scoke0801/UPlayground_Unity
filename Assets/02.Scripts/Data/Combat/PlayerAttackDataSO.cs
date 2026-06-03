@@ -48,6 +48,9 @@ namespace UPlayGround.Data.Combat
         [Tooltip("교체 등장 공격 데이터. 비어 있으면 약 공격 첫 번째로 대체된다.")]
         public PlayerAttackInfo entryAttack;
 
+        [Tooltip("스왑 회피 성공 시 발동하는 카운터 공격 데이터. 비어 있으면 교체 등장 공격, 약 공격 첫 번째 순으로 대체된다.")]
+        public PlayerAttackInfo swapEvadeCounterAttack;
+
         [Tooltip("스킬 게이지가 가득 찬 캐릭터로 교체할 때 발동하는 특수 공격 데이터. 비어 있으면 스킬 0번, 등장 공격 순으로 대체된다.")]
         public PlayerAttackInfo swapSpecialAttack;
 

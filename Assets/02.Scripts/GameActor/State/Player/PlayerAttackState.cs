@@ -28,7 +28,7 @@ namespace UPlayGround.State
     public class PlayerAttackState : PlayerActorState
     {
         public override string StateName => "Attack";
-        public override bool SuppressesHitReaction => _isEntryAttack || _isSwapSpecialAttack;
+        public override bool SuppressesHitReaction => _isSwapEvadeCounterAttack || _isEntryAttack || _isSwapSpecialAttack;
 
         private PlayerCombat    _combat;
         private PlayerEquipment _equipment;
@@ -40,6 +40,7 @@ namespace UPlayGround.State
         private bool _isHeavyAttack;
         private bool _isCounter;
         private bool _isParryCounter;
+        private bool _isSwapEvadeCounterAttack;
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
         private readonly PlayerInterruptAction _forcedAttackAction;
@@ -196,11 +197,15 @@ namespace UPlayGround.State
             if (isCounter)
                 return combat.PeekCounterAttackAnimKey();
 
-            // 1순위: 풀 게이지 교체 특수 공격
+            // 1순위: 스왑 회피 카운터
+            if (playerActor.IsSwapEvadeCounterAttackPending)
+                return combat.PeekSwapEvadeCounterAttackAnimKey();
+
+            // 2순위: 풀 게이지 교체 특수 공격
             if (playerActor.IsSwapSpecialAttackPending)
                 return combat.PeekSwapSpecialAttackAnimKey();
 
-            // 2순위: 교체 등장 공격
+            // 3순위: 교체 등장 공격
             if (playerActor.IsEntryAttackPending)
                 return combat.PeekEntryAttackAnimKey();
 
@@ -244,7 +249,8 @@ namespace UPlayGround.State
             if (_isCounter)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
 
-            _isSwapSpecialAttack = !hasForcedAttack && playerActor.ConsumeSwapSpecialAttackPending();
+            _isSwapEvadeCounterAttack = !hasForcedAttack && playerActor.ConsumeSwapEvadeCounterAttackPending();
+            _isSwapSpecialAttack = !hasForcedAttack && !_isSwapEvadeCounterAttack && playerActor.ConsumeSwapSpecialAttackPending();
             _isEntryAttack = !hasForcedAttack && playerActor.ConsumeEntryAttackPending();
 
             _isParryCounter = !hasForcedAttack && _combat.IsParryCounterAvailable;
@@ -267,6 +273,7 @@ namespace UPlayGround.State
 
             bool shouldResetCombo = !_isCounter
                                     && !_isParryCounter
+                                    && !_isSwapEvadeCounterAttack
                                     && !_isEntryAttack
                                     && !_isSwapSpecialAttack
                                     && !_combat.CanUseStoredCombo(_isHeavyAttack);
@@ -372,6 +379,7 @@ namespace UPlayGround.State
             {
                 _isCounter      = false;
                 _isParryCounter = false;
+                _isSwapEvadeCounterAttack = false;
                 _isEntryAttack  = false;
                 _isSwapSpecialAttack = false;
 
@@ -435,14 +443,21 @@ namespace UPlayGround.State
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
             }
 
-            // 1순위: 풀 게이지 교체 특수 공격
+            // 1순위: 스왑 회피 카운터
+            if (_isSwapEvadeCounterAttack)
+            {
+                _currentAttack = _combat.ExecuteSwapEvadeCounterAttack();
+                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+            }
+
+            // 2순위: 풀 게이지 교체 특수 공격
             if (_isSwapSpecialAttack)
             {
                 _currentAttack = _combat.ExecuteSwapSpecialAttack();
                 return _currentAttack?.animKey ?? AnimKey.Attack_1;
             }
 
-            // 2순위: 교체 등장 공격
+            // 3순위: 교체 등장 공격
             if (_isEntryAttack)
             {
                 _currentAttack = _combat.ExecuteEntryAttack();

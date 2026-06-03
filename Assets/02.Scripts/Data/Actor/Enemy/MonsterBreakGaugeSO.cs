@@ -33,7 +33,8 @@ namespace UPlayGround.Data.Enemy
         [Header("Gauge")]
         [Min(1f)] public float maxGauge = 100f;
         [Range(0f, 1f)] public float breakResist = 0f;
-        [Min(0f)] public float repeatBreakCooldown = 0f;
+        [Tooltip("특수 브레이크 공격이 적중한 뒤 다시 브레이크 게이지를 누적할 수 있을 때까지의 공통 쿨타임. 0이면 런타임 기본값을 사용합니다.")]
+        [Min(0f)] public float repeatBreakCooldown = 5f;
 
         [Header("Exposed")]
         [Min(0.1f)] public float exposedDuration = 4f;

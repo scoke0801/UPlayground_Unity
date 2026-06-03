@@ -670,6 +670,25 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        public AttackData ExecuteSwapEvadeCounterAttack()
+        {
+            ClearResidualAttackContext();
+            var source = _attackData.swapEvadeCounterAttack?.baseInfo != null
+                ? _attackData.swapEvadeCounterAttack
+                : (_attackData.entryAttack?.baseInfo != null
+                    ? _attackData.entryAttack
+                    : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null));
+
+            if (source == null) return null;
+
+            var comboState = CaptureComboState();
+            _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
+            RestoreComboState(comboState);
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
         public AttackData ExecuteSwapSpecialAttack()
         {
             ClearResidualAttackContext();
@@ -1260,6 +1279,19 @@ namespace UPlayGround.Component
                 : (_attackData != null && _attackData.liteComboAttackList.Count > 0
                     ? _attackData.liteComboAttackList[0]
                     : null);
+            return source?.baseInfo?.animKey ?? AnimKey.None;
+        }
+
+        /// <summary> 스왑 회피 카운터 AnimKey 조회 (ExecuteSwapEvadeCounterAttack과 동일한 폴백 체인). </summary>
+        public AnimKey PeekSwapEvadeCounterAttackAnimKey()
+        {
+            var source = _attackData?.swapEvadeCounterAttack?.baseInfo != null
+                ? _attackData.swapEvadeCounterAttack
+                : (_attackData?.entryAttack?.baseInfo != null
+                    ? _attackData.entryAttack
+                    : (_attackData != null && _attackData.liteComboAttackList.Count > 0
+                        ? _attackData.liteComboAttackList[0]
+                        : null));
             return source?.baseInfo?.animKey ?? AnimKey.None;
         }
 

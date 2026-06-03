@@ -7,6 +7,7 @@ using UnityEngine;
 using UPlayGround.AI.BehaviorTree.Editor;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Tool.Editor.Balance
@@ -26,6 +27,11 @@ namespace UPlayGround.Tool.Editor.Balance
         private ActorType _actorTypeFilter = ActorType.Monster;
         private readonly List<BalanceScenarioResult> _results = new();
         private BalanceScenarioResult _selectedResult;
+
+        // 방향키 네비게이션: 그려지는 행과 동일한 순서/필터의 액터 목록을 공유한다.
+        private readonly List<ActorDefinitionSO> _visibleActors = new();
+        private float _actorListViewportHeight;
+        private bool _ensureSelectedVisible;
 
         private float _targetDuration = 30f;
         private float _assumedDistance = 2.5f;
@@ -58,6 +64,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private void OnGUI()
         {
+            HandleListNavigation();
             DrawToolbar();
             DrawScenarioPanel();
 
@@ -97,6 +104,12 @@ namespace UPlayGround.Tool.Editor.Balance
                     if (GUILayout.Button("Generate Missing All", EditorStyles.toolbarButton, GUILayout.Width(134f)))
                         GenerateMissingForDatabase();
                 }
+
+                if (GUILayout.Button("Scenario ← Player", EditorStyles.toolbarButton, GUILayout.Width(124f)))
+                    GenerateScenarioForActivePlayer();
+
+                if (GUILayout.Button("Scenario ← Party", EditorStyles.toolbarButton, GUILayout.Width(120f)))
+                    GenerateScenarioForAllPlayers();
 
                 using (new EditorGUI.DisabledScope(_results.Count == 0))
                 {
@@ -160,17 +173,17 @@ namespace UPlayGround.Tool.Editor.Balance
                     return;
                 }
 
-                _actorListScroll = EditorGUILayout.BeginScrollView(_actorListScroll);
-                IReadOnlyList<ActorDefinitionSO> actors = _database.All;
-                for (int i = 0; i < actors.Count; i++)
-                {
-                    ActorDefinitionSO actor = actors[i];
-                    if (!ShouldShowActor(actor))
-                        continue;
+                RebuildVisibleActors();
+                if (_ensureSelectedVisible)
+                    ApplyEnsureSelectedVisible();
 
-                    DrawActorListItem(actor);
-                }
+                _actorListScroll = EditorGUILayout.BeginScrollView(_actorListScroll);
+                for (int i = 0; i < _visibleActors.Count; i++)
+                    DrawActorListItem(_visibleActors[i]);
                 EditorGUILayout.EndScrollView();
+
+                if (Event.current.type == EventType.Repaint)
+                    _actorListViewportHeight = GUILayoutUtility.GetLastRect().height;
             }
         }
 
@@ -187,11 +200,74 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
             {
-                _selectedActor = actor;
-                _selectedResult = FindResult(actor);
-                Selection.activeObject = actor;
+                SelectActor(actor);
                 Event.current.Use();
             }
+        }
+
+        private void SelectActor(ActorDefinitionSO actor)
+        {
+            _selectedActor = actor;
+            _selectedResult = FindResult(actor);
+            Selection.activeObject = actor;
+        }
+
+        // _database.All을 필터링해 화면에 표시되는 액터를 그려지는 순서 그대로 모은다.
+        private void RebuildVisibleActors()
+        {
+            _visibleActors.Clear();
+            if (_database == null)
+                return;
+
+            IReadOnlyList<ActorDefinitionSO> actors = _database.All;
+            for (int i = 0; i < actors.Count; i++)
+            {
+                if (ShouldShowActor(actors[i]))
+                    _visibleActors.Add(actors[i]);
+            }
+        }
+
+        // 위/아래 방향키로 표시 목록의 이전/다음 액터를 선택한다(텍스트 편집 중에는 무시).
+        private void HandleListNavigation()
+        {
+            Event e = Event.current;
+            if (e.type != EventType.KeyDown || _database == null)
+                return;
+            if (e.keyCode != KeyCode.UpArrow && e.keyCode != KeyCode.DownArrow)
+                return;
+            if (EditorGUIUtility.editingTextField)
+                return;
+
+            RebuildVisibleActors();
+            if (_visibleActors.Count == 0)
+                return;
+
+            int index = _visibleActors.IndexOf(_selectedActor);
+            int next = index < 0
+                ? 0
+                : Mathf.Clamp(index + (e.keyCode == KeyCode.DownArrow ? 1 : -1), 0, _visibleActors.Count - 1);
+
+            SelectActor(_visibleActors[next]);
+            _ensureSelectedVisible = true;
+            e.Use();
+            Repaint();
+        }
+
+        // 선택 항목이 스크롤 영역 밖이면 보이도록 스크롤을 보정한다(행 높이 42 고정).
+        private void ApplyEnsureSelectedVisible()
+        {
+            _ensureSelectedVisible = false;
+            int index = _visibleActors.IndexOf(_selectedActor);
+            if (index < 0 || _actorListViewportHeight <= 0f)
+                return;
+
+            const float itemHeight = 42f;
+            float top = index * itemHeight;
+            float bottom = top + itemHeight;
+            if (top < _actorListScroll.y)
+                _actorListScroll.y = top;
+            else if (bottom > _actorListScroll.y + _actorListViewportHeight)
+                _actorListScroll.y = bottom - _actorListViewportHeight;
         }
 
         private void DrawMainPanel()
@@ -602,6 +678,82 @@ namespace UPlayGround.Tool.Editor.Balance
 
             AnalyzeDatabase();
             EditorUtility.DisplayDialog("누락 데이터 일괄 생성", $"생성된 에셋: {createdCount}개", "확인");
+        }
+
+        private void GenerateScenarioForActivePlayer()
+        {
+            PartyConfigSO config = BalanceScenarioGenerator.FindPartyConfig();
+            if (config == null && !EditorUtility.DisplayDialog(
+                    "시나리오 생성",
+                    "PartyConfigSO를 찾지 못했습니다. 기본 캐릭터(Bokusei)·레벨 1 가정으로 생성할까요?",
+                    "생성",
+                    "취소"))
+            {
+                return;
+            }
+
+            BalanceScenarioGenerator.ScenarioGenResult result =
+                BalanceScenarioGenerator.GenerateForActiveCharacter(config);
+
+            // 생성/갱신된 시나리오를 현재 분석 대상으로 자동 연결한다.
+            _scenario = result.Asset;
+            EditorGUIUtility.PingObject(result.Asset);
+            if (_database != null)
+                AnalyzeDatabase();
+
+            string verb = result.Created ? "생성" : "갱신";
+            EditorUtility.DisplayDialog(
+                "시나리오 생성",
+                $"현재 조작 캐릭터 시나리오 {verb} 완료\n\n" +
+                $"캐릭터: {result.Character} (Lv.{result.Level})\n" +
+                $"{result.Note}\n{result.Path}",
+                "확인");
+        }
+
+        private void GenerateScenarioForAllPlayers()
+        {
+            PartyConfigSO config = BalanceScenarioGenerator.FindPartyConfig();
+            if (config == null)
+            {
+                EditorUtility.DisplayDialog("시나리오 일괄 생성", "PartyConfigSO를 찾지 못했습니다.", "확인");
+                return;
+            }
+
+            if (!EditorUtility.DisplayDialog(
+                    "시나리오 일괄 생성",
+                    "PartyConfig.growthData의 모든 파티 캐릭터에 대해 시나리오를 생성/갱신합니다.\n" +
+                    "(인카운터/방어 가정값은 보존하고 플레이어 데이터만 새로고침)\n계속하시겠습니까?",
+                    "생성",
+                    "취소"))
+            {
+                return;
+            }
+
+            List<BalanceScenarioGenerator.ScenarioGenResult> results =
+                BalanceScenarioGenerator.GenerateForAllPartyMembers(config);
+
+            var builder = new StringBuilder();
+            int created = 0;
+            int updated = 0;
+            for (int i = 0; i < results.Count; i++)
+            {
+                BalanceScenarioGenerator.ScenarioGenResult r = results[i];
+                if (r.Created) created++; else updated++;
+                builder.AppendLine($"· {r.Character} (Lv.{r.Level}) {(r.Created ? "신규" : "갱신")} — {r.Note}");
+            }
+
+            CharacterActorType active = BalanceScenarioGenerator.ResolveActiveCharacter(config);
+            BalanceScenarioGenerator.ScenarioGenResult activeResult =
+                results.Find(r => r.Character == active);
+            if (activeResult != null)
+                _scenario = activeResult.Asset;
+            if (_database != null)
+                AnalyzeDatabase();
+
+            EditorUtility.DisplayDialog(
+                "시나리오 일괄 생성",
+                $"총 {results.Count}개 (신규 {created} / 갱신 {updated})\n\n{builder}",
+                "확인");
         }
 
         private static string BuildGenerationMessage(BalanceDataAutoGenerator.GenerationSummary summary)

@@ -108,6 +108,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 AddOne(attacks, asset.counterAttack);
                 AddOne(attacks, asset.parryCounterAttack);
                 AddOne(attacks, asset.entryAttack);
+                AddOne(attacks, asset.swapEvadeCounterAttack);
                 AddOne(attacks, asset.swapSpecialAttack);
 
                 float total = 0f;

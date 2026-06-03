@@ -89,6 +89,7 @@ namespace UPlayGround.Tool.Editor.Balance
             AddOne(attacks, data.counterAttack);
             AddOne(attacks, data.parryCounterAttack);
             AddOne(attacks, data.entryAttack);
+            AddOne(attacks, data.swapEvadeCounterAttack);
             AddOne(attacks, data.swapSpecialAttack);
 
             float totalDamage = 0f;

@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
 using UPlayGround.InputDefine;
 
@@ -38,6 +39,8 @@ namespace UPlayGround.Manager
         private int                    _maxBattleSize = 4;
         private bool                   _isSwapping   = false;
         private PlayerCombat           _subscribedCombat;
+        private readonly Collider[]    _swapEvadeOverlapBuffer = new Collider[128];
+        private readonly HashSet<MonsterActor> _swapEvadeEvaluatedMonsters = new();
 
         [SerializeField] private float _swapCooldown = 0.5f;
         [SerializeField] private float _partySkillGaugeChargePerPlayerHit = 5f;
@@ -61,6 +64,25 @@ namespace UPlayGround.Manager
         public float                     SwapCooldownRemaining => GetSwapCooldownRemaining(ActiveCharacterType);
         public float                     SwapCooldownRatio => SwapCooldownDuration > 0f ? SwapCooldownRemaining / SwapCooldownDuration : 0f;
         public bool                      IsSwapOnCooldown => HasAnySwapCooldown();
+        public bool                      EnableSwapEvade => _config == null || _config.enableSwapEvade;
+        public float                     SwapEvadeWindowBeforeHit => _config != null ? Mathf.Max(0f, _config.swapEvadeWindowBeforeHit) : 0.25f;
+        public float                     SwapEvadeGraceAfterHitStart => _config != null ? Mathf.Max(0f, _config.swapEvadeGraceAfterHitStart) : 0.08f;
+        public float                     SwapEvadeIFrameDuration => _config != null ? Mathf.Max(0f, _config.swapEvadeIFrameDuration) : 0.35f;
+        public float                     SwapEvadeCounterInputWindow => _config != null ? Mathf.Max(0f, _config.swapEvadeCounterInputWindow) : 0.45f;
+        public float                     SwapEvadeThreatSearchRange => _config != null && _config.swapEvadeThreatSearchRange > 0f
+            ? _config.swapEvadeThreatSearchRange
+            : (_config != null ? Mathf.Max(0f, _config.defaultEntryAttackRange) : 6f);
+        public float                     SwapEvadeThreatRadiusPadding => _config != null ? Mathf.Max(0f, _config.swapEvadeThreatRadiusPadding) : 0.5f;
+        public LayerMask                 SwapEvadeThreatLayer => _config != null ? _config.swapEvadeThreatLayer : ~0;
+        public bool                      SwapEvadeEnableHitStop => _config == null || _config.swapEvadeEnableHitStop;
+        public float                     SwapEvadeHitStopDuration => _config != null ? Mathf.Max(0f, _config.swapEvadeHitStopDuration) : 0.06f;
+        public float                     SwapEvadeHitStopTimeScale => _config != null ? Mathf.Clamp(_config.swapEvadeHitStopTimeScale, 0.01f, 1f) : 0.08f;
+        public CameraShakeIdType         SwapEvadeCameraShakeKey => _config != null ? _config.swapEvadeCameraShakeKey : CameraShakeIdType.LiteHit;
+        public string                    SwapEvadeFxKey => _config != null ? _config.swapEvadeFxKey : string.Empty;
+        public ActorSocketType           SwapEvadeFxSocket => _config != null ? _config.swapEvadeFxSocket : ActorSocketType.Center;
+        public Vector3                   SwapEvadeFxOffset => _config != null ? _config.swapEvadeFxOffset : Vector3.zero;
+        public bool                      SwapEvadeCompleteDangerRing => _config == null || _config.swapEvadeCompleteDangerRing;
+        public bool                      SwapEvadeSpawnDodgeVitalOrb => _config != null && _config.swapEvadeSpawnDodgeVitalOrb;
         public bool                      EnableResidualAttackOnSwap => _config == null || _config.enableResidualAttackOnSwap;
         public float                     ResidualAttackMaxLifetime => _config != null ? Mathf.Max(0.1f, _config.residualAttackMaxLifetime) : 2.4f;
         public float                     ResidualAttackMinVisibleLifetime => _config != null ? Mathf.Max(0f, _config.residualAttackMinVisibleLifetime) : 0.45f;
@@ -202,7 +224,8 @@ namespace UPlayGround.Manager
 
             if (_player.GetHealthForCharacter(targetType) <= 0f)      return false;
 
-            bool isAssist = _player.GetCombat()?.IsPerfectDodgeWindow == true;
+            bool isSwapEvade = TryEvaluateSwapEvade(out EnemyAttackThreat swapEvadeThreat);
+            bool isAssist = !isSwapEvade && _player.GetCombat()?.IsPerfectDodgeWindow == true;
 
             _isSwapping = true;
             OnSwapStarted?.Invoke(_player, _player);
@@ -217,7 +240,14 @@ namespace UPlayGround.Manager
             // 풀 게이지 스왑 특수공격은 임시 비활성화. 우선 일반 스왑 공격만 사용한다.
             bool isSwapSpecial = false;
             bool isEntryAttack = false;
-            if (isAssist)
+            if (isSwapEvade)
+            {
+                _player.BeginSwapEvadeIFrame(SwapEvadeIFrameDuration);
+                _player.QueueSwapEvade(swapEvadeThreat.Source, SwapEvadeCounterInputWindow);
+                if (SwapEvadeCompleteDangerRing)
+                    swapEvadeThreat.Combat?.CompleteDangerRing();
+            }
+            else if (isAssist)
             {
                 _player.QueueSwapAssist();
             }
@@ -234,9 +264,64 @@ namespace UPlayGround.Manager
             NotifyActivePlayerChanged();
             OnSwapCompleted?.Invoke(_player);
 
-            string tag = isSwapSpecial ? " [특수공격]" : (isAssist ? " [어시스트]" : (isEntryAttack ? " [등장공격]" : ""));
+            string tag = isSwapSpecial ? " [특수공격]" : (isSwapEvade ? " [스왑회피]" : (isAssist ? " [어시스트]" : (isEntryAttack ? " [등장공격]" : "")));
             Debug.Log($"[PartyManager] 교체 → {targetType}{tag}");
             return true;
+        }
+
+        private bool TryEvaluateSwapEvade(out EnemyAttackThreat bestThreat)
+        {
+            bestThreat = default;
+            if (!EnableSwapEvade || _player == null) return false;
+
+            float range = SwapEvadeThreatSearchRange;
+            if (range <= 0f) return false;
+
+            Vector3 origin = _player.transform.position;
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                origin,
+                range,
+                _swapEvadeOverlapBuffer,
+                SwapEvadeThreatLayer,
+                QueryTriggerInteraction.Ignore);
+
+            bool found = false;
+            float bestScore = float.MaxValue;
+            _swapEvadeEvaluatedMonsters.Clear();
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                var hit = _swapEvadeOverlapBuffer[i];
+                if (hit == null) continue;
+
+                var monster = hit.GetComponentInParent<MonsterActor>();
+                if (monster == null || !_swapEvadeEvaluatedMonsters.Add(monster))
+                    continue;
+
+                var combat = monster != null ? monster.Combat : null;
+                if (combat == null)
+                    continue;
+
+                if (!combat.TryGetSwapEvadeThreat(
+                        origin,
+                        SwapEvadeWindowBeforeHit,
+                        SwapEvadeGraceAfterHitStart,
+                        SwapEvadeThreatRadiusPadding,
+                        out EnemyAttackThreat threat))
+                    continue;
+
+                float score = threat.IsCollisionActive
+                    ? -1f
+                    : Mathf.Max(0f, threat.TimeToHit);
+                if (score >= bestScore)
+                    continue;
+
+                bestScore = score;
+                bestThreat = threat;
+                found = true;
+            }
+
+            return found;
         }
 
         /// <summary>

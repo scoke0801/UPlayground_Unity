@@ -9,6 +9,8 @@ namespace UPlayGround.Component
 {
     public class MonsterBreakGauge : MonoBehaviour
     {
+        private const float DefaultRepeatBreakCooldown = 5f;
+
         [HideInInspector, SerializeField] private MonsterBreakGaugeSO _data;
 
         private MonsterActor _owner;
@@ -20,8 +22,12 @@ namespace UPlayGround.Component
         private bool _hasBrokenOnce;
 
         public bool IsExposed => _isExposed;
+        public bool IsRepeatCooldown => _repeatCooldownTimer > 0f;
         public bool UseBreakGauge => _data != null && _data.useBreakGauge;
         public float GaugePercent => MaxGauge > 0f ? _currentGauge / MaxGauge : 0f;
+        public float RepeatCooldownPercent => RepeatCooldownDuration > 0f
+            ? Mathf.Clamp01(_repeatCooldownTimer / RepeatCooldownDuration)
+            : 0f;
         public float DamageTakenMultiplier => _isExposed && _data != null
             ? Mathf.Max(0f, _data.damageTakenMultiplierWhileExposed)
             : 1f;
@@ -34,6 +40,17 @@ namespace UPlayGround.Component
                 MonsterActorGrade grade = _owner != null ? _owner.Grade : MonsterActorGrade.Normal;
                 float gradeScale = _data.gradePolicy != null ? _data.gradePolicy.GetGaugeMultiplier(grade) : 1f;
                 return Mathf.Max(1f, _data.maxGauge * gradeScale);
+            }
+        }
+
+        private float RepeatCooldownDuration
+        {
+            get
+            {
+                if (_data == null) return DefaultRepeatBreakCooldown;
+                return _data.repeatBreakCooldown > 0f
+                    ? _data.repeatBreakCooldown
+                    : DefaultRepeatBreakCooldown;
             }
         }
 
@@ -55,7 +72,18 @@ namespace UPlayGround.Component
         private void Update()
         {
             if (_repeatCooldownTimer > 0f)
+            {
                 _repeatCooldownTimer -= Time.deltaTime;
+                if (_repeatCooldownTimer <= 0f)
+                {
+                    _repeatCooldownTimer = 0f;
+                    RefreshUi();
+                }
+                else
+                {
+                    UpdateUiAsCooldown();
+                }
+            }
 
             if (!_isExposed) return;
 
@@ -131,7 +159,7 @@ namespace UPlayGround.Component
                 ? _data.resetGaugeRatioOnSpecialAttack
                 : _data.resetGaugeRatioOnExpire;
             _currentGauge = MaxGauge * (1f - Mathf.Clamp01(ratio));
-            _repeatCooldownTimer = Mathf.Max(0f, _data.repeatBreakCooldown);
+            _repeatCooldownTimer = consumed ? RepeatCooldownDuration : 0f;
             RefreshUi();
             OnBreakRecovered?.Invoke(this);
         }
@@ -166,7 +194,11 @@ namespace UPlayGround.Component
             OnGaugeChanged?.Invoke(_currentGauge, MaxGauge);
             if (_actorUIBar != null)
             {
-                _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
+                if (_repeatCooldownTimer > 0f)
+                    _actorUIBar.UpdateBreakCooldown(_repeatCooldownTimer, RepeatCooldownDuration);
+                else
+                    _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
+
                 _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
             }
         }
@@ -179,6 +211,18 @@ namespace UPlayGround.Component
             if (_actorUIBar != null)
             {
                 _actorUIBar.UpdateBreakGauge(current, max);
+                _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
+            }
+        }
+
+        private void UpdateUiAsCooldown()
+        {
+            float max = Mathf.Max(0.1f, RepeatCooldownDuration);
+            float current = Mathf.Clamp(_repeatCooldownTimer, 0f, max);
+            OnGaugeChanged?.Invoke(current, max);
+            if (_actorUIBar != null)
+            {
+                _actorUIBar.UpdateBreakCooldown(current, max);
                 _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
             }
         }

@@ -80,11 +80,18 @@ namespace UPlayGround
         // 교체 어시스트
         private bool _swapAssistQueued = false;
 
+        // 스왑 회피 카운터. 1차 구현은 등장 공격 데이터를 재사용한다.
+        private bool         _swapEvadeQueued = false;
+        private MonsterActor _swapEvadeTarget;
+        private float        _swapEvadeInvincibleEndTime = -999f;
+        private float        _swapEvadeCounterInputEndTime = -999f;
+
         // 등장 공격 (교체 직후 범위 내 적 존재 시 발동)
         private bool         _entryAttackQueued = false;
         private MonsterActor _entryAttackTarget;
         // PlayerAttackState 가 OnEnter에서 1회 소비하여 ExecuteEntryAttack 라우팅을 트리거.
         private bool         _isEntryAttackPending = false;
+        private bool         _isSwapEvadeCounterAttackPending = false;
         private bool         _isSwapSpecialAttackPending = false;
         private bool         _isInputSuppressed = false;
 
@@ -113,6 +120,8 @@ namespace UPlayGround
         public PlayerSkillGauge            SkillGauge            => _skillGauge;
         public FootIKController            FootIK                => _footIK;
         public bool                        IsInputSuppressed     => _isInputSuppressed;
+        public bool                        IsSwapEvadeInvincible => Time.time <= _swapEvadeInvincibleEndTime;
+        public bool                        IsSwapEvadeCounterAvailable => Time.time <= _swapEvadeCounterInputEndTime;
     }
 
     public partial class PlayerActor : GameActor, IDamageable
@@ -179,8 +188,13 @@ namespace UPlayGround
             if (_chargeAttackHeld)
                 _chargeHoldTime += Time.deltaTime;
 
+            // 스왑 회피 카운터는 등장 공격 데이터를 재사용하되, 일반 어시스트/등장 공격보다 우선한다.
+            if (_swapEvadeQueued)
+            {
+                ConsumeSwapEvadeQueue();
+            }
             // 교체 어시스트 공격 주입: PartyManager가 설정하면 다음 프레임 공격 입력으로 처리
-            if (_swapAssistQueued)
+            else if (_swapAssistQueued)
             {
                 _attackInputCondition = InputCondition.Pressed;
                 _swapAssistQueued = false;
@@ -397,6 +411,18 @@ namespace UPlayGround
         /// </summary>
         public void QueueSwapAssist() => _swapAssistQueued = true;
 
+        public void BeginSwapEvadeIFrame(float duration)
+        {
+            _swapEvadeInvincibleEndTime = Time.time + Mathf.Max(0f, duration);
+        }
+
+        public void QueueSwapEvade(MonsterActor target, float counterWindow)
+        {
+            _swapEvadeQueued = true;
+            _swapEvadeTarget = target;
+            _swapEvadeCounterInputEndTime = Time.time + Mathf.Max(0f, counterWindow);
+        }
+
         /// <summary>
         /// 등장 공격을 다음 Update()에서 실행하도록 예약한다.
         /// PartyManager가 교체 성공 + 범위 내 적 존재 시 호출.
@@ -463,6 +489,69 @@ namespace UPlayGround
             TryStartEntryAttack();
         }
 
+        private void ConsumeSwapEvadeQueue()
+        {
+            string state = MovementController?.CurrentState?.StateName;
+            if (state == "Hit" || state == "Death" || state == "Grabbed" || state == "Knockdown")
+            {
+                _swapEvadeQueued = false;
+                _swapEvadeTarget = null;
+                return;
+            }
+
+            if (_swapEvadeTarget != null && _swapEvadeTarget.IsAlive())
+            {
+                Vector3 toTarget = _swapEvadeTarget.transform.position - transform.position;
+                toTarget.y = 0f;
+                if (toTarget.sqrMagnitude > 0.0001f)
+                    transform.rotation = Quaternion.LookRotation(toTarget);
+            }
+
+            PlaySwapEvadeFeedback();
+
+            _swapEvadeQueued = false;
+            _swapEvadeTarget = null;
+            TryStartSwapEvadeCounterAttack();
+            Debug.Log("[PlayerActor] 스왑 회피 카운터 발동");
+        }
+
+        private void PlaySwapEvadeFeedback()
+        {
+            var party = PartyManager.Instance;
+            if (party == null) return;
+
+            Vector3 fxPos = TryGetSocket(party.SwapEvadeFxSocket, out var socket)
+                ? socket.position
+                : transform.position;
+            fxPos += party.SwapEvadeFxOffset;
+
+            if (party.SwapEvadeEnableHitStop && party.SwapEvadeHitStopDuration > 0f)
+                GameCombatManager.Instance?.GameHitStop?.Execute(
+                    party.SwapEvadeHitStopDuration,
+                    party.SwapEvadeHitStopTimeScale);
+
+            if (party.SwapEvadeCameraShakeKey != CameraShakeIdType.None)
+                CameraManager.Instance?.StartShake(party.SwapEvadeCameraShakeKey);
+
+            if (!string.IsNullOrWhiteSpace(party.SwapEvadeFxKey))
+                GameObjectManager.Instance?.ShowFX(party.SwapEvadeFxKey, fxPos, transform.rotation);
+
+            if (party.SwapEvadeSpawnDodgeVitalOrb)
+                GameCombatManager.Instance?.GameVitalOrb?.TrySpawn(VitalOrbTrigger.Dodge, fxPos);
+        }
+
+        private bool TryStartSwapEvadeCounterAttack()
+        {
+            _isSwapEvadeCounterAttackPending = true;
+
+            bool entered = PlayerMovementPlayerController != null
+                           && PlayerAttackState.TryEnter(PlayerMovementPlayerController);
+            if (!entered)
+                _isSwapEvadeCounterAttackPending = false;
+
+            return entered;
+        }
+
         /// <summary>
         /// PlayerAttackState.OnEnter 가 호출. true면 이번 공격을 등장 공격으로 처리.
         /// 한 번 호출되면 자동으로 false로 리셋된다.
@@ -471,6 +560,13 @@ namespace UPlayGround
         {
             if (!_isEntryAttackPending) return false;
             _isEntryAttackPending = false;
+            return true;
+        }
+
+        public bool ConsumeSwapEvadeCounterAttackPending()
+        {
+            if (!_isSwapEvadeCounterAttackPending) return false;
+            _isSwapEvadeCounterAttackPending = false;
             return true;
         }
 
@@ -483,6 +579,7 @@ namespace UPlayGround
 
         /// <summary> 등장 공격 대기 여부를 소비하지 않고 조회 (PlayerAttackState 진입 가능 판정용). </summary>
         public bool IsEntryAttackPending => _isEntryAttackPending;
+        public bool IsSwapEvadeCounterAttackPending => _isSwapEvadeCounterAttackPending;
         public bool IsSwapSpecialAttackPending => _isSwapSpecialAttackPending;
     }
 
@@ -766,7 +863,10 @@ namespace UPlayGround
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
 
         public bool CanTakeDamage()
-            => IsAlive() && !_isInvincible && !MovementController.CurrentState.GrantsInvincibility;
+            => IsAlive()
+               && !_isInvincible
+               && !IsSwapEvadeInvincible
+               && !MovementController.CurrentState.GrantsInvincibility;
 
         public void Heal(float amount)
         {

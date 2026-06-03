@@ -12,6 +12,35 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
+    public readonly struct EnemyAttackThreat
+    {
+        public readonly MonsterActor Source;
+        public readonly EnemyCombat Combat;
+        public readonly Vector3 Position;
+        public readonly float Radius;
+        public readonly float TimeToHit;
+        public readonly bool IsCollisionActive;
+        public readonly int HitPhaseIndex;
+
+        public EnemyAttackThreat(
+            MonsterActor source,
+            EnemyCombat combat,
+            Vector3 position,
+            float radius,
+            float timeToHit,
+            bool isCollisionActive,
+            int hitPhaseIndex)
+        {
+            Source = source;
+            Combat = combat;
+            Position = position;
+            Radius = radius;
+            TimeToHit = timeToHit;
+            IsCollisionActive = isCollisionActive;
+            HitPhaseIndex = hitPhaseIndex;
+        }
+    }
+
     public class EnemyCombat : MonoBehaviour
     {
         private const string DefaultCircleTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
@@ -69,6 +98,10 @@ namespace UPlayGround.Component
         private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
+        private float _lastTelegraphStartTime = -999f;
+        private float _lastTelegraphDuration;
+        private int _lastTelegraphHitPhaseIndex;
+        private float _lastCollisionStartTime = -999f;
 
         // Danger Ring UI — 공격당 1개. 바닥 텔레그래프와 독립.
         private UI_DangerRing _dangerRing;
@@ -412,6 +445,10 @@ namespace UPlayGround.Component
         {
             _currentSkill         = skill;
             _currentHitPhaseIndex = 0;
+            _lastTelegraphStartTime = -999f;
+            _lastTelegraphDuration = 0f;
+            _lastTelegraphHitPhaseIndex = 0;
+            _lastCollisionStartTime = -999f;
             ClearTelegraphHitPositions();
         }
 
@@ -434,6 +471,9 @@ namespace UPlayGround.Component
                 return;
 
             int clampedHitPhaseIndex = GetClampedHitPhaseIndex(hitPhaseIndex);
+            _lastTelegraphStartTime = Time.time;
+            _lastTelegraphDuration = ResolveDangerRingDuration(_currentSkill);
+            _lastTelegraphHitPhaseIndex = clampedHitPhaseIndex;
 
             // 분기 1: 바닥 원형 FX 텔레그래프 — useTelegraph 일 때만
             if (_currentSkill.useTelegraph)
@@ -577,7 +617,10 @@ namespace UPlayGround.Component
 
             // 충돌 판정이 켜지는 순간 = 실제 타격 순간. Danger Ring 수축을 최소 크기로 완료/해제한다.
             if (isCollisionEnable)
+            {
+                _lastCollisionStartTime = Time.time;
                 CompleteDangerRing();
+            }
         }
 
         public void CompleteDangerRing()
@@ -619,6 +662,68 @@ namespace UPlayGround.Component
         public float GetCurrentAttackRadius()
         {
             return GetAttackRadius(_currentHitPhaseIndex);
+        }
+
+        public bool TryGetSwapEvadeThreat(
+            Vector3 playerPosition,
+            float beforeHitWindow,
+            float afterHitGrace,
+            float radiusPadding,
+            out EnemyAttackThreat threat)
+        {
+            threat = default;
+            if (_ownerActor == null || !_ownerActor.IsAlive()) return false;
+            if (_currentSkill == null) return false;
+
+            bool collisionGrace = _isCollisionEnabled
+                                  && Time.time - _lastCollisionStartTime <= Mathf.Max(0f, afterHitGrace);
+            bool telegraphWindow = TryGetSwapEvadeTimeToHit(out float timeToHit)
+                                   && !_isCollisionEnabled
+                                   && timeToHit >= 0f
+                                   && timeToHit <= Mathf.Max(0f, beforeHitWindow);
+            if (!collisionGrace && !telegraphWindow)
+                return false;
+
+            int hitPhaseIndex = collisionGrace
+                ? _currentHitPhaseIndex
+                : (_lastTelegraphStartTime > 0f ? _lastTelegraphHitPhaseIndex : _currentHitPhaseIndex);
+            Vector3 attackPosition = GetAttackPosition(hitPhaseIndex);
+            float radius = GetAttackRadius(hitPhaseIndex) + Mathf.Max(0f, radiusPadding);
+            if (radius <= 0f) return false;
+
+            Vector3 delta = playerPosition - attackPosition;
+            delta.y = 0f;
+            if (delta.sqrMagnitude > radius * radius)
+                return false;
+
+            threat = new EnemyAttackThreat(
+                _ownerActor,
+                this,
+                attackPosition,
+                radius,
+                timeToHit,
+                _isCollisionEnabled,
+                hitPhaseIndex);
+            return true;
+        }
+
+        private bool TryGetSwapEvadeTimeToHit(out float timeToHit)
+        {
+            if (_lastTelegraphStartTime > 0f)
+            {
+                timeToHit = (_lastTelegraphStartTime + _lastTelegraphDuration) - Time.time;
+                return true;
+            }
+
+            if (_ownerActor?.Animator != null &&
+                _ownerActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent, SpawnProjectileEvent>(out timeToHit) &&
+                timeToHit > 0f)
+            {
+                return true;
+            }
+
+            timeToHit = 0f;
+            return false;
         }
 
         public float GetAttackRadius(int hitPhaseIndex)

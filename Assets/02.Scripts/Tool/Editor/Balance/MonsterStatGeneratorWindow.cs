@@ -27,6 +27,12 @@ namespace UPlayGround.Tool.Editor.Balance
         private string _filter = "";
         private readonly Dictionary<ActorDefinitionSO, bool> _selected = new();
 
+        // 방향키 네비게이션: 그려지는 행과 동일한 순서/필터의 몬스터 목록 + 행 커서.
+        private readonly List<ActorDefinitionSO> _visibleMonsters = new();
+        private ActorDefinitionSO _cursorActor;
+        private float _tableViewportHeight;
+        private bool _ensureCursorVisible;
+
         [MenuItem("UPlayGround/Gameplay/Balance/Monster Stat Generator", priority = 22)]
         public static void Open()
         {
@@ -46,6 +52,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private void OnGUI()
         {
+            HandleTableNavigation();
             DrawToolbar();
             DrawSettings();
             DrawTable();
@@ -115,7 +122,26 @@ namespace UPlayGround.Tool.Editor.Balance
             }
 
             DrawHeader();
+
+            RebuildVisibleMonsters();
+            if (_ensureCursorVisible)
+                ApplyEnsureCursorVisible();
+
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
+            for (int i = 0; i < _visibleMonsters.Count; i++)
+                DrawRow(_visibleMonsters[i], i);
+            EditorGUILayout.EndScrollView();
+
+            if (Event.current.type == EventType.Repaint)
+                _tableViewportHeight = GUILayoutUtility.GetLastRect().height;
+        }
+
+        // _database.All에서 몬스터 + 검색 필터를 통과한 행을 그려지는 순서 그대로 모은다.
+        private void RebuildVisibleMonsters()
+        {
+            _visibleMonsters.Clear();
+            if (_database == null)
+                return;
 
             IReadOnlyList<ActorDefinitionSO> actors = _database.All;
             for (int i = 0; i < actors.Count; i++)
@@ -126,9 +152,59 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (!PassesFilter(actor))
                     continue;
 
-                DrawRow(actor, i);
+                _visibleMonsters.Add(actor);
             }
-            EditorGUILayout.EndScrollView();
+        }
+
+        // 위/아래 방향키로 표시 목록의 이전/다음 몬스터로 커서를 이동한다(텍스트 편집 중에는 무시).
+        private void HandleTableNavigation()
+        {
+            Event e = Event.current;
+            if (e.type != EventType.KeyDown || _database == null)
+                return;
+            if (e.keyCode != KeyCode.UpArrow && e.keyCode != KeyCode.DownArrow)
+                return;
+            if (EditorGUIUtility.editingTextField)
+                return;
+
+            RebuildVisibleMonsters();
+            if (_visibleMonsters.Count == 0)
+                return;
+
+            int index = _visibleMonsters.IndexOf(_cursorActor);
+            int next = index < 0
+                ? 0
+                : Mathf.Clamp(index + (e.keyCode == KeyCode.DownArrow ? 1 : -1), 0, _visibleMonsters.Count - 1);
+
+            SelectCursor(_visibleMonsters[next]);
+            _ensureCursorVisible = true;
+            e.Use();
+            Repaint();
+        }
+
+        // 클릭과 동일하게 커서 이동 시 인스펙터 선택 + 핑을 맞춘다.
+        private void SelectCursor(ActorDefinitionSO actor)
+        {
+            _cursorActor = actor;
+            EditorGUIUtility.PingObject(actor);
+            Selection.activeObject = actor;
+        }
+
+        // 커서 행이 스크롤 영역 밖이면 보이도록 스크롤을 보정한다(행 높이 22 고정).
+        private void ApplyEnsureCursorVisible()
+        {
+            _ensureCursorVisible = false;
+            int index = _visibleMonsters.IndexOf(_cursorActor);
+            if (index < 0 || _tableViewportHeight <= 0f)
+                return;
+
+            const float rowHeight = 22f;
+            float top = index * rowHeight;
+            float bottom = top + rowHeight;
+            if (top < _scroll.y)
+                _scroll.y = top;
+            else if (bottom > _scroll.y + _tableViewportHeight)
+                _scroll.y = bottom - _tableViewportHeight;
         }
 
         private void DrawRow(ActorDefinitionSO actor, int index)
@@ -138,7 +214,9 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (Event.current.type == EventType.Repaint)
             {
-                if (missing)
+                if (actor == _cursorActor)
+                    EditorGUI.DrawRect(row, new Color(0.16f, 0.32f, 0.48f, 0.85f));
+                else if (missing)
                     EditorGUI.DrawRect(row, new Color(0.85f, 0.60f, 0.10f, 0.16f));
                 else if (index % 2 == 1)
                     EditorGUI.DrawRect(row, new Color(0f, 0f, 0f, 0.10f));
@@ -172,8 +250,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (Event.current.type == EventType.MouseDown && row.Contains(Event.current.mousePosition))
             {
-                EditorGUIUtility.PingObject(actor);
-                Selection.activeObject = actor;
+                SelectCursor(actor);
                 Event.current.Use();
             }
         }

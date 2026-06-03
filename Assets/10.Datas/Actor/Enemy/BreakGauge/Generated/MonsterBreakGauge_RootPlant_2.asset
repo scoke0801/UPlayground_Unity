@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879bf855ec4994046ace239359a73dc0, type: 3}
+  m_Name: MonsterBreakGauge_RootPlant_2
+  m_EditorClassIdentifier: 
+  useBreakGauge: 1
+  allowRepeatBreak: 1
+  maxGauge: 100
+  breakResist: 0
+  repeatBreakCooldown: 0
+  exposedDuration: 4
+  damageTakenMultiplierWhileExposed: 1.15
+  resetGaugeRatioOnExpire: 0.25
+  resetGaugeRatioOnSpecialAttack: 0
+  gradePolicy:
+    weakGaugeMultiplier: 1
+    normalGaugeMultiplier: 1
+    eliteGaugeMultiplier: 1
+    bossGaugeMultiplier: 1

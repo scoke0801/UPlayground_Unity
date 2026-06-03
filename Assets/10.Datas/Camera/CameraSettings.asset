@@ -60,15 +60,9 @@ MonoBehaviour:
   combatPitch: 25
   lockOnRange: 13
   lockOnDistance: 4
-  lockOnMidPointWeight: 0.35
-  lockOnYSmoothTime: 0.3
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
-  enableLockOnSideFlip: 1
-  sustainedCollisionSec: 0.4
-  sideFlipCooldown: 1
-  sideFlipSmoothTime: 0.2
   lockOnPriorityMode: 1
   lockOnHeightDampFactor: 0.42
   lockOnPitchMin: 15

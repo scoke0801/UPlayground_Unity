@@ -23,7 +23,7 @@ MonoBehaviour:
   prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
   statData: {fileID: 11400000, guid: 5e30fbc8a5b704b4daeeb5b9eecf548b, type: 2}
   poiseData: {fileID: 11400000, guid: 876157c6a32f968498948c1120a773b9, type: 2}
-  breakGaugeData: {fileID: 0}
+  breakGaugeData: {fileID: 11400000, guid: 1dabe6c696e71d642990a214197b5c15, type: 2}
   grade: 3
   level: 1
   attackData: {fileID: 11400000, guid: 0a83c6fe953652946a93776bae25fa2b, type: 2}

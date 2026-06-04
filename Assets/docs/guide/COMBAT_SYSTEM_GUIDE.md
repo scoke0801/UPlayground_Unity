@@ -33,9 +33,10 @@
 | 전투 피드백 | `CombatFeedbackDispatcher`, `CombatFeedbackContext`, `CombatFeedbackProfile` 추가 | 데미지 플로터, 히트 FX, 카메라, HitStop, VitalOrb 호출 위치 중앙화 |
 | 전투 상태 | `PlayerCombatStateTracker` 추가 | 플레이어 전투 유지 시간, 위협 탐색, 전투 상태 변화 이벤트가 `PlayerCombat`에서 분리 |
 | 액션 실행 | `CombatActionRunner`, `CombatActionDefinition`, `CombatActionInstance`, `CombatTimelineEvent` 추가 | 기존 MotionEvent 직접 호출과 병행되는 공격 실행 컨텍스트 경로 확보 |
+| 정책 데이터 | `CombatDefensePolicySO`, `CombatReactionPolicySO`, `CombatPolicyResolver` 추가 | ActorDefinition 단위로 방어 가능 여부와 몬스터 등급별 리액션 허용 규칙을 데이터화 |
 | 데이터 검증 | `CombatDataValidator`, `CombatDataValidatorWindow` 추가 | `PlayerAttackDataSO`, `EnemyAttackDataSO` 기본 오류/경고 검증과 Markdown 리포트 저장 지원 |
 
-현재 `PlayerCombat`과 `EnemyCombat`은 공격 데이터 선택, 콤보/쿨다운, legacy MotionEvent 호환 API를 계속 가진다. 새 `CombatActionRunner`는 즉시 전체 실행을 대체하지 않고, 공격 시작과 타임라인 이벤트를 병행 기록하는 전환 계층으로 동작한다.
+현재 `PlayerCombat`과 `EnemyCombat`은 공격 데이터 선택, 콤보/쿨다운, 판정 루프를 계속 가진다. `CombatActionRunner`는 현재 action, phase, collision window를 소유하고, MotionEvent의 actor 분기는 runner를 통해 Combat executor로 전달된다.
 
 ---
 
@@ -98,12 +99,22 @@ IDamageable.TakeDamage(AttackData)
 | `Assets/02.Scripts/GameActor/Combat/Resolution/DamageResolver.cs` | 플레이어/몬스터/특수 브레이크 피해량 계산 |
 | `Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResolver.cs` | 플레이어 가드/패리/퍼펙트 도지/무적 우선순위 판정 |
 | `Assets/02.Scripts/GameActor/Combat/Resolution/ReactionResolver.cs` | 플레이어/몬스터 피격 리액션 결정 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatPolicyResolver.cs` | 방어/리액션 정책 SO의 null fallback과 룰 조회 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/HitContext.cs` | legacy `AttackData`를 단일 히트 입력 컨텍스트로 변환 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatResult.cs` | 방어, 피해, 리액션, 리소스 변화를 묶는 히트 결과 객체 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatResolutionPipeline.cs` | 방어/피해/리소스 변화/결과 조립/로그 기록의 1차 표준 경로 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogRecorder.cs` | `CombatResult` 기반 인메모리 전투 로그 링버퍼 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogEntry.cs` | `CombatResult`에 sequence/frame/time 메타데이터를 붙인 로그 항목 |
+| `Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogExportUtility.cs` | 전투 로그 CSV/Markdown export 문자열 생성 |
 | `Assets/02.Scripts/GameActor/Combat/Detection/CombatHitDetector.cs` | 플레이어/몬스터 공통 근접 Overlap 판정 |
 | `Assets/02.Scripts/GameActor/Combat/Action/CombatActionRunner.cs` | 공격 실행 타임라인 이벤트 병행 기록 경로 |
 | `Assets/02.Scripts/GameActor/Combat/Feedback/CombatFeedbackDispatcher.cs` | 공격 적중 피드백, 데미지 플로터, VFX, HitStop/Camera/VitalOrb 호출 중계 |
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombatStateTracker.cs` | 플레이어 전투 상태 지속 시간, 위협 탐색, 상태 변화 이벤트 |
 | `Assets/02.Scripts/Tool/Editor/Combat/CombatDataValidatorWindow.cs` | 공격 데이터 기본 검증 에디터 윈도우 |
+| `Assets/02.Scripts/Tool/Editor/Combat/CombatLogRecorderWindow.cs` | Play Mode 전투 로그 기록/CSV/Markdown export 창 |
 | `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackInfoBase`, `HitPhaseData`, `EnemyAttackInfo`, `PlayerAttackInfo`, `AttackData` |
+| `Assets/02.Scripts/Data/Combat/CombatDefensePolicySO.cs` | ActorDefinition 단위 방어 정책. `Unblockable`에 대한 Guard/Parry/PerfectDodge 허용 여부 |
+| `Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs` | 몬스터 등급별 리액션 정책. forceReaction, Poise Break 요구, 상태별 허용 여부 |
 | `Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs` | 플레이어 약/강/점프/대시/스킬/차지/교체 공격 데이터 |
 | `Assets/02.Scripts/Data/Combat/EnemyAttackDataSO.cs` | 몬스터 스킬 풀, 거리/레벨/가중치 기반 선택 |
 | `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs` | 몬스터 강인도 런타임 처리 |
@@ -206,7 +217,7 @@ IDamageable.TakeDamage(AttackData)
 
 ### 플레이어 히트 판정
 
-`BeginCollisionEvent`가 `PlayerCombat.SetHitPhaseIndex(index)`, `SetTargetLayerMask()`, `SetEnableCollision(true)`를 호출하면 `PlayerCombat.Update()`에서 `PerformHitDetection()`이 실행된다.
+`BeginCollisionEvent`가 `CombatActionRunner.HandleCollisionEvent()`로 전달되면 runner가 현재 phase와 collision window를 갱신하고 등록된 `PlayerCombat` executor에 기존 판정 API를 forwarding한다. 이후 `PlayerCombat.Update()`에서 `PerformHitDetection()`이 실행된다.
 
 판정은 현재 `AttackData`의 값으로 수행된다.
 
@@ -296,6 +307,8 @@ public interface IDamageable
 
 플레이어 피격 반응은 `ReactionResolver.ResolvePlayerReaction()`이 결정하고, 실제 상태 전환은 `PlayerActor`가 적용한다.
 
+`ActorDefinitionSO.combatDefensePolicy`가 연결되어 있으면 `AttackDefenseType.Unblockable`에 대한 Guard/Parry/PerfectDodge 허용 여부는 `CombatDefensePolicySO`를 따른다. 정책이 비어 있으면 기존 코드 동작을 유지한다.
+
 | 반응 | 처리 |
 |------|------|
 | `KnockBack` | 공격 방향으로 `AddImpulse` |
@@ -332,6 +345,10 @@ finalDamage = attackData.damage
 - 피격 상태 전환 또는 사망 처리
 
 몬스터는 `poiseBrokenNow`이거나 `forceReaction == true`일 때만 강한 피격 상태 전환을 수행한다. 공격 상태처럼 `CanPlayHitReaction()`이 false인 상태에서는 강제 리액션도 막힐 수 있다.
+
+`ActorDefinitionSO.combatReactionPolicy`가 연결되어 있으면 `ReactionResolver`가 몬스터 `Grade`별 룰을 읽어 forceReaction 허용, Poise Break 필요 여부, `Hit`/`Stun`/`Knockdown`/`Airborne`/`Grab` 상태 허용 여부를 결정한다. 정책이 비어 있으면 기존 리액션 규칙을 유지한다.
+
+`CombatLogRecorder.Enabled`가 켜져 있으면 일반 피격과 특수 브레이크 피해는 `CombatResult`로 기록된다. 몬스터 일반 피격 결과에는 실제 HP 감소량과 함께 Poise/Break 실제 감소량이 `ResourceChangeSet`에 포함된다.
 
 ---
 
@@ -407,8 +424,8 @@ finalDamage = attackData.damage
 
 | 이벤트 | 전투 역할 |
 |--------|----------|
-| `BeginCollisionEvent` | Player/Monster Combat의 히트 타겟 초기화, 타겟 레이어 설정, `hitPhaseIndex` 설정, 판정 ON |
-| `DisableCollisionEvent` | 판정 OFF 또는 특정 구간 비활성화 |
+| `BeginCollisionEvent` | `CombatActionRunner`의 히트 타겟 초기화, 타겟 레이어 설정, `hitPhaseIndex` 설정, 판정 ON |
+| `DisableCollisionEvent` | `CombatActionRunner`의 판정 OFF 또는 특정 구간 비활성화 |
 | `ComboWindowEvent` | 플레이어 콤보 입력 창 ON/OFF |
 | `TelegraphEvent` | 몬스터 텔레그래프와 Danger Ring 타이밍 수동 제어 |
 | `SpawnProjectileEvent` | 투사체 생성 및 `BaseProjectile.Initialize()` |
@@ -451,6 +468,24 @@ finalDamage = attackData.damage
 
 ---
 
+## 전투 로그 / 튜닝 리포트
+
+전투 로그는 `CombatLogRecorder`가 `CombatResult`를 링버퍼에 저장하는 방식으로 동작한다. 기본은 off이며, Play Mode 밸런싱 세션에서만 켠다.
+
+사용 절차:
+
+1. Unity 메뉴 `UPlayGround/Combat/Combat Log Recorder`를 연다.
+2. `Enabled`를 켠다.
+3. 필요하면 `Capacity`를 조정하고 `Clear`로 이전 로그를 비운다.
+4. Play Mode에서 전투를 수행한다.
+5. `Export CSV` 또는 `Export Markdown`을 실행한다.
+
+Markdown 리포트는 `Expected Duration` 입력값이 0보다 크면 실제 로그 duration과의 차이를 함께 출력한다. CSV에는 sequence, frame, combatTime, attacker, victim, animKey, hitPhaseIndex, defenseOutcome, rawDamage, finalDamage, HP/Poise/Break delta, reactionState, damage multiplier 계열 필드가 포함된다.
+
+주의: 현재 로그는 실제 피해가 적용된 `CombatResult`만 기록한다. Guard/Parry/Invincible처럼 피해 적용 전에 종료되는 결과는 아직 로그에 남기지 않는다.
+
+---
+
 ## 셋업 방법
 
 ### 플레이어 캐릭터
@@ -463,12 +498,34 @@ finalDamage = attackData.damage
 
 ### 몬스터
 
-1. `ActorDefinitionSO`에 `statData`, `attackData`, 필요 시 `poiseData`, `breakGaugeData`, `dropTable`, `targetLayerMask`를 연결한다.
+1. `ActorDefinitionSO`에 `statData`, `attackData`, 필요 시 `poiseData`, `breakGaugeData`, `combatDefensePolicy`, `combatReactionPolicy`, `dropTable`, `targetLayerMask`를 연결한다.
 2. `EnemyAttackDataSO.skills`에 `EnemyAttackInfo`를 등록한다.
 3. 각 스킬의 `baseInfo.animKey`에 대응하는 MotionSet을 몬스터 애니메이션 데이터에 등록한다.
 4. 근접 공격은 `BeginCollisionEvent`를 MotionSet 타이밍에 배치한다.
 5. 강공격/위험 공격은 `useTelegraph`, `useDangerRing`, `defenseType`을 설정한다.
 6. 타겟 위치 고정 AOE는 `useMotionEventTelegraph`, `telegraphAnchorType = TargetPosition`, `useTelegraphPositionForHit` 조합을 사용한다.
+7. Elite/Boss처럼 리액션 제한이 필요한 몬스터는 `CombatReactionPolicySO`를 만들고 `ActorDefinitionSO.combatReactionPolicy`에 연결한다.
+8. 특수 방어 규칙이 필요한 액터는 `CombatDefensePolicySO`를 만들고 `ActorDefinitionSO.combatDefensePolicy`에 연결한다.
+
+### 방어 / 리액션 정책
+
+정책 에셋은 선택 항목이다. 연결하지 않으면 기존 런타임 동작을 유지한다.
+
+자동 생성은 Unity 상단 메뉴에서 `UPlayGround/Combat/Generate Default Policy Assets`를 실행한다. 같은 기능은 `UPlayGround/Combat/Data Validator` 창의 `Generate Policies` 버튼으로도 실행할 수 있다.
+
+자동 생성기가 수행하는 작업:
+
+- `Assets/10.Datas/Combat/Policy` 폴더 생성.
+- `DefaultCombatDefensePolicy`, `EliteCombatReactionPolicy`, `BossCombatReactionPolicy` 에셋 생성 또는 갱신.
+- Player `ActorDefinitionSO`에 기본 방어 정책 자동 연결.
+- Elite/Boss 몬스터 `ActorDefinitionSO`에 등급별 리액션 정책 자동 연결.
+
+| 에셋 | 주요 설정 | 사용 위치 |
+|------|-----------|-----------|
+| `CombatDefensePolicySO` | `allowGuardAgainstUnblockable`, `allowParryAgainstUnblockable`, `allowPerfectDodgeAgainstUnblockable` | `DefenseResolver.ResolvePlayerDefense()` |
+| `CombatReactionPolicySO` | 등급별 forceReaction 허용, Poise Break 요구, 상태별 리액션 허용 | `ReactionResolver.ResolveMonsterReaction()` |
+
+검증은 `UPlayGround/Combat/Data Validator`에서 실행한다. 현재 검증기는 reaction policy의 등급 중복, 모든 리액션 차단 룰, Unblockable Guard 허용 정책, Elite/Boss ActorDefinition의 reaction policy 누락을 경고한다.
 
 ---
 
@@ -508,13 +565,13 @@ playerCombat.NotifyAttackHit(attackData);
 - `HitPhaseData`와 `BeginCollisionEvent.hitPhaseIndex`가 맞지 않으면 멀티 히트 수치가 다른 프레임에 적용된다.
 - `BeginCollisionEvent`가 끝나지 않으면 `IsPossibleCollide`가 계속 true로 남아 캔슬 창이 닫히고 중복 판정 위험이 커진다.
 - 플레이어 캔슬은 `PlayerInterruptAction`만으로 열리지 않는다. 현재 판정 구간이 비활성인 `IsCancelWindowOpen`도 true여야 한다.
-- 몬스터의 `forceReaction`은 Poise가 남아 있어도 리액션을 강제하려는 플래그지만, 상태의 `CanPlayHitReaction()`이 막으면 상태 전환되지 않을 수 있다.
-- `AttackDefenseType.Unblockable`은 데이터 분류와 Danger Ring 표현에 쓰인다. 실제 가드 처리에서 막을 수 없는지 여부는 `PlayerGuardState` 구현과 함께 확인해야 한다.
+- 몬스터의 `forceReaction`은 Poise가 남아 있어도 리액션을 강제하려는 플래그지만, 상태의 `CanPlayHitReaction()` 또는 `CombatReactionPolicySO`가 막으면 상태 전환되지 않을 수 있다.
+- `AttackDefenseType.Unblockable`은 데이터 분류와 Danger Ring 표현에 쓰인다. `CombatDefensePolicySO`가 연결된 경우 실제 Guard/Parry/PerfectDodge 허용 여부도 해당 정책을 따른다.
 - `MonsterBreakGauge` 노출 중에도 몬스터는 무방비로 멈추지 않는다. 특수 브레이크 공격 가능 상태와 행동 불능 상태는 별개다.
 - `PlayerCombat.IsInCombat`은 즉시 bool 필드를 저장하지 않고 `PlayerCombatStateTracker`에서 시간 기반으로 계산된다. 강제 종료는 `ForceExitCombat()` 호출 시 tracker가 상태를 정리하고 변경 이벤트를 발화한다.
-- 투사체와 소환형 공격은 `EnemyCombat.CheckMeleeAttackHit()` 흐름을 타지 않는다. MotionEvent와 생성 오브젝트의 `AttackData` 전달 경로를 별도로 확인해야 한다.
-- `CombatActionRunner`는 현재 legacy MotionEvent 경로와 병행되는 전환 계층이다. 기존 `PlayerCombat.SetEnableCollision()` / `EnemyCombat.SetEnableCollision()` 호출 경로는 아직 유지된다.
-- `CombatDataValidatorWindow`의 1차 범위는 공격 SO 기본 검증이다. MotionSet 이벤트와 `hitPhases`의 정밀 매칭 검증은 후속 확장 항목이다.
+- 투사체와 소환형 공격은 `EnemyCombat.CheckMeleeAttackHit()` 흐름을 타지 않는다. 피해 해결은 `IDamageable.TakeDamage()`로 수렴하지만, 생성 오브젝트의 attacker-side 피드백은 별도 구현을 확인해야 한다.
+- `CombatActionRunner`는 현재 action, phase, collision window를 소유한다. `PlayerCombat.SetEnableCollision()` / `EnemyCombat.SetEnableCollision()` 호출 경로는 runner instance를 갱신하는 forwarding 경로로 유지된다.
+- `CombatDataValidatorWindow`는 공격 SO 기본 검증, MotionSet 이벤트와 `hitPhases` 매칭 검증, 방어/리액션 정책 검증을 함께 수행한다.
 
 ---
 
@@ -522,6 +579,6 @@ playerCombat.NotifyAttackHit(attackData);
 
 - 새 플레이어 공격 타입은 `PlayerAttackDataSO`에 데이터 필드를 추가한 뒤 `PlayerCombat.Execute*()`와 `PlayerAttackState.GetAnimKey()` 우선순위에 연결한다.
 - 새 몬스터 공격 선택 규칙은 `EnemyAttackInfo.conditionGroup` 또는 `EnemyCombat.GetAvailableSkills()` 필터에 추가한다.
-- 새 피격 반응은 `AttackReactionType` 추가 후 `PlayerActor.OnDamaged()`와 `MonsterActor.OnDamaged()`의 상태 전환을 함께 확장한다.
-- 새 방어 분류는 `AttackDefenseType`, `PlayerGuardState`, `UI_DangerRing` 색/표현 규칙을 같이 갱신한다.
+- 새 피격 반응은 `AttackReactionType` 추가 후 `ReactionResolver`, `PlayerActor.OnDamaged()`, `MonsterActor.OnDamaged()`, 필요 시 `CombatReactionPolicySO`를 함께 확장한다.
+- 새 방어 분류는 `AttackDefenseType`, `DefenseResolver`, `CombatDefensePolicySO`, `PlayerGuardState`, `UI_DangerRing` 색/표현 규칙을 같이 갱신한다.
 - 새 전투 연출은 `MotionEventBase`를 상속한 이벤트를 만들고 `MotionEventAddPopup` 카테고리에 등록한다.

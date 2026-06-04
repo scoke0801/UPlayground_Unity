@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine;
 using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
@@ -25,10 +26,23 @@ namespace UPlayGround.CameraSystem
         private float _crowdDistance;
         private float _crowdVelocity;
 
+        // 대형 몬스터 시야 확장
+        private bool _sizeDistanceActive;
+        private float _sizeDistance;
+        private float _sizeDistanceVelocity;
+
         // 락온 거리 스무딩
         private bool _lockOnActive;
         private float _lockOnDistance;
         private float _lockOnVelocity;
+
+        // UpdateFOV/EvaluateDistance가 같은 프레임에 중복 물리 쿼리하지 않게 한다.
+        private int _nearbyMetricsFrame = -1;
+        private int _nearbyEnemyCount;
+        private float _nearbyMaxMonsterSize;
+        private readonly HashSet<Transform> _metricTargets = new HashSet<Transform>();
+        private readonly Collider[] _nearbyHitBuffer = new Collider[96];
+        private readonly List<Collider> _colliderBuffer = new List<Collider>(16);
 
         public CameraDistanceController(CameraSettings settings, Transform player, LayerMask lockOnLayer, float initialFOV)
         {
@@ -38,6 +52,7 @@ namespace UPlayGround.CameraSystem
             _baseFOV = initialFOV;
             _targetFOV = settings.fovExplore;
             _crowdDistance = settings.defaultDistance;
+            _sizeDistance = settings.defaultDistance;
             _lockOnDistance = settings.defaultDistance;
         }
 
@@ -51,6 +66,8 @@ namespace UPlayGround.CameraSystem
 
         public void UpdateFOV(bool isLockOn, bool isCombat)
         {
+            UpdateNearbyEnemyMetrics(isCombat);
+
             float baseTarget;
             if (isLockOn)
                 baseTarget = _s.fovLockOn;
@@ -67,19 +84,23 @@ namespace UPlayGround.CameraSystem
                 addFov = Mathf.Clamp01(speed / Mathf.Max(_s.speedForMaxFOV, 0.01f)) * _s.speedFOVMax;
             }
 
+            if (_s.enableMonsterSizeFOV && isCombat)
+                addFov += EvaluateMonsterSizeFactor() * _s.monsterSizeFOVMax;
+
             _targetFOV = baseTarget + addFov;
             float smoothTime = _s.enableSpeedFOV ? _s.speedFOVSmoothTime : _s.fovSmoothTime;
             _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
         }
 
         /// <summary>
-        /// 다수 적 줌아웃 + 전투/락온 거리 보정.
+        /// 다수 적 줌아웃 + 대형 몬스터 시야 확장 + 전투/락온 거리 보정.
         /// 반환: 보정된 targetDistance. -1이면 유저 줌 유지.
         /// </summary>
         public float EvaluateDistance(bool isLockOn, bool isCombat, float currentTargetDist)
         {
-            // 군중 줌아웃
+            UpdateNearbyEnemyMetrics(isCombat);
             UpdateCrowdZoom(isCombat);
+            UpdateMonsterSizeDistance(isCombat);
 
             if (isLockOn)
             {
@@ -94,6 +115,8 @@ namespace UPlayGround.CameraSystem
                 float target = _s.lockOnDistance;
                 if (_crowdActive)
                     target = Mathf.Max(target, _crowdDistance);
+                if (_sizeDistanceActive)
+                    target = Mathf.Max(target, _sizeDistance);
 
                 target = Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
                 _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity, _s.lockOnTransitionDuration);
@@ -106,8 +129,13 @@ namespace UPlayGround.CameraSystem
                 _lockOnVelocity = 0f;
             }
 
-            if (_crowdActive)
-                return Mathf.Clamp(_crowdDistance, _s.minDistance, _s.maxDistance);
+            if (_crowdActive || _sizeDistanceActive)
+            {
+                float target = _crowdActive ? _crowdDistance : _s.defaultDistance;
+                if (_sizeDistanceActive)
+                    target = Mathf.Max(target, _sizeDistance);
+                return Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
+            }
 
             return -1f; // 유저 줌 존중
         }
@@ -121,9 +149,7 @@ namespace UPlayGround.CameraSystem
                 return;
             }
 
-            int count = CountNearbyEnemies();
-
-            if (count >= _s.crowdEnemyThreshold)
+            if (_nearbyEnemyCount >= _s.crowdEnemyThreshold)
             {
                 _crowdActive = true;
                 _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.crowdZoomOutDistance, ref _crowdVelocity, _s.crowdZoomSmoothTime);
@@ -135,19 +161,111 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        private int CountNearbyEnemies()
+        private void UpdateMonsterSizeDistance(bool isCombat)
         {
-            Collider[] hits = Physics.OverlapSphere(_player.position, _s.crowdDetectRadius, _lockOnLayer);
-            int count = 0;
-            foreach (var hit in hits)
+            if (!isCombat || !_s.enableMonsterSizeFOV || _player == null)
             {
+                _sizeDistanceActive = false;
+                _sizeDistance = Mathf.SmoothDamp(
+                    _sizeDistance,
+                    _s.defaultDistance,
+                    ref _sizeDistanceVelocity,
+                    _s.monsterSizeDistanceSmoothTime);
+                return;
+            }
+
+            float sizeFactor = EvaluateMonsterSizeFactor();
+            _sizeDistanceActive = sizeFactor > 0.001f;
+            float target = _s.defaultDistance + sizeFactor * _s.monsterSizeDistanceMax;
+            _sizeDistance = Mathf.SmoothDamp(
+                _sizeDistance,
+                target,
+                ref _sizeDistanceVelocity,
+                _s.monsterSizeDistanceSmoothTime);
+        }
+
+        private float EvaluateMonsterSizeFactor()
+        {
+            float minSize = Mathf.Max(0.01f, _s.monsterSizeReference);
+            float maxSize = Mathf.Max(minSize + 0.01f, _s.monsterSizeForMaxFOV);
+            return Mathf.InverseLerp(minSize, maxSize, _nearbyMaxMonsterSize);
+        }
+
+        private void UpdateNearbyEnemyMetrics(bool isCombat)
+        {
+            if (_nearbyMetricsFrame == Time.frameCount)
+                return;
+
+            _nearbyMetricsFrame = Time.frameCount;
+            _nearbyEnemyCount = 0;
+            _nearbyMaxMonsterSize = 0f;
+            _metricTargets.Clear();
+
+            if (!isCombat || _player == null)
+                return;
+
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                _player.position,
+                _s.crowdDetectRadius,
+                _nearbyHitBuffer,
+                _lockOnLayer);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider hit = _nearbyHitBuffer[i];
+                if (hit == null)
+                    continue;
+
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
+
                 var dmg = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
-                if (dmg != null && dmg.CanTakeDamage())
-                    count++;
+                if (dmg == null || !dmg.IsAlive())
+                    continue;
+
+                Transform metricRoot = ResolveMetricRoot(hit, dmg);
+                if (metricRoot == null || !_metricTargets.Add(metricRoot))
+                    continue;
+
+                _nearbyEnemyCount++;
+                _nearbyMaxMonsterSize = Mathf.Max(_nearbyMaxMonsterSize, EvaluateTargetMaxSize(metricRoot, hit));
             }
-            return count;
+        }
+
+        private static Transform ResolveMetricRoot(Collider hit, IDamageable damageable)
+        {
+            MonsterActor monster = hit.GetComponentInParent<MonsterActor>();
+            if (monster != null)
+                return monster.transform;
+
+            if (damageable is UnityEngine.Component component)
+                return component.transform;
+
+            return hit.transform;
+        }
+
+        private float EvaluateTargetMaxSize(Transform root, Collider fallbackCollider)
+        {
+            float maxSize = 0f;
+            _colliderBuffer.Clear();
+            root.GetComponentsInChildren(_colliderBuffer);
+            foreach (var collider in _colliderBuffer)
+            {
+                if (collider == null || !collider.enabled || collider.isTrigger)
+                    continue;
+
+                Vector3 size = collider.bounds.size;
+                maxSize = Mathf.Max(maxSize, size.x, size.y, size.z);
+            }
+
+            if (maxSize <= 0f && fallbackCollider != null)
+            {
+                Vector3 size = fallbackCollider.bounds.size;
+                maxSize = Mathf.Max(size.x, size.y, size.z);
+            }
+
+            _colliderBuffer.Clear();
+            return maxSize;
         }
     }
 }

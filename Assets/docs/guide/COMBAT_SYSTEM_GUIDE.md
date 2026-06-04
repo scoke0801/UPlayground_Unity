@@ -309,6 +309,8 @@ public interface IDamageable
 
 `ActorDefinitionSO.combatDefensePolicy`가 연결되어 있으면 `AttackDefenseType.Unblockable`에 대한 Guard/Parry/PerfectDodge 허용 여부는 `CombatDefensePolicySO`를 따른다. 정책이 비어 있으면 기존 코드 동작을 유지한다.
 
+> 플레이어는 씬 배치 `PlayerActor`의 `_definition`(고정, 스왑 무관) 하나에서만 `combatDefensePolicy`를 읽는다. 정책 연결/가시화는 **Stat Generator의 '전투 정책' 탭**(`UPlayGround/Stat/Stat Data Generator`)에서 `기본 정책 에셋 생성` → `누락만 자동연결`로 처리한다. DefensePolicy는 플레이어블 캐릭터(`characterType != None`), ReactionPolicy는 Elite/Boss 몬스터에만 적용된다.
+
 | 반응 | 처리 |
 |------|------|
 | `KnockBack` | 공격 방향으로 `AddImpulse` |

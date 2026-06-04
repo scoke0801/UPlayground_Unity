@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c74c93a5fe82ab84b862c8bfffbf5c31, type: 3}
+  m_Name: CombatCameraProfileDatabase
+  m_EditorClassIdentifier: 
+  profiles:
+  - {fileID: 11400000, guid: 7bbb5ce179996184f8dd1355ff5cce29, type: 2}
+  - {fileID: 11400000, guid: d435e82eed1441246bf3e855d1ba18fd, type: 2}
+  - {fileID: 11400000, guid: 5fec2f7d614adfd4ebb8bdb7e71ab036, type: 2}
+  - {fileID: 11400000, guid: cdc1befd98a4b3b4f9946a4557f4a29c, type: 2}
+  - {fileID: 11400000, guid: 5d35b011e55edc146adf4c3e3e790127, type: 2}
+  - {fileID: 11400000, guid: b573b5d527f0617449a9dc088db2da26, type: 2}
+  - {fileID: 11400000, guid: 34721f25fbdad604bb5684dea09c8143, type: 2}
+  - {fileID: 11400000, guid: f6d01894f6cc89a49b87cd7d9117a0ed, type: 2}
+  - {fileID: 11400000, guid: fc1fc66375864e748946165b2931f9ba, type: 2}
+  - {fileID: 11400000, guid: 1150e54b6c7c38044a81a1e3cc3c0349, type: 2}
+  - {fileID: 11400000, guid: 1e84363978db5ab4da63f3bc8256b954, type: 2}
+  - {fileID: 11400000, guid: 0f3c38f1bf500ec4bb3bff5d130e2f1d, type: 2}
+  - {fileID: 11400000, guid: c30aa9d359026e844beb328f5dcca64e, type: 2}
+  - {fileID: 11400000, guid: 8ffc22ea31d09d74aac66bf650dad61b, type: 2}
+  - {fileID: 11400000, guid: 364a5201ffd31b14f86ecb5c736e73ca, type: 2}

@@ -318,18 +318,21 @@ BeginCollisionEvent
 - 기존 공격 데이터와 MotionSet은 수정 없이 호환된다.
 
 > **검증 게이트(런타임 필수):** P3 3차는 *detection 게이트가 `CurrentAction` 생존에 의존*하게 만든다. 실패 시 LogError 없이 **조용히 0뎀**이 되므로, Unity에서 다음을 반드시 확인한다 — ① 적 근접(단일/멀티 히트 phase)이 정상 피해, ② 차지 공격(PlayerChargeState의 `SetEnableCollision(false)` 3개소)이 정상 동작. 플레이어 단일 히트는 이 클래스 결함을 가장 안 드러내므로 단독 테스트로 불충분하다.
+>
+> **✅ 2026-06-04 Play Mode 게이트 통과:** 적 근접 단일/멀티 히트 정상 피해, 차지 공격 정상 동작 확인. P3 silent-0뎀 회귀 없음.
 
 ### Legacy 경로 삭제(cutover) 기준
 
-> **현재 단계 상태:** P3 1~3차 전 과정이 relay 구조였다(runner와 legacy가 분기되는 별도 경로가 아님 — runner instance가 단일 윈도우 소유, Combat은 그것을 읽기만 함). 따라서 "legacy vs runner 200히트 결과 일치" 비교는 **구조적으로 N/A**다(비교할 두 번째 경로가 존재한 적 없음). 남은 cutover 잔여 작업은 순수 cleanup뿐: `StartLegacyAction` → `StartAction` 명명 정리(선택), per-frame 판정 루프(`PerformHitDetection`/`CheckMeleeAttackHit`)를 runner가 직접 구동하도록 옮기는 것(선택, 현재는 Combat.Update/State가 `IsPossibleCollide`로 게이팅 — 이미 runner를 읽으므로 기능상 동일).
+> **현재 단계 상태:** P3 1~3차 전 과정이 relay 구조였다(runner와 legacy가 분기되는 별도 경로가 아님 — runner instance가 단일 윈도우 소유, Combat은 그것을 읽기만 함). 따라서 "legacy vs runner 200히트 결과 일치" 비교는 **구조적으로 N/A**다(비교할 두 번째 경로가 존재한 적 없음). cutover 잔여 cleanup 현황은 아래 체크리스트 참조 — 명명 정리·fallback 제거는 2026-06-04 완료, per-frame 판정 루프 이전만 선택 항목으로 남았다.
 
 > **원래 cutover 기준(200히트 legacy-vs-runner 비교)은 폐기한다.** 그 기준은 "독립 실행되는 두 경로가 분기 가능"하다는 전제였으나, P3 1~3차는 처음부터 relay 구조여서 분기되는 두 번째 경로가 존재하지 않았다. forwarding은 윈도우의 권위 쓰기로 **영구 유지**한다(`EnemyCombat.CheckMeleeAttackHit`의 phase 의존 + 직접 호출자). 따라서 "forwarding 제거"도 cutover 목표가 아니다.
 >
-> 남은 선택적 cleanup(기능 무변경):
-> - `StartLegacyAction` → `StartAction` 명명 정리.
-> - per-frame 판정 루프(`PerformHitDetection`/`CheckMeleeAttackHit`)를 runner가 직접 구동하도록 이전(현재는 Combat이 `IsPossibleCollide`=runner를 읽어 게이팅하므로 기능상 동일).
+> 선택적 cleanup 진행 현황:
+> - [x] **`StartLegacyAction` → `StartAction` 명명 정리 (2026-06-04).** 호출처 3개소(`CombatActionRunner` 정의, `PlayerCombat.HandleAttackStartedForRunner`, `EnemyCombat.StartRunnerActionForSkill`). 기능 무변경 — legacy 별도 경로가 아니라 단일 액션 시작 함수임을 이름에 반영.
+> - [x] **MotionEvent fallback 경로 제거 (2026-06-04).** `MotionEvent_Collision`/`MotionEvent_DisableCollision`의 `HandleActorCombatFallback`(각 ~20줄) 삭제. P3 3차 이후 충돌 윈도우는 runner instance 단일 소유라, runner/executor 부재 시 우회 경로(`combat.SetEnableCollision`)도 같은 missing runner로 forward되어 동작 불능 → 가짜 안전망이었다. `runner == null || !HasCollisionExecutor` 가드는 유지하되 본체를 `LogError`로 교체(설정 오류로 보고).
+> - [ ] per-frame 판정 루프(`PerformHitDetection`/`CheckMeleeAttackHit`)를 runner가 직접 구동하도록 이전(현재는 Combat이 `IsPossibleCollide`=runner를 읽어 게이팅하므로 기능상 동일 — 선택).
 >
-> 위 게이트(적 근접/멀티히트 + 차지 런타임 확인)를 통과하면 P3는 완료로 간주한다.
+> **✅ P3 완료 (2026-06-04):** 위 게이트(적 근접/멀티히트 + 차지 런타임 확인) 통과 + 선택적 cleanup 2건 반영. 남은 per-frame 루프 이전은 기능 동일한 선택 항목.
 
 ## P4 — 투사체 / AOE / 잔류 공격 공통 pipeline 연결
 
@@ -408,11 +411,17 @@ Assets/02.Scripts/GameActor/Combat/Resolution/CombatPolicyResolver.cs
 - `ReactionResolver`가 `CombatReactionPolicySO`와 `MonsterActorGrade`를 선택 입력으로 받아 몬스터 등급별 forceReaction 허용, Poise Break 요구, `Hit`/`Stun`/`Knockdown`/`Airborne`/`Grab` 상태 허용 여부를 판정. 정책이 없으면 기존 동작을 유지한다.
 - `CombatPolicyResolver`가 정책 null fallback과 등급 룰 조회를 담당한다.
 - `CombatDataValidator`가 정책 에셋 중복 등급, 모든 리액션 차단 룰, Unblockable Guard 허용 정책, Elite/Boss ActorDefinition의 reaction policy 누락을 경고한다.
-- `CombatPolicyAssetGenerator`가 `DefaultCombatDefensePolicy`, `EliteCombatReactionPolicy`, `BossCombatReactionPolicy`를 자동 생성/갱신하고 Player/Elite/Boss `ActorDefinitionSO`에 기본 정책을 연결한다.
+- `CombatPolicyAssetGenerator`가 `DefaultCombatDefensePolicy`, `EliteCombatReactionPolicy`, `BossCombatReactionPolicy`를 자동 생성/갱신하고 ActorDefinition에 기본 정책을 연결한다.
+
+### 2026-06-04 P5 보강 (적용 대상 정밀화 + 가시화 툴)
+
+- **DefensePolicy 적용 대상 변경: `Player` 플래그 → 플레이어블(`characterType != None`).** 근거: 이 프로젝트의 ActorDefinitionSO 40개가 전부 `actorType: Monster`(Player 플래그 0개)이고 `recruitableAs`도 전부 미채움(0)이다. 플레이어는 씬에 배치된 `PlayerActor`의 `_definition`(Inspector 고정, 스왑 무관) **하나**에서만 `combatDefensePolicy`를 읽으며, 그 정의는 플레이어블 캐릭터 정의(MonsterBokusei 등, `characterType` 지정)다. 따라서 Player 플래그 기준으로는 **아무에게도 연결되지 않는 죽은 데이터**였다. `CombatPolicyAssetGenerator.IsPlayableCharacter`(`Player` 플래그 ‖ `characterType != None`)로 판정. 순수 적(`characterType == None`)은 `DefenseResolver`가 읽지 않으므로 제외한다.
+- **Stat Generator에 '전투 정책' 탭 추가** (`StatDataGeneratorWindow`). 정의별 Defense/Reaction 정책 연결 상태를 한눈에(✓연결/⚠누락/—해당없음) 보여주고, `기본 정책 에셋 생성`·`누락만 자동연결`(등급/플레이어블 규칙)·행별 ObjectField 수동 지정/해제를 제공한다. `CombatPolicyAssetGenerator.TryLoadDefaultPolicies`/`ResolveReactionPolicyForGrade`를 재사용한다.
+- 알려진 데이터 갭: `MonsterNenmir.characterType == None`이라 Nenmir를 플레이어블로 쓰려면 `characterType = Nenmir` 보정 필요(현재는 DefensePolicy 대상에서 제외됨).
 
 의도적으로 남겨둔 범위:
 
-- 기본 정책 에셋 생성과 ActorDefinition 연결은 자동 생성 메뉴로 처리한다. 에셋별 세부 수치 튜닝은 Unity Editor에서 후속 조정한다.
+- 기본 정책 에셋 생성과 ActorDefinition 연결은 자동 생성 메뉴 또는 '전투 정책' 탭으로 처리한다. 에셋별 세부 수치 튜닝은 Unity Editor에서 후속 조정한다.
 - HyperArmor/상태 태그 기반 억제는 아직 코드/데이터 구조가 없으므로 후속 확장 항목이다.
 - Unblockable 텔레그래프 표현 검증은 P0에서 유지하고, P5 정책은 실제 방어 가능 여부만 담당한다.
 
@@ -553,7 +562,7 @@ Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs (OnTakeSpecialBreakAt
 | 리스크 | 대응 |
 |--------|------|
 | Runner 전환 중 기존 MotionEvent 데이터가 깨질 수 있음 | legacy 직접 호출 경로를 병행 유지하고 runner 경로와 결과를 비교한다. **단 P3의 cutover 기준(결과 200회 이상 100% 일치)을 충족하면 legacy 경로를 삭제**해 이중 유지보수를 종료한다 |
-| legacy 병행 경로가 무기한 유지될 수 있음 | cutover 종료 조건을 P3에 명시. 충족 시 `StartLegacyAction`/`MotionEvent_Collision` 직접 분기를 제거하고 문서에 삭제 커밋을 기록한다 |
+| legacy 병행 경로가 무기한 유지될 수 있음 | ~~cutover 종료 조건을 P3에 명시. 충족 시 `StartLegacyAction`/`MotionEvent_Collision` 직접 분기를 제거~~ → **해소(2026-06-04):** P3가 처음부터 relay 구조라 분기 자체가 없었음이 확인됨. 명명 정리(`StartAction`)·MotionEvent fallback 제거 완료, forwarding은 권위 쓰기로 영구 유지. P3 §"Legacy 경로 삭제(cutover) 기준" 참조 |
 | `CombatResult` 도입이 과도한 추상화가 될 수 있음 | 방어/피해/리액션/피드백에 실제로 필요한 필드만 둔다 |
 | 투사체/AOE까지 한 번에 통합하면 범위가 커짐 | 근접 → 투사체 → AOE → 잔류 공격 순서로 편입한다 |
 | 정책 데이터가 너무 복잡해질 수 있음 | 보스 면역, Unblockable, HyperArmor 같은 실제 필요 규칙부터만 데이터화한다 |

@@ -508,7 +508,7 @@ namespace UPlayGround
                     transform.rotation = Quaternion.LookRotation(toTarget);
             }
 
-            PlaySwapEvadeFeedback();
+            PlaySwapEvadeFeedback(_swapEvadeTarget);
 
             _swapEvadeQueued = false;
             _swapEvadeTarget = null;
@@ -516,7 +516,7 @@ namespace UPlayGround
             Debug.Log("[PlayerActor] 스왑 회피 카운터 발동");
         }
 
-        private void PlaySwapEvadeFeedback()
+        private void PlaySwapEvadeFeedback(MonsterActor target)
         {
             var party = PartyManager.Instance;
             if (party == null) return;
@@ -531,8 +531,9 @@ namespace UPlayGround
                     party.SwapEvadeHitStopDuration,
                     party.SwapEvadeHitStopTimeScale);
 
-            if (party.SwapEvadeCameraShakeKey != CameraShakeIdType.None)
-                CameraManager.Instance?.StartShake(party.SwapEvadeCameraShakeKey);
+            CameraManager.Instance?.CombatCamera?.PlayDodgeCounter(
+                target != null ? target.transform : null,
+                party.SwapEvadeCameraShakeKey);
 
             if (!string.IsNullOrWhiteSpace(party.SwapEvadeFxKey))
                 GameObjectManager.Instance?.ShowFX(party.SwapEvadeFxKey, fxPos, transform.rotation);
@@ -947,10 +948,7 @@ namespace UPlayGround
             GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
             // 카메라 피드백
-            CameraManager.Instance?.StartShake(_shakeKeyHeavyHit);
-            CameraManager.Instance?.PlayEffect(PlayerGuardState.PerfectGuardFOVData);
-            if (attackData?.attackDirection != Vector3.zero)
-                CameraManager.Instance?.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.15f, 0.2f);
+            CameraManager.Instance?.CombatCamera?.PlayPerfectGuard(attackData, _shakeKeyHeavyHit);
 
             // 패리 VFX
             Vector3 fxPos = TryGetSocket(ActorSocketType.Weapon, out var center)
@@ -986,9 +984,7 @@ namespace UPlayGround
             GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
             // 카메라 피드백
-            CameraManager.Instance.StartShake(_shakeKeyHit);
-            if (attackData?.attackDirection != Vector3.zero)
-                CameraManager.Instance.Punch(-(attackData?.attackDirection ?? Vector3.forward), 0.06f, 0.1f);
+            CameraManager.Instance?.CombatCamera?.PlayPerfectDodge(attackData, _shakeKeyHit);
 
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }

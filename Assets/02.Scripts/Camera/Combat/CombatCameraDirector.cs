@@ -1,0 +1,420 @@
+using UnityEngine;
+using UPlayGround.Combat;
+using UPlayGround.Data;
+using UPlayGround.Data.Config;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
+using UPlayGround.Manager;
+using UPlayGround.State;
+
+namespace UPlayGround.CameraSystem
+{
+    /// <summary>
+    /// 전투 결과를 카메라 의도로 변환하고 CameraManager API 호출을 한곳에 모은다.
+    /// P1 단계에서는 기존 PlayerAttackHitFeedbackProfile을 재사용해 회귀 범위를 줄인다.
+    /// </summary>
+    public sealed class CombatCameraDirector
+    {
+        private readonly CameraManager _cameraManager;
+        private CombatCameraProfileDatabaseSO _profileDatabase;
+
+        public CombatCameraDirector(CameraManager cameraManager)
+        {
+            _cameraManager = cameraManager;
+        }
+
+        public void SetProfileDatabase(CombatCameraProfileDatabaseSO profileDatabase)
+        {
+            _profileDatabase = profileDatabase;
+        }
+
+        public void Play(in CombatCameraIntent intent)
+        {
+            if (_cameraManager == null)
+                return;
+
+            CombatCameraProfileSO profile = _profileDatabase != null
+                ? _profileDatabase.GetProfile(intent.Type, intent.Attacker, intent.Victim)
+                : null;
+
+            if (profile != null)
+            {
+                if (!RollTriggerChance(profile))
+                    return;
+
+                PlayProfile(intent, profile);
+                return;
+            }
+
+            PlayFallback(intent);
+        }
+
+        public bool TryPlayKill(Transform victim)
+        {
+            if (_cameraManager == null)
+                return false;
+
+            CombatCameraIntent intent = new CombatCameraIntent(
+                CombatCameraIntentType.Kill,
+                _cameraManager.GetTarget(),
+                victim,
+                victim != null ? victim.position : Vector3.zero,
+                Vector3.zero,
+                AttackKind.FinishAttack,
+                AttackReactionType.Knockdown,
+                CameraShakeIdType.KillCam);
+
+            CombatCameraProfileSO profile = _profileDatabase != null
+                ? _profileDatabase.GetProfile(CombatCameraIntentType.Kill, intent.Attacker, intent.Victim)
+                : null;
+
+            if (profile != null && HasPlayableProfile(profile))
+            {
+                bool usesSnapshotSequence = ProfileUsesSnapshotSequence(profile);
+                if (!usesSnapshotSequence && !_cameraManager.CanStartKillCamWithoutChance(victim))
+                    return false;
+
+                if (!RollTriggerChance(profile))
+                    return false;
+
+                PlayProfile(intent, profile);
+                if (usesSnapshotSequence)
+                    return true;
+
+                return _cameraManager.TryKillCamWithoutChance(victim);
+            }
+
+            return _cameraManager.TryKillCam(victim);
+        }
+
+        public void PlayPlayerDamaged(bool isHeavyReaction, CameraShakeIdType lightShakeKey, CameraShakeIdType heavyShakeKey)
+        {
+            Play(new CombatCameraIntent(
+                isHeavyReaction ? CombatCameraIntentType.PlayerHeavyDamaged : CombatCameraIntentType.PlayerDamaged,
+                null,
+                _cameraManager != null ? _cameraManager.GetTarget() : null,
+                Vector3.zero,
+                Vector3.zero,
+                AttackKind.NormalAttack,
+                isHeavyReaction ? AttackReactionType.Heavy : AttackReactionType.Hit,
+                isHeavyReaction ? heavyShakeKey : lightShakeKey));
+        }
+
+        public void PlayPlayerDeath(CameraShakeIdType deathShakeKey)
+        {
+            Play(new CombatCameraIntent(
+                CombatCameraIntentType.PlayerDeath,
+                null,
+                _cameraManager != null ? _cameraManager.GetTarget() : null,
+                Vector3.zero,
+                Vector3.zero,
+                AttackKind.NormalAttack,
+                AttackReactionType.Knockdown,
+                deathShakeKey));
+        }
+
+        public void PlayPerfectGuard(AttackData incomingAttack, CameraShakeIdType shakeKey)
+        {
+            Play(CreateDefenseIntent(
+                CombatCameraIntentType.PerfectGuard,
+                incomingAttack,
+                shakeKey,
+                0.15f,
+                0.2f));
+        }
+
+        public void PlayPerfectDodge(AttackData incomingAttack, CameraShakeIdType shakeKey)
+        {
+            Play(CreateDefenseIntent(
+                CombatCameraIntentType.PerfectDodge,
+                incomingAttack,
+                shakeKey,
+                0.06f,
+                0.1f));
+        }
+
+        public void PlayDodgeCounter(Transform target, CameraShakeIdType shakeKey)
+        {
+            Transform playerTarget = _cameraManager != null ? _cameraManager.GetTarget() : null;
+            Vector3 hitDirection = Vector3.zero;
+            if (playerTarget != null && target != null)
+            {
+                hitDirection = target.position - playerTarget.position;
+                hitDirection.y = 0f;
+            }
+
+            Play(new CombatCameraIntent(
+                CombatCameraIntentType.DodgeCounter,
+                playerTarget,
+                target,
+                target != null ? target.position : Vector3.zero,
+                hitDirection.sqrMagnitude > 0.0001f ? hitDirection.normalized : Vector3.zero,
+                AttackKind.NormalAttack,
+                AttackReactionType.Hit,
+                shakeKey,
+                0.12f,
+                0.12f));
+        }
+
+        public void PlayPlayerAttackHit(AttackData attackData, in PlayerAttackHitFeedbackProfile profile)
+        {
+            if (attackData == null)
+                return;
+
+            CombatCameraIntent intent = CreatePlayerAttackHitIntent(attackData, profile);
+            Play(intent);
+        }
+
+        public static CombatCameraIntent CreatePlayerAttackHitIntent(
+            AttackData attackData,
+            in PlayerAttackHitFeedbackProfile profile)
+        {
+            AttackKind kind = attackData != null ? attackData.attackKind : AttackKind.NormalAttack;
+            CombatCameraIntentType intentType = ResolveIntentType(kind);
+
+            CameraShakeIdType shakeKey = intentType is CombatCameraIntentType.SkillHit
+                                         or CombatCameraIntentType.ChargeHit
+                                         or CombatCameraIntentType.HeavyHit
+                                         or CombatCameraIntentType.DashHit
+                ? profile.ShakeKeyHeavy
+                : profile.ShakeKeyLight;
+
+            float punchStrength;
+            float punchDuration;
+            switch (intentType)
+            {
+                case CombatCameraIntentType.SkillHit:
+                case CombatCameraIntentType.ChargeHit:
+                    punchStrength = profile.PunchStrengthSkill;
+                    punchDuration = profile.PunchDurationSkill;
+                    break;
+                case CombatCameraIntentType.HeavyHit:
+                case CombatCameraIntentType.DashHit:
+                    punchStrength = profile.PunchStrengthHeavy;
+                    punchDuration = profile.PunchDurationHeavy;
+                    break;
+                default:
+                    punchStrength = profile.PunchStrengthLight;
+                    punchDuration = profile.PunchDurationLight;
+                    break;
+            }
+
+            Transform attacker = attackData?.attacker != null ? attackData.attacker.transform : null;
+            Transform victim = attackData?.hitTarget != null ? attackData.hitTarget.transform : null;
+
+            return new CombatCameraIntent(
+                intentType,
+                attacker,
+                victim,
+                attackData != null ? attackData.hitPoint : Vector3.zero,
+                attackData != null ? attackData.attackDirection : Vector3.zero,
+                kind,
+                attackData != null ? attackData.reactionType : AttackReactionType.Hit,
+                shakeKey,
+                punchStrength,
+                punchDuration);
+        }
+
+        private CombatCameraIntent CreateDefenseIntent(
+            CombatCameraIntentType intentType,
+            AttackData incomingAttack,
+            CameraShakeIdType shakeKey,
+            float punchStrength,
+            float punchDuration)
+        {
+            Vector3 attackDirection = incomingAttack != null ? incomingAttack.attackDirection : Vector3.zero;
+            Transform attacker = incomingAttack?.attacker != null ? incomingAttack.attacker.transform : null;
+            Transform playerTarget = _cameraManager != null ? _cameraManager.GetTarget() : null;
+
+            return new CombatCameraIntent(
+                intentType,
+                attacker,
+                playerTarget,
+                incomingAttack != null ? incomingAttack.hitPoint : Vector3.zero,
+                attackDirection.sqrMagnitude > 0.0001f ? -attackDirection.normalized : Vector3.zero,
+                incomingAttack != null ? incomingAttack.attackKind : AttackKind.NormalAttack,
+                incomingAttack != null ? incomingAttack.reactionType : AttackReactionType.Hit,
+                shakeKey,
+                punchStrength,
+                punchDuration);
+        }
+
+        private static CombatCameraIntentType ResolveIntentType(AttackKind kind)
+        {
+            return kind switch
+            {
+                AttackKind.ChargeAttack => CombatCameraIntentType.ChargeHit,
+                AttackKind.SkillAttack => CombatCameraIntentType.SkillHit,
+                AttackKind.HeavyAttack => CombatCameraIntentType.HeavyHit,
+                AttackKind.DashAttack => CombatCameraIntentType.DashHit,
+                AttackKind.JumpAttack => CombatCameraIntentType.DashHit,
+                _ => CombatCameraIntentType.LightHit
+            };
+        }
+
+        public static CombatCameraIntent FromCombatResult(
+            in CombatResult result,
+            in PlayerAttackHitFeedbackProfile profile)
+        {
+            AttackData source = result.Hit.Source;
+            if (source != null)
+                return CreatePlayerAttackHitIntent(source, profile);
+
+            CameraShakeIdType shakeKey = result.Hit.AttackKind is AttackKind.HeavyAttack
+                                                            or AttackKind.SkillAttack
+                                                            or AttackKind.ChargeAttack
+                ? profile.ShakeKeyHeavy
+                : profile.ShakeKeyLight;
+
+            float punchStrength = result.Hit.AttackKind is AttackKind.HeavyAttack
+                                                        or AttackKind.SkillAttack
+                                                        or AttackKind.ChargeAttack
+                ? profile.PunchStrengthHeavy
+                : profile.PunchStrengthLight;
+
+            float punchDuration = result.Hit.AttackKind is AttackKind.HeavyAttack
+                                                        or AttackKind.SkillAttack
+                                                        or AttackKind.ChargeAttack
+                ? profile.PunchDurationHeavy
+                : profile.PunchDurationLight;
+
+            return new CombatCameraIntent(
+                ResolveIntentType(result.Hit.AttackKind),
+                result.Attacker != null ? result.Attacker.transform : null,
+                result.Victim != null ? result.Victim.transform : null,
+                result.Hit.HitPoint,
+                result.Hit.AttackDirection,
+                result.Hit.AttackKind,
+                result.Hit.ReactionType,
+                shakeKey,
+                punchStrength,
+                punchDuration);
+        }
+
+        public void PlaySoftTargetAssist(Transform target, float duration = 0.12f, float manualInputSuppressDuration = 0.35f)
+        {
+            if (_cameraManager == null || target == null || _cameraManager.IsLockOnActive())
+                return;
+
+            if (GetAutoCorrectionScale() <= 0f)
+                return;
+
+            if (_cameraManager.TimeSinceLastManualCameraInput < manualInputSuppressDuration)
+                return;
+
+            Transform playerTarget = _cameraManager.GetTarget();
+            if (playerTarget == null)
+                return;
+
+            Vector3 toTarget = target.position - playerTarget.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude < 0.001f)
+                return;
+
+            float yaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+            _cameraManager.SetRotationSmooth(yaw, _cameraManager.GetCurrentPitch(), duration * GetAutoCorrectionScale());
+        }
+
+        private void PlayFallback(in CombatCameraIntent intent)
+        {
+            if (intent.Type == CombatCameraIntentType.PerfectGuard && PlayerGuardState.PerfectGuardFOVData != null)
+                _cameraManager.PlayEffect(PlayerGuardState.PerfectGuardFOVData);
+
+            float shakeScale = GetShakeScale();
+            if (intent.PunchStrength > 0f && intent.HitDirection.sqrMagnitude > 0.0001f)
+                _cameraManager.Punch(
+                    intent.HitDirection,
+                    intent.PunchStrength * shakeScale,
+                    intent.PunchDuration);
+
+            if (shakeScale > 0f && intent.ShakeKey != CameraShakeIdType.None)
+                _cameraManager.StartShake(intent.ShakeKey);
+        }
+
+        private void PlayProfile(in CombatCameraIntent intent, CombatCameraProfileSO profile)
+        {
+            float sequenceScale = GetSequenceIntensity();
+
+            if (profile.effects != null && sequenceScale > 0f)
+            {
+                foreach (CameraEffectData effect in profile.effects)
+                {
+                    if (effect != null)
+                        _cameraManager.PlayEffect(effect);
+                }
+            }
+
+            float shakeScale = GetShakeScale();
+            if (profile.usePunch && shakeScale > 0f && intent.HitDirection.sqrMagnitude > 0.0001f)
+                _cameraManager.Punch(
+                    intent.HitDirection,
+                    profile.punchStrength * shakeScale,
+                    profile.punchDuration);
+
+            if (shakeScale > 0f && profile.shakeKey != CameraShakeIdType.None)
+                _cameraManager.StartShake(profile.shakeKey);
+
+            if (profile.useSnapshotSequence && profile.snapshotProfile != null && sequenceScale > 0f)
+                _cameraManager.PushCameraSnapshotSequence(profile.snapshotProfile);
+
+            if (profile.enableSoftTargetAssist && intent.Victim != null)
+                PlaySoftTargetAssist(intent.Victim, profile.softTargetYawDuration, profile.manualInputSuppressDuration);
+        }
+
+        private static bool HasPlayableProfile(CombatCameraProfileSO profile)
+        {
+            if (profile == null)
+                return false;
+
+            bool hasEffects = profile.effects != null && profile.effects.Exists(e => e != null);
+            return hasEffects
+                   || profile.shakeKey != CameraShakeIdType.None
+                   || profile.usePunch
+                   || (profile.useSnapshotSequence && profile.snapshotProfile != null)
+                   || profile.enableSoftTargetAssist;
+        }
+
+        private static bool ProfileUsesSnapshotSequence(CombatCameraProfileSO profile)
+        {
+            return profile != null && profile.useSnapshotSequence && profile.snapshotProfile != null;
+        }
+
+        private static bool RollTriggerChance(CombatCameraProfileSO profile)
+        {
+            return profile == null || profile.triggerChance >= 1f || Random.value <= profile.triggerChance;
+        }
+
+        private static SettingsData GetSettingsData()
+        {
+            SettingsManager settingsManager = SettingsManager.Instance;
+            return settingsManager != null && settingsManager.IsLoaded ? settingsManager.Data : null;
+        }
+
+        private float GetShakeScale()
+        {
+            SettingsData data = GetSettingsData();
+            if (data != null && !data.screenShake)
+                return 0f;
+
+            float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraShakeScale : 1f;
+            return Mathf.Max(0f, settingsScale * (data != null ? data.cameraShakeScale : 1f));
+        }
+
+        private float GetAutoCorrectionScale()
+        {
+            SettingsData data = GetSettingsData();
+            if (data != null && !data.aimAssist)
+                return 0f;
+
+            float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraAutoCorrectionScale : 1f;
+            return Mathf.Clamp01(settingsScale * (data != null ? data.combatCameraAutoCorrection : 1f));
+        }
+
+        private float GetSequenceIntensity()
+        {
+            SettingsData data = GetSettingsData();
+            float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraSequenceIntensity : 1f;
+            return Mathf.Clamp01(settingsScale * (data != null ? data.combatCameraSequenceIntensity : 1f));
+        }
+    }
+}

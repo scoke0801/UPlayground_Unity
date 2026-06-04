@@ -18,14 +18,14 @@ namespace UPlayGround.Data
     {
         [Header("=== 기본 카메라 ===")]
         public Vector3 defaultOffset = new Vector3(0f, 1f, 0f);
-        public Vector3 combatOffset = new Vector3(0.25f, 1f, 0f);
-        public float offsetSmoothTime = 0.35f;
+        public Vector3 combatOffset = new Vector3(0.15f, 1.1f, 0f);
+        public float offsetSmoothTime = 0.3f;
 
         [Header("거리")]
-        public float defaultDistance = 5f;
-        public float combatDistance = 5.2f;
-        public float minDistance = 3.2f;
-        public float maxDistance = 7f;
+        public float defaultDistance = 5.6f;
+        public float combatDistance = 6.2f;
+        public float minDistance = 3f;
+        public float maxDistance = 9.2f;
 
         [Header("회전")]
         public float rotationSpeed = 20f;
@@ -61,14 +61,14 @@ namespace UPlayGround.Data
         public float minNormalAlignment = 0.5f;
 
         [Header("=== FOV ===")]
-        public float fovExplore = 50f;
-        public float fovCombat = 54f;
-        public float fovLockOn = 50f;
-        public float fovSmoothTime = 0.25f;
+        public float fovExplore = 52f;
+        public float fovCombat = 58f;
+        public float fovLockOn = 56f;
+        public float fovSmoothTime = 0.22f;
 
         [Header("=== 동적 FOV (속도 기반) ===")]
         public bool enableSpeedFOV = true;
-        public float speedFOVMax = 6f;
+        public float speedFOVMax = 4f;
         public float speedForMaxFOV = 8f;
         public float speedFOVSmoothTime = 0.3f;
 
@@ -78,7 +78,7 @@ namespace UPlayGround.Data
         public float lookAheadSpeedRef = 5f;
         public float lookAheadSmoothTime = 0.25f;
         [Range(0f, 1f)]
-        public float lockOnLookAheadMultiplier = 0.1f;
+        public float lockOnLookAheadMultiplier = 0.05f;
 
         [Header("=== Floor Rescue (바닥 보정) ===")]
         public bool enableFloorRescue = true;
@@ -87,14 +87,14 @@ namespace UPlayGround.Data
         public LayerMask floorRescueLayerMask;
 
         [Header("=== 카메라 정렬 ===")]
-        public float alignSpeed = 3f;
-        public float alignDuration = 0.5f;
+        public float alignSpeed = 2.2f;
+        public float alignDuration = 0.35f;
         public float explorePitch = 25f;
         public float combatPitch = 25f;
 
         [Header("=== 락온 ===")]
-        public float lockOnRange = 13f;
-        public float lockOnDistance = 4f;
+        public float lockOnRange = 16f;
+        public float lockOnDistance = 5.4f;
         public float lockOnTransitionDuration = 0.3f;
         public float targetSwitchCooldown = 0.15f;
 
@@ -129,9 +129,26 @@ namespace UPlayGround.Data
         public float lockOnOrbitSmoothTime = 0.15f;
 
         [Header("=== 다수 적 줌아웃 ===")]
-        public float crowdZoomOutDistance = 7f;
-        public float crowdDetectRadius = 10f;
+        public float crowdZoomOutDistance = 8.2f;
+        public float crowdDetectRadius = 12f;
         public int crowdEnemyThreshold = 3;
         public float crowdZoomSmoothTime = 0.4f;
+
+        [Header("=== 대형 몬스터 시야 확장 ===")]
+        public bool enableMonsterSizeFOV = true;
+        [Tooltip("이 크기 이하의 몬스터는 추가 FOV/거리 확장 대상에서 제외한다.")]
+        public float monsterSizeReference = 2.2f;
+        [Tooltip("이 크기 이상이면 monsterSizeFOVMax와 monsterSizeDistanceMax를 모두 적용한다.")]
+        public float monsterSizeForMaxFOV = 7f;
+        [Tooltip("범위 내 최대 몬스터 크기에 따라 추가할 최대 FOV.")]
+        public float monsterSizeFOVMax = 7f;
+        [Tooltip("범위 내 최대 몬스터 크기에 따라 추가할 최대 카메라 거리.")]
+        public float monsterSizeDistanceMax = 2.2f;
+        public float monsterSizeDistanceSmoothTime = 0.32f;
+
+        [Header("=== 전투 카메라 접근성 기본값 ===")]
+        [Range(0f, 2f)] public float combatCameraShakeScale = 0.85f;
+        [Range(0f, 1f)] public float combatCameraAutoCorrectionScale = 0.6f;
+        [Range(0f, 1f)] public float combatCameraSequenceIntensity = 0.85f;
     }
 }

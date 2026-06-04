@@ -14,6 +14,9 @@ namespace UPlayGround.Data.Config
         [Header("게임플레이 - 전투")]
         public bool screenShake = true;
         public bool aimAssist = true;
+        [Range(0f, 2f)] public float cameraShakeScale = 1f;
+        [Range(0f, 1f)] public float combatCameraAutoCorrection = 1f;
+        [Range(0f, 1f)] public float combatCameraSequenceIntensity = 1f;
 
         [Header("게임플레이 - 언어")]
         public int languageIndex = 0; // 0=한국어, 1=English, 2=日本語
@@ -53,6 +56,7 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             screenShake = true; aimAssist = true; languageIndex = 0;
+            cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
             resolutionIndex = 0; fullscreen = true; qualityIndex = 2; brightness = 100;
             masterVolume = 8; bgmVolume = 7; sfxVolume = 9; voiceVolume = 8;
             debugMotionWarpEnabled = true;
@@ -68,6 +72,7 @@ namespace UPlayGround.Data.Config
     {
         public int sensitivityX, sensitivityY;
         public bool invertY, screenShake, aimAssist;
+        public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, qualityIndex, brightness;
         public bool fullscreen;
         public int masterVolume, bgmVolume, sfxVolume, voiceVolume;
@@ -76,6 +81,9 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = data.sensitivityX, sensitivityY = data.sensitivityY,
             invertY = data.invertY, screenShake = data.screenShake, aimAssist = data.aimAssist,
+            cameraShakeScale = data.cameraShakeScale,
+            combatCameraAutoCorrection = data.combatCameraAutoCorrection,
+            combatCameraSequenceIntensity = data.combatCameraSequenceIntensity,
             languageIndex = data.languageIndex, resolutionIndex = data.resolutionIndex,
             qualityIndex = data.qualityIndex, brightness = data.brightness,
             fullscreen = data.fullscreen,
@@ -87,6 +95,9 @@ namespace UPlayGround.Data.Config
         {
             data.sensitivityX = sensitivityX; data.sensitivityY = sensitivityY;
             data.invertY = invertY; data.screenShake = screenShake; data.aimAssist = aimAssist;
+            data.cameraShakeScale = cameraShakeScale;
+            data.combatCameraAutoCorrection = combatCameraAutoCorrection;
+            data.combatCameraSequenceIntensity = combatCameraSequenceIntensity;
             data.languageIndex = languageIndex; data.resolutionIndex = resolutionIndex;
             data.qualityIndex = qualityIndex; data.brightness = brightness;
             data.fullscreen = fullscreen;

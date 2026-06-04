@@ -46,13 +46,13 @@ namespace UPlayGround.Combat
             UPlayGround.Data.Path.CameraShakeIdType lightShakeKey,
             UPlayGround.Data.Path.CameraShakeIdType heavyShakeKey)
         {
-            CameraManager.Instance.StartShake(isHeavyReaction ? heavyShakeKey : lightShakeKey);
+            CameraManager.Instance.CombatCamera?.PlayPlayerDamaged(isHeavyReaction, lightShakeKey, heavyShakeKey);
         }
 
         public static void ApplyPlayerDeathFeedback(UPlayGround.Data.Path.CameraShakeIdType deathShakeKey)
         {
             GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerDie);
-            CameraManager.Instance.StartShake(deathShakeKey);
+            CameraManager.Instance.CombatCamera?.PlayPlayerDeath(deathShakeKey);
         }
 
         public static FloatStyle GetPlayerAttackFloaterStyle(AttackKind attackKind)
@@ -79,12 +79,11 @@ namespace UPlayGround.Combat
 
             if (isKillHit)
             {
-                CameraManager.Instance.TryKillCam(attackData.hitTarget.transform);
+                CameraManager.Instance.CombatCamera?.TryPlayKill(attackData.hitTarget.transform);
                 return;
             }
 
             AttackKind kind = attackData.attackKind;
-            Vector3 dir = attackData.attackDirection;
 
             VitalOrbTrigger orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
                 ? VitalOrbTrigger.HeavyAttackHit
@@ -95,22 +94,19 @@ namespace UPlayGround.Combat
             {
                 case AttackKind.ChargeAttack:
                 case AttackKind.SkillAttack:
-                    CameraManager.Instance.Punch(dir, profile.PunchStrengthSkill, profile.PunchDurationSkill);
-                    CameraManager.Instance.StartShake(profile.ShakeKeyHeavy);
+                    CameraManager.Instance.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
                     GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Critical);
                     break;
 
                 case AttackKind.HeavyAttack:
                 case AttackKind.DashAttack:
                 case AttackKind.JumpAttack:
-                    CameraManager.Instance.Punch(dir, profile.PunchStrengthHeavy, profile.PunchDurationHeavy);
-                    CameraManager.Instance.StartShake(profile.ShakeKeyHeavy);
+                    CameraManager.Instance.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
                     GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Heavy);
                     break;
 
                 default:
-                    CameraManager.Instance.Punch(dir, profile.PunchStrengthLight, profile.PunchDurationLight);
-                    CameraManager.Instance.StartShake(profile.ShakeKeyLight);
+                    CameraManager.Instance.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
                     GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.Light);
                     break;
             }

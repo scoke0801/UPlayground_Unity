@@ -21,6 +21,7 @@ namespace UPlayGround.Manager
         private const string SETTINGS_ADDRESSABLE_KEY = "CameraSettings";
         private const string CAMERA_SHAKE_DB_KEY      = "CameraShakeDatabase";
         private const string KILL_CAM_DATA_KEY         = "KillCamData";
+        private const string COMBAT_CAMERA_PROFILE_DB_KEY = "CombatCameraProfileDatabase";
         private const string PERFECT_GUARD_FOV_KEY     = "PerfectGuardFOV";
         private const string DIALOGUE_CAMERA_SETTINGS_KEY = "DialogueCameraSettings";
 
@@ -31,6 +32,7 @@ namespace UPlayGround.Manager
         private CameraEffectManager      _effectManager;
         private CameraShaker             _shaker;
         private KillCamController        _killCamController;
+        private CombatCameraDirector     _combatCameraDirector;
         private CameraRigState           _rigState = new CameraRigState();
         private CameraRuntimeContext     _cameraContext;
         private CameraModeController     _modeController;
@@ -68,6 +70,7 @@ namespace UPlayGround.Manager
         private Vector3   _lookAtOverrideOffset;
 
         private bool _isInputLocked;
+        private float _lastManualCameraInputTime = -999f;
 
         private System.Func<bool> _combatStateProvider;
         private System.Func<Vector3> _playerVelocityProvider;
@@ -104,9 +107,11 @@ namespace UPlayGround.Manager
 
             _rotTransition = new CameraRotationTransition();
             _effectManager = new CameraEffectManager(this);
+            _combatCameraDirector = new CombatCameraDirector(this);
             InitializeCameraModes();
 
             LoadKillCamData();
+            LoadCombatCameraProfileDatabase();
             LoadPerfectGuardFOVData();
 
             Debug.Log("[CameraManager] 초기화 완료");
@@ -588,6 +593,7 @@ namespace UPlayGround.Manager
             _cameraContext.PlayerVelocityProvider = _playerVelocityProvider ?? GetPlayerVelocity;
             _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
             _cameraContext.StartCameraAlign = StartCameraAlign;
+            _cameraContext.NotifyManualCameraInput = NotifyManualCameraInput;
             _cameraContext.PopCameraMode = PopCameraMode;
             _cameraContext.LookAtOverride = _lookAtOverride;
             _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
@@ -698,6 +704,19 @@ namespace UPlayGround.Manager
             catch (System.Exception e)
             {
                 Debug.LogWarning($"[CameraManager] KillCamData 로드 실패: {e.Message}");
+            }
+        }
+
+        private async void LoadCombatCameraProfileDatabase()
+        {
+            try
+            {
+                var data = await Addressables.LoadAssetAsync<CombatCameraProfileDatabaseSO>(COMBAT_CAMERA_PROFILE_DB_KEY).Task;
+                _combatCameraDirector?.SetProfileDatabase(data);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[CameraManager] CombatCameraProfileDatabase 로드 실패 또는 미등록: {e.Message}");
             }
         }
 
@@ -814,6 +833,16 @@ namespace UPlayGround.Manager
         }
 
         public bool IsFreeCameraActive => CurrentCameraMode == CameraModeType.Free;
+        public CombatCameraDirector CombatCamera => _combatCameraDirector;
+        public float TimeSinceLastManualCameraInput => Time.unscaledTime - _lastManualCameraInputTime;
+        public float SettingsCombatCameraShakeScale => settings != null ? settings.combatCameraShakeScale : 1f;
+        public float SettingsCombatCameraAutoCorrectionScale => settings != null ? settings.combatCameraAutoCorrectionScale : 1f;
+        public float SettingsCombatCameraSequenceIntensity => settings != null ? settings.combatCameraSequenceIntensity : 1f;
+
+        public void NotifyManualCameraInput()
+        {
+            _lastManualCameraInputTime = Time.unscaledTime;
+        }
 
         public bool PushCameraSnapshotSequence(CameraSnapshotProfile profile, System.Action onComplete = null)
         {
@@ -956,6 +985,12 @@ namespace UPlayGround.Manager
         // ── KillCam ────────────────────────────────────────────────────
         public bool TryKillCam(Transform victim) =>
             _killCamController != null && _killCamController.TryExecute(victim);
+
+        public bool CanStartKillCamWithoutChance(Transform victim) =>
+            _killCamController != null && _killCamController.CanExecuteWithoutChance(victim);
+
+        public bool TryKillCamWithoutChance(Transform victim) =>
+            _killCamController != null && _killCamController.TryExecuteWithoutChance(victim);
 
         public bool IsKillCamPlaying => _killCamController?.IsPlaying ?? false;
 

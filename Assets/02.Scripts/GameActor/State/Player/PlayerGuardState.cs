@@ -192,8 +192,7 @@ namespace UPlayGround.State
                 GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
                 GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
 
-                CameraManager.Instance?.StartShake(CameraShakeIdType.CriticalHit);
-                CameraManager.Instance?.PlayEffect(PerfectGuardFOVData);
+                CameraManager.Instance?.CombatCamera?.PlayPerfectGuard(incomingAttack, CameraShakeIdType.CriticalHit);
 
                 // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
                 // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)

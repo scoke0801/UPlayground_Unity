@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3ae1787a099534eacd648c5c4348c1, type: 3}
+  m_Name: CCP_PerfectDodge
+  m_EditorClassIdentifier: 
+  intentType: 10
+  priority: 0
+  requireAttackerMonsterGrade: 0
+  attackerMonsterGrade: 0
+  requireVictimMonsterGrade: 0
+  victimMonsterGrade: 0
+  triggerChance: 1
+  effects:
+  - {fileID: 11400000, guid: e8e46ea78cf6ea3409b8c7757b4c825c, type: 2}
+  shakeKey: 5
+  usePunch: 1
+  punchStrength: 0.06
+  punchDuration: 0.09
+  useSnapshotSequence: 0
+  snapshotProfile: {fileID: 0}
+  lockInput: 0
+  enableSoftTargetAssist: 1
+  softTargetYawDuration: 0.12
+  manualInputSuppressDuration: 0.45

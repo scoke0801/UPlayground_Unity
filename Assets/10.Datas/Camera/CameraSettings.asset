@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
   defaultOffset: {x: 0, y: 1, z: 0}
-  combatOffset: {x: 0.25, y: 1, z: 0}
-  offsetSmoothTime: 0.35
-  defaultDistance: 5
-  combatDistance: 5.2
-  minDistance: 3.2
-  maxDistance: 7
+  combatOffset: {x: 0.15, y: 1.1, z: 0}
+  offsetSmoothTime: 0.3
+  defaultDistance: 5.6
+  combatDistance: 6.2
+  minDistance: 3
+  maxDistance: 9.2
   rotationSpeed: 20
   minVerticalAngle: 0
   maxVerticalAngle: 50
@@ -35,31 +35,31 @@ MonoBehaviour:
   collisionProbeCount: 6
   collisionSkinWidth: 0.08
   minNormalAlignment: 0.5
-  fovExplore: 50
-  fovCombat: 54
-  fovLockOn: 50
-  fovSmoothTime: 0.25
+  fovExplore: 52
+  fovCombat: 58
+  fovLockOn: 56
+  fovSmoothTime: 0.22
   enableSpeedFOV: 1
-  speedFOVMax: 6
+  speedFOVMax: 4
   speedForMaxFOV: 8
   speedFOVSmoothTime: 0.3
   enableLookAhead: 1
   lookAheadDistance: 1.2
   lookAheadSpeedRef: 5
   lookAheadSmoothTime: 0.25
-  lockOnLookAheadMultiplier: 0.1
+  lockOnLookAheadMultiplier: 0.05
   enableFloorRescue: 1
   floorRescueDropThreshold: 1
   groundClearance: 0.3
   floorRescueLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  alignSpeed: 3
-  alignDuration: 0.5
+  alignSpeed: 2.2
+  alignDuration: 0.35
   explorePitch: 25
   combatPitch: 25
-  lockOnRange: 13
-  lockOnDistance: 4
+  lockOnRange: 16
+  lockOnDistance: 5.4
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
@@ -148,7 +148,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lockOnOrbitSmoothTime: 0.15
-  crowdZoomOutDistance: 7
-  crowdDetectRadius: 10
+  crowdZoomOutDistance: 8.2
+  crowdDetectRadius: 12
   crowdEnemyThreshold: 3
   crowdZoomSmoothTime: 0.4
+  enableMonsterSizeFOV: 1
+  monsterSizeReference: 2.2
+  monsterSizeForMaxFOV: 7
+  monsterSizeFOVMax: 7
+  monsterSizeDistanceMax: 2.2
+  monsterSizeDistanceSmoothTime: 0.32
+  combatCameraShakeScale: 0.85
+  combatCameraAutoCorrectionScale: 0.6
+  combatCameraSequenceIntensity: 0.85

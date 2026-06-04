@@ -24,6 +24,7 @@ namespace UPlayGround.CameraSystem
         public Func<Vector3> PlayerVelocityProvider { get; set; }
         public Func<float> ComputeSlopePitchOffset { get; set; }
         public Action StartCameraAlign { get; set; }
+        public Action NotifyManualCameraInput { get; set; }
         public Func<CameraModeEnterParams, bool> PopCameraMode { get; set; }
         public Transform LookAtOverride { get; set; }
         public Vector3 LookAtOverrideOffset { get; set; }

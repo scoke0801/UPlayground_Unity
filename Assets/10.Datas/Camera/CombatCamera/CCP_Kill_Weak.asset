@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3ae1787a099534eacd648c5c4348c1, type: 3}
+  m_Name: CCP_Kill_Weak
+  m_EditorClassIdentifier: 
+  intentType: 12
+  priority: 1
+  requireAttackerMonsterGrade: 0
+  attackerMonsterGrade: 0
+  requireVictimMonsterGrade: 1
+  victimMonsterGrade: 3
+  triggerChance: 0.15
+  effects:
+  - {fileID: 11400000, guid: 3d233e7ba9b26304bad1bfffa3ffa12a, type: 2}
+  - {fileID: 11400000, guid: 5b92c9642ec16f3449edc185aa427048, type: 2}
+  shakeKey: 4
+  usePunch: 0
+  punchStrength: 0
+  punchDuration: 0
+  useSnapshotSequence: 0
+  snapshotProfile: {fileID: 0}
+  lockInput: 0
+  enableSoftTargetAssist: 0
+  softTargetYawDuration: 0.12
+  manualInputSuppressDuration: 0.45

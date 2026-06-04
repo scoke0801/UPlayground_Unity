@@ -44,32 +44,61 @@ namespace UPlayGround
         /// </summary>
         public bool TryExecute(Transform victim)
         {
-            if (_data == null || IsPlaying)
+            return TryExecute(victim, false);
+        }
+
+        /// <summary>
+        /// 외부 프로필이 이미 확률을 판정한 경우 기존 KillCamData 확률만 건너뛰고 실행한다.
+        /// </summary>
+        public bool TryExecuteWithoutChance(Transform victim)
+        {
+            return TryExecute(victim, true);
+        }
+
+        public bool CanExecuteWithoutChance(Transform victim)
+        {
+            return CanStart(victim);
+        }
+
+        private bool TryExecute(Transform victim, bool skipChance)
+        {
+            if (!CanStart(victim))
+                return false;
+
+            // 처형 공격으로 사망 시에는 처형 연출이 있으므로 킬캠 제외
+            // (호출부에서 처형 여부를 걸러주는 것이 이상적이나, 방어적으로 체크)
+            MonsterActor actor = victim.GetComponentInParent<MonsterActor>();
+
+            if (!skipChance)
+            {
+                float chance = _data.triggerChance;
+                if (actor != null)
+                {
+                    chance = actor.Grade switch
+                    {
+                        MonsterActorGrade.Normal => 0.25f,
+                        MonsterActorGrade.Elite  => 0.60f,
+                        _                        => 1.00f, // Boss 이상은 100%
+                    };
+                }
+
+                if (Random.value > chance)
+                    return false;
+            }
+
+            _lastTriggerTime = Time.unscaledTime;
+            _activeSequence = _coroutineRunner.StartCoroutine(KillCamSequence(victim));
+            return true;
+        }
+
+        private bool CanStart(Transform victim)
+        {
+            if (_data == null || IsPlaying || victim == null)
                 return false;
 
             if (Time.unscaledTime - _lastTriggerTime < _data.cooldown)
                 return false;
 
-            // 처형 공격으로 사망 시에는 처형 연출이 있으므로 킬캠 제외
-            // (호출부에서 처형 여부를 걸러주는 것이 이상적이나, 방어적으로 체크)
-            MonsterActor actor = victim != null ? victim.GetComponent<MonsterActor>() : null;
-
-            float chance = _data.triggerChance;
-            if (actor != null)
-            {
-                chance = actor.Grade switch
-                {
-                    MonsterActorGrade.Normal => 0.25f,
-                    MonsterActorGrade.Elite  => 0.60f,
-                    _                        => 1.00f, // Boss 이상은 100%
-                };
-            }
-
-            if (Random.value > chance)
-                return false;
-
-            _lastTriggerTime = Time.unscaledTime;
-            _activeSequence = _coroutineRunner.StartCoroutine(KillCamSequence(victim));
             return true;
         }
 

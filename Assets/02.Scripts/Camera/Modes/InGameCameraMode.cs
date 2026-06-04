@@ -54,6 +54,8 @@ namespace UPlayGround.CameraSystem
                     Vector2 look = lookAction.ReadValue<Vector2>();
                     state.CurrentYaw += look.x * context.Settings.rotationSpeed * 0.01f;
                     state.CurrentPitch -= look.y * context.Settings.rotationSpeed * 0.01f;
+                    if (look.sqrMagnitude > 0.0001f)
+                        context.NotifyManualCameraInput?.Invoke();
 
                     float slopeOffset = context.ComputeSlopePitchOffset?.Invoke() ?? 0f;
                     float dynamicMin = context.Settings.minVerticalAngle + slopeOffset;

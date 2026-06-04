@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -93,7 +93,7 @@ public class DialogueGraphEditor : EditorWindow
 
     // ── 메뉴 / 오픈 에셋 ─────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Narrative/Story/Dialogue Graph Editor")]
+    [MenuItem("UPlayGround/내러티브/대화/대화 그래프 에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.NarrativeDialogue)]
     public static void Open() => GetWindow<DialogueGraphEditor>("Dialogue Editor");
 
     [UnityEditor.Callbacks.OnOpenAsset]

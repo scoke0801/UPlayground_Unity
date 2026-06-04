@@ -24,8 +24,6 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            //_attackData = _combat.GetJumpAttack();
-
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
 
             SnapToLockOnTarget();
@@ -91,24 +89,6 @@ namespace UPlayGround.State
                 }
             }
         }
-
-        // public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
-        // {
-        //     // Lock-On 타겟이 있으면 스냅과 무관하게 항상 타겟 쪽을 바라보도록 보정
-        //     Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-        //     if (lockOnTarget != null)
-        //     {
-        //         Vector3 directionToTarget = (lockOnTarget.position - gameActor.transform.position).normalized;
-        //         directionToTarget.y = 0f;
-        //         
-        //         if (directionToTarget.sqrMagnitude > 0.01f)
-        //         {
-        //             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-        //             currentRotation = Quaternion.Slerp(currentRotation, targetRotation, deltaTime * 10f);
-        //         }
-        //     }
-        //     currentRotation = currentRotation.normalized;
-        // }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {

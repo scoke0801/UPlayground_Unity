@@ -1,5 +1,5 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
-// UPlayGround/Generator Tool/Enemy Blackboard Keys 메뉴에서 재생성하세요.
+// UPlayGround/생성 도구/Enemy Blackboard Keys 생성 메뉴에서 재생성하세요.
 // Source: Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json
 // Identifier rule: key를 PascalCase로 자동 변환하며, 충돌/가독성 문제가 있으면 JSON identifier 필드를 사용합니다.
 

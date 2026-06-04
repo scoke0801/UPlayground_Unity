@@ -72,7 +72,7 @@ namespace UPlayGround.Actor.Editor
         }
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Character/Actor/Actor Database Editor", priority =  101)]
+        [MenuItem("UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", priority =  101)]
         public static void Open()
         {
             var window = GetWindow<ActorDatabaseEditorWindow>();

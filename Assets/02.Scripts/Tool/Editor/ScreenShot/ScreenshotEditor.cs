@@ -43,7 +43,7 @@ public class ActorScreenshotTool : EditorWindow
     // 격리용 레이어
     private const int PREVIEW_LAYER = 31;
 
-    [MenuItem("UPlayGround/Util/Actor Screenshot Tool")]
+    [MenuItem("UPlayGround/유틸/액터 스크린샷 도구")]
     public static void ShowWindow()
     {
         GetWindow<ActorScreenshotTool>("Actor Screenshot");

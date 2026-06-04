@@ -38,11 +38,6 @@ namespace UPlayGround.Manager
             {
                 inputActionMap.Enable();
             }
-
-            // if (actionMapCache.TryGetValue(InputMapNames.PlayerAction, out InputActionMap actionMap))
-            // {
-            //     actionMap.Enable();
-            // }
         }
 
         private void InitializeActions()

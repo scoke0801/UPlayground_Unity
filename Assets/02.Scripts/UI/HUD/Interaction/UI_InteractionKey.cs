@@ -26,23 +26,12 @@ public class UI_InteractionKey : UI_Base
     private void SubscribeEvents()
     {
         if (_isSubscribed) return;
-        
-        // if (InputManager.Instance?.InteractAction != null)
-        // {
-        //     InputManager.Instance.InteractAction.performed += OnInteract;
-        //     _isSubscribed = true;
-        // }
     }
     
     private void UnsubscribeEvents()
     {
         if (!_isSubscribed) return;
-        
-        // if (InputManager.Instance?.InteractAction != null)
-        // {
-        //     InputManager.Instance.InteractAction.performed -= OnInteract;
-        // }
-        
+
         _isSubscribed = false;
     }
 

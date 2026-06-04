@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -111,7 +111,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string _log;
 
-        [MenuItem("UPlayGround/Character/Actor/Data/Import Monster Data", priority =  101)]
+        [MenuItem("UPlayGround/캐릭터/액터/데이터/몬스터 데이터 가져오기", priority =  101)]
         public static void Open() => GetWindow<MonsterDataImporter>("Monster Data Importer");
 
         private void OnGUI()

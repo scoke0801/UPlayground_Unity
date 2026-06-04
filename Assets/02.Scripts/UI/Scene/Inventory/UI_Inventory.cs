@@ -107,7 +107,6 @@ public class UI_Inventory : UI_Base
         _itemClickTap.transform.SetParent(slot.transform);
         
         _itemClickTap.transform.localPosition = Vector3.zero;
-        //_itemClickTap.GetComponent<RectTransform>().anchoredPosition = slot.GetComponent<RectTransform>().anchoredPosition;
     }
 
     public void OnSlotPointerExit()

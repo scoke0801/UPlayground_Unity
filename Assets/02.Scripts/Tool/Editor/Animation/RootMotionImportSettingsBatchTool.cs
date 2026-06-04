@@ -13,7 +13,7 @@ namespace UPlayGround.Tool.Editor.Animation
     public sealed class RootMotionImportSettingsBatchTool : EditorWindow
     {
         private const string DefaultFolder = "Assets";
-        private const string MenuPath = "UPlayGround/Util/Root Motion Import Settings Batch";
+        private const string MenuPath = "UPlayGround/유틸/Root Motion 임포트 설정 일괄 변경";
         private const string AssetMenuPath = "Assets/UPlayGround/Root Motion Import Settings Batch";
 
         private string _targetFolder = DefaultFolder;

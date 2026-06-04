@@ -84,7 +84,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _runnerField.RegisterValueChangedCallback(evt =>
             {
                 _debugRunner = evt.newValue as BehaviorTreeRunner;
-                _autoDetectedRunner = false;
                 ResetDebugUiCache();
                 _blackboardView?.SetDebugRunner(_debugRunner);
                 _timelineView?.SetDebugRunner(_debugRunner);

@@ -14,7 +14,7 @@ namespace UPlayGround.Tool.Editor.Balance
     /// - Generate Missing (All): statData가 없는 몬스터만 신규 생성(기존 값 보호).
     /// - Apply Selected: 체크한 몬스터를 재생성. 기존 statData는 제자리 덮어쓰기(확인 다이얼로그 + Undo).
     ///   기존 로스터를 레벨/난이도에 맞춰 재조정할 때 사용. 보스 등은 체크 해제로 보호한다.
-    /// 메뉴: UPlayGround/Gameplay/Balance/Monster Stat Generator
+    /// 메뉴: UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기
     /// </summary>
     public sealed class MonsterStatGeneratorWindow : EditorWindow
     {
@@ -33,7 +33,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private float _tableViewportHeight;
         private bool _ensureCursorVisible;
 
-        [MenuItem("UPlayGround/Gameplay/Balance/Monster Stat Generator", priority = 22)]
+        [MenuItem("UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 2)]
         public static void Open()
         {
             var window = GetWindow<MonsterStatGeneratorWindow>();

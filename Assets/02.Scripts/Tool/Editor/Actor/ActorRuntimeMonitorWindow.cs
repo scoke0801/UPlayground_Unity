@@ -56,7 +56,7 @@ namespace UPlayGround.Actor.Editor
         private static readonly Color ColorWarpIdle   = new(0.55f, 0.55f, 0.55f);
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/Character/Actor/Actor Runtime Monitor", priority = 101)]
+        [MenuItem("UPlayGround/캐릭터/액터/액터 런타임 모니터", priority = 101)]
         public static void Open()
         {
             var window = GetWindow<ActorRuntimeMonitorWindow>();

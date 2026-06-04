@@ -8,7 +8,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public static class EnemyBehaviorJsonExporter
     {
-        [MenuItem("UPlayGround/Behavior Tree/Json/Export From Selected BehaviorSO")]
+        [MenuItem("UPlayGround/비헤이비어 트리/JSON/선택 BehaviorSO에서 내보내기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.BehaviorTreeJson + 3)]
         public static void ExportFromSelectedBehaviorSO()
         {
             if (Selection.activeObject is not EnemyBehaviorSO behavior)

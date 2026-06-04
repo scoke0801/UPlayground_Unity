@@ -53,8 +53,6 @@ namespace UPlayGround.State
             if (animState != null)
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAnimationEnd;
-
-                //animState.OwnedEvents.OnEnd = OnAnimationEnd;
             }
             else
                 FinishDash();

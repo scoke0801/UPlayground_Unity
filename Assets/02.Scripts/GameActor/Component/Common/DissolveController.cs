@@ -106,14 +106,6 @@ namespace UPlayGround.Component
             }
         }
         
-        private IEnumerator PreloadDissolveMaterial()
-        {
-            _loadHandle = Addressables.LoadAssetAsync<Material>(DissolveMaterialAddress);
-            yield return _loadHandle;
-
-            OnDissolveMaterialLoaded(_loadHandle);
-        }
-
         private void EnsureDissolveMaterialLoading()
         {
             if (!HasFallbackDissolveSlots())

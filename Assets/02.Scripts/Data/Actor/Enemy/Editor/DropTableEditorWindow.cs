@@ -72,7 +72,7 @@ namespace UPlayGround.Editor
 
         // ─────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Gameplay/Item/Drop Table Editor")]
+        [MenuItem("UPlayGround/게임플레이/아이템/드랍 테이블 에디터")]
         public static void ShowWindow()
         {
             var win = GetWindow<DropTableEditorWindow>("Drop Table Editor");

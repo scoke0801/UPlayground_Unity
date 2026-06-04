@@ -13,7 +13,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private float _expectedDuration;
         private Vector2 _scroll;
 
-        [MenuItem("UPlayGround/Combat/Combat Log Recorder")]
+        [MenuItem("UPlayGround/게임플레이/전투/도구/전투 로그 기록기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 1)]
         public static void Open()
         {
             GetWindow<CombatLogRecorderWindow>("Combat Log");

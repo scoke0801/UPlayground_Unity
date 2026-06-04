@@ -66,7 +66,7 @@ public class RecipeEditorWindow : EditorWindow
 
     // ──────────────────────────────────────────────────────────
 
-    [MenuItem("UPlayGround/Gameplay/Crafting/Recipe Editor")]
+    [MenuItem("UPlayGround/게임플레이/제작/레시피 에디터")]
     public static void ShowWindow()
     {
         var win = GetWindow<RecipeEditorWindow>("Recipe Editor");

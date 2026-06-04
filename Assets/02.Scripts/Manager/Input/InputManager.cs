@@ -102,8 +102,6 @@ namespace UPlayGround.Manager
             }
 
             RefreshCursorState();
-
-            // Debug.Log($"ShowCursor: {Cursor.visible}, stackCount: {_cursorVisibleStack}");
         }
 
         private void OnStartedShowCursor(InputAction.CallbackContext obj)
@@ -118,7 +116,6 @@ namespace UPlayGround.Manager
 
         private void RefreshCursorState()
         {
-           // Debug.Log($"CursorStack: {_cursorVisibleStack}, gamePadConnected: {_isGamepadActive}");
             bool finalVisibility = _cursorVisibleStack > 0;
 
             if (finalVisibility)
@@ -132,8 +129,6 @@ namespace UPlayGround.Manager
                 {
                     Cursor.lockState = CursorLockMode.None;
                     Cursor.visible = true;
-
-                //    Debug.Log("[InputManager] Cursor Show");
                 }
             }
             else

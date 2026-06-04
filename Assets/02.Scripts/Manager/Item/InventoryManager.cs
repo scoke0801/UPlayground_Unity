@@ -195,20 +195,6 @@ namespace UPlayGround.Manager
 
         public void MakeTestItems()
         {
-            // ItemDatabase itemDB = ItemManager.Instance.GetItemDB();
-            // if (itemDB == null)
-            // {
-            //     return;
-            // }
-            //
-            // foreach (var itemSO in itemDB.AllItems)
-            // {
-            //     AddItem(itemSO.itemId, new ItemInstance()
-            //     {
-            //         count = 1,
-            //         data = itemSO
-            //     });
-            // }
         }
 
         // ──────────────────────────────────────────────────────────

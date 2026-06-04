@@ -325,8 +325,6 @@ namespace UPlayGround.State
 
             if (IsAttackDive)
                 gameActor.Animator.PlayMotion(AnimKey.Fly_Attack, 0.15f);
-            // else
-            //     gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.15f);
         }
 
         private void EnterDiving()

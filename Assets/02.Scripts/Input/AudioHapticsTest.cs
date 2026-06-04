@@ -39,16 +39,10 @@ public partial class AudioHapticsTest : MonoBehaviour
     private static extern int GC_TriggerAudioHaptics(int deviceId, short[] audioData, int dataSize);
 
     [DllImport("GamepadCore")]
-    private static extern void GC_StopAudioHaptics(int deviceId);
-    
-    [DllImport("GamepadCore")]
     private static extern bool GC_SendAudioHapticUSB(int index, short[] samples, int sampleCount);
 
     [DllImport("GamepadCore")]
     private static extern bool GC_SendAudioHapticBT(int index, byte[] packet);
-
-    [DllImport("GamepadCore")]
-    private static extern void GC_ProcessAudioStream(int index, float[] audioData, int frameCount, int channels);
 
     [DllImport("GamepadCore")]
     private static extern int GC_GetQueuedHapticCount(int index);
@@ -60,9 +54,6 @@ public partial class AudioHapticsTest : MonoBehaviour
     private static extern void GC_SetLightbar(int index, byte r, byte g, byte b);
 
     [DllImport("GamepadCore")]
-    private static extern void GC_UpdateOutput(int index);
-
-    [DllImport("GamepadCore")]
     private static extern float GC_GetBatteryLevel(int index);
 
     [DllImport("GamepadCore")]
@@ -70,9 +61,6 @@ public partial class AudioHapticsTest : MonoBehaviour
 
     [DllImport("GamepadCore")]
     private static extern IntPtr GC_GetVersionString();
-
-    [DllImport("GamepadCore")]
-    private static extern IntPtr GC_GetLastError();
 
     [DllImport("GamepadCore")]
     private static extern void GC_DualSenseSettings(int index, byte bIsMic, byte bIsHeadset, byte bIsSpeaker,
@@ -108,18 +96,7 @@ public partial class AudioHapticsTest : MonoBehaviour
     [Header("오디오 설정")]
     public AudioClip audioClip;
 
-    [Tooltip("실시간 오디오 스트림 처리 활성화")]
-    public bool useAudioStream = true;
-
     [Header("테스트 설정")]
-    [Tooltip("테스트 사인파 주파수 (Hz)")]
-    [Range(20f, 1000f)]
-    public float testFrequency = 440f;
-
-    [Tooltip("테스트 사인파 진폭 (0-1)")]
-    [Range(0f, 1f)]
-    public float testAmplitude = 0.5f;
-
     [Tooltip("테스트 진동 활성화")]
     public bool enableTestVibration = false;
 
@@ -136,8 +113,6 @@ public partial class AudioHapticsTest : MonoBehaviour
     private bool isInitialized = false;
     private bool isConnected = false;
     private bool isWireless = false;
-    private float phase = 0f;
-    private int sampleRate = 48000;
 
     // ============================================
     // Unity Lifecycle
@@ -264,55 +239,6 @@ public partial class AudioHapticsTest : MonoBehaviour
     }
 
     // ============================================
-    // 오디오 스트림 처리
-    // ============================================
-
-    /// <summary>
-    /// Unity AudioSource의 OnAudioFilterRead 콜백
-    /// 실시간 오디오 데이터를 햅틱으로 변환
-    /// </summary>
-    void OnAudioFilterRead(float[] data, int channels)
-    {
-        if (!isInitialized || !isConnected || !useAudioStream)
-            return;
-
-        int frameCount = data.Length / channels;
-
-        // 게임패드로 오디오 데이터 전송
-        //GC_ProcessAudioStream(gamepadIndex, data, frameCount, channels);
-
-        // 테스트용 사인파 생성 (AudioSource가 없을 때)
-        // if (audioSource == null || audioSource.clip == null)
-        // {
-        //     GenerateTestTone(data, channels);
-        // }
-    }
-
-    /// <summary>
-    /// 테스트용 사인파 생성
-    /// </summary>
-    void GenerateTestTone(float[] data, int channels)
-    {
-        float increment = testFrequency * 2f * Mathf.PI / sampleRate;
-
-        for (int i = 0; i < data.Length; i += channels)
-        {
-            float sample = Mathf.Sin(phase) * testAmplitude;
-            
-            for (int c = 0; c < channels; c++)
-            {
-                data[i + c] = sample;
-            }
-
-            phase += increment;
-            if (phase > 2f * Mathf.PI)
-            {
-                phase -= 2f * Mathf.PI;
-            }
-        }
-    }
-
-    // ============================================
     // 게임패드 제어
     // ============================================
 
@@ -322,6 +248,9 @@ public partial class AudioHapticsTest : MonoBehaviour
     void CheckConnection()
     {
 		int count = GC_GetConnectedGamepadCount();
+        isConnected = false;
+        isWireless = false;
+
         if (count <= 0)
         {
             return;
@@ -332,6 +261,7 @@ public partial class AudioHapticsTest : MonoBehaviour
             if (isConnected == true)
             {
                 gamepadIndex = i;
+                isWireless = GC_IsGamepadWireless(i);
                 break;
             }
         }
@@ -428,7 +358,7 @@ public partial class AudioHapticsTest : MonoBehaviour
         }
 
         // Send the data to the native library.
-        int result = GC_TriggerAudioHaptics(gamepadIndex, shortData, shortData.Length);
+        GC_TriggerAudioHaptics(gamepadIndex, shortData, shortData.Length);
     }
 
     /// <summary>

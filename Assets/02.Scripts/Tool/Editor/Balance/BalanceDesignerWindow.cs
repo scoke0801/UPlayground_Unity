@@ -41,7 +41,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private float _playerAttackInterval = 1.2f;
         private float _minAttackOpportunities = 1f;
 
-        [MenuItem("UPlayGround/Gameplay/Balance/Balance Designer", priority = 20)]
+        [MenuItem("UPlayGround/게임플레이/밸런스/밸런스 디자이너", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance)]
         public static void Open()
         {
             var window = GetWindow<BalanceDesignerWindow>();

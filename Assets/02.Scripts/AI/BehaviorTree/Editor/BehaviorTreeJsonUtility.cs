@@ -71,7 +71,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             typeof(List<float>)
         };
 
-        [MenuItem("UPlayGround/Behavior Tree/Json/BT Node/Export Selected")]
+        [MenuItem("UPlayGround/비헤이비어 트리/JSON/BT 노드/선택 항목 내보내기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.BehaviorTreeJson + 1)]
         public static void ExportSelected()
         {
             if (Selection.activeObject is not BehaviorTreeAsset tree)
@@ -101,7 +101,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Debug.Log($"[BT] Json Export 완료: {absolutePath}");
         }
 
-        [MenuItem("UPlayGround/Behavior Tree/Json/BT Node/Import Json")]
+        [MenuItem("UPlayGround/비헤이비어 트리/JSON/BT 노드/JSON 가져오기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.BehaviorTreeJson + 2)]
         public static void ImportJsonMenu()
         {
             var jsonPath = EditorUtility.OpenFilePanel("Behavior Tree Json Import", Application.dataPath, "json");

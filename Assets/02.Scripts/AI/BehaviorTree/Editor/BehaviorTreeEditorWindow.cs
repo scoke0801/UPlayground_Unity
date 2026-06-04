@@ -53,7 +53,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private BTStatus _lastExecutionStatus = (BTStatus)(-1);
         private bool _lastDebugMode;
         private bool _debugGraphWasActive;
-        private bool _autoDetectedRunner;
         private PropertyTab _activeTab = PropertyTab.Inspector;
 
         private enum PropertyTab
@@ -66,7 +65,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Search
         }
 
-        [MenuItem("UPlayGround/Behavior Tree/Editor")]
+        [MenuItem("UPlayGround/비헤이비어 트리/에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.BehaviorTree)]
         public static void Open()
         {
             var window = GetWindow<BehaviorTreeEditorWindow>();
@@ -136,7 +135,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (candidate == null)
                 return;
 
-            _autoDetectedRunner = true;
             _debugRunner = candidate;
             _runnerField?.SetValueWithoutNotify(candidate);
             ResetDebugUiCache();
@@ -219,7 +217,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 var runner = Selection.activeGameObject.GetComponentInParent<BehaviorTreeRunner>(true);
                 if (runner != null && _tree != null && runner.SourceTree == _tree && _debugRunner != runner)
                 {
-                    _autoDetectedRunner = true;
                     _debugRunner = runner;
                     _runnerField?.SetValueWithoutNotify(runner);
                     ResetDebugUiCache();

@@ -13,47 +13,47 @@ namespace UPlayGround.Editor
     /// </summary>
     public static class GeneratorToolMenu
     {
-        [MenuItem("UPlayGround/Generator Tool/ID Enum Generator", false, 10)]
+        [MenuItem("UPlayGround/생성 도구/ID Enum 생성기", false, 10)]
         private static void OpenIdEnumGenerator()
             => IdEnumGeneratorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Item Data Generator", false, 15)]
+        [MenuItem("UPlayGround/생성 도구/아이템 데이터 생성기", false, 15)]
         private static void OpenItemDataGenerator()
             => ItemDataGeneratorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Recipe Data Generator", false, 20)]
+        [MenuItem("UPlayGround/생성 도구/레시피 데이터 생성기", false, 20)]
         private static void OpenRecipeDataGenerator()
             => RecipeDataGeneratorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Stat Data Generator", false, 30)]
+        [MenuItem("UPlayGround/생성 도구/스탯 데이터 생성기", false, 30)]
         private static void OpenStatDataGenerator()
             => StatDataGeneratorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Validate Stat Data Coverage", false, 31)]
+        [MenuItem("UPlayGround/생성 도구/스탯 데이터 커버리지 검증", false, 31)]
         private static void ValidateStatDataCoverage()
             => StatDataGeneratorWindow.ValidateStatDataCoverageMenu();
 
-        [MenuItem("UPlayGround/Generator Tool/Party Growth Editor", false, 32)]
+        [MenuItem("UPlayGround/생성 도구/파티 성장 에디터", false, 32)]
         private static void OpenPartyGrowthEditor()
             => PartyGrowthEditorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/NPC Data Generator", false, 35)]
+        [MenuItem("UPlayGround/생성 도구/NPC 데이터 생성기", false, 35)]
         private static void OpenNpcDataGenerator()
             => NpcDataGeneratorWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Main Story Generator", false, 40)]
+        [MenuItem("UPlayGround/생성 도구/메인 스토리 생성기", false, 40)]
         private static void OpenMainStoryGenerator()
             => MainStoryGeneratorWindow.ShowWindow();
 
-        [MenuItem("UPlayGround/Generator Tool/Sub Story Generator", false, 41)]
+        [MenuItem("UPlayGround/생성 도구/서브 스토리 생성기", false, 41)]
         private static void OpenSubStoryGenerator()
             => SubStoryGeneratorWindow.ShowWindow();
 
-        [MenuItem("UPlayGround/Generator Tool/Locomotion Motion Setup", false, 50)]
+        [MenuItem("UPlayGround/생성 도구/로코모션 모션 설정", false, 50)]
         private static void OpenLocomotionMotionSetup()
             => LocoMotionSetupWindow.Open();
 
-        [MenuItem("UPlayGround/Generator Tool/Camera Shake Presets", false, 60)]
+        [MenuItem("UPlayGround/생성 도구/카메라 흔들림 프리셋", false, 60)]
         private static void GenerateCameraShakePresets()
             => CameraShakePresetGenerator.Generate();
     }

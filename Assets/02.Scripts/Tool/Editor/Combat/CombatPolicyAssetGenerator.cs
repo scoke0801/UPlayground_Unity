@@ -15,7 +15,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private const string EliteReactionPolicyPath = PolicyFolder + "/EliteCombatReactionPolicy.asset";
         private const string BossReactionPolicyPath = PolicyFolder + "/BossCombatReactionPolicy.asset";
 
-        [MenuItem("UPlayGround/Combat/Generate Default Policy Assets")]
+        [MenuItem("UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 2)]
         public static void GenerateDefaultPolicyAssets()
         {
             EnsureFolder(PolicyFolder);

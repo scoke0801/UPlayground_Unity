@@ -73,7 +73,7 @@ namespace UPlayGround.Animation.Editor
 
         // ────────────────────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Util/Weapon Motion Setup")]
+        [MenuItem("UPlayGround/유틸/무기 모션 설정")]
         public static void Open()
         {
             var w = GetWindow<WeaponMotionSetupWindow>("Weapon Motion Setup");

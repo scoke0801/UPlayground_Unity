@@ -163,15 +163,6 @@ namespace UPlayGround
                     _ownerPlayerCombat.ApplyExternalAttackImpact(attackData);
                     _ownerPlayerCombat.NotifyAttackHit(attackData);
                 }
-                // 이펙트 표시
-                // GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);
-                //
-                // // 카메라 쉐이크
-                // CameraManager.Instance.StartShake("LiteHit");
-                //
-                // // 히트 스탑
-                // GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Light);
-                //
             }
 
             if (destroyOnHit)
@@ -191,10 +182,7 @@ namespace UPlayGround
             
             if (trailEffect != null)
                 trailEffect.Stop();
-            
-            //if (projectileModel != null)
-            //    projectileModel.SetActive(false);
-                
+
             Destroy(gameObject);
         }
     }

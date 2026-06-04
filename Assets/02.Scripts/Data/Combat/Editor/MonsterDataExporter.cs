@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
@@ -28,7 +28,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string  _log;
 
-        [MenuItem("UPlayGround/Character/Actor/Data/Export Monster Data", priority = 101)]
+        [MenuItem("UPlayGround/캐릭터/액터/데이터/몬스터 데이터 내보내기", priority = 101)]
         public static void Open() => GetWindow<MonsterDataExporter>("Monster Data Exporter");
 
         private void OnGUI()

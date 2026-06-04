@@ -60,8 +60,6 @@ namespace UPlayGround.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // // Drag
-            // currentVelocity *= (1f / (1f + (controller.LandDrag * deltaTime)));
             currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
         }
         private void ChangeToNextState()

@@ -174,7 +174,29 @@
       "Bash(grep -rho \"statData: {fileID: [0-9]*, guid: [a-f0-9]*\" Assets --include=\"*.asset\")",
       "Bash(node -e 'const s=require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\); let o=\\(s.match\\(/{/g\\)||[]\\).length,c=\\(s.match\\(/}/g\\)||[]\\).length; console.log\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''{'\\\\'',o,'\\\\''}'\\\\'',c, o===c?'\\\\''OK'\\\\'':'\\\\''MISMATCH'\\\\''\\);')",
       "Bash(grep -v \"Editor\\\\|//\\\\|Tooltip\")",
-      "Bash(node -e 'const s=require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\); let o=\\(s.match\\(/{/g\\)||[]\\).length,c=\\(s.match\\(/}/g\\)||[]\\).length; console.log\\('\\\\''__TRACKED_VAR__'\\\\'',o===c?'\\\\''OK'\\\\'':'\\\\''MISMATCH'\\\\'',o,c\\);')"
+      "Bash(node -e 'const s=require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\); let o=\\(s.match\\(/{/g\\)||[]\\).length,c=\\(s.match\\(/}/g\\)||[]\\).length; console.log\\('\\\\''__TRACKED_VAR__'\\\\'',o===c?'\\\\''OK'\\\\'':'\\\\''MISMATCH'\\\\'',o,c\\);')",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp.csproj -nologo -t:Build -p:Configuration=Debug -clp:ErrorsOnly\\\\;NoSummary -v:q)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp.csproj -nologo -t:Rebuild -p:Configuration=Debug -clp:NoSummary -v:n)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp-Editor.csproj -nologo -t:Rebuild -p:Configuration=Debug -clp:NoSummary -v:n)",
+      "Bash(cd /c/UsingProject/UnityProject/UPlayground)",
+      "Bash(sed -E 's#.*UPlayground.##; s#\\\\[C:.*##' /tmp/warn_runtime.txt)",
+      "Bash(sed -E 's#.*UPlayground.##; s#\\\\[C:.*##' /tmp/warn_editor.txt)",
+      "Read(//tmp/**)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" tool list -g)",
+      "Read(//c/Program Files/JetBrains//**)",
+      "Read(//c/Users/scoke/.dotnet/**)",
+      "Bash(cat)",
+      "Bash(rm -f Temp/_cs8019_test.editorconfig)",
+      "Bash(grep -rnE \"^\\\\s*//[^/].*;\\\\s*$\" Assets/02.Scripts --include=*.cs)",
+      "Bash(grep -vE \"//\\\\s*[가-힣]\")",
+      "Bash(grep -rlE \"/\\\\*\" Assets/02.Scripts --include=*.cs)",
+      "Bash(grep -rln \"/\\\\*\" Assets/02.Scripts --include=*.cs)",
+      "Bash(grep -nE \"/\\\\*|\\\\*/\" Assets/02.Scripts/Manager/Input/InputManager.Action.cs)",
+      "Bash(bash /tmp/deadscan.sh)",
+      "Bash(export LC_ALL=C.UTF-8)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp.csproj -nologo -t:Build -p:Configuration=Debug -clp:ErrorsOnly)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp-Editor.csproj -nologo -t:Build -p:Configuration=Debug -clp:ErrorsOnly)",
+      "Bash(export LC_ALL=C.UTF-8 LANG=C.UTF-8)"
     ]
   }
 }

@@ -208,8 +208,6 @@ namespace UPlayGround
 
                 // 2. 위치 및 회전 초기화: 부모 오브젝트(Sword)의 위치에 딱 맞게 정렬
                 newWeapon.transform.localPosition = Vector3.zero;
-                //newWeapon.transform.localRotation = Quaternion.identity;
-                //newWeapon.transform.localScale = Vector3.one; // 크기도 1,1,1로 초기화 (필요시)
             }
         }
         

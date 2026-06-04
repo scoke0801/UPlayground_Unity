@@ -128,11 +128,6 @@ namespace UPlayGround.State
                     if (PlayerAttackState.TryEnter(playerController)) return;
                 }
             }
-
-            // if (playerController.HasEquipInput() )
-            // {
-            //     PlayEquipItem();
-            // }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

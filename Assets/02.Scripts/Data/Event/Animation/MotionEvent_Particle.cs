@@ -43,7 +43,6 @@ namespace UPlayGround.Data.Event
             Transform spawnPoint = target.transform;
             if (String.IsNullOrEmpty(spawnPointName) == false)
             {
-                //spawnPoint = target.transform.Find(spawnPointName);
                 spawnPoint = FindTransformByName(target.transform, spawnPointName);
             }
 
@@ -54,8 +53,6 @@ namespace UPlayGround.Data.Event
                 _instance = GameObject.Instantiate(particlePrefab, spawnPoint);
 
                 _instance.transform.localPosition = offset;
-//                _instance.transform.localRotation = Quaternion.Euler(rotationOffset);
-//                _instance.transform.localRotation = Quaternion.identity;
                 _instance.transform.localRotation = particlePrefab.transform.rotation;
                     
                 // 생성 직후 부모 해제 → 월드 위치/회전은 유지된 채 독립

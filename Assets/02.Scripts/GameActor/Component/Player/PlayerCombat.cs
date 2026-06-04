@@ -1175,13 +1175,6 @@ namespace UPlayGround.Component
                 : FXKeyType.DefaultCombatHit.ToKey();
         }
 
-        private float GetAnimationDuration(AnimKey animKey)
-        {
-            if (_actorAnimator == null) return 1.0f;
-            float duration = _actorAnimator.GetMotionSetDuration(animKey);
-            return duration > 0 ? duration : 1.0f;
-        }
-
         #region Combo
 
         private bool CanContinueCombo()

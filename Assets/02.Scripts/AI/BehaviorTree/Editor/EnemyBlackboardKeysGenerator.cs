@@ -12,7 +12,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const string RegistryPath = "Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json";
         private const string OutputPath = "Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs";
 
-        [MenuItem("UPlayGround/Generator Tool/Enemy Blackboard Keys", false, 11)]
+        [MenuItem("UPlayGround/생성 도구/Enemy Blackboard Keys 생성", false, 11)]
         public static void GenerateMenu()
         {
             Generate();
@@ -101,7 +101,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             var builder = new StringBuilder();
             builder.AppendLine("// 자동 생성 파일입니다. 직접 수정하지 마세요.");
-            builder.AppendLine("// UPlayGround/Generator Tool/Enemy Blackboard Keys 메뉴에서 재생성하세요.");
+            builder.AppendLine("// UPlayGround/생성 도구/Enemy Blackboard Keys 생성 메뉴에서 재생성하세요.");
             builder.AppendLine($"// Source: {RegistryPath}");
             builder.AppendLine("// Identifier rule: key를 PascalCase로 자동 변환하며, 충돌/가독성 문제가 있으면 JSON identifier 필드를 사용합니다.");
             builder.AppendLine();

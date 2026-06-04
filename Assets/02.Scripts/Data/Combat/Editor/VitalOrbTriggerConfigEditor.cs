@@ -29,7 +29,6 @@ namespace UPlayGround.Editor
         private static readonly Color ColorS   = new Color(1.00f, 0.84f, 0.00f, 1f); // 금색
         private static readonly Color ColorA   = new Color(0.00f, 0.75f, 1.00f, 1f); // 하늘색
         private static readonly Color ColorB   = new Color(0.85f, 0.85f, 0.85f, 1f); // 흰색
-        private static readonly Color ColorBg  = new Color(0.15f, 0.18f, 0.22f, 1f);
 
         private bool _showSimulation = true;
 

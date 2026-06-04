@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +46,7 @@ public class JsonTextViewer : EditorWindow
     private const float SPLITTER_HEIGHT = 5f;
     private const float TOOLBAR_HEIGHT = 25f;
 
-    [MenuItem("UPlayGround/Util/Viewer/JSON Table Viewer")]
+    [MenuItem("UPlayGround/유틸/뷰어/JSON 테이블 뷰어")]
     public static void ShowWindow()
     {
         GetWindow<JsonTextViewer>("JSON 테이블 뷰어");

@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Enemy.EditorTools
     {
         private const string AssetFolder = "Assets/10.Datas/AI/IntentWeights";
 
-        [MenuItem("UPlayGround/Enemy/Intent Weights/Generate All Default Profiles")]
+        [MenuItem("UPlayGround/적/의도 가중치/기본 프로필 전체 생성")]
         public static void GenerateAll()
         {
             EnsureFolder();
@@ -29,7 +29,7 @@ namespace UPlayGround.Data.Enemy.EditorTools
             Debug.Log("[IntentWeights] 4개 기본 프로파일 생성/갱신 완료.");
         }
 
-        [MenuItem("UPlayGround/Enemy/Intent Weights/Regenerate Default Melee (Legacy Equivalent)")]
+        [MenuItem("UPlayGround/적/의도 가중치/기본 근접 프로필 재생성 (레거시 동등)")]
         public static void RegenerateDefaultMelee()
         {
             EnsureFolder();

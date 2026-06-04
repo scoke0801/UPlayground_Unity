@@ -28,7 +28,7 @@ public class RecipeDataImporter : EditorWindow
     private string _csvUnlockPath;
     private string _outputAssetPath;
 
-    [MenuItem("UPlayGround/Gameplay/Crafting/Import Recipe Data")]
+    [MenuItem("UPlayGround/게임플레이/제작/레시피 데이터 가져오기")]
     public static void ShowWindow()
     {
         GetWindow<RecipeDataImporter>("Recipe Data Importer");

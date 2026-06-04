@@ -203,7 +203,6 @@ namespace UPlayGround.State
             if (CanStandUp())
             {
                 motor.SetCapsuleDimensions(0.5f, 1.6f, 0.8f);
-                //controller.MeshRoot.localScale = new Vector3(1f, 1f, 1f);
             }
             else
             {

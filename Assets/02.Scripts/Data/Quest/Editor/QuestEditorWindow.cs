@@ -97,7 +97,7 @@ namespace UPlayGround.Editor
 
         // ──────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/Gameplay/Quest/Quest Editor")]
+        [MenuItem("UPlayGround/게임플레이/퀘스트/퀘스트 에디터")]
         public static void ShowWindow()
         {
             var win = GetWindow<QuestEditorWindow>("Quest Editor");

@@ -164,17 +164,6 @@ namespace UPlayGround.Manager.Combat
             return false;
         }
 
-        private static bool TryGetNavMeshPosition(Vector3 desired, out Vector3 result)
-        {
-            if (NavMesh.SamplePosition(desired, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
-            {
-                result = hit.position;
-                return true;
-            }
-            result = Vector3.zero;
-            return false;
-        }
-
         private class TriggerRuntimeState
         {
             private float _cooldownRemaining;

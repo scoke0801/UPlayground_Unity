@@ -34,23 +34,10 @@ public class UI_CraftMenu : UI_Base
     protected override void OnHide()
     {
         InputManager.Instance.SetInputLayer(InputLayer.None);
-
-      //  RecipeManager.Instance.OnRecipeUnlocked    -= OnRecipeUnlocked;
-      //  RecipeManager.Instance.OnCraftingStarted   -= OnCraftingStarted;
-      //  RecipeManager.Instance.OnCraftingCompleted -= OnCraftingCompleted;
-      //  RecipeManager.Instance.OnCraftingCancelled -= OnCraftingCancelled;
     }
 
     protected override void OnDispose()
     {
-        // 혹시 구독이 남아있으면 정리
-       // if (RecipeManager.Instance != null)
-       // {
-       //     RecipeManager.Instance.OnRecipeUnlocked    -= OnRecipeUnlocked;
-       //     RecipeManager.Instance.OnCraftingStarted   -= OnCraftingStarted;
-       //     RecipeManager.Instance.OnCraftingCompleted -= OnCraftingCompleted;
-       //     RecipeManager.Instance.OnCraftingCancelled -= OnCraftingCancelled;
-       // }
     }
 
     public override bool PerformBackFunction()

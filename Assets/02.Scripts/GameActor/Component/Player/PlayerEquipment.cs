@@ -243,8 +243,6 @@ namespace UPlayGround.Component
 
                 // 2. 위치 및 회전 초기화: 부모 오브젝트의 위치에 맞게 정렬
                 newWeapon.transform.localPosition = Vector3.zero;
-                //newWeapon.transform.localRotation = Quaternion.identity;
-                //newWeapon.transform.localScale = Vector3.one; // 크기도 1,1,1로 초기화 (필요시)
             }
 
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.

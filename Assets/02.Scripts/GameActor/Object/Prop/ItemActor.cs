@@ -93,7 +93,6 @@ namespace UPlayGround
 
                     transform.position = currentPos;
 
-                    // endPosition = _player.position;
                     yield return null;
                 }
 

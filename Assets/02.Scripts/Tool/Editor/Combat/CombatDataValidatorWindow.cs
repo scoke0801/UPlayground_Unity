@@ -12,7 +12,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private readonly List<CombatValidationIssue> _issues = new();
         private Vector2 _scroll;
 
-        [MenuItem("UPlayGround/Combat/Data Validator")]
+        [MenuItem("UPlayGround/게임플레이/전투/도구/데이터 검증기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools)]
         public static void Open()
         {
             GetWindow<CombatDataValidatorWindow>("Combat Validator");

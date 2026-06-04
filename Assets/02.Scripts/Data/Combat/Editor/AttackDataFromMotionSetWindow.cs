@@ -48,7 +48,7 @@ namespace UPlayGround.Editor
         private List<ScanEntry> _scanEntries = new();
         private string _lastMessage = "";
 
-        [MenuItem("UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기")]
+        [MenuItem("UPlayGround/게임플레이/전투/MotionSet 기반 공격 데이터 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombat + 1)]
         public static void OpenFromMenu()
         {
             var window = GetWindow<AttackDataFromMotionSetWindow>("공격 데이터 생성기");

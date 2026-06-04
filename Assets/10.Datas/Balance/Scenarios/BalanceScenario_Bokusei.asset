@@ -17,7 +17,7 @@ MonoBehaviour:
   playerAttackData: {fileID: 11400000, guid: 17f08f7384b34f14a8c067e642d33cd9, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1
-  manualPlayerDps: 18
+  manualPlayerDps: 45
   playerAttackInterval: 1.2
   targetDuration: 30
   assumedDistance: 2.5

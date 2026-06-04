@@ -14,25 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stats:
   - statType: 0
-    baseValue: 1600
+    baseValue: 442.8
   - statType: 1
     baseValue: 0
   - statType: 2
-    baseValue: 1.5
+    baseValue: 1.08
   - statType: 3
-    baseValue: 0.2
+    baseValue: 0
   - statType: 4
     baseValue: 0
   - statType: 5
     baseValue: 1.5
   - statType: 6
-    baseValue: 1
+    baseValue: 1.06
   - statType: 7
     baseValue: 1
   - statType: 8
-    baseValue: 100
+    baseValue: 500
   - statType: 9
-    baseValue: 40
+    baseValue: 50
   - statType: 10
     baseValue: 2
   - statType: 11

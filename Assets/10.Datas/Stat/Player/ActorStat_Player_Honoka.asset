@@ -15,8 +15,6 @@ MonoBehaviour:
   _stats:
   - statType: 0
     baseValue: 110
-  - statType: 1
-    baseValue: 0
   - statType: 2
     baseValue: 1.2
   - statType: 3

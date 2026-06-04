@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_Random_F_Bow_001_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_Random_F_Bow_001
+  displayName: Enemy_Random_F_Bow_001
+  description: 
+  actorType: 18
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 5156567061340455063, guid: ebd2ef77bf9e1914ea1aeff305a3b42f, type: 3}
+  statData: {fileID: 11400000, guid: 0ade64cb74deda849b1404b5f6f1e79f, type: 2}
+  poiseData: {fileID: 11400000, guid: c3e776ded07d7854eb7fcd2688cfb863, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: b1f3c013281877845bdba4ad4a80ef7d, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 1
+  attackData: {fileID: 11400000, guid: 8c0b40f19285def46b7b710687c0954b, type: 2}
+  combatDefensePolicy: {fileID: 11400000, guid: 28960edf4610ea44e8ce8df399f1b677, type: 2}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 4a22e18e04beb3a4dbefa56b34748085, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

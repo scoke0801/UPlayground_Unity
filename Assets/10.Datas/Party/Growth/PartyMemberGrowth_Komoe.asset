@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PartyMemberGrowth_Komoe
   m_EditorClassIdentifier: 
   characterType: 10
-  baseStat: {fileID: 0}
+  baseStat: {fileID: 11400000, guid: 18ca239bd1cac8b4eb9bae1933d54730, type: 2}
   initialLevel: 1
   levelCap: 100
   growthRules: []

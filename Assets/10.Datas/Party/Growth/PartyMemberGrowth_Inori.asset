@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PartyMemberGrowth_Inori
   m_EditorClassIdentifier: 
   characterType: 7
-  baseStat: {fileID: 0}
+  baseStat: {fileID: 11400000, guid: 05e3fdf46f74d734882ad545b67322b6, type: 2}
   initialLevel: 1
   levelCap: 100
   growthRules: []

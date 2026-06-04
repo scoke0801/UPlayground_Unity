@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_Random_M_SwordShield_003_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_Random_M_SwordShield_003
+  displayName: Enemy_Random_M_SwordShield_003
+  description: 
+  actorType: 18
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 2190142397537974693, guid: 419d8fe46a9673e45afae372e9a0ee81, type: 3}
+  statData: {fileID: 11400000, guid: e6caafc48e597e247a151e63ba10fd0a, type: 2}
+  poiseData: {fileID: 11400000, guid: 9e0078feccfa59e4fbdf72cc90019730, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: bfe98ee42dc3f6a4080b0e358c7c21e8, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 1
+  attackData: {fileID: 11400000, guid: 00980edf27f0ee6458de989fd66cede4, type: 2}
+  combatDefensePolicy: {fileID: 11400000, guid: 28960edf4610ea44e8ce8df399f1b677, type: 2}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: e873f21953e85504985f9b005e5cc8eb, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

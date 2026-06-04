@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60acd485ad2e40ce982f9dcacd4254db, type: 3}
+  m_Name: BalanceScenario_Sera
+  m_EditorClassIdentifier: 
+  playerCharacter: 6
+  playerStatData: {fileID: 11400000, guid: 6f15447ef3e9a6740b96cbbb3104e3a3, type: 2}
+  playerAttackData: {fileID: 11400000, guid: 17f08f7384b34f14a8c067e642d33cd9, type: 2}
+  playerLevel: 1
+  manualPlayerAttackPower: 1
+  manualPlayerDps: 45
+  playerAttackInterval: 1.2
+  targetDuration: 30
+  assumedDistance: 2.5
+  overrideMonsterLevel: 1
+  useActorDefinitionLevel: 1
+  hitReceiveRate: 0.45
+  guardMitigationRate: 0.35
+  dodgeSuccessRate: 0.15
+  parrySuccessRate: 0.05
+  minAttackOpportunities: 1

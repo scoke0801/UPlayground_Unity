@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PartyMemberGrowth_Nenmir
   m_EditorClassIdentifier: 
   characterType: 5
-  baseStat: {fileID: 0}
+  baseStat: {fileID: 11400000, guid: 9ae7de3c071038c47afcebe388a606ed, type: 2}
   initialLevel: 1
   levelCap: 100
   growthRules: []

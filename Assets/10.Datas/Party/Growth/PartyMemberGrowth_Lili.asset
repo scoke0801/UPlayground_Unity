@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PartyMemberGrowth_Lili
   m_EditorClassIdentifier: 
   characterType: 11
-  baseStat: {fileID: 0}
+  baseStat: {fileID: 11400000, guid: ad1ffd825c9414244aced5c4bc120d7e, type: 2}
   initialLevel: 1
   levelCap: 100
   growthRules: []

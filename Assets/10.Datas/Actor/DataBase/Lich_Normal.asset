@@ -21,12 +21,15 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   prefab: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
-  statData: {fileID: 11400000, guid: d00767b53d0dbf74c9354e8ad99d84a6, type: 2}
+  statData: {fileID: 11400000, guid: 3f8a7881b1c60d143930e2d8476c6f01, type: 2}
   poiseData: {fileID: 11400000, guid: 43016e79ad3412b4a9162b3e840be826, type: 2}
   breakGaugeData: {fileID: 11400000, guid: 6a7fd474d07e23a43af818911989154d, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 0
   level: 1
   attackData: {fileID: 11400000, guid: dee24f8f3beac404d8d9d1b6bdb64a73, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
   behaviorData: {fileID: 11400000, guid: fc7b1aaf2d143824ea0ef21e9c4bec5a, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 0}

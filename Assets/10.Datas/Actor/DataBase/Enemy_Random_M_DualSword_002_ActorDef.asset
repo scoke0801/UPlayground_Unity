@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_Random_M_DualSword_002_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_Random_M_DualSword_002
+  displayName: Enemy_Random_M_DualSword_002
+  description: 
+  actorType: 18
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 4271549058432074984, guid: 468de071685d7004d9d39f83c8c06684, type: 3}
+  statData: {fileID: 11400000, guid: 233a79c7775412946ba55f310902044a, type: 2}
+  poiseData: {fileID: 11400000, guid: eb0d5d10392254741a2bc447e306f110, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: fc5d42e725b263f48ba7e7ef370830f7, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 1
+  attackData: {fileID: 11400000, guid: 8e4fa9a7599332044b0381cf2f90a75d, type: 2}
+  combatDefensePolicy: {fileID: 11400000, guid: 28960edf4610ea44e8ce8df399f1b677, type: 2}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: b427b045c40ea654f9581c6d4911f647, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0

@@ -55,7 +55,10 @@ namespace UPlayGround
                 attackDirection = direction,
                 reactionType = AttackReactionType.Hit
             };
-            
+            // P4: 설정된 히트 FX가 attacker-side 연출(ShowExternalHitFeedback)에 반영되도록 복사. 비우면 기본 FX 사용.
+            if (!string.IsNullOrWhiteSpace(hitParticleName))
+                attackData.hitParticleName = hitParticleName;
+
             hitLayers = layer;
             currentLifeTime = 0f;
             lifeTime = duration;
@@ -153,14 +156,12 @@ namespace UPlayGround
                 // 데미지 적용
                 damageable.TakeDamage(attackData);
 
-                if (owner.HasActorType(ActorType.Player))
+                if (owner.HasActorType(ActorType.Player) && _ownerPlayerCombat != null)
                 {
-                    CameraManager.Instance.Punch(transform.forward, 0.12f, 0.12f);
-                    CameraManager.Instance.StartShake(CameraShakeIdType.LiteHit);
-
-                    // 스킬 게이지 등 후속 처리. PlayerCombat의 OnAttackHit를 동일하게 발화시킨다.
-                    if (_ownerPlayerCombat != null)
-                        _ownerPlayerCombat.NotifyAttackHit(attackData);
+                    // P4: 근접과 동일한 attacker-side 피드백으로 통일(데미지 숫자/히트 VFX/히트스톱/카메라/바이탈오브/킬캠).
+                    _ownerPlayerCombat.ShowExternalHitFeedback(attackData);
+                    _ownerPlayerCombat.ApplyExternalAttackImpact(attackData);
+                    _ownerPlayerCombat.NotifyAttackHit(attackData);
                 }
                 // 이펙트 표시
                 // GameObjectManager.Instance.ShowFX(hitEffectKey, attackData.hitPoint);

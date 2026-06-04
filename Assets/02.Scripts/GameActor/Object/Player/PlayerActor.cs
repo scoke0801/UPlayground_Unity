@@ -807,13 +807,15 @@ namespace UPlayGround
     {
         public void TakeDamage(AttackData attackData)
         {
-            DefenseResult defenseResult = DefenseResolver.ResolvePlayerDefense(
-                CreatePlayerDefenseQuery(),
-                attackData);
+            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerHit(
+                this,
+                attackData,
+                CreatePlayerDefenseQuery());
 
-            switch (defenseResult.Outcome)
+            switch (combatResult.DefenseOutcome)
             {
                 case DefenseOutcome.Guarded:
+                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     if (MovementController.CurrentState is not PlayerGuardState guardState)
                         return;
 
@@ -824,28 +826,33 @@ namespace UPlayGround
                     return;
 
                 case DefenseOutcome.Parried:
+                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     OnParrySuccess(attackData);
                     return;
 
                 case DefenseOutcome.PerfectDodged:
+                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     TryPerfectDodge(attackData);
                     return;
 
                 case DefenseOutcome.Invincible:
+                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     return;
             }
 
-            DamageResult damageResult = DamageResolver.ResolvePlayerDamage(attackData);
-            float finalDamage = damageResult.FinalDamage;
+            DamageResult damageResult = combatResult.Damage;
+            float finalDamage = combatResult.FinalDamage;
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             _behaviorPredictor?.NotifyAction(PlayerActionToken.Hit);
-           
-            CombatFeedbackDispatcher.ShowDamageFloater(
-                CombatFeedbackContext.FromDamageResult(attackData, damageResult, transform.position));
 
-            OnDamaged(attackData);
+            CombatFeedbackDispatcher.ShowDamageFloater(
+                CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
+
+            ReactionDecision reactionDecision = OnDamaged(attackData);
+            CombatResolutionPipeline.RecordIfDamageApplied(
+                CombatResolutionPipeline.WithReaction(combatResult, reactionDecision));
 
             if (_currentHealth <= 0)
                 OnDeath(attackData);
@@ -895,7 +902,8 @@ namespace UPlayGround
                 MovementController.CurrentState is PlayerDodgeState,
                 _combat.IsPerfectDodgeWindow,
                 CanTakeDamage(),
-                alwaysParry);
+                alwaysParry,
+                Definition != null ? Definition.combatDefensePolicy : null);
         }
 
         /// <summary>
@@ -993,14 +1001,16 @@ namespace UPlayGround
         {
             if (!CanTakeDamage()) return;
 
-            DamageResult damageResult = DamageResolver.ResolvePlayerDamage(attackData, includeCritical: false);
-            float finalDamage = damageResult.FinalDamage;
+            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerGuardBreakDamage(this, attackData);
+            DamageResult damageResult = combatResult.Damage;
+            float finalDamage = combatResult.FinalDamage;
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
             CombatFeedbackDispatcher.ShowDamageFloater(
-                CombatFeedbackContext.FromDamageResult(attackData, damageResult, transform.position));
+                CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
+            CombatResolutionPipeline.RecordIfDamageApplied(combatResult);
 
             CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
 
@@ -1019,7 +1029,7 @@ namespace UPlayGround
         /// 피격 시 호출.
         /// 쉐이크 강도는 AttackReactionType으로 결정한다.
         /// </summary>
-        protected virtual void OnDamaged(AttackData attackData)
+        protected virtual ReactionDecision OnDamaged(AttackData attackData)
         {
             // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
             bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
@@ -1098,6 +1108,7 @@ namespace UPlayGround
             CombatFeedbackDispatcher.ShowHitFx(attackData?.hitParticleName, fxPos);
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
+            return reactionDecision;
         }
 
         private void ApplyPlayerReactionState(CombatReactionState reactionState, AttackData attackData)

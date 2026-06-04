@@ -51,5 +51,30 @@ namespace UPlayGround.Combat
                 damageResult.FloaterStyle,
                 hitFxKey);
         }
+
+        /// <summary>
+        /// <see cref="CombatResult"/>로부터 피드백 컨텍스트를 만든다 (P1).
+        /// <see cref="FromDamageResult"/>와 값이 동일하도록: raw hitPoint(zero면 fallback) 판정과
+        /// 원본 AttackData(Source) 전달을 그대로 유지한다(다운스트림이 hitParticleName/attackKind를 읽는다).
+        /// </summary>
+        public static CombatFeedbackContext FromCombatResult(
+            in CombatResult result,
+            Vector3 fallbackPosition,
+            string hitFxKey = null)
+        {
+            AttackData attackData = result.Hit.Source;
+            Vector3 hitPoint = result.Hit.HitPoint != Vector3.zero
+                ? result.Hit.HitPoint
+                : fallbackPosition;
+
+            return new CombatFeedbackContext(
+                attackData,
+                hitPoint,
+                result.Hit.AttackDirection,
+                result.Hit.HitTarget,
+                result.Damage.FinalDamage,
+                result.Damage.FloaterStyle,
+                hitFxKey);
+        }
     }
 }

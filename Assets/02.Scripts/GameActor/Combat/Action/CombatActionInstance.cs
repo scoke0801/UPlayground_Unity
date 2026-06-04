@@ -21,6 +21,10 @@ namespace UPlayGround.Combat
         {
             switch (timelineEvent.Type)
             {
+                case CombatTimelineEventType.ActionStarted:
+                    CurrentPhaseIndex = timelineEvent.HitPhaseIndex;
+                    IsCollisionActive = false;
+                    break;
                 case CombatTimelineEventType.BeginCollision:
                     IsCollisionActive = true;
                     CurrentPhaseIndex = timelineEvent.HitPhaseIndex;

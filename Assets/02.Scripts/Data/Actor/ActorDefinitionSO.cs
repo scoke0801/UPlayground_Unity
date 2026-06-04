@@ -55,6 +55,12 @@ namespace UPlayGround.Data.Actor
         [Tooltip("적 공격 데이터. null이면 프리팹의 EnemyCombat에 설정된 값 사용.")]
         public EnemyAttackDataSO attackData;
 
+        [Tooltip("방어 판정 정책. null이면 기존 기본 방어 규칙을 사용한다.")]
+        public CombatDefensePolicySO combatDefensePolicy;
+
+        [Tooltip("피격 리액션 정책. null이면 기존 기본 리액션 규칙을 사용한다.")]
+        public CombatReactionPolicySO combatReactionPolicy;
+
         [Tooltip("적 행동(AI) 프로필. null이면 프리팹의 EnemyAIController에 설정된 값 사용.")]
         public EnemyBehaviorSO behaviorData;
 

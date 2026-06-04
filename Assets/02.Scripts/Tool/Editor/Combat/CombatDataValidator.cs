@@ -1,9 +1,15 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
+using UPlayGround.Animation;
+using UPlayGround.Component;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
@@ -41,6 +47,8 @@ namespace UPlayGround.Tool.Editor.Combat
             var issues = new List<CombatValidationIssue>();
             ValidatePlayerAttackData(issues);
             ValidateEnemyAttackData(issues);
+            ValidateMotionSetMatching(issues);
+            ValidateCombatPolicyData(issues);
             return issues;
         }
 
@@ -170,6 +178,273 @@ namespace UPlayGround.Tool.Editor.Combat
                     AddIssue(issues, CombatValidationSeverity.Warning, path, $"{context}.hitPhases[{i}]", "근접 공격의 attackRadius가 0 이하입니다.");
                 if (phase.damage < 0f)
                     AddIssue(issues, CombatValidationSeverity.Error, path, $"{context}.hitPhases[{i}]", "damage가 음수입니다.");
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // MotionSet 매칭 검증 (P0)
+        //  - Enemy: ActorDefinitionSO → prefab의 MotionSet + attackData 바인딩이 결정적이라 전체 룰셋 적용.
+        //  - Player: CharacterModelData를 가진 프리팹에서 attackData + MotionSet을 추출 (additive, 부분 룰셋).
+        // ---------------------------------------------------------------------
+        private static void ValidateMotionSetMatching(List<CombatValidationIssue> issues)
+        {
+            ValidateEnemyMotionSetMatching(issues);
+            ValidatePlayerMotionSetMatching(issues);
+        }
+
+        private static void ValidateEnemyMotionSetMatching(List<CombatValidationIssue> issues)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (actor == null || actor.attackData == null)
+                    continue;
+
+                ActorAnimationMotionSet motionSet = ResolveMotionSet(actor.prefab);
+                if (motionSet == null)
+                {
+                    AddIssue(issues, CombatValidationSeverity.Warning, path, "prefab",
+                        "attackData가 있으나 prefab에서 ActorAnimationMotionSet을 찾을 수 없어 MotionSet 매칭 검증을 건너뜁니다.");
+                    continue;
+                }
+
+                List<EnemyAttackInfo> skills = actor.attackData.skills;
+                if (skills == null)
+                    continue;
+
+                for (int i = 0; i < skills.Count; i++)
+                {
+                    EnemyAttackInfo skill = skills[i];
+                    if (skill?.baseInfo == null)
+                        continue;
+                    ValidateAttackMotionSet(issues, path, $"skills[{i}]", skill.baseInfo, motionSet, skill);
+                }
+            }
+        }
+
+        private static void ValidatePlayerMotionSetMatching(List<CombatValidationIssue> issues)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:Prefab"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null)
+                    continue;
+
+                var modelData = prefab.GetComponentInChildren<CharacterModelData>(true);
+                if (modelData == null || modelData.attackData == null)
+                    continue;
+
+                ActorAnimationMotionSet motionSet = ResolveMotionSet(prefab);
+                if (motionSet == null)
+                    continue;
+
+                PlayerAttackDataSO data = modelData.attackData;
+                ValidatePlayerListMotionSet(issues, path, "liteComboAttackList", data.liteComboAttackList, motionSet);
+                ValidatePlayerListMotionSet(issues, path, "heavyComboAttackList", data.heavyComboAttackList, motionSet);
+                ValidatePlayerListMotionSet(issues, path, "jumpAttackList", data.jumpAttackList, motionSet);
+                ValidatePlayerListMotionSet(issues, path, "dashAttackList", data.dashAttackList, motionSet);
+                ValidatePlayerListMotionSet(issues, path, "skillAttackList", data.skillAttackList, motionSet);
+                ValidatePlayerAttackMotionSet(issues, path, "counterAttack", data.counterAttack, motionSet);
+                ValidatePlayerAttackMotionSet(issues, path, "entryAttack", data.entryAttack, motionSet);
+                ValidatePlayerAttackMotionSet(issues, path, "swapSpecialAttack", data.swapSpecialAttack, motionSet);
+                ValidatePlayerAttackMotionSet(issues, path, "swapEvadeCounterAttack", data.swapEvadeCounterAttack, motionSet);
+                ValidatePlayerAttackMotionSet(issues, path, "parryCounterAttack", data.parryCounterAttack, motionSet);
+            }
+        }
+
+        private static void ValidatePlayerListMotionSet(
+            List<CombatValidationIssue> issues,
+            string path,
+            string context,
+            List<PlayerAttackInfo> attacks,
+            ActorAnimationMotionSet motionSet)
+        {
+            if (attacks == null)
+                return;
+
+            for (int i = 0; i < attacks.Count; i++)
+                ValidatePlayerAttackMotionSet(issues, path, $"{context}[{i}]", attacks[i], motionSet);
+        }
+
+        private static void ValidatePlayerAttackMotionSet(
+            List<CombatValidationIssue> issues,
+            string path,
+            string context,
+            PlayerAttackInfo attack,
+            ActorAnimationMotionSet motionSet)
+        {
+            if (attack?.baseInfo == null)
+                return;
+            ValidateAttackMotionSet(issues, path, context, attack.baseInfo, motionSet, null);
+        }
+
+        private static ActorAnimationMotionSet ResolveMotionSet(GameObject prefab)
+        {
+            if (prefab == null)
+                return null;
+            var animator = prefab.GetComponentInChildren<ActorAnimator>(true);
+            return animator != null ? animator.MotionSet : null;
+        }
+
+        /// <summary>
+        /// 단일 공격의 baseInfo와 MotionSet 타임라인 이벤트의 정합성을 검증한다.
+        /// <paramref name="enemyInfo"/>가 null이 아니면 텔레그래프/방어 정책 등 적 전용 룰셋까지 적용한다.
+        /// </summary>
+        private static void ValidateAttackMotionSet(
+            List<CombatValidationIssue> issues,
+            string path,
+            string context,
+            AttackInfoBase baseInfo,
+            ActorAnimationMotionSet motionSetRoot,
+            EnemyAttackInfo enemyInfo)
+        {
+            // animKey == None은 SO 기본 검증에서 이미 보고하므로 여기서는 건너뛴다.
+            if (baseInfo == null || baseInfo.animKey == AnimKey.None)
+                return;
+
+            MotionSet motionSet = motionSetRoot.GetMotionSet(baseInfo.animKey);
+            if (motionSet == null)
+            {
+                AddIssue(issues, CombatValidationSeverity.Error, path, context,
+                    $"animKey '{baseInfo.animKey}'에 해당하는 MotionSet을 (fallback 포함) 찾을 수 없습니다.");
+                return;
+            }
+
+            MotionSetCombatEvents events = MotionSetCombatEvents.Collect(motionSet);
+            int phaseCount = baseInfo.hitPhases?.Count ?? 0;
+
+            if (baseInfo.attackType == AttackType.Melee && !events.HasCollision)
+            {
+                AddIssue(issues, CombatValidationSeverity.Error, path, context,
+                    $"근접(Melee) 공격 '{baseInfo.animKey}'인데 MotionSet에 BeginCollisionEvent가 없습니다.");
+            }
+
+            foreach (BeginCollisionEvent collision in events.Collisions)
+            {
+                int index = collision.hitPhaseIndex;
+                if (index < 0 || index >= phaseCount)
+                {
+                    AddIssue(issues, CombatValidationSeverity.Error, path, context,
+                        $"BeginCollisionEvent.hitPhaseIndex={index}가 hitPhases 범위(0~{phaseCount - 1})를 벗어납니다. (animKey '{baseInfo.animKey}')");
+                }
+            }
+
+            if (phaseCount > 1 && events.HasCollision)
+            {
+                HashSet<int> usedPhases = events.CollisionPhaseIndices();
+                if (usedPhases.Count == 1 && usedPhases.Contains(0))
+                {
+                    AddIssue(issues, CombatValidationSeverity.Warning, path, context,
+                        $"hitPhases가 {phaseCount}개인데 Collision 이벤트가 phase 0만 사용합니다. 멀티 히트 구간이 발동하지 않을 수 있습니다.");
+                }
+            }
+
+            if (enemyInfo == null)
+                return;
+
+            // --- 적 전용 룰셋 ---
+            if (enemyInfo.useMotionEventTelegraph && !events.HasTelegraph)
+            {
+                AddIssue(issues, CombatValidationSeverity.Error, path, context,
+                    "useMotionEventTelegraph가 true인데 MotionSet에 TelegraphEvent가 없습니다.");
+            }
+
+            if (enemyInfo.useTelegraphPositionForHit && !events.HasPositionLockedTelegraph)
+            {
+                AddIssue(issues, CombatValidationSeverity.Error, path, context,
+                    "useTelegraphPositionForHit가 true인데 위치를 고정하는 TelegraphEvent(lockPositionOnStart)가 없습니다.");
+            }
+
+            if (enemyInfo.defenseType == AttackDefenseType.Unblockable
+                && !enemyInfo.useDangerRing
+                && !enemyInfo.useTelegraph
+                && !events.HasTelegraph)
+            {
+                AddIssue(issues, CombatValidationSeverity.Warning, path, context,
+                    "Unblockable(회피 필수) 공격인데 Danger Ring/Telegraph 표현이 전혀 없습니다. 회피 유도 단서가 부족합니다.");
+            }
+        }
+
+        private static void ValidateCombatPolicyData(List<CombatValidationIssue> issues)
+        {
+            ValidateReactionPolicyAssets(issues);
+            ValidateDefensePolicyAssets(issues);
+            ValidateActorPolicyCoverage(issues);
+        }
+
+        private static void ValidateReactionPolicyAssets(List<CombatValidationIssue> issues)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:CombatReactionPolicySO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var policy = AssetDatabase.LoadAssetAtPath<CombatReactionPolicySO>(path);
+                if (policy == null || policy.monsterGradeRules == null)
+                    continue;
+
+                var grades = new HashSet<MonsterActorGrade>();
+                for (int i = 0; i < policy.monsterGradeRules.Count; i++)
+                {
+                    var rule = policy.monsterGradeRules[i];
+                    if (rule == null)
+                    {
+                        AddIssue(issues, CombatValidationSeverity.Warning, path, $"monsterGradeRules[{i}]", "비어 있는 등급 규칙입니다.");
+                        continue;
+                    }
+
+                    if (!grades.Add(rule.grade))
+                    {
+                        AddIssue(issues, CombatValidationSeverity.Warning, path, $"monsterGradeRules[{i}]",
+                            $"등급 '{rule.grade}' 규칙이 중복됩니다. 런타임은 먼저 발견된 항목만 사용합니다.");
+                    }
+
+                    bool allowsAnyReaction = rule.allowHit
+                                             || rule.allowStun
+                                             || rule.allowKnockdown
+                                             || rule.allowAirborne
+                                             || rule.allowGrab;
+                    if (!allowsAnyReaction)
+                    {
+                        AddIssue(issues, CombatValidationSeverity.Warning, path, $"monsterGradeRules[{i}]",
+                            "모든 리액션 상태가 비활성입니다. forceReaction/PoiseBreak가 발생해도 상태 전환이 전부 차단됩니다.");
+                    }
+                }
+            }
+        }
+
+        private static void ValidateDefensePolicyAssets(List<CombatValidationIssue> issues)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:CombatDefensePolicySO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var policy = AssetDatabase.LoadAssetAtPath<CombatDefensePolicySO>(path);
+                if (policy == null)
+                    continue;
+
+                if (policy.allowGuardAgainstUnblockable)
+                {
+                    AddIssue(issues, CombatValidationSeverity.Warning, path, "allowGuardAgainstUnblockable",
+                        "Unblockable을 가드 가능하게 설정했습니다. Danger Ring/Telegraph의 회피 필수 표현과 의도가 맞는지 확인하세요.");
+                }
+            }
+        }
+
+        private static void ValidateActorPolicyCoverage(List<CombatValidationIssue> issues)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (actor == null || actor.attackData == null)
+                    continue;
+
+                if (actor.grade is MonsterActorGrade.Elite or MonsterActorGrade.Boss
+                    && actor.combatReactionPolicy == null)
+                {
+                    AddIssue(issues, CombatValidationSeverity.Warning, path, "combatReactionPolicy",
+                        $"{actor.grade} 몬스터에 리액션 정책이 없습니다. 기본 정책(기존 동작)을 사용합니다.");
+                }
             }
         }
 

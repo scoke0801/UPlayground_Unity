@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 
@@ -25,12 +26,7 @@ namespace UPlayGround.Data.Event
                 return;
 
             GameActor actor = target.GetComponent<GameActor>();
-            if (actor == null) return;
-
-            if (actor.HasActorType(ActorType.Player))
-                HandlePlayerCombat(actor as PlayerActor, true);
-            else if (actor.HasActorType(ActorType.Monster))
-                HandleMonsterCombat(actor as MonsterActor, true);
+            HandleActorCombat(actor, true);
         }
 
         public override void OnCompleteEvent(GameObject target)
@@ -39,12 +35,7 @@ namespace UPlayGround.Data.Event
                 return;
 
             GameActor actor = target.GetComponent<GameActor>();
-            if (actor == null) return;
-
-            if (actor.HasActorType(ActorType.Player))
-                HandlePlayerCombat(actor as PlayerActor, false);
-            else if (actor.HasActorType(ActorType.Monster))
-                HandleMonsterCombat(actor as MonsterActor, false);
+            HandleActorCombat(actor, false);
         }
 
         private bool HandleMotionEventCombatTarget(GameObject target, bool isCollisionEnable)
@@ -62,34 +53,25 @@ namespace UPlayGround.Data.Event
             return true;
         }
 
-        private void HandlePlayerCombat(PlayerActor playerActor, bool isCollisionEnable)
+        // P3 2차: PlayerCombat/EnemyCombat을 직접 호출하지 않고 CombatActionRunner에 위임한다.
+        // runner가 등록된 ICombatCollisionExecutor(=각 Combat)에 동일한 순서로 전달한다.
+        private void HandleActorCombat(GameActor actor, bool isCollisionEnable)
         {
-            if (playerActor == null) return;
-            PlayerCombat combat = playerActor.GetCombat();
-            if (combat == null) return;
+            if (actor == null) return;
+            if (!actor.HasActorType(ActorType.Player) && !actor.HasActorType(ActorType.Monster))
+                return;
 
-            combat.ClearHitTargets();
-            if (isCollisionEnable)
+            CombatActionRunner runner = actor.ActionRunner;
+            if (runner == null || !runner.HasCollisionExecutor)
             {
-                combat.SetTargetLayerMask(playerActor.GetAttackTargetLayerMask());
-                combat.SetHitPhaseIndex(hitPhaseIndex);
+                // P3 3차 이후 충돌 윈도우는 runner instance가 단일 소유한다. runner/executor가 없으면
+                // 그 자체가 설정 오류이며, 우회 경로(legacy SetEnableCollision)도 같은 runner로 forward되어
+                // 결국 판정이 동작하지 않는다. 따라서 가짜 안전망을 두지 않고 설정 오류로 보고한다.
+                Debug.LogError($"[Collision] {actor.name}의 CombatActionRunner/ICombatCollisionExecutor가 준비되지 않아 충돌 이벤트가 무시됩니다.");
+                return;
             }
-            combat.SetEnableCollision(isCollisionEnable);
-        }
 
-        private void HandleMonsterCombat(MonsterActor monsterActor, bool isCollisionEnable)
-        {
-            if (monsterActor == null) return;
-            EnemyCombat combat = monsterActor.Combat;
-            if (combat == null) return;
-
-            combat.ClearHitTargets();
-            if (isCollisionEnable)
-            {
-                combat.SetTargetLayer(monsterActor.GetAttackTargetLayerMask());
-                combat.SetHitPhaseIndex(hitPhaseIndex);
-            }
-            combat.SetEnableCollision(isCollisionEnable);
+            runner.HandleCollisionEvent(isCollisionEnable, hitPhaseIndex, actor.GetAttackTargetLayerMask());
         }
     }
 }

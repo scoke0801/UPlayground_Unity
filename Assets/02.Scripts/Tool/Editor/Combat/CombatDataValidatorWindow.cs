@@ -26,6 +26,8 @@ namespace UPlayGround.Tool.Editor.Combat
                     RunValidation();
                 if (GUILayout.Button("Save Markdown", GUILayout.Width(130)))
                     SaveMarkdownReport();
+                if (GUILayout.Button("Generate Policies", GUILayout.Width(140)))
+                    CombatPolicyAssetGenerator.GenerateDefaultPolicyAssets();
 
                 GUILayout.Label($"Issues: {_issues.Count}");
             }

@@ -42,7 +42,7 @@ namespace UPlayGround.Component
         }
     }
 
-    public class EnemyCombat : MonoBehaviour
+    public class EnemyCombat : MonoBehaviour, UPlayGround.Combat.ICombatCollisionExecutor
     {
         private const string DefaultCircleTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
         private const float  DefaultDangerRingDuration   = 0.6f;
@@ -92,7 +92,6 @@ namespace UPlayGround.Component
 
         private SkillType _reservedSkillType = SkillType.None;
         private EnemyAttackCategory _reservedAttackCategory = EnemyAttackCategory.None;
-        private bool _isCollisionEnabled;
 
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
@@ -122,7 +121,8 @@ namespace UPlayGround.Component
         public EnemyAttackDataSO AttackData       => _attackData;
         public EnemyAttackInfo   CurrentSkill     => _currentSkill;
         public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
-        public bool              IsPossibleCollide => _isCollisionEnabled;
+        // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
+        public bool              IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
         public SkillType         ReservedSkillType => _reservedSkillType;
         public EnemyAttackCategory ReservedAttackCategory => _reservedAttackCategory;
         public List<IDamageable> SkillTargetList  => _skillTargets;
@@ -147,6 +147,7 @@ namespace UPlayGround.Component
             if (_motionWarp == null)
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
             _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
+            _actionRunner.SetCollisionExecutor(this);
         }
 
         /// <summary> MonsterActor.SetDefinition() 등에서 공격 데이터를 주입할 때 사용. </summary>
@@ -280,7 +281,10 @@ namespace UPlayGround.Component
             if (_currentSkill != null)
             {
                 ClearTelegraphHitPositions();
+                _currentHitPhaseIndex = 0;
                 _skillCooldowns[_currentSkill] = _currentSkill.cooldown;
+                // P3 3차: 지상 적 공격도 runner 액션을 시작해야 IsPossibleCollide(=runner.IsCollisionActive)가 동작한다.
+                StartRunnerActionForSkill(_currentSkill);
                 ExecuteSkill(_currentSkill);
             }
 
@@ -402,6 +406,13 @@ namespace UPlayGround.Component
             if (_currentSkill == null || _currentSkill.baseInfo.attackType != AttackType.Melee)
                 return;
 
+            if (_actionRunner != null
+                && _actionRunner.IsCollisionActive
+                && _currentHitPhaseIndex != _actionRunner.CurrentPhaseIndex)
+            {
+                SetHitPhaseIndex(_actionRunner.CurrentPhaseIndex);
+            }
+
             var     phase          = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
             Vector3 attackPosition = _attackOrigin.position
                 + _attackOrigin.forward * phase.attackOffset.z
@@ -460,16 +471,24 @@ namespace UPlayGround.Component
             _lastCollisionStartTime = -999f;
             ClearTelegraphHitPositions();
 
-            if (skill?.baseInfo != null)
+            StartRunnerActionForSkill(skill);
+        }
+
+        /// <summary>
+        /// 선택된 스킬로 runner 액션(CurrentAction)을 시작한다.
+        /// 지상(SelectAndExecuteSkill)·비행(SetCurrentSkill) 모든 적 공격이 이 경로를 통과해야
+        /// IsPossibleCollide(= runner.IsCollisionActive)가 동작한다. (P3 3차)
+        /// </summary>
+        private void StartRunnerActionForSkill(EnemyAttackInfo skill)
+        {
+            if (skill?.baseInfo == null) return;
+            _actionRunner?.StartAction(new AttackData
             {
-                _actionRunner?.StartLegacyAction(new AttackData
-                {
-                    attacker = _ownerActor,
-                    animKey = skill.baseInfo.animKey,
-                    hitPhaseIndex = _currentHitPhaseIndex,
-                    defenseType = skill.defenseType,
-                });
-            }
+                attacker = _ownerActor,
+                animKey = skill.baseInfo.animKey,
+                hitPhaseIndex = _currentHitPhaseIndex,
+                defenseType = skill.defenseType,
+            });
         }
 
         public void ClearHitTargets()     => _hitTargets.Clear();
@@ -633,7 +652,7 @@ namespace UPlayGround.Component
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
-            _isCollisionEnabled = isCollisionEnable;
+            // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다.
             _actionRunner?.HandleTimelineEvent(
                 isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
                 _currentHitPhaseIndex);
@@ -657,6 +676,9 @@ namespace UPlayGround.Component
 
         public void SetTargetLayer(LayerMask targetLayer) =>
             _targetLayer = targetLayer;
+
+        // ICombatCollisionExecutor — runner가 SetTargetLayerMask로 호출하므로 SetTargetLayer로 위임한다.
+        public void SetTargetLayerMask(LayerMask targetLayerMask) => SetTargetLayer(targetLayerMask);
 
         public void SetHitPhaseIndex(int index)
         {
@@ -701,10 +723,10 @@ namespace UPlayGround.Component
             if (_ownerActor == null || !_ownerActor.IsAlive()) return false;
             if (_currentSkill == null) return false;
 
-            bool collisionGrace = _isCollisionEnabled
+            bool collisionGrace = IsPossibleCollide
                                   && Time.time - _lastCollisionStartTime <= Mathf.Max(0f, afterHitGrace);
             bool telegraphWindow = TryGetSwapEvadeTimeToHit(out float timeToHit)
-                                   && !_isCollisionEnabled
+                                   && !IsPossibleCollide
                                    && timeToHit >= 0f
                                    && timeToHit <= Mathf.Max(0f, beforeHitWindow);
             if (!collisionGrace && !telegraphWindow)
@@ -728,7 +750,7 @@ namespace UPlayGround.Component
                 attackPosition,
                 radius,
                 timeToHit,
-                _isCollisionEnabled,
+                IsPossibleCollide,
                 hitPhaseIndex);
             return true;
         }

@@ -1,4 +1,5 @@
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Combat
@@ -14,6 +15,7 @@ namespace UPlayGround.Combat
         public readonly bool IsPerfectDodgeWindow;
         public readonly bool CanTakeDamage;
         public readonly bool AlwaysParry;
+        public readonly CombatDefensePolicySO Policy;
 
         public PlayerDefenseQuery(
             bool isGuarding,
@@ -24,7 +26,8 @@ namespace UPlayGround.Combat
             bool isPerfectDodgeState,
             bool isPerfectDodgeWindow,
             bool canTakeDamage,
-            bool alwaysParry)
+            bool alwaysParry,
+            CombatDefensePolicySO policy = null)
         {
             IsGuarding = isGuarding;
             IsGuardState = isGuardState;
@@ -35,6 +38,7 @@ namespace UPlayGround.Combat
             IsPerfectDodgeWindow = isPerfectDodgeWindow;
             CanTakeDamage = canTakeDamage;
             AlwaysParry = alwaysParry;
+            Policy = policy;
         }
     }
 
@@ -44,33 +48,44 @@ namespace UPlayGround.Combat
             in PlayerDefenseQuery query,
             AttackData attackData)
         {
-            if (query.IsGuarding && query.IsGuardState)
-                return new DefenseResult(DefenseOutcome.Guarded, false);
+            AttackDefenseType defenseType = attackData?.defenseType ?? AttackDefenseType.Parryable;
 
-            if (CanParry(query))
+            if (query.IsGuarding
+                && query.IsGuardState
+                && CombatPolicyResolver.CanGuard(query.Policy, defenseType))
+            {
+                return new DefenseResult(DefenseOutcome.Guarded, false);
+            }
+
+            if (CanParry(query, defenseType))
                 return new DefenseResult(DefenseOutcome.Parried, false);
 
             if (!query.CanTakeDamage)
             {
-                if (query.IsPerfectDodgeState && query.IsPerfectDodgeWindow)
+                if (query.IsPerfectDodgeState
+                    && query.IsPerfectDodgeWindow
+                    && CombatPolicyResolver.CanPerfectDodge(query.Policy, defenseType))
+                {
                     return new DefenseResult(DefenseOutcome.PerfectDodged, false);
+                }
 
                 return new DefenseResult(DefenseOutcome.Invincible, false);
             }
 
-            return attackData?.defenseType == AttackDefenseType.Unblockable
+            return defenseType == AttackDefenseType.Unblockable
                 ? new DefenseResult(DefenseOutcome.UnblockableHit, true)
                 : DefenseResult.None;
         }
 
-        private static bool CanParry(in PlayerDefenseQuery query)
+        private static bool CanParry(in PlayerDefenseQuery query, AttackDefenseType defenseType)
         {
             if (query.AlwaysParry)
-                return true;
+                return CombatPolicyResolver.CanParry(query.Policy, defenseType);
 
             return query.IsAttackState
                    && query.IsAttackCollisionActive
-                   && query.IsCurrentAttackParryCapable;
+                   && query.IsCurrentAttackParryCapable
+                   && CombatPolicyResolver.CanParry(query.Policy, defenseType);
         }
     }
 }

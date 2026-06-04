@@ -31,6 +31,8 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
         private float baseDamage;
+        private bool _impactFeedbackApplied; // P4: 임팩트 연출은 AOE당 1회만(틱 히트스톱 스팸 방지)
+        private readonly List<IDamageable> _damageCooldownKeys = new List<IDamageable>(32);
 
         private void Awake()
         {
@@ -46,6 +48,7 @@ namespace UPlayGround
             hasTriggered = false;
             spawnTimer = 0f;
             baseDamage = attackData.damage;
+            _impactFeedbackApplied = false;
 
             _damageCooldowns.Clear();
             
@@ -104,8 +107,11 @@ namespace UPlayGround
         
         private void UpdateDamageCooldowns()
         {
-            var keys = new List<IDamageable>(_damageCooldowns.Keys);
-            foreach (var key in keys)
+            _damageCooldownKeys.Clear();
+            foreach (var key in _damageCooldowns.Keys)
+                _damageCooldownKeys.Add(key);
+
+            foreach (var key in _damageCooldownKeys)
             {
                 _damageCooldowns[key] -= Time.deltaTime;
                 if (_damageCooldowns[key] <= 0f)
@@ -202,9 +208,18 @@ namespace UPlayGround
 
                 damageable.TakeDamage(attackData);
 
-                // 플레이어 소유 AOE: 스킬 게이지 등 후속 처리를 위해 OnAttackHit 발화
+                // P4: 플레이어 소유 AOE attacker-side 피드백 통일.
+                // 대상별: 데미지 숫자 + 히트 VFX + 스킬 게이지. 임팩트(히트스톱/카메라/바이탈오브/킬캠)는 AOE당 1회.
                 if (_ownerPlayerCombat != null)
+                {
+                    _ownerPlayerCombat.ShowExternalHitFeedback(attackData);
                     _ownerPlayerCombat.NotifyAttackHit(attackData);
+                    if (!_impactFeedbackApplied)
+                    {
+                        _ownerPlayerCombat.ApplyExternalAttackImpact(attackData);
+                        _impactFeedbackApplied = true;
+                    }
+                }
             }
         }
 

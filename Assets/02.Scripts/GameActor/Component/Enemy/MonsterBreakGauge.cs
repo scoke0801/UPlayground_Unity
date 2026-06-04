@@ -112,25 +112,29 @@ namespace UPlayGround.Component
             RefreshUi();
         }
 
-        public void TakeBreakDamage(AttackData attackData)
+        public float TakeBreakDamage(AttackData attackData)
         {
-            if (!CanAccumulate()) return;
+            if (!CanAccumulate()) return 0f;
 
             if (attackData != null && attackData.forceBreakExpose)
             {
+                float before = _currentGauge;
                 ForceExpose();
-                return;
+                return Mathf.Max(0f, before - _currentGauge);
             }
 
             float breakDamage = attackData?.breakDamage ?? 0f;
-            if (breakDamage <= 0f) return;
+            if (breakDamage <= 0f) return 0f;
 
             float finalBreakDamage = breakDamage * (1f - Mathf.Clamp01(_data.breakResist));
+            float previousGauge = _currentGauge;
             _currentGauge = Mathf.Max(0f, _currentGauge - finalBreakDamage);
             RefreshUi();
 
             if (_currentGauge <= 0f)
                 ForceExpose();
+
+            return Mathf.Max(0f, previousGauge - _currentGauge);
         }
 
         public void ConsumeBySpecialAttack()

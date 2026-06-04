@@ -1,4 +1,5 @@
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Combat
@@ -29,17 +30,23 @@ namespace UPlayGround.Combat
         public readonly bool CanPlayHitReaction;
         public readonly bool ShouldEnterAirborne;
         public readonly bool CanEnterKnockdown;
+        public readonly MonsterActorGrade Grade;
+        public readonly CombatReactionPolicySO Policy;
 
         public MonsterReactionQuery(
             bool poiseBrokenNow,
             bool canPlayHitReaction,
             bool shouldEnterAirborne,
-            bool canEnterKnockdown)
+            bool canEnterKnockdown,
+            MonsterActorGrade grade = MonsterActorGrade.Normal,
+            CombatReactionPolicySO policy = null)
         {
             PoiseBrokenNow = poiseBrokenNow;
             CanPlayHitReaction = canPlayHitReaction;
             ShouldEnterAirborne = shouldEnterAirborne;
             CanEnterKnockdown = canEnterKnockdown;
+            Grade = grade;
+            Policy = policy;
         }
     }
 
@@ -69,26 +76,50 @@ namespace UPlayGround.Combat
             bool shouldPlayHitReaction = attackData != null
                                          && attackData.reactionType != AttackReactionType.None
                                          && query.CanPlayHitReaction
-                                         && attackData.forceReaction;
+                                         && attackData.forceReaction
+                                         && CombatPolicyResolver.AllowsMonsterForceReaction(query.Policy, query.Grade);
             bool shouldApplyForce = query.PoiseBrokenNow || shouldPlayHitReaction;
 
             if (query.PoiseBrokenNow)
             {
+                CombatReactionState poiseBreakState = query.CanEnterKnockdown
+                    ? CombatReactionState.Knockdown
+                    : CombatReactionState.Stun;
+                poiseBreakState = ApplyMonsterPolicy(query, poiseBreakState);
+
                 return new ReactionDecision(
                     shouldApplyForce,
-                    shouldEnterState: true,
+                    shouldEnterState: poiseBreakState != CombatReactionState.None,
                     shouldPlayCameraFeedback: false,
-                    query.CanEnterKnockdown ? CombatReactionState.Knockdown : CombatReactionState.Stun);
+                    poiseBreakState);
             }
 
             if (!shouldPlayHitReaction)
                 return new ReactionDecision(shouldApplyForce, false, false, CombatReactionState.None);
 
+            CombatReactionState targetState = ResolveTargetState(
+                attackData,
+                query.ShouldEnterAirborne,
+                query.CanEnterKnockdown);
+            targetState = ApplyMonsterPolicy(query, targetState);
+
+            if (CombatPolicyResolver.RequiresPoiseBreakForMonsterState(query.Policy, query.Grade))
+                targetState = CombatReactionState.None;
+
             return new ReactionDecision(
                 shouldApplyForce,
-                shouldEnterState: true,
+                shouldEnterState: targetState != CombatReactionState.None,
                 shouldPlayCameraFeedback: false,
-                ResolveTargetState(attackData, query.ShouldEnterAirborne, query.CanEnterKnockdown));
+                targetState);
+        }
+
+        private static CombatReactionState ApplyMonsterPolicy(
+            in MonsterReactionQuery query,
+            CombatReactionState state)
+        {
+            return CombatPolicyResolver.AllowsMonsterReactionState(query.Policy, query.Grade, state)
+                ? state
+                : CombatReactionState.None;
         }
 
         private static CombatReactionState ResolveTargetState(

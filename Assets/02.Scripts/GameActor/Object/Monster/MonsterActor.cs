@@ -111,7 +111,7 @@ namespace UPlayGround
         
         public void TakeDamage(AttackData attackData)
         {
-            if (_combat.IsGuarding)
+            if (_combat != null && _combat.IsGuarding)
             {
                 if (MovementController.CurrentState is EnemyGuardState guardState)
                 {
@@ -126,8 +126,9 @@ namespace UPlayGround
                 return;
             }
             
-            DamageResult damageResult = DamageResolver.ResolveMonsterDamage(this, attackData, _breakGauge);
-            float finalDamage = damageResult.FinalDamage;
+            CombatResult combatResult = CombatResolutionPipeline.ResolveMonsterHit(this, attackData, _breakGauge);
+            DamageResult damageResult = combatResult.Damage;
+            float finalDamage = combatResult.FinalDamage;
 
             if (damageResult.IsCritical)
             {
@@ -140,10 +141,18 @@ namespace UPlayGround
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             AIController?.UpdatePhase(GetHealthPercent());
-            
-            _detection?.AcquireTarget(attackData.attacker?.transform);
-            
-            OnDamaged(attackData);
+
+            _detection?.AcquireTarget(attackData?.attacker?.transform);
+
+            ReactionDecision reactionDecision = OnDamaged(
+                attackData,
+                out ResourceChangeSet appliedResources);
+            CombatResolutionPipeline.RecordIfDamageApplied(
+                CombatResolutionPipeline.WithMonsterAppliedResources(
+                    combatResult,
+                    reactionDecision,
+                    -appliedResources.PoiseDelta,
+                    -appliedResources.BreakDelta));
             
             if (_currentHealth <= 0)
                 OnDeath(attackData);
@@ -186,14 +195,14 @@ namespace UPlayGround
             Vector3 floaterPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
+            CombatResult combatResult = CombatResolutionPipeline.ResolveSpecialBreakHit(
+                attacker,
+                this,
+                damageResult,
+                floaterPos);
+            CombatResolutionPipeline.RecordIfDamageApplied(combatResult);
             CombatFeedbackDispatcher.ShowDamageFloater(
-                new CombatFeedbackContext(
-                    attackData: null,
-                    hitPoint: floaterPos,
-                    attackDirection: Vector3.zero,
-                    hitTarget: gameObject,
-                    damageAmount: finalDamage,
-                    floaterStyle: damageResult.FloaterStyle));
+                CombatFeedbackContext.FromCombatResult(combatResult, floaterPos));
 
             if (_currentHealth <= 0)
             {
@@ -269,16 +278,22 @@ namespace UPlayGround
         
         #endregion
 
-        protected virtual void OnDamaged(AttackData attackData)
+        protected virtual ReactionDecision OnDamaged(AttackData attackData, out ResourceChangeSet appliedResources)
         {
+            float poiseDamageApplied = 0f;
+            float breakDamageApplied = 0f;
             bool poiseBrokenNow = false;
             if (_poiseStat != null)
+            {
+                float previousPoise = _poiseStat.CurrentPoise;
                 poiseBrokenNow = _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
+                poiseDamageApplied = Mathf.Max(0f, previousPoise - _poiseStat.CurrentPoise);
+            }
 
             bool isPoiseBroken = _poiseStat != null && _poiseStat.IsPoiseBroken;
             GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, isPoiseBroken);
             AIController?.Group?.Memory?.NotifyMemberTookDamage();
-            _breakGauge?.TakeBreakDamage(attackData);
+            breakDamageApplied = _breakGauge != null ? _breakGauge.TakeBreakDamage(attackData) : 0f;
 
             // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
             // 받는 피해 증가(DamageTakenMultiplier)는 TakeDamage 단계에서 이미 적용된다.
@@ -288,7 +303,9 @@ namespace UPlayGround
                     poiseBrokenNow,
                     CanPlayHitReaction(attackData),
                     ShouldEnterAirborneState(attackData),
-                    CanEnterKnockdownState(attackData)),
+                    CanEnterKnockdownState(attackData),
+                    Grade,
+                    Definition != null ? Definition.combatReactionPolicy : null),
                 attackData);
 
             if (attackData != null && reactionDecision.ShouldApplyForce)
@@ -334,6 +351,8 @@ namespace UPlayGround
             }
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
+            appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
+            return reactionDecision;
         }
 
         private bool CanPlayHitReaction(AttackData attackData)

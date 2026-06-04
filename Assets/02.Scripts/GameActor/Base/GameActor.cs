@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Component;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
@@ -73,6 +74,12 @@ namespace UPlayGround
 
         /// <summary>이 액터를 정의하는 ScriptableObject. 런타임 스폰 시 주입됨.</summary>
         public ActorDefinitionSO Definition => _definition;
+
+        /// <summary>전투 액션 실행 런타임. CombatActionRunner.Awake에서 자신을 등록한다(같은 GameObject).</summary>
+        public CombatActionRunner ActionRunner { get; private set; }
+
+        /// <summary>CombatActionRunner가 init 시 호출해 placement 의존 없이 참조를 캐시한다.</summary>
+        public void RegisterActionRunner(CombatActionRunner runner) => ActionRunner = runner;
 
         /// <summary>
         /// 플래그 조합 체크. 예: actor.HasActorType(ActorType.Talkable)

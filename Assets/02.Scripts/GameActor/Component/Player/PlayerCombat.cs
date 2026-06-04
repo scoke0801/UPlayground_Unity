@@ -23,7 +23,7 @@ namespace UPlayGround.Component
     /// State는 "언제" 공격할지 결정하고
     /// Component는 "어떤" 공격을 실행하는지 처리한다.
     /// </summary>
-    public class PlayerCombat : PlayerActorComponent
+    public class PlayerCombat : PlayerActorComponent, UPlayGround.Combat.ICombatCollisionExecutor
     {
         private enum AttackState
         {
@@ -159,7 +159,6 @@ namespace UPlayGround.Component
         private int               _heavyComboIndex     = -1;
         private CharacterActorType _comboCharacterType = CharacterActorType.None;
         private readonly Dictionary<CharacterActorType, CharacterComboState> _comboStatesByCharacter = new();
-        private bool              _isCollideCollisionEnable;
         private PlayerActor       _playerActor;
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
@@ -181,7 +180,8 @@ namespace UPlayGround.Component
 
         public bool IsGuarding    = false;
         public bool IsInCombat    => _combatStateTracker != null && _combatStateTracker.IsInCombat;
-        public bool IsPossibleCollide => _isCollideCollisionEnable;
+        // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
+        public bool IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
 
         /// <summary>
         /// 캔슬(인터럽트) 허용 구간 여부. 현재 규칙: 히트박스 콜리전이 비활성인 구간
@@ -351,6 +351,7 @@ namespace UPlayGround.Component
             _combatStateTracker.OnChangeCombatState += HandleCombatStateChanged;
 
             _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
+            _actionRunner.SetCollisionExecutor(this);
             OnAttackStarted -= HandleAttackStartedForRunner;
             OnAttackStarted += HandleAttackStartedForRunner;
         }
@@ -984,6 +985,13 @@ namespace UPlayGround.Component
                 return;
             }
 
+            if (_actionRunner != null
+                && _actionRunner.IsCollisionActive
+                && _currentAttackData.hitPhaseIndex != _actionRunner.CurrentPhaseIndex)
+            {
+                SetHitPhaseIndex(_actionRunner.CurrentPhaseIndex);
+            }
+
             Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
             var hitShape = new MeleeHitShape(
                 transform,
@@ -1060,6 +1068,29 @@ namespace UPlayGround.Component
                 CreatePlayerAttackHitFeedbackProfile());
         }
 
+        // ── P4: 외부 소스(투사체/AOE) attacker-side 피드백 통일 ──────────────
+        // 근접과 동일한 연출 정책(CombatFeedbackDispatcher)을 외부 공격이 재사용한다.
+        // _currentAttackData가 아니라 전달된 attackData로 동작해 투사체/AOE의 실제 공격 정보를 반영한다.
+
+        /// <summary>외부 소스의 단일 히트 연출 — 데미지 숫자 + 히트 VFX. 대상마다 호출한다.</summary>
+        public void ShowExternalHitFeedback(AttackData attackData)
+        {
+            if (attackData == null) return;
+            ShowAttackHitFeedback(attackData);
+        }
+
+        /// <summary>외부 소스의 임팩트 연출 — 히트스톱/카메라/바이탈오브/킬캠. 공격 1회당 호출(AOE는 1회로 제한).</summary>
+        public void ApplyExternalAttackImpact(AttackData attackData)
+        {
+            if (attackData == null) return;
+            // 근접 ApplyHitFeedback과 동일하게 패리 반격 슬로우를 보호한다.
+            if (IsParryCounterAvailable) return;
+
+            CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
+                attackData,
+                CreatePlayerAttackHitFeedbackProfile());
+        }
+
         private PlayerAttackHitFeedbackProfile CreatePlayerAttackHitFeedbackProfile()
         {
             return new PlayerAttackHitFeedbackProfile(
@@ -1077,7 +1108,7 @@ namespace UPlayGround.Component
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
-            _isCollideCollisionEnable = isCollisionEnable;
+            // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다(직접 호출자 PlayerChargeState 포함).
             _actionRunner?.HandleTimelineEvent(
                 isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
                 _currentAttackData?.hitPhaseIndex ?? 0);
@@ -1181,7 +1212,7 @@ namespace UPlayGround.Component
         }
 
         private void HandleAttackStartedForRunner(AttackData attackData)
-            => _actionRunner?.StartLegacyAction(attackData);
+            => _actionRunner?.StartAction(attackData);
 
         public bool CanUseStoredCombo(bool isHeavyAttack)
         {

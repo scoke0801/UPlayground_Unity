@@ -6,10 +6,12 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
+using UPlayGround.Tool.Editor.Combat;
 
 namespace UPlayGround.Tool.Editor.Stat
 {
@@ -20,7 +22,7 @@ namespace UPlayGround.Tool.Editor.Stat
     public class StatDataGeneratorWindow : EditorWindow
     {
         // ── 탭 ──────────────────────────────────────────────────────
-        private enum Tab { Migration, PlayerCharacter, Template, Regenerate }
+        private enum Tab { Migration, PlayerCharacter, Template, Regenerate, CombatPolicy }
         private Tab _currentTab = Tab.Migration;
 
         // ── 마이그레이션 상태 ─────────────────────────────────────
@@ -48,6 +50,12 @@ namespace UPlayGround.Tool.Editor.Stat
         private Vector2 _regenScroll;
         private bool _regenAllSelected;
 
+        // ── 전투 정책 상태 ───────────────────────────────────────
+        private readonly List<PolicyRow> _policyRows = new();
+        private Vector2 _policyScroll;
+        private bool _policyOnlyRelevant = true;
+        private bool _policyAllSelected;
+
         // ── 플레이어 캐릭터 상태 ──────────────────────────────────
         private readonly Dictionary<CharacterActorType, bool> _playerSelected = new();
         private readonly Dictionary<CharacterActorType, ActorStatSO> _playerExisting = new();
@@ -74,6 +82,8 @@ namespace UPlayGround.Tool.Editor.Stat
         private const float ColBreak = 110f;
         private const float ColCurrent = 130f;
         private const float ColPlanned = 200f;
+        private const float ColGrade = 70f;
+        private const float ColPolicy = 210f;
         private const float RowH = 22f;
 
         // ── 메뉴 ──────────────────────────────────────────────────
@@ -91,6 +101,7 @@ namespace UPlayGround.Tool.Editor.Stat
             RefreshMigrationRows();
             RefreshPlayerExisting();
             RefreshRegenRows();
+            RefreshPolicyRows();
         }
 
         private void OnGUI()
@@ -102,6 +113,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 case Tab.PlayerCharacter: DrawPlayerCharacterTab(); break;
                 case Tab.Template:        DrawTemplateTab();        break;
                 case Tab.Regenerate:      DrawRegenerateTab();      break;
+                case Tab.CombatPolicy:    DrawCombatPolicyTab();    break;
             }
         }
 
@@ -113,6 +125,7 @@ namespace UPlayGround.Tool.Editor.Stat
             DrawTabButton("Player 기본 스탯", Tab.PlayerCharacter);
             DrawTabButton("템플릿 생성", Tab.Template);
             DrawTabButton("스탯 재생성", Tab.Regenerate);
+            DrawTabButton("전투 정책", Tab.CombatPolicy);
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
         }
@@ -1714,6 +1727,259 @@ namespace UPlayGround.Tool.Editor.Stat
             }
         }
 
+        // ── 전투 정책 탭 ──────────────────────────────────────────
+        private void DrawCombatPolicyTab()
+        {
+            DrawCombatPolicyToolbar();
+            DrawCombatPolicyColumnHeader();
+            DrawCombatPolicyRows();
+            DrawCombatPolicyFooter();
+        }
+
+        private void DrawCombatPolicyToolbar()
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+            if (GUILayout.Button("새로고침", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                RefreshPolicyRows();
+
+            if (GUILayout.Button("누락만 자동연결", EditorStyles.toolbarButton, GUILayout.Width(110)))
+                AutoLinkMissingPolicies(onlySelected: false);
+
+            if (GUILayout.Button("기본 정책 에셋 생성", EditorStyles.toolbarButton, GUILayout.Width(130)))
+            {
+                CombatPolicyAssetGenerator.GenerateDefaultPolicyAssets();
+                RefreshPolicyRows();
+                GUIUtility.ExitGUI();
+            }
+
+            GUILayout.Space(6);
+
+            bool prevRelevant = _policyOnlyRelevant;
+            _policyOnlyRelevant = GUILayout.Toggle(_policyOnlyRelevant, "관련 항목만", EditorStyles.toolbarButton, GUILayout.Width(90));
+            if (prevRelevant != _policyOnlyRelevant) RefreshPolicyRows();
+
+            GUILayout.FlexibleSpace();
+
+            int missing = _policyRows.FindAll(r => PolicyMissing(r)).Count;
+            if (missing > 0)
+            {
+                var prev = GUI.color;
+                GUI.color = ColorMissing;
+                GUILayout.Label($"누락 {missing}개", EditorStyles.toolbarButton, GUILayout.Width(70));
+                GUI.color = prev;
+            }
+            GUILayout.Label($"총 {_policyRows.Count}개", EditorStyles.toolbarButton, GUILayout.Width(60));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawCombatPolicyColumnHeader()
+        {
+            var rect = GUILayoutUtility.GetRect(0, RowH, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(rect, ColorHeader);
+
+            float x = rect.x;
+            bool newAll = GUI.Toggle(new Rect(x + 4, rect.y + 3, ColCheck, rect.height), _policyAllSelected, GUIContent.none);
+            if (newAll != _policyAllSelected)
+            {
+                _policyAllSelected = newAll;
+                foreach (var row in _policyRows) row.Selected = _policyAllSelected;
+            }
+            x += ColCheck;
+
+            DrawHeaderCell("ActorDefinitionSO", ref x, ColName, rect.y, rect.height);
+            DrawHeaderCell("등급", ref x, ColGrade, rect.y, rect.height);
+            DrawHeaderCell("DefensePolicy (플레이어블)", ref x, ColPolicy, rect.y, rect.height);
+            DrawHeaderCell("ReactionPolicy (Elite/Boss)", ref x, ColPolicy, rect.y, rect.height);
+        }
+
+        private void DrawCombatPolicyRows()
+        {
+            _policyScroll = EditorGUILayout.BeginScrollView(_policyScroll);
+
+            for (int i = 0; i < _policyRows.Count; i++)
+            {
+                var row = _policyRows[i];
+                if (row.Definition == null) continue;
+
+                var rect = GUILayoutUtility.GetRect(0, RowH, GUILayout.ExpandWidth(true));
+                EditorGUI.DrawRect(rect, i % 2 == 0 ? ColorRowEven : ColorRowOdd);
+
+                float x = rect.x;
+
+                row.Selected = GUI.Toggle(new Rect(x + 4, rect.y + 3, ColCheck, rect.height), row.Selected, GUIContent.none);
+                x += ColCheck;
+
+                if (GUI.Button(new Rect(x + 2, rect.y, ColName - 4, rect.height), row.Definition.name, EditorStyles.label))
+                    EditorGUIUtility.PingObject(row.Definition);
+                x += ColName;
+
+                GUI.Label(new Rect(x + 4, rect.y, ColGrade, rect.height), row.Grade.ToString(), EditorStyles.miniLabel);
+                x += ColGrade;
+
+                // Defense (플레이어블 캐릭터 대상)
+                row.Defense = (CombatDefensePolicySO)DrawPolicyCell(
+                    new Rect(x, rect.y, ColPolicy, rect.height),
+                    row.Defense, typeof(CombatDefensePolicySO),
+                    applicable: row.IsPlayable, isSet: row.Defense != null);
+                if (row.Defense != row.Definition.combatDefensePolicy)
+                    AssignPolicy(row, defense: row.Defense, reaction: row.Definition.combatReactionPolicy);
+                x += ColPolicy;
+
+                // Reaction (Elite/Boss 몬스터 대상)
+                row.Reaction = (CombatReactionPolicySO)DrawPolicyCell(
+                    new Rect(x, rect.y, ColPolicy, rect.height),
+                    row.Reaction, typeof(CombatReactionPolicySO),
+                    applicable: row.IsMonster && (row.Grade == MonsterActorGrade.Elite || row.Grade == MonsterActorGrade.Boss),
+                    isSet: row.Reaction != null);
+                if (row.Reaction != row.Definition.combatReactionPolicy)
+                    AssignPolicy(row, defense: row.Definition.combatDefensePolicy, reaction: row.Reaction);
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>상태 글리프(✓/⚠/—) + ObjectField를 한 셀에 그린다. 변경된 객체를 반환한다.</summary>
+        private UnityEngine.Object DrawPolicyCell(Rect cell, UnityEngine.Object current, Type type, bool applicable, bool isSet)
+        {
+            var prev = GUI.color;
+            GUI.color = !applicable ? new Color(0.5f, 0.5f, 0.5f) : (isSet ? ColorOk : ColorMissing);
+            string glyph = !applicable ? "—" : (isSet ? "✓" : "⚠");
+            GUI.Label(new Rect(cell.x + 2, cell.y, 16, cell.height), glyph, EditorStyles.miniLabel);
+            GUI.color = prev;
+
+            return EditorGUI.ObjectField(
+                new Rect(cell.x + 18, cell.y + 1, cell.width - 22, cell.height - 2),
+                current, type, false);
+        }
+
+        private void DrawCombatPolicyFooter()
+        {
+            EditorGUILayout.Space(4);
+            EditorGUILayout.BeginHorizontal();
+
+            int selected = _policyRows.FindAll(r => r.Selected).Count;
+            using (new EditorGUI.DisabledScope(selected == 0))
+            {
+                if (GUILayout.Button($"선택 항목 자동연결 ({selected}개)", GUILayout.Height(26)))
+                    AutoLinkMissingPolicies(onlySelected: true);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.HelpBox(
+                "DefensePolicy는 플레이어블 캐릭터(characterType≠None), ReactionPolicy는 Elite/Boss 몬스터에 적용됩니다(✓=연결, ⚠=누락, —=해당없음).\n" +
+                "'기본 정책 에셋 생성' → '누락만 자동연결' 순으로 채우거나, 각 행에서 직접 지정/해제할 수 있습니다. 정책이 null이면 런타임은 기존 기본 동작을 유지합니다.\n" +
+                "주의: 플레이어는 씬에 배치된 PlayerActor의 _definition(고정·스왑 무관) 하나에서만 DefensePolicy를 읽습니다. " +
+                "그 정의에 정책이 연결되어 있어야 실제로 적용됩니다(영입 캐릭터별로 분기되지 않음).",
+                MessageType.Info);
+        }
+
+        private bool PolicyMissing(PolicyRow row)
+        {
+            if (row.Definition == null) return false;
+            bool defMissing = row.IsPlayable && row.Defense == null;
+            bool reactMissing = row.IsMonster
+                                && (row.Grade == MonsterActorGrade.Elite || row.Grade == MonsterActorGrade.Boss)
+                                && row.Reaction == null;
+            return defMissing || reactMissing;
+        }
+
+        private void RefreshPolicyRows()
+        {
+            _policyRows.Clear();
+            foreach (var guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+                if (def == null) continue;
+
+                bool isPlayer = (def.actorType & ActorType.Player) == ActorType.Player;
+                bool isMonster = (def.actorType & ActorType.Monster) == ActorType.Monster;
+                bool isPlayable = isPlayer || def.characterType != CharacterActorType.None;
+
+                // Defense는 플레이어블 캐릭터, Reaction은 Elite/Boss 몬스터에 적용된다.
+                bool reactionRelevant = isMonster && (def.grade == MonsterActorGrade.Elite || def.grade == MonsterActorGrade.Boss);
+                bool relevant = isPlayable || reactionRelevant;
+                if (_policyOnlyRelevant && !relevant) continue;
+
+                _policyRows.Add(new PolicyRow
+                {
+                    Definition = def,
+                    Grade = def.grade,
+                    IsPlayer = isPlayer,
+                    IsMonster = isMonster,
+                    IsPlayable = isPlayable,
+                    Defense = def.combatDefensePolicy,
+                    Reaction = def.combatReactionPolicy,
+                });
+            }
+            _policyRows.Sort((a, b) => string.Compare(a.Definition.name, b.Definition.name, StringComparison.Ordinal));
+            _policyAllSelected = false;
+        }
+
+        private void AssignPolicy(PolicyRow row, CombatDefensePolicySO defense, CombatReactionPolicySO reaction)
+        {
+            if (row.Definition == null) return;
+
+            Undo.RecordObject(row.Definition, "Assign Combat Policy");
+            row.Definition.combatDefensePolicy = defense;
+            row.Definition.combatReactionPolicy = reaction;
+            row.Defense = defense;
+            row.Reaction = reaction;
+            EditorUtility.SetDirty(row.Definition);
+            AssetDatabase.SaveAssetIfDirty(row.Definition);
+        }
+
+        private void AutoLinkMissingPolicies(bool onlySelected)
+        {
+            if (!CombatPolicyAssetGenerator.TryLoadDefaultPolicies(
+                    out CombatDefensePolicySO defense,
+                    out CombatReactionPolicySO eliteReaction,
+                    out CombatReactionPolicySO bossReaction))
+            {
+                EditorUtility.DisplayDialog(
+                    "전투 정책",
+                    "기본 정책 에셋이 없습니다. 먼저 '기본 정책 에셋 생성'을 실행하세요.",
+                    "확인");
+                return;
+            }
+
+            int linked = 0;
+            foreach (var row in _policyRows)
+            {
+                if (onlySelected && !row.Selected) continue;
+                if (row.Definition == null) continue;
+
+                CombatDefensePolicySO newDefense = row.Definition.combatDefensePolicy;
+                CombatReactionPolicySO newReaction = row.Definition.combatReactionPolicy;
+                bool changed = false;
+
+                if (row.IsPlayable && newDefense == null && defense != null)
+                {
+                    newDefense = defense;
+                    changed = true;
+                }
+
+                if (row.IsMonster && newReaction == null)
+                {
+                    CombatReactionPolicySO graded =
+                        CombatPolicyAssetGenerator.ResolveReactionPolicyForGrade(row.Grade, eliteReaction, bossReaction);
+                    if (graded != null)
+                    {
+                        newReaction = graded;
+                        changed = true;
+                    }
+                }
+
+                if (!changed) continue;
+                AssignPolicy(row, newDefense, newReaction);
+                linked++;
+            }
+
+            AssetDatabase.SaveAssets();
+            ShowNotification(new GUIContent(linked > 0 ? $"{linked}개 연결 완료" : "연결할 누락 항목 없음"));
+        }
+
         // ── 내부 데이터 ───────────────────────────────────────────
         private class MigrationRow
         {
@@ -1729,6 +1995,18 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             public ActorDefinitionSO Definition;
             public bool              Selected;
+        }
+
+        private class PolicyRow
+        {
+            public ActorDefinitionSO       Definition;
+            public MonsterActorGrade       Grade;
+            public bool                    IsPlayer;
+            public bool                    IsMonster;
+            public bool                    IsPlayable;   // characterType != None 또는 Player 플래그 — DefensePolicy 대상
+            public CombatDefensePolicySO   Defense;
+            public CombatReactionPolicySO  Reaction;
+            public bool                    Selected;
         }
     }
 }

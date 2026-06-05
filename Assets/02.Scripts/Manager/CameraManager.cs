@@ -961,20 +961,48 @@ namespace UPlayGround.Manager
         }
 
         // ── Shake / Punch ──────────────────────────────────────────────
-        public void StartShake(CameraShakeData data)
+        // 쉐이크는 가산형 보이스 — 호출마다 보이스가 추가되어 합산된다.
+        // strength: 설정 슬라이더 × 카덴스 등 외부 강도 배율. hitWorldPos: 거리 감쇠용(없으면 null).
+        public void StartShake(CameraShakeData data) => StartShake(data, Vector3.zero, 1f, null);
+
+        /// <summary>hitDirection을 주면 Rotation 모드에서 Pitch/Yaw 방향 매칭을 적용한다.</summary>
+        public void StartShake(CameraShakeData data, Vector3 hitDirection) => StartShake(data, hitDirection, 1f, null);
+
+        public void StartShake(CameraShakeData data, Vector3 hitDirection, float strength, Vector3? hitWorldPos)
         {
             if (data == null || _shaker == null) return;
-            _shaker.SetShakeData(data);
-            _shaker.StartShake();
+            float scaled = strength * ComputeDistanceAttenuation(data, hitWorldPos);
+            if (scaled <= 0f) return;
+            _shaker.PlayShake(data, hitDirection, scaled);
         }
 
-        public void StartShake(string key)
+        public void StartShake(string key) => StartShake(key, Vector3.zero, 1f, null);
+
+        public void StartShake(string key, Vector3 hitDirection) => StartShake(key, hitDirection, 1f, null);
+
+        public void StartShake(string key, Vector3 hitDirection, float strength, Vector3? hitWorldPos)
         {
             if (_cameraShakeDatabase != null)
-                StartShake(_cameraShakeDatabase.GetShakeData(key));
+                StartShake(_cameraShakeDatabase.GetShakeData(key), hitDirection, strength, hitWorldPos);
         }
 
-        public void StartShake(CameraShakeIdType key) => StartShake(key.ToKey());
+        public void StartShake(CameraShakeIdType key) => StartShake(key.ToKey(), Vector3.zero, 1f, null);
+
+        public void StartShake(CameraShakeIdType key, Vector3 hitDirection) => StartShake(key.ToKey(), hitDirection, 1f, null);
+
+        public void StartShake(CameraShakeIdType key, Vector3 hitDirection, float strength, Vector3? hitWorldPos) =>
+            StartShake(key.ToKey(), hitDirection, strength, hitWorldPos);
+
+        /// <summary>거리 감쇠(Tier 3-H): 발생원이 멀수록 강도 감소. 옵트인 SO + 유효 위치에서만.</summary>
+        private float ComputeDistanceAttenuation(CameraShakeData data, Vector3? hitWorldPos)
+        {
+            if (data == null || !data.AttenuateByDistance) return 1f;
+            if (data.AttenuationRange <= 0f) return 1f;
+            if (!hitWorldPos.HasValue || _mainCamera == null) return 1f; // 위치 불명이면 감쇠 생략
+
+            float dist = Vector3.Distance(_mainCamera.transform.position, hitWorldPos.Value);
+            return Mathf.Clamp01(1f - dist / data.AttenuationRange);
+        }
 
         public void StopShake() => _shaker?.StopShake();
 

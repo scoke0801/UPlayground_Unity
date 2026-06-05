@@ -126,10 +126,10 @@ namespace UPlayGround.Data.Enemy
         {
             return type switch
             {
-                StatType.MaxHealth => 540f,
+                StatType.MaxHealth => 160f,
                 StatType.AttackPower => 1f,
                 StatType.Defense => 0f,
-                StatType.MaxPoise => 100f,
+                StatType.MaxPoise => 90f,
                 StatType.PoiseRecoveryRate => 30f,
                 StatType.PoiseRecoveryDelay => 2f,
                 StatType.MoveSpeed => 1f,

@@ -71,6 +71,12 @@ namespace UPlayGround.Tool.Editor.Balance
                         CreateScalingAsset();
                 }
 
+                using (new EditorGUI.DisabledScope(_scaling == null))
+                {
+                    if (GUILayout.Button("액션 기준 프리셋 적용", EditorStyles.toolbarButton, GUILayout.Width(140f)))
+                        ApplyActionCombatScalingPreset();
+                }
+
                 GUILayout.FlexibleSpace();
 
                 bool canGenerate = _scaling != null && _database != null;
@@ -413,6 +419,29 @@ namespace UPlayGround.Tool.Editor.Balance
             AssetDatabase.Refresh();
             _scaling = scaling;
             EditorGUIUtility.PingObject(scaling);
+        }
+
+        private void ApplyActionCombatScalingPreset()
+        {
+            if (_scaling == null)
+                return;
+
+            bool proceed = EditorUtility.DisplayDialog(
+                "Monster Scaling 프리셋 적용",
+                "현재 MonsterScalingSO에 액션 전투 기준 프리셋을 적용합니다.\n" +
+                "Weak/Normal/Elite/Boss HP와 성장률이 낮아지고, 생성기 미리보기/재생성 결과가 바뀝니다.\n" +
+                "기존 몬스터 statData는 Apply Selected를 실행하기 전까지 변경되지 않습니다.\n" +
+                "(Undo로 되돌릴 수 있습니다)\n계속하시겠습니까?",
+                "적용",
+                "취소");
+            if (!proceed)
+                return;
+
+            Undo.RecordObject(_scaling, "Apply Action Combat Monster Scaling Preset");
+            _scaling.ApplyActionCombatDefaults();
+            EditorUtility.SetDirty(_scaling);
+            AssetDatabase.SaveAssetIfDirty(_scaling);
+            Repaint();
         }
 
         // ── helpers ────────────────────────────────────────────────

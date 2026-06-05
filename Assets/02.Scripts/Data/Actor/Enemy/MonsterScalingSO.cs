@@ -91,27 +91,41 @@ namespace UPlayGround.Data.Enemy
             return Mathf.Max(0f, baseAttackDamage) * gradeMultiplier * Mathf.Max(0f, difficultyMultiplier);
         }
 
+        /// <summary>
+        /// 플레이어 기본 DPS 45 전후를 기준으로 약몹은 짧게, 보스만 장기전으로 가는 액션 전투용 기본값.
+        /// 생성기에서 명시적으로 적용하거나 새 Scaling 에셋을 만들 때 사용한다.
+        /// </summary>
+        public void ApplyActionCombatDefaults()
+        {
+            gradeScalings = new List<GradeScaling>
+            {
+                new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.55f, attackMultiplier = 0.70f, poiseMultiplier = 0.40f, defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 0.70f },
+                new() { grade = MonsterActorGrade.Normal, healthMultiplier = 1f,    attackMultiplier = 1f,    poiseMultiplier = 1f,    defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1f },
+                new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 3f,    attackMultiplier = 1.15f, poiseMultiplier = 2f,    defenseAdd = 0.06f, moveSpeedMultiplier = 1.06f, attackDamageMultiplier = 1.25f },
+                new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 14f,   attackMultiplier = 1.35f, poiseMultiplier = 5f,    defenseAdd = 0.12f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1.75f },
+            };
+
+            growthRules = new List<StatGrowthRule>
+            {
+                new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.04f },
+                new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.025f },
+                new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.02f },
+            };
+        }
+
         /// <summary>비어 있는 새 에셋에 합리적인 기본 등급 배율/성장 규칙을 채운다.</summary>
         public void FillDefaults()
         {
             if (gradeScalings == null || gradeScalings.Count == 0)
-            {
-                gradeScalings = new List<GradeScaling>
-                {
-                    new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.40f, attackMultiplier = 0.82f, poiseMultiplier = 0.55f, defenseAdd = 0.01f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 0.82f },
-                    new() { grade = MonsterActorGrade.Normal, healthMultiplier = 1f,   attackMultiplier = 1f,   poiseMultiplier = 1f,   defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1f },
-                    new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 2.05f, attackMultiplier = 1.3f, poiseMultiplier = 2.2f, defenseAdd = 0.10f, moveSpeedMultiplier = 1.1f, attackDamageMultiplier = 1.5f },
-                    new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 8.33f, attackMultiplier = 1.5f, poiseMultiplier = 7f,    defenseAdd = 0.20f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 2.25f },
-                };
-            }
+                ApplyActionCombatDefaults();
 
             if (growthRules == null || growthRules.Count == 0)
             {
                 growthRules = new List<StatGrowthRule>
                 {
-                    new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.08f },
-                    new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.04f },
-                    new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                    new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.04f },
+                    new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.025f },
+                    new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.02f },
                 };
             }
         }

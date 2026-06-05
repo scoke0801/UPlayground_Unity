@@ -1,8 +1,45 @@
 # 카메라 쉐이크 고도화 설계
 
-**작성일**: 2026-06-05 | **상태**: 설계 / 미구현 | **레퍼런스**: 명조(Wuthering Waves), Eiserloh GDC 2016, 중국 전투설계 자료
+**작성일**: 2026-06-05 | **상태**: Tier 1·2·3 코드 구현 완료(컴파일 검증) · 플레이테스트 미검증 (F 드롭) | **레퍼런스**: 명조(Wuthering Waves), Eiserloh GDC 2016, 중국 전투설계 자료
 
 > 상위 카메라 로드맵은 [[CAMERA_ENHANCEMENT_ROADMAP_DESIGN]] 참조. 본 문서는 **쉐이크/펀치 서브시스템**에 한정한 별도 설계서다. 로드맵의 C1(충돌 견고성) 약점과 직접 맞물리는 항목(§4.A)이 있어 교차 참조한다.
+
+---
+
+## 0. 구현 현황 (2026-06-05)
+
+Tier 1·2·3 전체를 코드 구현하고 `dotnet build UPlayground.sln` 통과(오류 0). 12개 쉐이크 에셋을 Rotation 모드로 마이그레이션. **단, `dotnet build`는 컴파일만 증명한다 — 회전 가시성·방향·멀미는 §0.1 게이트로 플레이테스트 검증 필요.**
+
+| 항목 | 상태 | 반영 |
+|---|---|---|
+| **A. 회전 쉐이크(Pitch/Yaw/Roll)** | 완료 | `CameraShakeData`(ShakeMode/회전 진폭), `CameraShaker`(localRotation 합성 + 저장/복원) |
+| **B. Perlin 정합 노이즈** | 완료 | `CameraShaker.ComputeVoice`(축별 시드 *2-1 재매핑, single base+offset), `NoiseType` 토글 |
+| **C. 방향 매칭** | 완료 | `CameraShaker.ApplyDirection`(보이스별 Pitch/Yaw 가중), `CameraManager.StartShake(key, dir, …)`, `CombatCameraDirector` 배선 |
+| **Punch 위치 유지** | 유지 | 짧은 방향성 킥은 위치 기반 그대로 |
+| **에셋 마이그레이션** | 완료 | `Assets/10.Datas/Camera/CameraShake/` 12개 → Mode=1, Noise=1, Pitch/Yaw 도수 부여 |
+| **D+E. Trauma 누적 + 채널 레이어링** | 완료 | **가산형 보이스 모델**로 통합 해결. `CameraShaker`가 `List<ShakeVoice>`(풀링)로 히트마다 보이스 추가→합산. per-hit SO가 각자 진폭/주파수 유지(advisor 지적 "whose amplitude" 해소). 콤보 중첩→누적, 막타 큰 SO→버스트 |
+| **G. 카덴스** | 완료(core) | 가산 스택의 콤보 누적 + `CombatCameraDirector.GetCadenceScale`(타입별 막타 강조, Kill/Skill/Charge 1.15×) + `strength`가 설정 슬라이더로 진폭 스케일(기존엔 on/off뿐). **콤보 인덱스 곡선은 미구현(후속)** |
+| **H. 거리 감쇠** | 완료 | `CameraShakeData.AttenuateByDistance/AttenuationRange`, `CameraManager.ComputeDistanceAttenuation`(발생원-카메라 거리). Explosion 에셋 옵트인(range 25) |
+| **I. 멀미 세이프밸브** | 완료 | `CameraShaker` 합산 클램프(MAX_PITCH 6°/YAW 5°/ROLL 3°/POS 0.6m) — 다중 히트 누적 폭주 방지 |
+| **F. 히트스톱 가드 제거** | **드롭** | 히트스톱은 `timeScale` 0.02~0.1, 가드는 `<=0`(완전 일시정지)만 차단 → 쉐이크는 이미 작동. 제거 시 일시정지 중 떨림 발생 |
+
+**가산형 보이스 모델(D+E 핵심):** 단일 `_shakeData`/`_isShaking` → `List<ShakeVoice>` + `Stack<ShakeVoice>` 풀. `PlayShake`가 보이스 추가(기존 끊지 않음), Tick에서 각 보이스 노이즈를 프레임당 1회 계산(`CurrentEuler`/`CurrentPos`), `onPreRenderCamera`는 합산+클램프만 수행(정밀계산 없음, 핫패스 경량). 에디터 프리뷰는 단일 `_previewVoice`로 분리.
+
+**호환성 처리:** `ShakeMode`/`NoiseType` 모두 레거시값(Position/Random)을 enum 0번으로 둬, 미마이그레이션 에셋은 기존 위치 쉐이크로 그대로 동작한다. 12개 전투 에셋만 Rotation으로 전환해 즉시 화면에 반영되게 했다. `CameraShaker.SetShakeData/StartShake/SetShakeStrengthMultiplier/SetShakeDirection` 공개 메서드는 보이스 모델로 대체되어 제거(직접 호출자는 CameraManager·에디터뿐이었음).
+
+**남은 튜닝/후속:** ① Pitch/Yaw 도수·Bias·세이프밸브 상한·카덴스 배율은 1차 추정값 → 인게임 후 §3 "진폭 절제"(멀미 회피) 기준 재조정. ② 카덴스의 **콤보 인덱스 기반 곡선**은 미구현(현재 타입별 상수 + 가산 누적으로 근사) — PlayerCombat에서 콤보 진행도 plumbing 시 고도화. ③ 피격(`PlayerHit*`/`PlayerDeath`) intent는 HitDirection=zero라 방향 바이어스 무효 — 피격 방향 plumbing 후 활성.
+
+### 0.1 검증 게이트 (플레이테스트 시 확인)
+
+코드는 컴파일 검증만 됨. 아래는 에디터 실행으로만 확인 가능하며, 순서대로 게이트다.
+
+1. **[필수] 에셋 마이그레이션 반영** — 12개 에셋은 bash 외부 편집이라, Unity가 프로젝트를 열어둔 상태였다면 재직렬화로 되돌 수 있음. 디스크는 정상 확인됨(`HeavyHit` Mode=1/Noise=1/Pitch=1.8). **인스펙터에서 Mode=Rotation·Noise=Perlin·Pitch=1.8 재확인**(아니면 우클릭→Reimport). 실패 시 옛 위치 쉐이크가 나와 "회전 동작"으로 오인 가능.
+2. **회전 가시성** — `CameraShakeData` 인스펙터 "쉐이크 테스트" 버튼이 SceneView에 회전 경로를 태움. 전투 진입 전 회전이 실제 적용되는지 최저비용 확인.
+3. **체감/튜닝** — 단타 강도, 콤보 누적 시 멀미, 세이프밸브 상한 적정성. §3 절제 기준으로 도수 조정.
+
+### 0.2 검증 한계 메모
+
+`dotnet build` 통과 = 코드 파싱·타입 정합만 증명. 카메라 *체감* 기능 특성상 "빌드 통과"를 "동작 확인"으로 간주하지 않는다.
 
 ---
 

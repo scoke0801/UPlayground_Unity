@@ -328,7 +328,11 @@ namespace UPlayGround.CameraSystem
                     intent.PunchDuration);
 
             if (shakeScale > 0f && intent.ShakeKey != CameraShakeIdType.None)
-                _cameraManager.StartShake(intent.ShakeKey);
+                _cameraManager.StartShake(
+                    intent.ShakeKey,
+                    intent.HitDirection,
+                    shakeScale * GetCadenceScale(intent.Type),
+                    intent.HitPoint);
         }
 
         private void PlayProfile(in CombatCameraIntent intent, CombatCameraProfileSO profile)
@@ -352,7 +356,11 @@ namespace UPlayGround.CameraSystem
                     profile.punchDuration);
 
             if (shakeScale > 0f && profile.shakeKey != CameraShakeIdType.None)
-                _cameraManager.StartShake(profile.shakeKey);
+                _cameraManager.StartShake(
+                    profile.shakeKey,
+                    intent.HitDirection,
+                    shakeScale * GetCadenceScale(intent.Type),
+                    intent.HitPoint);
 
             if (profile.useSnapshotSequence && profile.snapshotProfile != null && sequenceScale > 0f)
                 _cameraManager.PushCameraSnapshotSequence(profile.snapshotProfile);
@@ -388,6 +396,25 @@ namespace UPlayGround.CameraSystem
         {
             SettingsManager settingsManager = SettingsManager.Instance;
             return settingsManager != null && settingsManager.IsLoaded ? settingsManager.Data : null;
+        }
+
+        /// <summary>
+        /// 카덴스(Tier 3-G): 타입별 막타 강조. 가산형 보이스의 콤보 누적 위에 얹어
+        /// 스킬/마무리/처치를 더 도드라지게 한다. (콤보 인덱스 기반 곡선은 후속 과제)
+        /// </summary>
+        private static float GetCadenceScale(CombatCameraIntentType type)
+        {
+            return type switch
+            {
+                CombatCameraIntentType.Kill        => 1.15f,
+                CombatCameraIntentType.SkillHit     => 1.15f,
+                CombatCameraIntentType.ChargeHit    => 1.15f,
+                CombatCameraIntentType.HeavyHit     => 1.05f,
+                CombatCameraIntentType.DashHit      => 1.05f,
+                CombatCameraIntentType.PerfectGuard => 1.05f,
+                CombatCameraIntentType.DodgeCounter => 1.05f,
+                _                                   => 1.0f,
+            };
         }
 
         private float GetShakeScale()

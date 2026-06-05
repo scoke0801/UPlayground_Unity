@@ -197,23 +197,44 @@ namespace UPlayGround.CameraSystem
         {
             if (context.IsInputLocked || !context.IsAligning || context.Target == null) return;
 
-            context.AlignTimer -= deltaTime;
-            if (context.AlignTimer <= 0f)
-            {
-                context.IsAligning = false;
-                return;
-            }
-
-            Vector3 fwd = context.Target.forward;
+            Vector3 fwd = ResolveTargetForwardXZ(context.Target);
             float targetYaw = Mathf.Atan2(fwd.x, fwd.z) * Mathf.Rad2Deg;
             float targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
 
-            state.CurrentYaw = Mathf.LerpAngle(state.CurrentYaw, targetYaw, deltaTime * settings.alignSpeed);
-            state.CurrentPitch = Mathf.Lerp(state.CurrentPitch, targetPitch, deltaTime * settings.alignSpeed);
+            if (context.AlignTimer <= deltaTime)
+            {
+                state.CurrentYaw = targetYaw;
+                state.CurrentPitch = targetPitch;
+                context.AlignTimer = 0f;
+                context.IsAligning = false;
+            }
+            else
+            {
+                float remainingTime = Mathf.Max(context.AlignTimer, 0.001f);
+                float yawStep = Mathf.Abs(Mathf.DeltaAngle(state.CurrentYaw, targetYaw)) / remainingTime * deltaTime;
+                float pitchStep = Mathf.Abs(targetPitch - state.CurrentPitch) / remainingTime * deltaTime;
+
+                state.CurrentYaw = Mathf.MoveTowardsAngle(state.CurrentYaw, targetYaw, yawStep);
+                state.CurrentPitch = Mathf.MoveTowards(state.CurrentPitch, targetPitch, pitchStep);
+                context.AlignTimer -= deltaTime;
+            }
 
             float slopeOffset = context.ComputeSlopePitchOffset?.Invoke() ?? 0f;
             float dynamicMin = settings.minVerticalAngle + slopeOffset;
             state.CurrentPitch = Mathf.Clamp(state.CurrentPitch, dynamicMin, settings.maxVerticalAngle);
+        }
+
+        private static Vector3 ResolveTargetForwardXZ(Transform target)
+        {
+            if (target != null)
+            {
+                Vector3 targetForward = target.forward;
+                targetForward.y = 0f;
+                if (targetForward.sqrMagnitude > 0.001f)
+                    return targetForward.normalized;
+            }
+
+            return Vector3.forward;
         }
 
         private void UpdateOffsetAndDistance(

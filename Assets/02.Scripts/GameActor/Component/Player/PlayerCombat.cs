@@ -79,6 +79,8 @@ namespace UPlayGround.Component
         [SerializeField] private float _freeSnapSearchRange = 5f;
         [Tooltip("자유 전투: 호밍 탐색 각도")]
         [SerializeField] private float _freeSnapSearchAngle = 80f;
+        [Tooltip("비락온 공격 시작 시 주변 적 방향으로 부드럽게 돌기 위한 탐색 각도")]
+        [SerializeField] private float _freeAttackFacingSearchAngle = 180f;
 
         [Header("Motion Warp Settings")]
         [Tooltip("워프 최소 거리. 이 거리 이내의 적에게는 워프 미적용 (씹힘 방지)")]
@@ -1669,14 +1671,39 @@ namespace UPlayGround.Component
 
         public Transform FindAttackSnapTarget(float hitRange, float hitAngle, bool isLockedOn)
         {
+            return FindAttackSnapTargetInternal(
+                hitRange,
+                hitAngle,
+                GetSnapSearchRange(isLockedOn),
+                GetSnapSearchAngle(isLockedOn),
+                skipIfAlreadyCovered: true);
+        }
+
+        public Transform FindFreeAttackFacingTarget(float hitRange, float hitAngle)
+        {
+            float searchAngle = Mathf.Max(_freeSnapSearchAngle, _freeAttackFacingSearchAngle);
+            return FindAttackSnapTargetInternal(
+                hitRange,
+                hitAngle,
+                _freeSnapSearchRange,
+                searchAngle,
+                skipIfAlreadyCovered: false);
+        }
+
+        private Transform FindAttackSnapTargetInternal(
+            float hitRange,
+            float hitAngle,
+            float searchRange,
+            float searchAngle,
+            bool skipIfAlreadyCovered)
+        {
             Vector3 origin  = transform.position;
             Vector3 forward = transform.forward;
 
-            if (HasTargetInRange(origin, forward, hitRange, hitAngle))
+            if (skipIfAlreadyCovered && HasTargetInRange(origin, forward, hitRange, hitAngle))
                 return null;
 
-            float      searchRange = GetSnapSearchRange(isLockedOn);
-            float      searchAngle = GetSnapSearchAngle(isLockedOn);
+            searchAngle = Mathf.Clamp(searchAngle, 0f, 180f);
             Collider[] hits        = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
 
             Transform bestTarget = null;

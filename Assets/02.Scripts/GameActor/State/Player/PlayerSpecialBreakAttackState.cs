@@ -69,7 +69,13 @@ namespace UPlayGround.State
 
             var targetController = _targetMonster.GetComponent<ActorMovementController>();
             targetController?.TransitionToState(
-                new EnemySpecialBreakVictimState(targetController, Duration));
+                new EnemySpecialBreakVictimState(
+                    targetController,
+                    Duration,
+                    playerActor.transform,
+                    VictimKnockbackDistance,
+                    VictimKnockbackDuration,
+                    VictimMaxKnockbackSpeed));
 
             var animState = playerActor.Animator.PlayMotion(GetMotionKey(), 0.15f);
             if (animState != null)
@@ -220,5 +226,8 @@ namespace UPlayGround.State
         private float StartDistance => _attackData != null ? Mathf.Max(0f, _attackData.startDistance) : DEFAULT_START_DISTANCE;
         private float SlideDuration => _attackData != null ? Mathf.Max(0f, _attackData.slideDuration) : DEFAULT_SLIDE_DURATION;
         private float MaxSlideSpeed => _attackData != null ? Mathf.Max(0f, _attackData.maxSlideSpeed) : DEFAULT_MAX_SLIDE_SPEED;
+        private float VictimKnockbackDistance => _attackData != null ? Mathf.Max(0f, _attackData.victimKnockbackDistance) : 0.75f;
+        private float VictimKnockbackDuration => _attackData != null ? Mathf.Max(0f, _attackData.victimKnockbackDuration) : 0.18f;
+        private float VictimMaxKnockbackSpeed => _attackData != null ? Mathf.Max(0f, _attackData.victimMaxKnockbackSpeed) : 7f;
     }
 }

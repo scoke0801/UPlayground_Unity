@@ -87,6 +87,30 @@
         
         public const string Touchpad = "Touchpad";
     }
+
+    /// <summary>
+    /// 현재 활성화된 입력 디바이스 분류.
+    /// 키 프롬프트 UI가 표시할 글리프(키보드/마우스 vs 게임패드)를 결정하는 단일 기준.
+    /// 키보드와 마우스는 PC에서 항상 함께 쓰이므로 하나로 묶는다(명조/원신 관례).
+    /// </summary>
+    public enum ActiveInputDevice
+    {
+        KeyboardMouse,
+        Gamepad,
+    }
+
+    /// <summary>
+    /// 게임패드 브랜드. 같은 물리 버튼이라도 표기가 다르다(buttonSouth = Xbox A / PS ✕ / Switch B).
+    /// 브랜드별 글리프가 비어 있으면 Generic 세트로 폴백한다.
+    /// </summary>
+    public enum GamepadBrand
+    {
+        Generic,
+        Xbox,
+        PlayStation,
+        Switch,
+    }
+
     public enum InputLayer
     {
         //  == CanvasLayer

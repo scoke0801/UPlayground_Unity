@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b52749af083b41498f6f170827d913e, type: 3}
+  m_Name: InputGlyphData
+  m_EditorClassIdentifier: 
+  _keyboardMouseGlyphs:
+  - controlPath: space
+    sprite: {fileID: 21300000, guid: b53ef8d10266b9c43a09d89b89e01cc6, type: 3}
+  - controlPath: ctrl
+    sprite: {fileID: 21300000, guid: a53650d7217ffc5458f4df654c614236, type: 3}
+  - controlPath: leftButton
+    sprite: {fileID: 21300000, guid: 3f9d8292bc45c6f4e9f546ab9e6ceae5, type: 3}
+  - controlPath: rightButton
+    sprite: {fileID: 21300000, guid: 046e30880f400a04987a4fcd7c86c611, type: 3}
+  - controlPath: f
+    sprite: {fileID: 21300000, guid: 854b1c83e0c7bc84ab152fbcd37c7954, type: 3}
+  - controlPath: e
+    sprite: {fileID: 21300000, guid: bbc11d8082ed3fc47b32cfb69627b515, type: 3}
+  - controlPath: r
+    sprite: {fileID: 21300000, guid: 2d9053eb9447cab4fa35f70225db5c5e, type: 3}
+  - controlPath: z
+    sprite: {fileID: 21300000, guid: 3079b4fa226369c4a818ee695bfa775f, type: 3}
+  - controlPath: middleButton
+    sprite: {fileID: 21300000, guid: 90c30d4bb5144424a84f3f98c397adef, type: 3}
+  - controlPath: v
+    sprite: {fileID: 21300000, guid: 6f6a692ee76a65249ace9814a354abf9, type: 3}
+  - controlPath: shift
+    sprite: {fileID: 21300000, guid: 8fbb930420b03f24b8657ef0ed02d4b2, type: 3}
+  - controlPath: 1
+    sprite: {fileID: 21300000, guid: c3fd254d027595344988d0539f7b1ba9, type: 3}
+  - controlPath: 2
+    sprite: {fileID: 21300000, guid: a0e8c7dcc0aeb7b40b296a50a40d78ca, type: 3}
+  - controlPath: 3
+    sprite: {fileID: 21300000, guid: e1c8f86f8ebd0564c90e9415dd85438d, type: 3}
+  - controlPath: 4
+    sprite: {fileID: 21300000, guid: 1c1a7bd44e2773b49aaf9e61f4f3862a, type: 3}
+  - controlPath: tab
+    sprite: {fileID: 21300000, guid: d1a3a02396b0fc948aaacd16c8d60b6d, type: 3}
+  - controlPath: escape
+    sprite: {fileID: 21300000, guid: b38678271a7f3384bb1308df4332634a, type: 3}
+  - controlPath: alt
+    sprite: {fileID: 21300000, guid: e74bff18d0f3fd84c873f27b71dc168f, type: 3}
+  - controlPath: enter
+    sprite: {fileID: 21300000, guid: f6918386ae8a69944adf00c8c4e9d2e5, type: 3}
+  - controlPath: i
+    sprite: {fileID: 21300000, guid: 3c589556600df0e4b89c4802a1c12a2c, type: 3}
+  - controlPath: o
+    sprite: {fileID: 21300000, guid: 1d6bebe4a27706641b8e08aa438677b7, type: 3}
+  - controlPath: m
+    sprite: {fileID: 21300000, guid: 0f3d00eb6455fdc4f88de1566d17cf0d, type: 3}
+  - controlPath: p
+    sprite: {fileID: 21300000, guid: f3656663c063a644b9a684b3746d57a2, type: 3}
+  - controlPath: backquote
+    sprite: {fileID: 21300000, guid: d75a12d2150e5c9429f4491fb3fb5838, type: 3}
+  _gamepadGlyphs:
+  - controlPath: buttonSouth
+    sprite: {fileID: 21300000, guid: 259423a89efe85c418fc586eadcc21b9, type: 3}
+  - controlPath: buttonWest
+    sprite: {fileID: 21300000, guid: 1beb244070afd9f4183c7025928b53d9, type: 3}
+  - controlPath: buttonNorth
+    sprite: {fileID: 21300000, guid: 619a325fede99ae40a9170940eb8b05e, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: da2f165aaee4a1b4f8fae8bcb3375812, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 2e8076ecb1052b546ad433d03fb5e93e, type: 3}
+  - controlPath: rightTrigger
+    sprite: {fileID: 21300000, guid: 8cc3cecb8a2b8bd4c81bc2f583661266, type: 3}
+  - controlPath: leftStickPress
+    sprite: {fileID: 21300000, guid: 0d7619fbac644f24094569fe819519fb, type: 3}
+  - controlPath: rightStickPress
+    sprite: {fileID: 21300000, guid: 6dd5954830096b0478ed44c6b96f76dd, type: 3}
+  - controlPath: leftShoulder
+    sprite: {fileID: 21300000, guid: b489fb8a0828d064cbc5da2347b15ed4, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 4387dda71995e024bae674d310f99975, type: 3}
+  - controlPath: dpad/up
+    sprite: {fileID: 21300000, guid: 6596d807b61936c478843ab4f5636091, type: 3}
+  - controlPath: dpad/right
+    sprite: {fileID: 21300000, guid: c7d947a55512ad745a5e7ac7c7d3446a, type: 3}
+  - controlPath: dpad/down
+    sprite: {fileID: 21300000, guid: 1dc17bda7c7929347850f3d31f64009a, type: 3}
+  - controlPath: dpad/left
+    sprite: {fileID: 21300000, guid: efa01bbae83c1c941a667d8a0c2220c7, type: 3}
+  - controlPath: rightStick/right
+    sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
+  - controlPath: rightStick/left
+    sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
+  _xboxGlyphs: []
+  _playStationGlyphs:
+  - controlPath: buttonSouth
+    sprite: {fileID: 21300000, guid: f7865bfd05e0d3541943b62c5cd587f5, type: 3}
+  - controlPath: buttonWest
+    sprite: {fileID: 21300000, guid: 7b4f1fc13e646f547a196063e5f675b0, type: 3}
+  - controlPath: buttonNorth
+    sprite: {fileID: 21300000, guid: 04ece147b1c093c4b98e3bb82e853d84, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: 4dfe4945bcf5fb844bd94632f702df78, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 122b92a2f68c3f340ad8775439d84fa4, type: 3}
+  - controlPath: rightTrigger
+    sprite: {fileID: 21300000, guid: 3f754a2c3ecb7e249bf4628e90f51169, type: 3}
+  - controlPath: leftStickPress
+    sprite: {fileID: 21300000, guid: d295d132b0e818c4d921273353eecd2e, type: 3}
+  - controlPath: rightStickPress
+    sprite: {fileID: 21300000, guid: 598529c14b143a545b4d8ba9954e0837, type: 3}
+  - controlPath: leftShoulder
+    sprite: {fileID: 21300000, guid: 1ac057f199b501c49af9039ececbe549, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 9e5b15df529cbc94c9b1baf797d70ee4, type: 3}
+  - controlPath: dpad/up
+    sprite: {fileID: 21300000, guid: 8381cacfbee17b84dba87656def0a79e, type: 3}
+  - controlPath: dpad/right
+    sprite: {fileID: 21300000, guid: 41ae3ff247acb604f85a4f85a0bd61fc, type: 3}
+  - controlPath: dpad/down
+    sprite: {fileID: 21300000, guid: 9e418a0e712385040b39116a6ef41d3d, type: 3}
+  - controlPath: dpad/left
+    sprite: {fileID: 21300000, guid: c102b18a7b024e347a169092563849cf, type: 3}
+  - controlPath: rightStick/right
+    sprite: {fileID: 21300000, guid: 47f079ec05b811342921829aea2d547c, type: 3}
+  - controlPath: rightStick/left
+    sprite: {fileID: 21300000, guid: 5c2fc93b769623a488abfd06af4026a9, type: 3}
+  _switchGlyphs: []

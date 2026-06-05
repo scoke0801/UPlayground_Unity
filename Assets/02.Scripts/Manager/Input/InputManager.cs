@@ -45,7 +45,10 @@ namespace UPlayGround.Manager
 
             RegisterInputEvent(InputMapNames.System, SystemAction.ShowCursor, OnStartedShowCursor, null,
                 OnCanceledShowCursor, null, null, InputLayer.Level_Top);
-            
+
+            // 활성 디바이스(키보드+마우스 ↔ 게임패드) 감지 시작
+            InitDeviceDetection();
+
             Debug.Log("[InputManager] 초기화 완료");
         }
 
@@ -57,6 +60,8 @@ namespace UPlayGround.Manager
         public void Dispose()
         {
             Debug.Log("[InputManager] 정리 시작");
+
+            DisposeDeviceDetection();
 
             startCallbackDict.Clear();
             performCallbackDict.Clear();

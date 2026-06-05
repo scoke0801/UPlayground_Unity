@@ -334,7 +334,13 @@ namespace UPlayGround
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
         private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;
         private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)      => _skillInputCondition[1] = InputCondition.Pressed;
-        private void OnInputPerformedInteraction(InputAction.CallbackContext obj)  => _interactionInputCondition = InputCondition.Pressed;
+        private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
+        {
+            _interactionInputCondition = InputCondition.Pressed;
+
+            if (GetCombat()?.FindSpecialBreakAttackTarget() != null)
+                InputManager.Instance.InputBuffer.AddInput(PlayerAction.Interact, bufferTime: 0.15f);
+        }
         private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
         private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;
 
@@ -352,7 +358,13 @@ namespace UPlayGround
             PlayerMovementPlayerController.ClearJumpInput();
         }
 
-        private bool CanInputInteract() => GameObjectManager.Instance.CanInteract();
+        private bool CanInputInteract()
+        {
+            if (GameObjectManager.Instance.CanInteract())
+                return true;
+
+            return GetCombat()?.FindSpecialBreakAttackTarget() != null;
+        }
 
         private void ClearAllInputState()
         {

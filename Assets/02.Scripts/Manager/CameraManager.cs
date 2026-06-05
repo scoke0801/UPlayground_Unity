@@ -480,17 +480,43 @@ namespace UPlayGround.Manager
         {
             if (_isInputLocked || !_isAligning || _target == null) return;
 
-            _alignTimer -= Time.deltaTime;
-            if (_alignTimer <= 0f) { _isAligning = false; return; }
-
-            Vector3 fwd        = _target.forward;
+            Vector3 fwd        = ResolveTargetForwardXZ();
             float   targetYaw   = Mathf.Atan2(fwd.x, fwd.z) * Mathf.Rad2Deg;
             float   targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
 
-            _currentYaw   = Mathf.LerpAngle(_currentYaw, targetYaw, Time.deltaTime * settings.alignSpeed);
-            _currentPitch = Mathf.Lerp(_currentPitch, targetPitch, Time.deltaTime * settings.alignSpeed);
+            if (_alignTimer <= Time.deltaTime)
+            {
+                _currentYaw = targetYaw;
+                _currentPitch = targetPitch;
+                _alignTimer = 0f;
+                _isAligning = false;
+            }
+            else
+            {
+                float remainingTime = Mathf.Max(_alignTimer, 0.001f);
+                float yawStep = Mathf.Abs(Mathf.DeltaAngle(_currentYaw, targetYaw)) / remainingTime * Time.deltaTime;
+                float pitchStep = Mathf.Abs(targetPitch - _currentPitch) / remainingTime * Time.deltaTime;
+
+                _currentYaw = Mathf.MoveTowardsAngle(_currentYaw, targetYaw, yawStep);
+                _currentPitch = Mathf.MoveTowards(_currentPitch, targetPitch, pitchStep);
+                _alignTimer -= Time.deltaTime;
+            }
+
             float alignDynamicMin = settings.minVerticalAngle + ComputeSlopePitchOffset();
             _currentPitch = Mathf.Clamp(_currentPitch, alignDynamicMin, settings.maxVerticalAngle);
+        }
+
+        private Vector3 ResolveTargetForwardXZ()
+        {
+            if (_target != null)
+            {
+                Vector3 targetForward = _target.forward;
+                targetForward.y = 0f;
+                if (targetForward.sqrMagnitude > 0.001f)
+                    return targetForward.normalized;
+            }
+
+            return Vector3.forward;
         }
 
         #endregion

@@ -538,6 +538,10 @@ namespace UPlayGround.State
             }
 
             bool isLockedOn = lockOnTarget != null;
+            if (!isLockedOn)
+                return _combat.FindFreeAttackFacingTarget(
+                    _currentAttack.hitRange, _currentAttack.hitAngle);
+
             return _combat.FindAttackSnapTarget(
                 _currentAttack.hitRange, _currentAttack.hitAngle, isLockedOn);
         }
@@ -582,7 +586,7 @@ namespace UPlayGround.State
                     _combat.IsMotionWarping,
                     _combat.WarpRemainingTime,
                     _combat.WarpDuration,
-                    _combat.WarpMinDistance,
+                    0f,
                     _combat.WarpMaxDistance,
                     _combat.WarpMaxSpeed,
                     out Quaternion warpRotation))

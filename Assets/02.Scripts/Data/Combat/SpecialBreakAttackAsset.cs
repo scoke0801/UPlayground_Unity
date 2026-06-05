@@ -27,6 +27,14 @@ namespace UPlayGround.Data.Combat
         [Min(0f)] public float maxSlideSpeed = 18f;
         [Min(0f)] public float slideDuration = 0.25f;
 
+        [Header("Target Reaction")]
+        [Tooltip("특수 브레이크 피해자 모션 시작 시 공격자 반대 방향으로 밀려나는 거리.")]
+        [Min(0f)] public float victimKnockbackDistance = 0.75f;
+        [Tooltip("특수 브레이크 피해자 밀림이 지속되는 시간.")]
+        [Min(0f)] public float victimKnockbackDuration = 0.18f;
+        [Tooltip("특수 브레이크 피해자 밀림의 최대 속도.")]
+        [Min(0f)] public float victimMaxKnockbackSpeed = 7f;
+
         [Header("Damage")]
         [Min(0f)] public float damageByMaxHpRate = 0.2f;
         [Min(0f)] public float fixedDamage = 0f;

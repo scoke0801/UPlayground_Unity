@@ -129,3 +129,7 @@ MonoBehaviour:
     prefab: {fileID: 3283549912916363737, guid: 6fc8acba835ffc740ae8c4e30970695f, type: 3}
     defaultLayer: 10000
     description: 
+  - key: HudSkill
+    prefab: {fileID: 3240283172675560104, guid: f585a7ff6e5d88b4483ebc2f0b00f85d, type: 3}
+    defaultLayer: 0
+    description: 

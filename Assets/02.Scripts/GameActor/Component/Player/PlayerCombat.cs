@@ -1609,7 +1609,10 @@ namespace UPlayGround.Component
 
                 MonsterActor monsterActor = hit.GetComponent<MonsterActor>()
                                             ?? hit.GetComponentInParent<MonsterActor>();
-                if (monsterActor == null || monsterActor.BreakGauge == null || !monsterActor.BreakGauge.IsExposed)
+                if (monsterActor == null
+                    || !monsterActor.CanTakeDamage()
+                    || monsterActor.BreakGauge == null
+                    || !monsterActor.BreakGauge.IsExposed)
                     continue;
 
                 Vector3 dir = monsterActor.transform.position - origin;

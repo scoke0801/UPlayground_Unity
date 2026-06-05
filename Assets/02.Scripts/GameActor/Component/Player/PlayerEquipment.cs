@@ -71,11 +71,19 @@ namespace UPlayGround.Component
         {
             if (trail == null) return false;
 
-            if (IsMainWeaponEquipped && IsTrailUnderWeaponSlot(trail, _currentMainWeaponObj, _mainWeaponConstraint))
+            if (IsMainWeaponEquipped &&
+                IsWeaponSlotVisible(_currentMainWeaponObj, _mainWeaponConstraint) &&
+                IsTrailUnderWeaponSlot(trail, _currentMainWeaponObj, _mainWeaponConstraint))
+            {
                 return true;
+            }
 
-            if (IsSubWeaponEquipped && IsTrailUnderWeaponSlot(trail, _currentSubWeaponObj, _subWeaponConstraint))
+            if (IsSubWeaponEquipped &&
+                IsWeaponSlotVisible(_currentSubWeaponObj, _subWeaponConstraint) &&
+                IsTrailUnderWeaponSlot(trail, _currentSubWeaponObj, _subWeaponConstraint))
+            {
                 return true;
+            }
 
             return false;
         }
@@ -726,6 +734,29 @@ namespace UPlayGround.Component
                 return true;
 
             return IsTransformUnderWeaponSlot(trail.lineBottomTransform, weaponObj, constraint);
+        }
+
+        private static bool IsWeaponSlotVisible(GameObject weaponObj, ParentConstraint constraint)
+        {
+            if (weaponObj != null)
+                return HasVisibleRenderer(weaponObj.transform);
+
+            return constraint != null && HasVisibleRenderer(constraint.transform);
+        }
+
+        private static bool HasVisibleRenderer(Transform root)
+        {
+            if (root == null || !root.gameObject.activeInHierarchy) return false;
+
+            var renderers = root.GetComponentsInChildren<Renderer>(false);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                if (renderer != null && renderer.enabled && renderer.gameObject.activeInHierarchy)
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool IsTransformUnderWeaponSlot(

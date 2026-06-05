@@ -48,6 +48,13 @@ namespace UPlayGround.Data.Combat
         [Tooltip("식별용 이름(에디터 표시)")]
         public string routeName = "New Route";
 
+        [Tooltip("플레이어 노출용 스킬명(HUD 키 제시 등). 비우면 routeName으로 폴백.")]
+        public string displayName = "";
+
+        /// <summary>HUD 등 플레이어 표시용 이름(displayName 우선, 없으면 routeName).</summary>
+        public string DisplayLabel =>
+            string.IsNullOrEmpty(displayName) ? routeName : displayName;
+
         [Header("입력 패턴 (왼→오 순서)")]
         [Tooltip("이 토큰 순서가 입력 스트림 끝(Suffix) 또는 전체(Exact)와 일치해야 한다.")]
         public List<ComboInputToken> inputPattern = new();

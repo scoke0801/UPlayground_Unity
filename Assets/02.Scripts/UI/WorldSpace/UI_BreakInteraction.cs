@@ -15,7 +15,7 @@ public class UI_BreakInteraction : MonoBehaviour
 {
     [Header("Anchor")]
     [Tooltip("Center 소켓 기준(소켓 없으면 루트 기준) 월드 오프셋.")]
-    [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 0.5f, 0f);
+    [SerializeField] private Vector3 _worldOffset = Vector3.zero;
 
     [Header("Pulse (선택)")]
     [Tooltip("주목도를 위한 스케일 펄스 진폭. 0이면 펄스 없음.")]

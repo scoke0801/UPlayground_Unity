@@ -67,20 +67,33 @@ namespace UPlayGround.UI.InputPrompt
                 return InputGlyphResult.Missing(actionName);
 
             InputAction action = inputManager.GetAction(mapName, actionName);
-            if (action == null)
-                return InputGlyphResult.Missing(actionName);
-
-            int bindingIndex = FindBindingIndexForDevice(action, device);
-            if (bindingIndex < 0)
-                return InputGlyphResult.Missing(actionName);
-
-            return BuildResult(action, bindingIndex, device, brand, glyphData);
+            return ResolveAction(action, device, brand, glyphData, actionName);
         }
 
         /// <summary>제네릭 브랜드 단축 오버로드.</summary>
         public static InputGlyphResult Resolve(string mapName, string actionName,
             ActiveInputDevice device, InputGlyphDataSO glyphData)
             => Resolve(mapName, actionName, device, GamepadBrand.Generic, glyphData);
+
+        /// <summary>
+        /// InputManager(런타임 씬) 없이 <see cref="InputAction"/>을 직접 받아 해석한다.
+        /// 에디터 미리보기 등 액션을 외부에서 확보한 경우에 쓴다. 바인딩 메타데이터만 읽으므로
+        /// 액션이 Enable 상태가 아니어도 동작한다.
+        /// </summary>
+        /// <param name="fallbackName">액션/바인딩을 못 찾았을 때 폴백 텍스트로 쓸 이름.</param>
+        public static InputGlyphResult ResolveAction(InputAction action,
+            ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData,
+            string fallbackName = null)
+        {
+            if (action == null)
+                return InputGlyphResult.Missing(fallbackName ?? "?");
+
+            int bindingIndex = FindBindingIndexForDevice(action, device);
+            if (bindingIndex < 0)
+                return InputGlyphResult.Missing(fallbackName ?? action.name);
+
+            return BuildResult(action, bindingIndex, device, brand, glyphData);
+        }
 
         private static InputGlyphResult BuildResult(InputAction action, int bindingIndex,
             ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData)

@@ -16,6 +16,7 @@ namespace UPlayGround.Animation
         private PlayerActor _playerActor;
         private PlayerEquipment _playerEquipment;
         private PlayerCombat _playerCombat;
+        private WeaponType _lastPlayedWeaponType = WeaponType.NoWeapon;
 
         public bool IsOpenedComboWindow { get; set; } = false;
         public PlayerActorAnimationMotionSet PlayerMotionSet => _playerActorAnimationMotionSet;
@@ -48,10 +49,20 @@ namespace UPlayGround.Animation
         }
         public override AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
         {
+            WeaponType activeWeaponType = GetActiveWeaponTypeForMotion(key);
             if (_isPlayingMotionSet
-                && _lastPlayedKey == key)
+                && _lastPlayedKey == key
+                && _lastPlayedWeaponType == activeWeaponType)
             {
                 return _currentState;
+            }
+
+            MotionSet nextMotionSet = _playerActorAnimationMotionSet != null
+                ? _playerActorAnimationMotionSet.GetMotionSet(activeWeaponType, key)
+                : null;
+            if (nextMotionSet == null || nextMotionSet.IsValid() == false)
+            {
+                return null;
             }
 
             // 기존 MotionSet이 재생 중이었다면 안전하게 정리
@@ -60,16 +71,13 @@ namespace UPlayGround.Animation
                 StopMotionSet();
             }
 
-            _currentMotionSet = _playerActorAnimationMotionSet.GetMotionSet(GetActiveWeaponTypeForMotion(key), key);
-            if (_currentMotionSet == null || _currentMotionSet.IsValid() == false)
-            {
-                return null;
-            }
+            _currentMotionSet = nextMotionSet;
 
             _currentMotionIndex = 0;
             _globalTime = 0f;
             _isPlayingMotionSet = true;
             _lastPlayedKey = key;
+            _lastPlayedWeaponType = activeWeaponType;
 
             // 이벤트 실행기 초기화
             _eventExecutor?.PlayMotionSet(_currentMotionSet);

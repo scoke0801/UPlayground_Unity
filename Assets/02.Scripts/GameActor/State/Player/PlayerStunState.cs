@@ -34,6 +34,9 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (controller.CurrentState != this)
+                return;
+
             _remainingDuration -= deltaTime;
             if (_remainingDuration <= 0f)
                 controller.TransitionToState(new PlayerIdleState(controller));

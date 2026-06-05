@@ -61,6 +61,9 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (controller.CurrentState != this)
+                return;
+
             _remainingDuration -= deltaTime;
 
             if (_remainingDuration <= 0f)
@@ -79,6 +82,9 @@ namespace UPlayGround.State
 
         private void Escape()
         {
+            if (controller.CurrentState != this)
+                return;
+
             // 중복 호출 방지
             if (_remainingDuration < -99f) return;
             _remainingDuration = float.MinValue;
@@ -99,6 +105,9 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
+            if (controller.CurrentState != this)
+                return;
+
             controller.TransitionToState(new PlayerIdleState(controller));
         }
     }

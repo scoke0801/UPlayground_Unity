@@ -70,6 +70,9 @@ namespace UPlayGround.State
 
         private void BeginGetup()
         {
+            if (controller.CurrentState != this)
+                return;
+
             if (_getupStarted) return;
             _getupStarted = true;
             _invincibleTimer = Mathf.Max(_invincibleTimer, 0.3f);
@@ -95,6 +98,9 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
+            if (controller.CurrentState != this)
+                return;
+
             controller.TransitionToState(new PlayerIdleState(controller));
         }
     }

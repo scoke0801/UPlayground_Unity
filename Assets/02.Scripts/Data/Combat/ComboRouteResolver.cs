@@ -49,6 +49,77 @@ namespace UPlayGround.Data.Combat
         }
 
         /// <summary>
+        /// HUD 힌트 1개: 현재 라우트의 도중에서 '다음에 누를' 토큰.
+        /// </summary>
+        public readonly struct ComboRouteHint
+        {
+            public readonly ComboRouteEntry Route;
+            public readonly ComboInputToken NextToken;     // 라우트를 전진시키는 다음 입력
+            public readonly int             MatchedLength; // 이미 일치한 접두 길이(>=1)
+
+            public ComboRouteHint(ComboRouteEntry route, ComboInputToken next, int matched)
+            {
+                Route         = route;
+                NextToken     = next;
+                MatchedLength = matched;
+            }
+        }
+
+        /// <summary>
+        /// 현재 입력 스트림을 도중(prefix)으로 갖는 발동가능 라우트들의 '다음 토큰'을 수집한다(HUD 키 제시용).
+        /// Resolve와 동일한 게이트(실행가능/태그/지상공중/자원)를 통과한 라우트만 힌트로 낸다 →
+        /// 실제로 누를 수 있는 분기만 노출. 매칭 완성(k=len)·미시작(k=0)은 제외해 노이즈를 없앤다.
+        /// </summary>
+        /// <param name="results">결과를 담을 리스트(호출자 소유, 내부에서 Clear). 비할당이면 무동작.</param>
+        public static void CollectHints(
+            IReadOnlyList<ComboInputToken>  stream,
+            IReadOnlyList<ComboRouteEntry>  routes,
+            GameplayTagContainer            tags,
+            bool                            isGrounded,
+            Func<ComboRouteEntry, bool>     resourceFilter,
+            List<ComboRouteHint>            results)
+        {
+            if (results == null) return;
+            results.Clear();
+            if (routes == null || routes.Count == 0) return;
+            if (stream == null || stream.Count == 0) return;
+
+            foreach (var route in routes)
+            {
+                if (route == null || route.IsEmpty)               continue;
+                if (!IsExecutable(route))                         continue;
+                if (!route.CheckTagConditions(tags))              continue;
+                if (!GroundOk(route.groundCondition, isGrounded)) continue;
+                if (resourceFilter != null && !resourceFilter(route)) continue;
+
+                int k = LongestPrefixOverlap(stream, route.inputPattern);
+                if (k <= 0 || k >= route.inputPattern.Count) continue; // 미시작 / 이미 완성
+                results.Add(new ComboRouteHint(route, route.inputPattern[k], k));
+            }
+        }
+
+        /// <summary>
+        /// 스트림의 접미(suffix)와 패턴의 접두(prefix)가 겹치는 최대 길이(최소 1토큰은 '다음'으로 남김).
+        /// 예: 스트림 [X L L], 패턴 [L L L H] → 2(다음 토큰 = 패턴[2] = L).
+        /// </summary>
+        private static int LongestPrefixOverlap(
+            IReadOnlyList<ComboInputToken> stream, List<ComboInputToken> pattern)
+        {
+            int max = Math.Min(stream.Count, pattern.Count - 1);
+            for (int k = max; k >= 1; k--)
+            {
+                bool ok = true;
+                int offset = stream.Count - k;
+                for (int i = 0; i < k; i++)
+                {
+                    if (stream[offset + i] != pattern[i]) { ok = false; break; }
+                }
+                if (ok) return k;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 패턴이 스트림과 매칭되는지(태그/자원 무관, 순수 토큰 비교).
         /// Suffix: 스트림 끝 N개가 패턴과 일치 / Exact: 스트림 전체가 정확히 일치.
         /// 에디터 진단/시뮬레이터에서도 직접 사용한다.

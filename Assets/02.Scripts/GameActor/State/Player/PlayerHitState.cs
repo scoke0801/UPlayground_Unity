@@ -195,6 +195,9 @@ namespace UPlayGround.State
 
         private void OnHitEnd()
         {
+            if (controller.CurrentState != this)
+                return;
+
             controller.TransitionToState(new PlayerIdleState(controller));
         }
 

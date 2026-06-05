@@ -863,12 +863,17 @@ namespace UPlayGround
             CombatFeedbackDispatcher.ShowDamageFloater(
                 CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
 
+            if (_currentHealth <= 0)
+            {
+                CombatResolutionPipeline.RecordIfDamageApplied(
+                    CombatResolutionPipeline.WithReaction(combatResult, ReactionDecision.None));
+                OnDeath(attackData);
+                return;
+            }
+
             ReactionDecision reactionDecision = OnDamaged(attackData);
             CombatResolutionPipeline.RecordIfDamageApplied(
                 CombatResolutionPipeline.WithReaction(combatResult, reactionDecision));
-
-            if (_currentHealth <= 0)
-                OnDeath(attackData);
         }
 
         public bool      IsAlive()          => _currentHealth > 0;

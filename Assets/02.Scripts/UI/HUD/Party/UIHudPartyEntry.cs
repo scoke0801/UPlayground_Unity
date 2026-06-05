@@ -8,9 +8,9 @@ using UPlayGround.Data.Party;
 public class UIHudPartyEntry : MonoBehaviour
 {
     [SerializeField] private Image _characterIcon;
-    [SerializeField] private Image _characterIconBG;
+    
     [SerializeField] private Image _hpFill;
-    [SerializeField] private Image _skillGuageFill;
+    
     [SerializeField] private GameObject _swapCooldownRoot;
     [SerializeField] private Image _swapCooldownFill;
     [SerializeField] private TextMeshProUGUI _swapCooldownText;
@@ -34,7 +34,6 @@ public class UIHudPartyEntry : MonoBehaviour
         if (_characterIcon != null && memberData != null)
             _characterIcon.sprite = memberData.GetHeadSprite(type);
 
-        if (_skillGuageFill != null) _skillGuageFill.fillAmount = 0f;
         if (_hpFill != null) _hpFill.fillAmount = 1f;
         if (_glowObject != null) _glowObject.SetActive(false);
         SetSwapCooldown(0f, 0f);
@@ -74,22 +73,7 @@ public class UIHudPartyEntry : MonoBehaviour
 
     public void SetSkillGauge(float current, float max)
     {
-        if (_skillGuageFill == null) return;
-
-        float nextRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
-
-        bool isFullGauge = Mathf.Approximately(nextRatio, 1f);
-        if (_animator != null)
-            _animator.SetBool("IsSkillGaugeFull", isFullGauge);
-
-        if (_glowObject != null)
-            _glowObject.SetActive(isFullGauge);
-
-        if (Mathf.Approximately(_skillTargetRatio, nextRatio)) return;
-
-        _skillTargetRatio = nextRatio;
-        if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
-        _skillGaugeCoroutine = StartCoroutine(SkillGaugeLerpCoroutine());
+        // [TODO] 스킬 게이지 상태에 따라서 UI 처리. 게이지 말고 사용 가능 여부만 표시
     }
 
     public void SetSwapCooldown(float remaining, float duration)
@@ -109,19 +93,5 @@ public class UIHudPartyEntry : MonoBehaviour
             _swapCooldownText.gameObject.SetActive(isVisible);
             _swapCooldownText.text = isVisible ? Mathf.CeilToInt(safeRemaining).ToString() : string.Empty;
         }
-    }
-
-    private IEnumerator SkillGaugeLerpCoroutine()
-    {
-        while (Mathf.Abs(_skillGuageFill.fillAmount - _skillTargetRatio) > 0.001f)
-        {
-            _skillGuageFill.fillAmount = Mathf.Lerp(
-                _skillGuageFill.fillAmount,
-                _skillTargetRatio,
-                Time.deltaTime * _skillFillSpeed);
-            yield return null;
-        }
-
-        _skillGuageFill.fillAmount = _skillTargetRatio;
     }
 }

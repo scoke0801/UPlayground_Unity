@@ -7,6 +7,7 @@ using UPlayGround.Component;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+using UPlayGround.UI.InputPrompt;
 
 class UI_GamePlay : UI_Base
 {
@@ -19,6 +20,7 @@ class UI_GamePlay : UI_Base
     private UI_HudPlayerInfo _hudPlayerInfo;
     private UI_HudParty _hudParty;
     private UI_HudQuest _hudQuest;
+    private UI_HudSkill _hudSkill;
     
     #region UI_Base
 
@@ -36,6 +38,8 @@ class UI_GamePlay : UI_Base
         _hudParty = UIManager.Instance.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HudParty>();
 
         _hudQuest = UIManager.Instance.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
+
+        _hudSkill = UIManager.Instance.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HudSkill>();
 
         UIManager.Instance.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
@@ -55,6 +59,7 @@ class UI_GamePlay : UI_Base
         UIManager.Instance.HideUI(UIKeyType.Minimap);
         UIManager.Instance.HideUI(UIKeyType.HudParty);
         UIManager.Instance.HideUI(UIKeyType.HudQuest);
+        UIManager.Instance.HideUI(UIKeyType.HudSkill);
         UIManager.Instance.HideUI(UIKeyType.OffscreenThreatIndicator);
 
         if (_playerCombat == null)

@@ -135,8 +135,7 @@ namespace UPlayGround.Component
                     continue;
                 }
 
-                if (!CanUseTrail(trail, i)) continue;
-                trail.StopTrail(DefaultFadeOutDuration);
+                StopTrailIfAvailable(trail);
             }
         }
 
@@ -215,6 +214,13 @@ namespace UPlayGround.Component
             if (trail == null || trail.vfxComponent == null) return;
 
             trail.StopTrail(0f);
+        }
+
+        private static void StopTrailIfAvailable(WeaponTrailEffect trail)
+        {
+            if (trail == null || trail.vfxComponent == null) return;
+
+            trail.StopTrail(DefaultFadeOutDuration);
         }
 
         private void TryInstantiateTrailPrefab(WeaponTrailEffect trail)

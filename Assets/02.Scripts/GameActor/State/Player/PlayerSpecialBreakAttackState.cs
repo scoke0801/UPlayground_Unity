@@ -45,7 +45,10 @@ namespace UPlayGround.State
                 ? _target.GetComponent<MonsterActor>() ?? _target.GetComponentInParent<MonsterActor>()
                 : null;
 
-            if (_targetMonster == null || _targetMonster.BreakGauge == null || !_targetMonster.BreakGauge.IsExposed)
+            if (_targetMonster == null
+                || !_targetMonster.CanTakeDamage()
+                || _targetMonster.BreakGauge == null
+                || !_targetMonster.BreakGauge.IsExposed)
             {
                 controller.TransitionToState(new PlayerIdleState(controller));
                 return;

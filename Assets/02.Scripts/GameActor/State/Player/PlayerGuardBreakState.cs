@@ -50,6 +50,9 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (controller.CurrentState != this)
+                return;
+
             if (_animFinished)
             {
                 controller.TransitionToState(new PlayerIdleState(controller));
@@ -77,6 +80,9 @@ namespace UPlayGround.State
         private System.Collections.IEnumerator ReturnToIdleAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
+            if (controller.CurrentState != this)
+                yield break;
+
             controller.TransitionToState(new PlayerIdleState(controller));
         }
     }

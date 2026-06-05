@@ -104,10 +104,10 @@ namespace UPlayGround
         private InputCondition _interactionInputCondition;
         private InputCondition _guardInputCondition;
 
+        // 직접 버튼이 연결된 스킬 슬롯만 보유 (Skill_1, Skill_2). 그 외 스킬은 연계로 발동.
         private List<InputCondition> _skillInputCondition = new List<InputCondition>
         {
-            InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None,
-            InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None, InputCondition.None,
+            InputCondition.None, InputCondition.None,
         };
 
         public override ActorAnimator      Animator              => _playerActorAnimator;
@@ -224,13 +224,7 @@ namespace UPlayGround
                 DashInput        = _dashInputCondition,
                 ChargeAttackHeld = _chargeAttackHeld && _chargeHoldTime >= ChargeThreshold,
                 ChargeHoldTime   = _chargeHoldTime,
-                SkillInput = new List<InputCondition>
-                {
-                    _skillInputCondition[0], _skillInputCondition[1], _skillInputCondition[2],
-                    _skillInputCondition[3], _skillInputCondition[4], _skillInputCondition[5],
-                    _skillInputCondition[6], _skillInputCondition[7], _skillInputCondition[8],
-                    _skillInputCondition[9],
-                },
+                SkillInput = new List<InputCondition>(_skillInputCondition),
             });
 
             _dodgeInputCondition       = InputCondition.None;
@@ -270,13 +264,6 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled,   null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                    OnInputPerformedSkill_3,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                    OnInputPerformedSkill_4,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                    OnInputPerformedSkill_5,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                    OnInputPerformedSkill_6,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                    OnInputPerformedSkill_7,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                    OnInputPerformedSkill_8,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                    OnInputPerformedSkill_9,     null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
@@ -299,13 +286,6 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_3,     null,                    OnInputPerformedSkill_3,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_4,     null,                    OnInputPerformedSkill_4,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_5,     null,                    OnInputPerformedSkill_5,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_6,     null,                    OnInputPerformedSkill_6,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_7,     null,                    OnInputPerformedSkill_7,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_8,     null,                    OnInputPerformedSkill_8,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_9,     null,                    OnInputPerformedSkill_9,     null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard);
@@ -345,7 +325,7 @@ namespace UPlayGround
             if (_chargeAttackHeld && _chargeHoldTime < ChargeThreshold)
             {
                 // 짧은 누름 → 일반 강공격으로 처리 (버퍼에 재추가)
-                InputManager.Instance.InputBuffer.AddInput(PlayerAction.HeavyAttack);
+                InputManager.Instance.InputBuffer.AddInput(PlayerAction.HeavyAttack, bufferTime: 0.24f);
                 _heavyInputCondition = InputCondition.Pressed;
             }
             _chargeAttackHeld = false;
@@ -354,13 +334,6 @@ namespace UPlayGround
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
         private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;
         private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)      => _skillInputCondition[1] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_3(InputAction.CallbackContext obj)      => _skillInputCondition[2] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_4(InputAction.CallbackContext obj)      => _skillInputCondition[3] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_5(InputAction.CallbackContext obj)      => _skillInputCondition[4] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_6(InputAction.CallbackContext obj)      => _skillInputCondition[5] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_7(InputAction.CallbackContext obj)      => _skillInputCondition[6] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_8(InputAction.CallbackContext obj)      => _skillInputCondition[7] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_9(InputAction.CallbackContext obj)      => _skillInputCondition[8] = InputCondition.Pressed;
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)  => _interactionInputCondition = InputCondition.Pressed;
         private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
         private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;

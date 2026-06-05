@@ -23,7 +23,7 @@ MonoBehaviour:
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
-        forceBreakExpose: 0
+        forceBreakExpose: 1
         attackOffset: {x: 0, y: 1, z: 1.5}
         attackRadius: 1.5
         hitHeightRange: 1.2
@@ -34,7 +34,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 101
@@ -57,7 +57,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 102
@@ -80,7 +80,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 103
@@ -120,7 +120,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 104
@@ -160,7 +160,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 105
@@ -183,7 +183,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 106
@@ -223,7 +223,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 107
@@ -280,7 +280,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 108
@@ -303,7 +303,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   - baseInfo:
       animKey: 109
@@ -326,7 +326,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 111
     hitAngle: 60
   heavyComboAttackList:
   - baseInfo:
@@ -350,7 +350,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 93
     hitAngle: 60
   - baseInfo:
       animKey: 201
@@ -373,7 +373,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 93
     hitAngle: 60
   - baseInfo:
       animKey: 202
@@ -396,7 +396,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 93
     hitAngle: 60
   jumpAttackList:
   - baseInfo:
@@ -420,7 +420,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 401
@@ -443,7 +443,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 402
@@ -466,7 +466,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 403
@@ -489,7 +489,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 404
@@ -512,7 +512,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 405
@@ -535,7 +535,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 90
   - baseInfo:
       animKey: 406
@@ -558,7 +558,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 360
   dashAttackList:
   - baseInfo:
@@ -582,7 +582,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 69
     hitAngle: 60
   skillAttackList:
   - baseInfo:
@@ -606,7 +606,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 60
   - baseInfo:
       animKey: 501
@@ -646,7 +646,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 60
   - baseInfo:
       animKey: 502
@@ -737,7 +737,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 60
   - baseInfo:
       animKey: 503
@@ -760,7 +760,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 60
   - baseInfo:
       animKey: 504
@@ -783,7 +783,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 360
   - baseInfo:
       animKey: 505
@@ -806,41 +806,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 0
         victimForcedAnimKey: 0
-    interruptActions: 7
+    interruptActions: 61
     hitAngle: 60
-  comboRoutes:
-  - routeName: New Route 1
-    inputPattern: 00000000000000000000000001000000
-    matchMode: 0
-    requiredTagIds: 
-    blockedTagIds: 
-    groundCondition: 0
-    skillGaugeIndex: 0
-    attackInfo:
-      baseInfo:
-        animKey: 504
-        attackType: 0
-        hitPhases:
-        - damage: 150
-          poiseDamage: 0
-          breakDamage: 0
-          reactionType: 0
-          reactionDuration: 0
-          forceReaction: 0
-          forceBreakExpose: 0
-          attackOffset: {x: 0, y: 0, z: 0}
-          attackRadius: 0
-          hitHeightRange: 0
-          hitParticleName: 
-          pullForce: 0
-          airborneForce: 0
-          knockBackForce: 0
-          knockBackDrag: 0
-          grabDuration: 0
-          victimForcedAnimKey: 0
-      interruptActions: -1
-      hitAngle: 180
-    priority: 0
+  comboRoutes: []
   comboLinkWindow: 1
   counterAttack:
     baseInfo:
@@ -906,6 +874,30 @@ MonoBehaviour:
         attackRadius: 1.5
         hitHeightRange: 1.2
         hitParticleName: DefaultCombatHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  swapEvadeCounterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
         knockBackForce: 10
@@ -992,13 +984,13 @@ MonoBehaviour:
       knockBackDrag: 20
       grabDuration: 0
       victimForcedAnimKey: 0
-    interruptActions: 0
+    interruptActions: 1
     hitAngle: 0
   chargeStageThresholds:
   - 0.3
   - 0.3
   - 0.3
-  chargeInterruptActions: 1
+  chargeInterruptActions: 5
   fullChargeVfxKey: playerFullChargeFX
   fullChargeVfxSocket: 0
   fullChargeVfxOffset: {x: 0, y: 0, z: 0}

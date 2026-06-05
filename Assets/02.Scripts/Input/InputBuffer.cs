@@ -10,18 +10,20 @@ namespace Game.Input
     {
         public string InputName;
         public float Timestamp;
+        public float BufferTime;
         public object Data;
 
-        public BufferedInput(string name, float time, object data = null)
+        public BufferedInput(string name, float time, float bufferTime, object data = null)
         {
             InputName = name;
             Timestamp = time;
+            BufferTime = bufferTime;
             Data = data;
         }
 
-        public bool IsExpired(float bufferTime)
+        public bool IsExpired()
         {
-            return Time.time - Timestamp > bufferTime;
+            return Time.time - Timestamp > BufferTime;
         }
     }
 
@@ -44,7 +46,7 @@ namespace Game.Input
         /// <summary>
         /// 입력 추가
         /// </summary>
-        public void AddInput(string inputName, object data = null)
+        public void AddInput(string inputName, object data = null, float? bufferTime = null)
         {
             // 버퍼 크기 제한
             while (_buffer.Count >= _maxBufferSize)
@@ -52,7 +54,8 @@ namespace Game.Input
                 _buffer.Dequeue();
             }
 
-            _buffer.Enqueue(new BufferedInput(inputName, Time.time, data));
+            float duration = Mathf.Max(0f, bufferTime ?? _bufferTime);
+            _buffer.Enqueue(new BufferedInput(inputName, Time.time, duration, data));
         }
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace Game.Input
             {
                 var input = _buffer.Dequeue();
 
-                if (!input.IsExpired(_bufferTime))
+                if (!input.IsExpired())
                 {
                     tempQueue.Enqueue(input);
                 }
@@ -172,7 +175,7 @@ namespace Game.Input
             Debug.Log($"[InputBuffer] Count: {_buffer.Count}");
             foreach (var input in _buffer)
             {
-                Debug.Log($"  - {input.InputName} ({Time.time - input.Timestamp:F3}s ago)");
+                Debug.Log($"  - {input.InputName} ({Time.time - input.Timestamp:F3}s ago / {input.BufferTime:F3}s)");
             }
         }
     }

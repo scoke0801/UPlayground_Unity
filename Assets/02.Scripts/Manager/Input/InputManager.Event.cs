@@ -124,19 +124,30 @@ namespace UPlayGround.Manager
                     case InputDefine.PlayerAction.Attack:
                     case InputDefine.PlayerAction.HeavyAttack:
                     case InputDefine.PlayerAction.Dodge:
+                    case InputDefine.PlayerAction.Jump:
+                    case InputDefine.PlayerAction.Dash: 
                     case InputDefine.PlayerAction.Skill_1:
                     case InputDefine.PlayerAction.Skill_2:
-                    case InputDefine.PlayerAction.Skill_3:
-                    case InputDefine.PlayerAction.Skill_4:
-                    case InputDefine.PlayerAction.Jump:
-                    case InputDefine.PlayerAction.Dash:
-                    case InputDefine.PlayerAction.PlayerSwap:
-                        _inputBuffer.AddInput(actionName);
+                    case InputDefine.PlayerAction.CharacterSwap_1:
+                    case InputDefine.PlayerAction.CharacterSwap_2:
+                    case InputDefine.PlayerAction.CharacterSwap_3:
+                    case InputDefine.PlayerAction.CharacterSwap_4:
+                        _inputBuffer.AddInput(actionName, bufferTime: GetPlayerActionBufferTime(actionName));
                         break;
                 }
             }
 
             ExecuteCallbacks(context, performCallbackDict);
+        }
+
+        private static float GetPlayerActionBufferTime(string actionName)
+        {
+            return actionName switch
+            {
+                InputDefine.PlayerAction.Attack => 0.24f,
+                InputDefine.PlayerAction.HeavyAttack => 0.24f,
+                _ => 0.15f,
+            };
         }
 
         private void OnInputEventCanceled(InputAction.CallbackContext context)

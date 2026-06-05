@@ -125,3 +125,7 @@ MonoBehaviour:
     prefab: {fileID: 6521251916219708486, guid: cb14e14086ec7ef4ca48f8f4a332f3a6, type: 3}
     defaultLayer: 10000
     description: 
+  - key: BreakInteraction
+    prefab: {fileID: 3283549912916363737, guid: 6fc8acba835ffc740ae8c4e30970695f, type: 3}
+    defaultLayer: 10000
+    description: 

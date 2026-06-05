@@ -37,7 +37,7 @@ namespace UPlayGround.Editor
                 IsRepeatable = true,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Kill("obj_kill_skeleton_patrol", "길목의 Skeleton을 처치한다.", ActorIdType.SkeletonCommon, 5)
+                    ObjectiveSeed.Kill("obj_kill_skeleton_patrol", "길목의 Skeleton을 처치한다.", ActorIdType._100005, 5)
                 },
                 Dialogues = new[]
                 {

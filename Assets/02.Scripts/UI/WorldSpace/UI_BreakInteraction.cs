@@ -84,12 +84,10 @@ public class UI_BreakInteraction : MonoBehaviour
         _canvasGroup.alpha = behindCamera ? 0f : 1f;
         if (behindCamera) return;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            _parentCanvasRect,
-            screenPos,
-            null,
-            out var localPoint);
-        _rect.anchoredPosition = localPoint;
+        // UI_InteractionKey와 같은 방식으로 화면 좌표를 직접 반영한다.
+        // 현재 프리팹 루트가 좌하단 anchor/pivot이므로 anchoredPosition에
+        // 부모 로컬 좌표를 넣으면 기준점 차이만큼 위치가 밀린다.
+        _rect.position = screenPos;
     }
 
     private void UpdatePulse()

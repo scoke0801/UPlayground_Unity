@@ -460,12 +460,15 @@ namespace UPlayGround.Editor
         {
             data.chargeStages ??= new List<ChargeStageData>();
 
+            data.chargeInterruptActions = GetDefaultChargeHoldInterruptActions();
+
             if (data.chargeStages.Count == 0)
                 data.chargeStages.Add(new ChargeStageData());
 
             for (int i = 0; i < data.chargeStages.Count; i++)
             {
                 ChargeStageData stage = data.chargeStages[i];
+                stage.interruptActions = GetDefaultChargeStageInterruptActions(i, data.chargeStages.Count);
                 SyncHitPhases(stage, entry.PhaseCount);
                 if (applyDamage)
                     ApplyBalancedDamage(stage, entry, overwriteDamage, i, data.chargeStages.Count);
@@ -501,11 +504,54 @@ namespace UPlayGround.Editor
         private void ReplacePlayerAttack(PlayerAttackInfo attack, ScanEntry entry)
         {
             attack.baseInfo = CreateBaseInfo(entry);
-            // 약공/스킬은 기존 동작 보존을 위해 Dodge|Jump|Dash 캔슬 허용, 그 외는 캔슬 불가.
-            attack.interruptActions = entry.Category is AttackCategory.Light or AttackCategory.Skill
-                ? PlayerInterruptAction.Dodge | PlayerInterruptAction.Jump | PlayerInterruptAction.Dash
-                : PlayerInterruptAction.None;
+            attack.interruptActions = GetDefaultInterruptActions(entry.Category);
             attack.hitAngle = entry.Category is AttackCategory.Jump ? 90f : 60f;
+        }
+
+        private static PlayerInterruptAction GetDefaultInterruptActions(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light =>
+                    PlayerInterruptAction.Dodge |
+                    PlayerInterruptAction.Jump |
+                    PlayerInterruptAction.Dash |
+                    PlayerInterruptAction.Guard |
+                    PlayerInterruptAction.HeavyAttack |
+                    PlayerInterruptAction.Skill,
+
+                AttackCategory.Heavy =>
+                    PlayerInterruptAction.Dodge |
+                    PlayerInterruptAction.Dash |
+                    PlayerInterruptAction.Guard |
+                    PlayerInterruptAction.LightAttack |
+                    PlayerInterruptAction.Skill,
+
+                AttackCategory.Skill =>
+                    PlayerInterruptAction.Dodge |
+                    PlayerInterruptAction.Dash |
+                    PlayerInterruptAction.Guard |
+                    PlayerInterruptAction.LightAttack |
+                    PlayerInterruptAction.HeavyAttack,
+
+                AttackCategory.Dash or AttackCategory.Jump =>
+                    PlayerInterruptAction.Dodge |
+                    PlayerInterruptAction.Dash |
+                    PlayerInterruptAction.Skill,
+
+                _ => PlayerInterruptAction.None,
+            };
+        }
+
+        private static PlayerInterruptAction GetDefaultChargeHoldInterruptActions()
+            => PlayerInterruptAction.Dodge | PlayerInterruptAction.Dash;
+
+        private static PlayerInterruptAction GetDefaultChargeStageInterruptActions(int stageIndex, int stageCount)
+        {
+            bool isFinalStage = stageCount > 0 && stageIndex >= stageCount - 1;
+            return isFinalStage
+                ? PlayerInterruptAction.Dodge
+                : PlayerInterruptAction.Dodge | PlayerInterruptAction.Dash | PlayerInterruptAction.Skill;
         }
 
         private void ReplaceEnemyAttack(EnemyAttackInfo attack, ScanEntry entry)

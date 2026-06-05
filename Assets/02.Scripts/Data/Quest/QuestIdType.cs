@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-05-23 00:22
+// Generated: 2026-06-05 14:29
 namespace UPlayGround.Data.Quest
 {
     /// <summary>QuestIdType — Quest ID 키 열거형 (자동 생성)</summary>
@@ -9,17 +9,18 @@ namespace UPlayGround.Data.Quest
         None = 0,
         TestQuest_001 = 1,
         main_001 = 2,
-        quest_main_001 = 3,
-        quest_main_002 = 4,
-        quest_main_003 = 5,
-        quest_main_004 = 6,
-        quest_main_005 = 7,
-        quest_sub_guide_broken_lantern = 8,
-        quest_sub_herbalist_lake_herb = 9,
-        quest_sub_highland_golem_trace = 10,
-        quest_sub_hunter_skeleton_patrol = 11,
-        quest_sub_hunter_spider_web = 12,
-        quest_sub_survivor_lost_pack = 13,
+        main_002 = 3,
+        quest_main_001 = 4,
+        quest_main_002 = 5,
+        quest_main_003 = 6,
+        quest_main_004 = 7,
+        quest_main_005 = 8,
+        quest_sub_guide_broken_lantern = 9,
+        quest_sub_herbalist_lake_herb = 10,
+        quest_sub_highland_golem_trace = 11,
+        quest_sub_hunter_skeleton_patrol = 12,
+        quest_sub_hunter_spider_web = 13,
+        quest_sub_survivor_lost_pack = 14,
     }
 
     public static class QuestIdTypeExtensions
@@ -29,6 +30,7 @@ namespace UPlayGround.Data.Quest
         {
             QuestIdType.TestQuest_001 => "TestQuest_001",
             QuestIdType.main_001 => "main_001",
+            QuestIdType.main_002 => "main_002",
             QuestIdType.quest_main_001 => "quest_main_001",
             QuestIdType.quest_main_002 => "quest_main_002",
             QuestIdType.quest_main_003 => "quest_main_003",

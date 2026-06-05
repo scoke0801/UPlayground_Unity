@@ -210,33 +210,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill_3"",
-                    ""type"": ""Button"",
-                    ""id"": ""4318244c-319e-4264-ad6a-75c64f263b5c"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Skill_4"",
-                    ""type"": ""Button"",
-                    ""id"": ""b732cc03-39aa-4de4-bb8c-a7a7c5df99a9"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Skill_5"",
-                    ""type"": ""Button"",
-                    ""id"": ""4c83a734-e804-4ba2-a63d-1487c5afca71"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Equip"",
                     ""type"": ""Button"",
                     ""id"": ""5b1fc20b-22f5-4a76-892c-be1896a3d7d3"",
@@ -249,24 +222,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""LockOn"",
                     ""type"": ""Button"",
                     ""id"": ""b4119bce-6ea6-4971-ab32-b5d887f20d31"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LockOnSwitchLeft"",
-                    ""type"": ""Button"",
-                    ""id"": ""7630cf83-1181-4a33-916d-508009be2096"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LockOnSwitchRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""30369c77-49cc-4be2-bc78-cee46ba9f532"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -291,45 +246,54 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill_6"",
+                    ""name"": ""CharacterSwap_1"",
                     ""type"": ""Button"",
-                    ""id"": ""db2ca061-bf43-45dd-a5e2-1ee6021b52c9"",
+                    ""id"": ""81ba1bbf-9745-4bfd-b304-378dafbf4b4c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill_7"",
+                    ""name"": ""CharacterSwap_2"",
                     ""type"": ""Button"",
-                    ""id"": ""f54c9641-133b-43b0-bee4-09f2e9df0fbb"",
+                    ""id"": ""ceff4819-e6a7-4687-99f7-280504dd26b8"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill_8"",
+                    ""name"": ""CharacterSwap_3"",
                     ""type"": ""Button"",
-                    ""id"": ""974de6eb-726d-4c4a-8a47-1eea92182310"",
+                    ""id"": ""a8e24341-0d8f-461b-b608-885f37ab5c11"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Skill_9"",
+                    ""name"": ""CharacterSwap_4"",
                     ""type"": ""Button"",
-                    ""id"": ""a27b571b-6ec4-4978-ab02-7e7af37df12f"",
+                    ""id"": ""388032e9-eca1-4b3a-84e3-394f9a6a74ed"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""PlayerSwap"",
+                    ""name"": ""LockOnSwitchRight"",
                     ""type"": ""Button"",
-                    ""id"": ""c1a2b3d4-e5f6-7890-abcd-ef1234567890"",
+                    ""id"": ""f96a9bdf-e913-41f4-823d-952c5ef4c5f3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockOnSwitchLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""24f35fff-41db-4c25-844f-8496fd08ec7c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -394,8 +358,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""aaa2cb27-6edf-4427-a647-43864c2dda0d"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""d0c7d302-e9e2-40ad-8d63-887464ec4015"",
                     ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""80d24822-8e8d-4d11-b37a-6c0695b5e88e"",
+                    ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -416,12 +402,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""3c4a2251-40dc-48f8-ac84-2756d4bde264"",
-                    ""path"": ""<Keyboard>/z"",
+                    ""id"": ""04cc35f5-cf51-48aa-b67c-d0065565a87b"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Walk"",
+                    ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -437,6 +423,39 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""9791e039-649c-4112-b2ce-2f4a010977d3"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""11c7781b-08ef-4d43-be3e-cff0088d679a"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""e50200bd-3e85-4b64-9ba4-93e448a78297"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""3838dffb-1036-474a-a81b-011d31cda57a"",
                     ""path"": ""<Mouse>/leftButton"",
@@ -450,7 +469,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""f3b951b4-a5ef-47b8-8b1b-fcbe3525a0a5"",
-                    ""path"": ""<Keyboard>/g"",
+                    ""path"": ""<Gamepad>/buttonWest"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -472,7 +491,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""d251b3a0-f572-43fc-be1d-ee45d32c3aef"",
-                    ""path"": ""<Keyboard>/h"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -493,8 +512,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""2864268f-6298-4d61-af08-f7915f56505d"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""6c9906ec-a9f5-4e8f-8df1-5c1e9760d69b"",
-                    ""path"": ""<Keyboard>/1"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Skill_1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""581d7791-a39b-4f5f-b87a-a93c722879fc"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -505,7 +546,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""7e0f51cd-ed6f-4856-a9cf-a36a2f895711"",
-                    ""path"": ""<Keyboard>/2"",
+                    ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -515,30 +556,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""30bb4498-2c54-43bb-a1b5-dcf49747c468"",
-                    ""path"": ""<Keyboard>/3"",
+                    ""id"": ""b3788895-483c-4d1c-8e90-bb1a9ecae79c"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_3"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c2bafdb8-9806-41cd-a763-e182a40f6f51"",
-                    ""path"": ""<Keyboard>/4"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Skill_4"",
+                    ""action"": ""Skill_2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""70ff4f6a-6fc9-4ccf-85b7-2a8b3e53df14"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""37a4de6f-cd1c-4b2d-87bf-7467ea7d5aef"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -559,17 +600,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""a6925f45-d826-459d-9ee0-3b3c58269316"",
-                    ""path"": ""<Keyboard>/c"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Crouching"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""2ca92e52-f38b-49c8-8403-e4d08c5987f5"",
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
@@ -582,7 +612,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4315b456-ff1a-498b-96f5-57cce731f1a3"",
-                    ""path"": ""<Keyboard>/tab"",
+                    ""path"": ""<Mouse>/middleButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -592,23 +622,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""3f821e27-d095-40ec-b0b2-93bef28630c2"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""id"": ""54d577ee-7eae-4001-b8f9-07201c3943ac"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LockOnSwitchLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""6fb26c1b-995a-4982-becb-336c9b919a50"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""LockOnSwitchRight"",
+                    ""action"": ""LockOn"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -625,8 +644,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""70481b3e-1098-4800-bc79-e4b486f7e294"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Guard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""6f7ecc45-09f1-40a5-9ffc-9590f888c95d"",
-                    ""path"": ""<Keyboard>/x"",
+                    ""path"": ""<Keyboard>/shift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -636,67 +666,133 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""08561d15-7e45-45a3-b5d0-12ad409c8e75"",
-                    ""path"": ""<Keyboard>/5"",
+                    ""id"": ""1295ebee-bfe0-47e6-9044-1390c77a395d"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_5"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""5c048cea-c625-4a23-83df-c17f7d3d2b79"",
-                    ""path"": ""<Keyboard>/6"",
+                    ""id"": ""75c83444-ba75-4332-82ae-b0c85915ec2b"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_6"",
+                    ""action"": ""CharacterSwap_1"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d138f10e-0c6e-46cd-aebc-3f96f83fba37"",
-                    ""path"": ""<Keyboard>/7"",
+                    ""id"": ""f129e161-a9d2-4d16-926b-c2e777d558d9"",
+                    ""path"": ""<Gamepad>/dpad/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_7"",
+                    ""action"": ""CharacterSwap_1"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""cbd060bd-2ad5-458b-ac98-21ba7d1f6080"",
-                    ""path"": ""<Keyboard>/8"",
+                    ""id"": ""ba8af3c8-3357-437d-885a-c723d2624425"",
+                    ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_8"",
+                    ""action"": ""CharacterSwap_2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""903020ab-e522-46de-8271-1c3f2f8756ce"",
-                    ""path"": ""<Keyboard>/9"",
+                    ""id"": ""bdab30c6-aa16-4921-9f5f-7dc917445ee7"",
+                    ""path"": ""<Gamepad>/dpad/right"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Skill_9"",
+                    ""action"": ""CharacterSwap_2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e3c4d5f6-a7b8-9012-cdef-012345678902"",
-                    ""path"": ""<Keyboard>/b"",
+                    ""id"": ""3b9c2635-cc95-4086-a033-ffc2ee89cd3a"",
+                    ""path"": ""<Keyboard>/3"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""PlayerSwap"",
+                    ""action"": ""CharacterSwap_3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""90acbe5b-fa71-4d61-b61a-799736389e1b"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CharacterSwap_3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""20a8ce67-3321-4165-bb4d-0613254f4d6d"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CharacterSwap_4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6d646e2d-4473-4655-8e59-26011a64b366"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CharacterSwap_4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aaad64a6-1aa2-4c58-b109-eb72bcd5909b"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOnSwitchRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4d353f57-890a-4184-8bc3-7a42d4a6105b"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOnSwitchRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f678eeb0-a079-4f13-bd50-dca5d9cc3295"",
+                    ""path"": ""<Gamepad>/rightStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOnSwitchLeft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1345,20 +1441,16 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Interact = m_PlayerAction.FindAction("Interact", throwIfNotFound: true);
         m_PlayerAction_Skill_1 = m_PlayerAction.FindAction("Skill_1", throwIfNotFound: true);
         m_PlayerAction_Skill_2 = m_PlayerAction.FindAction("Skill_2", throwIfNotFound: true);
-        m_PlayerAction_Skill_3 = m_PlayerAction.FindAction("Skill_3", throwIfNotFound: true);
-        m_PlayerAction_Skill_4 = m_PlayerAction.FindAction("Skill_4", throwIfNotFound: true);
-        m_PlayerAction_Skill_5 = m_PlayerAction.FindAction("Skill_5", throwIfNotFound: true);
         m_PlayerAction_Equip = m_PlayerAction.FindAction("Equip", throwIfNotFound: true);
         m_PlayerAction_LockOn = m_PlayerAction.FindAction("LockOn", throwIfNotFound: true);
-        m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
-        m_PlayerAction_LockOnSwitchRight = m_PlayerAction.FindAction("LockOnSwitchRight", throwIfNotFound: true);
         m_PlayerAction_Guard = m_PlayerAction.FindAction("Guard", throwIfNotFound: true);
         m_PlayerAction_Dash = m_PlayerAction.FindAction("Dash", throwIfNotFound: true);
-        m_PlayerAction_Skill_6 = m_PlayerAction.FindAction("Skill_6", throwIfNotFound: true);
-        m_PlayerAction_Skill_7 = m_PlayerAction.FindAction("Skill_7", throwIfNotFound: true);
-        m_PlayerAction_Skill_8 = m_PlayerAction.FindAction("Skill_8", throwIfNotFound: true);
-        m_PlayerAction_Skill_9 = m_PlayerAction.FindAction("Skill_9", throwIfNotFound: true);
-        m_PlayerAction_PlayerSwap = m_PlayerAction.FindAction("PlayerSwap", throwIfNotFound: true);
+        m_PlayerAction_CharacterSwap_1 = m_PlayerAction.FindAction("CharacterSwap_1", throwIfNotFound: true);
+        m_PlayerAction_CharacterSwap_2 = m_PlayerAction.FindAction("CharacterSwap_2", throwIfNotFound: true);
+        m_PlayerAction_CharacterSwap_3 = m_PlayerAction.FindAction("CharacterSwap_3", throwIfNotFound: true);
+        m_PlayerAction_CharacterSwap_4 = m_PlayerAction.FindAction("CharacterSwap_4", throwIfNotFound: true);
+        m_PlayerAction_LockOnSwitchRight = m_PlayerAction.FindAction("LockOnSwitchRight", throwIfNotFound: true);
+        m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1488,20 +1580,16 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Interact;
     private readonly InputAction m_PlayerAction_Skill_1;
     private readonly InputAction m_PlayerAction_Skill_2;
-    private readonly InputAction m_PlayerAction_Skill_3;
-    private readonly InputAction m_PlayerAction_Skill_4;
-    private readonly InputAction m_PlayerAction_Skill_5;
     private readonly InputAction m_PlayerAction_Equip;
     private readonly InputAction m_PlayerAction_LockOn;
-    private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
-    private readonly InputAction m_PlayerAction_LockOnSwitchRight;
     private readonly InputAction m_PlayerAction_Guard;
     private readonly InputAction m_PlayerAction_Dash;
-    private readonly InputAction m_PlayerAction_Skill_6;
-    private readonly InputAction m_PlayerAction_Skill_7;
-    private readonly InputAction m_PlayerAction_Skill_8;
-    private readonly InputAction m_PlayerAction_Skill_9;
-    private readonly InputAction m_PlayerAction_PlayerSwap;
+    private readonly InputAction m_PlayerAction_CharacterSwap_1;
+    private readonly InputAction m_PlayerAction_CharacterSwap_2;
+    private readonly InputAction m_PlayerAction_CharacterSwap_3;
+    private readonly InputAction m_PlayerAction_CharacterSwap_4;
+    private readonly InputAction m_PlayerAction_LockOnSwitchRight;
+    private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1566,18 +1654,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Skill_2 => m_Wrapper.m_PlayerAction_Skill_2;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_3".
-        /// </summary>
-        public InputAction @Skill_3 => m_Wrapper.m_PlayerAction_Skill_3;
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_4".
-        /// </summary>
-        public InputAction @Skill_4 => m_Wrapper.m_PlayerAction_Skill_4;
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_5".
-        /// </summary>
-        public InputAction @Skill_5 => m_Wrapper.m_PlayerAction_Skill_5;
-        /// <summary>
         /// Provides access to the underlying input action "PlayerAction/Equip".
         /// </summary>
         public InputAction @Equip => m_Wrapper.m_PlayerAction_Equip;
@@ -1585,14 +1661,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerAction/LockOn".
         /// </summary>
         public InputAction @LockOn => m_Wrapper.m_PlayerAction_LockOn;
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchLeft".
-        /// </summary>
-        public InputAction @LockOnSwitchLeft => m_Wrapper.m_PlayerAction_LockOnSwitchLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchRight".
-        /// </summary>
-        public InputAction @LockOnSwitchRight => m_Wrapper.m_PlayerAction_LockOnSwitchRight;
         /// <summary>
         /// Provides access to the underlying input action "PlayerAction/Guard".
         /// </summary>
@@ -1602,25 +1670,29 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Dash => m_Wrapper.m_PlayerAction_Dash;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_6".
+        /// Provides access to the underlying input action "PlayerAction/CharacterSwap_1".
         /// </summary>
-        public InputAction @Skill_6 => m_Wrapper.m_PlayerAction_Skill_6;
+        public InputAction @CharacterSwap_1 => m_Wrapper.m_PlayerAction_CharacterSwap_1;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_7".
+        /// Provides access to the underlying input action "PlayerAction/CharacterSwap_2".
         /// </summary>
-        public InputAction @Skill_7 => m_Wrapper.m_PlayerAction_Skill_7;
+        public InputAction @CharacterSwap_2 => m_Wrapper.m_PlayerAction_CharacterSwap_2;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_8".
+        /// Provides access to the underlying input action "PlayerAction/CharacterSwap_3".
         /// </summary>
-        public InputAction @Skill_8 => m_Wrapper.m_PlayerAction_Skill_8;
+        public InputAction @CharacterSwap_3 => m_Wrapper.m_PlayerAction_CharacterSwap_3;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Skill_9".
+        /// Provides access to the underlying input action "PlayerAction/CharacterSwap_4".
         /// </summary>
-        public InputAction @Skill_9 => m_Wrapper.m_PlayerAction_Skill_9;
+        public InputAction @CharacterSwap_4 => m_Wrapper.m_PlayerAction_CharacterSwap_4;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/PlayerSwap".
+        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchRight".
         /// </summary>
-        public InputAction @PlayerSwap => m_Wrapper.m_PlayerAction_PlayerSwap;
+        public InputAction @LockOnSwitchRight => m_Wrapper.m_PlayerAction_LockOnSwitchRight;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/LockOnSwitchLeft".
+        /// </summary>
+        public InputAction @LockOnSwitchLeft => m_Wrapper.m_PlayerAction_LockOnSwitchLeft;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1686,48 +1758,36 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_2.started += instance.OnSkill_2;
             @Skill_2.performed += instance.OnSkill_2;
             @Skill_2.canceled += instance.OnSkill_2;
-            @Skill_3.started += instance.OnSkill_3;
-            @Skill_3.performed += instance.OnSkill_3;
-            @Skill_3.canceled += instance.OnSkill_3;
-            @Skill_4.started += instance.OnSkill_4;
-            @Skill_4.performed += instance.OnSkill_4;
-            @Skill_4.canceled += instance.OnSkill_4;
-            @Skill_5.started += instance.OnSkill_5;
-            @Skill_5.performed += instance.OnSkill_5;
-            @Skill_5.canceled += instance.OnSkill_5;
             @Equip.started += instance.OnEquip;
             @Equip.performed += instance.OnEquip;
             @Equip.canceled += instance.OnEquip;
             @LockOn.started += instance.OnLockOn;
             @LockOn.performed += instance.OnLockOn;
             @LockOn.canceled += instance.OnLockOn;
-            @LockOnSwitchLeft.started += instance.OnLockOnSwitchLeft;
-            @LockOnSwitchLeft.performed += instance.OnLockOnSwitchLeft;
-            @LockOnSwitchLeft.canceled += instance.OnLockOnSwitchLeft;
-            @LockOnSwitchRight.started += instance.OnLockOnSwitchRight;
-            @LockOnSwitchRight.performed += instance.OnLockOnSwitchRight;
-            @LockOnSwitchRight.canceled += instance.OnLockOnSwitchRight;
             @Guard.started += instance.OnGuard;
             @Guard.performed += instance.OnGuard;
             @Guard.canceled += instance.OnGuard;
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
-            @Skill_6.started += instance.OnSkill_6;
-            @Skill_6.performed += instance.OnSkill_6;
-            @Skill_6.canceled += instance.OnSkill_6;
-            @Skill_7.started += instance.OnSkill_7;
-            @Skill_7.performed += instance.OnSkill_7;
-            @Skill_7.canceled += instance.OnSkill_7;
-            @Skill_8.started += instance.OnSkill_8;
-            @Skill_8.performed += instance.OnSkill_8;
-            @Skill_8.canceled += instance.OnSkill_8;
-            @Skill_9.started += instance.OnSkill_9;
-            @Skill_9.performed += instance.OnSkill_9;
-            @Skill_9.canceled += instance.OnSkill_9;
-            @PlayerSwap.started += instance.OnPlayerSwap;
-            @PlayerSwap.performed += instance.OnPlayerSwap;
-            @PlayerSwap.canceled += instance.OnPlayerSwap;
+            @CharacterSwap_1.started += instance.OnCharacterSwap_1;
+            @CharacterSwap_1.performed += instance.OnCharacterSwap_1;
+            @CharacterSwap_1.canceled += instance.OnCharacterSwap_1;
+            @CharacterSwap_2.started += instance.OnCharacterSwap_2;
+            @CharacterSwap_2.performed += instance.OnCharacterSwap_2;
+            @CharacterSwap_2.canceled += instance.OnCharacterSwap_2;
+            @CharacterSwap_3.started += instance.OnCharacterSwap_3;
+            @CharacterSwap_3.performed += instance.OnCharacterSwap_3;
+            @CharacterSwap_3.canceled += instance.OnCharacterSwap_3;
+            @CharacterSwap_4.started += instance.OnCharacterSwap_4;
+            @CharacterSwap_4.performed += instance.OnCharacterSwap_4;
+            @CharacterSwap_4.canceled += instance.OnCharacterSwap_4;
+            @LockOnSwitchRight.started += instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.performed += instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.canceled += instance.OnLockOnSwitchRight;
+            @LockOnSwitchLeft.started += instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.performed += instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.canceled += instance.OnLockOnSwitchLeft;
         }
 
         /// <summary>
@@ -1778,48 +1838,36 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Skill_2.started -= instance.OnSkill_2;
             @Skill_2.performed -= instance.OnSkill_2;
             @Skill_2.canceled -= instance.OnSkill_2;
-            @Skill_3.started -= instance.OnSkill_3;
-            @Skill_3.performed -= instance.OnSkill_3;
-            @Skill_3.canceled -= instance.OnSkill_3;
-            @Skill_4.started -= instance.OnSkill_4;
-            @Skill_4.performed -= instance.OnSkill_4;
-            @Skill_4.canceled -= instance.OnSkill_4;
-            @Skill_5.started -= instance.OnSkill_5;
-            @Skill_5.performed -= instance.OnSkill_5;
-            @Skill_5.canceled -= instance.OnSkill_5;
             @Equip.started -= instance.OnEquip;
             @Equip.performed -= instance.OnEquip;
             @Equip.canceled -= instance.OnEquip;
             @LockOn.started -= instance.OnLockOn;
             @LockOn.performed -= instance.OnLockOn;
             @LockOn.canceled -= instance.OnLockOn;
-            @LockOnSwitchLeft.started -= instance.OnLockOnSwitchLeft;
-            @LockOnSwitchLeft.performed -= instance.OnLockOnSwitchLeft;
-            @LockOnSwitchLeft.canceled -= instance.OnLockOnSwitchLeft;
-            @LockOnSwitchRight.started -= instance.OnLockOnSwitchRight;
-            @LockOnSwitchRight.performed -= instance.OnLockOnSwitchRight;
-            @LockOnSwitchRight.canceled -= instance.OnLockOnSwitchRight;
             @Guard.started -= instance.OnGuard;
             @Guard.performed -= instance.OnGuard;
             @Guard.canceled -= instance.OnGuard;
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
-            @Skill_6.started -= instance.OnSkill_6;
-            @Skill_6.performed -= instance.OnSkill_6;
-            @Skill_6.canceled -= instance.OnSkill_6;
-            @Skill_7.started -= instance.OnSkill_7;
-            @Skill_7.performed -= instance.OnSkill_7;
-            @Skill_7.canceled -= instance.OnSkill_7;
-            @Skill_8.started -= instance.OnSkill_8;
-            @Skill_8.performed -= instance.OnSkill_8;
-            @Skill_8.canceled -= instance.OnSkill_8;
-            @Skill_9.started -= instance.OnSkill_9;
-            @Skill_9.performed -= instance.OnSkill_9;
-            @Skill_9.canceled -= instance.OnSkill_9;
-            @PlayerSwap.started -= instance.OnPlayerSwap;
-            @PlayerSwap.performed -= instance.OnPlayerSwap;
-            @PlayerSwap.canceled -= instance.OnPlayerSwap;
+            @CharacterSwap_1.started -= instance.OnCharacterSwap_1;
+            @CharacterSwap_1.performed -= instance.OnCharacterSwap_1;
+            @CharacterSwap_1.canceled -= instance.OnCharacterSwap_1;
+            @CharacterSwap_2.started -= instance.OnCharacterSwap_2;
+            @CharacterSwap_2.performed -= instance.OnCharacterSwap_2;
+            @CharacterSwap_2.canceled -= instance.OnCharacterSwap_2;
+            @CharacterSwap_3.started -= instance.OnCharacterSwap_3;
+            @CharacterSwap_3.performed -= instance.OnCharacterSwap_3;
+            @CharacterSwap_3.canceled -= instance.OnCharacterSwap_3;
+            @CharacterSwap_4.started -= instance.OnCharacterSwap_4;
+            @CharacterSwap_4.performed -= instance.OnCharacterSwap_4;
+            @CharacterSwap_4.canceled -= instance.OnCharacterSwap_4;
+            @LockOnSwitchRight.started -= instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.performed -= instance.OnLockOnSwitchRight;
+            @LockOnSwitchRight.canceled -= instance.OnLockOnSwitchRight;
+            @LockOnSwitchLeft.started -= instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.performed -= instance.OnLockOnSwitchLeft;
+            @LockOnSwitchLeft.canceled -= instance.OnLockOnSwitchLeft;
         }
 
         /// <summary>
@@ -2517,27 +2565,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkill_2(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill_3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_3(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Skill_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_4(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Skill_5" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_5(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Equip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -2551,20 +2578,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLockOn(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LockOnSwitchLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLockOnSwitchLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LockOnSwitchRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLockOnSwitchRight(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Guard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -2580,40 +2593,47 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDash(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill_6" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "CharacterSwap_1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_6(InputAction.CallbackContext context);
+        void OnCharacterSwap_1(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill_7" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "CharacterSwap_2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_7(InputAction.CallbackContext context);
+        void OnCharacterSwap_2(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill_8" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "CharacterSwap_3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_8(InputAction.CallbackContext context);
+        void OnCharacterSwap_3(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Skill_9" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "CharacterSwap_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkill_9(InputAction.CallbackContext context);
+        void OnCharacterSwap_4(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "PlayerSwap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "LockOnSwitchRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPlayerSwap(InputAction.CallbackContext context);
+        void OnLockOnSwitchRight(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LockOnSwitchLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLockOnSwitchLeft(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

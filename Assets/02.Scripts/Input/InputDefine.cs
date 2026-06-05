@@ -25,13 +25,6 @@
         
         public const string Skill_1 = "Skill_1";
         public const string Skill_2 = "Skill_2";
-        public const string Skill_3 = "Skill_3";
-        public const string Skill_4 = "Skill_4";
-        public const string Skill_5 = "Skill_5";
-        public const string Skill_6 = "Skill_6";
-        public const string Skill_7 = "Skill_7";
-        public const string Skill_8 = "Skill_8";
-        public const string Skill_9 = "Skill_9";
         
         public const string Interact = "Interact";
         
@@ -43,7 +36,10 @@
         
         public const string Guard = "Guard";
 
-        public const string PlayerSwap = "PlayerSwap";
+        public const string CharacterSwap_1 = "CharacterSwap_1";
+        public const string CharacterSwap_2 = "CharacterSwap_2";
+        public const string CharacterSwap_3 = "CharacterSwap_3";
+        public const string CharacterSwap_4 = "CharacterSwap_4";
     }
 
     public static class SystemAction

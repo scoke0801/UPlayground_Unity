@@ -45,7 +45,16 @@ namespace UPlayGround.Manager
 
         [SerializeField] private float _swapCooldown = 0.5f;
         [SerializeField] private float _partySkillGaugeChargePerPlayerHit = 5f;
-
+        
+        // 키 N → BattleOrder N-1번째 캐릭터로 지정 스왑 (CharacterSwap_1 = 0번 슬롯/리더).
+        private static readonly (string Action, int BattleIndex)[] SwapInputs =
+        {
+            (PlayerAction.CharacterSwap_1, 0),
+            (PlayerAction.CharacterSwap_2, 1),
+            (PlayerAction.CharacterSwap_3, 2),
+            (PlayerAction.CharacterSwap_4, 3),
+        };
+        
         public event Action<PlayerActor, PlayerActor> OnSwapStarted;
         public event Action<PlayerActor>              OnSwapCompleted;
         public event Action<CharacterActorType>       OnCharacterUnlocked;
@@ -174,11 +183,15 @@ namespace UPlayGround.Manager
 
             var buffer = InputManager.Instance?.InputBuffer;
             if (buffer == null) return;
-
-            if (buffer.HasInput(PlayerAction.PlayerSwap))
+            
+            foreach (var input in SwapInputs)
             {
-                buffer.ConsumeInput(PlayerAction.PlayerSwap);
-                RequestSwapNext();
+                if (!buffer.HasInput(input.Action))
+                    continue;
+
+                buffer.ConsumeInput(input.Action);
+                RequestSwapTo(input.BattleIndex);
+                break;
             }
         }
 
@@ -199,20 +212,6 @@ namespace UPlayGround.Manager
         }
 
         // ─── 교체 요청 ────────────────────────────────────────────────────
-
-        public bool RequestSwapNext()
-        {
-            if (_battleOrder.Count < 2) return false;
-
-            for (int offset = 1; offset < _battleOrder.Count; offset++)
-            {
-                int targetIndex = (_activeIndex + offset) % _battleOrder.Count;
-                if (RequestSwapTo(targetIndex))
-                    return true;
-            }
-
-            return false;
-        }
 
         public bool RequestSwapTo(int targetIndex)
         {
@@ -840,29 +839,47 @@ namespace UPlayGround.Manager
 
         // ─── 입력 등록 ────────────────────────────────────────────────────
 
+        // Register/Unregister가 동일 델리게이트 참조를 써야 하므로 슬롯별 핸들러를 캐싱한다.
+        private readonly Dictionary<string, Action<InputAction.CallbackContext>> _swapHandlers = new();
+
         private void RegisterSwapInputs()
         {
             if (!InputManager.Instance) return;
 
-            InputManager.Instance.RegisterInputEvent(
-                InputMapNames.PlayerAction, PlayerAction.PlayerSwap,
-                null, OnPlayerSwapPerformed, null,
-                null, null, InputLayer.Level_0);
+            foreach (var input in SwapInputs)
+            {
+                var handler = GetOrCreateSwapHandler(input.Action, input.BattleIndex);
+                InputManager.Instance.RegisterInputEvent(
+                    InputMapNames.PlayerAction, input.Action,
+                    null, handler, null, null, null, InputLayer.Level_0);
+            }
         }
 
         private void UnregisterSwapInputs()
         {
             if (!InputManager.Instance) return;
 
-            InputManager.Instance.UnRegisterInputEvent(
-                InputMapNames.PlayerAction, PlayerAction.PlayerSwap,
-                null, OnPlayerSwapPerformed, null);
+            foreach (var input in SwapInputs)
+            {
+                if (!_swapHandlers.TryGetValue(input.Action, out var handler)) continue;
+                InputManager.Instance.UnRegisterInputEvent(
+                    InputMapNames.PlayerAction, input.Action,
+                    null, handler, null);
+            }
         }
 
-        private void OnPlayerSwapPerformed(InputAction.CallbackContext ctx)
+        private Action<InputAction.CallbackContext> GetOrCreateSwapHandler(string action, int battleIndex)
         {
-            if (RequestSwapNext())
-                InputManager.Instance?.InputBuffer.ConsumeInput(PlayerAction.PlayerSwap);
+            if (_swapHandlers.TryGetValue(action, out var existing))
+                return existing;
+
+            Action<InputAction.CallbackContext> handler = _ =>
+            {
+                if (RequestSwapTo(battleIndex))
+                    InputManager.Instance?.InputBuffer.ConsumeInput(action);
+            };
+            _swapHandlers[action] = handler;
+            return handler;
         }
     }
 }

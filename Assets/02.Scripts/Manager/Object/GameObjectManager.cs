@@ -9,6 +9,7 @@ namespace UPlayGround.Manager
     {
         private PlayerActor _player;
         private List<GameActor> _allActors = new List<GameActor>();
+        private Coroutine _resetTimeScaleCoroutine;
 
         public PlayerActor Player => _player;
         public IReadOnlyList<GameActor> AllActors => _allActors;
@@ -79,7 +80,15 @@ namespace UPlayGround.Manager
 
             if (duration > 0f)
             {
-                StartCoroutine(ResetTimeScaleCoroutine(duration));
+                if (_resetTimeScaleCoroutine != null)
+                    StopCoroutine(_resetTimeScaleCoroutine);
+
+                _resetTimeScaleCoroutine = StartCoroutine(ResetTimeScaleCoroutine(duration));
+            }
+            else if (Mathf.Approximately(timeScale, 1.0f) && _resetTimeScaleCoroutine != null)
+            {
+                StopCoroutine(_resetTimeScaleCoroutine);
+                _resetTimeScaleCoroutine = null;
             }
         }
 
@@ -91,6 +100,7 @@ namespace UPlayGround.Manager
         private System.Collections.IEnumerator ResetTimeScaleCoroutine(float delay)
         {
             yield return new WaitForSecondsRealtime(delay);
+            _resetTimeScaleCoroutine = null;
             SetGlobalTimeScaleExceptPlayer(1.0f);
         }
 

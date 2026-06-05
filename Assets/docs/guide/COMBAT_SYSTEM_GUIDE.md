@@ -364,11 +364,15 @@ finalDamage = attackData.damage
 
 ### 공격 중 패리
 
-`PlayerActor.TryParry()`는 다음 조건에서 몬스터 공격을 패리한다.
+피격 시 `DefenseResolver.ResolvePlayerDefense()`가 다음 조건에서 패리(`DefenseOutcome.Parried`)를 판정하고, `PlayerActor.TakeDamage()`가 `OnParrySuccess()`를 호출한다.
 
 - 현재 상태 이름이 `"Attack"`
 - `PlayerCombat.IsPossibleCollide == true`
 - 현재 공격 종류가 `AttackKind.NormalAttack`
+- 들어온 공격의 `defenseType`이 패리 가능(`CombatDefensePolicySO.CanParry`)
+- 들어온 공격이 투사체/AOE가 아님 (`AttackData.isProjectile == false`) — 투사체·AOE는 패리/카운터 불가
+
+> 디버그 치트 `CheatManager.IsAlwaysParryEnabled`가 켜져 있으면 상태/공격 종류 조건을 무시하고 패리하지만, 투사체/AOE 제외 규칙은 그대로 적용된다.
 
 패리 성공 시:
 

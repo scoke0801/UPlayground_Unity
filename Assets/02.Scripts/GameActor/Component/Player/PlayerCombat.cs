@@ -70,13 +70,13 @@ namespace UPlayGround.Component
 
         [Header("Homing — Search Range")]
         [Tooltip("락온 상태: 호밍 탐색 반경")]
-        [SerializeField] private float _lockOnSnapSearchRange = 2f;
+        [SerializeField] private float _lockOnSnapSearchRange = 8f;
         [Tooltip("락온 상태: 호밍 탐색 각도")]
         [SerializeField] private float _lockOnSnapSearchAngle = 60f;
 
         [Space(4)]
         [Tooltip("자유 전투: 호밍 탐색 반경")]
-        [SerializeField] private float _freeSnapSearchRange = 3.5f;
+        [SerializeField] private float _freeSnapSearchRange = 5f;
         [Tooltip("자유 전투: 호밍 탐색 각도")]
         [SerializeField] private float _freeSnapSearchAngle = 80f;
 
@@ -84,9 +84,9 @@ namespace UPlayGround.Component
         [Tooltip("워프 최소 거리. 이 거리 이내의 적에게는 워프 미적용 (씹힘 방지)")]
         [SerializeField] private float _warpMinDistance = 0.3f;
         [Tooltip("워프 최대 거리. 이 거리를 초과한 적에게는 워프 미적용")]
-        [SerializeField] private float _warpMaxDistance = 4f;
+        [SerializeField] private float _warpMaxDistance = 7f;
         [Tooltip("워프 최대 속도. 클램프 후 남은 시간 내 도달 불가 거리면 워프 자체를 미적용")]
-        [SerializeField] private float _warpMaxSpeed    = 18f;
+        [SerializeField] private float _warpMaxSpeed    = 22f;
 
         public float WarpMinDistance => _warpMinDistance;
         public float WarpMaxDistance => _warpMaxDistance;
@@ -197,11 +197,15 @@ namespace UPlayGround.Component
         [SerializeField] private float _perfectGuardCounterWindow = 1.5f;
         [Tooltip("패리 후 반격 입력을 받는 창 길이 (초)")]
         [SerializeField] private float _parryCounterWindow = 1.5f;
+        [Tooltip("퍼펙트 회피 후 회피 카운터 입력을 받는 창 길이 (초)")]
+        [SerializeField] private float _dodgeCounterWindow = 1.2f;
 
         private int   _guardHitCount;
         private float _guardEndTime = -999f;
         private float _perfectGuardCounterEndTime = -999f;
         private float _parryCounterEndTime = -999f;
+        private float _dodgeCounterEndTime = -999f;
+        private GameActor _dodgeCounterTarget;
 
         public bool IsGuardBroken { get; private set; }
         public int  GuardHitCount => _guardHitCount;
@@ -211,8 +215,11 @@ namespace UPlayGround.Component
         public bool IsPerfectGuardCounterAvailable => Time.time <= _perfectGuardCounterEndTime;
 
         /// <summary> 퍼펙트 가드 성공 시 호출. 반격 입력 창을 연다. </summary>
-        public void OpenPerfectGuardCounterWindow()
-            => _perfectGuardCounterEndTime = Time.time + _perfectGuardCounterWindow;
+        public void OpenPerfectGuardCounterWindow(float durationOverride = -1f)
+        {
+            float duration = durationOverride > 0f ? durationOverride : _perfectGuardCounterWindow;
+            _perfectGuardCounterEndTime = Time.time + Mathf.Max(0f, duration);
+        }
 
         /// <summary> 반격 창을 즉시 닫는다 (반격 실행 후 중복 방지) </summary>
         public void ClosePerfectGuardCounterWindow()
@@ -222,12 +229,40 @@ namespace UPlayGround.Component
         public bool IsParryCounterAvailable => Time.time <= _parryCounterEndTime;
 
         /// <summary> 패리 성공 시 호출. 반격 입력 창을 연다. </summary>
-        public void OpenParryCounterWindow()
-            => _parryCounterEndTime = Time.time + _parryCounterWindow;
+        public void OpenParryCounterWindow(float durationOverride = -1f)
+        {
+            float duration = durationOverride > 0f ? durationOverride : _parryCounterWindow;
+            _parryCounterEndTime = Time.time + Mathf.Max(0f, duration);
+        }
 
         /// <summary> 패리 반격 창을 즉시 닫는다 </summary>
         public void CloseParryCounterWindow()
             => _parryCounterEndTime = -999f;
+
+        public bool IsDodgeCounterAvailable => Time.time <= _dodgeCounterEndTime;
+        public GameActor DodgeCounterTarget => IsDodgeCounterAvailable ? _dodgeCounterTarget : null;
+
+        public void OpenDodgeCounterWindow(AttackData incomingAttack, float durationOverride = -1f)
+        {
+            float duration = durationOverride > 0f ? durationOverride : _dodgeCounterWindow;
+            _dodgeCounterEndTime = Time.time + Mathf.Max(0f, duration);
+            _dodgeCounterTarget = incomingAttack?.attacker;
+        }
+
+        public bool ConsumeDodgeCounterWindow()
+        {
+            if (!IsDodgeCounterAvailable)
+                return false;
+
+            CloseDodgeCounterWindow();
+            return true;
+        }
+
+        public void CloseDodgeCounterWindow()
+        {
+            _dodgeCounterEndTime = -999f;
+            _dodgeCounterTarget = null;
+        }
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int        CurrentComboIndex { get; private set; }

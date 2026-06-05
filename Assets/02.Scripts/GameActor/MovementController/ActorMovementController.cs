@@ -595,6 +595,14 @@ namespace UPlayGround.MovementController
         public float WarpRemainingTime => _warpRemainingTime;
         public float WarpDuration      => _warpTotalDuration;
 
+        // 매 프레임 갱신되는 클립 재생 속도 배율. 외부(AttackState)에서 ActorAnimator.Speed 에 적용해 풋슬라이딩을 줄인다.
+        // 피드백 루프 차단: DeltaPosition 에 이미 반영된 이전 K(_prevWarpK)로 역산해 Speed=1 기준 속도를 도출한 뒤
+        // desiredSpeed / baseSpeed 로 새 K를 계산 → 캐시/사전 베이크 불필요, 첫 프레임부터 동작.
+        public float WarpPlayRateScale { get; private set; } = 1f;
+        private float _prevWarpK = 1f;
+        private const float WarpPlayRateMin = 0.5f;
+        private const float WarpPlayRateMax = 1.2f;
+
         private Vector3 GetCurrentTargetPosition()
         {
             if (!_activeTarget.IsValid) return Vector3.zero;
@@ -737,6 +745,10 @@ namespace UPlayGround.MovementController
             _hasActiveTotal = _hasActiveWarpKey
                               && _rootTotalCache.TryGetValue(_activeWarpKey, out _activeTotal)
                               && _activeTotal.IsValid;
+
+            // K는 EvaluateVelocity 에서 매 프레임 갱신 — 여기서는 초기화만.
+            WarpPlayRateScale = 1f;
+            _prevWarpK = 1f;
         }
 
         // 현재 재생 중인 액션 정체성(ActorAnimator) + 윈도우 시간으로 캐시 키 조립.
@@ -779,6 +791,8 @@ namespace UPlayGround.MovementController
             _feasibilityChecked = false;
             _isApplicable = false;
             _lastFailureReason = string.Empty;
+            WarpPlayRateScale = 1f;
+            _prevWarpK = 1f;
         }
 
         public void SetTarget(Transform target, bool useSnapshot = true)
@@ -1046,6 +1060,21 @@ namespace UPlayGround.MovementController
                     blended.y = Mathf.Lerp(rootVelocity.y, matchYSpeed, _blendWeight * translationWeight * eased);
                 }
             }
+
+            // ── 재생 속도 배율 갱신 (캐시 불필요, 매 프레임) ────────────────────────────────
+            // DeltaPosition 에는 이전 프레임에 설정한 Graph.Speed(= _prevWarpK)가 이미 곱해져 있다.
+            // _prevWarpK 로 역산해 Speed=1 기준 기저 속도를 구한 뒤 desiredSpeed / baseSpeed 로 K 계산.
+            // 1-프레임 래그(이전 K 역산)는 안정적이며 플레이어에게 보이지 않는다.
+            float rawHorizSpeed = rawHoriz.magnitude;
+            if (rawHorizSpeed > 0.001f && remainingTime > 0.01f)
+            {
+                float baseHorizSpeed = rawHorizSpeed / _prevWarpK;
+                float desiredHorizSpeed = remainingDist / remainingTime;
+                float newK = Mathf.Clamp(desiredHorizSpeed / baseHorizSpeed, WarpPlayRateMin, WarpPlayRateMax);
+                WarpPlayRateScale = newK;
+                _prevWarpK = newK;
+            }
+            // ──────────────────────────────────────────────────────────────────────────────
 
             return blended;
         }

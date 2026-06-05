@@ -89,8 +89,8 @@ namespace Game.Editor.P09Builder
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
         {
-            // 런타임 전투 스탯(ActorStatSO)은 P09에서 생성하지 않는다.
-            // statData는 Stat Data Generator(중앙)에서 등급 템플릿으로 일괄 발급·관리한다.
+            // 런타임 전투 스탯(ActorStatSO)은 SyncActorDatabaseStep에서
+            // ActorDefinitionSO의 monsterScaling/등급/레벨/무기 프로필 기준으로 발급·갱신한다.
 
             // Poise: createNewPoise=true일 때만 생성
             if (config != null && config.Stats != null && config.Stats.createNewPoise)

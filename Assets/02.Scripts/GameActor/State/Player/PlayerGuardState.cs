@@ -122,7 +122,6 @@ namespace UPlayGround.State
                 {
                     InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
                     _combat.ClosePerfectGuardCounterWindow();
-                    GameCombatManager.Instance.GameHitStop.Stop();
                     return;
                 }
                 // 진입 실패: 추가했던 카운터 태그를 원복.
@@ -189,10 +188,14 @@ namespace UPlayGround.State
             if (isPerfectGuard)
             {
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
-                GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.PerfectGuard, spawnPos);
-                GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
-
-                CameraManager.Instance?.CombatCamera?.PlayPerfectGuard(incomingAttack, CameraShakeIdType.CriticalHit);
+                var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
+                defenseFeedback?.Play(
+                    DefenseSuccessType.PerfectGuard,
+                    new DefenseSuccessFeedbackContext(
+                        playerActor,
+                        incomingAttack?.attacker,
+                        incomingAttack,
+                        spawnPos));
 
                 // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
                 // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)
@@ -204,7 +207,8 @@ namespace UPlayGround.State
                         monster?.OnParried();
                     }
 
-                    _combat.OpenPerfectGuardCounterWindow();
+                    _combat.OpenPerfectGuardCounterWindow(
+                        defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.PerfectGuard) ?? -1f);
                 }
             }
             else

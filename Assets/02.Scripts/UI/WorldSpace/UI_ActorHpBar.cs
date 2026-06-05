@@ -75,12 +75,12 @@ public class UI_ActorHpBar : MonoBehaviour
         
         if (_fillPoiseDelayImage != null) _fillPoiseDelayImage.fillAmount = 1f;
         if (_fillPoiseImage != null) _fillPoiseImage.fillAmount = 1f;
-        if (_fillBreakGaugeImage != null) _fillBreakGaugeImage.fillAmount = 1f;
+        if (_fillBreakGaugeImage != null) _fillBreakGaugeImage.fillAmount = 0f;
         SetBreakGaugeEmptyUiActive(false);
         
         _targetHpFill = 1f;
         _targetPoiseFill = 1f;
-        _targetBreakFill = 1f;
+        _targetBreakFill = 0f;
 
         _levelText.text = $"Lv. {level}";
 
@@ -207,7 +207,7 @@ public class UI_ActorHpBar : MonoBehaviour
 
         Show();
 
-        _targetBreakFill = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+        _targetBreakFill = max > 0f ? 1f - Mathf.Clamp01(current / max) : 1f;
         _fillBreakGaugeImage.fillAmount = _targetBreakFill;
     }
 

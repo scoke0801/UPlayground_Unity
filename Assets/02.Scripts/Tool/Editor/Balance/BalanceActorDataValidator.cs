@@ -34,8 +34,14 @@ namespace UPlayGround.Tool.Editor.Balance
             bool isMonster = (actor.actorType & ActorType.Monster) != 0;
             if (isMonster)
             {
+                if (actor.monsterScaling == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "monsterScaling이 비어 있어 몬스터 Growth 기준을 명시적으로 추적할 수 없습니다."));
+
                 if (actor.attackData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 attackData가 비어 있습니다."));
+
+                if (actor.breakGaugeData == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "breakGaugeData가 비어 있어 브레이크 시간/노출 보너스 분석을 할 수 없습니다."));
 
                 if (actor.behaviorData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "behaviorData가 비어 있어 BT/Intent 분석을 할 수 없습니다."));
@@ -177,6 +183,16 @@ namespace UPlayGround.Tool.Editor.Balance
             if (result.TopAttackDpsShare > 0.35f && !string.IsNullOrEmpty(result.TopAttackName))
                 result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning,
                     $"'{result.TopAttackName}' 단일 공격이 전체 적 DPS의 {result.TopAttackDpsShare * 100f:F0}%를 차지합니다 (권장 35% 이하)."));
+
+            if (result.MonsterBreakGauge > 0f)
+            {
+                if (result.PlayerExpectedBreakDps <= 0f)
+                    result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning,
+                        "몬스터는 Break Gauge를 사용하지만 플레이어 공격 데이터의 breakDamage 합산이 0입니다."));
+                else if (result.EstimatedTimeToBreak > result.TargetDuration)
+                    result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Info,
+                        $"예상 브레이크 시간이 {result.EstimatedTimeToBreak:F1}s로 기준 시간 {result.TargetDuration:F1}s보다 깁니다."));
+            }
         }
     }
 }

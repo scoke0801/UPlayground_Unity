@@ -206,8 +206,8 @@ namespace UPlayGround.Data.Event
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.25f;
-                    settings.maxDistance = 4f;
-                    settings.maxSpeed = 18f;
+                    settings.maxDistance = 7f;
+                    settings.maxSpeed = 22f;
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildLightCurve();
                     break;
@@ -222,8 +222,8 @@ namespace UPlayGround.Data.Event
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.35f;
-                    settings.maxDistance = 5f;
-                    settings.maxSpeed = 16f;
+                    settings.maxDistance = 8f;
+                    settings.maxSpeed = 20f;
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildHeavyCurve();
                     break;
@@ -236,8 +236,8 @@ namespace UPlayGround.Data.Event
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.1f;
-                    settings.maxDistance = 3f;
-                    settings.maxSpeed = 12f;
+                    settings.maxDistance = 5f;
+                    settings.maxSpeed = 16f;
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildFinishCurve();
                     break;
@@ -252,8 +252,8 @@ namespace UPlayGround.Data.Event
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
                     settings.minDistance = 0.05f;
-                    settings.maxDistance = 2f;
-                    settings.maxSpeed = 10f;
+                    settings.maxDistance = 3f;
+                    settings.maxSpeed = 12f;
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildLightCurve();
                     break;

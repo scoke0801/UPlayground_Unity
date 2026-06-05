@@ -57,7 +57,7 @@ namespace UPlayGround.Combat
                 return new DefenseResult(DefenseOutcome.Guarded, false);
             }
 
-            if (CanParry(query, defenseType))
+            if (CanParry(query, defenseType, attackData))
                 return new DefenseResult(DefenseOutcome.Parried, false);
 
             if (!query.CanTakeDamage)
@@ -77,8 +77,12 @@ namespace UPlayGround.Combat
                 : DefenseResult.None;
         }
 
-        private static bool CanParry(in PlayerDefenseQuery query, AttackDefenseType defenseType)
+        private static bool CanParry(in PlayerDefenseQuery query, AttackDefenseType defenseType, AttackData attackData)
         {
+            // 투사체/AOE는 전달 방식 자체가 패리·카운터 대상이 아니다(디버그 AlwaysParry보다 우선).
+            if (attackData != null && attackData.isProjectile)
+                return false;
+
             if (query.AlwaysParry)
                 return CombatPolicyResolver.CanParry(query.Policy, defenseType);
 

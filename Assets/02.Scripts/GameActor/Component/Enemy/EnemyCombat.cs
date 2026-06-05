@@ -71,6 +71,8 @@ namespace UPlayGround.Component
 
         [Header("Telegraph Settings")]
         [SerializeField] private bool _alignTelegraphToGround = true;
+        [Tooltip("켜면 Parryable 공격은 useDangerRing이 꺼져 있어도 Weakness Halo를 표시한다. 기존 데이터는 defenseType 기본값이 Parryable이므로 기본값은 꺼둔다.")]
+        [SerializeField] private bool _autoDangerRingForParryable = false;
         [SerializeField] private LayerMask _telegraphGroundLayers = -1;
         [SerializeField] private float _telegraphGroundProbeHeight = 2f;
         [SerializeField] private float _telegraphGroundProbeDistance = 6f;
@@ -519,8 +521,23 @@ namespace UPlayGround.Component
                 BeginGroundTelegraph(clampedHitPhaseIndex, lockPositionOnStart);
 
             // 분기 2: Danger Ring UI — useDangerRing 일 때만 (텔레그래프와 무관)
-            if (_currentSkill.useDangerRing)
+            if (ShouldShowDangerRing(_currentSkill))
                 BeginDangerRing();
+        }
+
+        private bool ShouldShowDangerRing(EnemyAttackInfo skill)
+        {
+            if (skill == null)
+                return false;
+
+            if (skill.useDangerRing)
+                return true;
+
+            Debug.Log($"{_ownerActor.name}, " +
+                      $"{skill.baseInfo.animKey}, " +
+                      $"ShouldShowDangerRing: {_autoDangerRingForParryable && skill.defenseType == AttackDefenseType.Parryable}");
+            return _autoDangerRingForParryable
+                   && skill.defenseType == AttackDefenseType.Parryable;
         }
 
         private void BeginGroundTelegraph(int clampedHitPhaseIndex, bool lockPositionOnStart)

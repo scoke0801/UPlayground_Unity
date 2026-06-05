@@ -79,6 +79,7 @@ namespace Game.Editor.P09Builder
 
             var kindFolder = CharacterNameGenerator.GetKindFolderName(config.ActorKind);
             var previewFolder = PathConfig.GetPrefabFolder(
+                config.SaveBaseFolder,
                 kindFolder,
                 _window != null ? _window.PreviewName : "<name>");
             EditorGUILayout.LabelField("Resolved", previewFolder, EditorStyles.miniLabel);

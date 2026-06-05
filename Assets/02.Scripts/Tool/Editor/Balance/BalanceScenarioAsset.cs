@@ -16,7 +16,7 @@ namespace UPlayGround.Tool.Editor.Balance
         [Min(1)] public int playerLevel = 1;
         [Tooltip("playerStatData가 없을 때 사용하는 플레이어 공격력 배율")]
         [Min(0f)] public float manualPlayerAttackPower = 1f;
-        [Min(0f)] public float manualPlayerDps = 18f;
+        [Min(0f)] public float manualPlayerDps = 45f;
         [Min(0.05f)] public float playerAttackInterval = 1.2f;
 
         [Header("Encounter")]

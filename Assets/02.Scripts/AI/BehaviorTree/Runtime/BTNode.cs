@@ -16,6 +16,9 @@ namespace UPlayGround.AI.BehaviorTree
 
         [NonSerialized] private bool _started;
         [NonSerialized] private BehaviorTreeContext _context;
+        // 틱마다 반복되던 런타임 캐스팅(this as ...)을 Initialize 시점 1회 캐싱으로 대체
+        [NonSerialized] private BTCompositeNode _compositeSelf;
+        [NonSerialized] private BTConditionNode _conditionSelf;
 
         public string Guid
         {
@@ -68,14 +71,16 @@ namespace UPlayGround.AI.BehaviorTree
             _context = context;
             _started = false;
             LastStatus = BTStatus.Failure;
+            _compositeSelf = this as BTCompositeNode;
+            _conditionSelf = this as BTConditionNode;
             OnInitialize();
 
             foreach (var child in _children)
                 child?.Initialize(context);
 
-            if (this is BTCompositeNode composite)
+            if (_compositeSelf != null)
             {
-                foreach (var service in composite.Services)
+                foreach (var service in _compositeSelf.Services)
                     service?.Initialize(context);
             }
         }
@@ -89,7 +94,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return LastStatus;
             }
 
-            var compositeSelf = this as BTCompositeNode;
+            var compositeSelf = _compositeSelf;
             if (!_started)
             {
                 _started = true;
@@ -104,9 +109,9 @@ namespace UPlayGround.AI.BehaviorTree
             compositeSelf?.TickServices();
 
             LastStatus = OnUpdate();
-            if (this is BTConditionNode conditionNode)
+            if (_conditionSelf != null)
             {
-                conditionNode.SetAbortEvaluation(LastStatus);
+                _conditionSelf.SetAbortEvaluation(LastStatus);
             }
             _context?.DebugTrace?.Record(this, "Tick", LastStatus);
 

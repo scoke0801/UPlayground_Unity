@@ -8,8 +8,8 @@ namespace Game.Editor.P09Builder
     public class StatsAssignment
     {
         // ---------- Enemy ----------
-        // 체력/방어 등 런타임 스탯(ActorStatSO)은 P09에서 발급하지 않는다.
-        // Stat Data Generator(중앙)가 등급 템플릿으로 일괄 관리하므로 여기엔 스탯 베이스 필드가 없다.
+        // 체력/방어 등 런타임 스탯(ActorStatSO)은 P09 빌드 말미에
+        // MonsterScalingSO/등급/레벨/무기 프로필 기준으로 발급·갱신한다.
         public bool createNewPoise = true;
         public ScriptableObject existingPoiseSo;
         public float defaultMaxPoise = 100f;
@@ -49,7 +49,7 @@ namespace Game.Editor.P09Builder
 
     /// <summary>
     /// 공격 데이터(EnemyAttackDataSO) 생성 시 적용할 공격 배율을 계산한다.
-    /// 체력/이동 등 런타임 스탯 튜닝은 Stat Data Generator(중앙)로 이관됐으므로 더 이상 다루지 않는다.
+    /// 체력/이동 등 런타임 스탯 튜닝은 MonsterScalingSO 기반 생성 경로가 담당하므로 여기서는 공격 배율만 다룬다.
     /// </summary>
     internal static class EnemyStatTuningUtility
     {

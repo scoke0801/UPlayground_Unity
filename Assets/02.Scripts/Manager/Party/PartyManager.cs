@@ -8,6 +8,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 
 namespace UPlayGround.Manager
@@ -566,6 +567,9 @@ namespace UPlayGround.Manager
             _growthLookup.TryGetValue(type, out var growth);
             return PartyPowerCalculator.Calculate(type, growth, level);
         }
+
+        public IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type)
+            => GetCombatPower(type).GrowthStats;
 
         public long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null)
         {

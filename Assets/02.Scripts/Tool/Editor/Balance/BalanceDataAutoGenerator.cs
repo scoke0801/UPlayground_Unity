@@ -35,6 +35,8 @@ namespace UPlayGround.Tool.Editor.Balance
             bool isMonster = (actor.actorType & ActorType.Monster) != 0;
             if (actor.statData == null)
                 return true;
+            if (isMonster && actor.monsterScaling == null)
+                return true;
             if (isMonster && actor.attackData == null)
                 return true;
             if (isMonster && actor.behaviorData == null)
@@ -45,7 +47,10 @@ namespace UPlayGround.Tool.Editor.Balance
             return false;
         }
 
-        public static GenerationSummary GenerateMissing(ActorDefinitionSO actor)
+        public static GenerationSummary GenerateMissing(
+            ActorDefinitionSO actor,
+            BalanceScenarioAsset scenario = null,
+            BalanceScenarioInput fallbackInput = default)
         {
             var summary = new GenerationSummary();
             if (actor == null)
@@ -59,6 +64,14 @@ namespace UPlayGround.Tool.Editor.Balance
             Undo.RecordObject(actor, "Generate Missing Balance Data");
             var serializedActor = new SerializedObject(actor);
             ActorStatSO statForAttackGeneration = actor.statData;
+            bool isMonster = (actor.actorType & ActorType.Monster) != 0;
+
+            if (isMonster && actor.monsterScaling == null)
+            {
+                MonsterScalingSO scaling = FindOrCreateScaling();
+                if (scaling != null)
+                    serializedActor.FindProperty("monsterScaling").objectReferenceValue = scaling;
+            }
 
             if (actor.statData == null)
             {
@@ -70,10 +83,9 @@ namespace UPlayGround.Tool.Editor.Balance
                 summary.CreatedCount++;
             }
 
-            bool isMonster = (actor.actorType & ActorType.Monster) != 0;
             if (isMonster && actor.attackData == null)
             {
-                EnemyAttackDataSO attackData = CreateEnemyAttackData(actor, statForAttackGeneration, summary);
+                EnemyAttackDataSO attackData = CreateEnemyAttackData(actor, statForAttackGeneration, summary, scenario, fallbackInput);
                 string path = CreateAsset(attackData, AttackPath, $"EnemyAttackData_{GetSafeId(actor)}");
                 serializedActor.FindProperty("attackData").objectReferenceValue = attackData;
                 summary.AttackDataPath = path;
@@ -113,7 +125,20 @@ namespace UPlayGround.Tool.Editor.Balance
         private static ActorStatSO CreateStatData(ActorDefinitionSO actor)
         {
             var stat = ScriptableObject.CreateInstance<ActorStatSO>();
-            ApplyStatTemplate(stat, actor != null ? actor.grade : MonsterActorGrade.Normal);
+            MonsterScalingSO scaling = actor != null && actor.monsterScaling != null
+                ? actor.monsterScaling
+                : FindOrCreateScaling();
+
+            if (scaling != null)
+            {
+                Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(scaling, actor);
+                foreach (KeyValuePair<StatType, float> pair in values)
+                    stat.EditorSet(pair.Key, pair.Value);
+            }
+            else
+            {
+                ApplyStatTemplate(stat, actor != null ? actor.grade : MonsterActorGrade.Normal);
+            }
 
             if (actor?.poiseData != null)
             {
@@ -126,15 +151,23 @@ namespace UPlayGround.Tool.Editor.Balance
             return stat;
         }
 
-        private static EnemyAttackDataSO CreateEnemyAttackData(ActorDefinitionSO actor, ActorStatSO statData, GenerationSummary summary)
+        private static EnemyAttackDataSO CreateEnemyAttackData(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            GenerationSummary summary,
+            BalanceScenarioAsset scenario,
+            BalanceScenarioInput fallbackInput)
         {
             var data = ScriptableObject.CreateInstance<EnemyAttackDataSO>();
             data.globalCooldown = actor != null && actor.grade == MonsterActorGrade.Boss ? 0.8f : 1f;
+            GenerationCombatContext context = BuildGenerationContext(actor, statData, scenario, fallbackInput);
 
             if (TryFindMotionSet(actor, out ActorAnimationMotionSet motionSet, out string source) &&
-                TryPopulateEnemyAttacksFromMotionSet(data, actor, statData, motionSet, out int generatedCount))
+                TryPopulateEnemyAttacksFromMotionSet(data, actor, statData, motionSet, context, out int generatedCount))
             {
-                summary.MotionSetSource = source;
+                summary.MotionSetSource = context.UsesScenarioTarget
+                    ? $"{source} / 플레이어 기준 피해 {context.BaseAttackDamage:F1}"
+                    : source;
                 summary.GeneratedAttackSkillCount = generatedCount;
                 return data;
             }
@@ -148,7 +181,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     attackType = AttackType.Melee,
                     hitPhases = new List<HitPhaseData>
                     {
-                        new HitPhaseData { damage = CalculateStoredDamage(actor, statData, GetDefaultAttackDamage(actor)), poiseDamage = 30f, breakDamage = 0f }
+                        new HitPhaseData { damage = CalculateStoredDamage(actor, statData, context.BaseAttackDamage), poiseDamage = 30f, breakDamage = 0f }
                     }
                 },
                 skillType = SkillType.Attack,
@@ -220,15 +253,17 @@ namespace UPlayGround.Tool.Editor.Balance
             ActorDefinitionSO actor,
             ActorStatSO statData,
             ActorAnimationMotionSet motionSet,
+            GenerationCombatContext context,
             out int generatedCount)
         {
             generatedCount = 0;
             data.skills ??= new List<EnemyAttackInfo>();
 
             List<MotionScanEntry> entries = CollectMotionScanEntries(motionSet);
+            context = ResolveMotionContext(actor, statData, data.globalCooldown, entries, context);
             foreach (MotionScanEntry entry in entries)
             {
-                data.skills.Add(CreateEnemyAttackFromMotion(actor, statData, entry));
+                data.skills.Add(CreateEnemyAttackFromMotion(actor, statData, entry, context));
                 generatedCount++;
             }
 
@@ -360,7 +395,11 @@ namespace UPlayGround.Tool.Editor.Balance
             return Mathf.Max(collisions.Count, maxIndex + 1);
         }
 
-        private static EnemyAttackInfo CreateEnemyAttackFromMotion(ActorDefinitionSO actor, ActorStatSO statData, MotionScanEntry entry)
+        private static EnemyAttackInfo CreateEnemyAttackFromMotion(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            MotionScanEntry entry,
+            GenerationCombatContext context)
         {
             return new EnemyAttackInfo
             {
@@ -368,7 +407,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 {
                     animKey = entry.Key,
                     attackType = entry.IsProjectileOnly ? AttackType.Ranged : AttackType.Melee,
-                    hitPhases = CreateHitPhases(actor, statData, entry)
+                    hitPhases = CreateHitPhases(actor, statData, entry, context)
                 },
                 skillType = SkillType.Attack,
                 attackCategory = ToEnemyAttackCategory(entry.Category),
@@ -384,10 +423,14 @@ namespace UPlayGround.Tool.Editor.Balance
             };
         }
 
-        private static List<HitPhaseData> CreateHitPhases(ActorDefinitionSO actor, ActorStatSO statData, MotionScanEntry entry)
+        private static List<HitPhaseData> CreateHitPhases(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            MotionScanEntry entry,
+            GenerationCombatContext context)
         {
             int phaseCount = Mathf.Max(1, entry.PhaseCount);
-            float totalDamage = CalculateMotionDamage(actor, statData, entry);
+            float totalDamage = CalculateMotionDamage(actor, statData, entry, context);
             float totalWeight = 0f;
             var weights = new float[phaseCount];
 
@@ -412,9 +455,20 @@ namespace UPlayGround.Tool.Editor.Balance
             return phases;
         }
 
-        private static float CalculateMotionDamage(ActorDefinitionSO actor, ActorStatSO statData, MotionScanEntry entry)
+        private static float CalculateMotionDamage(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            MotionScanEntry entry,
+            GenerationCombatContext context)
         {
-            float baseDamage = GetDefaultAttackDamage(actor);
+            float baseDamage = context.BaseAttackDamage > 0f ? context.BaseAttackDamage : GetDefaultAttackDamage(actor);
+            float motionUnit = CalculateMotionDamageUnit(entry);
+
+            return Mathf.Max(1f, baseDamage * motionUnit);
+        }
+
+        private static float CalculateMotionDamageUnit(MotionScanEntry entry)
+        {
             float categoryMultiplier = entry.Category switch
             {
                 AttackCategory.Heavy => 1.55f,
@@ -427,25 +481,82 @@ namespace UPlayGround.Tool.Editor.Balance
             float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * 0.08f;
             float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * 0.15f;
             float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
-            float statLevelMultiplier = GetStatLevelDamageMultiplier(actor, statData);
+            return categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation;
+        }
 
-            return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
+        private static GenerationCombatContext BuildGenerationContext(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            BalanceScenarioAsset scenario,
+            BalanceScenarioInput fallbackInput)
+        {
+            float targetDuration = scenario != null
+                ? Mathf.Max(1f, scenario.targetDuration)
+                : Mathf.Max(1f, fallbackInput.TargetDuration > 0f ? fallbackInput.TargetDuration : 30f);
+
+            float playerHealth = scenario?.playerStatData != null
+                ? Mathf.Max(1f, scenario.playerStatData.GetBase(StatType.MaxHealth))
+                : Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxHealth));
+
+            float playerDefense = scenario?.playerStatData != null
+                ? Mathf.Clamp01(scenario.playerStatData.GetBase(StatType.Defense))
+                : Mathf.Clamp01(ActorStatSO.GetDefault(StatType.Defense));
+
+            return new GenerationCombatContext
+            {
+                BaseAttackDamage = GetDefaultAttackDamage(actor),
+                TargetEnemyDps = playerHealth / targetDuration,
+                PlayerDefense = playerDefense,
+                HitReceiveRate = scenario != null ? scenario.hitReceiveRate : 0.45f,
+                DodgeSuccessRate = scenario != null ? scenario.dodgeSuccessRate : 0.15f,
+                ParrySuccessRate = scenario != null ? scenario.parrySuccessRate : 0.05f,
+                UsesScenarioTarget = scenario != null || fallbackInput.TargetDuration > 0f,
+            };
+        }
+
+        private static GenerationCombatContext ResolveMotionContext(
+            ActorDefinitionSO actor,
+            ActorStatSO statData,
+            float globalCooldown,
+            List<MotionScanEntry> entries,
+            GenerationCombatContext context)
+        {
+            if (!context.UsesScenarioTarget || entries == null || entries.Count == 0 || context.TargetEnemyDps <= 0f)
+                return context;
+
+            float totalWeight = 0f;
+            for (int i = 0; i < entries.Count; i++)
+                totalWeight += Mathf.Max(0f, GetEnemySelectionWeight(actor, entries[i].Category));
+
+            if (totalWeight <= 0f)
+                return context;
+
+            float attackPower = statData != null
+                ? Mathf.Max(0.01f, statData.GetBase(StatType.AttackPower))
+                : ActorStatSO.GetDefault(StatType.AttackPower);
+            float defenseMultiplier = 1f - Mathf.Clamp01(context.PlayerDefense);
+            float avoidMultiplier = Mathf.Clamp01(context.HitReceiveRate) * (1f - Mathf.Clamp01(context.DodgeSuccessRate));
+            float parryMultiplier = 1f - Mathf.Clamp01(context.ParrySuccessRate);
+            float targetFactor = 0f;
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                MotionScanEntry entry = entries[i];
+                float chance = Mathf.Max(0f, GetEnemySelectionWeight(actor, entry.Category)) / totalWeight;
+                float cooldown = Mathf.Max(0.05f, Mathf.Max(GetEnemyCooldown(entry.Category), globalCooldown));
+                targetFactor += chance * CalculateMotionDamageUnit(entry) * attackPower * defenseMultiplier * avoidMultiplier * parryMultiplier / cooldown;
+            }
+
+            if (targetFactor <= 0f)
+                return context;
+
+            context.BaseAttackDamage = Mathf.Max(1f, context.TargetEnemyDps / targetFactor);
+            return context;
         }
 
         private static float CalculateStoredDamage(ActorDefinitionSO actor, ActorStatSO statData, float targetDamage)
         {
-            return Mathf.Round(Mathf.Max(1f, targetDamage * GetStatLevelDamageMultiplier(actor, statData)));
-        }
-
-        private static float GetStatLevelDamageMultiplier(ActorDefinitionSO actor, ActorStatSO statData)
-        {
-            int level = Mathf.Max(1, actor != null ? actor.level : 1);
-            float levelMultiplier = 1f + Mathf.Max(0, level - 1) * 0.04f;
-            float attackPower = statData != null
-                ? Mathf.Max(0.01f, statData.GetBase(StatType.AttackPower))
-                : ActorStatSO.GetDefault(StatType.AttackPower);
-
-            return levelMultiplier / attackPower;
+            return Mathf.Round(Mathf.Max(1f, targetDamage));
         }
 
         private static int GetComboStep(AnimKey key, AttackCategory category)
@@ -572,6 +683,17 @@ namespace UPlayGround.Tool.Editor.Balance
             }
         }
 
+        private struct GenerationCombatContext
+        {
+            public float BaseAttackDamage;
+            public float TargetEnemyDps;
+            public float PlayerDefense;
+            public float HitReceiveRate;
+            public float DodgeSuccessRate;
+            public float ParrySuccessRate;
+            public bool UsesScenarioTarget;
+        }
+
         private static EnemyBehaviorSO CreateBehaviorData(ActorDefinitionSO actor)
         {
             var behavior = ScriptableObject.CreateInstance<EnemyBehaviorSO>();
@@ -604,16 +726,16 @@ namespace UPlayGround.Tool.Editor.Balance
             switch (grade)
             {
                 case MonsterActorGrade.Weak:
-                    SetStats(stat, 50f, 0.8f, 0f, 30f, 30f, 1.5f, 1f);
+                    SetStats(stat, 216f, 0.82f, 0.01f, 55f, 30f, 1.7f, 1f);
                     break;
                 case MonsterActorGrade.Elite:
-                    SetStats(stat, 150f, 1.3f, 0.1f, 120f, 25f, 2.5f, 1.1f);
+                    SetStats(stat, 1100f, 1.3f, 0.1f, 220f, 25f, 2.5f, 1.1f);
                     break;
                 case MonsterActorGrade.Boss:
-                    SetStats(stat, 600f, 1.5f, 0.2f, 250f, 20f, 3f, 1f);
+                    SetStats(stat, 4500f, 1.5f, 0.2f, 700f, 20f, 3f, 1f);
                     break;
                 default:
-                    SetStats(stat, 80f, 1f, 0f, 50f, 30f, 2f, 1f);
+                    SetStats(stat, 540f, 1f, 0f, 100f, 30f, 2f, 1f);
                     break;
             }
         }
@@ -641,7 +763,9 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             // MonsterScalingSO 커브가 있으면 스탯과 동일한 소스에서 등급별 base 피해를 가져온다.
             // (레벨 보정과 AttackPower 역보정은 CalculateMotionDamage/CalculateStoredDamage가 유지한다.)
-            MonsterScalingSO scaling = FindFirstScaling();
+            MonsterScalingSO scaling = actor != null && actor.monsterScaling != null
+                ? actor.monsterScaling
+                : FindOrCreateScaling();
             if (scaling != null)
                 return scaling.GetBaseAttackDamage(actor != null ? actor.grade : MonsterActorGrade.Normal);
 
@@ -674,6 +798,22 @@ namespace UPlayGround.Tool.Editor.Balance
                 ? AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(paths[0])
                 : null;
             return _cachedScaling;
+        }
+
+        private static MonsterScalingSO FindOrCreateScaling()
+        {
+            MonsterScalingSO scaling = FindFirstScaling();
+            if (scaling != null)
+                return scaling;
+
+            EnsureFolder(StatPath);
+            scaling = ScriptableObject.CreateInstance<MonsterScalingSO>();
+            scaling.FillDefaults();
+            string path = CreateAsset(scaling, StatPath, "MonsterScaling_Default");
+            _cachedScaling = scaling;
+            _didSearchScaling = true;
+            Debug.Log($"[BalanceDataAutoGenerator] 기본 MonsterScalingSO 생성: {path}");
+            return scaling;
         }
 
         private static string CreateAsset(UnityEngine.Object asset, string folder, string rawName)

@@ -75,6 +75,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private const string DefaultSavePath = "Assets/10.Datas/Stat/Generated";
         private const string PlayerSavePath  = "Assets/10.Datas/Stat/Player";
         private const string BreakGaugeSavePath = "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated";
+        private const string MonsterScalingSavePath = "Assets/10.Datas/Stat/Generated";
         private const string TemplateSavePath = "Assets/10.Datas/Stat/Template";
         private const float ColCheck = 22f;
         private const float ColName  = 200f;
@@ -346,6 +347,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 "전체 보정은 statData가 없는 ActorDefinitionSO에 ActorStatSO를 생성해 연결하고, 기존 statData의 누락 StatType을 채웁니다.\n" +
                 "등급별 템플릿으로 기본값을 채우고, PoiseSO 값 → MaxPoise/Recovery* 로 초기화됩니다.\n" +
                 "몬스터의 breakGaugeData가 비어 있으면 BreakGaugeSO를 생성해 연결합니다.\n" +
+                "몬스터의 monsterScaling이 비어 있으면 MonsterScalingSO를 찾아 연결하고, 없으면 기본 Growth 에셋을 생성합니다.\n" +
                 "'재마이그레이션'은 이미 등록된 statData도 현재 등급 템플릿으로 다시 발급해 덮어씁니다. ('누락 항목만' 토글을 꺼야 기존 항목이 보입니다.)\n" +
                 "'교체·고아 에셋 정리'가 켜져 있으면, 처리한 정의 폴더에서 더 이상 참조되지 않는 prefab-local ActorStatSO를 휴지통으로 이동합니다(공유 에셋은 보존).\n" +
                 "'프리팹 폴더 고아 스탯 정리'는 과거 마이그레이션으로 이미 중앙으로 옮겨졌지만 프리팹 Descs 폴더에 남은 미참조 ActorStatSO를 일괄 정리합니다.\n" +
@@ -384,11 +386,13 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             EnsureFolder(_savePath);
             EnsureFolder(BreakGaugeSavePath);
+            EnsureFolder(MonsterScalingSavePath);
             ActorStatSO so = row.Definition.statData;
             string assetPath = null;
 
             // Definition에 자동 연결
             var sObj = new SerializedObject(row.Definition);
+            bool linkedScaling = EnsureMonsterScalingLinked(row.Definition);
             if (so == null || regenerateStat)
             {
                 so = BuildFromDefinition(row);
@@ -409,6 +413,8 @@ namespace UPlayGround.Tool.Editor.Stat
                 : string.IsNullOrEmpty(breakGaugePath)
                 ? $"[StatDataGenerator] 생성 완료: {assetPath} → {row.Definition.name}.statData"
                 : $"[StatDataGenerator] 생성 완료: {assetPath} / {breakGaugePath} → {row.Definition.name}");
+            if (linkedScaling)
+                Debug.Log($"[StatDataGenerator] Growth 연결 완료: {row.Definition.name}.monsterScaling");
 
             row.ExistingStat = so;
             RefreshMigrationRows();
@@ -418,9 +424,11 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             EnsureFolder(_savePath);
             EnsureFolder(BreakGaugeSavePath);
+            EnsureFolder(MonsterScalingSavePath);
             int created = 0;
             int regenerated = 0;
             int breakCount = 0;
+            int scalingLinked = 0;
             var replacedPaths = new List<string>();
             foreach (var row in _migrationRows)
             {
@@ -428,6 +436,9 @@ namespace UPlayGround.Tool.Editor.Stat
                 ActorStatSO so = row.Definition.statData;
 
                 var sObj = new SerializedObject(row.Definition);
+                if (EnsureMonsterScalingLinked(row.Definition))
+                    scalingLinked++;
+
                 // statData가 없으면 신규 생성, forceRegenerate면 이미 등록된 것도 등급 템플릿으로 재발급한다.
                 if (so == null || forceRegenerate)
                 {
@@ -471,7 +482,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 deleted = CleanupUnreferencedStats(replacedPaths);
             }
 
-            Debug.Log($"[StatDataGenerator] ActorStatSO 신규 {created}개 / 재마이그레이션 {regenerated}개 / 고아 정리 {deleted}개 / BreakGaugeSO {breakCount}개 완료");
+            Debug.Log($"[StatDataGenerator] ActorStatSO 신규 {created}개 / 재마이그레이션 {regenerated}개 / Growth 연결 {scalingLinked}개 / 고아 정리 {deleted}개 / BreakGaugeSO {breakCount}개 완료");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
         }
@@ -669,9 +680,11 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             EnsureFolder(_savePath);
             EnsureFolder(BreakGaugeSavePath);
+            EnsureFolder(MonsterScalingSavePath);
             string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
             int count = 0;
             int breakCount = 0;
+            int scalingLinked = 0;
             foreach (var guid in guids)
             {
                 var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
@@ -687,6 +700,9 @@ namespace UPlayGround.Tool.Editor.Stat
 
                 ActorStatSO so = def.statData;
                 var sObj = new SerializedObject(def);
+                if (EnsureMonsterScalingLinked(def))
+                    scalingLinked++;
+
                 if (so == null)
                 {
                     so = BuildFromDefinition(row);
@@ -704,7 +720,7 @@ namespace UPlayGround.Tool.Editor.Stat
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 누락분 일괄 생성 완료: ActorStatSO {count}개 / BreakGaugeSO {breakCount}개");
+            Debug.Log($"[StatDataGenerator] 누락분 일괄 생성 완료: ActorStatSO {count}개 / Growth 연결 {scalingLinked}개 / BreakGaugeSO {breakCount}개");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: false);
         }
@@ -713,16 +729,21 @@ namespace UPlayGround.Tool.Editor.Stat
         {
             EnsureFolder(_savePath);
             EnsureFolder(BreakGaugeSavePath);
+            EnsureFolder(MonsterScalingSavePath);
 
             string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");
             int created = 0;
             int filled = 0;
             int breakCreated = 0;
+            int scalingLinked = 0;
 
             foreach (var guid in guids)
             {
                 var def = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
                 if (def == null) continue;
+
+                if (EnsureMonsterScalingLinked(def))
+                    scalingLinked++;
 
                 if (def.statData == null)
                 {
@@ -764,7 +785,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / 누락 StatType 채움 {filled}개 / breakGaugeData 생성 {breakCreated}개");
+            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / Growth 연결 {scalingLinked}개 / 누락 StatType 채움 {filled}개 / breakGaugeData 생성 {breakCreated}개");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: true);
         }
@@ -779,8 +800,19 @@ namespace UPlayGround.Tool.Editor.Stat
             var so = ScriptableObject.CreateInstance<ActorStatSO>();
             so.EditorFillMissing();
 
-            // 정의에 작성된 등급에 따라 기본 템플릿 적용
-            ApplyGradeTemplate(so, row.Definition != null ? row.Definition.grade : MonsterActorGrade.Normal);
+            // MonsterScalingSO가 연결되어 있으면 Growth 기준을 우선 사용한다.
+            MonsterScalingSO scaling = row.Definition != null ? row.Definition.monsterScaling : null;
+            if (scaling != null)
+            {
+                Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(scaling, row.Definition);
+                foreach (KeyValuePair<StatType, float> pair in values)
+                    so.EditorSet(pair.Key, pair.Value);
+            }
+            else
+            {
+                // 정의에 작성된 등급에 따라 기본 템플릿 적용
+                ApplyGradeTemplate(so, row.Definition != null ? row.Definition.grade : MonsterActorGrade.Normal);
+            }
 
             // PoiseSO → MaxPoise / PoiseRecoveryRate / PoiseRecoveryDelay
             if (row.SourcePoise != null)
@@ -864,13 +896,53 @@ namespace UPlayGround.Tool.Editor.Stat
         }
 
         private static bool HasMissingMigrationData(ActorDefinitionSO def)
-            => def != null && (def.statData == null || NeedsBreakGauge(def));
+            => def != null && (def.statData == null || NeedsBreakGauge(def) || NeedsMonsterScaling(def));
 
         private static bool NeedsBreakGauge(ActorDefinitionSO def)
             => IsMonster(def) && def.breakGaugeData == null;
 
+        private static bool NeedsMonsterScaling(ActorDefinitionSO def)
+            => IsMonster(def) && def.monsterScaling == null;
+
         private static bool IsMonster(ActorDefinitionSO def)
             => def != null && (def.actorType & ActorType.Monster) != 0;
+
+        private static bool EnsureMonsterScalingLinked(ActorDefinitionSO def)
+        {
+            if (!NeedsMonsterScaling(def))
+                return false;
+
+            MonsterScalingSO scaling = FindOrCreateMonsterScaling();
+            if (scaling == null)
+                return false;
+
+            Undo.RecordObject(def, "Link Monster Scaling");
+            var so = new SerializedObject(def);
+            so.FindProperty("monsterScaling").objectReferenceValue = scaling;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(def);
+            return true;
+        }
+
+        private static MonsterScalingSO FindOrCreateMonsterScaling()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:MonsterScalingSO");
+            if (guids.Length > 0)
+            {
+                Array.Sort(guids, (a, b) => string.Compare(
+                    AssetDatabase.GUIDToAssetPath(a),
+                    AssetDatabase.GUIDToAssetPath(b),
+                    StringComparison.Ordinal));
+                return AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(AssetDatabase.GUIDToAssetPath(guids[0]));
+            }
+
+            EnsureFolder(MonsterScalingSavePath);
+            var scaling = ScriptableObject.CreateInstance<MonsterScalingSO>();
+            scaling.FillDefaults();
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{MonsterScalingSavePath}/MonsterScaling_Default.asset");
+            AssetDatabase.CreateAsset(scaling, path);
+            return scaling;
+        }
 
         // ──────────────────────────────────────────────────────────
         // Player 기본 스탯 탭
@@ -1026,7 +1098,8 @@ namespace UPlayGround.Tool.Editor.Stat
 
             EditorGUILayout.HelpBox(
                 "Bokusei(균형형, 카타나) / Honoka(공격형, 쌍도끼) / LianLian(민첩형, 채찍)는 전용 프리셋이 적용됩니다.\n" +
-                "그 외 캐릭터는 기본 PlayerCharacter 프리셋이 적용됩니다.",
+                "그 외 캐릭터는 기본 PlayerCharacter 프리셋이 적용됩니다.\n" +
+                "생성/덮어쓰기된 ActorStatSO는 같은 CharacterActorType의 PartyMemberGrowthSO.baseStat에 자동 연결됩니다.",
                 MessageType.Info);
         }
 
@@ -1044,6 +1117,10 @@ namespace UPlayGround.Tool.Editor.Stat
 
         private ActorStatSO FindPlayerStatAsset(CharacterActorType type)
         {
+            PartyMemberGrowthSO growth = FindPartyMemberGrowth(type);
+            if (growth != null && growth.baseStat != null)
+                return growth.baseStat;
+
             // 이름 접두 + 캐릭터명 패턴으로 검색
             string searchName = $"{_playerNamePrefix}{type}";
             string[] guids = AssetDatabase.FindAssets($"{searchName} t:ActorStatSO");
@@ -1081,7 +1158,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private void GeneratePlayerSelected()
         {
             EnsureFolder(_playerSavePath);
-            int created = 0, overwritten = 0;
+            int created = 0, overwritten = 0, linked = 0;
 
             foreach (var kv in _playerSelected)
             {
@@ -1089,6 +1166,7 @@ namespace UPlayGround.Tool.Editor.Stat
                 var type = kv.Key;
                 string assetName = $"{_playerNamePrefix}{type}";
                 _playerExisting.TryGetValue(type, out var existing);
+                ActorStatSO targetStat = null;
 
                 if (existing != null && _playerOverwrite)
                 {
@@ -1099,21 +1177,52 @@ namespace UPlayGround.Tool.Editor.Stat
                     ApplyCharacterPreset(existing, type);
                     EditorUtility.SetDirty(existing);
                     overwritten++;
+                    targetStat = existing;
                 }
                 else
                 {
                     var so = ScriptableObject.CreateInstance<ActorStatSO>();
+                    so.name = assetName;
                     ApplyCharacterPreset(so, type);
                     string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{_playerSavePath}/{assetName}.asset");
                     AssetDatabase.CreateAsset(so, assetPath);
                     created++;
+                    targetStat = so;
                 }
+
+                if (targetStat != null && LinkPlayerGrowthBaseStat(type, targetStat))
+                    linked++;
             }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] Player 스탯 생성: 신규 {created}개 / 덮어쓰기 {overwritten}개");
+            Debug.Log($"[StatDataGenerator] Player 스탯 생성: 신규 {created}개 / 덮어쓰기 {overwritten}개 / Growth 연결 {linked}개");
             RefreshPlayerExisting();
+        }
+
+        private static PartyMemberGrowthSO FindPartyMemberGrowth(CharacterActorType type)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:PartyMemberGrowthSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var growth = AssetDatabase.LoadAssetAtPath<PartyMemberGrowthSO>(path);
+                if (growth != null && growth.characterType == type)
+                    return growth;
+            }
+
+            return null;
+        }
+
+        private static bool LinkPlayerGrowthBaseStat(CharacterActorType type, ActorStatSO stat)
+        {
+            PartyMemberGrowthSO growth = FindPartyMemberGrowth(type);
+            if (growth == null || stat == null || growth.baseStat == stat)
+                return false;
+
+            Undo.RecordObject(growth, "Link Player Growth Base Stat");
+            growth.baseStat = stat;
+            EditorUtility.SetDirty(growth);
+            return true;
         }
 
         // ── 캐릭터 프리셋 ─────────────────────────────────────────
@@ -1545,40 +1654,40 @@ namespace UPlayGround.Tool.Editor.Stat
                     break;
 
                 case TemplateKind.WeakMonster:
-                    so.EditorSet(StatType.MaxHealth,          50f);
-                    so.EditorSet(StatType.AttackPower,        0.8f);
-                    so.EditorSet(StatType.Defense,            0.0f);
-                    so.EditorSet(StatType.MaxPoise,           30f);
+                    so.EditorSet(StatType.MaxHealth,          216f);
+                    so.EditorSet(StatType.AttackPower,        0.82f);
+                    so.EditorSet(StatType.Defense,            0.01f);
+                    so.EditorSet(StatType.MaxPoise,           55f);
                     so.EditorSet(StatType.PoiseRecoveryRate,  30f);
-                    so.EditorSet(StatType.PoiseRecoveryDelay, 1.5f);
+                    so.EditorSet(StatType.PoiseRecoveryDelay, 1.7f);
                     so.EditorSet(StatType.MoveSpeed,          1.0f);
                     break;
 
                 case TemplateKind.NormalMonster:
-                    so.EditorSet(StatType.MaxHealth,          80f);
+                    so.EditorSet(StatType.MaxHealth,          540f);
                     so.EditorSet(StatType.AttackPower,        1.0f);
                     so.EditorSet(StatType.Defense,            0.0f);
-                    so.EditorSet(StatType.MaxPoise,           50f);
+                    so.EditorSet(StatType.MaxPoise,           100f);
                     so.EditorSet(StatType.PoiseRecoveryRate,  30f);
                     so.EditorSet(StatType.PoiseRecoveryDelay, 2.0f);
                     so.EditorSet(StatType.MoveSpeed,          1.0f);
                     break;
 
                 case TemplateKind.EliteMonster:
-                    so.EditorSet(StatType.MaxHealth,          150f);
+                    so.EditorSet(StatType.MaxHealth,          1100f);
                     so.EditorSet(StatType.AttackPower,        1.3f);
                     so.EditorSet(StatType.Defense,            0.10f);
-                    so.EditorSet(StatType.MaxPoise,           120f);
+                    so.EditorSet(StatType.MaxPoise,           220f);
                     so.EditorSet(StatType.PoiseRecoveryRate,  25f);
                     so.EditorSet(StatType.PoiseRecoveryDelay, 2.5f);
                     so.EditorSet(StatType.MoveSpeed,          1.1f);
                     break;
 
                 case TemplateKind.Boss:
-                    so.EditorSet(StatType.MaxHealth,          600f);
+                    so.EditorSet(StatType.MaxHealth,          4500f);
                     so.EditorSet(StatType.AttackPower,        1.5f);
                     so.EditorSet(StatType.Defense,            0.20f);
-                    so.EditorSet(StatType.MaxPoise,           250f);
+                    so.EditorSet(StatType.MaxPoise,           700f);
                     so.EditorSet(StatType.PoiseRecoveryRate,  20f);
                     so.EditorSet(StatType.PoiseRecoveryDelay, 3.0f);
                     so.EditorSet(StatType.MoveSpeed,          1.0f);

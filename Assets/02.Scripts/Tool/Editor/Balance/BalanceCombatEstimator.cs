@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 
@@ -70,12 +71,16 @@ namespace UPlayGround.Tool.Editor.Balance
                 scenario != null ? scenario.manualPlayerDps : fallbackInput.ManualPlayerDps);
 
             result.PlayerExpectedDps = rawPlayerDps * playerAttackPower * (1f - monsterDefense);
+            ApplyPlayerBreakEstimate(actor, scenario, fallbackInput, result);
 
             result.PlayerTimeToDeath = result.EnemyExpectedDps > 0f
                 ? playerHealth / result.EnemyExpectedDps
                 : float.PositiveInfinity;
             result.MonsterTimeToDeath = result.PlayerExpectedDps > 0f
                 ? monsterHealth / result.PlayerExpectedDps
+                : float.PositiveInfinity;
+            result.MonsterTimeToDeathWithBreak = result.PlayerEffectiveDpsWithBreak > 0f
+                ? monsterHealth / result.PlayerEffectiveDpsWithBreak
                 : float.PositiveInfinity;
             // 플레이어 가드 브레이크는 가드 횟수 기반(포이즈 무관)이므로 '브레이크 시간'은 추정하지 않는다.
             // 대신 적의 초당 경직 압박이 플레이어 포이즈 회복을 넘어서는지를 순 압박으로 표시한다.
@@ -85,6 +90,45 @@ namespace UPlayGround.Tool.Editor.Balance
             BalanceActorDataValidator.AppendPostAnalysisMessages(result);
             result.Summary = BuildSummary(result);
             return result;
+        }
+
+        private static void ApplyPlayerBreakEstimate(
+            ActorDefinitionSO actor,
+            BalanceScenarioAsset scenario,
+            BalanceScenarioInput fallbackInput,
+            BalanceScenarioResult result)
+        {
+            result.PlayerEffectiveDpsWithBreak = result.PlayerExpectedDps;
+            result.MonsterTimeToDeathWithBreak = result.MonsterTimeToDeath;
+
+            MonsterBreakGaugeSO breakData = actor != null ? actor.breakGaugeData : null;
+            if (breakData == null || !breakData.useBreakGauge)
+                return;
+
+            float attackInterval = scenario != null ? scenario.playerAttackInterval : fallbackInput.PlayerAttackInterval;
+            float rawBreakDps = BalanceAttackAnalyzer.EstimatePlayerRawBreakDps(
+                scenario != null ? scenario.playerAttackData : null,
+                attackInterval);
+
+            result.PlayerExpectedBreakDps = rawBreakDps * (1f - Mathf.Clamp01(breakData.breakResist));
+            result.MonsterBreakResist = Mathf.Clamp01(breakData.breakResist);
+            result.BreakExposedDuration = Mathf.Max(0.1f, breakData.exposedDuration);
+            result.BreakDamageTakenMultiplier = Mathf.Max(0f, breakData.damageTakenMultiplierWhileExposed);
+
+            MonsterActorGrade grade = actor != null ? actor.grade : MonsterActorGrade.Normal;
+            float gradeScale = breakData.gradePolicy != null ? breakData.gradePolicy.GetGaugeMultiplier(grade) : 1f;
+            result.MonsterBreakGauge = Mathf.Max(1f, breakData.maxGauge * gradeScale);
+
+            if (result.PlayerExpectedBreakDps <= 0f)
+                return;
+
+            result.EstimatedTimeToBreak = result.MonsterBreakGauge / result.PlayerExpectedBreakDps;
+            float cycle = Mathf.Max(0.1f, result.EstimatedTimeToBreak + result.BreakExposedDuration);
+            result.EstimatedBreaksPerFight = result.TargetDuration / cycle;
+            result.BreakExposedUptime = Mathf.Clamp01(result.BreakExposedDuration / cycle);
+
+            float bonusMultiplier = Mathf.Lerp(1f, result.BreakDamageTakenMultiplier, result.BreakExposedUptime);
+            result.PlayerEffectiveDpsWithBreak = result.PlayerExpectedDps * Mathf.Max(0f, bonusMultiplier);
         }
 
         private static void CountSkillUnlock(EnemyAttackDataSO data, int level, out int unlocked, out int locked)
@@ -304,6 +348,9 @@ namespace UPlayGround.Tool.Editor.Balance
             if (result.MonsterTimeToDeath < result.TargetDuration)
                 return BalanceCheckStatus.TooEasy;
 
+            if (result.MonsterTimeToDeathWithBreak < result.TargetDuration)
+                return BalanceCheckStatus.TooEasy;
+
             return BalanceCheckStatus.Stable;
         }
 
@@ -312,7 +359,9 @@ namespace UPlayGround.Tool.Editor.Balance
             return result.Status switch
             {
                 BalanceCheckStatus.InvalidData => "데이터 누락",
-                BalanceCheckStatus.TooEasy => $"몬스터가 {FormatTime(result.MonsterTimeToDeath)}에 쓰러질 것으로 추정",
+                BalanceCheckStatus.TooEasy => result.MonsterTimeToDeathWithBreak < result.MonsterTimeToDeath
+                    ? $"몬스터가 브레이크 포함 {FormatTime(result.MonsterTimeToDeathWithBreak)}에 쓰러질 것으로 추정"
+                    : $"몬스터가 {FormatTime(result.MonsterTimeToDeath)}에 쓰러질 것으로 추정",
                 BalanceCheckStatus.TooLethal => $"플레이어가 {FormatTime(result.PlayerTimeToDeath)}에 쓰러질 것으로 추정",
                 BalanceCheckStatus.Stalled => "공격 기회 또는 유효 DPS가 부족",
                 BalanceCheckStatus.Stable => "기준 시간 이상 전투 유지 가능",

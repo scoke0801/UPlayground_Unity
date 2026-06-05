@@ -4,6 +4,7 @@ using UPlayGround.Animation;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Path;
 using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
@@ -41,6 +42,7 @@ namespace UPlayGround.State
         private bool _isCounter;
         private bool _isParryCounter;
         private bool _isSwapEvadeCounterAttack;
+        private bool _isDodgeCounterAttack;
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
         private readonly PlayerInterruptAction _forcedAttackAction;
@@ -49,6 +51,7 @@ namespace UPlayGround.State
 
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
+        private Transform _dodgeCounterTarget;
         private MotionWarpController _motionWarp;
 
         public PlayerAttackState(ActorMovementController controller) : base(controller)
@@ -197,8 +200,8 @@ namespace UPlayGround.State
             if (isCounter)
                 return combat.PeekCounterAttackAnimKey();
 
-            // 1순위: 스왑 회피 카운터
-            if (playerActor.IsSwapEvadeCounterAttackPending)
+            // 1순위: 회피 카운터 / 스왑 회피 카운터
+            if (combat.IsDodgeCounterAvailable || playerActor.IsSwapEvadeCounterAttackPending)
                 return combat.PeekSwapEvadeCounterAttackAnimKey();
 
             // 2순위: 풀 게이지 교체 특수 공격
@@ -249,7 +252,13 @@ namespace UPlayGround.State
             if (_isCounter)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
 
-            _isSwapEvadeCounterAttack = !hasForcedAttack && playerActor.ConsumeSwapEvadeCounterAttackPending();
+            _dodgeCounterTarget = _combat.DodgeCounterTarget != null ? _combat.DodgeCounterTarget.transform : null;
+            bool consumedDodgeCounter = !hasForcedAttack && _combat.ConsumeDodgeCounterWindow();
+            bool consumedSwapEvadeCounter = !hasForcedAttack
+                                            && !consumedDodgeCounter
+                                            && playerActor.ConsumeSwapEvadeCounterAttackPending();
+            _isDodgeCounterAttack = consumedDodgeCounter;
+            _isSwapEvadeCounterAttack = consumedDodgeCounter || consumedSwapEvadeCounter;
             _isSwapSpecialAttack = !hasForcedAttack && !_isSwapEvadeCounterAttack && playerActor.ConsumeSwapSpecialAttackPending();
             _isEntryAttack = !hasForcedAttack && playerActor.ConsumeEntryAttackPending();
 
@@ -257,7 +266,6 @@ namespace UPlayGround.State
             if (_isParryCounter)
             {
                 _combat.CloseParryCounterWindow();
-                GameCombatManager.Instance.GameHitStop.Stop();
                 Debug.Log("[ParryCounter] 패리 반격 진입");
             }
 
@@ -308,6 +316,9 @@ namespace UPlayGround.State
 
             _homingTarget = FindHomingTarget();
             _motionWarp.SetTarget(_homingTarget);
+
+            if (_isDodgeCounterAttack)
+                CameraManager.Instance?.CombatCamera?.PlayDodgeCounter(_homingTarget, CameraShakeIdType.PlayerHit);
         }
 
         public override void OnExit(GameActorState toState)
@@ -318,8 +329,11 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
+            gameActor.Animator.Speed = 1f;
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
             _homingTarget = null;
+            _dodgeCounterTarget = null;
+            _isDodgeCounterAttack = false;
             _motionWarp?.ClearTarget();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             base.OnExit(toState);
@@ -521,6 +535,9 @@ namespace UPlayGround.State
         {
             if (_currentAttack == null) return null;
 
+            if (_isDodgeCounterAttack && _dodgeCounterTarget != null)
+                return _dodgeCounterTarget;
+
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
@@ -539,6 +556,11 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
+
+            // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
+            gameActor.Animator.Speed = _combat.IsMotionWarping
+                ? _motionWarp.WarpPlayRateScale
+                : 1f;
 
             Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             currentVelocity = _motionWarp.EvaluateVelocity(

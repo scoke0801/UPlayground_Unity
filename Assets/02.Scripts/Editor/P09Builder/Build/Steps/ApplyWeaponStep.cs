@@ -314,12 +314,10 @@ namespace Game.Editor.P09Builder
                 return;
             }
 
-            var descFolder = ctx.PrefabFolder + "/Descs";
-            PathConfig.EnsureFolderExists(descFolder);
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath(
-                $"{descFolder}/{ctx.PrefabName}_PlayerWeaponAnimationSet.asset");
-
-            AssetDatabase.CreateAsset(playerMotionSet, assetPath);
+            var dataFolder = PathConfig.GetGeneratedDataFolder(typeof(PlayerActorAnimationMotionSet));
+            // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
+            string assetPath = PathConfig.CreateOrReplaceAsset(
+                playerMotionSet, dataFolder, $"{ctx.PrefabName}_PlayerWeaponAnimationSet");
             ctx.GeneratedDescs.Add(playerMotionSet);
             ctx.GeneratedAssetPaths.Add(assetPath);
 

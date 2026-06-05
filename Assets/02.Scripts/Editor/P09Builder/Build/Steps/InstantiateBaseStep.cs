@@ -36,7 +36,7 @@ namespace Game.Editor.P09Builder
             ctx.Bag["tempName"] = name;
 
             var kindFolder = CharacterNameGenerator.GetKindFolderName(ctx.Config.ActorKind);
-            ctx.PrefabFolder = PathConfig.GetPrefabFolder(kindFolder, name);
+            ctx.PrefabFolder = PathConfig.GetPrefabFolder(ctx.Config.SaveBaseFolder, kindFolder, name);
 
             instance.name = name;
         }

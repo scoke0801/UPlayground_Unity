@@ -381,7 +381,7 @@ namespace Game.Editor.P09Builder
             }
 
             var kindFolder = CharacterNameGenerator.GetKindFolderName(_config.ActorKind);
-            var folder = PathConfig.GetPrefabFolder(kindFolder, _previewName);
+            var folder = PathConfig.GetPrefabFolder(_config.SaveBaseFolder, kindFolder, _previewName);
 
             bool confirm = EditorUtility.DisplayDialog(
                 "프리팹 빌드",

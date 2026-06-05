@@ -43,6 +43,7 @@ namespace UPlayGround.Manager.Combat
         private float _targetWeight = 0f;
         private float _currentWeight = 0f;
         private float _weightVelocity = 0f;
+        private float _holdWeightUntilRealtime = -1f;
 
         // 전역 HitStop: id → 코루틴. 복수 요청이 동시에 살아있을 수 있다.
         private readonly Dictionary<int, Coroutine> _globalCoroutines = new Dictionary<int, Coroutine>();
@@ -78,6 +79,14 @@ namespace UPlayGround.Manager.Combat
         public override void Update()
         {
             if (_volume == null) return;
+
+            if (_holdWeightUntilRealtime > 0f && Time.realtimeSinceStartup < _holdWeightUntilRealtime)
+            {
+                _volume.weight = _currentWeight;
+                return;
+            }
+
+            _holdWeightUntilRealtime = -1f;
 
             _currentWeight = Mathf.SmoothDamp(
                 _currentWeight, _targetWeight,
@@ -155,7 +164,24 @@ namespace UPlayGround.Manager.Combat
         {
             _targetWeight = 0f;
             _transitionTime = 0f;
+            _holdWeightUntilRealtime = -1f;
             GameObjectManager.Instance?.ResetTimeScale();
+        }
+
+        public void FlashPostProcess(
+            float peakWeight = 1f,
+            float holdDuration = 0.08f,
+            float fadeOutDuration = 0.24f,
+            float minVisibleDuration = 0.12f)
+        {
+            _currentWeight = Mathf.Clamp01(peakWeight);
+            _targetWeight = 0f;
+            _weightVelocity = 0f;
+            _transitionTime = Mathf.Max(0.01f, fadeOutDuration);
+            _holdWeightUntilRealtime = Time.realtimeSinceStartup + Mathf.Max(holdDuration, minVisibleDuration);
+
+            if (_volume != null)
+                _volume.weight = _currentWeight;
         }
 
         #endregion

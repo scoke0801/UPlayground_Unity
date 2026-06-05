@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Component
 {
     /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리
     /// </summary>
-    public class EnemyDetection : ActorComponent
+    public class EnemyDetection : ActorComponent, IManagedTick
     {
         [Header("Detection Settings")]
         [SerializeField] private float _detectionRadius = 10f;
@@ -26,6 +27,12 @@ namespace UPlayGround.Component
         private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
         private float _detectionTimer;
         private List<IDamageable> _cachedAllies = new List<IDamageable>();
+
+        // 물리 쿼리 GC 방지용 재사용 버퍼 (OverlapSphere → OverlapSphereNonAlloc)
+        // 주의: 범위 내 콜라이더가 64를 초과하면 초과분은 무시됨 (타겟/아군 레이어 특성상 충분)
+        private readonly Collider[] _overlapBuffer = new Collider[64];
+
+        private AgentTickManager _tickManager;
         
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
@@ -34,10 +41,29 @@ namespace UPlayGround.Component
         public float AllyDetectionRadius => _allyDetectionRadius;
         public LayerMask AllyLayer => _allyLayer;
         
-        private void Update()
+        private void OnEnable()
         {
-            _detectionTimer += Time.deltaTime;
-            
+            // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
+            if (Application.isPlaying)
+            {
+                _tickManager = AgentTickManager.Instance;
+                _tickManager?.Register(this);
+            }
+        }
+
+        private void OnDisable()
+        {
+            _tickManager?.Unregister(this);
+            _tickManager = null;
+        }
+
+        /// <summary>
+        /// <see cref="AgentTickManager"/>가 매 프레임 호출. 기존 Update 본문과 동일하다.
+        /// </summary>
+        public void ManagedTick(float deltaTime)
+        {
+            _detectionTimer += deltaTime;
+
             if (_detectionTimer >= _detectionInterval)
             {
                 _detectionTimer = 0f;
@@ -47,7 +73,7 @@ namespace UPlayGround.Component
 
         public void AcquireTarget(Transform target)
         {
-            if (target.GetComponent<IDamageable>()?.IsAlive() == false)
+            if (target.TryGetComponent<IDamageable>(out var targetDamageable) && !targetDamageable.IsAlive())
                 return;
 
             bool wasWithoutTarget = !HasTarget;
@@ -84,11 +110,11 @@ namespace UPlayGround.Component
 
         private void DetectNewTarget()
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, _detectionRadius, _targetLayer);
-            
-            foreach (var collider in colliders)
+            int count = Physics.OverlapSphereNonAlloc(transform.position, _detectionRadius, _overlapBuffer, _targetLayer);
+
+            for (int i = 0; i < count; i++)
             {
-                Transform potentialTarget = collider.transform;
+                Transform potentialTarget = _overlapBuffer[i].transform;
                 
                 // 시야각 체크
                 if (!IsInFieldOfView(potentialTarget))
@@ -110,8 +136,7 @@ namespace UPlayGround.Component
                 return false;
 
             // 타겟이 살아있는지 체크
-            var damageable = target.GetComponent<IDamageable>();
-            if (damageable != null && !damageable.IsAlive())
+            if (target.TryGetComponent<IDamageable>(out var damageable) && !damageable.IsAlive())
                 return false;
 
             // 외부 주입(AlertGroup 등) 타겟은 거리 체크를 면제한다.
@@ -180,23 +205,23 @@ namespace UPlayGround.Component
         /// </summary>
         public int GetAllyCount()
         {
-            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
-            
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+
             int count = 0;
-            foreach (var ally in allies)
+            for (int i = 0; i < hitCount; i++)
             {
+                var ally = _overlapBuffer[i];
                 // 자기 자신 제외
                 if (ally.transform == transform)
                     continue;
-                
+
                 // 살아있는 아군만 카운트
-                var damageable = ally.GetComponent<IDamageable>();
-                if (damageable != null && damageable.IsAlive())
+                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
                 {
                     count++;
                 }
             }
-            
+
             return count;
         }
         
@@ -206,22 +231,22 @@ namespace UPlayGround.Component
         public List<IDamageable> GetNearbyAllies()
         {
             _cachedAllies.Clear();
-            
-            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
-            
-            foreach (var ally in allies)
+
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+
+            for (int i = 0; i < hitCount; i++)
             {
+                var ally = _overlapBuffer[i];
                 // 자기 자신 제외
                 if (ally.transform == transform)
                     continue;
-                
-                var damageable = ally.GetComponent<IDamageable>();
-                if (damageable != null && damageable.IsAlive())
+
+                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
                 {
                     _cachedAllies.Add(damageable);
                 }
             }
-            
+
             return _cachedAllies;
         }
         
@@ -231,16 +256,16 @@ namespace UPlayGround.Component
         public bool HasInjuredAllyNearby(float maxHealthPercent, float searchRadius = -1f)
         {
             float radius = searchRadius > 0 ? searchRadius : _allyDetectionRadius;
-            Collider[] allies = Physics.OverlapSphere(transform.position, radius, _allyLayer);
-            
-            foreach (var ally in allies)
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, radius, _overlapBuffer, _allyLayer);
+
+            for (int i = 0; i < hitCount; i++)
             {
+                var ally = _overlapBuffer[i];
                 // 자기 자신 제외
                 if (ally.transform == transform)
                     continue;
-                
-                var damageable = ally.GetComponent<IDamageable>();
-                if (damageable != null && damageable.IsAlive())
+
+                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
                 {
                     float healthPercent = damageable.GetHealthPercent();
                     if (healthPercent <= maxHealthPercent)
@@ -249,7 +274,7 @@ namespace UPlayGround.Component
                     }
                 }
             }
-            
+
             return false;
         }
         
@@ -258,19 +283,19 @@ namespace UPlayGround.Component
         /// </summary>
         public IDamageable GetMostInjuredAlly()
         {
-            Collider[] allies = Physics.OverlapSphere(transform.position, _allyDetectionRadius, _allyLayer);
-            
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+
             IDamageable mostInjured = null;
             float lowestHealthPercent = 1f;
-            
-            foreach (var ally in allies)
+
+            for (int i = 0; i < hitCount; i++)
             {
+                var ally = _overlapBuffer[i];
                 // 자기 자신 제외
                 if (ally.transform == transform)
                     continue;
-                
-                var damageable = ally.GetComponent<IDamageable>();
-                if (damageable != null && damageable.IsAlive())
+
+                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
                 {
                     float healthPercent = damageable.GetHealthPercent();
                     if (healthPercent < lowestHealthPercent)

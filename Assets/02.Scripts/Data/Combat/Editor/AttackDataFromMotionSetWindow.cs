@@ -12,6 +12,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Stat;
+using UPlayGround.Tool.Editor.Balance;
 
 namespace UPlayGround.Editor
 {
@@ -24,6 +25,7 @@ namespace UPlayGround.Editor
         private enum ExistingPolicy { Skip, SyncPhaseCount, Replace }
 
         private ActorDefinitionSO _actorDefinition;
+        private BalanceScenarioAsset _balanceScenario;
         private ActorAnimationMotionSet _motionSet;
         private AttackDataSO _attackData;
         private TargetKind _targetKind = TargetKind.Player;
@@ -171,6 +173,8 @@ namespace UPlayGround.Editor
                 "Animation MotionSet", _motionSet, typeof(ActorAnimationMotionSet), false);
             _attackData = (AttackDataSO)EditorGUILayout.ObjectField(
                 "AttackData 대상", _attackData, typeof(AttackDataSO), false);
+            _balanceScenario = (BalanceScenarioAsset)EditorGUILayout.ObjectField(
+                "Balance Scenario", _balanceScenario, typeof(BalanceScenarioAsset), false);
             _targetKind = (TargetKind)EditorGUILayout.EnumPopup("생성 대상 타입", _targetKind);
             if (EditorGUI.EndChangeCheck())
             {
@@ -198,6 +202,11 @@ namespace UPlayGround.Editor
                 _applyBalancedDamage = EditorGUILayout.ToggleLeft("밸런싱 대미지 자동 설정", _applyBalancedDamage);
                 using (new EditorGUI.DisabledScope(!_applyBalancedDamage))
                 {
+                    using (new EditorGUI.DisabledScope(_balanceScenario == null))
+                    {
+                        if (GUILayout.Button("Balance Scenario 기준값 적용", GUILayout.Height(22f)))
+                            ApplyBalanceScenarioDefaults();
+                    }
                     _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise/Break도 갱신", _overwriteExistingDamage);
                     _useActorStatAndLevel = EditorGUILayout.ToggleLeft("Actor Stat/Level 반영", _useActorStatAndLevel);
                     using (new EditorGUI.DisabledScope(!_useActorStatAndLevel))
@@ -284,6 +293,29 @@ namespace UPlayGround.Editor
 
             if (!string.IsNullOrEmpty(_lastMessage))
                 EditorGUILayout.HelpBox(_lastMessage, MessageType.Info);
+        }
+
+        private void ApplyBalanceScenarioDefaults()
+        {
+            if (_balanceScenario == null)
+                return;
+
+            _useActorStatAndLevel = true;
+            _sourceStatData = _balanceScenario.playerStatData != null ? _balanceScenario.playerStatData : _sourceStatData;
+            _sourceLevel = Mathf.Max(1, _balanceScenario.playerLevel);
+
+            if (_targetKind == TargetKind.Player)
+            {
+                if (_balanceScenario.playerAttackData != null)
+                    _attackData = _balanceScenario.playerAttackData;
+
+                _playerBaseDamage = Mathf.Max(
+                    1f,
+                    _balanceScenario.manualPlayerDps * Mathf.Max(0.05f, _balanceScenario.playerAttackInterval));
+            }
+
+            _lastMessage = $"Balance Scenario 기준 적용: Lv.{_sourceLevel}, 플레이어 기준 대미지 {_playerBaseDamage:F1}";
+            RefreshScan();
         }
 
         private void RefreshScan()
@@ -698,7 +730,7 @@ namespace UPlayGround.Editor
             float storedDamage = CalculateTotalDamage(entry);
             return _targetKind == TargetKind.Enemy
                 ? storedDamage * ResolveAttackPower()
-                : storedDamage;
+                : storedDamage * ResolveAttackPower();
         }
 
         private float GetStatLevelDamageMultiplier()
@@ -707,6 +739,9 @@ namespace UPlayGround.Editor
                 return 1f;
 
             float levelMultiplier = 1f + Mathf.Max(0, _sourceLevel - 1) * Mathf.Max(0f, _levelDamageGrowth);
+            if (_targetKind == TargetKind.Player)
+                return Mathf.Max(0.01f, levelMultiplier);
+
             float attackPower = ResolveAttackPower();
             float attackPowerMultiplier = _normalizeRuntimeAttackPower
                 ? 1f / Mathf.Max(0.01f, attackPower)

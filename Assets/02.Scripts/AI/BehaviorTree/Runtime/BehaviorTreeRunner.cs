@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.AI.BehaviorTree
 {
-    public class BehaviorTreeRunner : MonoBehaviour
+    public class BehaviorTreeRunner : MonoBehaviour, IManagedTick
     {
         [Header("Tree")]
         [SerializeField] private BehaviorTreeAsset _treeAsset;
@@ -24,6 +25,7 @@ namespace UPlayGround.AI.BehaviorTree
         private BehaviorTreeRunnerState _state = BehaviorTreeRunnerState.Stopped;
         private bool _pauseRequested;
         private BTNode _pauseRequestedBy;
+        private AgentTickManager _tickManager;
 
         public BehaviorTreeAsset SourceTree => _treeAsset;
         public BehaviorTreeAsset RuntimeTree => _runtimeTree;
@@ -50,23 +52,35 @@ namespace UPlayGround.AI.BehaviorTree
 
         private void OnEnable()
         {
+            // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
+            if (Application.isPlaying)
+            {
+                _tickManager = AgentTickManager.Instance;
+                _tickManager?.Register(this);
+            }
+
             if (_startOnEnable)
                 StartTree();
         }
 
         private void OnDisable()
         {
+            _tickManager?.Unregister(this);
+            _tickManager = null;
             StopTree();
         }
 
-        private void Update()
+        /// <summary>
+        /// <see cref="AgentTickManager"/>가 매 프레임 호출. 기존 Update 본문과 동일하다.
+        /// </summary>
+        public void ManagedTick(float deltaTime)
         {
             if (_state != BehaviorTreeRunnerState.Running || _runtimeTree?.RootNode == null || _tickMode == BehaviorTreeRunnerMode.Manual)
                 return;
 
             if (_tickMode == BehaviorTreeRunnerMode.UpdateInterval)
             {
-                _tickTimer += Time.deltaTime;
+                _tickTimer += deltaTime;
                 if (_tickTimer < Mathf.Max(0.01f, _tickInterval))
                     return;
 

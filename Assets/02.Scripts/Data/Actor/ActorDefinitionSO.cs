@@ -43,6 +43,9 @@ namespace UPlayGround.Data.Actor
         [Tooltip("몬스터 브레이크 게이지 데이터. null이면 프리팹에 설정된 값 사용.")]
         public MonsterBreakGaugeSO breakGaugeData;
 
+        [Tooltip("몬스터 레벨/등급 성장 기준. 몬스터 statData 재생성 시 우선 사용한다.")]
+        public MonsterScalingSO monsterScaling;
+
         [Header("몬스터 메타")]
         [Tooltip("몬스터 등급. 킬캠/브레이크 게이지/일부 전투 규칙에서 사용.")]
         public MonsterActorGrade grade = MonsterActorGrade.Normal;

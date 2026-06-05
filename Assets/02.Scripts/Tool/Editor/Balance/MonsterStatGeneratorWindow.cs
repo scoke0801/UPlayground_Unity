@@ -235,8 +235,10 @@ namespace UPlayGround.Tool.Editor.Balance
             Label(ref x, row, 40f, $"Lv{actor.level}");
             Label(ref x, row, 60f, actor.grade.ToString());
             Label(ref x, row, 64f, missing ? "없음" : "있음");
+            Label(ref x, row, 72f, actor.monsterScaling != null ? "연결" : "누락");
+            Label(ref x, row, 58f, MonsterStatCalculator.GetHumanoidWeaponProfileName(actor));
 
-            Dictionary<StatType, float> planned = MonsterStatCalculator.Calculate(_scaling, actor.grade, actor.level, _difficultyOverride);
+            Dictionary<StatType, float> planned = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
             float pHp = planned[StatType.MaxHealth];
             float pAtk = planned[StatType.AttackPower];
             float pDef = planned[StatType.Defense];
@@ -265,6 +267,8 @@ namespace UPlayGround.Tool.Editor.Balance
             LabelStyled(ref x, header, 40f, "Lv");
             LabelStyled(ref x, header, 60f, "Grade");
             LabelStyled(ref x, header, 64f, "statData");
+            LabelStyled(ref x, header, 72f, "Growth");
+            LabelStyled(ref x, header, 58f, "유형");
             LabelStyled(ref x, header, 150f, "현재(HP/ATK/DEF)");
             LabelStyled(ref x, header, 220f, "예정(레벨×등급×난이도)");
         }
@@ -277,6 +281,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             EnsureFolder(StatSavePath);
             int created = 0;
+            int linked = 0;
             IReadOnlyList<ActorDefinitionSO> actors = _database.All;
 
             for (int i = 0; i < actors.Count; i++)
@@ -284,6 +289,8 @@ namespace UPlayGround.Tool.Editor.Balance
                 ActorDefinitionSO actor = actors[i];
                 if (actor == null || (actor.actorType & ActorType.Monster) == 0)
                     continue;
+                if (EnsureScalingLinked(actor))
+                    linked++;
                 if (actor.statData != null) // 누락만 생성 — 기존 값 보호
                     continue;
 
@@ -293,7 +300,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("Monster Stat Generator", $"생성된 statData: {created}개\n(기존 statData가 있는 몬스터는 건너뜀)", "확인");
+            EditorUtility.DisplayDialog("Monster Stat Generator", $"생성된 statData: {created}개\nGrowth 연결: {linked}개\n(기존 statData가 있는 몬스터는 건너뜀)", "확인");
         }
 
         /// <summary>체크한 몬스터를 재생성한다. 기존 statData가 있으면 제자리 덮어쓰기(Undo 가능).</summary>
@@ -333,9 +340,12 @@ namespace UPlayGround.Tool.Editor.Balance
                 return;
 
             EnsureFolder(StatSavePath);
+            int linked = 0;
             for (int i = 0; i < targets.Count; i++)
             {
                 ActorDefinitionSO actor = targets[i];
+                if (EnsureScalingLinked(actor))
+                    linked++;
                 if (actor.statData != null)
                 {
                     // 기존 에셋 제자리 덮어쓰기 — 다른 곳에서 참조 중인 statData 링크를 유지한다.
@@ -351,7 +361,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("Monster Stat Generator", $"재생성 완료: {targets.Count}개 (덮어쓰기 {overwriteCount}개)", "확인");
+            EditorUtility.DisplayDialog("Monster Stat Generator", $"재생성 완료: {targets.Count}개 (덮어쓰기 {overwriteCount}개)\nGrowth 연결: {linked}개", "확인");
         }
 
         private void SetAllSelected(bool value)
@@ -387,7 +397,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private void WriteStatValues(ActorStatSO stat, ActorDefinitionSO actor)
         {
-            Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(_scaling, actor.grade, actor.level, _difficultyOverride);
+            Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
             foreach (KeyValuePair<StatType, float> pair in values)
                 stat.EditorSet(pair.Key, pair.Value);
         }
@@ -406,6 +416,24 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         // ── helpers ────────────────────────────────────────────────
+        private MonsterScalingSO ResolveScaling(ActorDefinitionSO actor)
+            => actor != null && actor.monsterScaling != null ? actor.monsterScaling : _scaling;
+
+        private bool EnsureScalingLinked(ActorDefinitionSO actor)
+        {
+            if (actor == null || (actor.actorType & ActorType.Monster) == 0 || actor.monsterScaling != null)
+                return false;
+            if (_scaling == null)
+                return false;
+
+            Undo.RecordObject(actor, "Link Monster Scaling");
+            var so = new SerializedObject(actor);
+            so.FindProperty("monsterScaling").objectReferenceValue = _scaling;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(actor);
+            return true;
+        }
+
         private bool PassesFilter(ActorDefinitionSO actor)
         {
             if (string.IsNullOrWhiteSpace(_filter))

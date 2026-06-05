@@ -51,7 +51,7 @@ namespace UPlayGround.Data.Enemy
 
         [Header("공격 피해 커브 (공격 데이터 생성기 연동)")]
         [Tooltip("Normal 등급 1타 목표 최종 피해량(레벨 보정 전). 공격 데이터 생성기의 base 피해로 사용된다.")]
-        [Min(0f)] public float baseAttackDamage = 8f;
+        [Min(0f)] public float baseAttackDamage = 12f;
 
         public bool TryGetGrade(MonsterActorGrade grade, out GradeScaling scaling)
         {
@@ -81,7 +81,7 @@ namespace UPlayGround.Data.Enemy
 
         /// <summary>
         /// 공격 데이터 생성기가 사용할 등급별 1타 목표 최종 피해량(레벨 보정 전).
-        /// 레벨 보정과 AttackPower 역보정은 생성기가 담당하므로 여기서는 등급/난이도만 반영한다.
+        /// 런타임 AttackPower는 별도로 곱해지므로 여기서는 공격 데이터의 등급/난이도 기준 피해만 반영한다.
         /// </summary>
         public float GetBaseAttackDamage(MonsterActorGrade grade)
         {
@@ -98,10 +98,10 @@ namespace UPlayGround.Data.Enemy
             {
                 gradeScalings = new List<GradeScaling>
                 {
-                    new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.6f, attackMultiplier = 0.8f, poiseMultiplier = 0.6f, defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 0.8f },
+                    new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.40f, attackMultiplier = 0.82f, poiseMultiplier = 0.55f, defenseAdd = 0.01f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 0.82f },
                     new() { grade = MonsterActorGrade.Normal, healthMultiplier = 1f,   attackMultiplier = 1f,   poiseMultiplier = 1f,   defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1f },
-                    new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 1.9f, attackMultiplier = 1.3f, poiseMultiplier = 2.4f, defenseAdd = 0.10f, moveSpeedMultiplier = 1.1f, attackDamageMultiplier = 1.5f },
-                    new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 7.5f, attackMultiplier = 1.5f, poiseMultiplier = 5f,    defenseAdd = 0.20f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 2.25f },
+                    new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 2.05f, attackMultiplier = 1.3f, poiseMultiplier = 2.2f, defenseAdd = 0.10f, moveSpeedMultiplier = 1.1f, attackDamageMultiplier = 1.5f },
+                    new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 8.33f, attackMultiplier = 1.5f, poiseMultiplier = 7f,    defenseAdd = 0.20f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 2.25f },
                 };
             }
 

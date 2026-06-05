@@ -97,6 +97,13 @@ namespace UPlayGround.Tool.Editor.Validation
 
             if (isMonster)
             {
+                if (definition.monsterScaling == null)
+                {
+                    Add(issues, EditorValidationSeverity.Warning, path, definition, "monsterScaling",
+                        "몬스터 Growth 기준이 비어 있습니다.",
+                        "Stat Data Generator 또는 Monster Stat Generator에서 MonsterScalingSO를 연결하세요.");
+                }
+
                 if (definition.attackData == null)
                 {
                     Add(issues, EditorValidationSeverity.Warning, path, definition, "attackData",

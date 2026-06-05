@@ -429,6 +429,18 @@ namespace UPlayGround.Tool.Editor.Balance
             EditorGUILayout.LabelField(
                 $"몬스터 처치 예상 시간 {BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeath)} / 플레이어 생존 예상 시간 {BalanceCombatEstimator.FormatTime(result.PlayerTimeToDeath)}",
                 EditorStyles.miniLabel);
+            if (result.MonsterBreakGauge > 0f)
+            {
+                string breakTime = result.PlayerExpectedBreakDps > 0f
+                    ? $"{result.EstimatedTimeToBreak:F1}s"
+                    : "-";
+                EditorGUILayout.LabelField(
+                    $"브레이크 게이지 {result.MonsterBreakGauge:F0} / 플레이어 Break {result.PlayerExpectedBreakDps:F1}/s / 예상 브레이크 {breakTime} / 노출 가동률 {result.BreakExposedUptime * 100f:F0}%",
+                    EditorStyles.miniLabel);
+                EditorGUILayout.LabelField(
+                    $"브레이크 포함 실효 DPS {result.PlayerEffectiveDpsWithBreak:F1} / 브레이크 포함 처치 예상 {BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeathWithBreak)}",
+                    EditorStyles.miniLabel);
+            }
             EditorGUILayout.LabelField(
                 $"공격 확률 Basic {result.BasicAttackChance * 100f:F0}% / Heavy {result.HeavyAttackChance * 100f:F0}% / Skill {result.SkillAttackChance * 100f:F0}% / 강한 공격 {result.StrongAttackChance * 100f:F0}%",
                 EditorStyles.miniLabel);
@@ -641,7 +653,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (_selectedActor == null)
                 return;
 
-            BalanceDataAutoGenerator.GenerationSummary summary = BalanceDataAutoGenerator.GenerateMissing(_selectedActor);
+            BalanceDataAutoGenerator.GenerationSummary summary = BalanceDataAutoGenerator.GenerateMissing(_selectedActor, _scenario, CreateFallbackInput());
             AnalyzeSelected();
 
             if (summary.CreatedAny)
@@ -672,7 +684,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (actor == null || !BalanceDataAutoGenerator.HasMissingData(actor))
                     continue;
 
-                BalanceDataAutoGenerator.GenerationSummary summary = BalanceDataAutoGenerator.GenerateMissing(actor);
+                BalanceDataAutoGenerator.GenerationSummary summary = BalanceDataAutoGenerator.GenerateMissing(actor, _scenario, CreateFallbackInput());
                 createdCount += summary.CreatedCount;
             }
 
@@ -794,7 +806,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 return;
 
             var builder = new StringBuilder();
-            builder.AppendLine("actorId,displayName,level,grade,status,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterHp,playerAttackPower,playerDps,enemyDps,enemyPoiseDps,playerPoiseRecovery,netPoisePressure,basicChance,heavyChance,skillChance,strongChance,topAttack,topAttackShare,dangerRingMissing,attackOpportunities,unlockedSkills,lockedSkills,availableSkills,summary");
+            builder.AppendLine("actorId,displayName,level,grade,status,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterKillSecondsWithBreak,monsterHp,playerAttackPower,playerDps,playerEffectiveDpsWithBreak,playerBreakDps,monsterBreakGauge,estimatedTimeToBreak,breaksPerFight,breakExposedUptime,enemyDps,enemyPoiseDps,playerPoiseRecovery,netPoisePressure,basicChance,heavyChance,skillChance,strongChance,topAttack,topAttackShare,dangerRingMissing,attackOpportunities,unlockedSkills,lockedSkills,availableSkills,summary");
             for (int i = 0; i < _results.Count; i++)
             {
                 BalanceScenarioResult r = _results[i];
@@ -815,11 +827,25 @@ namespace UPlayGround.Tool.Editor.Balance
                 builder.Append(',');
                 builder.Append(r.MonsterTimeToDeath.ToString("F2"));
                 builder.Append(',');
+                builder.Append(r.MonsterTimeToDeathWithBreak.ToString("F2"));
+                builder.Append(',');
                 builder.Append(r.MonsterHealth.ToString("F2"));
                 builder.Append(',');
                 builder.Append(r.PlayerAttackPower.ToString("F2"));
                 builder.Append(',');
                 builder.Append(r.PlayerExpectedDps.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.PlayerEffectiveDpsWithBreak.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.PlayerExpectedBreakDps.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.MonsterBreakGauge.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.EstimatedTimeToBreak.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.EstimatedBreaksPerFight.ToString("F2"));
+                builder.Append(',');
+                builder.Append(r.BreakExposedUptime.ToString("F4"));
                 builder.Append(',');
                 builder.Append(r.EnemyExpectedDps.ToString("F2"));
                 builder.Append(',');

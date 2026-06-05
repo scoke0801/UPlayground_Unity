@@ -11,9 +11,6 @@ namespace Game.Editor.P09Builder
                 throw new BuildException("PrefabName이 비어있습니다 (GenerateActorDescStep).");
 
             var template = ActorTemplateFactory.Get(ctx.Config.ActorKind);
-            var descFolder = ctx.PrefabFolder + "/Descs";
-            PathConfig.EnsureFolderExists(descFolder);
-
             foreach (var def in template.GetDescDefs(ctx.Config))
             {
                 if (def == null || def.DescType == null) continue;
@@ -35,8 +32,9 @@ namespace Game.Editor.P09Builder
                     throw new BuildException($"ApplyDefaults 실패 ({def.DescType.Name}): {ex.Message}", ex);
                 }
 
-                var assetPath = $"{descFolder}/{ctx.PrefabName}{def.Suffix}.asset";
-                AssetDatabase.CreateAsset(so, assetPath);
+                var dataFolder = PathConfig.GetGeneratedDataFolder(def.DescType);
+                // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
+                var assetPath = PathConfig.CreateOrReplaceAsset(so, dataFolder, $"{ctx.PrefabName}{def.Suffix}");
 
                 ctx.GeneratedDescs.Add(so);
                 ctx.GeneratedAssetPaths.Add(assetPath);

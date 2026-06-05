@@ -49,11 +49,13 @@ namespace UPlayGround
             // TODO(DangerRing): defenseType이 기본 Parryable로 들어간다. 원거리 Unblockable 공격을 만들려면
             //   Initialize에 defenseType을 인자로 받아 스킬(EnemyAttackInfo.defenseType)에서 전달할 것.
             //   (근접은 EnemyCombat.CheckMeleeAttackHit에서 이미 복사 중)
+            // isProjectile=true: 투사체/AOE는 패리·카운터가 성립하지 않는다(가드·퍼펙트 도지는 유지).
             attackData = new AttackData
             {
                 damage = dmg,
                 attackDirection = direction,
-                reactionType = AttackReactionType.Hit
+                reactionType = AttackReactionType.Hit,
+                isProjectile = true
             };
             // P4: 설정된 히트 FX가 attacker-side 연출(ShowExternalHitFeedback)에 반영되도록 복사. 비우면 기본 FX 사용.
             if (!string.IsNullOrWhiteSpace(hitParticleName))

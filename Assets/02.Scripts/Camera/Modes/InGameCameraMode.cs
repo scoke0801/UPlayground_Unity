@@ -16,6 +16,8 @@ namespace UPlayGround.CameraSystem
         private float _frontCameraBlendVel;
         private Vector3 _lookAheadOffset;
         private Vector3 _lookAheadVelocity;
+        private bool _wasLockOnLastFrame;
+        private float _lockOnReleaseSmoothTimer;
 
         private const float FRONT_BLEND_RETURN_SPEED = 0.12f;
         private const float FRONT_BLEND_PULL_SPEED = 0f;
@@ -29,6 +31,8 @@ namespace UPlayGround.CameraSystem
 
         public void OnEnter(CameraRuntimeContext context, CameraModeEnterParams enterParams)
         {
+            _wasLockOnLastFrame = context.LockOn?.IsActive ?? false;
+            _lockOnReleaseSmoothTimer = 0f;
         }
 
         public void OnExit(CameraRuntimeContext context)
@@ -86,6 +90,7 @@ namespace UPlayGround.CameraSystem
             CameraSettings settings = context.Settings;
             bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
             bool skipAuto = context.IsInputLocked || context.LookAtOverride != null;
+            bool wasLockOn = _wasLockOnLastFrame;
 
             UpdateRotationTransition(context, settings, state, deltaTime);
             UpdateLockOn(context, settings, state, skipAuto);
@@ -104,8 +109,12 @@ namespace UPlayGround.CameraSystem
             state.CameraOffset += effectState.offsetDelta;
 
             bool isLockOn = context.LockOn?.IsActive ?? false;
+            if (wasLockOn && !isLockOn)
+                _lockOnReleaseSmoothTimer = Mathf.Max(_lockOnReleaseSmoothTimer, settings.lockOnTransitionDuration);
+
+            bool keepReleaseSmoothing = _lockOnReleaseSmoothTimer > 0f || context.IsAligning;
             float posSmoothTime = effectState.positionSmoothTimeOverride ?? settings.positionSmoothTime;
-            if (!isLockOn && context.LookAtOverride == null && !effectState.positionSmoothTimeOverride.HasValue)
+            if (!isLockOn && !keepReleaseSmoothing && context.LookAtOverride == null && !effectState.positionSmoothTimeOverride.HasValue)
                 posSmoothTime = 0f;
             float rotSmoothTime = effectState.rotationSmoothTimeOverride ?? settings.rotationSmoothTime;
 
@@ -122,6 +131,9 @@ namespace UPlayGround.CameraSystem
                 fov = baseFOV;
 
             state.CurrentDistance = state.TargetDistance;
+            _wasLockOnLastFrame = isLockOn;
+            if (_lockOnReleaseSmoothTimer > 0f)
+                _lockOnReleaseSmoothTimer = Mathf.Max(0f, _lockOnReleaseSmoothTimer - deltaTime);
 
             return new CameraRigPose
             {

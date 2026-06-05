@@ -47,6 +47,9 @@ namespace UPlayGround.Tool.Editor.Validation
                 if (GUILayout.Button("리포트 저장", EditorStyles.toolbarButton, GUILayout.Width(86f)))
                     SaveMarkdownReport();
 
+                if (GUILayout.Button("Data 경로 이동", EditorStyles.toolbarButton, GUILayout.Width(102f)))
+                    MoveDataAssetsToDataRoot();
+
                 GUILayout.Space(6f);
                 GUILayout.Label("검색", GUILayout.Width(34f));
                 _filter = EditorGUILayout.TextField(_filter, EditorStyles.toolbarSearchField, GUILayout.MinWidth(180f));
@@ -120,6 +123,7 @@ namespace UPlayGround.Tool.Editor.Validation
         private void RunAll()
         {
             _issues.Clear();
+            _issues.AddRange(DataPathValidator.ValidateAll());
             _issues.AddRange(ActorDataValidator.ValidateAll());
             _issues.AddRange(GeneralDataValidator.ValidateAll());
 
@@ -135,6 +139,24 @@ namespace UPlayGround.Tool.Editor.Validation
             }
 
             _issues.Sort(CompareIssue);
+        }
+
+        private void MoveDataAssetsToDataRoot()
+        {
+            bool confirm = EditorUtility.DisplayDialog(
+                "Data 경로 이동",
+                "Assets/10.Datas 밖에 있는 UPlayGround 데이터 에셋을 같은 타입의 기존 Data 폴더 위치로 이동합니다.\n\nGUID는 유지되지만, 현재 에셋 이동 작업을 실행할까요?",
+                "이동",
+                "취소");
+            if (!confirm)
+                return;
+
+            DataPathMoveResult result = DataPathValidator.MoveAssetsToDataRoot();
+            RunAll();
+            EditorUtility.DisplayDialog(
+                "Data 경로 이동 완료",
+                $"이동: {result.Moved}\n기준 경로 없음: {result.Skipped}\n실패: {result.Failed}",
+                "확인");
         }
 
         private bool ShouldShow(EditorValidationIssue issue)

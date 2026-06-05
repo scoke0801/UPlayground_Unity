@@ -229,7 +229,6 @@ namespace UPlayGround.Manager
             if (_lockOn.IsActive)
             {
                 _lockOn.Release();
-                _targetDistance = settings.defaultDistance;
             }
             else
             {

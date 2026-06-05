@@ -10,17 +10,30 @@ namespace UPlayGround.Combat
     /// </summary>
     public static class DamageResolver
     {
-        public static DamageResult ResolvePlayerDamage(AttackData attackData, bool includeCritical = true)
+        public static DamageResult ResolvePlayerDamage(PlayerActor target, AttackData attackData, bool includeCritical = true)
         {
             float baseDamage = Mathf.Max(0f, attackData?.damage ?? 0f);
+            float attackerPower = attackData?.attacker != null
+                ? attackData.attacker.Stats.AttackPower
+                : 1f;
+            float defenseRate = target != null
+                ? Mathf.Clamp01(target.Stats.Defense)
+                : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(attackData) : 1f;
-            float finalDamage = baseDamage * criticalMultiplier;
+            float finalDamage = baseDamage
+                                * attackerPower
+                                * (1f - defenseRate)
+                                * criticalMultiplier;
+
+            // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
+            if (baseDamage > 0f)
+                finalDamage = Mathf.Max(1f, finalDamage);
 
             return new DamageResult(
                 baseDamage,
                 finalDamage,
-                attackerPower: 1f,
-                defenseRate: 0f,
+                attackerPower,
+                defenseRate,
                 damageTakenMultiplier: 1f,
                 criticalMultiplier,
                 criticalMultiplier > 1f,
@@ -48,6 +61,10 @@ namespace UPlayGround.Combat
                                 * (1f - defenseRate)
                                 * damageTakenMultiplier
                                 * criticalMultiplier;
+
+            // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
+            if (baseDamage > 0f)
+                finalDamage = Mathf.Max(1f, finalDamage);
 
             return new DamageResult(
                 baseDamage,

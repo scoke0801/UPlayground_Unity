@@ -10,6 +10,7 @@ using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Stat;
 using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
@@ -619,10 +620,11 @@ namespace UPlayGround
             // 연계 토큰 스트림은 캐릭터 종속 — 교체 시 비운다(설계 §8).
             _comboInputTracker?.Clear();
 
-            // 체력 복원 (처음 등장 시 최대치)
-            _maxHealth     = data.maxHealth;
+            // 성장 스탯 적용 후 체력 복원 (처음 등장 시 최대치)
+            _maxHealth = ApplyCharacterStats(data);
             _currentHealth = _characterHealthMap.TryGetValue(data.characterType, out var hp)
-                             ? hp : data.maxHealth;
+                             ? Mathf.Clamp(hp, 0f, _maxHealth)
+                             : _maxHealth;
 
             // 스킬 게이지 복원
             _skillGauge.SetGauge(
@@ -694,6 +696,29 @@ namespace UPlayGround
             }
         }
 
+        private float ApplyCharacterStats(CharacterModelData data)
+        {
+            CharacterActorType type = data != null ? data.characterType : _characterActorType;
+            IReadOnlyDictionary<StatType, float> growthStats = PartyManager.Instance?.GetGrowthStats(type);
+
+            if (growthStats != null && growthStats.Count > 0)
+            {
+                Stats?.Init(null);
+                foreach (KeyValuePair<StatType, float> pair in growthStats)
+                    Stats?.SetBase(pair.Key, pair.Value);
+                return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : ActorStatSO.GetDefault(StatType.MaxHealth));
+            }
+
+            if (Definition != null && Definition.statData != null)
+            {
+                Stats?.Init(Definition.statData);
+                return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : Definition.statData.GetBase(StatType.MaxHealth));
+            }
+
+            Stats?.Init(null);
+            return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : ActorStatSO.GetDefault(StatType.MaxHealth));
+        }
+
         /// <summary>
         /// 지정 캐릭터의 현재 체력 반환. 한 번도 활성화된 적 없으면 최대 체력으로 취급한다.
         /// </summary>
@@ -713,9 +738,11 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _maxHealth;
 
-            if (_swapBehaviour == null) _swapBehaviour = GetComponent<PlayerSwapBehaviour>();
-            var modelData = _swapBehaviour?.GetModelData(type);
-            return modelData != null ? modelData.maxHealth : 1f;
+            IReadOnlyDictionary<StatType, float> growthStats = PartyManager.Instance?.GetGrowthStats(type);
+            if (growthStats != null && growthStats.TryGetValue(StatType.MaxHealth, out float maxHealth))
+                return Mathf.Max(1f, maxHealth);
+
+            return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxHealth));
         }
 
         public float GetSkillGaugeForCharacter(CharacterActorType type)
@@ -907,36 +934,15 @@ namespace UPlayGround
                 Definition != null ? Definition.combatDefensePolicy : null);
         }
 
-        /// <summary>
-        /// Attack 상태에서 히트박스가 활성 상태이고 약공격(NormalAttack) 중일 때 피격되면 패리를 시도한다.
-        /// CheatManager.IsAlwaysParryEnabled가 켜져 있으면 조건 없이 패리한다.
-        /// </summary>
-        private bool TryParry(AttackData attackData)
-        {
-            bool alwaysParry = CheatManager.Instance?.IsAlwaysParryEnabled ?? false;
-
-            if (!alwaysParry)
-            {
-                string stateName = MovementController.CurrentState.StateName;
-                if (stateName != "Attack")
-                    return false;
-                if (!_combat.IsPossibleCollide)
-                    return false;
-                // 약공격(NormalAttack)만 패리 가능 — 강공격·차지·스킬은 패리 불가
-                if (_combat.CurrentAttackData?.attackKind != AttackKind.NormalAttack)
-                    return false;
-            }
-
-            OnParrySuccess(attackData);
-            return true;
-        }
-
         private void OnParrySuccess(AttackData attackData)
         {
             Debug.Log("[PlayerActor] 패리 성공!");
 
+            var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
+
             // 패리 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다
-            _combat.OpenParryCounterWindow();
+            _combat.OpenParryCounterWindow(
+                defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.Parry) ?? -1f);
 
             // 히트 감지를 즉시 비활성화해 이후 PerformHitDetection이 HitStop을 덮어쓰지 않도록 한다
             _combat.SetEnableCollision(false);
@@ -944,23 +950,20 @@ namespace UPlayGround
             // 공격 상태를 중단하고 Idle로 복귀 (패리 반격 창은 이미 열려 있으므로 다음 공격 입력 시 반격 발동)
             MovementController.TransitionToState(new PlayerIdleState(MovementController));
 
-            // 히트스톱 (퍼펙트 가드와 동일한 슬로우 연출)
-            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
-
-            // 카메라 피드백
-            CameraManager.Instance?.CombatCamera?.PlayPerfectGuard(attackData, _shakeKeyHeavyHit);
-
-            // 패리 VFX
             Vector3 fxPos = TryGetSocket(ActorSocketType.Weapon, out var center)
                 ? center.position
                 : (attackData?.hitPoint ?? Vector3.zero) != Vector3.zero
                     ? attackData.hitPoint
                     : transform.position;
 
-            GameObjectManager.Instance.ShowFX(_parryFxName, fxPos);
-
-            // 바이탈 오브
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.PerfectGuard, fxPos);
+            defenseFeedback?.Play(
+                DefenseSuccessType.Parry,
+                new DefenseSuccessFeedbackContext(
+                    this,
+                    attackData?.attacker,
+                    attackData,
+                    fxPos,
+                    _parryFxName));
 
             // 공격자(몬스터) 경직
             if (attackData?.attacker is MonsterActor monster)
@@ -977,14 +980,22 @@ namespace UPlayGround
             // 퍼펙트 도지 성공 — 창 즉시 닫아 중복 발동 방지
             _combat.ClosePerfectDodgeWindow();
 
-            // VitalOrb 보상 스폰
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.Dodge, transform.position);
+            var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
+            _combat.OpenDodgeCounterWindow(
+                attackData,
+                defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge) ?? -1f);
 
-            // 히트스탑
-            GameCombatManager.Instance.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerGuard);
+            Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
+                ? center.position
+                : transform.position;
 
-            // 카메라 피드백
-            CameraManager.Instance?.CombatCamera?.PlayPerfectDodge(attackData, _shakeKeyHit);
+            defenseFeedback?.Play(
+                DefenseSuccessType.PerfectDodge,
+                new DefenseSuccessFeedbackContext(
+                    this,
+                    attackData?.attacker,
+                    attackData,
+                    feedbackPos));
 
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }

@@ -31,7 +31,7 @@ namespace UPlayGround.Component
         [Tooltip("벽 너머의 적은 무시. true 면 LOS(시야선) 검사를 통과한 적만 카운트.")]
         public bool requireLineOfSight = false;
 
-        [Header("Stats")]
+        [HideInInspector]
         public float maxHealth = 100f;
 
         [Header("Sockets — Model 내부 본")]

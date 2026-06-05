@@ -46,6 +46,17 @@ namespace UPlayGround.Tool.Editor.Balance
             return poise;
         }
 
+        public static float SumBreakDamage(AttackInfoBase baseInfo)
+        {
+            if (baseInfo?.hitPhases == null || baseInfo.hitPhases.Count == 0)
+                return 0f;
+
+            float value = 0f;
+            for (int i = 0; i < baseInfo.hitPhases.Count; i++)
+                value += baseInfo.hitPhases[i]?.breakDamage ?? 0f;
+            return value;
+        }
+
         public static int CountHitPhases(AttackInfoBase baseInfo)
             => baseInfo?.hitPhases?.Count ?? 0;
 
@@ -109,6 +120,42 @@ namespace UPlayGround.Tool.Editor.Balance
 
             float averageDamage = totalDamage / count;
             return averageDamage / UnityEngine.Mathf.Max(0.05f, attackInterval);
+        }
+
+        public static float EstimatePlayerRawBreakDps(PlayerAttackDataSO data, float attackInterval)
+        {
+            if (data == null)
+                return 0f;
+
+            var attacks = new List<PlayerAttackInfo>();
+            AddRange(attacks, data.liteComboAttackList);
+            AddRange(attacks, data.heavyComboAttackList);
+            AddRange(attacks, data.jumpAttackList);
+            AddRange(attacks, data.dashAttackList);
+            AddRange(attacks, data.skillAttackList);
+            AddOne(attacks, data.counterAttack);
+            AddOne(attacks, data.parryCounterAttack);
+            AddOne(attacks, data.entryAttack);
+            AddOne(attacks, data.swapEvadeCounterAttack);
+            AddOne(attacks, data.swapSpecialAttack);
+
+            float totalBreak = 0f;
+            int count = 0;
+            for (int i = 0; i < attacks.Count; i++)
+            {
+                float breakDamage = SumBreakDamage(attacks[i]?.baseInfo);
+                if (breakDamage <= 0f)
+                    continue;
+
+                totalBreak += breakDamage;
+                count++;
+            }
+
+            if (count == 0)
+                return 0f;
+
+            float averageBreak = totalBreak / count;
+            return averageBreak / UnityEngine.Mathf.Max(0.05f, attackInterval);
         }
 
         private static void AddRange(List<PlayerAttackInfo> target, List<PlayerAttackInfo> source)

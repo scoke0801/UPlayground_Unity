@@ -17,6 +17,8 @@ namespace UPlayGround.Manager
     {
         // 등록된 매니저 리스트
         private List<IManager> _registeredManagers = new List<IManager>();
+        // GetManager<T> 선형 탐색 제거용 타입 캐시
+        private Dictionary<System.Type, IManager> _managerLookup = new Dictionary<System.Type, IManager>();
 
         // 초기화 플래그
         public bool IsInitialized { get; private set; } = false;
@@ -71,6 +73,7 @@ namespace UPlayGround.Manager
             RegisterManager(GameTimeManager.Instance);
 
             RegisterManager(ActorSpawnManager.Instance);
+            RegisterManager(AgentTickManager.Instance); // 적 AI 컴포넌트 일괄 틱 (개별 Update 통합)
             RegisterManager(SceneManager.Instance);
             RegisterManager(CheatManager.Instance);
             RegisterManager(RecipeManager.Instance);
@@ -103,6 +106,7 @@ namespace UPlayGround.Manager
             }
 
             _registeredManagers.Add(manager);
+            _managerLookup[manager.GetType()] = manager;
             manager.Init();
 
             Debug.Log($"[GameManager] {manager.GetType().Name} 등록 완료");
@@ -119,6 +123,7 @@ namespace UPlayGround.Manager
             {
                 manager.Dispose();
                 _registeredManagers.Remove(manager);
+                _managerLookup.Remove(manager.GetType());
                 Debug.Log($"[GameManager] {manager.GetType().Name} 등록 해제");
             }
         }
@@ -128,6 +133,11 @@ namespace UPlayGround.Manager
         /// </summary>
         public T GetManager<T>() where T : class, IManager
         {
+            // 구체 타입 조회는 딕셔너리로 O(1)
+            if (_managerLookup.TryGetValue(typeof(T), out var exact))
+                return exact as T;
+
+            // 인터페이스/베이스 타입 조회는 선형 폴백
             foreach (var manager in _registeredManagers)
             {
                 if (manager is T typedManager)
@@ -187,6 +197,7 @@ namespace UPlayGround.Manager
             }
 
             _registeredManagers.Clear();
+            _managerLookup.Clear();
             IsInitialized = false;
 
             Debug.Log("[GameManager] 정리 완료");

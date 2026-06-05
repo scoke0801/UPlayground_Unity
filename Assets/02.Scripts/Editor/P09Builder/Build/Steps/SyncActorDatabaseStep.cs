@@ -6,12 +6,14 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Stat;
 
 namespace Game.Editor.P09Builder
 {
     public sealed class SyncActorDatabaseStep : IBuildStep
     {
         private const string DefaultActorDatabasePath = "Assets/10.Datas/Actor/DataBase/ActorDatabase.asset";
+        private const string GeneratedStatPath = "Assets/10.Datas/Stat/Generated";
 
         public void Execute(BuildContext ctx)
         {
@@ -111,11 +113,9 @@ namespace Game.Editor.P09Builder
         private static ActorDefinitionSO CreateDefinitionAsset(BuildContext ctx, string actorId)
         {
             var definition = ScriptableObject.CreateInstance<ActorDefinitionSO>();
-            var descFolder = ctx.PrefabFolder + "/Descs";
-            PathConfig.EnsureFolderExists(descFolder);
-
-            var assetPath = AssetDatabase.GenerateUniqueAssetPath($"{descFolder}/{actorId}_ActorDef.asset");
-            AssetDatabase.CreateAsset(definition, assetPath);
+            var dataFolder = PathConfig.GetGeneratedDataFolder(typeof(ActorDefinitionSO));
+            // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
+            var assetPath = PathConfig.CreateOrReplaceAsset(definition, dataFolder, $"{actorId}_ActorDef");
             ctx.GeneratedDescs.Add(definition);
             ctx.GeneratedAssetPaths.Add(assetPath);
             return definition;
@@ -133,8 +133,6 @@ namespace Game.Editor.P09Builder
             definition.characterType = CharacterActorType.None;
             definition.targetLayerMask = LayerMask.GetMask("Player");
             definition.prefab = prefab;
-            // statData(ActorStatSO)는 P09에서 발급하지 않는다.
-            // 등급(grade)을 기준으로 Stat Data Generator의 마이그레이션 탭이 중앙에서 일괄 생성·연결한다.
             definition.poiseData = FindFirst<PoiseSO>(ctx.GeneratedDescs)
                                    ?? ctx.Config?.Stats?.existingPoiseSo as PoiseSO;
             definition.attackData = FindFirst<EnemyAttackDataSO>(ctx.GeneratedDescs)
@@ -152,6 +150,102 @@ namespace Game.Editor.P09Builder
                 definition.grade = ctx.Config.Stats.grade;
                 definition.level = Mathf.Max(1, ctx.Config.Stats.level);
             }
+
+            EnsureMonsterGrowthAndStat(definition, ctx);
+        }
+
+        private static void EnsureMonsterGrowthAndStat(ActorDefinitionSO definition, BuildContext ctx)
+        {
+            if (definition == null)
+                return;
+
+            MonsterScalingSO scaling = definition.monsterScaling != null
+                ? definition.monsterScaling
+                : FindOrCreateMonsterScaling();
+
+            if (scaling == null)
+                return;
+
+            definition.monsterScaling = scaling;
+
+            if (definition.statData == null)
+            {
+                var stat = ScriptableObject.CreateInstance<ActorStatSO>();
+                WriteMonsterStat(stat, definition, IsGeneratedDesc(ctx, definition.poiseData));
+
+                // 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
+                string path = PathConfig.CreateOrReplaceAsset(stat, GeneratedStatPath, $"ActorStat_{SafeName(definition.actorId)}");
+                definition.statData = stat;
+                ctx?.GeneratedDescs.Add(stat);
+                ctx?.GeneratedAssetPaths.Add(path);
+            }
+            else
+            {
+                Undo.RecordObject(definition.statData, "P09 Builder: Update Monster Stat");
+                WriteMonsterStat(definition.statData, definition, IsGeneratedDesc(ctx, definition.poiseData));
+                EditorUtility.SetDirty(definition.statData);
+            }
+        }
+
+        private static void WriteMonsterStat(ActorStatSO stat, ActorDefinitionSO definition, bool syncGeneratedPoise)
+        {
+            if (stat == null || definition == null)
+                return;
+
+            var values = MonsterStatCalculator.Calculate(definition.monsterScaling, definition);
+            foreach (KeyValuePair<StatType, float> pair in values)
+                stat.EditorSet(pair.Key, pair.Value);
+
+            if (definition.poiseData != null)
+            {
+                if (syncGeneratedPoise)
+                {
+                    Undo.RecordObject(definition.poiseData, "P09 Builder: Sync Generated Poise");
+                    definition.poiseData.maxPoise = Mathf.Max(1f, stat.GetBase(StatType.MaxPoise));
+                    EditorUtility.SetDirty(definition.poiseData);
+                }
+                else
+                {
+                    stat.EditorSet(StatType.MaxPoise, definition.poiseData.maxPoise);
+                }
+
+                stat.EditorSet(StatType.PoiseRecoveryRate, definition.poiseData.recoveryRate);
+                stat.EditorSet(StatType.PoiseRecoveryDelay, definition.poiseData.recoveryDelay);
+            }
+
+            stat.EditorFillMissing();
+        }
+
+        private static bool IsGeneratedDesc(BuildContext ctx, ScriptableObject asset)
+            => ctx != null && asset != null && ctx.GeneratedDescs != null && ctx.GeneratedDescs.Contains(asset);
+
+        private static MonsterScalingSO FindOrCreateMonsterScaling()
+        {
+            var guids = AssetDatabase.FindAssets("t:MonsterScalingSO");
+            if (guids != null && guids.Length > 0)
+            {
+                System.Array.Sort(guids, (a, b) => string.Compare(
+                    AssetDatabase.GUIDToAssetPath(a),
+                    AssetDatabase.GUIDToAssetPath(b),
+                    System.StringComparison.Ordinal));
+                return AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(AssetDatabase.GUIDToAssetPath(guids[0]));
+            }
+
+            PathConfig.EnsureFolderExists(GeneratedStatPath);
+            var scaling = ScriptableObject.CreateInstance<MonsterScalingSO>();
+            scaling.FillDefaults();
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{GeneratedStatPath}/MonsterScaling_Default.asset");
+            AssetDatabase.CreateAsset(scaling, path);
+            Debug.Log($"[P09Builder] 기본 MonsterScalingSO 생성: {path}");
+            return scaling;
+        }
+
+        private static string SafeName(string value)
+        {
+            string result = string.IsNullOrWhiteSpace(value) ? "Unknown" : value;
+            foreach (char invalid in System.IO.Path.GetInvalidFileNameChars())
+                result = result.Replace(invalid, '_');
+            return result.Replace('/', '_').Replace('\\', '_').Replace(' ', '_');
         }
 
         private static T FindFirst<T>(List<ScriptableObject> list) where T : ScriptableObject

@@ -22,7 +22,7 @@ namespace UPlayGround.Combat
             if (!defense.ShouldApplyDamage)
                 return CombatResult.Build(hit, defense, default, ReactionDecision.None, ResourceChangeSet.Empty);
 
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(attackData);
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, attackData);
             return BuildDamageResult(hit, defense, damage);
         }
 
@@ -31,7 +31,7 @@ namespace UPlayGround.Combat
             AttackData attackData)
         {
             HitContext hit = HitContext.FromAttackData(attackData, victim);
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(attackData, includeCritical: false);
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, attackData, includeCritical: false);
             return BuildDamageResult(hit, new DefenseResult(DefenseOutcome.GuardBreak, true), damage);
         }
 

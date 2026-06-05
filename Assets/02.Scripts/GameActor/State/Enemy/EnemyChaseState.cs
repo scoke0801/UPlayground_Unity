@@ -14,7 +14,8 @@ namespace UPlayGround.State
         
         private EnemyAIContext _context;
         private EnemyDetection _detection;
-        
+        private EnemyTacticalMemory _memory;
+
         private float _chaseSpeed;
         private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
         private AnimKey _lastLocoKey = AnimKey.None;
@@ -32,6 +33,8 @@ namespace UPlayGround.State
         {
             _context = context;
             _detection = detection;
+            // 핫패스 GetComponent 제거: 액터 생애 동안 불변이므로 1회 캐싱
+            _memory = gameActor.GetComponent<EnemyTacticalMemory>();
         }
 
         public override bool CanTransitionState(string stateName)
@@ -73,7 +76,7 @@ namespace UPlayGround.State
                         controller,
                         _context,
                         _detection,
-                        gameActor.GetComponent<EnemyTacticalMemory>()));
+                        _memory));
                 return;
             }
 
@@ -183,7 +186,7 @@ namespace UPlayGround.State
                     controller,
                     _context,
                     _detection,
-                    gameActor.GetComponent<EnemyTacticalMemory>()));
+                    _memory));
         }
 
         private bool ShouldBreakTargetContact(float deltaTime)
@@ -206,7 +209,9 @@ namespace UPlayGround.State
 
         private void CacheContactColliders()
         {
-            _selfColliders = gameActor.GetComponentsInChildren<Collider>();
+            // self 콜라이더는 액터 생애 동안 불변 → 최초 1회만 수집
+            if (_selfColliders == null)
+                _selfColliders = gameActor.GetComponentsInChildren<Collider>();
             _cachedTarget = _detection.CurrentTarget;
             _targetColliders = _detection.CurrentTarget != null
                 ? _detection.CurrentTarget.GetComponentsInChildren<Collider>()

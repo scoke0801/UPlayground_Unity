@@ -196,7 +196,9 @@
       "Bash(export LC_ALL=C.UTF-8)",
       "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp.csproj -nologo -t:Build -p:Configuration=Debug -clp:ErrorsOnly)",
       "Bash(\"/c/Program Files/dotnet/dotnet\" msbuild Assembly-CSharp-Editor.csproj -nologo -t:Build -p:Configuration=Debug -clp:ErrorsOnly)",
-      "Bash(export LC_ALL=C.UTF-8 LANG=C.UTF-8)"
+      "Bash(export LC_ALL=C.UTF-8 LANG=C.UTF-8)",
+      "PowerShell($p = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\10.Datas\\\\AI\\\\BehaviorTree\\\\SourceJson\\\\EnemyBehavior_SkeletonSwordsman_Disciplined.json\"; try { $j = Get-Content $p -Raw | ConvertFrom-Json; $groups = $j.groups; $ruleCount = \\($groups | ForEach-Object { $_.rules.Count } | Measure-Object -Sum\\).Sum; Write-Output \\(\"OK: id={0}, groups={1}, totalRules={2}\" -f $j.id, $groups.Count, $ruleCount\\) } catch { Write-Output \\(\"JSON PARSE ERROR: \" + $_.Exception.Message\\) })",
+      "WebFetch(domain:www.gcores.com)"
     ]
   }
 }

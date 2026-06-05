@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UPlayGround.Data.Actor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -39,12 +40,27 @@ namespace UPlayGround.Data.Enemy
             {
                 float baseValue = scaling != null && scaling.baseStat != null
                     ? scaling.baseStat.GetBase(type)
-                    : ActorStatSO.GetDefault(type);
+                    : GetDefaultMonsterBase(type);
 
                 float leveled = ApplyGrowth(scaling, type, baseValue, clampedLevel, cap);
                 stats[type] = ApplyGradeAndDifficulty(type, leveled, grade01, difficulty);
             }
 
+            return stats;
+        }
+
+        public static Dictionary<StatType, float> Calculate(
+            MonsterScalingSO scaling,
+            ActorDefinitionSO actor,
+            float difficultyOverride = 0f)
+        {
+            Dictionary<StatType, float> stats = Calculate(
+                scaling,
+                actor != null ? actor.grade : MonsterActorGrade.Normal,
+                actor != null ? actor.level : 1,
+                difficultyOverride);
+
+            ApplyHumanoidWeaponVariation(stats, actor);
             return stats;
         }
 
@@ -105,5 +121,105 @@ namespace UPlayGround.Data.Enemy
 
         /// <summary>배율이 0(미설정 기본값)이면 1로 본다 — 0 배율로 스탯이 사라지는 사고 방지.</summary>
         private static float NonZero(float multiplier) => multiplier > 0f ? multiplier : 1f;
+
+        private static float GetDefaultMonsterBase(StatType type)
+        {
+            return type switch
+            {
+                StatType.MaxHealth => 540f,
+                StatType.AttackPower => 1f,
+                StatType.Defense => 0f,
+                StatType.MaxPoise => 100f,
+                StatType.PoiseRecoveryRate => 30f,
+                StatType.PoiseRecoveryDelay => 2f,
+                StatType.MoveSpeed => 1f,
+                _ => ActorStatSO.GetDefault(type),
+            };
+        }
+
+        private static void ApplyHumanoidWeaponVariation(Dictionary<StatType, float> stats, ActorDefinitionSO actor)
+        {
+            if (stats == null || !IsHumanoidMonster(actor))
+                return;
+
+            WeaponType weapon = InferWeaponType(actor);
+            switch (weapon)
+            {
+                case WeaponType.SwordShield:
+                    Multiply(stats, StatType.MaxHealth, 1.25f);
+                    AddClamped01(stats, StatType.Defense, 0.08f);
+                    Multiply(stats, StatType.MaxPoise, 1.35f);
+                    Multiply(stats, StatType.AttackPower, 0.90f);
+                    Multiply(stats, StatType.MoveSpeed, 0.92f);
+                    break;
+
+                case WeaponType.Bow:
+                case WeaponType.Staff:
+                    Multiply(stats, StatType.MaxHealth, 0.82f);
+                    AddClamped01(stats, StatType.Defense, -0.03f);
+                    Multiply(stats, StatType.MaxPoise, 0.75f);
+                    Multiply(stats, StatType.AttackPower, 1.08f);
+                    Multiply(stats, StatType.MoveSpeed, 1.06f);
+                    break;
+            }
+        }
+
+        public static string GetHumanoidWeaponProfileName(ActorDefinitionSO actor)
+        {
+            if (!IsHumanoidMonster(actor))
+                return "-";
+
+            return InferWeaponType(actor) switch
+            {
+                WeaponType.SwordShield => "탱커",
+                WeaponType.Bow => "원거리",
+                WeaponType.Staff => "원거리",
+                _ => "기본",
+            };
+        }
+
+        private static bool IsHumanoidMonster(ActorDefinitionSO actor)
+        {
+            if (actor == null || (actor.actorType & ActorType.Monster) == 0)
+                return false;
+
+            string key = BuildSearchKey(actor);
+            return key.Contains("Humanoid", StringComparison.OrdinalIgnoreCase)
+                   || key.Contains("Monster", StringComparison.OrdinalIgnoreCase)
+                   || key.StartsWith("Enemy_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static WeaponType InferWeaponType(ActorDefinitionSO actor)
+        {
+            string key = BuildSearchKey(actor);
+            if (key.Contains("SwordShield", StringComparison.OrdinalIgnoreCase))
+                return WeaponType.SwordShield;
+            if (key.Contains("Bow", StringComparison.OrdinalIgnoreCase))
+                return WeaponType.Bow;
+            if (key.Contains("Staff", StringComparison.OrdinalIgnoreCase))
+                return WeaponType.Staff;
+            return WeaponType.NoWeapon;
+        }
+
+        private static string BuildSearchKey(ActorDefinitionSO actor)
+        {
+            if (actor == null)
+                return string.Empty;
+
+            string attackName = actor.attackData != null ? actor.attackData.name : string.Empty;
+            return $"{actor.actorId} {actor.displayName} {actor.name} {attackName}";
+        }
+
+        private static void Multiply(Dictionary<StatType, float> stats, StatType type, float multiplier)
+        {
+            if (stats.TryGetValue(type, out float value))
+                stats[type] = value * multiplier;
+        }
+
+        private static void AddClamped01(Dictionary<StatType, float> stats, StatType type, float add)
+        {
+            if (stats.TryGetValue(type, out float value))
+                stats[type] = Mathf.Clamp01(value + add);
+        }
     }
 }

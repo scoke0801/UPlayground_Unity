@@ -15,9 +15,14 @@ namespace UPlayGround.CameraSystem
         private float _collisionDistance;
         private float _collisionDistanceVel;
         private LayerMask _collisionLayers;
+        private bool _hasFloorRescueY;
+        private float _floorRescueY;
+        private float _floorRescueYVelocity;
 
         // 당김은 즉시, 복귀는 부드럽게
         private const float PULL_SPEED = 0f;
+        private const float FLOOR_RESCUE_SMOOTH_TIME = 0.06f;
+        private const float FLOOR_RESCUE_IMMEDIATE_THRESHOLD = 0.35f;
 
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
@@ -49,6 +54,8 @@ namespace UPlayGround.CameraSystem
         {
             _collisionDistance = distance;
             _collisionDistanceVel = 0f;
+            _hasFloorRescueY = false;
+            _floorRescueYVelocity = 0f;
         }
 
         public void ApplyFloorRescue(Vector3 pivot, ref Vector3 cameraPosition, float deltaTime)
@@ -62,6 +69,7 @@ namespace UPlayGround.CameraSystem
 
             float clearance = Mathf.Max(_settings.groundClearance, _settings.cameraRadius);
             float pivotDrop = pivot.y - cameraPosition.y;
+            float requiredMinY = float.NegativeInfinity;
 
             if (pivotDrop > _settings.floorRescueDropThreshold)
             {
@@ -70,19 +78,42 @@ namespace UPlayGround.CameraSystem
                 if (Physics.Raycast(pivotRayOrigin, Vector3.down, out RaycastHit pivotGroundHit, rayDistance, layers))
                 {
                     float minY = pivotGroundHit.point.y + clearance;
-                    if (cameraPosition.y < minY)
-                        cameraPosition.y = minY;
+                    requiredMinY = Mathf.Max(requiredMinY, minY);
                 }
             }
 
             Vector3 cameraRayOrigin = cameraPosition + Vector3.up * (clearance + 0.25f);
             float cameraRayDistance = clearance + 0.5f;
-            if (!Physics.Raycast(cameraRayOrigin, Vector3.down, out RaycastHit cameraGroundHit, cameraRayDistance, layers))
-                return;
+            if (Physics.Raycast(cameraRayOrigin, Vector3.down, out RaycastHit cameraGroundHit, cameraRayDistance, layers))
+            {
+                float groundClearanceY = cameraGroundHit.point.y + clearance;
+                requiredMinY = Mathf.Max(requiredMinY, groundClearanceY);
+            }
 
-            float groundClearanceY = cameraGroundHit.point.y + clearance;
-            if (cameraPosition.y < groundClearanceY)
-                cameraPosition.y = groundClearanceY;
+            if (float.IsNegativeInfinity(requiredMinY))
+            {
+                return;
+            }
+
+            if (!_hasFloorRescueY || requiredMinY - _floorRescueY > FLOOR_RESCUE_IMMEDIATE_THRESHOLD)
+            {
+                _floorRescueY = requiredMinY;
+                _floorRescueYVelocity = 0f;
+                _hasFloorRescueY = true;
+            }
+            else
+            {
+                _floorRescueY = Mathf.SmoothDamp(
+                    _floorRescueY,
+                    requiredMinY,
+                    ref _floorRescueYVelocity,
+                    FLOOR_RESCUE_SMOOTH_TIME,
+                    Mathf.Infinity,
+                    deltaTime);
+            }
+
+            if (cameraPosition.y < _floorRescueY)
+                cameraPosition.y = _floorRescueY;
         }
 
         private float GetRaycastDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)

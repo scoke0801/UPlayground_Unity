@@ -110,6 +110,7 @@ namespace UPlayGround.State
             _combat.ClearTelegraphs();
             _combat.ClearTelegraphHitPositions();
             ActorWeaponTrailController.StopAttackTrails(gameActor);
+            gameActor.Animator.Speed = 1f;
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
@@ -168,6 +169,11 @@ namespace UPlayGround.State
             }
             else
             {
+                // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
+                gameActor.Animator.Speed = _combat.IsMotionWarping
+                    ? _motionWarp.WarpPlayRateScale
+                    : 1f;
+
                 Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
                 currentVelocity = _motionWarp.EvaluateVelocity(
                     rootVelocity,

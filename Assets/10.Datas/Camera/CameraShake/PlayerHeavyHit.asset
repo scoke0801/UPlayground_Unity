@@ -22,3 +22,9 @@ MonoBehaviour:
   Frequency: 16
   Dampening: 1
   ShakeSpace: 0
+  Mode: 1
+  Noise: 1
+  PitchAmplitude: 1.6
+  YawAmplitude: 1.1
+  RollAmplitude: 0
+  DirectionalBias: 0.4

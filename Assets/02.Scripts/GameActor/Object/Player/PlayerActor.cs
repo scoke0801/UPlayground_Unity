@@ -262,8 +262,8 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled,   null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
@@ -284,8 +284,8 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_1,     null,                    OnInputPerformedSkill_1,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Skill_2,     null,                    OnInputPerformedSkill_2,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard);

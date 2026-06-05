@@ -23,8 +23,8 @@
         public const string Attack = "Attack";
         public const string HeavyAttack = "HeavyAttack";
         
-        public const string Skill_1 = "Skill_1";
-        public const string Skill_2 = "Skill_2";
+        public const string SkillAbility = "SkillAbility";
+        public const string SkillUltimate = "SkillUltimate";
         
         public const string Interact = "Interact";
         

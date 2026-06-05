@@ -172,6 +172,11 @@ namespace UPlayGround.MovementController
             {
                 return;
             }
+
+            if (_currentState is PlayerFinishAttackState { IsTransitionLocked: true })
+            {
+                return;
+            }
             
             GameActorState oldState = _currentState;
             

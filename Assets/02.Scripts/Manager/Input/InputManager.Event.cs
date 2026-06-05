@@ -126,8 +126,8 @@ namespace UPlayGround.Manager
                     case InputDefine.PlayerAction.Dodge:
                     case InputDefine.PlayerAction.Jump:
                     case InputDefine.PlayerAction.Dash: 
-                    case InputDefine.PlayerAction.Skill_1:
-                    case InputDefine.PlayerAction.Skill_2:
+                    case InputDefine.PlayerAction.SkillAbility:
+                    case InputDefine.PlayerAction.SkillUltimate:
                     case InputDefine.PlayerAction.CharacterSwap_1:
                     case InputDefine.PlayerAction.CharacterSwap_2:
                     case InputDefine.PlayerAction.CharacterSwap_3:

@@ -106,7 +106,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Skill_1",
+                    "name": "SkillAbility",
                     "type": "Button",
                     "id": "93265fb2-78c7-4879-88bb-6da049daaeef",
                     "expectedControlType": "",
@@ -115,7 +115,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Skill_2",
+                    "name": "SkillUltimate",
                     "type": "Button",
                     "id": "1faf009b-06c8-4dff-b1f3-41db850db54b",
                     "expectedControlType": "",
@@ -442,7 +442,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Skill_1",
+                    "action": "SkillAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -453,7 +453,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Skill_1",
+                    "action": "SkillAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -464,7 +464,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Skill_2",
+                    "action": "SkillUltimate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -475,7 +475,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Skill_2",
+                    "action": "SkillUltimate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

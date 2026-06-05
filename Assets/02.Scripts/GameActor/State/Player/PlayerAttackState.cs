@@ -93,13 +93,12 @@ namespace UPlayGround.State
 
             // 강 공격 입력이 들어와 있고 피니시 가능한 타겟이 있다면
             // PlayerFinishAttackState로 라우팅된다 → AttackState 진입은 항상 허용.
+            // 브레이크 특수공격은 Interact 입력 전용으로 유지한다.
             bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
             bool isHeavyPending = hasForcedAttack
                 ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
                 : InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat.FindFinishableTarget() != null)
-                return true;
-            if (isHeavyPending && combat.FindSpecialBreakAttackTarget() != null)
                 return true;
 
             AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending, forcedAttackAction);
@@ -132,14 +131,6 @@ namespace UPlayGround.State
                 {
                     InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
-                    return true;
-                }
-
-                Transform breakTarget = combat.FindSpecialBreakAttackTarget();
-                if (breakTarget != null)
-                {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
-                    controller.TransitionToState(new PlayerSpecialBreakAttackState(controller, breakTarget));
                     return true;
                 }
             }

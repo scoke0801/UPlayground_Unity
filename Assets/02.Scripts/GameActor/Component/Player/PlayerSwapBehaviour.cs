@@ -66,7 +66,10 @@ namespace UPlayGround.Component
         /// <summary>
         /// 지정한 캐릭터 타입으로 교체한다.
         /// </summary>
-        public bool SwapTo(CharacterActorType type)
+        public bool SwapTo(
+            CharacterActorType type,
+            bool preserveAnimation = true,
+            bool spawnResidualAttack = true)
         {
             if (_activeModel?.characterType == type)
             {
@@ -81,13 +84,17 @@ namespace UPlayGround.Component
                 return false;
             }
 
-            ActorAnimator.MotionPlaybackSnapshot animationSnapshot =
-                _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
-                ?? ActorAnimator.MotionPlaybackSnapshot.Empty;
+            ActorAnimator.MotionPlaybackSnapshot animationSnapshot = preserveAnimation
+                ? _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
+                  ?? ActorAnimator.MotionPlaybackSnapshot.Empty
+                : ActorAnimator.MotionPlaybackSnapshot.Empty;
 
-            TryReturnToResidualRunner(type);
-            SwapResidualAttackRunner.CancelRunnersForCharacter(type);
-            TrySpawnResidualAttack(_activeModel);
+            if (spawnResidualAttack)
+            {
+                TryReturnToResidualRunner(type);
+                SwapResidualAttackRunner.CancelRunnersForCharacter(type);
+                TrySpawnResidualAttack(_activeModel);
+            }
 
             _activeModel?.gameObject.SetActive(false);
             _activeModel = target;

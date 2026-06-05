@@ -131,9 +131,12 @@ namespace UPlayGround.Component
 
         public void ApplyFinishAttackFromMotionEvent()
         {
-            if (_finishTarget == null || !_finishTarget.IsAlive())
+            var ownerCombat = _ownerPlayer != null ? _ownerPlayer.GetCombat() : null;
+            if (_finishTarget == null ||
+                ownerCombat == null ||
+                !ownerCombat.IsFinishableTarget(_finishTarget.transform, requirePositionCheck: false))
             {
-                Debug.LogWarning($"[ResidualAttack] Finish event skipped. target={_finishTarget != null}, alive={_finishTarget != null && _finishTarget.IsAlive()}");
+                Debug.LogWarning($"[ResidualAttack] Finish event skipped. target={_finishTarget != null}, ownerCombat={ownerCombat != null}");
                 return;
             }
 

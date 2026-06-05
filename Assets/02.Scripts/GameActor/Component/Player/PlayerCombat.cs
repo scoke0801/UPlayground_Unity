@@ -1527,10 +1527,27 @@ namespace UPlayGround.Component
 
         #region Finish Attack
 
+        public bool IsFinishableTarget(Transform target, bool requirePositionCheck = true)
+        {
+            MonsterActor monsterActor = ResolveFinishTarget(target);
+            if (monsterActor == null || !monsterActor.CanTakeDamage()) return false;
+            if (monsterActor.Grade == MonsterActorGrade.Weak) return false;
+            if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold) return false;
+
+            if (!requirePositionCheck)
+                return true;
+
+            Vector3 dir = monsterActor.transform.position - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > _finishAttackSearchRange * _finishAttackSearchRange) return false;
+            if (dir.sqrMagnitude <= 0.001f) return true;
+
+            return Vector3.Angle(transform.forward, dir) <= _finishAttackSearchAngle;
+        }
+
         public Transform FindFinishableTarget()
         {
             Vector3    origin  = transform.position;
-            Vector3    forward = transform.forward;
             Collider[] hits    = Physics.OverlapSphere(origin, _finishAttackSearchRange, _targetLayerMask);
 
             Transform bestTarget   = null;
@@ -1541,27 +1558,31 @@ namespace UPlayGround.Component
             {
                 if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
-                Vector3 dir = hit.transform.position - origin;
+                MonsterActor monsterActor = ResolveFinishTarget(hit.transform);
+                if (monsterActor == null || !IsFinishableTarget(monsterActor.transform)) continue;
+
+                Vector3 dir = monsterActor.transform.position - origin;
                 dir.y = 0f;
-                if (Vector3.Angle(forward, dir) > _finishAttackSearchAngle) continue;
 
-                MonsterActor monsterActor = hit.GetComponent<MonsterActor>()
-                                         ?? hit.GetComponentInParent<MonsterActor>();
-                if (monsterActor == null || !monsterActor.CanTakeDamage()) continue;
-                if (monsterActor.Grade == MonsterActorGrade.Weak) continue;
-                if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold) continue;
-
-                if (lockOnTarget != null && hit.transform == lockOnTarget)
-                    return hit.transform;
+                if (lockOnTarget != null &&
+                    (monsterActor.transform == lockOnTarget || lockOnTarget.IsChildOf(monsterActor.transform)))
+                    return monsterActor.transform;
 
                 float distSq = dir.sqrMagnitude;
                 if (distSq < bestDistSq)
                 {
                     bestDistSq = distSq;
-                    bestTarget = hit.transform;
+                    bestTarget = monsterActor.transform;
                 }
             }
             return bestTarget;
+        }
+
+        private static MonsterActor ResolveFinishTarget(Transform target)
+        {
+            if (target == null) return null;
+            return target.GetComponent<MonsterActor>()
+                   ?? target.GetComponentInParent<MonsterActor>();
         }
 
         public Transform FindSpecialBreakAttackTarget()

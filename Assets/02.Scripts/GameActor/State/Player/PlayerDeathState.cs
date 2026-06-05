@@ -26,6 +26,9 @@ namespace UPlayGround.State
 
         private Vector3    _deathPosition;
         private Quaternion _deathRotation;
+        private Coroutine  _autoSwitchDelayRoutine;
+
+        private const float AutoSwitchDelayAfterDeathMotion = 0.45f;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -40,8 +43,49 @@ namespace UPlayGround.State
             var state = gameActor.Animator.PlayMotion(AnimKey.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () => ShowRespawnUI();
+                state.OwnedEvents.OnEnd = () => OnDeathMotionEnd(state);
             }
+        }
+
+        private void OnDeathMotionEnd(Animancer.AnimancerState deathState)
+        {
+            if (deathState != null)
+                deathState.Speed = 0f;
+
+            _autoSwitchDelayRoutine = controller.StartCoroutine(SwitchOrShowRespawnAfterDelay());
+        }
+
+        private IEnumerator SwitchOrShowRespawnAfterDelay()
+        {
+            yield return new WaitForSeconds(AutoSwitchDelayAfterDeathMotion);
+            _autoSwitchDelayRoutine = null;
+
+            if (controller.CurrentState != this)
+                yield break;
+
+            TrySwitchOrShowRespawn();
+        }
+
+        private void TrySwitchOrShowRespawn()
+        {
+            var partyManager = PartyManager.Instance;
+            if (partyManager != null && partyManager.TrySwitchToNextAliveAfterActiveDeath())
+            {
+                return;
+            }
+
+            ShowRespawnUI();
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            if (_autoSwitchDelayRoutine != null)
+            {
+                controller.StopCoroutine(_autoSwitchDelayRoutine);
+                _autoSwitchDelayRoutine = null;
+            }
+
+            base.OnExit(toState);
         }
 
         private void ShowRespawnUI()

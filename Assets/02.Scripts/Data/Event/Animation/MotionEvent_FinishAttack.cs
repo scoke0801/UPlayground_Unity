@@ -65,8 +65,16 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-            
-            var targetActor = finishState.FinishTarget.GetComponent<MonsterActor>();
+
+            Transform finishTarget = finishState.FinishTarget;
+            var combat = actor.GetCombat();
+            if (finishTarget == null || combat == null || !combat.IsFinishableTarget(finishTarget, requirePositionCheck: false))
+            {
+                return;
+            }
+
+            var targetActor = finishTarget.GetComponent<MonsterActor>()
+                              ?? finishTarget.GetComponentInParent<MonsterActor>();
             if (targetActor == null)
             {
                 return;

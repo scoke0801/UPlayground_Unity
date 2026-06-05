@@ -538,6 +538,46 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        /// <summary>
+        /// 활성 캐릭터 사망 연출이 끝난 뒤 살아있는 다음 출전 멤버로 전환한다.
+        /// 전투 전멸이면 false를 반환해 RespawnPopup 표시 흐름으로 넘긴다.
+        /// </summary>
+        public bool TrySwitchToNextAliveAfterActiveDeath()
+        {
+            if (_player == null || _battleOrder.Count < 2) return false;
+
+            int nextIndex = FindNearestAliveBattleIndex(_activeIndex, excludeIndex: _activeIndex);
+            if (nextIndex < 0) return false;
+
+            int previousIndex = _activeIndex;
+            CharacterActorType targetType = _battleOrder[nextIndex];
+
+            _isSwapping = true;
+            OnSwapStarted?.Invoke(_player, _player);
+
+            _activeIndex = nextIndex;
+            bool switched = ApplyActiveSwitchInternal(
+                targetType,
+                recordCooldown: false,
+                preserveAnimation: false,
+                spawnResidualAttack: false);
+
+            if (!switched)
+                _activeIndex = previousIndex;
+
+            _isSwapping = false;
+
+            if (switched)
+                Debug.Log($"[PartyManager] 사망 자동 교체 → {targetType}");
+
+            return switched;
+        }
+
+        public bool HasAliveBattleMemberExceptActive()
+            => _player != null
+               && _battleOrder.Count >= 2
+               && FindNearestAliveBattleIndex(_activeIndex, excludeIndex: _activeIndex) >= 0;
+
         public int GetLevel(CharacterActorType type)
         {
             if (type == CharacterActorType.None) return 0;
@@ -652,15 +692,20 @@ namespace UPlayGround.Manager
         /// 활성 캐릭터를 강제로 다른 BattleOrder 멤버로 전환한다 (편성 변경에 의한 보정 용).
         /// 쿨다운/PerfectDodge/EntryAttack 검사는 우회한다.
         /// </summary>
-        private bool ApplyActiveSwitchInternal(CharacterActorType targetType)
+        private bool ApplyActiveSwitchInternal(
+            CharacterActorType targetType,
+            bool recordCooldown = true,
+            bool preserveAnimation = true,
+            bool spawnResidualAttack = true)
         {
             if (_player == null) return false;
 
             CharacterActorType previousType = ActiveCharacterType;
             var swap = _player.GetComponent<PlayerSwapBehaviour>();
-            if (swap == null || !swap.SwapTo(targetType)) return false;
+            if (swap == null || !swap.SwapTo(targetType, preserveAnimation, spawnResidualAttack)) return false;
 
-            RecordSwapCooldown(previousType);
+            if (recordCooldown)
+                RecordSwapCooldown(previousType);
             NotifyActivePlayerChanged();
             OnSwapCompleted?.Invoke(_player);
             return true;

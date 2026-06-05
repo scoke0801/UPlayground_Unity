@@ -35,6 +35,7 @@ namespace UPlayGround.State
 
         /// <summary>FinishSideViewEvent 등 모션 이벤트에서 처형 타겟 참조용</summary>
         public Transform FinishTarget => _finishTarget;
+        public bool IsTransitionLocked { get; private set; }
 
         public PlayerFinishAttackState(ActorMovementController controller, Transform finishTarget)
             : base(controller)
@@ -52,6 +53,15 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _combat = playerActor.GetCombat();
+            IsTransitionLocked = true;
+            if (_combat == null || !_combat.IsFinishableTarget(_finishTarget, requirePositionCheck: false))
+            {
+                Debug.LogWarning($"[FinishAttack] 피니시 불가 대상입니다. target={_finishTarget?.name}");
+                IsTransitionLocked = false;
+                TransitionToIdleOrMove();
+                return;
+            }
+
             playerActor.GetPlayerEquipment()?.SetMainWeaponDrawn(true);
             _stateTimer = 0f;
             _combat.SetupFinishAttackData(_finishTarget);
@@ -90,6 +100,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            IsTransitionLocked = false;
+
             // 모든 적 Unfreeze
             foreach (var brain in _frozenEnemyControllers)
             {
@@ -152,6 +164,12 @@ namespace UPlayGround.State
         }
 
         private void OnFinishAttackEnd()
+        {
+            IsTransitionLocked = false;
+            TransitionToIdleOrMove();
+        }
+
+        private void TransitionToIdleOrMove()
         {
             if (playerController.HasMoveInput())
                 controller.TransitionToState(new PlayerGroundMoveState(controller));

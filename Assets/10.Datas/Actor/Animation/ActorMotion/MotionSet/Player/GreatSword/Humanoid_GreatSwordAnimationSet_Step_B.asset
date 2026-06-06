@@ -20,8 +20,41 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 889909668156276764
+      - rid: 889909668156276765
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 889909668156276764
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.41376427
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 3407818901819470167, guid: 5ec11d5f65720104aa6fd71464c513b3, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 0.75, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 90}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 0
+        particleLifeTime: 0
+    - rid: 889909668156276765
+      type: {class: AfterimageEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.4243827
+        globalStartTimeOffset: 0
+        targetObjectName: 
+        alpha: 0.24
+        spawnInterval: 0.07
+        spawnCount: 6
+        poolSize: 8
+        holdDuration: 0.08
+        tintColor: {r: 0.55, g: 0.78, b: 1, a: 0.75}
+        fadeOutDuration: 0.25
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}

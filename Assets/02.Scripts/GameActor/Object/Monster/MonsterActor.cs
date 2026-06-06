@@ -174,14 +174,15 @@ namespace UPlayGround
         /// 호출자는 타겟이 `BreakGauge.IsExposed` 상태임을 보장해야 한다.
         /// 일반 데미지 가드(`_isInvincible`, Guard, `OnDamaged` 흐름)를 의도적으로 우회한다.
         /// </summary>
-        public void OnTakeSpecialBreakAttack(GameActor attacker, float damageByMaxHpRate, float fixedDamage)
+        public void OnTakeSpecialBreakAttack(GameActor attacker, float damageByMaxHpRate, float fixedDamage, float minReferenceHealth)
         {
             if (!IsAlive()) return;
 
             DamageResult damageResult = DamageResolver.ResolveSpecialBreakDamage(
                 _maxHealth,
                 damageByMaxHpRate,
-                fixedDamage);
+                fixedDamage,
+                minReferenceHealth);
             float finalDamage = damageResult.FinalDamage;
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
 

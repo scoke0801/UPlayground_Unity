@@ -1,4 +1,5 @@
 using UPlayGround.Data.EnumType;
+using UPlayGround.Component;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
@@ -83,7 +84,7 @@ namespace UPlayGround.State
         private static bool HasUsableSkillInput(PlayerMovementController controller, PlayerActor playerActor)
         {
             var gauge = playerActor != null ? playerActor.SkillGauge : null;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
             {
                 if (!controller.HasSkillInput(i)) continue;
                 if (gauge != null && !gauge.CanUseSkill(i)) continue;

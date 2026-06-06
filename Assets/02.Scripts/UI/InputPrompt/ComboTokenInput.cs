@@ -24,6 +24,7 @@ namespace UPlayGround.UI.InputPrompt
                 case ComboInputToken.HeavyAttack: actionName = PlayerAction.HeavyAttack;   return true;
                 case ComboInputToken.Charge:      actionName = PlayerAction.HeavyAttack; isHold = true; return true;
                 case ComboInputToken.Dodge:       actionName = PlayerAction.Dodge;         return true;
+                case ComboInputToken.Dash:        actionName = PlayerAction.Dash;          return true;
                 case ComboInputToken.Jump:        actionName = PlayerAction.Jump;          return true;
                 case ComboInputToken.Skill1:      actionName = PlayerAction.SkillAbility;  return true;
                 case ComboInputToken.Skill2:      actionName = PlayerAction.SkillUltimate; return true;

@@ -80,9 +80,12 @@ namespace UPlayGround.Combat
         public static DamageResult ResolveSpecialBreakDamage(
             float maxHealth,
             float damageByMaxHpRate,
-            float fixedDamage)
+            float fixedDamage,
+            float minReferenceHealth)
         {
-            float rateDamage = Mathf.Max(0f, maxHealth) * Mathf.Max(0f, damageByMaxHpRate);
+            // 최대 HP가 기준 HP보다 낮으면 기준 HP를 가진 것처럼 계산해 비율 피해의 하한을 보장한다.
+            float effectiveHealth = Mathf.Max(Mathf.Max(0f, maxHealth), Mathf.Max(0f, minReferenceHealth));
+            float rateDamage = effectiveHealth * Mathf.Max(0f, damageByMaxHpRate);
             float baseDamage = Mathf.Max(0f, fixedDamage) + rateDamage;
 
             return new DamageResult(

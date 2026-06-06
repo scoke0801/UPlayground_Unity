@@ -4,13 +4,14 @@ using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data.Combat;
 using UPlayGround.Input;
+using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI.InputPrompt
 {
     /// <summary>
-    /// 고정 스킬바 HUD(명조식). 슬롯(<see cref="UISkillSlot"/>)들을 호스팅하며 두 신호로 구동한다:
-    /// - <b>게이지/Ready</b>: <see cref="PlayerSkillGauge.OnGaugeChanged"/> 이벤트 기반(핫패스 아님).
+    /// 고정 스킬바 HUD. Ability(Skill1) / Ultimate(Skill2) 슬롯(<see cref="UISkillSlot"/>)들을 호스팅하며 두 신호로 구동한다:
+    /// - <b>자원/Ready</b>: <see cref="PlayerSkillGauge.OnGaugeChanged"/> 이벤트 기반(핫패스 아님).
     /// - <b>콤보 다음 키 강조</b>: <see cref="ComboRouteResolver.CollectHints"/>를 입력 윈도우 변화 시에만 재계산.
     ///
     /// <see cref="UI_Base"/>를 상속해 UIManager 생명주기(Show/Hide)로 구동된다(다른 HUD와 동일).
@@ -22,6 +23,14 @@ namespace UPlayGround.UI.InputPrompt
     {
         [Tooltip("스킬바를 구성하는 슬롯들(왼→오). 각 슬롯은 자신의 토큰으로 정의된다.")]
         [SerializeField] private List<UISkillSlot> _slots = new();
+
+        [Header("고정 슬롯 보강")]
+        [Tooltip("프리팹에 Dash 슬롯이 없으면 런타임에 자동으로 추가한다.")]
+        [SerializeField] private bool _ensureDashSlot = true;
+        [Tooltip("Dash 슬롯 아이콘. 비워두면 키캡만 표시한다.")]
+        [SerializeField] private Sprite _dashIcon;
+        [Tooltip("Dash 슬롯 삽입 위치(0=맨 앞).")]
+        [SerializeField] private int _dashSlotIndex = 1;
 
         private PlayerActor      _player;
         private PlayerCombat     _combat;
@@ -199,13 +208,56 @@ namespace UPlayGround.UI.InputPrompt
 
         private void EnsureSlotsBound()
         {
-            if (_slots.Count > 0)
+            if (_slots.Count == 0)
+            {
+                var slots = GetComponentsInChildren<UISkillSlot>(true);
+                for (int i = 0; i < slots.Length; i++)
+                    if (slots[i] != null)
+                        _slots.Add(slots[i]);
+            }
+
+            EnsureDashSlot();
+        }
+
+        private void EnsureDashSlot()
+        {
+            if (!_ensureDashSlot || HasSlot(ComboInputToken.Dash))
                 return;
 
-            var slots = GetComponentsInChildren<UISkillSlot>(true);
-            for (int i = 0; i < slots.Length; i++)
-                if (slots[i] != null)
-                    _slots.Add(slots[i]);
+            UISkillSlot template = FindSlotTemplate();
+            if (template == null)
+                return;
+
+            Transform parent = template.transform.parent != null ? template.transform.parent : transform;
+            UISkillSlot dashSlot = Instantiate(template, parent);
+            dashSlot.name = "UISkillSlot_Dash";
+            dashSlot.Configure(
+                ComboInputToken.Dash,
+                _dashIcon,
+                inputActionOverride: null,
+                useGaugeFeature: false,
+                showGaugeUi: false,
+                showCooldownUi: false);
+
+            int index = Mathf.Clamp(_dashSlotIndex, 0, _slots.Count);
+            dashSlot.transform.SetSiblingIndex(index);
+            _slots.Insert(index, dashSlot);
+        }
+
+        private bool HasSlot(ComboInputToken token)
+        {
+            for (int i = 0; i < _slots.Count; i++)
+                if (_slots[i] != null && _slots[i].Token == token)
+                    return true;
+            return false;
+        }
+
+        private UISkillSlot FindSlotTemplate()
+        {
+            for (int i = 0; i < _slots.Count; i++)
+                if (_slots[i] != null)
+                    return _slots[i];
+            return null;
         }
     }
 }

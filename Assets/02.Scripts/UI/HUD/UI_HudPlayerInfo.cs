@@ -12,28 +12,16 @@ public class UI_HudPlayerInfo : UI_Base
     [SerializeField] private Image _boardHpWhiteFill;
 
     [SerializeField] private TextMeshProUGUI _hpText;
-    [SerializeField] private GameObject _fxObject;
+    [SerializeField] private TextMeshProUGUI _levelText;
 
-    [Header("Skill Gauge")]
+    [Header("Ultimate Gauge")]
     [SerializeField] private Image _skillGaugeFill;
     [SerializeField] private TextMeshProUGUI _skillGaugeText;
-
-    [Header("Weapon")]
-    [SerializeField] private Image _weaponIcon;
 
     [Header("Animation Settings")]
     [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
     [SerializeField] private float _hpFillSpeed         = 5.0f;
     [SerializeField] private float _skillGaugeFillSpeed = 8.0f;
-    
-    [System.Serializable]
-    private struct CharacterIconEntry
-    {
-        public CharacterActorType type;
-        public Sprite icon;
-    }
-
-    [SerializeField] private CharacterIconEntry[] _actorIcons;
 
     private Coroutine _hpFillCoroutine;
     private Coroutine _skillGaugeCoroutine;
@@ -52,6 +40,8 @@ public class UI_HudPlayerInfo : UI_Base
         _playerActor = GameObjectManager.Instance.Player;
         if (_playerActor == null) return;
 
+        _playerActor.EnsureCharacterRuntimeInitialized();
+
         _playerActor.OnHpChanged         += SetHp;
         _playerActor.OnSkillGaugeChanged += SetSkillGauge;
 
@@ -65,21 +55,25 @@ public class UI_HudPlayerInfo : UI_Base
         if (partyManager != null)
         {
             partyManager.OnSwapCompleted += OnPlayerSwapCompleted;
+            partyManager.OnPartyProgressionChanged += OnPartyProgressionChanged;
         }
 
-        RefreshWeaponIcon();
+        SetLevel(_playerActor);
     }
 
     protected override void OnHide()
     {
-        if (_playerActor == null) return;
-        _playerActor.OnHpChanged         -= SetHp;
-        _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+        if (_playerActor != null)
+        {
+            _playerActor.OnHpChanged         -= SetHp;
+            _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+        }
 
         var partyManager = PartyManager.Instance;
         if (partyManager != null)
         {
             partyManager.OnSwapCompleted -= OnPlayerSwapCompleted;
+            partyManager.OnPartyProgressionChanged -= OnPartyProgressionChanged;
         }
     }
 
@@ -88,7 +82,8 @@ public class UI_HudPlayerInfo : UI_Base
     
     public void SetHp(float hp, float maxHp)
     {
-        _boardHpFill.fillAmount = hp / maxHp;
+        float ratio = maxHp > 0f ? Mathf.Clamp01(hp / maxHp) : 0f;
+        _boardHpFill.fillAmount = ratio;
 
         if (_hpFillCoroutine != null) StopCoroutine(_hpFillCoroutine);
         _hpFillCoroutine = StartCoroutine(HpDelayFillCoroutine());
@@ -96,7 +91,7 @@ public class UI_HudPlayerInfo : UI_Base
         _hpText.text = $"{(int)hp}/{(int)maxHp}";
     }
 
-    /// <summary>스킬 게이지 변경 시 호출(이벤트). Fill을 부드럽게 보간한다.</summary>
+    /// <summary>현재 Phase에서는 Ultimate 게이지 변경 시 호출한다. Fill을 부드럽게 보간한다.</summary>
     public void SetSkillGauge(float gauge, float maxGauge)
     {
         float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
@@ -110,7 +105,7 @@ public class UI_HudPlayerInfo : UI_Base
         _skillGaugeCoroutine = StartCoroutine(SkillGaugeFillCoroutine(ratio));
     }
 
-    /// <summary>보간 없이 즉시 스킬 게이지를 반영한다(초기화/캐릭터 교체 스냅용).</summary>
+    /// <summary>보간 없이 즉시 Ultimate 게이지를 반영한다(초기화/캐릭터 교체 스냅용).</summary>
     private void SetSkillGaugeImmediate(float gauge, float maxGauge)
     {
         float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
@@ -143,10 +138,6 @@ public class UI_HudPlayerInfo : UI_Base
     public void SetIsInCombat(bool isInCombat)
     {
         _isInCombat = isInCombat;
-        if (_isInCombat == false && _fxObject != null)
-        {
-            _fxObject.SetActive(false);
-        }
     }
 
     private IEnumerator HpDelayFillCoroutine()
@@ -175,26 +166,22 @@ public class UI_HudPlayerInfo : UI_Base
         float gauge    = player.SkillGauge?.CurrentGauge ?? 0f;
         float maxGauge = player.SkillGauge?.MaxGauge     ?? 100f;
         SetSkillGaugeImmediate(gauge, maxGauge);
+        SetLevel(player);
 
-        RefreshWeaponIcon();
     }
 
-    /// <summary>현재 활성 캐릭터의 무기 아이콘을 표시한다.</summary>
-    private void RefreshWeaponIcon()
+    private void OnPartyProgressionChanged(CharacterActorType type)
     {
-        if (_weaponIcon == null) return;
+        if (_playerActor == null || type != _playerActor.CharacterType) return;
+        SetLevel(_playerActor);
+    }
 
-        var pm = PartyManager.Instance;
-        var memberData = pm?.PartyMemberDataSO;
-        if (pm == null || memberData == null)
-        {
-            _weaponIcon.enabled = false;
-            return;
-        }
+    private void SetLevel(PlayerActor player)
+    {
+        if (_levelText == null || player == null) return;
 
-        Sprite icon = memberData.GetWeaponIcon(pm.ActiveCharacterType);
-        _weaponIcon.sprite  = icon;
-        _weaponIcon.enabled = icon != null;
+        int level = PartyManager.Instance?.GetLevel(player.CharacterType) ?? 1;
+        _levelText.text = $"Lv. {Mathf.Max(1, level)}";
     }
 }
 

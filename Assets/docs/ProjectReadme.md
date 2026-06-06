@@ -354,6 +354,7 @@ Assets/
 | [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 맵 트리거 |
 | [COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md](TODO/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md) | 전투 카메라 시스템 구조 개선 계획 — 명조식 전투 카메라 레퍼런스 기반 CombatCameraIntent, Director, ProfileSO 도입안 |
 | [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
+| [PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md](PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md) | 플레이어 스킬 시스템 개선 설계 — Skill1/Skill2 2슬롯 고정, 다중 AnimKey Variant, Forte·Concerto 자원 분리 계획 |
 | [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
 | [TIME_HITSTOP_GUIDE.md](Complete/TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](Complete/INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |

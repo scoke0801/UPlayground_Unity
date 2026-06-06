@@ -15,10 +15,13 @@ public class UIHudPartyEntry : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _swapCooldownText;
     [Tooltip("대상 파티원이 현재 필드에 스폰되어 있을 때 켜는 UI")]
     [SerializeField] private GameObject _spawnedObject;
-    [Tooltip("대상 파티원이 궁극기를 사용할 수 있을 때 켜는 UI")]
+    [Tooltip("대상 파티원이 Ultimate를 사용할 수 있을 때 켜는 UI")]
     [SerializeField] private GameObject _glowObject;
 
     [SerializeField] private Animator _animator;
+
+    [Tooltip("쿨타임 텍스트 표시 형식. 예: 0.0 = 소수 1자리, 0.00 = 소수 2자리")]
+    [SerializeField] private string _cooldownTextFormat = "0.0";
 
     private CharacterActorType _boundType = CharacterActorType.None;
 
@@ -100,7 +103,7 @@ public class UIHudPartyEntry : MonoBehaviour
         if (_swapCooldownText != null)
         {
             _swapCooldownText.gameObject.SetActive(isVisible);
-            _swapCooldownText.text = isVisible ? Mathf.CeilToInt(safeRemaining).ToString() : string.Empty;
+            _swapCooldownText.text = isVisible ? safeRemaining.ToString(_cooldownTextFormat) : string.Empty;
         }
     }
 }

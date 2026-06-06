@@ -115,6 +115,7 @@ namespace UPlayGround.Input
             ComboInputToken.LightAttack => "L",
             ComboInputToken.HeavyAttack => "H",
             ComboInputToken.Dodge       => "D",
+            ComboInputToken.Dash        => "Da",
             ComboInputToken.Skill1      => "S1",
             ComboInputToken.Jump        => "J",
             ComboInputToken.Skill2      => "S2",

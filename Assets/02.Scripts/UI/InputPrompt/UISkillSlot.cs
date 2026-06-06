@@ -7,7 +7,7 @@ using UPlayGround.Data.Combat;
 namespace UPlayGround.UI.InputPrompt
 {
     /// <summary>
-    /// 고정 스킬바의 슬롯 1개(명조식 스킬 버튼). 슬롯은 <see cref="ComboInputToken"/>으로 정의되며
+    /// 고정 스킬바의 슬롯 1개. Ability(Skill1) / Ultimate(Skill2)는 <see cref="ComboInputToken"/>으로 정의되며
     /// 그 토큰이 키캡 글리프·콤보 힌트 매칭·게이지 슬롯을 모두 결정한다.
     ///
     /// 글로우는 모두 <b>콤보 힌트</b>로 켜진다(게이지 충족과 무관):
@@ -17,7 +17,7 @@ namespace UPlayGround.UI.InputPrompt
     public class UISkillSlot : MonoBehaviour
     {
         [Header("정의")]
-        [Tooltip("이 슬롯이 대표하는 입력 토큰. 키캡/힌트/게이지 슬롯을 결정한다.")]
+        [Tooltip("이 슬롯이 대표하는 입력 토큰. Skill1은 Ability, Skill2는 Ultimate로 취급한다.")]
         [SerializeField] private ComboInputToken _token = ComboInputToken.Skill1;
 
         [Tooltip("스킬 아이콘. ※v1: 프리팹 직렬화라 캐릭터 교체를 따라가지 않음(스왑 미추적).")]
@@ -26,8 +26,11 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("게이지 비용 슬롯 오버라이드(-1=토큰에서 자동: Skill1→0, Skill2→1, 그 외 게이지 없음).")]
         [SerializeField] private int _gaugeSlotOverride = -1;
 
+        [Tooltip("키캡 표시용 입력 액션 오버라이드. 비우면 토큰 기본 매핑을 사용한다.")]
+        [SerializeField] private string _inputActionOverride;
+
         [Header("자원 표시 옵션")]
-        [Tooltip("이 슬롯에서 스킬 게이지/쿨타임 판정을 사용할지 여부. 약공격/강공격처럼 자원 UI가 필요 없는 슬롯은 끈다.")]
+        [Tooltip("이 슬롯에서 Ability/Ultimate 비용 및 쿨타임 판정을 사용할지 여부. 약공격/강공격처럼 자원 UI가 필요 없는 슬롯은 끈다.")]
         [SerializeField] private bool _useGaugeFeature = true;
         [Tooltip("게이지가 최대치일 때만 사용 가능 루트를 켠다.")]
         [SerializeField] private bool _showOnlyWhenGaugeFull = true;
@@ -66,6 +69,23 @@ namespace UPlayGround.UI.InputPrompt
         private bool _gaugeUiUnderAvailableRoot;
         private bool _cooldownUiUnderAvailableRoot;
 
+        /// <summary>런타임에서 HUD가 고정 슬롯을 보강할 때 사용한다.</summary>
+        public void Configure(
+            ComboInputToken token,
+            Sprite icon,
+            string inputActionOverride,
+            bool useGaugeFeature,
+            bool showGaugeUi,
+            bool showCooldownUi)
+        {
+            _token = token;
+            _icon = icon;
+            _inputActionOverride = inputActionOverride;
+            _useGaugeFeature = useGaugeFeature;
+            _showGaugeUi = showGaugeUi;
+            _showCooldownUi = showCooldownUi;
+        }
+
         /// <summary>아이콘/키캡/게이지 슬롯을 1회 설정한다(바인드 시 호출).</summary>
         public void Initialize()
         {
@@ -75,14 +95,25 @@ namespace UPlayGround.UI.InputPrompt
                 _iconImage.enabled = _icon != null;
             }
 
-            if (_keyIcon != null &&
-                ComboTokenInput.TryGetAction(_token, out string map, out string action, out _))
+            if (_keyIcon != null && TryResolveInputAction(out string map, out string action))
                 _keyIcon.SetAction(map, action);
 
             ResolveGaugeSlot();
             CacheAvailableRootMembership();
             SetComboHint(false);
             ClearGaugeState();
+        }
+
+        private bool TryResolveInputAction(out string map, out string action)
+        {
+            if (!string.IsNullOrEmpty(_inputActionOverride)
+                && ComboTokenInput.TryGetAction(_token, out map, out _, out _))
+            {
+                action = _inputActionOverride;
+                return true;
+            }
+
+            return ComboTokenInput.TryGetAction(_token, out map, out action, out _);
         }
 
         /// <summary>게이지/쿨타임 UI가 _availableRoot 하위인지 1회 계산해 캐시한다(계층은 런타임 불변).</summary>
@@ -133,7 +164,8 @@ namespace UPlayGround.UI.InputPrompt
         }
 
         /// <summary>
-        /// 이 슬롯에 연결된 게이지/쿨타임 UI를 갱신한다. 반환값은 프레임 갱신이 필요한 쿨타임 표시 여부.
+        /// 이 슬롯에 연결된 자원/쿨타임 UI를 갱신한다. Ability는 쿨타임만, Ultimate는 게이지와 쿨타임을 표시한다.
+        /// 반환값은 프레임 갱신이 필요한 쿨타임 표시 여부.
         /// </summary>
         public bool SetGaugeState(PlayerSkillGauge gauge)
         {
@@ -147,6 +179,8 @@ namespace UPlayGround.UI.InputPrompt
             float current = gauge.CurrentGauge;
             float max = gauge.MaxGauge;
             bool ready = gauge.CanUseSkill(GaugeSlot);
+            bool usesGaugeCost = PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
+            bool showGauge = _showGaugeUi && usesGaugeCost;
             float gaugeRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
             bool isFullGauge = max > 0f && current >= max;
             float cooldownRemaining = gauge.GetSkillCooldownRemaining(GaugeSlot);
@@ -156,20 +190,20 @@ namespace UPlayGround.UI.InputPrompt
 
             SetGaugeState(ready);
 
-            bool canShowAvailable = ready && (!_showOnlyWhenGaugeFull || isFullGauge);
+            bool canShowAvailable = ready && (!usesGaugeCost || !_showOnlyWhenGaugeFull || isFullGauge);
             if (_availableRoot != null)
                 _availableRoot.SetActive(ShouldShowAvailableRoot(canShowAvailable, showCooldown));
 
             if (_gaugeFill != null)
             {
-                _gaugeFill.gameObject.SetActive(_showGaugeUi);
-                _gaugeFill.fillAmount = _showGaugeUi ? gaugeRatio : 0f;
+                _gaugeFill.gameObject.SetActive(showGauge);
+                _gaugeFill.fillAmount = showGauge ? gaugeRatio : 0f;
             }
 
             if (_gaugeText != null)
             {
-                _gaugeText.gameObject.SetActive(_showGaugeUi);
-                _gaugeText.text = _showGaugeUi && max > 0f
+                _gaugeText.gameObject.SetActive(showGauge);
+                _gaugeText.text = showGauge && max > 0f
                     ? $"{Mathf.FloorToInt(current)}/{Mathf.FloorToInt(max)}"
                     : string.Empty;
             }
@@ -201,7 +235,9 @@ namespace UPlayGround.UI.InputPrompt
             if (canShowAvailable)
                 return true;
 
-            bool containsGaugeUi = _showGaugeUi && _gaugeUiUnderAvailableRoot;
+            bool containsGaugeUi = _showGaugeUi
+                                   && PlayerSkillGauge.UsesGaugeCost(GaugeSlot)
+                                   && _gaugeUiUnderAvailableRoot;
             bool containsCooldownUi = showCooldown && _cooldownUiUnderAvailableRoot;
 
             return containsGaugeUi || containsCooldownUi;
@@ -223,18 +259,22 @@ namespace UPlayGround.UI.InputPrompt
 
         private void ClearGaugeState()
         {
+            bool showGauge = _showGaugeUi
+                             && RequiresGauge
+                             && PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
+
             if (_availableRoot != null)
                 _availableRoot.SetActive(false);
 
             if (_gaugeFill != null)
             {
-                _gaugeFill.gameObject.SetActive(_showGaugeUi && RequiresGauge);
+                _gaugeFill.gameObject.SetActive(showGauge);
                 _gaugeFill.fillAmount = 0f;
             }
 
             if (_gaugeText != null)
             {
-                _gaugeText.gameObject.SetActive(_showGaugeUi && RequiresGauge);
+                _gaugeText.gameObject.SetActive(showGauge);
                 _gaugeText.text = string.Empty;
             }
 

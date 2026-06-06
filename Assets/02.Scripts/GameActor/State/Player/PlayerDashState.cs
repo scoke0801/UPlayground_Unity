@@ -39,7 +39,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Dash);
-            playerActor?.ComboInputTracker.Push(ComboInputToken.Dodge);
+            playerActor?.ComboInputTracker.Push(ComboInputToken.Dash);
 
             _dashDirection = playerController.HasMoveInput()
                 ? playerController.MoveInputVector.normalized

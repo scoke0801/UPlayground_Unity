@@ -14,7 +14,7 @@ public class UI_ActorHpBar : MonoBehaviour
     [SerializeField] private Image _fillPoiseDelayImage;
 
     [SerializeField] private Image _fillBreakGaugeImage;
-    [SerializeField] private GameObject _breakGaugeEmptyUi;
+    [SerializeField] private GameObject _breakActiveUI;
     
     [SerializeField] private float _delayFillSpeed = 3f;
     [SerializeField] private TextMeshProUGUI _textHp;
@@ -50,8 +50,8 @@ public class UI_ActorHpBar : MonoBehaviour
         if (_canvasGroup == null)
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-        if (_breakGaugeEmptyUi == null)
-            _breakGaugeEmptyUi = transform.Find("breakEffect")?.gameObject;
+        if (_breakActiveUI == null)
+            _breakActiveUI = transform.Find("breakEffect")?.gameObject;
     }
 
     public void Init(GameActor actor, Camera targetCamera, Canvas parentCanvas)
@@ -211,20 +211,9 @@ public class UI_ActorHpBar : MonoBehaviour
         _fillBreakGaugeImage.fillAmount = _targetBreakFill;
     }
 
-    public void UpdateBreakCooldown(float remaining, float duration)
-    {
-        if (_fillBreakGaugeImage == null)
-            return;
-
-        Show();
-
-        _targetBreakFill = duration > 0f ? 1f - Mathf.Clamp01(remaining / duration) : 1f;
-        _fillBreakGaugeImage.fillAmount = _targetBreakFill;
-    }
-
     public void SetBreakGaugeEmptyUiActive(bool active)
     {
-        if (_breakGaugeEmptyUi != null && _breakGaugeEmptyUi.activeSelf != active)
-            _breakGaugeEmptyUi.SetActive(active);
+        if (_breakActiveUI != null && _breakActiveUI.activeSelf != active)
+            _breakActiveUI.SetActive(active);
     }
 }

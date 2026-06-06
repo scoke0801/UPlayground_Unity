@@ -11,7 +11,7 @@ public class UI_HudParty : UI_Base
 {
     [SerializeField] private List<UIHudPartyEntry> _entries = new();
 
-    private const int UltimateSkillSlot = 1;
+    private const int UltimateSkillSlot = (int)UPlayGround.Data.Combat.PlayerSkillSlot.Ultimate;
     private PlayerActor _subscribedPlayer;
     private bool _isSubscribedToPartyEvents;
     private bool _hasSwapCooldownVisible;
@@ -156,7 +156,7 @@ public class UI_HudParty : UI_Base
         {
             if (entry != null && entry.BoundType == type)
             {
-                entry.SetUltimateReady(player != null && player.CanUseSkillForCharacter(type, UltimateSkillSlot));
+                entry.SetUltimateReady(player != null && player.IsUltimateReadyForCharacter(type));
                 break;
             }
         }
@@ -170,7 +170,7 @@ public class UI_HudParty : UI_Base
             {
                 var player = PartyManager.Instance?.ActiveCharacter;
                 entry.SetUltimateReady(player != null
-                    ? player.CanUseSkillForCharacter(type, UltimateSkillSlot)
+                    ? player.IsUltimateReadyForCharacter(type)
                     : max > 0f && current >= max);
                 break;
             }
@@ -207,7 +207,7 @@ public class UI_HudParty : UI_Base
             entry.SetHealth(
                 player.GetHealthForCharacter(type),
                 player.GetMaxHealthForCharacter(type));
-            entry.SetUltimateReady(player.CanUseSkillForCharacter(type, UltimateSkillSlot));
+            entry.SetUltimateReady(player.IsUltimateReadyForCharacter(type));
         }
 
         RefreshSpawnedState();

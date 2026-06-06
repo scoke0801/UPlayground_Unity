@@ -591,6 +591,12 @@ namespace UPlayGround
             CharacterModelData data,
             ActorAnimator.MotionPlaybackSnapshot animationSnapshot = default)
         {
+            CharacterActorType previousType = _characterActorType;
+            float previousMaxHealth = _maxHealth;
+            float previousCurrentHealth = _currentHealth;
+            bool wasPreviousHealthFull = previousMaxHealth > 0f
+                                         && previousCurrentHealth >= previousMaxHealth - 0.01f;
+
             // 현재 캐릭터 상태 저장. 씬 직렬화 값은 실제 활성 모델과 다를 수 있으므로
             // 런타임에서 한 번 이상 정상 초기화된 뒤에만 이전 캐릭터 상태로 인정한다.
             if (_hasInitializedCharacterRuntime && _characterActorType != CharacterActorType.None)
@@ -609,9 +615,18 @@ namespace UPlayGround
 
             // 성장 스탯 적용 후 체력 복원 (처음 등장 시 최대치)
             _maxHealth = ApplyCharacterStats(data);
-            _currentHealth = _characterHealthMap.TryGetValue(data.characterType, out var hp)
-                             ? Mathf.Clamp(hp, 0f, _maxHealth)
-                             : _maxHealth;
+            if (_characterHealthMap.TryGetValue(data.characterType, out var hp))
+            {
+                // 초기화 순서상 기본 maxHp(100) 풀피 상태가 먼저 저장된 뒤 성장 스탯 maxHp(예: 120)가
+                // 적용될 수 있다. 이전 max 기준 풀피였다면 새 max 기준 풀피로 유지한다.
+                _currentHealth = previousType == data.characterType && wasPreviousHealthFull
+                    ? _maxHealth
+                    : Mathf.Clamp(hp, 0f, _maxHealth);
+            }
+            else
+            {
+                _currentHealth = _maxHealth;
+            }
 
             // 스킬 게이지 복원
             _skillGauge.SetGauge(
@@ -771,6 +786,15 @@ namespace UPlayGround
             return true;
         }
 
+        /// <summary>
+        /// 파티 HUD의 궁극기 "준비" 표시용 판정. 실제 발동은 비용(<see cref="PlayerSkillGauge.CanUseSkill"/>)으로
+        /// 게이트하지만, 글로우 같은 준비 연출은 게이지가 가득 찼을 때만 켠다
+        /// (스킬바의 <c>UISkillSlot._showOnlyWhenGaugeFull</c>와 동일 의미). 쿨타임 중이면 false.
+        /// </summary>
+        public bool IsUltimateReadyForCharacter(CharacterActorType type)
+            => IsSkillGaugeFullForCharacter(type)
+               && CanUseSkillForCharacter(type, PlayerSkillGauge.UltimateSkillSlot);
+
         public void AddSkillGaugeForCharacter(CharacterActorType type, float amount)
         {
             if (type == CharacterActorType.None || amount <= 0f || _skillGauge == null) return;
@@ -812,6 +836,11 @@ namespace UPlayGround
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
             // SetCombatStateProvider는 OnEnable/OnDisable에서 관리
+        }
+
+        public void EnsureCharacterRuntimeInitialized()
+        {
+            EnsureInitialCharacterModelInitialized();
         }
 
         private void EnsureInitialCharacterModelInitialized()

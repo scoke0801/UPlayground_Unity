@@ -17,7 +17,9 @@ namespace UPlayGround.State
 
         private const float DEFAULT_DURATION = 1.2f;
         private const float DEFAULT_DAMAGE_BY_MAX_HP_RATE = 0.2f;
-        private const float DEFAULT_FALLBACK_HIT_TIME = 0.15f;
+        // 폴백은 임팩트 모션 이벤트가 끝내 발화하지 않을 때를 위한 백스톱이므로
+        // duration에 근접한 늦은 시각으로 잡아 이벤트가 항상 우선되게 한다.
+        private const float DEFAULT_FALLBACK_HIT_TIME = 1.0f;
         private const float DEFAULT_START_DISTANCE = 1.5f;
         private const float DEFAULT_SLIDE_DURATION = 0.25f;
         private const float DEFAULT_MAX_SLIDE_SPEED = 18f;
@@ -160,13 +162,16 @@ namespace UPlayGround.State
 
         private void ApplySpecialBreakAttack()
         {
+            // 모션 이벤트와 폴백 타이머가 동일 임팩트를 중복 적용하는 것을 차단.
+            if (_applied) return;
             _applied = true;
             if (_targetMonster == null || !_targetMonster.IsAlive()) return;
 
             _targetMonster.OnTakeSpecialBreakAttack(
                 playerActor,
                 DamageByMaxHpRate,
-                FixedDamage);
+                FixedDamage,
+                MinReferenceHealth);
 
             if (HitStopDuration > 0f)
                 GameCombatManager.Instance.GameHitStop.Execute(HitStopDuration, 0.02f);
@@ -277,6 +282,7 @@ namespace UPlayGround.State
         private float FallbackHitTime => _attackData != null ? Mathf.Max(0f, _attackData.fallbackHitTime) : DEFAULT_FALLBACK_HIT_TIME;
         private float DamageByMaxHpRate => _attackData != null ? Mathf.Max(0f, _attackData.damageByMaxHpRate) : DEFAULT_DAMAGE_BY_MAX_HP_RATE;
         private float FixedDamage => _attackData != null ? Mathf.Max(0f, _attackData.fixedDamage) : 0f;
+        private float MinReferenceHealth => _attackData != null ? Mathf.Max(0f, _attackData.minReferenceHealth) : 0f;
         private float HitStopDuration => _attackData != null ? Mathf.Max(0f, _attackData.hitStopDuration) : 0.08f;
         private float StartDistance => _attackData != null ? Mathf.Max(0f, _attackData.startDistance) : DEFAULT_START_DISTANCE;
         private float SlideDuration => _attackData != null ? Mathf.Max(0f, _attackData.slideDuration) : DEFAULT_SLIDE_DURATION;

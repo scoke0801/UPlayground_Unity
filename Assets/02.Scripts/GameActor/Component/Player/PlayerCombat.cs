@@ -154,6 +154,7 @@ namespace UPlayGround.Component
         private MonsterActor      _currentSpecialBreakTarget;
         private float             _currentSpecialBreakDamageByMaxHpRate;
         private float             _currentSpecialBreakFixedDamage;
+        private float             _currentSpecialBreakMinReferenceHealth;
         private AttackState       _attackState         = AttackState.NormalAttack;
         // 약/강 콤보 체인별 보존 인덱스. -1 = 미시작. 약↔강 전환 시 서로 리셋하지 않고 각자 진행도 유지.
         // (ResetCombo에서만 -1 초기화 → 콤보가 실제로 끝날 때만 리셋)
@@ -349,7 +350,8 @@ namespace UPlayGround.Component
                 _currentFinishTarget,
                 _currentSpecialBreakTarget,
                 _currentSpecialBreakDamageByMaxHpRate,
-                _currentSpecialBreakFixedDamage);
+                _currentSpecialBreakFixedDamage,
+                _currentSpecialBreakMinReferenceHealth);
 
             Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={_currentAttackData == null}, hitRange={_currentAttackData?.hitRange}, hitAngle={_currentAttackData?.hitAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
             return true;
@@ -752,8 +754,12 @@ namespace UPlayGround.Component
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             ClearResidualAttackContext();
-            if (_attackData.skillAttackList.Count <= skillIndex) return null;
-            _currentAttackData = ConvertToAttackData(_attackData.skillAttackList[skillIndex], AttackKind.SkillAttack);
+            if (!TryResolveSkill(skillIndex, out PlayerSkillResolveResult resolved)) return null;
+
+            _attackState = AttackState.SkillAttack;
+            ResetComboPreserveChains();
+            _currentAttackData = ConvertToAttackData(resolved.AttackInfo, AttackKind.SkillAttack);
+            _currentAttackData.animKey = resolved.AnimKey;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -773,6 +779,7 @@ namespace UPlayGround.Component
         {
             if (route == null) return false;
             if (route.skillGaugeIndex < 0) return true;
+            if (!PlayerSkillGauge.IsValidSkillSlot(route.skillGaugeIndex)) return false;
             var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
             return gauge == null || gauge.CanUseSkill(route.skillGaugeIndex);
         }
@@ -811,6 +818,7 @@ namespace UPlayGround.Component
             ComboInputToken.Charge      => AttackKind.HeavyAttack,
             ComboInputToken.Skill1      => AttackKind.SkillAttack,
             ComboInputToken.Skill2      => AttackKind.SkillAttack,
+            ComboInputToken.Dash        => AttackKind.DashAttack,
             _                           => AttackKind.NormalAttack,
         };
 
@@ -909,6 +917,7 @@ namespace UPlayGround.Component
             _currentSpecialBreakTarget = target;
             _currentSpecialBreakDamageByMaxHpRate = Mathf.Max(0f, specialBreakAttack.damageByMaxHpRate);
             _currentSpecialBreakFixedDamage = Mathf.Max(0f, specialBreakAttack.fixedDamage);
+            _currentSpecialBreakMinReferenceHealth = Mathf.Max(0f, specialBreakAttack.minReferenceHealth);
             _currentAttackData = new AttackData
             {
                 animKey = ResolveSpecialBreakMotionKey(specialBreakAttack),
@@ -1197,6 +1206,7 @@ namespace UPlayGround.Component
             _currentSpecialBreakTarget = null;
             _currentSpecialBreakDamageByMaxHpRate = 0f;
             _currentSpecialBreakFixedDamage = 0f;
+            _currentSpecialBreakMinReferenceHealth = 0f;
         }
 
         private static HitPhaseData GetHitPhase(IReadOnlyList<HitPhaseData> phases, int index)
@@ -1340,9 +1350,29 @@ namespace UPlayGround.Component
         /// <summary> 스킬 공격 AnimKey 조회. 인덱스가 범위 밖이면 None. </summary>
         public AnimKey PeekSkillAttackAnimKey(int skillIndex)
         {
-            if (_attackData == null || _attackData.skillAttackList == null) return AnimKey.None;
-            if (skillIndex < 0 || skillIndex >= _attackData.skillAttackList.Count) return AnimKey.None;
-            return _attackData.skillAttackList[skillIndex]?.baseInfo?.animKey ?? AnimKey.None;
+            return TryResolveSkill(skillIndex, out PlayerSkillResolveResult resolved)
+                ? resolved.AnimKey
+                : AnimKey.None;
+        }
+
+        private bool TryResolveSkill(int skillIndex, out PlayerSkillResolveResult resolved)
+        {
+            PlayerSkillContext context = CreateSkillContext();
+            return PlayerSkillResolver.TryResolve(_attackData, skillIndex, context, out resolved);
+        }
+
+        private PlayerSkillContext CreateSkillContext()
+        {
+            bool isGrounded = _playerActor == null
+                              || _playerActor.PlayerController == null
+                              || _playerActor.PlayerController.Motor == null
+                              || _playerActor.PlayerController.Motor.GroundingStatus.IsStableOnGround;
+            var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
+            return new PlayerSkillContext(
+                isGrounded,
+                _playerActor != null ? _playerActor.Tags : null,
+                gauge != null ? gauge.CurrentGauge : 0f,
+                gauge != null ? gauge.MaxGauge : 0f);
         }
 
         /// <summary>

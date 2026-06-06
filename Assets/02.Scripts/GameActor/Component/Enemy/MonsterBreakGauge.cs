@@ -198,11 +198,7 @@ namespace UPlayGround.Component
             OnGaugeChanged?.Invoke(_currentGauge, MaxGauge);
             if (_actorUIBar != null)
             {
-                if (_repeatCooldownTimer > 0f)
-                    _actorUIBar.UpdateBreakCooldown(_repeatCooldownTimer, RepeatCooldownDuration);
-                else
-                    _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
-
+                _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
                 _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
             }
         }
@@ -214,7 +210,8 @@ namespace UPlayGround.Component
             OnGaugeChanged?.Invoke(current, max);
             if (_actorUIBar != null)
             {
-                _actorUIBar.UpdateBreakGauge(current, max);
+                // 브레이크 노출 중에는 누적 게이지가 이미 가득 찬 상태로 보여야 한다.
+                // 같은 fill 이미지를 노출 타이머로 다시 쓰면 활성 이펙트와 게이지 표시 시점이 어긋난다.
                 _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
             }
         }
@@ -226,7 +223,7 @@ namespace UPlayGround.Component
             OnGaugeChanged?.Invoke(current, max);
             if (_actorUIBar != null)
             {
-                _actorUIBar.UpdateBreakCooldown(current, max);
+                _actorUIBar.UpdateBreakGauge(_currentGauge, MaxGauge);
                 _actorUIBar.SetBreakGaugeEmptyUiActive(ShouldShowBreakGaugeEmptyUi());
             }
         }

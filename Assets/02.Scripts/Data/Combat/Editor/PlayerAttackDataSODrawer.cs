@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Input;
@@ -14,7 +15,7 @@ namespace UPlayGround.Editor
     public class PlayerAttackDataSODrawer
     {
         // ─── 탭 ─────────────────────────────────────────────────────────
-        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "스킬", "카운터", "차지", "등장", "회피", "특수", "연계" };
+        private static readonly string[] TabLabels = { "약공격", "강공격", "점프", "대쉬", "레거시스킬", "스킬정의", "카운터", "차지", "등장", "회피", "특수", "연계" };
         internal static readonly Color[] TabAccents =
         {
             new Color(0.35f, 0.55f, 1.00f),
@@ -22,6 +23,7 @@ namespace UPlayGround.Editor
             new Color(0.30f, 0.90f, 0.55f),
             new Color(1.00f, 0.65f, 0.20f),
             new Color(0.75f, 0.35f, 1.00f),
+            new Color(0.55f, 0.35f, 1.00f),
             new Color(1.00f, 0.85f, 0.00f),
             new Color(1.00f, 0.50f, 0.15f),
             new Color(0.20f, 0.85f, 0.95f),
@@ -44,6 +46,7 @@ namespace UPlayGround.Editor
         // ─── SerializedObject / Property ────────────────────────────────
         private readonly SerializedObject _so;
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
+        private SerializedProperty _skillDefinitions;
         private SerializedProperty _counter, _parryCounter, _entry, _swapEvadeCounter, _swapSpecial;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds, _chargeInterruptActions;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
@@ -157,6 +160,7 @@ namespace UPlayGround.Editor
             _jumpList         = so.FindProperty("jumpAttackList");
             _dashList         = so.FindProperty("dashAttackList");
             _skillList        = so.FindProperty("skillAttackList");
+            _skillDefinitions = so.FindProperty("skillDefinitions");
             _counter          = so.FindProperty("counterAttack");
             _parryCounter     = so.FindProperty("parryCounterAttack");
             _entry            = so.FindProperty("entryAttack");
@@ -193,12 +197,13 @@ namespace UPlayGround.Editor
                 case 2: DrawAttackList(_jumpList,  "점프 공격",   "jump",  accent); break;
                 case 3: DrawAttackList(_dashList,  "대쉬 공격",   "dash",  accent); break;
                 case 4: DrawAttackList(_skillList, "스킬 공격",   "skill", accent); break;
-                case 5: DrawCounterAttack(accent); break;
-                case 6: DrawChargeSection(accent); break;
-                case 7: DrawEntryAttack(accent); break;
-                case 8: DrawSwapEvadeCounterAttack(accent); break;
-                case 9: DrawSwapSpecialAttack(accent); break;
-                case 10: DrawComboRoutes(accent); break;
+                case 5: DrawSkillDefinitions(accent); break;
+                case 6: DrawCounterAttack(accent); break;
+                case 7: DrawChargeSection(accent); break;
+                case 8: DrawEntryAttack(accent); break;
+                case 9: DrawSwapEvadeCounterAttack(accent); break;
+                case 10: DrawSwapSpecialAttack(accent); break;
+                case 11: DrawComboRoutes(accent); break;
             }
         }
 
@@ -218,7 +223,355 @@ namespace UPlayGround.Editor
         }
 
         // ═══════════════════════════════════════════════════════════════
-        //  ⑩ 연계 라우트 (Combo Route) — 저작 + 진단 + 시뮬레이터
+        //  ⑤ 스킬 정의 — Skill1/Skill2 2슬롯 + Variant 저작
+        // ═══════════════════════════════════════════════════════════════
+        private void DrawSkillDefinitions(Color accent)
+        {
+            if (_skillDefinitions == null)
+            {
+                EditorGUILayout.HelpBox("skillDefinitions 프로퍼티를 찾을 수 없습니다.", MessageType.Error);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "신규 스킬 시스템 저작 탭입니다.\n" +
+                "런타임 입력 슬롯은 Ability(Skill1) / Ultimate(Skill2) 두 개만 사용하고, 실제 AnimKey 차이는 Variant 조건으로 분기합니다.\n" +
+                "skillDefinitions가 비어 있으면 기존 스킬 공격 리스트의 0/1번을 Ability/Ultimate 기본 스킬로 사용합니다.",
+                MessageType.Info);
+
+            DrawSkillDefinitionToolbar();
+            DrawSkillDefinitionDiagnostics();
+
+            EditorGUILayout.Space(4);
+
+            int removeIndex = -1;
+            for (int i = 0; i < _skillDefinitions.arraySize; i++)
+                DrawSkillDefinitionCard(_skillDefinitions.GetArrayElementAtIndex(i), i, ref removeIndex, accent);
+
+            if (removeIndex >= 0)
+                _skillDefinitions.DeleteArrayElementAtIndex(removeIndex);
+
+            EditorGUILayout.Space(4);
+            GUI.backgroundColor = new Color(accent.r * 0.6f, accent.g * 0.6f, accent.b * 0.6f, 1f);
+            if (GUILayout.Button("+ 스킬 정의 추가", GUILayout.Height(26)))
+            {
+                _skillDefinitions.arraySize++;
+                var elem = _skillDefinitions.GetArrayElementAtIndex(_skillDefinitions.arraySize - 1);
+                int slotIndex = Mathf.Clamp(_skillDefinitions.arraySize - 1, 0, 1);
+                elem.FindPropertyRelative("slot").enumValueIndex = slotIndex;
+                elem.FindPropertyRelative("displayName").stringValue = slotIndex == (int)PlayerSkillSlot.Ability ? "Ability" : "Ultimate";
+                elem.FindPropertyRelative("costPolicy").enumValueIndex = slotIndex == (int)PlayerSkillSlot.Ultimate
+                    ? (int)SkillCostPolicy.UseGaugeSlot
+                    : (int)SkillCostPolicy.NoCost;
+                elem.FindPropertyRelative("cooldownPolicy").enumValueIndex = 0;
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        private void DrawSkillDefinitionToolbar()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("빠른 작업", EditorStyles.boldLabel);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Ability/Ultimate 정의 보장", GUILayout.Height(24)))
+                        EnsureTwoSkillDefinitions(false);
+
+                    if (GUILayout.Button("레거시 0/1 → 기본 Variant 복사", GUILayout.Height(24)))
+                        EnsureTwoSkillDefinitions(true);
+                }
+
+                if (GUILayout.Button("Ability/Ultimate 비용 정책 정규화", GUILayout.Height(24)))
+                    NormalizeSkillDefinitionPolicies();
+
+                EditorGUILayout.LabelField(
+                    "Ability는 게이지 비용 없음, Ultimate는 게이지 비용 사용으로 정규화됩니다. 레거시 탭은 이전 데이터 확인/복사용입니다.",
+                    EditorStyles.miniLabel);
+            }
+        }
+
+        private void DrawSkillDefinitionDiagnostics()
+        {
+            var data = _so.targetObject as PlayerAttackDataSO;
+            var issues = new List<string>();
+
+            if (data == null)
+                return;
+
+            if (data.skillAttackList != null && data.skillAttackList.Count > 2)
+                issues.Add($"레거시 skillAttackList가 {data.skillAttackList.Count}개입니다. 런타임은 0=Ability, 1=Ultimate만 스킬 슬롯으로 탐색합니다.");
+
+            bool hasSkill1 = false;
+            bool hasSkill2 = false;
+            var seenSlots = new HashSet<int>();
+
+            if (data.skillDefinitions != null)
+            {
+                for (int i = 0; i < data.skillDefinitions.Count; i++)
+                {
+                    var def = data.skillDefinitions[i];
+                    if (def == null)
+                    {
+                        issues.Add($"스킬 정의 [{i}]가 null입니다.");
+                        continue;
+                    }
+
+                    int slot = (int)def.slot;
+                    if (slot == 0) hasSkill1 = true;
+                    if (slot == 1) hasSkill2 = true;
+                    if (slot < 0 || slot >= 2)
+                        issues.Add($"스킬 정의 [{i}] 슬롯이 2슬롯 범위를 벗어났습니다. slot={slot}");
+                    if (!seenSlots.Add(slot))
+                        issues.Add($"스킬 정의 슬롯 {slot}이 중복입니다. Resolver는 먼저 찾은 정의만 사용합니다.");
+
+                    if (def.slot == PlayerSkillSlot.Ability && def.costPolicy != SkillCostPolicy.NoCost)
+                        issues.Add("Ability는 스킬 게이지를 사용하지 않습니다. Cost Policy를 No Cost로 정규화하세요.");
+
+                    if (def.slot == PlayerSkillSlot.Ultimate && def.costPolicy != SkillCostPolicy.UseGaugeSlot)
+                        issues.Add("Ultimate는 스킬 게이지를 사용합니다. Cost Policy를 Use Gauge Slot으로 정규화하세요.");
+
+                    bool hasExecutable = false;
+                    if (def.variants != null)
+                    {
+                        for (int v = 0; v < def.variants.Count; v++)
+                        {
+                            var variant = def.variants[v];
+                            if (variant == null)
+                            {
+                                issues.Add($"스킬 정의 [{i}] Variant [{v}]가 null입니다.");
+                                continue;
+                            }
+
+                            if (variant.IsExecutable)
+                                hasExecutable = true;
+                            else
+                                issues.Add($"스킬 정의 [{i}] Variant [{v}] 실행 불가: attackInfo/baseInfo 또는 AnimKey를 확인하세요.");
+                        }
+                    }
+
+                    if (!hasExecutable)
+                    {
+                        // 정의 우선(definition-authoritative) 정책: 슬롯에 정의가 있으면
+                        // 실행 가능한 Variant가 없어도 레거시 skillAttackList로 폴백하지 않는다.
+                        // (레거시 폴백은 이 정의를 제거해 슬롯을 비웠을 때만 동작)
+                        issues.Add($"스킬 정의 [{i}]에 실행 가능한 Variant가 없습니다. " +
+                                   "정의 우선 정책상 레거시로 폴백하지 않으므로 입력해도 발동하지 않습니다. " +
+                                   $"Variant를 추가하거나, 레거시 skillAttackList[{slot}]를 쓰려면 이 정의를 제거하세요.");
+                    }
+                }
+            }
+
+            if (data.skillDefinitions != null && data.skillDefinitions.Count > 0)
+            {
+                if (!hasSkill1) issues.Add("Ability 정의가 없어 해당 슬롯은 레거시 skillAttackList[0]으로 폴백합니다. 의도한 것이 아니면 Ability 정의를 추가하세요.");
+                if (!hasSkill2) issues.Add("Ultimate 정의가 없어 해당 슬롯은 레거시 skillAttackList[1]으로 폴백합니다. 의도한 것이 아니면 Ultimate 정의를 추가하세요.");
+            }
+
+            if (issues.Count > 0)
+                EditorGUILayout.HelpBox(string.Join("\n", issues), MessageType.Warning);
+            else
+                EditorGUILayout.HelpBox("스킬 정의 진단 문제 없음.", MessageType.None);
+        }
+
+        private void DrawSkillDefinitionCard(SerializedProperty elem, int index, ref int removeIndex, Color accent)
+        {
+            var slotProp = elem.FindPropertyRelative("slot");
+            var nameProp = elem.FindPropertyRelative("displayName");
+            var variantsProp = elem.FindPropertyRelative("variants");
+            string slotName = slotProp.enumDisplayNames[slotProp.enumValueIndex];
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                Rect header = GUILayoutUtility.GetRect(0, 24, GUILayout.ExpandWidth(true));
+                EditorGUI.DrawRect(header, new Color(accent.r, accent.g, accent.b, 0.18f));
+                elem.isExpanded = EditorGUI.Foldout(
+                    new Rect(header.x + 4, header.y + 3, header.width - 64, 18),
+                    elem.isExpanded,
+                    $"[{index}] {slotName}  -  {nameProp.stringValue}  (Variant {variantsProp.arraySize})",
+                    true);
+
+                if (GUI.Button(new Rect(header.xMax - 26, header.y + 3, 22, 18), "x", EditorStyles.miniButton))
+                    removeIndex = index;
+
+                if (!elem.isExpanded)
+                    return;
+
+                EditorGUILayout.Space(3);
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(slotProp);
+                EditorGUILayout.PropertyField(nameProp);
+                EditorGUILayout.PropertyField(elem.FindPropertyRelative("costPolicy"));
+                EditorGUILayout.PropertyField(elem.FindPropertyRelative("cooldownPolicy"));
+                EditorGUI.indentLevel--;
+
+                EditorGUILayout.Space(4);
+                DrawSkillVariantList(variantsProp, accent);
+            }
+        }
+
+        private void DrawSkillVariantList(SerializedProperty variantsProp, Color accent)
+        {
+            int removeVariant = -1;
+            for (int i = 0; i < variantsProp.arraySize; i++)
+            {
+                var variant = variantsProp.GetArrayElementAtIndex(i);
+                var nameProp = variant.FindPropertyRelative("variantName");
+                var animKeyProp = variant.FindPropertyRelative("animKey");
+                var priorityProp = variant.FindPropertyRelative("priority");
+                string anim = animKeyProp.enumDisplayNames[animKeyProp.enumValueIndex];
+
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        variant.isExpanded = EditorGUILayout.Foldout(
+                            variant.isExpanded,
+                            $"Variant [{i}] {nameProp.stringValue} / {anim} / 우선순위 {priorityProp.intValue}",
+                            true);
+                        GUILayout.FlexibleSpace();
+                        if (GUILayout.Button("x", GUILayout.Width(22)))
+                            removeVariant = i;
+                    }
+
+                    if (variant.isExpanded)
+                    {
+                        EditorGUI.indentLevel++;
+                        EditorGUILayout.PropertyField(nameProp);
+                        EditorGUILayout.PropertyField(animKeyProp, new GUIContent("AnimKey Override"));
+                        EditorGUILayout.PropertyField(priorityProp);
+                        EditorGUILayout.PropertyField(variant.FindPropertyRelative("condition"), true);
+                        EditorGUILayout.PropertyField(variant.FindPropertyRelative("attackInfo"), true);
+                        EditorGUI.indentLevel--;
+                    }
+                }
+            }
+
+            if (removeVariant >= 0)
+                variantsProp.DeleteArrayElementAtIndex(removeVariant);
+
+            GUI.backgroundColor = new Color(accent.r * 0.55f, accent.g * 0.55f, accent.b * 0.55f, 1f);
+            if (GUILayout.Button("+ Variant 추가", GUILayout.Height(22)))
+            {
+                variantsProp.arraySize++;
+                var ne = variantsProp.GetArrayElementAtIndex(variantsProp.arraySize - 1);
+                ne.FindPropertyRelative("variantName").stringValue = variantsProp.arraySize == 1 ? "Default" : $"Variant {variantsProp.arraySize}";
+                ne.FindPropertyRelative("priority").intValue = 0;
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        private void EnsureTwoSkillDefinitions(bool copyLegacy)
+        {
+            _so.ApplyModifiedProperties();
+
+            var data = _so.targetObject as PlayerAttackDataSO;
+            if (data == null) return;
+
+            Undo.RecordObject(data, copyLegacy ? "레거시 스킬을 Skill Definition으로 복사" : "Skill Definition 2슬롯 생성");
+
+            data.skillDefinitions ??= new List<PlayerSkillDefinition>();
+            var skill1 = EnsureSkillDefinition(data, PlayerSkillSlot.Ability, "Ability");
+            var skill2 = EnsureSkillDefinition(data, PlayerSkillSlot.Ultimate, "Ultimate");
+            ApplyDefaultSkillPolicy(skill1);
+            ApplyDefaultSkillPolicy(skill2);
+
+            if (copyLegacy)
+            {
+                CopyLegacySkillToDefinition(data, 0, skill1);
+                CopyLegacySkillToDefinition(data, 1, skill2);
+            }
+
+            EditorUtility.SetDirty(data);
+            _so.Update();
+        }
+
+        private void NormalizeSkillDefinitionPolicies()
+        {
+            _so.ApplyModifiedProperties();
+
+            var data = _so.targetObject as PlayerAttackDataSO;
+            if (data?.skillDefinitions == null) return;
+
+            Undo.RecordObject(data, "Ability/Ultimate 비용 정책 정규화");
+
+            for (int i = 0; i < data.skillDefinitions.Count; i++)
+                ApplyDefaultSkillPolicy(data.skillDefinitions[i]);
+
+            EditorUtility.SetDirty(data);
+            _so.Update();
+        }
+
+        private static PlayerSkillDefinition EnsureSkillDefinition(
+            PlayerAttackDataSO data,
+            PlayerSkillSlot slot,
+            string displayName)
+        {
+            for (int i = 0; i < data.skillDefinitions.Count; i++)
+            {
+                var existing = data.skillDefinitions[i];
+                if (existing != null && existing.slot == slot)
+                    return existing;
+            }
+
+            var created = new PlayerSkillDefinition
+            {
+                slot = slot,
+                displayName = displayName,
+                costPolicy = GetDefaultCostPolicy(slot),
+                cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot,
+                variants = new List<PlayerSkillVariant>(),
+            };
+            data.skillDefinitions.Add(created);
+            return created;
+        }
+
+        private static void ApplyDefaultSkillPolicy(PlayerSkillDefinition definition)
+        {
+            if (definition == null) return;
+
+            definition.costPolicy = GetDefaultCostPolicy(definition.slot);
+            definition.cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot;
+        }
+
+        private static SkillCostPolicy GetDefaultCostPolicy(PlayerSkillSlot slot)
+            => slot == PlayerSkillSlot.Ultimate
+                ? SkillCostPolicy.UseGaugeSlot
+                : SkillCostPolicy.NoCost;
+
+        private static void CopyLegacySkillToDefinition(
+            PlayerAttackDataSO data,
+            int legacyIndex,
+            PlayerSkillDefinition definition)
+        {
+            if (definition == null || data.skillAttackList == null || legacyIndex < 0 || legacyIndex >= data.skillAttackList.Count)
+                return;
+
+            var legacy = data.skillAttackList[legacyIndex];
+            if (legacy?.baseInfo == null)
+                return;
+
+            definition.variants ??= new List<PlayerSkillVariant>();
+            definition.variants.Clear();
+            definition.variants.Add(new PlayerSkillVariant
+            {
+                variantName = "Default",
+                animKey = legacy.baseInfo.animKey,
+                attackInfo = ClonePlayerAttackInfo(legacy),
+                priority = 0,
+                condition = new SkillVariantCondition(),
+            });
+        }
+
+        private static PlayerAttackInfo ClonePlayerAttackInfo(PlayerAttackInfo source)
+        {
+            if (source == null) return null;
+            string json = JsonUtility.ToJson(source);
+            return JsonUtility.FromJson<PlayerAttackInfo>(json);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  ⑪ 연계 라우트 (Combo Route) — 저작 + 진단 + 시뮬레이터
         // ═══════════════════════════════════════════════════════════════
         private void DrawComboRoutes(Color accent)
         {
@@ -323,7 +676,7 @@ namespace UPlayGround.Editor
                     if (r.attackInfo?.baseInfo == null || r.attackInfo.baseInfo.animKey == AnimKey.None)
                         issues.Add($"[{i}] {r.routeName}: 실행 공격 animKey가 None");
                     if (r.skillGaugeIndex >= 0)
-                        issues.Add($"[{i}] {r.routeName}: 스킬 게이지 슬롯 {r.skillGaugeIndex} 소비 — 런타임에서 해당 게이지가 부족하면 발동 안 함(시뮬레이터는 자원 무시). 비용 없으려면 -1.");
+                        issues.Add($"[{i}] {r.routeName}: 자원 슬롯 {r.skillGaugeIndex} 소비 — 런타임에서 해당 자원이 부족하면 발동 안 함(시뮬레이터는 자원 무시). 비용 없으려면 -1.");
 
                     for (int j = i + 1; j < routes.Count; j++)
                     {
@@ -412,12 +765,13 @@ namespace UPlayGround.Editor
             2 => _jumpList.arraySize,
             3 => _dashList.arraySize,
             4 => _skillList.arraySize,
-            5 => 1,
-            6 => _chargeStages.arraySize,
-            7 => 1,
+            5 => _skillDefinitions != null ? _skillDefinitions.arraySize : 0,
+            6 => 1,
+            7 => _chargeStages.arraySize,
             8 => 1,
             9 => 1,
-            10 => _comboRoutes != null ? _comboRoutes.arraySize : 0,
+            10 => 1,
+            11 => _comboRoutes != null ? _comboRoutes.arraySize : 0,
             _ => 0,
         };
 
@@ -438,7 +792,7 @@ namespace UPlayGround.Editor
                         : new Color(0.25f, 0.25f, 0.25f, 0.8f);
 
                 var style = active ? _tabStyleActive : _tabStyleNormal;
-                string label = (i == 5 || i == 6 || i == 7 || i == 8 || i == 9) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
+                string label = (i == 6 || i == 7 || i == 8 || i == 9 || i == 10) ? TabLabels[i] : $"{TabLabels[i]} ({count})";
 
                 Color prevContent = GUI.contentColor;
                 if (empty && !active) GUI.contentColor = new Color(1f, 1f, 1f, 0.4f);
@@ -1000,10 +1354,10 @@ namespace UPlayGround.Editor
         {
             EnsureFoldLists("swapSpecial", 1);
 
-            DrawSectionHeader("풀 게이지 교체 특수 공격", accent);
+            DrawSectionHeader("Ultimate 게이지 교체 특수 공격", accent);
             EditorGUILayout.HelpBox(
-                "스킬 게이지가 가득 찬 캐릭터로 교체할 때 자동으로 발동됩니다.\n" +
-                "비워두면 스킬 공격 0번, 등장 공격 순으로 대체됩니다.",
+                "Ultimate 게이지가 가득 찬 캐릭터로 교체할 때 자동으로 발동됩니다.\n" +
+                "비워두면 Ability, 등장 공격 순으로 대체됩니다.",
                 MessageType.Info);
             EditorGUILayout.Space(4);
             DrawCounterAttackField(_swapSpecial, "swapSpecial", accent);

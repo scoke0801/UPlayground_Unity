@@ -22,6 +22,7 @@ namespace UPlayGround.Component
         public readonly MonsterActor SpecialBreakTarget;
         public readonly float SpecialBreakDamageByMaxHpRate;
         public readonly float SpecialBreakFixedDamage;
+        public readonly float SpecialBreakMinReferenceHealth;
 
         public PlayerResidualAttackSnapshot(
             PlayerActor ownerPlayer,
@@ -37,7 +38,8 @@ namespace UPlayGround.Component
             MonsterActor finishTarget,
             MonsterActor specialBreakTarget,
             float specialBreakDamageByMaxHpRate,
-            float specialBreakFixedDamage)
+            float specialBreakFixedDamage,
+            float specialBreakMinReferenceHealth)
         {
             OwnerPlayer = ownerPlayer;
             SourceModel = sourceModel;
@@ -53,6 +55,7 @@ namespace UPlayGround.Component
             SpecialBreakTarget = specialBreakTarget;
             SpecialBreakDamageByMaxHpRate = specialBreakDamageByMaxHpRate;
             SpecialBreakFixedDamage = specialBreakFixedDamage;
+            SpecialBreakMinReferenceHealth = specialBreakMinReferenceHealth;
         }
     }
 

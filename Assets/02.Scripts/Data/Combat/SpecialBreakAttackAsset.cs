@@ -1,5 +1,4 @@
 using UnityEngine;
-using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Combat
@@ -7,15 +6,11 @@ namespace UPlayGround.Data.Combat
     [CreateAssetMenu(fileName = "SpecialBreakAttack", menuName = "UPlayGround/SO/Combat/Special Break Attack")]
     public class SpecialBreakAttackAsset : ScriptableObject
     {
-        [Header("Owner")]
-        public CharacterActorType ownerType = CharacterActorType.None;
-
         [Header("Motion")]
-        public AnimKey animKey = AnimKey.FinishAttack;
-        public MotionSetAsset motionSet;
+        public AnimKey animKey = AnimKey.BreakAttack;
         [Min(0.1f)] public float duration = 1.2f;
-        [Tooltip("SpecialBreakAttackEvent가 없는 임시 모션에서 피해를 적용할 폴백 시간.")]
-        [Min(0f)] public float fallbackHitTime = 0.15f;
+        [Tooltip("SpecialBreakAttackEvent가 없는 임시 모션을 위한 백스톱 시각. 이벤트가 박힌 클립은 이 시각 전에 이벤트가 발화하므로, 임팩트 프레임보다 '늦게'(duration에 근접하게) 잡아 이벤트가 항상 우선되도록 한다. 이벤트가 끝내 없으면 이 시각에 한 번 적용된다.")]
+        [Min(0f)] public float fallbackHitTime = 1.0f;
 
         [Header("Camera")]
         public CameraSnapshotProfile cameraProfile;
@@ -38,6 +33,8 @@ namespace UPlayGround.Data.Combat
         [Header("Damage")]
         [Min(0f)] public float damageByMaxHpRate = 0.2f;
         [Min(0f)] public float fixedDamage = 0f;
+        [Tooltip("비율 피해 계산용 기준 HP 하한. 최대 HP가 이 값보다 '낮은' 적만 이 HP를 가진 것처럼 계산해 약한 적의 타격감을 보장한다. 따라서 버프하려는 약한 적의 HP보다 '높게' 잡아야 동작한다(이하로 잡으면 아무 적에게도 적용되지 않음). 즉사를 피하려면 (기준HP × 피해율 + 고정 피해)가 가장 약한 적의 HP보다 작아야 한다. 예: 최약체 120HP·피해율 0.2 → 기준HP는 120 초과 600 미만. (0이면 비활성)")]
+        [Min(0f)] public float minReferenceHealth = 0f;
 
         [Header("Feedback")]
         [Min(0f)] public float hitStopDuration = 0.08f;

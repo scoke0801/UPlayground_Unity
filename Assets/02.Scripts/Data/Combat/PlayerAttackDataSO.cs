@@ -29,6 +29,10 @@ namespace UPlayGround.Data.Combat
         [Tooltip("스킬 공격 리스트")]
         public List<PlayerAttackInfo> skillAttackList  = new List<PlayerAttackInfo>();
 
+        [Header("Skill Definitions (2 Slots)")]
+        [Tooltip("Ability(Skill1) / Ultimate(Skill2) 2슬롯 기반 스킬 정의. 비어 있으면 skillAttackList[0/1]을 레거시 기본 스킬로 사용한다.")]
+        public List<PlayerSkillDefinition> skillDefinitions = new List<PlayerSkillDefinition>();
+
         [Header("Combo Routes (연계스킬)")]
         [Tooltip("입력 시퀀스 패턴 분기 연계스킬 목록. per-character.\n" +
                  "예) 약약약→강, 대시→점프→스킬1. 통합 윈도우의 '연계 라우트' 탭에서 편집.")]
@@ -51,7 +55,7 @@ namespace UPlayGround.Data.Combat
         [Tooltip("스왑 회피 성공 시 발동하는 카운터 공격 데이터. 비어 있으면 교체 등장 공격, 약 공격 첫 번째 순으로 대체된다.")]
         public PlayerAttackInfo swapEvadeCounterAttack;
 
-        [Tooltip("스킬 게이지가 가득 찬 캐릭터로 교체할 때 발동하는 특수 공격 데이터. 비어 있으면 스킬 0번, 등장 공격 순으로 대체된다.")]
+        [Tooltip("Ultimate 게이지가 가득 찬 캐릭터로 교체할 때 발동하는 특수 공격 데이터. 비어 있으면 Ability, 등장 공격 순으로 대체된다.")]
         public PlayerAttackInfo swapSpecialAttack;
 
         [Tooltip("차지 공격 MotionSet AnimKey.\nMotionSet 내 InfiniteLoop 개수 = chargeStages.Count 와 일치시켜야 한다.")]

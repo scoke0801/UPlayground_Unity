@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Component
@@ -13,6 +14,10 @@ namespace UPlayGround.Component
     /// </summary>
     public class PlayerSkillGauge : PlayerActorComponent
     {
+        public const int SkillSlotCount = 2;
+        public const int AbilitySkillSlot = (int)PlayerSkillSlot.Ability;
+        public const int UltimateSkillSlot = (int)PlayerSkillSlot.Ultimate;
+
         [Serializable]
         public struct ChargeTable
         {
@@ -39,11 +44,12 @@ namespace UPlayGround.Component
             chargeAttack = 15f,
         };
 
-        [Header("Skill Cost (Slot 0~4)")]
-        [SerializeField] private float[] _skillCost = { 25f, 40f, 60f, 80f, 100f };
+        [Header("Skill Cost (Slot 0~1)")]
+        [Tooltip("Ability(0)는 게이지를 사용하지 않는다. Ultimate(1)만 이 비용을 사용한다.")]
+        [SerializeField] private float[] _skillCost = { 0f, 100f };
 
-        [Header("Skill Cooldown (Slot 0~4)")]
-        [SerializeField] private float[] _skillCooldown = { 3f, 5f, 8f, 10f, 12f };
+        [Header("Skill Cooldown (Slot 0~1)")]
+        [SerializeField] private float[] _skillCooldown = { 3f, 12f };
 
         public event Action<float, float> OnGaugeChanged;
         public event Action<int, float, float> OnCooldownChanged;
@@ -108,23 +114,32 @@ namespace UPlayGround.Component
                 AddGauge(charge);
         }
 
-        /// <summary>스킬 슬롯 사용 가능 여부 (UI 버튼 활성화 등에 활용)</summary>
+        /// <summary>
+        /// 스킬 슬롯 사용 가능 여부. Ability는 쿨타임만 검사한다.
+        /// Ultimate는 쿨타임이 아니고 <b>게이지가 가득 찼을 때만</b> 발동할 수 있다(발동 시 전체 소비).
+        /// </summary>
         public bool CanUseSkill(int skillSlot)
         {
-            if ((uint)skillSlot >= (uint)_skillCost.Length) return false;
-            return _currentGauge >= _skillCost[skillSlot] && !IsSkillOnCooldown(skillSlot);
+            if (!IsValidSkillSlot(skillSlot)) return false;
+            if (IsSkillOnCooldown(skillSlot)) return false;
+            if (!UsesGaugeCost(skillSlot)) return true;
+            return _maxGauge > 0f && _currentGauge >= _maxGauge;
         }
 
         /// <summary>
-        /// 스킬 게이지 소모. 성공하면 true 반환.
+        /// 스킬 자원 소모. Ability는 게이지를 소모하지 않고 쿨타임만 시작한다.
         /// PlayerAttackState.GetAnimKey()에서 스킬 실행 직전 호출.
         /// </summary>
         public bool ConsumeSkill(int skillSlot)
         {
             if (!CanUseSkill(skillSlot)) return false;
 
-            _currentGauge = Mathf.Max(0f, _currentGauge - _skillCost[skillSlot]);
-            OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+            if (UsesGaugeCost(skillSlot))
+            {
+                _currentGauge = 0f;   // Ultimate는 가득 찼을 때만 발동하며, 발동 시 게이지를 전부 소비한다.
+                OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+            }
+
             StartCooldown(skillSlot);
             return true;
         }
@@ -171,20 +186,22 @@ namespace UPlayGround.Component
 
         public float GetSkillCost(int skillSlot)
         {
-            if ((uint)skillSlot >= (uint)_skillCost.Length) return float.PositiveInfinity;
+            if (!IsValidSkillSlot(skillSlot)) return float.PositiveInfinity;
+            if (!UsesGaugeCost(skillSlot)) return 0f;
+            if (_skillCost == null || (uint)skillSlot >= (uint)_skillCost.Length) return float.PositiveInfinity;
             return Mathf.Max(0f, _skillCost[skillSlot]);
         }
 
         public float GetSkillCooldownDuration(int skillSlot)
         {
-            if (_skillCooldown == null || (uint)skillSlot >= (uint)_skillCooldown.Length) return 0f;
+            if (!IsValidSkillSlot(skillSlot) || _skillCooldown == null || (uint)skillSlot >= (uint)_skillCooldown.Length) return 0f;
             return Mathf.Max(0f, _skillCooldown[skillSlot]);
         }
 
         public float GetSkillCooldownRemaining(int skillSlot)
         {
             EnsureCooldownBuffer();
-            if (_skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return 0f;
+            if (!IsValidSkillSlot(skillSlot) || _skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return 0f;
             return Mathf.Max(0f, _skillCooldownEndTimes[skillSlot] - Time.time);
         }
 
@@ -192,6 +209,8 @@ namespace UPlayGround.Component
 
         private void StartCooldown(int skillSlot)
         {
+            if (!IsValidSkillSlot(skillSlot)) return;
+
             float duration = GetSkillCooldownDuration(skillSlot);
             if (duration <= 0f) return;
 
@@ -204,7 +223,7 @@ namespace UPlayGround.Component
 
         private void EnsureCooldownBuffer()
         {
-            int count = Mathf.Max(_skillCost?.Length ?? 0, _skillCooldown?.Length ?? 0);
+            int count = SkillSlotCount;
             if (count <= 0)
             {
                 _skillCooldownEndTimes = Array.Empty<float>();
@@ -216,5 +235,11 @@ namespace UPlayGround.Component
 
             _skillCooldownEndTimes = new float[count];
         }
+
+        public static bool IsValidSkillSlot(int skillSlot)
+            => skillSlot >= 0 && skillSlot < SkillSlotCount;
+
+        public static bool UsesGaugeCost(int skillSlot)
+            => skillSlot == UltimateSkillSlot;
     }
 }

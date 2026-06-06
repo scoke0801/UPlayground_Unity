@@ -14,10 +14,11 @@ namespace UPlayGround.Data.Combat
         LightAttack = 0,   // [1] 약공
         HeavyAttack = 1,   // [2] 강공
         Dodge       = 2,   // 회피(대시)
-        Skill1      = 3,   // [3] 스킬1 (과거 Skill 계승)
+        Skill1      = 3,   // [3] Ability (과거 Skill 계승)
         Jump        = 4,   // 점프(점프 입력 진입 한정)
-        Skill2      = 5,   // [4] 스킬2
+        Skill2      = 5,   // [4] Ultimate
         Charge      = 6,   // 강공 홀드(차지) 완료
+        Dash        = 7,   // 대시
     }
 
     /// <summary>입력 패턴 매칭 방식</summary>
@@ -74,7 +75,7 @@ namespace UPlayGround.Data.Combat
         public RouteGroundCondition groundCondition = RouteGroundCondition.Any;
 
         [Header("자원 소비")]
-        [Tooltip("차감할 스킬 게이지 슬롯(-1=없음). 부족하면 매칭돼도 미발동.")]
+        [Tooltip("차감할 자원 슬롯(-1=없음). 0=Ability, 1=Ultimate. 부족하면 매칭돼도 미발동.")]
         public int skillGaugeIndex = -1;
 
         [Header("실행 공격")]

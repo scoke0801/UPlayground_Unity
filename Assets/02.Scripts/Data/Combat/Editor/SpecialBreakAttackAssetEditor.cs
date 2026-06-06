@@ -8,9 +8,7 @@ namespace UPlayGround.Editor
     [CustomEditor(typeof(SpecialBreakAttackAsset))]
     public class SpecialBreakAttackAssetEditor : UnityEditor.Editor
     {
-        SerializedProperty _ownerType;
         SerializedProperty _animKey;
-        SerializedProperty _motionSet;
         SerializedProperty _duration;
         SerializedProperty _fallbackHitTime;
         SerializedProperty _cameraProfile;
@@ -21,6 +19,7 @@ namespace UPlayGround.Editor
         SerializedProperty _slideDuration;
         SerializedProperty _damageByMaxHpRate;
         SerializedProperty _fixedDamage;
+        SerializedProperty _minReferenceHealth;
         SerializedProperty _hitStopDuration;
         SerializedProperty _startVfxKey;
         SerializedProperty _hitVfxKey;
@@ -28,9 +27,7 @@ namespace UPlayGround.Editor
 
         void OnEnable()
         {
-            _ownerType = serializedObject.FindProperty("ownerType");
             _animKey = serializedObject.FindProperty("animKey");
-            _motionSet = serializedObject.FindProperty("motionSet");
             _duration = serializedObject.FindProperty("duration");
             _fallbackHitTime = serializedObject.FindProperty("fallbackHitTime");
             _cameraProfile = serializedObject.FindProperty("cameraProfile");
@@ -41,6 +38,7 @@ namespace UPlayGround.Editor
             _slideDuration = serializedObject.FindProperty("slideDuration");
             _damageByMaxHpRate = serializedObject.FindProperty("damageByMaxHpRate");
             _fixedDamage = serializedObject.FindProperty("fixedDamage");
+            _minReferenceHealth = serializedObject.FindProperty("minReferenceHealth");
             _hitStopDuration = serializedObject.FindProperty("hitStopDuration");
             _startVfxKey = serializedObject.FindProperty("startVfxKey");
             _hitVfxKey = serializedObject.FindProperty("hitVfxKey");
@@ -51,12 +49,10 @@ namespace UPlayGround.Editor
         {
             serializedObject.Update();
 
-            DrawSection("대상 / 모션", new Color(0.35f, 0.65f, 1f));
+            DrawSection("모션", new Color(0.35f, 0.65f, 1f));
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.PropertyField(_ownerType, new GUIContent("소유 캐릭터"));
                 EditorGUILayout.PropertyField(_animKey, new GUIContent("재생 AnimKey"));
-                EditorGUILayout.PropertyField(_motionSet, new GUIContent("전용 MotionSet"));
                 EditorGUILayout.PropertyField(_duration, new GUIContent("상태 지속시간"));
                 EditorGUILayout.PropertyField(_fallbackHitTime, new GUIContent("폴백 타격 시간"));
             }
@@ -78,6 +74,11 @@ namespace UPlayGround.Editor
             {
                 EditorGUILayout.PropertyField(_damageByMaxHpRate, new GUIContent("최대 HP 피해율"));
                 EditorGUILayout.PropertyField(_fixedDamage, new GUIContent("고정 피해"));
+                EditorGUILayout.PropertyField(_minReferenceHealth, new GUIContent("기준 HP 하한"));
+                if (_minReferenceHealth.floatValue <= 0f)
+                    EditorGUILayout.HelpBox("기준 HP 하한이 0이면 최대 HP 비율을 그대로 사용합니다. 약한 적의 타격감을 높이려면 가장 약한 적의 HP 근처 값을 넣으세요.", MessageType.None);
+                else
+                    EditorGUILayout.HelpBox($"최대 HP가 {_minReferenceHealth.floatValue:0}보다 낮은 적은 {_minReferenceHealth.floatValue:0} HP로 간주해 비율 피해를 계산합니다. 즉, 최소 {_minReferenceHealth.floatValue * _damageByMaxHpRate.floatValue:0} + 고정 피해가 보장됩니다.", MessageType.Info);
                 EditorGUILayout.PropertyField(_hitStopDuration, new GUIContent("히트스톱 시간"));
             }
 
@@ -107,9 +108,6 @@ namespace UPlayGround.Editor
 
             if (_fallbackHitTime.floatValue > _duration.floatValue)
                 EditorGUILayout.HelpBox("폴백 타격 시간이 상태 지속시간보다 깁니다. MotionEvent가 없으면 피해가 적용되지 않을 수 있습니다.", MessageType.Warning);
-
-            if (_motionSet.objectReferenceValue == null)
-                EditorGUILayout.HelpBox("전용 MotionSet은 선택 사항입니다. 실제 재생은 PlayerActorAnimator의 AnimKey MotionSet 보유 여부를 따릅니다.", MessageType.None);
         }
 
         static void DrawSection(string title, Color accent)

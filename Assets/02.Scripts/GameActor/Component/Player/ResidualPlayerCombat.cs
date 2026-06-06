@@ -39,6 +39,7 @@ namespace UPlayGround.Component
         private MonsterActor _specialBreakTarget;
         private float _specialBreakDamageByMaxHpRate;
         private float _specialBreakFixedDamage;
+        private float _specialBreakMinReferenceHealth;
 
         public event Action<AttackData> OnAttackHit;
 
@@ -65,6 +66,7 @@ namespace UPlayGround.Component
             _specialBreakTarget = snapshot.SpecialBreakTarget;
             _specialBreakDamageByMaxHpRate = snapshot.SpecialBreakDamageByMaxHpRate;
             _specialBreakFixedDamage = snapshot.SpecialBreakFixedDamage;
+            _specialBreakMinReferenceHealth = snapshot.SpecialBreakMinReferenceHealth;
             _isCollisionEnabled = false;
             _hitTargets.Clear();
 
@@ -156,7 +158,8 @@ namespace UPlayGround.Component
             _specialBreakTarget.OnTakeSpecialBreakAttack(
                 _ownerPlayer,
                 _specialBreakDamageByMaxHpRate,
-                _specialBreakFixedDamage);
+                _specialBreakFixedDamage,
+                _specialBreakMinReferenceHealth);
         }
 
         private void PerformHitDetection()

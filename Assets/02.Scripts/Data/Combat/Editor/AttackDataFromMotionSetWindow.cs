@@ -40,10 +40,14 @@ namespace UPlayGround.Editor
         private ActorStatSO _sourceStatData;
         private int _sourceLevel = 1;
         private float _levelDamageGrowth = 0.04f;
-        private float _playerBaseDamage = 10f;
+        private float _targetPlayerDps = 45f;
         private float _enemyBaseDamage = 8f;
-        private float _poiseDamageRatio = 3f;
-        private float _breakDamageRatio = 1f;
+        // Poise/Break는 더 이상 damage 배율이 아니라, 기준 게이지(보통 maxPoise/maxGauge=100)의 분수로 산출한다.
+        // 이렇게 하면 damage 스케일을 재튜닝해도 경직/브레이크 난이도가 따라 흔들리지 않는다.
+        private float _referencePoiseGauge = 100f;
+        private float _referenceBreakGauge = 100f;
+        private float _poiseGaugeFraction = 0.15f;
+        private float _breakGaugeFraction = 0.10f;
         private float _motionDurationWeight = 0.15f;
         private float _comboStepWeight = 0.08f;
         private Vector2 _scroll;
@@ -217,10 +221,21 @@ namespace UPlayGround.Editor
                         _normalizeRuntimeAttackPower = EditorGUILayout.ToggleLeft("AttackPower 런타임 곱셈 역보정", _normalizeRuntimeAttackPower);
                         EditorGUILayout.HelpBox("런타임에서 HitPhaseData.damage에 공격자 AttackPower가 다시 곱해집니다. 역보정을 켜면 최종 목표 피해는 레벨/등급을 반영하되 AttackPower가 중복 적용되지 않도록 저장 피해를 나눠서 생성합니다.", MessageType.Info);
                     }
-                    _playerBaseDamage = EditorGUILayout.FloatField("플레이어 기준 대미지", Mathf.Max(0f, _playerBaseDamage));
+                    _targetPlayerDps = EditorGUILayout.FloatField("플레이어 목표 DPS", Mathf.Max(0f, _targetPlayerDps));
                     _enemyBaseDamage = EditorGUILayout.FloatField("적 기준 대미지", Mathf.Max(0f, _enemyBaseDamage));
-                    _poiseDamageRatio = EditorGUILayout.FloatField("Poise 배율", Mathf.Max(0f, _poiseDamageRatio));
-                    _breakDamageRatio = EditorGUILayout.FloatField("Break 배율", Mathf.Max(0f, _breakDamageRatio));
+                    EditorGUILayout.HelpBox(
+                        "플레이어 대미지는 라이트 콤보 전체 DPS가 '목표 DPS'가 되도록 자동 정규화됩니다. " +
+                        "콤보 타수가 많아도 합산 DPS는 일정하게 유지되고, 다른 공격(헤비/스킬 등)은 라이트 기준 대비 카테고리 배율만큼 더/덜 들어갑니다.",
+                        MessageType.Info);
+                    EditorGUILayout.Space(2);
+                    _referencePoiseGauge = EditorGUILayout.FloatField("기준 Poise 게이지", Mathf.Max(1f, _referencePoiseGauge));
+                    _referenceBreakGauge = EditorGUILayout.FloatField("기준 Break 게이지", Mathf.Max(1f, _referenceBreakGauge));
+                    _poiseGaugeFraction = EditorGUILayout.Slider("타격당 Poise 비율(라이트 기준)", _poiseGaugeFraction, 0f, 0.5f);
+                    _breakGaugeFraction = EditorGUILayout.Slider("타격당 Break 비율(라이트 기준)", _breakGaugeFraction, 0f, 0.5f);
+                    EditorGUILayout.HelpBox(
+                        $"라이트 1타 = 기준 게이지의 약 {_poiseGaugeFraction * 100f:F0}% Poise / {_breakGaugeFraction * 100f:F0}% Break. " +
+                        $"기준 게이지 {_referencePoiseGauge:F0} 기준 라이트 1콤보(예: 3타)로는 깨지지 않고, 누적·강공격으로 깨지도록 잡습니다.",
+                        MessageType.None);
                     _motionDurationWeight = EditorGUILayout.Slider("모션 길이 반영", _motionDurationWeight, 0f, 0.5f);
                     _comboStepWeight = EditorGUILayout.Slider("콤보 순번 반영", _comboStepWeight, 0f, 0.25f);
                 }
@@ -309,12 +324,11 @@ namespace UPlayGround.Editor
                 if (_balanceScenario.playerAttackData != null)
                     _attackData = _balanceScenario.playerAttackData;
 
-                _playerBaseDamage = Mathf.Max(
-                    1f,
-                    _balanceScenario.manualPlayerDps * Mathf.Max(0.05f, _balanceScenario.playerAttackInterval));
+                // manualPlayerDps를 그대로 목표 DPS로 사용한다(과거: × attackInterval 후 base 재증폭 → 이중 인플레).
+                _targetPlayerDps = Mathf.Max(1f, _balanceScenario.manualPlayerDps);
             }
 
-            _lastMessage = $"Balance Scenario 기준 적용: Lv.{_sourceLevel}, 플레이어 기준 대미지 {_playerBaseDamage:F1}";
+            _lastMessage = $"Balance Scenario 기준 적용: Lv.{_sourceLevel}, 플레이어 목표 DPS {_targetPlayerDps:F1}";
             RefreshScan();
         }
 
@@ -370,6 +384,9 @@ namespace UPlayGround.Editor
             if (TryApplySpecialPlayerEntry(data, entry, ref created, ref updated))
                 return;
 
+            if (entry.Category == AttackCategory.Skill)
+                ApplyPlayerSkillDefinitionEntry(data, entry, ref created, ref updated);
+
             List<PlayerAttackInfo> list = GetPlayerList(data, entry.Category);
             if (list == null) return;
 
@@ -390,6 +407,124 @@ namespace UPlayGround.Editor
             list.Add(CreatePlayerAttack(entry));
             created++;
         }
+
+        private void ApplyPlayerSkillDefinitionEntry(PlayerAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
+        {
+            if (data == null || entry == null || entry.Category != AttackCategory.Skill)
+                return;
+
+            data.skillDefinitions ??= new List<PlayerSkillDefinition>();
+
+            PlayerSkillSlot slot = ResolvePlayerSkillSlot(entry.Key);
+            PlayerSkillDefinition definition = FindOrCreateSkillDefinition(data, slot, ref created);
+            ApplyDefaultSkillDefinitionPolicy(definition);
+
+            definition.variants ??= new List<PlayerSkillVariant>();
+            PlayerSkillVariant existing = definition.variants.FirstOrDefault(v => v != null && v.ResolveAnimKey() == entry.Key);
+            if (existing != null)
+            {
+                if (_existingPolicy == ExistingPolicy.Skip) return;
+
+                if (_existingPolicy == ExistingPolicy.Replace || existing.attackInfo?.baseInfo == null)
+                    existing.attackInfo = CreatePlayerAttack(entry);
+                else
+                    SyncHitPhases(existing.attackInfo.baseInfo, entry.PhaseCount);
+
+                existing.animKey = entry.Key;
+                existing.variantName = ResolveSkillVariantName(slot, entry.Key);
+                existing.condition ??= new SkillVariantCondition();
+                ApplyBalancedDamage(existing.attackInfo.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
+                updated++;
+                return;
+            }
+
+            definition.variants.Add(new PlayerSkillVariant
+            {
+                variantName = ResolveSkillVariantName(slot, entry.Key),
+                animKey = entry.Key,
+                attackInfo = CreatePlayerAttack(entry),
+                condition = new SkillVariantCondition(),
+                priority = GetDefaultSkillVariantPriority(slot, entry.Key),
+            });
+            created++;
+        }
+
+        private static PlayerSkillDefinition FindOrCreateSkillDefinition(
+            PlayerAttackDataSO data,
+            PlayerSkillSlot slot,
+            ref int created)
+        {
+            for (int i = 0; i < data.skillDefinitions.Count; i++)
+            {
+                PlayerSkillDefinition definition = data.skillDefinitions[i];
+                if (definition != null && definition.slot == slot)
+                {
+                    if (string.IsNullOrWhiteSpace(definition.displayName) ||
+                        definition.displayName is "Skill1" or "Skill2" or "Skill")
+                    {
+                        definition.displayName = GetDefaultSkillDisplayName(slot);
+                    }
+
+                    return definition;
+                }
+            }
+
+            var result = new PlayerSkillDefinition
+            {
+                slot = slot,
+                displayName = GetDefaultSkillDisplayName(slot),
+                costPolicy = GetDefaultSkillCostPolicy(slot),
+                cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot,
+                variants = new List<PlayerSkillVariant>(),
+            };
+            data.skillDefinitions.Add(result);
+            created++;
+            return result;
+        }
+
+        private static void ApplyDefaultSkillDefinitionPolicy(PlayerSkillDefinition definition)
+        {
+            if (definition == null) return;
+
+            definition.displayName = string.IsNullOrWhiteSpace(definition.displayName) ||
+                                     definition.displayName is "Skill1" or "Skill2" or "Skill"
+                ? GetDefaultSkillDisplayName(definition.slot)
+                : definition.displayName;
+            definition.costPolicy = GetDefaultSkillCostPolicy(definition.slot);
+            definition.cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot;
+        }
+
+        private static PlayerSkillSlot ResolvePlayerSkillSlot(AnimKey key)
+            => key == AnimKey.Skill_2
+                ? PlayerSkillSlot.Ultimate
+                : PlayerSkillSlot.Ability;
+
+        private static string ResolveSkillVariantName(PlayerSkillSlot slot, AnimKey key)
+        {
+            if (slot == PlayerSkillSlot.Ability && key == AnimKey.Skill_1)
+                return "Default";
+            if (slot == PlayerSkillSlot.Ultimate && key == AnimKey.Skill_2)
+                return "Default";
+            return key.ToString();
+        }
+
+        private static int GetDefaultSkillVariantPriority(PlayerSkillSlot slot, AnimKey key)
+        {
+            if (slot == PlayerSkillSlot.Ability && key == AnimKey.Skill_1)
+                return 0;
+            if (slot == PlayerSkillSlot.Ultimate && key == AnimKey.Skill_2)
+                return 0;
+            return Mathf.Max(1, (int)key - (int)AnimKey.Skill_1);
+        }
+
+        private static string GetDefaultSkillDisplayName(PlayerSkillSlot slot)
+            => slot == PlayerSkillSlot.Ultimate ? "Ultimate" : "Ability";
+
+        private static SkillCostPolicy GetDefaultSkillCostPolicy(PlayerSkillSlot slot)
+            => slot == PlayerSkillSlot.Ultimate
+                ? SkillCostPolicy.UseGaugeSlot
+                : SkillCostPolicy.NoCost;
 
         private bool TryApplySpecialPlayerEntry(PlayerAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
         {
@@ -727,18 +862,24 @@ namespace UPlayGround.Editor
                 bool canOverwriteDamage = overwriteDamage || phase.damage == 0f || Mathf.Approximately(phase.damage, 10f);
                 bool canOverwriteBreak = overwriteDamage || phase.breakDamage == 0f || Mathf.Approximately(phase.breakDamage, 10f);
 
+                // phase 가중치를 평균 1로 정규화 → 각 타격이 'per-hit 목표값'을 중심으로 분포한다.
+                float phaseShare = NormalizedPhaseWeight(weights[i], totalWeight, phases.Count);
+
                 if (canOverwriteDamage)
                 {
                     float damage = totalWeight > 0f ? totalDamage * weights[i] / totalWeight : totalDamage;
                     phase.damage = Mathf.Round(damage);
-                    phase.poiseDamage = Mathf.Round(phase.damage * _poiseDamageRatio);
+                    // Poise는 damage 배율이 아니라 기준 게이지의 분수 × 카테고리(강공격일수록 큼)로 산출 → damage 재튜닝과 독립.
+                    phase.poiseDamage = Mathf.Round(
+                        _referencePoiseGauge * _poiseGaugeFraction * GetCategoryBreakMultiplier(entry.Category) * phaseShare);
                 }
 
                 if (canOverwriteBreak)
                 {
-                    float breakDamage = CalculateTotalBreakDamage(entry);
-                    float weightedBreakDamage = totalWeight > 0f ? breakDamage * weights[i] / totalWeight : breakDamage;
-                    phase.breakDamage = Mathf.Round(weightedBreakDamage);
+                    // Break는 플레이어 공격만 의미 있다(적의 공격을 받는 플레이어에는 BreakGauge가 없음). 예전처럼 적은 0 유지.
+                    phase.breakDamage = _targetKind == TargetKind.Player
+                        ? Mathf.Round(_referenceBreakGauge * _breakGaugeFraction * GetCategoryBreakMultiplier(entry.Category) * phaseShare)
+                        : 0f;
                 }
             }
         }
@@ -747,7 +888,17 @@ namespace UPlayGround.Editor
         {
             if (!_applyBalancedDamage || entry == null) return 0f;
 
-            float baseDamage = _targetKind == TargetKind.Enemy ? _enemyBaseDamage : _playerBaseDamage;
+            if (_targetKind == TargetKind.Player)
+            {
+                // 라이트 콤보 DPS = _targetPlayerDps가 되도록 역산한 base에, 공격별 shape 배율과 레벨 성장을 곱한다.
+                float playerDamage = ComputePlayerAttackBase()
+                                     * GetPlayerAttackShapeStack(entry)
+                                     * GetStatLevelDamageMultiplier();
+                return Mathf.Max(1f, playerDamage);
+            }
+
+            // 적: 기존 base × 배율 스택 유지(아무도 문제 제기하지 않은 적 데이터는 건드리지 않는다).
+            float baseDamage = _enemyBaseDamage;
             float categoryMultiplier = GetCategoryDamageMultiplier(entry.Category);
             float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
             float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
@@ -757,18 +908,57 @@ namespace UPlayGround.Editor
             return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
         }
 
-        private float CalculateTotalBreakDamage(ScanEntry entry)
+        /// <summary>레벨/스탯을 제외한 공격별 상대 배율(카테고리·콤보순번·모션길이·멀티히트). 정규화의 분모로 쓰여 자기상쇄된다.</summary>
+        private float GetPlayerAttackShapeStack(ScanEntry entry)
         {
-            if (entry == null || _targetKind == TargetKind.Enemy) return 0f;
-
-            float baseBreakDamage = Mathf.Max(0f, _playerBaseDamage * _breakDamageRatio);
-            float categoryMultiplier = GetCategoryBreakMultiplier(entry.Category);
+            float categoryMultiplier = GetCategoryDamageMultiplier(entry.Category);
             float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
             float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
-            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.12f;
-            float statLevelMultiplier = GetStatLevelDamageMultiplier();
+            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
+            return Mathf.Max(0.0001f, categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
+        }
 
-            return Mathf.Max(0f, baseBreakDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
+        /// <summary>
+        /// 라이트 콤보 전체 DPS가 _targetPlayerDps가 되도록 base를 역산한다.
+        /// base × Σ(shape) = _targetPlayerDps × Σ(모션시간) → base = dps × T / W.
+        /// T가 분자/분모에 함께 들어가 자기정규화되므로 클립 길이 절대값에 둔감하고, 콤보 타수가 늘어도 합산 DPS는 유지된다.
+        /// </summary>
+        private float ComputePlayerAttackBase()
+        {
+            if (_scanEntries == null || _scanEntries.Count == 0)
+                return Mathf.Max(1f, _targetPlayerDps);
+
+            float timeSum = 0f;
+            float weightSum = 0f;
+            AccumulateBaseNormalization(AttackCategory.Light, ref timeSum, ref weightSum);
+
+            // 라이트 공격이 없으면 스캔된 전체 공격으로 폴백(합산 DPS ≈ 목표).
+            if (weightSum <= 0f)
+                AccumulateBaseNormalization(null, ref timeSum, ref weightSum);
+
+            if (weightSum <= 0f || timeSum <= 0f)
+                return Mathf.Max(1f, _targetPlayerDps);
+
+            return Mathf.Max(0.01f, _targetPlayerDps * timeSum / weightSum);
+        }
+
+        private void AccumulateBaseNormalization(AttackCategory? filter, ref float timeSum, ref float weightSum)
+        {
+            foreach (ScanEntry e in _scanEntries)
+            {
+                if (e == null) continue;
+                if (filter.HasValue && e.Category != filter.Value) continue;
+                timeSum += Mathf.Max(0.01f, e.Duration);
+                weightSum += GetPlayerAttackShapeStack(e);
+            }
+        }
+
+        /// <summary>phase 가중치를 평균 1로 정규화 → 단일 phase면 1, 다중 phase면 per-hit 목표값 주변으로 완만히 분포.</summary>
+        private static float NormalizedPhaseWeight(float weight, float totalWeight, int phaseCount)
+        {
+            if (totalWeight <= 0f || phaseCount <= 0) return 1f;
+            float average = totalWeight / phaseCount;
+            return average > 0f ? weight / average : 1f;
         }
 
         private float CalculateRuntimeExpectedDamage(ScanEntry entry)

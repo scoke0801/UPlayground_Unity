@@ -192,6 +192,18 @@ namespace UPlayGround.Component
         /// </summary>
         public bool IsCancelWindowOpen => !IsPossibleCollide;
 
+        /// <summary> 현재 진행 중인 공격의 액션 러너 히트 페이즈 인덱스(0-기준). </summary>
+        public int CurrentHitPhaseIndex => _actionRunner != null ? _actionRunner.CurrentPhaseIndex : 0;
+
+        /// <summary>
+        /// 현재 공격의 마지막 히트 페이즈 인덱스(0-기준). 페이즈가 없으면 0.
+        /// 이동 후딜 캔슬 게이트에서 "마지막 히트 이후(리커버리)" 판정에 사용한다.
+        /// </summary>
+        public int LastHitPhaseIndex =>
+            _currentResidualHitPhases != null && _currentResidualHitPhases.Count > 0
+                ? _currentResidualHitPhases.Count - 1
+                : 0;
+
         // ── 가드 내구도 ───────────────────────────────────────────────
         [Header("Guard Settings")]
         [SerializeField] private int   _maxGuardCount   = 3;

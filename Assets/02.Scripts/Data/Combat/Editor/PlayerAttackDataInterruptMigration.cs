@@ -34,6 +34,60 @@ namespace UPlayGround.Editor
             Debug.Log($"[PlayerAttackDataInterruptMigration] {changed}/{guids.Length}개 PlayerAttackDataSO 갱신 완료");
         }
 
+        /// <summary>
+        /// 기존 손튜닝 값을 보존하면서 약/강/스킬 공격에 Move(이동 후딜 캔슬) 플래그만 OR로 추가한다.
+        /// MigrateAll(덮어쓰기)과 달리 비파괴적이라 세션에 걸쳐 다듬어온 interruptActions를 날리지 않는다.
+        /// 차지/이동공격(대시·점프)은 커밋감 유지를 위해 기본 제외(필요 시 인스펙터에서 개별 부여).
+        /// </summary>
+        [MenuItem("UPlayGround/게임플레이/전투/PlayerAttackData 이동 후딜 캔슬(Move) 플래그 추가", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombat + 21)]
+        public static void AddMoveCancelFlag()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:PlayerAttackDataSO");
+            int changed = 0;
+
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<PlayerAttackDataSO>(path);
+                if (data == null)
+                    continue;
+
+                Undo.RecordObject(data, "Add Move Cancel Flag");
+
+                bool localChanged = false;
+                localChanged |= OrFlagToList(data.liteComboAttackList, PlayerInterruptAction.Move);
+                localChanged |= OrFlagToList(data.heavyComboAttackList, PlayerInterruptAction.Move);
+                localChanged |= OrFlagToList(data.skillAttackList, PlayerInterruptAction.Move);
+
+                if (localChanged)
+                {
+                    EditorUtility.SetDirty(data);
+                    changed++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[PlayerAttackDataInterruptMigration] {changed}/{guids.Length}개 PlayerAttackDataSO에 Move 플래그 추가 완료");
+        }
+
+        private static bool OrFlagToList(System.Collections.Generic.List<PlayerAttackInfo> attacks, PlayerInterruptAction flag)
+        {
+            if (attacks == null)
+                return false;
+
+            bool changed = false;
+            foreach (PlayerAttackInfo attack in attacks)
+            {
+                if (attack == null || (attack.interruptActions & flag) != 0)
+                    continue;
+
+                attack.interruptActions |= flag;
+                changed = true;
+            }
+
+            return changed;
+        }
+
         private static bool ApplyDefaults(PlayerAttackDataSO data)
         {
             bool changed = false;

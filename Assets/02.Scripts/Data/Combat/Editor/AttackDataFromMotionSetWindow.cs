@@ -653,21 +653,24 @@ namespace UPlayGround.Editor
                     PlayerInterruptAction.Dash |
                     PlayerInterruptAction.Guard |
                     PlayerInterruptAction.HeavyAttack |
-                    PlayerInterruptAction.Skill,
+                    PlayerInterruptAction.Skill |
+                    PlayerInterruptAction.Move,
 
                 AttackCategory.Heavy =>
                     PlayerInterruptAction.Dodge |
                     PlayerInterruptAction.Dash |
                     PlayerInterruptAction.Guard |
                     PlayerInterruptAction.LightAttack |
-                    PlayerInterruptAction.Skill,
+                    PlayerInterruptAction.Skill |
+                    PlayerInterruptAction.Move,
 
                 AttackCategory.Skill =>
                     PlayerInterruptAction.Dodge |
                     PlayerInterruptAction.Dash |
                     PlayerInterruptAction.Guard |
                     PlayerInterruptAction.LightAttack |
-                    PlayerInterruptAction.HeavyAttack,
+                    PlayerInterruptAction.HeavyAttack |
+                    PlayerInterruptAction.Move,
 
                 AttackCategory.Dash or AttackCategory.Jump =>
                     PlayerInterruptAction.Dodge |

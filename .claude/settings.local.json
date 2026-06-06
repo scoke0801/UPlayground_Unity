@@ -200,7 +200,15 @@
       "PowerShell($p = \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\10.Datas\\\\AI\\\\BehaviorTree\\\\SourceJson\\\\EnemyBehavior_SkeletonSwordsman_Disciplined.json\"; try { $j = Get-Content $p -Raw | ConvertFrom-Json; $groups = $j.groups; $ruleCount = \\($groups | ForEach-Object { $_.rules.Count } | Measure-Object -Sum\\).Sum; Write-Output \\(\"OK: id={0}, groups={1}, totalRules={2}\" -f $j.id, $groups.Count, $ruleCount\\) } catch { Write-Output \\(\"JSON PARSE ERROR: \" + $_.Exception.Message\\) })",
       "WebFetch(domain:www.gcores.com)",
       "Bash(ls *.sln)",
-      "Bash(ls Assembly-CSharp.csproj)"
+      "Bash(ls Assembly-CSharp.csproj)",
+      "Bash(grep -niE 'shader_feature|GEOM_TYPE_BRANCH_DETAIL|dissolve|ForwardLit|include.*pass' __TRACKED_VAR__/Shader/lts_cutout.shader)",
+      "Bash(grep -n 'IPreprocessShaders\\\\|OnProcessShader\\\\|class .*Strip\\\\|callbackOrder\\\\|data.RemoveAt\\\\|shaderCompilerData' __TRACKED_VAR__/Editor/lilToonEditorUtils.cs)",
+      "Bash(grep -n 'SetShaderSettingBeforeBuild\\\\|SetShaderSettingAfterBuild\\\\|isOptimizeInTestBuild\\\\|isLocked\\\\|void ApplyShaderSetting\\\\|WriteShaderSetting\\\\|lil_setting' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(grep -n 'static bool ShouldOptimization\\\\|private static bool ShouldOptimization\\\\|bool ShouldOptimization' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(sed -n 1505,1525p __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(grep -n 'SetupShaderSettingFromMaterial\\\\|DISSOLVE\\\\|Dissolve' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(grep -n 'void SetupShaderSettingFromMaterial\\\\|SetupShaderSettingFromMaterialColor\\\\|isCutout\\\\|RenderType\\\\|_DissolveParams\\\\|isDissolve\\\\|GetFloat\\(\"_UseDissolve\\\\|_UseDissolve' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(grep -n 'WalkAllSceneReferencedAssets\\\\|CollectDependenciesForScenes\\\\|EditorBuildSettings.scenes\\\\|Resources' __TRACKED_VAR__/Editor/lilToonSetting.cs)"
     ]
   }
 }

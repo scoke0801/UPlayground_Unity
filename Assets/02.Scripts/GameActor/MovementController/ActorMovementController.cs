@@ -177,6 +177,14 @@ namespace UPlayGround.MovementController
             {
                 return;
             }
+
+            if (_currentState is PlayerDeathState
+                && Actor is PlayerActor playerActor
+                && !playerActor.IsAlive()
+                && newState is not PlayerDeathState)
+            {
+                return;
+            }
             
             GameActorState oldState = _currentState;
             

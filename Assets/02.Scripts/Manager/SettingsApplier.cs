@@ -32,6 +32,13 @@ namespace UPlayGround.Manager
             }
 
             QualitySettings.SetQualityLevel(data.qualityIndex, true);
+            ApplyFrameTiming();
+        }
+
+        private static void ApplyFrameTiming()
+        {
+            QualitySettings.vSyncCount = 1;
+            Application.targetFrameRate = -1;
         }
 
         public static void ApplyAudio(SettingsData data, AudioMixer mixer)

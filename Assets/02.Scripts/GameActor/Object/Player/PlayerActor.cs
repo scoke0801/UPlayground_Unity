@@ -1202,6 +1202,9 @@ namespace UPlayGround
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
+            ClearAllInputState();
+            PlayerMovementPlayerController?.ClearInputAll();
+            InputManager.Instance?.InputBuffer?.Clear();
             CombatFeedbackDispatcher.ApplyPlayerDeathFeedback(_shakeKeyDeath);
             MovementController.TransitionToState(new PlayerDeathState(MovementController));
         }

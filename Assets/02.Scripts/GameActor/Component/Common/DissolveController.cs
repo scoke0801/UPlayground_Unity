@@ -38,6 +38,10 @@ namespace UPlayGround.Component
         }
         
         private const string DissolveMaterialAddress = "DissolveMaterial";
+        private const string LilToonCutoutShaderName = "Hidden/lilToonCutout";
+        private const string LilToonCutoutOutlineShaderName = "Hidden/lilToonCutoutOutline";
+        private const string LilToonDissolveKeepAliveResourcePath = "Rendering/LilToonDissolveKeepAlive";
+        private const string LilDissolveKeyword = "GEOM_TYPE_BRANCH_DETAIL";
         private static readonly int DissolveAmountID = Shader.PropertyToID("_DissolveAmount");
         private static readonly int BaseMapID = Shader.PropertyToID("_BaseMap");
         private static readonly int MainTexID = Shader.PropertyToID("_MainTex");
@@ -58,6 +62,8 @@ namespace UPlayGround.Component
         // 셰이더만 공유, 머티리얼 인스턴스는 액터마다 생성
         private static AsyncOperationHandle<Material> _loadHandle;
         private static Material _dissolveSourceMaterial;
+        private static Shader _lilToonCutoutShader;
+        private static bool _reportedMissingLilToonCutoutShader;
 
         [Header("lilToon Dissolve")]
         [SerializeField] private bool _useLilToonDissolve = true;
@@ -83,6 +89,7 @@ namespace UPlayGround.Component
         private readonly List<Material> _instancedMaterials = new List<Material>(); // 해제용
         private readonly List<RuntimeMaterialInfo> _runtimeMaterialInfos = new List<RuntimeMaterialInfo>();
         private readonly Dictionary<Renderer, Material[]> _preparedMaterialSets = new Dictionary<Renderer, Material[]>();
+        private static readonly HashSet<int> _reportedMissingLilToonDissolveProperty = new HashSet<int>();
         
         private float _dissolveDuration = 2f;
         private bool _overrideLilToonDissolveNoise;
@@ -582,6 +589,16 @@ namespace UPlayGround.Component
 
         private void SetLilToonDissolve(Material material, float range, Vector4 dissolvePosition)
         {
+            EnableLilToonDissolveKeyword(material);
+            
+            if (!material.HasProperty(LilDissolveParamsID))
+            {
+                int materialId = material.GetInstanceID();
+                if (_reportedMissingLilToonDissolveProperty.Add(materialId))
+                    Debug.LogWarning($"[DissolveController] lilToon 디졸브 프로퍼티가 없습니다. material={material.name}, shader={material.shader?.name}");
+                return;
+            }
+
             material.SetVector(LilDissolveParamsID, new Vector4(
                 _lilToonDissolveMode,
                 _lilToonDissolveShape,
@@ -590,6 +607,23 @@ namespace UPlayGround.Component
 
             if (material.HasProperty(LilDissolvePosID))
                 material.SetVector(LilDissolvePosID, dissolvePosition);
+        }
+
+        private static void EnableLilToonDissolveKeyword(Material material)
+        {
+            if (material == null)
+                return;
+
+            material.EnableKeyword(LilDissolveKeyword);
+
+#if UNITY_2021_2_OR_NEWER
+            if (material.shader == null)
+                return;
+
+            var keyword = new UnityEngine.Rendering.LocalKeyword(material.shader, LilDissolveKeyword);
+            if (keyword.isValid)
+                material.SetKeyword(keyword, true);
+#endif
         }
 
         private void ApplyLilToonDissolveNoise(Material material)
@@ -686,10 +720,10 @@ namespace UPlayGround.Component
                 return null;
 
             if (sourceName == "lilToon")
-                return Shader.Find("Hidden/lilToonCutout");
+                return ResolveRuntimeLilToonCutoutShader();
 
             if (!sourceName.Contains("lilToon"))
-                return null;
+                return ResolveRuntimeLilToonCutoutShader();
 
             if (sourceName.Contains("Cutout"))
                 return sourceShader;
@@ -700,12 +734,50 @@ namespace UPlayGround.Component
             cutoutName = cutoutName.Replace("Transparent", "Cutout");
 
             if (cutoutName != sourceName)
-                return Shader.Find(cutoutName);
+            {
+                Shader convertedCutoutShader = Shader.Find(cutoutName);
+                if (convertedCutoutShader != null)
+                    return convertedCutoutShader;
+            }
 
             if (sourceName.EndsWith("Outline"))
-                return Shader.Find(sourceName.Replace("Outline", "CutoutOutline"));
+            {
+                Shader outlineCutoutShader = Shader.Find(sourceName.Replace("Outline", "CutoutOutline"));
+                if (outlineCutoutShader != null)
+                    return outlineCutoutShader;
 
-            return Shader.Find($"{sourceName}Cutout");
+                outlineCutoutShader = Shader.Find(LilToonCutoutOutlineShaderName);
+                if (outlineCutoutShader != null)
+                    return outlineCutoutShader;
+            }
+
+            Shader namedCutoutShader = Shader.Find($"{sourceName}Cutout");
+            if (namedCutoutShader != null)
+                return namedCutoutShader;
+
+            return ResolveRuntimeLilToonCutoutShader();
+        }
+
+        private static Shader ResolveRuntimeLilToonCutoutShader()
+        {
+            if (_lilToonCutoutShader != null)
+                return _lilToonCutoutShader;
+
+            _lilToonCutoutShader = Shader.Find(LilToonCutoutShaderName);
+            if (_lilToonCutoutShader != null)
+                return _lilToonCutoutShader;
+
+            var keepAliveMaterial = Resources.Load<Material>(LilToonDissolveKeepAliveResourcePath);
+            if (keepAliveMaterial != null)
+                _lilToonCutoutShader = keepAliveMaterial.shader;
+
+            if (_lilToonCutoutShader == null && !_reportedMissingLilToonCutoutShader)
+            {
+                _reportedMissingLilToonCutoutShader = true;
+                Debug.LogWarning($"[DissolveController] lilToon Cutout 셰이더를 찾을 수 없습니다. shader={LilToonCutoutShaderName}, resource={LilToonDissolveKeepAliveResourcePath}");
+            }
+
+            return _lilToonCutoutShader;
         }
 
         private void ApplyCutoutRenderState(Material material, float transparentMode)

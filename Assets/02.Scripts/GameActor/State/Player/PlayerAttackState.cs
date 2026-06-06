@@ -38,6 +38,10 @@ namespace UPlayGround.State
         private float      _attackTimer;
 
         private bool _comboInputted;
+        // 현재 공격 모션에서 액티브 히트(콜리전)가 최소 1회 발생했는지. 이동 후딜 캔슬 게이트에 사용.
+        // 단일 페이즈 공격은 윈드업에도 CurrentHitPhaseIndex == LastHitPhaseIndex == 0 이라
+        // 페이즈 비교만으로는 윈드업을 못 거른다 → 히트 1회 발생 여부를 함께 본다.
+        private bool _hasActiveHitFired;
         private bool _isHeavyAttack;
         private bool _isCounter;
         private bool _isParryCounter;
@@ -281,6 +285,7 @@ namespace UPlayGround.State
                 // (진입 체인은 ExecuteAttack/ExecuteHeavyAttack이 isCombo=false → index 0으로 알아서 시작)
                 _combat.ResetComboPreserveChains();
             _attackTimer = 0f;
+            _hasActiveHitFired = false;
 
             if (_isHeavyAttack)
             {
@@ -334,6 +339,10 @@ namespace UPlayGround.State
         {
             _attackTimer += deltaTime;
 
+            // 이번 공격 모션에서 액티브 히트가 한 번이라도 열렸는지 기록(이동 후딜 캔슬 게이트용).
+            if (_combat.IsPossibleCollide)
+                _hasActiveHitFired = true;
+
             // 인터럽트(캔슬): 허용 액션은 데이터(interruptActions) 마스크로, 허용 구간은
             // 캔슬 윈도우(히트박스 콜리전 비활성 구간)로 제어한다. 액티브 히트 중엔 캔슬 불가.
             // 콤보 검사보다 먼저 실행되어 둘 다 성립하면 캔슬이 우선한다.
@@ -359,13 +368,33 @@ namespace UPlayGround.State
             }
 
             if (!_combat.IsPossibleCollide && _comboInputted)
+            {
                 ChangeToNextState();
+                return;
+            }
+
+            // 이동 후딜 캔슬: 마지막 히트 페이즈 이후(리커버리) 구간에서 이동 입력이 들어오면
+            // 모션 완료를 기다리지 않고 즉시 지상 이동으로 캔슬한다. 콤보(위)가 우선이며,
+            // 윈드업/멀티히트 간격은 게이트(액티브 히트 1회 이상 + 마지막 페이즈 통과 + 콜리전 비활성)로 제외한다.
+            // 콤보 윈도우가 열려 있는 동안엔 억제 — 스틱을 쥔 채 반응형으로 콤보를 이을 수 있게 하고,
+            // 윈도우가 닫힌 리커버리 꼬리에서만 이동 캔슬을 허용한다.
+            if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
+                && !_combat.CanCombo
+                && _hasActiveHitFired
+                && !_combat.IsPossibleCollide
+                && _combat.CurrentHitPhaseIndex >= _combat.LastHitPhaseIndex
+                && playerController.HasMoveInput())
+            {
+                _combat.ResetCombo();
+                controller.TransitionToState(new PlayerGroundMoveState(controller));
+            }
         }
 
         private void ChangeToNextState()
         {
             _combat.ClearHitTargets();
             _attackTimer = 0f;
+            _hasActiveHitFired = false;
 
             if (!_comboInputted)
                 _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;

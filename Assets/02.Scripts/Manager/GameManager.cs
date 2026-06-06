@@ -27,7 +27,8 @@ namespace UPlayGround.Manager
         {
             base.Awake();
 
-            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 1;
+            Application.targetFrameRate = -1;
 
             // KCC AutoSimulation 제어권을 KCCSimulator에 위임
             gameObject.AddComponent<KCCSimulator>();

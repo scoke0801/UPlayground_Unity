@@ -28,5 +28,9 @@ namespace UPlayGround.Data.EnumType
         LightAttack = 1 << 4, // 16 — 약공 입력으로 캔슬(다른 공격으로 전환)
         HeavyAttack = 1 << 5, // 32 — 강공 입력으로 캔슬
         Skill       = 1 << 6, // 64 — 스킬 입력으로 캔슬(게이지 충분 시)
+        // 128 — 이동(걷기) 입력으로 후딜 캔슬. 다른 플래그와 달리 버퍼 입력이 아닌 '눌림 상태(축)'이며,
+        // 윈드업 페인트를 막기 위해 '마지막 히트 페이즈 이후 리커버리' 구간에서만 발동한다
+        // (PlayerAttackState가 직접 게이트 — PlayerInterruptResolver는 거치지 않는다).
+        Move        = 1 << 7,
     }
 }

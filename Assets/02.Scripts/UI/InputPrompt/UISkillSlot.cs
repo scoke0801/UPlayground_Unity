@@ -1,5 +1,7 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Component;
 using UPlayGround.Data.Combat;
 
 namespace UPlayGround.UI.InputPrompt
@@ -24,14 +26,34 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("게이지 비용 슬롯 오버라이드(-1=토큰에서 자동: Skill1→0, Skill2→1, 그 외 게이지 없음).")]
         [SerializeField] private int _gaugeSlotOverride = -1;
 
+        [Header("자원 표시 옵션")]
+        [Tooltip("이 슬롯에서 스킬 게이지/쿨타임 판정을 사용할지 여부. 약공격/강공격처럼 자원 UI가 필요 없는 슬롯은 끈다.")]
+        [SerializeField] private bool _useGaugeFeature = true;
+        [Tooltip("게이지가 최대치일 때만 사용 가능 루트를 켠다.")]
+        [SerializeField] private bool _showOnlyWhenGaugeFull = true;
+        [Tooltip("슬롯 내부 게이지 UI를 표시할지 여부.")]
+        [SerializeField] private bool _showGaugeUi = true;
+        [Tooltip("슬롯 내부 쿨타임 UI를 표시할지 여부.")]
+        [SerializeField] private bool _showCooldownUi = true;
+        [Tooltip("쿨타임 텍스트 표시 형식. 예: 0.0 = 소수 1자리, 0.00 = 소수 2자리")]
+        [SerializeField] private string _cooldownTextFormat = "0.0";
+
         [Header("렌더 타깃")]
         [SerializeField] private Image              _iconImage;
         [SerializeField] private UI_InputPromptIcon _keyIcon;   // 키캡 글리프(디바이스 자동 전환)
         [SerializeField] private GameObject         _readyGlow;  // 콤보 다음 키 발광
         [SerializeField] private GameObject         _comboGlow;  // 콤보 다음 키 강조(추가 연출)
+        
         [Tooltip("게이지 부족 시 어둡게(선택). 없으면 무시.")]
         [SerializeField] private CanvasGroup        _dimGroup;
         [SerializeField] private float              _dimAlpha = 0.5f;
+        
+        [SerializeField] private GameObject         _availableRoot;
+        [SerializeField] private Image              _gaugeFill;
+        [SerializeField] private TextMeshProUGUI    _gaugeText;
+        [SerializeField] private GameObject         _cooldownRoot;
+        [SerializeField] private Image              _cooldownFill;
+        [SerializeField] private TextMeshProUGUI    _cooldownText;
 
         public ComboInputToken Token => _token;
 
@@ -39,6 +61,10 @@ namespace UPlayGround.UI.InputPrompt
         public bool RequiresGauge { get; private set; }
         /// <summary>게이지 비용 슬롯 인덱스(RequiresGauge일 때 유효).</summary>
         public int GaugeSlot { get; private set; }
+
+        // 게이지/쿨타임 UI가 _availableRoot 하위인지 여부. UI 계층은 런타임에 불변이라 Initialize에서 1회 캐시한다.
+        private bool _gaugeUiUnderAvailableRoot;
+        private bool _cooldownUiUnderAvailableRoot;
 
         /// <summary>아이콘/키캡/게이지 슬롯을 1회 설정한다(바인드 시 호출).</summary>
         public void Initialize()
@@ -54,11 +80,32 @@ namespace UPlayGround.UI.InputPrompt
                 _keyIcon.SetAction(map, action);
 
             ResolveGaugeSlot();
+            CacheAvailableRootMembership();
             SetComboHint(false);
+            ClearGaugeState();
+        }
+
+        /// <summary>게이지/쿨타임 UI가 _availableRoot 하위인지 1회 계산해 캐시한다(계층은 런타임 불변).</summary>
+        private void CacheAvailableRootMembership()
+        {
+            _gaugeUiUnderAvailableRoot =
+                IsChildOfAvailableRoot(_gaugeFill) || IsChildOfAvailableRoot(_gaugeText);
+
+            _cooldownUiUnderAvailableRoot =
+                IsChildOfAvailableRoot(_cooldownRoot)
+                || IsChildOfAvailableRoot(_cooldownFill)
+                || IsChildOfAvailableRoot(_cooldownText);
         }
 
         private void ResolveGaugeSlot()
         {
+            if (!_useGaugeFeature)
+            {
+                RequiresGauge = false;
+                GaugeSlot     = -1;
+                return;
+            }
+
             if (_gaugeSlotOverride >= 0)
             {
                 RequiresGauge = true;
@@ -83,6 +130,128 @@ namespace UPlayGround.UI.InputPrompt
         {
             if (_dimGroup != null)
                 _dimGroup.alpha = (RequiresGauge && !ready) ? _dimAlpha : 1f;
+        }
+
+        /// <summary>
+        /// 이 슬롯에 연결된 게이지/쿨타임 UI를 갱신한다. 반환값은 프레임 갱신이 필요한 쿨타임 표시 여부.
+        /// </summary>
+        public bool SetGaugeState(PlayerSkillGauge gauge)
+        {
+            if (!RequiresGauge || gauge == null)
+            {
+                SetGaugeState(true);
+                ClearGaugeState();
+                return false;
+            }
+
+            float current = gauge.CurrentGauge;
+            float max = gauge.MaxGauge;
+            bool ready = gauge.CanUseSkill(GaugeSlot);
+            float gaugeRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+            bool isFullGauge = max > 0f && current >= max;
+            float cooldownRemaining = gauge.GetSkillCooldownRemaining(GaugeSlot);
+            float cooldownDuration = gauge.GetSkillCooldownDuration(GaugeSlot);
+            bool hasCooldown = cooldownRemaining > 0f;
+            bool showCooldown = _showCooldownUi && hasCooldown;
+
+            SetGaugeState(ready);
+
+            bool canShowAvailable = ready && (!_showOnlyWhenGaugeFull || isFullGauge);
+            if (_availableRoot != null)
+                _availableRoot.SetActive(ShouldShowAvailableRoot(canShowAvailable, showCooldown));
+
+            if (_gaugeFill != null)
+            {
+                _gaugeFill.gameObject.SetActive(_showGaugeUi);
+                _gaugeFill.fillAmount = _showGaugeUi ? gaugeRatio : 0f;
+            }
+
+            if (_gaugeText != null)
+            {
+                _gaugeText.gameObject.SetActive(_showGaugeUi);
+                _gaugeText.text = _showGaugeUi && max > 0f
+                    ? $"{Mathf.FloorToInt(current)}/{Mathf.FloorToInt(max)}"
+                    : string.Empty;
+            }
+
+            if (_cooldownRoot != null)
+                _cooldownRoot.SetActive(showCooldown);
+
+            if (_cooldownFill != null)
+            {
+                _cooldownFill.gameObject.SetActive(_showCooldownUi);
+                _cooldownFill.fillAmount = showCooldown && cooldownDuration > 0f
+                    ? Mathf.Clamp01(cooldownRemaining / cooldownDuration)
+                    : 0f;
+            }
+
+            if (_cooldownText != null)
+            {
+                _cooldownText.gameObject.SetActive(showCooldown);
+                _cooldownText.text = showCooldown
+                    ? cooldownRemaining.ToString(_cooldownTextFormat)
+                    : string.Empty;
+            }
+
+            return showCooldown;
+        }
+
+        private bool ShouldShowAvailableRoot(bool canShowAvailable, bool showCooldown)
+        {
+            if (canShowAvailable)
+                return true;
+
+            bool containsGaugeUi = _showGaugeUi && _gaugeUiUnderAvailableRoot;
+            bool containsCooldownUi = showCooldown && _cooldownUiUnderAvailableRoot;
+
+            return containsGaugeUi || containsCooldownUi;
+        }
+
+        private bool IsChildOfAvailableRoot(UnityEngine.Component component)
+        {
+            return component != null
+                   && _availableRoot != null
+                   && component.transform.IsChildOf(_availableRoot.transform);
+        }
+
+        private bool IsChildOfAvailableRoot(GameObject target)
+        {
+            return target != null
+                   && _availableRoot != null
+                   && target.transform.IsChildOf(_availableRoot.transform);
+        }
+
+        private void ClearGaugeState()
+        {
+            if (_availableRoot != null)
+                _availableRoot.SetActive(false);
+
+            if (_gaugeFill != null)
+            {
+                _gaugeFill.gameObject.SetActive(_showGaugeUi && RequiresGauge);
+                _gaugeFill.fillAmount = 0f;
+            }
+
+            if (_gaugeText != null)
+            {
+                _gaugeText.gameObject.SetActive(_showGaugeUi && RequiresGauge);
+                _gaugeText.text = string.Empty;
+            }
+
+            if (_cooldownRoot != null)
+                _cooldownRoot.SetActive(false);
+
+            if (_cooldownFill != null)
+            {
+                _cooldownFill.gameObject.SetActive(_showCooldownUi && RequiresGauge);
+                _cooldownFill.fillAmount = 0f;
+            }
+
+            if (_cooldownText != null)
+            {
+                _cooldownText.gameObject.SetActive(false);
+                _cooldownText.text = string.Empty;
+            }
         }
 
         /// <summary>콤보 '다음 키' 강조 토글. ReadyGlow/ComboGlow 모두 콤보 힌트로만 켠다.</summary>

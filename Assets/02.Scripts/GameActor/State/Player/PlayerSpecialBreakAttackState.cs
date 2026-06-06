@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
@@ -20,6 +22,9 @@ namespace UPlayGround.State
         private const float DEFAULT_SLIDE_DURATION = 0.25f;
         private const float DEFAULT_MAX_SLIDE_SPEED = 18f;
 
+        // 처형(FinishAttack)과 동일하게, break 공격 중 주변 적의 AI를 정지시키는 반경
+        private const float FREEZE_RADIUS = 15f;
+
         private readonly Transform _target;
         private MonsterActor _targetMonster;
         private SpecialBreakAttackAsset _attackData;
@@ -29,6 +34,7 @@ namespace UPlayGround.State
         private Vector3 _targetPosition;
         private bool _isSliding;
         private bool _cameraSequenceStarted;
+        private readonly List<IEnemyAIController> _frozenEnemyControllers = new List<IEnemyAIController>();
 
         public PlayerSpecialBreakAttackState(ActorMovementController controller, Transform target) : base(controller)
         {
@@ -83,12 +89,16 @@ namespace UPlayGround.State
             var animState = playerActor.Animator.PlayMotion(GetMotionKey(), 0.15f);
             if (animState != null)
                 animState.OwnedEvents.OnEnd = Finish;
+
+            FreezeSurroundingEnemies();
         }
 
         public override void OnExit(GameActorState toState)
         {
             if (_cameraSequenceStarted && _attackData?.cameraProfile != null)
                 CameraManager.Instance.StopCameraSnapshotSequence(_attackData.cameraProfile);
+
+            UnfreezeSurroundingEnemies();
 
             base.OnExit(toState);
         }
@@ -177,8 +187,8 @@ namespace UPlayGround.State
             if (configuredKey != AnimKey.None && playerActor.Animator.HasMotion(configuredKey, true))
                 return configuredKey;
 
-            return playerActor.Animator.HasMotion(AnimKey.FinishAttack, true)
-                ? AnimKey.FinishAttack
+            return playerActor.Animator.HasMotion(AnimKey.BreakAttack, true)
+                ? AnimKey.BreakAttack
                 : AnimKey.Attack_1;
         }
 
@@ -219,6 +229,48 @@ namespace UPlayGround.State
                 controller.TransitionToState(new PlayerGroundMoveState(controller));
             else
                 controller.TransitionToState(new PlayerIdleState(controller));
+        }
+
+        /// <summary>
+        /// 처형(FinishAttack)과 동일하게 주변 적의 AI를 정지시킨다.
+        /// 단, break 타겟 몬스터는 EnemySpecialBreakVictimState로 별도 연출 중이므로 제외한다
+        /// (Freeze 시 EnemyIdleState로 강제 전환되어 피격 연출이 덮어써짐).
+        /// </summary>
+        private void FreezeSurroundingEnemies()
+        {
+            var combat = playerActor.GetCombat();
+            if (combat == null)
+                return;
+
+            combat.FillEnemyAIControllersInRadius(FREEZE_RADIUS, _frozenEnemyControllers);
+
+            var targetController = _targetMonster != null ? _targetMonster.AIController : null;
+            for (int i = _frozenEnemyControllers.Count - 1; i >= 0; i--)
+            {
+                var brain = _frozenEnemyControllers[i];
+                if (!IsValidAIController(brain) || ReferenceEquals(brain, targetController))
+                {
+                    _frozenEnemyControllers.RemoveAt(i);
+                    continue;
+                }
+
+                brain.Freeze();
+            }
+        }
+
+        private void UnfreezeSurroundingEnemies()
+        {
+            foreach (var brain in _frozenEnemyControllers)
+            {
+                if (IsValidAIController(brain))
+                    brain.Unfreeze();
+            }
+            _frozenEnemyControllers.Clear();
+        }
+
+        private static bool IsValidAIController(IEnemyAIController controller)
+        {
+            return controller is UnityEngine.Object unityObject && unityObject != null;
         }
 
         private float Duration => _attackData != null ? Mathf.Max(0.1f, _attackData.duration) : DEFAULT_DURATION;

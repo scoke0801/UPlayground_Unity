@@ -37,6 +37,7 @@ namespace UPlayGround
         // 교체 시 캐릭터별 체력·스킬 게이지 저장소
         private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
         private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
+        private readonly Dictionary<CharacterActorType, float[]> _characterSkillCooldownMap = new();
         private bool _hasInitializedCharacterRuntime;
 
         [SerializeField] private PlayerEquipment  _equipment;
@@ -596,6 +597,7 @@ namespace UPlayGround
             {
                 _characterHealthMap[_characterActorType] = _currentHealth;
                 _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
+                _characterSkillCooldownMap[_characterActorType] = _skillGauge.GetCooldownRemainingSnapshot();
                 _combat?.SaveComboState(_characterActorType);
             }
 
@@ -614,6 +616,8 @@ namespace UPlayGround
             // 스킬 게이지 복원
             _skillGauge.SetGauge(
                 _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
+            _skillGauge.SetCooldownRemainingSnapshot(
+                _characterSkillCooldownMap.TryGetValue(data.characterType, out var cooldowns) ? cooldowns : null);
 
             // 활성 Model의 컴포넌트 참조 갱신
             _animator            = GetComponentInChildren<ActorAnimator>();
@@ -743,6 +747,28 @@ namespace UPlayGround
         {
             float max = GetMaxSkillGaugeForCharacter(type);
             return max > 0f && GetSkillGaugeForCharacter(type) >= max;
+        }
+
+        public bool CanUseSkillForCharacter(CharacterActorType type, int skillSlot)
+        {
+            if (type == CharacterActorType.None || _skillGauge == null) return false;
+
+            if (type == _characterActorType)
+                return _skillGauge.CanUseSkill(skillSlot);
+
+            float cost = _skillGauge.GetSkillCost(skillSlot);
+            if (float.IsInfinity(cost) || GetSkillGaugeForCharacter(type) < cost)
+                return false;
+
+            if (_characterSkillCooldownMap.TryGetValue(type, out var cooldowns)
+                && cooldowns != null
+                && (uint)skillSlot < (uint)cooldowns.Length
+                && cooldowns[skillSlot] > 0f)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public void AddSkillGaugeForCharacter(CharacterActorType type, float amount)

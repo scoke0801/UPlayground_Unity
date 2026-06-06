@@ -219,9 +219,21 @@ namespace UPlayGround
             // 생존 시 — 브레이크 공격 마무리로 넘어뜨린다. Knockdown 모션이 없으면 Stun.
             if (MovementController != null)
             {
+                // 브레이크 마무리 연출 튜닝값: 날아가는 거리 / 날아가는 시간 / 최대속도 / 누워있는 시간
+                const float breakKnockbackDistance = 2.5f;
+                const float breakKnockbackDuration = 0.35f;
+                const float breakMaxKnockbackSpeed = 12f;
+                const float breakDownDuration = 2.0f;
+
                 bool hasKnockdown = Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
                 MovementController.TransitionToState(hasKnockdown
-                    ? new EnemyKnockdownState(MovementController)
+                    ? new EnemyKnockdownState(
+                        MovementController,
+                        overrideDownDuration: breakDownDuration,
+                        knockbackDistance: breakKnockbackDistance,
+                        knockbackDuration: breakKnockbackDuration,
+                        maxKnockbackSpeed: breakMaxKnockbackSpeed,
+                        knockbackSource: attacker != null ? attacker.transform : null)
                     : new EnemyStunState(MovementController));
             }
         }

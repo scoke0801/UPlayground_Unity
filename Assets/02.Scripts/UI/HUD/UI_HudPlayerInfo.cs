@@ -13,10 +13,18 @@ public class UI_HudPlayerInfo : UI_Base
 
     [SerializeField] private TextMeshProUGUI _hpText;
     [SerializeField] private GameObject _fxObject;
-    
+
+    [Header("Skill Gauge")]
+    [SerializeField] private Image _skillGaugeFill;
+    [SerializeField] private TextMeshProUGUI _skillGaugeText;
+
+    [Header("Weapon")]
+    [SerializeField] private Image _weaponIcon;
+
     [Header("Animation Settings")]
     [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
     [SerializeField] private float _hpFillSpeed         = 5.0f;
+    [SerializeField] private float _skillGaugeFillSpeed = 8.0f;
     
     [System.Serializable]
     private struct CharacterIconEntry
@@ -45,24 +53,29 @@ public class UI_HudPlayerInfo : UI_Base
         if (_playerActor == null) return;
 
         _playerActor.OnHpChanged         += SetHp;
+        _playerActor.OnSkillGaugeChanged += SetSkillGauge;
 
         SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
 
-        float cur = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
-        float max = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
-        
+        float gauge    = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
+        float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
+        SetSkillGaugeImmediate(gauge, maxGauge);
+
         var partyManager = PartyManager.Instance;
         if (partyManager != null)
         {
             partyManager.OnSwapCompleted += OnPlayerSwapCompleted;
         }
+
+        RefreshWeaponIcon();
     }
 
     protected override void OnHide()
     {
         if (_playerActor == null) return;
         _playerActor.OnHpChanged         -= SetHp;
-        
+        _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+
         var partyManager = PartyManager.Instance;
         if (partyManager != null)
         {
@@ -81,6 +94,50 @@ public class UI_HudPlayerInfo : UI_Base
         _hpFillCoroutine = StartCoroutine(HpDelayFillCoroutine());
 
         _hpText.text = $"{(int)hp}/{(int)maxHp}";
+    }
+
+    /// <summary>스킬 게이지 변경 시 호출(이벤트). Fill을 부드럽게 보간한다.</summary>
+    public void SetSkillGauge(float gauge, float maxGauge)
+    {
+        float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
+
+        if (_skillGaugeText != null)
+            _skillGaugeText.text = $"{(int)gauge}/{(int)maxGauge}";
+
+        if (_skillGaugeFill == null) return;
+
+        if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
+        _skillGaugeCoroutine = StartCoroutine(SkillGaugeFillCoroutine(ratio));
+    }
+
+    /// <summary>보간 없이 즉시 스킬 게이지를 반영한다(초기화/캐릭터 교체 스냅용).</summary>
+    private void SetSkillGaugeImmediate(float gauge, float maxGauge)
+    {
+        float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
+
+        if (_skillGaugeCoroutine != null)
+        {
+            StopCoroutine(_skillGaugeCoroutine);
+            _skillGaugeCoroutine = null;
+        }
+
+        if (_skillGaugeFill != null) _skillGaugeFill.fillAmount = ratio;
+        if (_skillGaugeText != null) _skillGaugeText.text = $"{(int)gauge}/{(int)maxGauge}";
+    }
+
+    private IEnumerator SkillGaugeFillCoroutine(float targetRatio)
+    {
+        while (Mathf.Abs(_skillGaugeFill.fillAmount - targetRatio) > 0.001f)
+        {
+            _skillGaugeFill.fillAmount = Mathf.Lerp(
+                _skillGaugeFill.fillAmount,
+                targetRatio,
+                Time.deltaTime * _skillGaugeFillSpeed);
+            yield return null;
+        }
+
+        _skillGaugeFill.fillAmount = targetRatio;
+        _skillGaugeCoroutine = null;
     }
 
     public void SetIsInCombat(bool isInCombat)
@@ -109,10 +166,35 @@ public class UI_HudPlayerInfo : UI_Base
     }
     private void OnPlayerSwapCompleted(PlayerActor player)
     {
-        if (player == null)
+        // 스왑 시 PlayerActor 인스턴스는 유지되고 스탯/게이지만 교체되므로
+        // 구독은 그대로 유효하다. 교체된 캐릭터 값으로 즉시 스냅만 한다.
+        if (player == null) return;
+
+        SetHp(player.CurrentHealth, player.MaxHealth);
+
+        float gauge    = player.SkillGauge?.CurrentGauge ?? 0f;
+        float maxGauge = player.SkillGauge?.MaxGauge     ?? 100f;
+        SetSkillGaugeImmediate(gauge, maxGauge);
+
+        RefreshWeaponIcon();
+    }
+
+    /// <summary>현재 활성 캐릭터의 무기 아이콘을 표시한다.</summary>
+    private void RefreshWeaponIcon()
+    {
+        if (_weaponIcon == null) return;
+
+        var pm = PartyManager.Instance;
+        var memberData = pm?.PartyMemberDataSO;
+        if (pm == null || memberData == null)
         {
+            _weaponIcon.enabled = false;
             return;
         }
+
+        Sprite icon = memberData.GetWeaponIcon(pm.ActiveCharacterType);
+        _weaponIcon.sprite  = icon;
+        _weaponIcon.enabled = icon != null;
     }
 }
 

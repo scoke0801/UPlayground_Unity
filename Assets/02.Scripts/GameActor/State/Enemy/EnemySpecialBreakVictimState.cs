@@ -4,20 +4,21 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
+    /// <summary>
+    /// 브레이크 특수공격의 windup(슬라이드·카메라 연출) 동안 타겟 몬스터를 제자리에 붙잡아 두는 상태.
+    /// 실제 피격 반응(넉백/Knockdown)은 임팩트 시점에 MonsterActor.OnTakeSpecialBreakAttack에서 발생하므로,
+    /// 이 상태는 타격 전 구간에서 피격 모션이나 넉백을 재생하지 않고 중립 자세로만 대기한다.
+    /// </summary>
     public class EnemySpecialBreakVictimState : EnemyActorState
     {
         public override string StateName => "SpecialBreakVictim";
         public override bool BlocksBehaviorTree => true;
 
         private readonly float _duration;
-        private readonly Transform _source;
-        private readonly float _knockbackDistance;
-        private readonly float _knockbackDuration;
-        private readonly float _maxKnockbackSpeed;
         private float _remainingDuration;
-        private float _knockbackElapsed;
-        private Vector3 _knockbackDirection;
 
+        // knockback* 파라미터는 임팩트 반응을 OnTakeSpecialBreakAttack의 Knockdown으로 유지하는 정책상 현재 미사용.
+        // (호출부 시그니처 보존을 위해 유지)
         public EnemySpecialBreakVictimState(
             ActorMovementController controller,
             float duration = 1.2f,
@@ -27,10 +28,6 @@ namespace UPlayGround.State
             float maxKnockbackSpeed = 7f) : base(controller)
         {
             _duration = Mathf.Max(0.1f, duration);
-            _source = source;
-            _knockbackDistance = Mathf.Max(0f, knockbackDistance);
-            _knockbackDuration = Mathf.Max(0f, knockbackDuration);
-            _maxKnockbackSpeed = Mathf.Max(0f, maxKnockbackSpeed);
         }
 
         public override bool CanTransitionState(string stateName) => stateName is "Death";
@@ -40,13 +37,10 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
             _remainingDuration = _duration;
-            _knockbackElapsed = 0f;
-            _knockbackDirection = ResolveKnockbackDirection();
 
-            AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Grabbed, true)
-                ? AnimKey.Grabbed
-                : AnimKey.Hit_F;
-            gameActor.Animator.PlayMotion(animKey, 0.1f);
+            // 타격 전 중립 홀드 — 피격(Grabbed/Hit_F) 모션을 미리 재생하지 않는다.
+            if (gameActor.Animator.HasMotion(AnimKey.Idle, true))
+                gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -63,53 +57,17 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            float verticalVelocity = currentVelocity.y;
-
-            if (CanApplyKnockback())
-            {
-                _knockbackElapsed += deltaTime;
-                float speed = Mathf.Min(_maxKnockbackSpeed, 2f * _knockbackDistance / Mathf.Max(0.01f, _knockbackDuration));
-                float ratio = 1f - Mathf.Clamp01(_knockbackElapsed / _knockbackDuration);
-                currentVelocity = _knockbackDirection * (speed * ratio);
-                currentVelocity.y = verticalVelocity;
-                return;
-            }
-
             if (!motor.GroundingStatus.IsStableOnGround)
             {
                 currentVelocity += controller.Gravity * deltaTime;
                 return;
             }
 
+            // 제자리 고정
             currentVelocity = Vector3.Lerp(
                 currentVelocity,
                 Vector3.zero,
                 1f - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
-        }
-
-        private bool CanApplyKnockback()
-        {
-            return _knockbackDistance > 0f
-                   && _knockbackDuration > 0f
-                   && _maxKnockbackSpeed > 0f
-                   && _knockbackElapsed < _knockbackDuration
-                   && motor.GroundingStatus.IsStableOnGround;
-        }
-
-        private Vector3 ResolveKnockbackDirection()
-        {
-            Vector3 direction = _source != null
-                ? gameActor.transform.position - _source.position
-                : -gameActor.transform.forward;
-            direction.y = 0f;
-
-            if (direction.sqrMagnitude <= 0.001f)
-                direction = -gameActor.transform.forward;
-
-            direction.y = 0f;
-            return direction.sqrMagnitude > 0.001f
-                ? direction.normalized
-                : Vector3.back;
         }
     }
 }

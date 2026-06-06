@@ -11,13 +11,36 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
 
         private readonly AttackData _attackData;
+        private readonly float _overrideDownDuration;
+        private readonly float _knockbackDistance;
+        private readonly float _knockbackDuration;
+        private readonly float _maxKnockbackSpeed;
+        private readonly Transform _knockbackSource;
+
         private bool _getupStarted;
         private bool _knockdownMotionEnded;
         private float _downTimer;
+        private float _knockbackElapsed;
+        private Vector3 _knockbackDirection;
 
-        public EnemyKnockdownState(ActorMovementController controller, AttackData attackData = null) : base(controller)
+        /// <param name="overrideDownDuration">0보다 크면 누워있는 시간을 강제로 지정(브레이크 마무리용). 0이면 기존 규칙 사용.</param>
+        /// <param name="knockbackDistance">0보다 크면 진입 시 공격자 반대 방향으로 날아가는 거리. 0이면 런치 없음.</param>
+        /// <param name="knockbackSource">날아가는 방향 기준(공격자). null이면 -forward.</param>
+        public EnemyKnockdownState(
+            ActorMovementController controller,
+            AttackData attackData = null,
+            float overrideDownDuration = 0f,
+            float knockbackDistance = 0f,
+            float knockbackDuration = 0f,
+            float maxKnockbackSpeed = 0f,
+            Transform knockbackSource = null) : base(controller)
         {
             _attackData = attackData;
+            _overrideDownDuration = Mathf.Max(0f, overrideDownDuration);
+            _knockbackDistance = Mathf.Max(0f, knockbackDistance);
+            _knockbackDuration = Mathf.Max(0f, knockbackDuration);
+            _maxKnockbackSpeed = Mathf.Max(0f, maxKnockbackSpeed);
+            _knockbackSource = knockbackSource;
         }
 
         public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
@@ -28,7 +51,11 @@ namespace UPlayGround.State
             controller.MotionWarp?.ClearTarget();
             _getupStarted = false;
             _knockdownMotionEnded = false;
-            _downTimer = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.0f;
+            _knockbackElapsed = 0f;
+            _knockbackDirection = ResolveKnockbackDirection();
+            _downTimer = _overrideDownDuration > 0f
+                ? _overrideDownDuration
+                : (_attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.0f);
 
             AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Knockdown, true)
                 ? AnimKey.Knockdown
@@ -56,11 +83,50 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            // 진입 직후 일정 시간 동안 공격자 반대 방향으로 날아간다(브레이크 마무리). 거리는 선형 감속으로 소진.
+            if (CanApplyKnockback())
+            {
+                float verticalVelocity = currentVelocity.y;
+                _knockbackElapsed += deltaTime;
+                float speed = Mathf.Min(
+                    _maxKnockbackSpeed,
+                    2f * _knockbackDistance / Mathf.Max(0.01f, _knockbackDuration));
+                float ratio = 1f - Mathf.Clamp01(_knockbackElapsed / _knockbackDuration);
+                currentVelocity = _knockbackDirection * (speed * ratio);
+                currentVelocity.y = verticalVelocity;
+                return;
+            }
+
             if (!motor.GroundingStatus.IsStableOnGround) return;
             currentVelocity = Vector3.Lerp(
                 currentVelocity,
                 Vector3.zero,
                 1f - Mathf.Exp(controller.StableMovementSharpness * -deltaTime));
+        }
+
+        private bool CanApplyKnockback()
+        {
+            return _knockbackDistance > 0f
+                   && _knockbackDuration > 0f
+                   && _maxKnockbackSpeed > 0f
+                   && _knockbackElapsed < _knockbackDuration
+                   && motor.GroundingStatus.IsStableOnGround;
+        }
+
+        private Vector3 ResolveKnockbackDirection()
+        {
+            Vector3 direction = _knockbackSource != null
+                ? gameActor.transform.position - _knockbackSource.position
+                : -gameActor.transform.forward;
+            direction.y = 0f;
+
+            if (direction.sqrMagnitude <= 0.001f)
+                direction = -gameActor.transform.forward;
+
+            direction.y = 0f;
+            return direction.sqrMagnitude > 0.001f
+                ? direction.normalized
+                : Vector3.back;
         }
 
         private void OnKnockdownMotionEnd()

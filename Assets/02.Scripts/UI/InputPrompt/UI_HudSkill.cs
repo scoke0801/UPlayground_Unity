@@ -33,6 +33,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private readonly List<ComboRouteResolver.ComboRouteHint> _hints = new();
         private int _lastSignature = NoSignature;
+        private bool _hasVisibleCooldown;
         private const int NoSignature = int.MinValue;
 
         // ── UI_Base 생명주기 ─────────────────────────────────────────
@@ -80,7 +81,10 @@ namespace UPlayGround.UI.InputPrompt
         {
             // 이전 게이지 구독 해제
             if (_gauge != null)
+            {
                 _gauge.OnGaugeChanged -= OnGaugeChanged;
+                _gauge.OnCooldownChanged -= OnSkillCooldownChanged;
+            }
 
             _player         = player;
             _combat         = player != null ? player.GetCombat() : null;
@@ -96,6 +100,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_gauge != null)
             {
                 _gauge.OnGaugeChanged += OnGaugeChanged;
+                _gauge.OnCooldownChanged += OnSkillCooldownChanged;
                 OnGaugeChanged(_gauge.CurrentGauge, _gauge.MaxGauge); // 현재 상태 즉시 반영
             }
             else
@@ -114,15 +119,21 @@ namespace UPlayGround.UI.InputPrompt
             _lastSignature = NoSignature; // 자원 게이트가 바뀌면 콤보 힌트도 다시 계산해야 한다.
         }
 
+        private void OnSkillCooldownChanged(int skillSlot, float remaining, float duration)
+        {
+            ApplyGaugeStates();
+            _lastSignature = NoSignature;
+        }
+
         private void ApplyGaugeStates()
         {
+            _hasVisibleCooldown = false;
+
             for (int i = 0; i < _slots.Count; i++)
             {
                 var slot = _slots[i];
                 if (slot == null) continue;
-                bool ready = !slot.RequiresGauge
-                             || (_gauge != null && _gauge.CanUseSkill(slot.GaugeSlot));
-                slot.SetGaugeState(ready);
+                _hasVisibleCooldown |= slot.SetGaugeState(_gauge);
             }
         }
 
@@ -131,6 +142,9 @@ namespace UPlayGround.UI.InputPrompt
         {
             base.Update();
             if (!IsVisible || _player == null || _combat == null) return;
+
+            if (_hasVisibleCooldown)
+                ApplyGaugeStates();
 
             var window  = _player.ComboInputTracker.GetWindow();
             bool grounded = IsGrounded();

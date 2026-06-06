@@ -77,7 +77,10 @@ namespace UPlayGround.UI.InputPrompt
         private void Bind(PlayerActor player)
         {
             if (_gauge != null)
+            {
                 _gauge.OnGaugeChanged -= OnGaugeChanged;
+                _gauge.OnCooldownChanged -= OnSkillCooldownChanged;
+            }
 
             _player         = player;
             _combat         = player != null ? player.GetCombat() : null;
@@ -86,7 +89,10 @@ namespace UPlayGround.UI.InputPrompt
             _lastSignature  = NoSignature; // 강제 재계산
 
             if (_gauge != null)
+            {
                 _gauge.OnGaugeChanged += OnGaugeChanged;
+                _gauge.OnCooldownChanged += OnSkillCooldownChanged;
+            }
 
             if (player == null)
                 HideAll();
@@ -95,6 +101,11 @@ namespace UPlayGround.UI.InputPrompt
         private void OnGaugeChanged(float current, float max)
         {
             _lastSignature = NoSignature; // 자원 게이트가 바뀌면 힌트를 다시 계산한다.
+        }
+
+        private void OnSkillCooldownChanged(int skillSlot, float remaining, float duration)
+        {
+            _lastSignature = NoSignature;
         }
 
         private void Update()

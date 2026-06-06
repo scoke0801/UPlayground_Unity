@@ -119,6 +119,7 @@ namespace UPlayGround.Data.EnumType
         ChargeAttack_5,
 
         FinishAttack = 690,
+        BreakAttack = 695,
         
         Hit_F = 700,
         Hit_B,

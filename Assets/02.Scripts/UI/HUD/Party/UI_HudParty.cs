@@ -11,6 +11,7 @@ public class UI_HudParty : UI_Base
 {
     [SerializeField] private List<UIHudPartyEntry> _entries = new();
 
+    private const int UltimateSkillSlot = 1;
     private PlayerActor _subscribedPlayer;
     private bool _isSubscribedToPartyEvents;
     private bool _hasSwapCooldownVisible;
@@ -100,6 +101,8 @@ public class UI_HudParty : UI_Base
         _subscribedPlayer                    = player;
         player.OnHpChanged                  += OnActiveHpChanged;
         player.OnSkillGaugeChanged          += OnActiveSkillGaugeChanged;
+        if (player.SkillGauge != null)
+            player.SkillGauge.OnCooldownChanged += OnActiveSkillCooldownChanged;
     }
 
     private void UnsubscribePlayer()
@@ -107,11 +110,14 @@ public class UI_HudParty : UI_Base
         if (_subscribedPlayer == null) return;
         _subscribedPlayer.OnHpChanged         -= OnActiveHpChanged;
         _subscribedPlayer.OnSkillGaugeChanged -= OnActiveSkillGaugeChanged;
+        if (_subscribedPlayer.SkillGauge != null)
+            _subscribedPlayer.SkillGauge.OnCooldownChanged -= OnActiveSkillCooldownChanged;
         _subscribedPlayer = null;
     }
 
     private void OnSwapCompleted(PlayerActor player)
     {
+        SubscribePlayer(player);
         RefreshEntryValues();
         RefreshSwapCooldown();
     }
@@ -132,25 +138,40 @@ public class UI_HudParty : UI_Base
 
     private void OnActiveSkillGaugeChanged(float current, float max)
     {
-        var activeType = PartyManager.Instance?.ActiveCharacterType
-                         ?? UPlayGround.Data.EnumType.CharacterActorType.None;
+        RefreshUltimateReady(PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None);
+    }
+
+    private void OnActiveSkillCooldownChanged(int skillSlot, float remaining, float duration)
+    {
+        if (skillSlot == UltimateSkillSlot)
+            RefreshUltimateReady(PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None);
+    }
+
+    private void RefreshUltimateReady(CharacterActorType type)
+    {
+        if (type == CharacterActorType.None) return;
+
+        var player = PartyManager.Instance?.ActiveCharacter;
         foreach (var entry in _entries)
         {
-            if (entry != null && entry.BoundType == activeType)
+            if (entry != null && entry.BoundType == type)
             {
-                entry.SetSkillGauge(current, max);
+                entry.SetUltimateReady(player != null && player.CanUseSkillForCharacter(type, UltimateSkillSlot));
                 break;
             }
         }
     }
 
-    private void OnPartySkillGaugeChanged(UPlayGround.Data.EnumType.CharacterActorType type, float current, float max)
+    private void OnPartySkillGaugeChanged(CharacterActorType type, float current, float max)
     {
         foreach (var entry in _entries)
         {
             if (entry != null && entry.BoundType == type)
             {
-                entry.SetSkillGauge(current, max);
+                var player = PartyManager.Instance?.ActiveCharacter;
+                entry.SetUltimateReady(player != null
+                    ? player.CanUseSkillForCharacter(type, UltimateSkillSlot)
+                    : max > 0f && current >= max);
                 break;
             }
         }
@@ -186,13 +207,22 @@ public class UI_HudParty : UI_Base
             entry.SetHealth(
                 player.GetHealthForCharacter(type),
                 player.GetMaxHealthForCharacter(type));
-
-            entry.SetSkillGauge(
-                player.GetSkillGaugeForCharacter(type),
-                player.GetMaxSkillGaugeForCharacter(type));
+            entry.SetUltimateReady(player.CanUseSkillForCharacter(type, UltimateSkillSlot));
         }
 
+        RefreshSpawnedState();
         RefreshSwapCooldown();
+    }
+
+    private void RefreshSpawnedState()
+    {
+        var activeType = PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None;
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var entry = _entries[i];
+            if (entry == null) continue;
+            entry.SetSpawned(entry.BoundType != CharacterActorType.None && entry.BoundType == activeType);
+        }
     }
 
     private void RefreshSwapCooldown()

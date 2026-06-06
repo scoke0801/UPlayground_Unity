@@ -42,17 +42,23 @@ namespace UPlayGround.Component
         [Header("Skill Cost (Slot 0~4)")]
         [SerializeField] private float[] _skillCost = { 25f, 40f, 60f, 80f, 100f };
 
+        [Header("Skill Cooldown (Slot 0~4)")]
+        [SerializeField] private float[] _skillCooldown = { 3f, 5f, 8f, 10f, 12f };
+
         public event Action<float, float> OnGaugeChanged;
+        public event Action<int, float, float> OnCooldownChanged;
 
         public float MaxGauge     => _maxGauge;
         public float CurrentGauge => _currentGauge;
-        public float GaugeRatio   => _currentGauge / _maxGauge;
+        public float GaugeRatio   => _maxGauge > 0f ? _currentGauge / _maxGauge : 0f;
 
         private PlayerCombat _combat;
+        private float[] _skillCooldownEndTimes;
 
         private void Awake()
         {
             _combat = GetComponent<PlayerCombat>();
+            EnsureCooldownBuffer();
         }
 
         private void OnEnable()
@@ -65,6 +71,21 @@ namespace UPlayGround.Component
         {
             if (_combat != null)
                 _combat.OnAttackHit -= HandleAttackHit;
+        }
+
+        private void Update()
+        {
+            if (_skillCooldownEndTimes == null) return;
+
+            float now = Time.time;
+            for (int i = 0; i < _skillCooldownEndTimes.Length; i++)
+            {
+                if (_skillCooldownEndTimes[i] <= 0f || _skillCooldownEndTimes[i] > now)
+                    continue;
+
+                _skillCooldownEndTimes[i] = 0f;
+                OnCooldownChanged?.Invoke(i, 0f, GetSkillCooldownDuration(i));
+            }
         }
 
         // -------------------------------------------------------
@@ -91,7 +112,7 @@ namespace UPlayGround.Component
         public bool CanUseSkill(int skillSlot)
         {
             if ((uint)skillSlot >= (uint)_skillCost.Length) return false;
-            return _currentGauge >= _skillCost[skillSlot];
+            return _currentGauge >= _skillCost[skillSlot] && !IsSkillOnCooldown(skillSlot);
         }
 
         /// <summary>
@@ -104,6 +125,7 @@ namespace UPlayGround.Component
 
             _currentGauge = Mathf.Max(0f, _currentGauge - _skillCost[skillSlot]);
             OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+            StartCooldown(skillSlot);
             return true;
         }
 
@@ -120,6 +142,79 @@ namespace UPlayGround.Component
         {
             _currentGauge = Mathf.Clamp(value, 0f, _maxGauge);
             OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+        }
+
+        public float[] GetCooldownRemainingSnapshot()
+        {
+            EnsureCooldownBuffer();
+            var snapshot = new float[_skillCooldownEndTimes.Length];
+            for (int i = 0; i < snapshot.Length; i++)
+                snapshot[i] = GetSkillCooldownRemaining(i);
+            return snapshot;
+        }
+
+        public void SetCooldownRemainingSnapshot(float[] remainingTimes)
+        {
+            EnsureCooldownBuffer();
+            if (_skillCooldownEndTimes == null) return;
+
+            for (int i = 0; i < _skillCooldownEndTimes.Length; i++)
+            {
+                float remaining = remainingTimes != null && i < remainingTimes.Length
+                    ? Mathf.Max(0f, remainingTimes[i])
+                    : 0f;
+
+                _skillCooldownEndTimes[i] = remaining > 0f ? Time.time + remaining : 0f;
+                OnCooldownChanged?.Invoke(i, remaining, GetSkillCooldownDuration(i));
+            }
+        }
+
+        public float GetSkillCost(int skillSlot)
+        {
+            if ((uint)skillSlot >= (uint)_skillCost.Length) return float.PositiveInfinity;
+            return Mathf.Max(0f, _skillCost[skillSlot]);
+        }
+
+        public float GetSkillCooldownDuration(int skillSlot)
+        {
+            if (_skillCooldown == null || (uint)skillSlot >= (uint)_skillCooldown.Length) return 0f;
+            return Mathf.Max(0f, _skillCooldown[skillSlot]);
+        }
+
+        public float GetSkillCooldownRemaining(int skillSlot)
+        {
+            EnsureCooldownBuffer();
+            if (_skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return 0f;
+            return Mathf.Max(0f, _skillCooldownEndTimes[skillSlot] - Time.time);
+        }
+
+        public bool IsSkillOnCooldown(int skillSlot) => GetSkillCooldownRemaining(skillSlot) > 0f;
+
+        private void StartCooldown(int skillSlot)
+        {
+            float duration = GetSkillCooldownDuration(skillSlot);
+            if (duration <= 0f) return;
+
+            EnsureCooldownBuffer();
+            if (_skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return;
+
+            _skillCooldownEndTimes[skillSlot] = Time.time + duration;
+            OnCooldownChanged?.Invoke(skillSlot, duration, duration);
+        }
+
+        private void EnsureCooldownBuffer()
+        {
+            int count = Mathf.Max(_skillCost?.Length ?? 0, _skillCooldown?.Length ?? 0);
+            if (count <= 0)
+            {
+                _skillCooldownEndTimes = Array.Empty<float>();
+                return;
+            }
+
+            if (_skillCooldownEndTimes != null && _skillCooldownEndTimes.Length == count)
+                return;
+
+            _skillCooldownEndTimes = new float[count];
         }
     }
 }

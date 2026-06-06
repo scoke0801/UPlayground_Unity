@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,16 +13,14 @@ public class UIHudPartyEntry : MonoBehaviour
     [SerializeField] private GameObject _swapCooldownRoot;
     [SerializeField] private Image _swapCooldownFill;
     [SerializeField] private TextMeshProUGUI _swapCooldownText;
+    [Tooltip("대상 파티원이 현재 필드에 스폰되어 있을 때 켜는 UI")]
+    [SerializeField] private GameObject _spawnedObject;
+    [Tooltip("대상 파티원이 궁극기를 사용할 수 있을 때 켜는 UI")]
     [SerializeField] private GameObject _glowObject;
 
     [SerializeField] private Animator _animator;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float _skillFillSpeed = 8.0f;
-
     private CharacterActorType _boundType = CharacterActorType.None;
-    private Coroutine _skillGaugeCoroutine;
-    private float _skillTargetRatio;
 
     public CharacterActorType BoundType => _boundType;
 
@@ -35,9 +32,9 @@ public class UIHudPartyEntry : MonoBehaviour
             _characterIcon.sprite = memberData.GetHeadSprite(type);
 
         if (_hpFill != null) _hpFill.fillAmount = 1f;
-        if (_glowObject != null) _glowObject.SetActive(false);
+        SetSpawned(false);
+        SetUltimateReady(false);
         SetSwapCooldown(0f, 0f);
-        _skillTargetRatio = 0f;
 
         gameObject.SetActive(true);
     }
@@ -46,13 +43,8 @@ public class UIHudPartyEntry : MonoBehaviour
     {
         _boundType = CharacterActorType.None;
 
-        if (_skillGaugeCoroutine != null)
-        {
-            StopCoroutine(_skillGaugeCoroutine);
-            _skillGaugeCoroutine = null;
-        }
-
-        if (_glowObject != null) _glowObject.SetActive(false);
+        SetSpawned(false);
+        SetUltimateReady(false);
         SetSwapCooldown(0f, 0f);
         gameObject.SetActive(false);
     }
@@ -73,7 +65,24 @@ public class UIHudPartyEntry : MonoBehaviour
 
     public void SetSkillGauge(float current, float max)
     {
-        // [TODO] 스킬 게이지 상태에 따라서 UI 처리. 게이지 말고 사용 가능 여부만 표시
+        SetUltimateReady(max > 0f && current >= max);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        SetSpawned(selected);
+    }
+
+    public void SetSpawned(bool spawned)
+    {
+        if (_spawnedObject != null)
+            _spawnedObject.SetActive(spawned);
+    }
+
+    public void SetUltimateReady(bool ready)
+    {
+        if (_glowObject != null)
+            _glowObject.SetActive(ready);
     }
 
     public void SetSwapCooldown(float remaining, float duration)

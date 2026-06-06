@@ -584,230 +584,50 @@ MonoBehaviour:
         victimForcedAnimKey: 0
     interruptActions: 69
     hitAngle: 60
-  skillAttackList:
-  - baseInfo:
+  skillAttackList: []
+  skillDefinitions:
+  - slot: 0
+    displayName: Skill1
+    costPolicy: 1
+    cooldownPolicy: 0
+    variants:
+    - variantName: Default
       animKey: 500
-      attackType: 0
-      hitPhases:
-      - damage: 120
-        poiseDamage: 30
-        breakDamage: 10
-        reactionType: 4
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 60
-  - baseInfo:
+      attackInfo:
+        baseInfo:
+          animKey: 0
+          attackType: 0
+          hitPhases: []
+        interruptActions: 0
+        hitAngle: 0
+      condition:
+        groundCondition: 0
+        minSkillGauge: 0
+        requiresFullSkillGauge: 0
+        requiredTagIds: 
+        blockedTagIds: 
+      priority: 0
+  - slot: 1
+    displayName: Skill2
+    costPolicy: 0
+    cooldownPolicy: 0
+    variants:
+    - variantName: Default
       animKey: 501
-      attackType: 0
-      hitPhases:
-      - damage: 75
-        poiseDamage: 50
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-      - damage: 90
-        poiseDamage: 60
-        breakDamage: 10
-        reactionType: 4
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 2
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 60
-  - baseInfo:
-      animKey: 502
-      attackType: 0
-      hitPhases:
-      - damage: 30
-        poiseDamage: 30
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-      - damage: 30
-        poiseDamage: 30
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-      - damage: 30
-        poiseDamage: 30
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-      - damage: 50
-        poiseDamage: 50
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 0
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-      - damage: 75
-        poiseDamage: 65
-        breakDamage: 10
-        reactionType: 4
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 12
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 60
-  - baseInfo:
-      animKey: 503
-      attackType: 0
-      hitPhases:
-      - damage: 60
-        poiseDamage: 60
-        breakDamage: 10
-        reactionType: 4
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 15
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 60
-  - baseInfo:
-      animKey: 504
-      attackType: 0
-      hitPhases:
-      - damage: 100
-        poiseDamage: 60
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 15
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 360
-  - baseInfo:
-      animKey: 505
-      attackType: 0
-      hitPhases:
-      - damage: 20
-        poiseDamage: 60
-        breakDamage: 10
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 3
-        hitHeightRange: 1.2
-        hitParticleName: DefaultCombatHit
-        pullForce: 0
-        airborneForce: 0
-        knockBackForce: 15
-        knockBackDrag: 20
-        grabDuration: 0
-        victimForcedAnimKey: 0
-    interruptActions: 61
-    hitAngle: 60
+      attackInfo:
+        baseInfo:
+          animKey: 0
+          attackType: 0
+          hitPhases: []
+        interruptActions: 0
+        hitAngle: 0
+      condition:
+        groundCondition: 0
+        minSkillGauge: 0
+        requiresFullSkillGauge: 1
+        requiredTagIds: 
+        blockedTagIds: 
+      priority: 0
   comboRoutes: []
   comboLinkWindow: 1
   counterAttack:

@@ -21,9 +21,47 @@ MonoBehaviour:
     - rid: 7432452529509105821
     - rid: 7432452529509105822
     - rid: 7432452529509105823
+  - id: 21e3216d527d416a9f92d0c6864ddc76
+    displayName: "\uB300\uC2DC"
+    description: "\uB300\uC2DC VFX + \uC794\uC0C1"
+    aliases: 
+    events:
+    - rid: 889909668156276752
+    - rid: 889909668156276753
   references:
     version: 2
     RefIds:
+    - rid: 889909668156276752
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.41376427
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 3407818901819470167, guid: fb169f3971e34db4a9fb1feebac2accf, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 0.75, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 90}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 0
+        particleLifeTime: 0
+    - rid: 889909668156276753
+      type: {class: AfterimageEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.4243827
+        globalStartTimeOffset: 0
+        targetObjectName: 
+        alpha: 0.24
+        spawnInterval: 0.07
+        spawnCount: 6
+        poolSize: 8
+        holdDuration: 0.08
+        tintColor: {r: 0.55, g: 0.78, b: 1, a: 0.75}
+        fadeOutDuration: 0.25
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
     - rid: 7432452529509105821
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -33,14 +71,32 @@ MonoBehaviour:
         preset: 0
         modifierType: 0
         targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
         translationWeight: 1
         rotationWeight: 1
         ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
         overrideDistance: 0
         minDistance: 0.3
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
     - rid: 7432452529509105822
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

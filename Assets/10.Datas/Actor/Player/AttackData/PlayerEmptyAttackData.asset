@@ -143,7 +143,7 @@ MonoBehaviour:
   chargeAnimKey: 0
   chargeStages: []
   chargeStageThresholds: []
-  chargeInterruptActions: 1
+  chargeInterruptActions: 5
   fullChargeVfxKey: 
   fullChargeVfxSocket: 3
   fullChargeVfxOffset: {x: 0, y: 0, z: 0}

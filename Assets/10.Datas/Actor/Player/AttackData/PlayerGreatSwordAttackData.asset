@@ -17,9 +17,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 57
-        poiseDamage: 171
-        breakDamage: 57
+      - damage: 47
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -40,9 +40,9 @@ MonoBehaviour:
       animKey: 101
       attackType: 0
       hitPhases:
-      - damage: 61
-        poiseDamage: 183
-        breakDamage: 61
+      - damage: 50
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -63,9 +63,9 @@ MonoBehaviour:
       animKey: 102
       attackType: 0
       hitPhases:
-      - damage: 65
-        poiseDamage: 195
-        breakDamage: 65
+      - damage: 53
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -86,9 +86,9 @@ MonoBehaviour:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 74
-        poiseDamage: 222
-        breakDamage: 74
+      - damage: 61
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -109,9 +109,9 @@ MonoBehaviour:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 74
-        poiseDamage: 222
-        breakDamage: 74
+      - damage: 61
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -132,9 +132,9 @@ MonoBehaviour:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 78
-        poiseDamage: 234
-        breakDamage: 78
+      - damage: 64
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -155,9 +155,9 @@ MonoBehaviour:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 82
-        poiseDamage: 246
-        breakDamage: 82
+      - damage: 67
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -178,9 +178,9 @@ MonoBehaviour:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 91
-        poiseDamage: 273
-        breakDamage: 91
+      - damage: 75
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -201,9 +201,9 @@ MonoBehaviour:
       animKey: 108
       attackType: 0
       hitPhases:
-      - damage: 93
-        poiseDamage: 279
-        breakDamage: 93
+      - damage: 76
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -224,9 +224,9 @@ MonoBehaviour:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 111
-        poiseDamage: 333
-        breakDamage: 111
+      - damage: 91
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -248,9 +248,9 @@ MonoBehaviour:
       animKey: 200
       attackType: 0
       hitPhases:
-      - damage: 48
-        poiseDamage: 144
-        breakDamage: 53
+      - damage: 39
+        poiseDamage: 24
+        breakDamage: 16
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -265,9 +265,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 60
-        poiseDamage: 180
-        breakDamage: 66
+      - damage: 49
+        poiseDamage: 30
+        breakDamage: 20
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -288,9 +288,9 @@ MonoBehaviour:
       animKey: 201
       attackType: 0
       hitPhases:
-      - damage: 53
-        poiseDamage: 159
-        breakDamage: 59
+      - damage: 44
+        poiseDamage: 24
+        breakDamage: 16
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -305,9 +305,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 67
-        poiseDamage: 201
-        breakDamage: 73
+      - damage: 55
+        poiseDamage: 30
+        breakDamage: 20
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -328,9 +328,9 @@ MonoBehaviour:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 118
-        poiseDamage: 354
-        breakDamage: 137
+      - damage: 97
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -351,9 +351,9 @@ MonoBehaviour:
       animKey: 203
       attackType: 0
       hitPhases:
-      - damage: 104
-        poiseDamage: 312
-        breakDamage: 121
+      - damage: 85
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -374,9 +374,9 @@ MonoBehaviour:
       animKey: 204
       attackType: 0
       hitPhases:
-      - damage: 128
-        poiseDamage: 384
-        breakDamage: 149
+      - damage: 105
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -397,9 +397,9 @@ MonoBehaviour:
       animKey: 205
       attackType: 0
       hitPhases:
-      - damage: 132
-        poiseDamage: 396
-        breakDamage: 153
+      - damage: 108
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -420,9 +420,9 @@ MonoBehaviour:
       animKey: 206
       attackType: 0
       hitPhases:
-      - damage: 146
-        poiseDamage: 438
-        breakDamage: 169
+      - damage: 119
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -446,9 +446,9 @@ MonoBehaviour:
       animKey: 500
       attackType: 0
       hitPhases:
-      - damage: 147
-        poiseDamage: 441
-        breakDamage: 158
+      - damage: 121
+        poiseDamage: 34
+        breakDamage: 22
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -469,9 +469,9 @@ MonoBehaviour:
       animKey: 501
       attackType: 0
       hitPhases:
-      - damage: 171
-        poiseDamage: 513
-        breakDamage: 184
+      - damage: 141
+        poiseDamage: 34
+        breakDamage: 22
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -492,9 +492,9 @@ MonoBehaviour:
       animKey: 502
       attackType: 0
       hitPhases:
-      - damage: 184
-        poiseDamage: 552
-        breakDamage: 197
+      - damage: 151
+        poiseDamage: 34
+        breakDamage: 22
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -524,9 +524,9 @@ MonoBehaviour:
           animKey: 500
           attackType: 0
           hitPhases:
-          - damage: 147
-            poiseDamage: 441
-            breakDamage: 158
+          - damage: 121
+            poiseDamage: 34
+            breakDamage: 22
             reactionType: 2
             reactionDuration: 0
             forceReaction: 0
@@ -557,9 +557,9 @@ MonoBehaviour:
           animKey: 502
           attackType: 0
           hitPhases:
-          - damage: 184
-            poiseDamage: 552
-            breakDamage: 197
+          - damage: 151
+            poiseDamage: 34
+            breakDamage: 22
             reactionType: 2
             reactionDuration: 0
             forceReaction: 0
@@ -595,9 +595,9 @@ MonoBehaviour:
           animKey: 501
           attackType: 0
           hitPhases:
-          - damage: 171
-            poiseDamage: 513
-            breakDamage: 184
+          - damage: 141
+            poiseDamage: 34
+            breakDamage: 22
             reactionType: 2
             reactionDuration: 0
             forceReaction: 0
@@ -617,7 +617,7 @@ MonoBehaviour:
       condition:
         groundCondition: 0
         minSkillGauge: 0
-        requiresFullSkillGauge: 0
+        requiresFullSkillGauge: 1
         requiredTagIds: 
         blockedTagIds: 
       priority: 0
@@ -628,9 +628,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 99
-        poiseDamage: 297
-        breakDamage: 142
+      - damage: 48
+        poiseDamage: 33
+        breakDamage: 22
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -645,9 +645,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 99
-        poiseDamage: 297
-        breakDamage: 142
+      - damage: 60
+        poiseDamage: 42
+        breakDamage: 28
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -693,9 +693,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 67
-        poiseDamage: 201
-        breakDamage: 93
+      - damage: 55
+        poiseDamage: 24
+        breakDamage: 16
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -741,9 +741,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 91
-        poiseDamage: 273
-        breakDamage: 87
+      - damage: 75
+        poiseDamage: 33
+        breakDamage: 22
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -758,9 +758,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 103
-        poiseDamage: 309
-        breakDamage: 98
+      - damage: 84
+        poiseDamage: 38
+        breakDamage: 25
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -775,9 +775,9 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 114
-        poiseDamage: 342
-        breakDamage: 109
+      - damage: 94
+        poiseDamage: 42
+        breakDamage: 28
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -797,7 +797,7 @@ MonoBehaviour:
   chargeAnimKey: 0
   chargeStages: []
   chargeStageThresholds: []
-  chargeInterruptActions: 1
+  chargeInterruptActions: 5
   fullChargeVfxKey: 
   fullChargeVfxSocket: 3
   fullChargeVfxOffset: {x: 0, y: 0, z: 0}

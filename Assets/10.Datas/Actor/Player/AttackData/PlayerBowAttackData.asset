@@ -419,7 +419,7 @@ MonoBehaviour:
       condition:
         groundCondition: 0
         minSkillGauge: 0
-        requiresFullSkillGauge: 0
+        requiresFullSkillGauge: 1
         requiredTagIds: 
         blockedTagIds: 
       priority: 0
@@ -430,9 +430,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 95
-        poiseDamage: 285
-        breakDamage: 135
+      - damage: 56
+        poiseDamage: 38
+        breakDamage: 25
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -478,9 +478,9 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 65
-        poiseDamage: 195
-        breakDamage: 90
+      - damage: 35
+        poiseDamage: 24
+        breakDamage: 16
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -548,7 +548,7 @@ MonoBehaviour:
   chargeAnimKey: 0
   chargeStages: []
   chargeStageThresholds: []
-  chargeInterruptActions: 1
+  chargeInterruptActions: 5
   fullChargeVfxKey: 
   fullChargeVfxSocket: 3
   fullChargeVfxOffset: {x: 0, y: 0, z: 0}

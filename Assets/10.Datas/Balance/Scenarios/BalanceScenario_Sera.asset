@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCharacter: 6
   playerStatData: {fileID: 11400000, guid: 6f15447ef3e9a6740b96cbbb3104e3a3, type: 2}
-  playerAttackData: {fileID: 11400000, guid: 17f08f7384b34f14a8c067e642d33cd9, type: 2}
+  playerAttackData: {fileID: 11400000, guid: 122ae85ea6fe258438aee0c83e8b64a2, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1
   manualPlayerDps: 45

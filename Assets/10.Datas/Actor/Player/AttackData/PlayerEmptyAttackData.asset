@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ca6adfe2df4528878db6179dfbad52, type: 3}
+  m_Name: PlayerEmptyAttackData
+  m_EditorClassIdentifier: 
+  liteComboAttackList: []
+  heavyComboAttackList: []
+  jumpAttackList: []
+  dashAttackList: []
+  skillAttackList: []
+  skillDefinitions: []
+  comboRoutes: []
+  comboLinkWindow: 1
+  counterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  parryCounterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  entryAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  swapEvadeCounterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  swapSpecialAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  chargeAnimKey: 0
+  chargeStages: []
+  chargeStageThresholds: []
+  chargeInterruptActions: 1
+  fullChargeVfxKey: 
+  fullChargeVfxSocket: 3
+  fullChargeVfxOffset: {x: 0, y: 0, z: 0}

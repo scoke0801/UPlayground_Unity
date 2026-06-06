@@ -33,9 +33,6 @@ MonoBehaviour:
         startTime: 0.275
         endTime: 0.38922822
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0
     - rid: 5351032095892570112
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
@@ -43,7 +40,4 @@ MonoBehaviour:
         startTime: 1.0256109
         endTime: 1.1398392
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
-        hitPhaseIndex: 0
+        hitPhaseIndex: 1

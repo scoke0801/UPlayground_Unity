@@ -43,25 +43,25 @@ MonoBehaviour:
         startTime: 0.873525
         endTime: 0.97185636
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 1
     - rid: 7432452549191925893
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.98088497
         endTime: 1.1717818
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 2
     - rid: 7432452549191925894
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.1701877
         endTime: 1.268519
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 3
     - rid: 7432452549191925895
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.3021305
         endTime: 1.4004618
         globalStartTimeOffset: 0
-        hitPhaseIndex: 0
+        hitPhaseIndex: 4

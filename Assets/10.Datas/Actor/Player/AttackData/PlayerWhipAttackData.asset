@@ -1,0 +1,1532 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ca6adfe2df4528878db6179dfbad52, type: 3}
+  m_Name: PlayerWhipAttackData
+  m_EditorClassIdentifier: 
+  liteComboAttackList:
+  - baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 54
+        poiseDamage: 162
+        breakDamage: 54
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  - baseInfo:
+      animKey: 101
+      attackType: 0
+      hitPhases:
+      - damage: 58
+        poiseDamage: 174
+        breakDamage: 58
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  - baseInfo:
+      animKey: 102
+      attackType: 0
+      hitPhases:
+      - damage: 66
+        poiseDamage: 198
+        breakDamage: 66
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  - baseInfo:
+      animKey: 103
+      attackType: 0
+      hitPhases:
+      - damage: 72
+        poiseDamage: 216
+        breakDamage: 72
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  - baseInfo:
+      animKey: 104
+      attackType: 0
+      hitPhases:
+      - damage: 72
+        poiseDamage: 216
+        breakDamage: 72
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  - baseInfo:
+      animKey: 105
+      attackType: 0
+      hitPhases:
+      - damage: 76
+        poiseDamage: 228
+        breakDamage: 76
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 111
+    hitAngle: 60
+  heavyComboAttackList:
+  - baseInfo:
+      animKey: 200
+      attackType: 0
+      hitPhases:
+      - damage: 29
+        poiseDamage: 87
+        breakDamage: 29
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 31
+        poiseDamage: 93
+        breakDamage: 30
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 32
+        poiseDamage: 96
+        breakDamage: 32
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 34
+        poiseDamage: 102
+        breakDamage: 33
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 35
+        poiseDamage: 105
+        breakDamage: 35
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 37
+        poiseDamage: 111
+        breakDamage: 36
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 93
+    hitAngle: 60
+  - baseInfo:
+      animKey: 201
+      attackType: 0
+      hitPhases:
+      - damage: 46
+        poiseDamage: 138
+        breakDamage: 48
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 51
+        poiseDamage: 153
+        breakDamage: 54
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 57
+        poiseDamage: 171
+        breakDamage: 60
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 93
+    hitAngle: 60
+  - baseInfo:
+      animKey: 202
+      attackType: 0
+      hitPhases:
+      - damage: 40
+        poiseDamage: 120
+        breakDamage: 40
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 43
+        poiseDamage: 129
+        breakDamage: 43
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 45
+        poiseDamage: 135
+        breakDamage: 45
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 48
+        poiseDamage: 144
+        breakDamage: 48
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 50
+        poiseDamage: 150
+        breakDamage: 50
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 93
+    hitAngle: 60
+  - baseInfo:
+      animKey: 203
+      attackType: 0
+      hitPhases:
+      - damage: 44
+        poiseDamage: 132
+        breakDamage: 45
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 47
+        poiseDamage: 141
+        breakDamage: 48
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 51
+        poiseDamage: 153
+        breakDamage: 52
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 54
+        poiseDamage: 162
+        breakDamage: 56
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 93
+    hitAngle: 60
+  - baseInfo:
+      animKey: 204
+      attackType: 0
+      hitPhases:
+      - damage: 45
+        poiseDamage: 135
+        breakDamage: 44
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 47
+        poiseDamage: 141
+        breakDamage: 46
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 50
+        poiseDamage: 150
+        breakDamage: 49
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 52
+        poiseDamage: 156
+        breakDamage: 51
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 54
+        poiseDamage: 162
+        breakDamage: 53
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 56
+        poiseDamage: 168
+        breakDamage: 55
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 93
+    hitAngle: 60
+  jumpAttackList: []
+  dashAttackList: []
+  skillAttackList:
+  - baseInfo:
+      animKey: 500
+      attackType: 0
+      hitPhases:
+      - damage: 42
+        poiseDamage: 126
+        breakDamage: 39
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 45
+        poiseDamage: 135
+        breakDamage: 42
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 48
+        poiseDamage: 144
+        breakDamage: 44
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 50
+        poiseDamage: 150
+        breakDamage: 47
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 53
+        poiseDamage: 159
+        breakDamage: 49
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 61
+    hitAngle: 60
+  - baseInfo:
+      animKey: 501
+      attackType: 0
+      hitPhases:
+      - damage: 43
+        poiseDamage: 129
+        breakDamage: 38
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 45
+        poiseDamage: 135
+        breakDamage: 40
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 46
+        poiseDamage: 138
+        breakDamage: 41
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 48
+        poiseDamage: 144
+        breakDamage: 43
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 50
+        poiseDamage: 150
+        breakDamage: 44
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 52
+        poiseDamage: 156
+        breakDamage: 46
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 54
+        poiseDamage: 162
+        breakDamage: 47
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 61
+    hitAngle: 60
+  - baseInfo:
+      animKey: 502
+      attackType: 0
+      hitPhases:
+      - damage: 53
+        poiseDamage: 159
+        breakDamage: 49
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 57
+        poiseDamage: 171
+        breakDamage: 52
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 60
+        poiseDamage: 180
+        breakDamage: 55
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 63
+        poiseDamage: 189
+        breakDamage: 58
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 67
+        poiseDamage: 201
+        breakDamage: 61
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 61
+    hitAngle: 60
+  skillDefinitions:
+  - slot: 0
+    displayName: Ability
+    costPolicy: 1
+    cooldownPolicy: 0
+    variants:
+    - variantName: Default
+      animKey: 500
+      attackInfo:
+        baseInfo:
+          animKey: 500
+          attackType: 0
+          hitPhases:
+          - damage: 42
+            poiseDamage: 126
+            breakDamage: 39
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 45
+            poiseDamage: 135
+            breakDamage: 42
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 48
+            poiseDamage: 144
+            breakDamage: 44
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 50
+            poiseDamage: 150
+            breakDamage: 47
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 53
+            poiseDamage: 159
+            breakDamage: 49
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+        interruptActions: 61
+        hitAngle: 60
+      condition:
+        groundCondition: 0
+        minSkillGauge: 0
+        requiresFullSkillGauge: 0
+        requiredTagIds: 
+        blockedTagIds: 
+      priority: 0
+    - variantName: Skill_3
+      animKey: 502
+      attackInfo:
+        baseInfo:
+          animKey: 502
+          attackType: 0
+          hitPhases:
+          - damage: 53
+            poiseDamage: 159
+            breakDamage: 49
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 57
+            poiseDamage: 171
+            breakDamage: 52
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 60
+            poiseDamage: 180
+            breakDamage: 55
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 63
+            poiseDamage: 189
+            breakDamage: 58
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 67
+            poiseDamage: 201
+            breakDamage: 61
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+        interruptActions: 61
+        hitAngle: 60
+      condition:
+        groundCondition: 0
+        minSkillGauge: 0
+        requiresFullSkillGauge: 0
+        requiredTagIds: 
+        blockedTagIds: 
+      priority: 2
+  - slot: 1
+    displayName: Ultimate
+    costPolicy: 0
+    cooldownPolicy: 0
+    variants:
+    - variantName: Default
+      animKey: 501
+      attackInfo:
+        baseInfo:
+          animKey: 501
+          attackType: 0
+          hitPhases:
+          - damage: 43
+            poiseDamage: 129
+            breakDamage: 38
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 45
+            poiseDamage: 135
+            breakDamage: 40
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 46
+            poiseDamage: 138
+            breakDamage: 41
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 48
+            poiseDamage: 144
+            breakDamage: 43
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 50
+            poiseDamage: 150
+            breakDamage: 44
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 52
+            poiseDamage: 156
+            breakDamage: 46
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+          - damage: 54
+            poiseDamage: 162
+            breakDamage: 47
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+        interruptActions: 61
+        hitAngle: 60
+      condition:
+        groundCondition: 0
+        minSkillGauge: 0
+        requiresFullSkillGauge: 0
+        requiredTagIds: 
+        blockedTagIds: 
+      priority: 0
+  comboRoutes: []
+  comboLinkWindow: 1
+  counterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 95
+        poiseDamage: 285
+        breakDamage: 135
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  parryCounterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  entryAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 62
+        poiseDamage: 186
+        breakDamage: 86
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  swapEvadeCounterAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  swapSpecialAttack:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 53
+        poiseDamage: 159
+        breakDamage: 47
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 56
+        poiseDamage: 168
+        breakDamage: 50
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 59
+        poiseDamage: 177
+        breakDamage: 53
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 62
+        poiseDamage: 186
+        breakDamage: 56
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 66
+        poiseDamage: 198
+        breakDamage: 59
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+    interruptActions: 0
+    hitAngle: 60
+  chargeAnimKey: 0
+  chargeStages: []
+  chargeStageThresholds: []
+  chargeInterruptActions: 1
+  fullChargeVfxKey: 
+  fullChargeVfxSocket: 3
+  fullChargeVfxOffset: {x: 0, y: 0, z: 0}

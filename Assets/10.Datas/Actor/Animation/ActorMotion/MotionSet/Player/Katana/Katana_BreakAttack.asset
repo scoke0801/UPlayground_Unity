@@ -16,12 +16,13 @@ MonoBehaviour:
     motionSetName: 
     motions:
     - motionName: 
-      motionClip: {fileID: 693916193582973686, guid: 08206af8ba866db4ca840040dde886d3, type: 3}
+      motionClip: {fileID: 7400000, guid: 91bcf49fca0c5134abd1da000aa58039, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 889909665029423236
+      - rid: 889909689146671288
     globalEvents: []
   references:
     version: 2
@@ -29,6 +30,44 @@ MonoBehaviour:
     - rid: 889909665029423236
       type: {class: SpecialBreakAttackEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.8323376
-        endTime: 1.3323376
+        startTime: 0.9007864
+        endTime: 1.4007864
         globalStartTimeOffset: 0
+    - rid: 889909689146671288
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.8870967
+        globalStartTimeOffset: 0
+        preset: 3
+        modifierType: 3
+        targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
+        translationWeight: 1
+        rotationWeight: 1
+        ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        overrideDistance: 0
+        minDistance: 0.3
+        maxDistance: 4
+        maxSpeed: 18
+        targetOffset: {x: 0, y: 0, z: 0}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 1
+        bakedLocalTotal: {x: -0.16002388, y: 0, z: 1.0471069}
+        bakedPathLen: 2.50513

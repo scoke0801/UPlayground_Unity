@@ -64,6 +64,9 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         amplifyMaxSpeed: 25
+        bakedValid: 1
+        bakedLocalTotal: {x: 0.1095394, y: 0, z: 0.70905304}
+        bakedPathLen: 0.79359186
     - rid: 7432452544598638606
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

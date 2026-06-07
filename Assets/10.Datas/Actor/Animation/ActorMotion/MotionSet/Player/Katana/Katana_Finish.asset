@@ -50,6 +50,7 @@ MonoBehaviour:
         effectDataList:
         - {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
         lockCameraInput: 0
+        ignoreWhenEnemy: 1
     - rid: 7399917265539825789
       type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -59,6 +60,7 @@ MonoBehaviour:
         effectDataList:
         - {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
         lockCameraInput: 0
+        ignoreWhenEnemy: 1
     - rid: 7399917266253643776
       type: {class: FinishAttackEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

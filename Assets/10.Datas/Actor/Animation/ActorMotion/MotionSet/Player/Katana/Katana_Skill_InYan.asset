@@ -109,9 +109,6 @@ MonoBehaviour:
         startTime: 1.875
         endTime: 1.9396745
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0
     - rid: 5792125102988197893
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
@@ -119,9 +116,6 @@ MonoBehaviour:
         startTime: 2.074008
         endTime: 2.165163
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 1
     - rid: 5792125102988197894
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
@@ -129,9 +123,6 @@ MonoBehaviour:
         startTime: 2.2755084
         endTime: 2.371461
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 2
     - rid: 5792125102988197895
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
@@ -139,9 +130,6 @@ MonoBehaviour:
         startTime: 3.220641
         endTime: 3.3665934
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 3
     - rid: 5792125102988197896
       type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
@@ -155,6 +143,14 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 20
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
         targetHitLayer:
@@ -173,6 +169,14 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 20
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
         targetHitLayer:
@@ -191,6 +195,14 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 20
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
         targetHitLayer:
@@ -209,6 +221,14 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 20
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
         targetHitLayer:
@@ -240,6 +260,7 @@ MonoBehaviour:
         - {fileID: 11400000, guid: 9158df7728ef2c04e9dbd02249f365ac, type: 2}
         - {fileID: 11400000, guid: 29d6e75b485771a43b316bbae267959e, type: 2}
         lockCameraInput: 1
+        ignoreWhenEnemy: 1
     - rid: 5792125172764901500
       type: {class: CameraLookAtSocketEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

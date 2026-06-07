@@ -25,10 +25,49 @@ MonoBehaviour:
       - rid: 7399917265539825788
       - rid: 7399917265539825789
       - rid: 7399917266253643776
+      - rid: 889909689146671295
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909689146671295
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.5
+        globalStartTimeOffset: 0
+        preset: 0
+        modifierType: 3
+        targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
+        translationWeight: 1
+        rotationWeight: 1
+        ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        overrideDistance: 0
+        minDistance: 0.3
+        maxDistance: 4
+        maxSpeed: 18
+        targetOffset: {x: 0, y: 0, z: 0}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 1
+        bakedLocalTotal: {x: -0.022348188, y: 0, z: -0.10505776}
+        bakedPathLen: 0.24224482
     - rid: 7399917265539825775
       type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -50,6 +89,7 @@ MonoBehaviour:
         effectDataList:
         - {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
         lockCameraInput: 0
+        ignoreWhenEnemy: 1
     - rid: 7399917265539825789
       type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -59,6 +99,7 @@ MonoBehaviour:
         effectDataList:
         - {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
         lockCameraInput: 0
+        ignoreWhenEnemy: 1
     - rid: 7399917266253643776
       type: {class: FinishAttackEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

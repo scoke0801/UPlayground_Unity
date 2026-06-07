@@ -33,21 +33,28 @@ MonoBehaviour:
       data:
         startTime: 1.2278562
         endTime: 1.5125
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
+        globalStartTimeOffset: 0
         hitPhaseIndex: 0
     - rid: 7399917165060554909
       type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 1.2724783
         endTime: 2.0724785
+        globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
         spawnPointName: VFX_Pivot
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
         targetHitLayer:
@@ -59,6 +66,7 @@ MonoBehaviour:
       data:
         startTime: 1.2788686
         endTime: 1.7725055
+        globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
         offset: {x: 0.5, y: 1, z: 1.5}

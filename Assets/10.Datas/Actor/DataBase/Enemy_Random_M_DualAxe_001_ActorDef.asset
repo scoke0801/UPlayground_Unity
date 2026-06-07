@@ -26,7 +26,7 @@ MonoBehaviour:
   breakGaugeData: {fileID: 11400000, guid: b59eedc3a5438be4aa977183373dabce, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 0
-  level: 1
+  level: 3
   attackData: {fileID: 11400000, guid: 64ab40e1f63f7ba4e8d3ddad48f2febe, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 28960edf4610ea44e8ce8df399f1b677, type: 2}
   combatReactionPolicy: {fileID: 0}

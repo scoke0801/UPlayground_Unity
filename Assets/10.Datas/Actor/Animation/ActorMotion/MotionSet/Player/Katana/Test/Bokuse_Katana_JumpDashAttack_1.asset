@@ -32,7 +32,4 @@ MonoBehaviour:
         startTime: 0.47499996
         endTime: 0.9375
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0

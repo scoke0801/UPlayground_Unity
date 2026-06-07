@@ -1089,6 +1089,17 @@
                     "action": "MenuPanel",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "be2523ae-a42b-4a3f-81a7-d27a5948d9b8",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

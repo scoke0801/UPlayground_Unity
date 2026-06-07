@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.CameraSystem;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.UI;
 using UPlayGround.Manager;
 
@@ -15,7 +16,7 @@ namespace UPlayGround.UI
     /// 트리거(2단계 면):
     ///   1면 인식   : monster.Detection.HasTarget && CurrentTarget == 현재 플레이어
     ///   2면 오프스크린: WorldToViewportPoint z가 0 이하(카메라 뒤) 또는 x/y가 0~1 밖
-    ///   등급 분기  : ActorController.CurrentState.StateName == "Attack" → 공격 임박(강조), 그 외 → 인식만(보조)
+    ///   등급 분기  : 인식만(흰색), 일반 공격(노랑), 강한 공격(빨강)
     ///
     /// 표시: 화면 중앙 기준 가상 원형 테두리(Config.ringRadius) 위에 적 방향을 가리키는 화살표를 배치한다.
     /// 1차 범위: 프러스텀 밖 판정만. 시야 내 가려짐(occlusion)·클러스터링·SFX는 future work.
@@ -162,8 +163,10 @@ namespace UPlayGround.UI
             float screenH      = Screen.height;
             bool  showDetected = _config.showDetectedOnly;
             Color attackColor   = _config.attackImminentColor;
+            Color strongColor   = _config.strongAttackColor;
             Color detectedColor = _config.detectedColor;
             float attackScale   = _config.attackImminentScale;
+            float strongScale   = _config.strongAttackScale;
             float detectedScale = _config.detectedScale;
             float pulseSpeed    = _config.pulseSpeed;
             float pulseAmount   = _config.pulseAmount;
@@ -201,10 +204,14 @@ namespace UPlayGround.UI
                     && viewport.y >= 0f && viewport.y <= 1f)
                     continue; // 화면 안 → 표시하지 않음
 
-                // 등급 판정 — 오프스크린 후보에 한해서만 상태를 조회한다.
+                // 등급 판정 — 오프스크린 후보에 한해서만 상태/스킬을 조회한다.
                 bool attackImminent = monster.ActorController?.CurrentState?.StateName == AttackStateName;
                 if (!attackImminent && !showDetected)
                     continue;
+
+                bool strongAttack = attackImminent && IsStrongAttack(monster);
+                Color markerColor = strongAttack ? strongColor : attackImminent ? attackColor : detectedColor;
+                float markerScale = strongAttack ? strongScale : attackImminent ? attackScale : detectedScale;
 
                 // 가상 원형 테두리 위 배치 — 뷰포트 델타를 화면 비율로 환산해 방향각만 구한다.
                 // (두 번째 투영/RectTransform 변환 없이 뷰포트 결과를 재사용)
@@ -223,8 +230,8 @@ namespace UPlayGround.UI
                 UIOffscreenThreatMarker marker = GetMarker(used++);
                 marker.SetActiveMarker(true);
                 marker.Apply(anchored, angleDeg,
-                    attackImminent ? attackColor : detectedColor,
-                    attackImminent ? attackScale : detectedScale,
+                    markerColor,
+                    markerScale,
                     attackImminent, pulseSpeed, pulseAmount);
             }
 
@@ -248,6 +255,16 @@ namespace UPlayGround.UI
         {
             for (int i = 0; i < _markerPool.Count; i++)
                 _markerPool[i].SetActiveMarker(false);
+        }
+
+        private static bool IsStrongAttack(MonsterActor monster)
+        {
+            var skill = monster?.Combat?.CurrentSkill;
+            if (skill == null)
+                return false;
+
+            return skill.useDangerRing
+                   || skill.attackCategory is EnemyAttackCategory.Heavy or EnemyAttackCategory.Skill;
         }
 
         #endregion

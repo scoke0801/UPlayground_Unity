@@ -20,14 +20,21 @@ namespace UPlayGround.Data.UI
         [Tooltip("마커 화살표 스프라이트의 기본 향하는 방향 보정각(도). 스프라이트가 오른쪽(+X)을 향하면 0, 위(+Y)를 향하면 -90.")]
         public float markerForwardAngleOffset = 0f;
 
-        [Header("등급: 공격 임박 (주 트리거)")]
-        [Tooltip("적이 Attack 상태일 때 마커 색상")]
-        public Color attackImminentColor = new Color(1f, 0.2f, 0.2f, 1f);
+        [Header("등급: 일반 공격")]
+        [Tooltip("적이 일반 Attack 상태일 때 마커 색상")]
+        public Color attackImminentColor = new Color(1f, 0.9f, 0.1f, 1f);
 
-        [Tooltip("공격 임박 마커 크기 배율")]
+        [Tooltip("일반 공격 마커 크기 배율")]
         public float attackImminentScale = 1.2f;
 
-        [Tooltip("공격 임박 펄스 속도(회/초)")]
+        [Header("등급: 강한 공격")]
+        [Tooltip("적이 강한 공격을 사용할 때 마커 색상")]
+        public Color strongAttackColor = new Color(1f, 0.2f, 0.2f, 1f);
+
+        [Tooltip("강한 공격 마커 크기 배율")]
+        public float strongAttackScale = 1.35f;
+
+        [Tooltip("공격 중 마커 펄스 속도(회/초)")]
         public float pulseSpeed = 3f;
 
         [Tooltip("펄스 시 추가 크기 비율 (0.2 = 기준 크기의 ±20%)")]
@@ -39,7 +46,7 @@ namespace UPlayGround.Data.UI
         public bool showDetectedOnly = true;
 
         [Tooltip("인식만 한 적의 마커 색상")]
-        public Color detectedColor = new Color(1f, 0.6f, 0.1f, 0.7f);
+        public Color detectedColor = new Color(1f, 1f, 1f, 0.7f);
 
         [Tooltip("인식만 한 적의 마커 크기 배율")]
         public float detectedScale = 0.85f;

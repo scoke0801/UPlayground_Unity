@@ -69,6 +69,16 @@ namespace UPlayGround.UI.InputPrompt
         private bool _gaugeUiUnderAvailableRoot;
         private bool _cooldownUiUnderAvailableRoot;
 
+        /// <summary>
+        /// 게이지와 무관한 외부 쿨타임 소스(remaining, duration)를 샘플링한다. 예: 대시 쿨타임은
+        /// 이동 컨트롤러가 소유한다. null이면 게이지 슬롯(<see cref="GaugeSlot"/>)에서 쿨타임을 읽는다.
+        /// </summary>
+        public delegate void CooldownSample(out float remaining, out float duration);
+        private CooldownSample _cooldownSource;
+
+        /// <summary>외부 쿨타임 소스를 주입/해제한다. HUD가 슬롯 토큰에 맞는 소스를 배선한다.</summary>
+        public void SetCooldownSource(CooldownSample source) => _cooldownSource = source;
+
         /// <summary>런타임에서 HUD가 고정 슬롯을 보강할 때 사용한다.</summary>
         public void Configure(
             ComboInputToken token,
@@ -169,24 +179,39 @@ namespace UPlayGround.UI.InputPrompt
         /// </summary>
         public bool SetGaugeState(PlayerSkillGauge gauge)
         {
-            if (!RequiresGauge || gauge == null)
+            bool hasGauge = RequiresGauge && gauge != null;
+
+            // 쿨타임 소스 결정: 외부 소스(대시 등)가 있으면 우선, 없으면 게이지 슬롯에서 읽는다.
+            float cooldownRemaining = 0f;
+            float cooldownDuration  = 0f;
+            if (_cooldownSource != null)
+                _cooldownSource(out cooldownRemaining, out cooldownDuration);
+            else if (hasGauge)
+            {
+                cooldownRemaining = gauge.GetSkillCooldownRemaining(GaugeSlot);
+                cooldownDuration  = gauge.GetSkillCooldownDuration(GaugeSlot);
+            }
+
+            // 표시할 자원도 쿨타임 소스도 없는 슬롯(약/강 등)은 비활성 처리한다.
+            if (!hasGauge && _cooldownSource == null)
             {
                 SetGaugeState(true);
                 ClearGaugeState();
                 return false;
             }
 
-            float current = gauge.CurrentGauge;
-            float max = gauge.MaxGauge;
-            bool ready = gauge.CanUseSkill(GaugeSlot);
-            bool usesGaugeCost = PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
+            bool hasCooldown  = cooldownRemaining > 0f;
+            bool showCooldown = _showCooldownUi && hasCooldown;
+
+            // ── 게이지(자원) 표시: 게이지 슬롯일 때만 유효. 외부 쿨타임 전용 슬롯은 0 처리. ──
+            float current = hasGauge ? gauge.CurrentGauge : 0f;
+            float max     = hasGauge ? gauge.MaxGauge : 0f;
+            bool usesGaugeCost = hasGauge && PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
             bool showGauge = _showGaugeUi && usesGaugeCost;
             float gaugeRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
             bool isFullGauge = max > 0f && current >= max;
-            float cooldownRemaining = gauge.GetSkillCooldownRemaining(GaugeSlot);
-            float cooldownDuration = gauge.GetSkillCooldownDuration(GaugeSlot);
-            bool hasCooldown = cooldownRemaining > 0f;
-            bool showCooldown = _showCooldownUi && hasCooldown;
+            // 게이지 슬롯은 게이지 충족, 외부 쿨타임 전용 슬롯은 쿨타임이 없을 때 사용 가능.
+            bool ready = hasGauge ? gauge.CanUseSkill(GaugeSlot) : !hasCooldown;
 
             SetGaugeState(ready);
 
@@ -283,7 +308,7 @@ namespace UPlayGround.UI.InputPrompt
 
             if (_cooldownFill != null)
             {
-                _cooldownFill.gameObject.SetActive(_showCooldownUi && RequiresGauge);
+                _cooldownFill.gameObject.SetActive(_showCooldownUi && (RequiresGauge || _cooldownSource != null));
                 _cooldownFill.fillAmount = 0f;
             }
 

@@ -15,10 +15,12 @@ MonoBehaviour:
   maxDistance: 20
   ringRadius: 550
   markerForwardAngleOffset: 0
-  attackImminentColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  attackImminentColor: {r: 1, g: 0.9, b: 0.1, a: 1}
   attackImminentScale: 1.2
+  strongAttackColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  strongAttackScale: 1.35
   pulseSpeed: 3
   pulseAmount: 0.2
   showDetectedOnly: 1
-  detectedColor: {r: 1, g: 0.99198014, b: 0.10196078, a: 0.7}
+  detectedColor: {r: 1, g: 1, b: 1, a: 0.7}
   detectedScale: 0.85

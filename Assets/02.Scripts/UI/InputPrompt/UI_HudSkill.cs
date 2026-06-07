@@ -6,6 +6,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.UI.InputPrompt
 {
@@ -35,6 +36,7 @@ namespace UPlayGround.UI.InputPrompt
         private PlayerActor      _player;
         private PlayerCombat     _combat;
         private PlayerSkillGauge _gauge;
+        private PlayerMovementController _movement; // 대시 쿨타임 소스(이동 컨트롤러 소유)
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시
 
         private PartyManager _partyManager;
@@ -94,10 +96,14 @@ namespace UPlayGround.UI.InputPrompt
                 _gauge.OnGaugeChanged -= OnGaugeChanged;
                 _gauge.OnCooldownChanged -= OnSkillCooldownChanged;
             }
+            // 이전 대시 쿨타임 구독 해제
+            if (_movement != null)
+                _movement.OnDashCooldownChanged -= OnDashCooldownChanged;
 
             _player         = player;
             _combat         = player != null ? player.GetCombat() : null;
             _gauge          = player != null ? player.SkillGauge  : null;
+            _movement       = player != null ? player.PlayerController : null;
             _resourceFilter = _combat != null ? _combat.CanAffordRoute : null;
             _lastSignature  = NoSignature; // 콤보 힌트 강제 재계산
 
@@ -105,6 +111,11 @@ namespace UPlayGround.UI.InputPrompt
             EnsureSlotsBound();
             for (int i = 0; i < _slots.Count; i++)
                 _slots[i]?.Initialize();
+
+            // 대시 슬롯의 쿨타임 소스를 이동 컨트롤러에 배선(게이지와 무관).
+            WireDashCooldownSource();
+            if (_movement != null)
+                _movement.OnDashCooldownChanged += OnDashCooldownChanged;
 
             if (_gauge != null)
             {
@@ -134,6 +145,38 @@ namespace UPlayGround.UI.InputPrompt
             _lastSignature = NoSignature;
         }
 
+        // 대시 쿨타임 시작/종료 트리거. 진행 중 잔여 시간은 Update의 _hasVisibleCooldown 폴링이 채운다.
+        private void OnDashCooldownChanged(float remaining, float duration)
+        {
+            ApplyGaugeStates();
+            _lastSignature = NoSignature;
+        }
+
+        // 대시 슬롯을 찾아 이동 컨트롤러의 쿨타임을 소스로 배선한다(플레이어 없으면 해제).
+        private void WireDashCooldownSource()
+        {
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                var slot = _slots[i];
+                if (slot == null || slot.Token != ComboInputToken.Dash) continue;
+                slot.SetCooldownSource(_movement != null ? SampleDashCooldown : null);
+            }
+        }
+
+        private void SampleDashCooldown(out float remaining, out float duration)
+        {
+            if (_movement != null)
+            {
+                remaining = _movement.DashCooldownRemaining;
+                duration  = _movement.DashCooldownDuration;
+            }
+            else
+            {
+                remaining = 0f;
+                duration  = 0f;
+            }
+        }
+
         private void ApplyGaugeStates()
         {
             _hasVisibleCooldown = false;
@@ -150,10 +193,13 @@ namespace UPlayGround.UI.InputPrompt
         protected override void Update()
         {
             base.Update();
-            if (!IsVisible || _player == null || _combat == null) return;
+            if (!IsVisible || _player == null) return;
 
+            // 쿨타임 잔여 시간 폴링은 전투와 무관(대시는 이동 기능)하므로 _combat 게이트 앞에서 처리한다.
             if (_hasVisibleCooldown)
                 ApplyGaugeStates();
+
+            if (_combat == null) return;
 
             var window  = _player.ComboInputTracker.GetWindow();
             bool grounded = IsGrounded();
@@ -235,9 +281,9 @@ namespace UPlayGround.UI.InputPrompt
                 ComboInputToken.Dash,
                 _dashIcon,
                 inputActionOverride: null,
-                useGaugeFeature: false,
+                useGaugeFeature: false,  // 대시는 게이지 비용이 없다(자원 UI 없음).
                 showGaugeUi: false,
-                showCooldownUi: false);
+                showCooldownUi: true);   // 쿨타임은 이동 컨트롤러 소스로 표시한다.
 
             int index = Mathf.Clamp(_dashSlotIndex, 0, _slots.Count);
             dashSlot.transform.SetSiblingIndex(index);

@@ -129,13 +129,19 @@ namespace UPlayGround.Component
             for (int i = 0; i < _trails.Count; i++)
             {
                 var trail = _trails[i];
-                if (immediate)
-                {
-                    StopTrailImmediate(trail);
-                    continue;
-                }
 
-                StopTrailIfAvailable(trail);
+                // 한 트레일 정지에서 예외가 나도 나머지(특히 활성 모델 트레일) 정지를 막지 않는다.
+                try
+                {
+                    if (immediate)
+                        StopTrailImmediate(trail);
+                    else
+                        StopTrailIfAvailable(trail);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"[ActorWeaponTrailController] 트레일 정지 실패 trail={(trail != null ? trail.name : "null")}, owner={name}: {e}");
+                }
             }
         }
 
@@ -213,6 +219,16 @@ namespace UPlayGround.Component
         {
             if (trail == null || trail.vfxComponent == null) return;
 
+            // 비활성 GameObject(파티 교체로 SetActive(false)된 다른 캐릭터 모델)에서는
+            // StopTrail 내부의 StartCoroutine이 예외를 던져 정지 루프 전체를 중단시킨다.
+            // 그 결과 활성 모델의 트레일이 멈추지 않고 계속 출력되므로, 비활성 트레일은
+            // 코루틴 없이 VFX 속성을 직접 꺼서 정리한다.
+            if (!trail.isActiveAndEnabled)
+            {
+                ForceStopTrailProperties(trail);
+                return;
+            }
+
             trail.StopTrail(0f);
         }
 
@@ -220,7 +236,23 @@ namespace UPlayGround.Component
         {
             if (trail == null || trail.vfxComponent == null) return;
 
+            // StopTrailImmediate와 동일한 이유로 비활성 트레일은 코루틴을 거치지 않는다.
+            if (!trail.isActiveAndEnabled)
+            {
+                ForceStopTrailProperties(trail);
+                return;
+            }
+
             trail.StopTrail(DefaultFadeOutDuration);
+        }
+
+        private static void ForceStopTrailProperties(WeaponTrailEffect trail)
+        {
+            if (trail == null || trail.vfxComponent == null) return;
+
+            trail.SetProperty_EffectActive(false);
+            trail.SetProperty_EffectAlive(0f);
+            trail.SendStopEvent();
         }
 
         private void TryInstantiateTrailPrefab(WeaponTrailEffect trail)

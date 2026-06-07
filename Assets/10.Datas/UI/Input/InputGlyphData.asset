@@ -94,6 +94,10 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
   - controlPath: rightStick/left
     sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
+  - controlPath: select
+    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
+  - controlPath: Share
+    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
   _xboxGlyphs: []
   _playStationGlyphs:
   - controlPath: buttonSouth
@@ -128,4 +132,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 47f079ec05b811342921829aea2d547c, type: 3}
   - controlPath: rightStick/left
     sprite: {fileID: 21300000, guid: 5c2fc93b769623a488abfd06af4026a9, type: 3}
+  - controlPath: select
+    sprite: {fileID: 21300000, guid: eae8eaddc2a7f1a479becd15bccdaf2b, type: 3}
+  - controlPath: Share
+    sprite: {fileID: 21300000, guid: eae8eaddc2a7f1a479becd15bccdaf2b, type: 3}
   _switchGlyphs: []

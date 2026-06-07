@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using KinematicCharacterController;
 using UnityEngine;
@@ -86,8 +87,23 @@ namespace UPlayGround.MovementController
         
         public bool IsDashReady => _dashCooldownTimer <= 0f;
 
-        public void StartDashCooldown() => _dashCooldownTimer = _dashCooldown;
-        
+        /// <summary>대시 쿨타임 잔여 시간(초). 0이면 사용 가능. UI 쿨타임 표시용.</summary>
+        public float DashCooldownRemaining => Mathf.Max(0f, _dashCooldownTimer);
+        /// <summary>대시 쿨타임 전체 길이(초). UI fill 비율 계산용.</summary>
+        public float DashCooldownDuration => _dashCooldown;
+
+        /// <summary>
+        /// 대시 쿨타임 시작/종료 통지 (remaining, duration). 대시 쿨타임은 이 컨트롤러가 소유하므로
+        /// UI는 이 이벤트로 표시 시작/종료 트리거를 받고, 진행 중 잔여 시간은 매 프레임 폴링한다.
+        /// </summary>
+        public event Action<float, float> OnDashCooldownChanged;
+
+        public void StartDashCooldown()
+        {
+            _dashCooldownTimer = _dashCooldown;
+            OnDashCooldownChanged?.Invoke(_dashCooldown, _dashCooldown);
+        }
+
         protected override void Start() 
         {
             base.Start();
@@ -100,7 +116,14 @@ namespace UPlayGround.MovementController
             base.Update();
             
             if (_dashCooldownTimer > 0f)
+            {
                 _dashCooldownTimer -= Time.deltaTime;
+                if (_dashCooldownTimer <= 0f)
+                {
+                    _dashCooldownTimer = 0f;
+                    OnDashCooldownChanged?.Invoke(0f, _dashCooldown); // 종료 통지(표시 끄기 트리거)
+                }
+            }
         }
 
         public void ClearInputAll()

@@ -330,6 +330,7 @@ Assets/
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](Complete/ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [MOTION_EVENT_ROLE_GUIDE.md](guide/MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
 | [COMBAT_SYSTEM_GUIDE.md](guide/COMBAT_SYSTEM_GUIDE.md) | 전투 시스템 — PlayerCombat/EnemyCombat, 공격 데이터, 판정, 피해 적용, 가드·패리·Poise·Break 흐름 |
+| [ATTACK_CANCEL_SYSTEM_GUIDE.md](ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
 | [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](Complete/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
 | [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](TODO/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |
 | [ENEMY_LOCOMOTION_GUIDE.md](Complete/ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
@@ -410,7 +411,7 @@ Assets/
 ## 🚀 개발 환경
 
 - **Unity** 6 (6000.0.60f1) — URP
-- **Target Frame Rate** 60fps (Application.targetFrameRate = 60)
+- **Frame Timing** VSync 우선 (QualitySettings.vSyncCount = 1, Application.targetFrameRate = -1)
 - **KCC AutoSimulation** KCCSimulator 컴포넌트로 제어
 - **빌드 / 테스트** Unity 에디터에서 직접 실행. 자동화 테스트 스위트 없음.
 - **언어** C#. 주석 / 커밋 / 문서 모두 한국어.

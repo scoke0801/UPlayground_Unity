@@ -17,7 +17,7 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 8
+      - damage: 7
         poiseDamage: 24
         breakDamage: 0
         reactionType: 2
@@ -63,7 +63,7 @@ MonoBehaviour:
       animKey: 101
       attackType: 0
       hitPhases:
-      - damage: 9
+      - damage: 8
         poiseDamage: 27
         breakDamage: 0
         reactionType: 2
@@ -109,7 +109,7 @@ MonoBehaviour:
       animKey: 102
       attackType: 0
       hitPhases:
-      - damage: 9
+      - damage: 8
         poiseDamage: 27
         breakDamage: 0
         reactionType: 2
@@ -155,7 +155,7 @@ MonoBehaviour:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 6
+      - damage: 5
         poiseDamage: 18
         breakDamage: 0
         reactionType: 2
@@ -172,7 +172,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 7
+      - damage: 6
         poiseDamage: 21
         breakDamage: 0
         reactionType: 2
@@ -218,7 +218,7 @@ MonoBehaviour:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 6
+      - damage: 5
         poiseDamage: 18
         breakDamage: 0
         reactionType: 2
@@ -235,7 +235,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 7
+      - damage: 6
         poiseDamage: 21
         breakDamage: 0
         reactionType: 2
@@ -281,7 +281,7 @@ MonoBehaviour:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -327,7 +327,7 @@ MonoBehaviour:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 7
+      - damage: 6
         poiseDamage: 21
         breakDamage: 0
         reactionType: 2
@@ -344,7 +344,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 8
+      - damage: 7
         poiseDamage: 24
         breakDamage: 0
         reactionType: 2
@@ -390,7 +390,24 @@ MonoBehaviour:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 6
+      - damage: 5
+        poiseDamage: 18
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 5
         poiseDamage: 18
         breakDamage: 0
         reactionType: 2
@@ -408,23 +425,6 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 6
-        poiseDamage: 18
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 7
         poiseDamage: 21
         breakDamage: 0
         reactionType: 2
@@ -470,7 +470,7 @@ MonoBehaviour:
       animKey: 108
       attackType: 0
       hitPhases:
-      - damage: 14
+      - damage: 13
         poiseDamage: 42
         breakDamage: 0
         reactionType: 2
@@ -516,7 +516,7 @@ MonoBehaviour:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 14
+      - damage: 13
         poiseDamage: 42
         breakDamage: 0
         reactionType: 2
@@ -562,7 +562,7 @@ MonoBehaviour:
       animKey: 200
       attackType: 0
       hitPhases:
-      - damage: 13
+      - damage: 12
         poiseDamage: 39
         breakDamage: 0
         reactionType: 2
@@ -608,7 +608,7 @@ MonoBehaviour:
       animKey: 201
       attackType: 0
       hitPhases:
-      - damage: 14
+      - damage: 13
         poiseDamage: 42
         breakDamage: 0
         reactionType: 2
@@ -654,7 +654,7 @@ MonoBehaviour:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 15
+      - damage: 14
         poiseDamage: 45
         breakDamage: 0
         reactionType: 2
@@ -700,7 +700,7 @@ MonoBehaviour:
       animKey: 203
       attackType: 0
       hitPhases:
-      - damage: 8
+      - damage: 7
         poiseDamage: 24
         breakDamage: 0
         reactionType: 2
@@ -717,7 +717,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -763,7 +763,7 @@ MonoBehaviour:
       animKey: 204
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -780,7 +780,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -826,7 +826,7 @@ MonoBehaviour:
       animKey: 205
       attackType: 0
       hitPhases:
-      - damage: 19
+      - damage: 17
         poiseDamage: 57
         breakDamage: 0
         reactionType: 2
@@ -872,7 +872,7 @@ MonoBehaviour:
       animKey: 300
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -918,7 +918,7 @@ MonoBehaviour:
       animKey: 310
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -964,7 +964,7 @@ MonoBehaviour:
       animKey: 400
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -1010,7 +1010,7 @@ MonoBehaviour:
       animKey: 401
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -1056,7 +1056,7 @@ MonoBehaviour:
       animKey: 402
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -1102,7 +1102,7 @@ MonoBehaviour:
       animKey: 403
       attackType: 0
       hitPhases:
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -1148,7 +1148,7 @@ MonoBehaviour:
       animKey: 404
       attackType: 0
       hitPhases:
-      - damage: 13
+      - damage: 12
         poiseDamage: 39
         breakDamage: 0
         reactionType: 2
@@ -1194,7 +1194,7 @@ MonoBehaviour:
       animKey: 405
       attackType: 0
       hitPhases:
-      - damage: 13
+      - damage: 12
         poiseDamage: 39
         breakDamage: 0
         reactionType: 2
@@ -1240,7 +1240,7 @@ MonoBehaviour:
       animKey: 406
       attackType: 0
       hitPhases:
-      - damage: 16
+      - damage: 15
         poiseDamage: 48
         breakDamage: 0
         reactionType: 2
@@ -1286,7 +1286,7 @@ MonoBehaviour:
       animKey: 500
       attackType: 0
       hitPhases:
-      - damage: 20
+      - damage: 18
         poiseDamage: 60
         breakDamage: 0
         reactionType: 2
@@ -1332,7 +1332,7 @@ MonoBehaviour:
       animKey: 501
       attackType: 0
       hitPhases:
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -1349,7 +1349,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 15
+      - damage: 14
         poiseDamage: 45
         breakDamage: 0
         reactionType: 2
@@ -1395,7 +1395,24 @@ MonoBehaviour:
       animKey: 502
       attackType: 0
       hitPhases:
-      - damage: 8
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
         poiseDamage: 24
         breakDamage: 0
         reactionType: 2
@@ -1413,7 +1430,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1429,7 +1446,24 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 9
+      - damage: 8
+        poiseDamage: 27
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 8
         poiseDamage: 27
         breakDamage: 0
         reactionType: 2
@@ -1447,40 +1481,6 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 10
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -1526,7 +1526,7 @@ MonoBehaviour:
       animKey: 503
       attackType: 0
       hitPhases:
-      - damage: 24
+      - damage: 22
         poiseDamage: 72
         breakDamage: 0
         reactionType: 2
@@ -1572,7 +1572,7 @@ MonoBehaviour:
       animKey: 504
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -1589,7 +1589,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -1606,7 +1606,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 13
+      - damage: 12
         poiseDamage: 39
         breakDamage: 0
         reactionType: 2
@@ -1623,7 +1623,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 14
+      - damage: 13
         poiseDamage: 42
         breakDamage: 0
         reactionType: 2
@@ -1669,7 +1669,92 @@ MonoBehaviour:
       animKey: 505
       attackType: 0
       hitPhases:
-      - damage: 8
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
+        poiseDamage: 24
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 7
         poiseDamage: 24
         breakDamage: 0
         reactionType: 2
@@ -1687,7 +1772,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1704,7 +1789,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1721,7 +1806,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1738,7 +1823,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1755,7 +1840,7 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 8
-        poiseDamage: 24
+        poiseDamage: 27
         breakDamage: 0
         reactionType: 2
         reactionDuration: 0
@@ -1771,7 +1856,41 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 9
+      - damage: 8
+        poiseDamage: 27
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 8
+        poiseDamage: 27
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+      - damage: 8
         poiseDamage: 27
         breakDamage: 0
         reactionType: 2
@@ -1789,125 +1908,6 @@ MonoBehaviour:
         grabDuration: 1.5
         victimForcedAnimKey: 0
       - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 9
-        poiseDamage: 27
-        breakDamage: 0
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-      - damage: 10
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -1924,7 +1924,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -1970,7 +1970,7 @@ MonoBehaviour:
       animKey: 530
       attackType: 0
       hitPhases:
-      - damage: 9
+      - damage: 8
         poiseDamage: 27
         breakDamage: 0
         reactionType: 2
@@ -1987,7 +1987,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -2033,7 +2033,7 @@ MonoBehaviour:
       animKey: 531
       attackType: 0
       hitPhases:
-      - damage: 15
+      - damage: 14
         poiseDamage: 45
         breakDamage: 0
         reactionType: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useBreakGauge: 1
   allowRepeatBreak: 1
-  maxGauge: 100
+  maxGauge: 600
   breakResist: 0
   repeatBreakCooldown: 0
   exposedDuration: 4

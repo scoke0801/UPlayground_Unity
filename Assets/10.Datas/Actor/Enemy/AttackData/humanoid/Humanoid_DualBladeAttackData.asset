@@ -155,7 +155,7 @@ MonoBehaviour:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -201,7 +201,7 @@ MonoBehaviour:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -247,7 +247,7 @@ MonoBehaviour:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -293,7 +293,7 @@ MonoBehaviour:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -465,7 +465,7 @@ MonoBehaviour:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 15
+      - damage: 14
         poiseDamage: 45
         breakDamage: 0
         reactionType: 2
@@ -608,7 +608,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -654,7 +654,7 @@ MonoBehaviour:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 15
+      - damage: 14
         poiseDamage: 45
         breakDamage: 0
         reactionType: 2
@@ -700,7 +700,7 @@ MonoBehaviour:
       animKey: 203
       attackType: 0
       hitPhases:
-      - damage: 16
+      - damage: 15
         poiseDamage: 48
         breakDamage: 0
         reactionType: 2
@@ -746,7 +746,7 @@ MonoBehaviour:
       animKey: 204
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -763,7 +763,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 12
+      - damage: 11
         poiseDamage: 36
         breakDamage: 0
         reactionType: 2
@@ -843,7 +843,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -889,7 +889,7 @@ MonoBehaviour:
       animKey: 206
       attackType: 0
       hitPhases:
-      - damage: 21
+      - damage: 20
         poiseDamage: 63
         breakDamage: 0
         reactionType: 2
@@ -935,7 +935,7 @@ MonoBehaviour:
       animKey: 400
       attackType: 0
       hitPhases:
-      - damage: 10
+      - damage: 9
         poiseDamage: 30
         breakDamage: 0
         reactionType: 2
@@ -981,7 +981,7 @@ MonoBehaviour:
       animKey: 401
       attackType: 0
       hitPhases:
-      - damage: 11
+      - damage: 10
         poiseDamage: 33
         breakDamage: 0
         reactionType: 2
@@ -1335,7 +1335,7 @@ MonoBehaviour:
       animKey: 530
       attackType: 0
       hitPhases:
-      - damage: 16
+      - damage: 15
         poiseDamage: 48
         breakDamage: 0
         reactionType: 2
@@ -1381,7 +1381,7 @@ MonoBehaviour:
       animKey: 531
       attackType: 0
       hitPhases:
-      - damage: 18
+      - damage: 17
         poiseDamage: 54
         breakDamage: 0
         reactionType: 2

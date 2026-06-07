@@ -21,7 +21,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   prefab: {fileID: 4697961722674043917, guid: 68f31e33dbadbda44b6a43b8a6138fa0, type: 3}
-  statData: {fileID: 11400000, guid: cd9a6b73cfd8e5c49aca54ed95cdc821, type: 2}
+  statData: {fileID: 11400000, guid: 5d83c898b325d294282e90ba06f54646, type: 2}
   poiseData: {fileID: 11400000, guid: cf77b2f3d58c1a94f91cb11d859b6596, type: 2}
   breakGaugeData: {fileID: 11400000, guid: c3e3f68f28de26e4298e681fa110557e, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}

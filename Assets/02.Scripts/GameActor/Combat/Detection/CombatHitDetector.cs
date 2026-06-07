@@ -5,11 +5,17 @@ namespace UPlayGround.Combat
 {
     public static class CombatHitDetector
     {
+        /// <param name="includeInvincibleTargets">
+        /// true면 무적(CanTakeDamage=false)이지만 살아있는 대상도 결과에 포함한다.
+        /// 적이 플레이어를 칠 때 사용 — 무적/퍼펙트도지/대시회피 판정을 피격자(TakeDamage)의 방어 레이어가 결정하도록 위임.
+        /// (기본 false: 플레이어가 적을 칠 때는 무적 대상을 걸러 가짜 히트 피드백을 막는다.)
+        /// </param>
         public static int DetectMeleeHits(
             in MeleeHitShape shape,
             Collider[] overlapBuffer,
             ISet<IDamageable> ignoredDamageables,
-            List<CombatHit> results)
+            List<CombatHit> results,
+            bool includeInvincibleTargets = false)
         {
             results.Clear();
             if (overlapBuffer == null || overlapBuffer.Length == 0)
@@ -27,10 +33,10 @@ namespace UPlayGround.Combat
                     shape.Origin,
                     shape.Radius,
                     shape.TargetLayer);
-                return CollectMeleeHits(shape, saturatedHits, saturatedHits.Length, ignoredDamageables, results);
+                return CollectMeleeHits(shape, saturatedHits, saturatedHits.Length, ignoredDamageables, results, includeInvincibleTargets);
             }
 
-            return CollectMeleeHits(shape, overlapBuffer, hitCount, ignoredDamageables, results);
+            return CollectMeleeHits(shape, overlapBuffer, hitCount, ignoredDamageables, results, includeInvincibleTargets);
         }
 
         private static int CollectMeleeHits(
@@ -38,7 +44,8 @@ namespace UPlayGround.Combat
             Collider[] hits,
             int hitCount,
             ISet<IDamageable> ignoredDamageables,
-            List<CombatHit> results)
+            List<CombatHit> results,
+            bool includeInvincibleTargets)
         {
             for (int i = 0; i < hitCount; i++)
             {
@@ -65,7 +72,11 @@ namespace UPlayGround.Combat
 
                 IDamageable damageable = hit.GetComponent<IDamageable>()
                                       ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage())
+                if (damageable == null)
+                    continue;
+                // 무적 대상 위임 모드(적→플레이어)에서는 살아있기만 하면 전달하고, 무적/회피 판정은 TakeDamage가 맡는다.
+                bool deliverable = includeInvincibleTargets ? damageable.IsAlive() : damageable.CanTakeDamage();
+                if (!deliverable)
                     continue;
                 if (ignoredDamageables != null && ignoredDamageables.Contains(damageable))
                     continue;

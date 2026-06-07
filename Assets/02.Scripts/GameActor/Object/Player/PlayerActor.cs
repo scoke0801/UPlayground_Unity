@@ -905,6 +905,7 @@ namespace UPlayGround
 
                 case DefenseOutcome.Invincible:
                     CombatResolutionPipeline.RecordIfObservable(combatResult);
+                    TryDashEvadeFeedback(attackData);
                     return;
             }
 
@@ -1043,6 +1044,34 @@ namespace UPlayGround
                     feedbackPos));
 
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
+        }
+
+        /// <summary>
+        /// Dash로 적 공격을 회피했을 때 타임스케일/카메라 연출을 발동한다.
+        /// 퍼펙트 도지 피드백 핸들러를 재사용하되, 대시는 반격 창을 열지 않는다(연출만).
+        /// 회피 판정 자체는 Dash가 GrantsInvincibility라 DefenseOutcome.Invincible로 들어온다.
+        /// </summary>
+        private void TryDashEvadeFeedback(AttackData attackData)
+        {
+            if (MovementController.CurrentState is not PlayerDashState dashState) return;
+            if (!dashState.TryConsumeEvadeFeedback()) return;
+
+            var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
+            if (defenseFeedback == null) return;
+
+            Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
+                ? center.position
+                : transform.position;
+
+            defenseFeedback.Play(
+                DefenseSuccessType.PerfectDodge,
+                new DefenseSuccessFeedbackContext(
+                    this,
+                    attackData?.attacker,
+                    attackData,
+                    feedbackPos));
+
+            Debug.Log("[PlayerActor] 대시 회피 피드백 발동!");
         }
 
         /// <summary>

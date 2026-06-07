@@ -681,6 +681,8 @@ namespace UPlayGround.Component
             _attackState = AttackState.HeavyAttack;
             ResetCombo();
             _currentAttackData = ConvertToAttackData(source, AttackKind.HeavyAttack);
+            // 퍼펙트 가드 반격임을 명시 — 적중 시 몬스터 '가벼운 밀쳐냄' 판정에 사용(SO 작성 의존 제거).
+            _currentAttackData.isCounterAttack = true;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -757,6 +759,8 @@ namespace UPlayGround.Component
             _attackState = AttackState.HeavyAttack;
             ResetCombo();
             _currentAttackData = ConvertToAttackData(source, AttackKind.HeavyAttack);
+            // 패리 반격임을 명시 — 적중 시 몬스터 '가벼운 밀쳐냄' 판정에 사용(SO 작성 의존 제거).
+            _currentAttackData.isCounterAttack = true;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);

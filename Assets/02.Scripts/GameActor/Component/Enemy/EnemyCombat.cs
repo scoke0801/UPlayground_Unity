@@ -427,7 +427,9 @@ namespace UPlayGround.Component
                 halfAngle: 0f,
                 phase.hitHeightRange,
                 _targetLayer);
-            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedMeleeHits);
+            // includeInvincibleTargets:true — 무적(대시/구르기 i-frame) 플레이어도 전달해
+            // TakeDamage의 방어 레이어가 무적/퍼펙트도지/대시회피를 판정하게 한다.
+            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedMeleeHits, includeInvincibleTargets: true);
 
             foreach (CombatHit hit in _detectedMeleeHits)
             {
@@ -456,8 +458,12 @@ namespace UPlayGround.Component
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                 };
 
-                _hitTargets.Add(hit.Damageable);
+                // 무적/회피 중인 대상은 TakeDamage까지 전달해 방어 판정과 피드백만 처리한다.
+                // 같은 collision window 안에서 무적이 끝나면 실제 피격될 수 있어야 하므로 소비 대상으로 기록하지 않는다.
+                bool consumeHitTarget = hit.Damageable.CanTakeDamage();
                 hit.Damageable.TakeDamage(attackData);
+                if (consumeHitTarget)
+                    _hitTargets.Add(hit.Damageable);
             }
         }
 

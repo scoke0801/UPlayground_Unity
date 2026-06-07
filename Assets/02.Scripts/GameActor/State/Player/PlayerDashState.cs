@@ -21,11 +21,25 @@ namespace UPlayGround.State
         public override bool GrantsInvincibility => true;
 
         private Vector3 _dashDirection;
-        
+
+        // 대시 1회당 회피 타임스케일 피드백을 한 번만 발동하기 위한 가드.
+        // (단일 대시가 여러 히트 페이즈와 겹쳐도 중복 연출되지 않도록 함)
+        private bool _evadeFeedbackFired;
+
         private readonly List<Collider> _ignoredOnDodge = new();
         private readonly List<EnemyMovementController> _enemyControllers = new();
-        
+
         public PlayerDashState(ActorMovementController controller) : base(controller) { }
+
+        /// <summary>
+        /// 대시 중 적 공격을 회피했을 때 호출. 대시당 최초 1회만 true를 반환한다.
+        /// </summary>
+        public bool TryConsumeEvadeFeedback()
+        {
+            if (_evadeFeedbackFired) return false;
+            _evadeFeedbackFired = true;
+            return true;
+        }
 
         // 상태 전환 제한
         public override bool CanTransitionState(string stateName)
@@ -40,6 +54,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Dash);
             playerActor?.ComboInputTracker.Push(ComboInputToken.Dash);
+            playerController.StartDashCooldown();
 
             _dashDirection = playerController.HasMoveInput()
                 ? playerController.MoveInputVector.normalized
@@ -64,7 +79,6 @@ namespace UPlayGround.State
             RestoreAndResolvePenetration();
 
             gameActor.Animator.OnMotionSetCompleted -= OnAnimationEnd;
-            playerController.StartDashCooldown();
 
             // Dash하면 Sprint
             gameActor.MoveAnimType = BaseMoveAnimType.Sprint;

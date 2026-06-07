@@ -1063,7 +1063,7 @@ MonoBehaviour:
   comboLinkWindow: 1
   counterAttack:
     baseInfo:
-      animKey: 100
+      animKey: 530
       attackType: 0
       hitPhases:
       - damage: 82
@@ -1087,7 +1087,7 @@ MonoBehaviour:
     hitAngle: 60
   parryCounterAttack:
     baseInfo:
-      animKey: 100
+      animKey: 530
       attackType: 0
       hitPhases:
       - damage: 10

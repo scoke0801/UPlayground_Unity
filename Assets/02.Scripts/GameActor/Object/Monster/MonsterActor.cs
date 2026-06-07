@@ -311,6 +311,18 @@ namespace UPlayGround
             // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
             // 받는 피해 증가(DamageTakenMultiplier)는 TakeDamage 단계에서 이미 적용된다.
 
+            // [카운터 반격 적중] 패리/퍼펙트 가드 반격이 적중하면 무조건 '가벼운 밀쳐냄'을 적용한다.
+            // 패리 직후 몬스터는 Stun 상태이고 CanPlayHitReaction이 "Stun"을 제외하므로 일반 리액션 경로로는
+            // 어떤 힘도 적용되지 않는다. 또한 카운터는 패리 '보상'이므로 일반 피격 경직을 막는 등급 정책
+            // (allowHit=false 등)에 묶이면 안 된다 → 정책 게이트 없이 직접 shove를 적용한다.
+            if (attackData != null && attackData.isCounterAttack)
+            {
+                ApplyBreakStyleShove(attackData.attacker);
+                CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
+                appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
+                return new ReactionDecision(true, true, false, CombatReactionState.Hit);
+            }
+
             ReactionDecision reactionDecision = ReactionResolver.ResolveMonsterReaction(
                 new MonsterReactionQuery(
                     poiseBrokenNow,
@@ -321,6 +333,7 @@ namespace UPlayGround
                     Definition != null ? Definition.combatReactionPolicy : null),
                 attackData);
 
+            bool appliedReactionForce = false;
             if (attackData != null && reactionDecision.ShouldApplyForce)
             {
                 switch (attackData.reactionType)
@@ -328,6 +341,7 @@ namespace UPlayGround
                     case AttackReactionType.KnockBack:
                         MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce,
                             attackData.knockbackDrag);
+                        appliedReactionForce = true;
                         break;
 
                     case AttackReactionType.Pull:
@@ -337,6 +351,7 @@ namespace UPlayGround
                             pullDir.y = 0f;
                             MovementController.AddVelocity(pullDir * attackData.pullForce);
                         }
+                        appliedReactionForce = true;
 
                         break;
 
@@ -350,6 +365,7 @@ namespace UPlayGround
                         MovementController.AddImpulse(
                             launchDir * attackData.knockbackForce + airborneVelocity,
                             attackData.knockbackDrag);
+                        appliedReactionForce = true;
                         break;
                     }
 
@@ -358,8 +374,22 @@ namespace UPlayGround
                 }
             }
 
+            // [Poise 브레이크 밀쳐냄] 일반 경직(Light/Hit/Heavy)으로 Poise가 깨졌고 공격 자체에 변위 반응이
+            // 없을 때, 기존 반응 상태(보통 Stun)는 그대로 두고 '가벼운 밀쳐냄' 임펄스만 더한다.
+            // 즉 펀ish 윈도우(무력화)는 유지하면서 넉백만 추가하는 break처럼 동작. 임펄스는 상태와 독립 적용된다.
+            bool isPlainPoiseBreak = poiseBrokenNow
+                && reactionDecision.ShouldEnterState
+                && !appliedReactionForce
+                && attackData != null
+                && attackData.reactionType is AttackReactionType.Light
+                    or AttackReactionType.Hit
+                    or AttackReactionType.Heavy;
+
             if (reactionDecision.ShouldEnterState)
             {
+                if (isPlainPoiseBreak)
+                    ApplyShoveImpulse(attackData.attacker);
+
                 ApplyMonsterReactionState(reactionDecision.TargetState, attackData);
             }
 
@@ -615,6 +645,52 @@ namespace UPlayGround
 
             if (_uiHpBar != null)
                 _breakGauge.ConnectUiBar(_uiHpBar);
+        }
+
+        // 가벼운 밀쳐냄(shove) 튜닝값. 이동 거리 ≈ Force/Drag (≈1.2m). 브레이크 마무리(2.5m+2초 넘어짐)보다 약하다.
+        private const float BreakShoveForce = 12f;
+        private const float BreakShoveDrag  = 10f;
+
+        /// <summary>
+        /// 공격자 반대 방향으로 가벼운 밀쳐냄 임펄스를 가한다. 적용한 방향을 반환한다.
+        /// 임펄스는 상태와 독립적으로 KCC에 합산되므로(ActorMovementController.UpdateVelocity) 어떤 반응 상태와도 공존한다.
+        /// </summary>
+        private Vector3 ApplyShoveImpulse(GameActor attacker)
+        {
+            Vector3 dir = attacker != null
+                ? transform.position - attacker.transform.position
+                : -transform.forward;
+            dir.y = 0f;
+            if (dir.sqrMagnitude <= 0.0001f) dir = -transform.forward;
+            dir = dir.normalized;
+
+            MovementController?.AddImpulse(dir * BreakShoveForce, BreakShoveDrag);
+            return dir;
+        }
+
+        /// <summary>
+        /// [카운터 적중 전용] 공격자 반대 방향으로 밀려나며 Knockback 스태거를 거쳐 복귀한다.
+        /// 패리 직후 몬스터가 Stun에 묶여 있어도 스태거로 전환해 '밀려남'이 시각적으로 드러나게 한다.
+        /// EnemyHitState는 속도를 즉시 0으로 만들지 않고 감속만 하므로 임펄스가 유지된다
+        /// (매 프레임 속도를 덮어쓰는 EnemyKnockdownState와 달리 보존됨).
+        /// </summary>
+        public void ApplyBreakStyleShove(GameActor attacker)
+        {
+            if (MovementController == null) return;
+
+            Vector3 dir = ApplyShoveImpulse(attacker);
+
+            var shoveData = new AttackData
+            {
+                attacker        = attacker,
+                reactionType    = AttackReactionType.KnockBack,
+                damage          = 0f,
+                poiseDamage     = 0f,
+                knockbackForce  = BreakShoveForce,
+                knockbackDrag   = BreakShoveDrag,
+                attackDirection = dir,
+            };
+            MovementController.TransitionToState(new EnemyHitState(MovementController, shoveData));
         }
 
         /// <summary>

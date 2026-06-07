@@ -1,92 +1,143 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Component
 {
     /// <summary>
     /// Poise(강인도) 런타임 컴포넌트.
-    /// 수치 설정은 PoiseSO로 분리. Init()으로 주입받거나 Inspector에서 직접 할당 가능.
+    /// 수치(MaxPoise / 회복률 / 회복지연)는 <see cref="ActorStatContainer"/>(statData)를 단일 소스로 읽는다.
+    /// 등급/레벨 배율은 statData 생성 시점에 이미 반영되므로(MonsterScalingSO), 여기서는 별도 스케일링을 하지 않는다.
+    /// PoiseSO(_data)는 더 이상 수치 소스가 아니며 hasHyperArmor 플래그 전달용으로만 유지한다.
     /// </summary>
     public class PoiseStat : MonoBehaviour
     {
+        // 하이퍼아머 플래그 전용. maxPoise/recovery* 수치는 런타임에서 읽지 않는다(statData 단일 소스).
         [HideInInspector, SerializeField] private PoiseSO _data;
 
+        private const float FallbackMaxPoise      = 100f;
+        private const float FallbackRecoveryRate  = 40f;
+        private const float FallbackRecoveryDelay = 2f;
+
+        private ActorStatContainer _stats;
         private float _currentPoise;
         private float _recoveryTimer;
-        private bool _isBroken = false;
+        private bool  _isBroken = false;
         private bool  _isHyperArmorActive;
         private UI_ActorHpBar _actorUIBar;
-        
-        public bool  IsHyperArmorActive => _isHyperArmorActive;
-        public float PoisePercent       => _data != null ? _currentPoise / _data.maxPoise : 1f;
+        private float _lastMaxPoise;
 
-        public bool IsPoiseBroken => _isBroken;
-        public float CurrentPoise => _currentPoise;
-        public float MaxPoise => _data != null ? _data.maxPoise : 100f;
-        
+        public bool  IsHyperArmorActive => _isHyperArmorActive;
+        public float PoisePercent       => MaxPoise > 0f ? _currentPoise / MaxPoise : 1f;
+
+        public bool  IsPoiseBroken => _isBroken;
+        public float CurrentPoise  => _currentPoise;
+
+        private ActorStatContainer Stats => _stats != null ? _stats : (_stats = GetComponent<ActorStatContainer>());
+
+        public  float MaxPoise      => Stats != null ? Mathf.Max(1f, Stats.MaxPoise) : FallbackMaxPoise;
+        private float RecoveryRate  => Stats != null ? Stats.PoiseRecoveryRate  : FallbackRecoveryRate;
+        private float RecoveryDelay => Stats != null ? Stats.PoiseRecoveryDelay : FallbackRecoveryDelay;
+
         private void Awake()
         {
-            var actor = GetComponent<GameActor>();
-            if (actor?.Definition != null)
-                Init(actor.Definition);
-            else
-                InitFromData();
+            // statData 주입 전이라도 합리적 기본값으로 시작. 권위 초기화는 Init()이 담당.
+            BindStats();
+            InitFromStats();
         }
 
-        /// <summary> MonsterActor.Init() 등에서 SO를 주입할 때 사용 </summary>
+        private void OnEnable()
+        {
+            BindStats();
+        }
+
+        private void OnDisable()
+        {
+            if (_stats != null)
+                _stats.OnStatChanged -= OnStatChanged;
+        }
+
+        /// <summary> 레거시/에디터 호환용. 하이퍼아머 플래그만 받고 수치는 statData에서 읽는다. </summary>
         public void Init(PoiseSO data)
         {
-            _data = data;
-            InitFromData();
+            if (data != null) _data = data;
+            InitFromStats();
         }
 
+        /// <summary> MonsterActor.ApplyDefinitionData에서 statData 주입(Stats.Init) 직후 호출하는 권위 초기화. </summary>
         public void Init(ActorDefinitionSO definition)
         {
-            if (definition?.poiseData == null) return;
-            Init(definition.poiseData);
+            // hasHyperArmor 단일 읽기 경로(_data). 정의에 PoiseSO가 있으면 그것을, 없으면 프리팹 기본값을 유지.
+            if (definition?.poiseData != null)
+                _data = definition.poiseData;
+            InitFromStats();
         }
 
-        private void InitFromData()
+        private void InitFromStats()
         {
-            _currentPoise  = _data != null ? _data.maxPoise : 100f;
+            BindStats();
+            _currentPoise  = MaxPoise;
+            _lastMaxPoise  = MaxPoise;
             _isBroken      = false;
             _recoveryTimer = 0f;
+        }
+
+        private void BindStats()
+        {
+            ActorStatContainer stats = Stats;
+            if (stats == null) return;
+
+            stats.OnStatChanged -= OnStatChanged;
+            stats.OnStatChanged += OnStatChanged;
+            _lastMaxPoise = MaxPoise;
+        }
+
+        private void OnStatChanged(StatType type, float newValue)
+        {
+            if (type != StatType.MaxPoise) return;
+
+            float oldMax = Mathf.Max(1f, _lastMaxPoise);
+            float newMax = Mathf.Max(1f, newValue);
+            float ratio = oldMax > 0f ? Mathf.Clamp01(_currentPoise / oldMax) : 1f;
+
+            _currentPoise = _isBroken ? 0f : Mathf.Clamp(newMax * ratio, 0f, newMax);
+            _lastMaxPoise = newMax;
+
+            if (_actorUIBar != null)
+                _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
 
         public void ConnectUiBar(UI_ActorHpBar actorUIBar)
         {
             _actorUIBar = actorUIBar;
         }
-        
+
         private void Update()
         {
-            if (_data == null) return;
-
             if (_isBroken)
             {
                 _recoveryTimer += Time.deltaTime;
-                if (_recoveryTimer >= _data.recoveryDelay)
+                if (_recoveryTimer >= RecoveryDelay)
                 {
                     _isBroken      = false;
-                    _currentPoise  = _data.maxPoise;
+                    _currentPoise  = MaxPoise;
                     _recoveryTimer = 0f;
-                    
-                    
-                    if(_actorUIBar != null)
+
+                    if (_actorUIBar != null)
                         _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
                 }
                 return;
             }
 
-            if (_currentPoise < _data.maxPoise)
+            if (_currentPoise < MaxPoise)
             {
                 _recoveryTimer += Time.deltaTime;
-                if (_recoveryTimer >= _data.recoveryDelay)
+                if (_recoveryTimer >= RecoveryDelay)
                 {
-                    _currentPoise = Mathf.Min(_currentPoise + _data.recoveryRate * Time.deltaTime, _data.maxPoise);
-                    
-                    if(_actorUIBar != null)
+                    _currentPoise = Mathf.Min(_currentPoise + RecoveryRate * Time.deltaTime, MaxPoise);
+
+                    if (_actorUIBar != null)
                         _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
                 }
             }
@@ -105,10 +156,10 @@ namespace UPlayGround.Component
 
             _currentPoise -= poiseDamage;
             _recoveryTimer = 0f;
-            
-            if(_actorUIBar != null)
+
+            if (_actorUIBar != null)
                 _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
-            
+
             if (_currentPoise <= 0f)
             {
                 _currentPoise  = 0f;
@@ -129,8 +180,8 @@ namespace UPlayGround.Component
             _currentPoise  = 0f;
             _isBroken      = true;
             _recoveryTimer = 0f;
-            
-            if(_actorUIBar != null)
+
+            if (_actorUIBar != null)
                 _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
     }

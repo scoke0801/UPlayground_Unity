@@ -403,6 +403,8 @@ namespace UPlayGround.Tool.Editor.Stat
             }
 
             string breakGaugePath = GenerateMissingBreakGauge(row.Definition, so);
+            if (SyncExistingBreakGaugeMax(row.Definition, so))
+                Debug.Log($"[StatDataGenerator] 브레이크 게이지 max 재bake: {row.Definition.name}.breakGaugeData ← statData.MaxPoise");
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -735,6 +737,7 @@ namespace UPlayGround.Tool.Editor.Stat
             int created = 0;
             int filled = 0;
             int breakCreated = 0;
+            int breakSynced = 0;
             int scalingLinked = 0;
 
             foreach (var guid in guids)
@@ -781,11 +784,13 @@ namespace UPlayGround.Tool.Editor.Stat
                 string createdBreakGaugePath = GenerateMissingBreakGauge(def, def.statData);
                 if (!string.IsNullOrEmpty(createdBreakGaugePath))
                     breakCreated++;
+                else if (SyncExistingBreakGaugeMax(def, def.statData))
+                    breakSynced++;
             }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / Growth 연결 {scalingLinked}개 / 누락 StatType 채움 {filled}개 / breakGaugeData 생성 {breakCreated}개");
+            Debug.Log($"[StatDataGenerator] 전체 보정 완료: statData 생성 {created}개 / Growth 연결 {scalingLinked}개 / 누락 StatType 채움 {filled}개 / breakGaugeData 생성 {breakCreated}개 / 브레이크 max 재bake {breakSynced}개");
             RefreshMigrationRows();
             ValidateStatDataCoverage(showDialog: true);
         }
@@ -800,7 +805,22 @@ namespace UPlayGround.Tool.Editor.Stat
             var so = ScriptableObject.CreateInstance<ActorStatSO>();
             so.EditorFillMissing();
 
-            // MonsterScalingSO가 연결되어 있으면 Growth 기준을 우선 사용한다.
+            // 몬스터는 MonsterStatGenerator(몬스터 스탯 생성기)와 완전히 동일한 단일 산출 경로를 사용한다.
+            // MonsterScalingSO 커브(등급×레벨×난이도)로만 계산하며, 등급 템플릿/PoiseSO 덮어쓰기는 적용하지 않는다.
+            // 두 생성기의 결과가 갈리던 원인(템플릿 폴백·poise clobber)을 제거해 statData 산출을 일치시킨다.
+            // scaling 해석도 MonsterStatGenerator.ResolveScaling과 동일(정의 우선, 없으면 공용 Scaling).
+            if (IsMonster(row.Definition))
+            {
+                MonsterScalingSO monsterScaling = row.Definition.monsterScaling != null
+                    ? row.Definition.monsterScaling
+                    : FindOrCreateMonsterScaling();
+                Dictionary<StatType, float> monsterValues = MonsterStatCalculator.Calculate(monsterScaling, row.Definition);
+                foreach (KeyValuePair<StatType, float> pair in monsterValues)
+                    so.EditorSet(pair.Key, pair.Value);
+                return so;
+            }
+
+            // 비-몬스터(플레이어 등)는 기존 등급 템플릿/레거시 PoiseSO 경로를 유지한다.
             MonsterScalingSO scaling = row.Definition != null ? row.Definition.monsterScaling : null;
             if (scaling != null)
             {
@@ -810,12 +830,10 @@ namespace UPlayGround.Tool.Editor.Stat
             }
             else
             {
-                // 정의에 작성된 등급에 따라 기본 템플릿 적용
                 ApplyGradeTemplate(so, row.Definition != null ? row.Definition.grade : MonsterActorGrade.Normal);
             }
 
-            // PoiseSO → MaxPoise / PoiseRecoveryRate / PoiseRecoveryDelay
-            if (row.SourcePoise != null)
+            if (scaling == null && row.SourcePoise != null)
             {
                 so.EditorSet(StatType.MaxPoise,           row.SourcePoise.maxPoise);
                 so.EditorSet(StatType.PoiseRecoveryRate,  row.SourcePoise.recoveryRate);
@@ -893,6 +911,25 @@ namespace UPlayGround.Tool.Editor.Stat
                 return Mathf.Max(1f, Mathf.Round(def.poiseData.maxPoise));
 
             return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxPoise));
+        }
+
+        /// <summary>
+        /// 이미 연결된 BreakGaugeSO.maxGauge를 현재 statData.MaxPoise(등급 보정 반영) 기준으로 재bake한다.
+        /// 브레이크 게이지 max는 강인도에서 파생되는 값이므로(<see cref="CalculateBreakGauge"/>) statData 재생성 후 동기화가 필요하다.
+        /// 등급 배율은 런타임 MonsterBreakGauge가 gradePolicy로 처리하므로 여기 base에는 곱하지 않는다(이중 스케일 방지).
+        /// </summary>
+        private static bool SyncExistingBreakGaugeMax(ActorDefinitionSO def, ActorStatSO stat)
+        {
+            if (def == null || stat == null) return false;
+            if (def.breakGaugeData == null || !def.breakGaugeData.useBreakGauge) return false;
+
+            float newMax = CalculateBreakGauge(def, stat);
+            if (Mathf.Approximately(def.breakGaugeData.maxGauge, newMax)) return false;
+
+            Undo.RecordObject(def.breakGaugeData, "Sync Break Gauge Max");
+            def.breakGaugeData.maxGauge = newMax;
+            EditorUtility.SetDirty(def.breakGaugeData);
+            return true;
         }
 
         private static bool HasMissingMigrationData(ActorDefinitionSO def)

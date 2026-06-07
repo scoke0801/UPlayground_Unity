@@ -140,7 +140,9 @@ namespace UPlayGround.Tool.Editor.Balance
                 ApplyStatTemplate(stat, actor != null ? actor.grade : MonsterActorGrade.Normal);
             }
 
-            if (actor?.poiseData != null)
+            // 스케일링이 있으면 등급 배율이 반영된 계산값을 유지한다(statData 단일 소스).
+            // PoiseSO로 덮으면 보스 강인도가 일반 몹 값으로 되돌아가므로 스케일링 없는 레거시 액터에만 적용.
+            if (scaling == null && actor?.poiseData != null)
             {
                 stat.EditorSet(StatType.MaxPoise, actor.poiseData.maxPoise);
                 stat.EditorSet(StatType.PoiseRecoveryRate, actor.poiseData.recoveryRate);

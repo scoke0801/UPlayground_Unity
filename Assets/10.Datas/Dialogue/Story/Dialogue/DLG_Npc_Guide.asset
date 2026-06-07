@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9049561476049627007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: ffba7a1c-900e-498b-972e-4c0104628179
+  nodeType: 0
+  channel: 0
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uADF8\uB798.\n\n\uD558\uC9C0\uB9CC \uACC4\uC18D \uBC29\uCE58\uD560
+    \uC218\uB3C4 \uC5C6\uB2E4.\n\n\uC800 \uC55E \uACF5\uD130\uC5D0 \uB098\uD0C0\uB09C
+    \uAD34\uBB3C\uB4E4\uC744 \uC815\uB9AC\uD574 \uC900\uB2E4\uBA74,\n\uC6B0\uB9AC\uB294
+    \uB124\uAC00 \uCDA9\uBD84\uD55C \uC2E4\uB825\uC744 \uAC16\uCDC4\uB2E4\uACE0 \uD310\uB2E8\uD558\uACA0\uB2E4.\n\n\uC2DD\uBB3C\uC774\uB4E0,\n\uD574\uACE8\uC774\uB4E0,\n\uB3C4\uC801\uC774\uB4E0,\n\n\uC9C0\uAE08\uBD80\uD130
+    \uB9C8\uC8FC\uD558\uAC8C \uB420 \uC801\uB4E4\uC740 \uBAA8\uB450 \uC704\uD5D8\uD558\uB2E4."
+  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: fbf553d2-6334-44bd-9cd0-9f6576f4b9fd
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 620, y: 780}
 --- !u!114 &-7539864593923620332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,8 +46,12 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "길잡이"
-  dialogueText: "처음 보는 길이라도 표식만 놓치지 않으면 괜찮습니다. 마을 밖에서는 등불과 바람 방향을 함께 보세요."
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uAC70\uAE30, \uC7A0\uC2DC \uBA48\uCDB0\uB77C.\n\n\uC55E\uCABD \uAE38\uC740
+    \uD604\uC7AC \uD1B5\uC81C \uC911\uC774\uB2E4.\n\n\uC6D0\uB798\uB77C\uBA74 \uC21C\uCC30\uB300\uAC00
+    \uC0AC\uC6A9\uD558\uB294 \uC548\uC804\uD55C \uD1B5\uD589\uB85C\uC600\uC9C0\uB9CC,\n\uCD5C\uADFC
+    \uB4E4\uC5B4 \uC774\uC0C1\uD55C \uC0AC\uAC74\uC774 \uC5F0\uB2EC\uC544 \uBC1C\uC0DD\uD558\uACE0
+    \uC788\uB2E4."
   portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -26,7 +61,122 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 320}
+  editorPosition: {x: 640, y: 20}
+--- !u!114 &-5312760206182642218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 0f940394-92ab-4417-b24c-c769ace4cec3
+  nodeType: 0
+  channel: 0
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uADF8\uAC78\uB85C \uB05D\uC774\uBA74 \uCC28\uB77C\uB9AC \uB098\uC558\uC744
+    \uAC70\uB2E4.\n\n\uC8FC\uBCC0\uC5D0 \uC228\uC5B4 \uC9C0\uB0B4\uB358 \uB3C4\uC801\uB4E4\uAE4C\uC9C0
+    \uB09C\uD3ED\uD574\uC9C0\uAE30 \uC2DC\uC791\uD588\uC5B4.\n\n\uADF8\uB9AC\uACE0
+    \uCD5C\uADFC\uC5D0\uB294...\n\n\uC815\uC2E0\uC744 \uC783\uC740 \uC8FC\uBBFC\uB4E4\uC774
+    \uC11C\uB85C\uB97C \uACF5\uACA9\uD558\uB294 \uC77C\uAE4C\uC9C0 \uBC8C\uC5B4\uC9C0\uACE0
+    \uC788\uB2E4."
+  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 9185dbd4-a3e2-4aca-85fe-e828dc339057
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 620, y: 420}
+--- !u!114 &-2433847709633769925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: d528e107-d1cf-448e-825a-b65ab6fd264e
+  nodeType: 0
+  channel: 0
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uD589\uC6B4\uC744 \uBE48\uB2E4, \uC5EC\uD589\uC790.\n\n\uADF8\uB9AC\uACE0
+    \uAE30\uC5B5\uD574 \uB46C\uB77C.\n\n\uAC80\uBCF4\uB2E4 \uBB34\uC11C\uC6B4 \uAC74,\n\uC815\uC2E0\uC744
+    \uC783\uC740 \uC778\uAC04\uC774\uB2E4."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 620, y: 1040}
+--- !u!114 &-2367969659428763717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 1717d702-f972-43f6-9d8e-0ce563816ad8
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uADF8\uB798\uC11C \uAE38\uC744 \uB9C9\uACE0 \uC788\uB294 \uAC70\uAD70."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: ffba7a1c-900e-498b-972e-4c0104628179
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 100, y: 700}
+--- !u!114 &-602101001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_PlayerReply
+  m_EditorClassIdentifier: 
+  nodeId: guide_player_reply
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uC774\uC0C1\uD55C \uC0AC\uAC74?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 446b8371-7864-40ef-83bd-fa78c24fb02e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 100, y: 220}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45,9 +195,17 @@ MonoBehaviour:
   nodes:
   - {fileID: -7539864593923620332}
   - {fileID: -602101001}
-  - {fileID: -602101002}
   - {fileID: 8090487291098517983}
---- !u!114 &-602101001
+  - {fileID: 3809514268018348536}
+  - {fileID: 6812631618488580052}
+  - {fileID: -5312760206182642218}
+  - {fileID: 5326740819525041081}
+  - {fileID: 1572650392113273199}
+  - {fileID: -2367969659428763717}
+  - {fileID: -9049561476049627007}
+  - {fileID: 6373077137206374737}
+  - {fileID: -2433847709633769925}
+--- !u!114 &371244871180258028
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -57,24 +215,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_PlayerReply
+  m_Name: Node_Talk_copy
   m_EditorClassIdentifier: 
-  nodeId: guide_player_reply
+  nodeId: 14c6b213-b107-4e69-8b21-e132094d0c84
   nodeType: 0
   channel: 0
-  speakerId: "당신"
-  dialogueText: "표식이 끊긴 길은 어떻게 구분하지?"
+  speakerId: "\uAE38\uC7A1\uC774"
+  dialogueText: "\uC55E\uCABD \uAE38\uC740 \uD604\uC7AC \uD1B5\uC81C \uC911\uC774\uB2E4."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: guide_followup
+  nextNodeId: 
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 500}
---- !u!114 &-602101002
+  editorPosition: {x: 490, y: 290}
+--- !u!114 &1572650392113273199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,23 +242,138 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Followup
+  m_Name: Node_Talk
   m_EditorClassIdentifier: 
-  nodeId: guide_followup
+  nodeId: 16be136b-9cb7-42ad-bbfa-4e7fea9c26aa
   nodeType: 0
   channel: 0
-  speakerId: "길잡이"
-  dialogueText: "돌무더기 위에 묶인 천을 보세요. 붉은 천은 위험, 푸른 천은 안전한 우회로입니다."
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uC544\uC9C1\uC740 \uBAA8\uB978\uB2E4.\n\n\uD558\uC9C0\uB9CC \uC0AC\uAC74\uC774
+    \uBC1C\uC0DD\uD55C \uC7A5\uC18C\uB4E4\uC744 \uC870\uC0AC\uD55C \uC0AC\uB78C\uB4E4\uC740
+    \uD558\uB098\uAC19\uC774 \uAC19\uC740 \uB9D0\uC744 \uB0A8\uACBC\uC9C0.\n\n\"\uBB34\uC5B8\uAC00\uAC00
+    \uC0AC\uB78C\uB4E4\uC758 \uC815\uC2E0\uC744 \uCE68\uC2DD\uD558\uACE0 \uC788\uB2E4.\""
   portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nextNodeId: 1717d702-f972-43f6-9d8e-0ce563816ad8
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 680}
+  editorPosition: {x: 620, y: 620}
+--- !u!114 &3809514268018348536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 446b8371-7864-40ef-83bd-fa78c24fb02e
+  nodeType: 0
+  channel: 0
+  speakerId: "\uACBD\uBE44\uBCD1"
+  dialogueText: "\uCC98\uC74C\uC5D4 \uD3C9\uBC94\uD55C \uC2DD\uBB3C\uB4E4\uC774\uC5C8\uB2E4.\n\n\uC232\uC5D0
+    \uC790\uB77C\uB294 \uB369\uAD74\uACFC \uAF43\uB4E4\uC774 \uAC11\uC790\uAE30 \uC0AC\uB78C\uC744
+    \uACF5\uACA9\uD558\uAE30 \uC2DC\uC791\uD588\uC9C0.\n\n\uADF8\uB2E4\uC74C\uC5D4
+    \uC624\uB798\uC804\uC5D0 \uBB3B\uD600 \uC788\uB358 \uD574\uACE8\uB4E4\uC774 \uB545\uC744
+    \uB6AB\uACE0 \uB098\uD0C0\uB0AC\uACE0."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 299d74e7-b372-4b88-95cb-9cf0638950d0
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 620, y: 220}
+--- !u!114 &5326740819525041081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 9185dbd4-a3e2-4aca-85fe-e828dc339057
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uC804\uBD80 \uAC19\uC740 \uC6D0\uC778\uC774\uB77C\uB294 \uAC74\uAC00?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 16be136b-9cb7-42ad-bbfa-4e7fea9c26aa
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 100, y: 540}
+--- !u!114 &6373077137206374737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: fbf553d2-6334-44bd-9cd0-9f6576f4b9fd
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uC54C\uACA0\uC5B4.\n\n\uC9C1\uC811 \uD655\uC778\uD574 \uBCF4\uC9C0."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: d528e107-d1cf-448e-825a-b65ab6fd264e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 80, y: 960}
+--- !u!114 &6812631618488580052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 299d74e7-b372-4b88-95cb-9cf0638950d0
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2F9\uC2E0"
+  dialogueText: "\uC5B8\uB370\uB4DC\uAE4C\uC9C0?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 0f940394-92ab-4417-b24c-c769ace4cec3
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 100, y: 380}
 --- !u!114 &8090487291098517983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,4 +400,4 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 860}
+  editorPosition: {x: 600, y: 1220}

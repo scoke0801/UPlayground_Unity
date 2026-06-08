@@ -96,5 +96,28 @@ namespace UPlayGround.Data.Combat
                 profile.postProcessHoldDuration);
             return profile;
         }
+
+        /// <summary>
+        /// 대시 회피 전용 프로필.
+        /// 퍼펙트 도지 연출(카메라/오브)을 재사용하되, 타임스케일이 또렷하게 읽히도록 튜닝한다.
+        /// - freeze는 짧게: 대시는 이동 중이라 멈춤이 길면 대시가 끊기는 느낌을 준다.
+        /// - tail은 더 깊고 길게: 플레이어는 전속, 월드만 느려지는 구간이라 '스쳐 지나가는' 회피가 이 구간에서 읽힌다.
+        /// 포스트프로세스(볼륨) 플래시는 호출부에서 끄므로 여기서 값은 의미 없다.
+        /// </summary>
+        public static DefenseSuccessFeedbackProfile CreateDashEvade()
+        {
+            var profile = CreateDefault(DefenseSuccessType.PerfectDodge);
+
+            // 짧은 임팩트 정지(대시 끊김 최소화)
+            profile.freezeDuration = 0.04f;
+            profile.freezeTimeScale = 0.03f;
+            profile.attackerFreezeDuration = 0.12f;
+
+            // 깊고 길게 — 월드만 느려지는 tail 구간에서 회피가 또렷하게 읽힘
+            profile.tailDuration = 0.45f;
+            profile.tailTimeScale = 0.10f;
+
+            return profile;
+        }
     }
 }

@@ -118,14 +118,30 @@ namespace UPlayGround.UI.InputPrompt
         private static GlyphPart MakePart(InputAction action, int bindingIndex,
             ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData)
         {
+            // 표시 텍스트는 디바이스별 명칭(예: PS의 "Share")을 반영하도록 표준 API를 쓴다.
             string display = action.GetBindingDisplayString(bindingIndex,
-                out string _ /*deviceLayout*/, out string controlPath);
+                out string _ /*deviceLayout*/, out string _ /*controlPath*/);
 
-            if (glyphData != null && glyphData.TryResolve(device, brand, controlPath, out Sprite sprite))
+            // 조회 키는 GetBindingDisplayString의 out controlPath가 아니라 바인딩 effectivePath에서 뽑는다.
+            // out controlPath는 연결된 실제 디바이스에 해석되어 select 같은 버튼은 생성기 키("select")와 어긋날 수 있다.
+            // 글리프 데이터 생성기(InputGlyphDataGenerator)와 동일하게 effectivePath 세그먼트를 쓰면 생성·조회 키가 항상 일치한다.
+            string lookupKey = ToControlPathSegment(action.bindings[bindingIndex].effectivePath);
+
+            if (glyphData != null && glyphData.TryResolve(device, brand, lookupKey, out Sprite sprite))
                 return GlyphPart.Of(sprite, display);
 
             // 매핑되지 않은 키는 회색 박스가 아니라 원문 텍스트로 노출해 누락을 가시화.
             return GlyphPart.TextOnly(display);
+        }
+
+        // "<Keyboard>/1" → "1", "<Gamepad>/dpad/up" → "dpad/up", "<Gamepad>/select" → "select"
+        // InputGlyphDataGenerator.ToControlPathSegment와 동일 규칙(디바이스 prefix 제거). 키 일관성을 위해 한 규칙을 양쪽에서 쓴다.
+        private static string ToControlPathSegment(string effectivePath)
+        {
+            if (string.IsNullOrEmpty(effectivePath))
+                return string.Empty;
+            int i = effectivePath.IndexOf(">/", StringComparison.Ordinal);
+            return i >= 0 ? effectivePath.Substring(i + 2) : effectivePath;
         }
 
         // 활성 디바이스에 맞는 바인딩 인덱스(단순 또는 복합). 복합은 첫 파트의 디바이스로 판정한다.

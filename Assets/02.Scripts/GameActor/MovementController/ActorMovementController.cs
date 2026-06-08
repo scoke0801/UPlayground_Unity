@@ -391,6 +391,15 @@ namespace UPlayGround.MovementController
         public float windowStartTime;
         public float windowEndTime;
 
+        // ── 에디터 베이크 시드 (첫 시전부터 정확 delta-warp) ──
+        // bakedValid 면 런타임 캐시 lookup 보다 우선해 BeginWarpWindow 가 _activeTotal 을 직접 시드한다.
+        // 콤보/스킬처럼 세션 내 같은 단 재시전이 드물어 캐시가 못 데워지는 경우(=대부분의 실전 스윙)에도
+        // 첫 시전부터 정확 모드로 진입한다. 베이크는 실제 액터 프리팹의 ActorAnimator.DeltaPosition 누적이라
+        // 런타임 측정과 동일 소스·동일 스케일 → 변환 불필요.
+        public bool    bakedValid;
+        public Vector3 bakedLocalTotal;   // facing-불변 로컬 수평 총 변위 (런타임 _accumRootLocal 과 동일 정의)
+        public float   bakedPathLen;      // 수평 경로 길이 (런타임 _accumRootPath 과 동일 정의)
+
         public static MotionWarpWindowSettings Default(float duration)
         {
             return new MotionWarpWindowSettings
@@ -415,6 +424,9 @@ namespace UPlayGround.MovementController
                 amplifyMaxSpeed = 25f,
                 windowStartTime = 0f,
                 windowEndTime = 0f,
+                bakedValid = false,
+                bakedLocalTotal = Vector3.zero,
+                bakedPathLen = 0f,
             };
         }
 
@@ -755,9 +767,21 @@ namespace UPlayGround.MovementController
 
             _activeWarpKey = BuildWarpKey(settings);
             _hasActiveWarpKey = _activeWarpKey.IsValid;
-            _hasActiveTotal = _hasActiveWarpKey
-                              && _rootTotalCache.TryGetValue(_activeWarpKey, out _activeTotal)
-                              && _activeTotal.IsValid;
+
+            // 1순위: 에디터 베이크 시드. 콤보/스킬처럼 캐시가 못 데워지는 경우에도 첫 시전부터 정확 모드.
+            //         베이크는 실제 액터 프리팹의 DeltaPosition 누적이라 런타임과 동일 정의·스케일(변환 불필요).
+            if (settings.bakedValid && settings.bakedPathLen > 0.0001f)
+            {
+                _activeTotal = new RootMotionTotal(settings.bakedLocalTotal, settings.bakedPathLen);
+                _hasActiveTotal = true;
+            }
+            // 2순위: 런타임 지연 캐시(play-2+). 베이크 없는 레거시 윈도우 폴백.
+            else
+            {
+                _hasActiveTotal = _hasActiveWarpKey
+                                  && _rootTotalCache.TryGetValue(_activeWarpKey, out _activeTotal)
+                                  && _activeTotal.IsValid;
+            }
 
             // K는 EvaluateVelocity 에서 매 프레임 갱신 — 여기서는 초기화만.
             WarpPlayRateScale = 1f;

@@ -41,6 +41,8 @@ namespace UPlayGround.Manager.Combat
             DefenseSuccessFeedbackProfile.CreateDefault(DefenseSuccessType.PerfectGuard);
         private readonly DefenseSuccessFeedbackProfile _perfectDodgeProfile =
             DefenseSuccessFeedbackProfile.CreateDefault(DefenseSuccessType.PerfectDodge);
+        private readonly DefenseSuccessFeedbackProfile _dashEvadeProfile =
+            DefenseSuccessFeedbackProfile.CreateDashEvade();
 
         private Coroutine _routine;
         private GameActor _frozenPlayer;
@@ -51,10 +53,23 @@ namespace UPlayGround.Manager.Combat
         public void Play(DefenseSuccessType type, in DefenseSuccessFeedbackContext context)
             => Play(GetProfile(type), context);
 
+        /// <summary>
+        /// 대시 회피 전용 피드백. 포스트프로세스(볼륨) 플래시는 적용하지 않고
+        /// 타임스케일 슬로우/카메라/FX 연출만 발동한다.
+        /// </summary>
+        public void PlayDashEvade(in DefenseSuccessFeedbackContext context)
+            => Play(_dashEvadeProfile, context, applyPostProcess: false);
+
         public float GetCounterWindowDuration(DefenseSuccessType type)
             => GetProfile(type).counterWindowDuration;
 
         public void Play(DefenseSuccessFeedbackProfile profile, in DefenseSuccessFeedbackContext context)
+            => Play(profile, context, applyPostProcess: true);
+
+        public void Play(
+            DefenseSuccessFeedbackProfile profile,
+            in DefenseSuccessFeedbackContext context,
+            bool applyPostProcess)
         {
             if (profile == null)
                 return;
@@ -66,7 +81,8 @@ namespace UPlayGround.Manager.Combat
             StopCurrentFeedback(host, true);
 
             _routine = host.StartCoroutine(PlayRoutine(profile, context));
-            PlayPostProcess(profile);
+            if (applyPostProcess)
+                PlayPostProcess(profile);
             PlayCamera(profile, context);
             PlayFxAndReward(profile, context);
         }

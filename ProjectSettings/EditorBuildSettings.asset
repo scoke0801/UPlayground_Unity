@@ -23,10 +23,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/01.Scenes/GameLogic/CombatTest.unity
     guid: 06d14a94475869242a9ad3551cea971b
-  - enabled: 1
+  - enabled: 0
     path: Assets/01.Scenes/GameLogic/InGame_Dungeon.unity
     guid: 4680e52c9a0ccea4d9507c6ac37db28c
-  - enabled: 1
+  - enabled: 0
     path: Assets/01.Scenes/GameLogic/InGame_FarmLand.unity
     guid: d3c76cb45d73198479531be1a34bdd6d
   m_configObjects:

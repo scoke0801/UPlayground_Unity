@@ -319,6 +319,8 @@ namespace UPlayGround.Animation.Editor
                 "스케일 1×가 클립 의도보다 길게 이동하면 상태머신이 루트모션을 함께 소비 중입니다. 검증 시에는 레지스트리에서 비플레이어 액터를 스폰해 테스트하세요.",
                 MessageType.None);
 
+            DrawWarpBakeControls();
+
             EditorGUILayout.EndVertical();
         }
 

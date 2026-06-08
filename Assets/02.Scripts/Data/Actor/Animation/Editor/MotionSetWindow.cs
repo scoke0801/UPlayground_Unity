@@ -492,6 +492,8 @@ namespace UPlayGround.Animation.Editor
         
         void OnEditorUpdate()
         {
+            AbortWarpBakeIfNeeded(); // Play 모드/재생이 끊긴 채 베이크 중이면 설정 안전 복원
+
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
                 AcquireMotionToolInputLock();
@@ -537,6 +539,13 @@ namespace UPlayGround.Animation.Editor
                     _previousTime     = savedPrev;
                     ExecuteActiveEvents(currentSet);
 
+                    // 베이크가 maxEnd==전체길이라 끝까지 온 경우: 마지막 스텝 누적 후 종료.
+                    if (_warpBakeActive)
+                    {
+                        WarpBakeTick();   // _playbackTime>=maxEnd → 내부에서 FinishWarpBake 호출(StopPlayback 포함)
+                        if (!_warpBakeActive) { Repaint(); return; }
+                    }
+
                     if (_isLooping)
                     {
                         ResetEditorLoopState();
@@ -568,6 +577,14 @@ namespace UPlayGround.Animation.Editor
 
                 ExecuteActiveEvents(currentSet);
                 ForceDrawPlayerWeapons();
+
+                // 회전 적용(TickRootMotionPreview) 전 = 런타임 투영 타이밍과 정합.
+                // 이 틱에서 FinishWarpBake 가 발동하면(StopPlayback 포함) 액터 위치가 시작점으로 복원되므로,
+                // 종료 프레임에 한해 이후 프리뷰 재적용을 건너뛴다. 비-베이크 프레임에는 영향 없음.
+                bool wasBaking = _warpBakeActive;
+                WarpBakeTick();
+                if (wasBaking && !_warpBakeActive) { Repaint(); return; }
+
                 TickRootMotionPreview();
                 InjectWarpTarget();
 

@@ -208,7 +208,10 @@
       "Bash(sed -n 1505,1525p __TRACKED_VAR__/Editor/lilToonSetting.cs)",
       "Bash(grep -n 'SetupShaderSettingFromMaterial\\\\|DISSOLVE\\\\|Dissolve' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
       "Bash(grep -n 'void SetupShaderSettingFromMaterial\\\\|SetupShaderSettingFromMaterialColor\\\\|isCutout\\\\|RenderType\\\\|_DissolveParams\\\\|isDissolve\\\\|GetFloat\\(\"_UseDissolve\\\\|_UseDissolve' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
-      "Bash(grep -n 'WalkAllSceneReferencedAssets\\\\|CollectDependenciesForScenes\\\\|EditorBuildSettings.scenes\\\\|Resources' __TRACKED_VAR__/Editor/lilToonSetting.cs)"
+      "Bash(grep -n 'WalkAllSceneReferencedAssets\\\\|CollectDependenciesForScenes\\\\|EditorBuildSettings.scenes\\\\|Resources' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
+      "Bash(grep -nB1 -E \"public List<MotionEventBase> events|public List<MotionEventBase> globalEvents\" Assets/02.Scripts/Data/Actor/Animation/Motion.cs)",
+      "Bash(grep -nB2 -E \"class MotionEventBase|public float startTime|public float endTime\" Assets/02.Scripts/Data/Event/Animation/MotionEvent.cs)",
+      "WebFetch(domain:deepwiki.com)"
     ]
   }
 }

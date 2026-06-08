@@ -1063,8 +1063,8 @@ namespace UPlayGround
                 ? center.position
                 : transform.position;
 
-            defenseFeedback.Play(
-                DefenseSuccessType.PerfectDodge,
+            // 대시 회피는 포스트프로세스(볼륨) 플래시 없이 타임스케일 슬로우만 또렷하게 발동한다.
+            defenseFeedback.PlayDashEvade(
                 new DefenseSuccessFeedbackContext(
                     this,
                     attackData?.attacker,

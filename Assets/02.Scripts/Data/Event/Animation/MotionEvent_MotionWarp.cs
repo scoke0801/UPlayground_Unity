@@ -88,6 +88,26 @@ namespace UPlayGround.Data.Event
         [Tooltip("증폭 결과 수평 속력의 자체 상한. 기존 워프 maxSpeed 와 분리.")]
         public float amplifyMaxSpeed = 25f;
 
+        [Header("Baked Root Motion (에디터 베이크)")]
+        [Tooltip("MotionSet 에디터의 'Bake Warp Root Motion' 으로 채워진다.\n" +
+                 "이 윈도우 [startTime,endTime] 구간의 순수 애니메이션 루트 변위 총량(실제 액터 스케일 기준).\n" +
+                 "valid 면 런타임이 캐시 lookup 보다 우선해 시드 → 콤보/스킬 첫 시전부터 정확 착지.")]
+        public bool    bakedValid = false;
+        public Vector3 bakedLocalTotal = Vector3.zero;  // facing-불변 로컬 수평 총 변위
+        public float   bakedPathLen = 0f;               // 수평 경로 길이
+        // 베이크 당시 윈도우 구간. 현재 start/end 와 다르면(=윈도우 시간 편집됨) 베이크는 stale → 무효.
+        public float   bakedStartTime = 0f;
+        public float   bakedEndTime = 0f;
+
+        /// <summary>
+        /// 베이크가 유효하고, 베이크 당시 구간이 현재 윈도우 구간과 일치하는가.
+        /// 윈도우 시간을 편집한 뒤 재베이크를 잊은 경우 stale 시드를 런타임에 넘기지 않는다.
+        /// </summary>
+        private bool IsBakedUsable =>
+            bakedValid
+            && Mathf.Approximately(bakedStartTime, startTime)
+            && Mathf.Approximately(bakedEndTime, endTime);
+
         public override string GetDisplayName() => "Motion Warp";
         public override string GetShortLabel()  => $"Warp:{modifierType}";
 
@@ -181,6 +201,9 @@ namespace UPlayGround.Data.Event
                 amplifyMaxSpeed = amplifyMaxSpeed,
                 windowStartTime = startTime,
                 windowEndTime = endTime,
+                bakedValid = IsBakedUsable,   // stale(구간 편집) 베이크는 무효 처리
+                bakedLocalTotal = bakedLocalTotal,
+                bakedPathLen = bakedPathLen,
             };
 
             controller.MotionWarp.BeginWarpWindow(ApplyPreset(settings), key);

@@ -35,6 +35,9 @@ namespace UPlayGround
         [Tooltip("처치 시 파티에 합류시킬 캐릭터 타입. None이면 합류 없음.")]
         [HideInInspector, SerializeField] private CharacterActorType _recruitableAs = CharacterActorType.None;
 
+        [Tooltip("처치 시 출전 파티 전원에게 지급할 경험치. 0이면 지급 없음.")]
+        [HideInInspector, SerializeField] private long _expReward = 0;
+
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [FormerlySerializedAs("_brain")]
@@ -465,6 +468,7 @@ namespace UPlayGround
 
             NotifyQuestMonsterKill();
             SpawnDropItems();
+            GrantPartyExp();
             TryRecruitToParty();
 
             if (_uiHpBar != null)
@@ -499,6 +503,12 @@ namespace UPlayGround
         {
             if (_recruitableAs == CharacterActorType.None) return;
             PartyManager.Instance?.UnlockCharacter(_recruitableAs);
+        }
+
+        private void GrantPartyExp()
+        {
+            if (_expReward <= 0) return;
+            PartyManager.Instance?.AwardBattleExp(_expReward);
         }
 
         private void SpawnDropItems()
@@ -538,6 +548,7 @@ namespace UPlayGround
             _grade = definition.grade;
             _level = Mathf.Max(1, definition.level);
             _recruitableAs = definition.recruitableAs;
+            _expReward = System.Math.Max(0, definition.expReward);
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)

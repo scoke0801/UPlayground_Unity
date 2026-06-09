@@ -79,6 +79,11 @@ namespace UPlayGround.Data.Actor
         [Tooltip("처치 시 파티에 합류시킬 캐릭터 타입. None이면 합류 없음.")]
         public CharacterActorType recruitableAs = CharacterActorType.None;
 
+        [Header("성장 보상")]
+        [Min(0)]
+        [Tooltip("처치 시 출전 파티 전원에게 지급할 경험치. 0이면 지급 없음.")]
+        public long expReward = 0;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

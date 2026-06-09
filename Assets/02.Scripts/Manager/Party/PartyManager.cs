@@ -8,6 +8,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Save;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 
@@ -27,7 +28,7 @@ namespace UPlayGround.Manager
     /// - Death / Grabbed 상태에서는 교체 불가
     /// - 교체 어시스트: PerfectDodgeWindow 중 교체 성공 시 incoming 캐릭터 공격 자동 발동
     /// </summary>
-    public class PartyManager : BaseManager<PartyManager>, IManager
+    public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable
     {
         private PartyConfigSO          _config;
         private PlayerActor            _player;
@@ -35,6 +36,15 @@ namespace UPlayGround.Manager
         private List<CharacterActorType> _battleOrder = new();
         private readonly Dictionary<CharacterActorType, PartyMemberGrowthSO> _growthLookup = new();
         private readonly Dictionary<CharacterActorType, int> _levels = new();
+        // 현재 레벨 내 누적 경험치 (다음 레벨까지의 진행분). 레벨업 시 차감 후 캐리오버.
+        private readonly Dictionary<CharacterActorType, long> _exp = new();
+
+        // growth.levelCurve가 없을 때 사용하는 폴백 곡선 파라미터.
+        private const int   DefaultCurveBaseExp  = 100;
+        private const float DefaultCurveExponent = 1.5f;
+        // 파티 구성(BuildPartyFromScene → _player 준비) 전에 LoadGame()이 호출되면 보관했다가
+        // 구성 완료 후 적용한다. (InventoryManager/RecipeManager/QuestManager와 동일 패턴)
+        private PartySaveData _pendingPartyLoad;
         private readonly Dictionary<CharacterActorType, float> _swapCooldownEndTimes = new();
         private int                    _activeIndex  = 0;
         private int                    _maxBattleSize = 4;
@@ -61,6 +71,8 @@ namespace UPlayGround.Manager
         public event Action                           OnRosterChanged;
         public event Action                           OnBattleOrderChanged;
         public event Action<CharacterActorType>       OnPartyProgressionChanged;
+        public event Action<CharacterActorType, long, long> OnExpChanged;  // (type, currentExp, requiredExp)
+        public event Action<CharacterActorType, int>        OnLevelUp;     // (type, newLevel)
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
 
@@ -125,6 +137,7 @@ namespace UPlayGround.Manager
         {
             LoadConfigSO();
             RegisterSwapInputs();
+            SaveManager.Instance.RegisterSaveable(this);
         }
 
         private async void LoadConfigSO()
@@ -162,6 +175,9 @@ namespace UPlayGround.Manager
             SubscribeCombatEvents();
             NotifyActivePlayerChanged();
 
+            // 부팅 시 LoadGame()이 AfterInit보다 먼저 호출됐다면 여기서 마저 복원한다.
+            TryApplyPendingPartyLoad();
+
             Debug.Log($"[PartyManager] 파티 구성 완료: 보유 {_roster.Count}명 / 출전 {_battleOrder.Count}/{_maxBattleSize}, 활성={ActiveCharacterType}");
         }
 
@@ -174,7 +190,9 @@ namespace UPlayGround.Manager
             _battleOrder.Clear();
             _growthLookup.Clear();
             _levels.Clear();
+            _exp.Clear();
             _swapCooldownEndTimes.Clear();
+            _pendingPartyLoad = null;
         }
 
         public void OnUpdate()
@@ -208,6 +226,7 @@ namespace UPlayGround.Manager
                 InitializePartyStates();
                 SubscribeCombatEvents();
                 NotifyActivePlayerChanged();
+                TryApplyPendingPartyLoad();
             }
         }
 
@@ -591,13 +610,221 @@ namespace UPlayGround.Manager
         {
             if (type == CharacterActorType.None) return false;
 
-            int levelCap = _growthLookup.TryGetValue(type, out var growth) && growth != null
+            int clamped = Mathf.Clamp(level, 1, LevelCapOf(type));
+            _levels[type] = clamped;
+            _exp[type]    = 0;
+
+            RefreshGrowthStats(type);
+            OnExpChanged?.Invoke(type, 0, RequiredExpOf(type, clamped));
+            OnLevelUp?.Invoke(type, clamped);
+            OnPartyProgressionChanged?.Invoke(type);
+            return true;
+        }
+
+        // ── 경험치 / 레벨업 ───────────────────────────────────────
+
+        /// <summary>현재 레벨 내 누적 경험치(다음 레벨까지의 진행분).</summary>
+        public long GetExp(CharacterActorType type)
+            => _exp.TryGetValue(type, out long exp) ? exp : 0;
+
+        /// <summary>현재 레벨에서 다음 레벨로 가는 데 필요한 총 경험치.</summary>
+        public long GetRequiredExp(CharacterActorType type)
+            => RequiredExpOf(type, GetLevel(type));
+
+        /// <summary>해당 캐릭터가 만렙인지 여부.</summary>
+        public bool IsMaxLevel(CharacterActorType type)
+            => GetLevel(type) >= LevelCapOf(type);
+
+        /// <summary>
+        /// 출전 멤버(BattleOrder) 전원에게 동일 경험치 100% 분배. 몬스터 처치 시 호출.
+        /// </summary>
+        public void AwardBattleExp(long amount)
+        {
+            if (amount <= 0) return;
+            for (int i = 0; i < _battleOrder.Count; i++)
+            {
+                var type = _battleOrder[i];
+                if (type == CharacterActorType.None) continue;
+                AddExp(type, amount);
+            }
+        }
+
+        /// <summary>
+        /// 단일 캐릭터에 경험치 누적 + 레벨업 처리. 디버그/치트/아이템 보상에도 재사용.
+        /// 레벨이 올랐으면 true.
+        /// </summary>
+        public bool AddExp(CharacterActorType type, long amount)
+        {
+            if (type == CharacterActorType.None || amount <= 0) return false;
+            InitializeLevelIfMissing(type);
+
+            int level = _levels[type];
+            int cap   = LevelCapOf(type);
+            if (level >= cap) return false;                 // 만렙: 경험치 무시
+
+            long exp     = GetExp(type) + amount;
+            bool leveled = false;
+
+            while (level < cap)
+            {
+                long required = RequiredExpOf(type, level);
+                if (exp < required) break;
+                exp -= required;
+                level++;
+                leveled = true;
+                OnLevelUp?.Invoke(type, level);
+            }
+            if (level >= cap) exp = 0;                       // 만렙 도달 시 잉여 버림
+
+            _levels[type] = level;
+            _exp[type]    = exp;
+
+            OnExpChanged?.Invoke(type, exp, RequiredExpOf(type, level));
+            if (leveled)
+            {
+                RefreshGrowthStats(type);                    // 살아있는 액터에 반영
+                OnPartyProgressionChanged?.Invoke(type);     // 기존 UI 갱신 재사용
+            }
+            return leveled;
+        }
+
+        private int LevelCapOf(CharacterActorType type)
+            => _growthLookup.TryGetValue(type, out var growth) && growth != null
                 ? Mathf.Max(1, growth.levelCap)
                 : 100;
 
-            _levels[type] = Mathf.Clamp(level, 1, levelCap);
-            OnPartyProgressionChanged?.Invoke(type);
-            return true;
+        private long RequiredExpOf(CharacterActorType type, int level)
+        {
+            if (_growthLookup.TryGetValue(type, out var growth) && growth != null && growth.levelCurve != null)
+                return growth.levelCurve.GetRequiredExp(level);
+
+            // 폴백 곡선: required(L) = round(baseExp * pow(L, exponent))
+            double required = DefaultCurveBaseExp * System.Math.Pow(Mathf.Max(1, level), DefaultCurveExponent);
+            return (long)System.Math.Max(1.0, System.Math.Round(required, System.MidpointRounding.AwayFromZero));
+        }
+
+        /// <summary>
+        /// 레벨 변경 후 성장 스탯을 살아있는 액터에 반영한다.
+        /// 활성 캐릭터는 modifier를 보존하는 라이브 갱신(SetBase만), 벤치는 저장 HP만 갱신.
+        /// </summary>
+        private void RefreshGrowthStats(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return;
+
+            var growthStats = GetGrowthStats(type);
+            if (growthStats == null || growthStats.Count == 0) return;
+
+            if (type == ActiveCharacterType && _player != null)
+                _player.RefreshGrowthStatsLive(growthStats);
+            else
+                _player?.UpdateBenchedGrowth(type, growthStats);
+        }
+
+        // ── 저장 / 복원 (ISaveable) ───────────────────────────────
+
+        public void ExportSaveData(GameSaveData saveData)
+        {
+            if (saveData == null) return;
+            var party = saveData.party ??= new PartySaveData();
+
+            party.roster = new List<string>(_roster.Count);
+            for (int i = 0; i < _roster.Count; i++)
+                party.roster.Add(_roster[i].ToString());
+
+            party.battleOrder = new List<string>(_battleOrder.Count);
+            for (int i = 0; i < _battleOrder.Count; i++)
+                party.battleOrder.Add(_battleOrder[i].ToString());
+
+            party.activeIndex = _activeIndex;
+
+            party.members = new List<PartyMemberSaveEntry>(_levels.Count);
+            foreach (var kv in _levels)
+            {
+                party.members.Add(new PartyMemberSaveEntry
+                {
+                    type  = kv.Key.ToString(),
+                    level = kv.Value,
+                    exp   = GetExp(kv.Key),
+                });
+            }
+        }
+
+        public void ImportSaveData(GameSaveData saveData)
+        {
+            var party = saveData?.party;
+            if (party == null) return;
+
+            // 파티 구성(_player)이 끝나기 전에 호출될 수 있으므로 보관 후 적용 시도.
+            // AfterInit/OnSceneChanged에서 구성이 끝나면 TryApplyPendingPartyLoad가 마저 적용한다.
+            _pendingPartyLoad = party;
+            TryApplyPendingPartyLoad();
+        }
+
+        /// <summary>
+        /// 보관된 세이브 데이터를 파티에 적용한다. BuildPartyFromScene이 _roster/_battleOrder/_activeIndex를
+        /// 매번 재구성·덮어쓰므로, 반드시 그 이후(=_player 준비)에 적용해야 손실되지 않는다.
+        /// </summary>
+        private void TryApplyPendingPartyLoad()
+        {
+            var party = _pendingPartyLoad;
+            if (party == null) return;
+            if (_player == null) return;       // 아직 BuildPartyFromScene 전 → 보관 유지
+
+            _pendingPartyLoad = null;
+
+            _roster.Clear();
+            if (party.roster != null)
+                foreach (var s in party.roster)
+                    if (TryParseCharacter(s, out var t) && !_roster.Contains(t)) _roster.Add(t);
+
+            _battleOrder.Clear();
+            if (party.battleOrder != null)
+                foreach (var s in party.battleOrder)
+                    if (TryParseCharacter(s, out var t) && !_battleOrder.Contains(t)) _battleOrder.Add(t);
+
+            _levels.Clear();
+            _exp.Clear();
+            if (party.members != null)
+            {
+                foreach (var m in party.members)
+                {
+                    if (!TryParseCharacter(m.type, out var t)) continue;
+                    int cap = LevelCapOf(t);
+                    _levels[t] = Mathf.Clamp(m.level, 1, cap);
+                    _exp[t]    = m.level >= cap ? 0 : System.Math.Max(0, m.exp);
+                }
+            }
+
+            // 로스터에 있는데 레벨 기록이 없는 캐릭터는 초기 레벨로 보정.
+            InitializeRosterLevels();
+
+            _activeIndex = _battleOrder.Count > 0
+                ? Mathf.Clamp(party.activeIndex, 0, _battleOrder.Count - 1)
+                : 0;
+
+            OnRosterChanged?.Invoke();
+            OnBattleOrderChanged?.Invoke();
+
+            // ActiveCharacterType은 PlayerSwapBehaviour에서 파생되므로, 복원된 _activeIndex를
+            // 스왑에 동기화해야 아래 RefreshGrowthStats가 올바른 활성 캐릭터에 적용된다.
+            if (_battleOrder.Count > 0)
+            {
+                InitializePartyStates();
+                NotifyActivePlayerChanged();
+            }
+
+            // 활성 캐릭터 스탯을 로드된 레벨로 재반영. 풀 회복 동반.
+            RefreshGrowthStats(ActiveCharacterType);
+            foreach (var kv in _levels)
+                OnPartyProgressionChanged?.Invoke(kv.Key);
+        }
+
+        private static bool TryParseCharacter(string s, out CharacterActorType type)
+        {
+            if (!string.IsNullOrEmpty(s) && Enum.TryParse(s, out type) && type != CharacterActorType.None)
+                return true;
+            type = CharacterActorType.None;
+            return false;
         }
 
         public PartyCombatPowerResult GetCombatPower(CharacterActorType type)

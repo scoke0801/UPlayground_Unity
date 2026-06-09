@@ -14,22 +14,26 @@ namespace UPlayGround.Manager.Combat
         private GameHitStopHandler _gameHitStopHandler;
         private GameVitalOrbHandler _gameVitalOrbHandler;
         private DefenseSuccessFeedbackHandler _defenseSuccessFeedbackHandler;
+        private LevelUpFeedbackHandler _levelUpFeedbackHandler;
 
         private readonly List<GameHandlerBase> _handlers = new List<GameHandlerBase>();
 
         public GameHitStopHandler GameHitStop => _gameHitStopHandler;
         public GameVitalOrbHandler GameVitalOrb => _gameVitalOrbHandler;
         public DefenseSuccessFeedbackHandler DefenseSuccessFeedback => _defenseSuccessFeedbackHandler;
+        public LevelUpFeedbackHandler LevelUpFeedback => _levelUpFeedbackHandler;
 
         public void Init()
         {
             _gameHitStopHandler = new GameHitStopHandler();
             _gameVitalOrbHandler = new GameVitalOrbHandler();
             _defenseSuccessFeedbackHandler = new DefenseSuccessFeedbackHandler();
+            _levelUpFeedbackHandler = new LevelUpFeedbackHandler();
 
             _handlers.Add(_gameHitStopHandler);
             _handlers.Add(_gameVitalOrbHandler);
             _handlers.Add(_defenseSuccessFeedbackHandler);
+            _handlers.Add(_levelUpFeedbackHandler);
 
             for (int i = 0; i < _handlers.Count; ++i)
                 _handlers[i].Init();
@@ -50,6 +54,7 @@ namespace UPlayGround.Manager.Combat
             _gameHitStopHandler = null;
             _gameVitalOrbHandler = null;
             _defenseSuccessFeedbackHandler = null;
+            _levelUpFeedbackHandler = null;
         }
 
         public void OnUpdate()

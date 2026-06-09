@@ -724,6 +724,49 @@ namespace UPlayGround
         }
 
         /// <summary>
+        /// 전투 중 레벨업 등으로 활성 캐릭터의 성장 스탯을 즉시 반영한다.
+        /// 기둥 A: base 스탯만 교체(SetBase)하여 장비/버프 modifier를 보존한다. Init()을 호출하지 않는다.
+        /// 레벨업 정책에 따라 HP/Poise는 풀 회복한다.
+        /// </summary>
+        public void RefreshGrowthStatsLive(IReadOnlyDictionary<StatType, float> growthStats)
+        {
+            if (growthStats == null || growthStats.Count == 0) return;
+
+            // 다운된(HP 0) 활성 캐릭터는 레벨업으로 부활시키지 않는다(벤치 경로와 대칭).
+            // 사망 중에는 스왑이 막혀 게임오버→리로드 시 ApplyCharacterStats가 커밋된 레벨로 스탯을 재구성하므로 손실 없음.
+            if (!IsAlive()) return;
+
+            foreach (KeyValuePair<StatType, float> pair in growthStats)
+                Stats?.SetBase(pair.Key, pair.Value);   // Init() 미호출 → modifier 유지
+
+            _maxHealth     = Mathf.Max(1f, Stats != null ? Stats.MaxHealth : _maxHealth);
+            _currentHealth = _maxHealth;                // 풀 회복
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // Poise 풀 회복(브레이크 해제 포함). MaxPoise 성장은 SetBase가 이미 반영.
+            GetComponent<PoiseStat>()?.RecoverFull();
+        }
+
+        /// <summary>
+        /// 벤치(대기 중) 캐릭터가 레벨업했을 때의 갱신. 화면에 모델이 없으므로 스탯 컨테이너는 건드리지 않고,
+        /// 저장된 현재 HP만 새 최대치로 풀 회복한다(다음 스왑 시 풀 HP로 등장). 기둥 B.
+        /// </summary>
+        public void UpdateBenchedGrowth(CharacterActorType type, IReadOnlyDictionary<StatType, float> growthStats)
+        {
+            if (type == CharacterActorType.None || type == _characterActorType) return;
+            if (growthStats == null) return;
+
+            // 기록이 없으면(한 번도 피해를 입지 않음) 이미 풀피로 취급되므로 손대지 않는다.
+            // 다운된(HP 0) 멤버는 레벨업으로 부활시키지 않는다.
+            if (!_characterHealthMap.TryGetValue(type, out float stored) || stored <= 0f) return;
+
+            float newMax = growthStats.TryGetValue(StatType.MaxHealth, out float max)
+                ? Mathf.Max(1f, max)
+                : GetMaxHealthForCharacter(type);
+            _characterHealthMap[type] = newMax;          // 살아있는 대기 멤버만 풀 회복
+        }
+
+        /// <summary>
         /// 지정 캐릭터의 현재 체력 반환. 한 번도 활성화된 적 없으면 최대 체력으로 취급한다.
         /// </summary>
         public float GetHealthForCharacter(CharacterActorType type)

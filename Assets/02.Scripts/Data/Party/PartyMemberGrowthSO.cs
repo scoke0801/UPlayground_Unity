@@ -33,6 +33,9 @@ namespace UPlayGround.Data.Party
         public CharacterActorType characterType;
         public ActorStatSO baseStat;
 
+        [Tooltip("레벨업 필요 경험치 곡선. null이면 PartyManager의 기본 폴백 곡선을 사용한다.")]
+        public LevelCurveSO levelCurve;
+
         [Min(1)] public int initialLevel = 1;
         [Min(1)] public int levelCap = 100;
 

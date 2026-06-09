@@ -13,6 +13,27 @@ namespace UPlayGround.Data.Save
         public FlagSaveData flags = new FlagSaveData();
         public RecipeSaveData recipe = new RecipeSaveData();
         public QuestSaveData quest = new QuestSaveData();
+        public PartySaveData party = new PartySaveData();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // Party (보유/출전 + 캐릭터별 레벨·경험치)
+
+    [Serializable]
+    public class PartySaveData
+    {
+        public List<PartyMemberSaveEntry> members = new List<PartyMemberSaveEntry>();
+        public List<string> roster = new List<string>();
+        public List<string> battleOrder = new List<string>();
+        public int activeIndex;
+    }
+
+    [Serializable]
+    public class PartyMemberSaveEntry
+    {
+        public string type;
+        public int level;
+        public long exp;
     }
 
     [Serializable]

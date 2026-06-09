@@ -184,5 +184,17 @@ namespace UPlayGround.Component
             if (_actorUIBar != null)
                 _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
+
+        /// <summary>Poise를 최대치로 즉시 회복하고 브레이크 상태를 해제한다(레벨업 풀 회복 등).</summary>
+        public void RecoverFull()
+        {
+            _isBroken      = false;
+            _currentPoise  = MaxPoise;
+            _lastMaxPoise  = MaxPoise;
+            _recoveryTimer = 0f;
+
+            if (_actorUIBar != null)
+                _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
+        }
     }
 }

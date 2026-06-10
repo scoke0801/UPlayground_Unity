@@ -17,6 +17,7 @@
         FISHING_ZONE,//낚시터
         GATERING_ZONE,//수집
         NPC,        // NPC 대화
+        REST_POINT, // 파티 체력 회복 (모닥불/제단)
     }
 }
 

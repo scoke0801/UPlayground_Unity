@@ -2,7 +2,7 @@
 
 > 작성일: 2026-06-08
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 상태: 설계 완료 / 미구현
+> 상태: 코드 구현 완료 (2026-06-09) / 에디터 셋업 필요 (§4)
 > 레퍼런스: 소울라이크 화톳불(Bonfire), 휴식지점/회복 제단
 
 ---
@@ -200,16 +200,30 @@ PartyManager.Instance.OnPartyHealthRefreshed += RefreshEntryValues;
 
 ---
 
-## 4. 데이터 / 씬 셋업
+## 4. 데이터 / 씬 셋업 (에디터 수동 작업)
 
-1. `InteractableActorSO` 에셋 1개 생성
+> ⚠️ 코드(①~⑥)는 모두 구현 완료. **아래는 Unity 에디터에서만 가능한 수동 단계**로,
+> 스크립트로 대체할 수 없다(.asset/.prefab 직접 편집은 깨지기 쉬움). 컴파일 통과 후 진행한다.
+
+**① `InteractableActorSO` 회복 전용 에셋 생성**
+   - `Project` 창 우클릭 → `Create > UPlayGround > ActorData > InteractableActorSO`
    - `interactionObjectType = REST_POINT`
    - `showInfoUI = false` (HP 보드 불필요)
-   - `reviveDowned = true`
-2. 회복 프리팹 구성
-   - `Collider` (`InteractionLayer` 소속)
-   - `RestPointActor` 컴포넌트 + SO 할당
-   - `GameInteractionHandler`가 `InteractionLayer` OverlapSphere로 자동 탐지
+   - `showShakeEffect = false` (정적 오브젝트 — 흔들림 연출 불필요)
+   - `reviveDowned = true` (HP 0 멤버도 부활)
+   - `hp` / `dropItems`는 REST_POINT에서 사용 안 함 → 비워둠
+
+**② 휴식지점 프리팹 구성**
+   - 빈 GameObject 또는 모닥불/제단 메시에:
+     - `Collider` 부착, **`InteractionLayer` 레이어로 지정** (탐지 필수 조건)
+     - `RestPointActor` 컴포넌트 부착
+     - `RestPointActor._data`에 ①에서 만든 SO 할당
+   - `GameInteractionHandler`가 `InteractionLayer` OverlapSphere로 자동 탐지하므로 별도 등록 불필요
+
+**③ 씬 배치 & 검증**
+   - 비전투 구역(휴식 공간)에 프리팹 배치 — §5대로 전투 중에는 탐지가 막힌다
+   - 검증: 파티원 일부를 피격/다운시킨 뒤 상호작용 → 액티브 + 벤치 + 다운 멤버 전원 풀 HP 복귀,
+     HUD 파티 엔트리도 즉시 갱신되는지 확인
 
 ---
 
@@ -229,13 +243,13 @@ PartyManager.Instance.OnPartyHealthRefreshed += RefreshEntryValues;
 
 ## 6. 구현 순서 (의존도순)
 
-1. enum + SO 필드 (①②) — 무의존
-2. `PlayerActor.HealCharacterToFull` (③) — 핵심
-3. `PartyManager.HealAllParty` + 이벤트 (④)
-4. `RestPointActor` (⑤)
-5. `UI_HudParty` 구독 (⑥)
-6. (선택) 애니 분기 (⑦)
-7. 프리팹/씬 배치 → 인게임 검증
+1. ✅ enum + SO 필드 (①②) — 무의존
+2. ✅ `PlayerActor.HealCharacterToFull` (③) — 핵심
+3. ✅ `PartyManager.HealAllParty` + 이벤트 (④)
+4. ✅ `RestPointActor` (⑤)
+5. ✅ `UI_HudParty` 구독 (⑥)
+6. ⏭️ (선택) 애니 분기 (⑦) — 즉시 회복 방식 채택으로 미적용
+7. ⬜ 프리팹/씬 배치 → 인게임 검증 (**에디터 수동, §4 참조**)
 
 ---
 

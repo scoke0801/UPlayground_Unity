@@ -792,6 +792,32 @@ namespace UPlayGround
             return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxHealth));
         }
 
+        /// <summary>지정 캐릭터를 풀 회복. reviveDowned=true면 HP 0(다운) 멤버도 되살린다.</summary>
+        public void HealCharacterToFull(CharacterActorType type, bool reviveDowned)
+        {
+            if (type == _characterActorType)
+            {
+                // 액티브: 다운 상태면 player는 이미 사망 플로우이므로 정상 케이스는 생존.
+                // 풀 회복 (Heal은 IsAlive 가드 → 직접 세팅으로 부활까지 커버)
+                if (!reviveDowned && !IsAlive()) return;
+                float old = _currentHealth;
+                _currentHealth = _maxHealth;
+                if (_currentHealth > old)
+                {
+                    OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+                    UIManager.Instance.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+                }
+                return;
+            }
+
+            // 벤치: _characterHealthMap 직접 기록 (이벤트 안 나감 → HUD 별도 갱신 필요)
+            float max = GetMaxHealthForCharacter(type);
+            bool hasRecord = _characterHealthMap.TryGetValue(type, out float stored);
+            if (!hasRecord) return;                       // 기록 없음 = 이미 풀피
+            if (!reviveDowned && stored <= 0f) return;    // 부활 비활성 시 다운 제외
+            _characterHealthMap[type] = max;
+        }
+
         public float GetSkillGaugeForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;

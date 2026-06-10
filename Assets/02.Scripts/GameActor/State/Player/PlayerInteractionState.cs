@@ -91,6 +91,15 @@ namespace UPlayGround.State
                 return;
             }
 
+            // REST_POINT: 회복은 OnEnter의 StartInteraction에서 즉시 처리됨.
+            // 별도 애니메이션/대기 없이 바로 상태를 빠져나와 플레이어 고착을 방지한다.
+            // [TODO] 추후 휴식 모션을 넣을 경우 PlayAnimation에 REST_POINT 케이스 추가 후 이 즉시 종료 제거.
+            if (_cachedData?.interactionObjectType == InteractionObjectType.REST_POINT)
+            {
+                ForceChangeToNextState();
+                return;
+            }
+
             // NPC 대화가 끝나면 자동으로 상태 종료
             var handler = GameObjectManager.Instance.InteractionHandler;
             if (_cachedData?.interactionObjectType == InteractionObjectType.NPC

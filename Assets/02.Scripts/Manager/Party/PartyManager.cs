@@ -75,6 +75,7 @@ namespace UPlayGround.Manager
         public event Action<CharacterActorType, int>        OnLevelUp;     // (type, newLevel)
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
+        public event Action                           OnPartyHealthRefreshed;   // HUD 벤치 엔트리 일괄 갱신 신호
 
         public PlayerActor               ActiveCharacter     => _player;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
@@ -422,6 +423,18 @@ namespace UPlayGround.Manager
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 파티 전원(액티브 + 벤치)을 풀 회복한다. 휴식지점(REST_POINT) 인터렉션 진입점.
+        /// _roster 전체를 돌며, 액티브 타입은 HealCharacterToFull 내부 분기로 자동 처리된다.
+        /// </summary>
+        public void HealAllParty(bool reviveDowned)
+        {
+            if (_player == null) return;
+            foreach (var type in _roster)              // Roster 전체 (출전+대기 보유 전원)
+                _player.HealCharacterToFull(type, reviveDowned);
+            OnPartyHealthRefreshed?.Invoke();
         }
 
         /// <summary>

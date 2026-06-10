@@ -47,6 +47,7 @@ public class UI_HudParty : UI_Base
         PartyManager.Instance.OnSwapCompleted += OnSwapCompleted;
         PartyManager.Instance.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
         PartyManager.Instance.OnSwapCooldownChanged += OnSwapCooldownChanged;
+        PartyManager.Instance.OnPartyHealthRefreshed += RefreshEntryValues;
         _isSubscribedToPartyEvents = true;
     }
 
@@ -62,6 +63,7 @@ public class UI_HudParty : UI_Base
         PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
         PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
         PartyManager.Instance.OnSwapCooldownChanged -= OnSwapCooldownChanged;
+        PartyManager.Instance.OnPartyHealthRefreshed -= RefreshEntryValues;
         _isSubscribedToPartyEvents = false;
     }
 

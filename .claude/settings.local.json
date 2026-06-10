@@ -211,7 +211,9 @@
       "Bash(grep -n 'WalkAllSceneReferencedAssets\\\\|CollectDependenciesForScenes\\\\|EditorBuildSettings.scenes\\\\|Resources' __TRACKED_VAR__/Editor/lilToonSetting.cs)",
       "Bash(grep -nB1 -E \"public List<MotionEventBase> events|public List<MotionEventBase> globalEvents\" Assets/02.Scripts/Data/Actor/Animation/Motion.cs)",
       "Bash(grep -nB2 -E \"class MotionEventBase|public float startTime|public float endTime\" Assets/02.Scripts/Data/Event/Animation/MotionEvent.cs)",
-      "WebFetch(domain:deepwiki.com)"
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(rg -n \"_interactionInputCondition\" Assets/02.Scripts/GameActor/Object/Player/*.cs)",
+      "Bash(rg -n \"InputCondition.Handled|_interactionInputCondition|InteractInput|GetInputState|_inputState =\" Assets/02.Scripts/GameActor/Object/Player/PlayerActor*.cs Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.cs)"
     ]
   }
 }

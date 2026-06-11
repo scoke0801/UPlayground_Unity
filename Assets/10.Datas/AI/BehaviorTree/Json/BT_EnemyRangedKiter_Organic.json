@@ -1,0 +1,533 @@
+{
+    "rootGuid": "root_ranged_kiter_organic",
+    "blackboard": [
+        { "key": "HasTarget", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Target", "valueType": 5, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "DistanceToTarget", "valueType": 2, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "CurrentState", "valueType": 3, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "IsPlayerAttacking", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "IsPlayerGuarding", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "IsPlayerStaggered", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "IsPlayerRecovering", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "IsPlayerDodgingFrequently", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "CanUseSkill", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "HasAttackSlot", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "NextActionAllowedTime", "valueType": 2, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" }
+    ],
+    "nodes": [
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
+            "guid": "root_ranged_kiter_organic",
+            "displayName": "Root_RangedKiterOrganic",
+            "comment": "유기적 원거리 카이터 루트. 전투 중 Idle 금지 — 항상 쏘거나, 빠지거나, 자리를 옮긴다.",
+            "position": { "x": 0.0, "y": 0.0 },
+            "children": [ "seq_blocked_state", "seq_combat", "seq_noncombat" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "LowerPriority" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_blocked_state",
+            "displayName": "Branch_BlockedState_KeepCurrent",
+            "comment": "Hit/Death 등 행동 금지 상태에서는 트리 개입 금지.",
+            "position": { "x": -800.0, "y": 200.0 },
+            "children": [ "cond_is_blocked", "act_keep_current" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsBlockedEnemyStateNode, Assembly-CSharp",
+            "guid": "cond_is_blocked",
+            "displayName": "Condition_IsBlockedState",
+            "comment": "외부 제어 상태 판정.",
+            "position": { "x": -880.0, "y": 400.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.KeepCurrentStateNode, Assembly-CSharp",
+            "guid": "act_keep_current",
+            "displayName": "Action_KeepCurrentState",
+            "comment": "차단 해제는 root LowerPriority abort가 처리.",
+            "position": { "x": -720.0, "y": 400.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_combat",
+            "displayName": "Branch_Combat_HasTarget",
+            "comment": "전투 분기 — 거리와 플레이어 행동 관찰값을 폴링 후 결정.",
+            "position": { "x": 0.0, "y": 200.0 },
+            "children": [ "sync_bb_combat", "sync_memory_combat", "cond_has_target", "sel_combat_decision" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardNode, Assembly-CSharp",
+            "guid": "sync_bb_combat",
+            "displayName": "Sync_Blackboard_Basic",
+            "comment": "타겟/거리/상태 동기화.",
+            "position": { "x": -300.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_hasTargetKey", "type": "System.String, mscorlib", "value": "HasTarget" },
+                { "name": "_targetKey", "type": "System.String, mscorlib", "value": "Target" },
+                { "name": "_distanceKey", "type": "System.String, mscorlib", "value": "DistanceToTarget" },
+                { "name": "_stateKey", "type": "System.String, mscorlib", "value": "CurrentState" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SyncEnemyMemoryNode, Assembly-CSharp",
+            "guid": "sync_memory_combat",
+            "displayName": "Sync_Memory_PlayerObservation",
+            "comment": "플레이어 공격/스태거 관찰값 — 긴급 회피와 응징 사격의 입력.",
+            "position": { "x": -100.0, "y": 400.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HasTargetNode, Assembly-CSharp",
+            "guid": "cond_has_target",
+            "displayName": "Condition_HasTarget",
+            "comment": "타겟 존재 확인.",
+            "position": { "x": 100.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
+            "guid": "sel_combat_decision",
+            "displayName": "Combat_Decision",
+            "comment": "우선순위: 긴급 회피 > 스태거 응징 > 이탈 > 사격 > 추격 > 재배치. 전투 fallback에 Idle 없음.",
+            "position": { "x": 300.0, "y": 400.0 },
+            "children": [
+                "seq_panic_dodge",
+                "seq_punish_stagger",
+                "seq_disengage_close",
+                "seq_attack_fire",
+                "seq_chase_far",
+                "sel_reposition_fallback"
+            ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "LowerPriority" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_panic_dodge",
+            "displayName": "Branch_PanicDodge_PlayerAttackClose",
+            "comment": "플레이어가 3m 안에서 공격 중이면 긴급 회피 — 원거리 적이 근접전에 무방비로 맞아주는 느낌 제거.",
+            "position": { "x": -700.0, "y": 600.0 },
+            "children": [ "cond_player_attacking", "cond_panic_range_3m", "cd_panic_dodge" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "guid": "cond_player_attacking",
+            "displayName": "Condition_IsPlayerAttacking",
+            "comment": "플레이어 공격 중 관찰값.",
+            "position": { "x": -780.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerAttacking" },
+                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_panic_range_3m",
+            "displayName": "Condition_TargetIn_3m",
+            "comment": "위협 범위 3m.",
+            "position": { "x": -680.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "LessOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "0" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "3" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_panic_dodge",
+            "displayName": "Cooldown_PanicDodge_3s",
+            "comment": "긴급 회피 3초 제한 — 쿨다운 중엔 이탈 분기(Retreat)가 받아준다.",
+            "position": { "x": -580.0, "y": 800.0 },
+            "children": [ "act_dodge_panic" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "3" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_dodge_panic",
+            "displayName": "Action_Dodge_Panic",
+            "comment": "공격 범위 밖으로 구르기.",
+            "position": { "x": -580.0, "y": 1000.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Dodge" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_punish_stagger",
+            "displayName": "Branch_Punish_PlayerStaggered",
+            "comment": "플레이어 스태거 시 거리 불문(11m) 응징 사격 — 이탈보다 우선해서 점사 기회를 놓치지 않는다.",
+            "position": { "x": -380.0, "y": 600.0 },
+            "children": [ "cond_player_staggered", "cond_stagger_range_11m", "cond_canuse_stagger", "act_attack_punish_stagger" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "guid": "cond_player_staggered",
+            "displayName": "Condition_IsPlayerStaggered",
+            "comment": "플레이어 스태거 관찰값.",
+            "position": { "x": -480.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerStaggered" },
+                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_stagger_range_11m",
+            "displayName": "Condition_TargetIn_11m",
+            "comment": "응징 사격 최대 사거리 11m.",
+            "position": { "x": -380.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "LessOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "0" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "11" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CanUseEnemySkillNode, Assembly-CSharp",
+            "guid": "cond_canuse_stagger",
+            "displayName": "Condition_CanUseSkill_Stagger",
+            "comment": "현재 거리에서 발동 가능한 스킬 확인.",
+            "position": { "x": -280.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_requireTarget", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.ExecuteEnemyAttackNode, Assembly-CSharp",
+            "guid": "act_attack_punish_stagger",
+            "displayName": "Action_Attack_PunishStagger",
+            "comment": "스태거 응징 사격.",
+            "position": { "x": -180.0, "y": 800.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_disengage_close",
+            "displayName": "Branch_Disengage_TooClose",
+            "comment": "4.5m 안으로 접근당하면 이탈. 5초에 1번은 측면 Flank로 빠져 도주 방향 예측을 깬다 — 일직선 후퇴만 하던 단조로움 해소.",
+            "position": { "x": -60.0, "y": 600.0 },
+            "children": [ "cond_too_close_4_5m", "sel_disengage_rotation" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_too_close_4_5m",
+            "displayName": "Condition_TargetIn_4_5m",
+            "comment": "안전거리 붕괴 기준 4.5m.",
+            "position": { "x": -120.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "LessOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "0" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "4.5" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
+            "guid": "sel_disengage_rotation",
+            "displayName": "Disengage_Rotation_Flank_Retreat",
+            "comment": "쿨다운 로테이션: 5초에 1번 측면 이탈, 평소엔 후퇴.",
+            "position": { "x": 0.0, "y": 800.0 },
+            "children": [ "cd_disengage_flank", "act_retreat_disengage" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_disengage_flank",
+            "displayName": "Cooldown_DisengageFlank_5s",
+            "comment": "측면 이탈 주기 5초.",
+            "position": { "x": -60.0, "y": 1000.0 },
+            "children": [ "act_flank_disengage" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "5" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_flank_disengage",
+            "displayName": "Action_Flank_Disengage",
+            "comment": "측면으로 빠지며 사격각 확보.",
+            "position": { "x": -60.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Flank" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_retreat_disengage",
+            "displayName": "Action_Retreat_Disengage",
+            "comment": "기본 이탈 후퇴.",
+            "position": { "x": 80.0, "y": 1000.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Retreat" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_attack_fire",
+            "displayName": "Branch_Attack_FireBand",
+            "comment": "사격 밴드 3.5~11m (이탈 밴드 4.5m와 겹쳐 실효 사격 구간은 4.5~11m, 데드존 없음).",
+            "position": { "x": 260.0, "y": 600.0 },
+            "children": [ "cond_fire_band", "cond_action_delay_fire", "cond_canuse_fire", "act_attack_fire" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_fire_band",
+            "displayName": "Condition_FireBand_3_5_to_11m",
+            "comment": "사격 가능 거리 밴드.",
+            "position": { "x": 180.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "Between" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "3.5" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "11" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode, Assembly-CSharp",
+            "guid": "cond_action_delay_fire",
+            "displayName": "Condition_ActionDelayElapsed",
+            "comment": "사격 간 인터벌 — 인터벌 동안은 재배치 분기가 자리를 옮긴다.",
+            "position": { "x": 280.0, "y": 800.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CanUseEnemySkillNode, Assembly-CSharp",
+            "guid": "cond_canuse_fire",
+            "displayName": "Condition_CanUseSkill_Fire",
+            "comment": "현재 거리에서 발동 가능한 원거리 스킬 확인.",
+            "position": { "x": 380.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_requireTarget", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.ExecuteEnemyAttackNode, Assembly-CSharp",
+            "guid": "act_attack_fire",
+            "displayName": "Action_Attack_Fire",
+            "comment": "사격. 슬롯 부족 시 Failure → 재배치 분기로 자연 전환.",
+            "position": { "x": 480.0, "y": 800.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_chase_far",
+            "displayName": "Branch_Chase_TooFar",
+            "comment": "10.5m 밖이면 사거리 안으로 추격 (사격 밴드 11m와 겹쳐 경계 떨림 방지).",
+            "position": { "x": 620.0, "y": 600.0 },
+            "children": [ "cond_far_10_5m", "act_chase" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_far_10_5m",
+            "displayName": "Condition_TargetFar_GE_10_5m",
+            "comment": "추격 시작 거리 10.5m.",
+            "position": { "x": 560.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "GreaterOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "10.5" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "0" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_chase",
+            "displayName": "Action_Chase",
+            "comment": "사거리 확보 추격.",
+            "position": { "x": 680.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Chase" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
+            "guid": "sel_reposition_fallback",
+            "displayName": "Fallback_Reposition_NeverIdle",
+            "comment": "사격 인터벌/슬롯 대기 중에도 멈추지 않는다: 4초에 1번 측면 재배치, 나머지는 서클링. 전투 Idle 완전 제거.",
+            "position": { "x": 820.0, "y": 600.0 },
+            "children": [ "cd_reposition_flank", "act_circle_reposition" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_reposition_flank",
+            "displayName": "Cooldown_RepositionFlank_4s",
+            "comment": "측면 재배치 주기 4초 — 저격 위치를 계속 바꾸는 느낌.",
+            "position": { "x": 760.0, "y": 800.0 },
+            "children": [ "act_flank_reposition" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "4" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_flank_reposition",
+            "displayName": "Action_Flank_Reposition",
+            "comment": "측면으로 위치 변경.",
+            "position": { "x": 760.0, "y": 1000.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Flank" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_circle_reposition",
+            "displayName": "Action_Circle_Reposition",
+            "comment": "기본 거리 유지 서클링.",
+            "position": { "x": 900.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Circle" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_noncombat",
+            "displayName": "Branch_NonCombat_PatrolOrIdle",
+            "comment": "비전투: 순찰 가능하면 순찰, 아니면 Idle.",
+            "position": { "x": 800.0, "y": 200.0 },
+            "children": [ "sync_bb_noncombat", "cond_no_target", "sel_noncombat_choice" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardNode, Assembly-CSharp",
+            "guid": "sync_bb_noncombat",
+            "displayName": "Sync_Blackboard_NoTargetCheck",
+            "comment": "비전투 진입 전 타겟 재확인.",
+            "position": { "x": 680.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_hasTargetKey", "type": "System.String, mscorlib", "value": "HasTarget" },
+                { "name": "_targetKey", "type": "System.String, mscorlib", "value": "Target" },
+                { "name": "_distanceKey", "type": "System.String, mscorlib", "value": "DistanceToTarget" },
+                { "name": "_stateKey", "type": "System.String, mscorlib", "value": "CurrentState" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HasTargetNode, Assembly-CSharp",
+            "guid": "cond_no_target",
+            "displayName": "Condition_NoTarget",
+            "comment": "타겟 없음 확인.",
+            "position": { "x": 800.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "False" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
+            "guid": "sel_noncombat_choice",
+            "displayName": "NonCombat_Choice",
+            "comment": "순찰 우선, 불가 시 Idle.",
+            "position": { "x": 920.0, "y": 400.0 },
+            "children": [ "seq_patrol", "act_idle_noncombat" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_patrol",
+            "displayName": "Branch_PatrolEnabled",
+            "comment": "순찰 허용 시 순찰.",
+            "position": { "x": 860.0, "y": 600.0 },
+            "children": [ "cond_patrol_enabled", "act_patrol" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsEnemyPatrolEnabledNode, Assembly-CSharp",
+            "guid": "cond_patrol_enabled",
+            "displayName": "Condition_PatrolEnabled",
+            "comment": "EnemyAIContext.EnablePatrol 확인.",
+            "position": { "x": 800.0, "y": 800.0 },
+            "children": [],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_patrol",
+            "displayName": "Action_Patrol",
+            "comment": "순찰 상태 전환.",
+            "position": { "x": 920.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Patrol" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_idle_noncombat",
+            "displayName": "Action_Idle_NoPatrol",
+            "comment": "비전투에서만 허용되는 유일한 Idle.",
+            "position": { "x": 1040.0, "y": 600.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Idle" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        }
+    ]
+}

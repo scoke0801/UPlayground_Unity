@@ -213,7 +213,10 @@
       "Bash(grep -nB2 -E \"class MotionEventBase|public float startTime|public float endTime\" Assets/02.Scripts/Data/Event/Animation/MotionEvent.cs)",
       "WebFetch(domain:deepwiki.com)",
       "Bash(rg -n \"_interactionInputCondition\" Assets/02.Scripts/GameActor/Object/Player/*.cs)",
-      "Bash(rg -n \"InputCondition.Handled|_interactionInputCondition|InteractInput|GetInputState|_inputState =\" Assets/02.Scripts/GameActor/Object/Player/PlayerActor*.cs Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.cs)"
+      "Bash(rg -n \"InputCondition.Handled|_interactionInputCondition|InteractInput|GetInputState|_inputState =\" Assets/02.Scripts/GameActor/Object/Player/PlayerActor*.cs Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.cs)",
+      "PowerShell(Get-Content \"C:\\\\Users\\\\scoke\\\\.claude\\\\projects\\\\C--UsingProject-UnityProject-UPlayground\\\\71d372e6-4c9f-4637-8eb0-1b1232ad2962\\\\tool-results\\\\toolu_01Vc4L7yaFH6VsQgVnfU7EZy.txt\" | ForEach-Object { if \\($_ -match 'BehaviorTree\\\\.\\(\\\\w+\\),'\\) { $matches[1] } } | Sort-Object -Unique)",
+      "PowerShell(Get-Content \"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\BlackboardCompareNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\ConsecutiveAttackCountNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\IsSelfLowHealthNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\CanRevengeAfterHitNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\RecentHitCountGreaterOrEqualNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\IsPoiseBrokenNode.cs\" | Select-String -Pattern \"class |\\\\[SerializeField\\\\]|private \\(bool|int|float|string|\\\\w+Type\\) _\\\\w+\" -Context 0,1 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(Get-Content \"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Action\\\\SyncEnemyMemoryNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Action\\\\SyncEnemyPhaseNode.cs\" | Select-String -Pattern \"class |\\\\[SerializeField\\\\]\" -Context 0,1 | ForEach-Object { $_.Line.Trim\\(\\) })"
     ]
   }
 }

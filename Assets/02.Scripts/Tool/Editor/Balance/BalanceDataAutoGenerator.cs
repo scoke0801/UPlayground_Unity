@@ -66,14 +66,26 @@ namespace UPlayGround.Tool.Editor.Balance
             ActorStatSO statForAttackGeneration = actor.statData;
             bool isMonster = (actor.actorType & ActorType.Monster) != 0;
 
-            if (isMonster && actor.monsterScaling == null)
+            if (isMonster && (actor.statData == null || actor.monsterScaling == null))
             {
-                MonsterScalingSO scaling = FindOrCreateScaling();
-                if (scaling != null)
-                    serializedActor.FindProperty("monsterScaling").objectReferenceValue = scaling;
+                MonsterStatBakeService.Result result = MonsterStatBakeService.Bake(actor, new MonsterStatBakeService.Options
+                {
+                    StatSavePath = StatPath,
+                    CreateMissingStat = true,
+                    ForceRegenerate = false,
+                    LinkMissingScaling = true,
+                    RecordUndo = true,
+                    UndoLabel = "Generate Missing Balance Stat",
+                });
+                if (result.Stat != null)
+                    statForAttackGeneration = result.Stat;
+                if (result.CreatedStat)
+                {
+                    summary.StatDataPath = result.StatPath;
+                    summary.CreatedCount++;
+                }
             }
-
-            if (actor.statData == null)
+            else if (actor.statData == null)
             {
                 ActorStatSO stat = CreateStatData(actor);
                 string path = CreateAsset(stat, StatPath, $"ActorStat_{GetSafeId(actor)}");
@@ -124,6 +136,18 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private static ActorStatSO CreateStatData(ActorDefinitionSO actor)
         {
+            if (actor != null && (actor.actorType & ActorType.Monster) != 0)
+            {
+                var monsterStat = ScriptableObject.CreateInstance<ActorStatSO>();
+                MonsterStatBakeService.WriteMonsterStatValues(monsterStat, actor, new MonsterStatBakeService.Options
+                {
+                    PreferredScaling = actor.monsterScaling != null ? actor.monsterScaling : FindOrCreateScaling(),
+                    StatSavePath = StatPath,
+                });
+                monsterStat.EditorFillMissing();
+                return monsterStat;
+            }
+
             var stat = ScriptableObject.CreateInstance<ActorStatSO>();
             MonsterScalingSO scaling = actor != null && actor.monsterScaling != null
                 ? actor.monsterScaling

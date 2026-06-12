@@ -455,6 +455,7 @@ namespace UPlayGround.Component
                     hitHeightRange        = phase.hitHeightRange,
                     attacker              = _ownerActor,
                     victimForcedAnimKey   = phase.victimForcedAnimKey,
+                    guaranteedReaction    = phase.guaranteedReaction,
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                 };
 

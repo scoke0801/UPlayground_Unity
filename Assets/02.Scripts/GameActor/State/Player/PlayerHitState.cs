@@ -203,6 +203,12 @@ namespace UPlayGround.State
 
         private AnimKey GetHitAnimKey()
         {
+            // 공격별 전용 피격 애니(victimForcedAnimKey)가 지정돼 있고 보유 모션이면 최우선 사용.
+            if (_attackData != null &&
+                _attackData.victimForcedAnimKey != AnimKey.None &&
+                playerActor.Animator.HasMotion(_attackData.victimForcedAnimKey))
+                return _attackData.victimForcedAnimKey;
+
             var reaction = _attackData?.reactionType ?? AttackReactionType.Hit;
 
             switch (reaction)

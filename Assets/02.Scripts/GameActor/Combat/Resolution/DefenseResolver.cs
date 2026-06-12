@@ -15,6 +15,7 @@ namespace UPlayGround.Combat
         public readonly bool IsPerfectDodgeWindow;
         public readonly bool CanTakeDamage;
         public readonly bool AlwaysParry;
+        public readonly bool IsAssistParryWindow;
         public readonly CombatDefensePolicySO Policy;
 
         public PlayerDefenseQuery(
@@ -27,6 +28,7 @@ namespace UPlayGround.Combat
             bool isPerfectDodgeWindow,
             bool canTakeDamage,
             bool alwaysParry,
+            bool isAssistParryWindow = false,
             CombatDefensePolicySO policy = null)
         {
             IsGuarding = isGuarding;
@@ -38,6 +40,7 @@ namespace UPlayGround.Combat
             IsPerfectDodgeWindow = isPerfectDodgeWindow;
             CanTakeDamage = canTakeDamage;
             AlwaysParry = alwaysParry;
+            IsAssistParryWindow = isAssistParryWindow;
             Policy = policy;
         }
     }
@@ -84,6 +87,11 @@ namespace UPlayGround.Combat
                 return false;
 
             if (query.AlwaysParry)
+                return CombatPolicyResolver.CanParry(query.Policy, defenseType);
+
+            // 어시스트 스왑 패리(§4.3): 입장 캐릭터의 패리 윈도우 중 피격은 패리로 라우팅.
+            // Unblockable(빨강 Danger Ring)은 명시적으로 제외해 회피 강제 원칙을 유지한다(정책 미설정 환경 포함).
+            if (query.IsAssistParryWindow && defenseType != AttackDefenseType.Unblockable)
                 return CombatPolicyResolver.CanParry(query.Policy, defenseType);
 
             return query.IsAttackState

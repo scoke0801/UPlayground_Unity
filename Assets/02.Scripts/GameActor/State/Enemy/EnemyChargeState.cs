@@ -31,6 +31,10 @@ namespace UPlayGround.State
         // 돌진 중 진행 방향 고정 (시작 시 스냅)
         private Vector3 _chargeDirection;
 
+        // 오버슈트 가드: 시작 위치와 돌진해야 할 거리(진입 시점 타겟까지)를 스냅
+        private Vector3 _startPosition;
+        private float _chargeDistance;
+
         private const float CHARGE_SPEED_RATIO  = 2.2f;   // MaxRunSpeed 대비 배율
         private const float MAX_CHARGE_DURATION = 1.2f;   // 최대 돌진 시간
         private const float REACH_DISTANCE      = 1.8f;   // 타겟 도달로 판단할 거리
@@ -59,14 +63,19 @@ namespace UPlayGround.State
             _chargeSpeed      = controller.MaxRunMoveSpeed * CHARGE_SPEED_RATIO;
 
             // 돌진 방향은 진입 시점에 고정 (중간에 꺾이지 않아야 위협적)
+            _startPosition = motor.TransientPosition;
             if (_detection.HasTarget)
             {
-                _chargeDirection = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
-                _chargeDirection.y = 0;
+                Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
+                toTarget.y = 0;
+                _chargeDirection = toTarget.normalized;
+                // 진입 시점 타겟까지의 거리를 스냅 → 이 지점을 통과하면 오버슈트로 간주
+                _chargeDistance  = toTarget.magnitude;
             }
             else
             {
                 _chargeDirection = motor.CharacterForward;
+                _chargeDistance  = _chargeSpeed * MAX_CHARGE_DURATION;
             }
 
             // Run 애니를 빠른 속도로 재생 → 체감상 돌진처럼 보임
@@ -96,6 +105,17 @@ namespace UPlayGround.State
                 _hasReachedTarget = true;
                 controller.TransitionToState(
                     new EnemyAttackState(controller, _combat, _context, _detection));
+                return;
+            }
+
+            // 오버슈트 가드: 진입 시점 타겟 위치까지 이미 도달(통과)했는데도
+            // REACH 안에 못 들었다면 플레이어가 피한 것 → 더 직진하지 말고 추격으로 전환
+            float traveled = Vector3.Dot(motor.TransientPosition - _startPosition, _chargeDirection);
+            if (traveled >= _chargeDistance && !_hasReachedTarget)
+            {
+                _memory?.NotifyAttackMissed();
+                controller.TransitionToState(
+                    new EnemyChaseState(controller, _context, _detection));
                 return;
             }
 

@@ -82,6 +82,9 @@ namespace UPlayGround
 
         // 교체 어시스트
         private bool _swapAssistQueued = false;
+        // 어시스트 패리(§4.3): 패리 윈도우 우선. 창 내 피격 시 패리 처리, 비소비 만료 시 즉시공격으로 폴백.
+        private bool  _assistParryFallbackPending = false;
+        private float _assistParryFallbackTime    = -999f;
 
         // 스왑 회피 카운터. 1차 구현은 등장 공격 데이터를 재사용한다.
         private bool         _swapEvadeQueued = false;
@@ -190,6 +193,13 @@ namespace UPlayGround
 
             if (_chargeAttackHeld)
                 _chargeHoldTime += Time.deltaTime;
+
+            // 어시스트 패리(§4.3) 폴백: 패리 창이 비소비로 만료되면 기존 어시스트 즉시공격으로 폴백.
+            if (_assistParryFallbackPending && Time.time > _assistParryFallbackTime)
+            {
+                _assistParryFallbackPending = false;
+                _swapAssistQueued = true;
+            }
 
             // 스왑 회피 카운터는 등장 공격 데이터를 재사용하되, 일반 어시스트/등장 공격보다 우선한다.
             if (_swapEvadeQueued)
@@ -399,6 +409,18 @@ namespace UPlayGround
         /// </summary>
         public void QueueSwapAssist() => _swapAssistQueued = true;
 
+        /// <summary>
+        /// 어시스트 스왑(§4.3) — 패리 윈도우 우선. 입장 캐릭터에 패리 창을 열고,
+        /// 창이 비소비로 만료되면 기존 어시스트 즉시공격으로 폴백하도록 예약한다.
+        /// PartyManager가 교체 성공 + 어시스트 조건일 때 호출.
+        /// </summary>
+        public void OpenAssistParryAndQueueFallback()
+        {
+            _combat.OpenAssistParryWindow();
+            _assistParryFallbackPending = true;
+            _assistParryFallbackTime    = Time.time + _combat.AssistParryWindowDuration;
+        }
+
         public void BeginSwapEvadeIFrame(float duration)
         {
             _swapEvadeInvincibleEndTime = Time.time + Mathf.Max(0f, duration);
@@ -471,6 +493,9 @@ namespace UPlayGround
                 if (toTarget.sqrMagnitude > 0.0001f)
                     transform.rotation = Quaternion.LookRotation(toTarget);
             }
+
+            // §5.2 등장 변형 — 타깃 상태로 변형을 고르도록 combat에 전달(클리어 전에).
+            _combat.SetPendingEntryTarget(_entryAttackTarget);
 
             _entryAttackQueued = false;
             _entryAttackTarget = null;
@@ -1046,12 +1071,24 @@ namespace UPlayGround
                 _combat.IsPerfectDodgeWindow,
                 CanTakeDamage(),
                 alwaysParry,
+                _combat.IsAssistParryWindow,
                 Definition != null ? Definition.combatDefensePolicy : null);
         }
 
         private void OnParrySuccess(AttackData attackData)
         {
-            Debug.Log("[PlayerActor] 패리 성공!");
+            // 어시스트 패리(§4.3)로 성립한 패리면 어시스트 창을 닫고 폴백(즉시공격)을 취소한다.
+            // (일반 클래시 패리/퍼펙트 가드 반격창과 중복 발동 방지 = 보존 제약)
+            if (_combat.IsAssistParryWindow)
+            {
+                _combat.CloseAssistParryWindow();
+                _assistParryFallbackPending = false;
+                Debug.Log("[PlayerActor] 어시스트 패리 성공!");
+            }
+            else
+            {
+                Debug.Log("[PlayerActor] 패리 성공!");
+            }
 
             var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
 

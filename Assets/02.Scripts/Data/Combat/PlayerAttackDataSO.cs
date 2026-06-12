@@ -52,6 +52,15 @@ namespace UPlayGround.Data.Combat
         [Tooltip("교체 등장 공격 데이터. 비어 있으면 약 공격 첫 번째로 대체된다.")]
         public PlayerAttackInfo entryAttack;
 
+        [Tooltip("§5.2 등장 변형 — 타깃 적이 그로기(Stun/Knockdown/브레이크 노출)일 때 발동. 체크해야 활성화(미체크면 기본 entryAttack 사용).\n" +
+                 "※ baseInfo는 Unity가 항상 인스턴스화하므로 'baseInfo 유무'로는 미설정을 구분할 수 없어 명시 토글로 옵트인한다.")]
+        public bool useEntryAttackVsGroggy = false;
+        public PlayerAttackInfo entryAttackVsGroggy;
+
+        [Tooltip("§5.2 등장 변형 — 타깃 적이 공중(Airborne)일 때 발동(런치 추격 등). 체크해야 활성화(미체크면 기본 entryAttack 사용).")]
+        public bool useEntryAttackVsAirborne = false;
+        public PlayerAttackInfo entryAttackVsAirborne;
+
         [Tooltip("스왑 회피 성공 시 발동하는 카운터 공격 데이터. 비어 있으면 교체 등장 공격, 약 공격 첫 번째 순으로 대체된다.")]
         public PlayerAttackInfo swapEvadeCounterAttack;
 

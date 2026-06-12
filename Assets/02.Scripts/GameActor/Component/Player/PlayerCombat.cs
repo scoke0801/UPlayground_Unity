@@ -151,6 +151,8 @@ namespace UPlayGround.Component
         private AttackInfoBase    _currentAttackInfoBase;
         private IReadOnlyList<HitPhaseData> _currentResidualHitPhases;
         private MonsterActor      _currentFinishTarget;
+        // §5.2 등장 변형 — ExecuteEntryAttack/PeekEntryAttackAnimKey가 타깃 상태로 변형을 고르도록 보관.
+        private MonsterActor      _pendingEntryTarget;
         private MonsterActor      _currentSpecialBreakTarget;
         private float             _currentSpecialBreakDamageByMaxHpRate;
         private float             _currentSpecialBreakFixedDamage;
@@ -214,12 +216,15 @@ namespace UPlayGround.Component
         [SerializeField] private float _parryCounterWindow = 1.5f;
         [Tooltip("퍼펙트 회피 후 회피 카운터 입력을 받는 창 길이 (초)")]
         [SerializeField] private float _dodgeCounterWindow = 1.2f;
+        [Tooltip("어시스트 스왑(§4.3) 직후 입장 캐릭터가 적 공격을 패리로 받는 창 길이 (초)")]
+        [SerializeField] private float _assistParryWindow = 0.4f;
 
         private int   _guardHitCount;
         private float _guardEndTime = -999f;
         private float _perfectGuardCounterEndTime = -999f;
         private float _parryCounterEndTime = -999f;
         private float _dodgeCounterEndTime = -999f;
+        private float _assistParryWindowEnd = -999f;
         private GameActor _dodgeCounterTarget;
 
         public bool IsGuardBroken { get; private set; }
@@ -278,6 +283,23 @@ namespace UPlayGround.Component
             _dodgeCounterEndTime = -999f;
             _dodgeCounterTarget = null;
         }
+
+        /// <summary> 어시스트 패리(§4.3) 윈도우가 열려 있는지 여부 </summary>
+        public bool IsAssistParryWindow => Time.time <= _assistParryWindowEnd;
+
+        /// <summary> 어시스트 패리 윈도우 기본 길이(초). 폴백 타이머 계산에 사용. </summary>
+        public float AssistParryWindowDuration => Mathf.Max(0f, _assistParryWindow);
+
+        /// <summary> 어시스트 스왑 발동 시 호출. 입장 캐릭터에 패리 판정 창을 연다. </summary>
+        public void OpenAssistParryWindow(float durationOverride = -1f)
+        {
+            float duration = durationOverride > 0f ? durationOverride : _assistParryWindow;
+            _assistParryWindowEnd = Time.time + Mathf.Max(0f, duration);
+        }
+
+        /// <summary> 어시스트 패리 창을 즉시 닫는다(패리 성공/폴백 후 중복 방지). </summary>
+        public void CloseAssistParryWindow()
+            => _assistParryWindowEnd = -999f;
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int        CurrentComboIndex { get; private set; }
@@ -689,12 +711,17 @@ namespace UPlayGround.Component
             return _currentAttackData;
         }
 
+        /// <summary>
+        /// §5.2 등장 변형 — PartyManager가 잡은 등장 타깃을 보관한다.
+        /// PlayerActor.ConsumeEntryAttackQueue가 TryStartEntryAttack 직전 호출.
+        /// </summary>
+        public void SetPendingEntryTarget(MonsterActor target) => _pendingEntryTarget = target;
+
         public AttackData ExecuteEntryAttack()
         {
             ClearResidualAttackContext();
-            var source = _attackData.entryAttack?.baseInfo != null
-                ? _attackData.entryAttack
-                : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null);
+            var source = SelectEntryAttackInfo();
+            _pendingEntryTarget = null; // 1회 소비 후 폐기(스테일 타깃 방지)
 
             if (source == null) return null;
 
@@ -704,6 +731,40 @@ namespace UPlayGround.Component
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
+        }
+
+        /// <summary>
+        /// §5.2 타깃 적 상태로 등장 변형을 선택한다. 매칭 없으면 기본 entryAttack → 약공 첫 번째 폴백.
+        /// (공중 변형 우선, 다음 그로기 변형)
+        /// </summary>
+        private PlayerAttackInfo SelectEntryAttackInfo()
+        {
+            if (_attackData == null) return null;
+
+            // 변형은 명시 토글로만 활성(baseInfo는 Unity가 항상 인스턴스화하므로 null 검사로 미설정 구분 불가).
+            if (_attackData.useEntryAttackVsAirborne
+                && IsEntryTargetAirborne(_pendingEntryTarget)
+                && _attackData.entryAttackVsAirborne != null)
+                return _attackData.entryAttackVsAirborne;
+            if (_attackData.useEntryAttackVsGroggy
+                && IsEntryTargetGroggy(_pendingEntryTarget)
+                && _attackData.entryAttackVsGroggy != null)
+                return _attackData.entryAttackVsGroggy;
+
+            if (_attackData.entryAttack?.baseInfo != null)
+                return _attackData.entryAttack;
+            return _attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null;
+        }
+
+        private static bool IsEntryTargetAirborne(MonsterActor target)
+            => target != null && target.ActorController?.CurrentState?.StateName == "Airborne";
+
+        private static bool IsEntryTargetGroggy(MonsterActor target)
+        {
+            if (target == null) return false;
+            string s = target.ActorController?.CurrentState?.StateName;
+            if (s is "Stun" or "Knockdown") return true;
+            return target.BreakGauge != null && target.BreakGauge.IsExposed;
         }
 
         public AttackData ExecuteSwapEvadeCounterAttack()
@@ -992,6 +1053,7 @@ namespace UPlayGround.Component
                 hitPhaseIndex          = 0,
                 attackKind             = attackKind,
                 victimForcedAnimKey    = phase0.victimForcedAnimKey,
+                guaranteedReaction     = phase0.guaranteedReaction,
             };
         }
 
@@ -1029,6 +1091,7 @@ namespace UPlayGround.Component
                 knockbackDrag = source.knockbackDrag,
                 grabDuration = source.grabDuration,
                 victimForcedAnimKey = source.victimForcedAnimKey,
+                guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
             };
         }
@@ -1315,15 +1378,10 @@ namespace UPlayGround.Component
             return source?.baseInfo?.animKey ?? AnimKey.None;
         }
 
-        /// <summary> 등장 공격 AnimKey 조회 (ExecuteEntryAttack과 동일한 폴백 체인). </summary>
+        /// <summary> 등장 공격 AnimKey 조회 (ExecuteEntryAttack과 동일한 변형/폴백 체인). </summary>
         public AnimKey PeekEntryAttackAnimKey()
         {
-            var source = _attackData?.entryAttack?.baseInfo != null
-                ? _attackData.entryAttack
-                : (_attackData != null && _attackData.liteComboAttackList.Count > 0
-                    ? _attackData.liteComboAttackList[0]
-                    : null);
-            return source?.baseInfo?.animKey ?? AnimKey.None;
+            return SelectEntryAttackInfo()?.baseInfo?.animKey ?? AnimKey.None;
         }
 
         /// <summary> 스왑 회피 카운터 AnimKey 조회 (ExecuteSwapEvadeCounterAttack과 동일한 폴백 체인). </summary>

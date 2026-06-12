@@ -34,6 +34,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -57,6 +58,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -80,6 +82,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -103,6 +106,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -126,6 +130,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 48
         poiseDamage: 17
         breakDamage: 11
@@ -143,6 +148,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -166,6 +172,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 59
         poiseDamage: 17
         breakDamage: 11
@@ -183,6 +190,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -206,6 +214,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -229,6 +238,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   - baseInfo:
@@ -252,6 +262,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 239
     hitAngle: 60
   heavyComboAttackList:
@@ -276,6 +287,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   - baseInfo:
@@ -299,6 +311,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   - baseInfo:
@@ -322,6 +335,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   - baseInfo:
@@ -345,6 +359,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   - baseInfo:
@@ -368,6 +383,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 83
         poiseDamage: 30
         breakDamage: 20
@@ -385,6 +401,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   - baseInfo:
@@ -408,6 +425,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 221
     hitAngle: 60
   jumpAttackList: []
@@ -434,6 +452,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 52
         poiseDamage: 33
         breakDamage: 22
@@ -451,6 +470,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 56
         poiseDamage: 35
         breakDamage: 23
@@ -468,6 +488,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 60
         poiseDamage: 38
         breakDamage: 25
@@ -485,6 +506,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 189
     hitAngle: 60
   - baseInfo:
@@ -508,6 +530,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 49
         poiseDamage: 33
         breakDamage: 22
@@ -525,6 +548,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 52
         poiseDamage: 35
         breakDamage: 23
@@ -542,6 +566,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 56
         poiseDamage: 38
         breakDamage: 25
@@ -559,6 +584,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 189
     hitAngle: 60
   skillDefinitions:
@@ -591,6 +617,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 52
             poiseDamage: 33
             breakDamage: 22
@@ -608,6 +635,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 56
             poiseDamage: 35
             breakDamage: 23
@@ -625,6 +653,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 60
             poiseDamage: 38
             breakDamage: 25
@@ -642,6 +671,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
         interruptActions: 61
         hitAngle: 60
       condition:
@@ -680,6 +710,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 49
             poiseDamage: 33
             breakDamage: 22
@@ -697,6 +728,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 52
             poiseDamage: 35
             breakDamage: 23
@@ -714,6 +746,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
           - damage: 56
             poiseDamage: 38
             breakDamage: 25
@@ -731,6 +764,7 @@ MonoBehaviour:
             knockBackDrag: 20
             grabDuration: 1.5
             victimForcedAnimKey: 0
+            guaranteedReaction: 0
         interruptActions: 61
         hitAngle: 60
       condition:
@@ -764,6 +798,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   parryCounterAttack:
@@ -788,6 +823,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   entryAttack:
@@ -812,6 +848,59 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
+    interruptActions: 0
+    hitAngle: 60
+  useEntryAttackVsGroggy: 1
+  entryAttackVsGroggy:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 96
+        poiseDamage: 24
+        breakDamage: 16
+        reactionType: 3
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+    interruptActions: 0
+    hitAngle: 60
+  useEntryAttackVsAirborne: 1
+  entryAttackVsAirborne:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 64
+        poiseDamage: 24
+        breakDamage: 16
+        reactionType: 7
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   swapEvadeCounterAttack:
@@ -836,6 +925,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   swapSpecialAttack:
@@ -860,6 +950,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 96
         poiseDamage: 38
         breakDamage: 25
@@ -877,6 +968,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
       - damage: 107
         poiseDamage: 42
         breakDamage: 28
@@ -894,6 +986,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   chargeAnimKey: 0

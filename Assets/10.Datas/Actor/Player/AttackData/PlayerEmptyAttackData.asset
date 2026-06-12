@@ -42,6 +42,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   parryCounterAttack:
@@ -66,6 +67,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   entryAttack:
@@ -90,6 +92,59 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
+    interruptActions: 0
+    hitAngle: 60
+  useEntryAttackVsGroggy: 1
+  entryAttackVsGroggy:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 15
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 3
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+    interruptActions: 0
+    hitAngle: 60
+  useEntryAttackVsAirborne: 1
+  entryAttackVsAirborne:
+    baseInfo:
+      animKey: 100
+      attackType: 0
+      hitPhases:
+      - damage: 10
+        poiseDamage: 30
+        breakDamage: 10
+        reactionType: 7
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   swapEvadeCounterAttack:
@@ -114,6 +169,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   swapSpecialAttack:
@@ -138,6 +194,7 @@ MonoBehaviour:
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedAnimKey: 0
+        guaranteedReaction: 0
     interruptActions: 0
     hitAngle: 60
   chargeAnimKey: 0

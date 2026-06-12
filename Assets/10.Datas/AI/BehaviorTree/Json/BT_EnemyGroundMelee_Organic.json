@@ -19,6 +19,12 @@
         { "key": "IsPlayerStaggered", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
         { "key": "IsPlayerRecovering", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
         { "key": "IsPlayerDodgingFrequently", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsAttacking", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsGuarding", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsStaggered", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsRecovering", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsDodgingFrequently", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
+        { "key": "Memory.Player.IsAttackingFrequently", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
         { "key": "CanUseSkill", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
         { "key": "HasAttackSlot", "valueType": 0, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" },
         { "key": "NextActionAllowedTime", "valueType": 2, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": { "x": 0.0, "y": 0.0, "z": 0.0 }, "objectAssetPath": "" }
@@ -128,10 +134,12 @@
                 "seq_survival_low_hp",
                 "seq_poise_break_dodge",
                 "seq_revenge_counter",
+                "seq_read_attack_spam",
                 "seq_react_player_attack",
                 "seq_punish_stagger",
                 "seq_punish_recovery",
                 "seq_guard_pressure",
+                "seq_read_dodge_habit",
                 "seq_attack_main",
                 "seq_personal_space",
                 "seq_close_harass",
@@ -288,6 +296,103 @@
         },
         {
             "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_read_attack_spam",
+            "displayName": "Branch_Read_PlayerAttackSpam",
+            "comment": "플레이어가 근접 공격을 반복하면 무조건 맞받아치지 않고 짧은 이탈/스텝/카운터를 섞어 리듬을 흔든다.",
+            "position": { "x": -780.0, "y": 600.0 },
+            "children": [ "cond_player_attacking_frequently", "cond_attack_spam_range_3m", "cd_attack_spam_read" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
+            "guid": "cond_player_attacking_frequently",
+            "displayName": "Condition_PlayerAttackFrequently",
+            "comment": "최근 플레이어가 공격 버튼을 자주 누르는 성향.",
+            "position": { "x": -860.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsAttackingFrequently" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_attack_spam_range_3m",
+            "displayName": "Condition_TargetIn_3m_AttackSpamRead",
+            "comment": "공격 습관 읽기는 실제 위협 거리 안에서만.",
+            "position": { "x": -760.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "LessOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "0" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "3" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_attack_spam_read",
+            "displayName": "Cooldown_AttackSpamRead_5s",
+            "comment": "플레이어 습관 대응이 매번 나오지 않도록 5초 제한.",
+            "position": { "x": -660.0, "y": 800.0 },
+            "children": [ "wrs_attack_spam_read" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "5" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode, Assembly-CSharp",
+            "guid": "wrs_attack_spam_read",
+            "displayName": "AttackSpamRead_Weighted_JumpBack_Step_Counter",
+            "comment": "공격 연타를 읽었을 때 45% 점프백, 35% 스텝, 20% 카운터. 완벽 대응이 아니라 가끔 읽힌 느낌을 만든다.",
+            "position": { "x": -660.0, "y": 1000.0 },
+            "children": [ "act_jumpback_attack_spam", "act_step_attack_spam", "act_counter_attack_spam" ],
+            "properties": [
+                { "name": "_weights", "type": "System.Collections.Generic.List`1[[System.Single, mscorlib]], mscorlib", "value": "{\"value\":[0.45,0.35,0.2]}" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_jumpback_attack_spam",
+            "displayName": "Action_JumpBack_AttackSpamRead",
+            "comment": "공격 연타를 헛치게 만드는 짧은 후방 이탈.",
+            "position": { "x": -780.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "JumpBack" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_step_attack_spam",
+            "displayName": "Action_Step_AttackSpamRead",
+            "comment": "짧은 스텝으로 공격 라인을 비틀어 다음 판단을 유도.",
+            "position": { "x": -660.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Step" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_counter_attack_spam",
+            "displayName": "Action_Counter_AttackSpamRead",
+            "comment": "공격 연타를 낮은 확률로 직접 응징.",
+            "position": { "x": -540.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Counter" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
             "guid": "seq_react_player_attack",
             "displayName": "Branch_React_PlayerAttack",
             "comment": "플레이어가 3m 안에서 공격 중이면 방어 반응. 쿨다운 2.5초 — 매 스윙마다 반응하면 못 때리는 적이 되므로 가끔만.",
@@ -298,15 +403,18 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_player_attacking",
             "displayName": "Condition_IsPlayerAttacking",
-            "comment": "SyncEnemyMemoryNode가 채운 관찰값.",
+            "comment": "SyncEnemyMemoryNode가 채운 최신 Memory.Player.IsAttacking 관찰값.",
             "position": { "x": -720.0, "y": 800.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerAttacking" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsAttacking" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },
         {
@@ -336,11 +444,13 @@
         {
             "type": "UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode, Assembly-CSharp",
             "guid": "wrs_defense_choice",
-            "displayName": "DefenseChoice_Weighted_Dodge_Guard_Counter",
-            "comment": "같은 상황에서도 다른 반응 — 예측 불가성. 권장 가중치: Dodge 0.5 / Guard 0.3 / Counter 0.2 (에디터에서 설정).",
+            "displayName": "DefenseChoice_Weighted_Dodge_Guard_Counter_Retreat",
+            "comment": "같은 공격 읽기 상황에서도 Dodge/Guard/Counter/Retreat를 섞는다. 완벽 방어가 아니라 살아있는 반응처럼 보이게 한다.",
             "position": { "x": -520.0, "y": 1000.0 },
-            "children": [ "act_dodge_react", "act_guard_react", "act_counter_react" ],
-            "properties": []
+            "children": [ "act_dodge_react", "act_guard_react", "act_counter_react", "act_retreat_react" ],
+            "properties": [
+                { "name": "_weights", "type": "System.Collections.Generic.List`1[[System.Single, mscorlib]], mscorlib", "value": "{\"value\":[0.45,0.30,0.15,0.10]}" }
+            ]
         },
         {
             "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
@@ -379,6 +489,18 @@
             ]
         },
         {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_retreat_react",
+            "displayName": "Action_Retreat_React",
+            "comment": "공격을 읽었지만 맞받아치지 않고 거리를 벌리는 선택지.",
+            "position": { "x": -280.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Retreat" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
             "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
             "guid": "seq_punish_stagger",
             "displayName": "Branch_Punish_PlayerStaggered",
@@ -390,15 +512,18 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_player_staggered",
             "displayName": "Condition_IsPlayerStaggered",
             "comment": "플레이어 스태거 관찰값.",
             "position": { "x": -420.0, "y": 800.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerStaggered" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsStaggered" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },
         {
@@ -435,15 +560,18 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_player_recovering",
             "displayName": "Condition_IsPlayerRecovering",
             "comment": "플레이어 회복 중 관찰값.",
             "position": { "x": -160.0, "y": 800.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerRecovering" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsRecovering" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },
         {
@@ -491,15 +619,18 @@
             ]
         },
         {
-            "type": "UPlayGround.AI.BehaviorTree.BlackboardBoolConditionNode, Assembly-CSharp",
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
             "guid": "cond_player_guarding",
             "displayName": "Condition_IsPlayerGuarding",
             "comment": "플레이어 가드 중 관찰값.",
             "position": { "x": 160.0, "y": 800.0 },
             "children": [],
             "properties": [
-                { "name": "_key", "type": "System.String, mscorlib", "value": "IsPlayerGuarding" },
-                { "name": "_expectedValue", "type": "System.Boolean, mscorlib", "value": "True" }
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsGuarding" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },
         {
@@ -534,6 +665,103 @@
             "position": { "x": 360.0, "y": 1000.0 },
             "children": [],
             "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
+            "guid": "seq_read_dodge_habit",
+            "displayName": "Branch_Read_PlayerDodgeHabit",
+            "comment": "플레이어가 구르기를 자주 쓰면 바로 휘두르지 않고 스텝/차지/서클로 회피 타이밍을 흔든다.",
+            "position": { "x": 420.0, "y": 600.0 },
+            "children": [ "cond_player_dodging_frequently", "cond_dodge_habit_range_3_8m", "cd_dodge_habit_read" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.BlackboardCompareNode, Assembly-CSharp",
+            "guid": "cond_player_dodging_frequently",
+            "displayName": "Condition_PlayerDodgeFrequently",
+            "comment": "최근 플레이어가 회피를 자주 사용했는지.",
+            "position": { "x": 320.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_key", "type": "System.String, mscorlib", "value": "Memory.Player.IsDodgingFrequently" },
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.BlackboardComparisonType, Assembly-CSharp", "value": "Equal" },
+                { "name": "_value", "type": "System.String, mscorlib", "value": "true" },
+                { "name": "_valueKey", "type": "System.String, mscorlib", "value": "" },
+                { "name": "_ignoreCase", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode, Assembly-CSharp",
+            "guid": "cond_dodge_habit_range_3_8m",
+            "displayName": "Condition_TargetIn_3_8m_DodgeHabit",
+            "comment": "회피 습관 대응은 근접 압박권 안에서만 수행.",
+            "position": { "x": 420.0, "y": 800.0 },
+            "children": [],
+            "properties": [
+                { "name": "_comparison", "type": "UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp", "value": "LessOrEqual" },
+                { "name": "_minDistance", "type": "System.Single, mscorlib", "value": "0" },
+                { "name": "_maxDistance", "type": "System.Single, mscorlib", "value": "3.8" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_dodge_habit_read",
+            "displayName": "Cooldown_DodgeHabitRead_6s",
+            "comment": "회피 습관 대응이 반복 패턴이 되지 않도록 6초 제한.",
+            "position": { "x": 520.0, "y": 800.0 },
+            "children": [ "wrs_dodge_habit_read" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "6" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode, Assembly-CSharp",
+            "guid": "wrs_dodge_habit_read",
+            "displayName": "DodgeHabitRead_Weighted_Step_Charge_Circle",
+            "comment": "회피 습관을 읽었을 때 45% 스텝 페인트, 30% 차지 압박, 25% 서클링으로 다음 공격각을 다시 만든다.",
+            "position": { "x": 520.0, "y": 1000.0 },
+            "children": [ "act_step_dodge_habit", "act_charge_dodge_habit", "act_circle_dodge_habit" ],
+            "properties": [
+                { "name": "_weights", "type": "System.Collections.Generic.List`1[[System.Single, mscorlib]], mscorlib", "value": "{\"value\":[0.45,0.30,0.25]}" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_step_dodge_habit",
+            "displayName": "Action_Step_DodgeHabitRead",
+            "comment": "회피 타이밍을 흔드는 짧은 스텝.",
+            "position": { "x": 400.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Step" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_charge_dodge_habit",
+            "displayName": "Action_Charge_DodgeHabitRead",
+            "comment": "습관적 회피 후 거리를 벌리는 플레이어를 따라붙는 압박.",
+            "position": { "x": 520.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Charge" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_circle_dodge_habit",
+            "displayName": "Action_Circle_DodgeHabitRead",
+            "comment": "무리하게 공격하지 않고 각을 다시 잡는다.",
+            "position": { "x": 640.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Circle" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
         },
         {
             "type": "UPlayGround.AI.BehaviorTree.SequenceNode, Assembly-CSharp",
@@ -674,10 +902,10 @@
         {
             "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
             "guid": "sel_harass_rotation",
-            "displayName": "Harass_Rotation_Flank_Circle",
-            "comment": "쿨다운 로테이션으로 가중치 없이 변화 생성: 5초에 1번 측면 침투(Flank), 나머지는 서클링.",
+            "displayName": "Harass_Rotation_Flank_Step_Circle",
+            "comment": "쿨다운 로테이션으로 변화 생성: 측면 침투, 짧은 스텝 페인트, 기본 서클링을 섞는다.",
             "position": { "x": 1300.0, "y": 800.0 },
-            "children": [ "cd_harass_flank", "act_circle_harass" ],
+            "children": [ "cd_harass_flank", "cd_harass_step", "act_circle_harass" ],
             "properties": [
                 { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
             ]
@@ -694,6 +922,17 @@
             ]
         },
         {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_harass_step",
+            "displayName": "Cooldown_HarassStep_3s",
+            "comment": "근접 견제 중 짧은 스텝 페인트 주기 3초.",
+            "position": { "x": 1320.0, "y": 1000.0 },
+            "children": [ "act_step_harass" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "3" }
+            ]
+        },
+        {
             "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
             "guid": "act_flank_harass",
             "displayName": "Action_Flank_Harass",
@@ -702,6 +941,18 @@
             "children": [],
             "properties": [
                 { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Flank" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_step_harass",
+            "displayName": "Action_Step_Harass",
+            "comment": "공격 인터벌 중 짧게 발을 바꿔 플레이어 회피/가드 타이밍을 흔든다.",
+            "position": { "x": 1320.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Step" },
                 { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },
@@ -744,10 +995,10 @@
         {
             "type": "UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp",
             "guid": "sel_approach_rotation",
-            "displayName": "Approach_Rotation_Charge_Chase",
-            "comment": "돌진은 쿨다운 8초 — 매번 돌진하면 패턴화되므로 가끔 기습적으로.",
+            "displayName": "Approach_Rotation_Charge_Flank_Chase",
+            "comment": "원거리 접근은 돌진/측면 접근/추격을 섞어 단순 직선 추격 패턴을 줄인다.",
             "position": { "x": 1580.0, "y": 800.0 },
-            "children": [ "cd_approach_charge", "act_chase_far" ],
+            "children": [ "cd_approach_charge", "cd_approach_flank", "act_chase_far" ],
             "properties": [
                 { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp", "value": "None" }
             ]
@@ -764,6 +1015,17 @@
             ]
         },
         {
+            "type": "UPlayGround.AI.BehaviorTree.CooldownNode, Assembly-CSharp",
+            "guid": "cd_approach_flank",
+            "displayName": "Cooldown_ApproachFlank_6s",
+            "comment": "멀리서도 가끔 직선 추격 대신 측면 접근을 시도한다.",
+            "position": { "x": 1640.0, "y": 1000.0 },
+            "children": [ "act_flank_approach" ],
+            "properties": [
+                { "name": "_cooldown", "type": "System.Single, mscorlib", "value": "6" }
+            ]
+        },
+        {
             "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
             "guid": "act_charge_gap",
             "displayName": "Action_Charge_GapCloser",
@@ -772,6 +1034,18 @@
             "children": [],
             "properties": [
                 { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Charge" },
+                { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode, Assembly-CSharp",
+            "guid": "act_flank_approach",
+            "displayName": "Action_Flank_Approach",
+            "comment": "먼 거리에서 정면 추격 대신 측면 각을 먼저 잡는다.",
+            "position": { "x": 1640.0, "y": 1200.0 },
+            "children": [],
+            "properties": [
+                { "name": "_targetState", "type": "UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp", "value": "Flank" },
                 { "name": "_skipIfAlreadyInState", "type": "System.Boolean, mscorlib", "value": "True" }
             ]
         },

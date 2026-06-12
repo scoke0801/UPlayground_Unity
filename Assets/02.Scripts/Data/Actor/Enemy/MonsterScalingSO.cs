@@ -51,7 +51,7 @@ namespace UPlayGround.Data.Enemy
 
         [Header("공격 피해 커브 (공격 데이터 생성기 연동)")]
         [Tooltip("Normal 등급 1타 목표 최종 피해량(레벨 보정 전). 공격 데이터 생성기의 base 피해로 사용된다.")]
-        [Min(0f)] public float baseAttackDamage = 12f;
+        [Min(0f)] public float baseAttackDamage = 10f;
 
         public bool TryGetGrade(MonsterActorGrade grade, out GradeScaling scaling)
         {
@@ -92,24 +92,27 @@ namespace UPlayGround.Data.Enemy
         }
 
         /// <summary>
-        /// 플레이어 기본 DPS 45 전후를 기준으로 약몹은 짧게, 보스만 장기전으로 가는 액션 전투용 기본값.
+        /// 명조형 액션 전투 페이싱을 기준으로 약몹은 짧게, 엘리트는 공진/경직 플레이를 요구하고,
+        /// 보스는 장기전이지만 지나친 HP 벽이 되지 않도록 잡은 기본값.
         /// 생성기에서 명시적으로 적용하거나 새 Scaling 에셋을 만들 때 사용한다.
         /// </summary>
         public void ApplyActionCombatDefaults()
         {
+            baseAttackDamage = 10f;
+
             gradeScalings = new List<GradeScaling>
             {
-                new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.55f, attackMultiplier = 0.70f, poiseMultiplier = 0.40f, defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 0.70f },
-                new() { grade = MonsterActorGrade.Normal, healthMultiplier = 1f,    attackMultiplier = 1f,    poiseMultiplier = 1f,    defenseAdd = 0f,    moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1f },
-                new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 3f,    attackMultiplier = 1.15f, poiseMultiplier = 2f,    defenseAdd = 0.06f, moveSpeedMultiplier = 1.06f, attackDamageMultiplier = 1.25f },
-                new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 14f,   attackMultiplier = 1.35f, poiseMultiplier = 5f,    defenseAdd = 0.12f, moveSpeedMultiplier = 1f,   attackDamageMultiplier = 1.75f },
+                new() { grade = MonsterActorGrade.Weak,   healthMultiplier = 0.45f, attackMultiplier = 0.65f, poiseMultiplier = 0.35f, defenseAdd = 0f,    moveSpeedMultiplier = 1.02f, attackDamageMultiplier = 0.65f },
+                new() { grade = MonsterActorGrade.Normal, healthMultiplier = 1f,    attackMultiplier = 1f,    poiseMultiplier = 1f,    defenseAdd = 0f,    moveSpeedMultiplier = 1f,    attackDamageMultiplier = 1f },
+                new() { grade = MonsterActorGrade.Elite,  healthMultiplier = 2.6f,  attackMultiplier = 1.2f,  poiseMultiplier = 2.1f,  defenseAdd = 0.04f, moveSpeedMultiplier = 1.05f, attackDamageMultiplier = 1.25f },
+                new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 9.5f,  attackMultiplier = 1.45f, poiseMultiplier = 4.2f,  defenseAdd = 0.08f, moveSpeedMultiplier = 1f,    attackDamageMultiplier = 1.6f },
             };
 
             growthRules = new List<StatGrowthRule>
             {
-                new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.04f },
-                new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.025f },
-                new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.02f },
+                new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
             };
         }
 
@@ -123,9 +126,9 @@ namespace UPlayGround.Data.Enemy
             {
                 growthRules = new List<StatGrowthRule>
                 {
-                    new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.04f },
-                    new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.025f },
-                    new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.02f },
+                    new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                    new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                    new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
                 };
             }
         }

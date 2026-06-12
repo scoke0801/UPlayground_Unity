@@ -829,6 +829,7 @@ namespace UPlayGround.Editor
                 knockBackDrag = source.knockBackDrag,
                 grabDuration = source.grabDuration,
                 victimForcedAnimKey = source.victimForcedAnimKey,
+                guaranteedReaction = source.guaranteedReaction,
             };
         }
 

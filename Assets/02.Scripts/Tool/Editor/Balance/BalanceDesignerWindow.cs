@@ -332,7 +332,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             Rect header = GUILayoutUtility.GetRect(0f, 24f, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(header, new Color(0.14f, 0.14f, 0.16f));
-            DrawResultCells(header, "Actor", "Status", "플레이어 생존", "몬스터 처치", "플레이어 DPS", "적 DPS", "Strong%", "공격 기회", "Summary", true);
+            DrawResultCells(header, "Actor", "Score", "Status", "플레이어 생존", "몬스터 처치", "플레이어 DPS", "적 DPS", "Strong%", "권장 액션", true);
 
             _resultScroll = EditorGUILayout.BeginScrollView(_resultScroll, GUILayout.MinHeight(160f), GUILayout.MaxHeight(240f));
             for (int i = 0; i < _results.Count; i++)
@@ -351,14 +351,14 @@ namespace UPlayGround.Tool.Editor.Balance
             DrawResultCells(
                 rect,
                 result.Actor != null ? result.Actor.actorId : "(null)",
+                result.BalanceScore.ToString("F0"),
                 result.Status.ToString(),
                 BalanceCombatEstimator.FormatTime(result.PlayerTimeToDeath),
                 BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeath),
                 result.PlayerExpectedDps.ToString("F1"),
                 result.EnemyExpectedDps.ToString("F1"),
                 $"{result.StrongAttackChance * 100f:F0}%",
-                result.EnemyAttackOpportunities.ToString("F1"),
-                result.Summary,
+                result.RecommendedAction,
                 false);
 
             if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
@@ -374,27 +374,27 @@ namespace UPlayGround.Tool.Editor.Balance
         private void DrawResultCells(
             Rect rect,
             string actor,
+            string score,
             string status,
             string playerTtd,
             string monsterTtd,
             string playerDps,
             string enemyDps,
             string strongChance,
-            string opportunities,
-            string summary,
+            string recommendedAction,
             bool header)
         {
             GUIStyle style = header ? EditorStyles.boldLabel : EditorStyles.label;
             float x = rect.x + 6f;
             Label(new Rect(x, rect.y + 3f, 160f, 18f), actor, style); x += 164f;
+            Label(new Rect(x, rect.y + 3f, 48f, 18f), score, style); x += 52f;
             Label(new Rect(x, rect.y + 3f, 82f, 18f), status, style); x += 86f;
             Label(new Rect(x, rect.y + 3f, 92f, 18f), playerTtd, style); x += 96f;
             Label(new Rect(x, rect.y + 3f, 92f, 18f), monsterTtd, style); x += 96f;
             Label(new Rect(x, rect.y + 3f, 82f, 18f), playerDps, style); x += 86f;
             Label(new Rect(x, rect.y + 3f, 64f, 18f), enemyDps, style); x += 68f;
             Label(new Rect(x, rect.y + 3f, 64f, 18f), strongChance, style); x += 68f;
-            Label(new Rect(x, rect.y + 3f, 82f, 18f), opportunities, style); x += 86f;
-            Label(new Rect(x, rect.y + 3f, rect.xMax - x - 6f, 18f), summary, style);
+            Label(new Rect(x, rect.y + 3f, rect.xMax - x - 6f, 18f), recommendedAction, style);
         }
 
         private static void Label(Rect rect, string text, GUIStyle style)
@@ -428,6 +428,9 @@ namespace UPlayGround.Tool.Editor.Balance
                 EditorStyles.miniLabel);
             EditorGUILayout.LabelField(
                 $"몬스터 처치 예상 시간 {BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeath)} / 플레이어 생존 예상 시간 {BalanceCombatEstimator.FormatTime(result.PlayerTimeToDeath)}",
+                EditorStyles.miniLabel);
+            EditorGUILayout.LabelField(
+                $"품질 점수 {result.BalanceScore:F0}/100 / 생존 목표비 {result.PlayerSurvivalRatio:F2}x / 처치 목표비 {result.MonsterKillRatio:F2}x / 권장 액션: {result.RecommendedAction}",
                 EditorStyles.miniLabel);
             if (result.MonsterBreakGauge > 0f)
             {
@@ -806,7 +809,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 return;
 
             var builder = new StringBuilder();
-            builder.AppendLine("actorId,displayName,level,grade,status,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterKillSecondsWithBreak,monsterHp,playerAttackPower,playerDps,playerEffectiveDpsWithBreak,playerBreakDps,monsterBreakGauge,estimatedTimeToBreak,breaksPerFight,breakExposedUptime,enemyDps,enemyPoiseDps,playerPoiseRecovery,netPoisePressure,basicChance,heavyChance,skillChance,strongChance,topAttack,topAttackShare,dangerRingMissing,attackOpportunities,unlockedSkills,lockedSkills,availableSkills,summary");
+            builder.AppendLine("actorId,displayName,level,grade,status,balanceScore,playerSurvivalRatio,monsterKillRatio,recommendedAction,targetDuration,playerSurvivalSeconds,monsterKillSeconds,monsterKillSecondsWithBreak,monsterHp,playerAttackPower,playerDps,playerEffectiveDpsWithBreak,playerBreakDps,monsterBreakGauge,estimatedTimeToBreak,breaksPerFight,breakExposedUptime,enemyDps,enemyPoiseDps,playerPoiseRecovery,netPoisePressure,basicChance,heavyChance,skillChance,strongChance,topAttack,topAttackShare,dangerRingMissing,attackOpportunities,unlockedSkills,lockedSkills,availableSkills,summary");
             for (int i = 0; i < _results.Count; i++)
             {
                 BalanceScenarioResult r = _results[i];
@@ -820,6 +823,14 @@ namespace UPlayGround.Tool.Editor.Balance
                 builder.Append(actor != null ? actor.grade.ToString() : "");
                 builder.Append(',');
                 builder.Append(r.Status);
+                builder.Append(',');
+                builder.Append(r.BalanceScore.ToString("F0"));
+                builder.Append(',');
+                builder.Append(r.PlayerSurvivalRatio.ToString("F4"));
+                builder.Append(',');
+                builder.Append(r.MonsterKillRatio.ToString("F4"));
+                builder.Append(',');
+                builder.Append(Escape(r.RecommendedAction));
                 builder.Append(',');
                 builder.Append(r.TargetDuration.ToString("F2"));
                 builder.Append(',');

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,6 +59,24 @@ namespace UPlayGround.UI.InputPrompt
         [SerializeField] private Image              _cooldownFill;
         [SerializeField] private TextMeshProUGUI    _cooldownText;
 
+        [Header("트윈 (DOTween)")]
+        [Tooltip("상태 전이(사용 순간 / 쿨타임 시작 / 사용 가능 복귀) 시 펀치 트윈을 재생할지 여부.")]
+        [SerializeField] private bool _enableTween = true;
+        [Tooltip("펀치 대상. 비우면 이 슬롯 자신의 transform을 사용한다.")]
+        [SerializeField] private RectTransform _tweenTarget;
+        [Tooltip("스킬 사용 순간 슬롯 펀치 세기(스케일 가산). 0.15=1.0→1.15.")]
+        [SerializeField] private float _usePunch = 0.15f;
+        [Tooltip("스킬 사용 순간 펀치 지속(초).")]
+        [SerializeField] private float _useDuration = 0.25f;
+        [Tooltip("사용 가능 복귀 시 슬롯 펀치 세기(사용보다 살짝 크게).")]
+        [SerializeField] private float _readyPunch = 0.2f;
+        [Tooltip("사용 가능 복귀 펀치 지속(초).")]
+        [SerializeField] private float _readyDuration = 0.3f;
+        [Tooltip("쿨타임 시작/사용 가능 시 하위 오버레이(_cooldownRoot·_availableRoot) 팝-인 세기.")]
+        [SerializeField] private float _overlayPunch = 0.25f;
+        [Tooltip("오버레이 팝-인 지속(초).")]
+        [SerializeField] private float _overlayDuration = 0.25f;
+
         public ComboInputToken Token => _token;
 
         /// <summary>이 슬롯이 게이지를 요구하는지(스킬 슬롯).</summary>
@@ -112,6 +131,7 @@ namespace UPlayGround.UI.InputPrompt
             CacheAvailableRootMembership();
             SetComboHint(false);
             ClearGaugeState();
+            ResetTweenState();   // 바인드/스왑 시 트윈 베이스라인 재설정(오발화 방지).
         }
 
         private bool TryResolveInputAction(out string map, out string action)
@@ -252,6 +272,9 @@ namespace UPlayGround.UI.InputPrompt
                     : string.Empty;
             }
 
+            // 상태 전이 트윈은 오버레이 SetActive 이후에 평가한다(팝-인 대상이 활성 상태여야 함).
+            DriveTweens(ready, hasCooldown);
+
             return showCooldown;
         }
 
@@ -327,6 +350,91 @@ namespace UPlayGround.UI.InputPrompt
 
             if (_comboGlow != null)
                 _comboGlow.SetActive(active);
+        }
+
+        // ── 트윈(DOTween) ────────────────────────────────────────────
+        // SetGaugeState에서 상태 전이를 엣지 감지해 1회 연출한다:
+        //   #1 사용 순간 + #2 쿨타임 시작 : 쿨타임이 새로 걸린 엣지(슬롯 펀치 + 쿨타임 오버레이 팝-인)
+        //   #3 사용 가능 복귀            : 사용 불가→가능 엣지(슬롯 펀치 + 사용가능 오버레이 팝-인)
+        // 펀치는 DOPunchScale로 현재 스케일을 기준으로 가산 진동 후 원복하므로 스케일 드리프트가 없다.
+        // 히트스톱(Time.timeScale 변경)에 얼지 않도록 SetUpdate(true)로 독립 갱신한다.
+        private bool _stateInitialized;
+        private bool _prevOnCooldown;
+        private bool _prevReady;
+        private Vector3 _baseScale = Vector3.one;
+        private Tween _slotTween;
+        private Tween _cooldownTween;
+        private Tween _availableTween;
+
+        private Transform ScaleTarget => _tweenTarget != null ? (Transform)_tweenTarget : transform;
+
+        private void Awake()
+        {
+            // 스왑 중 펀치 진행 도중 Initialize가 다시 호출되어도 베이스 스케일이 어긋나지 않도록 1회만 캐시한다.
+            _baseScale = ScaleTarget.localScale;
+        }
+
+        private void OnDisable()
+        {
+            KillTweens();
+            ScaleTarget.localScale = _baseScale;
+        }
+
+        private void DriveTweens(bool ready, bool onCooldown)
+        {
+            if (!_enableTween) return;
+
+            // 첫 갱신은 베이스라인만 잡고 연출하지 않는다(바인드/스왑 직후 오발화 방지).
+            if (!_stateInitialized)
+            {
+                _prevReady        = ready;
+                _prevOnCooldown   = onCooldown;
+                _stateInitialized = true;
+                return;
+            }
+
+            if (onCooldown && !_prevOnCooldown)
+            {
+                Punch(ref _slotTween, ScaleTarget, _usePunch, _useDuration);            // #1
+                if (_cooldownRoot != null)
+                    Punch(ref _cooldownTween, _cooldownRoot.transform, _overlayPunch, _overlayDuration); // #2
+            }
+            else if (ready && !_prevReady)
+            {
+                Punch(ref _slotTween, ScaleTarget, _readyPunch, _readyDuration);        // #3
+                if (_availableRoot != null)
+                    Punch(ref _availableTween, _availableRoot.transform, _overlayPunch, _overlayDuration);
+            }
+
+            _prevReady      = ready;
+            _prevOnCooldown = onCooldown;
+        }
+
+        // 공용 펀치 스케일. 대상이 비활성이면 건너뛰고, 직전 펀치는 원복(complete:true)한 뒤 새로 시작한다.
+        private static void Punch(ref Tween tween, Transform target, float strength, float duration)
+        {
+            if (target == null || !target.gameObject.activeInHierarchy) return;
+            tween?.Kill(complete: true);
+            tween = target.DOPunchScale(Vector3.one * strength, duration, vibrato: 1, elasticity: 0.5f)
+                          .SetUpdate(true);
+        }
+
+        private void ResetTweenState()
+        {
+            KillTweens();
+            ScaleTarget.localScale = _baseScale;
+            _stateInitialized = false;
+        }
+
+        private void KillTweens()
+        {
+            // complete:true로 종료해 펀치를 시작(클린) 스케일로 스냅한다.
+            // 중간 스케일에서 멈추면 다음 DOPunchScale이 드리프트를 기준으로 시작·복귀해
+            // 오버레이 루트(_cooldownRoot/_availableRoot) 스케일이 누적 드리프트한다.
+            _slotTween?.Kill(complete: true);
+            _cooldownTween?.Kill(complete: true);
+            _availableTween?.Kill(complete: true);
+            _slotTween = _cooldownTween = _availableTween = null;
         }
     }
 }

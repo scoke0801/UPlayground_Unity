@@ -18,6 +18,56 @@
 
 이 문서는 위 기능을 묶어 밸런스 디자이너용 분석 툴로 확장하기 위한 기준 문서다. 현재 1차 구현은 `Balance Designer` 분석 창, 누락 데이터 자동 생성, MotionSet 기반 공격 데이터 생성 개선까지 포함한다.
 
+### 외부 조사 기반 원칙
+
+최근 게임 밸런싱 자료와 연구는 공통적으로 "수치 균등화"보다 **플레이어 체감 + 전투 로그 + 반복 가능한 시뮬레이션**의 결합을 강조한다.
+
+| 원칙 | 적용 방식 |
+|------|-----------|
+| 수치상 균형만으로 충분하지 않음 | `Stable` 판정이어도 플레이테스트/리플레이 로그로 체감 난이도를 확인한다. 참고: `It might be balanced, but is it actually good?`(arXiv 2024) |
+| 플레이어 의견과 전투 데이터 결합 | 정적 예측값과 실제 `CombatLogRecorder`/`EncounterReplay` 통계를 비교한다. 참고: `On Video Game Balancing: Joining Player- and Data-Driven Analytics`(arXiv 2023) |
+| 자동 테스트는 보조 수단 | 수동 플레이테스트를 대체하지 않고, 반복 파라미터 검증과 회귀 탐지에 사용한다. 참고: `Assessing Video Game Balance using Autonomous Agents`(arXiv 2023), `Automatic Playtesting for Game Parameter Tuning`(arXiv 2019) |
+| 변경 원인 추적 필요 | 자동 적용은 `Undo`와 변경 전/후 CSV를 남기고, 공유 SO 변경 위험을 명시한다 |
+
+따라서 UPlayground의 밸런스 툴은 `ActorDefinitionSO`를 중심으로 한 정적 추정에서 출발하되, 최종 의사결정은 리플레이/전투 로그 비교까지 거친다.
+
+### 명조 레퍼런스 기반 기본값
+
+몬스터 기본 Scaling은 명조(Wuthering Waves)의 공개 전투 구조를 참고한 **액션 전투 페이싱 프리셋**이다. 명조의 정확한 적 HP/ATK 원시 테이블은 공식적으로 공개된 자료가 아니므로, 아래 값은 원본 수치 복제가 아니라 UPlayground의 `Weak/Normal/Elite/Boss` 등급 체계에 맞춘 상대 배율이다.
+
+참고한 공개 구조:
+
+| 레퍼런스 | 반영 기준 |
+|----------|-----------|
+| 명조 전투는 Basic/Heavy/Mid-air/Dodge Counter, Resonance Skill/Liberation, Intro/Outro, Echo를 조합한다. | 플레이어가 회피 카운터/스킬로 위험 구간을 끊을 수 있으므로 일반 몬스터 HP 벽을 낮춘다. |
+| 적은 Common/Elite/Boss/Calamity 등으로 분류된다. | UPlayground의 `Weak/Normal/Elite/Boss`에 대응해 Elite부터 HP/Poise를 뚜렷하게 올린다. |
+| Vibration Strength가 모두 깎이면 적이 Immobilize 되고, 카운터/회피 카운터/Intro Skill이 이를 크게 줄인다. | `MaxPoise` 배율을 HP보다 별도 축으로 운용한다. Elite/Boss는 경직 플레이를 요구하되, Boss Poise를 과도하게 높이지 않는다. |
+
+참고 URL:
+
+- https://wutheringwaves.fandom.com/wiki/Combat
+- https://wutheringwaves.fandom.com/wiki/Enemy
+- https://wutheringwaves.fandom.com/wiki/Vibration_Strength
+
+적용 기본값:
+
+| 등급 | HP | ATK | Poise | DEF+ | Move | 공격 1타 피해 |
+|------|----|-----|-------|------|------|----------------|
+| Weak | 0.45 | 0.65 | 0.35 | 0.00 | 1.02 | 0.65 |
+| Normal | 1.00 | 1.00 | 1.00 | 0.00 | 1.00 | 1.00 |
+| Elite | 2.60 | 1.20 | 2.10 | 0.04 | 1.05 | 1.25 |
+| Boss | 9.50 | 1.45 | 4.20 | 0.08 | 1.00 | 1.60 |
+
+레벨 성장 기본값:
+
+| StatType | 성장률 |
+|----------|--------|
+| `MaxHealth` | 레벨당 3.5% |
+| `AttackPower` | 레벨당 3.0% |
+| `MaxPoise` | 레벨당 1.8% |
+
+`MonsterScalingSO.ApplyActionCombatDefaults()`와 `Assets/10.Datas/Stat/Generated/MonsterScaling_Default.asset`은 위 표를 단일 기준으로 사용한다.
+
 ### 구현 현황 (2026-06 고도화)
 
 1단계 정적 분석 위에 다음 고도화가 반영되었다.
@@ -30,6 +80,9 @@
 | 텔레그래프 검증 | 넓은 범위/긴 사거리 강공격인데 `useTelegraph`가 꺼져 있으면 경고 |
 | 해금/잠김 표시 | 현재 레벨 기준 해금·잠김 공격 수와 사용 가능 공격 수, 최대 기여 공격을 요약에 표시 |
 | Danger Ring 프리뷰 | 공격별 `dangerRingDuration`(0이면 런타임 자동) 및 텔레그래프 플래그를 기여도 테이블에 표시 |
+| 품질 점수 | 목표 시간 대비 플레이어 생존비/몬스터 처치비, 공격 기회, 공격 과점, Strong%를 0~100 점수로 요약 |
+| 권장 액션 | `TooEasy`, `TooLethal`, 공격 과점, 경직 압박 등 원인별 다음 조치 문구를 결과 테이블에 표시 |
+| 명조형 기본값 | `MonsterScalingSO.ApplyActionCombatDefaults()`와 기본 Scaling 에셋에 명조형 Common/Elite/Boss 전투 구조를 반영 |
 | CSV 확장 | 경직 압박, 순 압박, 최대 기여 공격/비중, Danger Ring 누락 수, 해금/잠김 수 컬럼 추가 |
 
 또한 데이터셋 전반을 한눈에 비교하기 위한 **Balance Data Extractor**(`UPlayGround/Gameplay/Balance/Balance Data Extractor`)를 추가했다. 플레이어 공격 데이터, 몬스터 공격 데이터, 플레이어 스탯, 몬스터 스탯을 프로젝트 전체에서 스캔·요약하고 탭별 CSV로 내보낸다. 스탯의 플레이어/몬스터 분류는 `ActorDefinitionSO.actorType`과 `PartyMemberGrowthSO.baseStat` 참조를 기준으로 한다. 기존 `StatDatabaseEditorWindow`/`StatDataGeneratorWindow`가 스탯 단일 편집/생성에 집중하는 것과 달리, 이 창은 4개 데이터 카테고리를 통합 비교하는 읽기 전용 뷰다.
@@ -54,6 +107,8 @@
 | 공격 기회 밀도 | 몬스터가 N초 동안 몇 번 공격 기회를 갖는지 |
 | 위험도 | 특정 공격 또는 BT Intent가 전투 시간을 과하게 줄이는지 |
 | 데이터 누락 | `ActorDefinitionSO.statData`, `attackData`, `behaviorData`, 공격 `hitPhases` 등이 비어 있는지 |
+| 품질 점수 | 목표 시간 주변에 얼마나 가까운지, 공격 기회/과점/강공격 비중이 적정한지 |
+| 권장 액션 | 다음에 조정할 후보. 예: HP 상향, 특정 공격 피해 하향, selectionWeight 조정 |
 
 ### 비목표
 
@@ -103,13 +158,14 @@ Assets/02.Scripts/Tool/Editor/Balance/
 ├── BalanceDesignerWindow.cs                 ✅ 메인 에디터 창
 ├── BalanceScenarioAsset.cs                  ✅ 분석 조건 ScriptableObject
 ├── BalanceScenarioResult.cs                 ✅ 분석 결과 DTO
-├── BalanceCombatEstimator.cs                ✅ 정적 전투 추정 계산기 (경직 압박/정렬/과점 포함)
+├── BalanceCombatEstimator.cs                ✅ 정적 전투 추정 계산기 (경직 압박/정렬/과점/품질 점수 포함)
 ├── BalanceAttackAnalyzer.cs                 ✅ AttackDataSO 요약/검증 (damage/poise 합산)
 ├── BalanceActorDataValidator.cs             ✅ 누락 검증 + 텔레그래프/Strong밴드/과점 사후 검증
 ├── BalanceDataAutoGenerator.cs              ✅ MotionSet 기반 누락 데이터 자동 생성
 ├── BalanceScenarioGenerator.cs              ✅ 현재 Player 데이터 기반 시나리오 에셋 자동 생성/갱신
 ├── BalanceDataExtractor.cs                  ✅ 4개 데이터 카테고리 스캔/요약 서비스
 ├── BalanceDataExtractorWindow.cs            ✅ 데이터 추출 탭 창 + CSV
+├── MonsterStatBakeService.cs                ✅ 몬스터 statData 발급/갱신 단일 서비스
 ├── MonsterStatGeneratorWindow.cs            ✅ 커브 기반 몬스터 스탯 배치 생성/재레벨링
 ├── BalanceTargetSolver.cs                   ✅ 목표 전투시간 역산 (권장 HP/피해 배율 + 적용)
 ├── BalanceReplayComparator.cs               ⏳ 미구현: EncounterReplay 비교 (인프라 존재)
@@ -127,6 +183,21 @@ Assets/02.Scripts/Tool/Editor/Balance/
 | `BalanceActorDataValidator` | `ActorDefinitionSO` 필수 참조와 공격 데이터 누락을 검사 |
 | `BalanceScenarioGenerator` | `PartyConfigSO`(성장 데이터) + 캐릭터 모델 공격 데이터를 읽어 `BalanceScenarioAsset`을 자동 생성/갱신 |
 | `BalanceReplayComparator` | `EncounterReplay`의 실제 Intent/거리/선택 빈도와 정적 추정치를 비교 |
+
+---
+
+### 몬스터 스탯 발급 통합
+
+몬스터 `statData` 발급 경로는 `MonsterStatBakeService`로 통합한다.
+
+| 호출자 | 역할 |
+|--------|------|
+| `MonsterStatGeneratorWindow` | 수동 일괄 생성/재레벨링 |
+| `BalanceDataAutoGenerator` | Balance Designer에서 누락 데이터 자동 생성 |
+| `StatDataGeneratorWindow` | 마이그레이션/전체 보정 중 몬스터 스탯 계산 위임 |
+| `P09Builder.SyncActorDatabaseStep` | 프리팹 빌드 후 `ActorDefinitionSO.statData` 생성/갱신 |
+
+계산 자체는 여전히 `MonsterStatCalculator`가 담당한다. `MonsterStatBakeService`는 에셋 생성, 기존 에셋 제자리 갱신, `MonsterScalingSO` 연결, 생성된 `PoiseSO` 동기화, `BreakGaugeSO` 보정 같은 에디터 정책만 담당한다.
 
 ---
 
@@ -180,18 +251,19 @@ Balance Designer는 단순히 `Stable/TooEasy/TooLethal`만 보여주는 도구�
 결과 테이블은 최종적으로 아래 정보를 한 줄에서 확인할 수 있어야 한다.
 
 ```text
-actorId | level | grade | 플레이어 생존 | 몬스터 처치 | 플레이어 DPS | 적 DPS | Basic% | Heavy% | Skill% | Strong% | 공격기회 | 상태 | 요약
+actorId | level | grade | score | 플레이어 생존 | 몬스터 처치 | 플레이어 DPS | 적 DPS | Basic% | Heavy% | Skill% | Strong% | 권장 액션 | 상태 | 요약
 ```
 
 상세 패널은 아래 순서로 구성한다.
 
 1. 전투 시간 요약
-2. 데이터 누락/검증 메시지
-3. 공격 카테고리 확률 요약
-4. 공격별 DPS/확률/쿨다운/HitPhase 분석
-5. MotionSet/Collision/Danger Ring/Telegraph 검증
-6. BT/Intent 요약
-7. 권장 보정 후보
+2. 품질 점수와 목표비
+3. 데이터 누락/검증 메시지
+4. 공격 카테고리 확률 요약
+5. 공격별 DPS/확률/쿨다운/HitPhase 분석
+6. MotionSet/Collision/Danger Ring/Telegraph 검증
+7. BT/Intent 요약
+8. 권장 보정 후보
 
 ### Motion 기반 공격 데이터 생성기 개선 방향
 
@@ -388,6 +460,36 @@ BT 분석은 초기 버전에서 완전한 노드 시뮬레이션보다 "의사�
 | `Stalled` | 양쪽 생존은 가능하지만 몬스터 공격 기회 또는 유효 DPS가 너무 낮음 |
 | `InvalidData` | 필수 데이터 누락으로 계산 불가 |
 
+### 품질 점수
+
+`BalanceScenarioResult.BalanceScore`는 0~100 점수다. 자동 판정의 보조 지표이며, 점수가 높다고 플레이테스트를 생략하지 않는다.
+
+| 요소 | 가중 |
+|------|------|
+| 플레이어 생존 시간이 목표 시간에 가까운가 | 34% |
+| 몬스터 처치 시간이 목표 시간에 가까운가 | 34% |
+| 기준 시간 동안 공격 기회가 충분한가 | 18% |
+| 특정 공격 하나가 DPS를 과점하지 않는가 | 8% |
+| 등급별 Strong% 상한을 크게 넘지 않는가 | 6% |
+
+목표비는 다음처럼 해석한다.
+
+```text
+플레이어 생존 목표비 = PlayerTimeToDeath / TargetDuration
+몬스터 처치 목표비 = MonsterTimeToDeathWithBreak 또는 MonsterTimeToDeath / TargetDuration
+```
+
+대략적인 운영 기준은 아래와 같다.
+
+| 점수 | 해석 |
+|------|------|
+| 80~100 | 정적 추정상 양호. 리플레이/플레이테스트 검증으로 이동 |
+| 60~79 | 큰 결함은 없지만 특정 축 조정 권장 |
+| 40~59 | 목표 시간/공격 구성/피해량 중 하나 이상 재조정 필요 |
+| 0~39 | 데이터 누락 또는 전투 성립성 문제 우선 해결 |
+
+`RecommendedAction`은 점수와 별개로 가장 먼저 확인할 조정 후보를 표시한다. 예를 들어 플레이어 생존 목표비가 낮고 특정 공격 DPS 비중이 35%를 넘으면 `최대 기여 공격 피해/가중치 하향`을 우선 제안한다.
+
 기준 시간은 `BalanceScenarioAsset`에 저장한다. 예시는 다음과 같다.
 
 | 등급 | 기본 기준 시간 |
@@ -440,7 +542,7 @@ UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기
 │ - level range │ - Attack summary                           │
 ├───────────────┴────────────────────────────────────────────┤
 │ Result Table                                               │
-│ actorId | level | 플레이어 생존 | 몬스터 처치 | status | notes │
+│ actorId | score | 플레이어 생존 | 몬스터 처치 | status | action │
 ├────────────────────────────────────────────────────────────┤
 │ Detail                                                     │
 │ Attack breakdown | BT/Intent breakdown | Replay compare    │
@@ -460,12 +562,205 @@ UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기
 
 ---
 
+## 사용 방법
+
+### 1. 읽기 전용 분석
+
+가장 안전한 기본 흐름이다. SO 값을 수정하지 않고 현재 데이터의 상태만 확인한다.
+
+1. Unity 에디터에서 `UPlayGround/게임플레이/밸런스/밸런스 디자이너`를 연다.
+2. `Actor Database`가 자동으로 잡히지 않으면 `Assets/10.Datas/Actor/DataBase/ActorDatabase.asset`을 지정한다.
+3. 플레이어 기준값을 정한다.
+   - 빠른 확인: `Scenario`를 비우고 임시 분석 조건을 입력한다.
+   - 반복 검증: `Scenario ← Player` 또는 `Scenario ← Party`로 `BalanceScenarioAsset`을 생성한 뒤 사용한다.
+4. 좌측 목록에서 몬스터를 선택하고 `Analyze Selected`를 누른다.
+5. 전체 몬스터를 비교하려면 `Analyze Database`를 누른다.
+6. 결과 테이블에서 `Score`, `Status`, `권장 액션`을 먼저 본다.
+7. 상세 패널에서 전투 시간, 목표비, 검증 메시지, 공격 기여도를 확인한다.
+8. 결과를 보존하려면 `Export CSV`로 내보낸다.
+
+### 2. 결과 해석
+
+| 항목 | 해석 |
+|------|------|
+| `Score` | 0~100 정적 품질 점수. 80 이상이면 정적 추정상 양호, 60 미만이면 조정 후보 |
+| `Status` | `Stable`, `TooEasy`, `TooLethal`, `Stalled`, `InvalidData` 중 하나 |
+| `플레이어 생존` | 현재 가정에서 플레이어 HP가 0이 되기까지의 예상 시간 |
+| `몬스터 처치` | 현재 가정에서 몬스터 HP가 0이 되기까지의 예상 시간 |
+| `Strong%` | 사용 가능 공격 풀 안에서 Heavy+Skill 계열 선택 확률 |
+| `권장 액션` | 가장 먼저 확인할 조정 후보. 자동 적용 결과가 아니라 디자이너 검토 출발점 |
+
+상세 패널의 공격 기여도에서 한 공격의 `DPS%`가 35%를 넘으면 그 공격이 전투 위험도를 과점하고 있을 가능성이 높다. `TooLethal`과 함께 나타나면 해당 공격의 `damage`, `selectionWeight`, `cooldown`, `Danger Ring/Telegraph`를 우선 확인한다.
+
+### 3. 누락 데이터 생성
+
+누락 데이터 생성은 에셋을 만든다. 실행 전 git 상태를 확인하고, 생성 결과를 리뷰한다.
+
+1. `Balance Designer`에서 대상 몬스터를 선택한다.
+2. 상단 요약의 `Generate Missing` 버튼이 활성화되어 있으면 누락 데이터가 있다는 뜻이다.
+3. `Generate Missing`을 누르면 다음 데이터가 필요에 따라 생성/연결된다.
+   - `ActorStatSO`
+   - `EnemyAttackDataSO`
+   - `EnemyBehaviorSO`
+   - `BehaviorTreeAsset`
+   - 누락된 `MonsterScalingSO` 연결
+4. 전체 누락 보정이 필요하면 `Generate Missing All`을 사용한다.
+5. 생성 후 자동 재분석 결과를 확인하고, 생성된 경로를 다이얼로그에서 확인한다.
+
+### 4. 몬스터 스탯 재레벨링
+
+몬스터 스탯만 배치 생성/갱신하려면 `UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기`를 사용한다.
+
+1. `Monster Scaling`과 `Actor Database`를 지정한다.
+2. `Generate Missing (All)`은 `statData`가 없는 몬스터만 생성한다. 기존 수동 조정값은 건드리지 않는다.
+3. 기존 `statData`까지 커브 기준으로 다시 계산하려면 대상 행을 체크한 뒤 `Apply Selected (덮어쓰기)`를 누른다.
+4. 덮어쓰기는 기존 `ActorStatSO` 에셋을 제자리 갱신하므로 같은 에셋을 공유하는 몬스터도 함께 영향을 받을 수 있다.
+5. 보스나 손튜닝 몬스터는 체크 해제로 보호한다.
+
+### 5. 권장 보정 적용
+
+상세 패널의 `권장 보정` 섹션은 목표 전투시간 기준으로 HP와 피해 배율을 역산한다.
+
+| 버튼 | 변경 대상 |
+|------|-----------|
+| `Apply HP` | `ActorDefinitionSO.statData.MaxHealth` |
+| `Apply Damage` | `ActorDefinitionSO.attackData.skills[*].baseInfo.hitPhases[*].damage` |
+
+적용 전 확인 다이얼로그가 뜨며, `Undo`가 가능하다. 단, 공유 SO를 수정하면 같은 SO를 참조하는 다른 몬스터도 함께 바뀐다. 적용 후에는 자동 재분석되므로 `Score`, `Status`, `권장 액션`이 의도대로 바뀌었는지 확인한다.
+
+### 6. 데이터셋 추출
+
+전체 데이터 분포를 보고 싶으면 `UPlayGround/게임플레이/밸런스/밸런스 데이터 추출기`를 사용한다.
+
+1. 창을 열면 플레이어 공격, 몬스터 공격, 플레이어 스탯, 몬스터 스탯을 스캔한다.
+2. 탭별로 이상치와 평균 범위를 확인한다.
+3. `Export CSV`로 외부 스프레드시트에서 비교한다.
+
+---
+
+## 테스트 방법
+
+### 1. 컴파일 검증
+
+코드 수정 후 최소 검증은 아래 명령으로 한다.
+
+```powershell
+dotnet build UPlayground.sln --no-restore
+```
+
+성공 기준:
+
+| 항목 | 기준 |
+|------|------|
+| 오류 | 0개 |
+| 경고 | 기존 Unity/패키지 경고는 허용. 새 밸런스 툴 관련 경고가 생기면 수정 |
+
+현재 프로젝트는 Unity 패키지 참조 충돌 경고가 있을 수 있다. 빌드 실패 여부는 `오류 0개`를 기준으로 판단한다.
+
+### 2. 읽기 전용 기능 테스트
+
+SO를 변경하지 않는 기능부터 확인한다.
+
+1. Unity에서 `밸런스 디자이너`를 연다.
+2. `ActorDatabase`가 로드되는지 확인한다.
+3. `Analyze Database`를 실행한다.
+4. 결과 테이블에 몬스터별 `Score`, `Status`, `권장 액션`이 표시되는지 확인한다.
+5. 행을 클릭했을 때 상세 패널이 갱신되는지 확인한다.
+6. `Export CSV`를 실행해 CSV가 생성되고, 새 컬럼이 포함되는지 확인한다.
+   - `balanceScore`
+   - `playerSurvivalRatio`
+   - `monsterKillRatio`
+   - `recommendedAction`
+
+실패 시 확인할 것:
+
+| 증상 | 확인 |
+|------|------|
+| `InvalidData`가 많음 | `ActorDefinitionSO.statData`, `attackData`, `EnemyAttackDataSO.skills` 누락 |
+| 모든 `Enemy DPS`가 0 | 기준 거리에서 사용 가능한 공격이 없는지, `selectionWeight/cooldown/damage` 확인 |
+| `Score`가 0에 가까움 | 목표 시간 대비 생존/처치 시간이 극단값인지 확인 |
+
+### 3. 시나리오 생성 테스트
+
+1. `Scenario ← Player`를 실행한다.
+2. `Assets/10.Datas/Balance/Scenarios/BalanceScenario_{Character}.asset`이 생성/갱신되는지 확인한다.
+3. 생성된 시나리오가 현재 창의 `Scenario` 필드에 자동 연결되는지 확인한다.
+4. `Analyze Database`를 실행해 시나리오 기준 분석값이 바뀌는지 확인한다.
+5. `Scenario ← Party`를 실행해 파티 캐릭터별 시나리오가 생성/갱신되는지 확인한다.
+
+주의: 기존 시나리오를 갱신할 때 인카운터/방어 가정값은 보존되고, 플레이어 파생 필드만 갱신되어야 한다.
+
+### 4. 누락 데이터 생성 테스트
+
+테스트 전 git 변경 사항을 확인한다.
+
+```powershell
+git status --short
+```
+
+절차:
+
+1. 누락 데이터가 있는 테스트용 `ActorDefinitionSO`를 선택한다.
+2. `Generate Missing`을 실행한다.
+3. 생성 다이얼로그의 경로를 확인한다.
+4. Inspector에서 `statData`, `attackData`, `behaviorData`, `behaviorTree`, `monsterScaling` 연결 상태를 확인한다.
+5. 자동 재분석 후 `InvalidData`가 해소되는지 확인한다.
+6. `git diff --stat` 또는 Unity Project 창에서 생성 에셋 범위를 확인한다.
+
+성공 기준:
+
+| 항목 | 기준 |
+|------|------|
+| `statData` | `ActorDefinitionSO.statData`에 연결 |
+| 몬스터 스탯 | `MonsterStatBakeService` 경로로 생성/갱신 |
+| 공격 데이터 | MotionSet이 있으면 Motion 기반 스킬 생성, 없으면 기본 공격 생성 |
+| 분석 상태 | 필수 데이터 누락 Error 감소 |
+
+### 5. 몬스터 스탯 생성기 테스트
+
+1. `몬스터 스탯 생성기`를 연다.
+2. `Monster Scaling`과 `Actor Database`가 지정되어 있는지 확인한다.
+3. `Generate Missing (All)`을 실행한다.
+4. 기존 `statData`가 있는 몬스터는 변경되지 않았는지 확인한다.
+5. 테스트 대상 1개만 체크하고 `Apply Selected (덮어쓰기)`를 실행한다.
+6. 해당 `ActorStatSO`의 HP/ATK/DEF/Poise가 `MonsterScalingSO` 기준으로 갱신되는지 확인한다.
+7. `Undo`로 되돌릴 수 있는지 확인한다.
+
+### 6. 권장 보정 적용 테스트
+
+1. 분석 결과에서 `TooEasy` 또는 `TooLethal` 몬스터를 선택한다.
+2. 상세 패널의 권장 보정 섹션을 확인한다.
+3. `Apply HP` 또는 `Apply Damage` 중 하나만 적용한다.
+4. 자동 재분석 후 목표비와 `Score`가 개선되는지 확인한다.
+5. Unity `Edit/Undo`로 되돌리고 원래 값으로 복구되는지 확인한다.
+
+공유 SO 위험 테스트:
+
+1. 수정 대상 `ActorStatSO` 또는 `EnemyAttackDataSO`를 참조하는 다른 `ActorDefinitionSO`가 있는지 확인한다.
+2. 공유 중이면 적용 전 별도 에셋으로 분리하거나, 영향 범위를 문서화한다.
+
+### 7. 회귀 테스트 체크리스트
+
+밸런스 툴 수정 후 다음 항목을 최소 확인한다.
+
+| 체크 | 방법 |
+|------|------|
+| 컴파일 | `dotnet build UPlayground.sln --no-restore` |
+| 창 열림 | `밸런스 디자이너`, `몬스터 스탯 생성기`, `밸런스 데이터 추출기` 메뉴 실행 |
+| 전체 분석 | `Analyze Database` 실행 |
+| CSV | `Export CSV` 실행 후 컬럼 확인 |
+| 누락 생성 | 테스트 Actor 1개로 `Generate Missing` 실행 |
+| Undo | `Apply HP`, `Apply Damage`, `Apply Selected` 후 Undo |
+| 공유 데이터 | 적용 전/후 참조 에셋 영향 범위 확인 |
+
+---
+
 ## 구현 단계
 
 ### 1단계: 읽기 전용 분석 툴
 
 1. `BalanceScenarioAsset` 생성
-2. `BalanceCombatEstimator`로 플레이어 생존 시간과 몬스터 처치 예상 시간 계산
+2. `BalanceCombatEstimator`로 플레이어 생존 시간, 몬스터 처치 예상 시간, 품질 점수, 권장 액션 계산
 3. `ActorDatabase` 전체를 읽어 결과 테이블 표시
 4. 데이터 누락 경고 표시
 5. CSV 내보내기

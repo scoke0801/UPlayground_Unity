@@ -127,6 +127,7 @@ namespace UPlayGround.Component
             _attackData.knockbackForce = phase.knockBackForce;
             _attackData.knockbackDrag = phase.knockBackDrag;
             _attackData.victimForcedAnimKey = phase.victimForcedAnimKey;
+            _attackData.guaranteedReaction = phase.guaranteedReaction;
 
             Debug.Log($"[ResidualAttack] Hit phase applied. phase={hitPhaseIndex}, damage={_attackData.damage}, range={_attackData.hitRange}, angle={_attackData.hitAngle}, heightOffset={_attackData.hitHeightOffset}, heightRange={_attackData.hitHeightRange}");
         }
@@ -269,6 +270,7 @@ namespace UPlayGround.Component
                 knockbackDrag = source.knockbackDrag,
                 grabDuration = source.grabDuration,
                 victimForcedAnimKey = source.victimForcedAnimKey,
+                guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
             };
         }

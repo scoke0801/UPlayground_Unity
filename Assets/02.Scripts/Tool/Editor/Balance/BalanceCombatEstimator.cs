@@ -82,14 +82,104 @@ namespace UPlayGround.Tool.Editor.Balance
             result.MonsterTimeToDeathWithBreak = result.PlayerEffectiveDpsWithBreak > 0f
                 ? monsterHealth / result.PlayerEffectiveDpsWithBreak
                 : float.PositiveInfinity;
+            ApplyQualityMetrics(result);
             // 플레이어 가드 브레이크는 가드 횟수 기반(포이즈 무관)이므로 '브레이크 시간'은 추정하지 않는다.
             // 대신 적의 초당 경직 압박이 플레이어 포이즈 회복을 넘어서는지를 순 압박으로 표시한다.
             result.NetPoisePressure = result.EnemyPoiseDps - playerPoiseRecovery;
 
             result.Status = DecideStatus(result, scenario, fallbackInput);
+            result.RecommendedAction = BuildRecommendedAction(result);
             BalanceActorDataValidator.AppendPostAnalysisMessages(result);
             result.Summary = BuildSummary(result);
             return result;
+        }
+
+        private static void ApplyQualityMetrics(BalanceScenarioResult result)
+        {
+            float target = Mathf.Max(0.1f, result.TargetDuration);
+            float killTime = result.MonsterTimeToDeathWithBreak > 0f && !float.IsPositiveInfinity(result.MonsterTimeToDeathWithBreak)
+                ? result.MonsterTimeToDeathWithBreak
+                : result.MonsterTimeToDeath;
+
+            result.PlayerSurvivalRatio = ToFiniteRatio(result.PlayerTimeToDeath, target);
+            result.MonsterKillRatio = ToFiniteRatio(killTime, target);
+
+            float survivalScore = ScoreRatio(result.PlayerSurvivalRatio);
+            float killScore = ScoreRatio(result.MonsterKillRatio);
+            float opportunityScore = result.EnemyAttackOpportunities >= 1f
+                ? Mathf.Clamp01(result.EnemyAttackOpportunities / Mathf.Max(1f, result.TargetDuration / 4f))
+                : 0f;
+            float dominancePenalty = Mathf.Clamp01((result.TopAttackDpsShare - 0.35f) / 0.35f);
+            float strongPenalty = Mathf.Clamp01((result.StrongAttackChance - GetStrongChanceSoftCap(result.Actor)) / 0.35f);
+
+            float score01 = Mathf.Clamp01(
+                survivalScore * 0.34f +
+                killScore * 0.34f +
+                opportunityScore * 0.18f +
+                (1f - dominancePenalty) * 0.08f +
+                (1f - strongPenalty) * 0.06f);
+            result.BalanceScore = Mathf.Round(score01 * 100f);
+        }
+
+        private static float ToFiniteRatio(float value, float target)
+        {
+            if (float.IsNaN(value) || value <= 0f)
+                return 0f;
+            if (float.IsPositiveInfinity(value))
+                return 3f;
+            return Mathf.Clamp(value / target, 0f, 3f);
+        }
+
+        private static float ScoreRatio(float ratio)
+        {
+            if (ratio <= 0f)
+                return 0f;
+
+            // 1.0이 목표 정중앙. 0.65~1.6 정도는 허용하고, 바깥으로 갈수록 급격히 감점한다.
+            float logDistance = Mathf.Abs(Mathf.Log(Mathf.Max(0.01f, ratio), 2f));
+            return Mathf.Clamp01(1f - logDistance / 1.35f);
+        }
+
+        private static float GetStrongChanceSoftCap(ActorDefinitionSO actor)
+        {
+            MonsterActorGrade grade = actor != null ? actor.grade : MonsterActorGrade.Normal;
+            return grade switch
+            {
+                MonsterActorGrade.Boss => 0.65f,
+                MonsterActorGrade.Elite => 0.45f,
+                _ => 0.25f,
+            };
+        }
+
+        private static string BuildRecommendedAction(BalanceScenarioResult result)
+        {
+            if (result == null || result.Status == BalanceCheckStatus.InvalidData)
+                return "필수 데이터 보정";
+
+            if (result.EnemyExpectedDps <= 0f || result.EnemyAttackOpportunities < 1f)
+                return "공격 풀/거리/쿨다운 확인";
+
+            if (result.PlayerSurvivalRatio < 0.8f)
+                return result.TopAttackDpsShare > 0.35f
+                    ? $"최대 기여 공격({result.TopAttackName}) 피해/가중치 하향"
+                    : "몬스터 피해량 또는 피격 가정 하향";
+
+            if (result.MonsterKillRatio < 0.8f)
+                return "몬스터 HP/방어/브레이크 보정 상향";
+
+            if (result.MonsterKillRatio > 1.6f)
+                return "몬스터 HP/방어 하향 또는 플레이어 DPS 가정 확인";
+
+            if (result.TopAttackDpsShare > 0.35f)
+                return $"공격 과점 완화: {result.TopAttackName}";
+
+            if (result.StrongAttackChance > GetStrongChanceSoftCap(result.Actor))
+                return "Heavy/Skill selectionWeight 하향";
+
+            if (result.NetPoisePressure > 0f)
+                return "Poise damage/회복률 확인";
+
+            return "유지 또는 플레이테스트 검증";
         }
 
         private static void ApplyPlayerBreakEstimate(

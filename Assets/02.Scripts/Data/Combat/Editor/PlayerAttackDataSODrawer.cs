@@ -48,6 +48,7 @@ namespace UPlayGround.Editor
         private SerializedProperty _liteList, _heavyList, _jumpList, _dashList, _skillList;
         private SerializedProperty _skillDefinitions;
         private SerializedProperty _counter, _parryCounter, _entry, _swapEvadeCounter, _swapSpecial;
+        private SerializedProperty _entryGroggy, _entryAirborne, _useEntryGroggy, _useEntryAirborne;
         private SerializedProperty _chargeAnimKey, _chargeStages, _chargeThresholds, _chargeInterruptActions;
         private SerializedProperty _vfxKey, _vfxSocket, _vfxOffset;
         private SerializedProperty _comboRoutes;
@@ -99,7 +100,7 @@ namespace UPlayGround.Editor
             private static float   _attackRadius, _hitHeightRange, _grabDuration;
             private static Vector3 _attackOffset;
             private static int     _reactionType, _victimForcedAnimKey;
-            private static bool    _forceReaction, _forceBreakExpose;
+            private static bool    _forceReaction, _forceBreakExpose, _guaranteedReaction;
             private static string  _hitParticleName;
 
             public static void Copy(SerializedProperty phase)
@@ -121,6 +122,7 @@ namespace UPlayGround.Editor
                 _knockBackDrag       = phase.FindPropertyRelative("knockBackDrag").floatValue;
                 _grabDuration        = phase.FindPropertyRelative("grabDuration").floatValue;
                 _victimForcedAnimKey = phase.FindPropertyRelative("victimForcedAnimKey").enumValueIndex;
+                _guaranteedReaction  = phase.FindPropertyRelative("guaranteedReaction").boolValue;
 
                 HasData    = true;
                 DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  브레이크 {_breakDamage:F0}  반경 {_attackRadius:F1}";
@@ -146,6 +148,7 @@ namespace UPlayGround.Editor
                 phase.FindPropertyRelative("knockBackDrag").floatValue       = _knockBackDrag;
                 phase.FindPropertyRelative("grabDuration").floatValue        = _grabDuration;
                 phase.FindPropertyRelative("victimForcedAnimKey").enumValueIndex = _victimForcedAnimKey;
+                phase.FindPropertyRelative("guaranteedReaction").boolValue        = _guaranteedReaction;
             }
 
             public static void Clear() => HasData = false;
@@ -164,6 +167,10 @@ namespace UPlayGround.Editor
             _counter          = so.FindProperty("counterAttack");
             _parryCounter     = so.FindProperty("parryCounterAttack");
             _entry            = so.FindProperty("entryAttack");
+            _entryGroggy      = so.FindProperty("entryAttackVsGroggy");
+            _entryAirborne    = so.FindProperty("entryAttackVsAirborne");
+            _useEntryGroggy   = so.FindProperty("useEntryAttackVsGroggy");
+            _useEntryAirborne = so.FindProperty("useEntryAttackVsAirborne");
             _swapEvadeCounter = so.FindProperty("swapEvadeCounterAttack");
             _swapSpecial      = so.FindProperty("swapSpecialAttack");
             _chargeAnimKey    = so.FindProperty("chargeAnimKey");
@@ -1208,10 +1215,17 @@ namespace UPlayGround.Editor
                 {
                     using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                     {
-                        EditorGUILayout.LabelField("그랩 / Forced Motion", EditorStyles.miniBoldLabel);
+                        EditorGUILayout.LabelField("그랩", EditorStyles.miniBoldLabel);
                         EditorGUILayout.PropertyField(phase.FindPropertyRelative("grabDuration"),        new GUIContent("지속 시간 (초)"));
-                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("victimForcedAnimKey"), new GUIContent("피격자 강제 애니 (None = Grabbed 폴백)"));
                     }
+                }
+
+                // 피격 리액션 강제 — 모든 리액션 타입에서 노출(공격별 전용 피격 모션 + 정책 우회).
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("Forced Motion / Reaction", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("victimForcedAnimKey"), new GUIContent("피격자 강제 애니 (None = 기본 리액션)"));
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("guaranteedReaction"),  new GUIContent("리액션 보장 (등급 정책 무시)"));
                 }
             }
 
@@ -1335,6 +1349,29 @@ namespace UPlayGround.Editor
                 MessageType.Info);
             EditorGUILayout.Space(4);
             DrawCounterAttackField(_entry, "entry", accent);
+
+            EditorGUILayout.Space(6);
+            EditorGUILayout.HelpBox(
+                "§5.2 등장 변형 — 타깃 적 상태에 따라 다른 등장 공격을 발동합니다.\n" +
+                "비워두면 위 기본 등장 공격으로 대체됩니다.",
+                MessageType.None);
+
+            DrawSectionHeader("등장 변형 · 타깃 그로기 (Stun/Knockdown/브레이크 노출)", accent);
+            EditorGUILayout.PropertyField(_useEntryGroggy, new GUIContent("그로기 변형 사용"));
+            if (_useEntryGroggy.boolValue)
+            {
+                EnsureFoldLists("entryGroggy", 1);
+                DrawCounterAttackField(_entryGroggy, "entryGroggy", accent);
+            }
+
+            EditorGUILayout.Space(4);
+            DrawSectionHeader("등장 변형 · 타깃 공중 (Airborne)", accent);
+            EditorGUILayout.PropertyField(_useEntryAirborne, new GUIContent("공중 변형 사용"));
+            if (_useEntryAirborne.boolValue)
+            {
+                EnsureFoldLists("entryAirborne", 1);
+                DrawCounterAttackField(_entryAirborne, "entryAirborne", accent);
+            }
         }
 
         private void DrawSwapEvadeCounterAttack(Color accent)

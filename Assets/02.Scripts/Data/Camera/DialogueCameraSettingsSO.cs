@@ -35,6 +35,16 @@ namespace UPlayGround.Data
         [Header("렌즈")]
         [Range(10f, 90f)] public float fieldOfView = 45f;
 
+        [Header("인트로 시퀀스")]
+        [Tooltip("대화 진입(InGame→Dialogue) 시 플레이어→화자를 1회 부드럽게 패닝하는 인트로 사용 여부. 화자 전환 등 재진입에는 발동하지 않는다.")]
+        public bool enableIntroSequence = true;
+
+        [Tooltip("인트로 시작 시 플레이어(청자)를 바라보며 멈춰 있는 시간(초).")]
+        [Min(0f)] public float introPlayerHoldTime = 0.6f;
+
+        [Tooltip("플레이어 → 화자(대상)로 부드럽게 패닝하는 시간(초).")]
+        [Min(0.01f)] public float introPanDuration = 0.8f;
+
         public static DialogueCameraSettingsSO CreateRuntimeDefault()
         {
             var settings = CreateInstance<DialogueCameraSettingsSO>();

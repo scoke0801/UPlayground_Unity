@@ -60,6 +60,9 @@ namespace UPlayGround.Tool.Editor.Balance
         public float TargetDuration;
         public float PlayerTimeToDeath;
         public float MonsterTimeToDeath;
+        public float PlayerSurvivalRatio;
+        public float MonsterKillRatio;
+        public float BalanceScore;
         public float EnemyExpectedDps;
         public float EnemyPoiseDps;
         public float PlayerExpectedDps;
@@ -89,6 +92,7 @@ namespace UPlayGround.Tool.Editor.Balance
         public float StrongAttackChance;
         public float TopAttackDpsShare;
         public string TopAttackName;
+        public string RecommendedAction;
         public string Summary;
         public readonly List<BalanceValidationMessage> Messages = new();
         public readonly List<BalanceSkillBreakdown> SkillBreakdowns = new();

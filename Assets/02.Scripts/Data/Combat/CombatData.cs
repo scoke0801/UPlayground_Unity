@@ -62,8 +62,10 @@ namespace UPlayGround.Data
         public float grabDuration = 1.5f;
 
         [Header("Forced Motion")]
-        [Tooltip("Grab 리액션 시 피격자에게 강제할 애니메이션. None이면 AnimKey.Grabbed 폴백.")]
+        [Tooltip("피격자에게 강제할 리액션 애니메이션. Grab은 None일 때 AnimKey.Grabbed 폴백, 일반 Hit은 None일 때 reactionType/방향 기본 리액션 폴백.")]
         public AnimKey victimForcedAnimKey = AnimKey.None;
+        [Tooltip("true면 등급 리액션 정책(allowHit/requirePoiseBreak 등)을 무시하고 피격 리액션을 보장한다. 보스 등 강인한 적도 확실히 흔들린다.")]
+        public bool guaranteedReaction = false;
     }
 
     /// <summary>
@@ -268,6 +270,8 @@ namespace UPlayGround.Data
 
         // Forced Motion
         public AnimKey victimForcedAnimKey = AnimKey.None;
+        // true면 등급 리액션 정책을 무시하고 피격 리액션 상태 전환을 보장한다(보스 등 강인한 적도 흔들림).
+        public bool guaranteedReaction = false;
 
         // 멀티 히트
         public int hitPhaseIndex = 0;

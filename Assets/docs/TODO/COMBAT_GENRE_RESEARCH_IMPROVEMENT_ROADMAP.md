@@ -173,6 +173,11 @@ else if (TryFindEntryAttackTarget(...)) { _player.QueueEntryAttack(...); }
 
 ### 4.3 어시스트 스왑 → 패리 결과 연결 완성
 
+> **✅ 구현 완료 (2026-06-11)** — 패리 윈도우 우선 방식. `PlayerCombat.OpenAssistParryWindow`/`IsAssistParryWindow`,
+> `DefenseResolver`의 `IsAssistParryWindow` 라우팅(Unblockable 제외), `PlayerActor.OpenAssistParryAndQueueFallback`/
+> `OnParrySuccess` 어시스트 분기, `PartyManager.RequestSwapTo`의 isAssist 분기. 창 비소비 만료 시 기존 즉시공격 폴백.
+> 적 경직은 기존 `MonsterActor.OnParried`(스턴) + 반격 카운터(`isCounterAttack`) 재사용. **재제안 금지.**
+
 **레퍼런스 게임 메커니즘**
 ZZZ 어시스트 패리: 적의 공격 타이밍에 교대하면 **입장 캐릭터가 그 공격을 패리**하고, 적을 경직시키며 후속 강공으로 잇는다. 교대가 곧 방어+반격 이벤트가 된다.
 
@@ -237,6 +242,11 @@ class ConcertoEnergy {
 ---
 
 ### 5.2 입장 강화 라우트 다양화
+
+> **✅ 구현 완료 (2026-06-11)** — 입력패턴 콤보 라우트 대신 **타깃 상태 기반 등장 변형 선택기**로 구현(문서 의사코드와 의도적 편차).
+> `PlayerAttackDataSO.entryAttackVsGroggy`/`entryAttackVsAirborne` + 명시 토글 `useEntryAttackVsGroggy/Airborne`(기본 off=기존 동작),
+> `PlayerCombat.SelectEntryAttackInfo`(공중>그로기 우선, `BreakGauge.IsExposed`/Stun/Knockdown으로 그로기 판정),
+> `SetPendingEntryTarget`로 타깃 전달. `JustSwapped` 타이밍 태그 불필요. **재제안 금지.**
 
 **레퍼런스 게임 메커니즘**
 명조·PGR은 교대/회피 직후 상태에 따라 다른 강화 스킬/체인이 나가도록 분기시킨다. 같은 교대라도 맥락에 따라 다른 모션이 나와 단조로움을 피한다.

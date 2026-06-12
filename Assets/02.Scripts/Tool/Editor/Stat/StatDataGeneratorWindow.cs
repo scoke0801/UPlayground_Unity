@@ -11,6 +11,7 @@ using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
+using UPlayGround.Tool.Editor.Balance;
 using UPlayGround.Tool.Editor.Combat;
 
 namespace UPlayGround.Tool.Editor.Stat
@@ -811,12 +812,13 @@ namespace UPlayGround.Tool.Editor.Stat
             // scaling 해석도 MonsterStatGenerator.ResolveScaling과 동일(정의 우선, 없으면 공용 Scaling).
             if (IsMonster(row.Definition))
             {
-                MonsterScalingSO monsterScaling = row.Definition.monsterScaling != null
-                    ? row.Definition.monsterScaling
-                    : FindOrCreateMonsterScaling();
-                Dictionary<StatType, float> monsterValues = MonsterStatCalculator.Calculate(monsterScaling, row.Definition);
-                foreach (KeyValuePair<StatType, float> pair in monsterValues)
-                    so.EditorSet(pair.Key, pair.Value);
+                MonsterStatBakeService.WriteMonsterStatValues(so, row.Definition, new MonsterStatBakeService.Options
+                {
+                    PreferredScaling = row.Definition.monsterScaling != null
+                        ? row.Definition.monsterScaling
+                        : FindOrCreateMonsterScaling(),
+                    StatSavePath = MonsterScalingSavePath,
+                });
                 return so;
             }
 
@@ -963,22 +965,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
         private static MonsterScalingSO FindOrCreateMonsterScaling()
         {
-            string[] guids = AssetDatabase.FindAssets("t:MonsterScalingSO");
-            if (guids.Length > 0)
-            {
-                Array.Sort(guids, (a, b) => string.Compare(
-                    AssetDatabase.GUIDToAssetPath(a),
-                    AssetDatabase.GUIDToAssetPath(b),
-                    StringComparison.Ordinal));
-                return AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(AssetDatabase.GUIDToAssetPath(guids[0]));
-            }
-
-            EnsureFolder(MonsterScalingSavePath);
-            var scaling = ScriptableObject.CreateInstance<MonsterScalingSO>();
-            scaling.FillDefaults();
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{MonsterScalingSavePath}/MonsterScaling_Default.asset");
-            AssetDatabase.CreateAsset(scaling, path);
-            return scaling;
+            return MonsterStatBakeService.FindOrCreateScaling(MonsterScalingSavePath);
         }
 
         // ──────────────────────────────────────────────────────────

@@ -269,7 +269,9 @@ namespace UPlayGround.Manager
             }
             else if (isAssist)
             {
-                _player.QueueSwapAssist();
+                // §4.3 어시스트 스왑 → 패리 윈도우 우선. 창 내 적 공격은 패리로 처리되고,
+                // 비소비 만료 시 기존 어시스트 즉시공격으로 폴백한다.
+                _player.OpenAssistParryAndQueueFallback();
             }
             else if (TryFindEntryAttackTarget(swap.GetModelData(targetType), out var entryTarget))
             {

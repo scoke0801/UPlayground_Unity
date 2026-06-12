@@ -73,11 +73,15 @@ namespace UPlayGround.Combat
             in MonsterReactionQuery query,
             AttackData attackData)
         {
+            // guaranteedReaction: 등급 리액션 정책을 우회해 피격 리액션을 보장한다(보스 등 강인한 적도 흔들림).
+            // 단 상태 기반 제외(Death/Hit/Airborne 등 = CanPlayHitReaction)는 안전상 유지한다.
+            bool guaranteed = attackData != null && attackData.guaranteedReaction;
             bool shouldPlayHitReaction = attackData != null
                                          && attackData.reactionType != AttackReactionType.None
                                          && query.CanPlayHitReaction
-                                         && attackData.forceReaction
-                                         && CombatPolicyResolver.AllowsMonsterForceReaction(query.Policy, query.Grade);
+                                         && (guaranteed
+                                             || (attackData.forceReaction
+                                                 && CombatPolicyResolver.AllowsMonsterForceReaction(query.Policy, query.Grade)));
             bool shouldApplyForce = query.PoiseBrokenNow || shouldPlayHitReaction;
 
             if (query.PoiseBrokenNow)
@@ -101,10 +105,15 @@ namespace UPlayGround.Combat
                 attackData,
                 query.ShouldEnterAirborne,
                 query.CanEnterKnockdown);
-            targetState = ApplyMonsterPolicy(query, targetState);
 
-            if (CombatPolicyResolver.RequiresPoiseBreakForMonsterState(query.Policy, query.Grade))
-                targetState = CombatReactionState.None;
+            // guaranteed면 상태 허용/Poise브레이크요구 정책을 모두 우회한다.
+            if (!guaranteed)
+            {
+                targetState = ApplyMonsterPolicy(query, targetState);
+
+                if (CombatPolicyResolver.RequiresPoiseBreakForMonsterState(query.Policy, query.Grade))
+                    targetState = CombatReactionState.None;
+            }
 
             return new ReactionDecision(
                 shouldApplyForce,

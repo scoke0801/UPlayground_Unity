@@ -285,7 +285,6 @@ namespace UPlayGround.Tool.Editor.Balance
             if (_scaling == null || _database == null)
                 return;
 
-            EnsureFolder(StatSavePath);
             int created = 0;
             int linked = 0;
             IReadOnlyList<ActorDefinitionSO> actors = _database.All;
@@ -295,13 +294,24 @@ namespace UPlayGround.Tool.Editor.Balance
                 ActorDefinitionSO actor = actors[i];
                 if (actor == null || (actor.actorType & ActorType.Monster) == 0)
                     continue;
-                if (EnsureScalingLinked(actor))
-                    linked++;
                 if (actor.statData != null) // 누락만 생성 — 기존 값 보호
                     continue;
 
-                CreateAndAssignStat(actor);
-                created++;
+                MonsterStatBakeService.Result result = MonsterStatBakeService.Bake(actor, new MonsterStatBakeService.Options
+                {
+                    PreferredScaling = _scaling,
+                    StatSavePath = StatSavePath,
+                    DifficultyOverride = _difficultyOverride,
+                    CreateMissingStat = true,
+                    ForceRegenerate = false,
+                    LinkMissingScaling = true,
+                    RecordUndo = true,
+                    UndoLabel = "Generate Missing Monster Stat",
+                });
+                if (result.CreatedStat)
+                    created++;
+                if (result.LinkedScaling)
+                    linked++;
             }
 
             AssetDatabase.SaveAssets();
@@ -345,24 +355,24 @@ namespace UPlayGround.Tool.Editor.Balance
             if (!proceed)
                 return;
 
-            EnsureFolder(StatSavePath);
             int linked = 0;
             for (int i = 0; i < targets.Count; i++)
             {
                 ActorDefinitionSO actor = targets[i];
-                if (EnsureScalingLinked(actor))
+                MonsterStatBakeService.Result result = MonsterStatBakeService.Bake(actor, new MonsterStatBakeService.Options
+                {
+                    PreferredScaling = _scaling,
+                    StatSavePath = StatSavePath,
+                    DifficultyOverride = _difficultyOverride,
+                    CreateMissingStat = true,
+                    ForceRegenerate = true,
+                    ReplaceExistingStatAsset = false,
+                    LinkMissingScaling = true,
+                    RecordUndo = true,
+                    UndoLabel = "Re-level Monster Stat",
+                });
+                if (result.LinkedScaling)
                     linked++;
-                if (actor.statData != null)
-                {
-                    // 기존 에셋 제자리 덮어쓰기 — 다른 곳에서 참조 중인 statData 링크를 유지한다.
-                    Undo.RecordObject(actor.statData, "Re-level Monster Stat");
-                    WriteStatValues(actor.statData, actor);
-                    EditorUtility.SetDirty(actor.statData);
-                }
-                else
-                {
-                    CreateAndAssignStat(actor);
-                }
             }
 
             AssetDatabase.SaveAssets();
@@ -387,34 +397,9 @@ namespace UPlayGround.Tool.Editor.Balance
             }
         }
 
-        private void CreateAndAssignStat(ActorDefinitionSO actor)
-        {
-            var stat = ScriptableObject.CreateInstance<ActorStatSO>();
-            WriteStatValues(stat, actor);
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{StatSavePath}/ActorStat_{SafeName(actor)}.asset");
-            AssetDatabase.CreateAsset(stat, path);
-
-            Undo.RecordObject(actor, "Generate Monster Stat");
-            var so = new SerializedObject(actor);
-            so.FindProperty("statData").objectReferenceValue = stat;
-            so.ApplyModifiedProperties();
-            EditorUtility.SetDirty(actor);
-        }
-
-        private void WriteStatValues(ActorStatSO stat, ActorDefinitionSO actor)
-        {
-            Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
-            foreach (KeyValuePair<StatType, float> pair in values)
-                stat.EditorSet(pair.Key, pair.Value);
-        }
-
         private void CreateScalingAsset()
         {
-            EnsureFolder(StatSavePath);
-            var scaling = ScriptableObject.CreateInstance<MonsterScalingSO>();
-            scaling.FillDefaults();
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{StatSavePath}/MonsterScaling_Default.asset");
-            AssetDatabase.CreateAsset(scaling, path);
+            var scaling = MonsterStatBakeService.FindOrCreateScaling(StatSavePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             _scaling = scaling;
@@ -448,21 +433,6 @@ namespace UPlayGround.Tool.Editor.Balance
         private MonsterScalingSO ResolveScaling(ActorDefinitionSO actor)
             => actor != null && actor.monsterScaling != null ? actor.monsterScaling : _scaling;
 
-        private bool EnsureScalingLinked(ActorDefinitionSO actor)
-        {
-            if (actor == null || (actor.actorType & ActorType.Monster) == 0 || actor.monsterScaling != null)
-                return false;
-            if (_scaling == null)
-                return false;
-
-            Undo.RecordObject(actor, "Link Monster Scaling");
-            var so = new SerializedObject(actor);
-            so.FindProperty("monsterScaling").objectReferenceValue = _scaling;
-            so.ApplyModifiedProperties();
-            EditorUtility.SetDirty(actor);
-            return true;
-        }
-
         private bool PassesFilter(ActorDefinitionSO actor)
         {
             if (string.IsNullOrWhiteSpace(_filter))
@@ -485,35 +455,12 @@ namespace UPlayGround.Tool.Editor.Balance
             x += width + 4f;
         }
 
-        private static string SafeName(ActorDefinitionSO actor)
-        {
-            string raw = !string.IsNullOrWhiteSpace(actor.actorId) ? actor.actorId : actor.name;
-            foreach (char invalid in System.IO.Path.GetInvalidFileNameChars())
-                raw = raw.Replace(invalid, '_');
-            return raw.Replace('/', '_').Replace('\\', '_').Replace(' ', '_');
-        }
-
         private static T FindFirst<T>() where T : UnityEngine.Object
         {
             string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
             return guids.Length > 0
                 ? AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guids[0]))
                 : null;
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path))
-                return;
-            string[] parts = path.Split('/');
-            string current = parts[0];
-            for (int i = 1; i < parts.Length; i++)
-            {
-                string next = $"{current}/{parts[i]}";
-                if (!AssetDatabase.IsValidFolder(next))
-                    AssetDatabase.CreateFolder(current, parts[i]);
-                current = next;
-            }
         }
     }
 }

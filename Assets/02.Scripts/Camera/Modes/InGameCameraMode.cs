@@ -278,9 +278,13 @@ namespace UPlayGround.CameraSystem
             float deltaTime,
             out Vector3 pivotPosition)
         {
+            Vector3 lockOnPivotOffset = context.LookAtOverride == null && context.LockOn != null
+                ? context.LockOn.EvaluatePivotOffset(deltaTime)
+                : Vector3.zero;
+
             Vector3 pivotBase = context.LookAtOverride != null
                 ? context.LookAtOverride.position + context.LookAtOverrideOffset
-                : context.Target.position + state.CameraOffset;
+                : context.Target.position + state.CameraOffset + lockOnPivotOffset;
 
             if (smoothTime <= 0f)
             {

@@ -51,6 +51,12 @@ namespace UPlayGround.Dialogue
         [Header("Events")]
         public List<DialogueActionSO> eventActions = new();
 
+        [Header("Camera (Optional)")]
+        [Tooltip("지정 시 이 노드에서 자동 추종 대신 사전 녹화 카메라를 화자 기준으로 재생한다. " +
+                 "연속된 여러 노드가 같은 녹화를 가리키면 처음부터 재시작하지 않고 한 번에 이어서 재생된다(장면 단위 연출). " +
+                 "완료 후 마지막 프레임을 유지하다가 다음 노드가 카메라를 교체한다. Main 채널에서만 동작.")]
+        public UPlayGround.Data.DialogueCameraRecordingSO cameraRecording;
+
         // 에디터 전용 — 런타임에서 참조하지 않음
         [HideInInspector] public Vector2 editorPosition;
 

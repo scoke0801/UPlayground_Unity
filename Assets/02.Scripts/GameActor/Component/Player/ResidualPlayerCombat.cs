@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Combat;
 using UPlayGround.Manager.Handler;
+using UPlayGround.MovementController;
 using UPlayGround.UI;
 
 namespace UPlayGround.Component
@@ -21,6 +23,13 @@ namespace UPlayGround.Component
         ISpecialBreakAttackMotionEventTarget
     {
         private readonly HashSet<IDamageable> _hitTargets = new();
+        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
+        private readonly List<CombatHit> _detectedHits = new(32);
+        private static readonly Func<Transform, bool> WarpDamageableFilter = static t =>
+        {
+            var d = t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>();
+            return d != null && d.CanTakeDamage();
+        };
 
         private PlayerActor _ownerPlayer;
         private AttackData _attackData;
@@ -93,6 +102,20 @@ namespace UPlayGround.Component
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) => _targetLayerMask = targetLayerMask;
 
+        public WarpResolverContext BuildWarpResolverContext()
+        {
+            if (_attackData == null) return default;
+
+            return new WarpResolverContext
+            {
+                origin = transform,
+                hitRange = _attackData.hitRange,
+                hitAngle = _attackData.hitAngle,
+                targetLayer = _targetLayerMask,
+                targetFilter = WarpDamageableFilter,
+            };
+        }
+
         public void SetHitPhaseIndex(int hitPhaseIndex)
         {
             if (_attackData == null)
@@ -128,6 +151,7 @@ namespace UPlayGround.Component
             _attackData.knockbackDrag = phase.knockBackDrag;
             _attackData.victimForcedAnimKey = phase.victimForcedAnimKey;
             _attackData.guaranteedReaction = phase.guaranteedReaction;
+            _attackData.reactionData = phase.reactionProfile?.Resolve();
 
             Debug.Log($"[ResidualAttack] Hit phase applied. phase={hitPhaseIndex}, damage={_attackData.damage}, range={_attackData.hitRange}, angle={_attackData.hitAngle}, heightOffset={_attackData.hitHeightOffset}, heightRange={_attackData.hitHeightRange}");
         }
@@ -172,7 +196,15 @@ namespace UPlayGround.Component
             }
 
             Vector3 origin = transform.position + Vector3.up * _attackData.hitHeightOffset;
-            Collider[] hits = Physics.OverlapSphere(origin, _attackData.hitRange, _targetLayerMask);
+            var hitShape = new MeleeHitShape(
+                transform,
+                origin,
+                transform.forward,
+                _attackData.hitRange,
+                _attackData.hitAngle,
+                _attackData.hitHeightRange,
+                _targetLayerMask);
+            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedHits);
 
             bool hitOccurred = false;
             Vector3 firstHitPoint = Vector3.zero;
@@ -181,49 +213,26 @@ namespace UPlayGround.Component
 
             _attackData.attacker = _ownerPlayer;
 
-            foreach (var hit in hits)
+            foreach (CombatHit hit in _detectedHits)
             {
-                if (hit == null || hit.transform == transform || hit.transform.IsChildOf(transform))
-                    continue;
+                _attackData.hitTarget = hit.HitObject;
+                _attackData.hitPoint = hit.HitPoint;
+                _attackData.attackDirection = hit.AttackDirection;
 
-                Vector3 dirFlat = hit.transform.position - transform.position;
-                dirFlat.y = 0f;
-                if (dirFlat.sqrMagnitude > 0.001f &&
-                    Vector3.Angle(transform.forward, dirFlat) > _attackData.hitAngle)
-                    continue;
-
-                if (_attackData.hitHeightRange > 0f)
-                {
-                    float closestY = hit.ClosestPoint(origin).y;
-                    if (Mathf.Abs(closestY - origin.y) > _attackData.hitHeightRange)
-                        continue;
-                }
-
-                IDamageable damageable = hit.GetComponent<IDamageable>()
-                                         ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage() || _hitTargets.Contains(damageable))
-                    continue;
-
-                Vector3 hitPoint = hit.ClosestPoint(origin);
-                Vector3 attackDir = (hit.transform.position - transform.position).normalized;
-
-                _attackData.hitTarget = hit.gameObject;
-                _attackData.hitPoint = hitPoint;
-                _attackData.attackDirection = attackDir;
-
-                _hitTargets.Add(damageable);
-                damageable.TakeDamage(_attackData);
+                _hitTargets.Add(hit.Damageable);
+                hit.Damageable.TakeDamage(_attackData);
                 ShowDamageFloater(_attackData);
-                GameObjectManager.Instance?.ShowFX(GetHitFxKey(_attackData), hitPoint);
+                GameObjectManager.Instance?.ShowFX(GetHitFxKey(_attackData), hit.HitPoint);
                 OnAttackHit?.Invoke(_attackData);
-                Debug.Log($"[ResidualAttack] Hit applied. target={hit.name}, damage={_attackData.damage}, phase={_attackData.hitPhaseIndex}, point={hitPoint}");
+                _ownerPlayer?.GetCombat()?.NotifyAttackHit(_attackData);
+                Debug.Log($"[ResidualAttack] Hit applied. target={hit.HitObject?.name}, damage={_attackData.damage}, phase={_attackData.hitPhaseIndex}, point={hit.HitPoint}");
 
                 if (!hitOccurred)
                 {
                     hitOccurred = true;
-                    firstHitPoint = hitPoint;
-                    firstHitDir = attackDir;
-                    firstHitTarget = hit.gameObject;
+                    firstHitPoint = hit.HitPoint;
+                    firstHitDir = hit.AttackDirection;
+                    firstHitTarget = hit.HitObject;
                 }
             }
 
@@ -272,6 +281,7 @@ namespace UPlayGround.Component
                 victimForcedAnimKey = source.victimForcedAnimKey,
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
+                reactionData = source.reactionData,
             };
         }
 

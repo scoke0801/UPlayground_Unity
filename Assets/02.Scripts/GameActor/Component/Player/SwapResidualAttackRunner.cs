@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
@@ -16,13 +18,16 @@ namespace UPlayGround.Component
     /// <summary>
     /// 스왑으로 퇴장한 캐릭터 모델 복제본의 남은 공격 MotionSet과 충돌 이벤트를 실행한다.
     /// </summary>
-    public sealed class SwapResidualAttackRunner : MonoBehaviour
+    public sealed class SwapResidualAttackRunner : MonoBehaviour, IResidualMotionWarpTarget
     {
         private static readonly List<SwapResidualAttackRunner> AllRunners = new();
         private static readonly List<SwapResidualAttackRunner> ActiveRunners = new();
 
+        private const float DefaultWarpFallbackMaxSpeed = 22f;
+
         private ActorAnimator _animator;
         private ResidualPlayerCombat _combat;
+        private MotionWarpController _motionWarp;
         private DissolveController _dissolveController;
         private GameObject _modelInstance;
         private float _maxLifetime = 1.8f;
@@ -31,6 +36,7 @@ namespace UPlayGround.Component
         private bool _useRootMotion;
         private float _rootMotionMaxDistance;
         private LayerMask _rootMotionBlocker;
+        private float _warpFallbackMaxSpeed = DefaultWarpFallbackMaxSpeed;
         private float _rootMotionDistance;
         private float _elapsed;
         private bool _isCancelling;
@@ -131,6 +137,7 @@ namespace UPlayGround.Component
             _useRootMotion = request.UseRootMotion;
             _rootMotionMaxDistance = Mathf.Max(0f, request.RootMotionMaxDistance);
             _rootMotionBlocker = request.RootMotionBlocker;
+            _warpFallbackMaxSpeed = DefaultWarpFallbackMaxSpeed;
 
             _modelInstance = Instantiate(snapshot.SourceModel.gameObject, snapshot.Position, snapshot.Rotation, transform);
             _modelInstance.name = $"{snapshot.SourceModel.name}_Residual";
@@ -151,6 +158,7 @@ namespace UPlayGround.Component
                 request.HitStopDuration,
                 request.HitStopTimeScale,
                 request.ShowCharacterOnDamageFloater);
+            _motionWarp = gameObject.GetOrAddComponent<MotionWarpController>();
 
             _animator = _modelInstance.GetComponentInChildren<ActorAnimator>(true);
             if (_animator == null)
@@ -174,9 +182,9 @@ namespace UPlayGround.Component
                 Debug.LogWarning($"[ResidualAttack] MotionEventExecutor missing on animator. animator={_animator.name}");
             }
 
-            // 수동 루트모션(ApplyRootMotionDelta)이 DeltaPosition을 읽으려면 applyRootMotion=true 필요.
+            // 수동 루트모션/잔류 워프(ApplyRootMotionDelta)가 DeltaPosition을 읽으려면 applyRootMotion=true 필요.
             // ActorAnimator가 OnAnimatorMove를 구현하므로 Unity가 자동 적용하지 않고 델타만 노출한다.
-            _animator.ApplyRootMotion(_useRootMotion);
+            _animator.ApplyRootMotion(true);
             _animator.OnMotionSetCompleted += OnMotionSetCompleted;
             if (!_animator.RestorePlaybackSnapshot(snapshot.PlaybackSnapshot))
             {
@@ -211,11 +219,55 @@ namespace UPlayGround.Component
 
         private void ApplyRootMotionDelta()
         {
-            if (!_useRootMotion || _animator == null)
+            if (_animator == null)
                 return;
 
             Vector3 delta = _animator.DeltaPosition;
+            bool isWarping = _motionWarp != null && _motionWarp.IsMotionWarping;
+            if (!_useRootMotion && !isWarping)
+                return;
+
             delta.y = 0f;
+            float deltaTime = Time.deltaTime;
+            if (deltaTime <= 0f)
+                return;
+            if (!isWarping && delta.sqrMagnitude <= 0.000001f)
+                return;
+
+            if (isWarping)
+            {
+                Vector3 velocity = delta / deltaTime;
+                float fallbackMaxDistance = _rootMotionMaxDistance > 0f ? _rootMotionMaxDistance : 7f;
+                velocity = _motionWarp.EvaluateVelocity(
+                    velocity,
+                    transform.position,
+                    true,
+                    _motionWarp.WarpRemainingTime,
+                    _motionWarp.WarpDuration,
+                    0f,
+                    fallbackMaxDistance,
+                    _warpFallbackMaxSpeed,
+                    deltaTime,
+                    _motionWarp.EndMotionWarp);
+                velocity = _motionWarp.ClampApproachVelocity(velocity, transform.position, deltaTime);
+                delta = velocity * deltaTime;
+
+                Quaternion currentRotation = transform.rotation;
+                if (_motionWarp.TryEvaluateRotation(
+                        currentRotation,
+                        transform.position,
+                        true,
+                        _motionWarp.WarpRemainingTime,
+                        _motionWarp.WarpDuration,
+                        0f,
+                        fallbackMaxDistance,
+                        _warpFallbackMaxSpeed,
+                        out Quaternion warpedRotation))
+                {
+                    transform.rotation = warpedRotation;
+                }
+            }
+
             if (delta.sqrMagnitude <= 0.000001f)
                 return;
 
@@ -242,6 +294,55 @@ namespace UPlayGround.Component
             Vector3 applied = desired - start;
             transform.position = desired;
             _rootMotionDistance += applied.magnitude;
+        }
+
+        public WarpResolverContext BuildWarpResolverContext()
+        {
+            return _combat != null ? _combat.BuildWarpResolverContext() : default;
+        }
+
+        public void SetResidualMotionWarpTarget(string key, Transform target, bool useSnapshot)
+        {
+            EnsureMotionWarp();
+            _motionWarp.SetTarget(key, target, useSnapshot);
+        }
+
+        public void BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key)
+        {
+            EnsureMotionWarp();
+            string useKey = string.IsNullOrEmpty(key) ? MotionWarpController.DefaultTargetKey : key;
+            if (!_motionWarp.GetTarget(useKey).IsValid)
+                ResolveFallbackWarpTarget(useKey, settings.targetPolicy == MotionWarpTargetPolicy.Snapshot);
+
+            _motionWarp.BeginWarpWindow(settings, useKey);
+            _motionWarp.BeginMotionWarp(settings.duration);
+            if (settings.overrideDistance && settings.maxSpeed > 0f)
+                _warpFallbackMaxSpeed = settings.maxSpeed;
+        }
+
+        public void EndResidualMotionWarp()
+        {
+            if (_motionWarp == null) return;
+
+            _motionWarp.EndWarpWindow();
+            _motionWarp.EndMotionWarp();
+        }
+
+        private void EnsureMotionWarp()
+        {
+            if (_motionWarp == null)
+                _motionWarp = gameObject.GetOrAddComponent<MotionWarpController>();
+        }
+
+        private void ResolveFallbackWarpTarget(string key, bool useSnapshot)
+        {
+            WarpResolverContext context = BuildWarpResolverContext();
+            if (context.origin == null)
+                return;
+
+            Transform resolved = HybridResolver.Instance.Resolve(in context);
+            if (resolved != null)
+                _motionWarp.SetTarget(key, resolved, useSnapshot);
         }
 
         public void Cancel(SwapResidualAttackCancelReason reason) => Cancel(reason, forceImmediate: false);

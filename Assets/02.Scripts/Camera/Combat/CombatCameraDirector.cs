@@ -293,13 +293,7 @@ namespace UPlayGround.CameraSystem
 
         public void PlaySoftTargetAssist(Transform target, float duration = 0.12f, float manualInputSuppressDuration = 0.35f)
         {
-            if (_cameraManager == null || target == null || _cameraManager.IsLockOnActive())
-                return;
-
-            if (GetAutoCorrectionScale() <= 0f)
-                return;
-
-            if (_cameraManager.TimeSinceLastManualCameraInput < manualInputSuppressDuration)
+            if (!CanPlaySoftTargetAssist(target, manualInputSuppressDuration))
                 return;
 
             Transform playerTarget = _cameraManager.GetTarget();
@@ -313,6 +307,21 @@ namespace UPlayGround.CameraSystem
 
             float yaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
             _cameraManager.SetRotationSmooth(yaw, _cameraManager.GetCurrentPitch(), duration * GetAutoCorrectionScale());
+        }
+
+        private bool CanPlaySoftTargetAssist(Transform target, float manualInputSuppressDuration)
+        {
+            if (_cameraManager == null || target == null)
+                return false;
+
+            // 하드락은 명시적 플레이어 선택이므로 soft target assist가 개입하지 않는다.
+            if (_cameraManager.IsLockOnActive())
+                return false;
+
+            if (GetAutoCorrectionScale() <= 0f)
+                return false;
+
+            return _cameraManager.TimeSinceLastManualCameraInput >= manualInputSuppressDuration;
         }
 
         private void PlayFallback(in CombatCameraIntent intent)

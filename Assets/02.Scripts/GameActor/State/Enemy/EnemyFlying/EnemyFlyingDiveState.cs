@@ -386,6 +386,7 @@ namespace UPlayGround.State
                     knockbackDrag = phase?.knockBackDrag ?? 5f,
                     hitParticleName = phase?.hitParticleName ?? "HeavyHit",
                     attacker = gameActor as MonsterActor,
+                    reactionData = phase?.reactionProfile?.Resolve(),
                 };
 
                 damageable.TakeDamage(attackData);

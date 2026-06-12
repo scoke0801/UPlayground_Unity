@@ -7,6 +7,117 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data
 {
+    /// <summary>
+    /// MotionSet/HitPhase 기반 자동 분석 결과.
+    /// 1차 구현은 AnimationClip 샘플링 없이 Collision 타이밍과 공격 카테고리 기반 초안값을 저장한다.
+    /// </summary>
+    [Serializable]
+    public class AttackMotionAnalysisResult
+    {
+        [Tooltip("true면 실제 AnimationClip 샘플링이 아니라 MotionSet 타이밍/공격 카테고리 기반 추정값이다.")]
+        public bool isEstimated = true;
+
+        [Range(0f, 1f)] public float weaponSpeedScore;
+        [Range(0f, 1f)] public float rootMotionScore;
+        [Range(0f, 1f)] public float bodyRotationScore;
+        [Range(0f, 1f)] public float attackWeightScore;
+        [Range(0f, 1f)] public float impactScore;
+
+        public float activeStart;
+        public float activeEnd;
+        public float activeDuration;
+        public float startupDuration;
+        public float recoveryDuration;
+    }
+
+    /// <summary>
+    /// 적중/허공 공격 피드백에 사용할 확정 반응 데이터.
+    /// HitStop은 실제 적중 시점에서만 사용하고, FakeImpact는 허공 공격 연출에 사용한다.
+    /// </summary>
+    [Serializable]
+    public class AttackReactionData
+    {
+        public float impactTime;
+
+        [Header("Hit Confirm")]
+        public float hitStopDuration;
+        [Range(0.01f, 1f)] public float hitStopScale = 0.1f;
+
+        [Header("Camera")]
+        public float cameraShakeAmplitude;
+        public float cameraShakeDuration;
+        public float fovKickAmount;
+        public float fovKickDuration;
+
+        [Header("Air Swing")]
+        public float trailIntensity;
+        [Range(0.01f, 1f)] public float fakeImpactSlowScale = 0.9f;
+        public float fakeImpactDuration;
+    }
+
+    [Serializable]
+    public class ManualReactionOverride
+    {
+        public bool overrideImpactTime;
+        public float impactTime;
+
+        public bool overrideHitStop;
+        public float hitStopDuration;
+        [Range(0.01f, 1f)] public float hitStopScale = 0.1f;
+
+        public bool overrideCamera;
+        public float cameraShakeAmplitude;
+        public float cameraShakeDuration;
+
+        public bool overrideFov;
+        public float fovKickAmount;
+        public float fovKickDuration;
+
+        public bool overrideTrail;
+        public float trailIntensity;
+
+        public bool overrideFakeImpact;
+        [Range(0.01f, 1f)] public float fakeImpactSlowScale = 0.9f;
+        public float fakeImpactDuration;
+    }
+
+    [Serializable]
+    public class AttackReactionProfile
+    {
+        public bool useAutoReaction = true;
+        public bool hasAutoReactionGenerated;
+        public AttackMotionAnalysisResult analysis = new AttackMotionAnalysisResult();
+        public AttackReactionData autoData = new AttackReactionData();
+
+        public bool useManualOverride;
+        public ManualReactionOverride manualOverride = new ManualReactionOverride();
+
+        [NonSerialized] private AttackReactionData _resolvedCache;
+
+        public AttackReactionData Resolve()
+        {
+            if (!useAutoReaction)
+                return null;
+
+            AttackReactionData source = autoData ?? new AttackReactionData();
+            if (!useManualOverride || manualOverride == null)
+                return source;
+
+            _resolvedCache ??= new AttackReactionData();
+            _resolvedCache.impactTime = manualOverride.overrideImpactTime ? manualOverride.impactTime : source.impactTime;
+            _resolvedCache.hitStopDuration = manualOverride.overrideHitStop ? manualOverride.hitStopDuration : source.hitStopDuration;
+            _resolvedCache.hitStopScale = manualOverride.overrideHitStop ? manualOverride.hitStopScale : source.hitStopScale;
+            _resolvedCache.cameraShakeAmplitude = manualOverride.overrideCamera ? manualOverride.cameraShakeAmplitude : source.cameraShakeAmplitude;
+            _resolvedCache.cameraShakeDuration = manualOverride.overrideCamera ? manualOverride.cameraShakeDuration : source.cameraShakeDuration;
+            _resolvedCache.fovKickAmount = manualOverride.overrideFov ? manualOverride.fovKickAmount : source.fovKickAmount;
+            _resolvedCache.fovKickDuration = manualOverride.overrideFov ? manualOverride.fovKickDuration : source.fovKickDuration;
+            _resolvedCache.trailIntensity = manualOverride.overrideTrail ? manualOverride.trailIntensity : source.trailIntensity;
+            _resolvedCache.fakeImpactSlowScale = manualOverride.overrideFakeImpact ? manualOverride.fakeImpactSlowScale : source.fakeImpactSlowScale;
+            _resolvedCache.fakeImpactDuration = manualOverride.overrideFakeImpact ? manualOverride.fakeImpactDuration : source.fakeImpactDuration;
+            return _resolvedCache;
+        }
+    }
+
     public enum TelegraphShape
     {
         Circle,
@@ -66,6 +177,9 @@ namespace UPlayGround.Data
         public AnimKey victimForcedAnimKey = AnimKey.None;
         [Tooltip("true면 등급 리액션 정책(allowHit/requirePoiseBreak 등)을 무시하고 피격 리액션을 보장한다. 보스 등 강인한 적도 확실히 흔들린다.")]
         public bool guaranteedReaction = false;
+
+        [Header("Auto Reaction")]
+        public AttackReactionProfile reactionProfile = new AttackReactionProfile();
     }
 
     /// <summary>
@@ -275,5 +389,8 @@ namespace UPlayGround.Data
 
         // 멀티 히트
         public int hitPhaseIndex = 0;
+
+        // MotionSet 자동 반응 데이터. 실제 재생 여부는 피드백/카메라 시스템에서 결정한다.
+        public AttackReactionData reactionData;
     }
 }

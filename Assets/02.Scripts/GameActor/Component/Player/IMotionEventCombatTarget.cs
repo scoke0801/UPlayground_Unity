@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Component
 {
@@ -21,5 +22,13 @@ namespace UPlayGround.Component
     public interface ISpecialBreakAttackMotionEventTarget
     {
         void ApplySpecialBreakAttackFromMotionEvent();
+    }
+
+    public interface IResidualMotionWarpTarget
+    {
+        WarpResolverContext BuildWarpResolverContext();
+        void SetResidualMotionWarpTarget(string key, Transform target, bool useSnapshot);
+        void BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key);
+        void EndResidualMotionWarp();
     }
 }

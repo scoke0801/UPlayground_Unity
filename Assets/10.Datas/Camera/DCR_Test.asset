@@ -1,0 +1,2067 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e01dabaf1b07c8146a573bc0c664a5bb, type: 3}
+  m_Name: DCR_Test
+  m_EditorClassIdentifier: 
+  recordingName: DCR_Test
+  space: 1
+  anchor:
+    enabled: 1
+    useActivePlayerWhenEmpty: 1
+    actorIdType: 0
+    actorId: 
+    socketType: 3
+  sampleRate: 30
+  samples:
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: -0.000000111790634}
+    fieldOfView: 52.000004
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: -0.00000022358124}
+    fieldOfView: 51.999996
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: -0.000000111790634}
+    fieldOfView: 51.999996
+  - localPosition: {x: -0.10038387, y: 2.7138786, z: -2.9413989}
+    localEuler: {x: 17.32, y: 7.4859624, z: -0.000000111790634}
+    fieldOfView: 51.999996
+  - localPosition: {x: -0.100383885, y: 2.7138789, z: -2.941399}
+    localEuler: {x: 17.319998, y: 7.4859624, z: -0.00000022358127}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.32, y: 7.4859633, z: 0}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.313322, y: 7.503782, z: 0.000057570083}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.301025, y: 7.5366125, z: 0.00015783207}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.296307, y: 7.690644, z: -0.00027575195}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.31497, y: 8.053688, z: -0.003643269}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.379215, y: 8.730519, z: 359.98666}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.519098, y: 9.833357, z: 359.96692}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 17.748512, y: 11.395335, z: 359.94034}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 18.079641, y: 13.4170885, z: 359.9113}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 18.515495, y: 15.83558, z: 359.88568}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 19.04973, y: 18.529953, z: 359.86783}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 19.636614, y: 21.27944, z: 359.86517}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 20.236822, y: 23.89594, z: 359.87698}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 20.818094, y: 26.248856, z: 359.898}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10038388, y: 2.7138784, z: -2.9413986}
+    localEuler: {x: 21.360935, y: 28.26544, z: 359.9227}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.10389083, y: 2.7138784, z: -2.939032}
+    localEuler: {x: 21.845009, y: 29.946213, z: 359.94653}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.11366639, y: 2.7138784, z: -2.932365}
+    localEuler: {x: 22.25287, y: 31.268585, z: 359.9638}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.13373077, y: 2.7138784, z: -2.9182334}
+    localEuler: {x: 22.600733, y: 32.35828, z: 359.97412}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.16850597, y: 2.7138784, z: -2.8928485}
+    localEuler: {x: 22.90937, y: 33.345, z: 359.9766}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.2217061, y: 2.7138784, z: -2.8527908}
+    localEuler: {x: 23.197163, y: 34.342003, z: 359.9716}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.29592955, y: 2.7138784, z: -2.7948277}
+    localEuler: {x: 23.503092, y: 35.523262, z: 359.96005}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.39073938, y: 2.7138784, z: -2.717655}
+    localEuler: {x: 23.850676, y: 37.0017, z: 359.94232}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.5026773, y: 2.7138784, z: -2.6218643}
+    localEuler: {x: 24.256462, y: 38.869118, z: 359.9186}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.62592036, y: 2.7138784, z: -2.5096178}
+    localEuler: {x: 24.713785, y: 41.187515, z: 359.8923}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.7524351, y: 2.7138784, z: -2.3870933}
+    localEuler: {x: 25.219725, y: 44.125633, z: 359.86728}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.87500525, y: 2.7138784, z: -2.2601461}
+    localEuler: {x: 25.738398, y: 47.66506, z: 359.8502}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.98754597, y: 2.7138784, z: -2.1351285}
+    localEuler: {x: 26.242113, y: 51.791897, z: 359.84183}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.0856273, y: 2.7138784, z: -2.0183146}
+    localEuler: {x: 26.71071, y: 56.50375, z: 359.84137}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.1644664, y: 2.7138784, z: -1.9125705}
+    localEuler: {x: 27.138271, y: 61.773483, z: 359.846}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.223945, y: 2.7138784, z: -1.818803}
+    localEuler: {x: 27.519987, y: 67.426926, z: 359.85727}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2647747, y: 2.7138784, z: -1.7351913}
+    localEuler: {x: 27.85515, y: 73.21544, z: 359.86777}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2887145, y: 2.7138784, z: -1.6567247}
+    localEuler: {x: 28.16704, y: 78.90717, z: 359.87515}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2980083, y: 2.7138784, z: -1.5761421}
+    localEuler: {x: 28.487011, y: 84.29625, z: 359.8813}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2939248, y: 2.7138784, z: -1.4854292}
+    localEuler: {x: 28.82888, y: 89.20001, z: 359.8868}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2789354, y: 2.7138784, z: -1.3809137}
+    localEuler: {x: 29.199707, y: 93.518005, z: 359.89267}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2533654, y: 2.7138784, z: -1.2583243}
+    localEuler: {x: 29.633575, y: 97.30822, z: 359.8896}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2183602, y: 2.7138784, z: -1.1194844}
+    localEuler: {x: 30.144281, y: 100.64324, z: 359.8802}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.1737635, y: 2.7138784, z: -0.963565}
+    localEuler: {x: 30.744246, y: 103.59682, z: 359.86414}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.1199992, y: 2.7138784, z: -0.79579467}
+    localEuler: {x: 31.42982, y: 106.32796, z: 359.8487}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.0572836, y: 2.7138784, z: -0.62034655}
+    localEuler: {x: 32.192364, y: 108.934204, z: 359.83527}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.98509043, y: 2.7138784, z: -0.4399813}
+    localEuler: {x: 33.04278, y: 111.52396, z: 359.8178}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.9038077, y: 2.7138784, z: -0.25991285}
+    localEuler: {x: 33.95245, y: 114.11738, z: 359.79947}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.81596464, y: 2.7152858, z: -0.081588335}
+    localEuler: {x: 34.896523, y: 116.79468, z: 359.78555}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72341436, y: 2.719023, z: 0.09330451}
+    localEuler: {x: 35.841347, y: 119.57248, z: 359.77625}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.6281288, y: 2.7275007, z: 0.2653498}
+    localEuler: {x: 36.75777, y: 122.50046, z: 359.7696}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.5326304, y: 2.7434187, z: 0.4353675}
+    localEuler: {x: 37.6177, y: 125.5718, z: 359.77185}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.4423589, y: 2.7691655, z: 0.60177594}
+    localEuler: {x: 38.399544, y: 128.75172, z: 359.78906}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.36098143, y: 2.806957, z: 0.766376}
+    localEuler: {x: 39.077232, y: 131.95947, z: 359.82343}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.29448605, y: 2.8596442, z: 0.92836845}
+    localEuler: {x: 39.609432, y: 135.0098, z: 359.8631}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.24544099, y: 2.9268155, z: 1.0878211}
+    localEuler: {x: 40.00238, y: 137.79225, z: 359.9059}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.21815059, y: 3.008832, z: 1.2432235}
+    localEuler: {x: 40.260063, y: 140.18398, z: 359.94476}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.2126764, y: 3.1032505, z: 1.3940284}
+    localEuler: {x: 40.408733, y: 142.13077, z: 359.97607}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.23010431, y: 3.2094314, z: 1.5405443}
+    localEuler: {x: 40.462807, y: 143.6322, z: -0.004039793}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.2686296, y: 3.3242354, z: 1.6811366}
+    localEuler: {x: 40.435745, y: 144.72687, z: 0.0020314218}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.32432678, y: 3.445486, z: 1.8171968}
+    localEuler: {x: 40.40023, y: 145.60338, z: 0.0012937733}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.3907682, y: 3.5700502, z: 1.9496064}
+    localEuler: {x: 40.549362, y: 146.49783, z: 359.96738}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.46267977, y: 3.6942189, z: 2.077098}
+    localEuler: {x: 41.016964, y: 147.55443, z: 359.8748}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.5351892, y: 3.8137336, z: 2.196853}
+    localEuler: {x: 42.072464, y: 148.88187, z: 359.66653}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.60358626, y: 3.9245882, z: 2.3062923}
+    localEuler: {x: 43.860718, y: 150.59785, z: 359.34192}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.6628562, y: 4.023191, z: 2.403657}
+    localEuler: {x: 46.549583, y: 152.72209, z: 358.9035}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.71134764, y: 4.1062984, z: 2.4856062}
+    localEuler: {x: 50.239193, y: 155.20175, z: 358.3616}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.7480035, y: 4.1713386, z: 2.5495698}
+    localEuler: {x: 54.799225, y: 157.92819, z: 357.80154}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.7742757, y: 4.214167, z: 2.5965576}
+    localEuler: {x: 59.972668, y: 160.7817, z: 357.29013}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.791149, y: 4.233915, z: 2.6274536}
+    localEuler: {x: 65.363434, y: 163.64119, z: 356.91818}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80133617, y: 4.2284393, z: 2.6459577}
+    localEuler: {x: 70.558846, y: 166.4249, z: 356.745}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8062177, y: 4.1962514, z: 2.6541536}
+    localEuler: {x: 75.22171, y: 169.05388, z: 356.79596}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8084444, y: 4.1350355, z: 2.6560826}
+    localEuler: {x: 79.12677, y: 171.52441, z: 357.0905}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8091206, y: 4.045477, z: 2.6537127}
+    localEuler: {x: 82.17973, y: 173.835, z: 357.63394}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8091088, y: 3.9274282, z: 2.6485023}
+    localEuler: {x: 84.309906, y: 175.76768, z: 358.2102}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80913943, y: 3.7835364, z: 2.6412024}
+    localEuler: {x: 85.50735, y: 177.57303, z: 358.9764}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80922276, y: 3.6198125, z: 2.631405}
+    localEuler: {x: 85.793, y: 178.97794, z: 359.63168}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8093559, y: 3.4420006, z: 2.6182234}
+    localEuler: {x: 85.2624, y: 179.8713, z: 0.004633696}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80948436, y: 3.2561681, z: 2.600499}
+    localEuler: {x: 83.76864, y: 179.9315, z: 359.8168}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8096123, y: 3.0700827, z: 2.5782812}
+    localEuler: {x: 81.349686, y: 179.57837, z: 359.47586}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80969226, y: 2.8908708, z: 2.5516772}
+    localEuler: {x: 77.99911, y: 178.80978, z: 359.04953}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8096735, y: 2.7283092, z: 2.5218132}
+    localEuler: {x: 73.84476, y: 177.76799, z: 358.7284}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80951995, y: 2.5859332, z: 2.4904625}
+    localEuler: {x: 69.088844, y: 176.43799, z: 358.5264}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80923265, y: 2.4693158, z: 2.46011}
+    localEuler: {x: 64.02606, y: 174.8582, z: 358.47806}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80885094, y: 2.378653, z: 2.4330516}
+    localEuler: {x: 58.955864, y: 173.04803, z: 358.56036}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.80843794, y: 2.314527, z: 2.4110508}
+    localEuler: {x: 54.17399, y: 171.09619, z: 358.7511}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8080584, y: 2.271578, z: 2.3946774}
+    localEuler: {x: 49.892963, y: 169.11577, z: 359.00323}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8077532, y: 2.2464895, z: 2.3836973}
+    localEuler: {x: 46.2544, y: 167.1974, z: 359.27094}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8124414, y: 2.2343132, z: 2.375007}
+    localEuler: {x: 43.27128, y: 165.25586, z: 359.47998}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8236237, y: 2.2286115, z: 2.365977}
+    localEuler: {x: 40.840733, y: 163.36072, z: 359.62897}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8468673, y: 2.226673, z: 2.3520918}
+    localEuler: {x: 38.861633, y: 161.45398, z: 359.71698}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.8855098, y: 2.226673, z: 2.3302724}
+    localEuler: {x: 37.26282, y: 159.42435, z: 359.7359}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.94491225, y: 2.226673, z: 2.2943642}
+    localEuler: {x: 35.823956, y: 157.01405, z: 359.7273}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.0259663, y: 2.226673, z: 2.2425108}
+    localEuler: {x: 34.557877, y: 154.1802, z: 359.6941}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.1274579, y: 2.226673, z: 2.173163}
+    localEuler: {x: 33.379986, y: 150.81839, z: 359.6717}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2463199, y: 2.226673, z: 2.0833855}
+    localEuler: {x: 32.31665, y: 146.8701, z: 359.66525}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.3743007, y: 2.226673, z: 1.9779351}
+    localEuler: {x: 31.371729, y: 142.3831, z: 359.684}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.5033233, y: 2.226673, z: 1.8608677}
+    localEuler: {x: 30.571732, y: 137.42026, z: 359.71692}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6256849, y: 2.226673, z: 1.7379292}
+    localEuler: {x: 29.89964, y: 132.1074, z: 359.75775}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.7351825, y: 2.226673, z: 1.6160485}
+    localEuler: {x: 29.335278, y: 126.627556, z: 359.8}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.8277097, y: 2.226673, z: 1.5024747}
+    localEuler: {x: 28.856853, y: 121.20105, z: 359.83948}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.8990204, y: 2.226673, z: 1.4047716}
+    localEuler: {x: 28.475147, y: 116.09755, z: 359.8577}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.951995, y: 2.226673, z: 1.3260384}
+    localEuler: {x: 28.128944, y: 111.44274, z: 359.8793}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.9871764, y: 2.226673, z: 1.2711139}
+    localEuler: {x: 27.814806, y: 107.410034, z: 359.9063}
+    fieldOfView: 51.999992
+  - localPosition: {x: -2.008884, y: 2.226673, z: 1.2397491}
+    localEuler: {x: 27.544298, y: 104.12782, z: 359.93433}
+    fieldOfView: 51.999992
+  - localPosition: {x: -2.0186038, y: 2.226673, z: 1.235477}
+    localEuler: {x: 27.32771, y: 101.669426, z: 359.9577}
+    fieldOfView: 51.999992
+  - localPosition: {x: -2.020526, y: 2.226673, z: 1.2560021}
+    localEuler: {x: 27.163807, y: 99.91788, z: 359.97656}
+    fieldOfView: 51.999992
+  - localPosition: {x: -2.01627, y: 2.226673, z: 1.3023531}
+    localEuler: {x: 27.047804, y: 98.7723, z: 359.9895}
+    fieldOfView: 51.999992
+  - localPosition: {x: -2.0056632, y: 2.226673, z: 1.3791121}
+    localEuler: {x: 26.978388, y: 98.219765, z: -0.0039192936}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.9907815, y: 2.226673, z: 1.4816062}
+    localEuler: {x: 26.95441, y: 98.151535, z: -0.0024232958}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.9709924, y: 2.226673, z: 1.6087466}
+    localEuler: {x: 26.971977, y: 98.564674, z: 359.99417}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.9444524, y: 2.226673, z: 1.7586381}
+    localEuler: {x: 27.031082, y: 99.5673, z: 359.98505}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.9102347, y: 2.226673, z: 1.9248527}
+    localEuler: {x: 27.133608, y: 101.27259, z: 359.96927}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.867071, y: 2.226673, z: 2.1007266}
+    localEuler: {x: 27.284084, y: 103.82033, z: 359.9459}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.8111337, y: 2.226673, z: 2.2808578}
+    localEuler: {x: 27.482388, y: 107.458145, z: 359.91513}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.7414731, y: 2.226673, z: 2.4585807}
+    localEuler: {x: 27.711145, y: 112.210236, z: 359.88843}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6563483, y: 2.226673, z: 2.627199}
+    localEuler: {x: 27.946123, y: 118.06094, z: 359.87653}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.5525497, y: 2.226673, z: 2.7831693}
+    localEuler: {x: 28.140663, y: 124.90844, z: 359.8958}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.4312415, y: 2.226673, z: 2.9214833}
+    localEuler: {x: 28.25522, y: 132.48079, z: 359.94812}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2929121, y: 2.226673, z: 3.04138}
+    localEuler: {x: 28.246197, y: 140.45271, z: 0.028566627}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.1369108, y: 2.226673, z: 3.1404626}
+    localEuler: {x: 28.077715, y: 148.50824, z: 0.12667319}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.96710885, y: 2.226673, z: 3.2166383}
+    localEuler: {x: 27.738794, y: 156.2882, z: 0.21782655}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.786279, y: 2.226673, z: 3.2717698}
+    localEuler: {x: 27.238281, y: 163.6075, z: 0.28356367}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.59798443, y: 2.226673, z: 3.3063633}
+    localEuler: {x: 26.614634, y: 170.381, z: 0.31758955}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.4042978, y: 2.226673, z: 3.3192904}
+    localEuler: {x: 25.905382, y: 176.61476, z: 0.3257604}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.21133831, y: 2.226673, z: 3.315238}
+    localEuler: {x: 25.160654, y: 182.38705, z: 0.310903}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.023882432, y: 2.226673, z: 3.2967641}
+    localEuler: {x: 24.420544, y: 187.77655, z: 0.27983493}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.15148231, y: 2.226673, z: 3.26654}
+    localEuler: {x: 23.71676, y: 192.76204, z: 0.24306013}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.31098184, y: 2.226673, z: 3.2297382}
+    localEuler: {x: 23.078135, y: 197.46394, z: 0.2033715}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.44915763, y: 2.226673, z: 3.1906805}
+    localEuler: {x: 22.523977, y: 201.91339, z: 0.16235106}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.56132853, y: 2.226673, z: 3.1534946}
+    localEuler: {x: 22.075167, y: 206.07295, z: 0.12328014}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.64801955, y: 2.226673, z: 3.1218147}
+    localEuler: {x: 21.729137, y: 209.94113, z: 0.084248826}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.70989454, y: 2.226673, z: 3.0973837}
+    localEuler: {x: 21.49312, y: 213.4789, z: 0.048729047}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.74893767, y: 2.226673, z: 3.080595}
+    localEuler: {x: 21.367277, y: 216.62961, z: 0.021005953}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7720451, y: 2.226673, z: 3.0702357}
+    localEuler: {x: 21.331919, y: 219.38219, z: 0.0007703761}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7840003, y: 2.226673, z: 3.064671}
+    localEuler: {x: 21.365654, y: 221.70006, z: 359.98932}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7890113, y: 2.226673, z: 3.0622368}
+    localEuler: {x: 21.440565, y: 223.5546, z: 359.98575}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7890113, y: 2.226673, z: 3.0622368}
+    localEuler: {x: 21.533905, y: 224.91446, z: 359.98837}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7890113, y: 2.226673, z: 3.0622368}
+    localEuler: {x: 21.617853, y: 225.84955, z: 359.99246}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7912423, y: 2.226673, z: 3.059847}
+    localEuler: {x: 21.682467, y: 226.4341, z: -0.0038772568}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7990027, y: 2.226673, z: 3.0515347}
+    localEuler: {x: 21.725834, y: 226.76677, z: -0.0014125927}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.8149269, y: 2.226673, z: 3.034478}
+    localEuler: {x: 21.75111, y: 226.92809, z: -0.00016637877}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.8431682, y: 2.226673, z: 3.004015}
+    localEuler: {x: 21.771132, y: 227.00372, z: -0.00020685332}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.8864684, y: 2.226673, z: 2.956198}
+    localEuler: {x: 21.84016, y: 227.29233, z: 359.99194}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.9469813, y: 2.226673, z: 2.8860726}
+    localEuler: {x: 21.976, y: 227.96886, z: 359.97116}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.0238274, y: 2.226673, z: 2.7919252}
+    localEuler: {x: 22.19896, y: 229.1814, z: 359.93582}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.1133885, y: 2.226673, z: 2.6728156}
+    localEuler: {x: 22.51306, y: 231.1541, z: 359.8893}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.2092968, y: 2.226673, z: 2.5346634}
+    localEuler: {x: 22.922026, y: 233.9321, z: 359.84085}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.3045336, y: 2.226673, z: 2.383454}
+    localEuler: {x: 23.38016, y: 237.6203, z: 359.80847}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.3925904, y: 2.226673, z: 2.2270496}
+    localEuler: {x: 23.82892, y: 242.13873, z: 359.8088}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4686495, y: 2.226673, z: 2.0744328}
+    localEuler: {x: 24.204264, y: 247.1719, z: 359.84573}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5301372, y: 2.226673, z: 1.9345753}
+    localEuler: {x: 24.447958, y: 252.4742, z: 359.91016}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.575582, y: 2.226673, z: 1.8161079}
+    localEuler: {x: 24.547646, y: 257.81735, z: 359.97906}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6062388, y: 2.226673, z: 1.7236322}
+    localEuler: {x: 24.526293, y: 263.0299, z: 0.031383615}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6257784, y: 2.226673, z: 1.656573}
+    localEuler: {x: 24.428425, y: 267.9624, z: 0.057926696}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6368351, y: 2.226673, z: 1.6125698}
+    localEuler: {x: 24.30875, y: 272.57178, z: 0.056581903}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6409575, y: 2.226673, z: 1.582889}
+    localEuler: {x: 24.202309, y: 276.78925, z: 0.030032191}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6380254, y: 2.226673, z: 1.5598661}
+    localEuler: {x: 24.157965, y: 280.68994, z: 0.0028127858}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6277759, y: 2.226673, z: 1.5341105}
+    localEuler: {x: 24.178406, y: 284.27325, z: 359.9833}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6102362, y: 2.226673, z: 1.5008423}
+    localEuler: {x: 24.244041, y: 287.48248, z: 359.97656}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5850306, y: 2.226673, z: 1.4532264}
+    localEuler: {x: 24.311687, y: 290.36105, z: 359.9779}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5523835, y: 2.226673, z: 1.3918033}
+    localEuler: {x: 24.363794, y: 292.81232, z: 359.98672}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5172352, y: 2.228208, z: 1.3185219}
+    localEuler: {x: 24.378075, y: 294.86487, z: -0.0035881598}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4857076, y: 2.2326565, z: 1.2382443}
+    localEuler: {x: 24.346207, y: 296.61844, z: 0.0036387967}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4654322, y: 2.2418628, z: 1.1562005}
+    localEuler: {x: 24.271229, y: 298.0514, z: 0.00811994}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4643089, y: 2.2581146, z: 1.0758798}
+    localEuler: {x: 24.157587, y: 299.19278, z: 0.009163515}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4891343, y: 2.2839057, z: 0.99763685}
+    localEuler: {x: 24.020546, y: 300.11453, z: 0.008568587}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5403028, y: 2.3193262, z: 0.9216026}
+    localEuler: {x: 23.87765, y: 300.90405, z: 0.0074349414}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6187973, y: 2.3654501, z: 0.84410393}
+    localEuler: {x: 23.73614, y: 301.55374, z: 0.006085666}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.721824, y: 2.4212852, z: 0.76466674}
+    localEuler: {x: 23.603268, y: 302.07, z: 0.0047834585}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.8437345, y: 2.4849594, z: 0.6814662}
+    localEuler: {x: 23.487654, y: 302.47888, z: 0.0036221421}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.9751917, y: 2.5526083, z: 0.5959866}
+    localEuler: {x: 23.390636, y: 302.80856, z: 0.002377641}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.108455, y: 2.6211438, z: 0.5090088}
+    localEuler: {x: 23.31618, y: 303.05212, z: 0.0013471318}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.237903, y: 2.6876814, z: 0.4242527}
+    localEuler: {x: 23.264545, y: 303.21628, z: 0.00066819345}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.3584063, y: 2.7495956, z: 0.34515834}
+    localEuler: {x: 23.23207, y: 303.31488, z: 0.00029638634}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.4639347, y: 2.8037956, z: 0.27572143}
+    localEuler: {x: 23.21301, y: 303.3688, z: 0.00010776147}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.5515647, y: 2.8487892, z: 0.2179702}
+    localEuler: {x: 23.275639, y: 303.44562, z: -0.0018058524}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.6197102, y: 2.883776, z: 0.17304252}
+    localEuler: {x: 23.450851, y: 303.5708, z: 359.99225}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.6685834, y: 2.9088695, z: 0.14081474}
+    localEuler: {x: 23.798191, y: 303.80008, z: 359.97897}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.7002482, y: 2.9251273, z: 0.119934745}
+    localEuler: {x: 24.401123, y: 304.18954, z: 359.95328}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.718386, y: 2.9334266, z: 0.10846196}
+    localEuler: {x: 25.334383, y: 304.7836, z: 359.9123}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.723012, y: 2.932772, z: 0.10686329}
+    localEuler: {x: 26.624294, y: 305.60034, z: 359.86047}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.7149413, y: 2.921484, z: 0.11558451}
+    localEuler: {x: 28.250656, y: 306.62433, z: 359.80847}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.6949694, y: 2.898667, z: 0.13471709}
+    localEuler: {x: 30.13179, y: 307.80682, z: 359.7702}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.6624873, y: 2.8612313, z: 0.1659628}
+    localEuler: {x: 32.142067, y: 309.07202, z: 359.75705}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.615789, y: 2.807051, z: 0.21102574}
+    localEuler: {x: 34.129578, y: 310.328, z: 359.77353}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.5556574, y: 2.736898, z: 0.2692038}
+    localEuler: {x: 35.94832, y: 311.4842, z: 359.81485}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.4844604, y: 2.6533978, z: 0.33825803}
+    localEuler: {x: 37.488033, y: 312.46912, z: 359.86923}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.406833, y: 2.5619183, z: 0.4137195}
+    localEuler: {x: 38.692432, y: 313.2432, z: 359.92328}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.3288376, y: 2.4696171, z: 0.48968822}
+    localEuler: {x: 39.488335, y: 313.76376, z: 359.96014}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.2566411, y: 2.3838735, z: 0.5601253}
+    localEuler: {x: 39.893112, y: 314.05182, z: 359.98114}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.1951425, y: 2.3106225, z: 0.6202059}
+    localEuler: {x: 39.880768, y: 314.078, z: 359.97855}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.1470249, y: 2.2531786, z: 0.6672636}
+    localEuler: {x: 39.494576, y: 313.87607, z: 359.95795}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.1133926, y: 2.2128582, z: 0.7002211}
+    localEuler: {x: 38.744614, y: 313.44757, z: 359.92462}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.0920322, y: 2.1872072, z: 0.7211668}
+    localEuler: {x: 37.63283, y: 312.6699, z: 359.86966}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.0804117, y: 2.1732523, z: 0.73256147}
+    localEuler: {x: 36.22059, y: 311.53714, z: 359.80493}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.0745332, y: 2.1661932, z: 0.73832536}
+    localEuler: {x: 34.607357, y: 310.0633, z: 359.74792}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.071722, y: 2.1642263, z: 0.7374574}
+    localEuler: {x: 32.91397, y: 308.28198, z: 359.71368}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.068316, y: 2.1642263, z: 0.7302729}
+    localEuler: {x: 31.268572, y: 306.26257, z: 359.7106}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.0613682, y: 2.1642263, z: 0.7156194}
+    localEuler: {x: 29.779789, y: 304.12, z: 359.73868}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.0482411, y: 2.1642263, z: 0.6879352}
+    localEuler: {x: 28.519138, y: 302.0025, z: 359.79007}
+    fieldOfView: 51.999992
+  - localPosition: {x: 2.026277, y: 2.1642263, z: 0.641612}
+    localEuler: {x: 27.517403, y: 300.06525, z: 359.85226}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.9940693, y: 2.1642263, z: 0.5738998}
+    localEuler: {x: 26.786388, y: 298.47577, z: 359.90952}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.9502904, y: 2.1642263, z: 0.4826842}
+    localEuler: {x: 26.298874, y: 297.3843, z: 359.9517}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.8946031, y: 2.1651711, z: 0.3660249}
+    localEuler: {x: 26.022747, y: 297.05795, z: 359.97455}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.8291311, y: 2.167928, z: 0.22726144}
+    localEuler: {x: 25.859806, y: 297.54837, z: 359.98572}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.7565273, y: 2.1735435, z: 0.07135249}
+    localEuler: {x: 25.79594, y: 298.99985, z: 359.98227}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.6800607, y: 2.1833127, z: -0.095669225}
+    localEuler: {x: 25.832094, y: 301.59326, z: 359.9641}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.601214, y: 2.1994565, z: -0.26999143}
+    localEuler: {x: 25.923414, y: 305.40338, z: 359.9413}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.5223598, y: 2.2227113, z: -0.44571614}
+    localEuler: {x: 26.048906, y: 310.32553, z: 359.9211}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.4420371, y: 2.2545154, z: -0.6194456}
+    localEuler: {x: 26.18957, y: 316.39355, z: 359.91205}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.3583381, y: 2.2935822, z: -0.7863497}
+    localEuler: {x: 26.333632, y: 323.36105, z: 359.91577}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.2681271, y: 2.3383832, z: -0.94326156}
+    localEuler: {x: 26.460533, y: 330.96036, z: 359.93234}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.1690499, y: 2.3864024, z: -1.0848895}
+    localEuler: {x: 26.558147, y: 338.90717, z: 359.95505}
+    fieldOfView: 51.999992
+  - localPosition: {x: 1.056883, y: 2.4344652, z: -1.2053547}
+    localEuler: {x: 26.623558, y: 346.9476, z: 359.97607}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.9309949, y: 2.47927, z: -1.3010049}
+    localEuler: {x: 26.668446, y: 354.77246, z: 359.98956}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.7927126, y: 2.5180194, z: -1.3667454}
+    localEuler: {x: 26.70563, y: 2.0789149, z: -0.005162459}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.6420586, y: 2.5485115, z: -1.397357}
+    localEuler: {x: 26.736408, y: 8.573887, z: 359.99124}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.4817852, y: 2.5705492, z: -1.3954122}
+    localEuler: {x: 26.768436, y: 14.163812, z: 359.9881}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.31440294, y: 2.585116, z: -1.3640645}
+    localEuler: {x: 26.79364, y: 18.802042, z: 359.98822}
+    fieldOfView: 51.999992
+  - localPosition: {x: 0.14501499, y: 2.593787, z: -1.3101969}
+    localEuler: {x: 26.804598, y: 22.564888, z: 359.99216}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.020919895, y: 2.597853, z: -1.2401496}
+    localEuler: {x: 26.797909, y: 25.57733, z: -0.0014734876}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.17893244, y: 2.5995936, z: -1.1636204}
+    localEuler: {x: 26.77009, y: 28.073421, z: 0.0043524406}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.32157508, y: 2.5995936, z: -1.0869906}
+    localEuler: {x: 26.727821, y: 30.114567, z: 0.007959382}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.4444132, y: 2.5995936, z: -1.0185882}
+    localEuler: {x: 26.674067, y: 31.94366, z: 0.008071715}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.5437525, y: 2.5995936, z: -0.9617447}
+    localEuler: {x: 26.623335, y: 33.624367, z: 0.006376763}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.61843115, y: 2.5995936, z: -0.9180522}
+    localEuler: {x: 26.583467, y: 35.143463, z: 0.003911412}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.66894233, y: 2.5995936, z: -0.8877915}
+    localEuler: {x: 26.55918, y: 36.435467, z: 0.0018278656}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.70076483, y: 2.5995936, z: -0.8684159}
+    localEuler: {x: 26.547615, y: 37.476696, z: 0.00036839952}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.7187179, y: 2.5995936, z: -0.8572892}
+    localEuler: {x: 26.545502, y: 38.25283, z: -0.0003378523}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72625476, y: 2.5995936, z: -0.85247}
+    localEuler: {x: 26.549156, y: 38.7629, z: -0.00038176618}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.553688, y: 39.072166, z: -0.00023670445}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.557787, y: 39.230328, z: -0.000062996165}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.72896194, y: 2.5995936, z: -0.85069346}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.746952, y: 2.594806, z: -0.8734332}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.7800982, y: 2.5859842, z: -0.9153305}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.83474714, y: 2.57144, z: -0.98440766}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -0.91537285, y: 2.5499823, z: -1.0863199}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.0218142, y: 2.5216537, z: -1.2208638}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.14756, y: 2.4881878, z: -1.3798085}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.2804893, y: 2.4528098, z: -1.5478334}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.4062352, y: 2.419344, z: -1.7067782}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.5126766, y: 2.3910153, z: -1.841322}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.5933024, y: 2.3695579, z: -1.9432343}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6479514, y: 2.3550134, z: -2.0123115}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6810975, y: 2.3461916, z: -2.0542088}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990876, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.560009, y: 39.285976, z: 0.0000019090116}
+    fieldOfView: 51.999992
+  - localPosition: {x: -1.6990879, y: 2.3414042, z: -2.076949}
+    localEuler: {x: 26.56001, y: 39.285976, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.56001, y: 39.28598, z: 0.0000009545058}
+    fieldOfView: 51.999996
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0}
+    fieldOfView: 51.999996
+  - localPosition: {x: -1.6990875, y: 2.3414037, z: -2.0769486}
+    localEuler: {x: 26.56001, y: 39.28598, z: 0.0000019090116}
+    fieldOfView: 51.999996
+  - localPosition: {x: -1.6990875, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52.000004
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  rawSamples:
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.32, y: 7.4859624, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 16.960001, y: 8.445967, z: -0.00000033472259}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 16.960001, y: 8.445967, z: -0.00000033472259}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 17.800001, y: 13.845966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 18.880003, y: 19.245966, z: -0.0000009023198}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 19.960001, y: 23.925966, z: -0.00000045416814}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 21.04, y: 27.885963, z: 0.0000004573803}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 21.04, y: 27.885963, z: 0.0000004573803}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 21.04, y: 28.005964, z: 0.0000004573803}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 21.639996, y: 29.805962, z: 0.00000045925552}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 23.079996, y: 33.52597, z: 0.00000046402843}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 23.200005, y: 34.005966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 23.200005, y: 34.005966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 23.200005, y: 34.005966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.10038388, y: 2.7138786, z: -2.941399}
+    localEuler: {x: 23.200005, y: 34.005966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.28949893, y: 2.7138786, z: -2.813788}
+    localEuler: {x: 23.200005, y: 34.005966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.46821368, y: 2.7138786, z: -2.6893606}
+    localEuler: {x: 23.200005, y: 34.845966, z: 0.00000046444384}
+    fieldOfView: 52
+  - localPosition: {x: -0.64644134, y: 2.7138786, z: -2.54422}
+    localEuler: {x: 24.400003, y: 39.165962, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.8028972, y: 2.7138786, z: -2.3926306}
+    localEuler: {x: 25.720005, y: 44.08596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.9221996, y: 2.7138786, z: -2.265365}
+    localEuler: {x: 26.199997, y: 46.845966, z: -0.0000009515361}
+    fieldOfView: 52
+  - localPosition: {x: -1.0516437, y: 2.7138786, z: -2.1132498}
+    localEuler: {x: 26.440002, y: 49.605965, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.161169, y: 2.7138786, z: -1.9693065}
+    localEuler: {x: 26.680002, y: 52.725967, z: -0.0000009555083}
+    fieldOfView: 52
+  - localPosition: {x: -1.2539476, y: 2.7138786, z: -1.8241667}
+    localEuler: {x: 27.400002, y: 57.40597, z: 0.0000009616566}
+    fieldOfView: 52
+  - localPosition: {x: -1.3316396, y: 2.7138786, z: -1.6673565}
+    localEuler: {x: 27.879995, y: 63.645966, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.3316396, y: 2.7138786, z: -1.6673565}
+    localEuler: {x: 28.120003, y: 76.12596, z: -0.000001936077}
+    fieldOfView: 52
+  - localPosition: {x: -1.3316396, y: 2.7138786, z: -1.6673565}
+    localEuler: {x: 28.000006, y: 83.08597, z: 0.0000009669584}
+    fieldOfView: 52
+  - localPosition: {x: -1.3316396, y: 2.7138786, z: -1.6673565}
+    localEuler: {x: 28.240002, y: 87.40597, z: 0.0000019382508}
+    fieldOfView: 52
+  - localPosition: {x: -1.3316396, y: 2.7138786, z: -1.6673565}
+    localEuler: {x: 28.600004, y: 91.72597, z: -0.0000009724262}
+    fieldOfView: 52
+  - localPosition: {x: -1.3060144, y: 2.7138786, z: -1.4623854}
+    localEuler: {x: 29.200005, y: 97.12596, z: -0.0000009780638}
+    fieldOfView: 52
+  - localPosition: {x: -1.2810313, y: 2.7138786, z: -1.3011663}
+    localEuler: {x: 29.320002, y: 98.80597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.2543411, y: 2.7138786, z: -1.1601133}
+    localEuler: {x: 29.68, y: 100.72597, z: 0.0000009826995}
+    fieldOfView: 52
+  - localPosition: {x: -1.219237, y: 2.7138786, z: -1.0200456}
+    localEuler: {x: 30.399998, y: 104.08597, z: -0.000000989867}
+    fieldOfView: 52
+  - localPosition: {x: -1.1684762, y: 2.7138786, z: -0.8574036}
+    localEuler: {x: 31.24001, y: 107.325966, z: 0.0000009985629}
+    fieldOfView: 52
+  - localPosition: {x: -1.0785148, y: 2.7138786, z: -0.59724265}
+    localEuler: {x: 31.720003, y: 109.365974, z: 0.0000010036983}
+    fieldOfView: 52
+  - localPosition: {x: -1.0334322, y: 2.7138786, z: -0.47236753}
+    localEuler: {x: 31.96, y: 109.84597, z: 0.0000020126258}
+    fieldOfView: 52
+  - localPosition: {x: -0.9186725, y: 2.7138786, z: -0.20635903}
+    localEuler: {x: 34.120007, y: 114.52596, z: -0.0000020625923}
+    fieldOfView: 52
+  - localPosition: {x: -0.85172117, y: 2.7138786, z: -0.077943504}
+    localEuler: {x: 35.43999, y: 117.52596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.7165151, y: 2.7138786, z: 0.15629819}
+    localEuler: {x: 36.400013, y: 120.40596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.64776856, y: 2.7138786, z: 0.27172753}
+    localEuler: {x: 36.520008, y: 120.76597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.56729203, y: 2.7138786, z: 0.3989431}
+    localEuler: {x: 36.999996, y: 122.32597, z: -0.000002138081}
+    fieldOfView: 52
+  - localPosition: {x: -0.40786958, y: 2.7138786, z: 0.6096039}
+    localEuler: {x: 39.160007, y: 128.92596, z: -0.0000022021916}
+    fieldOfView: 52
+  - localPosition: {x: -0.24253145, y: 2.7138786, z: 0.7913041}
+    localEuler: {x: 40.12001, y: 133.00597, z: -0.0000011164873}
+    fieldOfView: 52
+  - localPosition: {x: -0.21925482, y: 2.789772, z: 0.93628746}
+    localEuler: {x: 40.480007, y: 136.36595, z: -0.0000022449046}
+    fieldOfView: 52
+  - localPosition: {x: -0.19468458, y: 2.8514633, z: 1.0528029}
+    localEuler: {x: 40.60001, y: 139.12596, z: -0.0000011244648}
+    fieldOfView: 52
+  - localPosition: {x: -0.13601731, y: 2.9644241, z: 1.261945}
+    localEuler: {x: 40.72001, y: 143.92596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.062645644, y: 3.0871773, z: 1.48711}
+    localEuler: {x: 40.60001, y: 145.36597, z: -0.0000011244647}
+    fieldOfView: 52
+  - localPosition: {x: -0.124699414, y: 3.180729, z: 1.5769534}
+    localEuler: {x: 40.60001, y: 145.36597, z: -0.0000011244647}
+    fieldOfView: 52
+  - localPosition: {x: -0.18501598, y: 3.271675, z: 1.6642662}
+    localEuler: {x: 40.60001, y: 145.36597, z: -0.0000011244647}
+    fieldOfView: 52
+  - localPosition: {x: -0.30374378, y: 3.4506454, z: 1.8365408}
+    localEuler: {x: 40.48002, y: 145.48596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.3663769, y: 3.5454445, z: 1.9288878}
+    localEuler: {x: 40.36002, y: 145.84596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.47928816, y: 3.7158775, z: 2.0972059}
+    localEuler: {x: 40.000015, y: 146.20595, z: -0.0000011145225}
+    fieldOfView: 52
+  - localPosition: {x: -0.54144573, y: 3.8096466, z: 2.1900828}
+    localEuler: {x: 40.000015, y: 146.20595, z: -0.0000011145225}
+    fieldOfView: 52
+  - localPosition: {x: -0.66529083, y: 4.000908, z: 2.3819842}
+    localEuler: {x: 39.880016, y: 148.00597, z: 0.0000011125696}
+    fieldOfView: 52
+  - localPosition: {x: -0.71979105, y: 4.093193, z: 2.477474}
+    localEuler: {x: 40.00002, y: 150.28596, z: -0.0000011145223}
+    fieldOfView: 52
+  - localPosition: {x: -0.7718111, y: 4.1949425, z: 2.5792198}
+    localEuler: {x: 41.68002, y: 152.92595, z: -0.0000011431349}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 51.160007, y: 160.60597, z: -0.0000013613603}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 58.600025, y: 164.80595, z: -0.000004916073}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 70.36003, y: 169.24597, z: 0.0000025401678}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 74.319984, y: 171.04596, z: -0.0000110566225}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 78.28004, y: 172.84598, z: 0.0000010507774}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 84.28005, y: 176.44595, z: -0.000013920187}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091764, y: 4.2895813, z: 2.6642754}
+    localEuler: {x: 85.84, y: 177.64595, z: -0.000008827036}
+    fieldOfView: 52
+  - localPosition: {x: -0.80907065, y: 3.9978142, z: 2.6512802}
+    localEuler: {x: 87.640175, y: 179.80597, z: 0.000010042927}
+    fieldOfView: 52
+  - localPosition: {x: -0.8090583, y: 3.8578491, z: 2.6455362}
+    localEuler: {x: 87.640175, y: 179.80597, z: 0.000010042927}
+    fieldOfView: 52
+  - localPosition: {x: -0.80901366, y: 3.612236, z: 2.6353319}
+    localEuler: {x: 87.640175, y: 179.80597, z: 0.000010042927}
+    fieldOfView: 52
+  - localPosition: {x: -0.80899024, y: 3.4945564, z: 2.6304855}
+    localEuler: {x: 87.640175, y: 179.80597, z: 0.000010042927}
+    fieldOfView: 52
+  - localPosition: {x: -0.809062, y: 3.2338295, z: 2.6185849}
+    localEuler: {x: 87.28005, y: 180.52596, z: -0.000010682277}
+    fieldOfView: 52
+  - localPosition: {x: -0.8091147, y: 3.1158295, z: 2.612949}
+    localEuler: {x: 87.28005, y: 180.52596, z: -0.000010682277}
+    fieldOfView: 52
+  - localPosition: {x: -0.80940086, y: 2.874218, z: 2.5967672}
+    localEuler: {x: 85.120056, y: 181.24599, z: 0.000014427095}
+    fieldOfView: 52
+  - localPosition: {x: -0.8113276, y: 2.5735092, z: 2.5366538}
+    localEuler: {x: 75.76003, y: 181.84598, z: -0.0000023862071}
+    fieldOfView: 52
+  - localPosition: {x: -0.8119444, y: 2.4460526, z: 2.490227}
+    localEuler: {x: 70, y: 180.76598, z: -0.00000039004172}
+    fieldOfView: 52
+  - localPosition: {x: -0.81107223, y: 2.3312187, z: 2.4359565}
+    localEuler: {x: 64.72, y: 179.08597, z: -0.0000042484544}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 54.04, y: 173.92598, z: 0.0000029078483}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 52.840015, y: 173.32599, z: 0.0000042402958}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 45.880005, y: 168.28598, z: 0.0000006131992}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 43.600006, y: 166.48598, z: -0.00000058948274}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 40.36001, y: 164.08598, z: 0.0000016806774}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 39.160004, y: 163.00598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 37.360012, y: 161.08597, z: 0.0000005370737}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 36.76001, y: 160.36598, z: 0.000001065686}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 36.64001, y: 160.24597, z: 0.0000010640236}
+    fieldOfView: 52
+  - localPosition: {x: -0.8073084, y: 2.2266731, z: 2.3731248}
+    localEuler: {x: 36.400005, y: 159.88597, z: -0.0000010607282}
+    fieldOfView: 52
+  - localPosition: {x: -1.0725435, y: 2.2266731, z: 2.2417712}
+    localEuler: {x: 31.960009, y: 151.48598, z: 0.0000010063127}
+    fieldOfView: 52
+  - localPosition: {x: -1.1946733, y: 2.2266731, z: 2.1668706}
+    localEuler: {x: 30.76001, y: 148.48596, z: 0.000000993549}
+    fieldOfView: 52
+  - localPosition: {x: -1.4211317, y: 2.2266731, z: 2.017952}
+    localEuler: {x: 30.400011, y: 145.72597, z: -0.0000009898669}
+    fieldOfView: 52
+  - localPosition: {x: -1.5280156, y: 2.2266731, z: 1.9319077}
+    localEuler: {x: 30.040012, y: 141.16599, z: -0.0000009862506}
+    fieldOfView: 52
+  - localPosition: {x: -1.7298212, y: 2.2266731, z: 1.7193089}
+    localEuler: {x: 29.440012, y: 131.08598, z: 0.0000009803676}
+    fieldOfView: 52
+  - localPosition: {x: -1.8127639, y: 2.2266731, z: 1.6048732}
+    localEuler: {x: 29.200008, y: 125.92599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.8875245, y: 2.2266731, z: 1.4827384}
+    localEuler: {x: 28.960009, y: 121.48598, z: -0.0000009757882}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 28.48001, y: 114.04598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 28.120008, y: 109.485985, z: 0.0000019360773}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 27.64001, y: 103.24598, z: -0.0000019275153}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 27.160007, y: 99.28599, z: 0.0000009595816}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -2.0314803, y: 2.2266731, z: 1.1884537}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -2.0111961, y: 2.2266731, z: 1.3405622}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.9922804, y: 2.2266731, z: 1.4822869}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.9549084, y: 2.2266731, z: 1.762146}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.9357823, y: 2.2266731, z: 1.9054685}
+    localEuler: {x: 26.920008, y: 97.60599, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.9158868, y: 2.2266731, z: 2.0499215}
+    localEuler: {x: 26.800009, y: 97.845985, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -1.8598498, y: 2.2266731, z: 2.331696}
+    localEuler: {x: 27.040005, y: 103.00599, z: 0.0000009585541}
+    fieldOfView: 52
+  - localPosition: {x: -1.8099675, y: 2.2266731, z: 2.4880645}
+    localEuler: {x: 27.760004, y: 107.68599, z: -0.0000009648181}
+    fieldOfView: 52
+  - localPosition: {x: -1.7500545, y: 2.2266731, z: 2.638198}
+    localEuler: {x: 28.12, y: 111.765976, z: 0.0000019360778}
+    fieldOfView: 52
+  - localPosition: {x: -1.6117086, y: 2.2266731, z: 2.8917985}
+    localEuler: {x: 28.360012, y: 121.60599, z: 0.0000009702189}
+    fieldOfView: 52
+  - localPosition: {x: -1.5029279, y: 2.2266731, z: 3.0186608}
+    localEuler: {x: 28.600006, y: 130.60599, z: -0.0000009724263}
+    fieldOfView: 52
+  - localPosition: {x: -1.3995291, y: 2.2266731, z: 3.1088688}
+    localEuler: {x: 28.960003, y: 138.88599, z: 0.0000009757883}
+    fieldOfView: 52
+  - localPosition: {x: -1.1558149, y: 2.2266731, z: 3.2484121}
+    localEuler: {x: 29.200012, y: 153.64597, z: 0.00000048903195}
+    fieldOfView: 52
+  - localPosition: {x: -1.0196592, y: 2.2266731, z: 3.2973607}
+    localEuler: {x: 28.720013, y: 160.24599, z: 0.0000014603099}
+    fieldOfView: 52
+  - localPosition: {x: -0.8524243, y: 2.2266731, z: 3.3390183}
+    localEuler: {x: 28.120008, y: 166.00598, z: 0.0000004840193}
+    fieldOfView: 52
+  - localPosition: {x: -0.5614641, y: 2.2266731, z: 3.3845422}
+    localEuler: {x: 26.680006, y: 172.84598, z: -0.0000005971928}
+    fieldOfView: 52
+  - localPosition: {x: -0.41368914, y: 2.2266731, z: 3.3927474}
+    localEuler: {x: 25.84001, y: 176.80597, z: -0.0000008300441}
+    fieldOfView: 52
+  - localPosition: {x: -0.2550161, y: 2.2266731, z: 3.387959}
+    localEuler: {x: 25.000011, y: 181.72598, z: 0.00000032382448}
+    fieldOfView: 52
+  - localPosition: {x: 0.053935647, y: 2.2266731, z: 3.347571}
+    localEuler: {x: 23.920012, y: 189.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.2172538, y: 2.2266731, z: 3.3043623}
+    localEuler: {x: 23.440012, y: 194.80597, z: 0.000000697925}
+    fieldOfView: 52
+  - localPosition: {x: 0.37197614, y: 2.2266731, z: 3.251738}
+    localEuler: {x: 22.960012, y: 198.76596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.5187882, y: 2.2266731, z: 3.1934845}
+    localEuler: {x: 22.480013, y: 201.64597, z: -0.00000046199216}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.520014, y: 207.40598, z: -0.00000045887518}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.160013, y: 211.24597, z: -0.00000045775016}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 20.920012, y: 214.84598, z: -0.00000045701316}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 20.800007, y: 217.366, z: 0.00000045664868}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 20.80001, y: 220.00598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.280012, y: 224.92598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.78901136, y: 2.2266731, z: 3.0622373}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.90931916, y: 2.2266731, z: 2.9333646}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.1061397, y: 2.2266731, z: 2.72255}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.2367638, y: 2.2266731, z: 2.5826764}
+    localEuler: {x: 21.760004, y: 226.96597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.3819551, y: 2.2266731, z: 2.4156127}
+    localEuler: {x: 22.36001, y: 229.00597, z: -0.0000009231864}
+    fieldOfView: 52
+  - localPosition: {x: 1.4587258, y: 2.2266731, z: 2.277039}
+    localEuler: {x: 25.00001, y: 241.00598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.5485644, y: 2.2266731, z: 2.0332835}
+    localEuler: {x: 25.720009, y: 249.76596, z: 0.0000009476627}
+    fieldOfView: 52
+  - localPosition: {x: 1.6055634, y: 2.2266731, z: 1.8284631}
+    localEuler: {x: 25.840006, y: 254.44595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 25.12001, y: 261.16595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 25.12001, y: 261.16595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 24.16001, y: 268.60596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 23.560005, y: 276.28595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 23.560005, y: 276.28595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 23.440012, y: 280.48596, z: 0.0000009305666}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 24.040009, y: 286.36597, z: -0.00000093486244}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 24.64001, y: 291.16595, z: 0.00000093930146}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 24.64001, y: 291.16595, z: 0.00000093930146}
+    fieldOfView: 52
+  - localPosition: {x: 1.6459045, y: 2.2266731, z: 1.568956}
+    localEuler: {x: 24.64001, y: 293.08597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.5508072, y: 2.2266731, z: 1.3778461}
+    localEuler: {x: 24.640013, y: 296.44595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.4365809, y: 2.2266731, z: 1.1713946}
+    localEuler: {x: 24.400015, y: 298.96597, z: 0.00000093750833}
+    fieldOfView: 52
+  - localPosition: {x: 1.3428748, y: 2.2266731, z: 1.0029372}
+    localEuler: {x: 24.400007, y: 299.08597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.3428748, y: 2.2266731, z: 1.0029372}
+    localEuler: {x: 24.280014, y: 299.56595, z: 0.0000018732413}
+    fieldOfView: 52
+  - localPosition: {x: 1.3428748, y: 2.2266731, z: 1.0029372}
+    localEuler: {x: 24.040012, y: 300.28595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.3428748, y: 2.2266731, z: 1.0029372}
+    localEuler: {x: 23.800014, y: 301.24597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.5029845, y: 2.3094559, z: 0.90305257}
+    localEuler: {x: 23.680008, y: 301.96597, z: -0.0000009322681}
+    fieldOfView: 52
+  - localPosition: {x: 1.6715587, y: 2.39682, z: 0.79683316}
+    localEuler: {x: 23.680012, y: 302.20596, z: 0.0000009322678}
+    fieldOfView: 52
+  - localPosition: {x: 1.8346987, y: 2.480835, z: 0.690218}
+    localEuler: {x: 23.320007, y: 303.166, z: -0.0000009297246}
+    fieldOfView: 52
+  - localPosition: {x: 2.0009086, y: 2.5660515, z: 0.5810994}
+    localEuler: {x: 23.20001, y: 303.28598, z: 0.0000009288878}
+    fieldOfView: 52
+  - localPosition: {x: 2.1902611, y: 2.6632805, z: 0.45624363}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.1902611, y: 2.6632805, z: 0.45624363}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.366643, y: 2.7538376, z: 0.33991122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.547266, y: 2.8465843, z: 0.22079766}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 23.20001, y: 303.40598, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 27.16001, y: 306.04596, z: -0.0000009595816}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 29.440012, y: 307.72598, z: -0.0000009803678}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 31.960007, y: 309.166, z: 0.0000010063128}
+    fieldOfView: 52
+  - localPosition: {x: 2.7333286, y: 2.942112, z: 0.098122}
+    localEuler: {x: 35.20001, y: 311.20596, z: 0.0000020896507}
+    fieldOfView: 52
+  - localPosition: {x: 2.637034, y: 2.838047, z: 0.1878959}
+    localEuler: {x: 38.32002, y: 313.00598, z: 0.0000010882197}
+    fieldOfView: 52
+  - localPosition: {x: 2.5404782, y: 2.7257118, z: 0.28142095}
+    localEuler: {x: 39.880016, y: 314.086, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.3896143, y: 2.544571, z: 0.42936742}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.315466, y: 2.4555206, z: 0.5020757}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.1612225, y: 2.270298, z: 0.65332425}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 40.60001, y: 314.44598, z: -0.0000022489296}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 38.560013, y: 313.84598, z: 0.000002183688}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 34.960003, y: 312.166, z: -0.0000010417565}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 30.160011, y: 308.32596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 30.040012, y: 308.086, z: -0.0000009862507}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 29.68001, y: 307.48596, z: 0.0000009826994}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 27.040012, y: 300.04596, z: 0.0000009585538}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 25.96001, y: 296.32596, z: 0.0000009495871}
+    fieldOfView: 52
+  - localPosition: {x: 2.0728955, y: 2.1642265, z: 0.73993146}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 2.0096226, y: 2.1642265, z: 0.6065177}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.9425213, y: 2.1642265, z: 0.46490026}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.8836937, y: 2.1642265, z: 0.34090197}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.771607, y: 2.1642265, z: 0.10458267}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.6474925, y: 2.1642265, z: -0.15728134}
+    localEuler: {x: 25.720009, y: 295.36597, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.5827551, y: 2.1642265, z: -0.28220516}
+    localEuler: {x: 25.60001, y: 297.40594, z: -0.0000009467097}
+    fieldOfView: 52
+  - localPosition: {x: 1.5052016, y: 2.1642265, z: -0.40698797}
+    localEuler: {x: 25.480011, y: 301.84595, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.4104687, y: 2.2151718, z: -0.6710449}
+    localEuler: {x: 26.200008, y: 315.64597, z: 0.000000951536}
+    fieldOfView: 52
+  - localPosition: {x: 1.3759768, y: 2.2699738, z: -0.8318709}
+    localEuler: {x: 26.560009, y: 323.92596, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 1.3302178, y: 2.3170662, z: -0.9634683}
+    localEuler: {x: 26.92001, y: 330.88596, z: 0.0000004787661}
+    fieldOfView: 52
+  - localPosition: {x: 1.2732472, y: 2.3623123, z: -1.0839572}
+    localEuler: {x: 27.040009, y: 337.00598, z: 0.00000047927693}
+    fieldOfView: 52
+  - localPosition: {x: 1.1156389, y: 2.4594154, z: -1.3239471}
+    localEuler: {x: 26.800009, y: 347.44595, z: -0.00000023912932}
+    fieldOfView: 52
+  - localPosition: {x: 1.0259657, y: 2.5057182, z: -1.4301096}
+    localEuler: {x: 26.560009, y: 352.00595, z: 0.00000047725297}
+    fieldOfView: 52
+  - localPosition: {x: 0.8029795, y: 2.599594, z: -1.6072083}
+    localEuler: {x: 26.200012, y: 7.845965, z: -0.00000059471}
+    fieldOfView: 52
+  - localPosition: {x: 0.64434594, y: 2.599594, z: -1.5634515}
+    localEuler: {x: 26.560015, y: 15.405946, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.5066314, y: 2.599594, z: -1.5133815}
+    localEuler: {x: 26.80001, y: 19.965946, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: 0.37943697, y: 2.599594, z: -1.4604553}
+    localEuler: {x: 27.040014, y: 22.605978, z: -0.0000004792769}
+    fieldOfView: 52
+  - localPosition: {x: 0.12402901, y: 2.599594, z: -1.3406116}
+    localEuler: {x: 27.040012, y: 25.965935, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.029940158, y: 2.599594, z: -1.261188}
+    localEuler: {x: 27.040012, y: 27.285967, z: 0.0000004792769}
+    fieldOfView: 52
+  - localPosition: {x: -0.17411494, y: 2.599594, z: -1.1852629}
+    localEuler: {x: 26.920012, y: 27.765963, z: -0.0000009575322}
+    fieldOfView: 52
+  - localPosition: {x: -0.4455185, y: 2.599594, z: -1.029855}
+    localEuler: {x: 26.68001, y: 30.045965, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.5829771, y: 2.599594, z: -0.94649744}
+    localEuler: {x: 26.560009, y: 31.245975, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.44001, y: 33.285984, z: 0}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.44, y: 36.286, z: 0.00000095350987}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -0.72896194, y: 2.599594, z: -0.8506935}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  - localPosition: {x: -1.6990876, y: 2.341404, z: -2.0769486}
+    localEuler: {x: 26.560007, y: 39.285976, z: 0.0000009545058}
+    fieldOfView: 52
+  smoothingStrength: 1
+  useUnscaledTime: 1
+  playbackSpeed: 1
+  useCollision: 0
+  lockCameraInput: 1
+  releaseLockOnOnEnter: 1
+  restorePreviousModeOnFinish: 1
+  entryBlendDuration: 0.25
+  entryBlendCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

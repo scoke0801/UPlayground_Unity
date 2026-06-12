@@ -367,27 +367,28 @@ namespace UPlayGround.Component
                 return false;
             }
 
-            if (_currentAttackData != null && playbackSnapshot.Key != _currentAttackData.animKey)
-                Debug.Log($"[ResidualAttack] Snapshot allows anim key mismatch for residual presentation. state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData.animKey}, kind={_currentAttackData.attackKind}");
+            bool canUseCombatData = _currentAttackData != null && playbackSnapshot.Key == _currentAttackData.animKey;
+            if (_currentAttackData != null && !canUseCombatData)
+                Debug.LogWarning($"[ResidualAttack] Snapshot will be visual-only: animation key mismatch. state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData.animKey}, kind={_currentAttackData.attackKind}");
 
             snapshot = new PlayerResidualAttackSnapshot(
                 _playerActor,
                 sourceModel,
                 sourceModel.characterType,
-                CopyAttackData(_currentAttackData),
-                _currentAttackInfoBase,
-                _currentResidualHitPhases,
+                canUseCombatData ? CopyAttackData(_currentAttackData) : null,
+                canUseCombatData ? _currentAttackInfoBase : null,
+                canUseCombatData ? _currentResidualHitPhases : null,
                 playbackSnapshot,
                 _playerActor.GetAttackTargetLayerMask(),
                 sourceModel.transform.position,
                 sourceModel.transform.rotation,
-                _currentFinishTarget,
-                _currentSpecialBreakTarget,
-                _currentSpecialBreakDamageByMaxHpRate,
-                _currentSpecialBreakFixedDamage,
-                _currentSpecialBreakMinReferenceHealth);
+                canUseCombatData ? _currentFinishTarget : null,
+                canUseCombatData ? _currentSpecialBreakTarget : null,
+                canUseCombatData ? _currentSpecialBreakDamageByMaxHpRate : 0f,
+                canUseCombatData ? _currentSpecialBreakFixedDamage : 0f,
+                canUseCombatData ? _currentSpecialBreakMinReferenceHealth : 0f);
 
-            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={_currentAttackData == null}, hitRange={_currentAttackData?.hitRange}, hitAngle={_currentAttackData?.hitAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
+            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, hitRange={_currentAttackData?.hitRange}, hitAngle={_currentAttackData?.hitAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
             return true;
         }
 
@@ -686,6 +687,7 @@ namespace UPlayGround.Component
                 airborneForce    = phase.airborneForce,
                 hitPhaseIndex    = 0,
                 attackKind       = AttackKind.ChargeAttack,
+                reactionData     = phase.reactionProfile?.Resolve(),
             };
             data.damage *= Mathf.Lerp(1.0f, 1.5f, chargeRatio);
             return data;
@@ -1054,6 +1056,7 @@ namespace UPlayGround.Component
                 attackKind             = attackKind,
                 victimForcedAnimKey    = phase0.victimForcedAnimKey,
                 guaranteedReaction     = phase0.guaranteedReaction,
+                reactionData           = phase0.reactionProfile?.Resolve(),
             };
         }
 
@@ -1093,6 +1096,7 @@ namespace UPlayGround.Component
                 victimForcedAnimKey = source.victimForcedAnimKey,
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
+                reactionData = source.reactionData,
             };
         }
 
@@ -1265,6 +1269,7 @@ namespace UPlayGround.Component
             _currentAttackData.airborneForce   = phase.airborneForce;
             _currentAttackData.knockbackForce  = phase.knockBackForce;
             _currentAttackData.knockbackDrag   = phase.knockBackDrag;
+            _currentAttackData.reactionData     = phase.reactionProfile?.Resolve();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
         }
 

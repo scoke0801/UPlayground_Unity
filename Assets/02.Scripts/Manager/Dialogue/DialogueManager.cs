@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UPlayGround.Manager;
 using UPlayGround.CameraSystem;
+using UPlayGround.Data;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Dialogue
 {
@@ -155,11 +158,40 @@ namespace UPlayGround.Dialogue
             if (speaker == null)
                 return;
 
+            // 노드에 사전 녹화가 지정되면 자동 추종 대신 녹화 카메라를 화자 기준으로 재생한다.
+            // 완료 후 pop하지 않고(restorePreviousOnFinish=false) 마지막 프레임을 유지 → 다음 노드가 카메라 교체.
+            if (node.cameraRecording != null)
+            {
+                CameraManager.Instance?.PushDialogueCameraRecording(
+                    node.cameraRecording,
+                    anchorOverride: BuildSpeakerAnchor(node.speakerId),
+                    onComplete: null,
+                    restorePreviousOnFinish: false);
+                return;
+            }
+
             Transform listener = GameObjectManager.Instance?.Player != null
                 ? GameObjectManager.Instance.Player.transform
                 : null;
 
             CameraManager.Instance?.PushDialogueCamera(speaker, listener);
+        }
+
+        // 녹화 카메라를 현재 화자 기준으로 앵커링한다 → 같은 녹화를 여러 화자에 재사용 가능.
+        private CameraSnapshotActorReference BuildSpeakerAnchor(string speakerId)
+        {
+            string actorId = ResolveActorId(speakerId);
+            if (string.IsNullOrEmpty(actorId))
+                return CameraSnapshotActorReference.None();
+
+            return new CameraSnapshotActorReference
+            {
+                enabled = true,
+                useActivePlayerWhenEmpty = false,
+                actorIdType = ActorIdType.None,
+                actorId = actorId,
+                socketType = ActorSocketType.Center
+            };
         }
 
         private Transform ResolveSpeakerTransform(string speakerId)

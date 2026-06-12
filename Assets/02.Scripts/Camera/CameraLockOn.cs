@@ -5,6 +5,20 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
+    /// 락온용 포커스/앵커/우선순위를 제공하는 선택 인터페이스.
+    /// 구현하지 않은 대상은 기존 IDamageable + Transform 기준으로 동작한다.
+    /// </summary>
+    public interface ILockOnTarget
+    {
+        Transform Transform { get; }
+        Vector3 FocusPosition { get; }
+        Vector3 UIAnchorPosition { get; }
+        bool CanLockOn { get; }
+        float LockOnPriority { get; }
+        float BoundsSize { get; }
+    }
+
+    /// <summary>
     /// LockOn 시스템 전체 로직: 대상 탐색/전환/해제, 거리 기반 오비탈 추적 회전, 전환 연출.
     /// CameraManager에서 매 프레임 UpdateRotation / UpdateTransition을 호출한다.
     /// </summary>
@@ -17,16 +31,20 @@ namespace UPlayGround.CameraSystem
         private readonly Transform _player;
         private readonly UnityEngine.Camera _camera;
         private readonly LayerMask _lockOnLayer;
+        private readonly LayerMask _lineOfSightLayer;
         private System.Func<Vector3> _playerVelocityProvider;
 
         // 내부 상태
         private CapsuleCollider _targetCollider;
         private readonly List<Transform> _targets = new List<Transform>();
+        private readonly HashSet<Transform> _targetSet = new HashSet<Transform>();
         private int _currentIndex = -1;
         private float _lastSwitchTime;
 
         // 포커스 스무딩
         private float _smoothY;
+        private float _targetOccludedTimer;
+        private float _targetLostTimer;
 
         // 오비탈 오프셋
         private float _signedOffsetAngle;
@@ -38,6 +56,8 @@ namespace UPlayGround.CameraSystem
         private bool _wasSkipping; // skip→active 전환 감지 (복귀 시 부드러운 재보간)
         private Vector3 _activeFocusPos;
         private Vector3 _activeFocusVelocity;
+        private Vector3 _pivotOffset;
+        private Vector3 _pivotOffsetVelocity;
 
         private const float FREE_FACTOR_SMOOTH_TIME = 0.15f;
         private const float ORBIT_FREE_PULL_MAX_SMOOTH = 5f;
@@ -59,12 +79,47 @@ namespace UPlayGround.CameraSystem
             public float sortScore; // 거리 + 카메라 방향 가중치 합산
         }
 
-        public CameraLockOn(CameraSettings settings, Transform player, UnityEngine.Camera camera, LayerMask lockOnLayer)
+        private readonly struct LockOnCandidate
+        {
+            public readonly Transform transform;
+            public readonly Vector3 position;
+            public readonly float distanceXZ;
+            public readonly float distanceScore;
+            public readonly float angleScore;
+            public readonly bool isCurrentTarget;
+            public readonly float lockOnPriority;
+
+            public LockOnCandidate(
+                Transform transform,
+                Vector3 position,
+                float distanceXZ,
+                float distanceScore,
+                float angleScore,
+                bool isCurrentTarget,
+                float lockOnPriority)
+            {
+                this.transform = transform;
+                this.position = position;
+                this.distanceXZ = distanceXZ;
+                this.distanceScore = distanceScore;
+                this.angleScore = angleScore;
+                this.isCurrentTarget = isCurrentTarget;
+                this.lockOnPriority = lockOnPriority;
+            }
+        }
+
+        public CameraLockOn(
+            CameraSettings settings,
+            Transform player,
+            UnityEngine.Camera camera,
+            LayerMask lockOnLayer,
+            LayerMask lineOfSightLayer)
         {
             _settings = settings;
             _player = player;
             _camera = camera;
             _lockOnLayer = lockOnLayer;
+            _lineOfSightLayer = lineOfSightLayer;
         }
 
         public void SetPlayerVelocityProvider(System.Func<Vector3> provider)
@@ -104,22 +159,28 @@ namespace UPlayGround.CameraSystem
             _freeFactor = 0f;
             _freeFactorVelocity = 0f;
             _activeFocusVelocity = Vector3.zero;
+            _pivotOffsetVelocity = Vector3.zero;
+            _pivotOffset = Vector3.zero;
+            _targetOccludedTimer = 0f;
+            _targetLostTimer = 0f;
         }
 
         // ── 대상 전환 ──
 
         public void SwitchTarget(int direction)
         {
-            if (_targets.Count <= 1) return;
             if (Time.time - _lastSwitchTime < _settings.targetSwitchCooldown) return;
 
             CollectTargets();
-            SortByScreenX();
+            if (_targets.Count <= 1) return;
 
-            _currentIndex = Mathf.Clamp(_currentIndex + direction, 0, _targets.Count - 1);
+            Transform nextTarget = SelectSwitchTarget(direction);
+            if (nextTarget == null || nextTarget == CurrentTarget)
+                return;
 
             NotifyUnLockOn(CurrentTarget);
-            SetTarget(_targets[_currentIndex]);
+            SetTarget(nextTarget);
+            _currentIndex = _targets.IndexOf(nextTarget);
             _lastSwitchTime = Time.time;
         }
 
@@ -134,7 +195,7 @@ namespace UPlayGround.CameraSystem
         public bool UpdateRotation(ref float yaw, ref float pitch, bool skipRotation)
         {
             // 유효성 체크: 스킵 조건 중 대상이 죽었으면 바로 해제
-            if (!IsValidTarget(CurrentTarget) && skipRotation)
+            if (!IsAliveTarget(CurrentTarget) && skipRotation)
             {
                 Release();
                 return false;
@@ -159,7 +220,7 @@ namespace UPlayGround.CameraSystem
                 return false;
 
             // 유효성 체크
-            if (!IsValidTarget(CurrentTarget))
+            if (!IsAliveTarget(CurrentTarget))
             {
                 if (!TryFindNext())
                 {
@@ -168,15 +229,40 @@ namespace UPlayGround.CameraSystem
                 }
             }
 
-            // 거리 체크
             float dist = Vector3.Distance(_player.position, CurrentTarget.position);
-            if (dist > _settings.lockOnRange)
+            float releaseRange = GetReleaseRange();
+            if (dist > releaseRange)
             {
-                if (!TryFindNext())
+                _targetLostTimer += Time.deltaTime;
+                if (_targetLostTimer >= Mathf.Max(0f, _settings.lockOnLostGraceTime))
                 {
-                    StartTransition(yaw, pitch);
+                    if (!TryFindNext())
+                    {
+                        StartTransition(yaw, pitch);
+                    }
+                    return false;
                 }
-                return false;
+            }
+            else
+            {
+                _targetLostTimer = 0f;
+            }
+
+            if (_settings.lockOnRequireLineOfSight && !HasLineOfSight(CurrentTarget))
+            {
+                _targetOccludedTimer += Time.deltaTime;
+                if (_targetOccludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
+                {
+                    if (!TryFindNext())
+                    {
+                        StartTransition(yaw, pitch);
+                    }
+                    return false;
+                }
+            }
+            else
+            {
+                _targetOccludedTimer = 0f;
             }
 
             float heightOffset = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
@@ -316,17 +402,48 @@ namespace UPlayGround.CameraSystem
 
         public bool IsTransitioning => _isTransitioning;
 
+        public Vector3 EvaluatePivotOffset(float deltaTime)
+        {
+            Vector3 targetOffset = Vector3.zero;
+            if (IsActive && CurrentTarget != null && _settings.enableLockOnPairFraming)
+            {
+                Vector3 playerPos = _player.position;
+                Vector3 toTarget = GetTargetFocusPosition(CurrentTarget) - playerPos;
+                toTarget.y = 0f;
+                float targetDistance = toTarget.magnitude;
+                if (targetDistance > 0.001f)
+                {
+                    float desiredOffset = targetDistance * Mathf.Clamp01(_settings.lockOnPairFocusRatio);
+                    float maxOffset = Mathf.Max(0f, _settings.lockOnMaxFocusOffsetFromPlayer);
+                    targetOffset = toTarget / targetDistance * Mathf.Min(desiredOffset, maxOffset);
+                }
+            }
+
+            float smoothTime = Mathf.Max(0.001f, _settings.lockOnPairFocusSmoothTime);
+            _pivotOffset = Vector3.SmoothDamp(
+                _pivotOffset,
+                targetOffset,
+                ref _pivotOffsetVelocity,
+                smoothTime,
+                Mathf.Infinity,
+                deltaTime);
+            _pivotOffset.y = 0f;
+            return _pivotOffset;
+        }
+
         // ── 내부 헬퍼 ──
 
         private void SetTarget(Transform t)
         {
             CurrentTarget = t;
-            _targetCollider = t.GetComponent<CapsuleCollider>();
+            _targetCollider = t.GetComponent<CapsuleCollider>() ?? t.GetComponentInChildren<CapsuleCollider>();
             t.GetComponent<IDamageable>()?.LockOn();
             InitSmoothY();
             _activeFocusPos = GetCurrentTargetFocusPosition();
             _activeFocusVelocity = Vector3.zero;
             _orbitInitialized = false;
+            _targetOccludedTimer = 0f;
+            _targetLostTimer = 0f;
         }
 
         private void InitSmoothY()
@@ -341,10 +458,7 @@ namespace UPlayGround.CameraSystem
             if (CurrentTarget == null)
                 return Vector3.zero;
 
-            float h = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
-            Vector3 pos = CurrentTarget.position;
-            pos.y -= h;
-            return pos;
+            return GetTargetFocusPosition(CurrentTarget);
         }
 
         private void StartTransition(float yaw, float pitch)
@@ -371,6 +485,7 @@ namespace UPlayGround.CameraSystem
             Vector3 origin = _player.position;
             Collider[] hits = Physics.OverlapSphere(origin, _settings.lockOnRange, _lockOnLayer);
             _targets.Clear();
+            _targetSet.Clear();
 
             Vector3 priorityForwardXZ = GetPriorityForwardXZ();
 
@@ -390,7 +505,20 @@ namespace UPlayGround.CameraSystem
                 if (dmg == null || !dmg.IsAlive())
                     continue;
 
-                Vector3 p = hit.transform.position;
+                ILockOnTarget lockOnTarget = ResolveLockOnTarget(hit);
+                if (lockOnTarget != null && !lockOnTarget.CanLockOn)
+                    continue;
+
+                Transform candidate = ResolveTargetTransform(hit, dmg, lockOnTarget);
+                if (candidate == null)
+                    continue;
+                if (!_targetSet.Add(candidate))
+                    continue;
+
+                if (_settings.lockOnRequireLineOfSight && !HasLineOfSight(candidate))
+                    continue;
+
+                Vector3 p = candidate.position;
                 Vector3 toTargetXZ = new Vector3(p.x - origin.x, 0f, p.z - origin.z);
                 float distXZ = toTargetXZ.magnitude;
                 float dSq = distXZ * distXZ;
@@ -404,12 +532,15 @@ namespace UPlayGround.CameraSystem
                     : 1f;
                 float angleScore = (1f - dot) * 0.5f;
 
-                float sortScore = _settings.lockOnPriorityMode switch
-                {
-                    LockOnPriorityMode.Distance => distScore,
-                    LockOnPriorityMode.MovementDirection => distScore + angleScore * cameraWeight,
-                    _ => distScore + angleScore * cameraWeight
-                };
+                var candidateInfo = new LockOnCandidate(
+                    candidate,
+                    p,
+                    distXZ,
+                    distScore,
+                    angleScore,
+                    candidate == CurrentTarget,
+                    lockOnTarget != null ? lockOnTarget.LockOnPriority : 0f);
+                float sortScore = EvaluateTargetScore(candidateInfo, cameraWeight);
 
                 if (_camera != null)
                 {
@@ -421,7 +552,7 @@ namespace UPlayGround.CameraSystem
                         sortScore += 1f;
                 }
 
-                infos.Add(new TargetInfo { transform = hit.transform, distanceSq = dSq, sortScore = sortScore });
+                infos.Add(new TargetInfo { transform = candidate, distanceSq = dSq, sortScore = sortScore });
             }
 
             infos.Sort((a, b) => a.sortScore.CompareTo(b.sortScore));
@@ -429,36 +560,176 @@ namespace UPlayGround.CameraSystem
                 _targets.Add(info.transform);
         }
 
-        private void SortByScreenX()
+        private float EvaluateTargetScore(in LockOnCandidate candidate, float directionWeight)
         {
-            if (_camera == null || _player == null) return;
+            float score = _settings.lockOnPriorityMode switch
+            {
+                LockOnPriorityMode.Distance => candidate.distanceScore,
+                LockOnPriorityMode.MovementDirection => candidate.distanceScore + candidate.angleScore * directionWeight,
+                _ => candidate.distanceScore + candidate.angleScore * directionWeight
+            };
+
+            if (candidate.isCurrentTarget)
+                score -= Mathf.Max(0f, _settings.lockOnCurrentTargetBonus);
+            score -= Mathf.Max(0f, candidate.lockOnPriority);
+
+            return score;
+        }
+
+        private Transform SelectSwitchTarget(int direction)
+        {
+            if (_camera == null || _player == null || CurrentTarget == null)
+                return null;
 
             _targets.RemoveAll(t => t == null || !IsValidTarget(t));
-            if (_targets.Count == 0) { Release(); return; }
+            if (_targets.Count == 0) { Release(); return null; }
 
-            Transform prev = CurrentTarget;
-            _targets.Sort((a, b) =>
-            {
-                float xa = _camera.WorldToScreenPoint(a.position).x;
-                float xb = _camera.WorldToScreenPoint(b.position).x;
-                return xa.CompareTo(xb);
-            });
+            Vector3 currentViewport = _camera.WorldToViewportPoint(CurrentTarget.position);
+            Transform best = FindDirectionalSwitchCandidate(direction, currentViewport.x, allowWrap: false);
+            if (best == null && _settings.lockOnSwitchWrap)
+                best = FindDirectionalSwitchCandidate(direction, currentViewport.x, allowWrap: true);
 
-            _currentIndex = _targets.IndexOf(prev);
-            if (_currentIndex == -1 && _targets.Count > 0)
+            return best;
+        }
+
+        private Transform FindDirectionalSwitchCandidate(int direction, float currentX, bool allowWrap)
+        {
+            Transform best = null;
+            float bestScore = float.MaxValue;
+            float maxRange = Mathf.Max(_settings.lockOnRange, 0.001f);
+            float dir = Mathf.Sign(direction == 0 ? 1 : direction);
+
+            foreach (Transform candidate in _targets)
             {
-                _currentIndex = 0;
-                CurrentTarget = _targets[0];
-                _targetCollider = CurrentTarget.GetComponent<CapsuleCollider>();
+                if (candidate == null || candidate == CurrentTarget)
+                    continue;
+
+                Vector3 viewport = _camera.WorldToViewportPoint(candidate.position);
+                if (viewport.z <= 0f)
+                    continue;
+
+                float deltaX = viewport.x - currentX;
+                bool isDirectional = dir > 0f ? deltaX > 0.001f : deltaX < -0.001f;
+                if (!isDirectional && !allowWrap)
+                    continue;
+
+                float screenGap = allowWrap && !isDirectional
+                    ? 1f + Mathf.Abs(deltaX)
+                    : Mathf.Abs(deltaX);
+                float centerGap = Mathf.Abs(viewport.x - 0.5f);
+                float distScore = Vector3.Distance(_player.position, candidate.position) / maxRange;
+                float score =
+                    screenGap * Mathf.Max(0f, _settings.lockOnSwitchScreenWeight)
+                    + centerGap * Mathf.Max(0f, _settings.lockOnSwitchCenterWeight)
+                    + distScore * Mathf.Max(0f, _settings.lockOnSwitchDistanceWeight);
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                }
             }
+
+            return best;
         }
 
         private bool IsValidTarget(Transform t)
         {
             if (t == null) return false;
             if (Vector3.Distance(_player.position, t.position) > _settings.lockOnRange) return false;
+            return IsAliveTarget(t);
+        }
+
+        private static bool IsAliveTarget(Transform t)
+        {
+            if (t == null) return false;
             var dmg = t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>();
             return dmg != null && dmg.IsAlive();
+        }
+
+        private float GetReleaseRange()
+        {
+            return Mathf.Max(_settings.lockOnRange, _settings.lockOnReleaseRange);
+        }
+
+        private bool HasLineOfSight(Transform target)
+        {
+            if (target == null || _lineOfSightLayer.value == 0)
+                return true;
+
+            Vector3 origin = _camera != null
+                ? _camera.transform.position
+                : _player.position + Vector3.up * 1.4f;
+            Vector3 focus = GetTargetFocusPosition(target);
+            Vector3 toFocus = focus - origin;
+            float distance = toFocus.magnitude;
+            if (distance <= 0.01f)
+                return true;
+
+            Vector3 direction = toFocus / distance;
+            float radius = Mathf.Max(0f, _settings.lockOnLineOfSightRadius);
+            bool blocked = radius > 0f
+                ? Physics.SphereCast(origin, radius, direction, out RaycastHit sphereHit, distance, _lineOfSightLayer, QueryTriggerInteraction.Ignore)
+                  && IsBlockingLineOfSightHit(sphereHit.transform, target)
+                : Physics.Raycast(origin, direction, out RaycastHit rayHit, distance, _lineOfSightLayer, QueryTriggerInteraction.Ignore)
+                  && IsBlockingLineOfSightHit(rayHit.transform, target);
+
+            return !blocked;
+        }
+
+        private Vector3 GetTargetFocusPosition(Transform target)
+        {
+            if (target == null)
+                return Vector3.zero;
+
+            ILockOnTarget lockOnTarget = GetLockOnTarget(target);
+            if (lockOnTarget != null)
+                return lockOnTarget.FocusPosition;
+
+            CapsuleCollider capsule = target.GetComponent<CapsuleCollider>()
+                                      ?? target.GetComponentInChildren<CapsuleCollider>();
+            float h = capsule != null ? capsule.height * 0.25f : 1f;
+            Vector3 pos = target.position;
+            pos.y -= h;
+            return pos;
+        }
+
+        private static bool IsBlockingLineOfSightHit(Transform hit, Transform target)
+        {
+            if (hit == null || target == null)
+                return false;
+
+            return hit != target && !hit.IsChildOf(target) && !target.IsChildOf(hit);
+        }
+
+        private static Transform ResolveTargetTransform(
+            Collider hit,
+            IDamageable damageable,
+            ILockOnTarget lockOnTarget)
+        {
+            if (lockOnTarget != null && lockOnTarget.Transform != null)
+                return lockOnTarget.Transform;
+
+            if (damageable is UnityEngine.Component component)
+                return component.transform;
+
+            return hit != null ? hit.transform : null;
+        }
+
+        private static ILockOnTarget ResolveLockOnTarget(Collider hit)
+        {
+            if (hit == null)
+                return null;
+
+            return hit.GetComponent<ILockOnTarget>() ?? hit.GetComponentInParent<ILockOnTarget>();
+        }
+
+        private static ILockOnTarget GetLockOnTarget(Transform target)
+        {
+            if (target == null)
+                return null;
+
+            return target.GetComponent<ILockOnTarget>() ?? target.GetComponentInParent<ILockOnTarget>();
         }
 
         private Vector3 GetPriorityForwardXZ()
@@ -484,7 +755,7 @@ namespace UPlayGround.CameraSystem
 
         private static void NotifyUnLockOn(Transform t)
         {
-            if (t != null) t.GetComponent<IDamageable>()?.UnLockOn();
+            if (t != null) (t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>())?.UnLockOn();
         }
     }
 }

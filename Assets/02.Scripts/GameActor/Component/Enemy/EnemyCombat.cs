@@ -457,6 +457,7 @@ namespace UPlayGround.Component
                     victimForcedAnimKey   = phase.victimForcedAnimKey,
                     guaranteedReaction    = phase.guaranteedReaction,
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
+                    reactionData          = phase.reactionProfile?.Resolve(),
                 };
 
                 // 무적/회피 중인 대상은 TakeDamage까지 전달해 방어 판정과 피드백만 처리한다.

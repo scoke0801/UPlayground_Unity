@@ -94,6 +94,10 @@ namespace UPlayGround.Data
 
         [Header("=== 락온 ===")]
         public float lockOnRange = 16f;
+        [Tooltip("현재 락온 대상 유지 한계 거리. lockOnRange보다 작으면 lockOnRange를 사용한다.")]
+        public float lockOnReleaseRange = 20f;
+        [Tooltip("현재 락온 대상이 유지 조건에서 벗어나도 즉시 해제하지 않고 유지하는 시간.")]
+        public float lockOnLostGraceTime = 0.35f;
         public float lockOnDistance = 5.4f;
         public float lockOnTransitionDuration = 0.3f;
         public float targetSwitchCooldown = 0.15f;
@@ -103,6 +107,29 @@ namespace UPlayGround.Data
 
         [Header("=== 락온 타겟팅 우선순위 ===")]
         public LockOnPriorityMode lockOnPriorityMode = LockOnPriorityMode.CameraDirection;
+        [Tooltip("현재 타겟이 계속 유효할 때 점수에서 유지 보너스를 준다.")]
+        public float lockOnCurrentTargetBonus = 0.25f;
+
+        [Header("=== 락온 타겟 전환 ===")]
+        public bool lockOnSwitchWrap = true;
+        public float lockOnSwitchScreenWeight = 1f;
+        public float lockOnSwitchCenterWeight = 0.35f;
+        public float lockOnSwitchDistanceWeight = 0.25f;
+
+        [Header("=== 락온 가시성 검증 ===")]
+        [Tooltip("신규 락온 후보가 카메라에서 보이지 않으면 제외한다.")]
+        public bool lockOnRequireLineOfSight = true;
+        [Tooltip("현재 락온 대상이 차폐되어도 즉시 해제하지 않고 유지하는 시간.")]
+        public float lockOnOcclusionGraceTime = 0.35f;
+        [Tooltip("락온 가시성 SphereCast 반지름. 0이면 Raycast로 검사한다.")]
+        public float lockOnLineOfSightRadius = 0.12f;
+
+        [Header("=== 락온 쌍 프레이밍 ===")]
+        public bool enableLockOnPairFraming = true;
+        [Range(0f, 1f)]
+        public float lockOnPairFocusRatio = 0.12f;
+        public float lockOnMaxFocusOffsetFromPlayer = 1.1f;
+        public float lockOnPairFocusSmoothTime = 0.18f;
 
         [Header("락온 고저차 감쇠")]
         public float lockOnHeightDampFactor = 0.42f;

@@ -118,6 +118,28 @@ namespace UPlayGround.Data.Event
             float warpDuration = endTime - startTime;
             string key = string.IsNullOrEmpty(targetKey) ? "primary" : targetKey;
 
+            var residualWarpTarget = target.GetComponent<IResidualMotionWarpTarget>()
+                                  ?? target.GetComponentInParent<IResidualMotionWarpTarget>()
+                                  ?? target.GetComponentInChildren<IResidualMotionWarpTarget>();
+            if (residualWarpTarget != null)
+            {
+                MotionWarpWindowSettings settings = BuildSettings(warpDuration);
+                if (resolverPolicy != WarpResolverPolicy.UseExisting)
+                {
+                    IWarpTargetResolver resolver = WarpTargetResolverFactory.For(resolverPolicy);
+                    WarpResolverContext ctx = residualWarpTarget.BuildWarpResolverContext();
+                    Transform resolved = resolver?.Resolve(in ctx);
+                    if (resolved != null)
+                    {
+                        bool useSnapshot = targetPolicy == MotionWarpTargetPolicy.Snapshot;
+                        residualWarpTarget.SetResidualMotionWarpTarget(key, resolved, useSnapshot);
+                    }
+                }
+
+                residualWarpTarget.BeginResidualMotionWarp(ApplyPreset(settings), key);
+                return;
+            }
+
             var playerCombat = target.GetComponent<PlayerCombat>()
                             ?? target.GetComponentInChildren<PlayerCombat>();
 
@@ -159,6 +181,15 @@ namespace UPlayGround.Data.Event
         {
             if (!IsMotionWarpEnabled) return;
 
+            var residualWarpTarget = target.GetComponent<IResidualMotionWarpTarget>()
+                                  ?? target.GetComponentInParent<IResidualMotionWarpTarget>()
+                                  ?? target.GetComponentInChildren<IResidualMotionWarpTarget>();
+            if (residualWarpTarget != null)
+            {
+                residualWarpTarget.EndResidualMotionWarp();
+                return;
+            }
+
             ResolveController(target)?.MotionWarp.EndWarpWindow();
 
             var playerCombat = target.GetComponent<PlayerCombat>()
@@ -179,7 +210,12 @@ namespace UPlayGround.Data.Event
             var controller = ResolveController(target);
             if (controller == null || controller.MotionWarp == null) return;
 
-            MotionWarpWindowSettings settings = new MotionWarpWindowSettings
+            controller.MotionWarp.BeginWarpWindow(ApplyPreset(BuildSettings(duration)), key);
+        }
+
+        private MotionWarpWindowSettings BuildSettings(float duration)
+        {
+            return new MotionWarpWindowSettings
             {
                 duration = duration,
                 preset = preset,
@@ -205,8 +241,6 @@ namespace UPlayGround.Data.Event
                 bakedLocalTotal = bakedLocalTotal,
                 bakedPathLen = bakedPathLen,
             };
-
-            controller.MotionWarp.BeginWarpWindow(ApplyPreset(settings), key);
         }
 
         private static ActorMovementController ResolveController(GameObject target)

@@ -1227,11 +1227,135 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(phase.FindPropertyRelative("victimForcedAnimKey"), new GUIContent("피격자 강제 애니 (None = 기본 리액션)"));
                     EditorGUILayout.PropertyField(phase.FindPropertyRelative("guaranteedReaction"),  new GUIContent("리액션 보장 (등급 정책 무시)"));
                 }
+
+                DrawReactionProfile(phase.FindPropertyRelative("reactionProfile"));
             }
 
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(1);
             return deleted;
+        }
+
+        private static void DrawReactionProfile(SerializedProperty profile)
+        {
+            if (profile == null)
+                return;
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Auto Reaction", EditorStyles.miniBoldLabel);
+                EditorGUILayout.PropertyField(profile.FindPropertyRelative("useAutoReaction"), new GUIContent("자동 반응 사용"));
+                using (new EditorGUI.DisabledScope(true))
+                    EditorGUILayout.PropertyField(profile.FindPropertyRelative("hasAutoReactionGenerated"), new GUIContent("자동 생성 완료"));
+
+                SerializedProperty analysis = profile.FindPropertyRelative("analysis");
+                if (analysis != null)
+                {
+                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    {
+                        EditorGUILayout.LabelField("분석 결과", EditorStyles.miniBoldLabel);
+                        using (new EditorGUI.DisabledScope(true))
+                        {
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("isEstimated"), new GUIContent("추정값"));
+                            EditorGUILayout.Slider(analysis.FindPropertyRelative("impactScore"), 0f, 1f, new GUIContent("Impact Score"));
+                            EditorGUILayout.Slider(analysis.FindPropertyRelative("weaponSpeedScore"), 0f, 1f, new GUIContent("Weapon Speed"));
+                            EditorGUILayout.Slider(analysis.FindPropertyRelative("rootMotionScore"), 0f, 1f, new GUIContent("Root Motion"));
+                            EditorGUILayout.Slider(analysis.FindPropertyRelative("bodyRotationScore"), 0f, 1f, new GUIContent("Body Rotation"));
+                            EditorGUILayout.Slider(analysis.FindPropertyRelative("attackWeightScore"), 0f, 1f, new GUIContent("Attack Weight"));
+                            EditorGUILayout.BeginHorizontal();
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeStart"), new GUIContent("Active Start"));
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeEnd"), new GUIContent("Active End"));
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.BeginHorizontal();
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeDuration"), new GUIContent("Active"));
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("startupDuration"), new GUIContent("Startup"));
+                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("recoveryDuration"), new GUIContent("Recovery"));
+                            EditorGUILayout.EndHorizontal();
+                        }
+                    }
+                }
+
+                SerializedProperty autoData = profile.FindPropertyRelative("autoData");
+                if (autoData != null)
+                {
+                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    {
+                        EditorGUILayout.LabelField("자동 추천값", EditorStyles.miniBoldLabel);
+                        using (new EditorGUI.DisabledScope(true))
+                            DrawReactionDataFields(autoData);
+                    }
+                }
+
+                SerializedProperty useManual = profile.FindPropertyRelative("useManualOverride");
+                EditorGUILayout.PropertyField(useManual, new GUIContent("수동 보정 사용"));
+                if (useManual != null && useManual.boolValue)
+                    DrawManualOverride(profile.FindPropertyRelative("manualOverride"));
+            }
+        }
+
+        private static void DrawReactionDataFields(SerializedProperty data)
+        {
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("impactTime"), new GUIContent("Impact Time"));
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopDuration"), new GUIContent("HitStop Duration"));
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopScale"), new GUIContent("Scale"));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeAmplitude"), new GUIContent("Shake Amp"));
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeDuration"), new GUIContent("Shake Duration"));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickAmount"), new GUIContent("FOV Amount"));
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickDuration"), new GUIContent("FOV Duration"));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("trailIntensity"), new GUIContent("Trail Intensity"));
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactSlowScale"), new GUIContent("Fake Slow"));
+            EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactDuration"), new GUIContent("Fake Duration"));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private static void DrawManualOverride(SerializedProperty manual)
+        {
+            if (manual == null)
+                return;
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("수동 보정", EditorStyles.miniBoldLabel);
+                DrawOverrideFloat(manual, "overrideImpactTime", "impactTime", "Impact Time");
+                DrawOverridePair(manual, "overrideHitStop", "hitStopDuration", "hitStopScale", "HitStop");
+                DrawOverridePair(manual, "overrideCamera", "cameraShakeAmplitude", "cameraShakeDuration", "Camera Shake");
+                DrawOverridePair(manual, "overrideFov", "fovKickAmount", "fovKickDuration", "FOV Kick");
+                DrawOverrideFloat(manual, "overrideTrail", "trailIntensity", "Trail Intensity");
+                DrawOverridePair(manual, "overrideFakeImpact", "fakeImpactSlowScale", "fakeImpactDuration", "Fake Impact");
+            }
+        }
+
+        private static void DrawOverrideFloat(SerializedProperty manual, string toggleName, string valueName, string label)
+        {
+            SerializedProperty toggle = manual.FindPropertyRelative(toggleName);
+            SerializedProperty value = manual.FindPropertyRelative(valueName);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(toggle, new GUIContent(label), GUILayout.Width(180f));
+            using (new EditorGUI.DisabledScope(toggle == null || !toggle.boolValue))
+                EditorGUILayout.PropertyField(value, GUIContent.none);
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private static void DrawOverridePair(SerializedProperty manual, string toggleName, string firstName, string secondName, string label)
+        {
+            SerializedProperty toggle = manual.FindPropertyRelative(toggleName);
+            SerializedProperty first = manual.FindPropertyRelative(firstName);
+            SerializedProperty second = manual.FindPropertyRelative(secondName);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(toggle, new GUIContent(label), GUILayout.Width(180f));
+            using (new EditorGUI.DisabledScope(toggle == null || !toggle.boolValue))
+            {
+                EditorGUILayout.PropertyField(first, GUIContent.none);
+                EditorGUILayout.PropertyField(second, GUIContent.none);
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         // ─── 대미지 시각화 바 ─────────────────────────────────────────

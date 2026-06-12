@@ -11,6 +11,7 @@ namespace UPlayGround.CameraSystem
         Free,
         Dialogue,
         Cinematic,
-        CameraSnapshotSequence
+        CameraSnapshotSequence,
+        DialogueCameraReplay
     }
 }

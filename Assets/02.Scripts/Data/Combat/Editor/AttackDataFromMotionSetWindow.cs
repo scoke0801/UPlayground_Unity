@@ -50,6 +50,8 @@ namespace UPlayGround.Editor
         private float _breakGaugeFraction = 0.10f;
         private float _motionDurationWeight = 0.15f;
         private float _comboStepWeight = 0.08f;
+        private bool _applyAutoReaction = true;
+        private bool _overwriteExistingReaction = false;
         private Vector2 _scroll;
         private List<ScanEntry> _scanEntries = new();
         private string _lastMessage = "";
@@ -240,6 +242,20 @@ namespace UPlayGround.Editor
                     _comboStepWeight = EditorGUILayout.Slider("콤보 순번 반영", _comboStepWeight, 0f, 0.25f);
                 }
             }
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                _applyAutoReaction = EditorGUILayout.ToggleLeft("공격 반응 자동 추천값 생성", _applyAutoReaction);
+                using (new EditorGUI.DisabledScope(!_applyAutoReaction))
+                {
+                    _overwriteExistingReaction = EditorGUILayout.ToggleLeft("기존 Auto Reaction도 갱신", _overwriteExistingReaction);
+                    EditorGUILayout.HelpBox(
+                        "1차 구현은 MotionSet Collision 타이밍과 공격 카테고리 기반으로 HitStop/Camera/FOV/Trail/FakeImpact 초안값을 HitPhaseData에 저장합니다. " +
+                        "무기 본 샘플링 기반 보정은 이후 단계에서 추가합니다.",
+                        MessageType.Info);
+                }
+            }
         }
 
         private void DrawPreview()
@@ -347,6 +363,9 @@ namespace UPlayGround.Editor
             int created = 0;
             int updated = 0;
 
+            if (_normalizeCollisionPhaseIndex)
+                NormalizeCollisionPhaseIndexes(_scanEntries);
+
             if (_attackData is PlayerAttackDataSO player)
             {
                 foreach (ScanEntry entry in _scanEntries)
@@ -357,9 +376,6 @@ namespace UPlayGround.Editor
                 foreach (ScanEntry entry in _scanEntries)
                     ApplyEnemyEntry(enemy, entry, ref created, ref updated);
             }
-
-            if (_normalizeCollisionPhaseIndex)
-                NormalizeCollisionPhaseIndexes(_scanEntries);
 
             EditorUtility.SetDirty(_attackData);
             AssetDatabase.SaveAssets();
@@ -400,6 +416,8 @@ namespace UPlayGround.Editor
                     SyncHitPhases(existing.baseInfo, entry.PhaseCount);
                 ApplyBalancedDamage(existing.baseInfo, entry,
                     _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
+                ApplyAutoReaction(existing.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
                 updated++;
                 return;
             }
@@ -435,6 +453,8 @@ namespace UPlayGround.Editor
                 existing.condition ??= new SkillVariantCondition();
                 ApplyBalancedDamage(existing.attackInfo.baseInfo, entry,
                     _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
+                ApplyAutoReaction(existing.attackInfo.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
                 updated++;
                 return;
             }
@@ -552,6 +572,7 @@ namespace UPlayGround.Editor
             else
                 SyncHitPhases(value.baseInfo, entry.PhaseCount);
             ApplyBalancedDamage(value.baseInfo, entry, isEmpty || _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
+            ApplyAutoReaction(value.baseInfo, entry, isEmpty || _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
 
             if (entry.Category == AttackCategory.Counter)
                 data.counterAttack = value;
@@ -583,6 +604,8 @@ namespace UPlayGround.Editor
                 }
                 ApplyBalancedDamage(existing.baseInfo, entry,
                     _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
+                ApplyAutoReaction(existing.baseInfo, entry,
+                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
                 updated++;
                 return;
             }
@@ -607,6 +630,7 @@ namespace UPlayGround.Editor
                 SyncHitPhases(stage, entry.PhaseCount);
                 if (applyDamage)
                     ApplyBalancedDamage(stage, entry, overwriteDamage, i, data.chargeStages.Count);
+                ApplyAutoReaction(stage.hitPhases, entry, overwriteDamage || _overwriteExistingReaction);
             }
         }
 
@@ -792,6 +816,7 @@ namespace UPlayGround.Editor
             };
             SyncHitPhases(baseInfo, entry.PhaseCount);
             ApplyBalancedDamage(baseInfo, entry, true);
+            ApplyAutoReaction(baseInfo, entry, true);
             return baseInfo;
         }
 
@@ -830,6 +855,82 @@ namespace UPlayGround.Editor
                 grabDuration = source.grabDuration,
                 victimForcedAnimKey = source.victimForcedAnimKey,
                 guaranteedReaction = source.guaranteedReaction,
+                reactionProfile = CloneReactionProfile(source.reactionProfile),
+            };
+        }
+
+        private static AttackReactionProfile CloneReactionProfile(AttackReactionProfile source)
+        {
+            if (source == null) return new AttackReactionProfile();
+            return new AttackReactionProfile
+            {
+                useAutoReaction = source.useAutoReaction,
+                hasAutoReactionGenerated = source.hasAutoReactionGenerated,
+                analysis = CloneAnalysis(source.analysis),
+                autoData = CloneReactionData(source.autoData),
+                useManualOverride = source.useManualOverride,
+                manualOverride = CloneManualOverride(source.manualOverride),
+            };
+        }
+
+        private static AttackMotionAnalysisResult CloneAnalysis(AttackMotionAnalysisResult source)
+        {
+            if (source == null) return new AttackMotionAnalysisResult();
+            return new AttackMotionAnalysisResult
+            {
+                weaponSpeedScore = source.weaponSpeedScore,
+                rootMotionScore = source.rootMotionScore,
+                bodyRotationScore = source.bodyRotationScore,
+                attackWeightScore = source.attackWeightScore,
+                impactScore = source.impactScore,
+                activeStart = source.activeStart,
+                activeEnd = source.activeEnd,
+                activeDuration = source.activeDuration,
+                startupDuration = source.startupDuration,
+                recoveryDuration = source.recoveryDuration,
+                isEstimated = source.isEstimated,
+            };
+        }
+
+        private static AttackReactionData CloneReactionData(AttackReactionData source)
+        {
+            if (source == null) return new AttackReactionData();
+            return new AttackReactionData
+            {
+                impactTime = source.impactTime,
+                hitStopDuration = source.hitStopDuration,
+                hitStopScale = source.hitStopScale,
+                cameraShakeAmplitude = source.cameraShakeAmplitude,
+                cameraShakeDuration = source.cameraShakeDuration,
+                fovKickAmount = source.fovKickAmount,
+                fovKickDuration = source.fovKickDuration,
+                trailIntensity = source.trailIntensity,
+                fakeImpactSlowScale = source.fakeImpactSlowScale,
+                fakeImpactDuration = source.fakeImpactDuration,
+            };
+        }
+
+        private static ManualReactionOverride CloneManualOverride(ManualReactionOverride source)
+        {
+            if (source == null) return new ManualReactionOverride();
+            return new ManualReactionOverride
+            {
+                overrideImpactTime = source.overrideImpactTime,
+                impactTime = source.impactTime,
+                overrideHitStop = source.overrideHitStop,
+                hitStopDuration = source.hitStopDuration,
+                hitStopScale = source.hitStopScale,
+                overrideCamera = source.overrideCamera,
+                cameraShakeAmplitude = source.cameraShakeAmplitude,
+                cameraShakeDuration = source.cameraShakeDuration,
+                overrideFov = source.overrideFov,
+                fovKickAmount = source.fovKickAmount,
+                fovKickDuration = source.fovKickDuration,
+                overrideTrail = source.overrideTrail,
+                trailIntensity = source.trailIntensity,
+                overrideFakeImpact = source.overrideFakeImpact,
+                fakeImpactSlowScale = source.fakeImpactSlowScale,
+                fakeImpactDuration = source.fakeImpactDuration,
             };
         }
 
@@ -886,6 +987,149 @@ namespace UPlayGround.Editor
                         : 0f;
                 }
             }
+        }
+
+        private void ApplyAutoReaction(AttackInfoBase baseInfo, ScanEntry entry, bool overwriteReaction)
+        {
+            if (baseInfo?.hitPhases == null) return;
+            ApplyAutoReaction(baseInfo.hitPhases, entry, overwriteReaction);
+        }
+
+        private void ApplyAutoReaction(List<HitPhaseData> phases, ScanEntry entry, bool overwriteReaction)
+        {
+            if (!_applyAutoReaction || phases == null || entry == null) return;
+
+            for (int i = 0; i < phases.Count; i++)
+            {
+                HitPhaseData phase = phases[i];
+                if (phase == null) continue;
+
+                phase.reactionProfile ??= new AttackReactionProfile();
+                if (!overwriteReaction && phase.reactionProfile.hasAutoReactionGenerated)
+                    continue;
+
+                float activeStart = entry.GetPhaseActiveStart(i);
+                float activeEnd = entry.GetPhaseActiveEnd(i);
+                float activeDuration = Mathf.Max(0f, activeEnd - activeStart);
+                float startupDuration = Mathf.Max(0f, activeStart);
+                float recoveryDuration = Mathf.Max(0f, entry.Duration - activeEnd);
+
+                float weaponSpeedScore = GetCategoryWeaponSpeedScore(entry.Category);
+                float rootMotionScore = Mathf.Clamp01(Mathf.InverseLerp(0.4f, 1.8f, entry.Duration) * GetCategoryRootMotionBias(entry.Category));
+                float bodyRotationScore = GetCategoryBodyRotationScore(entry.Category);
+                float attackWeightScore = GetCategoryAttackWeightScore(entry.Category);
+                float impactScore = Mathf.Clamp01(
+                    weaponSpeedScore * 0.45f +
+                    rootMotionScore * 0.25f +
+                    bodyRotationScore * 0.2f +
+                    attackWeightScore * 0.1f);
+
+                float typeMultiplier = GetReactionTypeMultiplier(entry.Category);
+
+                phase.reactionProfile.useAutoReaction = true;
+                phase.reactionProfile.hasAutoReactionGenerated = true;
+                phase.reactionProfile.analysis ??= new AttackMotionAnalysisResult();
+                phase.reactionProfile.analysis.isEstimated = true;
+                phase.reactionProfile.analysis.weaponSpeedScore = weaponSpeedScore;
+                phase.reactionProfile.analysis.rootMotionScore = rootMotionScore;
+                phase.reactionProfile.analysis.bodyRotationScore = bodyRotationScore;
+                phase.reactionProfile.analysis.attackWeightScore = attackWeightScore;
+                phase.reactionProfile.analysis.impactScore = impactScore;
+                phase.reactionProfile.analysis.activeStart = activeStart;
+                phase.reactionProfile.analysis.activeEnd = activeEnd;
+                phase.reactionProfile.analysis.activeDuration = activeDuration;
+                phase.reactionProfile.analysis.startupDuration = startupDuration;
+                phase.reactionProfile.analysis.recoveryDuration = recoveryDuration;
+
+                phase.reactionProfile.autoData ??= new AttackReactionData();
+                phase.reactionProfile.autoData.impactTime = activeStart;
+                phase.reactionProfile.autoData.hitStopDuration = Mathf.Min(0.11f, Mathf.Lerp(0.025f, 0.09f, impactScore) * typeMultiplier);
+                phase.reactionProfile.autoData.hitStopScale = Mathf.Lerp(0.15f, 0.0f, impactScore);
+                phase.reactionProfile.autoData.cameraShakeAmplitude = Mathf.Lerp(0.15f, 0.8f, impactScore) * typeMultiplier;
+                phase.reactionProfile.autoData.cameraShakeDuration = Mathf.Lerp(0.06f, 0.16f, impactScore);
+                phase.reactionProfile.autoData.fovKickAmount = Mathf.Lerp(0.5f, 3.5f, impactScore) * typeMultiplier;
+                phase.reactionProfile.autoData.fovKickDuration = Mathf.Lerp(0.08f, 0.18f, impactScore);
+                phase.reactionProfile.autoData.trailIntensity = Mathf.Lerp(0.4f, 1.2f, impactScore);
+                phase.reactionProfile.autoData.fakeImpactDuration = Mathf.Min(0.06f, Mathf.Lerp(0.025f, 0.055f, impactScore));
+                phase.reactionProfile.autoData.fakeImpactSlowScale = Mathf.Lerp(0.92f, 0.82f, impactScore);
+            }
+        }
+
+        private static float GetCategoryWeaponSpeedScore(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 0.35f,
+                AttackCategory.Dash => 0.55f,
+                AttackCategory.Jump => 0.50f,
+                AttackCategory.Heavy => 0.72f,
+                AttackCategory.Skill => 0.78f,
+                AttackCategory.Counter => 0.82f,
+                AttackCategory.Entry => 0.58f,
+                AttackCategory.SwapEvadeCounter => 0.84f,
+                AttackCategory.SwapSpecial => 0.90f,
+                AttackCategory.Charge => 0.80f,
+                _ => 0.45f,
+            };
+        }
+
+        private static float GetCategoryRootMotionBias(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Dash => 1.0f,
+                AttackCategory.Entry => 0.85f,
+                AttackCategory.SwapEvadeCounter => 0.9f,
+                AttackCategory.SwapSpecial => 1.0f,
+                AttackCategory.Charge => 0.75f,
+                AttackCategory.Heavy => 0.7f,
+                AttackCategory.Skill => 0.8f,
+                _ => 0.45f,
+            };
+        }
+
+        private static float GetCategoryBodyRotationScore(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 0.35f,
+                AttackCategory.Heavy => 0.70f,
+                AttackCategory.Skill => 0.72f,
+                AttackCategory.Counter => 0.68f,
+                AttackCategory.Charge => 0.76f,
+                AttackCategory.SwapSpecial => 0.80f,
+                _ => 0.50f,
+            };
+        }
+
+        private static float GetCategoryAttackWeightScore(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 0.25f,
+                AttackCategory.Dash or AttackCategory.Jump => 0.45f,
+                AttackCategory.Heavy => 0.72f,
+                AttackCategory.Skill => 0.82f,
+                AttackCategory.Counter => 0.78f,
+                AttackCategory.Entry => 0.55f,
+                AttackCategory.SwapEvadeCounter => 0.80f,
+                AttackCategory.SwapSpecial => 0.92f,
+                AttackCategory.Charge => 0.88f,
+                _ => 0.4f,
+            };
+        }
+
+        private static float GetReactionTypeMultiplier(AttackCategory category)
+        {
+            return category switch
+            {
+                AttackCategory.Light => 0.8f,
+                AttackCategory.Heavy or AttackCategory.Charge => 1.2f,
+                AttackCategory.Skill => 1.35f,
+                AttackCategory.SwapSpecial => 1.6f,
+                AttackCategory.Counter or AttackCategory.SwapEvadeCounter => 1.25f,
+                _ => 1f,
+            };
         }
 
         private float CalculateTotalDamage(ScanEntry entry)
@@ -1245,6 +1489,86 @@ namespace UPlayGround.Editor
             }
 
             public int CollisionCount => Collisions.Count;
+
+            public float GetPhaseActiveStart(int phaseIndex)
+            {
+                if (TryGetPhaseCollisionTime(phaseIndex, out float start, out _))
+                    return start;
+                return 0f;
+            }
+
+            public float GetPhaseActiveEnd(int phaseIndex)
+            {
+                if (TryGetPhaseCollisionTime(phaseIndex, out _, out float end))
+                    return Mathf.Max(end, GetPhaseActiveStart(phaseIndex));
+                return Duration;
+            }
+
+            private bool TryGetPhaseCollisionTime(int phaseIndex, out float start, out float end)
+            {
+                start = 0f;
+                end = 0f;
+
+                if (Asset?.motionSet == null || Collisions == null)
+                    return false;
+
+                BeginCollisionEvent target = null;
+                foreach (BeginCollisionEvent collision in Collisions)
+                {
+                    if (collision != null && Mathf.Max(0, collision.hitPhaseIndex) == phaseIndex)
+                    {
+                        target = collision;
+                        break;
+                    }
+                }
+
+                target ??= phaseIndex >= 0 && phaseIndex < Collisions.Count ? Collisions[phaseIndex] : null;
+                if (target == null)
+                    return false;
+
+                return TryGetCollisionGlobalTime(Asset.motionSet, target, out start, out end);
+            }
+
+            private static bool TryGetCollisionGlobalTime(MotionSet motionSet, BeginCollisionEvent target, out float start, out float end)
+            {
+                start = 0f;
+                end = 0f;
+                if (motionSet == null || target == null)
+                    return false;
+
+                if (motionSet.globalEvents != null)
+                {
+                    foreach (MotionEventBase evt in motionSet.globalEvents)
+                    {
+                        if (!ReferenceEquals(evt, target)) continue;
+                        start = Mathf.Max(0f, target.startTime);
+                        end = Mathf.Max(start, target.endTime);
+                        return true;
+                    }
+                }
+
+                float offset = 0f;
+                if (motionSet.motions != null)
+                {
+                    foreach (UPlayGround.Animation.Motion motion in motionSet.motions)
+                    {
+                        if (motion?.events != null)
+                        {
+                            foreach (MotionEventBase evt in motion.events)
+                            {
+                                if (!ReferenceEquals(evt, target)) continue;
+                                start = Mathf.Max(0f, offset + target.startTime);
+                                end = Mathf.Max(start, offset + target.endTime);
+                                return true;
+                            }
+                        }
+                        offset += motion?.Duration ?? 0f;
+                    }
+                }
+
+                return false;
+            }
+
             public string CategoryLabel => Category switch
             {
                 AttackCategory.Light => "약공격",

@@ -17,6 +17,7 @@ namespace UPlayGround.CameraSystem
         public AnimationCurve BlendCurve;
         public bool RestorePreviousOnExit = true;
         public CameraSnapshotProfile SnapshotProfile;
+        public DialogueCameraRecordingSO DialogueRecording;
         public bool HasSnapshotActorAnchorOverride;
         public CameraSnapshotActorReference SnapshotActorAnchor;
         public bool HasSnapshotLookAtTargetOverride;

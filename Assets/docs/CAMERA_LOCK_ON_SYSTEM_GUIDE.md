@@ -16,6 +16,18 @@
 
 현재 구현은 기본 락온 카메라로는 충분한 구조를 갖추고 있다. 다만 명조식 전투 체감에 가까워지려면 단순 회전 보간보다 **타겟 선정, 유지, 전환, 프레이밍 책임을 전투 맥락까지 확장**하는 작업이 우선이다.
 
+### 구현 현황
+
+| 단계 | 상태 | 반영 내용 |
+|------|------|-----------|
+| P0 — 차폐/가시성 검증 | 구현 완료 | `CameraLockOn` 후보 수집 시 `CameraConfig.GetCollisionLayerMask()` 기반 SphereCast/Raycast 검증, 현재 타겟 차폐 grace 적용 |
+| P1 — 타겟 점수 모델 분리 | 구현 완료 | `LockOnCandidate`와 `EvaluateTargetScore()`로 후보 점수 계산 분리, 현재 타겟 유지 보너스와 `ILockOnTarget.LockOnPriority` 반영 |
+| P2 — 획득/유지 거리 히스테리시스 | 구현 완료 | `lockOnRange`는 획득 거리로 유지, `lockOnReleaseRange`와 `lockOnLostGraceTime`으로 현재 타겟 유지 조건 분리 |
+| P3 — 타겟 전환 로직 개선 | 구현 완료 | 화면 X 인덱스 clamp 대신 좌/우 방향 후보 점수 선택, wrap 및 화면/중앙/거리 가중치 추가 |
+| P4 — 플레이어-타겟 쌍 프레이밍 | 구현 완료 | 락온 중 플레이어에서 타겟 방향으로 제한된 피벗 오프셋을 SmoothDamp로 적용 |
+| P5 — `ILockOnTarget` 도입 | 구현 완료 | 선택 인터페이스로 포커스 위치, UI 앵커, 우선순위, lock 가능 여부를 제공. 미구현 대상은 기존 `IDamageable` 기준 fallback |
+| P6 — 소프트락/하드락 분리 | 구현 완료 | `CombatCameraDirector`의 soft target assist 조건을 별도 정책 메서드로 분리하고 하드락 중 개입 금지 명시 |
+
 ---
 
 ## 현재 구조

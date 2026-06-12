@@ -98,7 +98,7 @@ namespace UPlayGround.Manager
 
             if (_target != null)
             {
-                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
+                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
                 _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
@@ -176,7 +176,7 @@ namespace UPlayGround.Manager
 
             if (_target != null)
             {
-                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask);
+                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
                 _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
                 _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
                 _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
@@ -598,6 +598,7 @@ namespace UPlayGround.Manager
             _modeController.Register(new FreeCameraMode());
             _modeController.Register(new DialogueCameraMode());
             _modeController.Register(new CameraSnapshotSequenceMode());
+            _modeController.Register(new DialogueCameraReplayMode());
             _modeController.SetMode(CameraModeType.InGame);
         }
 
@@ -840,12 +841,30 @@ namespace UPlayGround.Manager
                 return true;
             }
 
-            return PushCameraMode(CameraModeType.Dialogue, new CameraModeEnterParams
+            return EnterDialogueLayerMode(CameraModeType.Dialogue, new CameraModeEnterParams
             {
                 PrimaryTarget = speaker,
                 SecondaryTarget = listener,
                 Offset = offset
             });
+        }
+
+        /// <summary>
+        /// 대화 계층(Dialogue/DialogueCameraReplay) 내부 전환은 스택을 쌓지 않고 교체(SetMode)한다.
+        /// 그렇지 않으면 노드마다 Dialogue↔Replay push가 누적돼 대화 종료 시 1회 Pop으로 InGame까지 못 돌아온다.
+        /// 대화 계층 밖(InGame 등)에서 진입할 때만 PushMode로 계층을 올린다.
+        /// </summary>
+        private bool EnterDialogueLayerMode(CameraModeType modeType, CameraModeEnterParams enterParams)
+        {
+            if (_modeController == null)
+                return false;
+
+            bool inDialogueLayer = _modeController.CurrentMode is DialogueCameraMode
+                                   || _modeController.CurrentMode is DialogueCameraReplayMode;
+
+            return inDialogueLayer
+                ? _modeController.SetMode(modeType, enterParams)
+                : _modeController.PushMode(modeType, enterParams);
         }
 
         public bool PushFreeCamera(float moveSpeed = 6f, float lookSensitivity = 0.12f)
@@ -912,6 +931,64 @@ namespace UPlayGround.Manager
         public bool StopCameraSnapshotSequence(CameraSnapshotProfile profile = null)
         {
             if (!IsCameraSnapshotSequenceActive(profile))
+                return false;
+
+            return PopCameraMode();
+        }
+
+        /// <param name="restorePreviousOnFinish">완료 시 이전 모드 복귀 여부. null이면 녹화 에셋 설정을 따른다.
+        /// 대화 중 재생은 false로 호출해 마지막 프레임을 유지(다음 노드가 카메라를 교체)한다.</param>
+        public bool PushDialogueCameraRecording(
+            DialogueCameraRecordingSO recording,
+            CameraSnapshotActorReference? anchorOverride = null,
+            System.Action onComplete = null,
+            bool? restorePreviousOnFinish = null)
+        {
+            if (recording == null)
+            {
+                Debug.LogWarning("[CameraManager] DialogueCameraRecordingSO이 null입니다.");
+                return false;
+            }
+
+            if (recording.SampleCount == 0)
+            {
+                Debug.LogWarning($"[CameraManager] 빈 녹화입니다: {recording.name}");
+                return false;
+            }
+
+            // 같은 녹화를 재생 중이고 아직 완료 전이면 재진입을 no-op 처리한다.
+            // → 대화 "장면"의 여러 노드가 같은 녹화를 가리키면 처음부터 재시작하지 않고 한 번에 연속 재생.
+            //   (완료 후엔 가드가 풀려 재진입 시 다시 처음부터 재생)
+            if (_modeController != null
+                && _modeController.CurrentMode is DialogueCameraReplayMode currentReplay
+                && currentReplay.ActiveRecording == recording
+                && !currentReplay.IsCompleted)
+            {
+                return true;
+            }
+
+            // 대화 계층 내부에서는 스택 누적을 막기 위해 교체 진입한다.
+            return EnterDialogueLayerMode(CameraModeType.DialogueCameraReplay, new CameraModeEnterParams
+            {
+                DialogueRecording = recording,
+                HasSnapshotActorAnchorOverride = anchorOverride.HasValue,
+                SnapshotActorAnchor = anchorOverride.GetValueOrDefault(),
+                RestorePreviousOnExit = restorePreviousOnFinish ?? recording.restorePreviousModeOnFinish,
+                OnComplete = onComplete
+            });
+        }
+
+        public bool IsDialogueCameraRecordingActive(DialogueCameraRecordingSO recording = null)
+        {
+            if (_modeController?.CurrentMode is not DialogueCameraReplayMode replayMode)
+                return false;
+
+            return recording == null || replayMode.ActiveRecording == recording;
+        }
+
+        public bool StopDialogueCameraRecording(DialogueCameraRecordingSO recording = null)
+        {
+            if (!IsDialogueCameraRecordingActive(recording))
                 return false;
 
             return PopCameraMode();

@@ -52,8 +52,8 @@ MonoBehaviour:
             recoveryDuration: 0.5782938
           autoData:
             impactTime: 0.32667384
-            hitStopDuration: 0.035637144
-            hitStopScale: 0.104892865
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.27637145
             cameraShakeDuration: 0.090071425
             fovKickAmount: 1.1217144
@@ -120,8 +120,8 @@ MonoBehaviour:
             recoveryDuration: 0.8443842
           autoData:
             impactTime: 0.21588165
-            hitStopDuration: 0.036194287
-            hitStopScale: 0.103285715
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28194287
             cameraShakeDuration: 0.091142856
             fovKickAmount: 1.1474286
@@ -188,8 +188,8 @@ MonoBehaviour:
             recoveryDuration: 0.80689037
           autoData:
             impactTime: 0.17160685
-            hitStopDuration: 0.035846073
-            hitStopScale: 0.10429018
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2784607
             cameraShakeDuration: 0.09047321
             fovKickAmount: 1.1313572
@@ -256,8 +256,8 @@ MonoBehaviour:
             recoveryDuration: 0.97591335
           autoData:
             impactTime: 0.36164382
-            hitStopDuration: 0.037378218
-            hitStopScale: 0.09987054
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.29378214
             cameraShakeDuration: 0.09341964
             fovKickAmount: 1.2020714
@@ -318,8 +318,8 @@ MonoBehaviour:
             recoveryDuration: 0.5735065
           autoData:
             impactTime: 0.6125
-            hitStopDuration: 0.037378218
-            hitStopScale: 0.09987054
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.29378214
             cameraShakeDuration: 0.09341964
             fovKickAmount: 1.2020714
@@ -386,8 +386,8 @@ MonoBehaviour:
             recoveryDuration: 0.95915306
           autoData:
             impactTime: 0.31331962
-            hitStopDuration: 0.037030004
-            hitStopScale: 0.100875005
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2903
             cameraShakeDuration: 0.09275
             fovKickAmount: 1.1860001
@@ -448,8 +448,8 @@ MonoBehaviour:
             recoveryDuration: 0.7134564
           autoData:
             impactTime: 0.5545081
-            hitStopDuration: 0.037030004
-            hitStopScale: 0.100875005
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2903
             cameraShakeDuration: 0.09275
             fovKickAmount: 1.1860001
@@ -516,8 +516,8 @@ MonoBehaviour:
             recoveryDuration: 0.9161988
           autoData:
             impactTime: 0.35751426
-            hitStopDuration: 0.03716929
-            hitStopScale: 0.10047322
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.29169288
             cameraShakeDuration: 0.093017854
             fovKickAmount: 1.1924286
@@ -584,8 +584,8 @@ MonoBehaviour:
             recoveryDuration: 1.2112129
           autoData:
             impactTime: 0.18165651
-            hitStopDuration: 0.03772643
-            hitStopScale: 0.098866075
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2972643
             cameraShakeDuration: 0.094089285
             fovKickAmount: 1.2181429
@@ -646,8 +646,8 @@ MonoBehaviour:
             recoveryDuration: 0.70583516
           autoData:
             impactTime: 0.6334688
-            hitStopDuration: 0.03772643
-            hitStopScale: 0.098866075
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2972643
             cameraShakeDuration: 0.094089285
             fovKickAmount: 1.2181429
@@ -714,8 +714,8 @@ MonoBehaviour:
             recoveryDuration: 1.4974728
           autoData:
             impactTime: 0.26598355
-            hitStopDuration: 0.038980003
-            hitStopScale: 0.09525001
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.3098
             cameraShakeDuration: 0.096499994
             fovKickAmount: 1.2759999
@@ -776,8 +776,8 @@ MonoBehaviour:
             recoveryDuration: 1.1818991
           autoData:
             impactTime: 0.52745897
-            hitStopDuration: 0.038980003
-            hitStopScale: 0.09525001
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.3098
             cameraShakeDuration: 0.096499994
             fovKickAmount: 1.2759999
@@ -838,8 +838,8 @@ MonoBehaviour:
             recoveryDuration: 1.0060794
           autoData:
             impactTime: 0.7663934
-            hitStopDuration: 0.038980003
-            hitStopScale: 0.09525001
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.3098
             cameraShakeDuration: 0.096499994
             fovKickAmount: 1.2759999
@@ -906,8 +906,8 @@ MonoBehaviour:
             recoveryDuration: 0.99639976
           autoData:
             impactTime: 0.3155339
-            hitStopDuration: 0.037587147
-            hitStopScale: 0.09926786
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.29587144
             cameraShakeDuration: 0.09382143
             fovKickAmount: 1.2117143
@@ -974,8 +974,8 @@ MonoBehaviour:
             recoveryDuration: 0.5782938
           autoData:
             impactTime: 0.32667384
-            hitStopDuration: 0.035637144
-            hitStopScale: 0.104892865
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.27637145
             cameraShakeDuration: 0.090071425
             fovKickAmount: 1.1217144
@@ -1043,8 +1043,8 @@ MonoBehaviour:
             recoveryDuration: 0.48263896
           autoData:
             impactTime: 0.38877475
-            hitStopDuration: 0.08090801
-            hitStopScale: 0.0521
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.68908006
             cameraShakeDuration: 0.12526667
             fovKickAmount: 2.9496002
@@ -1111,8 +1111,8 @@ MonoBehaviour:
             recoveryDuration: 0.9529985
           autoData:
             impactTime: 0.31742674
-            hitStopDuration: 0.082370505
-            hitStopScale: 0.049287498
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.7037051
             cameraShakeDuration: 0.12714167
             fovKickAmount: 3.0171
@@ -1179,8 +1179,8 @@ MonoBehaviour:
             recoveryDuration: 0.50968784
           autoData:
             impactTime: 0.35176826
-            hitStopDuration: 0.07928301
-            hitStopScale: 0.055224996
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.6728301
             cameraShakeDuration: 0.12318333
             fovKickAmount: 2.8746004
@@ -1247,8 +1247,8 @@ MonoBehaviour:
             recoveryDuration: 0.9567833
           autoData:
             impactTime: 0.30076644
-            hitStopDuration: 0.08090801
-            hitStopScale: 0.0521
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.68908006
             cameraShakeDuration: 0.12526667
             fovKickAmount: 2.9496002
@@ -1309,8 +1309,8 @@ MonoBehaviour:
             recoveryDuration: 0.6536486
           autoData:
             impactTime: 0.58258694
-            hitStopDuration: 0.08090801
-            hitStopScale: 0.0521
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.68908006
             cameraShakeDuration: 0.12526667
             fovKickAmount: 2.9496002
@@ -1377,8 +1377,8 @@ MonoBehaviour:
             recoveryDuration: 1.5333335
           autoData:
             impactTime: 0.43749997
-            hitStopDuration: 0.08545801
-            hitStopScale: 0.043349996
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.73458004
             cameraShakeDuration: 0.1311
             fovKickAmount: 3.1596003
@@ -1439,8 +1439,8 @@ MonoBehaviour:
             recoveryDuration: 0.84583354
           autoData:
             impactTime: 1.1
-            hitStopDuration: 0.08545801
-            hitStopScale: 0.043349996
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.73458004
             cameraShakeDuration: 0.1311
             fovKickAmount: 3.1596003
@@ -1507,8 +1507,8 @@ MonoBehaviour:
             recoveryDuration: 1.1307536
           autoData:
             impactTime: 0.51911277
-            hitStopDuration: 0.085133
-            hitStopScale: 0.043974996
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.73133004
             cameraShakeDuration: 0.13068333
             fovKickAmount: 3.1446002
@@ -1576,8 +1576,8 @@ MonoBehaviour:
             recoveryDuration: 0.45136926
           autoData:
             impactTime: 0.26844576
-            hitStopDuration: 0.051139288
-            hitStopScale: 0.08967858
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.41139287
             cameraShakeDuration: 0.10021428
             fovKickAmount: 1.7064285
@@ -1644,8 +1644,8 @@ MonoBehaviour:
             recoveryDuration: 0.39241225
           autoData:
             impactTime: 0.13620465
-            hitStopDuration: 0.05009464
-            hitStopScale: 0.09208929
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.40094644
             cameraShakeDuration: 0.09860714
             fovKickAmount: 1.6582142
@@ -1712,8 +1712,8 @@ MonoBehaviour:
             recoveryDuration: 0.5210302
           autoData:
             impactTime: 0.23211816
-            hitStopDuration: 0.051313393
-            hitStopScale: 0.08927679
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.41313395
             cameraShakeDuration: 0.10048214
             fovKickAmount: 1.7144643
@@ -1780,8 +1780,8 @@ MonoBehaviour:
             recoveryDuration: 0.4984657
           autoData:
             impactTime: 0.18801595
-            hitStopDuration: 0.05096518
-            hitStopScale: 0.09008036
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.4096518
             cameraShakeDuration: 0.099946424
             fovKickAmount: 1.6983929
@@ -1848,8 +1848,8 @@ MonoBehaviour:
             recoveryDuration: 0.40755993
           autoData:
             impactTime: 0.24558836
-            hitStopDuration: 0.050791074
-            hitStopScale: 0.090482146
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.4079107
             cameraShakeDuration: 0.09967857
             fovKickAmount: 1.6903571
@@ -1916,8 +1916,8 @@ MonoBehaviour:
             recoveryDuration: 0.7718703
           autoData:
             impactTime: 0.14660378
-            hitStopDuration: 0.05218393
-            hitStopScale: 0.08726786
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.4218393
             cameraShakeDuration: 0.10182143
             fovKickAmount: 1.7546428
@@ -1984,8 +1984,8 @@ MonoBehaviour:
             recoveryDuration: 1.0458333
           autoData:
             impactTime: 0.4875
-            hitStopDuration: 0.056362502
-            hitStopScale: 0.07762501
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.463625
             cameraShakeDuration: 0.10825
             fovKickAmount: 1.9475
@@ -2053,8 +2053,8 @@ MonoBehaviour:
             recoveryDuration: 0.22697371
           autoData:
             impactTime: 0.38383996
-            hitStopDuration: 0.05747679
-            hitStopScale: 0.07505357
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.47476786
             cameraShakeDuration: 0.10996428
             fovKickAmount: 1.9989285
@@ -2121,8 +2121,8 @@ MonoBehaviour:
             recoveryDuration: 0.26250005
           autoData:
             impactTime: 0.47499996
-            hitStopDuration: 0.05979822
-            hitStopScale: 0.06969643
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.49798217
             cameraShakeDuration: 0.11353572
             fovKickAmount: 2.1060715
@@ -2190,8 +2190,8 @@ MonoBehaviour:
             recoveryDuration: 0.57083344
           autoData:
             impactTime: 1.2278562
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2258,8 +2258,8 @@ MonoBehaviour:
             recoveryDuration: 3.6682134
           autoData:
             impactTime: 1.29529
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2320,8 +2320,8 @@ MonoBehaviour:
             recoveryDuration: 3.4888654
           autoData:
             impactTime: 1.4447464
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2382,8 +2382,8 @@ MonoBehaviour:
             recoveryDuration: 3.3491917
           autoData:
             impactTime: 1.5844202
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2444,8 +2444,8 @@ MonoBehaviour:
             recoveryDuration: 3.096595
           autoData:
             impactTime: 1.8370168
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2506,8 +2506,8 @@ MonoBehaviour:
             recoveryDuration: 2.9735274
           autoData:
             impactTime: 1.9600844
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2568,8 +2568,8 @@ MonoBehaviour:
             recoveryDuration: 2.7316191
           autoData:
             impactTime: 2.2119565
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2630,8 +2630,8 @@ MonoBehaviour:
             recoveryDuration: 2.5688775
           autoData:
             impactTime: 2.3680556
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2692,8 +2692,8 @@ MonoBehaviour:
             recoveryDuration: 2.4557736
           autoData:
             impactTime: 2.4811594
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2754,8 +2754,8 @@ MonoBehaviour:
             recoveryDuration: 2.3160996
           autoData:
             impactTime: 2.6271136
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2816,8 +2816,8 @@ MonoBehaviour:
             recoveryDuration: 2.193032
           autoData:
             impactTime: 2.7501812
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2878,8 +2878,8 @@ MonoBehaviour:
             recoveryDuration: 1.9058621
           autoData:
             impactTime: 3.0235116
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -2940,8 +2940,8 @@ MonoBehaviour:
             recoveryDuration: 1.7752352
           autoData:
             impactTime: 3.1541386
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3002,8 +3002,8 @@ MonoBehaviour:
             recoveryDuration: 1.6732843
           autoData:
             impactTime: 3.2723613
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3064,8 +3064,8 @@ MonoBehaviour:
             recoveryDuration: 1.5457582
           autoData:
             impactTime: 3.3998876
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3126,8 +3126,8 @@ MonoBehaviour:
             recoveryDuration: 1.4151313
           autoData:
             impactTime: 3.5305145
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3188,8 +3188,8 @@ MonoBehaviour:
             recoveryDuration: 1.3073618
           autoData:
             impactTime: 3.65804
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3256,8 +3256,8 @@ MonoBehaviour:
             recoveryDuration: 0.92328787
           autoData:
             impactTime: 1.3109589
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3324,8 +3324,8 @@ MonoBehaviour:
             recoveryDuration: 1.5011576
           autoData:
             impactTime: 0.9
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3386,8 +3386,8 @@ MonoBehaviour:
             recoveryDuration: 0.9340279
           autoData:
             impactTime: 1.417824
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3454,8 +3454,8 @@ MonoBehaviour:
             recoveryDuration: 3.053924
           autoData:
             impactTime: 0.64592326
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3516,8 +3516,8 @@ MonoBehaviour:
             recoveryDuration: 2.7183409
           autoData:
             impactTime: 0.9592332
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3578,8 +3578,8 @@ MonoBehaviour:
             recoveryDuration: 2.3114834
           autoData:
             impactTime: 1.3542116
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3640,8 +3640,8 @@ MonoBehaviour:
             recoveryDuration: 1.916505
           autoData:
             impactTime: 1.7551293
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3702,8 +3702,8 @@ MonoBehaviour:
             recoveryDuration: 1.5155871
           autoData:
             impactTime: 2.1768355
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3764,8 +3764,8 @@ MonoBehaviour:
             recoveryDuration: 0.9899392
           autoData:
             impactTime: 2.6549673
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3832,8 +3832,8 @@ MonoBehaviour:
             recoveryDuration: 2.3460398
           autoData:
             impactTime: 1.875
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3894,8 +3894,8 @@ MonoBehaviour:
             recoveryDuration: 2.120551
           autoData:
             impactTime: 2.074008
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -3956,8 +3956,8 @@ MonoBehaviour:
             recoveryDuration: 1.9142532
           autoData:
             impactTime: 2.2755084
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -4018,8 +4018,8 @@ MonoBehaviour:
             recoveryDuration: 0.9191208
           autoData:
             impactTime: 3.220641
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -4095,8 +4095,8 @@ MonoBehaviour:
                 recoveryDuration: 0.57083344
               autoData:
                 impactTime: 1.2278562
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4173,8 +4173,8 @@ MonoBehaviour:
                 recoveryDuration: 0.92328787
               autoData:
                 impactTime: 1.3109589
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4251,8 +4251,8 @@ MonoBehaviour:
                 recoveryDuration: 1.5011576
               autoData:
                 impactTime: 0.9
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4313,8 +4313,8 @@ MonoBehaviour:
                 recoveryDuration: 0.9340279
               autoData:
                 impactTime: 1.417824
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4391,8 +4391,8 @@ MonoBehaviour:
                 recoveryDuration: 3.053924
               autoData:
                 impactTime: 0.64592326
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4453,8 +4453,8 @@ MonoBehaviour:
                 recoveryDuration: 2.7183409
               autoData:
                 impactTime: 0.9592332
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4515,8 +4515,8 @@ MonoBehaviour:
                 recoveryDuration: 2.3114834
               autoData:
                 impactTime: 1.3542116
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4577,8 +4577,8 @@ MonoBehaviour:
                 recoveryDuration: 1.916505
               autoData:
                 impactTime: 1.7551293
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4639,8 +4639,8 @@ MonoBehaviour:
                 recoveryDuration: 1.5155871
               autoData:
                 impactTime: 2.1768355
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4701,8 +4701,8 @@ MonoBehaviour:
                 recoveryDuration: 0.9899392
               autoData:
                 impactTime: 2.6549673
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4779,8 +4779,8 @@ MonoBehaviour:
                 recoveryDuration: 2.3460398
               autoData:
                 impactTime: 1.875
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4841,8 +4841,8 @@ MonoBehaviour:
                 recoveryDuration: 2.120551
               autoData:
                 impactTime: 2.074008
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4903,8 +4903,8 @@ MonoBehaviour:
                 recoveryDuration: 1.9142532
               autoData:
                 impactTime: 2.2755084
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -4965,8 +4965,8 @@ MonoBehaviour:
                 recoveryDuration: 0.9191208
               autoData:
                 impactTime: 3.220641
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5048,8 +5048,8 @@ MonoBehaviour:
                 recoveryDuration: 3.6682134
               autoData:
                 impactTime: 1.29529
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5110,8 +5110,8 @@ MonoBehaviour:
                 recoveryDuration: 3.4888654
               autoData:
                 impactTime: 1.4447464
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5172,8 +5172,8 @@ MonoBehaviour:
                 recoveryDuration: 3.3491917
               autoData:
                 impactTime: 1.5844202
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5234,8 +5234,8 @@ MonoBehaviour:
                 recoveryDuration: 3.096595
               autoData:
                 impactTime: 1.8370168
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5296,8 +5296,8 @@ MonoBehaviour:
                 recoveryDuration: 2.9735274
               autoData:
                 impactTime: 1.9600844
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5358,8 +5358,8 @@ MonoBehaviour:
                 recoveryDuration: 2.7316191
               autoData:
                 impactTime: 2.2119565
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5420,8 +5420,8 @@ MonoBehaviour:
                 recoveryDuration: 2.5688775
               autoData:
                 impactTime: 2.3680556
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5482,8 +5482,8 @@ MonoBehaviour:
                 recoveryDuration: 2.4557736
               autoData:
                 impactTime: 2.4811594
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5544,8 +5544,8 @@ MonoBehaviour:
                 recoveryDuration: 2.3160996
               autoData:
                 impactTime: 2.6271136
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5606,8 +5606,8 @@ MonoBehaviour:
                 recoveryDuration: 2.193032
               autoData:
                 impactTime: 2.7501812
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5668,8 +5668,8 @@ MonoBehaviour:
                 recoveryDuration: 1.9058621
               autoData:
                 impactTime: 3.0235116
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5730,8 +5730,8 @@ MonoBehaviour:
                 recoveryDuration: 1.7752352
               autoData:
                 impactTime: 3.1541386
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5792,8 +5792,8 @@ MonoBehaviour:
                 recoveryDuration: 1.6732843
               autoData:
                 impactTime: 3.2723613
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5854,8 +5854,8 @@ MonoBehaviour:
                 recoveryDuration: 1.5457582
               autoData:
                 impactTime: 3.3998876
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5916,8 +5916,8 @@ MonoBehaviour:
                 recoveryDuration: 1.4151313
               autoData:
                 impactTime: 3.5305145
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -5978,8 +5978,8 @@ MonoBehaviour:
                 recoveryDuration: 1.3073618
               autoData:
                 impactTime: 3.65804
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -6056,8 +6056,8 @@ MonoBehaviour:
             recoveryDuration: 1.7107719
           autoData:
             impactTime: 0.275
-            hitStopDuration: 0.087759376
-            hitStopScale: 0.04567501
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.75259376
             cameraShakeDuration: 0.12955
             fovKickAmount: 3.233125
@@ -6194,8 +6194,8 @@ MonoBehaviour:
             recoveryDuration: 0.438841
           autoData:
             impactTime: 0.7088051
-            hitStopDuration: 0.06289268
-            hitStopScale: 0.06255536
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.5289268
             cameraShakeDuration: 0.11829643
             fovKickAmount: 2.2488928
@@ -6472,8 +6472,8 @@ MonoBehaviour:
             recoveryDuration: 4.6657076
           autoData:
             impactTime: 1.2012582
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -6534,8 +6534,8 @@ MonoBehaviour:
             recoveryDuration: 4.462171
           autoData:
             impactTime: 1.4506823
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -6596,8 +6596,8 @@ MonoBehaviour:
             recoveryDuration: 4.3258224
           autoData:
             impactTime: 1.587031
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -6658,8 +6658,8 @@ MonoBehaviour:
             recoveryDuration: 3.7022204
           autoData:
             impactTime: 2.2106328
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -6717,7 +6717,7 @@ MonoBehaviour:
           rootMotionScore: 0.75
           bodyRotationScore: 0.76
           attackWeightScore: 0.88
-          impactScore: 0.7875
+          impactScore: 1
           activeStart: 1.2705625
           activeEnd: 1.6279955
           activeDuration: 0.35743296
@@ -6725,15 +6725,15 @@ MonoBehaviour:
           recoveryDuration: 0.955338
         autoData:
           impactTime: 1.2705625
-          hitStopDuration: 0.09142501
-          hitStopScale: 0.031875
-          cameraShakeAmplitude: 0.7942501
-          cameraShakeDuration: 0.13875
-          fovKickAmount: 3.4350004
-          fovKickDuration: 0.15875001
-          trailIntensity: 1.0300001
-          fakeImpactSlowScale: 0.84125
-          fakeImpactDuration: 0.048625
+          hitStopDuration: 0.14400001
+          hitStopScale: 0
+          cameraShakeAmplitude: 0.96000004
+          cameraShakeDuration: 0.16
+          fovKickAmount: 4.2000003
+          fovKickDuration: 0.18
+          trailIntensity: 1.2
+          fakeImpactSlowScale: 0.82
+          fakeImpactDuration: 0.055
         useManualOverride: 0
         manualOverride:
           overrideImpactTime: 0

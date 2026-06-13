@@ -26,7 +26,7 @@ MonoBehaviour:
   victimMaxKnockbackSpeed: 7
   damageByMaxHpRate: 0.2
   fixedDamage: 0
-  hitStopDuration: 0.08
+  hitStopDuration: 0.12
   startVfxKey: 
   hitVfxKey: 
   finishVfxKey: 

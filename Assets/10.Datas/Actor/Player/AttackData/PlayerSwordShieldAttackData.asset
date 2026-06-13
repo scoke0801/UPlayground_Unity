@@ -17,7 +17,7 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 39
+      - damage: 38
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -52,8 +52,8 @@ MonoBehaviour:
             recoveryDuration: 0.5775251
           autoData:
             impactTime: 0.4216763
-            hitStopDuration: 0.03598536
-            hitStopScale: 0.1038884
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.27985358
             cameraShakeDuration: 0.09074107
             fovKickAmount: 1.1377858
@@ -85,7 +85,7 @@ MonoBehaviour:
       animKey: 101
       attackType: 0
       hitPhases:
-      - damage: 42
+      - damage: 39
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -120,8 +120,8 @@ MonoBehaviour:
             recoveryDuration: 0.6348097
           autoData:
             impactTime: 0.31519035
-            hitStopDuration: 0.036055002
-            hitStopScale: 0.1036875
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28055
             cameraShakeDuration: 0.090875
             fovKickAmount: 1.141
@@ -153,7 +153,7 @@ MonoBehaviour:
       animKey: 102
       attackType: 0
       hitPhases:
-      - damage: 46
+      - damage: 42
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -188,8 +188,8 @@ MonoBehaviour:
             recoveryDuration: 0.5461843
           autoData:
             impactTime: 0.47048238
-            hitStopDuration: 0.036333572
-            hitStopScale: 0.102883935
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28333575
             cameraShakeDuration: 0.09141071
             fovKickAmount: 1.1538571
@@ -221,7 +221,7 @@ MonoBehaviour:
       animKey: 103
       attackType: 0
       hitPhases:
-      - damage: 52
+      - damage: 45
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -256,8 +256,8 @@ MonoBehaviour:
             recoveryDuration: 0.96887726
           autoData:
             impactTime: 0.55256534
-            hitStopDuration: 0.03821393
-            hitStopScale: 0.09745982
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.30213928
             cameraShakeDuration: 0.09502678
             fovKickAmount: 1.2406429
@@ -289,7 +289,7 @@ MonoBehaviour:
       animKey: 104
       attackType: 0
       hitPhases:
-      - damage: 52
+      - damage: 48
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -324,8 +324,8 @@ MonoBehaviour:
             recoveryDuration: 0.67746866
           autoData:
             impactTime: 0.25085512
-            hitStopDuration: 0.03626393
-            hitStopScale: 0.103084825
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.2826393
             cameraShakeDuration: 0.09127679
             fovKickAmount: 1.1506429
@@ -357,7 +357,7 @@ MonoBehaviour:
       animKey: 105
       attackType: 0
       hitPhases:
-      - damage: 54
+      - damage: 51
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -392,8 +392,8 @@ MonoBehaviour:
             recoveryDuration: 0.51831245
           autoData:
             impactTime: 0.41502094
-            hitStopDuration: 0.03598536
-            hitStopScale: 0.1038884
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.27985358
             cameraShakeDuration: 0.09074107
             fovKickAmount: 1.1377858
@@ -425,7 +425,7 @@ MonoBehaviour:
       animKey: 106
       attackType: 0
       hitPhases:
-      - damage: 58
+      - damage: 56
         poiseDamage: 15
         breakDamage: 10
         reactionType: 2
@@ -460,8 +460,8 @@ MonoBehaviour:
             recoveryDuration: 0.67252344
           autoData:
             impactTime: 0.2774766
-            hitStopDuration: 0.036055002
-            hitStopScale: 0.1036875
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28055
             cameraShakeDuration: 0.090875
             fovKickAmount: 1.141
@@ -493,9 +493,9 @@ MonoBehaviour:
       animKey: 107
       attackType: 0
       hitPhases:
-      - damage: 61
-        poiseDamage: 15
-        breakDamage: 10
+      - damage: 30
+        poiseDamage: 13
+        breakDamage: 9
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -528,8 +528,70 @@ MonoBehaviour:
             recoveryDuration: 0.6626817
           autoData:
             impactTime: 0.3706518
-            hitStopDuration: 0.036403216
-            hitStopScale: 0.10268304
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
+            cameraShakeAmplitude: 0.28403217
+            cameraShakeDuration: 0.09154464
+            fovKickAmount: 1.1570715
+            fovKickDuration: 0.11154465
+            trailIntensity: 0.65235716
+            fakeImpactSlowScale: 0.8884554
+            fakeImpactDuration: 0.034463394
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 37
+        poiseDamage: 17
+        breakDamage: 11
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.35
+            rootMotionScore: 0.25178573
+            bodyRotationScore: 0.35
+            attackWeightScore: 0.25
+            impactScore: 0.31544644
+            activeStart: 0.3706518
+            activeEnd: 0.5206517
+            activeDuration: 0.14999989
+            startupDuration: 0.3706518
+            recoveryDuration: 0.6626817
+          autoData:
+            impactTime: 0.3706518
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28403217
             cameraShakeDuration: 0.09154464
             fovKickAmount: 1.1570715
@@ -561,9 +623,9 @@ MonoBehaviour:
       animKey: 108
       attackType: 0
       hitPhases:
-      - damage: 64
-        poiseDamage: 15
-        breakDamage: 10
+      - damage: 32
+        poiseDamage: 13
+        breakDamage: 9
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -596,8 +658,70 @@ MonoBehaviour:
             recoveryDuration: 0.65483236
           autoData:
             impactTime: 0.3285011
-            hitStopDuration: 0.036194287
-            hitStopScale: 0.103285715
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
+            cameraShakeAmplitude: 0.28194287
+            cameraShakeDuration: 0.091142856
+            fovKickAmount: 1.1474286
+            fovKickDuration: 0.11114286
+            trailIntensity: 0.64914286
+            fakeImpactSlowScale: 0.8888571
+            fakeImpactDuration: 0.03434286
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 40
+        poiseDamage: 17
+        breakDamage: 11
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.35
+            rootMotionScore: 0.23571432
+            bodyRotationScore: 0.35
+            attackWeightScore: 0.25
+            impactScore: 0.31142858
+            activeStart: 0.3285011
+            activeEnd: 0.4785011
+            activeDuration: 0.15
+            startupDuration: 0.3285011
+            recoveryDuration: 0.65483236
+          autoData:
+            impactTime: 0.3285011
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.28194287
             cameraShakeDuration: 0.091142856
             fovKickAmount: 1.1474286
@@ -629,9 +753,9 @@ MonoBehaviour:
       animKey: 109
       attackType: 0
       hitPhases:
-      - damage: 38
-        poiseDamage: 13
-        breakDamage: 9
+      - damage: 69
+        poiseDamage: 15
+        breakDamage: 10
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -664,70 +788,8 @@ MonoBehaviour:
             recoveryDuration: 1.4381657
           autoData:
             impactTime: 0.14215067
-            hitStopDuration: 0.03842286
-            hitStopScale: 0.096857145
-            cameraShakeAmplitude: 0.30422857
-            cameraShakeDuration: 0.09542857
-            fovKickAmount: 1.2502857
-            fovKickDuration: 0.115428574
-            trailIntensity: 0.6834286
-            fakeImpactSlowScale: 0.88457143
-            fakeImpactDuration: 0.035628572
-          useManualOverride: 0
-          manualOverride:
-            overrideImpactTime: 0
-            impactTime: 0
-            overrideHitStop: 0
-            hitStopDuration: 0
-            hitStopScale: 0.1
-            overrideCamera: 0
-            cameraShakeAmplitude: 0
-            cameraShakeDuration: 0
-            overrideFov: 0
-            fovKickAmount: 0
-            fovKickDuration: 0
-            overrideTrail: 0
-            trailIntensity: 0
-            overrideFakeImpact: 0
-            fakeImpactSlowScale: 0.9
-            fakeImpactDuration: 0
-      - damage: 48
-        poiseDamage: 17
-        breakDamage: 11
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-        guaranteedReaction: 0
-        reactionProfile:
-          useAutoReaction: 1
-          hasAutoReactionGenerated: 1
-          analysis:
-            isEstimated: 1
-            weaponSpeedScore: 0.35
-            rootMotionScore: 0.40714288
-            bodyRotationScore: 0.35
-            attackWeightScore: 0.25
-            impactScore: 0.35428572
-            activeStart: 0.5435221
-            activeEnd: 0.65444493
-            activeDuration: 0.11092281
-            startupDuration: 0.5435221
-            recoveryDuration: 1.0122218
-          autoData:
-            impactTime: 0.5435221
-            hitStopDuration: 0.03842286
-            hitStopScale: 0.096857145
+            hitStopDuration: 0.065
+            hitStopScale: 0.04
             cameraShakeAmplitude: 0.30422857
             cameraShakeDuration: 0.09542857
             fovKickAmount: 1.2502857
@@ -760,7 +822,69 @@ MonoBehaviour:
       animKey: 200
       attackType: 0
       hitPhases:
-      - damage: 61
+      - damage: 25
+        poiseDamage: 24
+        breakDamage: 16
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.72
+            rootMotionScore: 0.36666673
+            bodyRotationScore: 0.7
+            attackWeightScore: 0.72
+            impactScore: 0.6276667
+            activeStart: 0.36147648
+            activeEnd: 0.5114765
+            activeDuration: 0.15000004
+            startupDuration: 0.36147648
+            recoveryDuration: 0.6218569
+          autoData:
+            impactTime: 0.36147648
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
+            cameraShakeAmplitude: 0.6695801
+            cameraShakeDuration: 0.122766666
+            fovKickAmount: 2.8596003
+            fovKickDuration: 0.14276667
+            trailIntensity: 0.9021334
+            fakeImpactSlowScale: 0.85723335
+            fakeImpactDuration: 0.04383
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 29
         poiseDamage: 27
         breakDamage: 18
         reactionType: 2
@@ -795,8 +919,70 @@ MonoBehaviour:
             recoveryDuration: 0.6218569
           autoData:
             impactTime: 0.36147648
-            hitStopDuration: 0.07895801
-            hitStopScale: 0.055849995
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
+            cameraShakeAmplitude: 0.6695801
+            cameraShakeDuration: 0.122766666
+            fovKickAmount: 2.8596003
+            fovKickDuration: 0.14276667
+            trailIntensity: 0.9021334
+            fakeImpactSlowScale: 0.85723335
+            fakeImpactDuration: 0.04383
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 32
+        poiseDamage: 30
+        breakDamage: 20
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.72
+            rootMotionScore: 0.36666673
+            bodyRotationScore: 0.7
+            attackWeightScore: 0.72
+            impactScore: 0.6276667
+            activeStart: 0.36147648
+            activeEnd: 0.5114765
+            activeDuration: 0.15000004
+            startupDuration: 0.36147648
+            recoveryDuration: 0.6218569
+          autoData:
+            impactTime: 0.36147648
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.6695801
             cameraShakeDuration: 0.122766666
             fovKickAmount: 2.8596003
@@ -863,8 +1049,8 @@ MonoBehaviour:
             recoveryDuration: 0.89027387
           autoData:
             impactTime: 0.28986192
-            hitStopDuration: 0.08025801
-            hitStopScale: 0.053349998
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.6825801
             cameraShakeDuration: 0.12443333
             fovKickAmount: 2.9196002
@@ -925,8 +1111,8 @@ MonoBehaviour:
             recoveryDuration: 0.62546647
           autoData:
             impactTime: 0.5529312
-            hitStopDuration: 0.08025801
-            hitStopScale: 0.053349998
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.6825801
             cameraShakeDuration: 0.12443333
             fovKickAmount: 2.9196002
@@ -958,7 +1144,7 @@ MonoBehaviour:
       animKey: 202
       attackType: 0
       hitPhases:
-      - damage: 75
+      - damage: 67
         poiseDamage: 27
         breakDamage: 18
         reactionType: 2
@@ -993,8 +1179,8 @@ MonoBehaviour:
             recoveryDuration: 1.0487344
           autoData:
             impactTime: 0.42309833
-            hitStopDuration: 0.08350801
-            hitStopScale: 0.047099996
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.7150801
             cameraShakeDuration: 0.1286
             fovKickAmount: 3.0696003
@@ -1026,9 +1212,9 @@ MonoBehaviour:
       animKey: 203
       attackType: 0
       hitPhases:
-      - damage: 40
-        poiseDamage: 24
-        breakDamage: 16
+      - damage: 70
+        poiseDamage: 27
+        breakDamage: 18
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -1061,70 +1247,8 @@ MonoBehaviour:
             recoveryDuration: 0.8184655
           autoData:
             impactTime: 0.28153464
-            hitStopDuration: 0.0800955
-            hitStopScale: 0.0536625
-            cameraShakeAmplitude: 0.68095505
-            cameraShakeDuration: 0.124225
-            fovKickAmount: 2.9121
-            fovKickDuration: 0.144225
-            trailIntensity: 0.91380006
-            fakeImpactSlowScale: 0.855775
-            fakeImpactDuration: 0.0442675
-          useManualOverride: 0
-          manualOverride:
-            overrideImpactTime: 0
-            impactTime: 0
-            overrideHitStop: 0
-            hitStopDuration: 0
-            hitStopScale: 0.1
-            overrideCamera: 0
-            cameraShakeAmplitude: 0
-            cameraShakeDuration: 0
-            overrideFov: 0
-            fovKickAmount: 0
-            fovKickDuration: 0
-            overrideTrail: 0
-            trailIntensity: 0
-            overrideFakeImpact: 0
-            fakeImpactSlowScale: 0.9
-            fakeImpactDuration: 0
-      - damage: 50
-        poiseDamage: 30
-        breakDamage: 20
-        reactionType: 2
-        reactionDuration: 0
-        forceReaction: 0
-        forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
-        hitParticleName: LiteHit
-        pullForce: 10
-        airborneForce: 8
-        knockBackForce: 10
-        knockBackDrag: 20
-        grabDuration: 1.5
-        victimForcedAnimKey: 0
-        guaranteedReaction: 0
-        reactionProfile:
-          useAutoReaction: 1
-          hasAutoReactionGenerated: 1
-          analysis:
-            isEstimated: 1
-            weaponSpeedScore: 0.72
-            rootMotionScore: 0.42500007
-            bodyRotationScore: 0.7
-            attackWeightScore: 0.72
-            impactScore: 0.64225
-            activeStart: 0.6245457
-            activeEnd: 0.71448034
-            activeDuration: 0.08993465
-            startupDuration: 0.6245457
-            recoveryDuration: 0.5355198
-          autoData:
-            impactTime: 0.6245457
-            hitStopDuration: 0.0800955
-            hitStopScale: 0.0536625
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.68095505
             cameraShakeDuration: 0.124225
             fovKickAmount: 2.9121
@@ -1191,8 +1315,8 @@ MonoBehaviour:
             recoveryDuration: 0.90516603
           autoData:
             impactTime: 0.32816738
-            hitStopDuration: 0.08139551
-            hitStopScale: 0.051162496
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.69395506
             cameraShakeDuration: 0.12589167
             fovKickAmount: 2.9721003
@@ -1253,8 +1377,8 @@ MonoBehaviour:
             recoveryDuration: 0.6838422
           autoData:
             impactTime: 0.6078912
-            hitStopDuration: 0.08139551
-            hitStopScale: 0.051162496
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.69395506
             cameraShakeDuration: 0.12589167
             fovKickAmount: 2.9721003
@@ -1286,7 +1410,69 @@ MonoBehaviour:
       animKey: 205
       attackType: 0
       hitPhases:
-      - damage: 92
+      - damage: 35
+        poiseDamage: 24
+        breakDamage: 16
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.72
+            rootMotionScore: 0.6750001
+            bodyRotationScore: 0.7
+            attackWeightScore: 0.72
+            impactScore: 0.70475
+            activeStart: 0.6995639
+            activeEnd: 0.8495639
+            activeDuration: 0.14999998
+            startupDuration: 0.6995639
+            recoveryDuration: 0.9004362
+          autoData:
+            impactTime: 0.6995639
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.7297051
+            cameraShakeDuration: 0.130475
+            fovKickAmount: 3.1371
+            fovKickDuration: 0.15047501
+            trailIntensity: 0.9638
+            fakeImpactSlowScale: 0.849525
+            fakeImpactDuration: 0.0461425
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 40
         poiseDamage: 27
         breakDamage: 18
         reactionType: 2
@@ -1321,8 +1507,70 @@ MonoBehaviour:
             recoveryDuration: 0.9004362
           autoData:
             impactTime: 0.6995639
-            hitStopDuration: 0.084970504
-            hitStopScale: 0.044287503
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.7297051
+            cameraShakeDuration: 0.130475
+            fovKickAmount: 3.1371
+            fovKickDuration: 0.15047501
+            trailIntensity: 0.9638
+            fakeImpactSlowScale: 0.849525
+            fakeImpactDuration: 0.0461425
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 44
+        poiseDamage: 30
+        breakDamage: 20
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.72
+            rootMotionScore: 0.6750001
+            bodyRotationScore: 0.7
+            attackWeightScore: 0.72
+            impactScore: 0.70475
+            activeStart: 0.6995639
+            activeEnd: 0.8495639
+            activeDuration: 0.14999998
+            startupDuration: 0.6995639
+            recoveryDuration: 0.9004362
+          autoData:
+            impactTime: 0.6995639
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.7297051
             cameraShakeDuration: 0.130475
             fovKickAmount: 3.1371
@@ -1354,7 +1602,7 @@ MonoBehaviour:
       animKey: 206
       attackType: 0
       hitPhases:
-      - damage: 91
+      - damage: 96
         poiseDamage: 27
         breakDamage: 18
         reactionType: 2
@@ -1389,8 +1637,8 @@ MonoBehaviour:
             recoveryDuration: 0.52701086
           autoData:
             impactTime: 0.5729893
-            hitStopDuration: 0.0800955
-            hitStopScale: 0.0536625
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.68095505
             cameraShakeDuration: 0.124225
             fovKickAmount: 2.9121
@@ -1457,8 +1705,8 @@ MonoBehaviour:
             recoveryDuration: 0.553549
           autoData:
             impactTime: 0.39645106
-            hitStopDuration: 0.078633
-            hitStopScale: 0.056475002
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.66633004
             cameraShakeDuration: 0.12235
             fovKickAmount: 2.8446002
@@ -1525,8 +1773,8 @@ MonoBehaviour:
             recoveryDuration: 0.8603683
           autoData:
             impactTime: 0.60629845
-            hitStopDuration: 0.08367051
-            hitStopScale: 0.0467875
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.7167051
             cameraShakeDuration: 0.12880833
             fovKickAmount: 3.0771
@@ -1554,14 +1802,280 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     hitAngle: 60
-  jumpAttackList: []
+  jumpAttackList:
+  - baseInfo:
+      animKey: 400
+      attackType: 0
+      hitPhases:
+      - damage: 47
+        poiseDamage: 19
+        breakDamage: 12
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.5
+            rootMotionScore: 0.38035715
+            bodyRotationScore: 0.5
+            attackWeightScore: 0.45
+            impactScore: 0.8752663
+            activeStart: 0.29541022
+            activeEnd: 0.40820315
+            activeDuration: 0.11279294
+            startupDuration: 0.29541022
+            recoveryDuration: 1.1751302
+          autoData:
+            impactTime: 0.29541022
+            hitStopDuration: 0.10877397
+            hitStopScale: 0.018710054
+            cameraShakeAmplitude: 0.7189231
+            cameraShakeDuration: 0.14752662
+            fovKickAmount: 3.125799
+            fovKickDuration: 0.16752663
+            trailIntensity: 1.100213
+            fakeImpactSlowScale: 0.83247334
+            fakeImpactDuration: 0.05125799
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 69
+    hitAngle: 90
+  - baseInfo:
+      animKey: 401
+      attackType: 0
+      hitPhases:
+      - damage: 50
+        poiseDamage: 19
+        breakDamage: 12
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.5
+            rootMotionScore: 0.35357147
+            bodyRotationScore: 0.5
+            attackWeightScore: 0.45
+            impactScore: 0.90909094
+            activeStart: 0.21816406
+            activeEnd: 0.36816406
+            activeDuration: 0.15
+            startupDuration: 0.21816406
+            recoveryDuration: 1.131836
+          autoData:
+            impactTime: 0.21816406
+            hitStopDuration: 0.11181818
+            hitStopScale: 0.01363636
+            cameraShakeAmplitude: 0.7409091
+            cameraShakeDuration: 0.1509091
+            fovKickAmount: 3.2272727
+            fovKickDuration: 0.1709091
+            trailIntensity: 1.1272728
+            fakeImpactSlowScale: 0.8290909
+            fakeImpactDuration: 0.05227273
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 69
+    hitAngle: 90
+  - baseInfo:
+      animKey: 402
+      attackType: 0
+      hitPhases:
+      - damage: 30
+        poiseDamage: 17
+        breakDamage: 11
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.5
+            rootMotionScore: 0.45
+            bodyRotationScore: 0.5
+            attackWeightScore: 0.45
+            impactScore: 0.31431794
+            activeStart: 0.20742187
+            activeEnd: 0.35742188
+            activeDuration: 0.15
+            startupDuration: 0.20742187
+            recoveryDuration: 0.1877442
+          autoData:
+            impactTime: 0.20742187
+            hitStopDuration: 0.058288615
+            hitStopScale: 0.102852315
+            cameraShakeAmplitude: 0.35430667
+            cameraShakeDuration: 0.09143179
+            fovKickAmount: 1.4429538
+            fovKickDuration: 0.11143179
+            trailIntensity: 0.6514544
+            fakeImpactSlowScale: 0.8885682
+            fakeImpactDuration: 0.03442954
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 37
+        poiseDamage: 21
+        breakDamage: 14
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.5
+            rootMotionScore: 0.45
+            bodyRotationScore: 0.5
+            attackWeightScore: 0.45
+            impactScore: 0.9851296
+            activeStart: 0.5451661
+            activeEnd: 0.77880865
+            activeDuration: 0.23364258
+            startupDuration: 0.5451661
+            recoveryDuration: 1.1378582
+          autoData:
+            impactTime: 0.5451661
+            hitStopDuration: 0.118661664
+            hitStopScale: 0.0022305609
+            cameraShakeAmplitude: 0.7903342
+            cameraShakeDuration: 0.15851295
+            fovKickAmount: 3.4553888
+            fovKickDuration: 0.17851296
+            trailIntensity: 1.1881037
+            fakeImpactSlowScale: 0.821487
+            fakeImpactDuration: 0.05455389
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 69
+    hitAngle: 90
   dashAttackList: []
   skillAttackList:
   - baseInfo:
       animKey: 500
       attackType: 0
       hitPhases:
-      - damage: 54
+      - damage: 25
         poiseDamage: 30
         breakDamage: 20
         reactionType: 2
@@ -1596,8 +2110,8 @@ MonoBehaviour:
             recoveryDuration: 1.2838821
           autoData:
             impactTime: 1.2491609
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -1623,7 +2137,255 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 68
+      - damage: 26
+        poiseDamage: 32
+        breakDamage: 21
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 1.9211842
+            activeEnd: 2.0803084
+            activeDuration: 0.15912426
+            startupDuration: 1.9211842
+            recoveryDuration: 0.8363583
+          autoData:
+            impactTime: 1.9211842
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 27
+        poiseDamage: 33
+        breakDamage: 22
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 1.9211842
+            activeEnd: 2.0803084
+            activeDuration: 0.15912426
+            startupDuration: 1.9211842
+            recoveryDuration: 0.8363583
+          autoData:
+            impactTime: 1.9211842
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 28
+        poiseDamage: 34
+        breakDamage: 23
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 1.9211842
+            activeEnd: 2.0803084
+            activeDuration: 0.15912426
+            startupDuration: 1.9211842
+            recoveryDuration: 0.8363583
+          autoData:
+            impactTime: 1.9211842
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 29
+        poiseDamage: 36
+        breakDamage: 24
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 1.9211842
+            activeEnd: 2.0803084
+            activeDuration: 0.15912426
+            startupDuration: 1.9211842
+            recoveryDuration: 0.8363583
+          autoData:
+            impactTime: 1.9211842
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 31
         poiseDamage: 38
         breakDamage: 25
         reactionType: 2
@@ -1658,8 +2420,8 @@ MonoBehaviour:
             recoveryDuration: 0.8363583
           autoData:
             impactTime: 1.9211842
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -1691,7 +2453,131 @@ MonoBehaviour:
       animKey: 501
       attackType: 0
       hitPhases:
-      - damage: 110
+      - damage: 31
+        poiseDamage: 30
+        breakDamage: 20
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 0.7725343
+            activeEnd: 0.97817296
+            activeDuration: 0.20563865
+            startupDuration: 0.7725343
+            recoveryDuration: 1.7718272
+          autoData:
+            impactTime: 0.7725343
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 32
+        poiseDamage: 32
+        breakDamage: 21
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 0.7725343
+            activeEnd: 0.97817296
+            activeDuration: 0.20563865
+            startupDuration: 0.7725343
+            recoveryDuration: 1.7718272
+          autoData:
+            impactTime: 0.7725343
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 34
         poiseDamage: 34
         breakDamage: 22
         reactionType: 2
@@ -1726,8 +2612,132 @@ MonoBehaviour:
             recoveryDuration: 1.7718272
           autoData:
             impactTime: 0.7725343
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 36
+        poiseDamage: 36
+        breakDamage: 24
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 0.7725343
+            activeEnd: 0.97817296
+            activeDuration: 0.20563865
+            startupDuration: 0.7725343
+            recoveryDuration: 1.7718272
+          autoData:
+            impactTime: 0.7725343
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
+            cameraShakeAmplitude: 0.8843176
+            cameraShakeDuration: 0.13769999
+            fovKickAmount: 3.8218503
+            fovKickDuration: 0.1577
+            trailIntensity: 1.0216
+            fakeImpactSlowScale: 0.8423
+            fakeImpactDuration: 0.04831
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 38
+        poiseDamage: 38
+        breakDamage: 25
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.78
+            rootMotionScore: 0.8
+            bodyRotationScore: 0.72
+            attackWeightScore: 0.82
+            impactScore: 0.777
+            activeStart: 0.7725343
+            activeEnd: 0.97817296
+            activeDuration: 0.20563865
+            startupDuration: 0.7725343
+            recoveryDuration: 1.7718272
+          autoData:
+            impactTime: 0.7725343
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -1794,8 +2804,8 @@ MonoBehaviour:
             recoveryDuration: 0.6717192
           autoData:
             impactTime: 1.3449475
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -1862,8 +2872,8 @@ MonoBehaviour:
             recoveryDuration: 1.0939101
           autoData:
             impactTime: 1.3894503
-            hitStopDuration: 0.10193176
-            hitStopScale: 0.03345
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
             fovKickAmount: 3.8218503
@@ -1904,7 +2914,7 @@ MonoBehaviour:
           animKey: 500
           attackType: 0
           hitPhases:
-          - damage: 54
+          - damage: 25
             poiseDamage: 30
             breakDamage: 20
             reactionType: 2
@@ -1939,8 +2949,8 @@ MonoBehaviour:
                 recoveryDuration: 1.2838821
               autoData:
                 impactTime: 1.2491609
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -1966,7 +2976,255 @@ MonoBehaviour:
                 overrideFakeImpact: 0
                 fakeImpactSlowScale: 0.9
                 fakeImpactDuration: 0
-          - damage: 68
+          - damage: 26
+            poiseDamage: 32
+            breakDamage: 21
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 1.9211842
+                activeEnd: 2.0803084
+                activeDuration: 0.15912426
+                startupDuration: 1.9211842
+                recoveryDuration: 0.8363583
+              autoData:
+                impactTime: 1.9211842
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 27
+            poiseDamage: 33
+            breakDamage: 22
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 1.9211842
+                activeEnd: 2.0803084
+                activeDuration: 0.15912426
+                startupDuration: 1.9211842
+                recoveryDuration: 0.8363583
+              autoData:
+                impactTime: 1.9211842
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 28
+            poiseDamage: 34
+            breakDamage: 23
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 1.9211842
+                activeEnd: 2.0803084
+                activeDuration: 0.15912426
+                startupDuration: 1.9211842
+                recoveryDuration: 0.8363583
+              autoData:
+                impactTime: 1.9211842
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 29
+            poiseDamage: 36
+            breakDamage: 24
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 1.9211842
+                activeEnd: 2.0803084
+                activeDuration: 0.15912426
+                startupDuration: 1.9211842
+                recoveryDuration: 0.8363583
+              autoData:
+                impactTime: 1.9211842
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 31
             poiseDamage: 38
             breakDamage: 25
             reactionType: 2
@@ -2001,8 +3259,8 @@ MonoBehaviour:
                 recoveryDuration: 0.8363583
               autoData:
                 impactTime: 1.9211842
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -2079,8 +3337,8 @@ MonoBehaviour:
                 recoveryDuration: 0.6717192
               autoData:
                 impactTime: 1.3449475
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -2157,8 +3415,8 @@ MonoBehaviour:
                 recoveryDuration: 1.0939101
               autoData:
                 impactTime: 1.3894503
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -2205,7 +3463,131 @@ MonoBehaviour:
           animKey: 501
           attackType: 0
           hitPhases:
-          - damage: 110
+          - damage: 31
+            poiseDamage: 30
+            breakDamage: 20
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 0.7725343
+                activeEnd: 0.97817296
+                activeDuration: 0.20563865
+                startupDuration: 0.7725343
+                recoveryDuration: 1.7718272
+              autoData:
+                impactTime: 0.7725343
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 32
+            poiseDamage: 32
+            breakDamage: 21
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 0.7725343
+                activeEnd: 0.97817296
+                activeDuration: 0.20563865
+                startupDuration: 0.7725343
+                recoveryDuration: 1.7718272
+              autoData:
+                impactTime: 0.7725343
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 34
             poiseDamage: 34
             breakDamage: 22
             reactionType: 2
@@ -2240,8 +3622,132 @@ MonoBehaviour:
                 recoveryDuration: 1.7718272
               autoData:
                 impactTime: 0.7725343
-                hitStopDuration: 0.10193176
-                hitStopScale: 0.03345
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 36
+            poiseDamage: 36
+            breakDamage: 24
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 0.7725343
+                activeEnd: 0.97817296
+                activeDuration: 0.20563865
+                startupDuration: 0.7725343
+                recoveryDuration: 1.7718272
+              autoData:
+                impactTime: 0.7725343
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
+                cameraShakeAmplitude: 0.8843176
+                cameraShakeDuration: 0.13769999
+                fovKickAmount: 3.8218503
+                fovKickDuration: 0.1577
+                trailIntensity: 1.0216
+                fakeImpactSlowScale: 0.8423
+                fakeImpactDuration: 0.04831
+              useManualOverride: 0
+              manualOverride:
+                overrideImpactTime: 0
+                impactTime: 0
+                overrideHitStop: 0
+                hitStopDuration: 0
+                hitStopScale: 0.1
+                overrideCamera: 0
+                cameraShakeAmplitude: 0
+                cameraShakeDuration: 0
+                overrideFov: 0
+                fovKickAmount: 0
+                fovKickDuration: 0
+                overrideTrail: 0
+                trailIntensity: 0
+                overrideFakeImpact: 0
+                fakeImpactSlowScale: 0.9
+                fakeImpactDuration: 0
+          - damage: 38
+            poiseDamage: 38
+            breakDamage: 25
+            reactionType: 2
+            reactionDuration: 0
+            forceReaction: 0
+            forceBreakExpose: 0
+            attackOffset: {x: 0, y: 1, z: 1.5}
+            attackRadius: 1.5
+            hitHeightRange: 1.2
+            hitParticleName: LiteHit
+            pullForce: 10
+            airborneForce: 8
+            knockBackForce: 10
+            knockBackDrag: 20
+            grabDuration: 1.5
+            victimForcedAnimKey: 0
+            guaranteedReaction: 0
+            reactionProfile:
+              useAutoReaction: 1
+              hasAutoReactionGenerated: 1
+              analysis:
+                isEstimated: 1
+                weaponSpeedScore: 0.78
+                rootMotionScore: 0.8
+                bodyRotationScore: 0.72
+                attackWeightScore: 0.82
+                impactScore: 0.777
+                activeStart: 0.7725343
+                activeEnd: 0.97817296
+                activeDuration: 0.20563865
+                startupDuration: 0.7725343
+                recoveryDuration: 1.7718272
+              autoData:
+                impactTime: 0.7725343
+                hitStopDuration: 0.105
+                hitStopScale: 0.03
                 cameraShakeAmplitude: 0.8843176
                 cameraShakeDuration: 0.13769999
                 fovKickAmount: 3.8218503
@@ -2283,7 +3789,7 @@ MonoBehaviour:
       animKey: 530
       attackType: 0
       hitPhases:
-      - damage: 74
+      - damage: 82
         poiseDamage: 38
         breakDamage: 25
         reactionType: 2
@@ -2318,8 +3824,8 @@ MonoBehaviour:
             recoveryDuration: 0.5775251
           autoData:
             impactTime: 0.4216763
-            hitStopDuration: 0.08308025
-            hitStopScale: 0.054313395
+            hitStopDuration: 0.105
+            hitStopScale: 0.03
             cameraShakeAmplitude: 0.70580244
             cameraShakeDuration: 0.12379107
             fovKickAmount: 3.0171652
@@ -2421,7 +3927,7 @@ MonoBehaviour:
       animKey: 100
       attackType: 0
       hitPhases:
-      - damage: 46
+      - damage: 42
         poiseDamage: 24
         breakDamage: 16
         reactionType: 2
@@ -2456,8 +3962,8 @@ MonoBehaviour:
             recoveryDuration: 0.7736975
           autoData:
             impactTime: 0.40963578
-            hitStopDuration: 0.061248336
-            hitStopScale: 0.066350006
+            hitStopDuration: 0.085
+            hitStopScale: 0.045
             cameraShakeAmplitude: 0.51248336
             cameraShakeDuration: 0.11576667
             fovKickAmount: 2.1729999
@@ -2734,8 +4240,8 @@ MonoBehaviour:
             recoveryDuration: 4.3361716
           autoData:
             impactTime: 1.3791437
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -2761,9 +4267,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 52
+      - damage: 50
         poiseDamage: 35
-        breakDamage: 24
+        breakDamage: 23
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -2796,8 +4302,8 @@ MonoBehaviour:
             recoveryDuration: 3.3868227
           autoData:
             impactTime: 2.2198749
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -2823,9 +4329,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 55
-        poiseDamage: 38
-        breakDamage: 25
+      - damage: 52
+        poiseDamage: 37
+        breakDamage: 24
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -2858,8 +4364,8 @@ MonoBehaviour:
             recoveryDuration: 3.106978
           autoData:
             impactTime: 2.5448892
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -2885,8 +4391,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 58
-        poiseDamage: 40
+      - damage: 55
+        poiseDamage: 38
         breakDamage: 26
         reactionType: 2
         reactionDuration: 0
@@ -2920,8 +4426,8 @@ MonoBehaviour:
             recoveryDuration: 2.52521
           autoData:
             impactTime: 3.1266572
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536
@@ -2947,7 +4453,69 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 61
+      - damage: 57
+        poiseDamage: 40
+        breakDamage: 27
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        attackOffset: {x: 0, y: 1, z: 1.5}
+        attackRadius: 1.5
+        hitHeightRange: 1.2
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.9
+            rootMotionScore: 1
+            bodyRotationScore: 0.8
+            attackWeightScore: 0.92
+            impactScore: 0.907
+            activeStart: 4.20221
+            activeEnd: 4.383686
+            activeDuration: 0.18147612
+            startupDuration: 4.20221
+            recoveryDuration: 1.4496574
+          autoData:
+            impactTime: 4.20221
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
+            cameraShakeAmplitude: 1.18328
+            cameraShakeDuration: 0.1507
+            fovKickAmount: 5.1536
+            fovKickDuration: 0.17070001
+            trailIntensity: 1.1256001
+            fakeImpactSlowScale: 0.8293
+            fakeImpactDuration: 0.05221
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 59
         poiseDamage: 42
         breakDamage: 28
         reactionType: 2
@@ -2982,8 +4550,8 @@ MonoBehaviour:
             recoveryDuration: 1.4496574
           autoData:
             impactTime: 4.20221
-            hitStopDuration: 0.11
-            hitStopScale: 0.01395
+            hitStopDuration: 0.12
+            hitStopScale: 0.014
             cameraShakeAmplitude: 1.18328
             cameraShakeDuration: 0.1507
             fovKickAmount: 5.1536

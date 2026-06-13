@@ -51,6 +51,23 @@ namespace UPlayGround.Editor
         private float _motionDurationWeight = 0.15f;
         private float _comboStepWeight = 0.08f;
         private bool _applyAutoReaction = true;
+        // HitStop/피드백 강도는 per-phase 후딜레이(다음 타격까지의 공백, 마지막 phase는 모션 끝까지)를 주축으로 산출한다.
+        // endlag ≤ _shortEndlag → 가벼운 피드백, ≥ _longEndlag → 강한 피드백. activeWindowWeight는 긴 타격판정창의 보조 가중.
+        private float _shortEndlag = 0.08f;
+        private float _longEndlag = 0.5f;
+        private float _activeWindowWeight = 0.2f;
+
+        // HitStop 튜닝 시작값(명조+DMC 계열 3D 액션 기준). 피격자는 런타임에서 항상 풀프리즈,
+        // 아래는 '공격자' HitStop이다. 체감은 강도(scale)보다 지속시간(duration)이 더 좌우하므로 duration 범위를 넓게 잡는다.
+        //   지속시간: 가벼운 타격 ~0.03s(약 2F) → 무거운 타격 ~0.12s, 궁극기/브레이크 상한 0.20s(약 12F @60fps)
+        //   공격자 스케일: 가벼운 타격 0.15(거의 안 멈춤) → 무거운 타격 0.0(공격자도 풀프리즈)
+        private const float AutoHitStopDurationMin = 0.03f;
+        private const float AutoHitStopDurationMax = 0.12f;   // typeMultiplier 적용 전 기준
+        private const float AutoHitStopDurationCap = 0.20f;
+        private const float AutoHitStopAttackerScaleWeak = 0.15f;
+        private const float AutoHitStopAttackerScaleStrong = 0f;
+        private const float ActiveWindowShortSec = 0.03f;
+        private const float ActiveWindowLongSec = 0.25f;
         private bool _overwriteExistingReaction = false;
         private Vector2 _scroll;
         private List<ScanEntry> _scanEntries = new();
@@ -251,9 +268,12 @@ namespace UPlayGround.Editor
                 {
                     _overwriteExistingReaction = EditorGUILayout.ToggleLeft("기존 Auto Reaction도 갱신", _overwriteExistingReaction);
                     EditorGUILayout.HelpBox(
-                        "1차 구현은 MotionSet Collision 타이밍과 공격 카테고리 기반으로 HitStop/Camera/FOV/Trail/FakeImpact 초안값을 HitPhaseData에 저장합니다. " +
-                        "무기 본 샘플링 기반 보정은 이후 단계에서 추가합니다.",
+                        "HitStop/Camera/FOV/Trail 강도는 per-phase 후딜레이(다음 타격까지의 공백, 마지막 타격은 모션 끝까지)를 주축으로 산출합니다. " +
+                        "긴 후딜=강한 공격=강한 피드백, 짧은 후딜=가벼운 피드백. 카테고리는 보조 배율로만 반영됩니다.",
                         MessageType.Info);
+                    _shortEndlag = EditorGUILayout.Slider("약한 피드백 후딜(초)", _shortEndlag, 0.01f, 0.4f);
+                    _longEndlag = EditorGUILayout.Slider("강한 피드백 후딜(초)", Mathf.Max(_shortEndlag + 0.01f, _longEndlag), _shortEndlag + 0.01f, 1.2f);
+                    _activeWindowWeight = EditorGUILayout.Slider("타격판정창 길이 보조 반영", _activeWindowWeight, 0f, 0.5f);
                 }
             }
         }
@@ -288,6 +308,13 @@ namespace UPlayGround.Editor
                     GUILayout.Label($"Collision {entry.CollisionCount}", GUILayout.Width(90f));
                     GUILayout.Label($"Phase {entry.PhaseCount}", GUILayout.Width(70f));
                     GUILayout.Label($"DMG {CalculateTotalDamage(entry):F0}", GUILayout.Width(80f));
+                    if (_applyAutoReaction)
+                    {
+                        GetStrongestPhasePreview(entry, out float endlag, out float hitStopDuration, out float hitStopScale);
+                        GUILayout.Label($"후딜 {endlag * 1000f:F0}ms", GUILayout.Width(80f));
+                        // xScale은 공격자 스케일. 피격자는 런타임에서 항상 풀프리즈(~0)된다.
+                        GUILayout.Label($"HS {hitStopDuration * 1000f:F0}ms·공x{hitStopScale:F2}", GUILayout.Width(140f));
+                    }
                     if (_targetKind == TargetKind.Enemy)
                     {
                         float weight = GetEnemySelectionWeight(entry.Category);
@@ -1024,18 +1051,15 @@ namespace UPlayGround.Editor
                 float activeEnd = entry.GetPhaseActiveEnd(i);
                 float activeDuration = Mathf.Max(0f, activeEnd - activeStart);
                 float startupDuration = Mathf.Max(0f, activeStart);
-                float recoveryDuration = Mathf.Max(0f, entry.Duration - activeEnd);
 
+                // 카테고리 분석 점수: 더 이상 impactScore의 주도값이 아니라 디버그 기록/참고용으로만 보존한다.
                 float weaponSpeedScore = GetCategoryWeaponSpeedScore(entry.Category);
                 float rootMotionScore = Mathf.Clamp01(Mathf.InverseLerp(0.4f, 1.8f, entry.Duration) * GetCategoryRootMotionBias(entry.Category));
                 float bodyRotationScore = GetCategoryBodyRotationScore(entry.Category);
                 float attackWeightScore = GetCategoryAttackWeightScore(entry.Category);
-                float impactScore = Mathf.Clamp01(
-                    weaponSpeedScore * 0.45f +
-                    rootMotionScore * 0.25f +
-                    bodyRotationScore * 0.2f +
-                    attackWeightScore * 0.1f);
 
+                // 강도 = per-phase 후딜레이 주도(ComputePhaseImpactScore). 실제 생성과 프리뷰가 동일 식을 쓴다.
+                float impactScore = ComputePhaseImpactScore(entry, i, out float endlag);
                 float typeMultiplier = GetReactionTypeMultiplier(entry.Category);
 
                 phase.reactionProfile.useAutoReaction = true;
@@ -1051,12 +1075,16 @@ namespace UPlayGround.Editor
                 phase.reactionProfile.analysis.activeEnd = activeEnd;
                 phase.reactionProfile.analysis.activeDuration = activeDuration;
                 phase.reactionProfile.analysis.startupDuration = startupDuration;
-                phase.reactionProfile.analysis.recoveryDuration = recoveryDuration;
+                // recoveryDuration 슬롯 의미를 per-phase endlag(다음 타격까지의 공백/모션 끝까지)로 재정의해 기록한다.
+                phase.reactionProfile.analysis.recoveryDuration = endlag;
+
+                // hitStopScale은 '공격자' 스케일이다. 피격자는 런타임(CombatFeedbackDispatcher)에서 항상 풀프리즈된다.
+                ResolveAutoHitStop(impactScore, typeMultiplier, out float hitStopDuration, out float hitStopScale);
 
                 phase.reactionProfile.autoData ??= new AttackReactionData();
                 phase.reactionProfile.autoData.impactTime = activeStart;
-                phase.reactionProfile.autoData.hitStopDuration = Mathf.Min(0.11f, Mathf.Lerp(0.025f, 0.09f, impactScore) * typeMultiplier);
-                phase.reactionProfile.autoData.hitStopScale = Mathf.Lerp(0.15f, 0.0f, impactScore);
+                phase.reactionProfile.autoData.hitStopDuration = hitStopDuration;
+                phase.reactionProfile.autoData.hitStopScale = hitStopScale;
                 phase.reactionProfile.autoData.cameraShakeAmplitude = Mathf.Lerp(0.15f, 0.8f, impactScore) * typeMultiplier;
                 phase.reactionProfile.autoData.cameraShakeDuration = Mathf.Lerp(0.06f, 0.16f, impactScore);
                 phase.reactionProfile.autoData.fovKickAmount = Mathf.Lerp(0.5f, 3.5f, impactScore) * typeMultiplier;
@@ -1064,6 +1092,54 @@ namespace UPlayGround.Editor
                 phase.reactionProfile.autoData.trailIntensity = Mathf.Lerp(0.4f, 1.2f, impactScore);
                 phase.reactionProfile.autoData.fakeImpactDuration = Mathf.Min(0.06f, Mathf.Lerp(0.025f, 0.055f, impactScore));
                 phase.reactionProfile.autoData.fakeImpactSlowScale = Mathf.Lerp(0.92f, 0.82f, impactScore);
+            }
+        }
+
+        /// <summary>
+        /// 단일 진실 소스: per-phase 후딜레이(endlag) → impactScore(강도 0~1).
+        /// 강도 주축은 후딜레이, 보조는 타격판정창 길이. 실제 생성(ApplyAutoReaction)과 프리뷰가 반드시 이 식을 공유한다.
+        /// </summary>
+        private float ComputePhaseImpactScore(ScanEntry entry, int phaseIndex, out float endlag)
+        {
+            endlag = entry.GetPhaseEndlag(phaseIndex);
+            float activeDuration = Mathf.Max(0f, entry.GetPhaseActiveEnd(phaseIndex) - entry.GetPhaseActiveStart(phaseIndex));
+            float endlagNorm = Mathf.Clamp01(Mathf.InverseLerp(_shortEndlag, _longEndlag, endlag));
+            float activeNorm = Mathf.Clamp01(Mathf.InverseLerp(ActiveWindowShortSec, ActiveWindowLongSec, activeDuration));
+            return Mathf.Clamp01(endlagNorm * (1f - _activeWindowWeight) + activeNorm * _activeWindowWeight);
+        }
+
+        /// <summary>
+        /// 단일 진실 소스: impactScore + 카테고리 배율 → '공격자' HitStop(지속시간/스케일).
+        /// 피격자는 런타임에서 항상 풀프리즈하므로 여기서 다루지 않는다.
+        /// </summary>
+        private static void ResolveAutoHitStop(float impactScore, float typeMultiplier, out float duration, out float scale)
+        {
+            duration = Mathf.Min(
+                AutoHitStopDurationCap,
+                Mathf.Lerp(AutoHitStopDurationMin, AutoHitStopDurationMax, impactScore) * typeMultiplier);
+            scale = Mathf.Lerp(AutoHitStopAttackerScaleWeak, AutoHitStopAttackerScaleStrong, impactScore);
+        }
+
+        /// <summary>
+        /// 프리뷰용: 가장 강한 phase(impactScore 최대) 기준 endlag와 그 결과 공격자 HitStop을 ApplyAutoReaction과 동일 식으로 추정한다.
+        /// </summary>
+        private void GetStrongestPhasePreview(ScanEntry entry, out float endlag, out float hitStopDuration, out float hitStopScale)
+        {
+            endlag = 0f;
+            hitStopDuration = 0f;
+            hitStopScale = AutoHitStopAttackerScaleWeak;
+            if (entry == null) return;
+
+            float typeMultiplier = GetReactionTypeMultiplier(entry.Category);
+            float bestImpact = -1f;
+            for (int i = 0; i < entry.PhaseCount; i++)
+            {
+                float impactScore = ComputePhaseImpactScore(entry, i, out float phaseEndlag);
+                if (impactScore < bestImpact) continue;
+
+                bestImpact = impactScore;
+                endlag = phaseEndlag;
+                ResolveAutoHitStop(impactScore, typeMultiplier, out hitStopDuration, out hitStopScale);
             }
         }
 
@@ -1514,6 +1590,26 @@ namespace UPlayGround.Editor
                 if (TryGetPhaseCollisionTime(phaseIndex, out _, out float end))
                     return Mathf.Max(end, GetPhaseActiveStart(phaseIndex));
                 return Duration;
+            }
+
+            /// <summary>
+            /// 해당 phase의 "후딜레이" 신호. 멀티히트에서 의미가 뒤집히지 않도록
+            /// 마지막 phase는 (모션 끝 - 타격 종료), 중간 phase는 (다음 타격 시작 - 이번 타격 종료)로 정의한다.
+            /// 콤보 마무리·단타 강공격은 뒤가 비어 큰 값, 연타 중간 타격은 다음 타격이 곧 와서 작은 값이 된다.
+            /// </summary>
+            public float GetPhaseEndlag(int phaseIndex)
+            {
+                float activeEnd = GetPhaseActiveEnd(phaseIndex);
+
+                // 마지막 phase: 모션 끝까지가 후딜.
+                if (phaseIndex >= PhaseCount - 1)
+                    return Mathf.Max(0f, Duration - activeEnd);
+
+                // 중간 phase: 다음 타격 active 시작까지의 공백. 다음 타격 시점을 못 구하면
+                // 모션 끝까지로 부풀리지 않고(=의도 역전 방지) 0(타이트한 연결타)으로 둔다.
+                float nextActiveStart = GetPhaseActiveStart(phaseIndex + 1);
+                float gap = nextActiveStart - activeEnd;
+                return gap > 0f ? gap : 0f;
             }
 
             private bool TryGetPhaseCollisionTime(int phaseIndex, out float start, out float end)

@@ -14,6 +14,10 @@ namespace UPlayGround.Combat
 {
     public static class CombatFeedbackDispatcher
     {
+        // 플레이어 공격 적중 시 피격자(적)는 항상 풀프리즈하고 공격자(플레이어)만 reactionData의 약한 스케일로 멈춘다.
+        // 사람 눈은 0%↔10% 차이는 잘 못 느끼지만, 공격자 쪽 루트모션/카메라가 미세하게 진행되어 조작감이 끊기지 않는다.
+        private const float VictimFreezeScale = 0f; // ExecuteLocalImpact에서 MinImpactTimeScale로 클램프 → 풀프리즈
+
         public static void ShowDamageFloater(in CombatFeedbackContext context)
         {
             UIManager.Instance.ShowDamageFloater(
@@ -257,7 +261,8 @@ namespace UPlayGround.Combat
                 victim,
                 duration,
                 timeScale,
-                includeAttacker: true);
+                includeAttacker: true,
+                victimTimeScale: VictimFreezeScale);
 
             ResolvePlayerAttackGlobalPulse(
                 attackData,

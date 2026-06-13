@@ -223,11 +223,17 @@ namespace UPlayGround.Manager.Combat
             GameActor victim,
             float duration,
             float localTimeScale = 0.1f,
-            bool includeAttacker = true)
+            bool includeAttacker = true,
+            float victimTimeScale = -1f)
         {
             if (duration <= 0f) return;
 
             localTimeScale = Mathf.Clamp(localTimeScale, MinImpactTimeScale, 1f);
+            // victimTimeScale < 0 이면 공격자와 동일(기존 대칭 동작). 0 이상이면 피격자를 별도 강도로 멈춘다.
+            // 공격자는 약하게(루트모션/카메라가 미세하게 진행) + 피격자는 풀프리즈 같은 비대칭 타격감을 위해 분리한다.
+            float resolvedVictimScale = victimTimeScale >= 0f
+                ? Mathf.Clamp(victimTimeScale, MinImpactTimeScale, 1f)
+                : localTimeScale;
             bool applied = false;
 
             if (includeAttacker && attacker != null)
@@ -238,7 +244,7 @@ namespace UPlayGround.Manager.Combat
 
             if (victim != null && victim != attacker)
             {
-                ExecuteActorOnly(victim, duration, localTimeScale);
+                ExecuteActorOnly(victim, duration, resolvedVictimScale);
                 applied = true;
             }
 

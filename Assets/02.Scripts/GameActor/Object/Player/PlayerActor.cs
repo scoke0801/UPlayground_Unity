@@ -522,6 +522,7 @@ namespace UPlayGround
 
             PlaySwapEvadeFeedback(_swapEvadeTarget);
 
+            _combat.SetPendingSwapAttackTarget(_swapEvadeTarget);
             _swapEvadeQueued = false;
             _swapEvadeTarget = null;
             TryStartSwapEvadeCounterAttack();
@@ -1289,6 +1290,8 @@ namespace UPlayGround
                     _shakeKeyHeavyHit);
             }
 
+            CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop(attackData, this);
+
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : (attackData?.hitPoint ?? transform.position);
@@ -1337,6 +1340,7 @@ namespace UPlayGround
         protected virtual void OnDeath(AttackData attackData)
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
+            CombatTelemetrySession.NotifyPlayerDeath(this);
             ClearAllInputState();
             PlayerMovementPlayerController?.ClearInputAll();
             InputManager.Instance?.InputBuffer?.Clear();

@@ -25,7 +25,7 @@ MonoBehaviour:
   poiseData: {fileID: 11400000, guid: ccc2a5fe84d922042a15be9ba8610a4f, type: 2}
   breakGaugeData: {fileID: 11400000, guid: 442b13f5b27dabc4c8665513b8f7f9fa, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
-  grade: 3
+  grade: 0
   level: 1
   attackData: {fileID: 11400000, guid: 8234c9b57eda2974bbf9a6b0967276d1, type: 2}
   combatDefensePolicy: {fileID: 0}
@@ -34,3 +34,4 @@ MonoBehaviour:
   npcData: {fileID: 0}
   dropTable: {fileID: 0}
   recruitableAs: 0
+  expReward: 0

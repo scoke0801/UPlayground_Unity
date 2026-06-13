@@ -66,6 +66,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.0082728, y: 0, z: 0.047512624}
         bakedPathLen: 0.06380637
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 5792125052971909244
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

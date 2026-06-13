@@ -185,7 +185,7 @@ namespace UPlayGround.State
                     _combat.WarpMaxDistance,
                     _combat.WarpMaxSpeed,
                     deltaTime,
-                    _combat.EndMotionWarp);
+                    _combat.EndMotionWarpAction);
 
                 currentVelocity = _motionWarp.ClampApproachVelocity(
                     currentVelocity,

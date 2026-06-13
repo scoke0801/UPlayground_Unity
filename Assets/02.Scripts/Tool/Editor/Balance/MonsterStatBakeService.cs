@@ -79,7 +79,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 return default;
 
             EnsureFolder(options.StatSavePath);
-            BackfillGradeLevelFromPrefab(actor);
+            BackfillGradeLevelFromPrefab(actor, options.RecordUndo);
 
             bool linkedScaling = EnsureScalingLinked(actor, options);
             ActorStatSO stat = actor.statData;
@@ -329,31 +329,31 @@ namespace UPlayGround.Tool.Editor.Balance
             return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxPoise));
         }
 
-        private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO actor)
+        private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO actor, bool recordUndo)
         {
             if (actor == null || actor.prefab == null)
+                return;
+
+            // 런타임은 MonsterActor.SetDefinition에서 정의(grade/level)를 권위 소스로 프리팹에 주입한다.
+            // 이 백필은 과거 빌드 마이그레이션용 — grade/level이 한 번도 저작되지 않아 기본값(Normal/Lv1)으로
+            // 남은 정의만 프리팹 보존값으로 채운다. 저작된 정의를 프리팹의 낡은 캐시로 덮어쓰면
+            // 생성기 미리보기(정의 기준)와 다른 스탯이 bake되고 등록한 Lv/Grade가 소실된다.
+            if (actor.grade != MonsterActorGrade.Normal || actor.level > 1)
                 return;
 
             var monster = actor.prefab.GetComponent<MonsterActor>();
             if (monster == null)
                 return;
 
-            bool changed = false;
-            if (actor.grade != monster.Grade)
-            {
-                actor.grade = monster.Grade;
-                changed = true;
-            }
-
             int level = Mathf.Max(1, monster.Level);
-            if (actor.level != level)
-            {
-                actor.level = level;
-                changed = true;
-            }
+            if (actor.grade == monster.Grade && actor.level == level)
+                return;
 
-            if (changed)
-                EditorUtility.SetDirty(actor);
+            if (recordUndo)
+                Undo.RecordObject(actor, "Backfill Grade/Level From Prefab");
+            actor.grade = monster.Grade;
+            actor.level = level;
+            EditorUtility.SetDirty(actor);
         }
 
         private static bool HasMissingStats(ActorStatSO stat)

@@ -15,10 +15,10 @@ MonoBehaviour:
   defaultOffset: {x: 0, y: 1, z: 0}
   combatOffset: {x: 0.15, y: 1.1, z: 0}
   offsetSmoothTime: 0.3
-  defaultDistance: 5.6
-  combatDistance: 6.2
+  defaultDistance: 5.1
+  combatDistance: 5.7
   minDistance: 3
-  maxDistance: 9.2
+  maxDistance: 8.5
   rotationSpeed: 20
   minVerticalAngle: 0
   maxVerticalAngle: 50
@@ -59,7 +59,7 @@ MonoBehaviour:
   explorePitch: 25
   combatPitch: 25
   lockOnRange: 16
-  lockOnDistance: 5.4
+  lockOnDistance: 4.9
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
@@ -148,7 +148,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lockOnOrbitSmoothTime: 0.15
-  crowdZoomOutDistance: 8.2
+  crowdZoomOutDistance: 7.4
   crowdDetectRadius: 12
   crowdEnemyThreshold: 3
   crowdZoomSmoothTime: 0.4
@@ -156,7 +156,7 @@ MonoBehaviour:
   monsterSizeReference: 2.2
   monsterSizeForMaxFOV: 7
   monsterSizeFOVMax: 7
-  monsterSizeDistanceMax: 2.2
+  monsterSizeDistanceMax: 1.6
   monsterSizeDistanceSmoothTime: 0.32
   combatCameraShakeScale: 0.85
   combatCameraAutoCorrectionScale: 0.6

@@ -110,6 +110,27 @@ namespace UPlayGround.Animation.Editor
         public bool foldTimeline = true;
         public bool foldEvents = true;
 
+        // ====================================================================
+        //  외부 주입 오버레이 트랙 (전투 데이터 등 읽기 전용 시각화)
+        // ====================================================================
+        public sealed class OverlaySpan
+        {
+            public float start;
+            public float end;
+            public string label;
+        }
+
+        public sealed class OverlayTrack
+        {
+            public string label;
+            public Color color;
+            public readonly List<OverlaySpan> spans = new List<OverlaySpan>();
+        }
+
+        /// <summary> null 또는 빈 리스트면 오버레이 그룹을 그리지 않는다. 매 프레임 외부에서 갱신해도 무방. </summary>
+        public List<OverlayTrack> overlayTracks;
+        public string overlayGroupTitle = "전투 데이터";
+
         // 이벤트 항목별 접힘 상태: key = "motionIdx_eventIdx" 또는 "set_eventIdx"
         readonly Dictionary<string, bool> _eventFoldouts = new Dictionary<string, bool>();
 
@@ -212,6 +233,13 @@ namespace UPlayGround.Animation.Editor
                 + MARKER_HEIGHT + TRACK_GAP + SECTION_GAP
                 + GROUP_HEADER_H + TRACK_GAP
                 + (EVENT_HEIGHT + TRACK_GAP) * Mathf.Max(totalEventTracks, 1) + 8f;
+
+            int overlayCount = overlayTracks?.Count ?? 0;
+            if (overlayCount > 0)
+            {
+                timelineH += SECTION_GAP + GROUP_HEADER_H + TRACK_GAP
+                    + (EVENT_HEIGHT + TRACK_GAP) * overlayCount;
+            }
 
             return Mathf.Max(timelineH, 200f);
         }
@@ -1260,9 +1288,25 @@ namespace UPlayGround.Animation.Editor
             int totalEventTracks = CountEventTracks(set);
             float eventsEndY = y + (EVENT_HEIGHT + TRACK_GAP) * Mathf.Max(totalEventTracks, 1);
 
+            // ── 외부 주입 오버레이 그룹 (전투 데이터 등) ──
+            float contentEndY = eventsEndY;
+            if (overlayTracks != null && overlayTracks.Count > 0)
+            {
+                float oy = eventsEndY + SECTION_GAP;
+                oy = DrawGroupHeader(content.x, oy, content.width, overlayGroupTitle, new Color(0.95f, 0.55f, 0.25f));
+                foreach (OverlayTrack track in overlayTracks)
+                {
+                    if (track == null) continue;
+                    DrawEventTrackLabel(new Rect(content.x, oy, labelW, EVENT_HEIGHT), track.label, track.color);
+                    DrawOverlayTrackBar(new Rect(content.x + labelW, oy, trackW, EVENT_HEIGHT), track, pps);
+                    oy += EVENT_HEIGHT + TRACK_GAP;
+                }
+                contentEndY = oy;
+            }
+
             // ── 커서 & 오버레이 ──
             Rect cursorArea = new Rect(content.x + labelW, content.y + RULER_HEIGHT,
-                trackW, eventsEndY - content.y - RULER_HEIGHT);
+                trackW, contentEndY - content.y - RULER_HEIGHT);
             DrawCursor(cursorArea, totalDur, pps);
             HandleCursorInput(rulerRect, totalDur, pps);
             DrawPlayRangeOverlay(cursorArea, totalDur, pps);
@@ -1709,6 +1753,44 @@ namespace UPlayGround.Animation.Editor
                 DrawTrackLabel(new Rect(labelX, yPos, labelW, EVENT_HEIGHT), "(없음)");
                 EditorGUI.DrawRect(new Rect(trackX, yPos, trackW, EVENT_HEIGHT), COL_TRACK_BG);
             }
+        }
+
+        // 외부 주입 오버레이 트랙 바 — 읽기 전용 (클릭/드래그 없음)
+        void DrawOverlayTrackBar(Rect trackRect, OverlayTrack track, float pps)
+        {
+            EditorGUI.DrawRect(trackRect, COL_TRACK_BG);
+            GUI.BeginClip(trackRect);
+
+            var textStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                padding   = new RectOffset(4, 2, 0, 0),
+                normal    = { textColor = new Color(0.95f, 0.95f, 0.95f) },
+                clipping  = TextClipping.Clip,
+                fontSize  = 9,
+            };
+
+            foreach (OverlaySpan span in track.spans)
+            {
+                if (span == null) continue;
+
+                float x0 = span.start * pps - scrollX;
+                float x1 = span.end   * pps - scrollX;
+                float w  = Mathf.Max(x1 - x0, 3f);
+                if (x0 + w < 0 || x0 > trackRect.width) continue;
+
+                Color dim = new Color(track.color.r, track.color.g, track.color.b, 0.35f);
+                Rect bar = new Rect(x0, 2, w, trackRect.height - 4);
+                EditorGUI.DrawRect(bar, dim);
+                EditorGUI.DrawRect(new Rect(x0, 2, w, 2), track.color);
+                EditorGUI.DrawRect(new Rect(x0, 2, 1, trackRect.height - 4), track.color);
+                EditorGUI.DrawRect(new Rect(x0 + w - 1, 2, 1, trackRect.height - 4), track.color);
+
+                if (!string.IsNullOrEmpty(span.label) && w > 24f)
+                    GUI.Label(bar, span.label, textStyle);
+            }
+
+            GUI.EndClip();
         }
 
         // 이벤트 트랙 전용 레이블 — 타입 색상 세로 바 포함

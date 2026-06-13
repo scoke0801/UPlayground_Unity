@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Component;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
@@ -173,8 +174,10 @@ namespace UPlayGround.State
                 FixedDamage,
                 MinReferenceHealth);
 
-            if (HitStopDuration > 0f)
-                GameCombatManager.Instance.GameHitStop.Execute(HitStopDuration, 0.02f);
+            CombatFeedbackDispatcher.ApplyPlayerSpecialBreakHitStop(
+                playerActor,
+                _targetMonster,
+                HitStopDuration);
         }
 
         private void FaceTarget()

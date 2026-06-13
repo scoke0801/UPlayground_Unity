@@ -11,10 +11,13 @@ namespace UPlayGround.State
     public class PlayerDashAttackState : PlayerActorState
     {
         
-        public override string StateName => "JumpAttack";
+        public override string StateName => "DashAttack";
 
         private AttackData _attackData;
+        private PlayerCombat _combat;
         private PlayerEquipment _equipment;
+        private MotionWarpController _motionWarp;
+        private Transform _homingTarget;
         
         public PlayerDashAttackState(ActorMovementController controller) : base(controller)
         {
@@ -26,12 +29,16 @@ namespace UPlayGround.State
 
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
 
-            SnapToLockOnTarget();
+            _motionWarp = controller.MotionWarp;
+            _combat = playerActor.GetCombat();
+            _attackData = _combat?.ExecuteDashAttack();
+            _homingTarget = FindHomingTarget();
+            SnapToTarget(_homingTarget);
+            _motionWarp?.SetTarget(_homingTarget, useSnapshot: false);
 
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
-            playerActor.GetCombat()?.ExecuteDashAttack();
 
             var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);
             if (state != null)
@@ -44,15 +51,33 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
+            _motionWarp?.ClearTarget();
+            _combat?.ClearHitTargets();
+            gameActor.Animator.Speed = 1f;
+            _homingTarget = null;
             
             base.OnExit(toState);
         }
-        private void SnapToLockOnTarget()
+
+        private Transform FindHomingTarget()
         {
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            if (lockOnTarget == null) return;
+            if (lockOnTarget != null)
+                return lockOnTarget;
 
-            Vector3 dir = (lockOnTarget.position - gameActor.transform.position);
+            if (_combat == null || _attackData == null)
+                return null;
+
+            return _combat.FindFreeAttackFacingTarget(
+                _attackData.hitRange,
+                _attackData.hitAngle);
+        }
+
+        private void SnapToTarget(Transform target)
+        {
+            if (target == null) return;
+
+            Vector3 dir = target.position - gameActor.transform.position;
             dir.y = 0f;
             if (dir.sqrMagnitude > 0.01f)
                 motor.SetRotation(Quaternion.LookRotation(dir.normalized));
@@ -111,6 +136,30 @@ namespace UPlayGround.State
             
 
             Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
+            if (_motionWarp != null && _homingTarget != null)
+            {
+                gameActor.Animator.Speed = _combat != null && _combat.IsMotionWarping
+                    ? _motionWarp.WarpPlayRateScale
+                    : 1f;
+
+                rootMotionVel = _motionWarp.EvaluateVelocity(
+                    rootMotionVel,
+                    motor.TransientPosition,
+                    _combat != null && _combat.IsMotionWarping,
+                    _combat != null ? _combat.WarpRemainingTime : 0f,
+                    _combat != null ? _combat.WarpDuration : 0f,
+                    _combat != null ? _combat.WarpMinDistance : 0.3f,
+                    _combat != null ? _combat.WarpMaxDistance : 7f,
+                    _combat != null ? _combat.WarpMaxSpeed : 22f,
+                    deltaTime,
+                    _combat != null ? _combat.EndMotionWarpAction : null);
+
+                rootMotionVel = _motionWarp.ClampApproachVelocity(
+                    rootMotionVel,
+                    motor.TransientPosition,
+                    deltaTime);
+            }
+
             currentVelocity += rootMotionVel;
         }
     }

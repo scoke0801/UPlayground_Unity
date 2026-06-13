@@ -5,7 +5,7 @@
 게임의 **시간 흐름 제어**를 담당하는 두 매니저입니다.
 
 - **`GameTimeManager`** — `Time.timeScale` 의 단일 소유권자. 동시에 여러 시스템이 감속을 요청해도 **가장 강한(scale이 가장 낮은) 요청**이 적용되도록 큐를 관리하고, 게임 일시정지(Pause), 누적 플레이 시간을 추적.
-- **`HitStopHandler`** — 타격 정지(HitStop) 연출 전담. `GameCombatManager` 산하 핸들러로 동작하며, `GameTimeManager`에 id 기반 timeScale 요청을 등록하고, Post-Process Volume 페이드와 액터별 Animator 속도 조작을 함께 수행. 외부 접근은 `GameCombatManager.Instance.HitStop`.
+- **`HitStopHandler`** — 타격 정지(HitStop) 연출 전담. `GameCombatManager` 산하 핸들러로 동작하며, `GameTimeManager`에 id 기반 timeScale 요청을 등록하고, Post-Process Volume 페이드와 액터별 `LocalTimeScale` 조작을 함께 수행. 외부 접근은 `GameCombatManager.Instance.HitStop`.
 
 핵심 특징:
 
@@ -38,12 +38,13 @@ GameTimeManager (BaseManager<T>, IManager)
 GameCombatManager (BaseManager<T>, IManager)
 └── HitStopHandler (GameHandlerBase)
     ├── _globalCoroutines : Dictionary<int, Coroutine>    전역 HitStop 코루틴
-    ├── _actorCoroutines  : Dictionary<GameActor, Coroutine>  액터별 Animator 슬로우
+    ├── _actorCoroutines  : Dictionary<GameActor, ActorTimeScaleRequest>  액터별 LocalTimeScale 슬로우
     ├── _volume : Volume                       Addressables: "SlowMoveVolume"
     │
     ├── Execute(HitStopIntensity)              프리셋 기반
     ├── Execute(duration, scale=0.1)           커스텀 + 강도 비교 후 약한 요청 정리
     ├── ExecuteActorOnly(actor, duration, animSpeed)
+    ├── ExecuteLocalImpact(attacker, victim, duration, localTimeScale, includeAttacker)
     ├── Stop() / StopActor() / StopAllActors() / ResetActorTimeScale()
     └── IsHitStopping (= GameTimeManager.IsSlowed), IsActorHitStopping(actor)
 
@@ -68,7 +69,7 @@ Assets/02.Scripts/Manager/
 ├── GameTimeManager.cs              timeScale 큐 + Pause + TotalPlaySeconds
 └── Combat/
     ├── GameCombatManager.cs        전투 핸들러 호스트
-    └── HitStopHandler.cs           HitStop 프리셋 + Volume 페이드 + Actor Animator 슬로우
+    └── HitStopHandler.cs           HitStop 프리셋 + Volume 페이드 + Actor LocalTimeScale 슬로우
 ```
 
 ---
@@ -143,11 +144,68 @@ if (!IsPaused) Time.timeScale = _activeScale;
 | `Execute(HitStopIntensity)` | — | 프리셋 |
 | `Execute(duration, timeScale=0.1f)` | — | 커스텀. 더 강한 요청이면 약한 활성 요청을 정리 후 등록 |
 | `Stop()` | — | 모든 전역 HitStop 강제 종료 |
-| `ExecuteActorOnly(actor, duration, animSpeed=0.1f)` | — | 액터의 Animator.speed만 변경 |
+| `ExecuteActorOnly(actor, duration, animSpeed=0.1f)` | — | 액터의 `LocalTimeScale`만 변경. Animator/KCC/상태 업데이트에 함께 반영 |
+| `ExecuteLocalImpact(attacker, victim, duration, localTimeScale=0.1f, includeAttacker=true)` | — | 공격자/피격자만 로컬 히트스톱. 적용 대상이 없으면 전역 HitStop 폴백 |
 | `StopActor(actor)` / `StopAllActors()` | — | 액터 슬로우 해제 |
 | `ResetActorTimeScale()` | — | Volume 즉시 페이드아웃 + 글로벌 타임스케일 리셋 |
 | `IsHitStopping` | `bool (get)` | `GameTimeManager.IsSlowed` |
 | `IsActorHitStopping(actor)` | `→ bool` | 액터 슬로우 여부 |
+
+### LocalTimeScale 기반 HitStop 검토
+
+명조(Wuthering Waves)식 타격감은 화면 전체를 오래 멈추는 방식보다, 적중 순간의 **공격자/피격자만 짧게 붙잡고 입력·카메라·UI는 계속 반응**하게 두는 쪽이 조작감에 유리하다. UPlayground의 현재 구조에서는 이 목적에 `GameActor.LocalTimeScale`을 사용할 수 있다.
+
+검토 결과:
+
+| 항목 | 판단 | 근거 |
+|------|------|------|
+| Animator 정지 | 가능 | `GameActor.LocalTimeScale` setter가 `ActorAnimator.Speed`에 반영 |
+| 상태 머신 감속 | 가능 | `ActorMovementController.Update()`가 `Actor.DeltaTime` 사용 |
+| KCC 이동 감속 | 가능 | `KCCSimulator`가 `LocalTimeScale`별로 Motor를 그룹핑하고 `baseDt * scale`로 시뮬레이션 |
+| 입력 유지 | 가능 | `Time.timeScale`을 낮추지 않으므로 `InputManager`, UI, 카메라 입력은 전역 감속 영향을 받지 않음 |
+| 카메라 쉐이크 유지 | 가능 | 전역 timeScale을 낮추지 않아 쉐이크/카메라 모드가 정상 틱 |
+| 전역 슬로모션 | 별도 필요 | 킬캠, 사망, 컷신성 연출은 여전히 `GameTimeManager.Request()` 기반 전역 감속이 적합 |
+
+따라서 일반 공격 적중은 `ExecuteLocalImpact()`를 기본 경로로 사용하고, 킬캠/사망/궁극기/연출형 슬로모션은 기존 `Execute(duration, timeScale)` 전역 경로를 유지한다.
+
+권장 분류:
+
+| 상황 | 권장 경로 | 이유 |
+|------|-----------|------|
+| 평타/스킬 적중 | `ExecuteLocalImpact(attacker, victim, ...)` | 조작·카메라 반응성 유지 |
+| 패링/저스트 가드 | `PlayerGuard` 또는 별도 로컬 슬로우 | 플레이어 반격 창 유지 |
+| 보스 브레이크/마무리 | 로컬 HitStop + 별도 카메라/FX, 필요 시 짧은 전역 보강 | 성공 보상은 크게, 입력 지연은 짧게 |
+| 플레이어 사망/킬캠 | 전역 HitStop | 연출 우선 |
+| 메뉴 Pause | `GameTimeManager.SetPause()` | 모든 시뮬레이션 정지 |
+
+명조 레퍼런스 기준 1차 권장값:
+
+| 이벤트 | duration | scale | 적용 대상 |
+|--------|----------|-------|-----------|
+| 약한 평타 적중 | 0.025-0.04s | 0.15-0.25 | attacker + victim |
+| 일반 스킬/중타 | 0.045-0.07s | 0.08-0.15 | attacker + victim |
+| 강공격/차지 | 0.075-0.11s | 0.03-0.08 | attacker + victim |
+| 패링/카운터 | 0.09-0.14s | 0.01-0.05 | victim 중심, 필요 시 attacker 포함 |
+| 보스 브레이크/마무리 | 0.12-0.18s | 0.01-0.04 | victim 중심 + 카메라/FOV/FX |
+
+현재 적용:
+
+- `CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback()`는 플레이어 공격 적중 시 `ExecuteLocalImpact()`를 기본으로 호출한다.
+- 로컬 정지만으로 체감이 약한 문제를 보완하기 위해, 적중 순간에는 `0.025~0.04s / timeScale 0.2`의 짧은 전역 펄스를 함께 건다. 긴 정지는 로컬에 맡기고 전역 펄스는 입력 지연이 커지지 않도록 짧게 제한한다.
+- `AttackData.reactionData.hitStopDuration`이 있으면 해당 값을 우선 사용한다.
+- 자동 반응 데이터가 없을 때의 로컬 폴백은 약타 `0.06s/0.03`, 강타 `0.10s/0.015`, 스킬·차지 `0.13s/0.01`.
+- 적용 대상이 없으면 기존 전역 `Execute(duration, scale)`로 폴백한다.
+
+적용 범위:
+
+| 공격 | 적용 여부 | 경로 |
+|------|-----------|------|
+| 약/강 일반 공격 | 적용 | `PlayerCombat.ApplyHitFeedback()` → `ApplyPlayerAttackHitFeedback()` |
+| 대시/점프/점프대시 공격 | 적용 | `AttackKind.DashAttack` / `JumpAttack` 강타 폴백 |
+| 스킬/차지 공격 | 적용 | `AttackKind.SkillAttack` / `ChargeAttack` 스킬 폴백 |
+| 퍼펙트 가드/패리/회피/스왑 회피 카운터 | 적용 | `AttackData.isCounterAttack` 우선 분기 |
+| 브레이크 특수공격 | 적용 | `PlayerSpecialBreakAttackState` → `ApplyPlayerSpecialBreakHitStop()` |
+| 킬 적중 | 적용 | 일반 타격 카메라/HitStop을 먼저 보장한 뒤 `TryPlayKill()` 추가 시도 |
 
 #### 강도 비교 로직 (`Execute(duration, scale)`)
 
@@ -220,7 +278,7 @@ GameCombatManager.Instance.HitStop.Execute(HitStopHandler.HitStopIntensity.Playe
 ### 4. 액터 단독 슬로우 (적 잡기 / 그랩 연출)
 
 ```csharp
-// 적의 Animator만 잠시 정지
+// 적의 Animator/상태/KCC 이동을 함께 잠시 정지
 GameCombatManager.Instance.HitStop.ExecuteActorOnly(grabbedEnemy, duration: 1.5f, animSpeed: 0f);
 
 // 정리
@@ -280,7 +338,8 @@ GameTimeManager.Instance.SetTotalPlaySeconds(saveData.playSeconds);
 - **ReleaseAll은 위험.** 다른 시스템(버프, 카메라 이펙트의 TimeScale)도 큐에 들어 있을 수 있다. `ReleaseAll`은 씬 전환 등 명확한 정리 시점에만 사용.
 - **Pause 중에는 활성 scale이 보존된다.** Pause 해제 시 `_activeScale`로 복구되므로, Pause 중에 Request된 요청은 정상적으로 큐에 누적됨. 다만 코루틴 기반 자동 Release는 Pause 중 시간이 흐르지 않으므로(`WaitForSecondsRealtime` 제외) 실제 Release 타이밍에 주의.
 - **PlayerGuard는 timeScale을 건드리지 않는다.** GameTimeManager에 등록되지 않으므로 `IsSlowed`는 false 반환. UI/시스템이 "HitStop 중인지" 판단할 때 Guard도 포함하려면 별도 플래그 필요.
-- **액터 슬로우의 `anim.speed=1f` 복원.** 매니저는 ActorOnly 종료 시 1f로 복원하지만, 도중에 다른 시스템이 `anim.speed`를 변경하면 복원값이 어긋날 수 있다. 액터 Animator 속도는 매니저로 일원화.
+- **로컬 HitStop은 `IsHitStopping`에 잡히지 않는다.** `IsHitStopping`은 전역 `GameTimeManager.IsSlowed` 기준이다. 액터별 정지 여부는 `IsActorHitStopping(actor)`로 확인한다.
+- **액터 슬로우의 복원값.** 매니저는 ActorOnly 시작 시점의 `LocalTimeScale`을 저장하고 종료 시 해당 값으로 복원한다. 도중에 다른 시스템이 같은 액터의 `LocalTimeScale`을 직접 변경하면 복원값이 의도와 달라질 수 있으므로, 액터 단위 시간 조작은 매니저 경로로 일원화한다.
 - **`ResetActorTimeScale`의 의도.** 함수명은 "Actor"지만 실제로는 Volume 페이드아웃 + GlobalTimeScale(액터 LocalTimeScale) 리셋. 큐에 등록된 timeScale 요청은 건드리지 않는다. 큐 정리는 Release/Stop 사용.
 - **Volume 인스턴스는 매니저 자식.** 씬 전환 시 매니저가 살아 있다면 Volume도 살아남는다. `OnSceneChanged`에서 Stop/StopAllActors는 호출되지만 Volume 자체는 유지.
 

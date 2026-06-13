@@ -34,3 +34,4 @@ MonoBehaviour:
   npcData: {fileID: 0}
   dropTable: {fileID: 0}
   recruitableAs: 0
+  expReward: 0

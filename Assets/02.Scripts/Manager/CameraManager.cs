@@ -71,6 +71,10 @@ namespace UPlayGround.Manager
 
         private bool _isInputLocked;
         private float _lastManualCameraInputTime = -999f;
+        private bool _isCameraInputRegistered;
+        private int _lastLockOnToggleFrame = -1;
+        private float _lastLockOnToggleTime = -999f;
+        private const float LOCK_ON_TOGGLE_DEBOUNCE_TIME = 0.08f;
 
         private System.Func<bool> _combatStateProvider;
         private System.Func<Vector3> _playerVelocityProvider;
@@ -96,14 +100,7 @@ namespace UPlayGround.Manager
             _lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             _collisionLayers = CameraConfig.GetCollisionLayerMask();
 
-            if (_target != null)
-            {
-                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
-                _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-                _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
-                _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
-                _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-            }
+            RebuildTargetSubsystems(preserveLockOnTarget: false);
 
             _rotTransition = new CameraRotationTransition();
             _effectManager = new CameraEffectManager(this);
@@ -119,13 +116,40 @@ namespace UPlayGround.Manager
 
         public void AfterInit()
         {
+            RegisterCameraInputEvents();
+        }
+
+        private void RegisterCameraInputEvents()
+        {
+            if (_isCameraInputRegistered)
+                return;
+
             var input = InputManager.Instance;
+            if (input == null)
+                return;
+
             input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
                 null, OnLockOnPerformed, null, null, null, InputLayer.Level_1);
             input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
                 null, OnLockOnSwitchLeft, null, null, null, InputLayer.Level_1);
             input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
                 null, OnLockOnSwitchRight, null, null, null, InputLayer.Level_1);
+            _isCameraInputRegistered = true;
+        }
+
+        private void UnregisterCameraInputEvents()
+        {
+            if (!_isCameraInputRegistered || InputManager.Instance == null)
+                return;
+
+            var input = InputManager.Instance;
+            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
+                null, OnLockOnPerformed, null);
+            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
+                null, OnLockOnSwitchLeft, null);
+            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
+                null, OnLockOnSwitchRight, null);
+            _isCameraInputRegistered = false;
         }
 
         public void Dispose()
@@ -142,16 +166,7 @@ namespace UPlayGround.Manager
 
             if (_cameraPivot != null) Destroy(_cameraPivot.gameObject);
 
-            if (InputManager.Instance != null)
-            {
-                var input = InputManager.Instance;
-                input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
-                    null, OnLockOnPerformed, null);
-                input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
-                    null, OnLockOnSwitchLeft, null);
-                input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
-                    null, OnLockOnSwitchRight, null);
-            }
+            UnregisterCameraInputEvents();
 
             Debug.Log("[CameraManager] 정리 완료");
         }
@@ -174,14 +189,7 @@ namespace UPlayGround.Manager
 
             InitializeCamera();
 
-            if (_target != null)
-            {
-                _lockOn       = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
-                _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-                _collision    = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
-                _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
-                _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-            }
+            RebuildTargetSubsystems(preserveLockOnTarget: false);
 
             SyncCameraContext();
             SyncRigStateFromFields();
@@ -226,6 +234,14 @@ namespace UPlayGround.Manager
         private void OnLockOnPerformed(InputAction.CallbackContext ctx)
         {
             if (_target == null || _lockOn == null) return;
+            if (Time.frameCount == _lastLockOnToggleFrame)
+                return;
+            if (Time.unscaledTime - _lastLockOnToggleTime < LOCK_ON_TOGGLE_DEBOUNCE_TIME)
+                return;
+
+            _lastLockOnToggleFrame = Time.frameCount;
+            _lastLockOnToggleTime = Time.unscaledTime;
+
             if (_lockOn.IsActive)
             {
                 _lockOn.Release();
@@ -602,6 +618,37 @@ namespace UPlayGround.Manager
             _modeController.SetMode(CameraModeType.InGame);
         }
 
+        private void RebuildTargetSubsystems(bool preserveLockOnTarget)
+        {
+            CameraLockOn previousLockOn = _lockOn;
+            Transform previousLockOnTarget = preserveLockOnTarget && previousLockOn?.IsActive == true
+                ? previousLockOn.CurrentTarget
+                : null;
+
+            if (!preserveLockOnTarget)
+                previousLockOn?.Release();
+
+            _lockOn = null;
+            _collision = null;
+            _distanceCtrl = null;
+
+            if (settings == null || _target == null || _mainCamera == null)
+            {
+                if (preserveLockOnTarget)
+                    previousLockOn?.Release();
+                return;
+            }
+
+            _lockOn = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
+            _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+            _collision = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
+            _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
+            _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+
+            if (preserveLockOnTarget && previousLockOnTarget != null && !_lockOn.TryRestoreTarget(previousLockOnTarget))
+                previousLockOn?.Release();
+        }
+
         private void SyncCameraContext()
         {
             if (_cameraContext == null) return;
@@ -768,6 +815,7 @@ namespace UPlayGround.Manager
             _target = newTarget;
             CacheCapsule();
             CacheMovementController();
+            RebuildTargetSubsystems(preserveLockOnTarget: true);
             SyncCameraContext();
             if (_target == null || _cameraPivot == null) return;
 

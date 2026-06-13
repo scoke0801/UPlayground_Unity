@@ -32,9 +32,8 @@ namespace UPlayGround.MovementController
         public float FallGravityMultiplier = 2.5f;   // 하강 시 중력 배율
         public float RiseGravityMultiplier = 1.5f;   // 상승 시 중력 배율 (감속 강화)
         
-        
         [Header("Dash")]
-        public float DashSpeed = 18f;
+        public float DashSpeed = 12f;
         
         [Header("Misc")]
         public Vector3 Gravity = new Vector3(0, -30f, 0);

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_Siuha
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 6b3a14a78e0a24447aef02c49b353e45, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 547eec6e48eb3d949afb7715414b42dd, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
   optimalCombatDistance: 2.2

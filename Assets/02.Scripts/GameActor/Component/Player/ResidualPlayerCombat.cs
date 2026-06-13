@@ -270,6 +270,7 @@ namespace UPlayGround.Component
                 hitTarget = source.hitTarget,
                 criticalMultiplier = source.criticalMultiplier,
                 isCounterAttack = source.isCounterAttack,
+                useCounterHitFeedback = source.useCounterHitFeedback,
                 attackDirection = source.attackDirection,
                 hitParticleName = source.hitParticleName,
                 defenseType = source.defenseType,

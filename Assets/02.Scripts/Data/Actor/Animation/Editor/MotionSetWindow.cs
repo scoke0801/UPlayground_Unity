@@ -792,6 +792,7 @@ namespace UPlayGround.Animation.Editor
         {
             DrawRootMotionGizmo();
             DrawWarpTargetSceneHandle();
+            DrawCombatHitboxGizmo(sceneView);
 
             if (!_showSceneEventOverlay) return;
             if (!_isPlaying || _targetActor == null) return;
@@ -1174,6 +1175,7 @@ namespace UPlayGround.Animation.Editor
             DrawTestActorRegistry();
             DrawPlaybackControls();
             DrawEventDebugControls();
+            DrawCombatOverlayControls();
 
             if (_actorAnimationSet != null)
             {

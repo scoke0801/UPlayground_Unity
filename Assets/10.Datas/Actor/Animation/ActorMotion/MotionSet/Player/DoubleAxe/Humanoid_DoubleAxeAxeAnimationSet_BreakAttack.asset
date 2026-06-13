@@ -71,3 +71,5 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: -0.074992836, y: 0, z: 2.874572}
         bakedPathLen: 3.254285
+        bakedStartTime: 0
+        bakedEndTime: 0

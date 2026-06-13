@@ -217,7 +217,9 @@
       "PowerShell(Get-Content \"C:\\\\Users\\\\scoke\\\\.claude\\\\projects\\\\C--UsingProject-UnityProject-UPlayground\\\\71d372e6-4c9f-4637-8eb0-1b1232ad2962\\\\tool-results\\\\toolu_01Vc4L7yaFH6VsQgVnfU7EZy.txt\" | ForEach-Object { if \\($_ -match 'BehaviorTree\\\\.\\(\\\\w+\\),'\\) { $matches[1] } } | Sort-Object -Unique)",
       "PowerShell(Get-Content \"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\BlackboardCompareNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\ConsecutiveAttackCountNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\IsSelfLowHealthNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\CanRevengeAfterHitNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\RecentHitCountGreaterOrEqualNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Condition\\\\IsPoiseBrokenNode.cs\" | Select-String -Pattern \"class |\\\\[SerializeField\\\\]|private \\(bool|int|float|string|\\\\w+Type\\) _\\\\w+\" -Context 0,1 | ForEach-Object { $_.Line.Trim\\(\\) })",
       "PowerShell(Get-Content \"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Action\\\\SyncEnemyMemoryNode.cs\",\"Assets\\\\02.Scripts\\\\AI\\\\BehaviorTree\\\\Nodes\\\\Action\\\\SyncEnemyPhaseNode.cs\" | Select-String -Pattern \"class |\\\\[SerializeField\\\\]\" -Context 0,1 | ForEach-Object { $_.Line.Trim\\(\\) })",
-      "WebFetch(domain:discussions.unity.com)"
+      "WebFetch(domain:discussions.unity.com)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Select-String -Path \"Assets\\\\10.Datas\\\\Actor\\\\Animation\\\\ActorMotion\\\\MotionSet\\\\Player\\\\DoubleAxe\\\\Humanoid_DoubleAxeAxeAnimationSet_HeavyAttack_1.asset\" -Pattern \"type: \\\\{class:|hitPhaseIndex|startTime|endTime\" | ForEach-Object { $_.Line.Trim\\(\\) } | Select-Object -First 40)"
     ]
   }
 }

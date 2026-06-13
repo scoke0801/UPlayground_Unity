@@ -75,6 +75,18 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 기존 요청 id를 유지한 채 scale만 갱신한다.
+        /// HitStop 복귀 램프처럼 같은 소유자가 시간에 따라 강도를 바꿀 때 사용한다.
+        /// </summary>
+        public void UpdateRequestScale(int id, float scale)
+        {
+            if (!_requests.ContainsKey(id)) return;
+
+            _requests[id] = Mathf.Clamp(scale, 0.001f, 1f);
+            ApplyLowest();
+        }
+
+        /// <summary>
         /// 등록된 요청을 해제한다.
         /// 남은 요청이 없으면 timeScale이 1.0으로 복구된다.
         /// </summary>

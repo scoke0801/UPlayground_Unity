@@ -153,6 +153,8 @@ namespace UPlayGround.Component
         private MonsterActor      _currentFinishTarget;
         // §5.2 등장 변형 — ExecuteEntryAttack/PeekEntryAttackAnimKey가 타깃 상태로 변형을 고르도록 보관.
         private MonsterActor      _pendingEntryTarget;
+        private MonsterActor      _pendingSwapAttackTarget;
+        private MonsterActor      _currentAttackPreferredTarget;
         private MonsterActor      _currentSpecialBreakTarget;
         private float             _currentSpecialBreakDamageByMaxHpRate;
         private float             _currentSpecialBreakFixedDamage;
@@ -306,6 +308,10 @@ namespace UPlayGround.Component
         public float      LastAttackTime    { get; private set; }
         public bool       CanCombo          { get; private set; }
         public LayerMask  WarpTargetLayer   => _targetLayerMask;
+        public Transform  CurrentAttackPreferredTarget =>
+            _currentAttackPreferredTarget != null && _currentAttackPreferredTarget.CanTakeDamage()
+                ? _currentAttackPreferredTarget.transform
+                : null;
 
         // 0-할당 보장: targetFilter 람다를 정적 필드로 고정. 매 호출 BuildWarpResolverContext 에서
         // 재할당 없이 동일 delegate 인스턴스 재사용.
@@ -572,6 +578,11 @@ namespace UPlayGround.Component
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentAttackData?.hitPhaseIndex ?? 0);
         }
 
+        // 메서드 그룹을 매 프레임 delegate로 변환하면 KCC UpdateVelocity 핫패스에서 GC 할당이 발생한다.
+        // EvaluateVelocity 등에 넘길 때는 이 캐시를 사용할 것.
+        private Action _endMotionWarpAction;
+        public Action EndMotionWarpAction => _endMotionWarpAction ??= EndMotionWarp;
+
         #region Execute Attack
 
         public AttackData ExecuteAttack(bool isCombo)
@@ -719,16 +730,30 @@ namespace UPlayGround.Component
         /// </summary>
         public void SetPendingEntryTarget(MonsterActor target) => _pendingEntryTarget = target;
 
+        /// <summary>
+        /// 스왑 회피 카운터처럼 큐 단계에서 이미 결정된 공격 타깃을 보관한다.
+        /// PlayerAttackState 진입 후 모션워핑/락온 트래킹의 우선 타깃으로 1회 사용된다.
+        /// </summary>
+        public void SetPendingSwapAttackTarget(MonsterActor target) => _pendingSwapAttackTarget = target;
+
         public AttackData ExecuteEntryAttack()
         {
             ClearResidualAttackContext();
             var source = SelectEntryAttackInfo();
+            MonsterActor pendingEntryTarget = _pendingEntryTarget;
             _pendingEntryTarget = null; // 1회 소비 후 폐기(스테일 타깃 방지)
 
             if (source == null) return null;
 
+            _currentAttackPreferredTarget = pendingEntryTarget != null && pendingEntryTarget.CanTakeDamage()
+                ? pendingEntryTarget
+                : null;
+
             var comboState = CaptureComboState();
             _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
+            // 등장 공격은 카운터급 '피드백'만 원한다. isCounterAttack을 쓰면 MonsterActor가
+            // 리액션 정책/등장 변형용 guaranteedReaction을 전부 우회하고 shove로 단락되므로 금지.
+            _currentAttackData.useCounterHitFeedback = true;
             RestoreComboState(comboState);
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -772,6 +797,9 @@ namespace UPlayGround.Component
         public AttackData ExecuteSwapEvadeCounterAttack()
         {
             ClearResidualAttackContext();
+            MonsterActor pendingSwapTarget = _pendingSwapAttackTarget;
+            _pendingSwapAttackTarget = null;
+
             var source = _attackData.swapEvadeCounterAttack?.baseInfo != null
                 ? _attackData.swapEvadeCounterAttack
                 : (_attackData.entryAttack?.baseInfo != null
@@ -780,8 +808,13 @@ namespace UPlayGround.Component
 
             if (source == null) return null;
 
+            _currentAttackPreferredTarget = pendingSwapTarget != null && pendingSwapTarget.CanTakeDamage()
+                ? pendingSwapTarget
+                : null;
+
             var comboState = CaptureComboState();
             _currentAttackData = ConvertToAttackData(source, AttackKind.NormalAttack);
+            _currentAttackData.useCounterHitFeedback = true;
             RestoreComboState(comboState);
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -1085,6 +1118,7 @@ namespace UPlayGround.Component
                 hitTarget = source.hitTarget,
                 criticalMultiplier = source.criticalMultiplier,
                 isCounterAttack = source.isCounterAttack,
+                useCounterHitFeedback = source.useCounterHitFeedback,
                 attackDirection = source.attackDirection,
                 hitParticleName = source.hitParticleName,
                 defenseType = source.defenseType,
@@ -1189,8 +1223,10 @@ namespace UPlayGround.Component
         private void ApplyHitFeedback()
         {
             // 패리 반격 창이 열려 있으면 Execute(PlayerGuard) 슬로우를 보호한다.
-            // foreach 도중 패리가 발동됐거나 실행 순서상 뒤늦게 호출되는 경우 모두 차단.
-            if (IsParryCounterAvailable) return;
+            // 단, 이미 실행된 카운터 공격의 실제 적중 피드백은 막지 않는다.
+            if (IsParryCounterAvailable
+                && !(_currentAttackData?.isCounterAttack ?? false)
+                && !(_currentAttackData?.useCounterHitFeedback ?? false)) return;
 
             CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
                 _currentAttackData,
@@ -1213,7 +1249,9 @@ namespace UPlayGround.Component
         {
             if (attackData == null) return;
             // 근접 ApplyHitFeedback과 동일하게 패리 반격 슬로우를 보호한다.
-            if (IsParryCounterAvailable) return;
+            if (IsParryCounterAvailable
+                && !attackData.isCounterAttack
+                && !attackData.useCounterHitFeedback) return;
 
             CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
                 attackData,
@@ -1276,6 +1314,7 @@ namespace UPlayGround.Component
         private static bool IsResidualAttackState(string stateName)
         {
             return stateName is "Attack"
+                or "DashAttack"
                 or "JumpAttack"
                 or "JumpDashAttack"
                 or "Charge"
@@ -1287,6 +1326,7 @@ namespace UPlayGround.Component
         {
             _currentResidualHitPhases = null;
             _currentFinishTarget = null;
+            _currentAttackPreferredTarget = null;
             _currentSpecialBreakTarget = null;
             _currentSpecialBreakDamageByMaxHpRate = 0f;
             _currentSpecialBreakFixedDamage = 0f;

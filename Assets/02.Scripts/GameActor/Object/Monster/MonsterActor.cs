@@ -462,6 +462,7 @@ namespace UPlayGround
 
             Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
 
+            CombatTelemetrySession.NotifyMonsterDeath(this);
             GetComponent<EncounterReplayRecorder>()?.EndAndSave("death", "몬스터 사망");
             AIController?.Group?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));

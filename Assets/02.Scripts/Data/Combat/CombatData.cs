@@ -363,6 +363,9 @@ namespace UPlayGround.Data
         public GameObject hitTarget;
         public float criticalMultiplier;
         public bool isCounterAttack;
+        // 카운터급 타격 피드백(히트스톱/카메라)만 원할 때 사용. isCounterAttack과 달리
+        // MonsterActor의 리액션 정책 우회(정책 게이트 없는 shove 단락)를 유발하지 않는다.
+        public bool useCounterHitFeedback;
         public Vector3 attackDirection;
         public string hitParticleName = "LiteHit";
 

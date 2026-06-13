@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stats:
   - statType: 0
-    baseValue: 264
+    baseValue: 228
   - statType: 1
     baseValue: 0
   - statType: 2
-    baseValue: 1.0439999
+    baseValue: 1.008
   - statType: 3
     baseValue: 0.08
   - statType: 4
@@ -30,7 +30,7 @@ MonoBehaviour:
   - statType: 7
     baseValue: 1
   - statType: 8
-    baseValue: 136.08
+    baseValue: 130.248
   - statType: 9
     baseValue: 30
   - statType: 10

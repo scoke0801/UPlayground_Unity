@@ -28,6 +28,7 @@ namespace UPlayGround.Component
         private ActorAnimator _animator;
         private ResidualPlayerCombat _combat;
         private MotionWarpController _motionWarp;
+        private System.Action _endMotionWarpAction;
         private DissolveController _dissolveController;
         private GameObject _modelInstance;
         private float _maxLifetime = 1.8f;
@@ -159,6 +160,9 @@ namespace UPlayGround.Component
                 request.HitStopTimeScale,
                 request.ShowCharacterOnDamageFloater);
             _motionWarp = gameObject.GetOrAddComponent<MotionWarpController>();
+            // 매 프레임 메서드 그룹 → delegate 변환(GC 할당) 방지용 캐시
+            _endMotionWarpAction = _motionWarp.EndMotionWarp;
+            ResolveFallbackWarpTarget(MotionWarpController.DefaultTargetKey, useSnapshot: false);
 
             _animator = _modelInstance.GetComponentInChildren<ActorAnimator>(true);
             if (_animator == null)
@@ -224,8 +228,13 @@ namespace UPlayGround.Component
 
             Vector3 delta = _animator.DeltaPosition;
             bool isWarping = _motionWarp != null && _motionWarp.IsMotionWarping;
+            bool hasWarpTarget = _motionWarp != null && _motionWarp.HasTarget;
             if (!_useRootMotion && !isWarping)
+            {
+                if (hasWarpTarget)
+                    TrackWarpTargetRotation(Time.deltaTime);
                 return;
+            }
 
             delta.y = 0f;
             float deltaTime = Time.deltaTime;
@@ -248,7 +257,7 @@ namespace UPlayGround.Component
                     fallbackMaxDistance,
                     _warpFallbackMaxSpeed,
                     deltaTime,
-                    _motionWarp.EndMotionWarp);
+                    _endMotionWarpAction);
                 velocity = _motionWarp.ClampApproachVelocity(velocity, transform.position, deltaTime);
                 delta = velocity * deltaTime;
 
@@ -266,6 +275,13 @@ namespace UPlayGround.Component
                 {
                     transform.rotation = warpedRotation;
                 }
+            }
+            else if (hasWarpTarget)
+            {
+                Vector3 velocity = delta / deltaTime;
+                velocity = _motionWarp.ClampApproachVelocity(velocity, transform.position, deltaTime);
+                delta = velocity * deltaTime;
+                TrackWarpTargetRotation(deltaTime);
             }
 
             if (delta.sqrMagnitude <= 0.000001f)
@@ -343,6 +359,23 @@ namespace UPlayGround.Component
             Transform resolved = HybridResolver.Instance.Resolve(in context);
             if (resolved != null)
                 _motionWarp.SetTarget(key, resolved, useSnapshot);
+        }
+
+        private void TrackWarpTargetRotation(float deltaTime)
+        {
+            if (_motionWarp == null || !_motionWarp.HasTarget || deltaTime <= 0f)
+                return;
+
+            Vector3 dir = _motionWarp.TargetPosition - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude <= 0.0001f)
+                return;
+
+            Quaternion targetRotation = Quaternion.LookRotation(dir.normalized);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                1f - Mathf.Exp(-15f * deltaTime));
         }
 
         public void Cancel(SwapResidualAttackCancelReason reason) => Cancel(reason, forceImmediate: false);

@@ -846,35 +846,30 @@ namespace UPlayGround.Tool.Editor.Stat
         }
 
         /// <summary>
-        /// 정의의 grade/level이 기본값으로 남아있더라도, 연결된 프리팹의 MonsterActor가
-        /// 빌드 시점 등급/레벨을 보존하고 있으면 그 값을 정의로 백필한다.
-        /// (프리팹이 없거나 MonsterActor가 아니면 아무것도 하지 않는다.)
+        /// 정의의 grade/level이 **기본값(Normal/Lv1)으로 남은 미저작 정의에 한해**, 연결된 프리팹의
+        /// MonsterActor가 보존한 빌드 시점 등급/레벨을 정의로 백필한다(과거 빌드 마이그레이션용).
+        /// 런타임은 SetDefinition에서 정의를 권위 소스로 프리팹에 주입하므로,
+        /// 저작된 정의를 프리팹의 낡은 캐시 값으로 덮어쓰면 안 된다.
         /// </summary>
         private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO def)
         {
             if (def == null || def.prefab == null)
+                return;
+            if (def.grade != MonsterActorGrade.Normal || def.level > 1)
                 return;
 
             var actor = def.prefab.GetComponent<MonsterActor>();
             if (actor == null)
                 return;
 
-            bool changed = false;
-            if (def.grade != actor.Grade)
-            {
-                def.grade = actor.Grade;
-                changed = true;
-            }
-
             int level = Mathf.Max(1, actor.Level);
-            if (def.level != level)
-            {
-                def.level = level;
-                changed = true;
-            }
+            if (def.grade == actor.Grade && def.level == level)
+                return;
 
-            if (changed)
-                EditorUtility.SetDirty(def);
+            Undo.RecordObject(def, "Backfill Grade/Level From Prefab");
+            def.grade = actor.Grade;
+            def.level = level;
+            EditorUtility.SetDirty(def);
         }
 
         private static string GenerateMissingBreakGauge(ActorDefinitionSO def, ActorStatSO stat)

@@ -43,7 +43,6 @@ namespace UPlayGround.CameraSystem
 
         // 포커스 스무딩
         private float _smoothY;
-        private float _targetOccludedTimer;
         private float _targetLostTimer;
 
         // 오비탈 오프셋
@@ -134,12 +133,30 @@ namespace UPlayGround.CameraSystem
         /// </summary>
         public bool TryActivate()
         {
-            CollectTargets();
+            CollectTargets(requireLineOfSight: false);
             if (_targets.Count == 0) return false;
 
             _currentIndex = 0;
             SetTarget(_targets[0]);
             IsActive = true;
+            return true;
+        }
+
+        public bool TryRestoreTarget(Transform target)
+        {
+            if (target == null || _player == null)
+                return false;
+
+            if (!IsAliveTarget(target))
+                return false;
+
+            float distance = Vector3.Distance(_player.position, target.position);
+            if (distance > GetReleaseRange())
+                return false;
+
+            SetTarget(target);
+            IsActive = true;
+            _currentIndex = -1;
             return true;
         }
 
@@ -161,7 +178,6 @@ namespace UPlayGround.CameraSystem
             _activeFocusVelocity = Vector3.zero;
             _pivotOffsetVelocity = Vector3.zero;
             _pivotOffset = Vector3.zero;
-            _targetOccludedTimer = 0f;
             _targetLostTimer = 0f;
         }
 
@@ -171,7 +187,7 @@ namespace UPlayGround.CameraSystem
         {
             if (Time.time - _lastSwitchTime < _settings.targetSwitchCooldown) return;
 
-            CollectTargets();
+            CollectTargets(requireLineOfSight: false);
             if (_targets.Count <= 1) return;
 
             Transform nextTarget = SelectSwitchTarget(direction);
@@ -222,7 +238,7 @@ namespace UPlayGround.CameraSystem
             // 유효성 체크
             if (!IsAliveTarget(CurrentTarget))
             {
-                if (!TryFindNext())
+                if (!TryFindNext(requireLineOfSight: false))
                 {
                     StartTransition(yaw, pitch);
                     return false;
@@ -236,7 +252,7 @@ namespace UPlayGround.CameraSystem
                 _targetLostTimer += Time.deltaTime;
                 if (_targetLostTimer >= Mathf.Max(0f, _settings.lockOnLostGraceTime))
                 {
-                    if (!TryFindNext())
+                    if (!TryFindNext(requireLineOfSight: false))
                     {
                         StartTransition(yaw, pitch);
                     }
@@ -246,23 +262,6 @@ namespace UPlayGround.CameraSystem
             else
             {
                 _targetLostTimer = 0f;
-            }
-
-            if (_settings.lockOnRequireLineOfSight && !HasLineOfSight(CurrentTarget))
-            {
-                _targetOccludedTimer += Time.deltaTime;
-                if (_targetOccludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
-                {
-                    if (!TryFindNext())
-                    {
-                        StartTransition(yaw, pitch);
-                    }
-                    return false;
-                }
-            }
-            else
-            {
-                _targetOccludedTimer = 0f;
             }
 
             float heightOffset = _targetCollider != null ? _targetCollider.height * 0.25f : 1f;
@@ -442,7 +441,6 @@ namespace UPlayGround.CameraSystem
             _activeFocusPos = GetCurrentTargetFocusPosition();
             _activeFocusVelocity = Vector3.zero;
             _orbitInitialized = false;
-            _targetOccludedTimer = 0f;
             _targetLostTimer = 0f;
         }
 
@@ -469,21 +467,48 @@ namespace UPlayGround.CameraSystem
             _transitionPitch = pitch;
         }
 
-        private bool TryFindNext()
+        private bool TryFindNext(bool requireLineOfSight)
         {
-            NotifyUnLockOn(CurrentTarget);
-            CollectTargets();
+            Transform previousTarget = CurrentTarget;
+            CollectTargets(requireLineOfSight);
             if (_targets.Count == 0) return false;
 
-            SetTarget(_targets[0]);
-            _currentIndex = 0;
+            Transform nextTarget = null;
+            for (int i = 0; i < _targets.Count; i++)
+            {
+                Transform candidate = _targets[i];
+                if (candidate == null || candidate == previousTarget)
+                    continue;
+
+                nextTarget = candidate;
+                break;
+            }
+
+            if (nextTarget == null)
+            {
+                // 대체 대상이 없으면 기존 대상 유지 — 단 생존 + 해제 거리 안일 때만.
+                // 해제 거리 밖 대상을 유지하면 호출부의 lost 타이머가 리셋되지 않아
+                // 매 프레임 CollectTargets(OverlapSphere)가 반복되고 릴리즈 레인지가 무력화된다.
+                if (previousTarget != null
+                    && IsAliveTarget(previousTarget)
+                    && Vector3.Distance(_player.position, previousTarget.position) <= GetReleaseRange())
+                {
+                    _currentIndex = _targets.IndexOf(previousTarget);
+                    return true;
+                }
+
+                return false;
+            }
+
+            NotifyUnLockOn(previousTarget);
+            SetTarget(nextTarget);
+            _currentIndex = _targets.IndexOf(nextTarget);
             return true;
         }
 
-        private void CollectTargets()
+        private void CollectTargets(bool requireLineOfSight)
         {
             Vector3 origin = _player.position;
-            Collider[] hits = Physics.OverlapSphere(origin, _settings.lockOnRange, _lockOnLayer);
             _targets.Clear();
             _targetSet.Clear();
 
@@ -496,14 +521,58 @@ namespace UPlayGround.CameraSystem
 
             var infos = new List<TargetInfo>();
 
+            CollectTargetCandidates(
+                Physics.OverlapSphere(origin, _settings.lockOnRange, _lockOnLayer),
+                origin,
+                priorityForwardXZ,
+                maxRange,
+                cameraWeight,
+                requireLineOfSight,
+                infos);
+
+            if (infos.Count == 0)
+            {
+                CollectTargetCandidates(
+                    Physics.OverlapSphere(origin, _settings.lockOnRange),
+                    origin,
+                    priorityForwardXZ,
+                    maxRange,
+                    cameraWeight,
+                    requireLineOfSight,
+                    infos);
+            }
+
+            infos.Sort((a, b) => a.sortScore.CompareTo(b.sortScore));
+            foreach (var info in infos)
+                _targets.Add(info.transform);
+        }
+
+        private void CollectTargetCandidates(
+            Collider[] hits,
+            Vector3 origin,
+            Vector3 priorityForwardXZ,
+            float maxRange,
+            float cameraWeight,
+            bool requireLineOfSight,
+            List<TargetInfo> infos)
+        {
             foreach (var hit in hits)
             {
+                if (hit == null)
+                    continue;
+
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
 
                 var dmg = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
                 if (dmg == null || !dmg.IsAlive())
                     continue;
+
+                if (dmg is UnityEngine.Component dmgComponent
+                    && (dmgComponent.transform == _player || dmgComponent.transform.IsChildOf(_player)))
+                {
+                    continue;
+                }
 
                 ILockOnTarget lockOnTarget = ResolveLockOnTarget(hit);
                 if (lockOnTarget != null && !lockOnTarget.CanLockOn)
@@ -512,11 +581,13 @@ namespace UPlayGround.CameraSystem
                 Transform candidate = ResolveTargetTransform(hit, dmg, lockOnTarget);
                 if (candidate == null)
                     continue;
-                if (!_targetSet.Add(candidate))
+                if (_targetSet.Contains(candidate))
                     continue;
 
-                if (_settings.lockOnRequireLineOfSight && !HasLineOfSight(candidate))
+                if (requireLineOfSight && _settings.lockOnRequireLineOfSight && !HasLineOfSight(candidate))
                     continue;
+
+                _targetSet.Add(candidate);
 
                 Vector3 p = candidate.position;
                 Vector3 toTargetXZ = new Vector3(p.x - origin.x, 0f, p.z - origin.z);
@@ -554,10 +625,6 @@ namespace UPlayGround.CameraSystem
 
                 infos.Add(new TargetInfo { transform = candidate, distanceSq = dSq, sortScore = sortScore });
             }
-
-            infos.Sort((a, b) => a.sortScore.CompareTo(b.sortScore));
-            foreach (var info in infos)
-                _targets.Add(info.transform);
         }
 
         private float EvaluateTargetScore(in LockOnCandidate candidate, float directionWeight)
@@ -659,7 +726,9 @@ namespace UPlayGround.CameraSystem
 
             Vector3 origin = _camera != null
                 ? _camera.transform.position
-                : _player.position + Vector3.up * 1.4f;
+                : _player != null
+                    ? _player.position + Vector3.up * 1.4f
+                    : Vector3.zero;
             Vector3 focus = GetTargetFocusPosition(target);
             Vector3 toFocus = focus - origin;
             float distance = toFocus.magnitude;
@@ -670,9 +739,9 @@ namespace UPlayGround.CameraSystem
             float radius = Mathf.Max(0f, _settings.lockOnLineOfSightRadius);
             bool blocked = radius > 0f
                 ? Physics.SphereCast(origin, radius, direction, out RaycastHit sphereHit, distance, _lineOfSightLayer, QueryTriggerInteraction.Ignore)
-                  && IsBlockingLineOfSightHit(sphereHit.transform, target)
+                  && IsBlockingLineOfSightHit(sphereHit.transform, target, _player)
                 : Physics.Raycast(origin, direction, out RaycastHit rayHit, distance, _lineOfSightLayer, QueryTriggerInteraction.Ignore)
-                  && IsBlockingLineOfSightHit(rayHit.transform, target);
+                  && IsBlockingLineOfSightHit(rayHit.transform, target, _player);
 
             return !blocked;
         }
@@ -694,12 +763,18 @@ namespace UPlayGround.CameraSystem
             return pos;
         }
 
-        private static bool IsBlockingLineOfSightHit(Transform hit, Transform target)
+        private static bool IsBlockingLineOfSightHit(Transform hit, Transform target, Transform player)
         {
             if (hit == null || target == null)
                 return false;
 
-            return hit != target && !hit.IsChildOf(target) && !target.IsChildOf(hit);
+            if (hit == target || hit.IsChildOf(target) || target.IsChildOf(hit))
+                return false;
+
+            if (player != null && (hit == player || hit.IsChildOf(player) || player.IsChildOf(hit)))
+                return false;
+
+            return true;
         }
 
         private static Transform ResolveTargetTransform(

@@ -29,8 +29,9 @@ MonoBehaviour:
   level: 1
   attackData: {fileID: 11400000, guid: c78dc7132e4b7fa42ac044d3fa494d6b, type: 2}
   combatDefensePolicy: {fileID: 0}
-  combatReactionPolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 11400000, guid: edf64fc11281e84489cf8a7c029d1121, type: 2}
   behaviorData: {fileID: 11400000, guid: 415adac601a51f6418833086408e92fd, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 0}
   recruitableAs: 0
+  expReward: 0

@@ -34,6 +34,9 @@ namespace UPlayGround.Manager.Combat
 
         private const float DefaultHitStopDuration = 0.08f;
         private const float DefaultTimeScale = 0.1f;
+        private const float MinImpactTimeScale = 0.001f;
+        private const float ImpactHoldRatio = 0.6f;
+        private const float MinImpactHoldDuration = 0.012f;
 
         private AsyncOperationHandle<GameObject> _volumeHandle;
         private Volume _volume;
@@ -48,8 +51,14 @@ namespace UPlayGround.Manager.Combat
         // 전역 HitStop: id → 코루틴. 복수 요청이 동시에 살아있을 수 있다.
         private readonly Dictionary<int, Coroutine> _globalCoroutines = new Dictionary<int, Coroutine>();
 
-        // GameActor 단위 Animator 속도 조작
-        private readonly Dictionary<GameActor, Coroutine> _actorCoroutines = new Dictionary<GameActor, Coroutine>();
+        private sealed class ActorTimeScaleRequest
+        {
+            public Coroutine Coroutine;
+            public float OriginalLocalTimeScale = 1f;
+        }
+
+        // GameActor 단위 LocalTimeScale 조작
+        private readonly Dictionary<GameActor, ActorTimeScaleRequest> _actorCoroutines = new Dictionary<GameActor, ActorTimeScaleRequest>();
 
         public bool IsHitStopping => GameTimeManager.Instance?.IsSlowed ?? false;
 
@@ -134,11 +143,17 @@ namespace UPlayGround.Manager.Combat
         /// </summary>
         public void Execute(float duration, float timeScale = 0.1f)
         {
+            duration = Mathf.Max(0f, duration);
+            if (duration <= 0f)
+                return;
+
+            timeScale = Mathf.Clamp(timeScale, MinImpactTimeScale, 1f);
+
             if (ShouldReplaceExisting(timeScale))
                 StopWeakerThan(timeScale);
 
             int id = GameTimeManager.Instance.Request(timeScale);
-            var co = GameCombatManager.Instance.StartCoroutine(HitStopCoroutine(id, duration));
+            var co = GameCombatManager.Instance.StartCoroutine(HitStopCoroutine(id, duration, timeScale));
             _globalCoroutines[id] = co;
         }
 
@@ -165,7 +180,6 @@ namespace UPlayGround.Manager.Combat
             _targetWeight = 0f;
             _transitionTime = 0f;
             _holdWeightUntilRealtime = -1f;
-            GameObjectManager.Instance?.ResetTimeScale();
         }
 
         public void FlashPostProcess(
@@ -186,26 +200,62 @@ namespace UPlayGround.Manager.Combat
 
         #endregion
 
-        #region Actor 단위 Animator 속도 조작
+        #region Actor 단위 LocalTimeScale 조작
 
         public void ExecuteActorOnly(GameActor actor, float duration, float animSpeed = 0.1f)
         {
             if (actor == null) return;
+            duration = Mathf.Max(0f, duration);
+            if (duration <= 0f) return;
+
             StopActor(actor);
-            _actorCoroutines[actor] = GameCombatManager.Instance.StartCoroutine(ActorOnlyCoroutine(actor, duration, animSpeed));
+
+            var request = new ActorTimeScaleRequest
+            {
+                OriginalLocalTimeScale = actor.LocalTimeScale,
+            };
+            request.Coroutine = GameCombatManager.Instance.StartCoroutine(ActorOnlyCoroutine(actor, request, duration, animSpeed));
+            _actorCoroutines[actor] = request;
+        }
+
+        public void ExecuteLocalImpact(
+            GameActor attacker,
+            GameActor victim,
+            float duration,
+            float localTimeScale = 0.1f,
+            bool includeAttacker = true)
+        {
+            if (duration <= 0f) return;
+
+            localTimeScale = Mathf.Clamp(localTimeScale, MinImpactTimeScale, 1f);
+            bool applied = false;
+
+            if (includeAttacker && attacker != null)
+            {
+                ExecuteActorOnly(attacker, duration, localTimeScale);
+                applied = true;
+            }
+
+            if (victim != null && victim != attacker)
+            {
+                ExecuteActorOnly(victim, duration, localTimeScale);
+                applied = true;
+            }
+
+            if (!applied)
+                Execute(duration, localTimeScale);
         }
 
         public void StopActor(GameActor actor)
         {
             if (actor == null) return;
-            if (!_actorCoroutines.TryGetValue(actor, out var co)) return;
+            if (!_actorCoroutines.TryGetValue(actor, out var request)) return;
 
             var host = GameCombatManager.Instance;
-            if (co != null && host != null) host.StopCoroutine(co);
+            if (request.Coroutine != null && host != null) host.StopCoroutine(request.Coroutine);
             _actorCoroutines.Remove(actor);
 
-            var anim = actor.Animator?.GetAnimator;
-            if (anim != null) anim.speed = 1f;
+            actor.LocalTimeScale = request.OriginalLocalTimeScale;
         }
 
         public void StopAllActors()
@@ -213,12 +263,9 @@ namespace UPlayGround.Manager.Combat
             var host = GameCombatManager.Instance;
             foreach (var kvp in _actorCoroutines)
             {
-                if (kvp.Value != null && host != null) host.StopCoroutine(kvp.Value);
+                if (kvp.Value.Coroutine != null && host != null) host.StopCoroutine(kvp.Value.Coroutine);
                 if (kvp.Key != null)
-                {
-                    var anim = kvp.Key.Animator?.GetAnimator;
-                    if (anim != null) anim.speed = 1f;
-                }
+                    kvp.Key.LocalTimeScale = kvp.Value.OriginalLocalTimeScale;
             }
             _actorCoroutines.Clear();
         }
@@ -254,9 +301,28 @@ namespace UPlayGround.Manager.Combat
             }
         }
 
-        private IEnumerator HitStopCoroutine(int id, float duration)
+        private IEnumerator HitStopCoroutine(int id, float duration, float timeScale)
         {
-            yield return new WaitForSecondsRealtime(duration);
+            float holdDuration = GetImpactHoldDuration(duration);
+            float recoverDuration = Mathf.Max(0f, duration - holdDuration);
+
+            GameTimeManager.Instance?.UpdateRequestScale(id, Mathf.Clamp(timeScale, MinImpactTimeScale, 1f));
+
+            if (holdDuration > 0f)
+                yield return new WaitForSecondsRealtime(holdDuration);
+
+            if (recoverDuration > 0f)
+            {
+                float elapsed = 0f;
+                while (elapsed < recoverDuration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float t = Mathf.Clamp01(elapsed / recoverDuration);
+                    float eased = EaseImpactRecovery(t);
+                    GameTimeManager.Instance?.UpdateRequestScale(id, Mathf.Lerp(timeScale, 1f, eased));
+                    yield return null;
+                }
+            }
 
             _globalCoroutines.Remove(id);
             GameTimeManager.Instance?.Release(id);
@@ -268,20 +334,54 @@ namespace UPlayGround.Manager.Combat
             }
         }
 
-        private IEnumerator ActorOnlyCoroutine(GameActor actor, float duration, float animSpeed)
+        private IEnumerator ActorOnlyCoroutine(GameActor actor, ActorTimeScaleRequest request, float duration, float animSpeed)
         {
             if (actor == null) yield break;
 
-            var anim = actor.Animator?.GetAnimator;
-            if (anim == null) { _actorCoroutines.Remove(actor); yield break; }
+            float targetScale = Mathf.Clamp(animSpeed, MinImpactTimeScale, 1f);
+            float holdDuration = GetImpactHoldDuration(duration);
+            float recoverDuration = Mathf.Max(0f, duration - holdDuration);
 
-            float original = anim.speed;
-            anim.speed = animSpeed;
+            actor.LocalTimeScale = targetScale;
 
-            yield return new WaitForSecondsRealtime(duration);
+            if (holdDuration > 0f)
+                yield return new WaitForSecondsRealtime(holdDuration);
 
-            if (actor != null && anim != null) anim.speed = original;
+            if (recoverDuration > 0f)
+            {
+                float elapsed = 0f;
+                while (elapsed < recoverDuration)
+                {
+                    if (actor == null)
+                        yield break;
+
+                    elapsed += Time.unscaledDeltaTime;
+                    float t = Mathf.Clamp01(elapsed / recoverDuration);
+                    float eased = EaseImpactRecovery(t);
+                    actor.LocalTimeScale = Mathf.Lerp(targetScale, request.OriginalLocalTimeScale, eased);
+                    yield return null;
+                }
+            }
+
+            if (actor != null) actor.LocalTimeScale = request.OriginalLocalTimeScale;
             _actorCoroutines.Remove(actor);
+        }
+
+        private static float GetImpactHoldDuration(float duration)
+        {
+            if (duration <= 0f)
+                return 0f;
+
+            return Mathf.Clamp(
+                duration * ImpactHoldRatio,
+                0f,
+                Mathf.Max(0f, duration - MinImpactHoldDuration));
+        }
+
+        private static float EaseImpactRecovery(float t)
+        {
+            t = Mathf.Clamp01(t);
+            return 1f - Mathf.Pow(1f - t, 3f);
         }
 
         private async void LoadVolume()

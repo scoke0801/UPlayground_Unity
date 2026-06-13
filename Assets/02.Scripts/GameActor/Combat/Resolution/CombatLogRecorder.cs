@@ -16,6 +16,12 @@ namespace UPlayGround.Combat
         /// <summary>기록 on/off. 기본 off — 디버깅/밸런싱 세션에서만 켠다.</summary>
         public static bool Enabled = false;
 
+        /// <summary>
+        /// 링버퍼 <see cref="Enabled"/>와 무관하게 모든 관측 가능 전투 결과마다 호출되는 외부 훅.
+        /// 텔레메트리 등 항시 집계가 필요한 소비처가 구독한다.
+        /// </summary>
+        public static event System.Action<CombatResult> ResultObserved;
+
         private static int _capacity = DefaultCapacity;
         private static int _nextSequence = 1;
         private static readonly Queue<CombatLogEntry> _entries = new(DefaultCapacity);
@@ -32,6 +38,8 @@ namespace UPlayGround.Combat
 
         public static void Record(in CombatResult result)
         {
+            ResultObserved?.Invoke(result);
+
             if (!Enabled)
                 return;
 

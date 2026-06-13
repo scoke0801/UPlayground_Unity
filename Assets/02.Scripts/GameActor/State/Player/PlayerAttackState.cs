@@ -156,9 +156,33 @@ namespace UPlayGround.State
             bool isHeavyAttack,
             PlayerInterruptAction forcedAttackAction)
         {
-            // ★ 연계 라우트 우선 판정(side effect 없음). 라우트가 매칭되면 그 animKey를 미리 반환해
-            //   CanEnter가 라우트 모션 보유 여부로 진입을 결정하게 한다(설계 §5.3, advisor #2).
-            //   recordToken:false → 트래커에 push하지 않고 가상 append로만 매칭.
+            bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
+
+            if (!hasForcedAttack)
+            {
+                // 0순위: 패리 반격
+                if (combat.IsParryCounterAvailable)
+                    return combat.PeekParryCounterAttackAnimKey();
+
+                // 1순위: 퍼펙트 가드 반격
+                bool isCounter = playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+                if (isCounter)
+                    return combat.PeekCounterAttackAnimKey();
+
+                // 1순위: 회피 카운터 / 스왑 회피 카운터
+                if (combat.IsDodgeCounterAvailable || playerActor.IsSwapEvadeCounterAttackPending)
+                    return combat.PeekSwapEvadeCounterAttackAnimKey();
+
+                // 2순위: 풀 게이지 교체 특수 공격
+                if (playerActor.IsSwapSpecialAttackPending)
+                    return combat.PeekSwapSpecialAttackAnimKey();
+
+                // 3순위: 교체 등장 공격
+                if (playerActor.IsEntryAttackPending)
+                    return combat.PeekEntryAttackAnimKey();
+            }
+
+            // ★ 연계 라우트 판정(side effect 없음). GetAnimKey의 실행 우선순위와 맞춘다.
             {
                 var route = ComboRouteRunner.ResolveRoute(playerActor, controller, combat,
                     isHeavyAttack, forcedAttackAction, recordToken: false);
@@ -185,27 +209,6 @@ namespace UPlayGround.State
 
                 return AnimKey.None;
             }
-
-            // 0순위: 패리 반격
-            if (combat.IsParryCounterAvailable)
-                return combat.PeekParryCounterAttackAnimKey();
-
-            // 1순위: 퍼펙트 가드 반격
-            bool isCounter = playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
-            if (isCounter)
-                return combat.PeekCounterAttackAnimKey();
-
-            // 1순위: 회피 카운터 / 스왑 회피 카운터
-            if (combat.IsDodgeCounterAvailable || playerActor.IsSwapEvadeCounterAttackPending)
-                return combat.PeekSwapEvadeCounterAttackAnimKey();
-
-            // 2순위: 풀 게이지 교체 특수 공격
-            if (playerActor.IsSwapSpecialAttackPending)
-                return combat.PeekSwapSpecialAttackAnimKey();
-
-            // 3순위: 교체 등장 공격
-            if (playerActor.IsEntryAttackPending)
-                return combat.PeekEntryAttackAnimKey();
 
             // 1순위: 숫자 키 스킬 (게이지 보유 여부만 확인하고 실제로 소비하지 않음)
             var skillGauge = playerActor.SkillGauge;
@@ -565,6 +568,10 @@ namespace UPlayGround.State
             if (_isDodgeCounterAttack && _dodgeCounterTarget != null)
                 return _dodgeCounterTarget;
 
+            Transform preferredTarget = _combat.CurrentAttackPreferredTarget;
+            if (_isSwapEvadeCounterAttack && preferredTarget != null)
+                return preferredTarget;
+
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
             if (lockOnTarget != null)
             {
@@ -572,6 +579,9 @@ namespace UPlayGround.State
                 if (dist <= _combat.GetSnapSearchRange(true))
                     return lockOnTarget;
             }
+
+            if ((_isEntryAttack || _isSwapSpecialAttack) && preferredTarget != null)
+                return preferredTarget;
 
             bool isLockedOn = lockOnTarget != null;
             if (!isLockedOn)
@@ -604,7 +614,7 @@ namespace UPlayGround.State
                 _combat.WarpMaxDistance,
                 _combat.WarpMaxSpeed,
                 deltaTime,
-                _combat.EndMotionWarp);
+                _combat.EndMotionWarpAction);
 
             currentVelocity = _motionWarp.ClampApproachVelocity(
                 currentVelocity,

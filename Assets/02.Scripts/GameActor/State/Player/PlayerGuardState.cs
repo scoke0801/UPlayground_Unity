@@ -105,13 +105,6 @@ namespace UPlayGround.State
             // 전투 타임아웃으로 예약된 납도 요청이 Guard 중 실행되는 것을 막는다.
             _combat?.RefreshCombatState();
 
-            // Guard 입력을 떼면 Idle/Move로 복귀
-            if (!playerController.HasGuardInput())
-            {
-                TransitionToIdleOrMove();
-                return;
-            }
-
             // 퍼펙트 가드 반격 창이 열려 있을 때 Attack 입력 → 반격 전환
             // 카운터 모션이 없으면 진입 자체를 막고 카운터 창/태그도 손대지 않는다.
             if (_combat.IsPerfectGuardCounterAvailable &&
@@ -126,6 +119,14 @@ namespace UPlayGround.State
                 }
                 // 진입 실패: 추가했던 카운터 태그를 원복.
                 playerActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+            }
+
+            // Guard 입력을 떼면 Idle/Move로 복귀.
+            // 카운터 입력 처리를 먼저 봐야 퍼펙트 가드 직후 가드를 놓고 공격해도 반격이 나간다.
+            if (!playerController.HasGuardInput())
+            {
+                TransitionToIdleOrMove();
+                return;
             }
 
             // 지면에서 떨어지면 Airborne 상태로 전환

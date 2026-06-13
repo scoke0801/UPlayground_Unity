@@ -105,6 +105,12 @@ namespace UPlayGround.Tool.Editor.Balance
                         GenerateMissingForDatabase();
                 }
 
+                if (GUILayout.Button("텔레메트리 로드", EditorStyles.toolbarButton, GUILayout.Width(104f)))
+                {
+                    CombatTelemetryImporter.Reload();
+                    Repaint();
+                }
+
                 if (GUILayout.Button("Scenario ← Player", EditorStyles.toolbarButton, GUILayout.Width(124f)))
                     GenerateScenarioForActivePlayer();
 
@@ -348,13 +354,21 @@ namespace UPlayGround.Tool.Editor.Balance
             else if (Event.current.type == EventType.Repaint)
                 EditorGUI.DrawRect(rect, GetStatusColor(result.Status, 0.18f));
 
+            string monsterTtd = BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeath);
+            if (result.Actor != null
+                && CombatTelemetryImporter.TryGet(result.Actor.actorId, out CombatTelemetryImporter.ActorTelemetry telemetry)
+                && telemetry.KillCount > 0)
+            {
+                monsterTtd += $" (실측 {telemetry.MedianKillTime:F1}s)";
+            }
+
             DrawResultCells(
                 rect,
                 result.Actor != null ? result.Actor.actorId : "(null)",
                 result.BalanceScore.ToString("F0"),
                 result.Status.ToString(),
                 BalanceCombatEstimator.FormatTime(result.PlayerTimeToDeath),
-                BalanceCombatEstimator.FormatTime(result.MonsterTimeToDeath),
+                monsterTtd,
                 result.PlayerExpectedDps.ToString("F1"),
                 result.EnemyExpectedDps.ToString("F1"),
                 $"{result.StrongAttackChance * 100f:F0}%",
@@ -413,6 +427,8 @@ namespace UPlayGround.Tool.Editor.Balance
 
                 _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
                 DrawCombatSummary(_selectedResult);
+                BalanceTelemetrySection.Draw(_selectedResult, _scenario);
+                BalanceSimulationSection.Draw(_selectedResult, _scenario, CreateFallbackInput());
                 DrawMessages(_selectedResult);
                 DrawSkillBreakdown(_selectedResult);
                 DrawTargetRecommendation(_selectedResult);

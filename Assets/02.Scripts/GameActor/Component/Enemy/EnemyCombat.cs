@@ -214,6 +214,11 @@ namespace UPlayGround.Component
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentHitPhaseIndex);
         }
 
+        // 메서드 그룹을 매 프레임 delegate로 변환하면 KCC UpdateVelocity 핫패스에서 GC 할당이 발생한다.
+        // EvaluateVelocity 등에 넘길 때는 이 캐시를 사용할 것.
+        private System.Action _endMotionWarpAction;
+        public System.Action EndMotionWarpAction => _endMotionWarpAction ??= EndMotionWarp;
+
         private SkillConditionContext CreateContext(float distanceToTarget)
         {
             float currentHealth = 100f;

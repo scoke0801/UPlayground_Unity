@@ -22,10 +22,10 @@ namespace UPlayGround.Data
         public float offsetSmoothTime = 0.3f;
 
         [Header("거리")]
-        public float defaultDistance = 5.6f;
-        public float combatDistance = 6.2f;
+        public float defaultDistance = 5.1f;
+        public float combatDistance = 5.7f;
         public float minDistance = 3f;
-        public float maxDistance = 9.2f;
+        public float maxDistance = 8.5f;
 
         [Header("회전")]
         public float rotationSpeed = 20f;
@@ -98,7 +98,7 @@ namespace UPlayGround.Data
         public float lockOnReleaseRange = 20f;
         [Tooltip("현재 락온 대상이 유지 조건에서 벗어나도 즉시 해제하지 않고 유지하는 시간.")]
         public float lockOnLostGraceTime = 0.35f;
-        public float lockOnDistance = 5.4f;
+        public float lockOnDistance = 4.9f;
         public float lockOnTransitionDuration = 0.3f;
         public float targetSwitchCooldown = 0.15f;
 
@@ -119,8 +119,6 @@ namespace UPlayGround.Data
         [Header("=== 락온 가시성 검증 ===")]
         [Tooltip("신규 락온 후보가 카메라에서 보이지 않으면 제외한다.")]
         public bool lockOnRequireLineOfSight = true;
-        [Tooltip("현재 락온 대상이 차폐되어도 즉시 해제하지 않고 유지하는 시간.")]
-        public float lockOnOcclusionGraceTime = 0.35f;
         [Tooltip("락온 가시성 SphereCast 반지름. 0이면 Raycast로 검사한다.")]
         public float lockOnLineOfSightRadius = 0.12f;
 
@@ -156,7 +154,7 @@ namespace UPlayGround.Data
         public float lockOnOrbitSmoothTime = 0.15f;
 
         [Header("=== 다수 적 줌아웃 ===")]
-        public float crowdZoomOutDistance = 8.2f;
+        public float crowdZoomOutDistance = 7.4f;
         public float crowdDetectRadius = 12f;
         public int crowdEnemyThreshold = 3;
         public float crowdZoomSmoothTime = 0.4f;
@@ -170,7 +168,7 @@ namespace UPlayGround.Data
         [Tooltip("범위 내 최대 몬스터 크기에 따라 추가할 최대 FOV.")]
         public float monsterSizeFOVMax = 7f;
         [Tooltip("범위 내 최대 몬스터 크기에 따라 추가할 최대 카메라 거리.")]
-        public float monsterSizeDistanceMax = 2.2f;
+        public float monsterSizeDistanceMax = 1.6f;
         public float monsterSizeDistanceSmoothTime = 0.32f;
 
         [Header("=== 전투 카메라 접근성 기본값 ===")]

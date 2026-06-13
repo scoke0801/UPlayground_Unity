@@ -26,7 +26,7 @@ MonoBehaviour:
   breakGaugeData: {fileID: 11400000, guid: 1dabe6c696e71d642990a214197b5c15, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 3
-  level: 3
+  level: 1
   attackData: {fileID: 11400000, guid: 0a83c6fe953652946a93776bae25fa2b, type: 2}
   combatDefensePolicy: {fileID: 0}
   combatReactionPolicy: {fileID: 0}
@@ -34,3 +34,4 @@ MonoBehaviour:
   npcData: {fileID: 0}
   dropTable: {fileID: 0}
   recruitableAs: 0
+  expReward: 0

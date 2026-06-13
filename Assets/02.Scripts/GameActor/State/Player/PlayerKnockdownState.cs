@@ -101,6 +101,9 @@ namespace UPlayGround.State
             if (controller.CurrentState != this)
                 return;
 
+            // 기상 직후 경직 내성 부여 — 일어나는 순간 다시 맞고 다운되는 루프를 막는다.
+            // (기상 무적 _invincibleTimer가 끝난 뒤에도 약한 리액션을 흡수한다.)
+            playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
             controller.TransitionToState(new PlayerIdleState(controller));
         }
     }

@@ -106,9 +106,7 @@ namespace UPlayGround.State
             _isAttackActive = false;
             _homingTarget   = null;
             _motionWarp?.ClearTarget();
-            _combat.ClearHitTargets();
-            _combat.ClearTelegraphs();
-            _combat.ClearTelegraphHitPositions();
+            _combat.CancelCurrentAction();
             ActorWeaponTrailController.StopAttackTrails(gameActor);
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
 

@@ -92,6 +92,12 @@ namespace UPlayGround
         private float        _swapEvadeInvincibleEndTime = -999f;
         private float        _swapEvadeCounterInputEndTime = -999f;
 
+        // 경직 내성(Stagger Protection): 리액션 회복 직후 짧은 창 동안 약한 리액션(Light/Hit)을 무시한다.
+        // 데미지는 그대로 적용되고 통제권만 보호 → 다인전 Hit→Idle(찰나)→Hit 재스턴 루프를 차단한다.
+        private float        _staggerImmuneEndTime = -999f;
+        // 회복 직후 부여 길이(초). 0.25~0.35 권장. 큰 한 방(Heavy/넉백 등)은 이 창에도 통과한다.
+        public const float   StaggerImmunityDuration = 0.3f;
+
         // 등장 공격 (교체 직후 범위 내 적 존재 시 발동)
         private bool         _entryAttackQueued = false;
         private MonsterActor _entryAttackTarget;
@@ -128,6 +134,7 @@ namespace UPlayGround
         public bool                        IsInputSuppressed     => _isInputSuppressed;
         public bool                        IsSwapEvadeInvincible => Time.time <= _swapEvadeInvincibleEndTime;
         public bool                        IsSwapEvadeCounterAvailable => Time.time <= _swapEvadeCounterInputEndTime;
+        public bool                        IsStaggerImmune       => Time.time <= _staggerImmuneEndTime;
     }
 
     public partial class PlayerActor : GameActor, IDamageable
@@ -424,6 +431,18 @@ namespace UPlayGround
         public void BeginSwapEvadeIFrame(float duration)
         {
             _swapEvadeInvincibleEndTime = Time.time + Mathf.Max(0f, duration);
+        }
+
+        /// <summary>
+        /// 경직 내성 창을 부여한다. 리액션 상태(Hit/Stun/Knockdown)가 Idle로 자연 종료될 때 호출.
+        /// 창 동안 약한 리액션(Light/Hit)은 무시되어 연속 경직(스턴락)을 막는다.
+        /// 데미지·무적과는 무관 — 데미지는 그대로 들어가고, 큰 리액션은 통과한다.
+        /// </summary>
+        public void GrantStaggerImmunity(float duration)
+        {
+            float end = Time.time + Mathf.Max(0f, duration);
+            if (end > _staggerImmuneEndTime)
+                _staggerImmuneEndTime = end;
         }
 
         public void QueueSwapEvade(MonsterActor target, float counterWindow)
@@ -1109,6 +1128,10 @@ namespace UPlayGround
                     ? attackData.hitPoint
                     : transform.position;
 
+            // 공격자(몬스터) 경직
+            if (attackData?.attacker is MonsterActor monster)
+                monster.OnParried();
+
             defenseFeedback?.Play(
                 DefenseSuccessType.Parry,
                 new DefenseSuccessFeedbackContext(
@@ -1117,10 +1140,6 @@ namespace UPlayGround
                     attackData,
                     fxPos,
                     _parryFxName));
-
-            // 공격자(몬스터) 경직
-            if (attackData?.attacker is MonsterActor monster)
-                monster.OnParried();
         }
 
         /// <summary>
@@ -1230,7 +1249,8 @@ namespace UPlayGround
                     ignoreHitReaction,
                     MovementController.CurrentState.CanTransitionState("Hit"),
                     stateName is "Hit" or "Grabbed",
-                    ShouldEnterAirborneState(attackData)),
+                    ShouldEnterAirborneState(attackData),
+                    IsStaggerImmune),
                 attackData);
 
             if (reactionDecision.ShouldApplyForce && attackData != null)
@@ -1290,7 +1310,15 @@ namespace UPlayGround
                     _shakeKeyHeavyHit);
             }
 
-            CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop(attackData, this);
+            // 경직 내성으로 흡수된 약한 피격(Light/Hit)은 히트스톱도 생략한다.
+            // 그러지 않으면 리액션은 억제돼도 LocalTimeScale이 freeze/clear로 깜빡여
+            // 흡수 구간 조작감이 끊긴다("데미지 O·경직 X" 의도를 체감으로 완성).
+            // 컬러 플래시·HitFx는 아래에서 그대로 유지해 피격 자체는 시각 피드백한다.
+            bool absorbedByStaggerImmunity = IsStaggerImmune
+                && attackData != null
+                && ReactionResolver.IsMinorPlayerReaction(attackData.reactionType);
+            if (!absorbedByStaggerImmunity)
+                CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop(attackData, this);
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position

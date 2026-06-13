@@ -64,6 +64,19 @@ namespace UPlayGround.Combat
             if (duration <= 0f)
                 return;
 
+            // 다인 전투 누수 차단: 플레이어가 이미 피격 히트스톱 중이면 피해자 freeze만 재시작하지 않는다.
+            // 공격자 히트스톱과 global pulse는 타격 피드백이므로 유지한다.
+            if (victim != null && GameCombatManager.Instance.GameHitStop.IsActorHitStopping(victim))
+            {
+                if (incomingAttack.attacker != null)
+                    GameCombatManager.Instance.GameHitStop.ExecuteActorOnly(incomingAttack.attacker, duration, localScale);
+
+                if (globalDuration > 0f)
+                    GameCombatManager.Instance.GameHitStop.Execute(globalDuration, globalScale);
+
+                return;
+            }
+
             GameCombatManager.Instance.GameHitStop.ExecuteLocalImpact(
                 incomingAttack.attacker,
                 victim,

@@ -198,6 +198,8 @@ namespace UPlayGround.State
             if (controller.CurrentState != this)
                 return;
 
+            // 회복 직후 경직 내성 부여 — Hit→Idle(찰나)→Hit 재스턴 루프를 차단한다(데미지는 유지).
+            playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
             controller.TransitionToState(new PlayerIdleState(controller));
         }
 

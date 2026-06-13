@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.State;
 
 namespace UPlayGround.Group
 {
@@ -391,6 +392,9 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
+                if (IsAttackSlotOwnerLocked(kv.Key))
+                    continue;
+
                 if (kv.Value < lowestPriority)
                 {
                     lowestPriority = kv.Value;
@@ -513,6 +517,9 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
+                if (IsAttackSlotOwnerLocked(kv.Key))
+                    continue;
+
                 if (kv.Value >= lowestPriority)
                     continue;
 
@@ -542,7 +549,7 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
-                if (kv.Key == null || kv.Value > requesterPriority)
+                if (kv.Key == null || kv.Value > requesterPriority || IsAttackSlotOwnerLocked(kv.Key))
                     continue;
 
                 var ownerFitness = ComputeAggroFitness(kv.Key, target);
@@ -555,6 +562,13 @@ namespace UPlayGround.Group
 
             return takeoverTarget != null
                    && requesterFitness > lowestFitness + Mathf.Max(0f, _aggroFitnessTakeoverMargin);
+        }
+
+        private static bool IsAttackSlotOwnerLocked(MonsterActor owner)
+        {
+            return owner != null
+                   && owner.ActorController != null
+                   && owner.ActorController.CurrentState?.StateName == EnemyAttackState.StateNameValue;
         }
 
         private static float ComputeAggroFitness(MonsterActor member, Transform target)

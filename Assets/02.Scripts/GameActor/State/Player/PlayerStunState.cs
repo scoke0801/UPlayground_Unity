@@ -39,7 +39,11 @@ namespace UPlayGround.State
 
             _remainingDuration -= deltaTime;
             if (_remainingDuration <= 0f)
+            {
+                // 스턴 회복 직후 경직 내성 부여 — 깨어나자마자 재경직되는 것을 막는다.
+                playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
                 controller.TransitionToState(new PlayerIdleState(controller));
+            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

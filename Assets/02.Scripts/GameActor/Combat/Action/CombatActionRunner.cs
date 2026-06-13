@@ -73,6 +73,18 @@ namespace UPlayGround.Combat
             HandleTimelineEvent(CombatTimelineEventType.ActionStarted, attackData.hitPhaseIndex);
         }
 
+        public void CancelCurrentAction()
+        {
+            if (CurrentAction == null)
+                return;
+
+            CurrentAction.ApplyTimelineEvent(new CombatTimelineEvent(
+                CombatTimelineEventType.EndCollision,
+                CurrentAction.CurrentPhaseIndex,
+                Time.time));
+            CurrentAction = null;
+        }
+
         public void HandleTimelineEvent(CombatTimelineEventType type, int hitPhaseIndex = 0)
         {
             if (CurrentAction == null)

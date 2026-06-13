@@ -93,7 +93,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                         },
                         @do =
                         {
-                            new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.RequestAttackSlot },
                             new MonsterBehaviorActionJson { action = MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack }
                         }
                     },

@@ -10,17 +10,20 @@ namespace UPlayGround.Combat
         public readonly bool CanTransitionToHit;
         public readonly bool IsAlreadyHitOrGrabbed;
         public readonly bool ShouldEnterAirborne;
+        public readonly bool IsStaggerImmune;
 
         public PlayerReactionQuery(
             bool ignoreHitReaction,
             bool canTransitionToHit,
             bool isAlreadyHitOrGrabbed,
-            bool shouldEnterAirborne)
+            bool shouldEnterAirborne,
+            bool isStaggerImmune = false)
         {
             IgnoreHitReaction = ignoreHitReaction;
             CanTransitionToHit = canTransitionToHit;
             IsAlreadyHitOrGrabbed = isAlreadyHitOrGrabbed;
             ShouldEnterAirborne = shouldEnterAirborne;
+            IsStaggerImmune = isStaggerImmune;
         }
     }
 
@@ -60,6 +63,13 @@ namespace UPlayGround.Combat
                 return ReactionDecision.None;
 
             bool shouldEnterReactionBlock = !query.IsAlreadyHitOrGrabbed;
+
+            // 경직 내성(Stagger Protection): 리액션 회복 직후 창 동안 약한 리액션(None/Light/Hit)을 무시한다.
+            // 데미지는 본류(TakeDamage)에서 이미 적용 — 여기서는 상태 전환/카메라 흔들림만 억제해 통제권을 보호한다.
+            // 큰 리액션(Heavy/넉백/에어본/다운/스턴/잡기)은 통과시켜 강한 한 방엔 여전히 흔들리게 한다.
+            if (query.IsStaggerImmune && IsMinorPlayerReaction(attackData.reactionType))
+                shouldEnterReactionBlock = false;
+
             bool shouldEnterState = shouldEnterReactionBlock && query.CanTransitionToHit;
 
             return new ReactionDecision(
@@ -130,6 +140,14 @@ namespace UPlayGround.Combat
                 ? state
                 : CombatReactionState.None;
         }
+
+        // 경직 내성 창에서 무시할 "약한" 리액션 분류.
+        // Light/Hit(및 None)만 약한 리액션 — 이 외(Heavy/넉백/에어본/다운/스턴/잡기)는 통과시킨다.
+        // OnDamaged가 흡수된 피격의 히트스톱을 함께 생략하기 위해 참조하므로 public.
+        public static bool IsMinorPlayerReaction(AttackReactionType reaction)
+            => reaction is AttackReactionType.None
+                        or AttackReactionType.Light
+                        or AttackReactionType.Hit;
 
         private static CombatReactionState ResolveTargetState(
             AttackData attackData,

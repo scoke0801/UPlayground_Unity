@@ -78,7 +78,7 @@ namespace UPlayGround.State
         {
             base.OnExit(toState);
             _isActive = false;
-            _combat.ClearHitTargets();
+            _combat?.CancelCurrentAction();
             gameActor.Animator.OnMotionSetCompleted -= OnAttackEnd;
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(false);
         }
@@ -142,7 +142,7 @@ namespace UPlayGround.State
         {
             if (!_isActive) return;
             _isActive = false;
-            _combat.ClearHitTargets();
+            _combat?.CancelCurrentAction();
             _brain.OnGroundAttackFinished();
         }
 
@@ -150,7 +150,7 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackEnd;
             _isActive = false;
-            _combat.ClearHitTargets();
+            _combat?.CancelCurrentAction();
             _brain.OnGroundAttackFinished();
         }
     }

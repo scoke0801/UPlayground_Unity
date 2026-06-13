@@ -671,6 +671,15 @@ namespace UPlayGround.Component
             _telegraphHitPositions.Clear();
         }
 
+        public void CancelCurrentAction()
+        {
+            _actionRunner?.CancelCurrentAction();
+            ClearHitTargets();
+            ClearTelegraphs();
+            ClearTelegraphHitPositions();
+            _motionWarp?.Cancel(WarpCancelReason.ExternalEnd);
+        }
+
         public void SetEnableCollision(bool isCollisionEnable)
         {
             // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다.

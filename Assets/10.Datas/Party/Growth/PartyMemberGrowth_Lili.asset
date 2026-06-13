@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterType: 11
   baseStat: {fileID: 11400000, guid: ad1ffd825c9414244aced5c4bc120d7e, type: 2}
+  levelCurve: {fileID: 11400000, guid: d5a8ccffdeaa07b46a92429547dfdb75, type: 2}
   initialLevel: 1
   levelCap: 100
   growthRules: []

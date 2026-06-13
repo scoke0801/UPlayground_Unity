@@ -174,10 +174,17 @@ namespace UPlayGround.State
                 FixedDamage,
                 MinReferenceHealth);
 
-            CombatFeedbackDispatcher.ApplyPlayerSpecialBreakHitStop(
+            CombatFeedbackDispatcher.ApplyPlayerSpecialBreakImpactFeedback(
                 playerActor,
                 _targetMonster,
-                HitStopDuration);
+                _targetMonster.transform.position,
+                HitStopDuration,
+                HitStopScale,
+                GlobalHitStopDuration,
+                GlobalHitStopScale,
+                CameraShakeKey,
+                CameraPunchStrength,
+                CameraPunchDuration);
         }
 
         private void FaceTarget()
@@ -293,5 +300,11 @@ namespace UPlayGround.State
         private float VictimKnockbackDistance => _attackData != null ? Mathf.Max(0f, _attackData.victimKnockbackDistance) : 0.75f;
         private float VictimKnockbackDuration => _attackData != null ? Mathf.Max(0f, _attackData.victimKnockbackDuration) : 0.18f;
         private float VictimMaxKnockbackSpeed => _attackData != null ? Mathf.Max(0f, _attackData.victimMaxKnockbackSpeed) : 7f;
+        private float HitStopScale => _attackData != null ? Mathf.Clamp(_attackData.hitStopScale, 0.001f, 1f) : 0.01f;
+        private float GlobalHitStopDuration => _attackData != null ? Mathf.Max(0f, _attackData.globalHitStopDuration) : 0.055f;
+        private float GlobalHitStopScale => _attackData != null ? Mathf.Clamp(_attackData.globalHitStopScale, 0.001f, 1f) : 0.02f;
+        private UPlayGround.Data.Path.CameraShakeIdType CameraShakeKey => _attackData != null ? _attackData.cameraShakeKey : UPlayGround.Data.Path.CameraShakeIdType.CriticalHit;
+        private float CameraPunchStrength => _attackData != null ? Mathf.Max(0f, _attackData.cameraPunchStrength) : 0.26f;
+        private float CameraPunchDuration => _attackData != null ? Mathf.Max(0f, _attackData.cameraPunchDuration) : 0.16f;
     }
 }

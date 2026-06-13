@@ -1,8 +1,10 @@
 using UnityEngine;
+using UPlayGround.CameraSystem;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Combat;
 using UPlayGround.Manager.Handler;
@@ -165,23 +167,66 @@ namespace UPlayGround.Combat
             GameActor victim,
             float duration)
         {
+            ApplyPlayerSpecialBreakImpactFeedback(
+                attacker,
+                victim,
+                victim != null ? victim.transform.position : Vector3.zero,
+                duration,
+                0.01f,
+                Mathf.Min(duration, 0.05f),
+                0.02f,
+                CameraShakeIdType.CriticalHit,
+                0.26f,
+                0.16f);
+        }
+
+        public static void ApplyPlayerSpecialBreakImpactFeedback(
+            GameActor attacker,
+            GameActor victim,
+            Vector3 hitPoint,
+            float duration,
+            float localTimeScale,
+            float globalPulseDuration,
+            float globalPulseScale,
+            CameraShakeIdType cameraShakeKey,
+            float cameraPunchStrength,
+            float cameraPunchDuration)
+        {
             if (GameCombatManager.Instance == null)
                 return;
 
             duration = Mathf.Max(0f, duration);
-            if (duration <= 0f)
-                return;
+            localTimeScale = Mathf.Clamp(localTimeScale, 0.001f, 1f);
+            if (duration > 0f)
+            {
+                GameCombatManager.Instance.GameHitStop.ExecuteLocalImpact(
+                    attacker,
+                    victim,
+                    duration,
+                    localTimeScale,
+                    includeAttacker: true);
+            }
 
-            GameCombatManager.Instance.GameHitStop.ExecuteLocalImpact(
-                attacker,
-                victim,
-                duration,
-                0.01f,
-                includeAttacker: true);
+            globalPulseDuration = Mathf.Max(0f, globalPulseDuration);
+            if (globalPulseDuration > 0f)
+            {
+                GameCombatManager.Instance.GameHitStop.Execute(
+                    globalPulseDuration,
+                    Mathf.Clamp(globalPulseScale, 0.001f, 1f));
+            }
 
-            GameCombatManager.Instance.GameHitStop.Execute(
-                Mathf.Min(duration, 0.05f),
-                0.15f);
+            Vector3 hitDirection = ResolveHitDirection(attacker, victim);
+            CameraManager.Instance.CombatCamera?.Play(new CombatCameraIntent(
+                CombatCameraIntentType.SkillHit,
+                attacker != null ? attacker.transform : null,
+                victim != null ? victim.transform : null,
+                hitPoint,
+                hitDirection,
+                AttackKind.SkillAttack,
+                AttackReactionType.Knockdown,
+                cameraShakeKey,
+                Mathf.Max(0f, cameraPunchStrength),
+                Mathf.Max(0f, cameraPunchDuration)));
         }
 
         private static void ApplyPlayerAttackLocalHitStop(
@@ -335,6 +380,22 @@ namespace UPlayGround.Combat
                     globalScale = 1f;
                     break;
             }
+        }
+
+        private static Vector3 ResolveHitDirection(GameActor attacker, GameActor victim)
+        {
+            if (attacker != null && victim != null)
+            {
+                Vector3 direction = victim.transform.position - attacker.transform.position;
+                direction.y = 0f;
+                if (direction.sqrMagnitude > 0.0001f)
+                    return direction.normalized;
+            }
+
+            if (attacker != null)
+                return attacker.transform.forward;
+
+            return Vector3.forward;
         }
     }
 }

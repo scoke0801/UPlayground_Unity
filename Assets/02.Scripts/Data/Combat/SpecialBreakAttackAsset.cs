@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 
 namespace UPlayGround.Data.Combat
 {
@@ -38,6 +39,12 @@ namespace UPlayGround.Data.Combat
 
         [Header("Feedback")]
         [Min(0f)] public float hitStopDuration = 0.08f;
+        [Range(0.001f, 1f)] public float hitStopScale = 0.01f;
+        [Min(0f)] public float globalHitStopDuration = 0.055f;
+        [Range(0.001f, 1f)] public float globalHitStopScale = 0.02f;
+        public CameraShakeIdType cameraShakeKey = CameraShakeIdType.CriticalHit;
+        [Min(0f)] public float cameraPunchStrength = 0.26f;
+        [Min(0f)] public float cameraPunchDuration = 0.16f;
         public string startVfxKey;
         public string hitVfxKey;
         public string finishVfxKey;

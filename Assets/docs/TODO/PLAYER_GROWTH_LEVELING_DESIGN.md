@@ -365,8 +365,9 @@ EXP 획득 자체 피드백(레벨업 아닐 때도): 처치 시 `UIManager.Show
 ### 15.1 필수 (안 하면 기능 미동작)
 
 - [ ] **HUD 프리팹 연결** — `UI_HudPlayerInfo` 프리팹의 인스펙터에서 `_expFill`(Image, Filled 타입), `_expText`(TextMeshProUGUI) 슬롯 연결. *안 하면 EXP 바가 항상 비어 보임.*
-- [ ] **몬스터 경험치 입력** — 처치 보상을 줄 각 `ActorDefinitionSO`의 `expReward`(성장 보상 헤더) 값 입력. *유일한 경험치 소스 — 0이면 레벨이 절대 안 오름. 정의 없이 씬 배치된 몬스터는 0.*
+- [ ] **몬스터 경험치 입력/자동 발급** — `UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기`에서 기준 플레이어 레벨·등급 배율·레벨차 보정을 확인하고 `ActorDefinitionSO.expReward`를 일괄 적용. *유일한 경험치 소스 — 0이면 레벨이 절대 안 오름. 정의 없이 씬 배치된 몬스터는 0.*
 - [ ] **성장 곡선 지정** — 각 `PartyMemberGrowthSO`의 `levelCurve`에 `LevelCurveSO` 에셋 연결.
+  - [ ] `몬스터 경험치 발급기`의 **LevelCurve 생성/찾기** 및 **Growth 곡선 연결** 버튼으로 기본 곡선 생성과 `PartyMemberGrowthSO.levelCurve` 자동 연결 가능.
   - [ ] `UPlayGround/Party/Level Curve`로 `LevelCurveSO` 1개 이상 생성(공통 1개부터 시작 권장). `baseExp`/`exponent` 또는 `explicitTable` 설정.
   - *미지정 시 코드 폴백 곡선(baseExp 100, exponent 1.5)으로 조용히 동작 — 의도와 다를 수 있음.*
 

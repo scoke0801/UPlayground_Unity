@@ -21,6 +21,12 @@ namespace UPlayGround.Editor
         SerializedProperty _fixedDamage;
         SerializedProperty _minReferenceHealth;
         SerializedProperty _hitStopDuration;
+        SerializedProperty _hitStopScale;
+        SerializedProperty _globalHitStopDuration;
+        SerializedProperty _globalHitStopScale;
+        SerializedProperty _cameraShakeKey;
+        SerializedProperty _cameraPunchStrength;
+        SerializedProperty _cameraPunchDuration;
         SerializedProperty _startVfxKey;
         SerializedProperty _hitVfxKey;
         SerializedProperty _finishVfxKey;
@@ -40,6 +46,12 @@ namespace UPlayGround.Editor
             _fixedDamage = serializedObject.FindProperty("fixedDamage");
             _minReferenceHealth = serializedObject.FindProperty("minReferenceHealth");
             _hitStopDuration = serializedObject.FindProperty("hitStopDuration");
+            _hitStopScale = serializedObject.FindProperty("hitStopScale");
+            _globalHitStopDuration = serializedObject.FindProperty("globalHitStopDuration");
+            _globalHitStopScale = serializedObject.FindProperty("globalHitStopScale");
+            _cameraShakeKey = serializedObject.FindProperty("cameraShakeKey");
+            _cameraPunchStrength = serializedObject.FindProperty("cameraPunchStrength");
+            _cameraPunchDuration = serializedObject.FindProperty("cameraPunchDuration");
             _startVfxKey = serializedObject.FindProperty("startVfxKey");
             _hitVfxKey = serializedObject.FindProperty("hitVfxKey");
             _finishVfxKey = serializedObject.FindProperty("finishVfxKey");
@@ -80,12 +92,18 @@ namespace UPlayGround.Editor
                 else
                     EditorGUILayout.HelpBox($"최대 HP가 {_minReferenceHealth.floatValue:0}보다 낮은 적은 {_minReferenceHealth.floatValue:0} HP로 간주해 비율 피해를 계산합니다. 즉, 최소 {_minReferenceHealth.floatValue * _damageByMaxHpRate.floatValue:0} + 고정 피해가 보장됩니다.", MessageType.Info);
                 EditorGUILayout.PropertyField(_hitStopDuration, new GUIContent("히트스톱 시간"));
+                EditorGUILayout.PropertyField(_hitStopScale, new GUIContent("히트스톱 스케일"));
+                EditorGUILayout.PropertyField(_globalHitStopDuration, new GUIContent("전역 펄스 시간"));
+                EditorGUILayout.PropertyField(_globalHitStopScale, new GUIContent("전역 펄스 스케일"));
             }
 
             DrawSection("카메라 / VFX", new Color(0.75f, 0.35f, 1f));
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
                 EditorGUILayout.PropertyField(_cameraProfile, new GUIContent("카메라 프로필"));
+                EditorGUILayout.PropertyField(_cameraShakeKey, new GUIContent("타격 쉐이크 키"));
+                EditorGUILayout.PropertyField(_cameraPunchStrength, new GUIContent("카메라 펀치 강도"));
+                EditorGUILayout.PropertyField(_cameraPunchDuration, new GUIContent("카메라 펀치 시간"));
                 EditorGUILayout.PropertyField(_startVfxKey, new GUIContent("시작 VFX 키"));
                 EditorGUILayout.PropertyField(_hitVfxKey, new GUIContent("타격 VFX 키"));
                 EditorGUILayout.PropertyField(_finishVfxKey, new GUIContent("종료 VFX 키"));

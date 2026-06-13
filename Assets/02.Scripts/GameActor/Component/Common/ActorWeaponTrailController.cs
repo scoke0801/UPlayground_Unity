@@ -28,6 +28,11 @@ namespace UPlayGround.Component
             RefreshTrails();
         }
 
+        private void OnDisable()
+        {
+            StopCachedAttackTrails(immediate: true);
+        }
+
         public static void StartAttackTrails(UnityEngine.Component owner)
         {
             if (owner == null) return;
@@ -97,6 +102,7 @@ namespace UPlayGround.Component
                 var trail = _trails[i];
                 if (!CanUseTrail(trail, i)) continue;
 
+                SetTrailPrefabInstanceActive(trail, true);
                 ResetTrailForStart(trail);
                 trail.SetTrailLength(DefaultTrailLengthLifetime);
                 trail.StartTrail(DefaultFadeInDuration);
@@ -114,6 +120,9 @@ namespace UPlayGround.Component
 
             if (_debugLog)
                 Debug.Log($"[ActorWeaponTrailController] StopAttackTrails owner={name}, count={_trails.Count}");
+
+            if (immediate)
+                CancelPendingStop();
 
             if (!immediate)
             {
@@ -219,17 +228,12 @@ namespace UPlayGround.Component
         {
             if (trail == null || trail.vfxComponent == null) return;
 
-            // 비활성 GameObject(파티 교체로 SetActive(false)된 다른 캐릭터 모델)에서는
-            // StopTrail 내부의 StartCoroutine이 예외를 던져 정지 루프 전체를 중단시킨다.
-            // 그 결과 활성 모델의 트레일이 멈추지 않고 계속 출력되므로, 비활성 트레일은
-            // 코루틴 없이 VFX 속성을 직접 꺼서 정리한다.
-            if (!trail.isActiveAndEnabled)
-            {
-                ForceStopTrailProperties(trail);
-                return;
-            }
+            // 활성 트레일은 StopTrail(0f)로 실행 중인 코루틴을 먼저 끊고,
+            // 이후 VFX Graph 시뮬레이션까지 직접 초기화해 월드 공간 잔여 Trail을 제거한다.
+            if (trail.isActiveAndEnabled)
+                trail.StopTrail(0f);
 
-            trail.StopTrail(0f);
+            ForceStopTrailProperties(trail);
         }
 
         private static void StopTrailIfAvailable(WeaponTrailEffect trail)
@@ -250,9 +254,20 @@ namespace UPlayGround.Component
         {
             if (trail == null || trail.vfxComponent == null) return;
 
+            trail.vfxComponent.pause = false;
+            trail.vfxComponent.Reinit();
             trail.SetProperty_EffectActive(false);
             trail.SetProperty_EffectAlive(0f);
             trail.SendStopEvent();
+            trail.currentEffectState = WeaponTrailEffect.EffectState.Off;
+            SetTrailPrefabInstanceActive(trail, false);
+        }
+
+        private static void SetTrailPrefabInstanceActive(WeaponTrailEffect trail, bool active)
+        {
+            if (trail == null || trail.instantiatedTrailPrefab == null) return;
+
+            trail.instantiatedTrailPrefab.SetActive(active);
         }
 
         private void TryInstantiateTrailPrefab(WeaponTrailEffect trail)
@@ -263,6 +278,7 @@ namespace UPlayGround.Component
                 Debug.Log($"[ActorWeaponTrailController] Instantiate missing trail prefab. trail={trail.name}, prefab={trail.trailPrefab.name}, owner={name}");
 
             trail._InstantiateTrailPrefab();
+            SetTrailPrefabInstanceActive(trail, false);
         }
 
         private void EnsureCache()

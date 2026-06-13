@@ -257,6 +257,20 @@ if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
 - **콤보 윈도우 중엔 이동 캔슬이 억제**됩니다. 후딜 캔슬이 늦게 걸린다고 느껴지면 콤보 윈도우(`ComboWindowEvent`)가 너무 늦게 닫히는지 확인하세요.
 - 이동 캔슬은 `PlayerInterruptResolver`를 **거치지 않습니다**(버튼이 아니라 축이라서). `Move` 비트를 리졸버에 넘겨도 그쪽엔 분기가 없어 무시되므로 무해합니다. 실제 판정은 전부 `PlayerAttackState`에 있습니다.
 
+### 입력 종류별 처리: press(버퍼) vs hold(상태)
+
+- **press(순간 입력)** — Dodge/Jump/Dash/공격타입/Skill. `InputManager`가 `performed` 시 `InputBuffer`에 추가하고, 리졸버가 `ConsumeInput`으로 소비. 선입력(버퍼)으로 동작.
+- **hold(쥐는 입력)** — Guard/Move. 버퍼에 **추가되지 않으며**(`InputManager.Event.cs`의 버퍼 대상 목록에 없음), 누르고 있는 상태를 직접 검사한다.
+  - 가드 캔슬은 `buffer.ConsumeInput(Guard)`가 아니라 `controller.HasGuardInput()`(hold 검사)로 발동한다 — 그래서 캔슬창이 열리는 첫 프레임에 즉시 가드로 전환된다. (과거엔 버퍼 소비로 작성돼 Guard가 버퍼에 없어 **영영 발동하지 않는 죽은 코드**였다.)
+  - 단, 가드 hold 캔슬은 `allowGuardCancel = _hasActiveHitFired`로 **액티브 히트 1회 이후(리커버리/멀티히트 간격)에만** 허용한다. 초기 윈드업에서 가드를 쥔 채 시작하는 패리/카운터 반격(마스크에 `Guard` 포함)이 곧바로 가드로 튕기는 회귀를 막기 위함.
+
+### 선입력 보존: 액티브 히트 동안 버퍼 만료 정지
+
+- `InputBuffer.SetExpiryPaused(bool)` — 캔슬 불가 구간(콜리전 ON)에서 선입력이 **고정 버퍼 시간(Attack/Heavy 0.24s)으로 만료돼 유실**되는 것을 막는다.
+- `PlayerAttackState.UpdateState`가 매 프레임 `SetExpiryPaused(_combat.IsPossibleCollide)`로 구동: 액티브 히트 중엔 만료 정지, 캔슬창이 열리면(콜리전 OFF) 정지를 풀며 정지 길이만큼 타임스탬프를 밀어 **창이 열리는 순간 가득 찬 버퍼 창**을 보장한다(버퍼 시간을 전역으로 늘리지 않아 과버퍼 부작용 없음).
+- 상태 종료 시 `OnExit`에서 반드시 `SetExpiryPaused(false)`로 해제(콜리전 ON 도중 전환되어도 버퍼가 멈춘 채 남지 않도록).
+- ⚠️ 현재 이 정지 구동은 `PlayerAttackState`에만 있다. `PlayerChargeState` 등 다른 캔슬 호스트에도 동일 증상이 있으면 같은 패턴으로 `SetExpiryPaused`를 구동하면 된다(미적용 — 후속 과제).
+
 ---
 
 ## 확장 포인트

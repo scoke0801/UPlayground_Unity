@@ -53,7 +53,7 @@ namespace UPlayGround.State
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             _motionWarp?.ClearTarget();
             _combat?.ClearHitTargets();
-            gameActor.Animator.Speed = 1f;
+            gameActor.Animator.Speed = gameActor.LocalTimeScale;
             _homingTarget = null;
             
             base.OnExit(toState);
@@ -138,9 +138,10 @@ namespace UPlayGround.State
             Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
             if (_motionWarp != null && _homingTarget != null)
             {
-                gameActor.Animator.Speed = _combat != null && _combat.IsMotionWarping
+                float playbackScale = _combat != null && _combat.IsMotionWarping
                     ? _motionWarp.WarpPlayRateScale
                     : 1f;
+                gameActor.Animator.Speed = playbackScale * gameActor.LocalTimeScale;
 
                 rootMotionVel = _motionWarp.EvaluateVelocity(
                     rootMotionVel,

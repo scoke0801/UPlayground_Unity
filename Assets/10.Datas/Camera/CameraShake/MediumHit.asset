@@ -15,16 +15,18 @@ MonoBehaviour:
   key: MediumHit
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.12
   Delay: 0
   AmplitudeX: 0.1
   AmplitudeY: 0.06
-  Frequency: 22
-  Dampening: 0
-  ShakeSpace: 0
-  Mode: 1
-  Noise: 1
-  PitchAmplitude: 1.0
+  PitchAmplitude: 1
   YawAmplitude: 0.7
   RollAmplitude: 0
   DirectionalBias: 0.5
+  AttenuateByDistance: 0
+  AttenuationRange: 25
+  Frequency: 22
+  Dampening: 0
+  ShakeSpace: 0

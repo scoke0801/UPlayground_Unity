@@ -15,16 +15,18 @@ MonoBehaviour:
   key: PlayerDeath
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.5
   Delay: 0
   AmplitudeX: 0.18
   AmplitudeY: 0.12
-  Frequency: 12
-  Dampening: 0
-  ShakeSpace: 0
-  Mode: 1
-  Noise: 1
   PitchAmplitude: 2.2
   YawAmplitude: 1.5
   RollAmplitude: 0
   DirectionalBias: 0.3
+  AttenuateByDistance: 0
+  AttenuationRange: 25
+  Frequency: 12
+  Dampening: 0
+  ShakeSpace: 0

@@ -98,7 +98,17 @@ namespace UPlayGround.Component
         [Header("Finish Attack Settings")]
         [SerializeField] private float _finishAttackSearchRange     = 0.5f;
         [SerializeField] private float _finishAttackSearchAngle     = 90f;
-        [SerializeField] private float _finishAttackDamageThreshold = 30f;
+        
+        [Tooltip("비율 임계값 계산 후 적용할 최소 HP 임계값")]
+        [SerializeField] private float _finishAttackDamageThreshold = 10f;
+        [SerializeField] private float _finishAttackMaxHealthThreshold = 100f;
+        [SerializeField, Range(0f, 1f)] private float _finishAttackNormalHealthRate = 0.08f;
+        [SerializeField, Range(0f, 1f)] private float _finishAttackEliteHealthRate = 0.06f;
+        [SerializeField, Range(0f, 1f)] private float _finishAttackBossHealthRate = 0.04f;
+        [SerializeField] private bool _finishAttackAllowBoss = false;
+        [SerializeField] private bool _finishAttackRequireBreakForNormal = true;
+        [SerializeField] private bool _finishAttackRequireBreakForElite = true;
+        [SerializeField] private bool _finishAttackRequireBreakForBoss = true;
 
         [Header("Special Break Attack Settings")]
         [SerializeField] private SpecialBreakAttackAsset _specialBreakAttackData;
@@ -1692,7 +1702,9 @@ namespace UPlayGround.Component
             MonsterActor monsterActor = ResolveFinishTarget(target);
             if (monsterActor == null || !monsterActor.CanTakeDamage()) return false;
             if (monsterActor.Grade == MonsterActorGrade.Weak) return false;
-            if (monsterActor.GetCurrentHealth() > _finishAttackDamageThreshold) return false;
+            if (monsterActor.Grade == MonsterActorGrade.Boss && !_finishAttackAllowBoss) return false;
+            if (monsterActor.GetCurrentHealth() > GetFinishAttackHealthThreshold(monsterActor)) return false;
+            if (RequiresFinishAttackBreakState(monsterActor) && !IsInFinishAttackBreakState(monsterActor)) return false;
 
             if (!requirePositionCheck)
                 return true;
@@ -1743,6 +1755,41 @@ namespace UPlayGround.Component
             if (target == null) return null;
             return target.GetComponent<MonsterActor>()
                    ?? target.GetComponentInParent<MonsterActor>();
+        }
+
+        private float GetFinishAttackHealthThreshold(MonsterActor monsterActor)
+        {
+            float maxHealth = Mathf.Max(1f, monsterActor.MaxHealth);
+            float healthRate = monsterActor.Grade switch
+            {
+                MonsterActorGrade.Elite => _finishAttackEliteHealthRate,
+                MonsterActorGrade.Boss  => _finishAttackBossHealthRate,
+                _                       => _finishAttackNormalHealthRate,
+            };
+
+            float minThreshold = Mathf.Max(0f, _finishAttackDamageThreshold);
+            float maxThreshold = Mathf.Max(minThreshold, _finishAttackMaxHealthThreshold);
+            return Mathf.Clamp(maxHealth * Mathf.Clamp01(healthRate), minThreshold, maxThreshold);
+        }
+
+        private bool RequiresFinishAttackBreakState(MonsterActor monsterActor)
+        {
+            return monsterActor.Grade switch
+            {
+                MonsterActorGrade.Normal => _finishAttackRequireBreakForNormal,
+                MonsterActorGrade.Elite => _finishAttackRequireBreakForElite,
+                MonsterActorGrade.Boss  => _finishAttackRequireBreakForBoss,
+                _                       => _finishAttackRequireBreakForNormal,
+            };
+        }
+
+        private static bool IsInFinishAttackBreakState(MonsterActor monsterActor)
+        {
+            if (monsterActor.BreakGauge != null && monsterActor.BreakGauge.IsExposed)
+                return true;
+
+            PoiseStat poise = monsterActor.GetComponent<PoiseStat>();
+            return poise != null && poise.IsPoiseBroken;
         }
 
         public Transform FindSpecialBreakAttackTarget()

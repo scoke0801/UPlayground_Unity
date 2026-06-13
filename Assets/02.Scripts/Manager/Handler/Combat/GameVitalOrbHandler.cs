@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.AI;
+using UnityEngine.Pool;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager.Combat
@@ -23,9 +24,12 @@ namespace UPlayGround.Manager.Combat
 
         private VitalOrbActor _vitalOrbObjectPrefab;
         private VitalOrbTriggerConfig _triggerConfig;
+        private ObjectPool<VitalOrbActor> _orbPool;
 
         private readonly Dictionary<VitalOrbTrigger, TriggerRuntimeState> _triggerStates = new();
         private readonly Dictionary<VitalOrbTrigger, int> _activeCountMap = new();
+        private readonly Dictionary<VitalOrbActor, VitalOrbTrigger> _activeTriggerMap = new();
+        private readonly List<VitalOrbActor> _activeOrbs = new();
 
         public override void Init()
         {
@@ -41,8 +45,22 @@ namespace UPlayGround.Manager.Combat
             }
         }
 
+        public override void Dispose()
+        {
+            ReleaseAllActiveOrbs();
+            _orbPool?.Clear();
+            _orbPool = null;
+            _vitalOrbObjectPrefab = null;
+            _triggerConfig = null;
+            _triggerStates.Clear();
+            _activeCountMap.Clear();
+            _activeTriggerMap.Clear();
+        }
+
         public override void OnSceneChanged(string sceneType)
         {
+            ReleaseAllActiveOrbs();
+
             foreach (var state in _triggerStates.Values)
                 state.Reset();
 
@@ -55,6 +73,19 @@ namespace UPlayGround.Manager.Combat
             float dt = Time.deltaTime;
             foreach (var state in _triggerStates.Values)
                 state.TickCooldown(dt);
+
+            bool hasPlayer = TryGetPlayerPosition(out Vector3 playerPosition);
+            for (int i = _activeOrbs.Count - 1; i >= 0; --i)
+            {
+                var orb = _activeOrbs[i];
+                if (orb == null)
+                {
+                    _activeOrbs.RemoveAt(i);
+                    continue;
+                }
+
+                orb.Tick(dt, playerPosition, hasPlayer);
+            }
         }
 
         /// <summary>
@@ -62,7 +93,7 @@ namespace UPlayGround.Manager.Combat
         /// </summary>
         public void TrySpawn(VitalOrbTrigger trigger, Vector3 spawnPosition)
         {
-            if (_triggerConfig == null || _vitalOrbObjectPrefab == null)
+            if (_triggerConfig == null || _vitalOrbObjectPrefab == null || _orbPool == null)
                 return;
 
             var entry = GetEntry(trigger);
@@ -87,7 +118,20 @@ namespace UPlayGround.Manager.Combat
         {
             Addressables.LoadAssetAsync<GameObject>(PrefabPath).Completed += handle =>
             {
+                if (handle.Result == null)
+                {
+                    Debug.LogError($"[VitalOrbHandler] '{PrefabPath}' 경로에서 프리팹을 찾을 수 없습니다.");
+                    return;
+                }
+
                 _vitalOrbObjectPrefab = handle.Result.GetComponent<VitalOrbActor>();
+                if (_vitalOrbObjectPrefab == null)
+                {
+                    Debug.LogError($"[VitalOrbHandler] '{PrefabPath}' 프리팹에 VitalOrbActor가 없습니다.");
+                    return;
+                }
+
+                CreatePool();
             };
         }
 
@@ -119,25 +163,31 @@ namespace UPlayGround.Manager.Combat
 
         private void SpawnDropObject(VitalOrbTriggerEntry entry, VitalOrbTrigger trigger, Vector3 position)
         {
-            var instance = UnityEngine.Object.Instantiate(_vitalOrbObjectPrefab, position, Quaternion.identity);
-            instance.Initialize(entry.dropData, () => OnDropCollected(trigger));
+            var instance = _orbPool.Get();
+            instance.transform.SetPositionAndRotation(position, Quaternion.identity);
+            instance.Initialize(entry.dropData, OnOrbFinished);
 
             _triggerStates[trigger].StartCooldown(entry.cooldown);
             _activeCountMap[trigger]++;
-
-            instance.OnExpired += () => OnDropExpired(trigger);
+            _activeTriggerMap[instance] = trigger;
+            _activeOrbs.Add(instance);
 
             GameObjectManager.Instance.ShowFX(entry.dropData.spawnParticleName, position);
         }
 
-        private void OnDropCollected(VitalOrbTrigger trigger)
+        private void OnOrbFinished(VitalOrbActor orb, VitalOrbActor.FinishReason reason)
         {
-            _activeCountMap[trigger] = Mathf.Max(0, _activeCountMap[trigger] - 1);
-        }
+            if (orb == null)
+                return;
 
-        private void OnDropExpired(VitalOrbTrigger trigger)
-        {
-            _activeCountMap[trigger] = Mathf.Max(0, _activeCountMap[trigger] - 1);
+            if (_activeTriggerMap.TryGetValue(orb, out VitalOrbTrigger trigger))
+            {
+                _activeCountMap[trigger] = Mathf.Max(0, _activeCountMap[trigger] - 1);
+                _activeTriggerMap.Remove(orb);
+            }
+
+            _activeOrbs.Remove(orb);
+            _orbPool.Release(orb);
         }
 
         private VitalOrbTriggerEntry GetEntry(VitalOrbTrigger trigger)
@@ -162,6 +212,53 @@ namespace UPlayGround.Manager.Combat
 
             result = Vector3.zero;
             return false;
+        }
+
+        private void CreatePool()
+        {
+            _orbPool = new ObjectPool<VitalOrbActor>(
+                createFunc: () => UnityEngine.Object.Instantiate(_vitalOrbObjectPrefab),
+                actionOnGet: orb => orb.gameObject.SetActive(true),
+                actionOnRelease: orb =>
+                {
+                    orb.ResetForPool();
+                    orb.gameObject.SetActive(false);
+                },
+                actionOnDestroy: orb =>
+                {
+                    if (orb != null)
+                        UnityEngine.Object.Destroy(orb.gameObject);
+                },
+                collectionCheck: true,
+                defaultCapacity: 8,
+                maxSize: 32);
+        }
+
+        private void ReleaseAllActiveOrbs()
+        {
+            for (int i = _activeOrbs.Count - 1; i >= 0; --i)
+            {
+                var orb = _activeOrbs[i];
+                if (orb != null && _orbPool != null)
+                    _orbPool.Release(orb);
+            }
+
+            _activeOrbs.Clear();
+            _activeTriggerMap.Clear();
+        }
+
+        private static bool TryGetPlayerPosition(out Vector3 playerPosition)
+        {
+            var playerObj = GameObjectManager.Instance?.Player;
+            if (playerObj == null)
+            {
+                playerPosition = Vector3.zero;
+                return false;
+            }
+
+            var socket = playerObj.GetSocket(ActorSocketType.Center);
+            playerPosition = socket != null ? socket.position : playerObj.transform.position;
+            return true;
         }
 
         private class TriggerRuntimeState

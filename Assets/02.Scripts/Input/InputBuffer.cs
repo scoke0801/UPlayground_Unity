@@ -37,6 +37,12 @@ namespace Game.Input
         private float _bufferTime;
         private int _maxBufferSize;
 
+        // 만료 일시정지: 공격의 액티브 히트(캔슬 불가) 구간처럼 입력을 즉시 처리할 수 없는 동안
+        // 선입력이 만료돼 유실되는 것을 막는다. 재개 시 정지 길이만큼 타임스탬프를 밀어
+        // "캔슬창이 열리는 순간 가득 찬 버퍼 창"을 보장한다(버퍼 시간을 늘리지 않아 과버퍼 부작용 없음).
+        private bool  _expiryPaused;
+        private float _pauseStartTime;
+
         public InputBuffer(float bufferTime = 0.15f, int maxSize = 10)
         {
             _bufferTime = bufferTime;
@@ -134,10 +140,49 @@ namespace Game.Input
         }
 
         /// <summary>
+        /// 만료 타이머 일시정지/재개. 캔슬 불가 구간(콜리전 활성)에서 true로 두면 그 동안 선입력이
+        /// 만료되지 않고, false로 재개할 때 정지된 시간만큼 기존 입력의 타임스탬프를 밀어
+        /// 만료 시점을 보존한다. 멱등(상태 변화 시에만 동작)이라 매 프레임 호출해도 안전하다.
+        /// </summary>
+        public void SetExpiryPaused(bool paused)
+        {
+            if (paused == _expiryPaused) return;
+
+            if (paused)
+            {
+                // 정지 직전에 이미 만료된 입력은 먼저 버린다. 그대로 두면 재개 시 타임스탬프가 밀려
+                // 오래된 입력이 되살아날 수 있다(아직 _expiryPaused=false라 청소가 실제로 동작한다).
+                CleanExpiredInputs();
+                _expiryPaused = true;
+                _pauseStartTime = Time.time;
+            }
+            else
+            {
+                _expiryPaused = false;
+                float frozen = Time.time - _pauseStartTime;
+                float now = Time.time;
+                if (frozen > 0f)
+                {
+                    // 각 입력이 만료 정지 상태에서 보낸 시간만큼만 보정한다.
+                    // 정지 전 입력은 전체 정지 시간을, 정지 중 입력은 입력 시점부터 재개까지를 제외한다.
+                    foreach (var input in _buffer)
+                    {
+                        float frozenForInput = now - Mathf.Max(input.Timestamp, _pauseStartTime);
+                        if (frozenForInput > 0f)
+                            input.Timestamp += frozenForInput;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 만료된 입력 제거
         /// </summary>
         private void CleanExpiredInputs()
         {
+            // 만료 정지 중에는 어떤 입력도 버리지 않는다(캔슬창이 열릴 때까지 선입력 보존).
+            if (_expiryPaused) return;
+
             Queue<BufferedInput> tempQueue = new Queue<BufferedInput>();
 
             while (_buffer.Count > 0)

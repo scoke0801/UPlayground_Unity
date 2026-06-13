@@ -21,8 +21,13 @@ namespace UPlayGround.State
         /// 마스크에 포함된 액션의 입력이 버퍼에 있으면 소비하고 전환한다.
         /// 전환이 일어나면 true. (Dash는 입력을 소비했더라도 조건부 전환에 실패하면 false —
         /// 이 경우 호출부는 기존처럼 콤보 등 후속 로직으로 fall-through 한다.)
+        ///
+        /// allowGuardCancel: 가드는 hold(level) 입력이라 윈드업처럼 캔슬창이 열린 초반에도 항상 "켜져" 있다.
+        /// 패리/카운터 반격(마스크에 Guard 포함)의 윈드업에서 가드를 쥔 채로 시작하면 반격이 곧바로 가드로
+        /// 튕겨나가므로, 호출부가 "액티브 히트가 한 번이라도 발생했는지"로 게이트한다(리커버리/멀티히트 간격만 허용).
         /// </summary>
-        public static bool TryInterrupt(PlayerMovementController controller, PlayerInterruptAction mask)
+        public static bool TryInterrupt(PlayerMovementController controller, PlayerInterruptAction mask,
+            bool allowGuardCancel = true)
         {
             if (controller == null || mask == PlayerInterruptAction.None)
                 return false;
@@ -50,8 +55,11 @@ namespace UPlayGround.State
                 return controller.TryTransitionToState(new PlayerDashState(controller));
             }
 
-            if ((mask & PlayerInterruptAction.Guard) != 0 &&
-                buffer.ConsumeInput(PlayerAction.Guard) != null)
+            // 가드는 '쥐고 있는' 입력이라 순간 press 버퍼에 잡히지 않는다(Guard는 InputBuffer에 추가되지 않음).
+            // hold 상태를 직접 검사해, 캔슬창이 열리는 첫 프레임에 즉시 가드로 전환한다(Idle/GroundMove 패턴과 동일).
+            if (allowGuardCancel &&
+                (mask & PlayerInterruptAction.Guard) != 0 &&
+                controller.HasGuardInput())
             {
                 controller.TransitionToState(new PlayerGuardState(controller));
                 return true;

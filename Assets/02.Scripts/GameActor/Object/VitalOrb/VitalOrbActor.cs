@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UPlayGround.Data.Combat;
-using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -12,107 +11,98 @@ namespace UPlayGround
     /// </summary>
     public class VitalOrbActor : MonoBehaviour
     {
-        // VitalOrbHandler가 카운트 관리에 사용
-        public event Action OnExpired;
-
-        private const float AttractDelay = 1.5f; // 1.5초 동안은 흡입되지 않음
-        
         private VitalOrbDataSO _data;
-        private Action         _onCollect;   // 습득 시 콜백 (VitalOrbHandler의 카운트 감소)
+        private Action<VitalOrbActor, FinishReason> _onFinished;
 
-        private Transform _playerTransform;
-        private State     _state = State.Idle;
-
+        private State _state = State.Idle;
         private float _lifetimeTimer;
-        private float _spawnY;     // 부유 기준 Y 위치
+        private float _spawnY;
+        private bool _finished;
 
-        // Expire 페이드 아웃
         private const float FadeOutDuration = 0.5f;
         private float _fadeTimer;
         private Renderer[] _renderers;
+        private MaterialPropertyBlock[] _propertyBlocks;
+        private Color[] _baseColors;
+        private bool[] _supportsBaseColor;
+
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         private enum State { Idle, Attract, Collect, Expire }
-        // -----------------------------------------------------------
-        // 초기화
-        // -----------------------------------------------------------
-        public void Initialize(VitalOrbDataSO data, Action onCollect)
+        public enum FinishReason { Collected, Expired }
+
+        public void Initialize(VitalOrbDataSO data, Action<VitalOrbActor, FinishReason> onFinished)
         {
-            _data      = data;
-            _onCollect = onCollect;
-            _spawnY    = transform.position.y;
-            _state     = State.Idle;
+            _data = data;
+            _onFinished = onFinished;
+            _spawnY = transform.position.y;
+            _state = State.Idle;
             _lifetimeTimer = 0f;
-            _fadeTimer     = 0f;
+            _fadeTimer = 0f;
+            _finished = false;
 
-            _renderers = GetComponentsInChildren<Renderer>();
-
-            // 플레이어 캐싱
-            ResolvePlayerTransform();
+            CacheRendererData();
+            SetAlpha(1f);
         }
 
-        // Center 소켓이 없거나(데이터 누락) 캐릭터 스왑으로 무효화된 경우를 방어.
-        // 소켓이 비면 Player 루트 transform을 fallback으로 사용한다.
-        private void ResolvePlayerTransform()
+        public void ResetForPool()
         {
-            var playerObj = GameObjectManager.Instance?.Player;
-            if (playerObj == null)
-            {
-                _playerTransform = null;
+            _data = null;
+            _onFinished = null;
+            _state = State.Idle;
+            _lifetimeTimer = 0f;
+            _fadeTimer = 0f;
+            _finished = false;
+            SetAlpha(1f);
+        }
+
+        public void Tick(float deltaTime, Vector3 playerPosition, bool hasPlayer)
+        {
+            if (_data == null || _finished)
                 return;
-            }
-
-            var socket = playerObj.GetSocket(ActorSocketType.Center);
-            _playerTransform = socket != null ? socket : playerObj.transform;
-        }
-
-        // -----------------------------------------------------------
-        // Update
-        // -----------------------------------------------------------
-        private void Update()
-        {
-            if (_data == null) return;
-
-            // 캐릭터 스왑이나 소켓 미등록으로 캐싱이 무효화된 경우 매 프레임 재시도
-            if (_playerTransform == null)
-            {
-                ResolvePlayerTransform();
-                if (_playerTransform == null) return;
-            }
 
             switch (_state)
             {
-                case State.Idle:    UpdateIdle();    break;
-                case State.Attract: UpdateAttract(); break;
-                case State.Expire:  UpdateExpire();  break;
-                // Collect는 즉시 처리 후 Destroy되므로 Update 불필요
+                case State.Idle:
+                    UpdateIdle(deltaTime, playerPosition, hasPlayer);
+                    break;
+                case State.Attract:
+                    UpdateAttract(deltaTime, playerPosition, hasPlayer);
+                    break;
+                case State.Expire:
+                    UpdateExpire(deltaTime);
+                    break;
             }
         }
 
-        private void UpdateIdle()
+        private void UpdateIdle(float deltaTime, Vector3 playerPosition, bool hasPlayer)
         {
             ApplyFloatAnimation();
 
-            _lifetimeTimer += Time.deltaTime;
+            _lifetimeTimer += deltaTime;
             if (_lifetimeTimer >= _data.lifetime)
             {
                 EnterExpire();
                 return;
             }
-            
-            // 딜레이 시간이 지난 이후에만 플레이어와의 거리를 체크하여 Attract 상태로 전환
-            float dist = HorizontalDistance(transform.position, _playerTransform.position);
-            if (_lifetimeTimer >= AttractDelay)
-            {
-                if (dist <= _data.collectRadius)
-                {
-                    _state = State.Attract;
-                }
-            }
+
+            if (!hasPlayer || _lifetimeTimer < _data.attractDelay)
+                return;
+
+            float dist = HorizontalDistance(transform.position, playerPosition);
+            if (dist <= _data.collectRadius)
+                _state = State.Attract;
         }
 
-        private void UpdateAttract()
+        private void UpdateAttract(float deltaTime, Vector3 playerPosition, bool hasPlayer)
         {
-            Vector3 toPlayer = _playerTransform.position - transform.position;
+            if (!hasPlayer)
+            {
+                _state = State.Idle;
+                return;
+            }
+
+            Vector3 toPlayer = playerPosition - transform.position;
             float dist = toPlayer.magnitude;
 
             if (dist <= _data.collectDistance)
@@ -121,53 +111,52 @@ namespace UPlayGround
                 return;
             }
 
-            // EaseIn 가속: 처음엔 느리게 출발, 가까워질수록 빠르게
             float t = 1f - Mathf.Clamp01(dist / _data.collectRadius);
-            float speed = Mathf.Lerp(_data.attractSpeed * 0.3f, _data.attractSpeed, t);
+            float minSpeed = _data.minAttractSpeed > 0f ? _data.minAttractSpeed : _data.attractSpeed * 0.3f;
+            float maxSpeed = _data.maxAttractSpeed > 0f ? _data.maxAttractSpeed : _data.attractSpeed;
+            float speed = Mathf.Lerp(minSpeed, maxSpeed, Mathf.SmoothStep(0f, 1f, t));
 
-            transform.position += toPlayer.normalized * (speed * Time.deltaTime);
+            transform.position += toPlayer.normalized * (speed * deltaTime);
         }
 
-        private void UpdateExpire()
+        private void UpdateExpire(float deltaTime)
         {
-            _fadeTimer += Time.deltaTime;
+            _fadeTimer += deltaTime;
             float alpha = 1f - Mathf.Clamp01(_fadeTimer / FadeOutDuration);
-            // SetAlpha(alpha);
+            SetAlpha(alpha);
 
             if (_fadeTimer >= FadeOutDuration)
-            {
-                OnExpired?.Invoke();
-                Destroy(gameObject);
-            }
+                Finish(FinishReason.Expired);
         }
 
-        // -----------------------------------------------------------
-        // 상태 전이
-        // -----------------------------------------------------------
         private void EnterCollect()
         {
             _state = State.Collect;
 
-            // 플레이어 HP / 게이지 회복
             ApplyRewards();
 
             GameObjectManager.Instance.ShowFX(_data.collectParticleName, transform.position);
             // TODO: 사운드 재생 - AudioManager 구현 후 연결
             // AudioManager.Instance.Play(_data.collectSoundName);
 
-            _onCollect?.Invoke();
-            Destroy(gameObject);
+            Finish(FinishReason.Collected);
         }
 
         private void EnterExpire()
         {
-            _state     = State.Expire;
+            _state = State.Expire;
             _fadeTimer = 0f;
         }
 
-        // -----------------------------------------------------------
-        // 보상 적용
-        // -----------------------------------------------------------
+        private void Finish(FinishReason reason)
+        {
+            if (_finished)
+                return;
+
+            _finished = true;
+            _onFinished?.Invoke(this, reason);
+        }
+
         private void ApplyRewards()
         {
             var player = GameObjectManager.Instance.Player;
@@ -176,14 +165,10 @@ namespace UPlayGround
             if (_data.healAmount > 0f)
                 player.HealPercent(_data.healAmount);
 
-            // 스킬 게이지 - 플레이어 액터에서 직접 접근
-            if (player != null && player.SkillGauge != null)
+            if (player.SkillGauge != null)
                 player.SkillGauge.AddGauge(_data.gaugeAmount);
         }
 
-        // -----------------------------------------------------------
-        // Helpers
-        // -----------------------------------------------------------
         private void ApplyFloatAnimation()
         {
             float offsetY = Mathf.Sin(Time.time * _data.floatSpeed * Mathf.PI * 2f) * _data.floatAmplitude;
@@ -194,18 +179,38 @@ namespace UPlayGround
 
         private void SetAlpha(float alpha)
         {
-            foreach (var r in _renderers)
+            if (_renderers == null)
+                return;
+
+            for (int i = 0; i < _renderers.Length; i++)
             {
-                foreach (var mat in r.materials)
-                {
-                    // URP Lit 셰이더 기준 알파 채널 적용
-                    if (mat.HasProperty("_BaseColor"))
-                    {
-                        var color = mat.GetColor("_BaseColor");
-                        color.a = alpha;
-                        mat.SetColor("_BaseColor", color);
-                    }
-                }
+                if (!_supportsBaseColor[i])
+                    continue;
+
+                var color = _baseColors[i];
+                color.a = alpha;
+                _propertyBlocks[i].SetColor(BaseColorId, color);
+                _renderers[i].SetPropertyBlock(_propertyBlocks[i]);
+            }
+        }
+
+        private void CacheRendererData()
+        {
+            if (_renderers != null)
+                return;
+
+            _renderers = GetComponentsInChildren<Renderer>(true);
+            _propertyBlocks = new MaterialPropertyBlock[_renderers.Length];
+            _baseColors = new Color[_renderers.Length];
+            _supportsBaseColor = new bool[_renderers.Length];
+
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                _propertyBlocks[i] = new MaterialPropertyBlock();
+
+                var material = _renderers[i].sharedMaterial;
+                _supportsBaseColor[i] = material != null && material.HasProperty(BaseColorId);
+                _baseColors[i] = _supportsBaseColor[i] ? material.GetColor(BaseColorId) : Color.white;
             }
         }
 

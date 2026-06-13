@@ -6221,7 +6221,7 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
     hitAngle: 60
   useEntryAttackVsGroggy: 1
   entryAttackVsGroggy:
@@ -6291,7 +6291,7 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
     hitAngle: 60
   useEntryAttackVsAirborne: 1
   entryAttackVsAirborne:
@@ -6361,7 +6361,7 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
     hitAngle: 60
   swapEvadeCounterAttack:
     baseInfo:
@@ -6430,7 +6430,7 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
     hitAngle: 60
   swapSpecialAttack:
     baseInfo:
@@ -6685,7 +6685,7 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
     hitAngle: 60
   chargeAnimKey: 620
   chargeStages:

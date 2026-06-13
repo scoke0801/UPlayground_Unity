@@ -15,18 +15,18 @@ MonoBehaviour:
   key: Explosion
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.4
   Delay: 0
   AmplitudeX: 0.35
   AmplitudeY: 0.2
-  Frequency: 12
-  Dampening: 0
-  ShakeSpace: 0
-  Mode: 1
-  Noise: 1
-  PitchAmplitude: 3.0
+  PitchAmplitude: 3
   YawAmplitude: 2.4
   RollAmplitude: 0
   DirectionalBias: 0.3
   AttenuateByDistance: 1
   AttenuationRange: 25
+  Frequency: 12
+  Dampening: 0
+  ShakeSpace: 0

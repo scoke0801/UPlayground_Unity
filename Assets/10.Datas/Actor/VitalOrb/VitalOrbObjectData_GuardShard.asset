@@ -16,7 +16,10 @@ MonoBehaviour:
   healAmount: 0.08
   gaugeAmount: 20
   collectRadius: 2
-  attractSpeed: 8
+  attractDelay: 0.15
+  minAttractSpeed: 10
+  maxAttractSpeed: 28
+  attractSpeed: 28
   collectDistance: 0.3
   lifetime: 12
   floatAmplitude: 0.15

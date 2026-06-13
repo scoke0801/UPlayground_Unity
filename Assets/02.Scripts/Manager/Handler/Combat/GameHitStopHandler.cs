@@ -24,10 +24,10 @@ namespace UPlayGround.Manager.Combat
     {
         public enum HitStopIntensity
         {
-            Light,       // 0.05s  scale=0.15
-            Medium,      // 0.08s  scale=0.10
-            Heavy,       // 0.12s  scale=0.05
-            Critical,    // 0.15s  scale=0.02
+            Light,       // base 0.05s  scale=0.15
+            Medium,      // base 0.08s  scale=0.10
+            Heavy,       // base 0.12s  scale=0.05
+            Critical,    // base 0.15s  scale=0.02
             PlayerDie,   // 1.00s  scale=0.02
             PlayerGuard, // actor-only
         }
@@ -205,7 +205,7 @@ namespace UPlayGround.Manager.Combat
         public void ExecuteActorOnly(GameActor actor, float duration, float animSpeed = 0.1f)
         {
             if (actor == null) return;
-            duration = Mathf.Max(0f, duration);
+            
             if (duration <= 0f) return;
 
             StopActor(actor);

@@ -98,6 +98,15 @@ namespace UPlayGround.Editor
             changed |= ApplyToList(data.dashAttackList, MobilityAttackInterruptActions);
             changed |= ApplyToList(data.jumpAttackList, MobilityAttackInterruptActions);
 
+            // 등장/스왑 공격(단일 필드)도 마스크를 부여한다. 기존엔 이 도구가 리스트만 순회해
+            // entry/swap이 enum 기본값 0(None=캔슬 불가)으로 방치 → 스왑 공격 후 후딜 캔슬 불가의 원인이었다.
+            // Counter/ParryCounter는 '커밋' 설계라 일부러 건드리지 않는다.
+            changed |= ApplyToAttack(data.entryAttack, EntrySwapInterruptActions);
+            changed |= ApplyToAttack(data.entryAttackVsGroggy, EntrySwapInterruptActions);
+            changed |= ApplyToAttack(data.entryAttackVsAirborne, EntrySwapInterruptActions);
+            changed |= ApplyToAttack(data.swapEvadeCounterAttack, EntrySwapInterruptActions);
+            changed |= ApplyToAttack(data.swapSpecialAttack, EntrySwapInterruptActions);
+
             changed |= SetIfDifferent(ref data.chargeInterruptActions, ChargeHoldInterruptActions);
 
             if (data.chargeStages != null)
@@ -136,6 +145,14 @@ namespace UPlayGround.Editor
             return changed;
         }
 
+        private static bool ApplyToAttack(PlayerAttackInfo attack, PlayerInterruptAction value)
+        {
+            if (attack == null)
+                return false;
+
+            return SetIfDifferent(ref attack.interruptActions, value);
+        }
+
         private static bool SetIfDifferent(ref PlayerInterruptAction target, PlayerInterruptAction value)
         {
             if (target == value)
@@ -171,6 +188,15 @@ namespace UPlayGround.Editor
             PlayerInterruptAction.Dodge |
             PlayerInterruptAction.Dash |
             PlayerInterruptAction.Skill;
+
+        // 등장/스왑 공격: 리커버리에서 방어·이동 이탈 허용(스왑 후 후딜 단축).
+        // 공격타입 제외 — 연타 버퍼 입력이 윈드업에서 특수 공격을 선점·취소하는 회귀 방지.
+        private const PlayerInterruptAction EntrySwapInterruptActions =
+            PlayerInterruptAction.Dodge |
+            PlayerInterruptAction.Jump |
+            PlayerInterruptAction.Dash |
+            PlayerInterruptAction.Guard |
+            PlayerInterruptAction.Move;
 
         private const PlayerInterruptAction ChargeHoldInterruptActions =
             PlayerInterruptAction.Dodge |

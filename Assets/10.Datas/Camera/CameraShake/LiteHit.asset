@@ -15,16 +15,18 @@ MonoBehaviour:
   key: LiteHit
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.08
   Delay: 0
   AmplitudeX: 0.05
   AmplitudeY: 0.03
-  Frequency: 25
-  Dampening: 0
-  ShakeSpace: 0
-  Mode: 1
-  Noise: 1
   PitchAmplitude: 0.5
   YawAmplitude: 0.4
   RollAmplitude: 0
   DirectionalBias: 0.5
+  AttenuateByDistance: 0
+  AttenuationRange: 25
+  Frequency: 25
+  Dampening: 0
+  ShakeSpace: 0

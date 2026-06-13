@@ -13,7 +13,10 @@ namespace UPlayGround.Data.Combat
 
         [Header("자동 습득")]
         public float collectRadius   = 2.0f;
-        public float attractSpeed    = 8.0f;
+        public float attractDelay    = 0.15f;
+        public float minAttractSpeed = 10.0f;
+        public float maxAttractSpeed = 28.0f;
+        public float attractSpeed    = 28.0f;
         public float collectDistance = 0.3f;
         public float lifetime        = 12.0f;
 

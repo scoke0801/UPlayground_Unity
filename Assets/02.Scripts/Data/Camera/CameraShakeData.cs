@@ -21,13 +21,15 @@ namespace UPlayGround.Data
         {
             Position,  // 카메라 로컬 위치 이동 (레거시)
             Rotation,  // 카메라 로컬 회전 (Pitch/Yaw/Roll) — 권장
+            Both,      // 위치 + 회전 동시 — 회전이 임팩트, 위치가 질감을 보조 (각 진폭 별도 설정)
         }
 
         /// <summary>노이즈 종류. 기존 호환을 위해 Random이 0번(기본값).</summary>
         public enum NoiseType
         {
             Random,  // 매 ShakesDelay마다 난수 (레거시, 계단식)
-            Perlin,  // 연속 정합 노이즈 — 부드럽고 멀미가 적음 (권장)
+            Perlin,  // 연속 정합 노이즈 — 부드럽지만 불규칙하게 떠다님
+            Wave,    // 감쇠 사인 웨이브(2차 하모닉 합) — 가장 부드럽게 진동 후 수렴 (권장)
         }
 
         public string key;
@@ -37,10 +39,10 @@ namespace UPlayGround.Data
 
         [Space]
         [Header("Mode")]
-        [Tooltip("Position=위치 이동(레거시), Rotation=회전(권장)")]
+        [Tooltip("Position=위치 이동(레거시), Rotation=회전(권장), Both=위치+회전 동시")]
         public ShakeMode Mode = ShakeMode.Position;
 
-        [Tooltip("Random=난수(레거시), Perlin=정합 노이즈(권장)")]
+        [Tooltip("Random=난수(레거시), Perlin=정합 노이즈, Wave=사인 웨이브(가장 부드러움, 권장)")]
         public NoiseType Noise = NoiseType.Random;
 
         [Space]
@@ -113,6 +115,12 @@ namespace UPlayGround.Data
 
         /// <summary>회전 강도 벡터 (도): X=Pitch, Y=Yaw, Z=Roll</summary>
         public Vector3 RotationStrength => new Vector3(PitchAmplitude, YawAmplitude, RollAmplitude);
+
+        /// <summary>이 쉐이크가 회전 채널을 구동하는가 (Rotation 또는 Both)</summary>
+        public bool DrivesRotation => Mode != ShakeMode.Position;
+
+        /// <summary>이 쉐이크가 위치 채널을 구동하는가 (Position 또는 Both)</summary>
+        public bool DrivesPosition => Mode != ShakeMode.Rotation;
 
         /// <summary>캐싱된 감쇠 커브. 매 프레임 new 하지 않는다.</summary>
         public AnimationCurve ShakeCurve => _cachedCurve ??= BuildCurve();

@@ -334,13 +334,16 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            // 상태를 빠져나갈 때 만료 정지를 반드시 해제(콜리전 ON 도중 전환되어도 버퍼가 멈춘 채 남지 않도록).
+            InputManager.Instance.InputBuffer.SetExpiryPaused(false);
+
             gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
 
             _combat.ClearHitTargets();
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
-            gameActor.Animator.Speed = 1f;
+            gameActor.Animator.Speed = gameActor.LocalTimeScale;
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
             _homingTarget = null;
             _dodgeCounterTarget = null;
@@ -358,12 +361,20 @@ namespace UPlayGround.State
             if (_combat.IsPossibleCollide)
                 _hasActiveHitFired = true;
 
+            // 선입력 보존: 액티브 히트(캔슬 불가) 동안엔 입력 버퍼 만료를 정지해, 이 구간에 들어온
+            // 캔슬/콤보 선입력이 0.24s 만료로 유실되지 않게 한다. 캔슬창이 열리면(콜리전 OFF) 정지가
+            // 풀려 선입력이 살아있는 채로 아래 TryInterrupt/콤보 검사에 즉시 소비된다.
+            InputManager.Instance.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide);
+
             // 인터럽트(캔슬): 허용 액션은 데이터(interruptActions) 마스크로, 허용 구간은
             // 캔슬 윈도우(히트박스 콜리전 비활성 구간)로 제어한다. 액티브 히트 중엔 캔슬 불가.
             // 콤보 검사보다 먼저 실행되어 둘 다 성립하면 캔슬이 우선한다.
             // Dash가 입력만 소비하고 전환에 실패하면 false가 반환되어 아래 콤보 로직으로 fall-through 한다.
+            // allowGuardCancel: 가드(hold) 캔슬은 액티브 히트가 한 번이라도 발생한 뒤(리커버리/멀티히트 간격)에만
+            // 허용한다. 초기 윈드업에서 가드를 쥔 채 시작하는 패리/카운터 반격이 곧바로 가드로 튕기는 걸 막는다.
             if (_combat.IsCancelWindowOpen
-                && PlayerInterruptResolver.TryInterrupt(playerController, _currentAttack.interruptActions))
+                && PlayerInterruptResolver.TryInterrupt(playerController, _currentAttack.interruptActions,
+                    allowGuardCancel: _hasActiveHitFired))
                 return;
 
             if (_combat.CanCombo)
@@ -611,9 +622,10 @@ namespace UPlayGround.State
             base.UpdateVelocity(ref currentVelocity, deltaTime);
 
             // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
-            gameActor.Animator.Speed = _combat.IsMotionWarping
+            float playbackScale = _combat.IsMotionWarping
                 ? _motionWarp.WarpPlayRateScale
                 : 1f;
+            gameActor.Animator.Speed = playbackScale * gameActor.LocalTimeScale;
 
             Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             currentVelocity = _motionWarp.EvaluateVelocity(

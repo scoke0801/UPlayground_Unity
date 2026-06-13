@@ -65,7 +65,8 @@ namespace UPlayGround.Editor
             DrawRow("체력 회복",   $"최대 HP의 {data.healAmount * 100:F1}%");
             DrawRow("게이지 회복", $"{data.gaugeAmount:F0} / 100");
             DrawRow("탐지 반경",   $"{data.collectRadius:F1} m");
-            DrawRow("흡입 속도",   $"{data.attractSpeed:F1} m/s");
+            DrawRow("흡입 지연",   $"{data.attractDelay:F1} 초");
+            DrawRow("흡입 속도",   $"{data.minAttractSpeed:F1}~{data.maxAttractSpeed:F1} m/s");
             DrawRow("수명",        $"{data.lifetime:F1} 초");
 
             EditorGUILayout.Space(4);

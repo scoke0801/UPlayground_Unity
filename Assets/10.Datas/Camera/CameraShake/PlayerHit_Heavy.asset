@@ -15,16 +15,18 @@ MonoBehaviour:
   key: PlayerHit_Heavy
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.25
   Delay: 0
   AmplitudeX: 0.18
   AmplitudeY: 0.25
-  Frequency: 16
-  Dampening: 1
-  ShakeSpace: 0
-  Mode: 1
-  Noise: 1
-  PitchAmplitude: 2.0
+  PitchAmplitude: 2
   YawAmplitude: 1.4
   RollAmplitude: 0
   DirectionalBias: 0.4
+  AttenuateByDistance: 0
+  AttenuationRange: 25
+  Frequency: 16
+  Dampening: 1
+  ShakeSpace: 0

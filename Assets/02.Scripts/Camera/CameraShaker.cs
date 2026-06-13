@@ -174,7 +174,7 @@ namespace UPlayGround
             v.DirYawWeight   = 1f;
 
             CameraShakeData d = v.Data;
-            if (d == null || d.Mode != CameraShakeData.ShakeMode.Rotation) return;
+            if (d == null || !d.DrivesRotation) return;
 
             float bias = d.DirectionalBias;
             if (bias <= 0f || worldDirection.sqrMagnitude < 0.0001f) return;
@@ -297,11 +297,19 @@ namespace UPlayGround
             CameraShakeData d = v.Data;
             if (d == null) return;
 
-            bool    rotationMode = d.Mode == CameraShakeData.ShakeMode.Rotation;
-            Vector3 amplitude    = rotationMode ? d.RotationStrength : d.ShakeStrength;
-
             Vector3 noise;
-            if (d.Noise == CameraShakeData.NoiseType.Perlin)
+            if (d.Noise == CameraShakeData.NoiseType.Wave)
+            {
+                // 사인 웨이브: 1차 + 2차 하모닉(1.7배) 합으로 기계적이지 않게.
+                // C∞ 연속이라 노이즈보다 매끄럽게 진동 후 감쇠커브를 따라 수렴한다.
+                // 축별 시드를 위상으로 써서 세 축이 동시에 같은 방향으로 튀지 않게 분리.
+                float coord = absoluteTime * Mathf.Max(0.01f, d.Frequency);
+                noise = new Vector3(
+                    WaveSample(coord, v.NoiseSeed.x),
+                    WaveSample(coord, v.NoiseSeed.y),
+                    WaveSample(coord, v.NoiseSeed.z));
+            }
+            else if (d.Noise == CameraShakeData.NoiseType.Perlin)
             {
                 // 정합 노이즈: 축별 시드를 크게 벌려 0.5 군집을 피하고 [-1,1]로 재매핑.
                 float coord = absoluteTime * Mathf.Max(0.01f, d.Frequency);
@@ -324,23 +332,39 @@ namespace UPlayGround
                 noise = rand * (Random.value > 0.5f ? -1f : 1f);
             }
 
-            // 방향 매칭 가중 (Rotation 모드. Position 모드는 가중이 항상 1)
-            noise.x *= v.DirPitchWeight;
-            noise.y *= v.DirYawWeight;
+            // 위치/회전이 같은 base 노이즈를 공유 → 한 번의 충격이 일관된 결로 밀고 비튼다.
+            float env = GLOBAL_SHAKE_MULTIPLIER * d.ShakeCurve.Evaluate(t) * v.Strength;
 
-            Vector3 vec = GLOBAL_SHAKE_MULTIPLIER * d.ShakeCurve.Evaluate(t) * v.Strength
-                          * Vector3.Scale(noise, amplitude);
-
-            if (rotationMode)
+            // 회전 채널: 방향 매칭 가중(Pitch=x, Yaw=y) 적용. Position 전용 모드는 가중이 항상 1.
+            if (d.DrivesRotation)
             {
-                v.CurrentEuler = vec;
-                v.CurrentPos   = Vector3.zero;
+                Vector3 rn = noise;
+                rn.x *= v.DirPitchWeight;
+                rn.y *= v.DirYawWeight;
+                v.CurrentEuler = env * Vector3.Scale(rn, d.RotationStrength);
             }
             else
             {
-                v.CurrentPos   = vec;
                 v.CurrentEuler = Vector3.zero;
             }
+
+            // 위치 채널: 레거시 호환을 위해 방향 가중 없이 원본 노이즈 사용(방향성 킥은 Punch가 담당).
+            v.CurrentPos = d.DrivesPosition
+                ? env * Vector3.Scale(noise, d.ShakeStrength)
+                : Vector3.zero;
+        }
+
+        private const float TAU = 2f * Mathf.PI;
+
+        /// <summary>
+        /// 감쇠 사인 웨이브 1샘플. 기본파 + 2차 하모닉(1.7배·진폭 0.3) 합으로
+        /// 단일 사인의 기계적 결을 깬다. 진폭 합 0.7+0.3=1 이라 [-1,1]를 유지.
+        /// phase는 축별 시드(라디안 무관, sin이 큰 인자도 처리)로 축 간 위상을 분리.
+        /// </summary>
+        private static float WaveSample(float coord, float phase)
+        {
+            float angle = coord * TAU + phase;
+            return Mathf.Sin(angle) * 0.7f + Mathf.Sin(angle * 1.7f) * 0.3f;
         }
 
         #endregion
@@ -397,13 +421,13 @@ namespace UPlayGround
 
         private static void AddRotation(ShakeVoice v, ref Vector3 sum)
         {
-            if (v?.Data != null && v.Data.Mode == CameraShakeData.ShakeMode.Rotation)
+            if (v?.Data != null && v.Data.DrivesRotation)
                 sum += v.CurrentEuler;
         }
 
         private void AccumulatePosition(ShakeVoice v, Camera cam, ref Vector3 posSum)
         {
-            if (v?.Data == null || v.Data.Mode == CameraShakeData.ShakeMode.Rotation) return;
+            if (v?.Data == null || !v.Data.DrivesPosition) return;
 
             Vector3 p = v.CurrentPos;
             if (v.Data.ShakeSpace == ShakeSpace.Screen)

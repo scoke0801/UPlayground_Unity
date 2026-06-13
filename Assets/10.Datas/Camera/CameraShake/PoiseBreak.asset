@@ -15,16 +15,18 @@ MonoBehaviour:
   key: PoiseBreak
   UseMainCamera: 1
   Cameras: []
+  Mode: 2
+  Noise: 1
   Duration: 0.18
   Delay: 0
   AmplitudeX: 0.22
   AmplitudeY: 0.1
+  PitchAmplitude: 2
+  YawAmplitude: 1
+  RollAmplitude: 0
+  DirectionalBias: 0.6
+  AttenuateByDistance: 0
+  AttenuationRange: 25
   Frequency: 20
   Dampening: 0
   ShakeSpace: 0
-  Mode: 1
-  Noise: 1
-  PitchAmplitude: 2.0
-  YawAmplitude: 1.0
-  RollAmplitude: 0
-  DirectionalBias: 0.6

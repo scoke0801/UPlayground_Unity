@@ -19,6 +19,7 @@ namespace UPlayGround.Component
         private bool? _pendingDrawn;
         private bool _isSubscribed;
         private bool _isPlayingDrawMotion;
+        private bool _trailsSuppressedForNonCombat;
 
         private void Awake()
         {
@@ -39,6 +40,9 @@ namespace UPlayGround.Component
 
         private void Update()
         {
+            if (_combat != null && !_combat.IsInCombat && !_trailsSuppressedForNonCombat)
+                SuppressAttackTrails();
+
             if (_isPlayingDrawMotion && !IsSafeState())
             {
                 _equipment?.CancelMainWeaponDrawMotionRequest();
@@ -88,7 +92,25 @@ namespace UPlayGround.Component
 
         private void OnCombatStateChanged(bool isInCombat)
         {
+            if (!isInCombat)
+                SuppressAttackTrails();
+            else
+                _trailsSuppressedForNonCombat = false;
+
             RequestDrawn(isInCombat);
+        }
+
+        private void SuppressAttackTrails()
+        {
+            RefreshReferences();
+
+            if (_equipment != null)
+                ActorWeaponTrailController.SuppressAttackTrails(_equipment);
+
+            if (_player != null)
+                ActorWeaponTrailController.SuppressAttackTrails(_player);
+
+            _trailsSuppressedForNonCombat = true;
         }
 
         private void RequestDrawn(bool drawn)

@@ -701,6 +701,18 @@ namespace UPlayGround.Editor
                     PlayerInterruptAction.Dash |
                     PlayerInterruptAction.Skill,
 
+                // 등장/스왑 공격: 리커버리에서 방어·이동으로 빠져나올 수 있게 한다(스왑 후 후딜 단축).
+                // 공격타입(Light/Heavy/Skill)은 제외 — 연타 시 버퍼에 남은 공격 입력이 윈드업에서
+                // 이 특수 공격을 선점·취소해 "스왑 공격이 안 나가는" 회귀를 막기 위함.
+                // (가드/이동 캔슬은 PlayerAttackState의 _hasActiveHitFired 게이트로 리커버리에서만 발동.)
+                AttackCategory.Entry or AttackCategory.SwapEvadeCounter or AttackCategory.SwapSpecial =>
+                    PlayerInterruptAction.Dodge |
+                    PlayerInterruptAction.Jump |
+                    PlayerInterruptAction.Dash |
+                    PlayerInterruptAction.Guard |
+                    PlayerInterruptAction.Move,
+
+                // Counter/ParryCounter는 '커밋' 설계라 의도적으로 None 유지.
                 _ => PlayerInterruptAction.None,
             };
         }

@@ -411,6 +411,13 @@ namespace UPlayGround.CameraSystem
             Vector3 camDir,
             Vector3 backPos)
         {
+            if (Time.frameCount <= context.SuppressCapsuleClearanceUntilFrame)
+            {
+                _frontCameraBlend = 0f;
+                _frontCameraBlendVel = 0f;
+                return backPos;
+            }
+
             ComputeCapsuleClearance(context.CharacterCapsule, settings, pivotPosition, camDir,
                 out float backClearance, out float frontClearance);
 

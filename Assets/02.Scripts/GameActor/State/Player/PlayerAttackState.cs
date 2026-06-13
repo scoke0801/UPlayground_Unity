@@ -165,7 +165,8 @@ namespace UPlayGround.State
                     return combat.PeekParryCounterAttackAnimKey();
 
                 // 1순위: 퍼펙트 가드 반격
-                bool isCounter = playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false;
+                bool isCounter = combat.IsPerfectGuardCounterAvailable
+                                 || (playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
                 if (isCounter)
                     return combat.PeekCounterAttackAnimKey();
 
@@ -245,10 +246,28 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
-            _isCounter = !hasForcedAttack
-                         && (gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
-            if (_isCounter)
+            _isParryCounter = !hasForcedAttack && _combat.IsParryCounterAvailable;
+            if (_isParryCounter)
+            {
+                _combat.CloseParryCounterWindow();
+                Debug.Log("[ParryCounter] 패리 반격 진입");
+            }
+
+            bool hasPerfectGuardCounterTag = !hasForcedAttack
+                                             && (gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
+            if (hasPerfectGuardCounterTag)
                 gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+
+            // 퍼펙트 가드 반격은 카운터 윈도우가 1차 소스. ConsumePerfectGuardCounterWindow가
+            // 윈도우를 닫으며 소비하므로 별도 Close 호출은 불필요하다.
+            // 윈도우가 프레임 경계에서 만료된 경우에도 태그가 남아 있으면 반격을 성립시켜
+            // PeekNextAnimKey의 (윈도우 OR 태그) 판정과 실행 분기를 일치시킨다.
+            bool consumedPerfectGuardCounter = !hasForcedAttack
+                                               && !_isParryCounter
+                                               && _combat.ConsumePerfectGuardCounterWindow();
+            _isCounter = !hasForcedAttack
+                         && !_isParryCounter
+                         && (consumedPerfectGuardCounter || hasPerfectGuardCounterTag);
 
             _dodgeCounterTarget = _combat.DodgeCounterTarget != null ? _combat.DodgeCounterTarget.transform : null;
             bool consumedDodgeCounter = !hasForcedAttack && _combat.ConsumeDodgeCounterWindow();
@@ -259,13 +278,6 @@ namespace UPlayGround.State
             _isSwapEvadeCounterAttack = consumedDodgeCounter || consumedSwapEvadeCounter;
             _isSwapSpecialAttack = !hasForcedAttack && !_isSwapEvadeCounterAttack && playerActor.ConsumeSwapSpecialAttackPending();
             _isEntryAttack = !hasForcedAttack && playerActor.ConsumeEntryAttackPending();
-
-            _isParryCounter = !hasForcedAttack && _combat.IsParryCounterAvailable;
-            if (_isParryCounter)
-            {
-                _combat.CloseParryCounterWindow();
-                Debug.Log("[ParryCounter] 패리 반격 진입");
-            }
 
             if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
             {

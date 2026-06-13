@@ -247,6 +247,15 @@ namespace UPlayGround.Component
         public void ClosePerfectGuardCounterWindow()
             => _perfectGuardCounterEndTime = -999f;
 
+        public bool ConsumePerfectGuardCounterWindow()
+        {
+            if (!IsPerfectGuardCounterAvailable)
+                return false;
+
+            ClosePerfectGuardCounterWindow();
+            return true;
+        }
+
         /// <summary> 패리 반격 창이 열려 있는지 여부 </summary>
         public bool IsParryCounterAvailable => Time.time <= _parryCounterEndTime;
 

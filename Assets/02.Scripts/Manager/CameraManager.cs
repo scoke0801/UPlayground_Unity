@@ -74,6 +74,9 @@ namespace UPlayGround.Manager
         private bool _isCameraInputRegistered;
         private int _lastLockOnToggleFrame = -1;
         private float _lastLockOnToggleTime = -999f;
+        private int _suppressCapsuleClearanceUntilFrame = -1;
+        private bool _heldCombatStateForSwap;
+        private float _holdCombatStateUntilTime = -999f;
         private const float LOCK_ON_TOGGLE_DEBOUNCE_TIME = 0.08f;
 
         private System.Func<bool> _combatStateProvider;
@@ -621,6 +624,7 @@ namespace UPlayGround.Manager
         private void RebuildTargetSubsystems(bool preserveLockOnTarget)
         {
             CameraLockOn previousLockOn = _lockOn;
+            CameraDistanceController previousDistanceCtrl = _distanceCtrl;
             Transform previousLockOnTarget = preserveLockOnTarget && previousLockOn?.IsActive == true
                 ? previousLockOn.CurrentTarget
                 : null;
@@ -639,10 +643,16 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            float initialDistance = Mathf.Clamp(
+                _targetDistance > 0f ? _targetDistance : settings.defaultDistance,
+                settings.minDistance,
+                settings.maxDistance);
+            float initialFOV = previousDistanceCtrl?.BaseFOV ?? settings.fovExplore;
+
             _lockOn = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
             _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
-            _collision = new CameraCollision(settings, _target, _collisionLayers, settings.defaultDistance);
-            _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, settings.fovExplore);
+            _collision = new CameraCollision(settings, _target, _collisionLayers, initialDistance);
+            _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, initialFOV);
             _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
 
             if (preserveLockOnTarget && previousLockOnTarget != null && !_lockOn.TryRestoreTarget(previousLockOnTarget))
@@ -662,7 +672,7 @@ namespace UPlayGround.Manager
             _cameraContext.Collision = _collision;
             _cameraContext.DistanceController = _distanceCtrl;
             _cameraContext.RotationTransition = _rotTransition;
-            _cameraContext.CombatStateProvider = _combatStateProvider;
+            _cameraContext.CombatStateProvider = ResolveCombatState;
             _cameraContext.PlayerVelocityProvider = _playerVelocityProvider ?? GetPlayerVelocity;
             _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
             _cameraContext.StartCameraAlign = StartCameraAlign;
@@ -676,6 +686,7 @@ namespace UPlayGround.Manager
             _cameraContext.IsAligning = _isAligning;
             _cameraContext.AlignTimer = _alignTimer;
             _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
+            _cameraContext.SuppressCapsuleClearanceUntilFrame = _suppressCapsuleClearanceUntilFrame;
         }
 
         private void SyncRigStateFromFields()
@@ -719,6 +730,14 @@ namespace UPlayGround.Manager
                 CacheMovementController();
 
             return _targetMovement?.Motor != null ? _targetMovement.Motor.Velocity : Vector3.zero;
+        }
+
+        private bool ResolveCombatState()
+        {
+            if (Time.unscaledTime <= _holdCombatStateUntilTime)
+                return _heldCombatStateForSwap;
+
+            return _combatStateProvider?.Invoke() ?? false;
         }
 
         private void ApplyCameraPose(CameraRigPose pose)
@@ -812,6 +831,12 @@ namespace UPlayGround.Manager
 
         public void SetTarget(Transform newTarget)
         {
+            if (_target == newTarget && newTarget != null)
+            {
+                RefreshTargetCollisionReference();
+                return;
+            }
+
             _target = newTarget;
             CacheCapsule();
             CacheMovementController();
@@ -830,6 +855,36 @@ namespace UPlayGround.Manager
             }
 
             SyncRigStateFromFields();
+        }
+
+        /// <summary>
+        /// 플레이어 루트는 유지한 채 활성 모델/콜라이더만 바뀐 경우 카메라 충돌 참조를 갱신한다.
+        /// 캐릭터 스왑 순간의 캡슐 클리어런스 재계산이 카메라를 전방/근거리로 당기는 것을 짧게 억제한다.
+        /// </summary>
+        public void RefreshTargetCollisionReference(int suppressCapsuleClearanceFrames = 2)
+        {
+            CacheCapsule();
+            CacheMovementController();
+            _suppressCapsuleClearanceUntilFrame = Mathf.Max(
+                _suppressCapsuleClearanceUntilFrame,
+                Time.frameCount + Mathf.Max(0, suppressCapsuleClearanceFrames));
+            SyncCameraContext();
+        }
+
+        /// <summary>
+        /// 캐릭터 스왑 중 컴포넌트 참조 갱신으로 전투 상태 판정이 잠깐 흔들려도
+        /// 카메라가 일반/전투 오프셋 사이를 왕복하지 않도록 현재 전투 상태를 짧게 고정한다.
+        /// </summary>
+        public void PreserveCombatStateForCharacterSwap(bool isInCombat, float duration = 0.35f)
+        {
+            if (!isInCombat)
+                return;
+
+            _heldCombatStateForSwap = true;
+            _holdCombatStateUntilTime = Mathf.Max(
+                _holdCombatStateUntilTime,
+                Time.unscaledTime + Mathf.Max(0f, duration));
+            SyncCameraContext();
         }
 
         /// <summary>

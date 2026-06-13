@@ -34,6 +34,7 @@ namespace UPlayGround.CameraSystem
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
         public bool HasActiveEffects { get; set; }
+        public int SuppressCapsuleClearanceUntilFrame { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 
         public CameraRuntimeContext(CameraRigState state)

@@ -25,6 +25,11 @@ namespace UPlayGround.State
         private PlayerEquipment _equipment;
         private float _guardStartTime;
         private const float PERFECT_GUARD_WINDOW = 0.3f;
+        private const float GuardBlockRecoilSpeed = 1.8f;
+        private const float GuardBlockRecoilDuration = 0.16f;
+        private const float HeavyGuardPushMultiplier = 1.2f;
+        private Vector3 _guardBlockRecoilDirection;
+        private float _guardBlockRecoilTimer;
 
         // 퍼펙트 가드 FOV 연출용 SO - CameraManager.SetPerfectGuardFOVData()로 주입받음
         public static FOVCameraEffectData PerfectGuardFOVData { get; private set; }
@@ -82,6 +87,8 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             _guardStartTime = Time.time;
+            _guardBlockRecoilDirection = Vector3.zero;
+            _guardBlockRecoilTimer = 0f;
 
             playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
         }
@@ -152,6 +159,14 @@ namespace UPlayGround.State
                     currentVelocity,
                     targetVelocity,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+
+                if (_guardBlockRecoilTimer > 0f)
+                {
+                    float t = Mathf.Clamp01(_guardBlockRecoilTimer / GuardBlockRecoilDuration);
+                    float speed = GuardBlockRecoilSpeed * t * t;
+                    currentVelocity += _guardBlockRecoilDirection * speed;
+                    _guardBlockRecoilTimer = Mathf.Max(0f, _guardBlockRecoilTimer - deltaTime);
+                }
             }
         }
         
@@ -178,8 +193,7 @@ namespace UPlayGround.State
             bool isPerfectGuard = timeSinceGuardStart <= PERFECT_GUARD_WINDOW;
             
             var blockAnimState = playerActor.Animator.PlayMotion(AnimKey.Block, 0.05f, 0);
-            
-            playerController.AddVelocity(incomingAttack.attackDirection.normalized * 2.0f);
+            BeginGuardBlockRecoil(incomingAttack, isPerfectGuard);
             
             blockAnimState.OwnedEvents.OnEnd = () =>
             {
@@ -217,6 +231,52 @@ namespace UPlayGround.State
                 var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
                 GameObjectManager.Instance.ShowFX(FXKeyType.playerGuardFX, socketTM.position);
             }
+        }
+
+        private void BeginGuardBlockRecoil(AttackData incomingAttack, bool isPerfectGuard)
+        {
+            if (isPerfectGuard)
+                return;
+
+            Vector3 pushDirection = ResolveGuardPushDirection(incomingAttack);
+            if (pushDirection.sqrMagnitude <= 0.0001f)
+                return;
+
+            float duration = GuardBlockRecoilDuration;
+            if (IsHeavyGuardImpact(incomingAttack))
+                duration *= HeavyGuardPushMultiplier;
+
+            _guardBlockRecoilDirection = pushDirection;
+            _guardBlockRecoilTimer = duration;
+        }
+
+        private Vector3 ResolveGuardPushDirection(AttackData incomingAttack)
+        {
+            Vector3 direction = Vector3.zero;
+
+            if (incomingAttack?.attacker != null)
+                direction = motor.TransientPosition - incomingAttack.attacker.transform.position;
+            else if (incomingAttack != null && incomingAttack.attackDirection != Vector3.zero)
+                direction = incomingAttack.attackDirection;
+            else
+                direction = -gameActor.transform.forward;
+
+            direction.y = 0f;
+            return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.zero;
+        }
+
+        private static bool IsHeavyGuardImpact(AttackData incomingAttack)
+        {
+            if (incomingAttack == null)
+                return false;
+
+            return incomingAttack.reactionType is
+                AttackReactionType.Heavy or
+                AttackReactionType.KnockBack or
+                AttackReactionType.Airborne or
+                AttackReactionType.Knockdown or
+                AttackReactionType.Stun or
+                AttackReactionType.Grab;
         }
 
         /// <summary>

@@ -88,6 +88,8 @@ namespace UPlayGround.Component
                 ? _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
                   ?? ActorAnimator.MotionPlaybackSnapshot.Empty
                 : ActorAnimator.MotionPlaybackSnapshot.Empty;
+            bool wasInCombat = _playerActor?.GetCombat()?.IsInCombat ?? false;
+            CameraManager.Instance?.PreserveCombatStateForCharacterSwap(wasInCombat);
 
             if (spawnResidualAttack)
             {
@@ -96,10 +98,12 @@ namespace UPlayGround.Component
                 TrySpawnResidualAttack(_activeModel);
             }
 
+            StopOutgoingModelPlayback(_activeModel);
             _activeModel?.gameObject.SetActive(false);
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
             _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
+            CameraManager.Instance?.RefreshTargetCollisionReference();
             PlaySwapFx();
             return true;
         }
@@ -117,6 +121,16 @@ namespace UPlayGround.Component
 
         public CharacterModelData GetModelData(CharacterActorType type)
             => _models.Find(m => m.characterType == type);
+
+        private void StopOutgoingModelPlayback(CharacterModelData sourceModel)
+        {
+            if (sourceModel == null) return;
+
+            ActorWeaponTrailController.SuppressAttackTrails(sourceModel.transform);
+
+            var animator = sourceModel.GetComponentInChildren<ActorAnimator>(includeInactive: true);
+            animator?.StopMotionSet();
+        }
 
         private void TrySpawnResidualAttack(CharacterModelData sourceModel)
         {

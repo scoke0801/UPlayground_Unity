@@ -5,6 +5,7 @@ using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Actor.Editor
 {
@@ -21,11 +22,14 @@ namespace UPlayGround.Actor.Editor
         private ActorType _filterType   = ActorType.None;
         private bool    _showSpawnedOnly = false;
         private bool    _autoRefresh     = true;
+        private bool    _showDetails     = true;
         private double  _lastRefreshTime;
         private const double RefreshInterval = 0.25;
 
         // ── 캐시 ─────────────────────────────────────────────────────
         private List<ActorRow> _rows = new();
+        private int _selectedActorInstanceId;
+        private readonly Dictionary<int, StateTrackInfo> _stateTrackMap = new();
 
         // ── 스타일 캐시 ───────────────────────────────────────────────
         private GUIStyle _styleHeader;
@@ -46,6 +50,8 @@ namespace UPlayGround.Actor.Editor
         private const float ColType      = 75f;
         private const float ColHp        = 110f;
         private const float ColState     = 130f;
+        private const float ColAnim      = 260f;
+        private const float ColAnimTime  = 90f;
         private const float ColTags      = 220f;
         private const float ColGroup     = 90f;
         private const float ColSpawnTime = 65f;
@@ -123,6 +129,7 @@ namespace UPlayGround.Actor.Editor
 
             // 스폰된 것만 보기
             _showSpawnedOnly = GUILayout.Toggle(_showSpawnedOnly, "스폰된 것만", EditorStyles.toolbarButton, GUILayout.Width(80));
+            _showDetails = GUILayout.Toggle(_showDetails, "상세", EditorStyles.toolbarButton, GUILayout.Width(45));
 
             GUILayout.FlexibleSpace();
 
@@ -151,6 +158,8 @@ namespace UPlayGround.Actor.Editor
             DrawHeaderCell(ref x, y, ColType,      "타입");
             DrawHeaderCell(ref x, y, ColHp,        "HP");
             DrawHeaderCell(ref x, y, ColState,     "현재 상태");
+            DrawHeaderCell(ref x, y, ColAnim,      "애니메이션");
+            DrawHeaderCell(ref x, y, ColAnimTime,  "재생");
             DrawHeaderCell(ref x, y, ColTags,      "GameplayTags");
             DrawHeaderCell(ref x, y, ColGroup,     "그룹");
             DrawHeaderCell(ref x, y, ColSpawnTime, "스폰 경과");
@@ -213,7 +222,11 @@ namespace UPlayGround.Actor.Editor
             DrawHpBar(ref x, y, row.hpCurrent, row.hpMax);
 
             // 현재 상태
-            DrawCell(ref x, y, ColState, row.stateName, EditorStyles.miniLabel);
+            DrawCell(ref x, y, ColState, row.stateSummary, EditorStyles.miniLabel);
+
+            // 애니메이션
+            DrawCell(ref x, y, ColAnim, row.animationSummary, EditorStyles.miniLabel);
+            DrawProgressCell(ref x, y, ColAnimTime, row.animationNormalizedTime, row.animationTimeSummary);
 
             // GameplayTags
             DrawTagsCell(ref x, y, row.tags);
@@ -229,6 +242,27 @@ namespace UPlayGround.Actor.Editor
 
             // MotionWarp 상태
             DrawWarpCell(ref x, y, row);
+
+            if (Event.current.type == EventType.MouseDown && rowRect.Contains(Event.current.mousePosition))
+            {
+                _selectedActorInstanceId = row.instanceId;
+                GUI.FocusControl(null);
+                Repaint();
+            }
+        }
+
+        private void DrawProgressCell(ref float x, float y, float width, float ratio, string label)
+        {
+            var rect = new Rect(x + 2, y + 2, width - 6, RowH - 8);
+            EditorGUI.DrawRect(rect, ColorHpBg);
+            if (ratio > 0f)
+            {
+                var fill = new Rect(rect.x, rect.y, rect.width * Mathf.Clamp01(ratio), rect.height);
+                EditorGUI.DrawRect(fill, new Color(0.30f, 0.55f, 0.90f));
+            }
+
+            GUI.Label(rect, label, EditorStyles.miniLabel);
+            x += width;
         }
 
         private void DrawWarpCell(ref float x, float y, ActorRow row)
@@ -293,12 +327,66 @@ namespace UPlayGround.Actor.Editor
         // ── 푸터 ─────────────────────────────────────────────────────
         private void DrawFooter()
         {
+            if (_showDetails)
+                DrawSelectedActorDetails();
+
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label(
                 $"Play Time: {Time.time:F1}s  |  Actor 합계: {_rows.Count}",
                 EditorStyles.miniLabel);
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawSelectedActorDetails()
+        {
+            ActorRow selected = null;
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                if (_rows[i].instanceId == _selectedActorInstanceId)
+                {
+                    selected = _rows[i];
+                    break;
+                }
+            }
+
+            if (selected == null && _rows.Count > 0)
+            {
+                selected = _rows[0];
+                _selectedActorInstanceId = selected.instanceId;
+            }
+
+            if (selected == null)
+                return;
+
+            EditorGUILayout.Space(4);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.MinHeight(92f));
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label($"{selected.name}  ({selected.actorId})", EditorStyles.boldLabel, GUILayout.Width(260f));
+            GUILayout.Label($"상태: {selected.stateName}  {selected.stateAge:F1}s", EditorStyles.miniLabel, GUILayout.Width(180f));
+            GUILayout.Label($"이전: {selected.previousStateName}", EditorStyles.miniLabel, GUILayout.Width(160f));
+            GUILayout.Label($"전환: {selected.lastTransitionSummary}", EditorStyles.miniLabel);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label($"MotionSet: {selected.motionSetName}", EditorStyles.miniLabel, GUILayout.Width(260f));
+            GUILayout.Label($"Key: {selected.animationKey}", EditorStyles.miniLabel, GUILayout.Width(150f));
+            GUILayout.Label($"Motion: {selected.motionIndexSummary} {selected.motionName}", EditorStyles.miniLabel, GUILayout.Width(260f));
+            GUILayout.Label($"Clip: {selected.clipName}", EditorStyles.miniLabel);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label($"시간: {selected.animationTimeSummary}  local={selected.localTimeSummary}", EditorStyles.miniLabel, GUILayout.Width(260f));
+            GUILayout.Label($"Layer: {selected.layerIndex}", EditorStyles.miniLabel, GUILayout.Width(80f));
+            GUILayout.Label($"Speed: state {selected.stateSpeed:F2} / graph {selected.graphSpeed:F2}", EditorStyles.miniLabel, GUILayout.Width(180f));
+            GUILayout.Label($"Loop/Freeze: {selected.loopSummary}", EditorStyles.miniLabel, GUILayout.Width(220f));
+            GUILayout.Label($"Events: {selected.activeEvents}", EditorStyles.miniLabel);
+            EditorGUILayout.EndHorizontal();
+
+            if (!string.IsNullOrEmpty(selected.warpInfo) && selected.warpInfo != "-")
+                GUILayout.Label($"MotionWarp: {selected.warpInfo}", EditorStyles.miniLabel);
+
+            EditorGUILayout.EndVertical();
         }
 
         // ── 데이터 수집 ───────────────────────────────────────────────
@@ -341,6 +429,8 @@ namespace UPlayGround.Actor.Editor
                 string stateName = "-";
                 if (actor.ActorController != null)
                     stateName = actor.ActorController.CurrentState?.StateName ?? "-";
+                int instanceId = actor.GetInstanceID();
+                StateTrackInfo stateTrack = UpdateStateTrack(instanceId, stateName);
 
                 // HP 정보 (MonsterActor만)
                 float hpCurrent = -1f, hpMax = -1f;
@@ -395,8 +485,15 @@ namespace UPlayGround.Actor.Editor
                     }
                 }
 
+                ActorAnimator.AnimationDebugSnapshot animSnapshot = actor.Animator != null
+                    ? actor.Animator.CaptureDebugSnapshot()
+                    : ActorAnimator.AnimationDebugSnapshot.Empty;
+                string animationSummary = BuildAnimationSummary(animSnapshot);
+                string animationTimeSummary = BuildAnimationTimeSummary(animSnapshot);
+
                 _rows.Add(new ActorRow
                 {
+                    instanceId  = instanceId,
                     actor      = actor,
                     actorId    = string.IsNullOrEmpty(actor.ActorId) ? "(없음)" : actor.ActorId,
                     name       = actor.name,
@@ -404,16 +501,124 @@ namespace UPlayGround.Actor.Editor
                     hpCurrent  = hpCurrent,
                     hpMax      = hpMax,
                     stateName  = stateName,
+                    stateSummary = $"{stateName} {stateTrack.StateAge:F1}s",
+                    previousStateName = stateTrack.PreviousStateName,
+                    stateAge = stateTrack.StateAge,
+                    lastTransitionSummary = stateTrack.LastTransitionSummary,
                     tags       = tagsText,
                     groupName  = groupName,
                     spawnTime  = info != null ? info.spawnTime : -1f,
                     warpActive = warpActive,
                     warpInfo   = warpInfo,
+                    animationSummary = animationSummary,
+                    animationTimeSummary = animationTimeSummary,
+                    animationNormalizedTime = animSnapshot.NormalizedTime,
+                    animationKey = animSnapshot.Key.ToString(),
+                    motionSetName = animSnapshot.MotionSetName,
+                    motionName = animSnapshot.MotionName,
+                    clipName = animSnapshot.ClipName,
+                    motionIndexSummary = animSnapshot.MotionIndex >= 0
+                        ? $"{animSnapshot.MotionIndex + 1}/{animSnapshot.MotionCount}"
+                        : "-",
+                    localTimeSummary = animSnapshot.MotionDuration > 0f
+                        ? $"{animSnapshot.LocalTime:F2}/{animSnapshot.MotionDuration:F2}s"
+                        : "-",
+                    layerIndex = animSnapshot.LayerIndex,
+                    stateSpeed = animSnapshot.StateSpeed,
+                    graphSpeed = animSnapshot.GraphSpeed,
+                    loopSummary = BuildLoopSummary(animSnapshot),
+                    activeEvents = animSnapshot.ActiveEvents,
                 });
             }
 
             // actorId 기준 정렬
             _rows.Sort((a, b) => string.Compare(a.actorId, b.actorId, System.StringComparison.OrdinalIgnoreCase));
+
+            PruneDeadStateTracks();
+        }
+
+        /// <summary>
+        /// 파괴된(디스폰된) 액터의 상태 추적 엔트리를 제거한다.
+        /// 필터로 숨겨졌을 뿐 살아 있는 액터의 전환 이력은 보존해야 하므로,
+        /// _rows(표시 대상)가 아니라 InstanceID의 실제 생존 여부로 판정한다.
+        /// </summary>
+        private void PruneDeadStateTracks()
+        {
+            if (_stateTrackMap.Count == 0)
+                return;
+
+            List<int> dead = null;
+            foreach (int id in _stateTrackMap.Keys)
+            {
+                if (EditorUtility.InstanceIDToObject(id) == null)
+                    (dead ??= new List<int>()).Add(id);
+            }
+
+            if (dead == null)
+                return;
+
+            for (int i = 0; i < dead.Count; i++)
+                _stateTrackMap.Remove(dead[i]);
+        }
+
+        private StateTrackInfo UpdateStateTrack(int instanceId, string stateName)
+        {
+            if (!_stateTrackMap.TryGetValue(instanceId, out StateTrackInfo info))
+            {
+                info = new StateTrackInfo
+                {
+                    CurrentStateName = stateName,
+                    PreviousStateName = "-",
+                    EnterTime = Time.time,
+                    LastTransitionSummary = "-",
+                };
+                _stateTrackMap[instanceId] = info;
+                return info;
+            }
+
+            if (info.CurrentStateName != stateName)
+            {
+                info.PreviousStateName = info.CurrentStateName;
+                info.CurrentStateName = stateName;
+                info.EnterTime = Time.time;
+                info.LastTransitionSummary = $"{info.PreviousStateName} → {stateName} @{Time.time:F1}s";
+            }
+
+            return info;
+        }
+
+        private static string BuildAnimationSummary(ActorAnimator.AnimationDebugSnapshot snapshot)
+        {
+            if (!snapshot.IsValid)
+                return "-";
+
+            if (snapshot.IsPlayingMotionSet)
+                return $"{snapshot.Key} / {snapshot.MotionName} / {snapshot.ClipName}";
+
+            return $"Clip / {snapshot.ClipName}";
+        }
+
+        private static string BuildAnimationTimeSummary(ActorAnimator.AnimationDebugSnapshot snapshot)
+        {
+            if (!snapshot.IsValid)
+                return "-";
+
+            if (snapshot.TotalDuration > 0f)
+                return $"{snapshot.GlobalTime:F2}/{snapshot.TotalDuration:F2}s";
+
+            return $"{snapshot.GlobalTime:F2}s";
+        }
+
+        private static string BuildLoopSummary(ActorAnimator.AnimationDebugSnapshot snapshot)
+        {
+            if (!snapshot.IsValid)
+                return "-";
+
+            string freeze = snapshot.IsFrozen ? "Freeze" : "Run";
+            string loop = snapshot.IsInfiniteLooping
+                ? $"InfiniteLoop stage {snapshot.InfiniteLoopStageIndex}"
+                : "Loop -";
+            return $"{freeze}, {loop}";
         }
 
         // ── 안내 메시지 ───────────────────────────────────────────────
@@ -441,6 +646,7 @@ namespace UPlayGround.Actor.Editor
         // ── 행 데이터 구조 ────────────────────────────────────────────
         private class ActorRow
         {
+            public int instanceId;
             public GameActor actor;
             public string actorId;
             public string name;
@@ -448,11 +654,39 @@ namespace UPlayGround.Actor.Editor
             public float  hpCurrent;
             public float  hpMax;
             public string stateName;
+            public string stateSummary;
+            public string previousStateName;
+            public float  stateAge;
+            public string lastTransitionSummary;
             public string tags;      // GameplayTag 목록 (쉼표 구분)
             public string groupName;
             public float  spawnTime; // -1이면 스폰 기록 없음
             public bool   warpActive;
             public string warpInfo;
+            public string animationSummary;
+            public string animationTimeSummary;
+            public float animationNormalizedTime;
+            public string animationKey;
+            public string motionSetName;
+            public string motionName;
+            public string clipName;
+            public string motionIndexSummary;
+            public string localTimeSummary;
+            public int layerIndex;
+            public float stateSpeed;
+            public float graphSpeed;
+            public string loopSummary;
+            public string activeEvents;
+        }
+
+        private class StateTrackInfo
+        {
+            public string CurrentStateName;
+            public string PreviousStateName;
+            public float EnterTime;
+            public string LastTransitionSummary;
+
+            public float StateAge => Mathf.Max(0f, Time.time - EnterTime);
         }
     }
 }

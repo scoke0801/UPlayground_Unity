@@ -78,6 +78,77 @@ namespace UPlayGround.Animation
             public static MotionPlaybackSnapshot Empty =>
                 new MotionPlaybackSnapshot(false, AnimKey.None, 0f, 0, 1f);
         }
+
+        public readonly struct AnimationDebugSnapshot
+        {
+            public readonly bool IsValid;
+            public readonly bool IsPlayingMotionSet;
+            public readonly AnimKey Key;
+            public readonly string MotionSetName;
+            public readonly int MotionIndex;
+            public readonly int MotionCount;
+            public readonly string MotionName;
+            public readonly string ClipName;
+            public readonly float GlobalTime;
+            public readonly float TotalDuration;
+            public readonly float LocalTime;
+            public readonly float MotionDuration;
+            public readonly float NormalizedTime;
+            public readonly int LayerIndex;
+            public readonly float StateSpeed;
+            public readonly float GraphSpeed;
+            public readonly bool IsFrozen;
+            public readonly bool IsInfiniteLooping;
+            public readonly int InfiniteLoopStageIndex;
+            public readonly string ActiveEvents;
+
+            public AnimationDebugSnapshot(
+                bool isValid,
+                bool isPlayingMotionSet,
+                AnimKey key,
+                string motionSetName,
+                int motionIndex,
+                int motionCount,
+                string motionName,
+                string clipName,
+                float globalTime,
+                float totalDuration,
+                float localTime,
+                float motionDuration,
+                float normalizedTime,
+                int layerIndex,
+                float stateSpeed,
+                float graphSpeed,
+                bool isFrozen,
+                bool isInfiniteLooping,
+                int infiniteLoopStageIndex,
+                string activeEvents)
+            {
+                IsValid = isValid;
+                IsPlayingMotionSet = isPlayingMotionSet;
+                Key = key;
+                MotionSetName = motionSetName;
+                MotionIndex = motionIndex;
+                MotionCount = motionCount;
+                MotionName = motionName;
+                ClipName = clipName;
+                GlobalTime = globalTime;
+                TotalDuration = totalDuration;
+                LocalTime = localTime;
+                MotionDuration = motionDuration;
+                NormalizedTime = normalizedTime;
+                LayerIndex = layerIndex;
+                StateSpeed = stateSpeed;
+                GraphSpeed = graphSpeed;
+                IsFrozen = isFrozen;
+                IsInfiniteLooping = isInfiniteLooping;
+                InfiniteLoopStageIndex = infiniteLoopStageIndex;
+                ActiveEvents = activeEvents;
+            }
+
+            public static AnimationDebugSnapshot Empty =>
+                new AnimationDebugSnapshot(false, false, AnimKey.None, "-", -1, 0, "-", "-", 0f, 0f, 0f, 0f, 0f, 0, 0f, 1f, false, false, -1, "-");
+        }
         
         /// <summary>
         /// 전체 애니메이터 재생 속도
@@ -292,6 +363,94 @@ namespace UPlayGround.Animation
                 normalizedTime,
                 _currentMotionLayerIndex,
                 Speed);
+        }
+
+        public AnimationDebugSnapshot CaptureDebugSnapshot()
+        {
+            if (_animator == null)
+                return AnimationDebugSnapshot.Empty;
+
+            AnimancerState state = _currentState != null ? _currentState : _animator.States.Current;
+            float graphSpeed = _animator.Graph.Speed;
+
+            if (!_isPlayingMotionSet || _currentMotionSet == null)
+            {
+                string clipName = state?.Clip != null ? state.Clip.name : "-";
+                return new AnimationDebugSnapshot(
+                    state != null,
+                    false,
+                    AnimKey.None,
+                    "-",
+                    -1,
+                    0,
+                    "-",
+                    clipName,
+                    state?.Time ?? 0f,
+                    state?.Length ?? 0f,
+                    state?.Time ?? 0f,
+                    state?.Length ?? 0f,
+                    state?.NormalizedTime ?? 0f,
+                    0,
+                    state?.Speed ?? 0f,
+                    graphSpeed,
+                    false,
+                    false,
+                    -1,
+                    "-");
+            }
+
+            Motion motion = GetCurrentMotion();
+            string motionName = !string.IsNullOrEmpty(motion?.motionName)
+                ? motion.motionName
+                : motion?.motionClip != null ? motion.motionClip.name : "-";
+            string currentClipName = state?.Clip != null
+                ? state.Clip.name
+                : motion?.motionClip != null ? motion.motionClip.name : "-";
+            float totalDuration = _currentMotionSet.TotalDuration;
+            float localTime = 0f;
+            if (!_currentMotionSet.GetMotionAtTime(_globalTime, out _, out localTime))
+                localTime = _lastLocalTime;
+
+            return new AnimationDebugSnapshot(
+                true,
+                true,
+                _lastPlayedKey,
+                string.IsNullOrEmpty(_currentMotionSet.motionSetName) ? "-" : _currentMotionSet.motionSetName,
+                _currentMotionIndex,
+                _currentMotionSet.motions?.Count ?? 0,
+                motionName,
+                currentClipName,
+                _globalTime,
+                totalDuration,
+                localTime,
+                motion?.Duration ?? 0f,
+                totalDuration > 0f ? Mathf.Clamp01(_globalTime / totalDuration) : 0f,
+                _currentMotionLayerIndex,
+                state?.Speed ?? 0f,
+                graphSpeed,
+                _isFrozen,
+                _isInfiniteLooping,
+                _infiniteLoopStageIndex,
+                BuildActiveEventSummary());
+        }
+
+        private string BuildActiveEventSummary()
+        {
+            if (_currentMotionSet == null)
+                return "-";
+
+            List<MotionEventBase> activeEvents = _currentMotionSet.GetActiveEventsAt(_globalTime);
+            if (activeEvents == null || activeEvents.Count == 0)
+                return "-";
+
+            List<string> labels = new List<string>(activeEvents.Count);
+            foreach (MotionEventBase evt in activeEvents)
+            {
+                if (evt == null) continue;
+                labels.Add(evt.GetShortLabel());
+            }
+
+            return labels.Count > 0 ? string.Join(", ", labels) : "-";
         }
 
         public MotionPlaybackSnapshot CaptureMovementPlaybackSnapshot()

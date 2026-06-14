@@ -80,6 +80,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 101
@@ -148,6 +149,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 102
@@ -216,6 +218,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 103
@@ -284,6 +287,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 104
@@ -414,6 +418,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 105
@@ -544,6 +549,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 106
@@ -612,6 +618,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 107
@@ -680,6 +687,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 108
@@ -748,6 +756,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   heavyComboAttackList:
   - baseInfo:
@@ -817,6 +826,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 201
@@ -885,6 +895,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 202
@@ -953,6 +964,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 203
@@ -1021,6 +1033,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 204
@@ -1151,6 +1164,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 205
@@ -1219,6 +1233,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 221
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   jumpAttackList: []
   dashAttackList: []
@@ -1476,6 +1491,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 189
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   - baseInfo:
       animKey: 501
@@ -1730,6 +1746,7 @@ MonoBehaviour:
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
     interruptActions: 189
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   skillDefinitions:
   - slot: 0
@@ -1993,6 +2010,7 @@ MonoBehaviour:
                 fakeImpactSlowScale: 0.9
                 fakeImpactDuration: 0
         interruptActions: 61
+        moveCancelDelayAfterLastHit: 0
         hitAngle: 60
       condition:
         groundCondition: 0
@@ -2262,6 +2280,7 @@ MonoBehaviour:
                 fakeImpactSlowScale: 0.9
                 fakeImpactDuration: 0
         interruptActions: 61
+        moveCancelDelayAfterLastHit: 0
         hitAngle: 60
       condition:
         groundCondition: 0
@@ -2339,7 +2358,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   parryCounterAttack:
     baseInfo:
@@ -2408,7 +2428,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   entryAttack:
     baseInfo:
@@ -2477,7 +2498,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   useEntryAttackVsGroggy: 1
   entryAttackVsGroggy:
@@ -2547,7 +2569,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   useEntryAttackVsAirborne: 1
   entryAttackVsAirborne:
@@ -2617,7 +2640,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   swapEvadeCounterAttack:
     baseInfo:
@@ -2686,7 +2710,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   swapSpecialAttack:
     baseInfo:
@@ -2879,7 +2904,8 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 0
+    interruptActions: 143
+    moveCancelDelayAfterLastHit: 0
     hitAngle: 60
   chargeAnimKey: 0
   chargeStages: []

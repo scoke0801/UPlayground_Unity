@@ -88,6 +88,58 @@ namespace UPlayGround.Editor
             return changed;
         }
 
+        /// <summary>
+        /// 기존 손튜닝 값을 보존하면서 등장/스왑 공격(단일 필드)에 캔슬 마스크를 OR로 추가한다.
+        /// MigrateAll(덮어쓰기)과 달리 비파괴적이라 세션에 걸쳐 다듬어온 interruptActions를 날리지 않는다.
+        /// 리스트만 순회하는 AddMoveCancelFlag가 닿지 못하는 entry/swap/반격 단일 필드가 대상으로,
+        /// 이 필드들이 enum 기본값 0(None=캔슬 불가)으로 방치돼 후딜 캔슬이 막히는 문제를 해소한다.
+        /// Counter/ParryCounter도 후딜 캔슬을 부여한다(공격타입은 제외 — 커밋감 유지).
+        /// </summary>
+        [MenuItem("UPlayGround/게임플레이/전투/PlayerAttackData 등장·스왑·반격 공격 캔슬 플래그 추가", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombat + 22)]
+        public static void AddEntrySwapCancelFlags()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:PlayerAttackDataSO");
+            int changed = 0;
+
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<PlayerAttackDataSO>(path);
+                if (data == null)
+                    continue;
+
+                Undo.RecordObject(data, "Add Entry/Swap Cancel Flags");
+
+                bool localChanged = false;
+                localChanged |= OrFlagToAttack(data.entryAttack, EntrySwapInterruptActions);
+                localChanged |= OrFlagToAttack(data.entryAttackVsGroggy, EntrySwapInterruptActions);
+                localChanged |= OrFlagToAttack(data.entryAttackVsAirborne, EntrySwapInterruptActions);
+                localChanged |= OrFlagToAttack(data.swapEvadeCounterAttack, EntrySwapInterruptActions);
+                localChanged |= OrFlagToAttack(data.swapSpecialAttack, EntrySwapInterruptActions);
+                localChanged |= OrFlagToAttack(data.counterAttack, CounterInterruptActions);
+                localChanged |= OrFlagToAttack(data.parryCounterAttack, CounterInterruptActions);
+
+                if (localChanged)
+                {
+                    EditorUtility.SetDirty(data);
+                    changed++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[PlayerAttackDataInterruptMigration] {changed}/{guids.Length}개 PlayerAttackDataSO에 등장·스왑 캔슬 플래그 추가 완료");
+        }
+
+        private static bool OrFlagToAttack(PlayerAttackInfo attack, PlayerInterruptAction flags)
+        {
+            // null(미설정 슬롯)은 건너뛰고, 이미 모든 플래그가 켜져 있으면 변경 없음으로 처리한다.
+            if (attack == null || (attack.interruptActions & flags) == flags)
+                return false;
+
+            attack.interruptActions |= flags;
+            return true;
+        }
+
         private static bool ApplyDefaults(PlayerAttackDataSO data)
         {
             bool changed = false;
@@ -98,14 +150,16 @@ namespace UPlayGround.Editor
             changed |= ApplyToList(data.dashAttackList, MobilityAttackInterruptActions);
             changed |= ApplyToList(data.jumpAttackList, MobilityAttackInterruptActions);
 
-            // 등장/스왑 공격(단일 필드)도 마스크를 부여한다. 기존엔 이 도구가 리스트만 순회해
-            // entry/swap이 enum 기본값 0(None=캔슬 불가)으로 방치 → 스왑 공격 후 후딜 캔슬 불가의 원인이었다.
-            // Counter/ParryCounter는 '커밋' 설계라 일부러 건드리지 않는다.
+            // 등장/스왑/반격 공격(단일 필드)도 마스크를 부여한다. 기존엔 이 도구가 리스트만 순회해
+            // entry/swap/counter가 enum 기본값 0(None=캔슬 불가)으로 방치 → 후딜 캔슬 불가의 원인이었다.
+            // Counter/ParryCounter도 후딜 캔슬을 부여한다(CounterInterruptActions, 공격타입 제외).
             changed |= ApplyToAttack(data.entryAttack, EntrySwapInterruptActions);
             changed |= ApplyToAttack(data.entryAttackVsGroggy, EntrySwapInterruptActions);
             changed |= ApplyToAttack(data.entryAttackVsAirborne, EntrySwapInterruptActions);
             changed |= ApplyToAttack(data.swapEvadeCounterAttack, EntrySwapInterruptActions);
             changed |= ApplyToAttack(data.swapSpecialAttack, EntrySwapInterruptActions);
+            changed |= ApplyToAttack(data.counterAttack, CounterInterruptActions);
+            changed |= ApplyToAttack(data.parryCounterAttack, CounterInterruptActions);
 
             changed |= SetIfDifferent(ref data.chargeInterruptActions, ChargeHoldInterruptActions);
 
@@ -197,6 +251,13 @@ namespace UPlayGround.Editor
             PlayerInterruptAction.Dash |
             PlayerInterruptAction.Guard |
             PlayerInterruptAction.Move;
+
+        // 퍼펙트가드/패리 반격: 현재는 등장·스왑과 동일(=143, Move 포함 후딜 캔슬 + 방어·회피 이탈).
+        // 공격타입은 동일하게 제외(반격→연타 선입력 선점 방지). 반격만 따로 조정하려면 여기만 바꾼다.
+        // 주의: Guard(8) 포함 — 반격은 가드를 쥔 채 발동되므로 액티브 히트 종료 후(캔슬창 OPEN)
+        // 가드 입력이 남아 있으면 리커버리가 즉시 가드로 캔슬될 수 있다. 후딜이 너무 짧게 느껴지면
+        // Guard를 빼서(=135) 가드 이탈을 막을 수 있다.
+        private const PlayerInterruptAction CounterInterruptActions = EntrySwapInterruptActions;
 
         private const PlayerInterruptAction ChargeHoldInterruptActions =
             PlayerInterruptAction.Dodge |

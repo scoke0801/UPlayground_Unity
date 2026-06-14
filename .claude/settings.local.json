@@ -223,7 +223,9 @@
       "WebFetch(domain:www.davetech.co.uk)",
       "WebFetch(domain:www.revertingcastles.com)",
       "WebFetch(domain:medium.com)",
-      "Bash(command -v dotnet)"
+      "Bash(command -v dotnet)",
+      "Bash(rm -rf \"Assets/02.Scripts/Data/VFX\" \"Assets/02.Scripts/Data/VFX.meta\")",
+      "Bash(rm -rf \"Assets/10.Datas/Actor/WeaponTrail\" \"Assets/10.Datas/Actor/WeaponTrail.meta\")"
     ]
   }
 }

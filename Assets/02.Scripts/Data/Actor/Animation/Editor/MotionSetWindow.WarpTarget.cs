@@ -9,9 +9,10 @@ namespace UPlayGround.Animation.Editor
     /// <summary>
     /// 모션 에디터에서 모션 워핑(MotionEvent_MotionWarp) 동작을 검증하기 위한 더미 타겟 관리.
     /// Player 모드에서만 동작. 액터 정면 거리/각도/높이로 더미 캡슐을 배치하고,
-    /// MotionWarpController.SetTarget("primary", ...)을 1회 주입(컨트롤러/스냅샷 토글 변경 시 재주입).
-    /// 더미 transform은 매 tick 갱신 — follow 모드면 anchor 추적으로 워프가 자동 반영.
-    /// Scene 핸들 드래그 시 슬라이더 값으로 역계산.
+    /// MotionWarpController.SetTarget("primary", ...)을 주입(StartPlayback에서 1회 + 컨트롤러/스냅샷 토글 변경 시).
+    /// 더미는 재생 중 완전히 고정된다 — 재생 전 사용자가 배치한 월드 고정점에 머물고, 워프(Snapshot)는
+    /// 윈도우 시작 시점에 그 점을 캡처해 액터를 착지시킨다(추격/과도이동 없음).
+    /// idle 상태에선 슬라이더/스폰/씬 핸들로 위치를 잡는다(핸들 드래그 시 슬라이더 값으로 역계산).
     /// </summary>
     public partial class MotionSetEditorWindow
     {
@@ -80,7 +81,7 @@ namespace UPlayGround.Animation.Editor
         void DrawWarpTargetControls()
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField("워프 타겟 (모션 워핑 테스트)", EditorStyles.boldLabel);
+            // 헤더 제목은 탭 스트립(DrawControlPanelTabs)이 표시한다.
 
             EditorGUI.BeginDisabledGroup(!WarpTargetGuiAllowed);
 
@@ -146,10 +147,11 @@ namespace UPlayGround.Animation.Editor
 
             DrawWarpRuntimeStatus();
 
-            EditorGUILayout.HelpBox(
-                "MotionEvent_MotionWarp 이벤트의 resolverPolicy=UseExisting 경로에서 이 더미가 그대로 사용됩니다. " +
-                "ConeNearest/LockOnFirst/Hybrid는 이벤트 자체가 타겟을 다시 결정하므로 더미가 덮어쓰일 수 있습니다.",
-                MessageType.None);
+            if (ShowPanelHelp)
+                EditorGUILayout.HelpBox(
+                    "MotionEvent_MotionWarp 이벤트의 resolverPolicy=UseExisting 경로에서 이 더미가 그대로 사용됩니다. " +
+                    "ConeNearest/LockOnFirst/Hybrid는 이벤트 자체가 타겟을 다시 결정하므로 더미가 덮어쓰일 수 있습니다.",
+                    MessageType.None);
 
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndVertical();
@@ -240,8 +242,8 @@ namespace UPlayGround.Animation.Editor
         }
 
         // ── MotionWarp 주입 ──────────────────────────────────────────
-        // OnEditorUpdate 재생 분기에서 매 tick 호출.
-        // 더미 transform 갱신은 매 tick(follow 모드 추적 위해),
+        // OnEditorUpdate 재생 분기에서 매 tick 호출 + StartPlayback에서 루프 전 1회(t=0 윈도우 대응).
+        // 더미 위치는 재생 중 고정(따라가지 않음) — 재생 전 배치 위치 유지.
         // SetTarget 자체는 컨트롤러/스냅샷토글 변경 시에만 1회 호출(평가 상태 리셋 방지).
         void InjectWarpTarget()
         {
@@ -258,18 +260,18 @@ namespace UPlayGround.Animation.Editor
             bool justSpawned = false;
             if (_spawnedWarpTarget == null)
             {
-                SpawnWarpTarget();
+                SpawnWarpTarget();   // 스폰 시 1회 위치 잡음
                 if (_spawnedWarpTarget == null) return;
                 justSpawned = true;
             }
-            else
-            {
-                // follow 모드는 anchor 추적이라 SetTarget 재호출 없이도 위치 변화가 반영된다.
-                // snapshot 모드는 SetTarget 시점 위치로 고정 — 그 시점 위치를 정확히 반영하려면 매 tick 갱신.
-                UpdateWarpTargetTransform();
-            }
 
             RefreshWarpControllerCache();
+
+            // 재생 중에는 더미를 액터에 따라 움직이지 않고 완전히 고정한다 — 재생 전 사용자가 슬라이더/씬핸들로
+            // 배치한 월드 고정점에 머문다. 워프(Snapshot 정책)는 윈도우 시작 시점에 이 고정점을 캡처해 액터를
+            // 그 지점으로 착지시키므로, 타겟이 멀어지지 않아 추격/과도이동이 없다.
+            // (idle 위치잡기는 GUI 변경/스폰/씬핸들에서 처리. 스폰 직후엔 SpawnWarpTarget이 1회 배치했다.)
+
             UpdateWarpDummyColor();
             if (_cachedWarpController == null) return;
 

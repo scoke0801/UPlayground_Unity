@@ -42,7 +42,9 @@ namespace UPlayGround.Animation.Editor
         // ─────────────────────────────────────────────────────────────────
         //  컨트롤 바 (OnGUI에서 호출)
         // ─────────────────────────────────────────────────────────────────
-        void DrawCombatOverlayControls()
+        // 패널 GUI만 그린다. 트랙 갱신(RefreshCombatOverlayTracks)은 패널 접힘 여부와
+        // 무관하게 매 프레임 실행돼야 하므로 RunControlPanelSideEffects()로 분리했다.
+        void DrawCombatOverlayPanel()
         {
             LoadCombatPrefsOnce();
 
@@ -50,8 +52,6 @@ namespace UPlayGround.Animation.Editor
             {
                 EditorGUILayout.BeginHorizontal();
                 {
-                    EditorGUILayout.LabelField("전투 오버레이", EditorStyles.boldLabel, GUILayout.Width(90));
-
                     bool show = EditorGUILayout.ToggleLeft("표시", _showCombatOverlay, GUILayout.Width(50));
                     if (show != _showCombatOverlay)
                     {
@@ -88,8 +88,6 @@ namespace UPlayGround.Animation.Editor
                     DrawCombatStatusRow();
             }
             EditorGUILayout.EndVertical();
-
-            RefreshCombatOverlayTracks();
         }
 
         void LoadCombatPrefsOnce()

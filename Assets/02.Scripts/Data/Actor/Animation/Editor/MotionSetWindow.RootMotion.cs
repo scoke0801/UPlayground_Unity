@@ -254,7 +254,7 @@ namespace UPlayGround.Animation.Editor
         void DrawRootMotionControls()
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField("루트 모션 프리뷰", EditorStyles.boldLabel);
+            // 헤더 제목은 탭 스트립(DrawControlPanelTabs)이 표시한다.
 
             using (var c = new EditorGUI.ChangeCheckScope())
             {
@@ -263,16 +263,14 @@ namespace UPlayGround.Animation.Editor
                 EditorGUI.indentLevel++;
                 EditorGUI.BeginDisabledGroup(!_rootMotionEnabled);
 
-                _rootMotionUniformScale = EditorGUILayout.Slider("스케일", _rootMotionUniformScale, 0f, 3f);
-
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("0×", GUILayout.Width(36))) _rootMotionUniformScale = 0f;
-                    if (GUILayout.Button("0.5×", GUILayout.Width(44))) _rootMotionUniformScale = 0.5f;
-                    if (GUILayout.Button("1×", GUILayout.Width(36))) _rootMotionUniformScale = 1f;
-                    if (GUILayout.Button("1.5×", GUILayout.Width(44))) _rootMotionUniformScale = 1.5f;
-                    if (GUILayout.Button("2×", GUILayout.Width(36))) _rootMotionUniformScale = 2f;
-                    GUILayout.FlexibleSpace();
+                    _rootMotionUniformScale = EditorGUILayout.Slider("스케일", _rootMotionUniformScale, 0f, 3f, GUILayout.MinWidth(140));
+                    if (GUILayout.Button("0×", GUILayout.Width(34))) _rootMotionUniformScale = 0f;
+                    if (GUILayout.Button("0.5×", GUILayout.Width(42))) _rootMotionUniformScale = 0.5f;
+                    if (GUILayout.Button("1×", GUILayout.Width(34))) _rootMotionUniformScale = 1f;
+                    if (GUILayout.Button("1.5×", GUILayout.Width(42))) _rootMotionUniformScale = 1.5f;
+                    if (GUILayout.Button("2×", GUILayout.Width(34))) _rootMotionUniformScale = 2f;
                 }
 
                 _rootMotionAxisAdvanced = EditorGUILayout.ToggleLeft("축별 스케일", _rootMotionAxisAdvanced);
@@ -315,11 +313,12 @@ namespace UPlayGround.Animation.Editor
             // Player 액터는 라이브 상태머신이 DeltaPosition을 함께 소비할 수 있어,
             // 스케일 1×에서 클립 의도보다 더 멀리 이동하면 이중 적용이다.
             // 의심되면 비플레이어 액터(레지스트리 스폰)로 다시 측정한다.
-            EditorGUILayout.HelpBox(
-                "스케일 1×가 클립 의도보다 길게 이동하면 상태머신이 루트모션을 함께 소비 중입니다. 검증 시에는 레지스트리에서 비플레이어 액터를 스폰해 테스트하세요.",
-                MessageType.None);
+            if (ShowPanelHelp)
+                EditorGUILayout.HelpBox(
+                    "스케일 1×가 클립 의도보다 길게 이동하면 상태머신이 루트모션을 함께 소비 중입니다. 검증 시에는 레지스트리에서 비플레이어 액터를 스폰해 테스트하세요.",
+                    MessageType.None);
 
-            DrawWarpBakeControls();
+            // 워프 베이크는 '워프' 탭에서 워프 타겟과 함께 묶어 그린다(DrawControlPanelTabs).
 
             EditorGUILayout.EndVertical();
         }

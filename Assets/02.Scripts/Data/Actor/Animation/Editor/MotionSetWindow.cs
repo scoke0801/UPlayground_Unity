@@ -1174,8 +1174,8 @@ namespace UPlayGround.Animation.Editor
             DrawActorAnimationSetBar();
             DrawTestActorRegistry();
             DrawPlaybackControls();
-            DrawEventDebugControls();
-            DrawCombatOverlayControls();
+            DrawControlPanelTabs();           // Phase 2: 보조 패널 탭(루트모션/워프/디버그/전투오버레이) — 한 번에 하나
+            RunControlPanelSideEffects();     // 패널 닫힘과 무관하게 실행돼야 하는 부작용
 
             if (_actorAnimationSet != null)
             {
@@ -1233,7 +1233,6 @@ namespace UPlayGround.Animation.Editor
             {
                 EditorGUILayout.BeginHorizontal();
                 {
-                    EditorGUILayout.LabelField("이벤트 디버그", EditorStyles.boldLabel, GUILayout.Width(90));
                     _showSceneEventOverlay = EditorGUILayout.ToggleLeft("Scene 라벨", _showSceneEventOverlay, GUILayout.Width(90));
                     _autoAttachDebugOverlay = EditorGUILayout.ToggleLeft("Game 오버레이 자동 부착", _autoAttachDebugOverlay, GUILayout.Width(150));
 
@@ -2263,10 +2262,8 @@ namespace UPlayGround.Animation.Editor
             }
             EditorGUILayout.EndHorizontal();
 
-            DrawRootMotionControls();
-            DrawWarpTargetControls();
         }
-        
+
         void StartPlayback()
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
@@ -2311,6 +2308,13 @@ namespace UPlayGround.Animation.Editor
             }
 
             BeginRootMotionPreview();
+
+            // 워프 타겟이 활성이면 재생 루프 시작 전에 타겟을 1회 주입한다.
+            // Attack_1 처럼 워프 윈도우가 t=0인 모션은 첫 틱 이벤트(ExecuteActiveEvents)가
+            // InjectWarpTarget(이벤트 이후 호출)보다 먼저 발화하므로, 미리 주입하지 않으면
+            // 윈도우 시작 시점에 타겟이 없어 워프가 적용되지 않는다.
+            if (_warpTargetEnabled)
+                InjectWarpTarget();
         }
         void PausePlayback()
         {

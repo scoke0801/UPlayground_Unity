@@ -223,11 +223,12 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.Space(4);
             EditorGUILayout.LabelField("Warp 루트모션 베이크", EditorStyles.boldLabel);
 
-            EditorGUILayout.HelpBox(
-                "Play 모드에서 실행. 현재 모션셋의 모든 MotionEvent_MotionWarp 윈도우 구간의 루트모션 총량(PathLen·방향)을 " +
-                "라이브 프리뷰와 동일한 DeltaPosition 으로 측정해 이벤트에 굳힌다. → 콤보/스킬도 첫 시전부터 정확 워프.\n" +
-                "정확도는 '루트 모션 적용'이 켜진 비플레이어 액터(레지스트리 스폰)에서 가장 신뢰할 수 있다(플레이어는 상태머신 이중 소비 위험).",
-                MessageType.Info);
+            if (ShowPanelHelp)
+                EditorGUILayout.HelpBox(
+                    "Play 모드에서 실행. 현재 모션셋의 모든 MotionEvent_MotionWarp 윈도우 구간의 루트모션 총량(PathLen·방향)을 " +
+                    "라이브 프리뷰와 동일한 DeltaPosition 으로 측정해 이벤트에 굳힌다. → 콤보/스킬도 첫 시전부터 정확 워프.\n" +
+                    "정확도는 '루트 모션 적용'이 켜진 비플레이어 액터(레지스트리 스폰)에서 가장 신뢰할 수 있다(플레이어는 상태머신 이중 소비 위험).",
+                    MessageType.Info);
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -249,11 +250,12 @@ namespace UPlayGround.Animation.Editor
 
                 // 검증 안내: 라이브 프리뷰 '누적 이동'은 순변위(net, 시작~현재 직선거리),
                 // 베이크 |Local| 도 순변위 → 이 둘을 대조한다. PathLen 은 경로길이(arc)라 굽은 모션에선 |Local| 보다 크다(정상).
-                EditorGUILayout.HelpBox(
-                    "검증: 워프 윈도우 구간(start~end)만 라이브 프리뷰로 재생한 '누적 이동'(위) ≈ 베이크 |Local| 이면 정확. " +
-                    "PathLen 은 경로길이라 직선 워프면 |Local|≈PathLen, 굽은 워프면 PathLen 이 더 큼(정상). " +
-                    "|Local| 이 크게 어긋나면 스케일/회전/상태머신 이중소비 의심.",
-                    MessageType.None);
+                if (ShowPanelHelp)
+                    EditorGUILayout.HelpBox(
+                        "검증: 워프 윈도우 구간(start~end)만 라이브 프리뷰로 재생한 '누적 이동'(위) ≈ 베이크 |Local| 이면 정확. " +
+                        "PathLen 은 경로길이라 직선 워프면 |Local|≈PathLen, 굽은 워프면 PathLen 이 더 큼(정상). " +
+                        "|Local| 이 크게 어긋나면 스케일/회전/상태머신 이중소비 의심.",
+                        MessageType.None);
             }
         }
 

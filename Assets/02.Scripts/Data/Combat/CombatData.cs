@@ -333,6 +333,10 @@ namespace UPlayGround.Data
         [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]
         public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
 
+        [Min(0f)]
+        [Tooltip("마지막 히트 판정이 끝난 뒤 이동 후딜 캔슬을 허용하기까지의 지연 시간(초). 0이면 기존처럼 조건 충족 즉시 이동 캔슬.")]
+        public float moveCancelDelayAfterLastHit = 0f;
+
         [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
         public float hitAngle = 60f;
     }
@@ -348,6 +352,7 @@ namespace UPlayGround.Data
         public bool forceReaction = false;
         public bool forceBreakExpose = false;
         public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
+        public float moveCancelDelayAfterLastHit = 0f;
         public AttackKind attackKind = AttackKind.NormalAttack;
 
         public AttackReactionType reactionType = AttackReactionType.Hit;

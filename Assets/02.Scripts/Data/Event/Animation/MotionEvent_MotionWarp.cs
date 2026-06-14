@@ -117,17 +117,18 @@ namespace UPlayGround.Data.Event
 
             float warpDuration = endTime - startTime;
             string key = string.IsNullOrEmpty(targetKey) ? "primary" : targetKey;
+            MotionWarpWindowSettings settings = ApplyPreset(BuildSettings(warpDuration));
 
             var residualWarpTarget = target.GetComponent<IResidualMotionWarpTarget>()
                                   ?? target.GetComponentInParent<IResidualMotionWarpTarget>()
                                   ?? target.GetComponentInChildren<IResidualMotionWarpTarget>();
             if (residualWarpTarget != null)
             {
-                MotionWarpWindowSettings settings = BuildSettings(warpDuration);
                 if (resolverPolicy != WarpResolverPolicy.UseExisting)
                 {
                     IWarpTargetResolver resolver = WarpTargetResolverFactory.For(resolverPolicy);
                     WarpResolverContext ctx = residualWarpTarget.BuildWarpResolverContext();
+                    ctx.searchRange = GetResolverSearchRange(ctx, settings);
                     Transform resolved = resolver?.Resolve(in ctx);
                     if (resolved != null)
                     {
@@ -136,26 +137,32 @@ namespace UPlayGround.Data.Event
                     }
                 }
 
-                residualWarpTarget.BeginResidualMotionWarp(ApplyPreset(settings), key);
+                residualWarpTarget.BeginResidualMotionWarp(settings, key);
                 return;
             }
 
             var playerCombat = target.GetComponent<PlayerCombat>()
                             ?? target.GetComponentInChildren<PlayerCombat>();
+            var controller = ResolveController(target);
 
             // resolverPolicy != UseExisting 인 경우 이벤트 발화 시점에 타겟 재결정.
+            // UseExisting 이더라도 상태 진입 시점 타겟이 비어 있으면 이벤트 시점에 한 번 더 보정한다.
             // 현재 PlayerCombat 경로에서만 컨텍스트를 구성한다 (EnemyCombat 은 Phase 후속에서 확장).
-            if (resolverPolicy != WarpResolverPolicy.UseExisting && playerCombat != null)
+            if (playerCombat != null && controller != null)
             {
-                IWarpTargetResolver resolver = WarpTargetResolverFactory.For(resolverPolicy);
+                bool hasExistingTarget = controller.MotionWarp.GetTarget(key).IsValid;
+                WarpResolverPolicy effectiveResolver = resolverPolicy != WarpResolverPolicy.UseExisting || !hasExistingTarget
+                    ? (resolverPolicy == WarpResolverPolicy.UseExisting ? WarpResolverPolicy.Hybrid : resolverPolicy)
+                    : WarpResolverPolicy.UseExisting;
+                IWarpTargetResolver resolver = WarpTargetResolverFactory.For(effectiveResolver);
                 if (resolver != null)
                 {
                     WarpResolverContext ctx = playerCombat.BuildWarpResolverContext();
+                    ctx.searchRange = GetResolverSearchRange(ctx, settings);
                     if (ctx.origin != null)
                     {
                         Transform resolved = resolver.Resolve(in ctx);
-                        var controller = ResolveController(target);
-                        if (resolved != null && controller != null)
+                        if (resolved != null)
                         {
                             bool useSnapshot = targetPolicy == MotionWarpTargetPolicy.Snapshot;
                             controller.MotionWarp.SetTarget(key, resolved, useSnapshot);
@@ -164,7 +171,7 @@ namespace UPlayGround.Data.Event
                 }
             }
 
-            ConfigureMotionWarp(target, warpDuration, key);
+            ConfigureMotionWarp(target, settings, key);
 
             if (playerCombat != null)
             {
@@ -205,12 +212,21 @@ namespace UPlayGround.Data.Event
             enemyCombat?.EndMotionWarp();
         }
 
-        private void ConfigureMotionWarp(GameObject target, float duration, string key)
+        private void ConfigureMotionWarp(GameObject target, MotionWarpWindowSettings settings, string key)
         {
             var controller = ResolveController(target);
             if (controller == null || controller.MotionWarp == null) return;
 
-            controller.MotionWarp.BeginWarpWindow(ApplyPreset(BuildSettings(duration)), key);
+            controller.MotionWarp.BeginWarpWindow(settings, key);
+        }
+
+        private static float GetResolverSearchRange(in WarpResolverContext ctx, in MotionWarpWindowSettings settings)
+        {
+            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+            if (settings.overrideDistance)
+                searchRange = Mathf.Max(searchRange, settings.maxDistance);
+
+            return searchRange;
         }
 
         private MotionWarpWindowSettings BuildSettings(float duration)

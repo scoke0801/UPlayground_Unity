@@ -222,7 +222,8 @@
       "PowerShell(Select-String -Path \"Assets\\\\10.Datas\\\\Actor\\\\Animation\\\\ActorMotion\\\\MotionSet\\\\Player\\\\DoubleAxe\\\\Humanoid_DoubleAxeAxeAnimationSet_HeavyAttack_1.asset\" -Pattern \"type: \\\\{class:|hitPhaseIndex|startTime|endTime\" | ForEach-Object { $_.Line.Trim\\(\\) } | Select-Object -First 40)",
       "WebFetch(domain:www.davetech.co.uk)",
       "WebFetch(domain:www.revertingcastles.com)",
-      "WebFetch(domain:medium.com)"
+      "WebFetch(domain:medium.com)",
+      "Bash(command -v dotnet)"
     ]
   }
 }

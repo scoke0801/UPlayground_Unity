@@ -351,6 +351,7 @@ namespace UPlayGround.Component
             {
                 origin       = transform,
                 hitRange     = _currentAttackData.hitRange,
+                searchRange  = Mathf.Max(_currentAttackData.hitRange, _warpMaxDistance),
                 hitAngle     = _currentAttackData.hitAngle,
                 targetLayer  = _targetLayerMask,
                 targetFilter = WarpDamageableFilter,
@@ -1094,6 +1095,7 @@ namespace UPlayGround.Component
                 forceReaction    = phase0.forceReaction,
                 forceBreakExpose = phase0.forceBreakExpose,
                 interruptActions = attackInfo.interruptActions,
+                moveCancelDelayAfterLastHit = Mathf.Max(0f, attackInfo.moveCancelDelayAfterLastHit),
                 reactionType     = phase0.reactionType,
                 hitRange         = phase0.attackRadius,
                 hitAngle         = attackInfo.hitAngle,
@@ -1126,6 +1128,7 @@ namespace UPlayGround.Component
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,
                 interruptActions = source.interruptActions,
+                moveCancelDelayAfterLastHit = source.moveCancelDelayAfterLastHit,
                 attackKind = source.attackKind,
                 reactionType = source.reactionType,
                 attacker = source.attacker,
@@ -1884,6 +1887,21 @@ namespace UPlayGround.Component
                 hitAngle,
                 GetSnapSearchRange(isLockedOn),
                 GetSnapSearchAngle(isLockedOn),
+                skipIfAlreadyCovered: true);
+        }
+
+        public Transform FindMotionWarpTarget(float hitRange, float hitAngle, bool isLockedOn, float warpMaxDistance)
+        {
+            float searchRange = Mathf.Max(GetSnapSearchRange(isLockedOn), warpMaxDistance);
+            float searchAngle = GetSnapSearchAngle(isLockedOn);
+            if (!isLockedOn)
+                searchAngle = Mathf.Max(searchAngle, _freeAttackFacingSearchAngle);
+
+            return FindAttackSnapTargetInternal(
+                hitRange,
+                hitAngle,
+                searchRange,
+                searchAngle,
                 skipIfAlreadyCovered: true);
         }
 

@@ -108,10 +108,13 @@ namespace UPlayGround.State
             // 착지 시: 콤보 입력 대기 중이면 현재 애니메이션 유지
             if (motor.GroundingStatus.IsStableOnGround && !_comboInputted)
             {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
                 {
                     if (playerController.TryTransitionToState(new PlayerDashState(controller)))
+                    {
+                        InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash);
                         return;
+                    }
                 }
                 OnLanded();
             }

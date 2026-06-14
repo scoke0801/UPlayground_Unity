@@ -25,6 +25,8 @@ namespace Game.Input
         {
             return Time.time - Timestamp > BufferTime;
         }
+
+        public float RemainingTime => Mathf.Max(0f, BufferTime - (Time.time - Timestamp));
     }
 
     /// <summary>
@@ -129,6 +131,15 @@ namespace Game.Input
             }
 
             return latest;
+        }
+
+        /// <summary>
+        /// 디버그/모니터링용 스냅샷. 외부에서 큐를 직접 건드리지 않도록 복사본만 반환한다.
+        /// </summary>
+        public List<BufferedInput> GetSnapshot()
+        {
+            CleanExpiredInputs();
+            return new List<BufferedInput>(_buffer);
         }
 
         /// <summary>

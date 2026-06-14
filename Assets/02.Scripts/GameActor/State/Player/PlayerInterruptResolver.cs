@@ -6,6 +6,17 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
+    public enum PlayerInterruptFailReason
+    {
+        None,
+        ControllerMissing,
+        NoAllowedAction,
+        NoBufferedInput,
+        StateGuardRejected,
+        ResourceNotEnough,
+        MotionMissing,
+    }
+
     /// <summary>
     /// 인터럽트(동작 캔슬) 마스크를 받아 입력 버퍼를 우선순위 순으로 소비하고 해당 상태로 전환한다.
     /// 공격 상태/차지 상태 등에서 공통으로 사용한다.
@@ -17,6 +28,9 @@ namespace UPlayGround.State
     /// </summary>
     public static class PlayerInterruptResolver
     {
+        public static PlayerInterruptFailReason LastFailReason { get; private set; } = PlayerInterruptFailReason.None;
+        public static string LastFailDetail { get; private set; } = string.Empty;
+
         /// <summary>
         /// 마스크에 포함된 액션의 입력이 버퍼에 있으면 소비하고 전환한다.
         /// 전환이 일어나면 true. (Dash는 입력을 소비했더라도 조건부 전환에 실패하면 false —
@@ -29,10 +43,23 @@ namespace UPlayGround.State
         public static bool TryInterrupt(PlayerMovementController controller, PlayerInterruptAction mask,
             bool allowGuardCancel = true)
         {
-            if (controller == null || mask == PlayerInterruptAction.None)
+            LastFailReason = PlayerInterruptFailReason.None;
+            LastFailDetail = string.Empty;
+
+            if (controller == null)
+            {
+                SetFail(PlayerInterruptFailReason.ControllerMissing, "PlayerMovementController가 없습니다.");
                 return false;
+            }
+
+            if (mask == PlayerInterruptAction.None)
+            {
+                SetFail(PlayerInterruptFailReason.NoAllowedAction, "허용된 인터럽트 액션이 없습니다.");
+                return false;
+            }
 
             var buffer = InputManager.Instance.InputBuffer;
+            bool hadMatchingInput = false;
 
             if ((mask & PlayerInterruptAction.Dodge) != 0 &&
                 buffer.ConsumeInput(PlayerAction.Dodge) != null)
@@ -49,10 +76,17 @@ namespace UPlayGround.State
             }
 
             if ((mask & PlayerInterruptAction.Dash) != 0 &&
-                buffer.ConsumeInput(PlayerAction.Dash) != null)
+                buffer.HasInput(PlayerAction.Dash))
             {
-                // 대시는 조건부 전환. 실패 시 입력은 소비되었지만 전환은 일어나지 않는다(기존 동작 보존).
-                return controller.TryTransitionToState(new PlayerDashState(controller));
+                hadMatchingInput = true;
+                if (controller.TryTransitionToState(new PlayerDashState(controller)))
+                {
+                    buffer.ConsumeInput(PlayerAction.Dash);
+                    return true;
+                }
+
+                SetFail(PlayerInterruptFailReason.StateGuardRejected, "Dash 상태 전환 가드가 거부했습니다.");
+                return false;
             }
 
             // 가드는 '쥐고 있는' 입력이라 순간 press 버퍼에 잡히지 않는다(Guard는 InputBuffer에 추가되지 않음).
@@ -72,8 +106,8 @@ namespace UPlayGround.State
                          buffer.HasInput(PlayerAction.HeavyAttack);
             bool light = (mask & PlayerInterruptAction.LightAttack) != 0 &&
                          buffer.HasInput(PlayerAction.Attack);
-            bool skill = (mask & PlayerInterruptAction.Skill) != 0 &&
-                         HasUsableSkillInput(controller, playerActor);
+            bool hasSkillInput = (mask & PlayerInterruptAction.Skill) != 0 && HasAnySkillInput(controller);
+            bool skill = hasSkillInput && HasUsableSkillInput(controller, playerActor);
 
             if (heavy && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.HeavyAttack))
                 return true;
@@ -82,6 +116,30 @@ namespace UPlayGround.State
             if (skill && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.Skill))
                 return true;
 
+            hadMatchingInput |= heavy || light || hasSkillInput;
+
+            if (hasSkillInput && !skill)
+                SetFail(PlayerInterruptFailReason.ResourceNotEnough, "스킬 입력은 있으나 사용 가능한 게이지가 없습니다.");
+            else if (heavy || light || skill)
+                SetFail(PlayerInterruptFailReason.MotionMissing, "공격 상태 진입 조건 또는 모션 보유 조건이 실패했습니다.");
+            else if (!hadMatchingInput)
+                SetFail(PlayerInterruptFailReason.NoBufferedInput, "허용된 액션에 대응하는 입력이 없습니다.");
+
+            return false;
+        }
+
+        private static void SetFail(PlayerInterruptFailReason reason, string detail)
+        {
+            LastFailReason = reason;
+            LastFailDetail = detail;
+        }
+
+        private static bool HasAnySkillInput(PlayerMovementController controller)
+        {
+            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            {
+                if (controller.HasSkillInput(i)) return true;
+            }
             return false;
         }
 

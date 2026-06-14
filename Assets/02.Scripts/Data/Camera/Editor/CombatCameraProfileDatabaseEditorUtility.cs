@@ -30,6 +30,8 @@ namespace UPlayGround.Data.Editor
             public float punchStrength;
             public float punchDuration;
             public bool softTargetAssist;
+            public float softTargetYawStrength;
+            public float softTargetMaxAngle;
             public float fovDelta;
             public float zoomDistanceDelta;
             public string suffix;
@@ -37,11 +39,11 @@ namespace UPlayGround.Data.Editor
 
         private static readonly ProfileDef[] DefaultProfiles =
         {
-            new() { intentType = CombatCameraIntentType.LightHit, shakeKey = CameraShakeIdType.LiteHit, triggerChance = 1f, usePunch = true, punchStrength = 0.08f, punchDuration = 0.07f, softTargetAssist = true, fovDelta = 0.75f },
-            new() { intentType = CombatCameraIntentType.HeavyHit, shakeKey = CameraShakeIdType.HeavyHit, triggerChance = 1f, usePunch = true, punchStrength = 0.18f, punchDuration = 0.12f, softTargetAssist = true, fovDelta = 1.5f, zoomDistanceDelta = -0.08f },
-            new() { intentType = CombatCameraIntentType.SkillHit, shakeKey = CameraShakeIdType.CriticalHit, triggerChance = 1f, usePunch = true, punchStrength = 0.24f, punchDuration = 0.15f, softTargetAssist = true, fovDelta = 2.0f, zoomDistanceDelta = -0.12f },
-            new() { intentType = CombatCameraIntentType.ChargeHit, shakeKey = CameraShakeIdType.HeavyHit, triggerChance = 1f, usePunch = true, punchStrength = 0.22f, punchDuration = 0.15f, softTargetAssist = true, fovDelta = 2.0f, zoomDistanceDelta = -0.1f },
-            new() { intentType = CombatCameraIntentType.DashHit, shakeKey = CameraShakeIdType.MediumHit, triggerChance = 1f, usePunch = true, punchStrength = 0.14f, punchDuration = 0.1f, softTargetAssist = true, fovDelta = 1.25f },
+            new() { intentType = CombatCameraIntentType.LightHit, shakeKey = CameraShakeIdType.LiteHit, triggerChance = 1f, usePunch = true, punchStrength = 0.08f, punchDuration = 0.07f, softTargetAssist = true, softTargetYawStrength = 0.25f, softTargetMaxAngle = 60f, fovDelta = 0.75f },
+            new() { intentType = CombatCameraIntentType.HeavyHit, shakeKey = CameraShakeIdType.HeavyHit, triggerChance = 1f, usePunch = true, punchStrength = 0.18f, punchDuration = 0.12f, softTargetAssist = true, softTargetYawStrength = 0.4f, softTargetMaxAngle = 60f, fovDelta = 1.5f, zoomDistanceDelta = -0.08f },
+            new() { intentType = CombatCameraIntentType.SkillHit, shakeKey = CameraShakeIdType.CriticalHit, triggerChance = 1f, usePunch = true, punchStrength = 0.24f, punchDuration = 0.15f, softTargetAssist = true, softTargetYawStrength = 0.6f, softTargetMaxAngle = 60f, fovDelta = 2.0f, zoomDistanceDelta = -0.12f },
+            new() { intentType = CombatCameraIntentType.ChargeHit, shakeKey = CameraShakeIdType.HeavyHit, triggerChance = 1f, usePunch = true, punchStrength = 0.22f, punchDuration = 0.15f, softTargetAssist = true, softTargetYawStrength = 0.6f, softTargetMaxAngle = 60f, fovDelta = 2.0f, zoomDistanceDelta = -0.1f },
+            new() { intentType = CombatCameraIntentType.DashHit, shakeKey = CameraShakeIdType.MediumHit, triggerChance = 1f, usePunch = true, punchStrength = 0.14f, punchDuration = 0.1f, softTargetAssist = true, softTargetYawStrength = 0.3f, softTargetMaxAngle = 60f, fovDelta = 1.25f },
             new() { intentType = CombatCameraIntentType.PlayerDamaged, shakeKey = CameraShakeIdType.PlayerHit, triggerChance = 1f, usePunch = false, fovDelta = 0.75f },
             new() { intentType = CombatCameraIntentType.PlayerHeavyDamaged, shakeKey = CameraShakeIdType.PlayerHeavyHit, triggerChance = 1f, usePunch = false, fovDelta = 1.5f },
             new() { intentType = CombatCameraIntentType.PlayerDeath, shakeKey = CameraShakeIdType.PlayerDeath, triggerChance = 1f, usePunch = false, fovDelta = 2.25f },
@@ -216,6 +218,9 @@ namespace UPlayGround.Data.Editor
             profile.punchStrength = def.punchStrength;
             profile.punchDuration = def.punchDuration;
             profile.enableSoftTargetAssist = def.softTargetAssist;
+            // 0(미지정)으로 들어오면 어시스트가 조용히 사라지므로 안전 기본값으로 보정.
+            profile.softTargetYawStrength = def.softTargetYawStrength <= 0f ? 0.25f : Mathf.Clamp01(def.softTargetYawStrength);
+            profile.softTargetMaxAngle = def.softTargetMaxAngle <= 0f ? 60f : Mathf.Clamp(def.softTargetMaxAngle, 0f, 180f);
             profile.softTargetYawDuration = 0.12f;
             profile.manualInputSuppressDuration = 0.45f;
 

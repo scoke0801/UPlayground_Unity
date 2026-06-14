@@ -1024,6 +1024,7 @@ namespace UPlayGround.Editor
             SerializedProperty typeP      = baseInfo.FindPropertyRelative("attackType");
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
+            SerializedProperty moveCancelDelayP = prop.FindPropertyRelative("moveCancelDelayAfterLastHit");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             // 총 대미지 (모든 Phase 합산)
@@ -1077,6 +1078,7 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(animKeyP,   new GUIContent("AnimKey"));
                     EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                     EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
+                    EditorGUILayout.PropertyField(moveCancelDelayP, new GUIContent("이동 캔슬 지연 (초)"));
                     EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
                 }
 
@@ -1531,6 +1533,7 @@ namespace UPlayGround.Editor
             SerializedProperty typeP      = baseInfo.FindPropertyRelative("attackType");
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
+            SerializedProperty moveCancelDelayP = prop.FindPropertyRelative("moveCancelDelayAfterLastHit");
             SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             ValidationResult validation = ValidateAttack(prop);
@@ -1550,6 +1553,7 @@ namespace UPlayGround.Editor
                 EditorGUILayout.PropertyField(animKeyP,   new GUIContent("AnimKey"));
                 EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                 EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
+                EditorGUILayout.PropertyField(moveCancelDelayP, new GUIContent("이동 캔슬 지연 (초)"));
                 EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
             }
 

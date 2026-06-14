@@ -42,6 +42,8 @@ namespace UPlayGround.State
         // 단일 페이즈 공격은 윈드업에도 CurrentHitPhaseIndex == LastHitPhaseIndex == 0 이라
         // 페이즈 비교만으로는 윈드업을 못 거른다 → 히트 1회 발생 여부를 함께 본다.
         private bool _hasActiveHitFired;
+        private float _lastActiveHitEndTime = -1f;
+        private bool _wasActiveHit;
         private bool _isHeavyAttack;
         private bool _isCounter;
         private bool _isParryCounter;
@@ -301,6 +303,8 @@ namespace UPlayGround.State
                 _combat.ResetComboPreserveChains();
             _attackTimer = 0f;
             _hasActiveHitFired = false;
+            _lastActiveHitEndTime = -1f;
+            _wasActiveHit = false;
 
             if (_isHeavyAttack)
             {
@@ -360,6 +364,9 @@ namespace UPlayGround.State
             // 이번 공격 모션에서 액티브 히트가 한 번이라도 열렸는지 기록(이동 후딜 캔슬 게이트용).
             if (_combat.IsPossibleCollide)
                 _hasActiveHitFired = true;
+            if (_wasActiveHit && !_combat.IsPossibleCollide)
+                _lastActiveHitEndTime = _attackTimer;
+            _wasActiveHit = _combat.IsPossibleCollide;
 
             // 선입력 보존: 액티브 히트(캔슬 불가) 동안엔 입력 버퍼 만료를 정지해, 이 구간에 들어온
             // 캔슬/콤보 선입력이 0.24s 만료로 유실되지 않게 한다. 캔슬창이 열리면(콜리전 OFF) 정지가
@@ -407,6 +414,7 @@ namespace UPlayGround.State
             if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
                 && !_combat.CanCombo
                 && _hasActiveHitFired
+                && IsMoveCancelDelayElapsed()
                 && !_combat.IsPossibleCollide
                 && _combat.CurrentHitPhaseIndex >= _combat.LastHitPhaseIndex
                 && playerController.HasMoveInput())
@@ -421,6 +429,8 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             _attackTimer = 0f;
             _hasActiveHitFired = false;
+            _lastActiveHitEndTime = -1f;
+            _wasActiveHit = false;
 
             if (!_comboInputted)
                 _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
@@ -584,6 +594,14 @@ namespace UPlayGround.State
             return _currentAttack?.animKey ?? AnimKey.None;
         }
 
+        private bool IsMoveCancelDelayElapsed()
+        {
+            float delay = _currentAttack != null ? Mathf.Max(0f, _currentAttack.moveCancelDelayAfterLastHit) : 0f;
+            if (delay <= 0f) return true;
+            if (_lastActiveHitEndTime < 0f) return false;
+            return _attackTimer - _lastActiveHitEndTime >= delay;
+        }
+
         private Transform FindHomingTarget()
         {
             if (_currentAttack == null) return null;
@@ -596,10 +614,11 @@ namespace UPlayGround.State
                 return preferredTarget;
 
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
+            float warpSearchRange = Mathf.Max(_combat.GetSnapSearchRange(lockOnTarget != null), _combat.WarpMaxDistance);
             if (lockOnTarget != null)
             {
                 float dist = HorizontalDistance(gameActor.transform.position, lockOnTarget.position);
-                if (dist <= _combat.GetSnapSearchRange(true))
+                if (dist <= warpSearchRange)
                     return lockOnTarget;
             }
 
@@ -607,12 +626,11 @@ namespace UPlayGround.State
                 return preferredTarget;
 
             bool isLockedOn = lockOnTarget != null;
-            if (!isLockedOn)
-                return _combat.FindFreeAttackFacingTarget(
-                    _currentAttack.hitRange, _currentAttack.hitAngle);
-
-            return _combat.FindAttackSnapTarget(
-                _currentAttack.hitRange, _currentAttack.hitAngle, isLockedOn);
+            return _combat.FindMotionWarpTarget(
+                _currentAttack.hitRange,
+                _currentAttack.hitAngle,
+                isLockedOn,
+                warpSearchRange);
         }
 
         #region Movement & Rotation

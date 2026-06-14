@@ -30,5 +30,7 @@ MonoBehaviour:
   snapshotProfile: {fileID: 0}
   lockInput: 0
   enableSoftTargetAssist: 1
+  softTargetYawStrength: 0.4
+  softTargetMaxAngle: 60
   softTargetYawDuration: 0.12
   manualInputSuppressDuration: 0.45

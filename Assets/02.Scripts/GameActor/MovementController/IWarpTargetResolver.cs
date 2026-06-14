@@ -25,6 +25,7 @@ namespace UPlayGround.MovementController
     {
         public Transform origin;
         public float hitRange;
+        public float searchRange;
         public float hitAngle;
         public LayerMask targetLayer;
         public Func<Transform, bool> targetFilter;
@@ -64,7 +65,8 @@ namespace UPlayGround.MovementController
             Vector3 originPos = ctx.origin.position;
             Vector3 forward   = ctx.origin.forward;
 
-            int hitCount = Physics.OverlapSphereNonAlloc(originPos, ctx.hitRange, _hitsBuffer, ctx.targetLayer);
+            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+            int hitCount = Physics.OverlapSphereNonAlloc(originPos, searchRange, _hitsBuffer, ctx.targetLayer);
             Transform best   = null;
             float     bestSq = float.MaxValue;
 
@@ -128,7 +130,8 @@ namespace UPlayGround.MovementController
             {
                 Vector3 dir = lockOn.position - ctx.origin.position;
                 dir.y = 0f;
-                bool inRange = dir.sqrMagnitude <= ctx.hitRange * ctx.hitRange;
+                float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+                bool inRange = dir.sqrMagnitude <= searchRange * searchRange;
                 bool inAngle = Vector3.Angle(ctx.origin.forward, dir) <= ctx.hitAngle;
                 if (inRange && inAngle)
                 {

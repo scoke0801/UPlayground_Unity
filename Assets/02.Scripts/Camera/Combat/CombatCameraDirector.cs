@@ -291,26 +291,35 @@ namespace UPlayGround.CameraSystem
                 punchDuration);
         }
 
-        public void PlaySoftTargetAssist(Transform target, float duration = 0.12f, float manualInputSuppressDuration = 0.35f)
+        public void PlaySoftTargetAssist(
+            Transform target,
+            float yawStrength,
+            float maxAngle,
+            float duration = 0.12f,
+            float manualInputSuppressDuration = 0.35f)
         {
-            if (!CanPlaySoftTargetAssist(target, manualInputSuppressDuration))
+            if (!CanPlaySoftTargetAssist(target, maxAngle, manualInputSuppressDuration, out float fullTargetYaw))
                 return;
 
-            Transform playerTarget = _cameraManager.GetTarget();
-            if (playerTarget == null)
+            // 보정의 "양"을 강도×접근성스케일로 결정한다. duration은 고정 스무딩 시간.
+            // (과거에는 duration에 스케일을 곱해 100% 타겟 yaw로 스냅 → "확확 따라가는" 원인이었다)
+            float strength = Mathf.Clamp01(yawStrength) * GetAutoCorrectionScale();
+            if (strength <= 0f)
                 return;
 
-            Vector3 toTarget = target.position - playerTarget.position;
-            toTarget.y = 0f;
-            if (toTarget.sqrMagnitude < 0.001f)
-                return;
-
-            float yaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
-            _cameraManager.SetRotationSmooth(yaw, _cameraManager.GetCurrentPitch(), duration * GetAutoCorrectionScale());
+            float currentYaw = _cameraManager.GetCurrentYaw();
+            float blendedYaw = currentYaw + Mathf.DeltaAngle(currentYaw, fullTargetYaw) * strength;
+            _cameraManager.SetRotationSmooth(blendedYaw, _cameraManager.GetCurrentPitch(), duration);
         }
 
-        private bool CanPlaySoftTargetAssist(Transform target, float manualInputSuppressDuration)
+        private bool CanPlaySoftTargetAssist(
+            Transform target,
+            float maxAngle,
+            float manualInputSuppressDuration,
+            out float fullTargetYaw)
         {
+            fullTargetYaw = 0f;
+
             if (_cameraManager == null || target == null)
                 return false;
 
@@ -321,7 +330,27 @@ namespace UPlayGround.CameraSystem
             if (GetAutoCorrectionScale() <= 0f)
                 return false;
 
-            return _cameraManager.TimeSinceLastManualCameraInput >= manualInputSuppressDuration;
+            if (_cameraManager.TimeSinceLastManualCameraInput < manualInputSuppressDuration)
+                return false;
+
+            Transform playerTarget = _cameraManager.GetTarget();
+            if (playerTarget == null)
+                return false;
+
+            Vector3 toTarget = target.position - playerTarget.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude < 0.001f)
+                return false;
+
+            fullTargetYaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+
+            // 앵글 게이트(핵심 가드): 카메라 정면에서 maxAngle 이내의 적만 보정한다.
+            // 옆/뒤 적을 때려도 카메라가 강제로 확 돌아가지 않게 막는다.
+            if (maxAngle > 0f &&
+                Mathf.Abs(Mathf.DeltaAngle(_cameraManager.GetCurrentYaw(), fullTargetYaw)) > maxAngle)
+                return false;
+
+            return true;
         }
 
         private void PlayFallback(in CombatCameraIntent intent)
@@ -375,7 +404,12 @@ namespace UPlayGround.CameraSystem
                 _cameraManager.PushCameraSnapshotSequence(profile.snapshotProfile);
 
             if (profile.enableSoftTargetAssist && intent.Victim != null)
-                PlaySoftTargetAssist(intent.Victim, profile.softTargetYawDuration, profile.manualInputSuppressDuration);
+                PlaySoftTargetAssist(
+                    intent.Victim,
+                    profile.softTargetYawStrength,
+                    profile.softTargetMaxAngle,
+                    profile.softTargetYawDuration,
+                    profile.manualInputSuppressDuration);
         }
 
         private static bool HasPlayableProfile(CombatCameraProfileSO profile)

@@ -99,10 +99,11 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash) != null)
+            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
             {
                 if (controller.TryTransitionToState(new PlayerDashState(controller)))
                 {
+                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash);
                     return;
                 }
             }

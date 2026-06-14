@@ -881,7 +881,11 @@ namespace UPlayGround.Manager
             if (_isSwapping)             return false;
             if (_battleOrder.Count < 2) return false;
 
-            var state = _player?.PlayerController?.CurrentState?.StateName;
+            var currentState = _player?.PlayerController?.CurrentState;
+            if (currentState is UPlayGround.State.PlayerFinishAttackState { IsTransitionLocked: true })
+                return false;
+
+            var state = currentState?.StateName;
             if (state == "Death")   return false;
             if (state == "Grabbed") return false;
 

@@ -140,12 +140,21 @@ namespace UPlayGround.Manager
             ExecuteCallbacks(context, performCallbackDict);
         }
 
-        private static float GetPlayerActionBufferTime(string actionName)
+        public static float GetPlayerActionBufferTime(string actionName)
         {
             return actionName switch
             {
                 InputDefine.PlayerAction.Attack => 0.24f,
                 InputDefine.PlayerAction.HeavyAttack => 0.24f,
+                InputDefine.PlayerAction.Dodge => 0.15f,
+                InputDefine.PlayerAction.Jump => 0.12f,
+                InputDefine.PlayerAction.Dash => 0.12f,
+                InputDefine.PlayerAction.SkillAbility => 0.20f,
+                InputDefine.PlayerAction.SkillUltimate => 0.20f,
+                InputDefine.PlayerAction.CharacterSwap_1 => 0.15f,
+                InputDefine.PlayerAction.CharacterSwap_2 => 0.15f,
+                InputDefine.PlayerAction.CharacterSwap_3 => 0.15f,
+                InputDefine.PlayerAction.CharacterSwap_4 => 0.15f,
                 _ => 0.15f,
             };
         }

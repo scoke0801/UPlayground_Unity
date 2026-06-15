@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UPlayGround.Data.Save
 {
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "1.0";
+        public string saveVersion = "2.0";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public StorySaveData story = new StorySaveData();
@@ -14,6 +15,39 @@ namespace UPlayGround.Data.Save
         public RecipeSaveData recipe = new RecipeSaveData();
         public QuestSaveData quest = new QuestSaveData();
         public PartySaveData party = new PartySaveData();
+        public WorldStateSaveData world = new WorldStateSaveData();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // 직렬화용 벡터/회전 (Unity Vector3/Quaternion은 Newtonsoft 직렬화 시
+    // 부가 프로퍼티 순환참조 문제가 있어 x/y/z/w만 보관한다.)
+
+    [Serializable]
+    public struct SerializableVector3
+    {
+        public float x, y, z;
+
+        public SerializableVector3(Vector3 v) { x = v.x; y = v.y; z = v.z; }
+        public Vector3 ToVector3() => new Vector3(x, y, z);
+    }
+
+    [Serializable]
+    public struct SerializableQuaternion
+    {
+        public float x, y, z, w;
+
+        public SerializableQuaternion(Quaternion q) { x = q.x; y = q.y; z = q.z; w = q.w; }
+        public Quaternion ToQuaternion() => new Quaternion(x, y, z, w);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // World (맵별 처치된 몬스터 GUID 집합)
+
+    [Serializable]
+    public class WorldStateSaveData
+    {
+        // mapId → 처치된 SceneEntityId GUID 목록
+        public Dictionary<string, List<string>> killedMonsters = new Dictionary<string, List<string>>();
     }
 
     // ──────────────────────────────────────────────────────────
@@ -26,6 +60,19 @@ namespace UPlayGround.Data.Save
         public List<string> roster = new List<string>();
         public List<string> battleOrder = new List<string>();
         public int activeIndex;
+
+        /// <summary> 캐릭터별 현재 체력 (액티브/벤치 공통). </summary>
+        public List<CharacterHpEntry> characterHealth = new List<CharacterHpEntry>();
+
+        // ── 위치/씬 정보 ──
+        /// <summary> 로드 시 진입할 씬 에셋명 (SceneName). </summary>
+        public string loadSceneName;
+        /// <summary> 저장 당시 맵 식별자 (SceneContext.MapID). 슬롯 표시·월드 상태 키. </summary>
+        public string mapId;
+        public SerializableVector3 playerPos;
+        public SerializableQuaternion playerRot;
+        /// <summary> 위치/씬 정보가 유효한지(인게임에서 저장됐는지). </summary>
+        public bool hasLocation;
     }
 
     [Serializable]
@@ -34,6 +81,14 @@ namespace UPlayGround.Data.Save
         public string type;
         public int level;
         public long exp;
+    }
+
+    [Serializable]
+    public class CharacterHpEntry
+    {
+        public string type;
+        public float currentHp;
+        public float skillGauge;
     }
 
     [Serializable]

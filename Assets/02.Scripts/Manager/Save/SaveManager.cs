@@ -22,8 +22,11 @@ namespace UPlayGround.Manager
     {
         private const string SAVE_FOLDER = "saves";
         private const string SAVE_FILE_PREFIX = "save_slot_";
-        private const string SAVE_FILE_EXTENSION = ".json";
-        private const string CURRENT_SAVE_VERSION = "1.0";
+        private const string SAVE_FILE_EXTENSION = ".sav";   // 암호화 바이너리
+        private const string CURRENT_SAVE_VERSION = "2.0";    // 1.0=평문 JSON, 2.0=AES 암호화
+
+        /// <summary> 지원하는 세이브 슬롯 개수 (0 ~ MAX_SLOTS-1). </summary>
+        public const int MAX_SLOTS = 3;
 
         private readonly List<ISaveable> _saveables = new List<ISaveable>();
 
@@ -70,6 +73,12 @@ namespace UPlayGround.Manager
         /// </summary>
         public void SaveGame(int slot = 0)
         {
+            if (!IsValidSlot(slot))
+            {
+                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 저장 중단.");
+                return;
+            }
+
             var data = new GameSaveData
             {
                 saveVersion = CURRENT_SAVE_VERSION,
@@ -99,7 +108,8 @@ namespace UPlayGround.Manager
             try
             {
                 string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-                File.WriteAllText(GetSavePath(slot), json, System.Text.Encoding.UTF8);
+                byte[] encrypted = SaveCrypto.Encrypt(json);
+                File.WriteAllBytes(GetSavePath(slot), encrypted);
                 Debug.Log($"[SaveManager] 슬롯 {slot} 저장 완료 → {GetSavePath(slot)}");
             }
             catch (Exception e)
@@ -122,6 +132,43 @@ namespace UPlayGround.Manager
         /// <returns>세이브 파일이 존재하고 로드에 성공하면 true</returns>
         public bool LoadGame(int slot = 0)
         {
+            return LoadGameInternal(slot, out _);
+        }
+
+        /// <summary>
+        /// 슬롯을 로드한 뒤 저장된 씬으로 진입한다. 타이틀/다른 맵에서 호출하는 경우 사용.
+        /// 흐름: 데이터 복원(각 매니저가 pending 보관) → 저장된 씬 로드 →
+        ///       씬 준비 시 OnSceneChanged에서 파티·위치·월드 상태가 적용된다.
+        /// </summary>
+        public bool LoadGameToScene(int slot = 0)
+        {
+            if (!LoadGameInternal(slot, out var data))
+                return false;
+
+            string sceneName = data?.party?.loadSceneName;
+            if (string.IsNullOrEmpty(sceneName))
+            {
+                Debug.LogWarning($"[SaveManager] 슬롯 {slot}에 진입할 씬 정보가 없습니다. 씬 전환을 건너뜁니다.");
+                return true;
+            }
+
+            SceneManager.Instance.LoadScene(sceneName);
+            return true;
+        }
+
+        /// <summary>
+        /// 슬롯을 읽어 복호화·역직렬화하고 모든 ISaveable에 ImportSaveData를 디스패치한다.
+        /// </summary>
+        private bool LoadGameInternal(int slot, out GameSaveData data)
+        {
+            data = null;
+
+            if (!IsValidSlot(slot))
+            {
+                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 로드 중단.");
+                return false;
+            }
+
             string path = GetSavePath(slot);
             if (!File.Exists(path))
             {
@@ -131,8 +178,8 @@ namespace UPlayGround.Manager
 
             try
             {
-                string json = File.ReadAllText(path, System.Text.Encoding.UTF8);
-                var data = JsonConvert.DeserializeObject<GameSaveData>(json);
+                string json = SaveCrypto.Decrypt(File.ReadAllBytes(path));
+                data = JsonConvert.DeserializeObject<GameSaveData>(json);
 
                 if (data == null)
                 {
@@ -174,11 +221,17 @@ namespace UPlayGround.Manager
         #region 슬롯 관리
 
         /// <summary> 해당 슬롯에 세이브 파일이 존재하는지 확인한다. </summary>
-        public bool HasSaveFile(int slot = 0) => File.Exists(GetSavePath(slot));
+        public bool HasSaveFile(int slot = 0) => IsValidSlot(slot) && File.Exists(GetSavePath(slot));
 
         /// <summary> 해당 슬롯의 세이브 파일을 삭제한다. </summary>
         public void DeleteSaveFile(int slot = 0)
         {
+            if (!IsValidSlot(slot))
+            {
+                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 삭제 중단.");
+                return;
+            }
+
             string path = GetSavePath(slot);
             if (File.Exists(path))
             {
@@ -188,30 +241,68 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 슬롯의 메타 정보(저장 일시, 버전)를 빠르게 조회한다.
+        /// 슬롯의 메타 정보(저장 일시, 버전, 맵, 진행도)를 빠르게 조회한다.
         /// 파일이 없거나 파싱 실패 시 null 반환.
         /// </summary>
         public SaveSlotInfo GetSaveSlotInfo(int slot)
         {
+            if (!IsValidSlot(slot)) return null;
+
             string path = GetSavePath(slot);
             if (!File.Exists(path)) return null;
 
             try
             {
-                string json = File.ReadAllText(path, System.Text.Encoding.UTF8);
+                string json = SaveCrypto.Decrypt(File.ReadAllBytes(path));
                 var partial = JsonConvert.DeserializeObject<GameSaveData>(json);
                 return new SaveSlotInfo
                 {
                     slot = slot,
                     saveDateTime = partial?.saveDateTime ?? string.Empty,
                     saveVersion = partial?.saveVersion ?? string.Empty,
+                    mapId = partial?.party?.mapId ?? string.Empty,
+                    storyProgress = partial?.story?.progress ?? 0,
                     filePath = path
                 };
             }
-            catch
+            catch (Exception e)
             {
+                Debug.LogWarning($"[SaveManager] 슬롯 {slot} 메타 조회 실패: {e.Message}");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// 모든 슬롯(0 ~ MAX_SLOTS-1)의 메타 정보를 조회한다.
+        /// 비어 있는 슬롯은 해당 인덱스가 null이다. 슬롯 선택 UI에서 사용.
+        /// </summary>
+        public SaveSlotInfo[] GetAllSlotInfos()
+        {
+            var infos = new SaveSlotInfo[MAX_SLOTS];
+            for (int i = 0; i < MAX_SLOTS; i++)
+                infos[i] = GetSaveSlotInfo(i);
+            return infos;
+        }
+
+        /// <summary>
+        /// 가장 최근에 저장된 슬롯 번호를 반환한다(이어하기용). 저장이 하나도 없으면 -1.
+        /// </summary>
+        public int GetMostRecentSlot()
+        {
+            int best = -1;
+            string bestDate = null;
+            for (int i = 0; i < MAX_SLOTS; i++)
+            {
+                var info = GetSaveSlotInfo(i);
+                if (info == null) continue;
+                // saveDateTime은 "yyyy-MM-dd HH:mm:ss" 고정 포맷이라 문자열 비교로 정렬 가능.
+                if (bestDate == null || string.CompareOrdinal(info.saveDateTime, bestDate) > 0)
+                {
+                    bestDate = info.saveDateTime;
+                    best = i;
+                }
+            }
+            return best;
         }
 
         #endregion
@@ -222,6 +313,9 @@ namespace UPlayGround.Manager
         private string GetSavePath(int slot) =>
             Path.Combine(_saveFolder, $"{SAVE_FILE_PREFIX}{slot}{SAVE_FILE_EXTENSION}");
 
+        /// <summary> 슬롯 번호가 유효 범위(0 ~ MAX_SLOTS-1)인지 검사한다. </summary>
+        private static bool IsValidSlot(int slot) => slot >= 0 && slot < MAX_SLOTS;
+
         #endregion
     }
 
@@ -231,6 +325,8 @@ namespace UPlayGround.Manager
         public int slot;
         public string saveDateTime;
         public string saveVersion;
+        public string mapId;        // 저장 당시 맵 식별자
+        public int storyProgress;   // 스토리 진행도
         public string filePath;
     }
 }

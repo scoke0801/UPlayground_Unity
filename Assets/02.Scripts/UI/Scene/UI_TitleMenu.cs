@@ -42,14 +42,22 @@ public class UI_TitleMenu : UI_Base
 
     private void OnClickContinueButton()
     {
+        // 이어하기: 가장 최근 슬롯을 로드하고 저장된 씬으로 진입.
+        // 저장이 없으면 새 게임으로 폴백.
+        int recent = SaveManager.Instance.GetMostRecentSlot();
         UIManager.Instance.HideAllUI();
-        SceneManager.Instance.LoadScene(SceneName.InGame);
+
+        if (recent >= 0)
+            SaveManager.Instance.LoadGameToScene(recent);
+        else
+            SceneManager.Instance.LoadScene(SceneName.InGame);
     }
     
     private void OnClickLoadButton()
     {
-        UIManager.Instance.HideAllUI();
-        SceneManager.Instance.LoadScene(SceneName.InGame);
+        // 슬롯 선택 UI를 로드 모드로 띄운다. 슬롯 선택 시 저장된 씬으로 진입한다.
+        var go = UIManager.Instance.ShowUI(UI_SaveSlotMenu.UIKey);
+        go?.GetComponent<UI_SaveSlotMenu>()?.SetMode(UI_SaveSlotMenu.SaveSlotMode.Load);
     }
     
     private void OnClickNewGameButton()

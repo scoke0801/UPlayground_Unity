@@ -69,7 +69,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+            // 차지 중 FootIK를 끄지 않는다. IK on/off 전환이 발 스냅 원인. (PlayerAttackState 참고)
 
             _combat             = playerActor.GetCombat();
             _equipment          = playerActor.GetPlayerEquipment();
@@ -107,7 +107,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
+            // 진입 시 끄지 않으므로 다시 켤 필요 없음.
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimEnd;
 

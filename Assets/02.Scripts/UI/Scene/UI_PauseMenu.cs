@@ -11,6 +11,7 @@ using UPlayGround.Manager;
 public class UI_PauseMenu : UI_Base
 {
     [Header("UI 버튼")]
+    [SerializeField] private Button saveButton;
     [SerializeField] private Button gameExitButton;
     [SerializeField] private Button gotoTitleButton;
     [SerializeField] private Button quitButton;
@@ -22,9 +23,17 @@ public class UI_PauseMenu : UI_Base
     {
         base.Awake();
         
+        if (saveButton != null)      saveButton.onClick.AddListener(OnSaveClicked);
         if (gameExitButton != null) gameExitButton.onClick.AddListener(OnGameExitClicked);
         if (gotoTitleButton != null) gotoTitleButton.onClick.AddListener(OnGoToTitleClicked);
         if (quitButton != null)      quitButton.onClick.AddListener(OnResumeClicked);
+    }
+
+    private void OnSaveClicked()
+    {
+        // 슬롯 선택 UI를 저장 모드로 띄운다. 슬롯 선택 시 현재 상태를 저장한다.
+        var go = UIManager.Instance.ShowUI(UI_SaveSlotMenu.UIKey);
+        go?.GetComponent<UI_SaveSlotMenu>()?.SetMode(UI_SaveSlotMenu.SaveSlotMode.Save);
     }
 
     protected override void OnShow()

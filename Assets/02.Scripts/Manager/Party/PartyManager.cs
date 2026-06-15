@@ -762,6 +762,35 @@ namespace UPlayGround.Manager
                     exp   = GetExp(kv.Key),
                 });
             }
+
+            // 캐릭터별 현재 체력 (액티브=CurrentHealth, 벤치=_characterHealthMap, 미기록=풀피).
+            party.characterHealth = new List<CharacterHpEntry>(_roster.Count);
+            if (_player != null)
+            {
+                foreach (var type in _roster)
+                {
+                    party.characterHealth.Add(new CharacterHpEntry
+                    {
+                        type       = type.ToString(),
+                        currentHp  = _player.GetHealthForCharacter(type),
+                        skillGauge = _player.GetSkillGaugeForCharacter(type),
+                    });
+                }
+            }
+
+            // 위치/씬 정보 (인게임에서 _player가 존재할 때만 유효).
+            if (_player != null)
+            {
+                party.loadSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                party.mapId         = SceneManager.Instance?.CurrentMapID ?? string.Empty;
+                party.playerPos     = new SerializableVector3(_player.transform.position);
+                party.playerRot     = new SerializableQuaternion(_player.transform.rotation);
+                party.hasLocation   = true;
+            }
+            else
+            {
+                party.hasLocation = false;
+            }
         }
 
         public void ImportSaveData(GameSaveData saveData)
@@ -832,6 +861,26 @@ namespace UPlayGround.Manager
             RefreshGrowthStats(ActiveCharacterType);
             foreach (var kv in _levels)
                 OnPartyProgressionChanged?.Invoke(kv.Key);
+
+            // 플레이어 위치/회전 복원 (저장 당시 위치). Respawn이 KCC motor 위치 설정 +
+            // Idle 전환 + 카메라 스냅을 처리한다. healPercent는 무시 — HP는 아래에서 정확히 덮어쓴다.
+            if (party.hasLocation && _player != null)
+            {
+                _player.Respawn(party.playerPos.ToVector3(), party.playerRot.ToQuaternion(), 1f);
+            }
+
+            // ⚠️ 반드시 마지막 단계: RefreshGrowthStats와 Respawn이 모두 풀 회복하므로,
+            // 저장된 정확한 HP를 그 이후에 덮어써야 손실되지 않는다.
+            if (party.characterHealth != null && _player != null)
+            {
+                foreach (var entry in party.characterHealth)
+                {
+                    if (!TryParseCharacter(entry.type, out var t)) continue;
+                    _player.RestoreCharacterHealth(t, entry.currentHp);
+                    _player.RestoreCharacterSkillGauge(t, entry.skillGauge);
+                }
+                OnPartyHealthRefreshed?.Invoke();   // HUD 벤치 엔트리 일괄 갱신
+            }
         }
 
         private static bool TryParseCharacter(string s, out CharacterActorType type)

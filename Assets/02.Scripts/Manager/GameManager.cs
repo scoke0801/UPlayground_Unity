@@ -73,6 +73,7 @@ namespace UPlayGround.Manager
             RegisterManager(StoryManager.Instance);
             RegisterManager(GameTimeManager.Instance);
 
+            RegisterManager(WorldStateManager.Instance);  // 맵 월드 상태(몬스터 처치 영속)
             RegisterManager(ActorSpawnManager.Instance);
             RegisterManager(AgentTickManager.Instance); // 적 AI 컴포넌트 일괄 틱 (개별 Update 통합)
             RegisterManager(SceneManager.Instance);

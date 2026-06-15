@@ -863,6 +863,44 @@ namespace UPlayGround
             _characterHealthMap[type] = max;
         }
 
+        /// <summary>
+        /// 세이브 로드용: 지정 캐릭터의 현재 체력을 정확한 값으로 복원한다.
+        /// 풀 회복이 아니라 저장된 값을 그대로 반영하므로, 파티 로드의 풀 회복 단계 이후에 호출해야 한다.
+        /// hp 0 이하면 다운 상태로 복원한다(부활시키지 않음).
+        /// </summary>
+        public void RestoreCharacterHealth(CharacterActorType type, float hp)
+        {
+            if (type == CharacterActorType.None) return;
+
+            if (type == _characterActorType)
+            {
+                _currentHealth = Mathf.Clamp(hp, 0f, _maxHealth);
+                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+                return;
+            }
+
+            // 벤치: _characterHealthMap에 직접 기록 (이벤트 없음 → HUD는 PartyManager가 일괄 갱신)
+            float max = GetMaxHealthForCharacter(type);
+            _characterHealthMap[type] = Mathf.Clamp(hp, 0f, max);
+        }
+
+        /// <summary>
+        /// 세이브 로드용: 지정 캐릭터의 스킬 게이지를 저장된 값으로 복원한다.
+        /// 액티브는 PlayerSkillGauge에, 벤치는 _characterSkillMap에 기록한다.
+        /// </summary>
+        public void RestoreCharacterSkillGauge(CharacterActorType type, float gauge)
+        {
+            if (type == CharacterActorType.None) return;
+
+            float max = _skillGauge != null ? _skillGauge.MaxGauge : 1f;
+            float clamped = Mathf.Clamp(gauge, 0f, max);
+
+            if (type == _characterActorType)
+                _skillGauge?.SetGauge(clamped);
+            else
+                _characterSkillMap[type] = clamped;
+        }
+
         public float GetSkillGaugeForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;

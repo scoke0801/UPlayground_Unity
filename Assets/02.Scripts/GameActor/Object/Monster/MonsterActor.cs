@@ -468,6 +468,7 @@ namespace UPlayGround
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             NotifyQuestMonsterKill();
+            NotifyWorldStateKill();
             SpawnDropItems();
             GrantPartyExp();
             TryRecruitToParty();
@@ -498,6 +499,19 @@ namespace UPlayGround
             }
 
             Debug.LogWarning($"[MonsterActor] 퀘스트 처치 알림 실패: ActorId '{ActorId}'를 int ID로 변환할 수 없습니다.", this);
+        }
+
+        /// <summary>
+        /// 배치 몬스터(SceneEntityId 보유)의 처치를 월드 상태에 기록한다.
+        /// 동적 스폰 몬스터는 SceneEntityId가 없어 추적 대상이 아니다.
+        /// </summary>
+        private void NotifyWorldStateKill()
+        {
+            var entityId = GetComponent<SceneEntityId>();
+            if (entityId == null || !entityId.HasGuid) return;
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            WorldStateManager.Instance?.RecordKill(mapId, entityId.Guid);
         }
 
         private void TryRecruitToParty()

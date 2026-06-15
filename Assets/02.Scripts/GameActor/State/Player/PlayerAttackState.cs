@@ -245,7 +245,8 @@ namespace UPlayGround.State
             _combat    = playerActor.GetCombat();
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
+            // 공격 중 FootIK를 끄지 않는다. IK on/off 전환 자체가 발을 ~38mm 튀게 하는 스냅 원인이었음.
+            // 들린 발은 per-foot weight(_footLiftThreshold)가 자동으로 weight를 낮추므로 ForceDisable 불필요.
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
             _isParryCounter = !hasForcedAttack && _combat.IsParryCounterAvailable;
@@ -348,7 +349,7 @@ namespace UPlayGround.State
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
-            if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = false;
+            // 공격 진입 시 끄지 않으므로 여기서 다시 켤 필요도 없음 (IK는 계속 활성 유지).
             _homingTarget = null;
             _dodgeCounterTarget = null;
             _isDodgeCounterAttack = false;

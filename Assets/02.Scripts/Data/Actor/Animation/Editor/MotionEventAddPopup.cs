@@ -498,6 +498,7 @@ namespace UPlayGround.Animation.Editor
                     Meta<AfterimageEvent>("Afterimage", VfxSfx, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파"),
                     Meta<PlaySoundEvent>("PlaySound", VfxSfx, "오디오 클립을 재생합니다.", "audio", "sfx", "sound", "소리", "사운드"),
                     Meta<FootstepEvent>("Footstep", VfxSfx, "지형 기반 발자국 사운드를 재생합니다.", "foot", "step", "walk", "발소리", "발자국"),
+                    Meta<SlashVFXEvent>("SlashVFX", VfxSfx, "Blade_Base / Blade_Tip의 현재 자세를 샘플링해 Slash VFX를 월드에 1회 생성합니다.", "slash", "weapon", "blade", "vfx", "검기", "참격"),
                     Meta<SpawnProjectileEvent>("SpawnProjectile", VfxSfx, "투사체를 지정 위치에서 발사합니다.", "projectile", "bullet", "arrow", "shot", "투사체", "화살"),
                     Meta<SpawnSkillEvent>("SpawnSkill", VfxSfx, "스킬 오브젝트를 생성합니다.", "skill", "cast", "스킬", "소환"),
 
@@ -570,6 +571,16 @@ namespace UPlayGround.Animation.Editor
                             Timed(new SpecialBreakAttackEvent(), start + 0.18f, 0.05f),
                         },
                         "break", "special", "finish", "브레이크", "특수공격", "처형"),
+
+                    new EventPreset(
+                        "slash_vfx_basic",
+                        "Slash VFX 기본",
+                        "무기 Blade_Base / Blade_Tip 기준으로 Slash VFX를 1회 생성합니다.",
+                        start => new MotionEventBase[]
+                        {
+                            Timed(new SlashVFXEvent(), start + 0.00f, 0.05f),
+                        },
+                        "slash", "weapon", "blade", "vfx", "검기", "참격"),
 
                     new EventPreset(
                         "projectile_basic",

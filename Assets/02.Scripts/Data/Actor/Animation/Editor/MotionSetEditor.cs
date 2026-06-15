@@ -108,7 +108,11 @@ namespace UPlayGround.Animation.Editor
                 while (!SerializedProperty.EqualContents(iterator, end))
                 {
                     if (iterator.name != "startTime" && iterator.name != "endTime")
-                        height += EditorGUI.GetPropertyHeight(iterator, true) + 2;
+                    {
+                        height += IsLocalOffsetProperty(property, iterator) || IsRotationOffsetProperty(property, iterator)
+                            ? (EditorGUIUtility.singleLineHeight + 2) * 5
+                            : EditorGUI.GetPropertyHeight(iterator, true) + 2;
+                    }
                     iterator.NextVisible(false);
                 }
             }
@@ -144,9 +148,18 @@ namespace UPlayGround.Animation.Editor
                 {
                     if (iterator.name != "startTime" && iterator.name != "endTime")
                     {
-                        float h = EditorGUI.GetPropertyHeight(iterator, true);
+                        bool isLocalOffset = IsLocalOffsetProperty(property, iterator);
+                        bool isRotationOffset = IsRotationOffsetProperty(property, iterator);
+                        float h = isLocalOffset || isRotationOffset
+                            ? (EditorGUIUtility.singleLineHeight + 2) * 5
+                            : EditorGUI.GetPropertyHeight(iterator, true);
                         Rect propRect = new Rect(position.x, y, position.width, h);
-                        EditorGUI.PropertyField(propRect, iterator, true);
+                        if (isLocalOffset)
+                            DrawLocalOffsetProperty(propRect, iterator, GetLocalOffsetSpaceLabel(property));
+                        else if (isRotationOffset)
+                            DrawRotationOffsetProperty(propRect, iterator, GetRotationOffsetSpaceLabel(property));
+                        else
+                            EditorGUI.PropertyField(propRect, iterator, true);
                         y += h + 2;
                     }
                     iterator.NextVisible(false);
@@ -157,6 +170,62 @@ namespace UPlayGround.Animation.Editor
 
             EditorGUI.EndProperty();
         }
+
+        static bool IsLocalOffsetProperty(SerializedProperty eventProperty, SerializedProperty fieldProperty)
+            => MotionEventOffsetFieldUtil.IsLocalOffset(GetTargetObjectOfProperty(eventProperty), fieldProperty.name);
+
+        static bool IsRotationOffsetProperty(SerializedProperty eventProperty, SerializedProperty fieldProperty)
+            => MotionEventOffsetFieldUtil.IsRotationOffset(GetTargetObjectOfProperty(eventProperty), fieldProperty.name);
+
+        static void DrawLocalOffsetProperty(Rect rect, SerializedProperty property, string spaceLabel)
+        {
+            float lineH = EditorGUIUtility.singleLineHeight;
+            float gap = 2f;
+            Vector3 value = property.vector3Value;
+
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"{property.displayName} ({spaceLabel} Local)", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            value.x = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), $"{spaceLabel} Right / X", value.x);
+            value.y = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), $"{spaceLabel} Up / Y", value.y);
+            value.z = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), $"{spaceLabel} Forward / Z", value.z);
+            EditorGUI.indentLevel--;
+
+            if (GUI.Button(new Rect(rect.x, rect.y + (lineH + gap) * 4, rect.width, lineH), "Reset Offset"))
+                value = Vector3.zero;
+
+            property.vector3Value = value;
+        }
+
+        static string GetLocalOffsetSpaceLabel(SerializedProperty eventProperty)
+            => MotionEventOffsetFieldUtil.GetLocalOffsetSpaceLabel(GetTargetObjectOfProperty(eventProperty));
+
+        static void DrawRotationOffsetProperty(Rect rect, SerializedProperty property, string spaceLabel)
+        {
+            float lineH = EditorGUIUtility.singleLineHeight;
+            float gap = 2f;
+            Vector3 value = property.vector3Value;
+
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"Rotation ({spaceLabel})", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            value.x = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), "Pitch / X", value.x);
+            value.y = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), "Yaw / Y", value.y);
+            value.z = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), "Roll / Z", value.z);
+            EditorGUI.indentLevel--;
+
+            Rect buttonRect = new Rect(rect.x, rect.y + (lineH + gap) * 4, rect.width, lineH);
+            float thirdWidth = (buttonRect.width - 4f) / 3f;
+            if (GUI.Button(new Rect(buttonRect.x, buttonRect.y, thirdWidth, buttonRect.height), "Reset"))
+                value = Vector3.zero;
+            if (GUI.Button(new Rect(buttonRect.x + thirdWidth + 2f, buttonRect.y, thirdWidth, buttonRect.height), "Flip"))
+                value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+            if (GUI.Button(new Rect(buttonRect.x + (thirdWidth + 2f) * 2f, buttonRect.y, thirdWidth, buttonRect.height), "Roll +90"))
+                value.z = MotionEventOffsetFieldUtil.NormalizeAngle(value.z + 90f);
+
+            property.vector3Value = value;
+        }
+
+        static string GetRotationOffsetSpaceLabel(SerializedProperty eventProperty)
+            => MotionEventOffsetFieldUtil.GetRotationOffsetSpaceLabel(GetTargetObjectOfProperty(eventProperty));
 
         static object GetTargetObjectOfProperty(SerializedProperty prop)
         {

@@ -46,6 +46,7 @@ namespace UPlayGround.Animation.Editor
             if (type == typeof(AnimationSpeedEvent))     return Make(COL_MOVEMENT,   "⏩");
             if (type == typeof(TimeScaleEvent))          return Make(COL_MISC,       "⏱");
             if (type == typeof(ComboWindowEvent))        return Make(COL_INVINCIBLE, "🔓");
+            if (type == typeof(SlashVFXEvent))           return Make(COL_PARTICLE,   "✦");
             if (type == typeof(SpawnProjectileEvent))    return Make(COL_COLLISION,  "🚀");
             if (type == typeof(SpawnSkillEvent))         return Make(COL_PARTICLE,   "⚡");
             if (type == typeof(HealSkillEvent))          return Make(COL_MOVEMENT,   "💚");

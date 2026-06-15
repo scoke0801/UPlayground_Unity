@@ -225,7 +225,10 @@
       "WebFetch(domain:medium.com)",
       "Bash(command -v dotnet)",
       "Bash(rm -rf \"Assets/02.Scripts/Data/VFX\" \"Assets/02.Scripts/Data/VFX.meta\")",
-      "Bash(rm -rf \"Assets/10.Datas/Actor/WeaponTrail\" \"Assets/10.Datas/Actor/WeaponTrail.meta\")"
+      "Bash(rm -rf \"Assets/10.Datas/Actor/WeaponTrail\" \"Assets/10.Datas/Actor/WeaponTrail.meta\")",
+      "Bash(find \"Assets/02.Scripts/Data/Actor/Animation\" \"Assets/02.Scripts/Editor\" -name \"*.asmdef\")",
+      "Bash(find \"Assets/02.Scripts\" -maxdepth 2 -name \"*.asmdef\")",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

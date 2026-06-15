@@ -444,7 +444,7 @@ namespace UPlayGround.Animation.Editor
                 }
                 else
                 {
-                    DrawSingleField(field.Name, value, fieldType, newVal =>
+                    DrawSingleField(obj, field.Name, value, fieldType, newVal =>
                     {
                         RecordUndo($"Change {field.Name}");
                         field.SetValue(obj, newVal);
@@ -945,7 +945,7 @@ namespace UPlayGround.Animation.Editor
                 // 2. 일반 단일 필드인 경우 처리
                 else
                 {
-                    DrawSingleField(field.Name, value, fieldType, (newValue) =>
+                    DrawSingleField(obj, field.Name, value, fieldType, (newValue) =>
                     {
                         RecordUndo($"Change {field.Name}");
                         field.SetValue(obj, newValue);
@@ -1055,7 +1055,7 @@ namespace UPlayGround.Animation.Editor
                     // UnityEngine.Object 파생 타입 → ObjectField로 null 슬롯 표시
                     if (typeof(UnityEngine.Object).IsAssignableFrom(elementType2))
                     {
-                        DrawSingleField($"[{i}]", null, elementType2, (newVal) =>
+                        DrawSingleField(null, $"[{i}]", null, elementType2, (newVal) =>
                         {
                             list[i] = newVal;
                             MarkDirty();
@@ -1074,7 +1074,7 @@ namespace UPlayGround.Animation.Editor
                     if (itemType.IsPrimitive || itemType == typeof(string) ||
                         typeof(UnityEngine.Object).IsAssignableFrom(itemType))
                     {
-                        DrawSingleField($"[{i}]", item, itemType, (newVal) =>
+                        DrawSingleField(null, $"[{i}]", item, itemType, (newVal) =>
                         {
                             list[i] = newVal;
                             MarkDirty();
@@ -1098,7 +1098,7 @@ namespace UPlayGround.Animation.Editor
         /// <summary>
         /// 단일 필드 드로잉 로직
         /// </summary>
-        void DrawSingleField(string label, object value, Type fieldType, Action<object> onValueChanged)
+        void DrawSingleField(object owner, string label, object value, Type fieldType, Action<object> onValueChanged)
         {
             EditorGUI.BeginChangeCheck();
             object newValue = value;
@@ -1107,7 +1107,15 @@ namespace UPlayGround.Animation.Editor
             else if (fieldType == typeof(int)) newValue = EditorGUILayout.IntField(label, (int)value);
             else if (fieldType == typeof(string)) newValue = EditorGUILayout.TextField(label, (string)value);
             else if (fieldType == typeof(bool)) newValue = EditorGUILayout.Toggle(label, (bool)value);
-            else if (fieldType == typeof(Vector3)) newValue = EditorGUILayout.Vector3Field(label, (Vector3)value);
+            else if (fieldType == typeof(Vector3))
+            {
+                if (MotionEventOffsetFieldUtil.IsLocalOffset(owner, label))
+                    newValue = DrawLocalOffsetField(MotionEventOffsetFieldUtil.GetLocalOffsetSpaceLabel(owner), (Vector3)value);
+                else if (MotionEventOffsetFieldUtil.IsRotationOffset(owner, label))
+                    newValue = DrawRotationOffsetField(MotionEventOffsetFieldUtil.GetRotationOffsetSpaceLabel(owner), (Vector3)value);
+                else
+                    newValue = EditorGUILayout.Vector3Field(label, (Vector3)value);
+            }
             else if (fieldType == typeof(AnimationCurve))
                 newValue = EditorGUILayout.CurveField(label, (AnimationCurve)value);
             else if (fieldType == typeof(LayerMask))
@@ -1129,7 +1137,52 @@ namespace UPlayGround.Animation.Editor
                 onValueChanged?.Invoke(newValue);
             }
         }
-        
+
+        static Vector3 DrawLocalOffsetField(string label, Vector3 value)
+        {
+            EditorGUILayout.LabelField($"Position Offset ({label})", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            value.x = EditorGUILayout.FloatField($"{label} Right / X", value.x);
+            value.y = EditorGUILayout.FloatField($"{label} Up / Y", value.y);
+            value.z = EditorGUILayout.FloatField($"{label} Forward / Z", value.z);
+            EditorGUI.indentLevel--;
+
+            if (GUILayout.Button("Reset Offset", GUILayout.Height(20)))
+                value = Vector3.zero;
+
+            return value;
+        }
+
+        static Vector3 DrawRotationOffsetField(string label, Vector3 value)
+        {
+            EditorGUILayout.LabelField($"Rotation ({label})", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            value.x = EditorGUILayout.FloatField("Pitch / X", value.x);
+            value.y = EditorGUILayout.FloatField("Yaw / Y", value.y);
+            value.z = EditorGUILayout.FloatField("Roll / Z", value.z);
+            EditorGUI.indentLevel--;
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Reset Rotation", GUILayout.Height(20)))
+                    value = Vector3.zero;
+
+                if (GUILayout.Button("Flip Forward", GUILayout.Height(20)))
+                    value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Roll +90", GUILayout.Height(20)))
+                    value.z = MotionEventOffsetFieldUtil.NormalizeAngle(value.z + 90f);
+
+                if (GUILayout.Button("Roll -90", GUILayout.Height(20)))
+                    value.z = MotionEventOffsetFieldUtil.NormalizeAngle(value.z - 90f);
+            }
+
+            return value;
+        }
+
         // ====================================================================
         //  MotionSet 글로벌 이벤트 (개별 접힘/펼침 + 색상 배지)
         // ====================================================================

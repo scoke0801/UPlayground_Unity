@@ -48,6 +48,7 @@ public class RecipeDataGeneratorWindow : EditorWindow
     private UnlockConditionType _unlockConditionType = UnlockConditionType.None;
     private int _unlockConditionValue;
     private int _unlockConditionValue2 = 1;
+    private string _unlockConditionStringValue = string.Empty;
 
     private bool _showItemPicker;
     private string _itemPickerSearch = "";
@@ -285,6 +286,7 @@ public class RecipeDataGeneratorWindow : EditorWindow
                 _unlockConditionType = cond.conditionType;
                 _unlockConditionValue = cond.conditionValue;
                 _unlockConditionValue2 = Mathf.Max(1, cond.conditionValue2);
+                _unlockConditionStringValue = cond.conditionStringValue;
             }
             return;
         }
@@ -302,6 +304,7 @@ public class RecipeDataGeneratorWindow : EditorWindow
         _unlockConditionType = UnlockConditionType.None;
         _unlockConditionValue = 0;
         _unlockConditionValue2 = 1;
+        _unlockConditionStringValue = string.Empty;
 
         FillSuggestedIngredients();
     }
@@ -451,7 +454,8 @@ public class RecipeDataGeneratorWindow : EditorWindow
                     _unlockConditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("제작 횟수", _unlockConditionValue2));
                     break;
                 case UnlockConditionType.MonsterKill:
-                    _unlockConditionValue = Mathf.Max(1, EditorGUILayout.IntField("몬스터 ID", _unlockConditionValue));
+                    _unlockConditionStringValue = EditorGUILayout.TextField("Actor ID", _unlockConditionStringValue);
+                    _unlockConditionValue = EditorGUILayout.IntField("레거시 숫자 ID", _unlockConditionValue);
                     _unlockConditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("처치 횟수", _unlockConditionValue2));
                     break;
                 default:
@@ -561,6 +565,9 @@ public class RecipeDataGeneratorWindow : EditorWindow
                 conditionType = _unlockConditionType,
                 conditionValue = _unlockConditionValue,
                 conditionValue2 = _unlockConditionValue2,
+                conditionStringValue = _unlockConditionType == UnlockConditionType.MonsterKill
+                    ? _unlockConditionStringValue
+                    : string.Empty,
             });
         }
 
@@ -878,6 +885,7 @@ public class RecipeDataGeneratorWindow : EditorWindow
             conditionType = src.conditionType,
             conditionValue = src.conditionValue,
             conditionValue2 = src.conditionValue2,
+            conditionStringValue = src.conditionStringValue,
         };
     }
 }

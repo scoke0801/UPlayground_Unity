@@ -52,6 +52,8 @@ namespace UPlayGround.Manager
 
         public void          AddItem(ItemIdType itemId, int count)         => AddItem((int)itemId, count);
         public bool          RemoveItem(ItemIdType itemId, int count)      => RemoveItem((int)itemId, count);
+        public bool          UseItem(ItemIdType itemId, int count = 1)     => UseItem((int)itemId, count);
+        public bool          DeliverItemToQuest(int npcId, ItemIdType itemId, int count = 1) => DeliverItemToQuest(npcId, (int)itemId, count);
         public void          RemoveItem(ItemIdType itemId)                 => RemoveItem((int)itemId);
         public int           GetItemCount(ItemIdType itemId)               => GetItemCount((int)itemId);
         public bool          HasItem(ItemIdType itemId)                    => HasItem((int)itemId);
@@ -76,7 +78,7 @@ namespace UPlayGround.Manager
                 _itemPair[itemId].count += itemInstance.count;
             }
 
-            NotifyQuestItemCollected(itemId, itemInstance.count);
+            NotifyItemCollected(itemId, itemInstance.count);
         }
 
         public void RemoveItem(int itemId)
@@ -106,6 +108,44 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 아이템 사용 처리용 공통 API. 소비 성공 시 ItemUse 퀘스트 목표를 갱신한다.
+        /// </summary>
+        public bool UseItem(int itemId, int count = 1)
+        {
+            if (count <= 0)
+            {
+                return false;
+            }
+
+            if (!RemoveItem(itemId, count))
+            {
+                return false;
+            }
+
+            QuestManager.Instance?.NotifyItemUsed(itemId, count);
+            return true;
+        }
+
+        /// <summary>
+        /// 퀘스트 아이템 전달 공통 API. 소비 성공 시 ItemDeliver 퀘스트 목표를 갱신한다.
+        /// </summary>
+        public bool DeliverItemToQuest(int npcId, int itemId, int count = 1)
+        {
+            if (count <= 0)
+            {
+                return false;
+            }
+
+            if (!RemoveItem(itemId, count))
+            {
+                return false;
+            }
+
+            QuestManager.Instance?.NotifyItemDelivered(npcId, itemId, count);
+            return true;
+        }
+
+        /// <summary>
         /// 아이템을 count만큼 추가한다.
         /// ItemManager에서 ItemSO를 조회하므로 ItemDatabase 로드 이후에 호출해야 한다.
         /// </summary>
@@ -115,16 +155,25 @@ namespace UPlayGround.Manager
             AddItemInternal(itemId, count, true);
         }
 
-        private void AddItemInternal(int itemId, int count, bool notifyQuest)
+        /// <summary>
+        /// 제작 롤백/세이브 복원처럼 새 획득으로 처리하면 안 되는 수량 복구.
+        /// </summary>
+        public void RestoreItem(int itemId, int count)
+        {
+            if (count <= 0) return;
+            AddItemInternal(itemId, count, false);
+        }
+
+        private void AddItemInternal(int itemId, int count, bool notifyProgress)
         {
             if (count <= 0) return;
 
             if (_itemPair.TryGetValue(itemId, out var existing))
             {
                 existing.count += count;
-                if (notifyQuest)
+                if (notifyProgress)
                 {
-                    NotifyQuestItemCollected(itemId, count);
+                    NotifyItemCollected(itemId, count);
                 }
                 return;
             }
@@ -138,21 +187,19 @@ namespace UPlayGround.Manager
 
             _itemPair[itemId] = new ItemInstance { data = itemData, count = count };
 
-            if (notifyQuest)
+            if (notifyProgress)
             {
-                NotifyQuestItemCollected(itemId, count);
+                NotifyItemCollected(itemId, count);
             }
         }
 
-        // QuestManager 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
-        private void NotifyQuestItemCollected(int itemId, int count)
+        // 매니저 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
+        private void NotifyItemCollected(int itemId, int count)
         {
-            if (QuestManager.Instance == null)
-            {
-                return;
-            }
+            QuestManager.Instance?.NotifyItemCollected(itemId, count);
 
-            QuestManager.Instance.NotifyItemCollected(itemId, count);
+            if (RecipeManager.Instance != null)
+                RecipeManager.Instance.NotifyItemCollected(itemId, count);
         }
 
         public int GetItemCount(int itemId)
@@ -242,7 +289,7 @@ namespace UPlayGround.Manager
             _itemPair.Clear();
             foreach (var entry in _pendingLoad.items ?? new System.Collections.Generic.List<ItemSaveEntry>())
             {
-                AddItemInternal(entry.itemId, entry.count, false);
+                RestoreItem(entry.itemId, entry.count);
                 if (_itemPair.TryGetValue(entry.itemId, out var instance))
                     instance.inventorySlotKey = entry.slotKey;
             }

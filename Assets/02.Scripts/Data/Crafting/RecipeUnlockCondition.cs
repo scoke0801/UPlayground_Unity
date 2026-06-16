@@ -15,17 +15,20 @@ namespace UPlayGround.Data.Crafting
 
         public UnlockConditionType conditionType;
 
-        [Tooltip("조건 값 1 (몬스터ID, 아이템ID, 레시피ID 등)")]
+        [Tooltip("조건 값 1 (아이템ID, 레시피ID 등). MonsterKill의 숫자 ID는 레거시 호환용.")]
         public int conditionValue;
 
         [Tooltip("조건 값 2 (수량, 횟수 등)")]
         public int conditionValue2;
+
+        [Tooltip("MonsterKill 목표의 MonsterActor.ActorId. 지정 시 conditionValue보다 우선한다.")]
+        public string conditionStringValue;
     }
 
     /// <summary>
-    /// conditionValue / conditionValue2 용도:
+    /// conditionValue / conditionValue2 / conditionStringValue 용도:
     ///   None        — 없음 (처음부터 언락)
-    ///   MonsterKill — value=몬스터ID, value2=처치 수 (0이면 1회)
+    ///   MonsterKill — stringValue=ActorId(우선), value=레거시 숫자 몬스터ID, value2=처치 수 (0이면 1회)
     ///   ItemCollect — value=아이템ID, value2=수집 수량
     ///   ItemHave    — value=아이템ID, value2=소지 수량
     ///   RecipeCraft — value=레시피ID, value2=제작 횟수

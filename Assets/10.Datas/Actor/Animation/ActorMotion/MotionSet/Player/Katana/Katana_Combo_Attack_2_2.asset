@@ -25,10 +25,42 @@ MonoBehaviour:
       - rid: 7399917168494117006
       - rid: 7399917168494117007
       - rid: 5351031959771152509
+      - rid: 889909851589181445
+      - rid: 889909851589181446
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909851589181445
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.31376776
+        endTime: 0.81376773
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+        spawnPointName: Line Bottom
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 90, y: 0, z: 90}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 889909851589181446
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5415695
+        endTime: 1.0415692
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
+        spawnPointName: Line Bottom
+        offset: {x: 0, y: 0, z: -1}
+        rotationOffset: {x: -180, y: -180, z: -180}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
     - rid: 5351031959771152509
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -67,6 +99,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.00046602893, y: 0, z: 0.03683935}
         bakedPathLen: 0.060181104
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7399917168494117005
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

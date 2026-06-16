@@ -31,7 +31,7 @@ namespace FX
                 return;
 
             GameObject instance = Instantiate(slashVfxPrefab, spawnPosition, rotation);
-            instance.transform.localScale = Vector3.one * scale;
+            instance.transform.localScale *= scale;
 
             if (destroyDelay > 0f)
                 Destroy(instance, destroyDelay);
@@ -63,20 +63,39 @@ namespace FX
                 return false;
             }
 
-            Vector3 bladeDirection = bladeTip.position - bladeBase.position;
-
-            if (bladeDirection.sqrMagnitude < 0.0001f)
+            if (!TryGetSpawnPose(bladeBase, bladeTip, transform, positionOffsetValue, useWorldPositionOffset, rotationOffsetEulerValue, useWorldRotation, out spawnPosition, out rotation))
             {
                 Debug.LogWarning($"{nameof(WeaponSlashVfxSpawner)}: Invalid blade direction.", this);
                 return false;
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Blade Base/Tip 자세로부터 Slash VFX의 생성 위치/회전을 계산하는 공용 로직.
+        /// Spawner 인스턴스와 SlashVFXEvent의 폴백 경로가 동일한 수식을 공유하기 위한 단일 소스다.
+        /// </summary>
+        /// <param name="upFallback">bladeBase.up이 칼날 방향과 평행할 때 사용할 보조 up 기준(없으면 World up).</param>
+        public static bool TryGetSpawnPose(Transform bladeBase, Transform bladeTip, Transform upFallback, Vector3 positionOffsetValue, bool useWorldPositionOffset, Vector3 rotationOffsetEulerValue, bool useWorldRotation, out Vector3 spawnPosition, out Quaternion rotation)
+        {
+            spawnPosition = default;
+            rotation = default;
+
+            if (bladeBase == null || bladeTip == null)
+                return false;
+
+            Vector3 bladeDirection = bladeTip.position - bladeBase.position;
+
+            if (bladeDirection.sqrMagnitude < 0.0001f)
+                return false;
+
             bladeDirection.Normalize();
 
             Vector3 upDirection = Vector3.ProjectOnPlane(bladeBase.up, bladeDirection);
 
-            if (upDirection.sqrMagnitude < 0.0001f)
-                upDirection = Vector3.ProjectOnPlane(transform.up, bladeDirection);
+            if (upDirection.sqrMagnitude < 0.0001f && upFallback != null)
+                upDirection = Vector3.ProjectOnPlane(upFallback.up, bladeDirection);
 
             if (upDirection.sqrMagnitude < 0.0001f)
                 upDirection = Vector3.up;

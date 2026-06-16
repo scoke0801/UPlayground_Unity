@@ -23,11 +23,32 @@ MonoBehaviour:
       events:
       - rid: 7432452544598638609
       - rid: 7432452544598638610
+      - rid: 889909855229575308
       - rid: 7432452544598638611
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909855229575308
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.54311526
+        endTime: 10.543116
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 0
+        preset: {fileID: 0}
+        vfxPrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 0
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 0
+        rotationOffset: {x: 0, y: 0, z: 0}
+        scale: 1
+        destroyDelay: 10
     - rid: 7432452544598638609
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -66,6 +87,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.002441378, y: 0, z: 0.2619926}
         bakedPathLen: 0.29486457
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452544598638610
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

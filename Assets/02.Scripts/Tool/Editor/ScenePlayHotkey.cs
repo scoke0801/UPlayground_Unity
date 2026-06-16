@@ -4,24 +4,13 @@ using UnityEngine;
 
 /// <summary>
 /// 어느 씬에서 작업 중이든 Ctrl+H 단축키로 지정된 씬을 바로 플레이한다.
-/// playModeStartScene 을 사용하므로 현재 열린 씬과 저장하지 않은 변경은 그대로 보존되며,
-/// 플레이를 종료하면 원래 작업하던 씬으로 복귀한다.
+/// 대상 씬을 실제로 연 뒤 플레이하므로 플레이를 종료해도 대상 씬에 그대로 남는다.
 /// 대상 씬은 메뉴로 지정하며, 지정하지 않은 경우 빌드 설정의 첫 활성 씬(보통 Boot)을 사용한다.
 /// </summary>
 public static class ScenePlayHotkey
 {
     // 대상 씬 GUID 저장 키 (프로젝트별 EditorPrefs)
     private static readonly string TargetScenePrefKey = $"ScenePlayHotkey.TargetSceneGuid.{PlayerSettings.productName}";
-
-    // 이번 플레이가 핫키로 시작되었는지 추적 (도메인 리로드 후에도 유지되도록 SessionState 사용)
-    private const string StartedByHotkeyKey = "ScenePlayHotkey.StartedByHotkey";
-
-    [InitializeOnLoadMethod]
-    private static void Init()
-    {
-        EditorApplication.playModeStateChanged -= OnPlayModeChanged;
-        EditorApplication.playModeStateChanged += OnPlayModeChanged;
-    }
 
     /// <summary>
     /// 지정 씬 플레이 (Ctrl+H). 이미 플레이 중이면 정지한다.
@@ -50,8 +39,12 @@ public static class ScenePlayHotkey
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             return;
 
-        EditorSceneManager.playModeStartScene = target;
-        SessionState.SetBool(StartedByHotkeyKey, true);
+        string targetPath = AssetDatabase.GetAssetPath(target);
+        var activeScene = EditorSceneManager.GetActiveScene();
+        if (activeScene.path != targetPath)
+            EditorSceneManager.OpenScene(targetPath, OpenSceneMode.Single);
+
+        EditorSceneManager.playModeStartScene = null;
         EditorApplication.isPlaying = true;
         Debug.Log($"[씬 핫키] '{target.name}' 씬을 플레이합니다.");
     }
@@ -112,16 +105,5 @@ public static class ScenePlayHotkey
         }
 
         return null;
-    }
-
-    private static void OnPlayModeChanged(PlayModeStateChange state)
-    {
-        // 핫키로 시작한 플레이가 끝나면 playModeStartScene 을 비워서
-        // 이후 일반 플레이(Ctrl+P)는 현재 열린 씬을 그대로 사용하도록 복구한다.
-        if (state == PlayModeStateChange.EnteredEditMode && SessionState.GetBool(StartedByHotkeyKey, false))
-        {
-            EditorSceneManager.playModeStartScene = null;
-            SessionState.SetBool(StartedByHotkeyKey, false);
-        }
     }
 }

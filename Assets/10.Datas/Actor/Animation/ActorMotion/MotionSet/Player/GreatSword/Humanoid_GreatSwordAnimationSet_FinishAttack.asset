@@ -68,6 +68,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: -0.009364072, y: 0, z: -0.093011}
         bakedPathLen: 0.24293838
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7399917265539825775
       type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

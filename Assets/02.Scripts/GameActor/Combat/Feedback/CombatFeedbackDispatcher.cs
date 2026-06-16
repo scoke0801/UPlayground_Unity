@@ -269,6 +269,9 @@ namespace UPlayGround.Combat
                 ? attackData.hitTarget.GetComponentInParent<GameActor>()
                 : null;
 
+            if (attackData.isCounterAttack || attackData.useCounterHitFeedback)
+                GameCombatManager.Instance.DefenseSuccessFeedback?.StopForCounterAttack(attackData.attacker);
+
             GameCombatManager.Instance.GameHitStop.ExecuteLocalImpact(
                 attackData.attacker,
                 victim,

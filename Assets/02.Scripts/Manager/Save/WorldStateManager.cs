@@ -78,7 +78,7 @@ namespace UPlayGround.Manager
             if (!_killedMonsters.TryGetValue(mapId, out var killedSet) || killedSet.Count == 0) return;
 
             _sceneMonsterBuffer.Clear();
-            var monsters = Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
+            var monsters = UnityEngine.Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
             foreach (var monster in monsters)
             {
                 if (monster == null) continue;
@@ -88,7 +88,7 @@ namespace UPlayGround.Manager
             }
 
             foreach (var monster in _sceneMonsterBuffer)
-                Object.Destroy(monster.gameObject);
+                UnityEngine.Object.Destroy(monster.gameObject);
 
             if (_sceneMonsterBuffer.Count > 0)
                 Debug.Log($"[WorldStateManager] 맵 '{mapId}' 처치 몬스터 {_sceneMonsterBuffer.Count}개 제거");

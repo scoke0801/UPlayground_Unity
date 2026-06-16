@@ -65,6 +65,7 @@ namespace UPlayGround.Story
         {
             if (progress <= _currentProgress) return;
             _currentProgress = progress;
+            QuestManager.Instance?.NotifyStoryProgress(_currentProgress);
             Debug.Log($"[Story] 진행도 변경: {_currentProgress}");
         }
 

@@ -200,6 +200,14 @@ namespace UPlayGround.Manager.Combat
             StopCurrentFeedback(GameCombatManager.Instance, true);
         }
 
+        public void StopForCounterAttack(GameActor counterActor)
+        {
+            if (counterActor == null || _frozenPlayer != counterActor)
+                return;
+
+            StopCurrentFeedback(GameCombatManager.Instance, true);
+        }
+
         private void StopCurrentFeedback(GameCombatManager host, bool restoreTimeScale)
         {
             if (_routine != null && host != null)

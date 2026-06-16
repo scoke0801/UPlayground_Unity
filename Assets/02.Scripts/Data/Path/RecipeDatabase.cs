@@ -29,7 +29,20 @@ namespace UPlayGround.Data.Path
         /// <summary> 런타임 딕셔너리 캐시 빌드. RecipeManager.Init()에서 호출. </summary>
         public void Initialize()
         {
-            _recipeDict = recipes.ToDictionary(r => r.recipeID);
+            _recipeDict = new Dictionary<int, RecipeData>();
+            foreach (var recipe in recipes)
+            {
+                if (recipe == null)
+                    continue;
+
+                if (_recipeDict.ContainsKey(recipe.recipeID))
+                {
+                    Debug.LogWarning($"[RecipeDatabase] 중복 recipeID 발견: {recipe.recipeID}. 첫 번째 레시피를 사용합니다.", this);
+                    continue;
+                }
+
+                _recipeDict.Add(recipe.recipeID, recipe);
+            }
 
             _ingredientsDict = new Dictionary<int, List<IngredientData>>();
             foreach (var ingr in ingredients)
@@ -47,7 +60,7 @@ namespace UPlayGround.Data.Path
                     _unlockDict[cond.recipeID] = cond;
             }
 
-            Debug.Log($"[RecipeDatabase] 초기화 완료 — 레시피 {recipes.Count}개");
+            Debug.Log($"[RecipeDatabase] 초기화 완료 — 레시피 {_recipeDict.Count}개");
         }
 
         public RecipeData                GetRecipe(RecipeIdType recipeID)          => GetRecipe((int)recipeID);
@@ -71,7 +84,17 @@ namespace UPlayGround.Data.Path
             return _unlockDict != null && _unlockDict.TryGetValue(recipeID, out var c) ? c : null;
         }
 
-        public List<int> GetAllRecipeIDs() => recipes.Select(r => r.recipeID).ToList();
+        public List<int> GetAllRecipeIDs()
+        {
+            if (_recipeDict != null)
+                return _recipeDict.Keys.ToList();
+
+            return recipes
+                .Where(r => r != null)
+                .Select(r => r.recipeID)
+                .Distinct()
+                .ToList();
+        }
 
         // ──── 에디터 임포터용 ────
 

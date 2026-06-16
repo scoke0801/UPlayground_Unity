@@ -27,12 +27,16 @@ public class UI_SaveSlotMenu : UI_Base
         public Button selectButton;
         public TextMeshProUGUI infoText;
         public Button deleteButton;
+        [Tooltip("슬롯 선택 버튼의 라벨(선택). 연결 시 모드에 따라 '저장'/'불러오기'로 갱신된다.")]
+        public TextMeshProUGUI selectLabel;
     }
 
     [Header("모드 표시")]
     [SerializeField] private TextMeshProUGUI _titleText;
     [SerializeField] private string _saveTitle = "저장할 슬롯 선택";
     [SerializeField] private string _loadTitle = "불러올 슬롯 선택";
+    [SerializeField] private string _saveButtonLabel = "저장";
+    [SerializeField] private string _loadButtonLabel = "불러오기";
 
     [Header("슬롯 행 (최대 3개)")]
     [SerializeField] private SlotRow[] _slots = new SlotRow[SaveManager.MAX_SLOTS];
@@ -93,6 +97,10 @@ public class UI_SaveSlotMenu : UI_Base
                     ? $"슬롯 {i + 1}\n{info.saveDateTime}\n맵: {info.mapId}  진행도: {info.storyProgress}"
                     : $"슬롯 {i + 1}\n- 비어 있음 -";
             }
+
+            // 슬롯 버튼 라벨을 모드에 맞게 갱신(연결돼 있을 때만).
+            if (row.selectLabel != null)
+                row.selectLabel.text = _mode == SaveSlotMode.Save ? _saveButtonLabel : _loadButtonLabel;
 
             // 로드 모드에서 빈 슬롯은 선택 불가. 저장 모드는 빈 슬롯도 선택 가능(새 저장).
             if (row.selectButton != null)

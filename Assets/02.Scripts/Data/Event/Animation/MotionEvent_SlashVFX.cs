@@ -98,31 +98,16 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            Vector3 bladeDirection = bladeTip.position - bladeBase.position;
-            if (bladeDirection.sqrMagnitude < 0.0001f)
+            bool useWorldPositionOffset = positionSpace == SlashVFXPositionSpace.World;
+            bool useWorldRotation = rotationSpace == SlashVFXRotationSpace.World;
+            if (!WeaponSlashVfxSpawner.TryGetSpawnPose(bladeBase, bladeTip, target.transform, offset, useWorldPositionOffset, rotOffset, useWorldRotation, out Vector3 spawnPosition, out Quaternion rotation))
             {
                 Debug.LogWarning($"{nameof(SlashVFXEvent)}: Invalid blade direction.", target);
                 return;
             }
 
-            bladeDirection.Normalize();
-
-            Vector3 upDirection = Vector3.ProjectOnPlane(bladeBase.up, bladeDirection);
-            if (upDirection.sqrMagnitude < 0.0001f)
-                upDirection = Vector3.ProjectOnPlane(target.transform.up, bladeDirection);
-            if (upDirection.sqrMagnitude < 0.0001f)
-                upDirection = Vector3.up;
-
-            upDirection.Normalize();
-
-            Quaternion bladeRotation = Quaternion.LookRotation(bladeDirection, upDirection);
-            Quaternion rotation = ResolveRotation(bladeRotation, rotOffset);
-
-            Vector3 center = Vector3.Lerp(bladeBase.position, bladeTip.position, 0.5f);
-            Vector3 spawnPosition = center + ResolveWorldPositionOffset(bladeRotation, offset);
-
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
-            instance.transform.localScale = finalScale;
+            instance.transform.localScale = Vector3.Scale(instance.transform.localScale, finalScale);
 
             if (destroy > 0f)
                 GameObject.Destroy(instance, destroy);
@@ -160,7 +145,7 @@ namespace UPlayGround.Data.Event
 
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
             float finalScale = overrideSpawnerTransform ? scale : spawner.Scale;
-            instance.transform.localScale = Vector3.one * finalScale;
+            instance.transform.localScale *= finalScale;
 
             float finalDestroyDelay = overrideSpawnerTransform ? destroyDelay : spawner.DestroyDelay;
             if (finalDestroyDelay > 0f)
@@ -181,7 +166,7 @@ namespace UPlayGround.Data.Event
                 return false;
 
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
-            instance.transform.localScale = finalScale;
+            instance.transform.localScale = Vector3.Scale(instance.transform.localScale, finalScale);
 
             if (destroy > 0f)
                 GameObject.Destroy(instance, destroy);
@@ -240,18 +225,6 @@ namespace UPlayGround.Data.Event
                 return target;
 
             return FindTransformByName(target, rootName) ?? target;
-        }
-
-        private Vector3 ResolveWorldPositionOffset(Quaternion bladeRotation, Vector3 offset)
-        {
-            return positionSpace == SlashVFXPositionSpace.World ? offset : bladeRotation * offset;
-        }
-
-        private Quaternion ResolveRotation(Quaternion bladeRotation, Vector3 rotationEuler)
-        {
-            return rotationSpace == SlashVFXRotationSpace.World
-                ? Quaternion.Euler(rotationEuler)
-                : bladeRotation * Quaternion.Euler(rotationEuler);
         }
 
         private Transform FindTransformByName(Transform parent, string transformName)

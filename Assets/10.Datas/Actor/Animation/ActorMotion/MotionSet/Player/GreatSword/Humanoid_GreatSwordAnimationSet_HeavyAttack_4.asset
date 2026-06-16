@@ -66,6 +66,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.057359792, y: 0, z: 0.61214095}
         bakedPathLen: 0.6261629
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452531840876583
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

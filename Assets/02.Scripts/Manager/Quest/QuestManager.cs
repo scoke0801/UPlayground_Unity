@@ -24,7 +24,7 @@ namespace UPlayGround.Manager
     ///   ItemCollect   → NotifyItemCollected(itemId, count)
     ///   ItemDeliver   → NotifyItemDelivered(npcId, itemId, count)
     ///   ItemUse       → NotifyItemUsed(itemId, count)
-    ///   MonsterKill   → NotifyMonsterKill(monsterId)
+    ///   MonsterKill   → NotifyMonsterKill(actorId)
     ///   StoryProgress → NotifyStoryProgress(progress)
     ///   ItemCraft     → NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance   → NotifyItemEnhanced(itemId)
@@ -51,6 +51,7 @@ namespace UPlayGround.Manager
         // ──── 런타임 상태 (내부는 string 키로 관리) ────
         private readonly Dictionary<string, QuestRuntimeData> _activeQuests     = new();
         private readonly HashSet<string>                      _completedQuestIds = new();
+        private readonly HashSet<string>                      _failedQuestIds = new();
         private readonly HashSet<string>                      _pendingAcceptQuestIds = new();
         private readonly HashSet<string>                      _pendingReachedLocationIds = new();
         private string _trackedQuestId;
@@ -77,6 +78,7 @@ namespace UPlayGround.Manager
         {
             _activeQuests.Clear();
             _completedQuestIds.Clear();
+            _failedQuestIds.Clear();
             _pendingAcceptQuestIds.Clear();
             _pendingReachedLocationIds.Clear();
             _trackedQuestId = null;
@@ -144,11 +146,17 @@ namespace UPlayGround.Manager
         /// <summary>진행 중인 퀘스트를 포기한다.</summary>
         public bool AbandonQuest(QuestIdType questId) => AbandonQuestById(questId.ToQuestId());
 
+        /// <summary>진행 중인 퀘스트를 실패 처리한다.</summary>
+        public bool FailQuest(QuestIdType questId) => FailQuestById(questId.ToQuestId());
+
         /// <summary>퀘스트 현재 상태를 반환한다.</summary>
         public QuestStatus GetQuestStatus(QuestIdType questId) => GetQuestStatusById(questId.ToQuestId());
 
         /// <summary>퀘스트 완료 여부를 반환한다.</summary>
         public bool IsQuestCompleted(QuestIdType questId) => _completedQuestIds.Contains(questId.ToQuestId());
+
+        /// <summary>퀘스트 실패 여부를 반환한다.</summary>
+        public bool IsQuestFailed(QuestIdType questId) => _failedQuestIds.Contains(questId.ToQuestId());
 
         /// <summary>퀘스트가 현재 진행 중인지 반환한다.</summary>
         public bool IsQuestActive(QuestIdType questId) => _activeQuests.ContainsKey(questId.ToQuestId());
@@ -221,6 +229,7 @@ namespace UPlayGround.Manager
                 if (q == null) continue;
                 if (_activeQuests.ContainsKey(q.questId)) continue;
                 if (!q.isRepeatable && _completedQuestIds.Contains(q.questId)) continue;
+                if (!q.isRepeatable && _failedQuestIds.Contains(q.questId)) continue;
                 if (!CheckPrerequisites(q)) continue;
                 result.Add(q);
             }
@@ -266,6 +275,12 @@ namespace UPlayGround.Manager
                 return false;
             }
 
+            if (!questSO.isRepeatable && _failedQuestIds.Contains(questId))
+            {
+                Debug.LogWarning($"[QuestManager] 이미 실패한 퀘스트: {questId}");
+                return false;
+            }
+
             if (!CheckPrerequisites(questSO))
             {
                 Debug.LogWarning($"[QuestManager] 선행 조건 미충족: {questId}");
@@ -274,6 +289,7 @@ namespace UPlayGround.Manager
 
             var runtime = new QuestRuntimeData(questSO) { Status = QuestStatus.Active };
             _activeQuests[questId] = runtime;
+            _failedQuestIds.Remove(questId);
 
             // ItemCollect 목표는 수락 시 인벤토리 현황으로 즉시 갱신
             RefreshItemCollectObjectives(runtime);
@@ -301,6 +317,7 @@ namespace UPlayGround.Manager
             runtime.Status = QuestStatus.Completed;
             _activeQuests.Remove(questId);
             _completedQuestIds.Add(questId);
+            _failedQuestIds.Remove(questId);
 
             if (_trackedQuestId == questId)
             {
@@ -331,12 +348,40 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        private bool FailQuestById(string questId)
+        {
+            if (!_activeQuests.TryGetValue(questId, out var runtime)) return false;
+
+            runtime.Status = QuestStatus.Failed;
+            _activeQuests.Remove(questId);
+            _failedQuestIds.Add(questId);
+
+            if (_trackedQuestId == questId)
+            {
+                _trackedQuestId = null;
+                _isQuestTrackingSuppressed = false;
+                TrackFirstActiveQuest(false);
+            }
+
+            SendQuestEvent(QuestEvent.QuestFailed, questId, runtime.QuestSO.questName);
+            Debug.Log($"[QuestManager] 퀘스트 실패: {runtime.QuestSO.questName}");
+            return true;
+        }
+
         private QuestStatus GetQuestStatusById(string questId)
         {
             if (_activeQuests.TryGetValue(questId, out var runtime))
                 return runtime.Status;
             if (_completedQuestIds.Contains(questId))
                 return QuestStatus.Completed;
+            if (_failedQuestIds.Contains(questId))
+                return QuestStatus.Failed;
+            if (IsDBLoaded)
+            {
+                var questSO = _db.GetQuest(questId);
+                if (questSO != null && !CheckPrerequisites(questSO))
+                    return QuestStatus.Locked;
+            }
             return QuestStatus.Available;
         }
 
@@ -429,12 +474,34 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 몬스터 처치 시 호출.
-        /// 연결 위치: EnemyCombat 또는 MonsterActor 사망 처리
+        /// 몬스터 처치 시 호출. 레거시 숫자 ID 퀘스트 호환용.
         /// </summary>
         public void NotifyMonsterKill(int monsterId)
         {
             UpdateObjectives(QuestObjectiveType.MonsterKill, monsterId, 1);
+        }
+
+        /// <summary>
+        /// 몬스터 처치 시 호출. MonsterActor.ActorId 문자열을 기준으로 MonsterKill 목표를 갱신한다.
+        /// </summary>
+        public void NotifyMonsterKill(string actorId)
+        {
+            if (string.IsNullOrEmpty(actorId)) return;
+
+            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
+            foreach (var runtime in runtimes)
+            {
+                foreach (var obj in runtime.QuestSO.objectives)
+                {
+                    if (obj.type != QuestObjectiveType.MonsterKill) continue;
+                    if (!IsMonsterKillTargetMatch(obj, actorId)) continue;
+                    if (runtime.IsObjectiveComplete(obj)) continue;
+
+                    runtime.AddProgress(obj.objectiveId, 1);
+                    SendObjectiveEvent(runtime, obj);
+                    TryAutoComplete(runtime);
+                }
+            }
         }
 
         /// <summary>
@@ -563,6 +630,16 @@ namespace UPlayGround.Manager
             TryAutoComplete(runtime);
         }
 
+        private static bool IsMonsterKillTargetMatch(QuestObjectiveData obj, string actorId)
+        {
+            if (!string.IsNullOrEmpty(obj.targetStringId))
+            {
+                return obj.targetStringId == actorId;
+            }
+
+            return int.TryParse(actorId, out int numericActorId) && obj.targetId == numericActorId;
+        }
+
         private bool CheckPrerequisites(QuestSO questSO)
         {
             foreach (var reqId in questSO.requiredQuestIds)
@@ -682,6 +759,7 @@ namespace UPlayGround.Manager
         public void ExportSaveData(GameSaveData saveData)
         {
             saveData.quest.completedQuestIds = new List<string>(_completedQuestIds);
+            saveData.quest.failedQuestIds = new List<string>(_failedQuestIds);
             saveData.quest.trackedQuestId = _trackedQuestId;
             saveData.quest.questTrackingSuppressed = _isQuestTrackingSuppressed;
 
@@ -710,6 +788,10 @@ namespace UPlayGround.Manager
             _completedQuestIds.Clear();
             foreach (var id in data.completedQuestIds ?? new List<string>())
                 _completedQuestIds.Add(id);
+
+            _failedQuestIds.Clear();
+            foreach (var id in data.failedQuestIds ?? new List<string>())
+                _failedQuestIds.Add(id);
 
             _activeQuests.Clear();
             foreach (var entry in data.activeQuests ?? new List<ActiveQuestSaveEntry>())

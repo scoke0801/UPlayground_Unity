@@ -56,6 +56,7 @@ class UI_GamePlay : UI_Base
 
     protected override void OnHide()
     {
+        UIManager.Instance.HideUI(UIKeyType.HudPlayerInfo);
         UIManager.Instance.HideUI(UIKeyType.Minimap);
         UIManager.Instance.HideUI(UIKeyType.HudParty);
         UIManager.Instance.HideUI(UIKeyType.HudQuest);
@@ -67,7 +68,10 @@ class UI_GamePlay : UI_Base
             return;
         }
 
-        _playerActor.GetCombat().OnChangeCombatState -= OnPlayerCombatStateChanged;
+        _playerCombat.OnChangeCombatState -= OnPlayerCombatStateChanged;
+        _playerCombat = null;
+        _playerActor = null;
+        _hudPlayerInfo = null;
     }
 
     protected override void RegisterInputEvents()

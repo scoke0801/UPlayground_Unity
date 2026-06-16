@@ -67,7 +67,7 @@ namespace UPlayGround.Editor
             "QuestManager.NotifyItemCollected(itemId, count)",
             "QuestManager.NotifyItemDelivered(npcId, itemId, count)",
             "QuestManager.NotifyItemUsed(itemId, count)",
-            "QuestManager.NotifyMonsterKill(monsterId)",
+            "QuestManager.NotifyMonsterKill(actorId)",
             "QuestManager.NotifyStoryProgress(progress)",
             "QuestManager.NotifyItemCrafted(recipeId, quantity)",
             "QuestManager.NotifyItemEnhanced(itemId)",
@@ -307,7 +307,9 @@ namespace UPlayGround.Editor
                     break;
 
                 case QuestObjectiveType.MonsterKill:
-                    DrawIntField(elem, "targetId",      "몬스터 ID");
+                    EditorGUILayout.PropertyField(
+                        elem.FindPropertyRelative("targetStringId"), new GUIContent("Actor ID"));
+                    DrawIntField(elem, "targetId", "레거시 숫자 ID");
                     DrawIntField(elem, "requiredCount", "처치 수");
                     break;
 

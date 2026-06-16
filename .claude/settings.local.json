@@ -228,7 +228,8 @@
       "Bash(rm -rf \"Assets/10.Datas/Actor/WeaponTrail\" \"Assets/10.Datas/Actor/WeaponTrail.meta\")",
       "Bash(find \"Assets/02.Scripts/Data/Actor/Animation\" \"Assets/02.Scripts/Editor\" -name \"*.asmdef\")",
       "Bash(find \"Assets/02.Scripts\" -maxdepth 2 -name \"*.asmdef\")",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -v -E \"\\\\.\\(asset|prefab|mat|unity|png|meta|fbx|anim|controller\\)$\")"
     ]
   }
 }

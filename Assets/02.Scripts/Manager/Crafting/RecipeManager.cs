@@ -14,7 +14,7 @@ namespace UPlayGround.Manager
     /// GameManager에 등록되어 다른 매니저와 동일한 생명주기로 동작한다.
     ///
     /// 외부 연동 포인트:
-    ///   - 몬스터 처치 시    → RecipeManager.Instance.NotifyMonsterKill(monsterID)
+    ///   - 몬스터 처치 시    → RecipeManager.Instance.NotifyMonsterKill(actorId)
     ///   - 레시피 직접 언락  → RecipeManager.Instance.UnlockRecipe(recipeID)
     ///   - 제작 시도         → RecipeManager.Instance.TryStartCrafting(recipeID, quantity)
     ///   - 제작 취소         → RecipeManager.Instance.CancelCrafting()
@@ -30,6 +30,8 @@ namespace UPlayGround.Manager
         private readonly Dictionary<int, bool> _unlocked       = new Dictionary<int, bool>();
         private readonly Dictionary<int, int>  _craftCounts    = new Dictionary<int, int>();
         private readonly Dictionary<int, int>  _monsterKills   = new Dictionary<int, int>();
+        private readonly Dictionary<string, int> _monsterKillsByActorId = new Dictionary<string, int>();
+        private readonly Dictionary<int, int>  _itemCollectCounts = new Dictionary<int, int>();
 
         // DB 로드 전에 LoadGame()이 호출될 경우 pending 보관
         private RecipeSaveData _pendingLoad;
@@ -135,12 +137,22 @@ namespace UPlayGround.Manager
 
             var recipe = _db.GetRecipe(recipeID);
             if (recipe == null)             return false;
+            if (quantity <= 0)               return false;
+            if (!HasValidResult(recipe))     return false;
             if (!IsRecipeUnlocked(recipeID)) return false;
             if (IsCrafting())               return false;
             if (!HasEnoughCost(recipe, quantity))        return false;
             if (!HasEnoughIngredients(recipeID, quantity)) return false;
 
             return true;
+        }
+
+        private bool HasValidResult(RecipeData recipe)
+        {
+            if (recipe == null) return false;
+            if (recipe.resultItemID <= 0) return false;
+            if (recipe.resultQuantity <= 0) return false;
+            return ItemManager.Instance.GetItemData(recipe.resultItemID) != null;
         }
 
         private bool HasEnoughCost(RecipeData recipe, int quantity)
@@ -236,7 +248,7 @@ namespace UPlayGround.Manager
                 {
                     Debug.LogError($"[RecipeManager] 재료 차감 실패 — ItemID: {ingr.ingredientItemID}");
                     foreach (var (itemID, amount) in deducted)
-                        InventoryManager.Instance.AddItem(itemID, amount);
+                        InventoryManager.Instance.RestoreItem(itemID, amount);
                     return false;
                 }
                 deducted.Add((ingr.ingredientItemID, toRemove));
@@ -265,16 +277,24 @@ namespace UPlayGround.Manager
             int quantity = _craftingQuantity;
             var recipe   = _db.GetRecipe(recipeID);
 
+            if (!HasValidResult(recipe))
+            {
+                Debug.LogError($"[RecipeManager] 제작 결과 아이템이 유효하지 않습니다. RecipeID: {recipeID}");
+                CancelCrafting();
+                return;
+            }
+
             int totalYield = recipe.resultQuantity * quantity;
             InventoryManager.Instance.AddItem(recipe.resultItemID, totalYield);
 
             if (!_craftCounts.ContainsKey(recipeID))
                 _craftCounts[recipeID] = 0;
-            _craftCounts[recipeID]++;
+            _craftCounts[recipeID] += quantity;
 
             // 제작 완료로 새로운 레시피가 언락될 수 있음
             CheckUnlockConditions();
 
+            QuestManager.Instance?.NotifyItemCrafted(recipeID, quantity);
             OnCraftingCompleted?.Invoke(recipeID, totalYield);
             Debug.Log($"[RecipeManager] 제작 완료: {recipe.recipeName} x{totalYield}");
 
@@ -335,17 +355,17 @@ namespace UPlayGround.Manager
                     true,
 
                 UnlockConditionType.MonsterKill =>
-                    GetMonsterKillCount(cond.conditionValue) >= Mathf.Max(1, cond.conditionValue2),
+                    GetMonsterKillProgress(cond) >= Mathf.Max(1, cond.conditionValue2),
 
                 UnlockConditionType.ItemCollect =>
-                    InventoryManager.Instance.GetItemCount(cond.conditionValue) >= cond.conditionValue2,
+                    GetItemCollectCount(cond.conditionValue) >= Mathf.Max(1, cond.conditionValue2),
 
                 UnlockConditionType.ItemHave =>
-                    InventoryManager.Instance.GetItemCount(cond.conditionValue) >= cond.conditionValue2,
+                    InventoryManager.Instance.GetItemCount(cond.conditionValue) >= Mathf.Max(1, cond.conditionValue2),
 
                 UnlockConditionType.RecipeCraft =>
                     _craftCounts.TryGetValue(cond.conditionValue, out var cnt)
-                    && cnt >= cond.conditionValue2,
+                    && cnt >= Mathf.Max(1, cond.conditionValue2),
 
                 _ => false
             };
@@ -357,19 +377,60 @@ namespace UPlayGround.Manager
         #region 외부 이벤트 수신
 
         /// <summary>
-        /// 몬스터 처치 시 호출. EnemyCombat 또는 EnemyDeathState에서 연결한다.
+        /// 몬스터 처치 시 호출. MonsterActor.ActorId 문자열을 기준으로 처치 수를 집계한다.
+        /// ActorId가 숫자로 변환되면 레거시 숫자 ID 조건도 함께 갱신한다.
         /// </summary>
-        public void NotifyMonsterKill(int monsterID)
+        public void NotifyMonsterKill(string actorId)
         {
-            if (!_monsterKills.ContainsKey(monsterID))
-                _monsterKills[monsterID] = 0;
-            _monsterKills[monsterID]++;
+            if (string.IsNullOrEmpty(actorId)) return;
+
+            if (!_monsterKillsByActorId.ContainsKey(actorId))
+                _monsterKillsByActorId[actorId] = 0;
+            _monsterKillsByActorId[actorId]++;
+
+            if (int.TryParse(actorId, out int monsterID))
+            {
+                if (!_monsterKills.ContainsKey(monsterID))
+                    _monsterKills[monsterID] = 0;
+                _monsterKills[monsterID]++;
+            }
+
             CheckUnlockConditions();
         }
 
-        private int GetMonsterKillCount(int monsterID)
+        /// <summary>
+        /// 레거시 숫자 ID 기반 몬스터 처치 알림. 신규 코드는 ActorId 오버로드를 사용한다.
+        /// </summary>
+        public void NotifyMonsterKill(int monsterID)
         {
-            return _monsterKills.TryGetValue(monsterID, out var c) ? c : 0;
+            NotifyMonsterKill(monsterID.ToString());
+        }
+
+        /// <summary>
+        /// 아이템을 새로 획득했을 때 호출한다. ItemCollect 조건은 현재 보유량이 아니라 누적 획득량을 기준으로 한다.
+        /// </summary>
+        public void NotifyItemCollected(int itemID, int count)
+        {
+            if (itemID <= 0 || count <= 0) return;
+
+            if (!_itemCollectCounts.ContainsKey(itemID))
+                _itemCollectCounts[itemID] = 0;
+            _itemCollectCounts[itemID] += count;
+            CheckUnlockConditions();
+        }
+
+        // conditionStringValue(ActorId)가 지정되면 우선하고, 없으면 레거시 숫자 ID로 폴백한다.
+        private int GetMonsterKillProgress(RecipeUnlockCondition cond)
+        {
+            if (!string.IsNullOrEmpty(cond.conditionStringValue))
+                return _monsterKillsByActorId.TryGetValue(cond.conditionStringValue, out var s) ? s : 0;
+
+            return _monsterKills.TryGetValue(cond.conditionValue, out var c) ? c : 0;
+        }
+
+        private int GetItemCollectCount(int itemID)
+        {
+            return _itemCollectCounts.TryGetValue(itemID, out var c) ? c : 0;
         }
 
         #endregion
@@ -426,6 +487,8 @@ namespace UPlayGround.Manager
 
             saveData.recipe.craftCounts = new Dictionary<int, int>(_craftCounts);
             saveData.recipe.monsterKills = new Dictionary<int, int>(_monsterKills);
+            saveData.recipe.monsterKillsByActorId = new Dictionary<string, int>(_monsterKillsByActorId);
+            saveData.recipe.itemCollectCounts = new Dictionary<int, int>(_itemCollectCounts);
         }
 
         public void ImportSaveData(GameSaveData saveData)
@@ -461,6 +524,16 @@ namespace UPlayGround.Manager
             _monsterKills.Clear();
             foreach (var kv in data.monsterKills ?? new Dictionary<int, int>())
                 _monsterKills[kv.Key] = kv.Value;
+
+            _monsterKillsByActorId.Clear();
+            foreach (var kv in data.monsterKillsByActorId ?? new Dictionary<string, int>())
+                _monsterKillsByActorId[kv.Key] = kv.Value;
+
+            _itemCollectCounts.Clear();
+            foreach (var kv in data.itemCollectCounts ?? new Dictionary<int, int>())
+                _itemCollectCounts[kv.Key] = kv.Value;
+
+            CheckUnlockConditions();
         }
 
         #endregion

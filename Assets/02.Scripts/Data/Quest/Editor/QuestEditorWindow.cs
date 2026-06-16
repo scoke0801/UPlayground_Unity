@@ -88,7 +88,7 @@ namespace UPlayGround.Editor
             "NotifyItemCollected(itemId, count)",
             "NotifyItemDelivered(npcId, itemId, count)",
             "NotifyItemUsed(itemId, count)",
-            "NotifyMonsterKill(monsterId)",
+            "NotifyMonsterKill(actorId)",
             "NotifyStoryProgress(progress)",
             "NotifyItemCrafted(recipeId, quantity)",
             "NotifyItemEnhanced(itemId)",
@@ -575,7 +575,8 @@ namespace UPlayGround.Editor
                     DrawElemProp(elem, "requiredCount", "전달 수량");
                     break;
                 case QuestObjectiveType.MonsterKill:
-                    DrawElemProp(elem, "targetId",      "몬스터 ID");
+                    DrawElemProp(elem, "targetStringId", "Actor ID");
+                    DrawElemProp(elem, "targetId",       "레거시 숫자 ID");
                     DrawElemProp(elem, "requiredCount", "처치 수");
                     break;
                 case QuestObjectiveType.StoryProgress:

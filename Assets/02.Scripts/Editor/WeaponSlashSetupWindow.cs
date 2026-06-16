@@ -719,7 +719,7 @@ namespace UPlayGround.Editor.VFX
             Undo.RegisterCreatedObjectUndo(previewObject, "Preview Weapon Slash VFX");
             previewObject.name = PreviewName;
             previewObject.transform.SetPositionAndRotation(spawnPosition, rotation);
-            previewObject.transform.localScale = Vector3.one * scale;
+            previewObject.transform.localScale *= scale;
             previewObject.transform.SetParent(null, true);
             Selection.activeGameObject = previewObject;
 

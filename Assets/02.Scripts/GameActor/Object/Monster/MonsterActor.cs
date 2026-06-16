@@ -468,6 +468,7 @@ namespace UPlayGround
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             NotifyQuestMonsterKill();
+            NotifyRecipeMonsterKill();
             NotifyWorldStateKill();
             SpawnDropItems();
             GrantPartyExp();
@@ -492,13 +493,17 @@ namespace UPlayGround
                 return;
             }
 
-            if (int.TryParse(ActorId, out int monsterId))
+            QuestManager.Instance.NotifyMonsterKill(ActorId);
+        }
+
+        private void NotifyRecipeMonsterKill()
+        {
+            if (RecipeManager.Instance == null)
             {
-                QuestManager.Instance.NotifyMonsterKill(monsterId);
                 return;
             }
 
-            Debug.LogWarning($"[MonsterActor] 퀘스트 처치 알림 실패: ActorId '{ActorId}'를 int ID로 변환할 수 없습니다.", this);
+            RecipeManager.Instance.NotifyMonsterKill(ActorId);
         }
 
         /// <summary>

@@ -22,10 +22,26 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7432452531840876569
+      - rid: 889909850590150796
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909850590150796
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.84682804
+        endTime: 2.2138057
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
+        spawnPointName: Line Tip
+        offset: {x: 0, y: 0, z: -2}
+        rotationOffset: {x: 0, y: 0, z: -90}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 0
+        particleLifeTime: 0
     - rid: 7432452531840876569
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

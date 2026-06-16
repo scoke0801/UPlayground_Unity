@@ -126,8 +126,12 @@ namespace UPlayGround.Data.Save
         public List<int> unlockedRecipeIDs = new List<int>();
         // recipeID → 제작 횟수
         public Dictionary<int, int> craftCounts = new Dictionary<int, int>();
-        // monsterID → 처치 횟수
+        // monsterID(레거시 숫자 ID) → 처치 횟수
         public Dictionary<int, int> monsterKills = new Dictionary<int, int>();
+        // ActorId(문자열) → 처치 횟수
+        public Dictionary<string, int> monsterKillsByActorId = new Dictionary<string, int>();
+        // itemID → 누적 획득 수량
+        public Dictionary<int, int> itemCollectCounts = new Dictionary<int, int>();
     }
 
     // ──────────────────────────────────────────────────────────
@@ -138,6 +142,9 @@ namespace UPlayGround.Data.Save
     {
         /// <summary> 완료된 퀘스트 ID 목록 </summary>
         public List<string> completedQuestIds = new List<string>();
+
+        /// <summary> 실패한 퀘스트 ID 목록 </summary>
+        public List<string> failedQuestIds = new List<string>();
 
         /// <summary> 현재 진행 중인 퀘스트 상태 목록 </summary>
         public List<ActiveQuestSaveEntry> activeQuests = new List<ActiveQuestSaveEntry>();

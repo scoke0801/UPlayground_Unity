@@ -17,13 +17,13 @@ namespace UPlayGround.Data.Quest
 
         public QuestObjectiveType type;
 
-        [Tooltip("몬스터ID / 아이템ID / 레시피ID / 스토리 진행도 값")]
+        [Tooltip("아이템ID / 레시피ID / 스토리 진행도 값. MonsterKill의 숫자 ID는 레거시 호환용.")]
         public int targetId;
 
         [Tooltip("ItemDeliver 목표에서 아이템을 전달받는 NPC ID")]
         public int npcId;
 
-        [Tooltip("ReachLocation 목표에서 도달해야 하는 위치 ID")]
+        [Tooltip("ReachLocation 목표의 위치 ID 또는 MonsterKill 목표의 ActorId")]
         public string targetStringId;
 
         [Tooltip("달성에 필요한 수량 (0이면 1회 달성)")]

@@ -162,6 +162,9 @@ namespace UPlayGround.Tool.Editor.Validation
                     if (condition.conditionType == UnlockConditionType.RecipeCraft
                         && !recipeIds.Contains(condition.conditionValue))
                         Add(issues, EditorValidationSeverity.Warning, "Recipe", path, database, "conditionValue", $"언락 조건 레시피 ID를 찾을 수 없습니다: {condition.conditionValue}", "선행 레시피 ID를 확인하세요.");
+                    if (condition.conditionType == UnlockConditionType.MonsterKill
+                        && string.IsNullOrWhiteSpace(condition.conditionStringValue) && condition.conditionValue <= 0)
+                        Add(issues, EditorValidationSeverity.Warning, "Recipe", path, database, "conditionStringValue", $"MonsterKill 언락 조건의 Actor ID가 비어 있습니다: {condition.recipeID}", "MonsterActor.ActorId를 conditionStringValue에 지정하세요. 기존 숫자 ID 데이터는 conditionValue로도 동작합니다.");
                     if (condition.conditionType != UnlockConditionType.None && condition.conditionValue2 < 0)
                         Add(issues, EditorValidationSeverity.Warning, "Recipe", path, database, "conditionValue2", $"언락 조건 수량/횟수가 음수입니다: {condition.recipeID}", "0 이상 값을 사용하세요.");
                 }
@@ -273,6 +276,10 @@ namespace UPlayGround.Tool.Editor.Validation
                 case QuestObjectiveType.ItemCraft:
                     if (!recipeIds.Contains(objective.targetId))
                         Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, $"objectives[{index}].targetId", $"목표 레시피 ID를 찾을 수 없습니다: {objective.targetId}", "RecipeDatabase 등록 상태를 확인하세요.");
+                    break;
+                case QuestObjectiveType.MonsterKill:
+                    if (string.IsNullOrWhiteSpace(objective.targetStringId) && objective.targetId <= 0)
+                        Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, $"objectives[{index}].targetStringId", "MonsterKill 목표의 Actor ID가 비어 있습니다.", "MonsterActor.ActorId를 targetStringId에 지정하세요. 기존 숫자 ID 데이터는 targetId로도 동작합니다.");
                     break;
                 case QuestObjectiveType.ReachLocation:
                     if (string.IsNullOrWhiteSpace(objective.targetStringId))

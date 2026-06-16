@@ -22,10 +22,26 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7432452531840876595
+      - rid: 889909850590150807
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909850590150807
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.0833333
+        endTime: 3.3969908
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 1200950891393156, guid: 52a726355873f9443b626e837ef94008, type: 3}
+        spawnPointName: Line Bottom
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
     - rid: 7432452531840876595
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

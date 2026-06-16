@@ -14,7 +14,7 @@ using UPlayGround.Data.Path;
 /// CSV 형식 (헤더 1행 스킵):
 ///   recipe_master.csv     : recipeID, recipeName, resultItemID, resultQuantity, costType(Free|Gold), costAmount, castTimeSeconds, category, description, isDebugUnlocked(TRUE|FALSE)
 ///   recipe_ingredients.csv: recipeID, ingredientItemID, requiredQuantity
-///   recipe_unlocks.csv    : recipeID, conditionType(None|MonsterKill|...), conditionValue, conditionValue2
+///   recipe_unlocks.csv    : recipeID, conditionType(None|MonsterKill|...), conditionValue, conditionValue2, conditionStringValue(선택, MonsterKill의 ActorId)
 /// </summary>
 public class RecipeDataImporter : EditorWindow
 {
@@ -37,10 +37,10 @@ public class RecipeDataImporter : EditorWindow
     private void OnEnable()
     {
         // EditorPrefs에서 경로 로드
-        _csvRecipePath      = EditorPrefs.GetString(PREF_RECIPE_PATH,      "Assets/10.Datas/Crafting/CSV/recipe_master.csv");
-        _csvIngredientPath  = EditorPrefs.GetString(PREF_INGREDIENT_PATH,  "Assets/10.Datas/Crafting/CSV/recipe_ingredients.csv");
-        _csvUnlockPath      = EditorPrefs.GetString(PREF_UNLOCK_PATH,      "Assets/10.Datas/Crafting/CSV/recipe_unlocks.csv");
-        _outputAssetPath    = EditorPrefs.GetString(PREF_OUTPUT_PATH,      "Assets/10.Datas/Crafting/RecipeDatabase.asset");
+        _csvRecipePath      = EditorPrefs.GetString(PREF_RECIPE_PATH,      "Assets/10.Datas/Craft/CSV/recipe_master.csv");
+        _csvIngredientPath  = EditorPrefs.GetString(PREF_INGREDIENT_PATH,  "Assets/10.Datas/Craft/CSV/recipe_ingredients.csv");
+        _csvUnlockPath      = EditorPrefs.GetString(PREF_UNLOCK_PATH,      "Assets/10.Datas/Craft/CSV/recipe_unlocks.csv");
+        _outputAssetPath    = EditorPrefs.GetString(PREF_OUTPUT_PATH,      "Assets/10.Datas/Craft/RecipeDatabase.asset");
     }
 
     private void OnGUI()
@@ -70,7 +70,7 @@ public class RecipeDataImporter : EditorWindow
             "recipe_ingredients.csv 컬럼 순서:\n" +
             "  recipeID, ingredientItemID, requiredQuantity\n\n" +
             "recipe_unlocks.csv 컬럼 순서:\n" +
-            "  recipeID, conditionType, conditionValue, conditionValue2",
+            "  recipeID, conditionType, conditionValue, conditionValue2, conditionStringValue(선택)",
             MessageType.Info);
     }
 
@@ -220,6 +220,8 @@ public class RecipeDataImporter : EditorWindow
                     conditionType  = (UnlockConditionType)Enum.Parse(typeof(UnlockConditionType), p[1], ignoreCase: true),
                     conditionValue = int.Parse(p[2]),
                     conditionValue2= int.Parse(p[3]),
+                    // 5번째 컬럼(ActorId)은 선택적 — 구 4컬럼 CSV도 그대로 동작한다.
+                    conditionStringValue = p.Length > 4 ? p[4].Trim() : string.Empty,
                 });
             }
             catch (Exception e)

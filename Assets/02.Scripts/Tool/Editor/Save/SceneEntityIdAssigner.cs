@@ -21,7 +21,7 @@ namespace UPlayGround.Tool.Editor.Save
         [MenuItem("UPlayGround/World/배치 몬스터 SceneEntityId 일괄 부여", priority = UPlaygroundMenuPriority.WorldMap)]
         private static void AssignToOpenScenes()
         {
-            var monsters = Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
+            var monsters = UnityEngine.Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
             if (monsters.Length == 0)
             {
                 EditorUtility.DisplayDialog("SceneEntityId 부여", "열린 씬에 MonsterActor가 없습니다.", "확인");

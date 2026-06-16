@@ -705,7 +705,8 @@ public class RecipeEditorWindow : EditorWindow
                 break;
 
             case UnlockConditionType.MonsterKill:
-                cond.conditionValue  = EditorGUILayout.IntField("몬스터 ID", cond.conditionValue);
+                cond.conditionStringValue = EditorGUILayout.TextField("Actor ID", cond.conditionStringValue);
+                cond.conditionValue  = EditorGUILayout.IntField("레거시 숫자 ID", cond.conditionValue);
                 cond.conditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("처치 횟수", cond.conditionValue2));
                 break;
 
@@ -1068,9 +1069,9 @@ public class RecipeEditorWindow : EditorWindow
 
         // recipe_unlocks.csv
         sb.Clear();
-        sb.AppendLine("recipeID,conditionType,conditionValue,conditionValue2");
+        sb.AppendLine("recipeID,conditionType,conditionValue,conditionValue2,conditionStringValue");
         foreach (var u in _unlockConditions)
-            sb.AppendLine($"{u.recipeID},{u.conditionType},{u.conditionValue},{u.conditionValue2}");
+            sb.AppendLine($"{u.recipeID},{u.conditionType},{u.conditionValue},{u.conditionValue2},{u.conditionStringValue}");
         File.WriteAllText(Path.Combine(dir, "recipe_unlocks.csv"), sb.ToString(), System.Text.Encoding.UTF8);
 
         AssetDatabase.Refresh();

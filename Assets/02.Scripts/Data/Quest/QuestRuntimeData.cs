@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UPlayGround.Data.Quest
 {
@@ -45,13 +46,19 @@ namespace UPlayGround.Data.Quest
                 ObjectiveProgress[objectiveId] = 0;
 
             ObjectiveProgress[objectiveId] += value;
+            var objective = QuestSO.objectives.Find(obj => obj.objectiveId == objectiveId);
+            if (objective != null)
+                ObjectiveProgress[objectiveId] = Mathf.Clamp(ObjectiveProgress[objectiveId], 0, objective.requiredCount);
             return ObjectiveProgress[objectiveId];
         }
 
         /// <summary> 진행 카운트를 value로 직접 설정 </summary>
         public void SetProgress(string objectiveId, int value)
         {
-            ObjectiveProgress[objectiveId] = value;
+            var objective = QuestSO.objectives.Find(obj => obj.objectiveId == objectiveId);
+            ObjectiveProgress[objectiveId] = objective != null
+                ? Mathf.Clamp(value, 0, objective.requiredCount)
+                : Mathf.Max(0, value);
         }
     }
 }

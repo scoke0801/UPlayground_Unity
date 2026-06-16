@@ -24,10 +24,26 @@ MonoBehaviour:
       - rid: 7432452531840876562
       - rid: 7432452531840876563
       - rid: 7432452531840876564
+      - rid: 889909850590150794
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889909850590150794
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.24740383
+        endTime: 1.9941684
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
+        spawnPointName: Line Tip
+        offset: {x: 0, y: 0, z: -2}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 1
+        useSpawnRotation: 1
+        destroyOnFinish: 0
+        particleLifeTime: 0
     - rid: 7432452531840876562
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -66,6 +82,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.20750752, y: 0, z: 0.5580971}
         bakedPathLen: 0.76486
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452531840876563
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

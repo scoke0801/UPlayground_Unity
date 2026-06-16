@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-06-05 22:13
+// Generated: 2026-06-15 21:59
 namespace UPlayGround.Data.Path
 {
     /// <summary>UIKeyType — UI Prefab 키 열거형 (자동 생성)</summary>
@@ -36,6 +36,7 @@ namespace UPlayGround.Data.Path
         DangerRing = 27,
         BreakInteraction = 28,
         HudSkill = 29,
+        SaveSlotMenu = 30,
     }
 
     public static class UIKeyTypeExtensions
@@ -72,6 +73,7 @@ namespace UPlayGround.Data.Path
             UIKeyType.DangerRing => "DangerRing",
             UIKeyType.BreakInteraction => "BreakInteraction",
             UIKeyType.HudSkill => "HudSkill",
+            UIKeyType.SaveSlotMenu => "SaveSlotMenu",
             _ => string.Empty,
         };
     }

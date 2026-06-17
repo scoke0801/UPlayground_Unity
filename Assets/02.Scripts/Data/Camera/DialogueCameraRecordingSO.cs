@@ -9,7 +9,7 @@ namespace UPlayGround.Data
     /// 재생은 DialogueCameraReplayMode가 담당한다.
     ///
     /// CameraSnapshotProfile과의 차이: 손으로 키잉한 소수 샷이 아니라 카메라를 직접 몰아 캡처한
-    /// 연속 궤적이다. 둘은 같은 ICameraMode/CameraRigPose 재생 경로를 공유하는 형제 시스템이며,
+    /// 연속 궤적이다. 둘은 같은 ICameraBehavior/CameraPose 재생 경로를 공유하는 형제 시스템이며,
     /// 좌표 공간/앵커 자산(CameraSnapshotSpace, CameraSnapshotActorReference)도 재사용한다.
     /// </summary>
     [CreateAssetMenu(fileName = "DCR_", menuName = "UPlayGround/SO/Camera/Dialogue Camera Recording")]

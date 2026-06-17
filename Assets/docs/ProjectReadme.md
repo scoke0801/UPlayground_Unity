@@ -364,6 +364,7 @@ Assets/
 | [CONTROL_FEEL_IMPROVEMENT_GUIDE.md](CONTROL_FEEL_IMPROVEMENT_GUIDE.md) | 조작감 개선 종합 가이드 — 웹 레퍼런스 기반 입력 관용, 이동 반응성, 공격 캔슬, 회피·대시, 카메라·타격 피드백 개선 우선순위 |
 | [BALANCE_DESIGNER_TOOL_GUIDE.md](BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
 | [ANIME_AUTO_SHADING_GENERATOR_DESIGN.md](ANIME_AUTO_SHADING_GENERATOR_DESIGN.md) | 애니 캐릭터 자동 셰이딩 생성기 설계 — lilToon Flat 페이스 섀도우(무 아트 에셋)/Backlight/Rim/RimShade, 에디터 타임 비파괴 머티리얼 생성, 빌드 스트립 제약, 풀 SDF는 V2 보류 |
+| [DEBUG_GIZMO_SYSTEM_DESIGN.md](DEBUG_GIZMO_SYSTEM_DESIGN.md) | 디버깅 기즈모 시스템 설계 — AAA 공개 사례 기반 카테고리 토글, Provider 구조, 런타임 스냅샷, 전투·AI·이동 기즈모 통합 제안 |
 
 ---
 

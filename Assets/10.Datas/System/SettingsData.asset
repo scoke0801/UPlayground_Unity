@@ -19,9 +19,11 @@ MonoBehaviour:
   aimAssist: 1
   languageIndex: 0
   resolutionIndex: 0
+  windowModeIndex: 1
   fullscreen: 1
   qualityIndex: 2
-  brightness: 100
+  targetFrameRate: 60
+  brightness: 5
   masterVolume: 8
   bgmVolume: 7
   sfxVolume: 9

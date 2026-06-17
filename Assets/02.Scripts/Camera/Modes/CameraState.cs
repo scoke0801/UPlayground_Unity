@@ -6,7 +6,7 @@ namespace UPlayGround.CameraSystem
     /// 카메라 모드 간 공유되는 런타임 상태.
     /// 기존 CameraManager 필드와 동기화하면서 단계적으로 이전한다.
     /// </summary>
-    public class CameraRigState
+    public class CameraState
     {
         public float CurrentYaw;
         public float CurrentPitch;

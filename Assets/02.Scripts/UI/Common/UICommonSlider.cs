@@ -19,29 +19,42 @@ public class UICommonSlider : MonoBehaviour
 
     private Slider _slider;
 
-    public float Value => _slider.value;
+    public float Value
+    {
+        get
+        {
+            EnsureSlider();
+            return _slider.value;
+        }
+    }
 
     private void Awake()
     {
-        _slider = GetComponent<Slider>();
+        EnsureSlider();
         UpdateLabels();
         _slider.onValueChanged.AddListener(HandleValueChanged);
     }
 
     private void OnDestroy()
     {
-        _slider.onValueChanged.RemoveAllListeners();
+        if (_slider != null)
+            _slider.onValueChanged.RemoveListener(HandleValueChanged);
     }
 
     // --- Public API ---
 
     public void SetValueWithoutNotify(float value)
     {
+        EnsureSlider();
         _slider.SetValueWithoutNotify(value);
         UpdateLabels();
     }
 
-    public void SetInteractable(bool interactable) => _slider.interactable = interactable;
+    public void SetInteractable(bool interactable)
+    {
+        EnsureSlider();
+        _slider.interactable = interactable;
+    }
 
     // --- Private ---
 
@@ -53,8 +66,16 @@ public class UICommonSlider : MonoBehaviour
 
     private void UpdateLabels()
     {
+        EnsureSlider();
+
         if (_minText)          _minText.text = _slider.minValue.ToString("0");
         if (_maxText)          _maxText.text = _slider.maxValue.ToString("0");
         if (_currentValueText) _currentValueText.text = _slider.value.ToString(_valueFormat);
+    }
+
+    private void EnsureSlider()
+    {
+        if (_slider == null)
+            _slider = GetComponent<Slider>();
     }
 }

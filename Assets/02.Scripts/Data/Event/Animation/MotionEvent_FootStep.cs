@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
 {
@@ -11,6 +12,7 @@ namespace UPlayGround.Data.Event
     {
         public enum Foot { Left, Right }
         public Foot foot;
+        public string soundKey = "footstep_default";
         [Range(0f, 1f)] public float volume = 0.5f;
 
         public override string GetDisplayName() => "Footstep";
@@ -19,7 +21,10 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
-            Debug.Log($"Footstep: {foot}");
+            if (target == null || string.IsNullOrWhiteSpace(soundKey))
+                return;
+
+            SoundManager.Instance?.PlaySfx(soundKey, target.transform.position, volume);
         }
 
         public override void OnCompleteEvent(GameObject target)

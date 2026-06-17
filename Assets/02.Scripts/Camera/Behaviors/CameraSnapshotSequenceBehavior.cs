@@ -3,14 +3,14 @@ using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
 {
-    public class CameraSnapshotSequenceMode : ICameraMode
+    public class CameraSnapshotSequenceBehavior : ICameraBehavior
     {
         private CameraSnapshotProfile _profile;
         private CameraSnapshotActorReference _actorAnchor;
         private CameraSnapshotActorReference _lookAtTarget;
         private int _shotIndex;
         private float _shotElapsed;
-        private CameraRigPose _fromPose;
+        private CameraPose _fromPose;
         private bool _hasPose;
         private bool _completed;
         private bool _isEntryBlending;
@@ -26,7 +26,7 @@ namespace UPlayGround.CameraSystem
         public int ActivePriority => _profile != null ? _profile.priority : 0;
         public bool IsCompleted => _completed;
 
-        public void OnEnter(CameraRuntimeContext context, CameraModeEnterParams enterParams)
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             _profile = enterParams.SnapshotProfile;
             _actorAnchor = enterParams.HasSnapshotActorAnchorOverride
@@ -54,7 +54,7 @@ namespace UPlayGround.CameraSystem
 
             if (context.MainCamera != null && context.CameraPivot != null)
             {
-                _fromPose = CameraRigPose.FromCamera(
+                _fromPose = CameraPose.FromCamera(
                     context.MainCamera,
                     context.CameraPivot,
                     context.State.CurrentYaw,
@@ -64,19 +64,19 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        public void OnExit(CameraRuntimeContext context)
+        public void OnExit(CameraContext context)
         {
             context.IsInputLocked = false;
         }
 
-        public void HandleInput(CameraRuntimeContext context, float deltaTime)
+        public void HandleInput(CameraContext context, float deltaTime)
         {
         }
 
-        public CameraRigPose EvaluatePose(CameraRuntimeContext context, float deltaTime, CameraEffectState effectState)
+        public CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
         {
             if (_profile == null || _profile.shots == null || _profile.shots.Count == 0 || context.MainCamera == null)
-                return CameraRigPose.FromCamera(context.MainCamera, context.CameraPivot, context.State.CurrentYaw, context.State.CurrentPitch, context.State.TargetDistance);
+                return CameraPose.FromCamera(context.MainCamera, context.CameraPivot, context.State.CurrentYaw, context.State.CurrentPitch, context.State.TargetDistance);
 
             float dt = (_profile.useUnscaledTime ? Time.unscaledDeltaTime : deltaTime) * Mathf.Max(0.01f, _profile.playbackSpeed);
 
@@ -89,7 +89,7 @@ namespace UPlayGround.CameraSystem
             AdvanceCompletedShots(context, effectState);
 
             if (_completed)
-                return CameraRigPose.FromCamera(context.MainCamera, context.CameraPivot, context.State.CurrentYaw, context.State.CurrentPitch, context.State.TargetDistance);
+                return CameraPose.FromCamera(context.MainCamera, context.CameraPivot, context.State.CurrentYaw, context.State.CurrentPitch, context.State.TargetDistance);
 
             CameraSnapshotShot targetShot = _profile.shots[Mathf.Clamp(_shotIndex, 0, _profile.shots.Count - 1)];
             float duration = Mathf.Max(0.01f, targetShot.duration);
@@ -98,20 +98,20 @@ namespace UPlayGround.CameraSystem
                 rawT = 1f;
 
             float t = targetShot.blendCurve != null ? Mathf.Clamp01(targetShot.blendCurve.Evaluate(rawT)) : rawT;
-            CameraRigPose toPose = BuildPoseFromShot(context, targetShot, effectState);
+            CameraPose toPose = BuildPoseFromShot(context, targetShot, effectState);
             return LerpPose(_fromPose, toPose, targetShot, t);
         }
 
-        private CameraRigPose EvaluateEntryBlend(CameraRuntimeContext context, CameraEffectState effectState, float deltaTime)
+        private CameraPose EvaluateEntryBlend(CameraContext context, CameraEffectState effectState, float deltaTime)
         {
             CameraSnapshotShot firstShot = _profile.shots[0];
-            CameraRigPose toPose = BuildPoseFromShot(context, firstShot, effectState);
+            CameraPose toPose = BuildPoseFromShot(context, firstShot, effectState);
             float duration = Mathf.Max(0.01f, _profile.entryBlendDuration);
             _entryBlendElapsed += Mathf.Max(0f, deltaTime);
 
             float rawT = Mathf.Clamp01(_entryBlendElapsed / duration);
             float t = _profile.entryBlendCurve != null ? Mathf.Clamp01(_profile.entryBlendCurve.Evaluate(rawT)) : rawT;
-            CameraRigPose pose = LerpPose(_fromPose, toPose, firstShot, t);
+            CameraPose pose = LerpPose(_fromPose, toPose, firstShot, t);
 
             if (rawT >= 1f)
             {
@@ -123,7 +123,7 @@ namespace UPlayGround.CameraSystem
             return pose;
         }
 
-        private void EnsureInitialPose(CameraRuntimeContext context, CameraEffectState effectState)
+        private void EnsureInitialPose(CameraContext context, CameraEffectState effectState)
         {
             if (_hasPose)
                 return;
@@ -131,7 +131,7 @@ namespace UPlayGround.CameraSystem
             CameraSnapshotShot firstShot = _profile.shots[0];
             _fromPose = _profile.applyFirstShotImmediately
                 ? BuildPoseFromShot(context, firstShot, effectState)
-                : CameraRigPose.FromCamera(
+                : CameraPose.FromCamera(
                     context.MainCamera,
                     context.CameraPivot,
                     context.State.CurrentYaw,
@@ -140,7 +140,7 @@ namespace UPlayGround.CameraSystem
             _hasPose = true;
         }
 
-        private void AdvanceCompletedShots(CameraRuntimeContext context, CameraEffectState effectState)
+        private void AdvanceCompletedShots(CameraContext context, CameraEffectState effectState)
         {
             while (!_completed && _shotIndex < _profile.shots.Count)
             {
@@ -163,7 +163,7 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        private CameraRigPose BuildPoseFromShot(CameraRuntimeContext context, CameraSnapshotShot shot, CameraEffectState effectState)
+        private CameraPose BuildPoseFromShot(CameraContext context, CameraSnapshotShot shot, CameraEffectState effectState)
         {
             Transform actorAnchor = CameraSnapshotActorReferenceResolver.Resolve(_actorAnchor, context.Target);
             Transform lookAtTarget = CameraSnapshotActorReferenceResolver.Resolve(_lookAtTarget);
@@ -194,7 +194,7 @@ namespace UPlayGround.CameraSystem
             rotation = Quaternion.Euler(effectState.pitchDelta, effectState.yawDelta, 0f) * rotation;
 
             Vector3 euler = rotation.eulerAngles;
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = pivotPosition,
                 CameraPosition = position,
@@ -206,7 +206,7 @@ namespace UPlayGround.CameraSystem
             };
         }
 
-        private CameraRigPose LerpPose(CameraRigPose from, CameraRigPose to, CameraSnapshotShot targetShot, float t)
+        private CameraPose LerpPose(CameraPose from, CameraPose to, CameraSnapshotShot targetShot, float t)
         {
             if (targetShot != null && targetShot.moveType == CameraSnapshotMoveType.OrbitAroundAnchor)
                 return OrbitPose(from, to, targetShot, t);
@@ -214,9 +214,9 @@ namespace UPlayGround.CameraSystem
             return LerpLinearPose(from, to, t);
         }
 
-        private static CameraRigPose LerpLinearPose(CameraRigPose from, CameraRigPose to, float t)
+        private static CameraPose LerpLinearPose(CameraPose from, CameraPose to, float t)
         {
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = Vector3.Lerp(from.PivotPosition, to.PivotPosition, t),
                 CameraPosition = Vector3.Lerp(from.CameraPosition, to.CameraPosition, t),
@@ -228,7 +228,7 @@ namespace UPlayGround.CameraSystem
             };
         }
 
-        private CameraRigPose OrbitPose(CameraRigPose from, CameraRigPose to, CameraSnapshotShot targetShot, float t)
+        private CameraPose OrbitPose(CameraPose from, CameraPose to, CameraSnapshotShot targetShot, float t)
         {
             Vector3 center = ResolveOrbitCenter(to);
             Vector3 fromOffset = from.CameraPosition - center;
@@ -262,7 +262,7 @@ namespace UPlayGround.CameraSystem
             }
 
             Vector3 euler = rotation.eulerAngles;
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = Vector3.Lerp(from.PivotPosition, to.PivotPosition, t),
                 CameraPosition = cameraPosition,
@@ -274,7 +274,7 @@ namespace UPlayGround.CameraSystem
             };
         }
 
-        private Vector3 ResolveOrbitCenter(CameraRigPose to)
+        private Vector3 ResolveOrbitCenter(CameraPose to)
         {
             Transform lookAtTarget = CameraSnapshotActorReferenceResolver.Resolve(_lookAtTarget);
             if (lookAtTarget != null)

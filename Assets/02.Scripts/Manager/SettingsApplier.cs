@@ -28,17 +28,28 @@ namespace UPlayGround.Manager
             if ((uint)data.resolutionIndex < (uint)SupportedResolutions.Length)
             {
                 var (w, h) = SupportedResolutions[data.resolutionIndex];
-                Screen.SetResolution(w, h, data.fullscreen);
+                Screen.SetResolution(w, h, ToFullScreenMode(data));
             }
 
             QualitySettings.SetQualityLevel(data.qualityIndex, true);
-            ApplyFrameTiming();
+            ApplyFrameTiming(data);
         }
 
-        private static void ApplyFrameTiming()
+        private static FullScreenMode ToFullScreenMode(SettingsData data)
         {
-            QualitySettings.vSyncCount = 1;
-            Application.targetFrameRate = -1;
+            return data.windowModeIndex switch
+            {
+                0 => FullScreenMode.ExclusiveFullScreen,
+                1 => FullScreenMode.FullScreenWindow,
+                2 => FullScreenMode.Windowed,
+                _ => data.fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed
+            };
+        }
+
+        private static void ApplyFrameTiming(SettingsData data)
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = Mathf.Clamp(data.targetFrameRate, 30, 144);
         }
 
         public static void ApplyAudio(SettingsData data, AudioMixer mixer)

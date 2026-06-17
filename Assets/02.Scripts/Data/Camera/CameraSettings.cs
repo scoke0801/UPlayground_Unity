@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.CameraSystem;
 
 namespace UPlayGround.Data
 {
@@ -16,6 +17,11 @@ namespace UPlayGround.Data
     [CreateAssetMenu(fileName = "CameraSettings", menuName = "UPlayGround/Camera/Settings")]
     public class CameraSettings : ScriptableObject
     {
+        [Header("=== 등록 카메라 모드 ===")]
+        [Tooltip("등록할 카메라 모드를 토글/정렬한다. 비워두면 코드 기본값(전체)이 사용된다. " +
+                 "실제 인스턴스 생성은 CameraManager의 팩토리가 담당하므로 미구현 모드(Cinematic 등)는 무시된다.")]
+        public CameraModeType[] enabledModes;
+
         [Header("=== 기본 카메라 ===")]
         public Vector3 defaultOffset = new Vector3(0f, 1f, 0f);
         public Vector3 combatOffset = new Vector3(0.15f, 1.1f, 0f);

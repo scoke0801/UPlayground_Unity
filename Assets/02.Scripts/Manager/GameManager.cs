@@ -59,6 +59,7 @@ namespace UPlayGround.Manager
             RegisterManager(InputManager.Instance); // 입력 시스템
 
             RegisterManager(SettingsManager.Instance); // 설정 (Addressable 로드 → 시스템 반영)
+            RegisterManager(SoundManager.Instance); // 사운드 재생/풀링
             RegisterManager(AssetManager.Instance);
             RegisterManager(UIManager.Instance); // UI 관리
             RegisterManager(CameraManager.Instance); // 카메라 시스템

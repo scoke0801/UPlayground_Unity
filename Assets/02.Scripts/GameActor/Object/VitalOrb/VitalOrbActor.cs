@@ -136,8 +136,9 @@ namespace UPlayGround
             ApplyRewards();
 
             GameObjectManager.Instance.ShowFX(_data.collectParticleName, transform.position);
-            // TODO: 사운드 재생 - AudioManager 구현 후 연결
-            // AudioManager.Instance.Play(_data.collectSoundName);
+
+            if (!string.IsNullOrWhiteSpace(_data.collectSoundName))
+                SoundManager.Instance?.PlayUi(_data.collectSoundName);
 
             Finish(FinishReason.Collected);
         }

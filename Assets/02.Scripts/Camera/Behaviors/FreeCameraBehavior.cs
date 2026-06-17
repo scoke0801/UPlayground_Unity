@@ -8,7 +8,7 @@ namespace UPlayGround.CameraSystem
     /// 녹화/스냅샷 캡처용 프리카메라 모드.
     /// 인게임 추적/락온/충돌을 끊고 카메라 Transform을 직접 조작한다.
     /// </summary>
-    public class FreeCameraMode : ICameraMode
+    public class FreeCameraBehavior : ICameraBehavior
     {
         private Vector3 _position;
         private Quaternion _rotation;
@@ -29,7 +29,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsLockOnInput => false;
         public bool UseCollision => false;
 
-        public void OnEnter(CameraRuntimeContext context, CameraModeEnterParams enterParams)
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             if (context.MainCamera == null)
                 return;
@@ -51,14 +51,14 @@ namespace UPlayGround.CameraSystem
             _initialized = true;
         }
 
-        public void OnExit(CameraRuntimeContext context)
+        public void OnExit(CameraContext context)
         {
             RestorePlayerInput();
             context.IsInputLocked = false;
             _initialized = false;
         }
 
-        public void HandleInput(CameraRuntimeContext context, float deltaTime)
+        public void HandleInput(CameraContext context, float deltaTime)
         {
             if (!_initialized || context.MainCamera == null)
                 return;
@@ -106,7 +106,7 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        public CameraRigPose EvaluatePose(CameraRuntimeContext context, float deltaTime, CameraEffectState effectState)
+        public CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
         {
             if (!_initialized || context.MainCamera == null)
                 return default;
@@ -121,7 +121,7 @@ namespace UPlayGround.CameraSystem
             context.State.CurrentDistance = 0f;
             context.State.SmoothPosition = position;
 
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = position,
                 CameraPosition = position,
@@ -138,7 +138,7 @@ namespace UPlayGround.CameraSystem
             return pitch > 180f ? pitch - 360f : pitch;
         }
 
-        private void SuppressPlayerInput(CameraRuntimeContext context)
+        private void SuppressPlayerInput(CameraContext context)
         {
             _previousPlayerActionSuppressed = InputManager.Instance != null
                                              && InputManager.Instance.IsPlayerActionInputSuppressed;

@@ -17,20 +17,38 @@ public class UICommonDropdown : MonoBehaviour
     public event Action<int> OnIndexChanged;
     public event Action<string> OnValueChanged;
 
-    public int CurrentIndex => _dropdown.value;
-    public string CurrentValue => _dropdown.options[_dropdown.value].text;
+    public int CurrentIndex
+    {
+        get
+        {
+            EnsureDropdown();
+            return _dropdown.value;
+        }
+    }
+
+    public string CurrentValue
+    {
+        get
+        {
+            EnsureDropdown();
+            if (_dropdown.options.Count == 0)
+                return string.Empty;
+
+            int index = Mathf.Clamp(_dropdown.value, 0, _dropdown.options.Count - 1);
+            return _dropdown.options[index].text;
+        }
+    }
 
     private void Awake()
     {
-        if (_dropdown == null)
-            _dropdown = GetComponent<TMP_Dropdown>();
-
+        EnsureDropdown();
         _dropdown.onValueChanged.AddListener(HandleValueChanged);
     }
 
     private void OnDestroy()
     {
-        _dropdown.onValueChanged.RemoveAllListeners();
+        if (_dropdown != null)
+            _dropdown.onValueChanged.RemoveListener(HandleValueChanged);
     }
 
     // --- Public API ---
@@ -40,8 +58,13 @@ public class UICommonDropdown : MonoBehaviour
     /// </summary>
     public void SetOptions(IEnumerable<string> options, int defaultIndex = 0)
     {
+        EnsureDropdown();
+
         _dropdown.ClearOptions();
         _dropdown.AddOptions(new List<string>(options));
+
+        if (_dropdown.options.Count == 0)
+            return;
 
         // 이벤트 발생 없이 초기값 세팅
         _dropdown.SetValueWithoutNotify(Mathf.Clamp(defaultIndex, 0, _dropdown.options.Count - 1));
@@ -51,24 +74,46 @@ public class UICommonDropdown : MonoBehaviour
     /// <summary>
     /// 특정 인덱스로 이동 (이벤트 발생)
     /// </summary>
-    public void SetIndex(int index) => _dropdown.value = index;
+    public void SetIndex(int index)
+    {
+        EnsureDropdown();
+        if (_dropdown.options.Count == 0)
+            return;
+
+        _dropdown.value = Mathf.Clamp(index, 0, _dropdown.options.Count - 1);
+    }
 
     /// <summary>
     /// 특정 인덱스로 이동 (이벤트 미발생)
     /// </summary>
     public void SetIndexWithoutNotify(int index)
     {
+        EnsureDropdown();
+        if (_dropdown.options.Count == 0)
+            return;
+
         _dropdown.SetValueWithoutNotify(Mathf.Clamp(index, 0, _dropdown.options.Count - 1));
         _dropdown.RefreshShownValue();
     }
 
-    public void SetInteractable(bool interactable) => _dropdown.interactable = interactable;
+    public void SetInteractable(bool interactable)
+    {
+        EnsureDropdown();
+        _dropdown.interactable = interactable;
+    }
 
     // --- Private ---
 
     private void HandleValueChanged(int index)
     {
         OnIndexChanged?.Invoke(index);
-        OnValueChanged?.Invoke(_dropdown.options[index].text);
+        if (index >= 0 && _dropdown.options.Count > index)
+            OnValueChanged?.Invoke(_dropdown.options[index].text);
+    }
+
+    private void EnsureDropdown()
+    {
+        if (_dropdown == null)
+            _dropdown = GetComponent<TMP_Dropdown>();
     }
 }

@@ -79,24 +79,13 @@ public class UI_SettingMenu : UI_Base
 
     protected override void OnInit()
     {
-        // SettingsManager가 Addressable 비동기 로드를 완료했는지 확인
-        var sm = SettingsManager.Instance;
-        if (!sm.IsLoaded || sm.Data == null)
-        {
-            Debug.LogWarning("[UI_Settings] SettingsManager가 아직 로드되지 않았습니다.");
-            return;
-        }
-
-        _settingsData = sm.Data;
-        _settingsData.Load();
-        
-        BindControlEvents();
+        TryBindSettingsData();
     }
 
     protected override void OnShow()
     {
-        // OnInit 이후 호출되므로 _settingsData가 null이면 바인딩도 안 됐다는 뜻
-        if (_settingsData == null) return;
+        if (!TryBindSettingsData())
+            return;
 
         _currentPage = _panelGameplay;
         _snapshot = SettingsSnapshot.From(_settingsData);
@@ -118,7 +107,29 @@ public class UI_SettingMenu : UI_Base
 
     private void BindControlEvents()
     {
-        return;
+        _panelGameplay?.Bind(_settingsData);
+        _panelGraphics?.Bind(_settingsData);
+        _panelAudio?.Bind(_settingsData);
+        _panelKeys?.Bind(_settingsData);
+    }
+
+    private bool TryBindSettingsData()
+    {
+        if (_settingsData != null)
+            return true;
+
+        // SettingsManager가 Addressable 비동기 로드를 완료했는지 확인
+        var sm = SettingsManager.Instance;
+        if (!sm.IsLoaded || sm.Data == null)
+        {
+            Debug.LogWarning("[UI_Settings] SettingsManager가 아직 로드되지 않았습니다.");
+            return false;
+        }
+
+        _settingsData = sm.Data;
+        _settingsData.Load();
+        BindControlEvents();
+        return true;
     }
 
     // 동기화 중 콜백 무시

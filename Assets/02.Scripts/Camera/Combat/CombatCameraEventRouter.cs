@@ -13,12 +13,12 @@ namespace UPlayGround.CameraSystem
     /// 전투 결과를 카메라 의도로 변환하고 CameraManager API 호출을 한곳에 모은다.
     /// P1 단계에서는 기존 PlayerAttackHitFeedbackProfile을 재사용해 회귀 범위를 줄인다.
     /// </summary>
-    public sealed class CombatCameraDirector
+    public sealed class CombatCameraEventRouter
     {
         private readonly CameraManager _cameraManager;
         private CombatCameraProfileDatabaseSO _profileDatabase;
 
-        public CombatCameraDirector(CameraManager cameraManager)
+        public CombatCameraEventRouter(CameraManager cameraManager)
         {
             _cameraManager = cameraManager;
         }

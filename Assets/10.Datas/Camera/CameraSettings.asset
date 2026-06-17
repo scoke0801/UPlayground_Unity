@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807d7a8405ae9d645bc5b42e4c0a1253, type: 3}
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
+  enabledModes: 000000000100000002000000030000000400000005000000
   defaultOffset: {x: 0, y: 1, z: 0}
   combatOffset: {x: 0.15, y: 1.1, z: 0}
   offsetSmoothTime: 0.3
@@ -59,11 +60,24 @@ MonoBehaviour:
   explorePitch: 25
   combatPitch: 25
   lockOnRange: 16
+  lockOnReleaseRange: 20
+  lockOnLostGraceTime: 0.35
   lockOnDistance: 4.9
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
   lockOnPriorityMode: 1
+  lockOnCurrentTargetBonus: 0.25
+  lockOnSwitchWrap: 1
+  lockOnSwitchScreenWeight: 1
+  lockOnSwitchCenterWeight: 0.35
+  lockOnSwitchDistanceWeight: 0.25
+  lockOnRequireLineOfSight: 1
+  lockOnLineOfSightRadius: 0.12
+  enableLockOnPairFraming: 1
+  lockOnPairFocusRatio: 0.12
+  lockOnMaxFocusOffsetFromPlayer: 1.1
+  lockOnPairFocusSmoothTime: 0.18
   lockOnHeightDampFactor: 0.42
   lockOnPitchMin: 15
   lockOnPitchMax: 80

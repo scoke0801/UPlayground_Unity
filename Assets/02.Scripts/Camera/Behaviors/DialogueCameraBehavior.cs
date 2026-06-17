@@ -7,7 +7,7 @@ namespace UPlayGround.CameraSystem
     /// 대화 전용 카메라 모드.
     /// PrimaryTarget은 화자, SecondaryTarget은 청자/플레이어로 사용한다.
     /// </summary>
-    public class DialogueCameraMode : ICameraMode
+    public class DialogueCameraBehavior : ICameraBehavior
     {
         private Transform _speaker;
         private Transform _listener;
@@ -38,7 +38,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsLockOnInput => false;
         public bool UseCollision => true;
 
-        public void OnEnter(CameraRuntimeContext context, CameraModeEnterParams enterParams)
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             _speaker = enterParams.PrimaryTarget;
             _listener = enterParams.SecondaryTarget != null ? enterParams.SecondaryTarget : context.Target;
@@ -63,7 +63,7 @@ namespace UPlayGround.CameraSystem
             _wasInDialogue = true;
         }
 
-        public void OnExit(CameraRuntimeContext context)
+        public void OnExit(CameraContext context)
         {
             context.IsInputLocked = false;
             _wasInDialogue = false;
@@ -76,11 +76,11 @@ namespace UPlayGround.CameraSystem
             return listener == null || _listener == listener;
         }
 
-        public void HandleInput(CameraRuntimeContext context, float deltaTime)
+        public void HandleInput(CameraContext context, float deltaTime)
         {
         }
 
-        public CameraRigPose EvaluatePose(CameraRuntimeContext context, float deltaTime, CameraEffectState effectState)
+        public CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
         {
             Transform target = _speaker != null ? _speaker : context.Target;
             if (target == null || context.MainCamera == null)
@@ -153,7 +153,7 @@ namespace UPlayGround.CameraSystem
             Vector3 euler = cameraRotation.eulerAngles;
             float fov = _fieldOfView + effectState.fovDelta;
 
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = lookAt,
                 CameraPosition = cameraPosition,
@@ -169,7 +169,7 @@ namespace UPlayGround.CameraSystem
         /// subject(주시 대상)를 reference(반대편 인물) 기준으로 어깨 너머 구도로 잡는 포즈를 산출한다.
         /// 화자 클로즈업은 (speaker, listener), 인트로의 플레이어 컷은 (listener, speaker)로 호출한다.
         /// </summary>
-        private FramedPose ComputeFramedPose(CameraRuntimeContext context, DialogueCameraSettingsSO settings, Transform subject, Transform reference)
+        private FramedPose ComputeFramedPose(CameraContext context, DialogueCameraSettingsSO settings, Transform subject, Transform reference)
         {
             Vector3 lookAt = subject.position + settings.speakerLookAtOffset;
             Vector3 baseForward = ResolveDialogueForward(subject, reference);
@@ -189,7 +189,7 @@ namespace UPlayGround.CameraSystem
             return new FramedPose { LookAt = lookAt, Position = position, Rotation = rotation };
         }
 
-        private DialogueCameraSettingsSO GetSettings(CameraRuntimeContext context)
+        private DialogueCameraSettingsSO GetSettings(CameraContext context)
         {
             if (context.DialogueSettings != null)
                 return context.DialogueSettings;

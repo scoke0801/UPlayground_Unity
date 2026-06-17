@@ -9,12 +9,12 @@ namespace UPlayGround.Manager.Combat
     /// 레벨업 순간의 연출(전신 VFX + "LEVEL UP" 플로터)을 담당한다.
     /// PartyManager.OnLevelUp을 구독하며, 활성 캐릭터만 전신 연출을 재생한다.
     /// 포스트프로세스/타임스케일 슬로우는 사용하지 않는다(전투 흐름 유지).
-    /// SFX는 AudioManager 미구현 상태로 TODO 훅만 남긴다.
     /// </summary>
     public sealed class LevelUpFeedbackHandler : GameHandlerBase
     {
         // FX 프리팹 키. 해당 키의 FX가 등록되어 있지 않으면 ShowFX가 무시한다(안전).
         private const string LevelUpFxKey = "LevelUp";
+        private const string LevelUpSoundKey = "LevelUp";
         private const float  FxDuration   = 3f;
         private const float  HeadOffsetY  = 2.2f;
 
@@ -91,7 +91,7 @@ namespace UPlayGround.Manager.Combat
             UIManager.Instance?.ShowDamageFloaterLabel(
                 basePos + Vector3.up * HeadOffsetY, $"LEVEL UP!  Lv.{level}", FloatStyle.Critical);
 
-            // TODO: AudioManager 구현 후 레벨업 SFX 재생.
+            SoundManager.Instance?.PlayUi(LevelUpSoundKey);
         }
     }
 }

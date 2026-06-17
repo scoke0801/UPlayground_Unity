@@ -18,6 +18,19 @@ namespace UPlayGround.Manager
     public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor
     {
         [SerializeField] private CameraSettings settings;
+
+        // 등록할 카메라 모드는 CameraSettings SO(settings.enabledModes)에서 읽는다.
+        // CameraManager는 런타임 생성될 수 있어 자체 SerializeField로는 설정할 수 없으므로,
+        // Addressable로 로드되는 SO를 단일 설정 소스로 사용한다. 비어 있으면 아래 기본값을 쓴다.
+        private static readonly CameraModeType[] DefaultEnabledModes =
+        {
+            CameraModeType.InGame,
+            CameraModeType.Free,
+            CameraModeType.Dialogue,
+            CameraModeType.CameraSnapshotSequence,
+            CameraModeType.DialogueCameraReplay,
+        };
+
         private const string SETTINGS_ADDRESSABLE_KEY = "CameraSettings";
         private const string CAMERA_SHAKE_DB_KEY      = "CameraShakeDatabase";
         private const string KILL_CAM_DATA_KEY         = "KillCamData";
@@ -32,10 +45,11 @@ namespace UPlayGround.Manager
         private CameraEffectManager      _effectManager;
         private CameraShaker             _shaker;
         private KillCamController        _killCamController;
-        private CombatCameraDirector     _combatCameraDirector;
-        private CameraRigState           _rigState = new CameraRigState();
-        private CameraRuntimeContext     _cameraContext;
-        private CameraModeController     _modeController;
+        private CombatCameraEventRouter     _combatCameraEventRouter;
+        private readonly CameraResolver  _cameraResolver = new CameraResolver();
+        private CameraState           _rigState = new CameraState();
+        private CameraContext     _cameraContext;
+        private CameraDirector     _modeController;
 
         private Camera    _mainCamera;
         private Transform _target;
@@ -55,12 +69,7 @@ namespace UPlayGround.Manager
         private bool  _isAligning;
         private float _alignTimer;
 
-        // 전방 카메라 블렌딩 (충돌로 후방이 막힐 때 앞으로 전환)
-        private float            _frontCameraBlend;
-        private float            _frontCameraBlendVel;
         private CapsuleCollider  _characterCapsule;
-        private const float      FRONT_BLEND_RETURN_SPEED = 0.12f; // 복귀: 부드럽게
-        private const float      FRONT_BLEND_PULL_SPEED   = 0f;    // 당김: 즉시
 
         // 경사 지형 피치 보정
         private float _slopePitchOffset;
@@ -107,7 +116,7 @@ namespace UPlayGround.Manager
 
             _rotTransition = new CameraRotationTransition();
             _effectManager = new CameraEffectManager(this);
-            _combatCameraDirector = new CombatCameraDirector(this);
+            _combatCameraEventRouter = new CombatCameraEventRouter(this);
             InitializeCameraModes();
 
             LoadKillCamData();
@@ -220,13 +229,13 @@ namespace UPlayGround.Manager
             SyncCameraContext();
             SyncRigStateFromFields();
             CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
-            CameraRigPose pose = _modeController != null
+            CameraPose pose = _modeController != null
                 ? _modeController.EvaluatePose(Time.deltaTime, fx)
-                : CameraRigPose.FromCamera(_mainCamera, _cameraPivot, _currentYaw, _currentPitch, _targetDistance);
+                : CameraPose.FromCamera(_mainCamera, _cameraPivot, _currentYaw, _currentPitch, _targetDistance);
 
             SyncFieldsFromRigState();
             SyncFieldsFromCameraContext();
-            ApplyCameraPose(pose);
+            _cameraResolver.Apply(pose, _mainCamera, _cameraPivot);
             SyncRigStateFromFields();
         }
 
@@ -269,101 +278,6 @@ namespace UPlayGround.Manager
 
         #endregion
 
-        #region 카메라 위치 / 회전
-
-        private void UpdateCameraPosition(float smoothTime, float desiredDistance)
-        {
-            Vector3 pivotBase = _lookAtOverride != null
-                ? _lookAtOverride.position + _lookAtOverrideOffset
-                : _target.position + _cameraOffset;
-
-            _smoothPosition      = Vector3.SmoothDamp(_smoothPosition, pivotBase, ref _positionVelocity, smoothTime);
-            _cameraPivot.position = _smoothPosition;
-
-            Quaternion rotation = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
-            Vector3    camDir   = rotation * Vector3.back;
-
-            // 캡슐 클리어런스를 먼저 계산: 유저 줌이 캐릭터 바디 안쪽으로 파고들지 못하게 하한으로 사용한다.
-            ComputeCapsuleClearance(_cameraPivot.position, camDir,
-                out float backClearance, out float frontClearance);
-
-            float clampedDesired = Mathf.Max(desiredDistance, backClearance);
-
-            float finalDist = _collision != null
-                ? _collision.Evaluate(_cameraPivot.position, camDir, clampedDesired)
-                : clampedDesired;
-
-            Vector3 backPos = _cameraPivot.position + camDir * finalDist;
-
-            // 안전장치: 스무딩된 pivot이 지형 내부로 밀릴 때 SphereCast가 실패할 수 있으므로
-            // KCC가 보장하는 pivotBase에서 다시 SphereCast로 경로를 재확인한다.
-            Vector3 toCam     = backPos - pivotBase;
-            float   toCamDist = toCam.magnitude;
-            if (toCamDist > 0.01f)
-            {
-                Vector3 toCamDir = toCam / toCamDist;
-                if (Physics.SphereCast(pivotBase, settings.cameraRadius, toCamDir,
-                        out RaycastHit safeHit, toCamDist, _collisionLayers))
-                {
-                    if (safeHit.transform != _target && !safeHit.transform.IsChildOf(_target))
-                    {
-                        float safeDist = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
-                        backPos = pivotBase + toCamDir * safeDist;
-                    }
-                }
-            }
-
-            // 지형 관통 방지: camDir 직선 위에서 minY를 만족하는 거리로 클램프
-            const float CHECK_HEIGHT = 20f;
-            const float CHECK_DIST   = 40f;
-            Vector3 checkOrigin = new Vector3(backPos.x, backPos.y + CHECK_HEIGHT, backPos.z);
-            if (Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, _collisionLayers))
-            {
-                float minY = groundHit.point.y + settings.collisionOffset;
-                if (backPos.y < minY)
-                {
-                    if (Mathf.Abs(camDir.y) > 0.001f)
-                    {
-                        float groundDist = (minY - _cameraPivot.position.y) / camDir.y;
-                        float curDist    = Vector3.Distance(_cameraPivot.position, backPos);
-                        if (groundDist >= settings.minDistance && groundDist <= curDist)
-                            backPos = _cameraPivot.position + camDir * groundDist;
-                    }
-                    else
-                    {
-                        backPos.y = minY;
-                    }
-                }
-            }
-
-            float backDist    = Vector3.Distance(_cameraPivot.position, backPos);
-            float targetBlend = backDist < backClearance ? 1f : 0f;
-            float blendSpeed  = targetBlend > _frontCameraBlend
-                ? FRONT_BLEND_PULL_SPEED
-                : FRONT_BLEND_RETURN_SPEED;
-            _frontCameraBlend = blendSpeed > 0f
-                ? Mathf.SmoothDamp(_frontCameraBlend, targetBlend, ref _frontCameraBlendVel, blendSpeed)
-                : targetBlend;
-
-            float   frontDist = Mathf.Max(frontClearance, 0.3f);
-            Vector3 frontPos  = _cameraPivot.position + (-camDir) * frontDist;
-
-            _mainCamera.transform.position = Vector3.Lerp(backPos, frontPos, _frontCameraBlend);
-        }
-
-        private void UpdateCameraRotation(float smoothTime)
-        {
-            Quaternion targetRot = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
-            if (smoothTime > 0f)
-                _mainCamera.transform.rotation = Quaternion.Slerp(
-                    _mainCamera.transform.rotation, targetRot,
-                    1f - Mathf.Exp(-10f / smoothTime));
-            else
-                _mainCamera.transform.rotation = targetRot;
-        }
-
-        #endregion
-
         #region 전방 카메라 (충돌 회피)
 
         private void CacheCapsule()
@@ -380,74 +294,6 @@ namespace UPlayGround.Manager
                   ?? _target.GetComponentInParent<ActorMovementController>()
                   ?? _target.GetComponentInChildren<ActorMovementController>()
                 : null;
-        }
-
-        /// <summary>
-        /// 캡슐 콜라이더 기하학으로 후방/전방 클리어런스를 계산.
-        /// backClearance  : 카메라가 캡슐 밖에 있으려면 pivot에서 camDir 방향으로 필요한 최소 거리
-        /// frontClearance : 전방 카메라가 캡슐 밖에 있으려면 pivot에서 -camDir 방향으로 필요한 최소 거리
-        /// 캡슐의 중심선 위 가장 가까운 점을 구(球)로 근사해 직선-구 교점 공식으로 계산.
-        /// </summary>
-        private void ComputeCapsuleClearance(Vector3 pivotPos, Vector3 camDir,
-            out float backClearance, out float frontClearance)
-        {
-            backClearance  = 0f;
-            frontClearance = 0f;
-
-            if (_characterCapsule == null) return;
-
-            Transform t           = _characterCapsule.transform;
-            Vector3   worldCenter = t.TransformPoint(_characterCapsule.center);
-            Vector3   scale       = t.lossyScale;
-
-            // 캡슐 방향 축과 스케일
-            Vector3 axisLocal;
-            float   rScale, hScale;
-            switch (_characterCapsule.direction)
-            {
-                case 0:  // X
-                    axisLocal = Vector3.right;
-                    rScale    = Mathf.Max(Mathf.Abs(scale.y), Mathf.Abs(scale.z));
-                    hScale    = Mathf.Abs(scale.x);
-                    break;
-                case 2:  // Z
-                    axisLocal = Vector3.forward;
-                    rScale    = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
-                    hScale    = Mathf.Abs(scale.z);
-                    break;
-                default: // Y (캐릭터 기본)
-                    axisLocal = Vector3.up;
-                    rScale    = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
-                    hScale    = Mathf.Abs(scale.y);
-                    break;
-            }
-
-            Vector3 axisWorld = t.TransformDirection(axisLocal).normalized;
-            float   radius    = _characterCapsule.radius * rScale;
-            float   halfCyl   = Mathf.Max(0f, _characterCapsule.height * hScale * 0.5f - radius);
-
-            // pivot에서 캡슐 중심선 위의 가장 가까운 점 → 구(球) 근사 중심
-            Vector3 p2c           = pivotPos - worldCenter;
-            float   tOnAxis       = Mathf.Clamp(Vector3.Dot(p2c, axisWorld), -halfCyl, halfCyl);
-            Vector3 nearestCenter = worldCenter + tOnAxis * axisWorld;
-
-            // 직선-구 교점 (구 반지름 = 캡슐 radius + 카메라 SphereCast radius)
-            float   effectiveR = radius + settings.cameraRadius;
-            Vector3 oc         = pivotPos - nearestCenter;
-            float   halfB      = Vector3.Dot(oc, camDir);
-            float   cVal       = oc.sqrMagnitude - effectiveR * effectiveR;
-            float   disc       = halfB * halfB - cVal;
-
-            if (disc < 0f) return;  // 피벗이 캡슐과 완전히 동떨어진 경우
-
-            float sqrtDisc = Mathf.Sqrt(disc);
-            float t1       = -halfB - sqrtDisc;  // camDir 방향 진입점
-            float t2       = -halfB + sqrtDisc;  // camDir 방향 탈출점
-
-            // 카메라(후방)는 t2 이상이어야 캡슐 밖
-            backClearance  = Mathf.Max(t2, 0f);
-            // 전방 카메라는 -camDir 방향으로 -t1 이상이어야 캡슐 밖
-            frontClearance = Mathf.Max(-t1, 0f);
         }
 
         #endregion
@@ -608,17 +454,47 @@ namespace UPlayGround.Manager
         private void InitializeCameraModes()
         {
             if (_cameraContext == null)
-                _cameraContext = new CameraRuntimeContext(_rigState);
+                _cameraContext = new CameraContext(_rigState);
 
             SyncCameraContext();
 
-            _modeController = new CameraModeController(_cameraContext);
-            _modeController.Register(new InGameCameraMode());
-            _modeController.Register(new FreeCameraMode());
-            _modeController.Register(new DialogueCameraMode());
-            _modeController.Register(new CameraSnapshotSequenceMode());
-            _modeController.Register(new DialogueCameraReplayMode());
+            _modeController = new CameraDirector(_cameraContext);
+
+            CameraModeType[] modes = settings != null && settings.enabledModes != null && settings.enabledModes.Length > 0
+                ? settings.enabledModes
+                : DefaultEnabledModes;
+
+            for (int i = 0; i < modes.Length; i++)
+            {
+                ICameraBehavior behavior = CreateBehavior(modes[i]);
+                if (behavior != null)
+                    _modeController.Register(behavior);
+            }
+
+            // InGame은 기본 진입 모드이자 다른 모드 종료 시 복귀 대상이므로 누락되지 않도록 보강한다.
+            if (!_modeController.IsRegistered(CameraModeType.InGame))
+            {
+                Debug.LogWarning("[CameraManager] CameraSettings.enabledModes에 InGame이 없어 강제로 등록합니다. SO 설정을 확인하세요.");
+                _modeController.Register(new InGameCameraBehavior());
+            }
+
             _modeController.SetMode(CameraModeType.InGame);
+        }
+
+        // 인스펙터에서 선택한 모드 타입을 실제 Behavior 인스턴스로 생성한다(타입 안전 팩토리).
+        private static ICameraBehavior CreateBehavior(CameraModeType modeType)
+        {
+            switch (modeType)
+            {
+                case CameraModeType.InGame:                return new InGameCameraBehavior();
+                case CameraModeType.Free:                 return new FreeCameraBehavior();
+                case CameraModeType.Dialogue:             return new DialogueCameraBehavior();
+                case CameraModeType.CameraSnapshotSequence: return new CameraSnapshotSequenceBehavior();
+                case CameraModeType.DialogueCameraReplay: return new DialogueCameraReplayBehavior();
+                default:
+                    Debug.LogWarning($"[CameraManager] 팩토리에 등록되지 않은 카메라 모드입니다: {modeType}");
+                    return null;
+            }
         }
 
         private void RebuildTargetSubsystems(bool preserveLockOnTarget)
@@ -740,18 +616,6 @@ namespace UPlayGround.Manager
             return _combatStateProvider?.Invoke() ?? false;
         }
 
-        private void ApplyCameraPose(CameraRigPose pose)
-        {
-            if (_cameraPivot != null)
-                _cameraPivot.position = pose.PivotPosition;
-
-            if (_mainCamera == null) return;
-
-            _mainCamera.transform.position = pose.CameraPosition;
-            _mainCamera.transform.rotation = pose.CameraRotation;
-            _mainCamera.fieldOfView = pose.FieldOfView;
-        }
-
         private void LoadSettingsSync()
         {
             var handle = Addressables.LoadAssetAsync<CameraSettings>(SETTINGS_ADDRESSABLE_KEY);
@@ -804,7 +668,7 @@ namespace UPlayGround.Manager
             try
             {
                 var data = await Addressables.LoadAssetAsync<CombatCameraProfileDatabaseSO>(COMBAT_CAMERA_PROFILE_DB_KEY).Task;
-                _combatCameraDirector?.SetProfileDatabase(data);
+                _combatCameraEventRouter?.SetProfileDatabase(data);
             }
             catch (System.Exception e)
             {
@@ -938,7 +802,7 @@ namespace UPlayGround.Manager
         {
             // 동일 화자 재진입은 OnEnter 재호출로 보간 상태가 끊기지 않도록 no-op 처리
             if (_modeController != null
-                && _modeController.CurrentMode is DialogueCameraMode currentDialogue
+                && _modeController.CurrentMode is DialogueCameraBehavior currentDialogue
                 && currentDialogue.IsSameSpeaker(speaker, listener))
             {
                 return true;
@@ -962,8 +826,8 @@ namespace UPlayGround.Manager
             if (_modeController == null)
                 return false;
 
-            bool inDialogueLayer = _modeController.CurrentMode is DialogueCameraMode
-                                   || _modeController.CurrentMode is DialogueCameraReplayMode;
+            bool inDialogueLayer = _modeController.CurrentMode is DialogueCameraBehavior
+                                   || _modeController.CurrentMode is DialogueCameraReplayBehavior;
 
             return inDialogueLayer
                 ? _modeController.SetMode(modeType, enterParams)
@@ -980,7 +844,7 @@ namespace UPlayGround.Manager
         }
 
         public bool IsFreeCameraActive => CurrentCameraMode == CameraModeType.Free;
-        public CombatCameraDirector CombatCamera => _combatCameraDirector;
+        public CombatCameraEventRouter CombatCamera => _combatCameraEventRouter;
         public float TimeSinceLastManualCameraInput => Time.unscaledTime - _lastManualCameraInputTime;
         public float SettingsCombatCameraShakeScale => settings != null ? settings.combatCameraShakeScale : 1f;
         public float SettingsCombatCameraAutoCorrectionScale => settings != null ? settings.combatCameraAutoCorrectionScale : 1f;
@@ -1025,7 +889,7 @@ namespace UPlayGround.Manager
 
         public bool IsCameraSnapshotSequenceActive(CameraSnapshotProfile profile = null)
         {
-            if (_modeController?.CurrentMode is not CameraSnapshotSequenceMode snapshotMode)
+            if (_modeController?.CurrentMode is not CameraSnapshotSequenceBehavior snapshotMode)
                 return false;
 
             return profile == null || snapshotMode.ActiveProfile == profile;
@@ -1063,7 +927,7 @@ namespace UPlayGround.Manager
             // → 대화 "장면"의 여러 노드가 같은 녹화를 가리키면 처음부터 재시작하지 않고 한 번에 연속 재생.
             //   (완료 후엔 가드가 풀려 재진입 시 다시 처음부터 재생)
             if (_modeController != null
-                && _modeController.CurrentMode is DialogueCameraReplayMode currentReplay
+                && _modeController.CurrentMode is DialogueCameraReplayBehavior currentReplay
                 && currentReplay.ActiveRecording == recording
                 && !currentReplay.IsCompleted)
             {
@@ -1083,7 +947,7 @@ namespace UPlayGround.Manager
 
         public bool IsDialogueCameraRecordingActive(DialogueCameraRecordingSO recording = null)
         {
-            if (_modeController?.CurrentMode is not DialogueCameraReplayMode replayMode)
+            if (_modeController?.CurrentMode is not DialogueCameraReplayBehavior replayMode)
                 return false;
 
             return recording == null || replayMode.ActiveRecording == recording;
@@ -1099,7 +963,7 @@ namespace UPlayGround.Manager
 
         private bool CanPushCameraSnapshotSequence(CameraSnapshotProfile profile)
         {
-            if (_modeController?.CurrentMode is not CameraSnapshotSequenceMode currentSnapshot)
+            if (_modeController?.CurrentMode is not CameraSnapshotSequenceBehavior currentSnapshot)
                 return true;
 
             switch (profile.interruptPolicy)

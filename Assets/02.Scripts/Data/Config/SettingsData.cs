@@ -23,9 +23,11 @@ namespace UPlayGround.Data.Config
 
         [Header("그래픽")]
         public int resolutionIndex = 0;
+        public int windowModeIndex = 1; // 0=전체화면, 1=경계없는 창, 2=창 화면
         public bool fullscreen = true;
         public int qualityIndex = 2; // 0=낮음 ~ 3=최고
-        [Range(50, 150)] public int brightness = 100;
+        [Range(30, 144)] public int targetFrameRate = 60;
+        [Range(0, 10)] public int brightness = 5;
 
         [Header("오디오")]
         [Range(0, 10)] public int masterVolume = 8;
@@ -57,7 +59,7 @@ namespace UPlayGround.Data.Config
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             screenShake = true; aimAssist = true; languageIndex = 0;
             cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
-            resolutionIndex = 0; fullscreen = true; qualityIndex = 2; brightness = 100;
+            resolutionIndex = 0; windowModeIndex = 1; fullscreen = true; qualityIndex = 2; targetFrameRate = 60; brightness = 5;
             masterVolume = 8; bgmVolume = 7; sfxVolume = 9; voiceVolume = 8;
             debugMotionWarpEnabled = true;
         }
@@ -73,7 +75,7 @@ namespace UPlayGround.Data.Config
         public int sensitivityX, sensitivityY;
         public bool invertY, screenShake, aimAssist;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
-        public int languageIndex, resolutionIndex, qualityIndex, brightness;
+        public int languageIndex, resolutionIndex, windowModeIndex, qualityIndex, targetFrameRate, brightness;
         public bool fullscreen;
         public int masterVolume, bgmVolume, sfxVolume, voiceVolume;
 
@@ -85,7 +87,8 @@ namespace UPlayGround.Data.Config
             combatCameraAutoCorrection = data.combatCameraAutoCorrection,
             combatCameraSequenceIntensity = data.combatCameraSequenceIntensity,
             languageIndex = data.languageIndex, resolutionIndex = data.resolutionIndex,
-            qualityIndex = data.qualityIndex, brightness = data.brightness,
+            windowModeIndex = data.windowModeIndex, qualityIndex = data.qualityIndex,
+            targetFrameRate = data.targetFrameRate, brightness = data.brightness,
             fullscreen = data.fullscreen,
             masterVolume = data.masterVolume, bgmVolume = data.bgmVolume,
             sfxVolume = data.sfxVolume, voiceVolume = data.voiceVolume
@@ -99,7 +102,8 @@ namespace UPlayGround.Data.Config
             data.combatCameraAutoCorrection = combatCameraAutoCorrection;
             data.combatCameraSequenceIntensity = combatCameraSequenceIntensity;
             data.languageIndex = languageIndex; data.resolutionIndex = resolutionIndex;
-            data.qualityIndex = qualityIndex; data.brightness = brightness;
+            data.windowModeIndex = windowModeIndex; data.qualityIndex = qualityIndex;
+            data.targetFrameRate = targetFrameRate; data.brightness = brightness;
             data.fullscreen = fullscreen;
             data.masterVolume = masterVolume; data.bgmVolume = bgmVolume;
             data.sfxVolume = sfxVolume; data.voiceVolume = voiceVolume;

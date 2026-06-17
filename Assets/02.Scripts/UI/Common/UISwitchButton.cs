@@ -14,38 +14,45 @@ public class UISwitchButton : MonoBehaviour
 
     private void Awake()
     {
-        _switchButton.onClick.AddListener(OnClickedSwitchButton);
+        if (_switchButton != null)
+            _switchButton.onClick.AddListener(OnClickedSwitchButton);
     }
 
     private void Start()
     {
-        if (IsOn)
-        {
-            _offRoot.SetActive(false);
-            _onRoot.SetActive(true);
-        }
-        else
-        {
-            _offRoot.SetActive(true);
-            _onRoot.SetActive(false);
-        }
+        RefreshVisual();
+    }
+
+    private void OnDestroy()
+    {
+        if (_switchButton != null)
+            _switchButton.onClick.RemoveListener(OnClickedSwitchButton);
+    }
+
+    public void SetValueWithoutNotify(bool isOn)
+    {
+        IsOn = isOn;
+        RefreshVisual();
     }
 
     private void OnClickedSwitchButton()
     {
         if(IsOn)
         {
-            _offRoot.SetActive(true);
-            _onRoot.SetActive(false);
             IsOn = false;
         }
         else
         {
-            _offRoot.SetActive(false);
-            _onRoot.SetActive(true);
             IsOn = true;
         }
-        
+
+        RefreshVisual();
         OnValueChanged?.Invoke(IsOn);
+    }
+
+    private void RefreshVisual()
+    {
+        if (_offRoot != null) _offRoot.SetActive(!IsOn);
+        if (_onRoot != null) _onRoot.SetActive(IsOn);
     }
 }

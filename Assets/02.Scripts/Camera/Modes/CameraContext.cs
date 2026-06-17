@@ -8,14 +8,14 @@ namespace UPlayGround.CameraSystem
     /// 카메라 모드가 참조하는 런타임 의존성 묶음.
     /// CameraManager 내부 필드를 직접 노출하지 않기 위한 중간 계층이다.
     /// </summary>
-    public sealed class CameraRuntimeContext
+    public sealed class CameraContext
     {
         public Camera MainCamera { get; set; }
         public Transform Target { get; set; }
         public Transform CameraPivot { get; set; }
         public CameraSettings Settings { get; set; }
         public DialogueCameraSettingsSO DialogueSettings { get; set; }
-        public CameraRigState State { get; }
+        public CameraState State { get; }
         public CameraLockOn LockOn { get; set; }
         public CameraCollision Collision { get; set; }
         public CameraDistanceController DistanceController { get; set; }
@@ -37,7 +37,7 @@ namespace UPlayGround.CameraSystem
         public int SuppressCapsuleClearanceUntilFrame { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 
-        public CameraRuntimeContext(CameraRigState state)
+        public CameraContext(CameraState state)
         {
             State = state;
         }

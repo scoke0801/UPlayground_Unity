@@ -6,7 +6,7 @@ namespace UPlayGround.CameraSystem
     /// 모드가 산출하는 기본 카메라 포즈.
     /// CameraEffectState는 이 포즈 위에 합성된다.
     /// </summary>
-    public struct CameraRigPose
+    public struct CameraPose
     {
         public Vector3 PivotPosition;
         public Vector3 CameraPosition;
@@ -16,9 +16,9 @@ namespace UPlayGround.CameraSystem
         public float Distance;
         public float FieldOfView;
 
-        public static CameraRigPose FromCamera(Camera camera, Transform pivot, float yaw, float pitch, float distance)
+        public static CameraPose FromCamera(Camera camera, Transform pivot, float yaw, float pitch, float distance)
         {
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = pivot != null ? pivot.position : Vector3.zero,
                 CameraPosition = camera != null ? camera.transform.position : Vector3.zero,

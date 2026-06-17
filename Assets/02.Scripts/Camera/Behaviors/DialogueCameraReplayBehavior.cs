@@ -8,7 +8,7 @@ namespace UPlayGround.CameraSystem
     /// CameraSnapshotSequenceMode와 동일한 포즈/좌표공간/충돌/이펙트 plumbing을 공유하되,
     /// 손으로 키잉한 샷을 절차 보간하는 대신 균일 샘플 궤적을 시간축으로 그대로 보간 재생한다.
     /// </summary>
-    public class DialogueCameraReplayMode : ICameraMode
+    public class DialogueCameraReplayBehavior : ICameraBehavior
     {
         private DialogueCameraRecordingSO _recording;
         private CameraSnapshotActorReference _anchor;
@@ -17,7 +17,7 @@ namespace UPlayGround.CameraSystem
         private bool _completed;
         private bool _restoreOnFinish;
 
-        private CameraRigPose _fromPose;
+        private CameraPose _fromPose;
         private bool _hasFromPose;
         private bool _isEntryBlending;
         private float _entryBlendElapsed;
@@ -32,7 +32,7 @@ namespace UPlayGround.CameraSystem
         public bool IsCompleted => _completed;
         public DialogueCameraRecordingSO ActiveRecording => _recording;
 
-        public void OnEnter(CameraRuntimeContext context, CameraModeEnterParams enterParams)
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             _recording = enterParams.DialogueRecording;
             _anchor = enterParams.HasSnapshotActorAnchorOverride
@@ -55,7 +55,7 @@ namespace UPlayGround.CameraSystem
             _hasFromPose = false;
             if (context.MainCamera != null)
             {
-                _fromPose = CameraRigPose.FromCamera(
+                _fromPose = CameraPose.FromCamera(
                     context.MainCamera,
                     context.CameraPivot,
                     context.State.CurrentYaw,
@@ -65,19 +65,19 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        public void OnExit(CameraRuntimeContext context)
+        public void OnExit(CameraContext context)
         {
             context.IsInputLocked = false;
         }
 
-        public void HandleInput(CameraRuntimeContext context, float deltaTime)
+        public void HandleInput(CameraContext context, float deltaTime)
         {
         }
 
-        public CameraRigPose EvaluatePose(CameraRuntimeContext context, float deltaTime, CameraEffectState effectState)
+        public CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
         {
             if (_recording == null || _recording.SampleCount == 0 || context.MainCamera == null)
-                return CameraRigPose.FromCamera(context.MainCamera, context.CameraPivot,
+                return CameraPose.FromCamera(context.MainCamera, context.CameraPivot,
                     context.State.CurrentYaw, context.State.CurrentPitch, context.State.TargetDistance);
 
             if (!_hasFromPose)
@@ -132,15 +132,15 @@ namespace UPlayGround.CameraSystem
             };
         }
 
-        private CameraRigPose EvaluateEntryBlend(CameraRuntimeContext context, CameraEffectState effectState, float deltaTime)
+        private CameraPose EvaluateEntryBlend(CameraContext context, CameraEffectState effectState, float deltaTime)
         {
-            CameraRigPose toPose = BuildPoseFromSample(context, _recording.samples[0], effectState);
+            CameraPose toPose = BuildPoseFromSample(context, _recording.samples[0], effectState);
             float duration = Mathf.Max(0.01f, _recording.entryBlendDuration);
             _entryBlendElapsed += Mathf.Max(0f, deltaTime);
 
             float rawT = Mathf.Clamp01(_entryBlendElapsed / duration);
             float t = _recording.entryBlendCurve != null ? Mathf.Clamp01(_recording.entryBlendCurve.Evaluate(rawT)) : rawT;
-            CameraRigPose pose = LerpLinearPose(_fromPose, toPose, t);
+            CameraPose pose = LerpLinearPose(_fromPose, toPose, t);
 
             if (rawT >= 1f)
             {
@@ -153,9 +153,9 @@ namespace UPlayGround.CameraSystem
 
         /// <summary>
         /// 한 샘플을 현재 앵커 기준 월드 포즈로 환원한다.
-        /// (CameraSnapshotSequenceMode.BuildPoseFromShot와 동일한 공간/충돌/이펙트 규칙)
+        /// (CameraSnapshotSequenceBehavior.BuildPoseFromShot와 동일한 공간/충돌/이펙트 규칙)
         /// </summary>
-        private CameraRigPose BuildPoseFromSample(CameraRuntimeContext context, DialogueCameraRecordingSO.Sample sample, CameraEffectState effectState)
+        private CameraPose BuildPoseFromSample(CameraContext context, DialogueCameraRecordingSO.Sample sample, CameraEffectState effectState)
         {
             Transform anchor = CameraSnapshotActorReferenceResolver.Resolve(_anchor, context.Target);
 
@@ -191,7 +191,7 @@ namespace UPlayGround.CameraSystem
             rotation = Quaternion.Euler(effectState.pitchDelta, effectState.yawDelta, 0f) * rotation;
 
             Vector3 euler = rotation.eulerAngles;
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = pivotPosition,
                 CameraPosition = position,
@@ -203,9 +203,9 @@ namespace UPlayGround.CameraSystem
             };
         }
 
-        private static CameraRigPose LerpLinearPose(CameraRigPose from, CameraRigPose to, float t)
+        private static CameraPose LerpLinearPose(CameraPose from, CameraPose to, float t)
         {
-            return new CameraRigPose
+            return new CameraPose
             {
                 PivotPosition = Vector3.Lerp(from.PivotPosition, to.PivotPosition, t),
                 CameraPosition = Vector3.Lerp(from.CameraPosition, to.CameraPosition, t),

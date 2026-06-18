@@ -57,7 +57,22 @@ namespace UPlayGround.Data
         [Header("=== 충돌 ===")]
         public float collisionOffset = 0.15f;
         public float cameraRadius = 0.25f;
-        public float collisionReturnSpeed = 0.12f;
+        [Tooltip("장애물이 새로 들어왔을 때 카메라 거리가 줄어드는 스무딩 시간. 0이면 즉시 당긴다.")]
+        public float collisionOccludedSmoothTime = 0.035f;
+        [Tooltip("장애물이 사라졌을 때 원래 거리로 복귀하는 스무딩 시간.")]
+        public float collisionReturnSpeed = 0.38f;
+        [Tooltip("이 시간보다 짧게 스친 충돌은 무시해 얇은 모서리에서 카메라가 튀는 것을 줄인다.")]
+        public float collisionMinimumOcclusionTime = 0.025f;
+        [Tooltip("충돌 중 더 가까운 거리로 당겨진 뒤, 바로 다시 멀어지지 않고 유지하는 시간.")]
+        public float collisionSmoothingHoldTime = 0.08f;
+        [Tooltip("충돌 해제 판정에 사용하는 거리 여유값.")]
+        public float collisionReleaseHysteresis = 0.22f;
+        [Tooltip("충돌 보정 거리가 한 프레임에 변할 수 있는 최대 속도. 0 이하면 제한하지 않는다.")]
+        public float collisionMaxDistanceChangeSpeed = 18f;
+        [Tooltip("플레이어 캡슐 때문에 전방 카메라로 전환될 때의 블렌드 스무딩 시간.")]
+        public float frontCameraBlendInSmoothTime = 0.08f;
+        [Tooltip("전방 카메라에서 후방 카메라로 복귀할 때의 블렌드 스무딩 시간.")]
+        public float frontCameraBlendOutSmoothTime = 0.25f;
 
         [Header("=== 충돌 검사 (MultiProbe) ===")]
         public bool useMultiProbe = true;
@@ -69,7 +84,7 @@ namespace UPlayGround.Data
         [Header("=== FOV ===")]
         public float fovExplore = 52f;
         public float fovCombat = 58f;
-        public float fovLockOn = 56f;
+        public float fovLockOn = 58f;
         public float fovSmoothTime = 0.22f;
 
         [Header("=== 동적 FOV (속도 기반) ===")]
@@ -104,7 +119,7 @@ namespace UPlayGround.Data
         public float lockOnReleaseRange = 20f;
         [Tooltip("현재 락온 대상이 유지 조건에서 벗어나도 즉시 해제하지 않고 유지하는 시간.")]
         public float lockOnLostGraceTime = 0.35f;
-        public float lockOnDistance = 4.9f;
+        public float lockOnDistance = 5.7f;
         public float lockOnTransitionDuration = 0.3f;
         public float targetSwitchCooldown = 0.15f;
 
@@ -129,11 +144,11 @@ namespace UPlayGround.Data
         public float lockOnLineOfSightRadius = 0.12f;
 
         [Header("=== 락온 쌍 프레이밍 ===")]
-        public bool enableLockOnPairFraming = true;
+        public bool enableLockOnPairFraming = false;
         [Range(0f, 1f)]
-        public float lockOnPairFocusRatio = 0.12f;
-        public float lockOnMaxFocusOffsetFromPlayer = 1.1f;
-        public float lockOnPairFocusSmoothTime = 0.18f;
+        public float lockOnPairFocusRatio = 0.05f;
+        public float lockOnMaxFocusOffsetFromPlayer = 0.5f;
+        public float lockOnPairFocusSmoothTime = 0.3f;
 
         [Header("락온 고저차 감쇠")]
         public float lockOnHeightDampFactor = 0.42f;

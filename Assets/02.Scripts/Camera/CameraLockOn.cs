@@ -176,8 +176,6 @@ namespace UPlayGround.CameraSystem
             _freeFactor = 0f;
             _freeFactorVelocity = 0f;
             _activeFocusVelocity = Vector3.zero;
-            _pivotOffsetVelocity = Vector3.zero;
-            _pivotOffset = Vector3.zero;
             _targetLostTimer = 0f;
         }
 
@@ -400,6 +398,8 @@ namespace UPlayGround.CameraSystem
         // ── Public 조회 ──
 
         public bool IsTransitioning => _isTransitioning;
+        public bool HasResidualPivotOffset =>
+            _pivotOffset.sqrMagnitude > 0.0004f || _pivotOffsetVelocity.sqrMagnitude > 0.0004f;
 
         public Vector3 EvaluatePivotOffset(float deltaTime)
         {

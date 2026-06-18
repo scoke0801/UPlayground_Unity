@@ -5,19 +5,15 @@ namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// (800) 카메라 위치 충돌 보정 체인:
-    /// CameraCollision.Evaluate → SafeBackPosition → GroundPenetration → FloorRescue → 전방 카메라 블렌드.
+    /// CameraCollision.Evaluate → SafeBackPosition → GroundPenetration → FloorRescue → 캐릭터 캡슐 내부 진입 방지.
     /// 피벗(스무딩)은 frame.Pose.PivotPosition, SafeBack 원점(비스무딩)은 frame.PivotBase에서 읽는다.
     /// camDir/거리는 State+Effects에서 재계산하여 다른 Modifier에 직접 의존하지 않는다.
     /// 원본: InGameCameraMode.EvaluateCameraPosition(충돌부) + Resolve* 헬퍼들 + ComputeCapsuleClearance
-    /// 전방 블렌드 상태(_frontCameraBlend/_frontCameraBlendVel)를 인스턴스로 보유한다.
     /// </summary>
     public sealed class CollisionCameraModifier : ICameraModifier
     {
-        private float _frontCameraBlend;
-        private float _frontCameraBlendVel;
-
-        private const float FRONT_BLEND_RETURN_SPEED = 0.12f; // 복귀: 부드럽게
-        private const float FRONT_BLEND_PULL_SPEED = 0f;       // 당김: 즉시
+        private float _safeBackDistance = -1f;
+        private float _safeBackDistanceVel;
 
         public int Priority => 800;
 
@@ -43,36 +39,61 @@ namespace UPlayGround.CameraSystem
                 : desiredDistance;
 
             Vector3 backPos = pivotPosition + camDir * finalDist;
-            backPos = ResolveSafeBackPosition(context, settings, pivotBase, backPos);
+            backPos = ResolveSafeBackPosition(context, settings, pivotBase, backPos, deltaTime);
             backPos = ResolveGroundPenetration(context, settings, pivotPosition, camDir, backPos);
             context.Collision?.ApplyFloorRescue(pivotPosition, ref backPos, deltaTime);
-            backPos = ResolveFrontCameraBlend(context, settings, pivotPosition, camDir, backPos);
+            backPos = ResolveCharacterCapsuleExclusion(context, settings, pivotPosition, camDir, backPos);
 
             frame.Pose.CameraPosition = backPos;
         }
 
-        private static Vector3 ResolveSafeBackPosition(
+        private Vector3 ResolveSafeBackPosition(
             CameraContext context,
             CameraSettings settings,
             Vector3 pivotBase,
-            Vector3 backPos)
+            Vector3 backPos,
+            float deltaTime)
         {
             Vector3 toCam = backPos - pivotBase;
             float toCamDist = toCam.magnitude;
             if (toCamDist <= 0.01f) return backPos;
 
             Vector3 toCamDir = toCam / toCamDist;
+            if (_safeBackDistance < 0f)
+                _safeBackDistance = toCamDist;
+
+            float targetDistance = toCamDist;
             if (Physics.SphereCast(pivotBase, settings.cameraRadius, toCamDir,
                     out RaycastHit safeHit, toCamDist, context.CollisionLayers))
             {
                 if (safeHit.transform != context.Target && !safeHit.transform.IsChildOf(context.Target))
                 {
-                    float safeDist = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
-                    backPos = pivotBase + toCamDir * safeDist;
+                    targetDistance = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
                 }
             }
 
-            return backPos;
+            float smoothTime = targetDistance < _safeBackDistance
+                ? settings.collisionOccludedSmoothTime
+                : settings.collisionReturnSpeed;
+            float maxSpeed = settings.collisionMaxDistanceChangeSpeed > 0f
+                ? settings.collisionMaxDistanceChangeSpeed
+                : Mathf.Infinity;
+
+            if (targetDistance >= _safeBackDistance && _safeBackDistanceVel < 0f)
+                _safeBackDistanceVel = 0f;
+
+            _safeBackDistance = smoothTime > 0f
+                ? Mathf.SmoothDamp(
+                    _safeBackDistance,
+                    targetDistance,
+                    ref _safeBackDistanceVel,
+                    smoothTime,
+                    maxSpeed,
+                    Mathf.Max(deltaTime, 0.0001f))
+                : Mathf.MoveTowards(_safeBackDistance, targetDistance, maxSpeed * Mathf.Max(deltaTime, 0.0001f));
+
+            _safeBackDistance = Mathf.Min(_safeBackDistance, toCamDist);
+            return pivotBase + toCamDir * _safeBackDistance;
         }
 
         private static Vector3 ResolveGroundPenetration(
@@ -106,7 +127,7 @@ namespace UPlayGround.CameraSystem
             return backPos;
         }
 
-        private Vector3 ResolveFrontCameraBlend(
+        private static Vector3 ResolveCharacterCapsuleExclusion(
             CameraContext context,
             CameraSettings settings,
             Vector3 pivotPosition,
@@ -114,28 +135,17 @@ namespace UPlayGround.CameraSystem
             Vector3 backPos)
         {
             if (Time.frameCount <= context.SuppressCapsuleClearanceUntilFrame)
-            {
-                _frontCameraBlend = 0f;
-                _frontCameraBlendVel = 0f;
                 return backPos;
-            }
 
             ComputeCapsuleClearance(context.CharacterCapsule, settings, pivotPosition, camDir,
-                out float backClearance, out float frontClearance);
+                out float backClearance, out _);
 
             float backDist = Vector3.Distance(pivotPosition, backPos);
-            float targetBlend = backDist < backClearance ? 1f : 0f;
-            float blendSpeed = targetBlend > _frontCameraBlend
-                ? FRONT_BLEND_PULL_SPEED
-                : FRONT_BLEND_RETURN_SPEED;
+            float minBackDistance = backClearance + 0.03f;
+            if (backDist >= minBackDistance)
+                return backPos;
 
-            _frontCameraBlend = blendSpeed > 0f
-                ? Mathf.SmoothDamp(_frontCameraBlend, targetBlend, ref _frontCameraBlendVel, blendSpeed)
-                : targetBlend;
-
-            float frontDist = Mathf.Max(frontClearance, 0.3f);
-            Vector3 frontPos = pivotPosition + (-camDir) * frontDist;
-            return Vector3.Lerp(backPos, frontPos, _frontCameraBlend);
+            return pivotPosition + camDir * minBackDistance;
         }
 
         private static void ComputeCapsuleClearance(

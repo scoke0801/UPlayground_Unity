@@ -31,14 +31,21 @@ MonoBehaviour:
   rotationSmoothTime: 0.1
   collisionOffset: 0.15
   cameraRadius: 0.25
-  collisionReturnSpeed: 0.12
+  collisionOccludedSmoothTime: 0.035
+  collisionReturnSpeed: 0.38
+  collisionMinimumOcclusionTime: 0.025
+  collisionSmoothingHoldTime: 0.08
+  collisionReleaseHysteresis: 0.22
+  collisionMaxDistanceChangeSpeed: 18
+  frontCameraBlendInSmoothTime: 0.08
+  frontCameraBlendOutSmoothTime: 0.25
   useMultiProbe: 1
   collisionProbeCount: 6
   collisionSkinWidth: 0.08
   minNormalAlignment: 0.5
   fovExplore: 52
   fovCombat: 58
-  fovLockOn: 56
+  fovLockOn: 58
   fovSmoothTime: 0.22
   enableSpeedFOV: 1
   speedFOVMax: 4
@@ -62,7 +69,7 @@ MonoBehaviour:
   lockOnRange: 16
   lockOnReleaseRange: 20
   lockOnLostGraceTime: 0.35
-  lockOnDistance: 4.9
+  lockOnDistance: 5.7
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
@@ -74,10 +81,10 @@ MonoBehaviour:
   lockOnSwitchDistanceWeight: 0.25
   lockOnRequireLineOfSight: 1
   lockOnLineOfSightRadius: 0.12
-  enableLockOnPairFraming: 1
-  lockOnPairFocusRatio: 0.12
-  lockOnMaxFocusOffsetFromPlayer: 1.1
-  lockOnPairFocusSmoothTime: 0.18
+  enableLockOnPairFraming: 0
+  lockOnPairFocusRatio: 0.05
+  lockOnMaxFocusOffsetFromPlayer: 0.5
+  lockOnPairFocusSmoothTime: 0.3
   lockOnHeightDampFactor: 0.42
   lockOnPitchMin: 15
   lockOnPitchMax: 80

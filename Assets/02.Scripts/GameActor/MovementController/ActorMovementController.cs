@@ -4,6 +4,7 @@ using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround;
+using UPlayGround.Debugging;
 using UPlayGround.State;
 
 namespace UPlayGround.MovementController
@@ -455,7 +456,7 @@ namespace UPlayGround.MovementController
         ManualClear,        // ClearTarget 호출
     }
 
-    public class MotionWarpController : MonoBehaviour
+    public class MotionWarpController : MonoBehaviour, IDebugGizmoProvider
     {
         private const float DefaultContactBuffer = 0.08f;
         private const float CloseRangeStopBuffer = 0.12f;
@@ -608,6 +609,17 @@ namespace UPlayGround.MovementController
         /// 핸들러는 디버깅/통계/특수 후속 처리에만 사용.
         /// </summary>
         public event System.Action<WarpCancelReason> OnWarpCancelled;
+
+        private void OnEnable()
+        {
+            if (Application.isPlaying)
+                DebugGizmoManager.RegisterProvider(this);
+        }
+
+        private void OnDisable()
+        {
+            DebugGizmoManager.UnregisterProvider(this);
+        }
 
         public bool HasTarget => _activeTarget.IsValid;
         public Vector3 TargetPosition => GetCurrentTargetPosition();
@@ -1480,6 +1492,8 @@ namespace UPlayGround.MovementController
         {
             if (!_drawGizmos) return;
             if (!_activeTarget.IsValid) return;
+            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.Movement, gameObject, DebugGizmoContentType.MotionWarp))
+                return;
 
             Vector3 selfPos = transform.position;
             Vector3 targetPos = _activeTarget.follow ? _activeTarget.ResolveWorldPosition() : _snapshotPosition;
@@ -1554,5 +1568,83 @@ namespace UPlayGround.MovementController
             }
         }
 #endif
+
+        #region Debug Gizmo
+
+        public DebugGizmoCategory Category => DebugGizmoCategory.Movement;
+        public DebugGizmoContentType ContentType => DebugGizmoContentType.MotionWarp;
+        public UnityEngine.Object Owner => this;
+        public bool IsAvailable => this != null && isActiveAndEnabled && _activeTarget.IsValid;
+
+        public void CollectSnapshot(DebugGizmoFrameSnapshot snapshot)
+        {
+            if (!_activeTarget.IsValid)
+                return;
+
+            snapshot.texts.Add(new DebugGizmoTextEntry
+            {
+                owner = this,
+                category = Category,
+                position = transform.position,
+                text = $"warp active={_warpRemainingTime > 0f} blend={_blendWeight:F2} oor={_outOfRangeAccumulator:F2}",
+            });
+        }
+
+        public void DrawGizmos(DebugGizmoDrawContext context)
+        {
+            if (!_activeTarget.IsValid)
+                return;
+
+            Vector3 selfPos = transform.position;
+            Vector3 targetPos = _activeTarget.follow ? _activeTarget.ResolveWorldPosition() : _snapshotPosition;
+
+            Gizmos.color = new Color(0.20f, 0.85f, 0.30f);
+            Gizmos.DrawLine(selfPos, targetPos);
+            Gizmos.DrawWireSphere(targetPos, 0.18f);
+
+            if (!_activeTarget.follow && _activeTarget.anchor != null)
+            {
+                Gizmos.color = new Color(0.20f, 0.85f, 0.30f, 0.4f);
+                Gizmos.DrawLine(_activeTarget.anchor.position, _snapshotPosition);
+                Gizmos.DrawWireCube(_snapshotPosition, Vector3.one * 0.12f);
+            }
+
+            if (_hasWindowSettings)
+            {
+                context.DrawWireDisc(selfPos, _windowSettings.minDistance, new Color(0.85f, 0.70f, 0.10f));
+                context.DrawWireDisc(selfPos, _windowSettings.maxDistance, new Color(0.85f, 0.70f, 0.10f));
+
+                float reach = _windowSettings.maxSpeed * Mathf.Max(_warpRemainingTime, 0f);
+                if (reach > 0.01f)
+                    context.DrawWireDisc(selfPos, reach, new Color(0.30f, 0.55f, 0.95f));
+
+                if (_windowSettings.targetPolicy == MotionWarpTargetPolicy.Predictive
+                    && _hasTargetVelocityHistory
+                    && _warpRemainingTime > 0f)
+                {
+                    Vector3 predicted = targetPos + _targetVelocity * Mathf.Clamp01(_windowSettings.predictionFactor) * _warpRemainingTime;
+                    Gizmos.color = new Color(0.95f, 0.30f, 0.65f);
+                    Gizmos.DrawLine(targetPos, predicted);
+                    Gizmos.DrawWireSphere(predicted, 0.14f);
+                }
+            }
+
+            float t = _warpTotalDuration > 0f ? 1f - (_warpRemainingTime / _warpTotalDuration) : 0f;
+            var label = context.LabelBuilder;
+            label.Clear();
+            label.Append("warp: t=").AppendFormat("{0:F2}", t)
+                 .Append(" blend=").AppendFormat("{0:F2}", _blendWeight)
+                 .Append(" OOR=").AppendFormat("{0:F2}", _outOfRangeAccumulator).Append("s\n")
+                 .Append("key=").Append(_activeKey);
+            if (_hasWindowSettings)
+            {
+                label.Append(" policy=").Append(_windowSettings.targetPolicy)
+                     .Append(" mod=").Append(_windowSettings.modifierType);
+            }
+            label.Append('\n').Append(_isApplicable ? "applicable" : $"not applicable: {_lastFailureReason}");
+            context.DrawLabel(selfPos + Vector3.up * 2.2f, label.ToString());
+        }
+
+        #endregion
     }
 }

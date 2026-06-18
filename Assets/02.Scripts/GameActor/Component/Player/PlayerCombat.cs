@@ -15,6 +15,7 @@ using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.MovementController;
+using UPlayGround.Debugging;
 
 namespace UPlayGround.Component
 {
@@ -23,7 +24,7 @@ namespace UPlayGround.Component
     /// State는 "언제" 공격할지 결정하고
     /// Component는 "어떤" 공격을 실행하는지 처리한다.
     /// </summary>
-    public class PlayerCombat : PlayerActorComponent, UPlayGround.Combat.ICombatCollisionExecutor
+    public class PlayerCombat : PlayerActorComponent, UPlayGround.Combat.ICombatCollisionExecutor, IDebugGizmoProvider
     {
         private enum AttackState
         {
@@ -466,6 +467,12 @@ namespace UPlayGround.Component
             _actorAnimator = GetComponentInChildren<ActorAnimator>();
         }
 
+        private void OnEnable()
+        {
+            if (Application.isPlaying)
+                DebugGizmoManager.RegisterProvider(this);
+        }
+
         private void Update()
         {
             // 워프 타이머는 MotionWarpController.Update 가 처리.
@@ -516,6 +523,7 @@ namespace UPlayGround.Component
         {
             // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
             SetBreakInteractionTarget(null);
+            DebugGizmoManager.UnregisterProvider(this);
         }
 
         private void SetBreakInteractionTarget(MonsterActor target)
@@ -1980,7 +1988,19 @@ namespace UPlayGround.Component
         private void OnDrawGizmosSelected()
         {
             if (!_showHitDebug || _currentAttackData == null) return;
+            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.Combat, gameObject, DebugGizmoContentType.PlayerCombatHit))
+                return;
 
+            DrawHitGizmos();
+        }
+
+        /// <summary>
+        /// 현재 공격의 히트 범위·각도 기즈모.
+        /// 에디트 모드의 OnDrawGizmosSelected 와 플레이 모드의 중앙 DrawGizmos 가 공유한다.
+        /// 호출 전 _currentAttackData null 체크는 호출 측이 보장한다.
+        /// </summary>
+        private void DrawHitGizmos()
+        {
             Vector3 origin  = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
             Vector3 forward = transform.forward;
 
@@ -1988,9 +2008,45 @@ namespace UPlayGround.Component
             Gizmos.DrawWireSphere(origin, _currentAttackData.hitRange);
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0,  _currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange);
-            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0, -_currentAttackData.hitAngle, 0) * forward * _currentAttackData.hitRange);
+            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0f,  _currentAttackData.hitAngle, 0f) * forward * _currentAttackData.hitRange);
+            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0f, -_currentAttackData.hitAngle, 0f) * forward * _currentAttackData.hitRange);
             Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
         }
+
+        #region Debug Gizmo
+
+        public DebugGizmoCategory Category => DebugGizmoCategory.Combat;
+        public DebugGizmoContentType ContentType => DebugGizmoContentType.PlayerCombatHit;
+        public UnityEngine.Object Owner => this;
+        public bool IsAvailable => this != null && isActiveAndEnabled && _showHitDebug;
+
+        public void CollectSnapshot(DebugGizmoFrameSnapshot snapshot)
+        {
+            if (_currentAttackData == null)
+                return;
+
+            snapshot.texts.Add(new DebugGizmoTextEntry
+            {
+                owner = this,
+                category = Category,
+                position = transform.position,
+                text = $"attack={_currentAttackData.animKey} range={_currentAttackData.hitRange:F2} angle={_currentAttackData.hitAngle:F0}",
+            });
+        }
+
+        public void DrawGizmos(DebugGizmoDrawContext context)
+        {
+            if (_currentAttackData == null)
+                return;
+
+            DrawHitGizmos();
+
+            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
+            context.DrawLabel(
+                origin + Vector3.up * 0.35f,
+                $"Combat: {_currentAttackData.animKey}\nrange={_currentAttackData.hitRange:F2} angle={_currentAttackData.hitAngle:F0} phase={_currentAttackData.hitPhaseIndex}");
+        }
+
+        #endregion
     }
 }

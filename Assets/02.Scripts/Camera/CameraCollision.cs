@@ -18,9 +18,11 @@ namespace UPlayGround.CameraSystem
         private bool _hasFloorRescueY;
         private float _floorRescueY;
         private float _floorRescueYVelocity;
+        private bool _isCollisionActive;
+        private float _occlusionTimer;
+        private float _clearTimer;
+        private float _heldBlockedDistance;
 
-        // 당김은 즉시, 복귀는 부드럽게
-        private const float PULL_SPEED = 0f;
         private const float FLOOR_RESCUE_SMOOTH_TIME = 0.06f;
         private const float FLOOR_RESCUE_IMMEDIATE_THRESHOLD = 0.35f;
 
@@ -38,16 +40,25 @@ namespace UPlayGround.CameraSystem
         public float Evaluate(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
             float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
+            float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance);
+            float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
 
-            float smoothTime = blockedDistance < _collisionDistance
-                ? PULL_SPEED
+            float smoothTime = targetDistance < _collisionDistance
+                ? _settings.collisionOccludedSmoothTime
                 : _settings.collisionReturnSpeed;
 
-            _collisionDistance = smoothTime > 0f
-                ? Mathf.SmoothDamp(_collisionDistance, blockedDistance, ref _collisionDistanceVel, smoothTime)
-                : blockedDistance;
+            float maxSpeed = _settings.collisionMaxDistanceChangeSpeed > 0f
+                ? _settings.collisionMaxDistanceChangeSpeed
+                : Mathf.Infinity;
 
-            return _collisionDistance;
+            if (targetDistance >= _collisionDistance && _collisionDistanceVel < 0f)
+                _collisionDistanceVel = 0f;
+
+            _collisionDistance = smoothTime > 0f
+                ? Mathf.SmoothDamp(_collisionDistance, targetDistance, ref _collisionDistanceVel, smoothTime, maxSpeed, deltaTime)
+                : MoveDistanceImmediateOrLimited(_collisionDistance, targetDistance, maxSpeed, deltaTime);
+
+            return Mathf.Clamp(_collisionDistance, 0f, desiredDistance);
         }
 
         public void ResetDistance(float distance)
@@ -56,6 +67,79 @@ namespace UPlayGround.CameraSystem
             _collisionDistanceVel = 0f;
             _hasFloorRescueY = false;
             _floorRescueYVelocity = 0f;
+            _isCollisionActive = false;
+            _occlusionTimer = 0f;
+            _clearTimer = 0f;
+            _heldBlockedDistance = distance;
+        }
+
+        private float ResolveTargetDistance(float blockedDistance, float desiredDistance)
+        {
+            float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
+            float enterEpsilon = 0.01f;
+            float releaseMargin = Mathf.Max(_settings.collisionReleaseHysteresis, 0f);
+            bool hasBlockingHit = blockedDistance < desiredDistance - enterEpsilon;
+            bool canRelease = blockedDistance >= desiredDistance - releaseMargin;
+
+            if (hasBlockingHit)
+            {
+                _occlusionTimer += deltaTime;
+
+                if (!_isCollisionActive && _occlusionTimer < _settings.collisionMinimumOcclusionTime)
+                    return desiredDistance;
+
+                if (!_isCollisionActive)
+                {
+                    _isCollisionActive = true;
+                    _heldBlockedDistance = blockedDistance;
+                }
+                else if (blockedDistance < _heldBlockedDistance - enterEpsilon)
+                {
+                    _heldBlockedDistance = blockedDistance;
+                }
+
+                if (canRelease)
+                {
+                    _clearTimer += deltaTime;
+                    if (_clearTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
+                    {
+                        _isCollisionActive = false;
+                        _clearTimer = 0f;
+                        _collisionDistanceVel = 0f;
+                        return desiredDistance;
+                    }
+                }
+                else
+                {
+                    _clearTimer = 0f;
+                }
+
+                return _heldBlockedDistance;
+            }
+
+            _occlusionTimer = 0f;
+
+            if (_isCollisionActive)
+            {
+                _clearTimer += deltaTime;
+
+                if (_clearTimer < Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
+                    return _heldBlockedDistance;
+
+                _isCollisionActive = false;
+                _clearTimer = 0f;
+                _collisionDistanceVel = 0f;
+            }
+
+            return desiredDistance;
+        }
+
+        private static float MoveDistanceImmediateOrLimited(float current, float target, float maxSpeed, float deltaTime)
+        {
+            if (float.IsInfinity(maxSpeed))
+                return target;
+
+            return Mathf.MoveTowards(current, target, maxSpeed * deltaTime);
         }
 
         public void ApplyFloorRescue(Vector3 pivot, ref Vector3 cameraPosition, float deltaTime)

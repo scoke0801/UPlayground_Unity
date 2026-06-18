@@ -7,6 +7,9 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
+#if UNITY_EDITOR
+using UPlayGround.Debugging;
+#endif
 
 namespace UPlayGround.Manager
 {
@@ -78,6 +81,9 @@ namespace UPlayGround.Manager
             RegisterManager(ActorSpawnManager.Instance);
             RegisterManager(AgentTickManager.Instance); // 적 AI 컴포넌트 일괄 틱 (개별 Update 통합)
             RegisterManager(SceneManager.Instance);
+#if UNITY_EDITOR
+            RegisterManager(DebugGizmoManager.Instance); // 디버그 기즈모는 에디터 전용 — 빌드 제외
+#endif
             RegisterManager(CheatManager.Instance);
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);

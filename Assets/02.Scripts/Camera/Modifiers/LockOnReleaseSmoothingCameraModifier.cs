@@ -31,11 +31,17 @@ namespace UPlayGround.CameraSystem
 
             bool isLockOn = context.LockOn?.IsActive ?? false;
             bool wasLockOn = _wasLockOnLastFrame;
+            bool hasResidualPivotOffset = context.LockOn?.HasResidualPivotOffset ?? false;
 
             if (wasLockOn && !isLockOn)
-                _lockOnReleaseSmoothTimer = Mathf.Max(_lockOnReleaseSmoothTimer, context.Settings.lockOnTransitionDuration);
+            {
+                float releaseSmoothTime = Mathf.Max(
+                    context.Settings.lockOnTransitionDuration,
+                    context.Settings.lockOnPairFocusSmoothTime * 2.5f);
+                _lockOnReleaseSmoothTimer = Mathf.Max(_lockOnReleaseSmoothTimer, releaseSmoothTime);
+            }
 
-            frame.KeepPositionSmoothing = _lockOnReleaseSmoothTimer > 0f || context.IsAligning;
+            frame.KeepPositionSmoothing = _lockOnReleaseSmoothTimer > 0f || hasResidualPivotOffset || context.IsAligning;
 
             _wasLockOnLastFrame = isLockOn;
             if (_lockOnReleaseSmoothTimer > 0f)

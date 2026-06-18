@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Debugging;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Component
@@ -7,7 +8,7 @@ namespace UPlayGround.Component
     /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리
     /// </summary>
-    public class EnemyDetection : ActorComponent, IManagedTick
+    public class EnemyDetection : ActorComponent, IManagedTick, IDebugGizmoProvider
     {
         [Header("Detection Settings")]
         [SerializeField] private float _detectionRadius = 10f;
@@ -37,7 +38,9 @@ namespace UPlayGround.Component
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
         public float DistanceToTarget => HasTarget ? Vector3.Distance(transform.position, _currentTarget.position) : float.MaxValue;
+        public float DetectionRadius => _detectionRadius;
         public float LostTargetRadius => _lostTargetRadius;
+        public float FieldOfView => _fieldOfView;
         public float AllyDetectionRadius => _allyDetectionRadius;
         public LayerMask AllyLayer => _allyLayer;
         
@@ -48,6 +51,7 @@ namespace UPlayGround.Component
             {
                 _tickManager = AgentTickManager.Instance;
                 _tickManager?.Register(this);
+                DebugGizmoManager.RegisterProvider(this);
             }
         }
 
@@ -55,6 +59,7 @@ namespace UPlayGround.Component
         {
             _tickManager?.Unregister(this);
             _tickManager = null;
+            DebugGizmoManager.UnregisterProvider(this);
         }
 
         /// <summary>
@@ -313,34 +318,76 @@ namespace UPlayGround.Component
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
+            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.AI, gameObject, DebugGizmoContentType.EnemyDetection))
+                return;
+
+            DrawDetectionGizmos();
+        }
+#endif
+
+        /// <summary>
+        /// 탐지/추적해제/아군 범위, 시야각, 타겟 라인 기즈모.
+        /// 에디트 모드의 OnDrawGizmosSelected 와 플레이 모드의 중앙 DrawGizmos 가 공유한다.
+        /// </summary>
+        private void DrawDetectionGizmos()
+        {
+            Vector3 position = transform.position;
+
             // 탐지 범위
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, _detectionRadius);
-            
+            Gizmos.DrawWireSphere(position, _detectionRadius);
+
             // 추적 해제 범위
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _lostTargetRadius);
-              
+            Gizmos.DrawWireSphere(position, _lostTargetRadius);
+
             // 아군 탐지 범위
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, _allyDetectionRadius);
+            Gizmos.DrawWireSphere(position, _allyDetectionRadius);
 
             // 시야각
             Gizmos.color = Color.blue;
             Vector3 forward = transform.forward * _detectionRadius;
-            Vector3 leftBoundary = Quaternion.Euler(0, -_fieldOfView * 0.5f, 0) * forward;
-            Vector3 rightBoundary = Quaternion.Euler(0, _fieldOfView * 0.5f, 0) * forward;
-            
-            Gizmos.DrawLine(transform.position, transform.position + leftBoundary);
-            Gizmos.DrawLine(transform.position, transform.position + rightBoundary);
-            
+            Vector3 leftBoundary = Quaternion.Euler(0f, -_fieldOfView * 0.5f, 0f) * forward;
+            Vector3 rightBoundary = Quaternion.Euler(0f, _fieldOfView * 0.5f, 0f) * forward;
+            Gizmos.DrawLine(position, position + leftBoundary);
+            Gizmos.DrawLine(position, position + rightBoundary);
+
             // 현재 타겟
             if (HasTarget)
             {
                 Gizmos.color = Color.green;
-                Gizmos.DrawLine(transform.position, _currentTarget.position);
+                Gizmos.DrawLine(position, _currentTarget.position);
             }
         }
-#endif
+
+        #region Debug Gizmo
+
+        public DebugGizmoCategory Category => DebugGizmoCategory.AI;
+        public DebugGizmoContentType ContentType => DebugGizmoContentType.EnemyDetection;
+        public UnityEngine.Object Owner => this;
+        public bool IsAvailable => this != null && isActiveAndEnabled;
+
+        public void CollectSnapshot(DebugGizmoFrameSnapshot snapshot)
+        {
+            snapshot.texts.Add(new DebugGizmoTextEntry
+            {
+                owner = this,
+                category = Category,
+                position = transform.position,
+                text = HasTarget ? $"target={_currentTarget.name}" : "target=None",
+            });
+        }
+
+        public void DrawGizmos(DebugGizmoDrawContext context)
+        {
+            DrawDetectionGizmos();
+
+            context.DrawLabel(
+                transform.position + Vector3.up * 2f,
+                HasTarget ? $"AI Target: {_currentTarget.name}" : "AI Target: None");
+        }
+
+        #endregion
     }
 }

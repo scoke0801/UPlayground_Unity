@@ -107,10 +107,7 @@ namespace UPlayGround.CameraSystem
                 return BuildPoseFromSample(context, _recording.samples[_recording.SampleCount - 1], effectState);
             }
 
-            // 균일 샘플 간격 가정 → 시간으로부터 인덱스/소수부 복원
-            float frame = _elapsed * _recording.sampleRate;
-            int i = Mathf.Clamp(Mathf.FloorToInt(frame), 0, _recording.SampleCount - 2);
-            float f = Mathf.Clamp01(frame - i);
+            ResolveSampleInterval(_elapsed, out int i, out float f);
 
             // 두 샘플을 먼저 보간한 뒤 포즈를 한 번만 빌드한다.
             // → 앵커 해석/충돌 spherecast/이펙트 합성이 프레임당 1회로 줄어든다.
@@ -120,11 +117,39 @@ namespace UPlayGround.CameraSystem
             return BuildPoseFromSample(context, blended, effectState);
         }
 
+        private void ResolveSampleInterval(float time, out int index, out float t)
+        {
+            if (!_recording.HasSampleTime)
+            {
+                float frame = time * _recording.sampleRate;
+                index = Mathf.Clamp(Mathf.FloorToInt(frame), 0, _recording.SampleCount - 2);
+                t = Mathf.Clamp01(frame - index);
+                return;
+            }
+
+            int low = 0;
+            int high = _recording.SampleCount - 1;
+            while (low + 1 < high)
+            {
+                int mid = (low + high) / 2;
+                if (_recording.samples[mid].sampleTime <= time)
+                    low = mid;
+                else
+                    high = mid;
+            }
+
+            index = Mathf.Clamp(low, 0, _recording.SampleCount - 2);
+            float start = _recording.samples[index].sampleTime;
+            float end = _recording.samples[index + 1].sampleTime;
+            t = Mathf.InverseLerp(start, Mathf.Max(start + 0.0001f, end), time);
+        }
+
         private static DialogueCameraRecordingSO.Sample InterpolateSample(
             DialogueCameraRecordingSO.Sample a, DialogueCameraRecordingSO.Sample b, float t)
         {
             return new DialogueCameraRecordingSO.Sample
             {
+                sampleTime = Mathf.Lerp(a.sampleTime, b.sampleTime, t),
                 localPosition = Vector3.Lerp(a.localPosition, b.localPosition, t),
                 // euler 직접 lerp는 wrap/짐벌에서 깨지므로 quaternion으로 보간 후 환원
                 localEuler = Quaternion.Slerp(Quaternion.Euler(a.localEuler), Quaternion.Euler(b.localEuler), t).eulerAngles,

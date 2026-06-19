@@ -28,62 +28,107 @@ namespace UPlayGround.Data
         public static List<DialogueCameraRecordingSO.Sample> Smooth(
             IReadOnlyList<DialogueCameraRecordingSO.Sample> raw, float strength)
         {
+            return Smooth(raw, strength, strength, strength);
+        }
+
+        public static List<DialogueCameraRecordingSO.Sample> Smooth(
+            IReadOnlyList<DialogueCameraRecordingSO.Sample> raw,
+            float positionStrength,
+            float rotationStrength,
+            float fovStrength)
+        {
             var result = new List<DialogueCameraRecordingSO.Sample>();
             if (raw == null || raw.Count == 0)
                 return result;
 
-            int radius = Mathf.RoundToInt(Mathf.Clamp01(strength) * MaxRadius);
-            if (radius <= 0 || raw.Count < 3)
+            int positionRadius = Mathf.RoundToInt(Mathf.Clamp01(positionStrength) * MaxRadius);
+            int rotationRadius = Mathf.RoundToInt(Mathf.Clamp01(rotationStrength) * MaxRadius);
+            int fovRadius = Mathf.RoundToInt(Mathf.Clamp01(fovStrength) * MaxRadius);
+            int maxRadius = Mathf.Max(positionRadius, Mathf.Max(rotationRadius, fovRadius));
+            if (maxRadius <= 0 || raw.Count < 3)
             {
                 result.AddRange(raw);
                 return result;
             }
 
-            float sigma = Mathf.Max(0.0001f, radius / 2f);
-
             for (int i = 0; i < raw.Count; i++)
             {
-                // 엔드포인트로 갈수록 창을 대칭으로 축소 → 위상 0 유지 + 양 끝 샘플 불변
-                int r = Mathf.Min(radius, Mathf.Min(i, raw.Count - 1 - i));
-                if (r <= 0)
+                int edgeRadius = Mathf.Min(i, raw.Count - 1 - i);
+                if (edgeRadius <= 0)
                 {
                     result.Add(raw[i]);
                     continue;
                 }
 
                 Quaternion refQ = Quaternion.Euler(raw[i].localEuler);
-                Vector3 posSum = Vector3.zero;
-                float fovSum = 0f;
-                float weightSum = 0f;
-                Vector4 quatSum = Vector4.zero;
-
-                for (int k = -r; k <= r; k++)
-                {
-                    DialogueCameraRecordingSO.Sample s = raw[i + k];
-                    float w = Mathf.Exp(-(k * k) / (2f * sigma * sigma));
-
-                    posSum += s.localPosition * w;
-                    fovSum += s.fieldOfView * w;
-                    weightSum += w;
-
-                    Quaternion q = Quaternion.Euler(s.localEuler);
-                    if (Quaternion.Dot(q, refQ) < 0f) // 헤미스피어 정렬(긴 길 회전 팝 방지)
-                        q = new Quaternion(-q.x, -q.y, -q.z, -q.w);
-                    quatSum += new Vector4(q.x, q.y, q.z, q.w) * w;
-                }
-
-                Vector4 qv = quatSum.normalized;
-                Quaternion rot = new Quaternion(qv.x, qv.y, qv.z, qv.w);
+                Vector3 position = positionRadius > 0
+                    ? SmoothPosition(raw, i, Mathf.Min(positionRadius, edgeRadius))
+                    : raw[i].localPosition;
+                Quaternion rotation = rotationRadius > 0
+                    ? SmoothRotation(raw, i, Mathf.Min(rotationRadius, edgeRadius), refQ)
+                    : refQ;
+                float fov = fovRadius > 0
+                    ? SmoothFov(raw, i, Mathf.Min(fovRadius, edgeRadius))
+                    : raw[i].fieldOfView;
 
                 result.Add(new DialogueCameraRecordingSO.Sample
                 {
-                    localPosition = posSum / weightSum,
-                    localEuler = rot.eulerAngles,
-                    fieldOfView = fovSum / weightSum
+                    sampleTime = raw[i].sampleTime,
+                    localPosition = position,
+                    localEuler = rotation.eulerAngles,
+                    fieldOfView = fov
                 });
             }
 
             return result;
+        }
+
+        private static Vector3 SmoothPosition(IReadOnlyList<DialogueCameraRecordingSO.Sample> raw, int index, int radius)
+        {
+            float sigma = Mathf.Max(0.0001f, radius / 2f);
+            Vector3 sum = Vector3.zero;
+            float weightSum = 0f;
+            for (int k = -radius; k <= radius; k++)
+            {
+                float weight = Mathf.Exp(-(k * k) / (2f * sigma * sigma));
+                sum += raw[index + k].localPosition * weight;
+                weightSum += weight;
+            }
+            return sum / weightSum;
+        }
+
+        private static Quaternion SmoothRotation(
+            IReadOnlyList<DialogueCameraRecordingSO.Sample> raw,
+            int index,
+            int radius,
+            Quaternion reference)
+        {
+            float sigma = Mathf.Max(0.0001f, radius / 2f);
+            Vector4 sum = Vector4.zero;
+            for (int k = -radius; k <= radius; k++)
+            {
+                float weight = Mathf.Exp(-(k * k) / (2f * sigma * sigma));
+                Quaternion q = Quaternion.Euler(raw[index + k].localEuler);
+                if (Quaternion.Dot(q, reference) < 0f)
+                    q = new Quaternion(-q.x, -q.y, -q.z, -q.w);
+                sum += new Vector4(q.x, q.y, q.z, q.w) * weight;
+            }
+            Vector4 normalized = sum.normalized;
+            return new Quaternion(normalized.x, normalized.y, normalized.z, normalized.w);
+        }
+
+        private static float SmoothFov(IReadOnlyList<DialogueCameraRecordingSO.Sample> raw, int index, int radius)
+        {
+            float sigma = Mathf.Max(0.0001f, radius / 2f);
+            float sum = 0f;
+            float weightSum = 0f;
+            for (int k = -radius; k <= radius; k++)
+            {
+                float weight = Mathf.Exp(-(k * k) / (2f * sigma * sigma));
+                sum += raw[index + k].fieldOfView * weight;
+                weightSum += weight;
+            }
+            return sum / weightSum;
         }
     }
 }

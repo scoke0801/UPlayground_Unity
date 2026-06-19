@@ -8,6 +8,11 @@ namespace UPlayGround.Editor
 {
     public class UPlaygroundToolsLauncher : EditorWindow
     {
+        private const string FavoritesPrefsKey = "UPlayground.ToolsLauncher.Favorites";
+        private const string RecentPrefsKey = "UPlayground.ToolsLauncher.Recent";
+        private const char PrefsSeparator = '\u001F';
+        private const int MaxRecentTools = 12;
+
         private enum ToolImpact
         {
             Normal,
@@ -158,8 +163,12 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private Vector2 _detailScroll;
         private readonly Dictionary<string, bool> _foldouts = new();
+        private readonly HashSet<string> _favorites = new();
+        private readonly List<string> _recentMenuPaths = new();
         private ToolEntry? _selectedTool;
         private string _selectedCategory;
+        private bool _favoritesOnly;
+        private bool _recentOnly;
         private GUIStyle _selectedToolStyle;
         private GUIStyle _toolRowStyle;
         private GUIStyle _summaryStyle;
@@ -167,6 +176,7 @@ namespace UPlayGround.Editor
         private GUIStyle _sectionTitleStyle;
         private GUIStyle _detailBoxStyle;
         private GUIStyle _badgeStyle;
+        private GUIStyle _favoriteButtonStyle;
 
         private static ToolEntry Tool(string name, string menuPath, string summary, string detail) =>
             new ToolEntry(name, menuPath, summary, detail);
@@ -182,6 +192,7 @@ namespace UPlayGround.Editor
         private void OnEnable()
         {
             _searchField = new SearchField();
+            LoadUserState();
             foreach (var (cat, _) in s_categories)
                 if (!_foldouts.ContainsKey(cat)) _foldouts[cat] = true;
 
@@ -253,12 +264,54 @@ namespace UPlayGround.Editor
                 fontSize = 10,
                 padding = new RectOffset(4, 4, 1, 1)
             };
+
+            _favoriteButtonStyle = new GUIStyle(EditorStyles.miniButton)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 14,
+                fontStyle = FontStyle.Bold,
+                padding = new RectOffset(1, 1, 0, 1)
+            };
         }
 
         private void DrawToolbar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label("UPlayGround Tools", EditorStyles.boldLabel);
+            GUILayout.Space(8f);
+            Color previousBackground = GUI.backgroundColor;
+            Color previousContent = GUI.contentColor;
+            if (_favoritesOnly)
+            {
+                GUI.backgroundColor = new Color(0.95f, 0.68f, 0.18f);
+                GUI.contentColor = Color.white;
+            }
+            bool favoritesOnly = GUILayout.Toggle(
+                _favoritesOnly,
+                $"★ 즐겨찾기 {_favorites.Count}",
+                EditorStyles.toolbarButton,
+                GUILayout.Width(104f));
+            GUI.backgroundColor = previousBackground;
+            GUI.contentColor = previousContent;
+            if (favoritesOnly != _favoritesOnly)
+            {
+                _favoritesOnly = favoritesOnly;
+                if (_favoritesOnly)
+                    _recentOnly = false;
+            }
+
+            bool recentOnly = GUILayout.Toggle(
+                _recentOnly,
+                $"최근 {_recentMenuPaths.Count}",
+                EditorStyles.toolbarButton,
+                GUILayout.Width(72f));
+            if (recentOnly != _recentOnly)
+            {
+                _recentOnly = recentOnly;
+                if (_recentOnly)
+                    _favoritesOnly = false;
+            }
+
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("모두 열기",  EditorStyles.toolbarButton, GUILayout.MinWidth(60)))
                 SetAllFoldouts(true);
@@ -293,9 +346,9 @@ namespace UPlayGround.Editor
 
             foreach (var (category, tools) in s_categories)
             {
-                ToolEntry[] matches = filtering
-                    ? System.Array.FindAll(tools, t => MatchesSearch(category, t, q))
-                    : tools;
+                ToolEntry[] matches = System.Array.FindAll(
+                    tools,
+                    tool => ShouldShowTool(category, tool, filtering, q));
 
                 if (matches.Length == 0) continue;
 
@@ -332,7 +385,17 @@ namespace UPlayGround.Editor
             if (selected)
                 EditorGUI.DrawRect(new Rect(rowRect.x - 4f, rowRect.y - 2f, rowRect.width + 8f, rowRect.height + 4f), new Color(0.25f, 0.36f, 0.52f, 0.35f));
 
-            if (GUI.Button(rowRect, GUIContent.none, GUIStyle.none))
+            bool favorite = _favorites.Contains(tool.MenuPath);
+            if (favorite)
+            {
+                EditorGUI.DrawRect(
+                    new Rect(rowRect.x - 5f, rowRect.y - 2f, 4f, rowRect.height + 4f),
+                    new Color(0.96f, 0.68f, 0.16f));
+            }
+
+            Rect favoriteRect = new Rect(rowRect.xMax - 30f, rowRect.y, 28f, 22f);
+            Rect clickRect = new Rect(rowRect.x, rowRect.y, rowRect.width - 34f, rowRect.height);
+            if (GUI.Button(clickRect, GUIContent.none, GUIStyle.none))
             {
                 SelectTool(category, tool);
 
@@ -344,17 +407,33 @@ namespace UPlayGround.Editor
             string badge = GetImpactLabel(impact);
             float badgeWidth = impact == ToolImpact.Normal ? 0f : 58f;
 
-            Rect titleRect = new Rect(rowRect.x, rowRect.y, rowRect.width - badgeWidth - 4f, 18f);
+            Rect titleRect = new Rect(rowRect.x, rowRect.y, rowRect.width - badgeWidth - 38f, 18f);
             GUI.Label(titleRect, tool.Name, selected ? EditorStyles.boldLabel : EditorStyles.label);
 
             if (impact != ToolImpact.Normal)
             {
-                Rect badgeRect = new Rect(rowRect.xMax - badgeWidth, rowRect.y + 1f, badgeWidth, 17f);
+                Rect badgeRect = new Rect(rowRect.xMax - badgeWidth - 34f, rowRect.y + 1f, badgeWidth, 17f);
                 var prevColor = GUI.color;
                 GUI.color = GetImpactColor(impact);
                 GUI.Label(badgeRect, badge, _badgeStyle);
                 GUI.color = prevColor;
             }
+
+            Color oldBackground = GUI.backgroundColor;
+            Color oldContent = GUI.contentColor;
+            GUI.backgroundColor = favorite
+                ? new Color(1f, 0.66f, 0.08f)
+                : new Color(0.52f, 0.52f, 0.52f);
+            GUI.contentColor = favorite
+                ? new Color(1f, 0.95f, 0.65f)
+                : new Color(0.76f, 0.76f, 0.76f);
+            if (GUI.Button(
+                    favoriteRect,
+                    new GUIContent(favorite ? "★" : "☆", favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"),
+                    _favoriteButtonStyle))
+                SetFavorite(tool.MenuPath, !favorite);
+            GUI.backgroundColor = oldBackground;
+            GUI.contentColor = oldContent;
 
             if (selected)
             {
@@ -390,6 +469,23 @@ namespace UPlayGround.Editor
             GUILayout.Label(_selectedCategory, EditorStyles.miniLabel);
             EditorGUILayout.EndVertical();
             GUILayout.FlexibleSpace();
+            bool favorite = _favorites.Contains(tool.MenuPath);
+            Color oldBackground = GUI.backgroundColor;
+            Color oldContent = GUI.contentColor;
+            GUI.backgroundColor = favorite
+                ? new Color(1f, 0.66f, 0.08f)
+                : new Color(0.52f, 0.52f, 0.52f);
+            GUI.contentColor = favorite
+                ? new Color(1f, 0.95f, 0.65f)
+                : new Color(0.76f, 0.76f, 0.76f);
+            if (GUILayout.Button(
+                    new GUIContent(favorite ? "★ 즐겨찾기" : "☆ 즐겨찾기", favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"),
+                    _favoriteButtonStyle,
+                    GUILayout.Width(84f),
+                    GUILayout.Height(24f)))
+                SetFavorite(tool.MenuPath, !favorite);
+            GUI.backgroundColor = oldBackground;
+            GUI.contentColor = oldContent;
             if (GUILayout.Button("경로 복사", GUILayout.Width(82f), GUILayout.Height(24f)))
             {
                 EditorGUIUtility.systemCopyBuffer = tool.MenuPath;
@@ -430,7 +526,12 @@ namespace UPlayGround.Editor
 
             ToolEntry tool = _selectedTool.Value;
             bool opened = EditorApplication.ExecuteMenuItem(tool.MenuPath);
-            if (!opened)
+            if (opened)
+            {
+                AddRecent(tool.MenuPath);
+                ShowNotification(new GUIContent($"{tool.Name} 열기"));
+            }
+            else
             {
                 EditorUtility.DisplayDialog(
                     "툴 실행 실패",
@@ -447,6 +548,15 @@ namespace UPlayGround.Editor
                    || tool.Summary.ToLowerInvariant().Contains(normalizedQuery)
                    || tool.Detail.ToLowerInvariant().Contains(normalizedQuery)
                    || GetImpactLabel(GetToolImpact(tool)).ToLowerInvariant().Contains(normalizedQuery);
+        }
+
+        private bool ShouldShowTool(string category, ToolEntry tool, bool filtering, string query)
+        {
+            if (_favoritesOnly && !_favorites.Contains(tool.MenuPath))
+                return false;
+            if (_recentOnly && !_recentMenuPaths.Contains(tool.MenuPath))
+                return false;
+            return !filtering || MatchesSearch(category, tool, query);
         }
 
         private static ToolImpact GetToolImpact(ToolEntry tool)
@@ -568,6 +678,53 @@ namespace UPlayGround.Editor
         {
             foreach (var (cat, _) in s_categories)
                 _foldouts[cat] = value;
+        }
+
+        private void SetFavorite(string menuPath, bool favorite)
+        {
+            if (favorite)
+                _favorites.Add(menuPath);
+            else
+                _favorites.Remove(menuPath);
+
+            EditorPrefs.SetString(FavoritesPrefsKey, string.Join(PrefsSeparator.ToString(), _favorites));
+            Repaint();
+        }
+
+        private void AddRecent(string menuPath)
+        {
+            _recentMenuPaths.Remove(menuPath);
+            _recentMenuPaths.Insert(0, menuPath);
+            if (_recentMenuPaths.Count > MaxRecentTools)
+                _recentMenuPaths.RemoveRange(MaxRecentTools, _recentMenuPaths.Count - MaxRecentTools);
+
+            EditorPrefs.SetString(RecentPrefsKey, string.Join(PrefsSeparator.ToString(), _recentMenuPaths));
+            Repaint();
+        }
+
+        private void LoadUserState()
+        {
+            _favorites.Clear();
+            _recentMenuPaths.Clear();
+
+            foreach (string path in SplitPrefs(EditorPrefs.GetString(FavoritesPrefsKey, "")))
+            {
+                if (TryFindTool(path, out _, out _))
+                    _favorites.Add(path);
+            }
+
+            foreach (string path in SplitPrefs(EditorPrefs.GetString(RecentPrefsKey, "")))
+            {
+                if (TryFindTool(path, out _, out _) && !_recentMenuPaths.Contains(path))
+                    _recentMenuPaths.Add(path);
+            }
+        }
+
+        private static IEnumerable<string> SplitPrefs(string value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? System.Array.Empty<string>()
+                : value.Split(PrefsSeparator, System.StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

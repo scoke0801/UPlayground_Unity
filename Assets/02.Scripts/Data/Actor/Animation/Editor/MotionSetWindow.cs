@@ -44,9 +44,11 @@ namespace UPlayGround.Animation.Editor
         float           _endTime       = -1f; // -1 = 전체 길이 사용
         int             _currentMotionIndex = -1; // 현재 재생 중인 모션 인덱스 (전환 감지용)
         bool            _isMotionToolInputLocked;
-        InputLayer      _previousInputLayerBeforeMotionTool = InputLayer.Level_0;
         PlayerActor     _suppressedPlayerActor;
-        bool            _allowCameraLookInPreview = true;
+        bool            _allowCameraLookInPreview = false;
+        // 프리뷰 세션 동안 플레이어 이동/공격 입력을 잠글지. 끄면 에디터를 열어둔 채로도 플레이어를
+        // 자유롭게 조작할 수 있다(게임플레이 테스트용).
+        bool            _lockPlayerInputInPreview = true;
 
         // _targetActor 가 바뀔 때만 GetComponent 재실행하기 위한 캐시
         GameObject       _cachedActorKey;
@@ -145,6 +147,7 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_PLAYER_SET_PATH     = "MotionSetWindow_PlayerSetPath";
         const string PREFS_PLAYER_WEAPON       = "MotionSetWindow_PlayerWeapon";
         const string PREFS_ALLOW_CAMERA_LOOK   = "MotionSetWindow_AllowCameraLook";
+        const string PREFS_LOCK_PLAYER_INPUT   = "MotionSetWindow_LockPlayerInput";
 
         void OnEnable()
         {
@@ -179,6 +182,12 @@ namespace UPlayGround.Animation.Editor
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             SceneView.duringSceneGui -= OnSceneGUI;
             ReleaseMotionToolInputLock();
+            // 창을 닫을 때 잠금 배너도 함께 정리(OnDisable에선 UpdatePlayerPreviewLock이 더는 안 돈다).
+            if (_previewLockIndicatorOn)
+            {
+                _previewLockIndicatorOn = false;
+                MotionPreviewLockBanner.Show(false);
+            }
             StopPlayback();
         }
 
@@ -206,6 +215,7 @@ namespace UPlayGround.Animation.Editor
                 EditorPrefs.SetString(PREFS_PLAYER_SET_PATH, AssetDatabase.GetAssetPath(_playerActorAnimationSet));
             EditorPrefs.SetInt(PREFS_PLAYER_WEAPON, (int)_selectedPlayerWeaponType);
             EditorPrefs.SetBool(PREFS_ALLOW_CAMERA_LOOK, _allowCameraLookInPreview);
+            EditorPrefs.SetBool(PREFS_LOCK_PLAYER_INPUT, _lockPlayerInputInPreview);
         }
 
         // ⑤ 상태 복원
@@ -233,7 +243,8 @@ namespace UPlayGround.Animation.Editor
             if (!string.IsNullOrEmpty(playerSetPath))
                 _playerActorAnimationSet = AssetDatabase.LoadAssetAtPath<PlayerActorAnimationMotionSet>(playerSetPath);
             _selectedPlayerWeaponType = (WeaponType)EditorPrefs.GetInt(PREFS_PLAYER_WEAPON, (int)WeaponType.NoWeapon);
-            _allowCameraLookInPreview = EditorPrefs.GetBool(PREFS_ALLOW_CAMERA_LOOK, true);
+            _allowCameraLookInPreview = EditorPrefs.GetBool(PREFS_ALLOW_CAMERA_LOOK, false);
+            _lockPlayerInputInPreview = EditorPrefs.GetBool(PREFS_LOCK_PLAYER_INPUT, true);
             if (_testActorMode == TestActorMode.Player && _playerActorAnimationSet != null)
                 SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
         }
@@ -397,6 +408,41 @@ namespace UPlayGround.Animation.Editor
             Repaint();
         }
 
+        const string LockTitleBase = "애니메이션 에디터";
+        bool _previewLockIndicatorOn;
+
+        // 프리뷰 잠금 수명 관리: 토글이 켜져 있고 플레이모드에서 타깃에 바인딩돼 있으면 잠금 유지,
+        // 아니면 해제. 매 프레임 호출되며 Acquire/Release 모두 멱등이라 안전하다.
+        void UpdatePlayerPreviewLock()
+        {
+            // 게임뷰 배너의 "해제" 버튼: 창을 찾아갈 필요 없이 잠금을 끈다.
+            if (MotionPreviewLockBanner.ConsumeUnlockRequest())
+                _lockPlayerInputInPreview = false;
+
+            bool shouldLock = _lockPlayerInputInPreview
+                              && Application.isPlaying
+                              && InputManager.Instance
+                              && _targetActor != null;
+
+            if (shouldLock)
+                AcquireMotionToolInputLock();
+            else
+                ReleaseMotionToolInputLock();
+
+            // 잠금 가시화: 에디터 창이 숨겨져 있어도 잠금이 유지되므로(= 창 존재에 묶임),
+            // 게임뷰 배너 + 탭 제목으로 상태를 항상 노출해 "왜 안 움직이지?" 혼란을 막는다.
+            // 배너는 매 프레임 호출해도 멱등(인스턴스 캐시)이라 씬 리로드 등에서도 자가복구된다.
+            MotionPreviewLockBanner.Show(shouldLock);
+
+            // 제목 설정은 리페인트를 유발하므로 전환 시에만.
+            if (shouldLock != _previewLockIndicatorOn)
+            {
+                _previewLockIndicatorOn = shouldLock;
+                titleContent.text = shouldLock ? LockTitleBase + " ●잠금" : LockTitleBase;
+                Repaint();
+            }
+        }
+
         void AcquireMotionToolInputLock()
         {
             if (!Application.isPlaying || !InputManager.Instance)
@@ -412,33 +458,34 @@ namespace UPlayGround.Animation.Editor
                 _suppressedPlayerActor?.SetInputSuppressed(true);
             }
 
-            if (_isMotionToolInputLocked)
-            {
-                InputManager.Instance.InputBuffer?.Clear();
-                InputManager.Instance.SetPlayerActionInputSuppressed(true);
-                InputManager.Instance.SetPlayerActionLookAllowed(_allowCameraLookInPreview);
-                return;
-            }
-
-            _previousInputLayerBeforeMotionTool = InputManager.Instance.CurrentLayer;
+            // 입력 레이어는 건드리지 않는다. 과거엔 SetInputLayer(Level_3)로 올렸지만 그러면
+            // HUD/Scene/Popup(메뉴 포함) 콜백까지 전부 막혀 "입력 전부 먹통"이 됐고, 잠금이
+            // 안 풀리면 게임뷰에서도 복구되지 않았다. PlayerAction 차단은 타깃형 억제만으로 충분.
+            // (매 프레임 재호출되므로 아래는 멱등 — 이미 잠긴 상태에서도 안전하게 재적용)
             InputManager.Instance.SetPlayerActionInputSuppressed(true);
             InputManager.Instance.SetPlayerActionLookAllowed(_allowCameraLookInPreview);
             InputManager.Instance.InputBuffer?.Clear();
-            InputManager.Instance.SetInputLayer(InputLayer.Level_3);
             _isMotionToolInputLocked = true;
         }
 
         void ReleaseMotionToolInputLock()
         {
-            if (!_isMotionToolInputLocked || !InputManager.Instance)
+            if (!_isMotionToolInputLocked)
                 return;
 
-            _suppressedPlayerActor?.SetInputSuppressed(false);
+            // InputManager가 살아있을 때만 인게임 측 상태를 되돌린다. play 모드 종료 시점엔
+            // InputManager와 타깃 액터가 함께 파괴되므로 같은 가드로 묶어 접근을 막는다.
+            if (InputManager.Instance)
+            {
+                _suppressedPlayerActor?.SetInputSuppressed(false);
+                InputManager.Instance.SetPlayerActionInputSuppressed(false);
+                InputManager.Instance.SetPlayerActionLookAllowed(false);
+                InputManager.Instance.InputBuffer?.Clear();
+            }
+
+            // InputManager 유무와 무관하게 잠금 플래그는 항상 해제 — 다음 play 세션에 stale 잠금이
+            // 남는 것을 방지.
             _suppressedPlayerActor = null;
-            InputManager.Instance.SetPlayerActionInputSuppressed(false);
-            InputManager.Instance.SetPlayerActionLookAllowed(false);
-            InputManager.Instance.InputBuffer?.Clear();
-            InputManager.Instance.SetInputLayer(_previousInputLayerBeforeMotionTool);
             _isMotionToolInputLocked = false;
         }
 
@@ -494,9 +541,13 @@ namespace UPlayGround.Animation.Editor
         {
             AbortWarpBakeIfNeeded(); // Play 모드/재생이 끊긴 채 베이크 중이면 설정 안전 복원
 
+            // 프리뷰 세션 동안(= 플레이모드에서 타깃에 바인딩된 동안) 플레이어 입력을 지속적으로
+            // 잠근다. 과거엔 활성 재생 중에만 잠갔던 탓에, 비루프 모션이 끝나면(StopPlayback) 잠금이
+            // 풀려 이동/공격이 다시 먹었다. 재생 여부와 무관하게 바인딩 동안 유지한다.
+            UpdatePlayerPreviewLock();
+
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
-                AcquireMotionToolInputLock();
                 ForceDrawPlayerWeapons();
 
                 var currentSet = GetCurrentMotionSet();
@@ -2123,6 +2174,19 @@ namespace UPlayGround.Animation.Editor
 
                 GUILayout.Space(10);
 
+                bool newLockPlayer = EditorGUILayout.ToggleLeft(
+                    new GUIContent("플레이어 잠금", "프리뷰 세션 동안 플레이어 이동/공격 입력을 차단한다. 끄면 에디터를 열어둔 채 플레이어를 직접 조작할 수 있다(카메라·UI는 잠금과 무관하게 동작)."),
+                    _lockPlayerInputInPreview, GUILayout.Width(105));
+                if (newLockPlayer != _lockPlayerInputInPreview)
+                {
+                    _lockPlayerInputInPreview = newLockPlayer;
+                    // 즉시 반영: 끄면 다음 프레임 UpdatePlayerPreviewLock이 해제, 켜면 재잠금.
+                    if (!_lockPlayerInputInPreview)
+                        ReleaseMotionToolInputLock();
+                }
+
+                GUILayout.Space(10);
+
                 // ③ 프레임 스텝 버튼
                 float frameStep = _drawer.fps > 0 ? 1f / _drawer.fps : 1f / 30f;
                 var motionSetForStep = GetCurrentMotionSet();
@@ -2269,7 +2333,8 @@ namespace UPlayGround.Animation.Editor
             if (_animancer == null || GetCurrentMotionSet() == null) return;
 
             var motionSet = GetCurrentMotionSet();
-            AcquireMotionToolInputLock();
+            // 입력 잠금 수명은 UpdatePlayerPreviewLock(매 프레임)이 단독 관리하므로 여기서 직접
+            // Acquire하지 않는다.
 
             // ④ 재생 구간을 Drawer에 동기화
             _drawer.playRangeStart = _startTime;
@@ -2338,7 +2403,9 @@ namespace UPlayGround.Animation.Editor
 
             _isPlaying = false;
             _isPaused = false;
-            ReleaseMotionToolInputLock();
+            // 입력 잠금은 여기서 풀지 않는다. 비루프 모션이 끝나도 에디터가 바인딩돼 있는 한
+            // 프리뷰 세션은 계속되므로, 잠금 해제는 UpdatePlayerPreviewLock(바인딩 해제/플레이모드
+            // 종료/창 닫기 시)이 담당한다. 과거엔 여기서 풀어 재생 종료 후 이동/공격이 다시 먹었다.
             ResetEditorLoopState();
             
             // 활성 중인 모든 이벤트 강제 종료 처리

@@ -1,21 +1,25 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UPlayGround.Tool.Editor.Combat;
 
 namespace UPlayGround.Tool.Editor.Validation
 {
     public sealed class DataValidationHubWindow : EditorWindow
     {
         private readonly List<EditorValidationIssue> _issues = new();
-        private Vector2 _scroll;
-        private string _filter = "";
-        private bool _includeInfo = true;
-        private bool _includeWarning = true;
-        private bool _includeError = true;
+        [SerializeField] private string _filter = "";
+        [SerializeField] private string _domainFilter = "전체";
+        [SerializeField] private bool _includeInfo = true;
+        [SerializeField] private bool _includeWarning = true;
+        [SerializeField] private bool _includeError = true;
+        [SerializeField] private int _selectedIssueIndex = -1;
+        private readonly List<int> _visibleIssueIndices = new();
+        private Vector2 _listScroll;
+        private Vector2 _detailScroll;
+        private EditorValidationRunResult _lastResult;
+        private string[] _domains = { "전체" };
 
         [MenuItem("UPlayGround/유틸/데이터 검증 허브", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.UtilValidation)]
         public static void Open()
@@ -27,14 +31,29 @@ namespace UPlayGround.Tool.Editor.Validation
 
         private void OnEnable()
         {
-            RunAll();
+            Run(EditorValidationContext.Project());
         }
 
         private void OnGUI()
         {
+            HandleKeyboard();
             DrawToolbar();
             DrawSummary();
-            DrawIssues();
+            RebuildVisibleIssues();
+
+            if (position.width >= 760f)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    DrawIssueList(GUILayout.Width(Mathf.Clamp(position.width * 0.46f, 360f, 560f)));
+                    DrawIssueDetail(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                }
+            }
+            else
+            {
+                DrawIssueList(GUILayout.MinHeight(220f));
+                DrawIssueDetail(GUILayout.MinHeight(180f));
+            }
         }
 
         private void DrawToolbar()
@@ -42,103 +61,207 @@ namespace UPlayGround.Tool.Editor.Validation
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 if (GUILayout.Button("전체 검증", EditorStyles.toolbarButton, GUILayout.Width(78f)))
-                    RunAll();
+                    Run(EditorValidationContext.Project());
 
-                if (GUILayout.Button("리포트 저장", EditorStyles.toolbarButton, GUILayout.Width(86f)))
+                using (new EditorGUI.DisabledScope(!HasAssetSelection()))
+                {
+                    if (GUILayout.Button("선택 검증", EditorStyles.toolbarButton, GUILayout.Width(78f)))
+                        Run(EditorValidationContext.Selection());
+                }
+
+                if (GUILayout.Button("MD 저장", EditorStyles.toolbarButton, GUILayout.Width(66f)))
                     SaveMarkdownReport();
+
+                if (GUILayout.Button("JSON 저장", EditorStyles.toolbarButton, GUILayout.Width(76f)))
+                    SaveJsonReport();
+
+                GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button("Data 경로 이동", EditorStyles.toolbarButton, GUILayout.Width(102f)))
                     MoveDataAssetsToDataRoot();
+            }
 
-                GUILayout.Space(6f);
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
                 GUILayout.Label("검색", GUILayout.Width(34f));
                 _filter = EditorGUILayout.TextField(_filter, EditorStyles.toolbarSearchField, GUILayout.MinWidth(180f));
                 if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(22f)))
                     _filter = "";
 
+                GUILayout.Space(6f);
+                int selectedIndex = System.Array.IndexOf(_domains, _domainFilter);
+                if (selectedIndex < 0)
+                    selectedIndex = 0;
+                selectedIndex = EditorGUILayout.Popup(selectedIndex, _domains, EditorStyles.toolbarPopup, GUILayout.Width(150f));
+                _domainFilter = _domains[selectedIndex];
+
                 GUILayout.FlexibleSpace();
-                _includeError = GUILayout.Toggle(_includeError, "Error", EditorStyles.toolbarButton, GUILayout.Width(58f));
-                _includeWarning = GUILayout.Toggle(_includeWarning, "Warning", EditorStyles.toolbarButton, GUILayout.Width(76f));
-                _includeInfo = GUILayout.Toggle(_includeInfo, "Info", EditorStyles.toolbarButton, GUILayout.Width(52f));
+                _includeError = GUILayout.Toggle(_includeError, $"오류 {_lastResult?.ErrorCount ?? 0}", EditorStyles.toolbarButton, GUILayout.Width(70f));
+                _includeWarning = GUILayout.Toggle(_includeWarning, $"경고 {_lastResult?.WarningCount ?? 0}", EditorStyles.toolbarButton, GUILayout.Width(70f));
+                _includeInfo = GUILayout.Toggle(_includeInfo, $"정보 {_lastResult?.InfoCount ?? 0}", EditorStyles.toolbarButton, GUILayout.Width(70f));
+
+                if (GUILayout.Button("필터 초기화", EditorStyles.toolbarButton, GUILayout.Width(82f)))
+                    ResetFilters();
             }
         }
 
         private void DrawSummary()
         {
-            int errors = 0;
-            int warnings = 0;
-            int infos = 0;
-            foreach (EditorValidationIssue issue in _issues)
+            if (_lastResult == null)
             {
-                switch (issue.Severity)
-                {
-                    case EditorValidationSeverity.Error: errors++; break;
-                    case EditorValidationSeverity.Warning: warnings++; break;
-                    case EditorValidationSeverity.Info: infos++; break;
-                }
+                EditorGUILayout.HelpBox("검증 결과가 없습니다.", MessageType.Info);
+                return;
             }
 
-            EditorGUILayout.HelpBox(
-                $"검증 결과: Error {errors} / Warning {warnings} / Info {infos} / Total {_issues.Count}",
-                errors > 0 ? MessageType.Error : warnings > 0 ? MessageType.Warning : MessageType.Info);
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
+            {
+                GUILayout.Label(
+                    _lastResult.Context.Scope == EditorValidationScope.Project ? "프로젝트 전체" : "선택 범위",
+                    EditorStyles.boldLabel,
+                    GUILayout.Width(82f));
+                GUILayout.Label($"검증기 {_lastResult.ValidatorCount}", GUILayout.Width(70f));
+                GUILayout.Label($"소요 {_lastResult.DurationSeconds:F2}s", GUILayout.Width(76f));
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(
+                    _lastResult.ErrorCount > 0 ? "수정이 필요한 오류가 있습니다." :
+                    _lastResult.WarningCount > 0 ? "확인이 필요한 경고가 있습니다." :
+                    "검증을 통과했습니다.",
+                    EditorStyles.miniLabel);
+            }
         }
 
-        private void DrawIssues()
+        private void DrawIssueList(params GUILayoutOption[] options)
         {
-            _scroll = EditorGUILayout.BeginScrollView(_scroll);
-
-            int visible = 0;
-            foreach (EditorValidationIssue issue in _issues)
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox, options))
             {
-                if (!ShouldShow(issue))
-                    continue;
-
-                visible++;
-                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    using (new EditorGUILayout.HorizontalScope())
+                    GUILayout.Label("검증 결과", EditorStyles.boldLabel);
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label($"{_visibleIssueIndices.Count} / {_issues.Count}", EditorStyles.miniLabel);
+                }
+
+                _listScroll = EditorGUILayout.BeginScrollView(_listScroll);
+                if (_visibleIssueIndices.Count == 0)
+                {
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField("현재 필터에 해당하는 이슈가 없습니다.", EditorStyles.centeredGreyMiniLabel);
+                    GUILayout.FlexibleSpace();
+                }
+                else
+                {
+                    foreach (int issueIndex in _visibleIssueIndices)
+                        DrawIssueRow(issueIndex);
+                }
+                EditorGUILayout.EndScrollView();
+            }
+        }
+
+        private void DrawIssueRow(int issueIndex)
+        {
+            EditorValidationIssue issue = _issues[issueIndex];
+            Rect row = GUILayoutUtility.GetRect(0f, 46f, GUILayout.ExpandWidth(true));
+            bool selected = issueIndex == _selectedIssueIndex;
+            if (selected)
+                EditorGUI.DrawRect(row, new Color(0.18f, 0.36f, 0.58f, 0.55f));
+            else if (Event.current.type == EventType.Repaint && issueIndex % 2 == 0)
+                EditorGUI.DrawRect(row, new Color(1f, 1f, 1f, 0.025f));
+
+            Rect severityRect = new Rect(row.x + 5f, row.y + 7f, 6f, row.height - 14f);
+            EditorGUI.DrawRect(severityRect, GetSeverityColor(issue.Severity));
+
+            string title = $"{issue.Domain} · {issue.Field}";
+            GUI.Label(new Rect(row.x + 17f, row.y + 4f, row.width - 24f, 18f), title, EditorStyles.boldLabel);
+            GUI.Label(
+                new Rect(row.x + 17f, row.y + 23f, row.width - 24f, 18f),
+                string.IsNullOrWhiteSpace(issue.Message) ? "(메시지 없음)" : issue.Message,
+                EditorStyles.miniLabel);
+
+            if (Event.current.type == EventType.MouseDown && row.Contains(Event.current.mousePosition))
+            {
+                _selectedIssueIndex = issueIndex;
+                _detailScroll = Vector2.zero;
+                if (Event.current.clickCount == 2)
+                    SelectIssueAsset(issue, ping: true);
+                Event.current.Use();
+                Repaint();
+            }
+        }
+
+        private void DrawIssueDetail(params GUILayoutOption[] options)
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox, options))
+            {
+                if (_selectedIssueIndex < 0 || _selectedIssueIndex >= _issues.Count)
+                {
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField("왼쪽 결과를 선택하면 상세 내용과 작업 버튼을 표시합니다.", EditorStyles.centeredGreyMiniLabel);
+                    GUILayout.FlexibleSpace();
+                    return;
+                }
+
+                EditorValidationIssue issue = _issues[_selectedIssueIndex];
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Color previous = GUI.color;
+                    GUI.color = GetSeverityColor(issue.Severity);
+                    GUILayout.Label(GetSeverityLabel(issue.Severity), EditorStyles.boldLabel, GUILayout.Width(42f));
+                    GUI.color = previous;
+
+                    GUILayout.Label($"{issue.Domain} / {issue.Field}", EditorStyles.boldLabel);
+                    GUILayout.FlexibleSpace();
+
+                    using (new EditorGUI.DisabledScope(issue.Asset == null))
                     {
-                        EditorGUILayout.LabelField($"{issue.Severity} | {issue.Domain} | {issue.Field}", EditorStyles.boldLabel);
-                        GUILayout.FlexibleSpace();
-                        if (issue.Asset != null && GUILayout.Button("Ping", GUILayout.Width(52f)))
-                            EditorGUIUtility.PingObject(issue.Asset);
-                        if (issue.Asset != null && GUILayout.Button("Select", GUILayout.Width(58f)))
-                            Selection.activeObject = issue.Asset;
+                        if (GUILayout.Button("선택", GUILayout.Width(56f)))
+                            SelectIssueAsset(issue, ping: false);
+                        if (GUILayout.Button("Ping", GUILayout.Width(52f)))
+                            SelectIssueAsset(issue, ping: true);
                     }
+                }
 
-                    EditorGUILayout.HelpBox(issue.Message, issue.ToMessageType());
-                    if (!string.IsNullOrWhiteSpace(issue.FixHint))
-                        EditorGUILayout.LabelField(issue.FixHint, EditorStyles.wordWrappedMiniLabel);
-                    if (!string.IsNullOrWhiteSpace(issue.AssetPath))
-                        EditorGUILayout.SelectableLabel(issue.AssetPath, EditorStyles.miniLabel, GUILayout.Height(16f));
+                _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
+                EditorGUILayout.Space(4f);
+                EditorGUILayout.HelpBox(issue.Message, issue.ToMessageType());
+
+                if (!string.IsNullOrWhiteSpace(issue.FixHint))
+                {
+                    EditorGUILayout.LabelField("권장 조치", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(issue.FixHint, EditorStyles.wordWrappedLabel);
+                }
+
+                DrawReadOnlyValue("에셋", issue.AssetPath);
+                DrawReadOnlyValue("검증기", issue.ValidatorId);
+                DrawReadOnlyValue("규칙 ID", issue.RuleId);
+                EditorGUILayout.EndScrollView();
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("메시지 복사"))
+                        CopyIssue(issue, includePath: false);
+                    if (GUILayout.Button("전체 정보 복사"))
+                        CopyIssue(issue, includePath: true);
                 }
             }
-
-            if (visible == 0)
-                EditorGUILayout.LabelField("표시할 이슈가 없습니다.", EditorStyles.centeredGreyMiniLabel);
-
-            EditorGUILayout.EndScrollView();
         }
 
-        private void RunAll()
+        private void Run(EditorValidationContext context)
         {
+            _lastResult = EditorValidationRegistry.Run(context);
             _issues.Clear();
-            _issues.AddRange(DataPathValidator.ValidateAll());
-            _issues.AddRange(ActorDataValidator.ValidateAll());
-            _issues.AddRange(GeneralDataValidator.ValidateAll());
-
-            foreach (CombatValidationIssue issue in CombatDataValidator.ValidateAll())
-            {
-                _issues.Add(new EditorValidationIssue(
-                    ConvertSeverity(issue.Severity),
-                    "Combat",
-                    issue.AssetPath,
-                    AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(issue.AssetPath),
-                    issue.Context,
-                    issue.Message));
-            }
-
-            _issues.Sort(CompareIssue);
+            _issues.AddRange(_lastResult.Issues);
+            _domains = new[] { "전체" }
+                .Concat(_issues
+                    .Select(issue => issue.Domain)
+                    .Where(domain => !string.IsNullOrWhiteSpace(domain))
+                    .Distinct()
+                    .OrderBy(domain => domain))
+                .ToArray();
+            if (!_domains.Contains(_domainFilter))
+                _domainFilter = "전체";
+            _listScroll = Vector2.zero;
+            _selectedIssueIndex = _issues.Count > 0 ? 0 : -1;
+            Repaint();
         }
 
         private void MoveDataAssetsToDataRoot()
@@ -152,7 +275,7 @@ namespace UPlayGround.Tool.Editor.Validation
                 return;
 
             DataPathMoveResult result = DataPathValidator.MoveAssetsToDataRoot();
-            RunAll();
+            Run(EditorValidationContext.Project());
             EditorUtility.DisplayDialog(
                 "Data 경로 이동 완료",
                 $"이동: {result.Moved}\n기준 경로 없음: {result.Skipped}\n실패: {result.Failed}",
@@ -167,12 +290,19 @@ namespace UPlayGround.Tool.Editor.Validation
                 return false;
             if (issue.Severity == EditorValidationSeverity.Info && !_includeInfo)
                 return false;
+            if (_domainFilter != "전체"
+                && !string.Equals(issue.Domain, _domainFilter, System.StringComparison.Ordinal))
+            {
+                return false;
+            }
 
             if (string.IsNullOrWhiteSpace(_filter))
                 return true;
 
             string q = _filter.ToLowerInvariant();
             return Contains(issue.Domain, q)
+                   || Contains(issue.ValidatorId, q)
+                   || Contains(issue.RuleId, q)
                    || Contains(issue.AssetPath, q)
                    || Contains(issue.Field, q)
                    || Contains(issue.Message, q)
@@ -181,8 +311,7 @@ namespace UPlayGround.Tool.Editor.Validation
 
         private void SaveMarkdownReport()
         {
-            if (_issues.Count == 0)
-                RunAll();
+            EnsureResult();
 
             string path = EditorUtility.SaveFilePanel(
                 "Data Validation Report 저장",
@@ -192,68 +321,139 @@ namespace UPlayGround.Tool.Editor.Validation
             if (string.IsNullOrWhiteSpace(path))
                 return;
 
-            var builder = new StringBuilder();
-            builder.AppendLine("# Data Validation Report");
-            builder.AppendLine();
-            builder.AppendLine($"- Issues: {_issues.Count}");
-            builder.AppendLine();
-            builder.AppendLine("| Severity | Domain | Field | Message | Asset | Fix Hint |");
-            builder.AppendLine("|----------|--------|-------|---------|-------|----------|");
-
-            foreach (EditorValidationIssue issue in _issues)
-            {
-                builder.Append("| ")
-                    .Append(issue.Severity)
-                    .Append(" | ")
-                    .Append(Escape(issue.Domain))
-                    .Append(" | ")
-                    .Append(Escape(issue.Field))
-                    .Append(" | ")
-                    .Append(Escape(issue.Message))
-                    .Append(" | ")
-                    .Append(Escape(issue.AssetPath))
-                    .Append(" | ")
-                    .Append(Escape(issue.FixHint))
-                    .AppendLine(" |");
-            }
-
-            File.WriteAllText(path, builder.ToString(), Encoding.UTF8);
+            EditorValidationReport.WriteMarkdown(path, _lastResult);
             AssetDatabase.Refresh();
+            ShowNotification(new GUIContent("Markdown 리포트를 저장했습니다."));
         }
 
-        private static EditorValidationSeverity ConvertSeverity(CombatValidationSeverity severity)
+        private void SaveJsonReport()
+        {
+            EnsureResult();
+
+            string path = EditorUtility.SaveFilePanel(
+                "Data Validation JSON 저장",
+                Application.dataPath,
+                "DataValidationReport.json",
+                "json");
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            EditorValidationReport.WriteJson(path, _lastResult);
+            AssetDatabase.Refresh();
+            ShowNotification(new GUIContent("JSON 리포트를 저장했습니다."));
+        }
+
+        private void EnsureResult()
+        {
+            if (_lastResult == null)
+                Run(EditorValidationContext.Project());
+        }
+
+        private void RebuildVisibleIssues()
+        {
+            _visibleIssueIndices.Clear();
+            for (int i = 0; i < _issues.Count; i++)
+            {
+                if (ShouldShow(_issues[i]))
+                    _visibleIssueIndices.Add(i);
+            }
+
+            if (_selectedIssueIndex >= 0 && !_visibleIssueIndices.Contains(_selectedIssueIndex))
+                _selectedIssueIndex = _visibleIssueIndices.Count > 0 ? _visibleIssueIndices[0] : -1;
+        }
+
+        private void HandleKeyboard()
+        {
+            Event current = Event.current;
+            if (current.type != EventType.KeyDown || EditorGUIUtility.editingTextField)
+                return;
+
+            if (current.keyCode is KeyCode.UpArrow or KeyCode.DownArrow)
+            {
+                RebuildVisibleIssues();
+                if (_visibleIssueIndices.Count == 0)
+                    return;
+
+                int position = _visibleIssueIndices.IndexOf(_selectedIssueIndex);
+                int delta = current.keyCode == KeyCode.DownArrow ? 1 : -1;
+                position = position < 0 ? 0 : Mathf.Clamp(position + delta, 0, _visibleIssueIndices.Count - 1);
+                _selectedIssueIndex = _visibleIssueIndices[position];
+                current.Use();
+                Repaint();
+            }
+            else if (current.keyCode == KeyCode.Return
+                     && _selectedIssueIndex >= 0
+                     && _selectedIssueIndex < _issues.Count)
+            {
+                SelectIssueAsset(_issues[_selectedIssueIndex], ping: true);
+                current.Use();
+            }
+        }
+
+        private void ResetFilters()
+        {
+            _filter = "";
+            _domainFilter = "전체";
+            _includeError = true;
+            _includeWarning = true;
+            _includeInfo = true;
+        }
+
+        private void SelectIssueAsset(EditorValidationIssue issue, bool ping)
+        {
+            if (issue.Asset == null)
+                return;
+            Selection.activeObject = issue.Asset;
+            if (ping)
+                EditorGUIUtility.PingObject(issue.Asset);
+        }
+
+        private void CopyIssue(EditorValidationIssue issue, bool includePath)
+        {
+            string text = includePath
+                ? $"[{issue.Severity}] {issue.Domain} / {issue.Field}\n{issue.Message}\n{issue.FixHint}\n{issue.AssetPath}"
+                : issue.Message;
+            EditorGUIUtility.systemCopyBuffer = text;
+            ShowNotification(new GUIContent("검증 정보를 복사했습니다."));
+        }
+
+        private static void DrawReadOnlyValue(string label, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
+            EditorGUILayout.SelectableLabel(value, EditorStyles.textField, GUILayout.Height(18f));
+        }
+
+        private static Color GetSeverityColor(EditorValidationSeverity severity)
         {
             return severity switch
             {
-                CombatValidationSeverity.Error => EditorValidationSeverity.Error,
-                CombatValidationSeverity.Warning => EditorValidationSeverity.Warning,
-                _ => EditorValidationSeverity.Info
+                EditorValidationSeverity.Error => new Color(0.92f, 0.28f, 0.24f),
+                EditorValidationSeverity.Warning => new Color(0.95f, 0.68f, 0.18f),
+                _ => new Color(0.28f, 0.62f, 0.92f)
             };
         }
 
-        private static int CompareIssue(EditorValidationIssue a, EditorValidationIssue b)
+        private static string GetSeverityLabel(EditorValidationSeverity severity)
         {
-            int severity = b.Severity.CompareTo(a.Severity);
-            if (severity != 0)
-                return severity;
+            return severity switch
+            {
+                EditorValidationSeverity.Error => "오류",
+                EditorValidationSeverity.Warning => "경고",
+                _ => "정보"
+            };
+        }
 
-            int domain = string.Compare(a.Domain, b.Domain, System.StringComparison.Ordinal);
-            if (domain != 0)
-                return domain;
-
-            return string.Compare(a.AssetPath, b.AssetPath, System.StringComparison.Ordinal);
+        private static bool HasAssetSelection()
+        {
+            return Selection.objects.Any(asset =>
+                asset != null && !string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(asset)));
         }
 
         private static bool Contains(string source, string lowerQuery)
         {
             return !string.IsNullOrEmpty(source) && source.ToLowerInvariant().Contains(lowerQuery);
-        }
-
-        private static string Escape(string value)
-        {
-            return string.IsNullOrEmpty(value)
-                ? string.Empty
-                : value.Replace("|", "\\|").Replace("\r", " ").Replace("\n", " ");
         }
     }
 }

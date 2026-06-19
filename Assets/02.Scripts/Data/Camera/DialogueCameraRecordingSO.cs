@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Data
 {
@@ -23,12 +24,26 @@ namespace UPlayGround.Data
         [Serializable]
         public struct Sample
         {
+            [Tooltip("비균일 키 리덕션용 원본 시간. 0만 저장된 구버전 트랙은 sampleRate 균일 시간축을 사용한다.")]
+            public float sampleTime;
             public Vector3 localPosition;
             public Vector3 localEuler;
             public float fieldOfView;
         }
 
         public string recordingName;
+
+        [Header("제작 메타데이터")]
+        public MotionSetAsset sourceMotion;
+        public string sourceScene;
+        public string sourceTakeName;
+        public string capturedAt;
+        public float sourceStartTime;
+        public float sourceEndTime;
+        public int sourceRawSampleCount;
+        public int sourceTrimIn;
+        public int sourceTrimOut;
+        [TextArea(2, 4)] public string authoringNotes;
 
         [Header("좌표 기준")]
         [Tooltip("ActorRelative 권장 — 앵커(화자/플레이어) 기준 로컬이라 다른 NPC·장소에서 재사용 가능. World는 녹화한 장소에 용접됨.")]
@@ -48,6 +63,17 @@ namespace UPlayGround.Data
 
         [Tooltip("손떨림 스무딩 강도(0=원본 그대로). 값을 바꾸면 rawSamples에서 samples를 재생성한다.")]
         [Range(0f, 1f)] public float smoothingStrength = 0f;
+        [Tooltip("위치/회전/FOV 스무딩 강도를 개별 적용한다. 꺼져 있으면 smoothingStrength 하나를 사용한다.")]
+        public bool usePerChannelSmoothing = false;
+        [Range(0f, 1f)] public float positionSmoothingStrength = 0.35f;
+        [Range(0f, 1f)] public float rotationSmoothingStrength = 0.2f;
+        [Range(0f, 1f)] public float fovSmoothingStrength = 0.35f;
+
+        [Header("키 리덕션")]
+        public bool useKeyReduction = false;
+        [Min(0.0001f)] public float positionReductionTolerance = 0.01f;
+        [Min(0.01f)] public float rotationReductionTolerance = 0.5f;
+        [Min(0.01f)] public float fovReductionTolerance = 0.1f;
 
         [Header("재생")]
         public bool useUnscaledTime = true;
@@ -65,7 +91,10 @@ namespace UPlayGround.Data
         public int SampleCount => samples?.Count ?? 0;
 
         /// <summary>녹화 전체 길이(초). 샘플이 2개 미만이면 0.</summary>
-        public float Duration => SampleCount > 1 && sampleRate > 0f ? (SampleCount - 1) / sampleRate : 0f;
+        public bool HasSampleTime => SampleCount > 1 && samples[SampleCount - 1].sampleTime > 0f;
+        public float Duration => SampleCount > 1
+            ? HasSampleTime ? samples[SampleCount - 1].sampleTime : (SampleCount - 1) / sampleRate
+            : 0f;
 
         /// <summary>
         /// rawSamples에서 현재 smoothingStrength로 samples를 재생성한다(비파괴, 항상 raw 기준).
@@ -76,7 +105,21 @@ namespace UPlayGround.Data
             if ((rawSamples == null || rawSamples.Count == 0) && samples != null && samples.Count > 0)
                 rawSamples = new List<Sample>(samples); // legacy 승격
 
-            samples = DialogueCameraTrackSmoother.Smooth(rawSamples, smoothingStrength);
+            List<Sample> smoothed = usePerChannelSmoothing
+                ? DialogueCameraTrackSmoother.Smooth(
+                    rawSamples,
+                    positionSmoothingStrength,
+                    rotationSmoothingStrength,
+                    fovSmoothingStrength)
+                : DialogueCameraTrackSmoother.Smooth(rawSamples, smoothingStrength);
+            samples = useKeyReduction
+                ? DialogueCameraTrackReducer.Reduce(
+                    smoothed,
+                    sampleRate,
+                    positionReductionTolerance,
+                    rotationReductionTolerance,
+                    fovReductionTolerance)
+                : smoothed;
         }
 
         private void OnValidate()
@@ -87,6 +130,12 @@ namespace UPlayGround.Data
             sampleRate = Mathf.Max(1f, sampleRate);
             playbackSpeed = Mathf.Max(0.01f, playbackSpeed);
             entryBlendDuration = Mathf.Max(0f, entryBlendDuration);
+            positionSmoothingStrength = Mathf.Clamp01(positionSmoothingStrength);
+            rotationSmoothingStrength = Mathf.Clamp01(rotationSmoothingStrength);
+            fovSmoothingStrength = Mathf.Clamp01(fovSmoothingStrength);
+            positionReductionTolerance = Mathf.Max(0.0001f, positionReductionTolerance);
+            rotationReductionTolerance = Mathf.Max(0.01f, rotationReductionTolerance);
+            fovReductionTolerance = Mathf.Max(0.01f, fovReductionTolerance);
         }
     }
 }

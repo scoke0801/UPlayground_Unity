@@ -84,6 +84,7 @@ namespace UPlayGround.CameraSystem
 
             _samples.Add(new DialogueCameraRecordingSO.Sample
             {
+                sampleTime = _samples.Count / Mathf.Max(1f, SampleRate),
                 localPosition = localPos,
                 localEuler = localEuler,
                 fieldOfView = _camera.fieldOfView

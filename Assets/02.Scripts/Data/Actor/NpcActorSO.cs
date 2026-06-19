@@ -6,7 +6,7 @@ using UPlayGround.Dialogue;
 /// NPC 한 명의 설정 데이터.
 /// dialogueGraph: 기본 대화 / progressDialogues: 진행도별 대화 (StoryManager 연동 시 사용)
 /// </summary>
-[CreateAssetMenu(fileName = "NPC_", menuName = "UPlayGround/ActorData/NpcActorSO")]
+[CreateAssetMenu(fileName = "NPC_", menuName = "UPlayGround/액터/NPC")]
 public class NpcActorSO : InteractableActorSO
 {
     [Header("NPC 설정")]

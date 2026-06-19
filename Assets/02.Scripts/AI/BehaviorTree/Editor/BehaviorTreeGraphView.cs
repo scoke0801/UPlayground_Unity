@@ -19,6 +19,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private readonly Dictionary<BehaviorTreeEditorGroup, BehaviorTreeGroupView> _groupViews = new();
         private readonly Dictionary<string, BTStatus> _currentTickStatuses = new();
         private readonly Dictionary<string, BTNode> _runtimeNodesByGuid = new();
+        // 엣지별 마지막 적용 스타일 키(running|ticked). 변경된 엣지만 재스타일/리페인트하기 위한 캐시.
+        private readonly Dictionary<Edge, int> _edgeStyleKeys = new();
         private readonly BehaviorTreeNodeSearchWindow _nodeSearchWindow;
         private readonly PortDragConnectorListener _portConnectorListener;
         private BehaviorTreeAsset _tree;
@@ -79,6 +81,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _nodeViewsByGuid.Clear();
             _groupViews.Clear();
             _currentTickStatuses.Clear();
+            _edgeStyleKeys.Clear();
 
             if (_tree == null)
             {
@@ -111,7 +114,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             graphViewChanged += OnGraphViewChanged;
         }
 
-        public void UpdateDebugState(BehaviorTreeAsset runtimeTree, BehaviorTreeDebugTrace trace = null)
+        public void UpdateDebugState(BehaviorTreeAsset runtimeTree, BehaviorTreeDebugTrace trace = null, bool force = false)
         {
             _runtimeNodesByGuid.Clear();
             if (runtimeTree != null)
@@ -135,11 +138,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 }
             }
 
+            // 노드는 자체 캐시(_lastVisualKey)로 변경분만 스타일을 다시 쓴다. 대형 트리에서 매 갱신 전 노드
+            // 스타일 재작성 + 전체 엣지 리페인트가 게임 프레임을 잡아먹던 것을 변경된 요소로 한정한다.
             foreach (var pair in _nodeViews)
             {
                 _runtimeNodesByGuid.TryGetValue(pair.Key.Guid, out var runtimeNode);
                 var wasTicked = _currentTickStatuses.TryGetValue(pair.Key.Guid, out var tickStatus);
-                pair.Value.UpdateStateColor(runtimeNode, wasTicked, tickStatus);
+                pair.Value.UpdateStateColor(runtimeNode, wasTicked, tickStatus, force);
             }
 
             foreach (var edge in edges)
@@ -154,10 +159,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 _runtimeNodesByGuid.TryGetValue(childView.Node.Guid, out var runtimeChild);
                 var running = runtimeParent is { IsStarted: true } || runtimeChild is { IsStarted: true };
                 var ticked = IsNodeHighlighted(parentView.Node.Guid) && IsNodeHighlighted(childView.Node.Guid);
-                StyleEdge(edge, running, ticked);
-            }
 
-            MarkEdgesDirty();
+                // 엣지도 (running|ticked) 키가 바뀐 것만 재스타일 + 리페인트한다.
+                int edgeKey = (running ? 1 : 0) | (ticked ? 2 : 0);
+                if (!force && _edgeStyleKeys.TryGetValue(edge, out var prevKey) && prevKey == edgeKey)
+                    continue;
+
+                _edgeStyleKeys[edge] = edgeKey;
+                StyleEdge(edge, running, ticked);
+                edge.MarkDirtyRepaint();
+            }
         }
 
         public void FrameAllNodes()

@@ -50,6 +50,7 @@ namespace UPlayGround.Animation
         private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
         
         public event Action OnMotionSetCompleted;
+        public event Action<MotionSet, bool> OnMotionSetEnded;
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
 
@@ -178,6 +179,8 @@ namespace UPlayGround.Animation
         // ── 모션워프 지연 캐싱 키 구성용 접근자 ──
         // delta-warp 가 윈도우 총 루트모션을 (motionSetName, motionIndex, window) 키로 캐시할 때 사용.
         public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
+        public MotionSet CurrentMotionSet => _currentMotionSet;
+        public float CurrentMotionSetTime => _globalTime;
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
 
@@ -337,6 +340,37 @@ namespace UPlayGround.Animation
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
 
             PlaySubAnimatorMotion(key, fadeDuration, layerIndex);
+            return _currentState;
+        }
+
+        /// <summary>
+        /// AnimKey 등록을 거치지 않고 외부 MotionSet 에셋을 직접 재생한다.
+        /// 궁극기/시네마틱처럼 일반 상태 모션 테이블과 생명주기가 다른 재생 단위에서 사용한다.
+        /// </summary>
+        public AnimancerState PlayMotionSetAsset(MotionSetAsset asset, float fadeDuration = 0f, int layerIndex = 0)
+        {
+            return PlayMotionSet(asset != null ? asset.motionSet : null, fadeDuration, layerIndex);
+        }
+
+        public AnimancerState PlayMotionSet(MotionSet motionSet, float fadeDuration = 0f, int layerIndex = 0)
+        {
+            if (motionSet == null || !motionSet.IsValid())
+                return null;
+
+            if (_isPlayingMotionSet && _currentMotionSet != null)
+                StopMotionSet();
+
+            _currentMotionSet = motionSet;
+            _currentMotionIndex = 0;
+            _currentMotionLayerIndex = layerIndex;
+            _globalTime = 0f;
+            _lastLocalTime = -0.001f;
+            _isPlayingMotionSet = true;
+            _lastPlayedKey = AnimKey.None;
+            _infiniteLoopStageIndex = -1;
+
+            _eventExecutor?.PlayMotionSet(_currentMotionSet);
+            PlayMotionAtIndex(0, fadeDuration, layerIndex);
             return _currentState;
         }
 
@@ -552,7 +586,14 @@ namespace UPlayGround.Animation
         /// </summary>
         public void StopMotionSet()
         {
+            StopMotionSet(false);
+        }
+
+        private void StopMotionSet(bool completed)
+        {
             if (!_isPlayingMotionSet) return;
+
+            MotionSet endedMotionSet = _currentMotionSet;
 
             // 이벤트 강제 종료
             _eventExecutor?.Stop();
@@ -568,6 +609,8 @@ namespace UPlayGround.Animation
             {
                 _subAnimator.StopMotionSet();
             }
+
+            OnMotionSetEnded?.Invoke(endedMotionSet, completed);
         }
         
         /// <summary>
@@ -702,7 +745,7 @@ namespace UPlayGround.Animation
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)
             {
-                StopMotionSet();
+                StopMotionSet(true);
                 OnMotionSetCompleted?.Invoke();
                 return;
             }

@@ -5,7 +5,7 @@ namespace UPlayGround.Data
     /// <summary>
     /// 대화 카메라 모드 전용 튜닝 값.
     /// </summary>
-    [CreateAssetMenu(fileName = "DialogueCameraSettings", menuName = "UPlayGround/Camera/Dialogue Settings")]
+    [CreateAssetMenu(fileName = "DialogueCameraSettings", menuName = "UPlayGround/카메라/Dialogue Settings")]
     public class DialogueCameraSettingsSO : ScriptableObject
     {
         public const string AddressableKey = "DialogueCameraSettings";

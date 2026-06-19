@@ -9,7 +9,7 @@ namespace UPlayGround.Data.Party
     /// 파티 멤버 개별 인원의 정보를 관리하는 SO
     /// PartyConfigSO 에 배치해서 쓰자
     /// </summary>
-    [CreateAssetMenu(fileName = "PartyMemberData", menuName = "UPlayGround/Party/PartyMemberData")]
+    [CreateAssetMenu(fileName = "PartyMemberData", menuName = "UPlayGround/파티/Member Data")]
     public class PartyMemberDataSO : ScriptableObject
     {
         [Serializable]

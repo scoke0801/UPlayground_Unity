@@ -24,7 +24,7 @@ namespace UPlayGround.Dialogue
     }
 
     // 노드 하나 = 대화 그래프의 상태 하나
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Node", fileName = "Node_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/Node", fileName = "Node_")]
     public class DialogueNodeSO : ScriptableObject
     {
         [HideInInspector] public string nodeId;

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "CameraShakeData", menuName = "UPlayGround/SO/CameraShakeData")]
+    [CreateAssetMenu(fileName = "CameraShakeData", menuName = "UPlayGround/카메라/Shake Data")]
     public class CameraShakeData : ScriptableObject
     {
         public enum DampeningType

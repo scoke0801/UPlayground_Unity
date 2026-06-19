@@ -4,7 +4,7 @@ using UPlayGround.Story;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Trigger Story")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Trigger Story")]
     public sealed class TriggerStoryTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private StoryEntrySO _storyEntry;
@@ -21,7 +21,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Set Story Progress")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Set Story Progress")]
     public sealed class SetStoryProgressTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private int _progress;

@@ -9,7 +9,7 @@ namespace UPlayGround.Data.Actor.Animation
     /// AnimationClip → AnimKey 매핑 정의를 저장하는 SO.
     /// 같은 팩의 다른 캐릭터에 재사용 가능.
     /// </summary>
-    [CreateAssetMenu(fileName = "WeaponMotionMapping", menuName = "UPlayGround/ActorData/Motion/WeaponMotionMapping")]
+    [CreateAssetMenu(fileName = "WeaponMotionMapping", menuName = "UPlayGround/애니메이션/Weapon Motion Mapping")]
     public class WeaponMotionMappingConfig : ScriptableObject
     {
         [Serializable]

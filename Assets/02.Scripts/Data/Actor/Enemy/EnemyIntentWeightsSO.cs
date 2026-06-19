@@ -7,7 +7,7 @@ namespace UPlayGround.Data.Enemy
     /// Intent별 점수 계산 가중치 프로파일.
     /// EnemyBehaviorSO.intentWeights 또는 BehaviorPhase.intentWeightsOverride로 주입한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "IW_Profile", menuName = "UPlayGround/Enemy/Intent Weights")]
+    [CreateAssetMenu(fileName = "IW_Profile", menuName = "UPlayGround/적/Intent Weights")]
     public class EnemyIntentWeightsSO : ScriptableObject
     {
         public IntentWeightEntry attack       = new();

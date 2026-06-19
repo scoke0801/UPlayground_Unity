@@ -11,7 +11,7 @@ namespace UPlayGround.TriggerSystem
     /// Main 대화 중에는 노드별 카메라 push가 덮으므로, 대화 통합은 DialogueNodeSO.cameraRecording을 사용한다.
     /// 구조는 PlayCameraSnapshotTriggerActionSO와 동일.
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Play Dialogue Camera Recording")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Play Dialogue Camera Recording")]
     public sealed class PlayDialogueCameraRecordingTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private DialogueCameraRecordingSO _recording;

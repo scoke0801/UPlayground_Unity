@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Actor
     /// 하나의 Actor 종류를 정의하는 ScriptableObject.
     /// ActorID를 키로 ActorDatabase에 등록해 런타임 스폰 및 스탯 조회에 활용한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "ActorDef_", menuName = "UPlayGround/Actor/Actor Definition")]
+    [CreateAssetMenu(fileName = "ActorDef_", menuName = "UPlayGround/액터/Definition")]
     public class ActorDefinitionSO : ScriptableObject
     {
         [Header("식별")]

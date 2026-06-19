@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "FOVCameraEffect", menuName = "UPlayGround/SO/CameraEffect/FOV")]
+    [CreateAssetMenu(fileName = "FOVCameraEffect", menuName = "UPlayGround/카메라/이펙트/FOV")]
     public class FOVCameraEffectData : CameraEffectData
     {
         [Header("FOV Settings")]

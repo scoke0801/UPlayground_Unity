@@ -12,7 +12,7 @@ namespace UPlayGround.UI.InputPrompt
     /// controlPath는 InputAction.GetBindingDisplayString이 돌려주는 컨트롤 경로다.
     ///   예) 키보드 "1", 마우스 "leftButton", 게임패드 "buttonWest", "dpad/up"
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Input/Glyph Data", fileName = "InputGlyphData")]
+    [CreateAssetMenu(menuName = "UPlayGround/UI/Input Glyph Data", fileName = "InputGlyphData")]
     public class InputGlyphDataSO : ScriptableObject
     {
         [Serializable]

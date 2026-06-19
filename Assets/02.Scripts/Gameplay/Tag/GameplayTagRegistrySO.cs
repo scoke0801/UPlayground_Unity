@@ -40,7 +40,7 @@ namespace UPlayGround.Gameplay.Tag
     /// </summary>
     [CreateAssetMenu(
         fileName = "GameplayTagRegistry",
-        menuName = "UPlayGround/GameplayTag/Tag Registry")]
+        menuName = "UPlayGround/게임플레이 태그/Registry")]
     public class GameplayTagRegistrySO : ScriptableObject
     {
         [Tooltip("프로젝트에서 사용하는 모든 GameplayTag 정의 목록")]

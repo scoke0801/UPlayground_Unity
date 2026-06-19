@@ -6,7 +6,7 @@ namespace UPlayGround.Data
     /// 킬캠 연출 파라미터
     /// ScriptableObject로 분리하여 에디터에서 튜닝 가능
     /// </summary>
-    [CreateAssetMenu(fileName = "KillCamData", menuName = "UPlayGround/SO/KillCamData")]
+    [CreateAssetMenu(fileName = "KillCamData", menuName = "UPlayGround/카메라/Kill Cam")]
     public class KillCamData : ScriptableObject
     {
         [Header("트리거 조건")]

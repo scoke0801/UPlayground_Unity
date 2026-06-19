@@ -46,7 +46,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             RefreshEditorFlags(_flagsRow, Node);
             RefreshExpandedState();
             // Edit 모드에서는 UpdateDebugState 루프가 돌지 않아 Disabled opacity가 즉시 반영되지 않으므로 강제 갱신.
-            UpdateStateColor(null);
+            UpdateStateColor(null, force: true);
         }
 
         private static Label CreateTypePill(BTNode node)

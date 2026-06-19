@@ -124,7 +124,7 @@ namespace UPlayGround.Data
         }
     }
 
-    [CreateAssetMenu(fileName = "CameraSnapshotProfile", menuName = "UPlayGround/SO/Camera/Camera Snapshot Profile")]
+    [CreateAssetMenu(fileName = "CameraSnapshotProfile", menuName = "UPlayGround/카메라/Snapshot Profile")]
     public class CameraSnapshotProfile : ScriptableObject
     {
         public string sequenceName;

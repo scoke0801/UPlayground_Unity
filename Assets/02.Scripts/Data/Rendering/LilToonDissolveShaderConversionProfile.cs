@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Rendering
 {
-    [CreateAssetMenu(fileName = "LilToonDissolveShaderConversionProfile", menuName = "UPlayGround/SO/Rendering/LilToon Dissolve Shader Conversion Profile")]
+    [CreateAssetMenu(fileName = "LilToonDissolveShaderConversionProfile", menuName = "UPlayGround/렌더링/LilToon Dissolve Conversion")]
     public class LilToonDissolveShaderConversionProfile : ScriptableObject
     {
         [Serializable]

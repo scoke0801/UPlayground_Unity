@@ -7,7 +7,7 @@ namespace UPlayGround.Data.Combat
     /// <summary>
     /// 적 공격 데이터 ScriptableObject
     /// </summary>
-    [CreateAssetMenu(fileName = "EnemyAttackData", menuName = "UPlayGround/Enemy/Attack Data")]
+    [CreateAssetMenu(fileName = "EnemyAttackData", menuName = "UPlayGround/전투/Enemy Attack")]
     public class EnemyAttackDataSO : AttackDataSO
     {
         [Header("Attack Pool")]

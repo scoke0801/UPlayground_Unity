@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Path
     /// ItemSO 데이터베이스
     /// 
     /// </summary>
-    [CreateAssetMenu(fileName = "ItemDatabase", menuName = "UPlayGround/PathDatabase/Item")]
+    [CreateAssetMenu(fileName = "ItemDatabase", menuName = "UPlayGround/데이터베이스/Item")]
     public class ItemDatabase : ScriptableObject
     {
         [SerializeField] private List<ItemSO> allItems = new List<ItemSO>();

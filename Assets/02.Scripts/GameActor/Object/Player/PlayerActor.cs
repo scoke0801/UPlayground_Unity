@@ -132,6 +132,7 @@ namespace UPlayGround
         public PlayerSkillGauge            SkillGauge            => _skillGauge;
         public FootIKController            FootIK                => _footIK;
         public bool                        IsInputSuppressed     => _isInputSuppressed;
+        public bool                        IsInvincible          => _isInvincible;
         public bool                        IsSwapEvadeInvincible => Time.time <= _swapEvadeInvincibleEndTime;
         public bool                        IsSwapEvadeCounterAvailable => Time.time <= _swapEvadeCounterInputEndTime;
         public bool                        IsStaggerImmune       => Time.time <= _staggerImmuneEndTime;
@@ -351,7 +352,15 @@ namespace UPlayGround
         private void OnInputPerformedAttack(InputAction.CallbackContext obj)       => _attackInputCondition   = InputCondition.Pressed;
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
         private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;
-        private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)      => _skillInputCondition[1] = InputCondition.Pressed;
+        private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)
+        {
+            // 궁극기 시퀀스 에셋이 연결돼 있으면 전용 실행기를 우선 사용한다.
+            // 아직 에셋이 없는 캐릭터는 기존 Skill 2 상태 경로를 그대로 유지한다.
+            if (GetCombat()?.RequestUltimate() == true)
+                return;
+
+            _skillInputCondition[1] = InputCondition.Pressed;
+        }
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {
             _interactionInputCondition = InputCondition.Pressed;

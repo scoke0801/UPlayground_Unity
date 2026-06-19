@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Actor.Animation
 {
-    [CreateAssetMenu(fileName = "ActorAnimationMotionSet", menuName = "UPlayGround/ActorData/Motion/Actor")]
+    [CreateAssetMenu(fileName = "ActorAnimationMotionSet", menuName = "UPlayGround/애니메이션/Actor")]
     public class ActorAnimationMotionSet : ScriptableObject
     {
         [Tooltip("이 SO에 없는 키는 여기서 탐색 (공용 휴머노이드 모션 등)")]

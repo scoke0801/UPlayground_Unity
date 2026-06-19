@@ -51,7 +51,17 @@ namespace UPlayGround.Group
         public bool IsPlayerStaggered => GetPlayerStateName() == "Hit";
         public bool IsPlayerAttacking => IsPlayerInCombatState();
         public bool IsPlayerGuarding => IsPlayerGuardState(GetPlayerStateName());
-        public bool IsPlayerRecovering => GetPlayerStateName() == "Idle" && _playerIdleTimer >= 1.2f;
+        // 1순위: 공격 후딜 꼬리(ActorStateTag.Recovery). 폴백: 장시간 정지(Idle 1.2s 이상).
+        public bool IsPlayerRecovering
+        {
+            get
+            {
+                var state = _playerController?.CurrentState;
+                if (state != null && (state.StateTags & ActorStateTag.Recovery) != 0)
+                    return true;
+                return GetPlayerStateName() == "Idle" && _playerIdleTimer >= 1.2f;
+            }
+        }
 
         private void Update()
         {

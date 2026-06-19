@@ -5,7 +5,7 @@ using UPlayGround.Group;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Source/Group Defeated")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/소스/Group Defeated")]
     public sealed class GroupDefeatedTriggerSourceSO : TriggerSourceSO
     {
         [Tooltip("프리팹 에셋 참조 전용. 씬 객체는 SO 에셋에 저장되지 않으므로(리로드 시 null) Composer의 TriggerSceneReferences.Group 또는 같은 오브젝트의 MonsterGroupController로 자동 해석된다.")]

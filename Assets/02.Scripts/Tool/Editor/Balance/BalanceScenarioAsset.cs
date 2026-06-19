@@ -6,7 +6,7 @@ using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
-    [CreateAssetMenu(fileName = "BalanceScenario_", menuName = "UPlayGround/Balance/Balance Scenario")]
+    [CreateAssetMenu(fileName = "BalanceScenario_", menuName = "UPlayGround/도구/Balance Scenario")]
     public sealed class BalanceScenarioAsset : ScriptableObject
     {
         [Header("Player")]

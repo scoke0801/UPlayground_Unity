@@ -4,7 +4,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Accept Quest", fileName = "Action_Quest_Accept_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Accept Quest", fileName = "Action_Quest_Accept_")]
     public sealed class AcceptQuestDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -15,7 +15,7 @@ namespace UPlayGround.Dialogue
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Complete Quest", fileName = "Action_Quest_Complete_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Complete Quest", fileName = "Action_Quest_Complete_")]
     public sealed class CompleteQuestDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -26,7 +26,7 @@ namespace UPlayGround.Dialogue
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Fail Quest", fileName = "Action_Quest_Fail_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Fail Quest", fileName = "Action_Quest_Fail_")]
     public sealed class FailQuestDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -37,7 +37,7 @@ namespace UPlayGround.Dialogue
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Use Item", fileName = "Action_Quest_UseItem_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Use Item", fileName = "Action_Quest_UseItem_")]
     public sealed class UseQuestItemDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private int _itemId;
@@ -49,7 +49,7 @@ namespace UPlayGround.Dialogue
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Deliver Item", fileName = "Action_Quest_DeliverItem_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Deliver Item", fileName = "Action_Quest_DeliverItem_")]
     public sealed class DeliverQuestItemDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private int _npcId;
@@ -62,7 +62,7 @@ namespace UPlayGround.Dialogue
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/Quest/Notify Location", fileName = "Action_Quest_NotifyLocation_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Notify Location", fileName = "Action_Quest_NotifyLocation_")]
     public sealed class NotifyQuestLocationDialogueActionSO : DialogueActionSO
     {
         [SerializeField] private string _locationId;

@@ -13,7 +13,7 @@ namespace UPlayGround.Data.Item
         PairedBothHands = 3,
     }
 
-    [CreateAssetMenu(fileName = "WeaponDefinition", menuName = "UPlayGround/SO/WeaponDefinition")]
+    [CreateAssetMenu(fileName = "WeaponDefinition", menuName = "UPlayGround/아이템/Weapon Definition")]
     public class WeaponDefinitionSO : ScriptableObject
     {
         [Serializable]

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/And")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/And")]
     public sealed class AndTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private TriggerConditionSO[] _children;
@@ -22,7 +22,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Or")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Or")]
     public sealed class OrTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private TriggerConditionSO[] _children;
@@ -44,7 +44,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Not")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Not")]
     public sealed class NotTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private TriggerConditionSO _child;

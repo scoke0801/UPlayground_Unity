@@ -2,7 +2,7 @@
 
 namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Condition/Flag", fileName = "Cond_Flag_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/조건/Flag", fileName = "Cond_Flag_")]
     public class FlagConditionSO : ConditionSO
     {
         public string flagKey;

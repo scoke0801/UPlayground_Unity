@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Animation;
+using UPlayGround.Animation.Editor;
 using UPlayGround.CameraSystem;
 using UPlayGround.Manager;
 
@@ -29,6 +31,16 @@ namespace UPlayGround.Data.Editor
         private List<DialogueCameraRecordingSO.Sample> _pendingSamples;
         private float _pendingSampleRate;
         private CameraSnapshotSpace _pendingSpace;
+        private MotionSetAsset _captureMotion;
+        private float _captureStartTime;
+        private float _captureEndTime = -1f;
+        private float _captureCountdown = 1f;
+        private bool _autoStopWithMotion = true;
+        private bool _isCaptureCountdownActive;
+        private double _captureCountdownEndTime;
+        private bool _isSynchronizedTake;
+        private float _lastMotionDuration;
+        private string _captureStatus;
 
         [MenuItem("UPlayGround/월드/카메라/대화 카메라 녹화", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera)]
         public static void Open()
@@ -36,21 +48,62 @@ namespace UPlayGround.Data.Editor
             GetWindow<DialogueCameraRecorderWindow>("대화 카메라 녹화");
         }
 
+        public static void OpenForMotion(MotionSetAsset motion, Transform suggestedAnchor = null)
+        {
+            var window = GetWindow<DialogueCameraRecorderWindow>("대화 카메라 녹화");
+            window._captureMotion = motion;
+            if (suggestedAnchor != null)
+                window._anchor = suggestedAnchor;
+            window._captureStartTime = 0f;
+            window._captureEndTime = -1f;
+            window.Show();
+            window.Focus();
+        }
+
         private void OnEnable()
         {
-            EditorApplication.update += Repaint;
+            EditorApplication.update += OnEditorUpdate;
         }
 
         private void OnDisable()
         {
-            EditorApplication.update -= Repaint;
+            EditorApplication.update -= OnEditorUpdate;
+            _isCaptureCountdownActive = false;
 
             // 창이 PlayMode 중 닫히면 런타임 생성한 레코더 GameObject가 씬에 남는다 → 정리.
             if (_recorder != null)
             {
+                if (_recorder.IsRecording)
+                    _recorder.EndRecording();
                 DestroyImmediate(_recorder.gameObject);
                 _recorder = null;
             }
+
+            if (_isSynchronizedTake)
+                MotionSetEditorWindow.StopCapturePlayback(_captureMotion);
+            _isSynchronizedTake = false;
+        }
+
+        private void OnEditorUpdate()
+        {
+            if (_isCaptureCountdownActive
+                && EditorApplication.timeSinceStartup >= _captureCountdownEndTime)
+            {
+                _isCaptureCountdownActive = false;
+                BeginSynchronizedTake();
+            }
+
+            if (_isSynchronizedTake
+                && _recorder != null
+                && _recorder.IsRecording
+                && _autoStopWithMotion)
+            {
+                bool hasState = MotionSetEditorWindow.TryGetCapturePlaybackState(out var state);
+                if (!hasState || state.Asset != _captureMotion || !state.IsPlaying)
+                    StopSynchronizedTake(false);
+            }
+
+            Repaint();
         }
 
         private void OnGUI()
@@ -77,6 +130,9 @@ namespace UPlayGround.Data.Editor
             DrawFreeCameraControls();
 
             EditorGUILayout.Space(6f);
+            DrawSynchronizedCaptureControls();
+
+            EditorGUILayout.Space(6f);
             DrawRecordControls();
 
             EditorGUILayout.Space(6f);
@@ -84,6 +140,94 @@ namespace UPlayGround.Data.Editor
 
             EditorGUILayout.Space(6f);
             DrawPreviewControls();
+        }
+
+        private void DrawSynchronizedCaptureControls()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("MotionSet 동기 촬영", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox(
+                    "모션 에디터의 재생 구간과 카메라 녹화를 같은 틱에서 시작합니다. 궁극기 모션/카메라 테이크 반복 촬영용 기반 기능입니다.",
+                    MessageType.None);
+
+                _captureMotion = (MotionSetAsset)EditorGUILayout.ObjectField(
+                    "MotionSet",
+                    _captureMotion,
+                    typeof(MotionSetAsset),
+                    false);
+
+                float totalDuration = ResolveCaptureMotionDuration();
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _captureStartTime = Mathf.Max(0f, EditorGUILayout.FloatField("시작", _captureStartTime));
+                    _captureEndTime = EditorGUILayout.FloatField("종료", _captureEndTime);
+                }
+
+                if (_captureMotion != null)
+                {
+                    _captureStartTime = Mathf.Clamp(_captureStartTime, 0f, totalDuration);
+                    if (_captureEndTime > 0f)
+                        _captureEndTime = Mathf.Clamp(_captureEndTime, _captureStartTime, totalDuration);
+
+                    float effectiveEnd = ResolveCaptureEndTime();
+                    EditorGUILayout.LabelField(
+                        $"촬영 구간: {_captureStartTime:0.000}s → {effectiveEnd:0.000}s  ·  길이 {Mathf.Max(0f, effectiveEnd - _captureStartTime):0.000}s",
+                        EditorStyles.miniLabel);
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _captureCountdown = Mathf.Clamp(
+                        EditorGUILayout.FloatField("카운트다운", _captureCountdown),
+                        0f,
+                        10f);
+                    _autoStopWithMotion = EditorGUILayout.ToggleLeft(
+                        "모션 종료 시 자동 정지",
+                        _autoStopWithMotion,
+                        GUILayout.Width(145f));
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    using (new EditorGUI.DisabledScope(_captureMotion == null))
+                    {
+                        if (GUILayout.Button("모션 에디터 열기", GUILayout.Height(24f)))
+                            MotionSetEditorWindow.OpenForCapture(_captureMotion);
+                    }
+
+                    bool isBusy = _isCaptureCountdownActive
+                                  || (_recorder != null && _recorder.IsRecording);
+                    using (new EditorGUI.DisabledScope(
+                               !Application.isPlaying
+                               || _captureMotion == null
+                               || isBusy))
+                    {
+                        if (GUILayout.Button("● 동기 촬영 시작", GUILayout.Height(28f)))
+                            StartSynchronizedTakeCountdown();
+                    }
+
+                    using (new EditorGUI.DisabledScope(
+                               !_isCaptureCountdownActive
+                               && !_isSynchronizedTake))
+                    {
+                        if (GUILayout.Button("취소/정지", GUILayout.Width(90f), GUILayout.Height(28f)))
+                            CancelOrStopSynchronizedTake();
+                    }
+                }
+
+                if (_isCaptureCountdownActive)
+                {
+                    double remaining = Mathf.Max(
+                        0f,
+                        (float)(_captureCountdownEndTime - EditorApplication.timeSinceStartup));
+                    EditorGUILayout.HelpBox($"촬영 시작까지 {remaining:0.0}초", MessageType.Info);
+                }
+                else if (!string.IsNullOrEmpty(_captureStatus))
+                {
+                    EditorGUILayout.LabelField(_captureStatus, EditorStyles.miniLabel);
+                }
+            }
         }
 
         private void DrawSmoothingControls()
@@ -171,16 +315,24 @@ namespace UPlayGround.Data.Editor
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    using (new EditorGUI.DisabledScope(!isPlaying || isRecording))
+                    using (new EditorGUI.DisabledScope(
+                               !isPlaying
+                               || isRecording
+                               || _isCaptureCountdownActive))
                     {
                         if (GUILayout.Button("● 녹화 시작", GUILayout.Height(28f)))
-                            StartRecording();
+                            StartRecording(false);
                     }
 
                     using (new EditorGUI.DisabledScope(!isRecording))
                     {
                         if (GUILayout.Button("■ 정지", GUILayout.Height(28f)))
-                            StopRecording();
+                        {
+                            if (_isSynchronizedTake)
+                                StopSynchronizedTake(true);
+                            else
+                                StopRecording();
+                        }
                     }
                 }
 
@@ -190,7 +342,19 @@ namespace UPlayGround.Data.Editor
                 }
                 else if (_pendingSamples != null)
                 {
-                    EditorGUILayout.LabelField($"대기 중인 녹화: 샘플 {_pendingSamples.Count}개 / {(_pendingSamples.Count > 1 ? (_pendingSamples.Count - 1) / Mathf.Max(1f, _pendingSampleRate) : 0f):0.00}s");
+                    float pendingDuration = GetPendingDuration();
+                    EditorGUILayout.LabelField($"대기 중인 녹화: 샘플 {_pendingSamples.Count}개 / {pendingDuration:0.00}s");
+
+                    if (_lastMotionDuration > 0f)
+                    {
+                        float durationError = pendingDuration - _lastMotionDuration;
+                        MessageType type = Mathf.Abs(durationError) <= 1f / Mathf.Max(1f, _pendingSampleRate)
+                            ? MessageType.Info
+                            : MessageType.Warning;
+                        EditorGUILayout.HelpBox(
+                            $"모션 {_lastMotionDuration:0.000}s · 녹화 {pendingDuration:0.000}s · 차이 {durationError:+0.000;-0.000;0.000}s",
+                            type);
+                    }
 
                     using (new EditorGUI.DisabledScope(_recording == null || _pendingSamples.Count == 0))
                     {
@@ -240,13 +404,13 @@ namespace UPlayGround.Data.Editor
             return Camera.main;
         }
 
-        private void StartRecording()
+        private bool StartRecording(bool synchronizedTake)
         {
             Camera camera = ResolveCaptureCamera();
             if (camera == null)
             {
                 EditorUtility.DisplayDialog("녹화 불가", "캡처 카메라를 찾을 수 없습니다.", "확인");
-                return;
+                return false;
             }
 
             if (_recorder == null)
@@ -262,6 +426,9 @@ namespace UPlayGround.Data.Editor
             _recorder.BeginRecording(camera);
 
             _pendingSamples = null;
+            _lastMotionDuration = 0f;
+            _isSynchronizedTake = synchronizedTake;
+            return true;
         }
 
         private void StopRecording()
@@ -273,6 +440,131 @@ namespace UPlayGround.Data.Editor
             _pendingSamples = new List<DialogueCameraRecordingSO.Sample>(samples);
             _pendingSampleRate = _recorder.SampleRate;
             _pendingSpace = _recorder.Space;
+            _isSynchronizedTake = false;
+        }
+
+        private void StartSynchronizedTakeCountdown()
+        {
+            if (!ValidateSynchronizedTake(out string error))
+            {
+                EditorUtility.DisplayDialog("동기 촬영 불가", error, "확인");
+                return;
+            }
+
+            _captureStatus = string.Empty;
+            if (_captureCountdown <= 0f)
+            {
+                BeginSynchronizedTake();
+                return;
+            }
+
+            _isCaptureCountdownActive = true;
+            _captureCountdownEndTime = EditorApplication.timeSinceStartup + _captureCountdown;
+        }
+
+        private void BeginSynchronizedTake()
+        {
+            if (!ValidateSynchronizedTake(out string error))
+            {
+                _captureStatus = error;
+                return;
+            }
+
+            // 샘플러를 먼저 켜서 모션의 시작 포즈(t=start)를 첫 샘플로 확보한다.
+            if (!StartRecording(true))
+                return;
+
+            float endTime = ResolveCaptureEndTime();
+            if (!MotionSetEditorWindow.TryStartCapturePlayback(
+                    _captureMotion,
+                    _captureStartTime,
+                    endTime,
+                    out error))
+            {
+                StopRecording();
+                _pendingSamples = null;
+                _captureStatus = error;
+                EditorUtility.DisplayDialog("모션 재생 실패", error, "확인");
+                return;
+            }
+
+            _lastMotionDuration = endTime - _captureStartTime;
+            _captureStatus = $"동기 촬영 중 · {_captureMotion.name} · {_captureStartTime:0.000}s → {endTime:0.000}s";
+        }
+
+        private void CancelOrStopSynchronizedTake()
+        {
+            if (_isCaptureCountdownActive)
+            {
+                _isCaptureCountdownActive = false;
+                _captureStatus = "동기 촬영 카운트다운 취소";
+                return;
+            }
+
+            StopSynchronizedTake(true);
+        }
+
+        private void StopSynchronizedTake(bool stopMotion)
+        {
+            if (_recorder != null && _recorder.IsRecording)
+                StopRecording();
+
+            if (stopMotion)
+                MotionSetEditorWindow.StopCapturePlayback(_captureMotion);
+
+            _captureStatus = _pendingSamples != null
+                ? $"동기 촬영 완료 · {_pendingSamples.Count} samples · {GetPendingDuration():0.000}s"
+                : "동기 촬영 정지";
+        }
+
+        private bool ValidateSynchronizedTake(out string error)
+        {
+            error = string.Empty;
+
+            if (!Application.isPlaying)
+            {
+                error = "PlayMode에서만 동기 촬영할 수 있습니다.";
+                return false;
+            }
+
+            if (_captureMotion == null
+                || _captureMotion.motionSet == null
+                || !_captureMotion.motionSet.IsValid())
+            {
+                error = "유효한 MotionSetAsset을 지정하세요.";
+                return false;
+            }
+
+            float endTime = ResolveCaptureEndTime();
+            if (endTime <= _captureStartTime)
+            {
+                error = "촬영 종료 시간은 시작 시간보다 커야 합니다. 종료 -1은 전체 길이를 사용합니다.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private float ResolveCaptureMotionDuration()
+        {
+            return _captureMotion != null && _captureMotion.motionSet != null
+                ? _captureMotion.motionSet.TotalDuration
+                : 0f;
+        }
+
+        private float ResolveCaptureEndTime()
+        {
+            float totalDuration = ResolveCaptureMotionDuration();
+            return _captureEndTime > 0f
+                ? Mathf.Clamp(_captureEndTime, _captureStartTime, totalDuration)
+                : totalDuration;
+        }
+
+        private float GetPendingDuration()
+        {
+            return _pendingSamples != null && _pendingSamples.Count > 1
+                ? (_pendingSamples.Count - 1) / Mathf.Max(1f, _pendingSampleRate)
+                : 0f;
         }
 
         private void SaveToAsset()

@@ -4,7 +4,7 @@ using UPlayGround.Group;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Actor Alive")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Actor Alive")]
     public sealed class ActorAliveTriggerConditionSO : TriggerConditionSO
     {
         [Tooltip("프리팹 에셋 참조 전용. 씬 객체는 SO 에셋에 저장되지 않으므로 Composer의 TriggerSceneReferences.Actor를 사용한다.")]

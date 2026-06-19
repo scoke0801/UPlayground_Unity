@@ -5,7 +5,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Accept Quest")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Accept Quest")]
     public sealed class AcceptQuestTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -28,7 +28,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Complete Quest")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Complete Quest")]
     public sealed class CompleteQuestTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -45,7 +45,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Fail Quest")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Fail Quest")]
     public sealed class FailQuestTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;
@@ -62,7 +62,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Use Quest Item")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Use Quest Item")]
     public sealed class UseQuestItemTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private int _itemId;
@@ -80,7 +80,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Deliver Quest Item")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Deliver Quest Item")]
     public sealed class DeliverQuestItemTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private int _npcId;
@@ -99,7 +99,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Notify Location")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Notify Location")]
     public sealed class NotifyLocationTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private string _locationId;

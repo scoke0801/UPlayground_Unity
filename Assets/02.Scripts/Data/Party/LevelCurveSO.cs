@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Party
     /// 여러 캐릭터가 한 곡선을 공유할 수 있으며, 필요 시 캐릭터별로 분리한다.
     /// PartyMemberGrowthSO.levelCurve로 참조된다.
     /// </summary>
-    [CreateAssetMenu(fileName = "LevelCurve_", menuName = "UPlayGround/Party/Level Curve")]
+    [CreateAssetMenu(fileName = "LevelCurve_", menuName = "UPlayGround/파티/Level Curve")]
     public class LevelCurveSO : ScriptableObject
     {
         [Header("공식 기반 (explicitTable이 비어 있을 때 사용)")]

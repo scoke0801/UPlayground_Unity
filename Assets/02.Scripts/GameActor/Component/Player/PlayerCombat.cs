@@ -116,6 +116,9 @@ namespace UPlayGround.Component
         [SerializeField] private float _specialBreakAttackSearchRange = 4f;
         [SerializeField] private float _specialBreakAttackSearchAngle = 110f;
 
+        [Header("Ultimate Sequence")]
+        [SerializeField] private List<UltimateSequenceAsset> _ultimateSequences = new();
+
         // ── 퍼펙트 도지 ──────────────────────────────────────────────
         [Header("Perfect Dodge Settings")]
         [Tooltip("도지 시작 후 이 시간(초) 내에 피격 시도가 감지되면 퍼펙트 도지로 판정")]
@@ -184,6 +187,7 @@ namespace UPlayGround.Component
         private readonly List<CombatHit> _detectedHits = new List<CombatHit>(32);
         private PlayerCombatStateTracker _combatStateTracker;
         private CombatActionRunner _actionRunner;
+        private UltimateSequencePlayer _ultimateSequencePlayer;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -442,6 +446,11 @@ namespace UPlayGround.Component
             if (_motionWarp == null)
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
 
+            _ultimateSequencePlayer = GetComponent<UltimateSequencePlayer>();
+            if (_ultimateSequencePlayer == null)
+                _ultimateSequencePlayer = gameObject.AddComponent<UltimateSequencePlayer>();
+            _ultimateSequencePlayer.ConfigureSequences(_ultimateSequences);
+
             _combatStateTracker = gameObject.GetOrAddComponent<PlayerCombatStateTracker>();
             _combatStateTracker.Configure(
                 _combatStateDuration,
@@ -524,6 +533,30 @@ namespace UPlayGround.Component
             // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
             SetBreakInteractionTarget(null);
             DebugGizmoManager.UnregisterProvider(this);
+        }
+
+        /// <summary>
+        /// 현재 캐릭터에 등록된 궁극기 시퀀스를 실행한다.
+        /// overrideAsset은 에디터/테스트에서 등록 목록을 우회할 때 사용한다.
+        /// </summary>
+        public bool RequestUltimate(
+            UltimateSequenceAsset overrideAsset = null,
+            Transform manualTarget = null,
+            bool ignoreResource = false)
+        {
+            if (_ultimateSequencePlayer == null)
+                _ultimateSequencePlayer = GetComponent<UltimateSequencePlayer>();
+
+            if (_ultimateSequencePlayer == null)
+                return false;
+
+            UltimateSequenceAsset asset = overrideAsset
+                                          ?? _ultimateSequencePlayer.ResolveAsset(
+                                              _playerActor != null
+                                                  ? _playerActor.CharacterType
+                                                  : CharacterActorType.None);
+            return asset != null
+                   && _ultimateSequencePlayer.Play(asset, manualTarget, ignoreResource);
         }
 
         private void SetBreakInteractionTarget(MonsterActor target)

@@ -3,7 +3,7 @@ using UPlayGround.Story;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Story Progress")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Story Progress")]
     public sealed class StoryProgressTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private int _minProgress = 0;

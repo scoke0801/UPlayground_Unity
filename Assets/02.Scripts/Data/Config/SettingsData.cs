@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Config
 {
-    [CreateAssetMenu(fileName = "SettingsData", menuName = "UPlayGround/Config/SettingsData")]
+    [CreateAssetMenu(fileName = "SettingsData", menuName = "UPlayGround/설정/Settings Data")]
     public class SettingsData : ScriptableObject
     {
         [Header("게임플레이 - 카메라")]

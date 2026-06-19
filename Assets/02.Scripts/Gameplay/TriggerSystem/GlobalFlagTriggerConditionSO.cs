@@ -3,7 +3,7 @@ using UPlayGround.Dialogue;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Global Flag")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Global Flag")]
     public sealed class GlobalFlagTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private string _key;

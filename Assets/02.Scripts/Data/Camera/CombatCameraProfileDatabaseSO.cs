@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "CombatCameraProfileDatabase", menuName = "UPlayGround/SO/Camera/Combat Camera Profile Database")]
+    [CreateAssetMenu(fileName = "CombatCameraProfileDatabase", menuName = "UPlayGround/카메라/Combat Profile Database")]
     public class CombatCameraProfileDatabaseSO : ScriptableObject
     {
         public const string AddressableKey = "CombatCameraProfileDatabase";

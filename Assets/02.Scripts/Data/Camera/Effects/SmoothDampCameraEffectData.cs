@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "SmoothDampCameraEffect", menuName = "UPlayGround/SO/CameraEffect/SmoothDamp")]
+    [CreateAssetMenu(fileName = "SmoothDampCameraEffect", menuName = "UPlayGround/카메라/이펙트/SmoothDamp")]
     public class SmoothDampCameraEffectData : CameraEffectData
     {
         [Header("SmoothDamp Override")]

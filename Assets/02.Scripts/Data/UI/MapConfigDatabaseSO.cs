@@ -10,7 +10,7 @@ namespace UPlayGround.Data.UI
     /// SceneContext.MapID 와 일치하는 항목을 찾아 미니맵·전체맵 UI에 공급한다.
     /// Assets/10.Datas/ 에 하나만 생성하고 UI_Minimap / UI_Map 인스펙터에 할당할 것.
     /// </summary>
-    [CreateAssetMenu(fileName = "MapConfigDatabase", menuName = "UPlayGround/UI/MapConfigDatabase")]
+    [CreateAssetMenu(fileName = "MapConfigDatabase", menuName = "UPlayGround/UI/Map Config Database")]
     public class MapConfigDatabaseSO : ScriptableObject
     {
         [Serializable]

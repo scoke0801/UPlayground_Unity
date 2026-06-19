@@ -188,14 +188,42 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MarkDirtyRepaint();
         }
 
-        public void UpdateStateColor(BTNode runtimeNode, bool wasTickedThisFrame = false, BTStatus tickStatus = BTStatus.Failure)
+        // 마지막으로 적용한 비주얼 키. 디버그 갱신은 6.6~10Hz로 전 노드를 순회하므로,
+        // 실제 상태가 바뀐 노드만 스타일을 다시 쓰도록 캐싱해 대형 트리(180+ 노드)의 리페인트 폭주를 막는다.
+        private int _lastVisualKey = int.MinValue;
+
+        // 상태 라벨을 매 갱신마다 ToString().ToUpperInvariant()로 새로 할당하지 않도록 사전 캐싱.
+        private static string StatusLabel(BTStatus status) => status switch
         {
-            if (runtimeNode == null || !runtimeNode.IsStarted)
+            BTStatus.Running => "RUNNING",
+            BTStatus.Success => "SUCCESS",
+            BTStatus.Failure => "FAILURE",
+            _ => status.ToString().ToUpperInvariant()
+        };
+
+        public void UpdateStateColor(BTNode runtimeNode, bool wasTickedThisFrame = false, BTStatus tickStatus = BTStatus.Failure, bool force = false)
+        {
+            bool started = runtimeNode != null && runtimeNode.IsStarted;
+            int disabledBit = Node.Disabled ? 1 : 0;
+
+            // 비주얼에 영향을 주는 모든 입력을 키에 인코딩한다(mode 0~1bit / status 2~3bit / disabled 4bit).
+            // ApplyIdleVisual·ApplyRuntimeVisual·SetRuntimeState가 읽는 값과 1:1로 대응해야 누락 없이 안전.
+            int key;
+            if (!started)
+                key = wasTickedThisFrame ? (1 | ((int)tickStatus << 2) | (disabledBit << 4)) : (disabledBit << 4);
+            else
+                key = 2 | ((int)runtimeNode.LastStatus << 2) | (disabledBit << 4);
+
+            if (!force && key == _lastVisualKey)
+                return;
+            _lastVisualKey = key;
+
+            if (!started)
             {
                 if (wasTickedThisFrame)
                 {
                     var tickColor = GetStatusColor(tickStatus);
-                    ApplyRuntimeVisual(tickStatus.ToString().ToUpperInvariant(), tickColor, true);
+                    ApplyRuntimeVisual(StatusLabel(tickStatus), tickColor, true);
                     return;
                 }
 
@@ -206,7 +234,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             var stateColor = GetStatusColor(runtimeNode.LastStatus);
-            ApplyRuntimeVisual(runtimeNode.LastStatus.ToString().ToUpperInvariant(), stateColor, true);
+            ApplyRuntimeVisual(StatusLabel(runtimeNode.LastStatus), stateColor, true);
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)

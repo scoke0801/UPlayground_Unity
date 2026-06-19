@@ -9,7 +9,7 @@ namespace UPlayGround.Data.Party
     /// 파티 구성 정보를 정의하는 ScriptableObject.
     /// Resources/Data/PartyConfig.asset 에 배치해 PartyManager가 로드한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "PartyConfig", menuName = "UPlayGround/Party/Party Config")]
+    [CreateAssetMenu(fileName = "PartyConfig", menuName = "UPlayGround/파티/Config")]
     public class PartyConfigSO : ScriptableObject
     {
         [Header("Roster")]

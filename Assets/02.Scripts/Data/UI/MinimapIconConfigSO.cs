@@ -4,7 +4,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.UI
 {
-    [CreateAssetMenu(fileName = "MinimapIconConfig", menuName = "UPlayGround/UI/MinimapIconConfig")]
+    [CreateAssetMenu(fileName = "MinimapIconConfig", menuName = "UPlayGround/UI/Minimap Icon Config")]
     public class MinimapIconConfigSO : ScriptableObject
     {
         [Serializable]

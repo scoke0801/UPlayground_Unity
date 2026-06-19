@@ -4,7 +4,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Source/Collider Exit")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/소스/Collider Exit")]
     public sealed class ColliderExitTriggerSourceSO : TriggerSourceSO
     {
         [SerializeField] private ActorType _actorFilter = ActorType.Player;

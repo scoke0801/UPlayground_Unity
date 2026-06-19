@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Animation
 {
-    [CreateAssetMenu(fileName = "MotionSet", menuName = "UPlayGround/ActorData/Motion/MotionSet")]
+    [CreateAssetMenu(fileName = "MotionSet", menuName = "UPlayGround/애니메이션/Motion Set")]
     public class MotionSetAsset : ScriptableObject
     {
         public MotionSet motionSet;

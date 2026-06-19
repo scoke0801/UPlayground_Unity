@@ -7,7 +7,7 @@ namespace UPlayGround.Data.Actor
     /// 프로젝트 전체 ActorDefinitionSO를 관리하는 데이터베이스 ScriptableObject.
     /// ActorSpawnManager가 참조하며, actorId를 키로 빠른 조회를 지원한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "ActorDatabase", menuName = "UPlayGround/Actor/Actor Database")]
+    [CreateAssetMenu(fileName = "ActorDatabase", menuName = "UPlayGround/액터/Database")]
     public class ActorDatabase : ScriptableObject
     {
         [SerializeField] private List<ActorDefinitionSO> _actors = new();

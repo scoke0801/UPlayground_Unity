@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Delay")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Delay")]
     public sealed class DelayTriggerActionSO : TriggerActionSO
     {
         [Min(0f)]
@@ -16,7 +16,7 @@ namespace UPlayGround.TriggerSystem
         }
     }
 
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Sequence")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Sequence")]
     public sealed class SequenceTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private TriggerActionSO[] _steps;

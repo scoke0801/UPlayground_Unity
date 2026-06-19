@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Enemy
     /// 지상형 EnemyAIController의 행동 설정 전체를 담는 SO.
     /// 기본 전투 수치 + 페이즈 배열을 포함한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "BehaviorData", menuName = "UPlayGround/Enemy/Behavior Data")]
+    [CreateAssetMenu(fileName = "BehaviorData", menuName = "UPlayGround/적/Behavior")]
     public class EnemyBehaviorSO : ScriptableObject
     {
         [Header("Behavior Tree")]

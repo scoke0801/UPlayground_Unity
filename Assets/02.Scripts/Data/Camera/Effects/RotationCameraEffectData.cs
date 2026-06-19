@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "RotationCameraEffect", menuName = "UPlayGround/SO/CameraEffect/Rotation")]
+    [CreateAssetMenu(fileName = "RotationCameraEffect", menuName = "UPlayGround/카메라/이펙트/Rotation")]
     public class RotationCameraEffectData : CameraEffectData
     {
         [Header("Rotation Settings")]

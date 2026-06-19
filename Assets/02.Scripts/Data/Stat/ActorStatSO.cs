@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Stat
     /// 액터 한 종류의 기본 스탯 값을 정의하는 ScriptableObject.
     /// ActorDefinitionSO.statData로 참조하거나, PlayerActor에 직접 주입한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "ActorStat_", menuName = "UPlayGround/Stat/Actor Stat SO")]
+    [CreateAssetMenu(fileName = "ActorStat_", menuName = "UPlayGround/스탯/Actor Stat")]
     public class ActorStatSO : ScriptableObject
     {
         [Serializable]

@@ -23,7 +23,7 @@ namespace UPlayGround.Data.Enemy
         }
     }
 
-    [CreateAssetMenu(fileName = "MonsterBreakGauge", menuName = "UPlayGround/Enemy/Break Gauge")]
+    [CreateAssetMenu(fileName = "MonsterBreakGauge", menuName = "UPlayGround/적/Break Gauge")]
     public class MonsterBreakGaugeSO : ScriptableObject
     {
         [Header("Usage")]

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "TimeScaleCameraEffect", menuName = "UPlayGround/SO/CameraEffect/TimeScale")]
+    [CreateAssetMenu(fileName = "TimeScaleCameraEffect", menuName = "UPlayGround/카메라/이펙트/TimeScale")]
     public class TimeScaleCameraEffectData : CameraEffectData
     {
         [Header("TimeScale Settings")]

@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Combat
 {
-    [CreateAssetMenu(fileName = "CombatReactionPolicy", menuName = "UPlayGround/Combat/Reaction Policy")]
+    [CreateAssetMenu(fileName = "CombatReactionPolicy", menuName = "UPlayGround/전투/Reaction Policy")]
     public class CombatReactionPolicySO : ScriptableObject
     {
         [Serializable]

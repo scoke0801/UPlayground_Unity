@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Sound
 {
-    [CreateAssetMenu(fileName = "SoundDatabase", menuName = "UPlayGround/Audio/Sound Database")]
+    [CreateAssetMenu(fileName = "SoundDatabase", menuName = "UPlayGround/오디오/Sound Database")]
     public sealed class SoundDatabaseSO : ScriptableObject
     {
         [SerializeField] private List<SoundEntry> entries = new();

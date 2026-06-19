@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Path
     /// ItemDatabase와 동일한 방식으로 Addressables를 통해 로드된다.
     /// Addressable 키: "RecipeDatabase"
     /// </summary>
-    [CreateAssetMenu(fileName = "RecipeDatabase", menuName = "UPlayGround/PathDatabase/Recipe")]
+    [CreateAssetMenu(fileName = "RecipeDatabase", menuName = "UPlayGround/데이터베이스/Recipe")]
     public class RecipeDatabase : ScriptableObject
     {
         [SerializeField] private List<RecipeData>            recipes          = new List<RecipeData>();

@@ -12,7 +12,7 @@ namespace UPlayGround.Data
     /// 연속 궤적이다. 둘은 같은 ICameraBehavior/CameraPose 재생 경로를 공유하는 형제 시스템이며,
     /// 좌표 공간/앵커 자산(CameraSnapshotSpace, CameraSnapshotActorReference)도 재사용한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "DCR_", menuName = "UPlayGround/SO/Camera/Dialogue Camera Recording")]
+    [CreateAssetMenu(fileName = "DCR_", menuName = "UPlayGround/카메라/Dialogue Recording")]
     public class DialogueCameraRecordingSO : ScriptableObject
     {
         /// <summary>

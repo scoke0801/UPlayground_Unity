@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Interaction.Enum;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "InteractableActorSO", menuName = "UPlayGround/ActorData/InteractableActorSO")]
+[CreateAssetMenu(fileName = "InteractableActorSO", menuName = "UPlayGround/액터/Interactable")]
 public class InteractableActorSO : ScriptableObject
 {
     public string actorName;

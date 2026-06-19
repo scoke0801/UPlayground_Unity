@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Random Chance")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Random Chance")]
     public sealed class RandomChanceTriggerConditionSO : TriggerConditionSO
     {
         [Range(0f, 1f)]

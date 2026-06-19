@@ -378,3 +378,33 @@ public enum UltimateRestoreReason
 - `Assets/docs/Complete/CAMERA_SYSTEM_GUIDE.md`
 - `Assets/docs/Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md`
 - `Assets/docs/Complete/TIME_HITSTOP_GUIDE.md`
+
+---
+
+## 구현 현황 (2026-06-19)
+
+설계 문서의 1~5단계 기반 구현을 완료했다.
+
+| 단계 | 상태 | 주요 구현 |
+|------|------|-----------|
+| 1단계 | 완료 | `UltimateSequenceAsset`, `UltimateSequencePlayer`, `PlayerCombat` 입력 연결, MotionSet/카메라 재생 및 종료 복구 |
+| 2단계 | 완료 | 플레이어·카메라 입력, HUD, 적 AI, 무적, 타겟 피격 반응을 소유권 기반으로 잠그고 복구 |
+| 3단계 | 완료 | 락온/수동/근거리/콘 타겟 선택, KCC 위치·회전 보정, 선택적 원위치 복구 |
+| 4단계 | 완료 | VFX, SFX/Voice, 타임스케일, 카메라 효과/흔들림, 데미지 윈도우, 커스텀 콜백 이벤트 |
+| 5단계 | 완료 | 궁극기 시퀀스 전용 에디터, 검증, 타임라인 미리보기, PlayMode 테스트, MotionSet/카메라 촬영 도구 연동 |
+
+### 주요 구현 경로
+
+- `Assets/02.Scripts/Data/Combat/Ultimate/`
+- `Assets/02.Scripts/GameActor/Component/Player/UltimateSequencePlayer.cs`
+- `Assets/02.Scripts/GameActor/Component/Player/UltimateGameplayLockContext.cs`
+- `Assets/02.Scripts/GameActor/Component/Player/UltimateTargetResolver.cs`
+- `Assets/02.Scripts/GameActor/Component/Player/UltimatePlacementContext.cs`
+- `Assets/02.Scripts/Data/Actor/Animation/Editor/MotionSetWindow.CaptureBridge.cs`
+
+### 에디터 진입점
+
+- `UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터`
+- MotionSet Editor의 `촬영 연동` 탭
+
+캐릭터별 에셋을 생성한 뒤 해당 플레이어의 `PlayerCombat._ultimateSequences` 목록에 연결하면 궁극기 입력에서 실행된다. 연결된 에셋이 없으면 기존 Ultimate 스킬 입력 경로를 유지한다.

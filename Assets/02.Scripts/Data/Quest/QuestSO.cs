@@ -20,7 +20,7 @@ namespace UPlayGround.Data.Quest
     ///   ItemEnhance  → QuestManager.Instance.NotifyItemEnhanced(itemId)
     ///   ReachLocation→ QuestManager.Instance.NotifyLocationReached(locationId)
     /// </summary>
-    [CreateAssetMenu(fileName = "QuestSO", menuName = "UPlayGround/Quest/QuestSO")]
+    [CreateAssetMenu(fileName = "QuestSO", menuName = "UPlayGround/퀘스트/Quest")]
     public class QuestSO : ScriptableObject
     {
         [Header("기본 정보")]

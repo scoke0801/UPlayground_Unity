@@ -7,7 +7,7 @@ namespace UPlayGround.Story
     /// 스토리 이벤트 하나의 데이터 묶음.
     /// storyId로 완료 여부를 추적하고, requiredProgress 이상일 때만 트리거됩니다.
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Story/Entry", fileName = "Story_")]
+    [CreateAssetMenu(menuName = "UPlayGround/스토리/Entry", fileName = "Story_")]
     public class StoryEntrySO : ScriptableObject
     {
         [Tooltip("저장/식별에 사용하는 고유 ID. 한번 정하면 변경 금지.")]

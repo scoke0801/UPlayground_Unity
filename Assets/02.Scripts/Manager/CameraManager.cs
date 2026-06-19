@@ -1061,6 +1061,8 @@ namespace UPlayGround.Manager
 
         public void SetCameraOffset(Vector3 offset)            => _cameraOffset  = offset;
         public void SetInputLock(bool locked)                  => _isInputLocked = locked;
+        public bool IsInputLocked()                            => _isInputLocked;
+        public void ReleaseLockOn()                            => _lockOn?.Release();
         public void SetCombatStateProvider(System.Func<bool> p)
         {
             _combatStateProvider = p;

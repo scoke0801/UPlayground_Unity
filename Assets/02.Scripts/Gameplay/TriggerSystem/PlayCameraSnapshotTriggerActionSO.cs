@@ -6,7 +6,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Play Camera Snapshot Sequence")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Play Camera Snapshot Sequence")]
     public sealed class PlayCameraSnapshotTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private CameraSnapshotProfile _profile;

@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Enemy
     /// 몬스터는 런타임 레벨 스케일링을 하지 않으므로(MonsterActor가 statData를 직접 사용),
     /// 이 SO는 에디터 배치 생성기가 각 ActorDefinitionSO.statData를 bake할 때 사용한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "MonsterScaling_", menuName = "UPlayGround/Enemy/Monster Scaling")]
+    [CreateAssetMenu(fileName = "MonsterScaling_", menuName = "UPlayGround/적/Scaling")]
     public class MonsterScalingSO : ScriptableObject
     {
         /// <summary>등급별 배율. Defense는 0~1 가산, 나머지는 곱셈 배율이다.</summary>

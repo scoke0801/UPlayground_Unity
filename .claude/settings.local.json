@@ -231,7 +231,17 @@
       "Bash(echo \"exit: $?\")",
       "Bash(grep -v -E \"\\\\.\\(asset|prefab|mat|unity|png|meta|fbx|anim|controller\\)$\")",
       "Bash(xargs -n1 basename)",
-      "Bash(cygpath -w /tmp/review_diff.txt)"
+      "Bash(cygpath -w /tmp/review_diff.txt)",
+      "Bash(grep -rl \"547eec6e48eb3d949afb7715414b42dd\" Assets --include=*.prefab --include=*.asset)",
+      "Bash(grep -rl \"6b3a14a78e0a24447aef02c49b353e45\" Assets --include=*.prefab --include=*.asset)",
+      "Bash(grep -rl \"a04027a98ce0035478784d55fe086768\" Assets --include=*.prefab --include=*.asset)",
+      "Bash(grep -rl \"8b0e128fd2f18c942bb8de0b6fd81ab8\" Assets --include=*.prefab --include=*.asset)",
+      "PowerShell(& 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\_menu_remap.ps1')",
+      "PowerShell(git *)",
+      "PowerShell(& 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\_menu_flatten.ps1')",
+      "PowerShell(& 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\_menu_ko.ps1')",
+      "Bash(awk '$1+$2 > 4 {print}')",
+      "Bash(awk -F'/' 'NF>3')"
     ]
   }
 }

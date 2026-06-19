@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Combat
     /// 회복 구슬 트리거 설정 데이터.
     /// 트리거별 드롭 SO, 확률, 쿨다운, 최대 중첩 수를 관리합니다.
     /// </summary>
-    [CreateAssetMenu(fileName = "VitalOrbTriggerConfig", menuName = "UPlayGround/Combat/VitalOrb Trigger Config")]
+    [CreateAssetMenu(fileName = "VitalOrbTriggerConfig", menuName = "UPlayGround/전투/VitalOrb Trigger Config")]
     public class VitalOrbTriggerConfig : ScriptableObject
     {
         public List<VitalOrbTriggerEntry> entries = new();

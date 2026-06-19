@@ -6,7 +6,7 @@ using UPlayGround.Data.Actor;
 
 namespace UPlayGround.Animation.Editor
 {
-    [CreateAssetMenu(fileName = "MotionTestRegistry", menuName = "UPlayGround/Editor/Motion Test Registry")]
+    [CreateAssetMenu(fileName = "MotionTestRegistry", menuName = "UPlayGround/도구/Motion Test Registry")]
     public class MotionTestRegistrySO : ScriptableObject
     {
         [Serializable]

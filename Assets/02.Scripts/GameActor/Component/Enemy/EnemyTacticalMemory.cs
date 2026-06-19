@@ -213,11 +213,18 @@ namespace UPlayGround.Component
             return _playerIdleTimer >= threshold;
         }
 
-        /// <summary> 플레이어가 회복 동작 중인가 (Idle + 일정 시간 무행동) </summary>
+        /// <summary>
+        /// 플레이어가 회복(후딜) 중인가.
+        /// 1순위: 공격 상태가 ActorStateTag.Recovery를 켠 실제 후딜 꼬리(=최적 Punish 타이밍).
+        /// 폴백: 공격 외에 장시간 정지(Idle 1.2s 이상)도 회복으로 간주.
+        /// </summary>
         public bool IsPlayerRecovering()
         {
-            string s = GetPlayerStateName();
-            return s == "Idle" && _playerIdleTimer >= 1.2f;
+            var state = _playerController?.CurrentState;
+            if (state != null && (state.StateTags & ActorStateTag.Recovery) != 0)
+                return true;
+
+            return GetPlayerStateName() == "Idle" && _playerIdleTimer >= 1.2f;
         }
 
         private static bool IsPlayerDodgeState(string stateName)

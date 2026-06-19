@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Action/SetFlag", fileName = "Action_SetFlag_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Set Flag", fileName = "Action_SetFlag_")]
     public class SetFlagActionSO : DialogueActionSO
     {
         public string flagKey;

@@ -30,6 +30,17 @@ namespace UPlayGround.Data.Editor
             GetWindow<CameraSnapshotEditorWindow>("Camera Snapshot 에디터");
         }
 
+        public static void Open(CameraSnapshotProfile profile)
+        {
+            var window = GetWindow<CameraSnapshotEditorWindow>("Camera Snapshot 에디터");
+            window._profile = profile;
+            window._selectedIndex = profile != null && profile.shots != null && profile.shots.Count > 0
+                ? 0
+                : -1;
+            window.Show();
+            window.Focus();
+        }
+
         private void OnEnable()
         {
             EditorApplication.update += UpdateEditorPreviewPlayback;

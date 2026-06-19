@@ -2,7 +2,7 @@
 
 namespace UPlayGround.Data.Enemy
 {
-    [CreateAssetMenu(fileName = "PoiseData", menuName = "UPlayGround/Enemy/Poise Data")]
+    [CreateAssetMenu(fileName = "PoiseData", menuName = "UPlayGround/적/Poise")]
     public class PoiseSO : ScriptableObject
     {
         [Tooltip("최대 Poise. 높을수록 경직이 잘 안 됨")]

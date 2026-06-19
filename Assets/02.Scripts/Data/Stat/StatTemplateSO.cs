@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Stat
     /// Stat Generator의 "스탯 재생성" 탭에서 선택해 여러 ActorStatSO에 일괄 적용한다.
     /// (ActorStatSO와 달리 모든 StatType을 가질 필요가 없으며, 정의된 항목만 적용 대상이 된다.)
     /// </summary>
-    [CreateAssetMenu(fileName = "StatTemplate_", menuName = "UPlayGround/Stat/Stat Template SO")]
+    [CreateAssetMenu(fileName = "StatTemplate_", menuName = "UPlayGround/스탯/Template")]
     public class StatTemplateSO : ScriptableObject
     {
         [TextArea(2, 4)]

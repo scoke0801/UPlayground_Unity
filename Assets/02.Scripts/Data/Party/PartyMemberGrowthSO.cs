@@ -27,7 +27,7 @@ namespace UPlayGround.Data.Party
     /// 파티 캐릭터 한 명의 레벨 성장 규칙.
     /// baseStat은 레벨 1 기준값이며, growthRules가 레벨에 따른 증가량을 정의한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "PartyMemberGrowth_", menuName = "UPlayGround/Party/Party Member Growth")]
+    [CreateAssetMenu(fileName = "PartyMemberGrowth_", menuName = "UPlayGround/파티/Member Growth")]
     public class PartyMemberGrowthSO : ScriptableObject
     {
         public CharacterActorType characterType;

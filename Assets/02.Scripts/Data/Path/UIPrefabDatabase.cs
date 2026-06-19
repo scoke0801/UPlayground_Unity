@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Path
     /// UI 프리팹 데이터베이스
     /// UIManager가 자동으로 로드
     /// </summary>
-    [CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "UPlayGround/PathDatabase/UI")]
+    [CreateAssetMenu(fileName = "UIPrefabDatabase", menuName = "UPlayGround/데이터베이스/UI Prefab")]
     public class UIPrefabDatabase : ScriptableObject
     {
         [System.Serializable]

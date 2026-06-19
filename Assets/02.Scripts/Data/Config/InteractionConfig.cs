@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "InteractionConfig", menuName = "UPlayGround/SO/Config/InteractionConfig")]
+[CreateAssetMenu(fileName = "InteractionConfig", menuName = "UPlayGround/설정/Interaction")]
 public class InteractionConfig : ScriptableObject
 {
     public float checkRadius = 5.0f;

@@ -7,7 +7,7 @@ namespace UPlayGround.Data.Quest
     /// 모든 QuestSO를 담는 데이터베이스 ScriptableObject.
     /// Addressable 키 "QuestDatabase"로 로드한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "QuestDatabase", menuName = "UPlayGround/Quest/QuestDatabase")]
+    [CreateAssetMenu(fileName = "QuestDatabase", menuName = "UPlayGround/퀘스트/Database")]
     public class QuestDatabase : ScriptableObject
     {
         [SerializeField] private List<QuestSO> _quests = new List<QuestSO>();

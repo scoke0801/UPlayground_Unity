@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 
-[CreateAssetMenu(fileName = "ItemSO", menuName = "UPlayGround/SO/ItemSO")]
+[CreateAssetMenu(fileName = "ItemSO", menuName = "UPlayGround/아이템/Item")]
 public class ItemSO : ScriptableObject
 {
     [Header("Base Data")]

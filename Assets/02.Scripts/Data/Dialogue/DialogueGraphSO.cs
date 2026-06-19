@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UPlayGround.Dialogue
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Graph", fileName = "DLG_")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/Graph", fileName = "DLG_")]
     public class DialogueGraphSO : ScriptableObject
     {
         public string graphId;

@@ -6,7 +6,7 @@ using UPlayGround.Data.Path;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "CombatCameraProfile", menuName = "UPlayGround/SO/Camera/Combat Camera Profile")]
+    [CreateAssetMenu(fileName = "CombatCameraProfile", menuName = "UPlayGround/카메라/Combat Profile")]
     public class CombatCameraProfileSO : ScriptableObject
     {
         public CombatCameraIntentType intentType = CombatCameraIntentType.LightHit;

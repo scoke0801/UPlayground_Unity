@@ -21,6 +21,7 @@ namespace UPlayGround.Animation.Editor
             "워프",
             "이벤트 디버그",
             "전투 오버레이",
+            "촬영 연동",
         };
 
         // 탭 스트립 + 선택된 패널. 기본값 -1(전부 닫힘) → 평소엔 타임라인이 위로 올라온다.
@@ -67,6 +68,9 @@ namespace UPlayGround.Animation.Editor
                     break;
                 case 3:
                     DrawCombatOverlayPanel();
+                    break;
+                case 4:
+                    DrawCaptureBridgeControls();
                     break;
             }
         }

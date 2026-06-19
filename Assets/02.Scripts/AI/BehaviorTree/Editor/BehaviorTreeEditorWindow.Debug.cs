@@ -133,7 +133,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var runtimeTree = debugActive ? _debugRunner.RuntimeTree : null;
             if (debugActive || graphNeedsClear || traceChanged)
             {
-                _graphView.UpdateDebugState(runtimeTree, trace);
+                // 디버그 종료(graphNeedsClear) 시에는 캐시를 무시하고 전 노드/엣지를 강제로 Idle로 되돌린다.
+                _graphView.UpdateDebugState(runtimeTree, trace, force: graphNeedsClear);
                 if (_miniMapView != null && _miniMapToggle?.value == true)
                     _miniMapView.MarkDirtyRepaint();
                 if (_activeTab == PropertyTab.Variables)

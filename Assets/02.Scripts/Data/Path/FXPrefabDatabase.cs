@@ -6,7 +6,7 @@ namespace UPlayGround.Data.Path
     /// <summary>
     /// FX 프리팹 데이터베이스
     /// </summary>
-    [CreateAssetMenu(fileName = "FXPrefabDatabase", menuName = "UPlayGround/PathDatabase/FX")]
+    [CreateAssetMenu(fileName = "FXPrefabDatabase", menuName = "UPlayGround/데이터베이스/FX Prefab")]
     public class FXPrefabDatabase : ScriptableObject
     {
         [System.Serializable]

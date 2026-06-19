@@ -4,7 +4,7 @@ using UPlayGround.Dialogue;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Set Global Flag")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Set Global Flag")]
     public sealed class SetFlagTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private string _key;

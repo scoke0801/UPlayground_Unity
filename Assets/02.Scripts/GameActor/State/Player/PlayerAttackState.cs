@@ -29,7 +29,9 @@ namespace UPlayGround.State
     public class PlayerAttackState : PlayerActorState
     {
         public override string StateName => "Attack";
-        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
+        // 후딜(리커버리) 꼬리 구간에선 Combat에 Recovery를 합성해 적 AI가 Punish 기회로 인식하게 한다.
+        protected override ActorStateTag StateTagsCore
+            => IsInRecoveryTail() ? (ActorStateTag.Combat | ActorStateTag.Recovery) : ActorStateTag.Combat;
         public override bool SuppressesHitReaction => _isSwapEvadeCounterAttack || _isEntryAttack || _isSwapSpecialAttack;
 
         private PlayerCombat    _combat;
@@ -425,6 +427,24 @@ namespace UPlayGround.State
                 controller.TransitionToState(new PlayerGroundMoveState(controller));
             }
         }
+
+        // 후딜 꼬리 진입 후 이 시간만큼 지속돼야 Recovery로 노출한다. 버퍼된 콤보는 이 시간 안에
+        // 다음 공격으로 전환되므로, 캔슬창을 후딜로 오인해 적 Punish 빈도가 콤보마다 누적되는 것을 막는다.
+        private const float RecoveryRevealDelay = 0.1f;
+
+        /// <summary>
+        /// 공격의 후딜(리커버리) 꼬리 구간인지. 마지막 히트 페이즈를 지나 히트박스 콜리전이 닫히고,
+        /// 캔슬/콤보 없이 RecoveryRevealDelay 이상 지속(=플레이어가 후딜에 커밋)된 상태.
+        /// 이동 후딜 캔슬 게이트(UpdateState)와 동일한 기준에 dwell 조건을 더한 것이며,
+        /// ActorStateTag.Recovery로 노출해 적 AI의 IsPlayerRecovering(=Punish 가중치)이 실제 후딜을 잡도록 한다.
+        /// </summary>
+        private bool IsInRecoveryTail()
+            => _combat != null
+               && _hasActiveHitFired
+               && !_combat.IsPossibleCollide
+               && _combat.CurrentHitPhaseIndex >= _combat.LastHitPhaseIndex
+               && _lastActiveHitEndTime >= 0f
+               && _attackTimer - _lastActiveHitEndTime >= RecoveryRevealDelay;
 
         private void ChangeToNextState()
         {

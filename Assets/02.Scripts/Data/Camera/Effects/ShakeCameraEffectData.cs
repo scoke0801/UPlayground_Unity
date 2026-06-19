@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "ShakeCameraEffect", menuName = "UPlayGround/SO/CameraEffect/Shake")]
+    [CreateAssetMenu(fileName = "ShakeCameraEffect", menuName = "UPlayGround/카메라/이펙트/Shake")]
     public class ShakeCameraEffectData : CameraEffectData
     {
         [Header("Shake Settings")]

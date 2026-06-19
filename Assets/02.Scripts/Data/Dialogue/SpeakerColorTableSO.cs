@@ -9,7 +9,7 @@ namespace UPlayGround.Dialogue
     /// 등록되지 않은 speakerId는 defaultColor(흰색)로 표시됩니다.
     /// DialogueManager가 Addressables로 로드해 관리합니다.
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/SpeakerColorTable", fileName = "SpeakerColorTable")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/Speaker Color Table", fileName = "SpeakerColorTable")]
     public class SpeakerColorTableSO : ScriptableObject
     {
         // Addressables 등록 키 — SO 에셋의 Address 값과 일치해야 합니다.

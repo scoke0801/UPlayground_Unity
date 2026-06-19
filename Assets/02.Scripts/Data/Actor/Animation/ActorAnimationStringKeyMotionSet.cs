@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Actor.Animation
 {
-    [CreateAssetMenu(fileName = "ActorAnimationStringKeyMotionSet", menuName = "UPlayGround/ActorData/Motion/ActorString")]
+    [CreateAssetMenu(fileName = "ActorAnimationStringKeyMotionSet", menuName = "UPlayGround/애니메이션/Actor String")]
     public class ActorAnimationStringKeyMotionSet : ScriptableObject
     {
         public SerializedDictionary<string, MotionSetAsset> motionSets;

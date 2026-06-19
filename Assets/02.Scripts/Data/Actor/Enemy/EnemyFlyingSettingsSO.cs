@@ -6,7 +6,7 @@ namespace UPlayGround.Data.Enemy
     /// 비행 몬스터 State들의 튜닝 값을 모아둔 SO.
     /// EnemyFlyingAIController이 참조하고, 각 State가 Brain을 통해 접근한다.
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Enemy/Flying Settings", fileName = "EnemyFlyingSettings")]
+    [CreateAssetMenu(menuName = "UPlayGround/적/Flying Settings", fileName = "EnemyFlyingSettings")]
     public class EnemyFlyingSettingsSO : ScriptableObject
     {
         [Header("── TakeOff ──")]

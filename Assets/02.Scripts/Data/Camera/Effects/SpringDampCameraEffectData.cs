@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "SpringDampCameraEffect", menuName = "UPlayGround/SO/CameraEffect/SpringDamp")]
+    [CreateAssetMenu(fileName = "SpringDampCameraEffect", menuName = "UPlayGround/카메라/이펙트/SpringDamp")]
     public class SpringDampCameraEffectData : CameraEffectData
     {
         [Header("Spring Settings")]

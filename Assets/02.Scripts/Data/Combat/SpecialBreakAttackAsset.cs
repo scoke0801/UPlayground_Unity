@@ -4,7 +4,7 @@ using UPlayGround.Data.Path;
 
 namespace UPlayGround.Data.Combat
 {
-    [CreateAssetMenu(fileName = "SpecialBreakAttack", menuName = "UPlayGround/SO/Combat/Special Break Attack")]
+    [CreateAssetMenu(fileName = "SpecialBreakAttack", menuName = "UPlayGround/전투/Special Break Attack")]
     public class SpecialBreakAttackAsset : ScriptableObject
     {
         [Header("Motion")]

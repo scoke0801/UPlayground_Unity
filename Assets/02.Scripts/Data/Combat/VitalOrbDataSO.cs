@@ -3,7 +3,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Combat
 {
-    [CreateAssetMenu(fileName = "VitalOrbData", menuName = "UPlayGround/Combat/VitalOrb Data")]
+    [CreateAssetMenu(fileName = "VitalOrbData", menuName = "UPlayGround/전투/VitalOrb Data")]
     public class VitalOrbDataSO : ScriptableObject
     {
         [Header("등급 & 회복")]

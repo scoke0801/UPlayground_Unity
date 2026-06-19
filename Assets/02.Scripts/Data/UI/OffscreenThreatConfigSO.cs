@@ -7,7 +7,7 @@ namespace UPlayGround.Data.UI
     /// 설계 문서: Assets/docs/TODO/OFFSCREEN_THREAT_INDICATOR_DESIGN.md
     /// 거리/링 반경/색상/펄스 등 모든 튜닝 수치를 외부화한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "OffscreenThreatConfig", menuName = "UPlayGround/UI/OffscreenThreatConfig")]
+    [CreateAssetMenu(fileName = "OffscreenThreatConfig", menuName = "UPlayGround/UI/Offscreen Threat Config")]
     public class OffscreenThreatConfigSO : ScriptableObject
     {
         [Header("표시 범위")]

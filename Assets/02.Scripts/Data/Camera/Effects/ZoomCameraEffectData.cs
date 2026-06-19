@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data
 {
-    [CreateAssetMenu(fileName = "ZoomCameraEffect", menuName = "UPlayGround/SO/CameraEffect/Zoom")]
+    [CreateAssetMenu(fileName = "ZoomCameraEffect", menuName = "UPlayGround/카메라/이펙트/Zoom")]
     public class ZoomCameraEffectData : CameraEffectData
     {
         [Header("Zoom Settings")]

@@ -3,7 +3,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Combat
 {
-    [CreateAssetMenu(fileName = "CombatDefensePolicy", menuName = "UPlayGround/Combat/Defense Policy")]
+    [CreateAssetMenu(fileName = "CombatDefensePolicy", menuName = "UPlayGround/전투/Defense Policy")]
     public class CombatDefensePolicySO : ScriptableObject
     {
         [Tooltip("Unblockable 공격을 가드 상태에서 막을 수 있는지. 꺼두면 Guarded보다 UnblockableHit가 우선한다.")]

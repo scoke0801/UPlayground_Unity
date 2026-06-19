@@ -7,7 +7,7 @@ namespace UPlayGround.Dialogue
     /// Dialogue speakerId를 런타임 ActorId로 매핑한다.
     /// 항목이 없으면 호출부에서 speakerId == actorId 폴백을 사용할 수 있다.
     /// </summary>
-    [CreateAssetMenu(menuName = "UPlayGround/Dialogue/Speaker Actor Binding Table", fileName = "SpeakerActorBindingTable")]
+    [CreateAssetMenu(menuName = "UPlayGround/대화/Speaker Binding Table", fileName = "SpeakerActorBindingTable")]
     public class SpeakerActorBindingTableSO : ScriptableObject
     {
         public const string AddressableKey = "SpeakerActorBindingTable";

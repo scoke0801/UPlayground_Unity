@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Debugging
 {
-    [CreateAssetMenu(fileName = "DebugGizmoSettings", menuName = "UPlayGround/Debug/Debug Gizmo Settings")]
+    [CreateAssetMenu(fileName = "DebugGizmoSettings", menuName = "UPlayGround/도구/Gizmo Settings")]
     public class DebugGizmoSettingsSO : ScriptableObject
     {
         public DebugGizmoCategory defaultCategories =

@@ -49,6 +49,7 @@ namespace UPlayGround
         protected float _maxHealth = 0.0f;
         protected float _currentHealth = 0.0f;
         protected bool _isDead = false;
+        private int _externalHitReactionSuppressionCount;
         
         protected UI_ActorHpBar _uiHpBar;
         private UI_BreakInteraction _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
@@ -403,6 +404,9 @@ namespace UPlayGround
 
         private bool CanPlayHitReaction(AttackData attackData)
         {
+            if (_externalHitReactionSuppressionCount > 0)
+                return false;
+
             var state = MovementController?.CurrentState;
             if (state == null || state.SuppressesHitReaction)
                 return false;
@@ -549,6 +553,13 @@ namespace UPlayGround
         }
         
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
+
+        public void SetExternalHitReactionSuppressed(bool suppressed)
+        {
+            _externalHitReactionSuppressionCount = suppressed
+                ? _externalHitReactionSuppressionCount + 1
+                : Mathf.Max(0, _externalHitReactionSuppressionCount - 1);
+        }
 
         /// <summary>
         /// ActorDefinitionSO 주입 시 stats/poiseData를 재적용한다.

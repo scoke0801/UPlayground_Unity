@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Combat
     /// <summary>
     /// 플레이어 공격 데이터 ScriptableObject
     /// </summary>
-    [CreateAssetMenu(fileName = "PlayerAttackData", menuName = "UPlayGround/Player/Attack Data")]
+    [CreateAssetMenu(fileName = "PlayerAttackData", menuName = "UPlayGround/전투/Player Attack")]
     public class PlayerAttackDataSO : AttackDataSO
     {
         [Header("Attack Pool")]

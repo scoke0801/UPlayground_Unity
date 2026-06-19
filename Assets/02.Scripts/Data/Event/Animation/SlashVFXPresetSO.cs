@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Event
 {
-    [CreateAssetMenu(menuName = "UPlayGround/VFX/Slash VFX Preset", fileName = "SlashVFXPreset")]
+    [CreateAssetMenu(menuName = "UPlayGround/VFX/Slash Preset", fileName = "SlashVFXPreset")]
     public sealed class SlashVFXPresetSO : ScriptableObject
     {
         public GameObject vfxPrefab;

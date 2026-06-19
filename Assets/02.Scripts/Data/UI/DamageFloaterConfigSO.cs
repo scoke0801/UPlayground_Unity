@@ -2,7 +2,7 @@
 
 namespace UPlayGround.Data.UI
 {
-    [CreateAssetMenu(fileName = "DamageFloaterConfig", menuName = "UPlayGround/UI/DamageFloater Config")]
+    [CreateAssetMenu(fileName = "DamageFloaterConfig", menuName = "UPlayGround/UI/Damage Floater Config")]
     public class DamageFloaterConfigSO : ScriptableObject
     {
         [Header("Pool")]

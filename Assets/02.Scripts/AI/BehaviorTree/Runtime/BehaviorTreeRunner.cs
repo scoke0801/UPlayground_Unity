@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Component;
 using UPlayGround.Manager;
 
 namespace UPlayGround.AI.BehaviorTree
@@ -19,6 +20,18 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private bool _debugMode;
         [SerializeField] private int _debugTraceCapacity = 128;
 
+        [Header("Tick LOD (거리 기반 평가 빈도 감쇠)")]
+        [Tooltip("타겟과의 거리에 따라 BT 평가 간격을 늘려 원거리/화면 밖 적의 풀 평가 부하를 낮춘다. 동작 의미는 유지된다.\n" +
+                 "주의: 일반 멜리 적은 보통 탐지반경(lostTargetRadius≈15m) 밖에서 타겟을 놓으므로 거의 발동하지 않는다(무해).\n" +
+                 "발동 대상은 장거리 타겟을 유지하는 아키타입(원거리 카이터/보스). 이들은 거리 반응성이 중요하므로 near를 교전거리 위로 두거나 끌 것.")]
+        [SerializeField] private bool _useDistanceLod = true;
+        [Tooltip("이 거리 이내에서는 기본 간격으로 풀 레이트 평가한다. 카이터 교전거리(≈15~20m)를 덮도록 둔다.")]
+        [SerializeField] private float _lodNearDistance = 20f;
+        [Tooltip("이 거리 이상에서는 감쇠 배율이 최대로 적용된다.")]
+        [SerializeField] private float _lodFarDistance = 45f;
+        [Tooltip("최원거리에서의 틱 간격 배율(예: 2 = 간격 2배 → 평가 빈도 1/2).")]
+        [SerializeField] private float _lodFarIntervalScale = 2f;
+
         private BehaviorTreeAsset _runtimeTree;
         private BehaviorTreeContext _context;
         private float _tickTimer;
@@ -26,6 +39,8 @@ namespace UPlayGround.AI.BehaviorTree
         private bool _pauseRequested;
         private BTNode _pauseRequestedBy;
         private AgentTickManager _tickManager;
+        private EnemyDetection _detection;
+        private bool _detectionResolved;
 
         public BehaviorTreeAsset SourceTree => _treeAsset;
         public BehaviorTreeAsset RuntimeTree => _runtimeTree;
@@ -81,13 +96,46 @@ namespace UPlayGround.AI.BehaviorTree
             if (_tickMode == BehaviorTreeRunnerMode.UpdateInterval)
             {
                 _tickTimer += deltaTime;
-                if (_tickTimer < Mathf.Max(0.01f, _tickInterval))
+                if (_tickTimer < GetEffectiveTickInterval())
                     return;
 
                 _tickTimer = 0f;
             }
 
             TickOnce();
+        }
+
+        /// <summary>
+        /// 타겟과의 거리에 따라 기본 틱 간격을 늘려 평가 빈도를 낮춘다(거리 기반 LOD).
+        /// 근접(_lodNearDistance 이내)은 기본 간격을 그대로 쓰고, 원거리로 갈수록 _lodFarIntervalScale까지 선형 보간한다.
+        /// EnemyDetection이 없거나 타겟이 없으면 항상 기본 간격을 사용해 기존 동작을 보존한다.
+        /// </summary>
+        private float GetEffectiveTickInterval()
+        {
+            float interval = Mathf.Max(0.01f, _tickInterval);
+
+            if (!_useDistanceLod)
+                return interval;
+
+            // 적이 아닌 러너에는 EnemyDetection이 없을 수 있다. 한 번만 조회해 캐싱한다.
+            if (!_detectionResolved)
+            {
+                _detection = GetComponent<EnemyDetection>();
+                _detectionResolved = true;
+            }
+
+            if (_detection == null || !_detection.HasTarget)
+                return interval;
+
+            float dist = _detection.DistanceToTarget;
+            if (dist <= _lodNearDistance)
+                return interval;
+
+            float t = _lodFarDistance > _lodNearDistance
+                ? Mathf.Clamp01((dist - _lodNearDistance) / (_lodFarDistance - _lodNearDistance))
+                : 1f;
+            float scale = Mathf.Lerp(1f, Mathf.Max(1f, _lodFarIntervalScale), t);
+            return interval * scale;
         }
 
         public void StartTree()

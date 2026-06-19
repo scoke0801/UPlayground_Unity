@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Action/Unity Event")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/액션/Unity Event")]
     public sealed class UnityEventTriggerActionSO : TriggerActionSO
     {
         [SerializeField] private UnityEvent _event;

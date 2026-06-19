@@ -4,7 +4,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/Trigger/Condition/Quest Status")]
+    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Quest Status")]
     public sealed class QuestStatusTriggerConditionSO : TriggerConditionSO
     {
         [SerializeField] private QuestIdType _questId = QuestIdType.None;

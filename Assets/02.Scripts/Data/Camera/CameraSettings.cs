@@ -14,7 +14,7 @@ namespace UPlayGround.Data
     /// 카메라 시스템의 모든 튜닝 값을 담는 ScriptableObject.
     /// 에디터에서 실시간 조정 가능.
     /// </summary>
-    [CreateAssetMenu(fileName = "CameraSettings", menuName = "UPlayGround/Camera/Settings")]
+    [CreateAssetMenu(fileName = "CameraSettings", menuName = "UPlayGround/카메라/Settings")]
     public class CameraSettings : ScriptableObject
     {
         [Header("=== 등록 카메라 모드 ===")]

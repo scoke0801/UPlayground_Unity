@@ -1,176 +1,104 @@
 ---
 name: generate-bt-json
-description: "UPlayGround 프로젝트 적 AI용 BT(Behavior Tree) JSON 파일을 새로 작성하거나 기존 것을 수정/확장한다. 다음 상황에서 반드시 이 스킬을 사용한다: (1) BT JSON 파일 생성 — '만들어줘', '짜줘', '작성해줘', '써줘', '생성해줘' 등의 동사와 'BT', 'bt', 'behavior tree', '행동트리', '행동 트리' 키워드가 함께 등장할 때. (2) 경로 명시 생성 — 'BT_xxx.json 만들어', 'Assets/.../Json/ 경로에 BT 저장해줘'. (3) AI 로직의 BT 변환 — '~로직을 BehaviorTree JSON으로 표현', '적 AI가 ~하는 behavior tree JSON'. (4) 기존 BT 수정 — '기존 BT에 분기 추가', 'BT_xxx.json에 ~조건 붙여줘'. 근거리/원거리/비행/보스/페이즈/쿨다운 등 모든 적 유형과 전투 패턴에 적용. 반대로 'BehaviorTreeAsset 연결 방법', 'Behavior Tree 에디터 오류', 'EnemyBrain 디버깅' 등 JSON 파일 생성이 아닌 설명·디버깅·에디터 조작 요청에는 이 스킬을 사용하지 않는다."
+description: "UPlayGround 프로젝트 적 AI용 BT(Behavior Tree) JSON 파일을 새로 작성하거나 기존 것을 수정/확장한다. 다음 상황에서 반드시 이 스킬을 사용한다: (1) BT JSON 파일 생성 — '만들어줘', '짜줘', '작성해줘', '써줘', '생성해줘' 등의 동사와 'BT', 'bt', 'behavior tree', '행동트리', '행동 트리' 키워드가 함께 등장할 때. (2) 경로 명시 생성 — 'BT_xxx.json 만들어', 'SourceJson 경로에 BT 저장해줘'. (3) AI 로직의 BT 변환 — '~로직을 BehaviorTree JSON으로 표현', '적 AI가 ~하는 behavior tree JSON'. (4) 기존 BT 수정 — '기존 BT에 분기 추가', 'BT_xxx.json에 ~조건 붙여줘'. 근거리/원거리/비행/보스/페이즈/쿨다운 등 모든 적 유형과 전투 패턴에 적용. 반대로 'BehaviorTreeAsset 연결 방법', 'Behavior Tree 에디터 오류', 'EnemyBrain 디버깅' 등 JSON 파일 생성이 아닌 설명·디버깅·에디터 조작 요청에는 이 스킬을 사용하지 않는다."
 ---
 
-# Generate BT JSON
+# Generate BT JSON (Monster Behavior Rules)
 
-UPlayGround의 `BehaviorTreeAsset` 시스템을 위한 JSON 파일을 작성한다. 결과 JSON은 Unity 에디터의 `UPlayGround/Character/AI/Behavior Tree Json/Import Json` 메뉴 또는 `BehaviorTreeJsonUtility.ImportFromJsonFile`로 그대로 import된다.
+UPlayGround 적 AI용 **Monster Behavior Rules JSON**을 작성한다. 이 JSON은 `Assets/10.Datas/AI/BehaviorTree/SourceJson/`에 저장하고, Unity 에디터의 `UPlayGround/비헤이비어 트리/JSON/` 메뉴(또는 `MonsterBehaviorTreeJsonImporter`)로 import하면 `Generated/`에 `BehaviorTreeAsset`이 생성된다.
 
-## 작동 방식 — 왜 이 포맷을 따라야 하나
+## ⭐ 가장 중요한 규칙 — 스코어러를 실제로 소비하라
 
-런타임의 `BehaviorTreeJsonUtility.ImportFromData`는 다음 절차를 따른다:
+이 프로젝트는 **스코어러 표준화**를 결정했다. import 시 `MonsterBehaviorTreeJsonImporter`가 루트 Selector에 `EvaluateEnemyCombatIntentService`(9-Intent 스코어러)를 **자동 부착**한다 — 이 스코어러가 매 틱 `Decision.SelectedIntent`를 계산해 blackboard에 쓴다.
 
-1. `data.nodes` 순회 → `Type.GetType(node.type)`로 `BTNode` 파생 ScriptableObject 인스턴스 생성
-2. `properties[]`를 reflection으로 필드에 대입. **각 property에서 실제로 읽히는 건 `name`(필드명)과 `value`(직렬화된 문자열)뿐이다.** 타입 변환은 C# 필드의 `FieldType`에서 가져오므로 `properties[].type` 문자열은 import에 사용되지 않는다 (문서/diff용 정보).
-3. `children[]`의 guid 문자열로 부모-자식 링크 구성
-4. `rootGuid`로 RootNode 지정
-5. `blackboard[]`을 키 단위로 등록 + 초기값 설정
+**그러나 서비스가 붙는 것만으로는 부족하다.** 트리에 `SelectedIntent` 값을 분기 조건으로 읽는 규칙이 없으면 스코어러 출력은 계산만 되고 무시된다 = 스코어러 우회(과거 raw BT-node 포맷의 결함)를 새 포맷에서 재현하는 것.
 
-따라서 다음 3가지가 정확해야 한다: ① 노드의 `type` 문자열 (Type.GetType 대상, 잘못되면 노드 자체가 누락), ② 필드명 `_xxx` (오타 시 기본값으로 남음), ③ `value`의 직렬화 형식(enum 이름, "True"/"False", float invariant culture 등 — `DeserializeValue`가 C# 필드 타입에 맞춰 파싱). `properties[].type`은 가독성을 위해 카탈로그 값을 그대로 복사해 두면 충분하다.
+→ **모든 Ground 트리는 `"40 Execute Selected Intent"` 그룹을 반드시 포함한다.** 각 CombatIntent(`Attack`/`Punish`/`Counter`/`Pressure`/`KeepDistance`/`Defend`/`Retreat`/`Chase`/`Recover`)에 대해 `{ "condition": "SelectedIntent", "value": "..." }` 규칙을 두고 대응 행동을 실행한다. `references/example.json`의 40번 그룹이 정확한 형태다. 이 그룹이 스코어러를 행동에 연결하는 **부하지지(load-bearing) 요소**다. 생략 금지.
+
+(비행 트리 `actorKind: "Flying"`은 스코어러/메모리/페이즈 서비스가 부착되지 않으므로 이 규칙에서 예외.)
+
+## 작동 방식 — 왜 이 포맷인가
+
+- raw BT-node JSON(노드/guid를 직접 나열)과 달리, Rules JSON은 **고수준 선언형**이다: `groups → rules → when(조건) / do(행동) | select+choices`.
+- 거리/관찰/페이즈 동기화 서비스와 스코어러는 임포터가 자동으로 붙인다. 작성자는 **결정 규칙만** 선언한다.
+- 그룹/규칙은 `priority` 내림차순으로 평가된다(루트 Selector). 위에서부터 `when`이 모두 참인 첫 규칙이 실행된다.
 
 ## 입력 → 출력 워크플로
 
-1. **요구사항 파악** — 자연어 입력에서 다음을 추출:
-   - 적의 타입(근거리/원거리/하이브리드/비행/보스 페이즈)
-   - 우선순위 분기(공격 가능 → 후퇴 → 추격 → idle 같은 fallback 순서)
-   - 거리/HP/페이즈 같은 조건 임계값
-   - Blackboard에 폴링이 필요한 값(타겟/거리/state)
-2. **트리 구조 설계** — 보통 Root는 `SelectorNode`. "가능하면 A, 아니면 B, 아니면 idle" 패턴이 대부분. Sequence는 "조건 → 행동" 쌍에 사용. 한 번 결정한 노드를 위에서 끊고 싶다면 부모 Composite의 `_abortType`를 설정한다.
-3. **노드 카탈로그 참조** — `references/node-catalog.md`에서 사용할 노드의 정확한 type AQN과 프로퍼티 필드명/타입을 가져온다. **반드시 카탈로그에 있는 노드만 사용한다.** 카탈로그에 없는 노드를 임의로 만들지 않는다.
-4. **JSON 작성** — `references/example.json`의 구조를 그대로 따른다. guid는 사람이 읽을 수 있는 snake_case 문자열을 쓴다(예: `seq_attack_when_skill_available`). 위치(`position`)는 그래프 가독성을 위해 부모-자식 간 충분히 벌려 둔다 (가로 200~300, 세로 180~200 권장).
-5. **저장 경로 결정** — 기본은 `Assets/10.Datas/AI/BehaviorTree/Json/BT_<이름>.json`. 비행/보스 같은 변형이 명시되면 그에 맞는 서브 분류를 사용해도 된다(`Assets/10.Datas/AI/BehaviorTree/SourceJson/Boss/` 등은 monster behavior rules 포맷 전용 폴더이므로 헷갈리지 말 것).
-6. **파일 쓰기 + 안내 출력** — Write 툴로 파일 생성. 출력에는 (a) 생성 경로, (b) 트리 한 줄 요약, (c) Unity 에디터에서 import하는 메뉴 경로 안내를 포함한다.
+1. **요구사항 파악** — 적 유형(근접/원거리/하이브리드/비행/보스), 거리/HP/페이즈 임계값, 우선순위(생존 → 긴급반응 → 펀시 → 플레이어리드 → SelectedIntent → 기본리듬).
+2. **카탈로그 참조** — `references/rules-catalog.md`에서 사용할 condition/action 키, 스코프, `value` 의미, enum 값을 확인. **카탈로그에 없는 키/enum 값은 쓰지 않는다**(Validator가 막는다).
+3. **예제에서 출발** — `references/example.json`(Ground melee)을 출발점으로 삼고 필요한 곳만 바꾼다. 특히 `"40 Execute Selected Intent"` 그룹은 유지한다.
+4. **그룹 계층 구성** (권장 표준):
+   - `00 Survival And Interrupt` — `IsBlockedEnemyState`→`KeepCurrentState`, 무타겟→`PatrolOrIdle`
+   - `10 Emergency Reactions` — PoiseBreak/연속피격 탈출
+   - `20 Punish Windows` — `IsPlayerStaggered`/`IsPlayerRecovering` 펀시
+   - `30 Player Read Reactions` — `IsPlayer*Frequently` 대응
+   - `40 Execute Selected Intent` — **필수** (위 ⭐)
+   - `50 Default Combat Rhythm` — 거리/콤보 기반 기본 행동 + `KeepCurrentState` fallback
+5. **저장 경로 결정** — 기본은 `Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_<이름>.json`. (보스 페이즈 변형은 `SourceJson/Boss/` 등 하위 폴더 가능.)
+6. **파일 쓰기 + 안내 출력** — Write 툴로 저장. 출력에 (a) 경로, (b) 그룹/규칙 한 줄 요약, (c) SelectedIntent 그룹 포함 확인, (d) import 메뉴 안내를 포함한다.
 
-## 출력 JSON 골격
+## 스키마 요약
 
-ALWAYS 이 정확한 구조를 사용한다:
-
-```json
+```jsonc
 {
-    "rootGuid": "<root 노드의 guid>",
-    "blackboard": [
-        { "key": "<키 이름>", "valueType": <int 0~5>, "boolValue": false, "intValue": 0, "floatValue": 0.0, "stringValue": "", "vector3Value": {"x":0,"y":0,"z":0}, "objectAssetPath": "" }
-    ],
-    "nodes": [
-        {
-            "type": "<AQN, 예: UPlayGround.AI.BehaviorTree.SelectorNode, Assembly-CSharp>",
-            "guid": "<고유 guid>",
-            "displayName": "<그래프에 표시할 이름>",
-            "comment": "<이 노드가 왜 존재하는지 한 줄 설명>",
-            "position": { "x": 0.0, "y": 0.0 },
-            "children": ["<자식 노드 guid 1>", "<자식 노드 guid 2>"],
-            "properties": [
-                { "name": "<필드명, 예: _abortType>", "type": "<필드 타입 AQN>", "value": "<문자열로 직렬화한 값>" }
-            ]
-        }
-    ]
+  "schemaVersion": 1,
+  "id": "EnemyBehavior_XXX",
+  "displayName": "...",
+  "actorKind": "Ground",            // "Ground" | "Flying"
+  "sourceBehaviorSo": "Assets/.../BehaviorData_xxx.asset",  // 선택
+  "blackboard": { "tickInterval": 0.08, "optimalCombatDistance": 2.4, ... },
+  "groups": [
+    {
+      "name": "00 Survival And Interrupt", "priority": 1000,
+      "rules": [
+        { "name": "BlockedStateKeep", "priority": 1000,
+          "when": [ { "condition": "IsBlockedEnemyState" } ],
+          "do":   [ { "action": "KeepCurrentState" } ] }
+      ]
+    }
+    // ... 10/20/30/40/50 그룹
+  ]
 }
 ```
 
-`blackboard[].valueType` 정수 매핑 (BlackboardValueType enum):
+- rule은 `do`(순차 Sequence) **또는** `select: "WeightedRandom"` + `choices`(가중 랜덤) 중 하나를 갖는다.
+- condition은 `"invert": true`로 부정. `value`/`key`/`op`/`state`/`intent`/`style`/`attackCategory`/`duration`/`cooldownId`/`cooldownDuration`/`weight`의 의미·필수 여부는 `references/rules-catalog.md` 참조.
+- `CooldownReady`의 `value`(쿨다운 id)는 같은 rule action의 `cooldownId`와 문자열이 일치해야 짝이 맞는다.
 
-| 값 | 이름     |
-|----|----------|
-| 0  | Bool     |
-| 1  | Int      |
-| 2  | Float    |
-| 3  | String   |
-| 4  | Vector3  |
-| 5  | Object   |
+## Validator가 막는 것 (import 전 체크)
 
-## 값 직렬화 규칙
+- `schemaVersion`은 1, `id` 필수.
+- `groups` 또는 `rules` 중 최소 하나. group은 `name` 필수, `rules` 비면 안 됨.
+- 모든 condition/action 키는 카탈로그에 존재해야 함.
+- enum 값(`intent`/`style`/`attackCategory`/`state`/`SelectedIntent.value`/`HasStateTag.value`)은 정확한 enum 멤버여야 함.
+- `BlackboardCompare`는 `key` + (`value` 또는 `valueKey`) 필요, `op`는 유효한 `BlackboardComparisonType`.
+- `IsCurrentState`/`IsEnemyPhase`/`SelectedIntent`는 `value` 필수.
+- actorKind=Ground 트리에 Flying 전용 노드(또는 그 반대) 사용 금지.
 
-`BehaviorTreeJsonUtility.SerializeValue`/`DeserializeValue`가 처리할 수 있는 형식은 정해져 있다.
+## displayName / comment / 한국어 규약
 
-| 필드 타입 | type 문자열 | value 표기 예 |
-|-----------|------------|--------------|
-| bool | `System.Boolean, mscorlib` | `"True"` / `"False"` (대문자 시작) |
-| int | `System.Int32, mscorlib` | `"3"` |
-| float | `System.Single, mscorlib` | `"0.8"` (InvariantCulture, 소수점은 `.`) |
-| string | `System.String, mscorlib` | `"HasTarget"` |
-| Vector2 | `UnityEngine.Vector2, UnityEngine.CoreModule` | `"{\"value\":{\"x\":1.0,\"y\":0.0}}"` (Vector2Wrapper로 감싼 JSON 문자열) |
-| Vector3 | `UnityEngine.Vector3, UnityEngine.CoreModule` | `"{\"value\":{\"x\":1.0,\"y\":0.0,\"z\":0.0}}"` |
-| BTAbortType | `UPlayGround.AI.BehaviorTree.BTAbortType, Assembly-CSharp` | `"None"`, `"Self"`, `"LowerPriority"`, `"Both"` |
-| BlackboardValueType | `UPlayGround.AI.BehaviorTree.BlackboardValueType, Assembly-CSharp` | `"Bool"`, `"Int"`, `"Float"`, `"String"`, `"Vector3"`, `"Object"` |
-| FloatComparisonType | `UPlayGround.AI.BehaviorTree.FloatComparisonType, Assembly-CSharp` | `"LessOrEqual"`, `"GreaterOrEqual"`, `"Between"` |
-| EnemyTransitionStateType | `UPlayGround.AI.BehaviorTree.EnemyTransitionStateType, Assembly-CSharp` | `"Idle"`, `"Patrol"`, `"Chase"`, `"Attack"`, `"Retreat"`, `"Dodge"`, `"Circle"`, `"Guard"`, `"Charge"`, `"Flank"`, `"Counter"` |
-
-**다른 타입은 reflection import 경로에서 직렬화되지 않는다** — `FlyingEnemyTransitionStateType`, `BlackboardKeySelector`(struct), `UnityEngine.Object` 참조 등은 JSON으로 안정적으로 옮길 수 없다. 따라서 다음 노드는 JSON에서 핵심 프로퍼티가 비워진 채 import 되며, 에디터에서 수동 보강이 필요하다 — JSON에 넣더라도 사용자에게 명시적으로 알린다:
-
-- `TransitionFlyingEnemyStateNode._targetState` (FlyingEnemyTransitionStateType)
-- `GuardConditionNode._key`, `ForceAbortNode._key` (BlackboardKeySelector)
-- `SubtreeNode._subtreeAsset` (UnityEngine.Object 참조)
-
-가능하면 비행 트리는 별도 요청이 없으면 짜지 않거나, 짜더라도 위 한계를 결과 메시지에서 안내한다.
-
-## 구조 규칙 (Validator가 잡는 것)
-
-JSON을 만들 때 다음을 반드시 지킨다 — 어기면 import 후 에디터에서 빨간 에러로 표시된다:
-
-- **Root 필수** — `rootGuid`가 가리키는 노드가 `nodes` 안에 있어야 함
-- **Composite는 자식 ≥ 1** — Sequence/Selector/Parallel/WeightedRandomSelector는 빈 children 금지
-- **Decorator는 자식 정확히 1** — Inverter/Cooldown/Repeat/Timeout/ReturnSuccess/ReturnFailure/UntilSuccess/UntilFailure/GuardCondition/ForceAbort
-- **Service는 children에 넣지 않는다** — Service는 Composite의 별도 `Services` 리스트에 부착되어야 한다. **하지만 현재 JSON 포맷은 Services 필드를 직렬화하지 않는다** — JSON에는 Service 노드를 `nodes[]`에 추가할 수는 있지만, 어느 Composite에 attach될지는 사용자가 에디터에서 직접 끌어다 놓아야 한다. 따라서 JSON으로 BT를 만들 땐 가능하면 Service 대신 동일 기능의 Action 노드(`SyncEnemyBlackboardNode` 등)를 Sequence 맨 앞에 두는 패턴을 권장한다.
-- **WeightedRandomSelector** — `_weights` 리스트 길이가 children 수와 같아야 한다(다르면 누락분이 1.0으로 패딩되어 경고 발생).
-- **`type` AQN의 짧은 형태를 쓴다** — 풀 AQN(버전/PublicKeyToken 포함)도 동작하지만, 카탈로그의 짧은 형태(`UPlayGround.AI.BehaviorTree.XYZ, Assembly-CSharp`)를 사용해 가독성을 유지한다.
-
-## displayName / comment 작성 규칙
-
-- `displayName`은 그래프 노드에 표시되는 라벨이다. 노드의 의도가 보이도록 작성한다 — `Branch_Attack_WhenSkillAvailable`, `Condition_TargetTooClose`처럼 의도/조건이 드러나는 이름을 선호.
-- `comment`는 노드가 왜 존재하는지를 한 줄로 적는다. 게임 디자인 의도(예: "personalSpaceDistance 0.8m 이내면 후퇴")를 적어 추후 디버깅/튜닝의 단서가 되게 한다.
-- 한국어로 적는다 (프로젝트 규약).
-
-## 자주 쓰는 패턴
-
-### 패턴 1: "타겟 있으면 전투, 없으면 순찰" 표준 골격
-```
-Root: SelectorNode
-├─ Sequence "Combat_HasTarget"
-│  ├─ Action  SyncEnemyBlackboardNode   (타겟/거리/state 폴링)
-│  ├─ Condition HasTargetNode           (_expectedValue=True)
-│  └─ Selector "Combat_Decision"
-│     ├─ Sequence "Attack" — CanUseEnemySkill + ExecuteEnemyAttack
-│     ├─ Sequence "Retreat" — IsTargetInRange(<= 0.8) + TransitionEnemyState(Retreat)
-│     ├─ Sequence "Chase" — IsTargetInRange(>= 2.0) + TransitionEnemyState(Chase)
-│     └─ Action TransitionEnemyState(Idle)   (fallback)
-└─ Sequence "NonCombat_NoTarget"
-   ├─ Condition HasTargetNode(_expectedValue=False)
-   └─ Selector
-      ├─ Sequence — IsEnemyPatrolEnabled + TransitionEnemyState(Patrol)
-      └─ Action TransitionEnemyState(Idle)
-```
-
-이 골격은 `references/example.json`(`BT_EnemyGroundBasic_Test.json`)에 그대로 구현되어 있다. **새 BT를 짤 때는 이 예시를 출발점으로 삼고 필요한 곳만 바꾸는 것이 가장 안전하다.**
-
-### 패턴 2: HP 기반 페이즈 분기
-HP에 따라 행동이 달라지는 보스/엘리트는:
-- 페이즈별 행동은 별도 `BehaviorTreeAsset`로 분리하고 `SubtreeNode`로 호출 (단 `_subtreeAsset` 참조는 JSON에서 비워지므로 사용자에게 안내 필요)
-- 또는 같은 트리 내에서 `IsEnemyPhaseNode`(`_phaseName`/`_phaseIndex`)로 분기
-
-### 패턴 3: 우선순위 가로채기 (interrupt)
-"공격 중이라도 HP가 떨어지면 즉시 후퇴"가 필요하면:
-- 후퇴 분기를 Selector에서 공격 분기보다 위에 배치
-- Selector의 `_abortType = LowerPriority` 또는 `Both`로 설정 → 조건이 늦게 참이 되어도 실행 중인 하위 우선순위 자식을 abort
-
-### 패턴 4: 쿨다운/제한 횟수
-- `CooldownNode` (decorator): 자식이 Success한 뒤 N초 동안 자식 실행을 막는다
-- `RepeatNode._repeatCount`: 자식을 N번 실행, 0 이하면 무한 반복
+- 그룹·규칙 `name`은 의도가 드러나게(`PunishStagger`, `FrequentAttackCounter`).
+- 게임 디자인 의도가 보이도록 작성. 설명은 한국어(프로젝트 규약).
 
 ## 결과 출력 형식
 
-JSON 파일 작성 후 다음 형식으로 사용자에게 보고한다:
+```
+**생성된 BT Rules JSON:**
+- Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_<이름>.json
 
----
-**생성된 BT JSON:**
-- `Assets/10.Datas/AI/BehaviorTree/Json/BT_<이름>.json`
-
-**트리 요약:**
-- Root: `<root displayName>` (`<Composite 타입>`)
-- 주요 분기: `<한 줄로 어떤 결정이 어떤 순서로 일어나는지>`
-- Blackboard 키: `<나열>`
+**구성 요약:**
+- actorKind / 그룹 목록 / 핵심 규칙 한 줄
+- ✅ "40 Execute Selected Intent" 그룹 포함 (스코어러 소비 확인)  ← Ground 필수
 
 **Unity에서 사용하는 법:**
-1. Unity 에디터에서 `UPlayGround/Character/AI/Behavior Tree Json/Import Json` 메뉴 클릭
-2. 생성된 JSON 파일을 선택
-3. 저장할 `BehaviorTreeAsset` 경로(`.asset`) 지정
-4. Behavior Tree Editor가 열리며 그래프가 자동 검증된다 — Error 0개 / Warning 몇 개인지 콘솔로 확인
-
-**[수동 보강 필요]** (해당 시):
-- `<노드 displayName>`: `<어떤 필드를 에디터에서 직접 채워야 하는지>`
----
+1. `UPlayGround/비헤이비어 트리/JSON/선택 JSON 가져오기` (또는 Project에서 JSON 우클릭 → UPlayGround/AI/Import)
+2. import 시 Generated/ 에 BehaviorTreeAsset 생성, 루트에 스코어러 서비스 자동 부착
+3. Behavior Tree Editor가 열리며 자동 검증 — Error 0 / Warning 확인
+```
 
 ## 참조 자료
 
-- `references/node-catalog.md` — 사용 가능한 모든 BT 노드의 type AQN과 직렬화 가능한 프로퍼티 (반드시 이 카탈로그에 있는 노드만 사용)
-- `references/example.json` — 실제 프로젝트에 들어 있는 `BT_EnemyGroundBasic_Test.json`의 풀 JSON. 새 BT의 골격 출발점으로 활용
+- `references/rules-catalog.md` — condition/action/select 어휘, `value` 의미, enum 값. **반드시 이 카탈로그 범위 내에서만 작성.**
+- `references/example.json` — 완전한 Ground melee Rules JSON. 새 트리의 출발점(특히 40번 그룹 유지).
+- `references/node-catalog.md` — (레거시) raw BT-node 포맷 카탈로그. **보스처럼 완전 수기 제어가 필요한 예외**에만 사용하며, 이 경우 스코어러는 자동 부착되지 않는다. 기본 경로는 Rules JSON이다.

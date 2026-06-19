@@ -17,7 +17,10 @@ namespace UPlayGround.Manager
 
         public void AfterInit() { }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            DisposeLoadState();
+        }
 
         public void OnUpdate() { }
 
@@ -30,10 +33,35 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 씬에 배치된 SceneContext가 Start()에서 호출한다.
         /// </summary>
-        public void OnSceneContextReady(SceneContext context)
+        public void NotifySceneContextReady(SceneContext context)
         {
             _currentMapID = context.MapID;
             ChangeSceneType(context.SceneType);
+
+            OnSceneContextReady?.Invoke(context);
+
+            if (!_isLoading)
+                return;
+
+            if (context.SceneType == SceneType.Loading &&
+                LoadState == SceneLoadState.LoadingTransitionScene)
+            {
+                return;
+            }
+
+            string loadedSceneName = context.gameObject.scene.name;
+            if (!string.Equals(
+                    loadedSceneName,
+                    _activeLoadSceneName,
+                    System.StringComparison.Ordinal))
+            {
+                Debug.LogWarning(
+                    $"[SceneManager] 대기 중인 씬과 다른 SceneContext 준비 신호를 무시합니다. " +
+                    $"대기={_activeLoadSceneName}, 수신={loadedSceneName}");
+                return;
+            }
+
+            CompleteCurrentLoad();
         }
 
         private void ChangeSceneType(string sceneType)

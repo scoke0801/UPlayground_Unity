@@ -1,23 +1,66 @@
-﻿using System;
+using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.UREnum;
 
 namespace UPlayGround.Manager
 {
+    public enum SceneLoadState
+    {
+        Idle,
+        LoadingTransitionScene,
+        LoadingTargetScene,
+        AwaitingActivation,
+        Activating,
+        WaitingForSceneContext,
+        Completed,
+        Failed,
+    }
+
+    public readonly struct SceneLoadRequest
+    {
+        public string SceneName { get; }
+        public bool UseTransitionScene { get; }
+        public float MinimumDisplayTime { get; }
+
+        public SceneLoadRequest(
+            string sceneName,
+            bool useTransitionScene,
+            float minimumDisplayTime = 1.5f)
+        {
+            SceneName = sceneName;
+            UseTransitionScene = useTransitionScene;
+            MinimumDisplayTime = Mathf.Max(0f, minimumDisplayTime);
+        }
+    }
+
     public partial class SceneManager : BaseManager<SceneManager>, IManager
     {
         // Loading씬에서 읽어갈 목적지. static이라 씬 전환 후에도 유지된다.
         public static string PendingSceneName { get; private set; }
 
-        private bool _isLoading = false;
+        private bool _isLoading;
+        private bool _activationRequested;
+        private bool _pendingLoadStarted;
+        private string _activeLoadSceneName;
+        private CancellationTokenSource _loadCancellation;
 
         // 진행률 (0~1). LoadingSceneController가 Update에서 폴링한다.
         public float LoadProgress { get; private set; }
 
         // true가 되면 LoadingSceneController가 씬 전환을 허용한다.
         public bool IsReadyToActivate { get; private set; }
+        public bool IsLoading => _isLoading;
+        public SceneLoadState LoadState { get; private set; } = SceneLoadState.Idle;
+        public string LastLoadFailure { get; private set; }
+        public SceneLoadRequest? CurrentRequest { get; private set; }
 
+        public event Action<string> OnLoadStarted;
+        public event Action<string> OnReadyToActivate;
+        public event Action<string> OnSceneActivated;
+        public event Action<SceneContext> OnSceneContextReady;
+        public event Action<string, string> OnLoadFailed;
         public event Action<string> OnLoadComplete;
 
         /// <summary>
@@ -25,18 +68,56 @@ namespace UPlayGround.Manager
         /// </summary>
         public void LoadScene(string sceneName)
         {
-            if (_isLoading)
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
+        }
+
+        private void StartLoad(SceneLoadRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.SceneName))
             {
-                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {sceneName}");
+                Debug.LogError("[SceneManager] 빈 씬 이름으로 로드를 요청할 수 없습니다.");
                 return;
             }
 
-            _isLoading = true;
-            LoadProgress = 0f;
-            IsReadyToActivate = false;
-            PendingSceneName = sceneName;
+            if (_isLoading)
+            {
+                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {request.SceneName}");
+                return;
+            }
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.Loading);
+            AssetManager.Instance.ReleaseSceneAssets();
+
+            _isLoading = true;
+            LoadState = request.UseTransitionScene
+                ? SceneLoadState.LoadingTransitionScene
+                : SceneLoadState.Activating;
+            LoadProgress = request.UseTransitionScene ? 0f : 1f;
+            IsReadyToActivate = false;
+            LastLoadFailure = null;
+            _activationRequested = false;
+            _pendingLoadStarted = false;
+            _activeLoadSceneName = request.SceneName;
+            PendingSceneName = request.UseTransitionScene ? request.SceneName : null;
+            CurrentRequest = request;
+            ReplaceLoadCancellation();
+            OnLoadStarted?.Invoke(request.SceneName);
+
+            try
+            {
+                if (request.UseTransitionScene)
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.Loading);
+                    return;
+                }
+
+                UnityEngine.SceneManagement.SceneManager.LoadScene(request.SceneName);
+                LoadState = SceneLoadState.WaitingForSceneContext;
+                OnSceneActivated?.Invoke(request.SceneName);
+            }
+            catch (Exception e)
+            {
+                FailCurrentLoad(request.SceneName, e);
+            }
         }
 
         /// <summary>
@@ -44,13 +125,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public void LoadSceneDirect(string sceneName)
         {
-            if (_isLoading)
-            {
-                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {sceneName}");
-                return;
-            }
-
-            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: false));
         }
 
         /// <summary>
@@ -58,13 +133,31 @@ namespace UPlayGround.Manager
         /// </summary>
         public void StartPendingLoad()
         {
-            if (string.IsNullOrEmpty(PendingSceneName))
+            if (!_isLoading || LoadState != SceneLoadState.LoadingTransitionScene)
             {
-                Debug.LogError("[SceneManager] PendingSceneName이 비어 있습니다.");
+                Debug.LogWarning(
+                    $"[SceneManager] 현재 상태에서는 대상 씬 로드를 시작할 수 없습니다: {LoadState}");
                 return;
             }
 
-            LoadPendingSceneAsync(PendingSceneName).Forget();
+            if (_pendingLoadStarted)
+            {
+                Debug.LogWarning("[SceneManager] 대상 씬 로드가 이미 시작되었습니다.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(PendingSceneName))
+            {
+                FailCurrentLoad(
+                    PendingSceneName,
+                    new InvalidOperationException("PendingSceneName이 비어 있습니다."));
+                return;
+            }
+
+            _pendingLoadStarted = true;
+            string sceneName = PendingSceneName;
+            LoadPendingSceneAsync(sceneName, _loadCancellation.Token)
+                .Forget(exception => FailCurrentLoad(sceneName, exception));
         }
 
         /// <summary>
@@ -73,42 +166,135 @@ namespace UPlayGround.Manager
         /// </summary>
         public void ActivatePendingScene()
         {
-            _activateCallback?.Invoke();
+            if (LoadState != SceneLoadState.AwaitingActivation)
+                return;
+
+            _activationRequested = true;
         }
 
-        private Action _activateCallback;
+        public void CancelCurrentLoad(string reason = null)
+        {
+            if (!_isLoading)
+                return;
 
-        private async UniTaskVoid LoadPendingSceneAsync(string sceneName)
+            string sceneName = _activeLoadSceneName;
+            _loadCancellation?.Cancel();
+            FailCurrentLoad(
+                sceneName,
+                new OperationCanceledException(reason ?? "씬 로드가 취소되었습니다."));
+        }
+
+        private async UniTask LoadPendingSceneAsync(
+            string sceneName,
+            CancellationToken cancellationToken)
         {
             var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+            if (op == null)
+                throw new InvalidOperationException($"씬 비동기 로드 생성 실패: {sceneName}");
+
+            LoadState = SceneLoadState.LoadingTargetScene;
             op.allowSceneActivation = false;
 
-            // allowSceneActivation = false 상태에서 progress는 최대 0.9f까지만 증가한다.
-            // 씬이 작아서 순식간에 끝나도 최소 연출 시간을 보장하기 위해 시간 조건을 병행한다.
             float elapsed = 0f;
-            const float MinDisplayTime = 1.5f; // 로딩 화면 최소 표시 시간
+            float minimumDisplayTime = CurrentRequest?.MinimumDisplayTime ?? 1.5f;
 
-            while (op.progress < 0.9f || elapsed < MinDisplayTime)
+            while (op.progress < 0.9f || elapsed < minimumDisplayTime)
             {
                 elapsed += Time.deltaTime;
-                // 실제 로딩 진행률과 최소 시간 진행률 중 작은 값을 사용
                 float realProgress = op.progress / 0.9f;
-                float timeProgress = elapsed / MinDisplayTime;
+                float timeProgress = minimumDisplayTime <= 0f
+                    ? 1f
+                    : elapsed / minimumDisplayTime;
                 LoadProgress = Mathf.Min(realProgress, timeProgress);
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken);
             }
 
             LoadProgress = 1f;
-
-            _activateCallback = () =>
-            {
-                op.allowSceneActivation = true;
-                _isLoading = false;
-                PendingSceneName = null;
-                OnLoadComplete?.Invoke(sceneName);
-            };
-
+            LoadState = SceneLoadState.AwaitingActivation;
             IsReadyToActivate = true;
+            OnReadyToActivate?.Invoke(sceneName);
+
+            await UniTask.WaitUntil(
+                () => _activationRequested,
+                cancellationToken: cancellationToken);
+
+            IsReadyToActivate = false;
+            LoadState = SceneLoadState.Activating;
+            op.allowSceneActivation = true;
+
+            await UniTask.WaitUntil(
+                () => op.isDone,
+                cancellationToken: cancellationToken);
+
+            PendingSceneName = null;
+            LoadState = SceneLoadState.WaitingForSceneContext;
+            OnSceneActivated?.Invoke(sceneName);
+        }
+
+        private void ReplaceLoadCancellation()
+        {
+            _loadCancellation?.Cancel();
+            _loadCancellation?.Dispose();
+            _loadCancellation = new CancellationTokenSource();
+        }
+
+        private void CompleteCurrentLoad()
+        {
+            if (!_isLoading)
+                return;
+
+            string sceneName = _activeLoadSceneName;
+            _isLoading = false;
+            _activationRequested = false;
+            _pendingLoadStarted = false;
+            IsReadyToActivate = false;
+            PendingSceneName = null;
+            LoadState = SceneLoadState.Completed;
+            OnLoadComplete?.Invoke(sceneName);
+            _activeLoadSceneName = null;
+            CurrentRequest = null;
+            ReleaseLoadCancellation();
+        }
+
+        private void FailCurrentLoad(string sceneName, Exception exception)
+        {
+            if (!_isLoading)
+                return;
+
+            LastLoadFailure = exception?.Message ?? "알 수 없는 씬 로드 오류";
+            _isLoading = false;
+            _activationRequested = false;
+            _pendingLoadStarted = false;
+            IsReadyToActivate = false;
+            PendingSceneName = null;
+            LoadState = SceneLoadState.Failed;
+            OnLoadFailed?.Invoke(sceneName, LastLoadFailure);
+            Debug.LogError($"[SceneManager] 씬 '{sceneName}' 로드 실패: {LastLoadFailure}");
+            _activeLoadSceneName = null;
+            CurrentRequest = null;
+            ReleaseLoadCancellation();
+        }
+
+        private void ReleaseLoadCancellation()
+        {
+            _loadCancellation?.Dispose();
+            _loadCancellation = null;
+        }
+
+        private void DisposeLoadState()
+        {
+            _loadCancellation?.Cancel();
+            _loadCancellation?.Dispose();
+            _loadCancellation = null;
+            _isLoading = false;
+            _activationRequested = false;
+            _pendingLoadStarted = false;
+            _activeLoadSceneName = null;
+            PendingSceneName = null;
+            CurrentRequest = null;
+            IsReadyToActivate = false;
+            LoadProgress = 0f;
+            LoadState = SceneLoadState.Idle;
         }
     }
 }

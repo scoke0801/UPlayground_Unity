@@ -13,7 +13,7 @@ namespace UPlayGround.Manager
     ///   활성 요청 중 가장 낮은 scale(가장 강한 효과)이 실제로 적용된다.
     ///   마지막 요청자가 해제하면 자동으로 1.0으로 복구된다.
     /// </summary>
-    public class GameTimeManager : BaseManager<GameTimeManager>, IManager
+    public class GameTimeManager : BaseManager<GameTimeManager>, IManager, IUpdatableManager
     {
         public static event Action<bool> OnPauseChanged;
 

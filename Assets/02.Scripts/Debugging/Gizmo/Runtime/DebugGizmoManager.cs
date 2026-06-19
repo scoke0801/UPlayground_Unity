@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Debugging
 {
-    public class DebugGizmoManager : BaseManager<DebugGizmoManager>, IManager
+    public class DebugGizmoManager : BaseManager<DebugGizmoManager>, IManager,
+        IAsyncInitializableManager, IUpdatableManager
     {
         // Addressable로 로드하는 설정(에디터 전용). 빌드에는 포함하지 않으며,
         // 로드 전/실패 시 아래 기본값을 사용한다.
@@ -134,22 +137,20 @@ namespace UPlayGround.Debugging
 
         public void Init()
         {
-#if UNITY_EDITOR
-            // 설정은 Addressable로 비동기 로드한다(에디터 전용). 로드 완료 전/실패 시에는 필드 기본값을 사용.
-            LoadSettingsAsync();
-#endif
             Debug.Log("[DebugGizmoManager] 초기화");
         }
 
 #if UNITY_EDITOR
         private const string SettingsAddressableKey = "DebugGizmoSettings";
 
-        private async void LoadSettingsAsync()
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
-            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<DebugGizmoSettingsSO>(SettingsAddressableKey);
             try
             {
-                var settings = await handle.Task;
+                var settings = await AssetManager.Instance.LoadGlobalAsync<DebugGizmoSettingsSO>(
+                    SettingsAddressableKey,
+                    nameof(DebugGizmoManager),
+                    cancellationToken);
                 if (settings == null)
                 {
                     Debug.LogWarning($"[DebugGizmoManager] '{SettingsAddressableKey}' Addressable 로드 실패: 기본값 사용");
@@ -171,6 +172,9 @@ namespace UPlayGround.Debugging
                 Debug.LogWarning($"[DebugGizmoManager] 설정 로드 예외(기본값 사용): {e.Message}");
             }
         }
+#else
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            UniTask.CompletedTask;
 #endif
 
         public void AfterInit() { }

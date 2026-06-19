@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Crafting;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
@@ -19,7 +20,8 @@ namespace UPlayGround.Manager
     ///   - 제작 시도         → RecipeManager.Instance.TryStartCrafting(recipeID, quantity)
     ///   - 제작 취소         → RecipeManager.Instance.CancelCrafting()
     /// </summary>
-    public class RecipeManager : BaseManager<RecipeManager>, IManager, ISaveable
+    public class RecipeManager : BaseManager<RecipeManager>, IManager, ISaveable, IAsyncInitializableManager,
+        IUpdatableManager
     {
         private const string RECIPE_DATABASE_KEY = "RecipeDatabase";
 
@@ -63,11 +65,17 @@ namespace UPlayGround.Manager
         public void Init()
         {
             SaveManager.Instance.RegisterSaveable(this);
-            LoadDatabaseAsync();
         }
 
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            LoadDatabaseAsync(cancellationToken);
+
         public void AfterInit() { }
-        public void Dispose()   { }
+        public void Dispose()
+        {
+            _db = null;
+            IsDBLoaded = false;
+        }
 
         public void OnUpdate()
         {
@@ -85,18 +93,14 @@ namespace UPlayGround.Manager
         // ──────────────────────────────────────────────────────────
         #region 데이터베이스 로드
 
-        private async void LoadDatabaseAsync()
+        private async UniTask LoadDatabaseAsync(CancellationToken cancellationToken)
         {
-            var handle = Addressables.LoadAssetAsync<RecipeDatabase>(RECIPE_DATABASE_KEY);
             try
             {
-                _db = await handle.Task;
-
-                if (_db == null)
-                {
-                    Debug.LogError($"[RecipeManager] '{RECIPE_DATABASE_KEY}' Addressable을 찾을 수 없습니다.");
-                    return;
-                }
+                _db = await AssetManager.Instance.LoadGlobalAsync<RecipeDatabase>(
+                    RECIPE_DATABASE_KEY,
+                    nameof(RecipeManager),
+                    cancellationToken);
 
                 _db.Initialize();
                 IsDBLoaded = true;
@@ -108,9 +112,14 @@ namespace UPlayGround.Manager
 
                 Debug.Log("[RecipeManager] RecipeDatabase 로드 완료");
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Debug.LogError($"[RecipeManager] RecipeDatabase 로드 실패: {e.Message}");
+                throw;
             }
         }
 

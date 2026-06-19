@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {
-    public class ItemManager : BaseManager<ItemManager>, IManager
+    public class ItemManager : BaseManager<ItemManager>, IManager, IAsyncInitializableManager
     {
         private const string ITEM_DATABASE_PATH = "ItemDatabase";
         [SerializeField] private ItemDatabase _itemDatabase;
@@ -17,8 +19,10 @@ namespace UPlayGround.Manager
         
         public void Init()
         {
-            LoadItemDatabase();
         }
+
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            LoadItemDatabaseAsync(cancellationToken);
 
         public void AfterInit()
         {
@@ -27,6 +31,8 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            _itemDatabase = null;
+            IsItemDBLoaded = false;
         }
 
         public void OnUpdate()
@@ -48,11 +54,11 @@ namespace UPlayGround.Manager
             List<ItemInstance> itemList = new List<ItemInstance>();
             for (int i = 0; i < itemDropList.Count; ++i)
             {
-                float randomValue = Random.Range(0.0f, 100.0f);
+                float randomValue = UnityEngine.Random.Range(0.0f, 100.0f);
                 if (randomValue <= itemDropList[i].rate)
                 {
                     ItemInstance itemInstance = new ItemInstance();
-                    itemInstance.count = Random.Range(1, itemDropList[i].maximumDropCount);
+                    itemInstance.count = UnityEngine.Random.Range(1, itemDropList[i].maximumDropCount);
                     itemInstance.data = itemDropList[i].itemData;
 
                     itemList.Add(itemInstance);
@@ -83,20 +89,14 @@ namespace UPlayGround.Manager
             return _itemDatabase.GetItemById(itemKey);
         }
         
-        private async void LoadItemDatabase()
+        private async UniTask LoadItemDatabaseAsync(CancellationToken cancellationToken)
         {
-            var handle = Addressables.LoadAssetAsync<ItemDatabase>(ITEM_DATABASE_PATH);
-
             try
             {
-                _itemDatabase = await handle.Task;
-
-                if (_itemDatabase == null)
-                {
-                    Debug.LogError(
-                        $"[ItemManager] ItemDatabase를 '{ITEM_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
-                    return;
-                }
+                _itemDatabase = await AssetManager.Instance.LoadGlobalAsync<ItemDatabase>(
+                    ITEM_DATABASE_PATH,
+                    nameof(ItemManager),
+                    cancellationToken);
 
                 IsItemDBLoaded = true;
                 _itemDatabase.Initialize();
@@ -106,9 +106,14 @@ namespace UPlayGround.Manager
 
                 Debug.Log($"[ItemManager] ItemDatabase 로드 완료");
             }
-            catch (System.Exception e)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
             {
                 Debug.LogError($"[ItemManager] ItemDatabase 로드 실패: {e.Message}");
+                throw;
             }
         }
 

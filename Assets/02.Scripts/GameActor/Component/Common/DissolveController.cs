@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Data.Rendering;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Component
 {
@@ -60,8 +60,8 @@ namespace UPlayGround.Component
         private static readonly PropertyInfo MaterialParentProperty = typeof(Material).GetProperty("parent", BindingFlags.Instance | BindingFlags.Public);
 
         // 셰이더만 공유, 머티리얼 인스턴스는 액터마다 생성
-        private static AsyncOperationHandle<Material> _loadHandle;
         private static Material _dissolveSourceMaterial;
+        private static bool _isDissolveMaterialLoading;
         private static Shader _lilToonCutoutShader;
         private static bool _reportedMissingLilToonCutoutShader;
 
@@ -115,34 +115,34 @@ namespace UPlayGround.Component
         
         private void EnsureDissolveMaterialLoading()
         {
-            if (!HasFallbackDissolveSlots())
+            if (!HasFallbackDissolveSlots() ||
+                _dissolveSourceMaterial != null ||
+                _isDissolveMaterialLoading)
                 return;
 
-            if (!_loadHandle.IsValid())
-            {
-                _loadHandle = Addressables.LoadAssetAsync<Material>(DissolveMaterialAddress);
-                _loadHandle.Completed += OnDissolveMaterialLoaded;
-            }
-            else if (_loadHandle.IsDone)
-            {
-                OnDissolveMaterialLoaded(_loadHandle);
-            }
-            else
-            {
-                _loadHandle.Completed -= OnDissolveMaterialLoaded;
-                _loadHandle.Completed += OnDissolveMaterialLoaded;
-            }
+            LoadDissolveMaterialAsync().Forget();
         }
 
-        private static void OnDissolveMaterialLoaded(AsyncOperationHandle<Material> handle)
+        private static async UniTaskVoid LoadDissolveMaterialAsync()
         {
-            if (handle.Status != AsyncOperationStatus.Succeeded)
+            _isDissolveMaterialLoading = true;
+            try
             {
-                Debug.LogError($"[DissolveController] DissolveMaterial 로드 실패: {DissolveMaterialAddress}");
-                return;
+                _dissolveSourceMaterial =
+                    await AssetManager.Instance.LoadGlobalAsync<Material>(
+                        DissolveMaterialAddress,
+                        nameof(DissolveController));
             }
-
-            _dissolveSourceMaterial = handle.Result;
+            catch (System.Exception e)
+            {
+                Debug.LogError(
+                    $"[DissolveController] DissolveMaterial 로드 실패: " +
+                    $"{DissolveMaterialAddress}, {e.Message}");
+            }
+            finally
+            {
+                _isDissolveMaterialLoading = false;
+            }
         }
         
         public void InitializeRendererData()

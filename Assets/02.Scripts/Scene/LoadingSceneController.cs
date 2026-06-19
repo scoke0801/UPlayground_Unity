@@ -33,12 +33,23 @@ namespace UPlayGround
 
         private IEnumerator WaitAndLoad()
         {
-            yield return new WaitUntil(() => GameManager.Instance.IsInitialized);
+            // 부팅 실패 시 IsInitialized는 영영 true가 되지 않으므로 Failed도 함께 대기 종료 조건에 둔다.
+            yield return new WaitUntil(() =>
+                GameManager.Instance.BootState is GameBootState.Ready or GameBootState.Failed);
+
+            if (GameManager.Instance.BootState == GameBootState.Failed)
+            {
+                Debug.LogError(
+                    $"[LoadingSceneController] GameManager 초기화 실패로 로딩을 중단합니다: " +
+                    $"{GameManager.Instance.InitializationFailure}");
+                yield break;
+            }
 
             if (string.IsNullOrEmpty(SceneManager.PendingSceneName))
             {
                 Debug.LogWarning("[LoadingSceneController] PendingSceneName 없음. Title로 fallback.");
-                SceneManager.Instance.LoadScene(UREnum.SceneName.Title);
+                SceneManager.Instance.CancelCurrentLoad("대상 씬 정보가 없어 Title로 복구합니다.");
+                SceneManager.Instance.LoadSceneDirect(UREnum.SceneName.Title);
                 yield break;
             }
 

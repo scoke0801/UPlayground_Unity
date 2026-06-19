@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -33,8 +33,7 @@ namespace UPlayGround.Manager.Combat
 
         public override void Init()
         {
-            LoadConfigData();
-            LoadOrbPrefab();
+            LoadAssetsAsync().Forget();
 
             string[] lockLayer = { "Ground" };
             foreach (string layerName in lockLayer)
@@ -114,17 +113,22 @@ namespace UPlayGround.Manager.Combat
             SpawnDropObject(entry, trigger, validPos);
         }
 
-        private void LoadOrbPrefab()
+        private async UniTask LoadAssetsAsync()
         {
-            Addressables.LoadAssetAsync<GameObject>(PrefabPath).Completed += handle =>
-            {
-                if (handle.Result == null)
-                {
-                    Debug.LogError($"[VitalOrbHandler] '{PrefabPath}' 경로에서 프리팹을 찾을 수 없습니다.");
-                    return;
-                }
+            UniTask configTask = LoadConfigDataAsync();
+            UniTask prefabTask = LoadOrbPrefabAsync();
+            await UniTask.WhenAll(configTask, prefabTask);
+        }
 
-                _vitalOrbObjectPrefab = handle.Result.GetComponent<VitalOrbActor>();
+        private async UniTask LoadOrbPrefabAsync()
+        {
+            try
+            {
+                GameObject prefab = await AssetManager.Instance.LoadGlobalAsync<GameObject>(
+                    PrefabPath,
+                    nameof(GameVitalOrbHandler));
+
+                _vitalOrbObjectPrefab = prefab.GetComponent<VitalOrbActor>();
                 if (_vitalOrbObjectPrefab == null)
                 {
                     Debug.LogError($"[VitalOrbHandler] '{PrefabPath}' 프리팹에 VitalOrbActor가 없습니다.");
@@ -132,22 +136,21 @@ namespace UPlayGround.Manager.Combat
                 }
 
                 CreatePool();
-            };
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[VitalOrbHandler] 프리팹 로드 실패: {e.Message}");
+            }
         }
 
-        private async void LoadConfigData()
+        private async UniTask LoadConfigDataAsync()
         {
-            var handle = Addressables.LoadAssetAsync<VitalOrbTriggerConfig>(ConfigPath);
-
             try
             {
-                _triggerConfig = await handle.Task;
-
-                if (_triggerConfig == null)
-                {
-                    Debug.LogError($"[VitalOrbHandler] '{ConfigPath}' 경로에서 찾을 수 없습니다.");
-                    return;
-                }
+                _triggerConfig =
+                    await AssetManager.Instance.LoadGlobalAsync<VitalOrbTriggerConfig>(
+                        ConfigPath,
+                        nameof(GameVitalOrbHandler));
 
                 foreach (var entry in _triggerConfig.entries)
                 {

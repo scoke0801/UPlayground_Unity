@@ -31,6 +31,16 @@ public class BootLoader : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
+            // 부팅이 실패로 종료되면 폴링 플래그는 영영 true가 되지 않으므로
+            // 무한 대기를 막기 위해 BootState를 함께 확인한다.
+            if (gameManager.BootState == GameBootState.Failed)
+            {
+                Debug.LogError(
+                    $"[BootLoader] GameManager 초기화 실패로 Boot을 중단합니다: " +
+                    $"{gameManager.InitializationFailure}");
+                yield break;
+            }
+
             bool allReady = CheckAllManagersReady(out float progress);
 
             _progressBar?.SetValueWithoutNotify(progress);

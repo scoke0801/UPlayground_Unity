@@ -29,6 +29,7 @@ namespace UPlayGround.State
     public class PlayerAttackState : PlayerActorState
     {
         public override string StateName => "Attack";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
         public override bool SuppressesHitReaction => _isSwapEvadeCounterAttack || _isEntryAttack || _isSwapSpecialAttack;
 
         private PlayerCombat    _combat;

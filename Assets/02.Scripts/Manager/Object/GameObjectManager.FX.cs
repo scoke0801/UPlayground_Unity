@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
 
 namespace UPlayGround.Manager
@@ -12,26 +13,26 @@ namespace UPlayGround.Manager
 
         private readonly List<(GameObject obj, float expireTime)> _pendingDestroyFXList = new();
 
-        private async void LoadFXPrefabDatabase()
+        private async UniTask LoadFXPrefabDatabase(CancellationToken cancellationToken)
         {
-            var handle = Addressables.LoadAssetAsync<FXPrefabDatabase>(FX_DATABASE_PATH);
-
             try
             {
-                _fxPrefabDatabase = await handle.Task;
-
-                if (_fxPrefabDatabase == null)
-                {
-                    Debug.LogError($"[GameObjectManager] FXPrefabDatabase를 '{FX_DATABASE_PATH}' 경로에서 찾을 수 없습니다.");
-                    return;
-                }
+                _fxPrefabDatabase = await AssetManager.Instance.LoadGlobalAsync<FXPrefabDatabase>(
+                    FX_DATABASE_PATH,
+                    nameof(GameObjectManager),
+                    cancellationToken);
 
                 _fxPrefabDatabase.Initialize();
                 Debug.Log($"[GameObjectManager] FXPrefabDatabase 로드 완료");
             }
+            catch (System.OperationCanceledException)
+            {
+                throw;
+            }
             catch (System.Exception e)
             {
                 Debug.LogError($"[GameObjectManager] FXPrefabDatabase 로드 실패: {e.Message}");
+                throw;
             }
         }
 

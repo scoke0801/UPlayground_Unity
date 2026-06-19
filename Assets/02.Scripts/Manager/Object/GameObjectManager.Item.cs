@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace UPlayGround.Manager
 {
@@ -9,25 +9,19 @@ namespace UPlayGround.Manager
     {
         private const string ITEM_ACTOR_PREFAB_PATH = "ItemActor";
 
-        private AsyncOperationHandle<GameObject> _itemActorHandle;
         private ItemActor _itemActorPrefab;
 
         // 프리팹 로드 완료 전 SpawnItem 요청이 들어오면 대기열에 보관
         private readonly List<(ItemInstance instance, Vector3 position)> _pendingItems = new();
 
-        private async void LoadItemActorPrefab()
+        private async UniTask LoadItemActorPrefab(CancellationToken cancellationToken)
         {
-            _itemActorHandle = Addressables.LoadAssetAsync<GameObject>(ITEM_ACTOR_PREFAB_PATH);
-
             try
             {
-                var go = await _itemActorHandle.Task;
-
-                if (go == null)
-                {
-                    Debug.LogError($"[GameObjectManager] ItemActor 프리팹을 '{ITEM_ACTOR_PREFAB_PATH}' 경로에서 찾을 수 없습니다.");
-                    return;
-                }
+                GameObject go = await AssetManager.Instance.LoadGlobalAsync<GameObject>(
+                    ITEM_ACTOR_PREFAB_PATH,
+                    nameof(GameObjectManager),
+                    cancellationToken);
 
                 _itemActorPrefab = go.GetComponent<ItemActor>();
 
@@ -40,9 +34,14 @@ namespace UPlayGround.Manager
                 Debug.Log("[GameObjectManager] ItemActor 프리팹 로드 완료");
                 FlushPendingItems();
             }
+            catch (System.OperationCanceledException)
+            {
+                throw;
+            }
             catch (System.Exception e)
             {
                 Debug.LogError($"[GameObjectManager] ItemActor 프리팹 로드 실패: {e.Message}");
+                throw;
             }
         }
 
@@ -75,8 +74,7 @@ namespace UPlayGround.Manager
         private void DisposeItemActorPrefab()
         {
             _pendingItems.Clear();
-            if (_itemActorHandle.IsValid())
-                Addressables.Release(_itemActorHandle);
+            _itemActorPrefab = null;
         }
     }
 }

@@ -318,6 +318,7 @@ Assets/
 | 문서 | 설명 |
 |------|------|
 | [GAMEPLAY_GUIDE.md](GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
+| [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](TODO/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
 | [SAVE_SYSTEM_GUIDE.md](Complete/SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
@@ -342,7 +343,7 @@ Assets/
 | [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
 | [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
 | [TARGETED_PROJECTILE_AOE_GUIDE.md](guide/TARGETED_PROJECTILE_AOE_GUIDE.md) | 타게팅 투사체 AOE — 락온 대상, 몬스터 스킬 대상, 텔레그래프 예약 위치 기반 범위 투사체 설계 |
-| [PARTY_LEVEL_POWER_DESIGN.md](TODO/PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
+| [PARTY_LEVEL_POWER_DESIGN.md](Complete/PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](Complete/BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |

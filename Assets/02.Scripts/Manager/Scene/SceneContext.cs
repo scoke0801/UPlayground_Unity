@@ -19,9 +19,18 @@ namespace UPlayGround
         {
             EnsureGameManagerInitialized();
 
-            yield return new WaitUntil(() => GameManager.Instance.IsInitialized);
+            yield return new WaitUntil(() =>
+                GameManager.Instance.BootState is GameBootState.Ready or GameBootState.Failed);
 
-            SceneManager.Instance.OnSceneContextReady(this);
+            if (GameManager.Instance.BootState == GameBootState.Failed)
+            {
+                Debug.LogError(
+                    $"[SceneContext] GameManager 초기화 실패로 씬 준비를 중단합니다: " +
+                    $"{GameManager.Instance.InitializationFailure}");
+                yield break;
+            }
+
+            SceneManager.Instance.NotifySceneContextReady(this);
         }
 
         /// <summary>

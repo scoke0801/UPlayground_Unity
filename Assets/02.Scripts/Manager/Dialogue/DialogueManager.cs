@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UPlayGround.Manager;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data;
@@ -15,7 +16,7 @@ namespace UPlayGround.Dialogue
     /// Main/System은 단일 실행, Monologue는 큐로 순차 처리합니다.
     /// SpeakerColorTableSO를 Addressables로 로드해 Runner/UI에 제공합니다.
     /// </summary>
-    public class DialogueManager : BaseManager<DialogueManager>, IManager
+    public class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager
     {
         // UI 레이어가 구독하는 이벤트 — 채널별로 분리
         public event Action<DialogueNodeSO> OnMainNodeEnter;
@@ -30,9 +31,6 @@ namespace UPlayGround.Dialogue
         public SpeakerColorTableSO ColorTable { get; private set; }
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
 
-        private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SpeakerColorTableSO> _colorTableHandle;
-        private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SpeakerActorBindingTableSO> _speakerBindingsHandle;
-
         #region IManager
 
         public void Init()
@@ -40,9 +38,13 @@ namespace UPlayGround.Dialogue
             _runners[DialogueChannel.Main]      = new DialogueRunner(DialogueChannel.Main,      this, enableQueue: false);
             _runners[DialogueChannel.System]    = new DialogueRunner(DialogueChannel.System,    this, enableQueue: false);
             _runners[DialogueChannel.Monologue] = new DialogueRunner(DialogueChannel.Monologue, this, enableQueue: true);
+        }
 
-            LoadColorTable();
-            LoadSpeakerActorBindings();
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            UniTask colorTableTask = LoadColorTableAsync(cancellationToken);
+            UniTask speakerBindingsTask = LoadSpeakerActorBindingsAsync(cancellationToken);
+            await UniTask.WhenAll(colorTableTask, speakerBindingsTask);
         }
 
         public void AfterInit()  { }
@@ -51,18 +53,8 @@ namespace UPlayGround.Dialogue
         {
             foreach (var r in _runners.Values) r.Clear();
 
-            // Addressables 핸들 해제
-            if (_colorTableHandle.IsValid())
-            {
-                Addressables.Release(_colorTableHandle);
-                ColorTable = null;
-            }
-
-            if (_speakerBindingsHandle.IsValid())
-            {
-                Addressables.Release(_speakerBindingsHandle);
-                SpeakerActorBindings = null;
-            }
+            ColorTable = null;
+            SpeakerActorBindings = null;
         }
 
         public void OnUpdate()      { }
@@ -119,29 +111,42 @@ namespace UPlayGround.Dialogue
 
         // ── Addressables 로드 ─────────────────────────────────────────
 
-        private async void LoadColorTable()
+        private async UniTask LoadColorTableAsync(CancellationToken cancellationToken)
         {
-            _colorTableHandle = Addressables.LoadAssetAsync<SpeakerColorTableSO>(SpeakerColorTableSO.AddressableKey);
-
             try
             {
-                ColorTable = await _colorTableHandle.Task;
+                ColorTable = await AssetManager.Instance.LoadGlobalAsync<SpeakerColorTableSO>(
+                    SpeakerColorTableSO.AddressableKey,
+                    nameof(DialogueManager),
+                    cancellationToken);
+
                 Debug.Log("[DialogueManager] SpeakerColorTable 로드 완료");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception e)
             {
                 Debug.LogError($"[DialogueManager] SpeakerColorTable 로드 실패: {e.Message}");
+                throw;
             }
         }
 
-        private async void LoadSpeakerActorBindings()
+        private async UniTask LoadSpeakerActorBindingsAsync(CancellationToken cancellationToken)
         {
-            _speakerBindingsHandle = Addressables.LoadAssetAsync<SpeakerActorBindingTableSO>(SpeakerActorBindingTableSO.AddressableKey);
-
             try
             {
-                SpeakerActorBindings = await _speakerBindingsHandle.Task;
+                SpeakerActorBindings =
+                    await AssetManager.Instance.LoadGlobalAsync<SpeakerActorBindingTableSO>(
+                        SpeakerActorBindingTableSO.AddressableKey,
+                        nameof(DialogueManager),
+                        cancellationToken);
                 Debug.Log("[DialogueManager] SpeakerActorBindingTable 로드 완료");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception e)
             {

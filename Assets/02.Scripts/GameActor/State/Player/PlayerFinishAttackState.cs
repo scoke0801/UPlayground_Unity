@@ -15,6 +15,7 @@ namespace UPlayGround.State
     public class PlayerFinishAttackState : PlayerActorState
     {
         public override string StateName => "FinishAttack";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
         public override bool GrantsInvincibility => true;
 
         [Header("Freeze Settings")]

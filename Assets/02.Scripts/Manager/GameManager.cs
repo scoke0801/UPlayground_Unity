@@ -1,9 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UPlayGround.Story;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
@@ -20,11 +19,20 @@ namespace UPlayGround.Manager
     {
         // 등록된 매니저 리스트
         private List<IManager> _registeredManagers = new List<IManager>();
+        private readonly List<IUpdatableManager> _updatableManagers = new();
+        private readonly List<IFixedUpdatableManager> _fixedUpdatableManagers = new();
+        private readonly List<ILateUpdatableManager> _lateUpdatableManagers = new();
         // GetManager<T> 선형 탐색 제거용 타입 캐시
         private Dictionary<System.Type, IManager> _managerLookup = new Dictionary<System.Type, IManager>();
+        private readonly Dictionary<string, float> _managerInitializationMilliseconds = new();
+        private CancellationTokenSource _initializationCancellation;
 
         // 초기화 플래그
         public bool IsInitialized { get; private set; } = false;
+        public GameBootState BootState { get; private set; } = GameBootState.None;
+        public string InitializationFailure { get; private set; }
+        public IReadOnlyDictionary<string, float> ManagerInitializationMilliseconds =>
+            _managerInitializationMilliseconds;
 
         protected override void Awake()
         {
@@ -36,19 +44,25 @@ namespace UPlayGround.Manager
             // KCC AutoSimulation 제어권을 KCCSimulator에 위임
             gameObject.AddComponent<KCCSimulator>();
 
-            if (this != null && !IsInitialized)
-            {
-                InitializeManagers();
-            }
+            if (this != null && BootState == GameBootState.None)
+                InitializeManagersAsync().Forget(HandleInitializationException);
         }
 
         /// <summary>
         /// 모든 매니저 초기화
         /// </summary>
-        private void InitializeManagers()
+        private async UniTask InitializeManagersAsync()
         {
-            if (IsInitialized)
+            if (BootState is GameBootState.Initializing or GameBootState.Ready)
                 return;
+
+            BootState = GameBootState.Initializing;
+            InitializationFailure = null;
+            _managerInitializationMilliseconds.Clear();
+            _initializationCancellation?.Dispose();
+            _initializationCancellation = new CancellationTokenSource();
+            CancellationToken cancellationToken = _initializationCancellation.Token;
+
             int width = PlayerPrefs.GetInt("ResWidth", 2560);
             int height = PlayerPrefs.GetInt("ResHeight", 1440);
             FullScreenMode mode = (FullScreenMode)PlayerPrefs.GetInt("FullscreenMode", (int)FullScreenMode.FullScreenWindow);
@@ -61,9 +75,9 @@ namespace UPlayGround.Manager
             RegisterManager(SaveManager.Instance);  // 세이브/로드 (다른 매니저보다 먼저)
             RegisterManager(InputManager.Instance); // 입력 시스템
 
+            RegisterManager(AssetManager.Instance);
             RegisterManager(SettingsManager.Instance); // 설정 (Addressable 로드 → 시스템 반영)
             RegisterManager(SoundManager.Instance); // 사운드 재생/풀링
-            RegisterManager(AssetManager.Instance);
             RegisterManager(UIManager.Instance); // UI 관리
             RegisterManager(CameraManager.Instance); // 카메라 시스템
             RegisterManager(GameObjectManager.Instance);
@@ -88,12 +102,57 @@ namespace UPlayGround.Manager
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);
 
+            await InitializeAsyncManagers(cancellationToken);
+
             // Init이후에 후처리 필요한 경우 
             AfterInit();
             
             IsInitialized = true;
+            BootState = GameBootState.Ready;
 
             Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");
+        }
+
+        private async UniTask InitializeAsyncManagers(CancellationToken cancellationToken)
+        {
+            foreach (var manager in _registeredManagers)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (manager is not IAsyncInitializableManager asyncManager)
+                    continue;
+
+                string managerName = manager.GetType().Name;
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                Debug.Log($"[GameManager] {managerName} 비동기 초기화 시작");
+
+                try
+                {
+                    await asyncManager.InitializeAsync(cancellationToken);
+                }
+                finally
+                {
+                    stopwatch.Stop();
+                    float elapsedMilliseconds = (float)stopwatch.Elapsed.TotalMilliseconds;
+                    _managerInitializationMilliseconds[managerName] = elapsedMilliseconds;
+                    Debug.Log($"[GameManager] {managerName} 비동기 초기화 종료 ({elapsedMilliseconds:F1} ms)");
+                }
+            }
+        }
+
+        private void HandleInitializationException(System.Exception exception)
+        {
+            if (exception is System.OperationCanceledException &&
+                BootState == GameBootState.Disposing)
+            {
+                return;
+            }
+
+            IsInitialized = false;
+            BootState = GameBootState.Failed;
+            InitializationFailure = exception.Message;
+            Debug.LogException(exception);
+            Debug.LogError($"[GameManager] 초기화 실패: {InitializationFailure}");
         }
 
 
@@ -116,6 +175,12 @@ namespace UPlayGround.Manager
 
             _registeredManagers.Add(manager);
             _managerLookup[manager.GetType()] = manager;
+            if (manager is IUpdatableManager updatable)
+                _updatableManagers.Add(updatable);
+            if (manager is IFixedUpdatableManager fixedUpdatable)
+                _fixedUpdatableManagers.Add(fixedUpdatable);
+            if (manager is ILateUpdatableManager lateUpdatable)
+                _lateUpdatableManagers.Add(lateUpdatable);
             manager.Init();
 
             Debug.Log($"[GameManager] {manager.GetType().Name} 등록 완료");
@@ -133,6 +198,12 @@ namespace UPlayGround.Manager
                 manager.Dispose();
                 _registeredManagers.Remove(manager);
                 _managerLookup.Remove(manager.GetType());
+                if (manager is IUpdatableManager updatable)
+                    _updatableManagers.Remove(updatable);
+                if (manager is IFixedUpdatableManager fixedUpdatable)
+                    _fixedUpdatableManagers.Remove(fixedUpdatable);
+                if (manager is ILateUpdatableManager lateUpdatable)
+                    _lateUpdatableManagers.Remove(lateUpdatable);
                 Debug.Log($"[GameManager] {manager.GetType().Name} 등록 해제");
             }
         }
@@ -177,28 +248,31 @@ namespace UPlayGround.Manager
         {
             if (!IsInitialized) return;
 
-            foreach (var manager in _registeredManagers)
-                manager?.OnUpdate();
+            for (int i = 0; i < _updatableManagers.Count; i++)
+                _updatableManagers[i].OnUpdate();
         }
 
         private void FixedUpdate()
         {
             if (!IsInitialized) return;
 
-            foreach (var manager in _registeredManagers)
-                manager?.OnFixedUpdate();
+            for (int i = 0; i < _fixedUpdatableManagers.Count; i++)
+                _fixedUpdatableManagers[i].OnFixedUpdate();
         }
 
         private void LateUpdate()
         {
             if (!IsInitialized) return;
 
-            foreach (var manager in _registeredManagers)
-                manager?.OnLateUpdate();
+            for (int i = 0; i < _lateUpdatableManagers.Count; i++)
+                _lateUpdatableManagers[i].OnLateUpdate();
         }
 
         protected override void OnDestroy()
         {
+            BootState = GameBootState.Disposing;
+            _initializationCancellation?.Cancel();
+
             // 모든 매니저 정리
             for (int i = _registeredManagers.Count - 1; i >= 0; i--)
             {
@@ -206,33 +280,18 @@ namespace UPlayGround.Manager
             }
 
             _registeredManagers.Clear();
+            _updatableManagers.Clear();
+            _fixedUpdatableManagers.Clear();
+            _lateUpdatableManagers.Clear();
             _managerLookup.Clear();
+            _managerInitializationMilliseconds.Clear();
             IsInitialized = false;
+            _initializationCancellation?.Dispose();
+            _initializationCancellation = null;
 
             Debug.Log("[GameManager] 정리 완료");
 
             base.OnDestroy();
         }
-
-
-        #region Util
-
-        public static async Task<T> LoadAddressableAsync<T>(string addressableKey)
-        {
-            var handle = Addressables.LoadAssetAsync<T>(addressableKey);
-            await handle.Task;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                return handle.Result;
-            }
-            else
-            {
-                Debug.LogError($"Failed to load Addressable: {addressableKey}, Status: {handle.Status}");
-                return default(T);
-            }
-        }
-
-        #endregion
     }
 }

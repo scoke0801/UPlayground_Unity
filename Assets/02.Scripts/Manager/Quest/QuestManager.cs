@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.EnumType;
@@ -39,14 +39,13 @@ namespace UPlayGround.Manager
     ///   메뉴: UPlayGround / ID Enum Generator → Quest 행 [생성] 버튼
     ///   또는: Quest Editor 창 툴바 → [Enum 생성] 버튼
     /// </summary>
-    public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable
+    public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable, IAsyncInitializableManager
     {
         private const string QUEST_DATABASE_KEY = "QuestDatabase";
         private const int MAX_AUTO_ACCEPT_CHAIN_DEPTH = 32;
 
         // ──── 데이터 ────
         private QuestDatabase _db;
-        private AsyncOperationHandle<QuestDatabase> _dbHandle;
 
         // ──── 런타임 상태 (내부는 string 키로 관리) ────
         private readonly Dictionary<string, QuestRuntimeData> _activeQuests     = new();
@@ -69,8 +68,10 @@ namespace UPlayGround.Manager
         public void Init()
         {
             SaveManager.Instance.RegisterSaveable(this);
-            LoadDatabaseAsync();
         }
+
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            LoadDatabaseAsync(cancellationToken);
 
         public void AfterInit() { }
 
@@ -83,8 +84,8 @@ namespace UPlayGround.Manager
             _pendingReachedLocationIds.Clear();
             _trackedQuestId = null;
             _isQuestTrackingSuppressed = false;
-            if (_dbHandle.IsValid())
-                Addressables.Release(_dbHandle);
+            _db = null;
+            IsDBLoaded = false;
         }
 
         public void OnUpdate()      { }
@@ -97,18 +98,14 @@ namespace UPlayGround.Manager
         // ──────────────────────────────────────────────────────────
         #region DB 로드
 
-        private async void LoadDatabaseAsync()
+        private async UniTask LoadDatabaseAsync(CancellationToken cancellationToken)
         {
-            _dbHandle = Addressables.LoadAssetAsync<QuestDatabase>(QUEST_DATABASE_KEY);
             try
             {
-                _db = await _dbHandle.Task;
-
-                if (_db == null)
-                {
-                    Debug.LogError($"[QuestManager] '{QUEST_DATABASE_KEY}' Addressable을 찾을 수 없습니다.");
-                    return;
-                }
+                _db = await AssetManager.Instance.LoadGlobalAsync<QuestDatabase>(
+                    QUEST_DATABASE_KEY,
+                    nameof(QuestManager),
+                    cancellationToken);
 
                 _db.Initialize();
                 IsDBLoaded = true;
@@ -120,9 +117,14 @@ namespace UPlayGround.Manager
 
                 Debug.Log("[QuestManager] QuestDatabase 로드 완료");
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Debug.LogError($"[QuestManager] QuestDatabase 로드 실패: {e.Message}");
+                throw;
             }
         }
 

@@ -2,8 +2,10 @@
 
 > 작성일: 2026-05-03
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 상태: 설계 단계 (구현 전)
-> 관련 문서: [party-formation-system.md](./party-formation-system.md), [STAT_SYSTEM_GUIDE.md](./STAT_SYSTEM_GUIDE.md)
+> 상태: 1차 범위 Phase A~C 구현 완료
+> 완료 범위: 캐릭터별 레벨/성장 스탯/전투력 계산, PartyManager API, 표시·검증 도구
+> 후속 Phase D: [PLAYER_GROWTH_LEVELING_DESIGN.md](../TODO/PLAYER_GROWTH_LEVELING_DESIGN.md)로 대체
+> 관련 문서: [party-formation-system.md](./party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../STAT_SYSTEM_GUIDE.md)
 
 ---
 

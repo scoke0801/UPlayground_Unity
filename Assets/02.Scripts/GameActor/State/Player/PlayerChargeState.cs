@@ -26,6 +26,7 @@ namespace UPlayGround.State
     public class PlayerChargeState : PlayerActorState
     {
         public override string StateName => "Charge";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;

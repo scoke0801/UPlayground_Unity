@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager.Combat
@@ -38,9 +37,9 @@ namespace UPlayGround.Manager.Combat
         private const float ImpactHoldRatio = 0.6f;
         private const float MinImpactHoldDuration = 0.012f;
 
-        private AsyncOperationHandle<GameObject> _volumeHandle;
         private Volume _volume;
         private GameObject _volumeInstance;
+        private bool _isVolumeLoading;
 
         private float _transitionTime = 0.05f;
         private float _targetWeight = 0f;
@@ -68,7 +67,7 @@ namespace UPlayGround.Manager.Combat
         {
             _actorCoroutines.Clear();
             _globalCoroutines.Clear();
-            LoadVolume();
+            LoadVolumeAsync().Forget();
         }
 
         public override void Dispose()
@@ -81,8 +80,6 @@ namespace UPlayGround.Manager.Combat
                 UnityEngine.Object.Destroy(_volumeInstance);
                 _volumeInstance = null;
             }
-            if (_volumeHandle.IsValid())
-                Addressables.Release(_volumeHandle);
         }
 
         public override void Update()
@@ -390,15 +387,16 @@ namespace UPlayGround.Manager.Combat
             return 1f - Mathf.Pow(1f - t, 3f);
         }
 
-        private async void LoadVolume()
+        private async UniTask LoadVolumeAsync()
         {
-            if (_volumeHandle.IsValid() || _volume != null) return;
-
-            _volumeHandle = Addressables.LoadAssetAsync<GameObject>("SlowMoveVolume");
+            if (_volume != null || _isVolumeLoading) return;
+            _isVolumeLoading = true;
 
             try
             {
-                GameObject go = await _volumeHandle.Task;
+                GameObject go = await AssetManager.Instance.LoadGlobalAsync<GameObject>(
+                    "SlowMoveVolume",
+                    nameof(GameHitStopHandler));
                 if (go == null) { Debug.LogError("[HitStopHandler] SlowMoveVolume 로드 실패"); return; }
 
                 var hostTransform = GameCombatManager.Instance.transform;
@@ -411,7 +409,10 @@ namespace UPlayGround.Manager.Combat
             catch (System.Exception e)
             {
                 Debug.LogError($"[HitStopHandler] LoadVolume 실패: {e.Message}");
-                if (_volumeHandle.IsValid()) Addressables.Release(_volumeHandle);
+            }
+            finally
+            {
+                _isVolumeLoading = false;
             }
         }
 

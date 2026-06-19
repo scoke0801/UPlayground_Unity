@@ -12,6 +12,7 @@ namespace UPlayGround.State
     {
         
         public override string StateName => "DashAttack";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private AttackData _attackData;
         private PlayerCombat _combat;

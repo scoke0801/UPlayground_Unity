@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using UPlayGround.Data.Save;
@@ -23,6 +24,8 @@ namespace UPlayGround.Manager
         private const string SAVE_FOLDER = "saves";
         private const string SAVE_FILE_PREFIX = "save_slot_";
         private const string SAVE_FILE_EXTENSION = ".sav";   // 암호화 바이너리
+        private const string TEMP_FILE_EXTENSION = ".tmp";
+        private const string BACKUP_FILE_EXTENSION = ".bak";
         private const string CURRENT_SAVE_VERSION = "2.0";    // 1.0=평문 JSON, 2.0=AES 암호화
 
         /// <summary> 지원하는 세이브 슬롯 개수 (0 ~ MAX_SLOTS-1). </summary>
@@ -31,6 +34,9 @@ namespace UPlayGround.Manager
         private readonly List<ISaveable> _saveables = new List<ISaveable>();
 
         private string _saveFolder;
+        private bool _isSaving;
+
+        public SaveOperationResult LastOperationResult { get; private set; }
 
         #region IManager
 
@@ -73,12 +79,25 @@ namespace UPlayGround.Manager
         /// </summary>
         public void SaveGame(int slot = 0)
         {
+            LastOperationResult = SaveGameDetailed(slot);
+        }
+
+        public SaveOperationResult SaveGameDetailed(int slot = 0)
+        {
+            var result = new SaveOperationResult(slot, SaveOperationType.Save);
             if (!IsValidSlot(slot))
             {
-                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 저장 중단.");
-                return;
+                return CompleteWithFailure(
+                    result,
+                    $"잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1})");
             }
 
+            if (_isSaving)
+            {
+                return CompleteWithFailure(result, "이미 다른 저장 작업이 진행 중입니다.");
+            }
+
+            _isSaving = true;
             var data = new GameSaveData
             {
                 saveVersion = CURRENT_SAVE_VERSION,
@@ -95,26 +114,44 @@ namespace UPlayGround.Manager
                 catch (Exception e)
                 {
                     Debug.LogError($"[SaveManager] {saveable.GetType().Name} 저장 실패: {e.Message}");
+                    result.Failures.Add(new SaveParticipantFailure(
+                        saveable.GetType().Name,
+                        SaveParticipantStage.Export,
+                        e.Message));
                     exportFailed = true;
                 }
             }
 
             if (exportFailed)
             {
-                Debug.LogError($"[SaveManager] 슬롯 {slot} 일부 데이터 수집 실패로 파일 쓰기를 중단합니다.");
-                return;
+                _isSaving = false;
+                return CompleteWithFailure(
+                    result,
+                    $"슬롯 {slot} 일부 데이터 수집 실패로 파일 쓰기를 중단합니다.");
             }
 
             try
             {
                 string json = JsonConvert.SerializeObject(data, Formatting.Indented);
                 byte[] encrypted = SaveCrypto.Encrypt(json);
-                File.WriteAllBytes(GetSavePath(slot), encrypted);
+                WriteSaveAtomically(slot, encrypted);
                 Debug.Log($"[SaveManager] 슬롯 {slot} 저장 완료 → {GetSavePath(slot)}");
+                result.Succeeded = true;
+                result.FilePath = GetSavePath(slot);
+                LastOperationResult = result;
+                return result;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] 슬롯 {slot} 파일 쓰기 실패: {e.Message}");
+                result.Failures.Add(new SaveParticipantFailure(
+                    nameof(SaveManager),
+                    SaveParticipantStage.FileWrite,
+                    e.Message));
+                return CompleteWithFailure(result, $"슬롯 {slot} 파일 쓰기 실패: {e.Message}");
+            }
+            finally
+            {
+                _isSaving = false;
             }
         }
 
@@ -132,7 +169,9 @@ namespace UPlayGround.Manager
         /// <returns>세이브 파일이 존재하고 로드에 성공하면 true</returns>
         public bool LoadGame(int slot = 0)
         {
-            return LoadGameInternal(slot, out _);
+            bool succeeded = LoadGameInternal(slot, out _, out SaveOperationResult result);
+            LastOperationResult = result;
+            return succeeded;
         }
 
         /// <summary>
@@ -142,8 +181,13 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool LoadGameToScene(int slot = 0)
         {
-            if (!LoadGameInternal(slot, out var data))
+            if (!LoadGameInternal(slot, out var data, out SaveOperationResult result))
+            {
+                LastOperationResult = result;
                 return false;
+            }
+
+            LastOperationResult = result;
 
             string sceneName = data?.party?.loadSceneName;
             if (string.IsNullOrEmpty(sceneName))
@@ -159,34 +203,53 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 슬롯을 읽어 복호화·역직렬화하고 모든 ISaveable에 ImportSaveData를 디스패치한다.
         /// </summary>
-        private bool LoadGameInternal(int slot, out GameSaveData data)
+        private bool LoadGameInternal(
+            int slot,
+            out GameSaveData data,
+            out SaveOperationResult result)
         {
             data = null;
+            result = new SaveOperationResult(slot, SaveOperationType.Load);
 
             if (!IsValidSlot(slot))
             {
-                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 로드 중단.");
+                CompleteWithFailure(
+                    result,
+                    $"잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1})");
                 return false;
             }
 
             string path = GetSavePath(slot);
-            if (!File.Exists(path))
+            string backupPath = GetBackupPath(slot);
+            if (!File.Exists(path) && !File.Exists(backupPath))
             {
                 Debug.LogWarning($"[SaveManager] 슬롯 {slot} 세이브 파일 없음: {path}");
+                CompleteWithFailure(result, $"슬롯 {slot} 세이브 파일이 없습니다.");
                 return false;
+            }
+
+            if (!TryReadSaveData(path, out data, out string primaryError))
+            {
+                Debug.LogWarning($"[SaveManager] 슬롯 {slot} 본 파일 로드 실패: {primaryError}");
+                if (!TryReadSaveData(backupPath, out data, out string backupError))
+                {
+                    Debug.LogError(
+                        $"[SaveManager] 슬롯 {slot} 백업 복구 실패: {backupError}");
+                    result.Failures.Add(new SaveParticipantFailure(
+                        nameof(SaveManager),
+                        SaveParticipantStage.FileRead,
+                        $"본 파일={primaryError}, 백업={backupError}"));
+                    CompleteWithFailure(result, "본 파일과 백업 파일을 모두 읽지 못했습니다.");
+                    return false;
+                }
+
+                Debug.LogWarning($"[SaveManager] 슬롯 {slot} 백업 파일로 복구합니다.");
+                result.UsedBackup = true;
+                TryRestoreBackup(slot);
             }
 
             try
             {
-                string json = SaveCrypto.Decrypt(File.ReadAllBytes(path));
-                data = JsonConvert.DeserializeObject<GameSaveData>(json);
-
-                if (data == null)
-                {
-                    Debug.LogError($"[SaveManager] 슬롯 {slot} 역직렬화 실패");
-                    return false;
-                }
-
                 bool importFailed = false;
                 foreach (var saveable in _saveables)
                 {
@@ -197,6 +260,10 @@ namespace UPlayGround.Manager
                     catch (Exception e)
                     {
                         Debug.LogError($"[SaveManager] {saveable.GetType().Name} 로드 실패: {e.Message}");
+                        result.Failures.Add(new SaveParticipantFailure(
+                            saveable.GetType().Name,
+                            SaveParticipantStage.Import,
+                            e.Message));
                         importFailed = true;
                     }
                 }
@@ -206,11 +273,21 @@ namespace UPlayGround.Manager
                 else
                     Debug.Log($"[SaveManager] 슬롯 {slot} 로드 완료 (저장 일시: {data.saveDateTime})");
 
-                return !importFailed;
+                result.Succeeded = !importFailed;
+                result.FilePath = result.UsedBackup ? backupPath : path;
+                result.Message = importFailed
+                    ? "일부 데이터 복원에 실패했습니다."
+                    : "로드가 완료되었습니다.";
+                return result.Succeeded;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] 슬롯 {slot} 로드 중 예외: {e.Message}");
+                Debug.LogError($"[SaveManager] 슬롯 {slot} 데이터 적용 중 예외: {e.Message}");
+                result.Failures.Add(new SaveParticipantFailure(
+                    nameof(SaveManager),
+                    SaveParticipantStage.Import,
+                    e.Message));
+                CompleteWithFailure(result, "데이터 적용 중 예외가 발생했습니다.");
                 return false;
             }
         }
@@ -221,7 +298,9 @@ namespace UPlayGround.Manager
         #region 슬롯 관리
 
         /// <summary> 해당 슬롯에 세이브 파일이 존재하는지 확인한다. </summary>
-        public bool HasSaveFile(int slot = 0) => IsValidSlot(slot) && File.Exists(GetSavePath(slot));
+        public bool HasSaveFile(int slot = 0) =>
+            IsValidSlot(slot) &&
+            (File.Exists(GetSavePath(slot)) || File.Exists(GetBackupPath(slot)));
 
         /// <summary> 해당 슬롯의 세이브 파일을 삭제한다. </summary>
         public void DeleteSaveFile(int slot = 0)
@@ -236,8 +315,17 @@ namespace UPlayGround.Manager
             if (File.Exists(path))
             {
                 File.Delete(path);
-                Debug.Log($"[SaveManager] 슬롯 {slot} 삭제 완료");
             }
+
+            string backupPath = GetBackupPath(slot);
+            if (File.Exists(backupPath))
+                File.Delete(backupPath);
+
+            string tempPath = GetTempPath(slot);
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+
+            Debug.Log($"[SaveManager] 슬롯 {slot} 삭제 완료");
         }
 
         /// <summary>
@@ -249,27 +337,22 @@ namespace UPlayGround.Manager
             if (!IsValidSlot(slot)) return null;
 
             string path = GetSavePath(slot);
-            if (!File.Exists(path)) return null;
+            if (!TryReadSaveData(path, out var partial, out _))
+            {
+                path = GetBackupPath(slot);
+                if (!TryReadSaveData(path, out partial, out _))
+                    return null;
+            }
 
-            try
+            return new SaveSlotInfo
             {
-                string json = SaveCrypto.Decrypt(File.ReadAllBytes(path));
-                var partial = JsonConvert.DeserializeObject<GameSaveData>(json);
-                return new SaveSlotInfo
-                {
-                    slot = slot,
-                    saveDateTime = partial?.saveDateTime ?? string.Empty,
-                    saveVersion = partial?.saveVersion ?? string.Empty,
-                    mapId = partial?.party?.mapId ?? string.Empty,
-                    storyProgress = partial?.story?.progress ?? 0,
-                    filePath = path
-                };
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[SaveManager] 슬롯 {slot} 메타 조회 실패: {e.Message}");
-                return null;
-            }
+                slot = slot,
+                saveDateTime = partial?.saveDateTime ?? string.Empty,
+                saveVersion = partial?.saveVersion ?? string.Empty,
+                mapId = partial?.party?.mapId ?? string.Empty,
+                storyProgress = partial?.story?.progress ?? 0,
+                filePath = path
+            };
         }
 
         /// <summary>
@@ -313,8 +396,164 @@ namespace UPlayGround.Manager
         private string GetSavePath(int slot) =>
             Path.Combine(_saveFolder, $"{SAVE_FILE_PREFIX}{slot}{SAVE_FILE_EXTENSION}");
 
+        private string GetTempPath(int slot) => GetSavePath(slot) + TEMP_FILE_EXTENSION;
+        private string GetBackupPath(int slot) => GetSavePath(slot) + BACKUP_FILE_EXTENSION;
+
+        private void WriteSaveAtomically(int slot, byte[] encrypted)
+        {
+            string savePath = GetSavePath(slot);
+            string tempPath = GetTempPath(slot);
+            string backupPath = GetBackupPath(slot);
+
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+
+            File.WriteAllBytes(tempPath, encrypted);
+
+            if (!TryReadSaveData(tempPath, out _, out string validationError))
+            {
+                File.Delete(tempPath);
+                throw new InvalidDataException(
+                    $"임시 세이브 검증 실패: {validationError}");
+            }
+
+            if (!File.Exists(savePath))
+            {
+                File.Move(tempPath, savePath);
+                return;
+            }
+
+            try
+            {
+                File.Replace(tempPath, savePath, backupPath);
+            }
+            catch (PlatformNotSupportedException)
+            {
+                ReplaceWithPortableFallback(tempPath, savePath, backupPath);
+            }
+            catch (IOException)
+            {
+                ReplaceWithPortableFallback(tempPath, savePath, backupPath);
+            }
+        }
+
+        private static void ReplaceWithPortableFallback(
+            string tempPath,
+            string savePath,
+            string backupPath)
+        {
+            File.Copy(savePath, backupPath, overwrite: true);
+            File.Delete(savePath);
+            File.Move(tempPath, savePath);
+        }
+
+        private bool TryReadSaveData(
+            string path,
+            out GameSaveData data,
+            out string error)
+        {
+            data = null;
+            error = null;
+
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            {
+                error = "파일 없음";
+                return false;
+            }
+
+            try
+            {
+                byte[] bytes = File.ReadAllBytes(path);
+                string json = IsPlainJson(bytes)
+                    ? Encoding.UTF8.GetString(bytes)
+                    : SaveCrypto.Decrypt(bytes);
+
+                data = JsonConvert.DeserializeObject<GameSaveData>(json);
+                if (data == null)
+                    throw new InvalidDataException("역직렬화 결과가 null입니다.");
+
+                MigrateToCurrentVersion(data);
+                return true;
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                data = null;
+                return false;
+            }
+        }
+
+        private static bool IsPlainJson(byte[] bytes)
+        {
+            if (bytes == null)
+                return false;
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                char c = (char)bytes[i];
+                if (char.IsWhiteSpace(c))
+                    continue;
+                return c == '{';
+            }
+
+            return false;
+        }
+
+        private static void MigrateToCurrentVersion(GameSaveData data)
+        {
+            string sourceVersion = string.IsNullOrWhiteSpace(data.saveVersion)
+                ? "1.0"
+                : data.saveVersion;
+
+            if (!Version.TryParse(sourceVersion, out Version parsedSource))
+                throw new InvalidDataException($"잘못된 세이브 버전: {sourceVersion}");
+            if (!Version.TryParse(CURRENT_SAVE_VERSION, out Version current))
+                throw new InvalidOperationException(
+                    $"잘못된 현재 세이브 버전: {CURRENT_SAVE_VERSION}");
+            if (parsedSource > current)
+                throw new InvalidDataException(
+                    $"현재 빌드보다 새로운 세이브 버전입니다: {sourceVersion}");
+
+            // 1.x → 2.0: 암호화 포맷 전환. 데이터 필드는 기본 객체로 보정한다.
+            data.inventory ??= new InventorySaveData();
+            data.story ??= new StorySaveData();
+            data.flags ??= new FlagSaveData();
+            data.recipe ??= new RecipeSaveData();
+            data.quest ??= new QuestSaveData();
+            data.party ??= new PartySaveData();
+            data.world ??= new WorldStateSaveData();
+            data.saveVersion = CURRENT_SAVE_VERSION;
+        }
+
+        private void TryRestoreBackup(int slot)
+        {
+            string backupPath = GetBackupPath(slot);
+            string savePath = GetSavePath(slot);
+
+            try
+            {
+                File.Copy(backupPath, savePath, overwrite: true);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(
+                    $"[SaveManager] 슬롯 {slot} 백업 파일 복원 쓰기 실패: {e.Message}");
+            }
+        }
+
         /// <summary> 슬롯 번호가 유효 범위(0 ~ MAX_SLOTS-1)인지 검사한다. </summary>
         private static bool IsValidSlot(int slot) => slot >= 0 && slot < MAX_SLOTS;
+
+        private SaveOperationResult CompleteWithFailure(
+            SaveOperationResult result,
+            string message)
+        {
+            result.Succeeded = false;
+            result.Message = message;
+            LastOperationResult = result;
+            Debug.LogError($"[SaveManager] {message}");
+            return result;
+        }
 
         #endregion
     }
@@ -328,5 +567,54 @@ namespace UPlayGround.Manager
         public string mapId;        // 저장 당시 맵 식별자
         public int storyProgress;   // 스토리 진행도
         public string filePath;
+    }
+
+    public enum SaveOperationType
+    {
+        Save,
+        Load,
+    }
+
+    public enum SaveParticipantStage
+    {
+        Export,
+        FileWrite,
+        FileRead,
+        Migration,
+        Import,
+    }
+
+    public sealed class SaveParticipantFailure
+    {
+        public string Participant { get; }
+        public SaveParticipantStage Stage { get; }
+        public string Message { get; }
+
+        public SaveParticipantFailure(
+            string participant,
+            SaveParticipantStage stage,
+            string message)
+        {
+            Participant = participant;
+            Stage = stage;
+            Message = message;
+        }
+    }
+
+    public sealed class SaveOperationResult
+    {
+        public int Slot { get; }
+        public SaveOperationType OperationType { get; }
+        public bool Succeeded { get; internal set; }
+        public bool UsedBackup { get; internal set; }
+        public string FilePath { get; internal set; }
+        public string Message { get; internal set; }
+        public List<SaveParticipantFailure> Failures { get; } = new();
+
+        public SaveOperationResult(int slot, SaveOperationType operationType)
+        {
+            Slot = slot;
+            OperationType = operationType;
+        }
     }
 }

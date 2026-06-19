@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Audio;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
 {
-    public sealed class SoundManager : BaseManager<SoundManager>, IManager
+    public sealed class SoundManager : BaseManager<SoundManager>, IManager, IAsyncInitializableManager,
+        IUpdatableManager
     {
         private const string SoundDatabaseKey = "SoundDatabase";
         private const string AudioMixerKey = "AudioMixer";
@@ -45,8 +46,6 @@ namespace UPlayGround.Manager
         private AudioSource _nextBgmSource;
         private Coroutine _bgmFadeRoutine;
         private string _currentBgmKey;
-        private AsyncOperationHandle<SoundDatabaseSO> _databaseHandle;
-        private AsyncOperationHandle<AudioMixer> _mixerHandle;
         private bool _databaseNotReadyWarningLogged;
 
         public bool IsDatabaseLoaded => _soundDatabase != null;
@@ -57,8 +56,13 @@ namespace UPlayGround.Manager
         public void Init()
         {
             EnsureRuntimeObjects();
-            LoadSoundDatabaseAsync();
-            LoadAudioMixerAsync();
+        }
+
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            UniTask databaseTask = LoadSoundDatabaseAsync(cancellationToken);
+            UniTask mixerTask = LoadAudioMixerAsync(cancellationToken);
+            await UniTask.WhenAll(databaseTask, mixerTask);
         }
 
         public void AfterInit() { }
@@ -68,13 +72,8 @@ namespace UPlayGround.Manager
             StopAllCoroutines();
             StopAllSounds();
 
-            if (_databaseHandle.IsValid())
-                Addressables.Release(_databaseHandle);
-
-            if (_mixerHandle.IsValid())
-                Addressables.Release(_mixerHandle);
-
             _soundDatabase = null;
+            _audioMixer = null;
             _listenerTransform = null;
         }
 
@@ -194,7 +193,7 @@ namespace UPlayGround.Manager
             _currentBgmKey = null;
         }
 
-        private async void LoadSoundDatabaseAsync()
+        private async UniTask LoadSoundDatabaseAsync(CancellationToken cancellationToken)
         {
             if (_soundDatabase != null)
             {
@@ -202,11 +201,12 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            _databaseHandle = Addressables.LoadAssetAsync<SoundDatabaseSO>(SoundDatabaseKey);
-
             try
             {
-                _soundDatabase = await _databaseHandle.Task;
+                _soundDatabase = await AssetManager.Instance.LoadGlobalAsync<SoundDatabaseSO>(
+                    SoundDatabaseKey,
+                    nameof(SoundManager),
+                    cancellationToken);
 
                 if (_soundDatabase == null)
                 {
@@ -217,13 +217,17 @@ namespace UPlayGround.Manager
                 _soundDatabase.Initialize();
                 Debug.Log("[SoundManager] SoundDatabase 로드 완료");
             }
+            catch (System.OperationCanceledException)
+            {
+                throw;
+            }
             catch (System.Exception e)
             {
                 Debug.LogWarning($"[SoundManager] SoundDatabase 로드 실패: {e.Message}");
             }
         }
 
-        private async void LoadAudioMixerAsync()
+        private async UniTask LoadAudioMixerAsync(CancellationToken cancellationToken)
         {
             // 씬/프리팹에서 그룹을 직접 할당했다면 Addressable 로드를 건너뛴다(직접 할당 우선).
             if (HasSerializedMixerGroups())
@@ -236,11 +240,12 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            _mixerHandle = Addressables.LoadAssetAsync<AudioMixer>(AudioMixerKey);
-
             try
             {
-                _audioMixer = await _mixerHandle.Task;
+                _audioMixer = await AssetManager.Instance.LoadGlobalAsync<AudioMixer>(
+                    AudioMixerKey,
+                    nameof(SoundManager),
+                    cancellationToken);
 
                 if (_audioMixer == null)
                 {
@@ -253,6 +258,10 @@ namespace UPlayGround.Manager
                 // 믹서가 SettingsManager보다 늦게 준비되는 경우를 대비해 저장된 볼륨 설정을 재적용한다.
                 SettingsManager.Instance?.ReapplyAudio();
                 Debug.Log("[SoundManager] AudioMixer 로드 및 그룹 매핑 완료");
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {

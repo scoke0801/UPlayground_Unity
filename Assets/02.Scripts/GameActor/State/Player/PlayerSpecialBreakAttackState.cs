@@ -15,6 +15,7 @@ namespace UPlayGround.State
     public class PlayerSpecialBreakAttackState : PlayerActorState
     {
         public override string StateName => "SpecialBreakAttack";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private const float DEFAULT_DURATION = 1.2f;
         private const float DEFAULT_DAMAGE_BY_MAX_HP_RATE = 0.2f;

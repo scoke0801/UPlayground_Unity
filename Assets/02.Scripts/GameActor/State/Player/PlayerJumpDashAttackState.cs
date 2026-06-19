@@ -9,6 +9,7 @@ namespace UPlayGround.State
     public class PlayerJumpDashAttackState : PlayerActorState
     {
         public override string StateName  => "JumpDashAttack";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
         public override bool AdjustGravity => true;
 
         private float _decelerationDuration = 0.5f;

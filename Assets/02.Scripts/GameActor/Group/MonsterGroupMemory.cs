@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.MovementController;
+using UPlayGround.State;
 
 namespace UPlayGround.Group
 {
@@ -48,7 +49,7 @@ namespace UPlayGround.Group
         }
 
         public bool IsPlayerStaggered => GetPlayerStateName() == "Hit";
-        public bool IsPlayerAttacking => IsPlayerAttackState(GetPlayerStateName());
+        public bool IsPlayerAttacking => IsPlayerInCombatState();
         public bool IsPlayerGuarding => IsPlayerGuardState(GetPlayerStateName());
         public bool IsPlayerRecovering => GetPlayerStateName() == "Idle" && _playerIdleTimer >= 1.2f;
 
@@ -136,7 +137,7 @@ namespace UPlayGround.Group
                     NotifyPlayerDodgeObserved();
                 if (IsPlayerGuardState(stateName))
                     NotifyPlayerGuardObserved();
-                if (IsPlayerAttackState(stateName))
+                if (IsPlayerInCombatState())
                     NotifyPlayerAttackObserved();
 
                 _lastObservedPlayerStateName = stateName;
@@ -151,6 +152,16 @@ namespace UPlayGround.Group
 
         private string GetPlayerStateName()
             => _playerController?.CurrentState?.StateName ?? "";
+
+        /// <summary>
+        /// 플레이어가 공격(Combat 태그) 상태인가.
+        /// 상태명 문자열 목록 대신 ActorStateTag.Combat으로 판별해, 새 공격 상태 추가 시 누락되지 않게 한다.
+        /// </summary>
+        private bool IsPlayerInCombatState()
+        {
+            var state = _playerController?.CurrentState;
+            return state != null && (state.StateTags & ActorStateTag.Combat) != 0;
+        }
 
         private static void UpdateWindow(ref float timer, ref int count, float window, float dt)
         {
@@ -196,10 +207,6 @@ namespace UPlayGround.Group
 
             return stats;
         }
-
-        private static bool IsPlayerAttackState(string stateName)
-            => stateName is "Attack" or "DashAttack" or "JumpAttack" or "JumpDashAttack"
-                or "FinishAttack" or "Charge" or "SpecialBreakAttack" or "HeavyAttack";
 
         private static bool IsPlayerDodgeState(string stateName)
             => stateName == "Dodge";

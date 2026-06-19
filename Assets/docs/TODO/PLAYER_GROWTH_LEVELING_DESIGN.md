@@ -2,14 +2,14 @@
 
 > 작성일: 2026-06-08
 > 상태: 설계 단계 (구현 전)
-> 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](./PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
+> 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
 > 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 
 ---
 
 ## 0. 선행 문서와의 관계
 
-[PARTY_LEVEL_POWER_DESIGN.md](./PARTY_LEVEL_POWER_DESIGN.md)의 **Phase A~C는 이미 구현**되어 있다 — `PartyMemberGrowthSO`, `PartyPowerCalculator`, `PartyManager`의 캐릭터별 레벨/전투력 API, 그리고 (선행 문서가 후속으로 미뤘던) 스왑 시 Growth Stat의 런타임 주입(`PlayerActor.ApplyCharacterStats`)까지 동작한다.
+[PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md)의 **Phase A~C는 이미 구현**되어 있다 — `PartyMemberGrowthSO`, `PartyPowerCalculator`, `PartyManager`의 캐릭터별 레벨/전투력 API, 그리고 (선행 문서가 후속으로 미뤘던) 스왑 시 Growth Stat의 런타임 주입(`PlayerActor.ApplyCharacterStats`)까지 동작한다.
 
 본 문서는 선행 문서의 **Phase D(후속 성장 시스템)** 를 구체화한다. 단, **모델을 변경**한다:
 

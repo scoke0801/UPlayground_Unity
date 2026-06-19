@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UPlayGround.Component;
 using UPlayGround.Data;
@@ -11,6 +12,7 @@ using UPlayGround.Data.Party;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
+using UPlayGround.Core.Party;
 
 namespace UPlayGround.Manager
 {
@@ -28,12 +30,14 @@ namespace UPlayGround.Manager
     /// - Death / Grabbed 상태에서는 교체 불가
     /// - 교체 어시스트: PerfectDodgeWindow 중 교체 성공 시 incoming 캐릭터 공격 자동 발동
     /// </summary>
-    public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable
+    public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable, IAsyncInitializableManager,
+        IUpdatableManager
     {
         private PartyConfigSO          _config;
         private PlayerActor            _player;
-        private List<CharacterActorType> _roster      = new();
-        private List<CharacterActorType> _battleOrder = new();
+        private readonly PartyRosterService<CharacterActorType> _rosterService = new();
+        private List<CharacterActorType> _roster => _rosterService.MutableRoster;
+        private List<CharacterActorType> _battleOrder => _rosterService.MutableBattleOrder;
         private readonly Dictionary<CharacterActorType, PartyMemberGrowthSO> _growthLookup = new();
         private readonly Dictionary<CharacterActorType, int> _levels = new();
         // 현재 레벨 내 누적 경험치 (다음 레벨까지의 진행분). 레벨업 시 차감 후 캐리오버.
@@ -136,23 +140,32 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
-            LoadConfigSO();
             RegisterSwapInputs();
             SaveManager.Instance.RegisterSaveable(this);
         }
 
-        private async void LoadConfigSO()
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            LoadConfigSOAsync(cancellationToken);
+
+        private async UniTask LoadConfigSOAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var handle = Addressables.LoadAssetAsync<PartyConfigSO>(AddressableKey);
-                _config = await handle.Task;
-                if (_config != null)
-                    _swapCooldown = Mathf.Max(0f, _config.swapCooldown);
+                _config = await AssetManager.Instance.LoadGlobalAsync<PartyConfigSO>(
+                    AddressableKey,
+                    nameof(PartyManager),
+                    cancellationToken);
+
+                _swapCooldown = Mathf.Max(0f, _config.swapCooldown);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception e)
             {
                 Debug.LogError($"[PartyManager] ConfigSO 로드 실패: {e.Message}");
+                throw;
             }
         }
 
@@ -194,6 +207,8 @@ namespace UPlayGround.Manager
             _exp.Clear();
             _swapCooldownEndTimes.Clear();
             _pendingPartyLoad = null;
+
+            _config = null;
         }
 
         public void OnUpdate()
@@ -409,16 +424,15 @@ namespace UPlayGround.Manager
                 return false;
             }
 
-            _roster.Add(type);
+            _rosterService.AddToRoster(type);
             InitializeLevelIfMissing(type);
             OnRosterChanged?.Invoke();
             OnCharacterUnlocked?.Invoke(type);
             OnPartyProgressionChanged?.Invoke(type);
             Debug.Log($"[PartyManager] {type} 보유 합류!");
 
-            if (_battleOrder.Count < _maxBattleSize)
+            if (_rosterService.AddToBattle(type, _maxBattleSize))
             {
-                _battleOrder.Add(type);
                 OnBattleOrderChanged?.Invoke();
                 Debug.Log($"[PartyManager] {type} 출전 자동 편입 (BattleOrder {_battleOrder.Count}/{_maxBattleSize})");
                 return true;
@@ -444,12 +458,8 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool AddToBattle(CharacterActorType type)
         {
-            if (type == CharacterActorType.None)        return false;
-            if (!_roster.Contains(type))                return false;
-            if (_battleOrder.Contains(type))            return false;
-            if (_battleOrder.Count >= _maxBattleSize)   return false;
-
-            _battleOrder.Add(type);
+            if (type == CharacterActorType.None) return false;
+            if (!_rosterService.AddToBattle(type, _maxBattleSize)) return false;
             OnBattleOrderChanged?.Invoke();
             return true;
         }
@@ -476,12 +486,12 @@ namespace UPlayGround.Manager
                     return false;
                 }
 
-                _battleOrder.RemoveAt(slotIndex);
+                _rosterService.RemoveFromBattle(type, out _);
                 _activeIndex = _battleOrder.IndexOf(nextType);
             }
             else
             {
-                _battleOrder.RemoveAt(slotIndex);
+                _rosterService.RemoveFromBattle(type, out _);
                 if (slotIndex < _activeIndex) _activeIndex--;
             }
 
@@ -504,25 +514,11 @@ namespace UPlayGround.Manager
             bool replacingActive = (slotIndex == _activeIndex);
             if (replacingActive && _player.GetHealthForCharacter(type) <= 0f) return false;
 
-            int existingIndex = _battleOrder.IndexOf(type);
+            if (!_rosterService.ReplaceBattleSlot(slotIndex, type, out int existingIndex))
+                return false;
 
-            // BattleOrder 수정
-            if (existingIndex >= 0)
-            {
-                // 두 출전 슬롯 위치 swap
-                _battleOrder[existingIndex] = _battleOrder[slotIndex];
-                _battleOrder[slotIndex]     = type;
-
-                // 활성 인덱스 보정: 활성 캐릭터가 existingIndex 에 있었다면 slotIndex 로 이동
-                if (!replacingActive && existingIndex == _activeIndex)
-                {
-                    _activeIndex = slotIndex;
-                }
-            }
-            else
-            {
-                _battleOrder[slotIndex] = type;
-            }
+            if (!replacingActive && existingIndex == _activeIndex)
+                _activeIndex = slotIndex;
 
             // 활성 슬롯의 캐릭터가 바뀐 경우 실제 모델 전환
             if (replacingActive)
@@ -542,20 +538,9 @@ namespace UPlayGround.Manager
         {
             if (newOrder == null || newOrder.Count == 0) return false;
 
-            var validated = new List<CharacterActorType>();
-            foreach (var t in newOrder)
-            {
-                if (t == CharacterActorType.None)  continue;
-                if (!_roster.Contains(t))          continue;
-                if (validated.Contains(t))         continue;
-                if (validated.Count >= _maxBattleSize) break;
-                validated.Add(t);
-            }
-            if (validated.Count == 0) return false;
-
             CharacterActorType prevActive = ActiveCharacterType;
-            _battleOrder.Clear();
-            _battleOrder.AddRange(validated);
+            if (!_rosterService.SetBattleOrder(newOrder, _maxBattleSize))
+                return false;
 
             int newActiveIdx = _battleOrder.IndexOf(prevActive);
             if (newActiveIdx >= 0)
@@ -1055,7 +1040,7 @@ namespace UPlayGround.Manager
                 var swap = _player?.GetComponent<PlayerSwapBehaviour>();
                 if (swap != null)
                 {
-                    _roster = swap.GetAllCharacterTypes();
+                    _roster.AddRange(swap.GetAllCharacterTypes());
                 }
             }
 

@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
+using UPlayGround.State;
 
 namespace UPlayGround.Component
 {
@@ -159,7 +160,7 @@ namespace UPlayGround.Component
                     NotifyPlayerDodgeObserved();
                 if (IsPlayerGuardState(stateName))
                     NotifyPlayerGuardObserved();
-                if (IsPlayerAttackState(stateName))
+                if (IsPlayerInCombatState())
                     NotifyPlayerAttackObserved();
 
                 _lastObservedPlayerStateName = stateName;
@@ -181,8 +182,17 @@ namespace UPlayGround.Component
         /// <summary> 플레이어가 공격 모션 중인가 </summary>
         public bool IsPlayerAttacking()
         {
-            string s = GetPlayerStateName();
-            return IsPlayerAttackState(s);
+            return IsPlayerInCombatState();
+        }
+
+        /// <summary>
+        /// 플레이어가 공격(Combat 태그) 상태인가.
+        /// 상태명 문자열 목록 대신 ActorStateTag.Combat으로 판별해, 새 공격 상태 추가 시 누락되지 않게 한다.
+        /// </summary>
+        private bool IsPlayerInCombatState()
+        {
+            var state = _playerController?.CurrentState;
+            return state != null && (state.StateTags & ActorStateTag.Combat) != 0;
         }
 
         /// <summary> 플레이어가 가드 중인가 </summary>
@@ -209,10 +219,6 @@ namespace UPlayGround.Component
             string s = GetPlayerStateName();
             return s == "Idle" && _playerIdleTimer >= 1.2f;
         }
-
-        private static bool IsPlayerAttackState(string stateName)
-            => stateName is "Attack" or "DashAttack" or "JumpAttack" or "JumpDashAttack"
-                or "FinishAttack" or "Charge" or "SpecialBreakAttack" or "HeavyAttack";
 
         private static bool IsPlayerDodgeState(string stateName)
             => stateName == "Dodge";

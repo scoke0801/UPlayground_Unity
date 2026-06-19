@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Path;
 using UPlayGround.Group;
@@ -12,7 +13,8 @@ namespace UPlayGround.Manager
     /// ActorID 기반으로 런타임에 Actor를 스폰하고 추적하는 매니저.
     /// GameManager에서 초기화 순서 중 GameObjectManager 이후에 등록한다.
     /// </summary>
-    public class ActorSpawnManager : BaseManager<ActorSpawnManager>, IManager
+    public class ActorSpawnManager : BaseManager<ActorSpawnManager>, IManager, IAsyncInitializableManager,
+        IUpdatableManager
     {
         private const string DATABASE_KEY = "ActorDatabase";
         private ActorDatabase _database;
@@ -37,23 +39,22 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
-            LoadDatabaseAsync();
             _spawnedActors.Clear();
         }
+
+        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
+            LoadDatabaseAsync(cancellationToken);
+
         #region 데이터베이스 로드
 
-        private async void LoadDatabaseAsync()
+        private async UniTask LoadDatabaseAsync(CancellationToken cancellationToken)
         {
-            var handle = Addressables.LoadAssetAsync<ActorDatabase>(DATABASE_KEY);
             try
             {
-                _database = await handle.Task;
-
-                if (_database == null)
-                {
-                    Debug.LogError($"[ActorSpawnManager] '{DATABASE_KEY}' Addressable을 찾을 수 없습니다.");
-                    return;
-                }
+                _database = await AssetManager.Instance.LoadGlobalAsync<ActorDatabase>(
+                    DATABASE_KEY,
+                    nameof(ActorSpawnManager),
+                    cancellationToken);
 
                 _database.Initialize();
                 IsDBLoaded = true;
@@ -63,9 +64,14 @@ namespace UPlayGround.Manager
                 
                 Debug.Log("[ActorSpawnManager] Database 로드 완료");
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Debug.LogError($"[ActorSpawnManager] Database 로드 실패: {e.Message}");
+                throw;
             }
         }
         /// <summary>
@@ -104,7 +110,14 @@ namespace UPlayGround.Manager
                 Debug.Log($"[ActorSpawnManager] 씬 배치 Actor {count}개 자동 등록 완료");
         }
 
-        public void Dispose() => _spawnedActors.Clear();
+        public void Dispose()
+        {
+            _spawnedActors.Clear();
+            _pendingRegistrationQueue.Clear();
+
+            _database = null;
+            IsDBLoaded = false;
+        }
 
         public void OnUpdate() => CleanupDestroyedActors();
 

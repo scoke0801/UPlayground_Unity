@@ -18,7 +18,7 @@ namespace UPlayGround.Manager
     /// N개의 Update를 1개의 매니저 루프 + N개의 매니지드 메서드 호출로 치환해 오버헤드를 낮춘다.
     /// 각 구성요소는 자체 타이머/인터벌을 유지하므로 동작 의미는 기존과 동일하다.
     /// </summary>
-    public class AgentTickManager : BaseManager<AgentTickManager>, IManager
+    public class AgentTickManager : BaseManager<AgentTickManager>, IManager, IUpdatableManager
     {
         private readonly List<IManagedTick> _ticks = new();
         private bool _needsCompact;

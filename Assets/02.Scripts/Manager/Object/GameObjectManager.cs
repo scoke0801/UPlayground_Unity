@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager
 {
-    public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager
+    public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager, IAsyncInitializableManager,
+        IUpdatableManager, IFixedUpdatableManager
     {
         private PlayerActor _player;
         private List<GameActor> _allActors = new List<GameActor>();
@@ -44,8 +47,13 @@ namespace UPlayGround.Manager
             {
                 _handlerList[i].Init();
             }
-            LoadFXPrefabDatabase();
-            LoadItemActorPrefab();
+        }
+
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            UniTask fxTask = LoadFXPrefabDatabase(cancellationToken);
+            UniTask itemTask = LoadItemActorPrefab(cancellationToken);
+            await UniTask.WhenAll(fxTask, itemTask);
         }
 
         public void RegisterActor(GameActor actor)
@@ -121,6 +129,7 @@ namespace UPlayGround.Manager
 
             _handlerList.Clear();
             DisposeItemActorPrefab();
+            _fxPrefabDatabase = null;
         }
 
         public void OnUpdate()

@@ -9,7 +9,8 @@ namespace UPlayGround.Manager.Combat
     /// 각 핸들러(HitStop, VitalOrb)는 독립 모듈이며, MonoBehaviour 기능
     /// (코루틴, transform)이 필요할 경우 이 매니저의 인스턴스를 빌려 쓴다.
     /// </summary>
-    public class GameCombatManager : BaseManager<GameCombatManager>, IManager
+    public class GameCombatManager : BaseManager<GameCombatManager>, IManager,
+        IUpdatableManager, IFixedUpdatableManager, ILateUpdatableManager
     {
         private GameHitStopHandler _gameHitStopHandler;
         private GameVitalOrbHandler _gameVitalOrbHandler;

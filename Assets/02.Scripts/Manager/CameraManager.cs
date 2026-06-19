@@ -1,5 +1,6 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data;
@@ -15,7 +16,8 @@ namespace UPlayGround.Manager
     /// TPS 카메라 오케스트레이터.
     /// 실제 로직은 서브시스템(CameraLockOn, CameraCollision 등)에 위임한다.
     /// </summary>
-    public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor
+    public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor,
+        IAsyncInitializableManager, IUpdatableManager, ILateUpdatableManager
     {
         [SerializeField] private CameraSettings settings;
 
@@ -101,13 +103,19 @@ namespace UPlayGround.Manager
         public void Init()
         {
             Debug.Log("[CameraManager] 초기화 시작");
+        }
 
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
             if (settings == null)
-                LoadSettingsSync();
+            {
+                settings = await AssetManager.Instance.LoadGlobalAsync<CameraSettings>(
+                    SETTINGS_ADDRESSABLE_KEY,
+                    nameof(CameraManager),
+                    cancellationToken);
+            }
 
             InitializeCamera();
-            LoadCameraShakeDatabase();
-            LoadDialogueCameraSettings();
 
             _lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             _collisionLayers = CameraConfig.GetCollisionLayerMask();
@@ -119,9 +127,17 @@ namespace UPlayGround.Manager
             _combatCameraEventRouter = new CombatCameraEventRouter(this);
             InitializeCameraModes();
 
-            LoadKillCamData();
-            LoadCombatCameraProfileDatabase();
-            LoadPerfectGuardFOVData();
+            UniTask cameraShakeTask = LoadCameraShakeDatabase(cancellationToken);
+            UniTask dialogueTask = LoadDialogueCameraSettings(cancellationToken);
+            UniTask killCamTask = LoadKillCamData(cancellationToken);
+            UniTask profileTask = LoadCombatCameraProfileDatabase(cancellationToken);
+            UniTask guardFovTask = LoadPerfectGuardFOVData(cancellationToken);
+            await UniTask.WhenAll(
+                cameraShakeTask,
+                dialogueTask,
+                killCamTask,
+                profileTask,
+                guardFovTask);
 
             Debug.Log("[CameraManager] 초기화 완료");
         }
@@ -170,11 +186,10 @@ namespace UPlayGround.Manager
 
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
-            if (_dialogueCameraSettings != null)
-            {
-                Addressables.Release(_dialogueCameraSettings);
-                _dialogueCameraSettings = null;
-            }
+            settings = null;
+            _cameraShakeDatabase = null;
+            _dialogueCameraSettings = null;
+            _killCamController = null;
 
             if (_cameraPivot != null) Destroy(_cameraPivot.gameObject);
 
@@ -616,20 +631,20 @@ namespace UPlayGround.Manager
             return _combatStateProvider?.Invoke() ?? false;
         }
 
-        private void LoadSettingsSync()
-        {
-            var handle = Addressables.LoadAssetAsync<CameraSettings>(SETTINGS_ADDRESSABLE_KEY);
-            settings   = handle.WaitForCompletion();
-            if (settings == null)
-                Debug.LogError("[CameraManager] CameraSettings SO를 로드할 수 없습니다.");
-        }
-
-        private async void LoadCameraShakeDatabase()
+        private async UniTask LoadCameraShakeDatabase(CancellationToken cancellationToken)
         {
             try
             {
-                _cameraShakeDatabase = await Addressables.LoadAssetAsync<CameraShakeDatabase>(CAMERA_SHAKE_DB_KEY).Task;
+                _cameraShakeDatabase =
+                    await AssetManager.Instance.LoadGlobalAsync<CameraShakeDatabase>(
+                        CAMERA_SHAKE_DB_KEY,
+                        nameof(CameraManager),
+                        cancellationToken);
                 _cameraShakeDatabase?.Initialize();
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {
@@ -637,12 +652,20 @@ namespace UPlayGround.Manager
             }
         }
 
-        private async void LoadDialogueCameraSettings()
+        private async UniTask LoadDialogueCameraSettings(CancellationToken cancellationToken)
         {
             try
             {
-                _dialogueCameraSettings = await Addressables.LoadAssetAsync<DialogueCameraSettingsSO>(DIALOGUE_CAMERA_SETTINGS_KEY).Task;
+                _dialogueCameraSettings =
+                    await AssetManager.Instance.LoadGlobalAsync<DialogueCameraSettingsSO>(
+                        DIALOGUE_CAMERA_SETTINGS_KEY,
+                        nameof(CameraManager),
+                        cancellationToken);
                 SyncCameraContext();
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {
@@ -650,12 +673,19 @@ namespace UPlayGround.Manager
             }
         }
 
-        private async void LoadKillCamData()
+        private async UniTask LoadKillCamData(CancellationToken cancellationToken)
         {
             try
             {
-                var data = await Addressables.LoadAssetAsync<KillCamData>(KILL_CAM_DATA_KEY).Task;
+                var data = await AssetManager.Instance.LoadGlobalAsync<KillCamData>(
+                    KILL_CAM_DATA_KEY,
+                    nameof(CameraManager),
+                    cancellationToken);
                 if (data != null) _killCamController = new KillCamController(this, data);
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {
@@ -663,12 +693,20 @@ namespace UPlayGround.Manager
             }
         }
 
-        private async void LoadCombatCameraProfileDatabase()
+        private async UniTask LoadCombatCameraProfileDatabase(CancellationToken cancellationToken)
         {
             try
             {
-                var data = await Addressables.LoadAssetAsync<CombatCameraProfileDatabaseSO>(COMBAT_CAMERA_PROFILE_DB_KEY).Task;
+                var data =
+                    await AssetManager.Instance.LoadGlobalAsync<CombatCameraProfileDatabaseSO>(
+                        COMBAT_CAMERA_PROFILE_DB_KEY,
+                        nameof(CameraManager),
+                        cancellationToken);
                 _combatCameraEventRouter?.SetProfileDatabase(data);
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {
@@ -676,12 +714,19 @@ namespace UPlayGround.Manager
             }
         }
 
-        private async void LoadPerfectGuardFOVData()
+        private async UniTask LoadPerfectGuardFOVData(CancellationToken cancellationToken)
         {
             try
             {
-                var data = await Addressables.LoadAssetAsync<FOVCameraEffectData>(PERFECT_GUARD_FOV_KEY).Task;
+                var data = await AssetManager.Instance.LoadGlobalAsync<FOVCameraEffectData>(
+                    PERFECT_GUARD_FOV_KEY,
+                    nameof(CameraManager),
+                    cancellationToken);
                 PlayerGuardState.SetPerfectGuardFOVData(data);
+            }
+            catch (System.OperationCanceledException)
+            {
+                throw;
             }
             catch (System.Exception e)
             {

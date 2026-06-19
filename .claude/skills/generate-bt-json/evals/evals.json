@@ -3,23 +3,23 @@
     "evals": [
         {
             "id": 1,
-            "name": "ground-melee-basic",
-            "prompt": "근접 전투형 지상 적의 BT JSON 만들어줘. 동작은 이렇게: 타겟이 있으면 (1) 사거리 1.5m 안에 있고 스킬이 있으면 공격, (2) 0.8m보다 가까우면 후퇴, (3) 2.5m 넘으면 추격, (4) 셋 다 아니면 idle. 타겟 없으면 EnablePatrol이 true면 patrol, false면 idle. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_GroundMelee.json에 저장.",
-            "expected_output": "BehaviorTreeJsonData 포맷의 JSON 파일. SelectorNode 루트 아래 두 Sequence(전투/비전투). 거리 비교는 IsTargetInRangeNode + FloatComparisonType, 상태 전환은 TransitionEnemyStateNode.",
+            "name": "ground-melee-scorer",
+            "prompt": "근접 전투형 지상 적의 BT JSON 만들어줘. 생존(행동금지 상태 유지 / 무타겟 순찰), 플레이어 경직·회복 펀시, 그리고 스코어러가 고른 의도대로 공격/카운터/유지/후퇴하도록. 파일은 Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Test_GroundMelee.json에 저장.",
+            "expected_output": "Monster Behavior Rules JSON. schemaVersion=1, actorKind=Ground. groups에 00 Survival, 20 Punish(IsPlayerStaggered/IsPlayerRecovering→ExecuteAttack), 그리고 반드시 '40 Execute Selected Intent' 그룹({condition:SelectedIntent, value:Attack/Punish/Counter/...} → 대응 action) 포함. 50 기본리듬 + KeepCurrentState fallback. 카탈로그 밖 키/enum 미사용.",
             "files": []
         },
         {
             "id": 2,
             "name": "phase-based-boss",
-            "prompt": "보스 적의 BT JSON 만들어줘. 페이즈 인덱스 0(HP 100~50%)에선 일반 추격+공격만, 페이즈 1(HP 50~0%)에선 charge 허용해서 공격적으로 굴어. 페이즈 판정은 IsEnemyPhaseNode 사용. 매 분기 진입 전에 SyncEnemyBlackboard로 타겟/거리 상태 갱신 필요. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_PhaseBoss.json.",
-            "expected_output": "두 페이즈 분기를 가진 트리. IsEnemyPhaseNode._phaseIndex를 0과 1로 각각 사용. 페이즈1 분기에서 Charge state transition 또는 ExecuteEnemyAttack을 더 공격적으로 호출.",
+            "prompt": "보스 적의 BT Rules JSON 만들어줘. 페이즈 0(HP 100~50%)은 일반 추격+공격, 페이즈 1(HP 50~0%)은 charge 포함 공격적. IsEnemyPhase로 분기. SelectedIntent 그룹도 포함. 파일은 Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Test_PhaseBoss.json.",
+            "expected_output": "actorKind=Ground Rules JSON. IsEnemyPhase value로 페이즈 분기(0/1), 페이즈1에서 RequestAction intent=Attack style=Charge 또는 ExecuteAttack을 더 공격적으로. '40 Execute Selected Intent' 그룹 유지. blackboard에 페이즈/거리 튜닝값.",
             "files": []
         },
         {
             "id": 3,
             "name": "ranged-cooldown",
-            "prompt": "원거리형 적 BT JSON. 거리 3~6m 사이에서만 스킬 공격 시도하고, 한 번 공격하면 4초 쿨다운. 1.5m보다 가까워지면 후퇴. 사정거리 밖이면 추격. 타겟 없으면 idle. 파일은 Assets/10.Datas/AI/BehaviorTree/Json/BT_Test_RangedCooldown.json.",
-            "expected_output": "공격 분기가 CooldownNode 데코레이터로 감싸져 있고, IsTargetInRangeNode가 FloatComparisonType.Between으로 3~6m 체크. 후퇴/추격 분기에 각각 적절한 거리 조건.",
+            "prompt": "원거리형 적 BT Rules JSON. preferredRange 부근에서 스킬 공격하되 쿨다운 적용, minCombatDistance보다 가까우면 후퇴, 사정거리 밖이면 추격. SelectedIntent 그룹 포함. 파일은 Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Test_RangedCooldown.json.",
+            "expected_output": "actorKind=Ground Rules JSON. 공격 규칙에 CooldownReady value=쿨다운id + 같은 action의 cooldownId/cooldownDuration 짝. DistanceLessOrEqual(minCombatDistance)→후퇴, DistanceGreater(preferredRange)→Chase. '40 Execute Selected Intent' 그룹 포함.",
             "files": []
         }
     ]

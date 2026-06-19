@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
@@ -26,7 +27,7 @@ namespace UPlayGround.Manager
         WorldSpace = 10000,
     }
 
-    public class UIManager : BaseManager<UIManager>, IManager
+    public class UIManager : BaseManager<UIManager>, IManager, IAsyncInitializableManager
     {
         private const string DATABASE_PATH       = "UIPrefabDatabase";
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
@@ -61,12 +62,23 @@ namespace UPlayGround.Manager
             _activeUIObjects    = new Dictionary<string, GameObject>();
             _activeUIComponents = new Dictionary<string, UI_Base>();
             _uiByType           = new Dictionary<System.Type, UI_Base>();
+        }
+
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            if (_uiRootPrefab == null)
+            {
+                _uiRootPrefab = await AssetManager.Instance.LoadGlobalAsync<GameObject>(
+                    UI_ROOT_PREFAB_PATH,
+                    nameof(UIManager),
+                    cancellationToken);
+            }
 
             CreateUIRoot();
             CreateCanvasLayers();
             EnsureEventSystem();
-            LoadAssetsAsync();
             RegisterInputEvents();
+            await LoadAssetsAsync(cancellationToken);
         }
 
         public void AfterInit() { }
@@ -93,6 +105,10 @@ namespace UPlayGround.Manager
 
             _uiRootInstance = null;
             _eventSystem    = null;
+
+            _uiPrefabDatabase = null;
+            _floaterConfig = null;
+            IsInitialized = false;
         }
 
         public void OnUpdate()      { }
@@ -105,26 +121,16 @@ namespace UPlayGround.Manager
 
         #endregion
 
-        private async void LoadAssetsAsync()
+        private async UniTask LoadAssetsAsync(CancellationToken cancellationToken)
         {
-            var dbTask     = Addressables.LoadAssetAsync<UIPrefabDatabase>(DATABASE_PATH).Task;
-            var configTask = Addressables.LoadAssetAsync<DamageFloaterConfigSO>(FLOATER_CONFIG_PATH).Task;
-
-            await Task.WhenAll(dbTask, configTask);
-
-            _uiPrefabDatabase = dbTask.Result;
-            _floaterConfig    = configTask.Result;
-
-            if (_uiPrefabDatabase == null)
-            {
-                Debug.LogError($"[UIManager] UIPrefabDatabase '{DATABASE_PATH}' 로드 실패");
-                return;
-            }
-            if (_floaterConfig == null)
-            {
-                Debug.LogError($"[UIManager] DamageFloaterConfig '{FLOATER_CONFIG_PATH}' 로드 실패");
-                return;
-            }
+            _uiPrefabDatabase = await AssetManager.Instance.LoadGlobalAsync<UIPrefabDatabase>(
+                DATABASE_PATH,
+                nameof(UIManager),
+                cancellationToken);
+            _floaterConfig = await AssetManager.Instance.LoadGlobalAsync<DamageFloaterConfigSO>(
+                FLOATER_CONFIG_PATH,
+                nameof(UIManager),
+                cancellationToken);
 
             _uiPrefabDatabase.Initialize();
             IsInitialized = true;
@@ -150,32 +156,11 @@ namespace UPlayGround.Manager
 
         private void CreateUIRoot()
         {
-            GameObject rootPrefab = _uiRootPrefab != null ? _uiRootPrefab : LoadUIRootPrefab();
-            if (rootPrefab == null)
+            if (_uiRootPrefab == null)
                 return;
 
-            _uiRootInstance      = Instantiate(rootPrefab, transform);
-            _uiRootInstance.name = rootPrefab.name;
-        }
-
-        private GameObject LoadUIRootPrefab()
-        {
-            AsyncOperationHandle<GameObject> handle = default;
-
-            try
-            {
-                handle = Addressables.LoadAssetAsync<GameObject>(UI_ROOT_PREFAB_PATH);
-                return handle.WaitForCompletion();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning($"[UIManager] UI 루트 프리팹 '{UI_ROOT_PREFAB_PATH}' 로드 실패. 코드 생성 방식으로 대체합니다.\n{e.Message}");
-
-                if (handle.IsValid())
-                    Addressables.Release(handle);
-
-                return null;
-            }
+            _uiRootInstance      = Instantiate(_uiRootPrefab, transform);
+            _uiRootInstance.name = _uiRootPrefab.name;
         }
 
         private void CreateCanvasLayers()

@@ -34,6 +34,7 @@ MonoBehaviour:
         endTime: 0.5319824
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7432452542259527855
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

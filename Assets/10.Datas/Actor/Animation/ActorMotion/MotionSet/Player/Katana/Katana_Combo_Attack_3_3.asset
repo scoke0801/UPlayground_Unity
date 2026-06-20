@@ -97,3 +97,4 @@ MonoBehaviour:
         endTime: 0.47026694
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon

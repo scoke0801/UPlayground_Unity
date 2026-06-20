@@ -257,6 +257,7 @@ namespace UPlayGround.Component
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
             ForceSyncWeaponState(equipPosition, false);
             ActorWeaponTrailController.RefreshAttackTrails(this);
+            GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
         }
         public void SetRightWeaponType(WeaponType type)
         {

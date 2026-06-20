@@ -10,6 +10,7 @@ namespace UPlayGround.Component
     {
         void SetTargetLayerMask(LayerMask targetLayerMask);
         void SetHitPhaseIndex(int hitPhaseIndex);
+        void SetHitboxGroup(string hitboxGroupId);
         void SetEnableCollision(bool enabled);
         void ClearHitTargets();
     }

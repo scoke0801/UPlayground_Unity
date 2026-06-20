@@ -23,6 +23,10 @@ namespace UPlayGround.Component
         public readonly float SpecialBreakDamageByMaxHpRate;
         public readonly float SpecialBreakFixedDamage;
         public readonly float SpecialBreakMinReferenceHealth;
+        // 캐릭터 공통 호밍/워프 reach — 잔상은 스왑 후에도 살아있어 활성 PlayerCombat을 라이브로 읽을 수 없으므로 스냅샷 시점 값을 캡처한다.
+        public readonly float HomingReachRange;
+        public readonly float HomingReachAngle;
+        public readonly float WarpSearchRange;
 
         public PlayerResidualAttackSnapshot(
             PlayerActor ownerPlayer,
@@ -39,7 +43,10 @@ namespace UPlayGround.Component
             MonsterActor specialBreakTarget,
             float specialBreakDamageByMaxHpRate,
             float specialBreakFixedDamage,
-            float specialBreakMinReferenceHealth)
+            float specialBreakMinReferenceHealth,
+            float homingReachRange,
+            float homingReachAngle,
+            float warpSearchRange)
         {
             OwnerPlayer = ownerPlayer;
             SourceModel = sourceModel;
@@ -56,6 +63,9 @@ namespace UPlayGround.Component
             SpecialBreakDamageByMaxHpRate = specialBreakDamageByMaxHpRate;
             SpecialBreakFixedDamage = specialBreakFixedDamage;
             SpecialBreakMinReferenceHealth = specialBreakMinReferenceHealth;
+            HomingReachRange = homingReachRange;
+            HomingReachAngle = homingReachAngle;
+            WarpSearchRange = warpSearchRange;
         }
     }
 

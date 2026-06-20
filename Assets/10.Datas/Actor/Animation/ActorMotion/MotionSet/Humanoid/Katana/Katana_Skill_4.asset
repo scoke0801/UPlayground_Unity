@@ -37,6 +37,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 128
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917165060554909
       type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

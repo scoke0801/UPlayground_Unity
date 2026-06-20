@@ -24,9 +24,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 1
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 101
       attackType: 0
@@ -93,9 +93,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 102
       attackType: 0
@@ -162,9 +162,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -219,7 +219,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 103
       attackType: 0
@@ -231,9 +231,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -293,9 +293,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -350,7 +350,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 104
       attackType: 0
@@ -362,9 +362,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -424,9 +424,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -481,7 +481,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 105
       attackType: 0
@@ -493,9 +493,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -550,7 +550,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 106
       attackType: 0
@@ -562,9 +562,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -624,9 +624,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 107
       attackType: 0
@@ -693,9 +693,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -755,9 +755,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -817,9 +817,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -874,7 +874,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 108
       attackType: 0
@@ -886,9 +886,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -943,7 +943,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 109
       attackType: 0
@@ -955,9 +955,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1012,7 +1012,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   heavyComboAttackList:
   - baseInfo:
       animKey: 200
@@ -1025,9 +1025,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1082,7 +1082,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 201
       attackType: 0
@@ -1094,9 +1094,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1151,7 +1151,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   - baseInfo:
       animKey: 202
       attackType: 0
@@ -1163,9 +1163,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1220,7 +1220,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   jumpAttackList:
   - baseInfo:
       animKey: 400
@@ -1233,9 +1233,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1290,7 +1290,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 401
       attackType: 0
@@ -1302,9 +1302,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1359,7 +1359,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 402
       attackType: 0
@@ -1371,9 +1371,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1428,7 +1428,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 403
       attackType: 0
@@ -1440,9 +1440,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1497,7 +1497,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 404
       attackType: 0
@@ -1509,9 +1509,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1566,7 +1566,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 405
       attackType: 0
@@ -1578,9 +1578,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 2
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 2
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1635,7 +1635,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
+    targetingAngle: 90
   - baseInfo:
       animKey: 406
       attackType: 0
@@ -1647,9 +1647,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 0}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 0}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1704,7 +1704,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 360
+    targetingAngle: 360
   dashAttackList:
   - baseInfo:
       animKey: 300
@@ -1717,9 +1717,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 0
         airborneForce: 0
@@ -1774,7 +1774,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   skillAttackList: []
   skillDefinitions:
   - slot: 0
@@ -1791,7 +1791,7 @@ MonoBehaviour:
           hitPhases: []
         interruptActions: 0
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 0
+        targetingAngle: 0
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -1813,7 +1813,7 @@ MonoBehaviour:
           hitPhases: []
         interruptActions: 0
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 0
+        targetingAngle: 0
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -1835,9 +1835,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -1892,7 +1892,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   parryCounterAttack:
     baseInfo:
       animKey: 531
@@ -1905,9 +1905,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -1962,7 +1962,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   entryAttack:
     baseInfo:
       animKey: 550
@@ -1975,9 +1975,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -2032,7 +2032,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   useEntryAttackVsGroggy: 1
   entryAttackVsGroggy:
     baseInfo:
@@ -2046,9 +2046,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -2103,7 +2103,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   useEntryAttackVsAirborne: 1
   entryAttackVsAirborne:
     baseInfo:
@@ -2117,9 +2117,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -2174,7 +2174,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   swapEvadeCounterAttack:
     baseInfo:
       animKey: 100
@@ -2187,9 +2187,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2244,7 +2244,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   swapSpecialAttack:
     baseInfo:
       animKey: 555
@@ -2257,9 +2257,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: DefaultCombatHit
         pullForce: 10
         airborneForce: 8
@@ -2314,7 +2314,7 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
+    targetingAngle: 60
   chargeAnimKey: 620
   chargeStages:
   - hitPhases:
@@ -2325,9 +2325,9 @@ MonoBehaviour:
       reactionDuration: 0
       forceReaction: 0
       forceBreakExpose: 0
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      hitHeightRange: 1.2
+      hitboxGroupId: Default
+      impactOffset: {x: 0, y: 1, z: 1.5}
+      targetingRange: 1.5
       hitParticleName: DefaultCombatHit
       pullForce: 0
       airborneForce: 0
@@ -2387,9 +2387,9 @@ MonoBehaviour:
       reactionDuration: 0
       forceReaction: 0
       forceBreakExpose: 0
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      hitHeightRange: 1.2
+      hitboxGroupId: Default
+      impactOffset: {x: 0, y: 1, z: 1.5}
+      targetingRange: 1.5
       hitParticleName: DefaultCombatHit
       pullForce: 0
       airborneForce: 0
@@ -2449,9 +2449,9 @@ MonoBehaviour:
       reactionDuration: 0
       forceReaction: 0
       forceBreakExpose: 0
-      attackOffset: {x: 0, y: 1, z: 1.5}
-      attackRadius: 1.5
-      hitHeightRange: 1.2
+      hitboxGroupId: Default
+      impactOffset: {x: 0, y: 1, z: 1.5}
+      targetingRange: 1.5
       hitParticleName: DefaultCombatHit
       pullForce: 0
       airborneForce: 0
@@ -2505,7 +2505,7 @@ MonoBehaviour:
           fakeImpactSlowScale: 0.9
           fakeImpactDuration: 0
     interruptActions: 1
-    hitAngle: 0
+    targetingAngle: 0
   chargeStageThresholds:
   - 0.3
   - 0.3

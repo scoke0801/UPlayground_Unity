@@ -29,6 +29,7 @@ namespace UPlayGround.Tool.Editor.Combat
             public float Start;
             public float End;
             public int PhaseIndex; // Collision 전용. 그 외 -1
+            public string HitboxGroupId; // Collision 전용
 
             public float Duration => Mathf.Max(0f, End - Start);
         }
@@ -40,8 +41,6 @@ namespace UPlayGround.Tool.Editor.Combat
             public AnimKey AnimKey;
             public List<HitPhaseData> HitPhases;
             public PlayerInterruptAction InterruptActions;
-            public float HitAngle = 60f;
-            public bool HasHitAngle;                   // false면 전방위(적 기본 표시)
             public PlayerAttackInfo PlayerInfo;        // nullable
             public EnemyAttackInfo EnemyInfo;          // nullable
             public ChargeStageData ChargeStage;        // nullable
@@ -103,6 +102,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 Start = offset + evt.startTime,
                 End = offset + Mathf.Max(evt.startTime, evt.endTime),
                 PhaseIndex = evt is BeginCollisionEvent col ? Mathf.Max(0, col.hitPhaseIndex) : -1,
+                HitboxGroupId = evt is BeginCollisionEvent collision ? collision.hitboxGroupId : null,
             };
         }
 
@@ -209,8 +209,6 @@ namespace UPlayGround.Tool.Editor.Combat
                         AnimKey = key,
                         HitPhases = stage.hitPhases,
                         InterruptActions = stage.interruptActions,
-                        HitAngle = stage.hitAngle,
-                        HasHitAngle = true,
                         ChargeStage = stage,
                         Owner = data,
                     });
@@ -245,8 +243,6 @@ namespace UPlayGround.Tool.Editor.Combat
                 AnimKey = key,
                 HitPhases = info.baseInfo.hitPhases,
                 InterruptActions = info.interruptActions,
-                HitAngle = info.hitAngle,
-                HasHitAngle = true,
                 PlayerInfo = info,
                 Owner = data,
             });
@@ -265,7 +261,6 @@ namespace UPlayGround.Tool.Editor.Combat
                     AnimKey = key,
                     HitPhases = skill.baseInfo.hitPhases,
                     InterruptActions = PlayerInterruptAction.None,
-                    HasHitAngle = false, // 적은 hitAngle 데이터가 없어 전방위로 표시
                     EnemyInfo = skill,
                     Owner = data,
                 });

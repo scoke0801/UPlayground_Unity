@@ -224,8 +224,7 @@ namespace UPlayGround.State
             // → UpdateRotation의 _softRotationTarget 추적이 이어지도록
             if (CameraManager.Instance.GetLockOnTarget() == null && attackData != null)
             {
-                _softRotationTarget = _combat.FindAttackSnapTarget(
-                    attackData.hitRange, attackData.hitAngle, false);
+                _softRotationTarget = _combat.FindAttackSnapTarget(false);
             }
 
             // 현재 및 이후의 모든 InfiniteLoop 차단 → 애니메이션이 공격 구간으로 진행

@@ -54,6 +54,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917076840972455
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -63,6 +64,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 1
+        hitboxGroupId: MainWeapon
     - rid: 7399917076840972456
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -72,6 +74,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 2
+        hitboxGroupId: MainWeapon
     - rid: 7399917076840972458
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -81,6 +84,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 3
+        hitboxGroupId: MainWeapon
     - rid: 7399917076840972459
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -90,3 +94,4 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 4
+        hitboxGroupId: MainWeapon

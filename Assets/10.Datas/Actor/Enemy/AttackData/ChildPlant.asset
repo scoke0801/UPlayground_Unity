@@ -20,9 +20,9 @@ MonoBehaviour:
       - damage: 12
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0
@@ -43,9 +43,9 @@ MonoBehaviour:
       - damage: 12
         poiseDamage: 30
         reactionType: 2
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1
-        hitHeightRange: 1.2
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1
         hitParticleName: LiteHit
         pullForce: 0
         airborneForce: 0

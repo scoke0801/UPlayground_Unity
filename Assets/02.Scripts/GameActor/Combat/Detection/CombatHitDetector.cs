@@ -5,91 +5,144 @@ namespace UPlayGround.Combat
 {
     public static class CombatHitDetector
     {
-        /// <param name="includeInvincibleTargets">
-        /// true면 무적(CanTakeDamage=false)이지만 살아있는 대상도 결과에 포함한다.
-        /// 적이 플레이어를 칠 때 사용 — 무적/퍼펙트도지/대시회피 판정을 피격자(TakeDamage)의 방어 레이어가 결정하도록 위임.
-        /// (기본 false: 플레이어가 적을 칠 때는 무적 대상을 걸러 가짜 히트 피드백을 막는다.)
-        /// </param>
-        public static int DetectMeleeHits(
-            in MeleeHitShape shape,
+        public static int DetectAttachedHits(
+            Transform ownerRoot,
+            IReadOnlyList<CombatHitbox> hitboxes,
+            LayerMask targetLayer,
             Collider[] overlapBuffer,
             ISet<IDamageable> ignoredDamageables,
+            ISet<IDamageable> collectedDamageables,
             List<CombatHit> results,
             bool includeInvincibleTargets = false)
         {
             results.Clear();
-            if (overlapBuffer == null || overlapBuffer.Length == 0)
+            if (hitboxes == null || overlapBuffer == null || overlapBuffer.Length == 0)
                 return 0;
 
-            int hitCount = Physics.OverlapSphereNonAlloc(
-                shape.Origin,
-                shape.Radius,
-                overlapBuffer,
-                shape.TargetLayer);
+            if (collectedDamageables == null)
+                return 0;
 
-            if (hitCount == overlapBuffer.Length)
+            for (int i = 0; i < hitboxes.Count; i++)
             {
-                Collider[] saturatedHits = Physics.OverlapSphere(
-                    shape.Origin,
-                    shape.Radius,
-                    shape.TargetLayer);
-                return CollectMeleeHits(shape, saturatedHits, saturatedHits.Length, ignoredDamageables, results, includeInvincibleTargets);
+                CombatHitbox hitbox = hitboxes[i];
+                if (hitbox == null || !hitbox.TryGetWorldShape(out CombatHitboxShape current))
+                    continue;
+
+                int sampleCount = 1;
+                Vector3 sweepDirection = Vector3.zero;
+                if (hitbox.UseSweep && hitbox.HasPreviousShape)
+                {
+                    float distance = Vector3.Distance(hitbox.PreviousShape.Center, current.Center);
+                    sweepDirection = current.Center - hitbox.PreviousShape.Center;
+                    sampleCount = Mathf.Clamp(
+                        Mathf.CeilToInt(distance / hitbox.SweepStepDistance),
+                        1,
+                        hitbox.MaxSweepSteps);
+                }
+
+                for (int sample = 1; sample <= sampleCount; sample++)
+                {
+                    float t = sample / (float)sampleCount;
+                    CombatHitboxShape shape = hitbox.HasPreviousShape
+                        ? CombatHitboxShape.Lerp(hitbox.PreviousShape, current, t)
+                        : current;
+                    CollectAttachedShapeHits(
+                        ownerRoot,
+                        shape,
+                        targetLayer,
+                        overlapBuffer,
+                        ignoredDamageables,
+                        collectedDamageables,
+                        results,
+                        includeInvincibleTargets,
+                        sweepDirection);
+                }
+
+                hitbox.CommitShape(current);
             }
 
-            return CollectMeleeHits(shape, overlapBuffer, hitCount, ignoredDamageables, results, includeInvincibleTargets);
+            return results.Count;
         }
 
-        private static int CollectMeleeHits(
-            in MeleeHitShape shape,
-            Collider[] hits,
-            int hitCount,
+        private static void CollectAttachedShapeHits(
+            Transform ownerRoot,
+            in CombatHitboxShape shape,
+            LayerMask targetLayer,
+            Collider[] overlapBuffer,
             ISet<IDamageable> ignoredDamageables,
+            ISet<IDamageable> collected,
             List<CombatHit> results,
-            bool includeInvincibleTargets)
+            bool includeInvincibleTargets,
+            Vector3 preferredAttackDirection)
         {
+            int hitCount = shape.Type == CombatHitboxShapeType.Box
+                ? Physics.OverlapBoxNonAlloc(
+                    shape.Center,
+                    shape.HalfExtents,
+                    overlapBuffer,
+                    shape.Rotation,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide)
+                : Physics.OverlapCapsuleNonAlloc(
+                    shape.Point0,
+                    shape.Point1,
+                    shape.Radius,
+                    overlapBuffer,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide);
+
+            Collider[] hits = overlapBuffer;
+            if (hitCount == overlapBuffer.Length)
+            {
+                hits = shape.Type == CombatHitboxShapeType.Box
+                    ? Physics.OverlapBox(
+                        shape.Center,
+                        shape.HalfExtents,
+                        shape.Rotation,
+                        targetLayer,
+                        QueryTriggerInteraction.Collide)
+                    : Physics.OverlapCapsule(
+                        shape.Point0,
+                        shape.Point1,
+                        shape.Radius,
+                        targetLayer,
+                        QueryTriggerInteraction.Collide);
+                hitCount = hits.Length;
+            }
+
             for (int i = 0; i < hitCount; i++)
             {
                 Collider hit = hits[i];
                 if (hit == null)
                     continue;
-                if (shape.Owner != null && (hit.transform == shape.Owner || hit.transform.IsChildOf(shape.Owner)))
+                if (ownerRoot != null && (hit.transform == ownerRoot || hit.transform.IsChildOf(ownerRoot)))
                     continue;
-
-                Vector3 flatDirection = hit.transform.position - (shape.Owner != null ? shape.Owner.position : shape.Origin);
-                flatDirection.y = 0f;
-                if (shape.HalfAngle > 0f && flatDirection.sqrMagnitude > 0.001f)
-                {
-                    if (Vector3.Angle(shape.Forward, flatDirection) > shape.HalfAngle)
-                        continue;
-                }
-
-                if (shape.HeightRange > 0f)
-                {
-                    float closestY = hit.ClosestPoint(shape.Origin).y;
-                    if (Mathf.Abs(closestY - shape.Origin.y) > shape.HeightRange)
-                        continue;
-                }
 
                 IDamageable damageable = hit.GetComponent<IDamageable>()
                                       ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null)
+                if (damageable == null || collected.Contains(damageable))
                     continue;
-                // 무적 대상 위임 모드(적→플레이어)에서는 살아있기만 하면 전달하고, 무적/회피 판정은 TakeDamage가 맡는다.
+
                 bool deliverable = includeInvincibleTargets ? damageable.IsAlive() : damageable.CanTakeDamage();
-                if (!deliverable)
-                    continue;
-                if (ignoredDamageables != null && ignoredDamageables.Contains(damageable))
+                if (!deliverable || ignoredDamageables != null && ignoredDamageables.Contains(damageable))
                     continue;
 
-                Vector3 hitPoint = hit.ClosestPoint(shape.Origin);
-                Vector3 attackDirection = shape.Owner != null
-                    ? (hit.transform.position - shape.Owner.position).normalized
-                    : shape.Forward;
+                Vector3 hitPoint = hit.ClosestPoint(shape.Center);
+                Vector3 attackDirection = preferredAttackDirection;
+                if (attackDirection.sqrMagnitude < 0.0001f)
+                    attackDirection = hitPoint - shape.Center;
+                if (attackDirection.sqrMagnitude < 0.0001f && ownerRoot != null)
+                    attackDirection = hit.transform.position - ownerRoot.position;
+                if (attackDirection.sqrMagnitude < 0.0001f)
+                    attackDirection = ownerRoot != null ? ownerRoot.forward : Vector3.forward;
 
-                results.Add(new CombatHit(damageable, hit, hitPoint, attackDirection));
+                collected.Add(damageable);
+                results.Add(new CombatHit(
+                    damageable,
+                    hit,
+                    hitPoint,
+                    attackDirection.normalized));
             }
-
-            return results.Count;
         }
     }
 }

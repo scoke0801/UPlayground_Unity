@@ -691,7 +691,6 @@ namespace UPlayGround.Editor
         {
             attack.baseInfo = CreateBaseInfo(entry);
             attack.interruptActions = GetDefaultInterruptActions(entry.Category);
-            attack.hitAngle = entry.Category is AttackCategory.Jump ? 90f : 60f;
         }
 
         private static PlayerInterruptAction GetDefaultInterruptActions(AttackCategory category)
@@ -883,9 +882,9 @@ namespace UPlayGround.Editor
                 reactionDuration = source.reactionDuration,
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,
-                attackOffset = source.attackOffset,
-                attackRadius = source.attackRadius,
-                hitHeightRange = source.hitHeightRange,
+                hitboxGroupId = source.hitboxGroupId,
+                impactOffset = source.impactOffset,
+                targetingRange = source.targetingRange,
                 hitParticleName = source.hitParticleName,
                 pullForce = source.pullForce,
                 airborneForce = source.airborneForce,

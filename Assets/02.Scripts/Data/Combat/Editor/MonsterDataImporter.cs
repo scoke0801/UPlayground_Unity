@@ -76,7 +76,8 @@ namespace UPlayGround.Editor
         {
             public int    animKey; public int attackType; public int reactionType;
             public float  damage;  public float poiseDamage;
-            public Vec3Json attackOffset; public float attackRadius;
+            public string hitboxGroupId;
+            public Vec3Json impactOffset; public float targetingRange;
             public string hitParticleName;
             public float  knockbackForce;
             public float  knockbackDrag;
@@ -284,10 +285,13 @@ namespace UPlayGround.Editor
             phase.reactionType    = (AttackReactionType)bj.reactionType;
             phase.damage          = bj.damage;
             phase.poiseDamage     = bj.poiseDamage;
-            phase.attackOffset    = bj.attackOffset != null
-                                        ? new Vector3(bj.attackOffset.x, bj.attackOffset.y, bj.attackOffset.z)
+            phase.hitboxGroupId   = string.IsNullOrWhiteSpace(bj.hitboxGroupId)
+                ? UPlayGround.Combat.CombatHitbox.DefaultGroupId
+                : bj.hitboxGroupId;
+            phase.impactOffset    = bj.impactOffset != null
+                                        ? new Vector3(bj.impactOffset.x, bj.impactOffset.y, bj.impactOffset.z)
                                         : Vector3.zero;
-            phase.attackRadius    = bj.attackRadius;
+            phase.targetingRange    = bj.targetingRange;
             phase.hitParticleName = bj.hitParticleName ?? "";
             phase.knockBackForce  = bj.knockbackForce;
             phase.knockBackDrag   = bj.knockbackDrag > 0f ? bj.knockbackDrag : 20f; // 기존 데이터 호환: 없으면 기본값

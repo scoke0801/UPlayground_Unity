@@ -36,6 +36,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917016132091907
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

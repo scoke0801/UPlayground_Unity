@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -369,11 +371,13 @@ namespace UPlayGround.Animation.Editor
             // 표시할 페이즈 결정: 커서 시간이 Collision 구간 안이면 그 페이즈(액티브), 아니면 수동 선택
             float time = _drawer != null ? _drawer.cursorTime : 0f;
             int phaseIndex = -1;
+            string eventHitboxGroupId = null;
             bool isActive = false;
             foreach (var span in CombatTimelineUtility.CollectCollisionSpans(set))
             {
                 if (time < span.Start || time > span.End) continue;
                 phaseIndex = span.PhaseIndex;
+                eventHitboxGroupId = span.HitboxGroupId;
                 isActive = true;
                 break;
             }
@@ -387,76 +391,143 @@ namespace UPlayGround.Animation.Editor
             HitPhaseData phase = atk.GetHitPhase(phaseIndex);
             if (phase == null) return;
 
-            Transform actorTr = _targetActor.transform;
-            // 런타임 MeleeHitShape와 동일: 원점 = 액터 위치 + up * attackOffset.y
-            Vector3 origin = actorTr.position + Vector3.up * phase.attackOffset.y;
-            Vector3 forward = actorTr.forward;
-            float radius = phase.attackRadius;
+            string attachedGroupId = !string.IsNullOrWhiteSpace(eventHitboxGroupId)
+                ? eventHitboxGroupId
+                : phase.hitboxGroupId;
+            DrawAttachedCombatHitboxes(
+                atk,
+                phase,
+                phaseIndex,
+                attachedGroupId,
+                isActive);
+        }
+
+        bool DrawAttachedCombatHitboxes(
+            CombatTimelineUtility.ResolvedAttack atk,
+            HitPhaseData phase,
+            int phaseIndex,
+            string groupId,
+            bool isActive)
+        {
+            string resolvedGroup = string.IsNullOrWhiteSpace(groupId)
+                ? CombatHitbox.DefaultGroupId
+                : groupId.Trim();
+            CombatHitbox[] all = _targetActor.GetComponentsInChildren<CombatHitbox>(true);
+            var matched = new List<CombatHitbox>();
+            foreach (CombatHitbox hitbox in all)
+            {
+                if (hitbox != null
+                    && string.Equals(
+                        hitbox.GroupId,
+                        resolvedGroup,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    matched.Add(hitbox);
+                }
+            }
 
             Color main = isActive ? COL_COMBAT_ACTIVE : new Color(1f, 0.6f, 0.2f, 0.8f);
+            if (matched.Count == 0)
+            {
+                Handles.color = new Color(1f, 0.45f, 0.1f);
+                Handles.Label(
+                    _targetActor.transform.position + Vector3.up * 1.5f,
+                    $"⛔ 필수 HitBox 그룹 없음: {resolvedGroup}");
+                return false;
+            }
+
             Handles.color = main;
+            foreach (CombatHitbox hitbox in matched)
+            {
+                if (!hitbox.TryGetWorldShape(out CombatHitboxShape shape))
+                    continue;
 
-            // 판정 반경 + 각도
-            if (atk.HasHitAngle && atk.HitAngle < 180f)
-            {
-                Vector3 from = Quaternion.Euler(0f, -atk.HitAngle, 0f) * forward;
-                Handles.DrawWireArc(origin, Vector3.up, from, atk.HitAngle * 2f, radius, 2.5f);
-                Handles.DrawLine(origin, origin + Quaternion.Euler(0f, atk.HitAngle, 0f) * forward * radius, 2.5f);
-                Handles.DrawLine(origin, origin + Quaternion.Euler(0f, -atk.HitAngle, 0f) * forward * radius, 2.5f);
-                Handles.DrawLine(origin, origin + forward * radius, 1f);
-            }
-            else
-            {
-                Handles.DrawWireDisc(origin, Vector3.up, radius, 2.5f);
+                if (shape.Type == CombatHitboxShapeType.Box)
+                    DrawAttachedBox(hitbox, shape, main);
+                else
+                    DrawAttachedCapsule(hitbox, shape, main);
             }
 
-            // 높이 클램프 범위
-            if (phase.hitHeightRange > 0f)
-            {
-                Color faded = new Color(main.r, main.g, main.b, 0.35f);
-                Handles.color = faded;
-                Handles.DrawWireDisc(origin + Vector3.up * phase.hitHeightRange, Vector3.up, radius);
-                Handles.DrawWireDisc(origin - Vector3.up * phase.hitHeightRange, Vector3.up, radius);
-                Handles.DrawLine(origin + forward * radius + Vector3.up * phase.hitHeightRange,
-                                 origin + forward * radius - Vector3.up * phase.hitHeightRange);
-                Handles.color = main;
-            }
-
-            Handles.Label(origin + Vector3.up * 0.15f,
-                $"{atk.SourceName}  P{phaseIndex}\n" +
-                $"dmg {phase.damage:0.#} / poise {phase.poiseDamage:0.#} / break {phase.breakDamage:0.#}\n" +
-                $"r {radius:0.##}  h±{phase.hitHeightRange:0.##}  {phase.reactionType}");
-
-            if (_combatEditHitbox)
-                DrawCombatHitboxHandles(atk, phase, actorTr, origin, radius);
+            CombatHitbox first = matched[0];
+            Vector3 labelPosition = first.TryGetWorldShape(out CombatHitboxShape firstShape)
+                ? firstShape.Center
+                : _targetActor.transform.position + Vector3.up;
+            Handles.Label(
+                labelPosition + Vector3.up * 0.15f,
+                $"{atk.SourceName}  P{phaseIndex} / {resolvedGroup} / {matched.Count}개\n" +
+                $"dmg {phase.damage:0.#} / poise {phase.poiseDamage:0.#} / break {phase.breakDamage:0.#}");
+            return true;
         }
 
-        void DrawCombatHitboxHandles(
-            CombatTimelineUtility.ResolvedAttack atk, HitPhaseData phase,
-            Transform actorTr, Vector3 origin, float radius)
+        void DrawAttachedBox(CombatHitbox hitbox, CombatHitboxShape shape, Color color)
         {
-            // 반경 핸들
-            EditorGUI.BeginChangeCheck();
-            float newRadius = Handles.RadiusHandle(Quaternion.identity, origin, radius);
-            if (EditorGUI.EndChangeCheck())
+            Matrix4x4 previous = Handles.matrix;
+            Handles.matrix = Matrix4x4.TRS(shape.Center, shape.Rotation, Vector3.one);
+            Handles.color = color;
+            Handles.DrawWireCube(Vector3.zero, shape.HalfExtents * 2f);
+
+            if (_combatEditHitbox && hitbox.ShapeCollider is BoxCollider box)
             {
-                Undo.RecordObject(atk.Owner, "히트박스 반경 수정");
-                phase.attackRadius = Mathf.Max(0.05f, newRadius);
-                EditorUtility.SetDirty(atk.Owner);
-                Repaint();
+                var handle = new BoxBoundsHandle
+                {
+                    center = Vector3.zero,
+                    size = shape.HalfExtents * 2f,
+                    wireframeColor = color,
+                    handleColor = color,
+                };
+                EditorGUI.BeginChangeCheck();
+                handle.DrawHandle();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(box, "부착형 Box HitBox 수정");
+                    Vector3 scale = Abs(box.transform.lossyScale);
+                    box.center += new Vector3(
+                        handle.center.x / Mathf.Max(0.0001f, scale.x),
+                        handle.center.y / Mathf.Max(0.0001f, scale.y),
+                        handle.center.z / Mathf.Max(0.0001f, scale.z));
+                    box.size = new Vector3(
+                        handle.size.x / Mathf.Max(0.0001f, scale.x),
+                        handle.size.y / Mathf.Max(0.0001f, scale.y),
+                        handle.size.z / Mathf.Max(0.0001f, scale.z));
+                    EditorUtility.SetDirty(box);
+                }
             }
 
-            // 높이 오프셋 핸들 (attackOffset.y)
+            Handles.matrix = previous;
+        }
+
+        void DrawAttachedCapsule(CombatHitbox hitbox, CombatHitboxShape shape, Color color)
+        {
+            Handles.color = color;
+            Handles.DrawWireDisc(shape.Point0, (shape.Point1 - shape.Point0).normalized, shape.Radius);
+            Handles.DrawWireDisc(shape.Point1, (shape.Point1 - shape.Point0).normalized, shape.Radius);
+            Handles.DrawWireArc(shape.Center, Vector3.up, Vector3.forward, 360f, shape.Radius);
+            Handles.DrawLine(shape.Point0, shape.Point1);
+
+            if (!_combatEditHitbox || hitbox.ShapeCollider is not CapsuleCollider capsule)
+                return;
+
             EditorGUI.BeginChangeCheck();
-            Vector3 newOrigin = Handles.Slider(origin, Vector3.up,
-                HandleUtility.GetHandleSize(origin) * 0.35f, Handles.ArrowHandleCap, 0f);
+            float radius = Handles.RadiusHandle(capsule.transform.rotation, shape.Center, shape.Radius);
+            Vector3 center = Handles.PositionHandle(shape.Center, capsule.transform.rotation);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(atk.Owner, "히트박스 높이 수정");
-                phase.attackOffset.y = newOrigin.y - actorTr.position.y;
-                EditorUtility.SetDirty(atk.Owner);
-                Repaint();
+                Undo.RecordObject(capsule, "부착형 Capsule HitBox 수정");
+                Vector3 scale = Abs(capsule.transform.lossyScale);
+                int direction = Mathf.Clamp(capsule.direction, 0, 2);
+                float radialScale = direction == 0
+                    ? Mathf.Max(scale.y, scale.z)
+                    : direction == 1
+                        ? Mathf.Max(scale.x, scale.z)
+                        : Mathf.Max(scale.x, scale.y);
+                capsule.radius = radius / Mathf.Max(0.0001f, radialScale);
+                capsule.center = capsule.transform.InverseTransformPoint(center);
+                EditorUtility.SetDirty(capsule);
             }
         }
+
+        static Vector3 Abs(Vector3 value)
+            => new(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z));
+
     }
 }

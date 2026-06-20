@@ -13,6 +13,7 @@ namespace UPlayGround.Combat
         public bool HasCollisionExecutor => _collisionExecutor != null;
         public int CurrentPhaseIndex => CurrentAction != null ? CurrentAction.CurrentPhaseIndex : 0;
         public bool IsCollisionActive => CurrentAction != null && CurrentAction.IsCollisionActive;
+        public string ActiveHitboxGroupId => CurrentAction?.ActiveHitboxGroupId;
 
         private void Awake()
         {
@@ -27,7 +28,11 @@ namespace UPlayGround.Combat
         /// BeginCollisionEvent 진입점. 기존 MotionEvent_Collision의 actor 분기와 동작이 동일하다:
         /// ClearHitTargets는 항상, enable 시에만 target layer / hit phase 설정, 마지막에 collision 토글.
         /// </summary>
-        public void HandleCollisionEvent(bool enable, int hitPhaseIndex, LayerMask targetLayer)
+        public void HandleCollisionEvent(
+            bool enable,
+            int hitPhaseIndex,
+            string hitboxGroupId,
+            LayerMask targetLayer)
         {
             if (_collisionExecutor == null)
             {
@@ -40,8 +45,12 @@ namespace UPlayGround.Combat
             {
                 _collisionExecutor.SetTargetLayerMask(targetLayer);
                 _collisionExecutor.SetHitPhaseIndex(hitPhaseIndex);
+                _collisionExecutor.SetHitboxGroup(hitboxGroupId);
+                CurrentAction?.SetHitboxGroup(hitboxGroupId);
             }
             _collisionExecutor.SetEnableCollision(enable);
+            if (!enable)
+                CurrentAction?.SetHitboxGroup(null);
         }
 
         /// <summary>

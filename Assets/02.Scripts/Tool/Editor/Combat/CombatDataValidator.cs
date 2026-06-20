@@ -174,8 +174,15 @@ namespace UPlayGround.Tool.Editor.Combat
                     continue;
                 }
 
-                if (phase.attackRadius <= 0f && baseInfo.attackType == AttackType.Melee)
-                    AddIssue(issues, CombatValidationSeverity.Warning, path, $"{context}.hitPhases[{i}]", "근접 공격의 attackRadius가 0 이하입니다.");
+                if (string.IsNullOrWhiteSpace(phase.hitboxGroupId))
+                {
+                    AddIssue(
+                        issues,
+                        CombatValidationSeverity.Error,
+                        path,
+                        $"{context}.hitPhases[{i}]",
+                        "필수 hitboxGroupId가 비어 있습니다.");
+                }
                 if (phase.damage < 0f)
                     AddIssue(issues, CombatValidationSeverity.Error, path, $"{context}.hitPhases[{i}]", "damage가 음수입니다.");
             }

@@ -20,9 +20,9 @@ MonoBehaviour:
       - damage: 45
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 0.6
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 3
         airborneForce: 8
@@ -48,9 +48,9 @@ MonoBehaviour:
       - damage: 45
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 0.6
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 3
         airborneForce: 8
@@ -76,9 +76,9 @@ MonoBehaviour:
       - damage: 45
         poiseDamage: 30
         reactionType: 4
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 0.6
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 3
         airborneForce: 8
@@ -104,9 +104,9 @@ MonoBehaviour:
       - damage: 50
         poiseDamage: 100
         reactionType: 7
-        attackOffset: {x: 0, y: 0, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 0.6
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 0, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: HeavyHit
         pullForce: 3
         airborneForce: 12

@@ -35,3 +35,4 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon

@@ -1,74 +1,85 @@
 using UPlayGround.Component;
-using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 
 namespace UPlayGround.Combat
 {
     /// <summary>
-    /// 방어, 피해, 리소스 변화, 로그 기록의 표준 순서를 묶는 전환 단계 pipeline.
-    /// P2에서는 상태 전환/물리 힘 적용을 아직 Actor에 남기고, 결과 객체 조립과 기록만 중앙화한다.
+    /// 모든 피격의 실행 진입점. 계산 후 대상에게 적용을 위임하고 최종 결과를 한 번만 기록한다.
     /// </summary>
     public static class CombatResolutionPipeline
     {
+        public static CombatResult Execute(IDamageable victim, in HitRequest request)
+        {
+            if (victim == null)
+                return default;
+
+            CombatResult result = victim switch
+            {
+                PlayerActor player => ExecutePlayerHit(player, request),
+                MonsterActor monster => ExecuteMonsterHit(monster, request),
+                _ => default,
+            };
+
+            RecordIfObservable(result);
+            return result;
+        }
+
+        private static CombatResult ExecutePlayerHit(PlayerActor victim, in HitRequest request)
+        {
+            CombatResult resolved = ResolvePlayerHit(
+                victim,
+                request,
+                victim.BuildCombatDefenseQuery());
+            return victim.ApplyResolvedHit(request, resolved);
+        }
+
+        private static CombatResult ExecuteMonsterHit(MonsterActor victim, in HitRequest request)
+        {
+            if (!victim.CanResolveHit(request))
+                return default;
+
+            CombatResult resolved = ResolveMonsterHit(victim, request, victim.BreakGauge);
+            return victim.ApplyResolvedHit(request, resolved);
+        }
+
         public static CombatResult ResolvePlayerHit(
             PlayerActor victim,
-            AttackData attackData,
+            in HitRequest request,
             in PlayerDefenseQuery defenseQuery)
         {
-            HitContext hit = HitContext.FromAttackData(attackData, victim);
-            DefenseResult defense = DefenseResolver.ResolvePlayerDefense(defenseQuery, attackData);
+            HitContext hit = HitContext.Create(request, victim);
+            DefenseResult defense = DefenseResolver.ResolvePlayerDefense(defenseQuery, hit);
 
             if (!defense.ShouldApplyDamage)
                 return CombatResult.Build(hit, defense, default, ReactionDecision.None, ResourceChangeSet.Empty);
 
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, attackData);
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, hit);
             return BuildDamageResult(hit, defense, damage);
         }
 
         public static CombatResult ResolvePlayerGuardBreakDamage(
             PlayerActor victim,
-            AttackData attackData)
+            in HitRequest request)
         {
-            HitContext hit = HitContext.FromAttackData(attackData, victim);
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, attackData, includeCritical: false);
+            HitContext hit = HitContext.Create(request, victim);
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, hit, includeCritical: false);
             return BuildDamageResult(hit, new DefenseResult(DefenseOutcome.GuardBreak, true), damage);
         }
 
         public static CombatResult ResolveMonsterHit(
             MonsterActor victim,
-            AttackData attackData,
+            in HitRequest request,
             MonsterBreakGauge breakGauge)
         {
-            HitContext hit = HitContext.FromAttackData(attackData, victim);
-            DamageResult damage = DamageResolver.ResolveMonsterDamage(victim, attackData, breakGauge);
-            return BuildDamageResult(hit, DefenseResult.None, damage);
-        }
-
-        public static CombatResult ResolveSpecialBreakHit(
-            GameActor attacker,
-            MonsterActor victim,
-            DamageResult damage,
-            Vector3 hitPoint)
-        {
-            var hit = new HitContext(
-                attacker,
-                victim,
-                AnimKey.None,
-                0,
-                AttackKind.HeavyAttack,
-                AttackReactionType.Heavy,
-                AttackDefenseType.Unblockable,
-                damage.BaseDamage,
-                0f,
-                0f,
-                false,
-                hitPoint,
-                Vector3.zero,
-                victim != null ? victim.gameObject : null,
-                null,
-                null);
-
+            HitContext hit = HitContext.Create(request, victim);
+            DamageResult damage = request.IsSpecialBreak
+                ? DamageResolver.ResolveSpecialBreakDamage(
+                    victim.MaxHealth,
+                    request.SpecialDamageByMaxHpRate,
+                    request.SpecialFixedDamage,
+                    request.SpecialMinReferenceHealth)
+                : DamageResolver.ResolveMonsterDamage(victim, hit, breakGauge);
             return BuildDamageResult(hit, DefenseResult.None, damage);
         }
 

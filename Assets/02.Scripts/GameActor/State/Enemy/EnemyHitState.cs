@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
@@ -16,10 +17,10 @@ namespace UPlayGround.State
         public override string StateName => "Hit";
         public override bool BlocksBehaviorTree => true;
 
-        private readonly AttackData _attackData;
-        public EnemyHitState(ActorMovementController controller, AttackData attackData = null) : base(controller)
+        private readonly HitContext _hit;
+        public EnemyHitState(ActorMovementController controller, in HitContext hit = default) : base(controller)
         {
-            _attackData = attackData;
+            _hit = hit;
         }
 
         public override bool CanTransitionState(string stateName) => true;
@@ -73,14 +74,12 @@ namespace UPlayGround.State
 
         private AnimKey GetHitAnimKey()
         {
-            if (_attackData == null) return AnimKey.Hit_F;
-
             // 공격별 전용 피격 애니(victimForcedAnimKey)가 지정돼 있고 보유 모션이면 최우선 사용.
-            if (_attackData.victimForcedAnimKey != AnimKey.None &&
-                gameActor.Animator.HasMotion(_attackData.victimForcedAnimKey))
-                return _attackData.victimForcedAnimKey;
+            if (_hit.VictimForcedAnimKey != AnimKey.None &&
+                gameActor.Animator.HasMotion(_hit.VictimForcedAnimKey))
+                return _hit.VictimForcedAnimKey;
 
-            return _attackData.reactionType switch
+            return _hit.ReactionType switch
             {
                 AttackReactionType.KnockBack  => AnimKey.Knockback,
                 AttackReactionType.Pull       => AnimKey.Hit_F,

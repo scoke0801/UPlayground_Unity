@@ -1034,40 +1034,39 @@ namespace UPlayGround
     // IDamageable
     public partial class PlayerActor : GameActor, IDamageable
     {
-        public void TakeDamage(AttackData attackData)
+        public CombatResult ReceiveHit(in HitRequest request)
+            => CombatResolutionPipeline.Execute(this, request);
+
+        internal PlayerDefenseQuery BuildCombatDefenseQuery()
+            => CreatePlayerDefenseQuery();
+
+        internal CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
         {
-            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerHit(
-                this,
-                attackData,
-                CreatePlayerDefenseQuery());
+            AttackData attackData = request.ToReactionData();
 
             switch (combatResult.DefenseOutcome)
             {
                 case DefenseOutcome.Guarded:
-                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     if (MovementController.CurrentState is not PlayerGuardState guardState)
-                        return;
+                        return combatResult;
 
                     guardState.OnAttackBlocked(attackData);
 
                     if (!_combat.IsGuarding)
-                        OnGuardBrokenDamage(attackData);
-                    return;
+                        return OnGuardBrokenDamage(request);
+                    return combatResult;
 
                 case DefenseOutcome.Parried:
-                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     OnParrySuccess(attackData);
-                    return;
+                    return combatResult;
 
                 case DefenseOutcome.PerfectDodged:
-                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     TryPerfectDodge(attackData);
-                    return;
+                    return combatResult;
 
                 case DefenseOutcome.Invincible:
-                    CombatResolutionPipeline.RecordIfObservable(combatResult);
                     TryDashEvadeFeedback(attackData);
-                    return;
+                    return combatResult;
             }
 
             DamageResult damageResult = combatResult.Damage;
@@ -1082,15 +1081,12 @@ namespace UPlayGround
 
             if (_currentHealth <= 0)
             {
-                CombatResolutionPipeline.RecordIfDamageApplied(
-                    CombatResolutionPipeline.WithReaction(combatResult, ReactionDecision.None));
                 OnDeath(attackData);
-                return;
+                return combatResult;
             }
 
-            ReactionDecision reactionDecision = OnDamaged(attackData);
-            CombatResolutionPipeline.RecordIfDamageApplied(
-                CombatResolutionPipeline.WithReaction(combatResult, reactionDecision));
+            ReactionDecision reactionDecision = OnDamaged(attackData, combatResult.Hit);
+            return CombatResolutionPipeline.WithReaction(combatResult, reactionDecision);
         }
 
         public bool      IsAlive()          => _currentHealth > 0;
@@ -1251,11 +1247,12 @@ namespace UPlayGround
         /// 가드 브레이크 시 호출.
         /// GuardBreakState가 경직·애니를 담당하므로 State 전환 없이 데미지·피드백만 처리한다.
         /// </summary>
-        private void OnGuardBrokenDamage(AttackData attackData)
+        private CombatResult OnGuardBrokenDamage(in HitRequest request)
         {
-            if (!CanTakeDamage()) return;
+            if (!CanTakeDamage()) return default;
 
-            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerGuardBreakDamage(this, attackData);
+            AttackData attackData = request.ToReactionData();
+            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerGuardBreakDamage(this, request);
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
@@ -1264,7 +1261,6 @@ namespace UPlayGround
 
             CombatFeedbackDispatcher.ShowDamageFloater(
                 CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
-            CombatResolutionPipeline.RecordIfDamageApplied(combatResult);
 
             CameraManager.Instance.StartShake(_shakeKeyHeavyHit);
 
@@ -1277,13 +1273,14 @@ namespace UPlayGround
 
             if (_currentHealth <= 0)
                 OnDeath(attackData);
+            return combatResult;
         }
 
         /// <summary>
         /// 피격 시 호출.
         /// 쉐이크 강도는 AttackReactionType으로 결정한다.
         /// </summary>
-        protected virtual ReactionDecision OnDamaged(AttackData attackData)
+        protected virtual ReactionDecision OnDamaged(AttackData attackData, in HitContext hit)
         {
             // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
             bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
@@ -1298,7 +1295,7 @@ namespace UPlayGround
                     stateName is "Hit" or "Grabbed",
                     ShouldEnterAirborneState(attackData),
                     IsStaggerImmune),
-                attackData);
+                hit);
 
             if (reactionDecision.ShouldApplyForce && attackData != null)
             {

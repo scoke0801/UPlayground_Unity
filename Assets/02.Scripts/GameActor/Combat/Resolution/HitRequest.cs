@@ -1,0 +1,245 @@
+using UPlayGround.Data;
+using UPlayGround.Data.EnumType;
+using UnityEngine;
+
+namespace UPlayGround.Combat
+{
+    public enum HitRequestType
+    {
+        Standard,
+        SpecialBreak,
+    }
+
+    /// <summary>
+    /// 공격자 영역에서 피격자 영역으로 전달되는 불변 입력 값.
+    /// 가변 런타임 데이터인 AttackData를 피격 경계에서 복사해 이후 처리 중 값이 바뀌지 않게 한다.
+    /// </summary>
+    public readonly struct HitRequest
+    {
+        public readonly GameActor Attacker;
+        public readonly AnimKey AnimKey;
+        public readonly int HitPhaseIndex;
+        public readonly AttackKind AttackKind;
+        public readonly AttackReactionType ReactionType;
+        public readonly AttackDefenseType DefenseType;
+        public readonly float Damage;
+        public readonly float PoiseDamage;
+        public readonly float BreakDamage;
+        public readonly float ReactionDuration;
+        public readonly bool ForceReaction;
+        public readonly bool ForceBreakExpose;
+        public readonly float CriticalMultiplier;
+        public readonly bool IsCounterAttack;
+        public readonly bool UseCounterHitFeedback;
+        public readonly bool IsProjectile;
+        public readonly Vector3 HitPoint;
+        public readonly Vector3 AttackDirection;
+        public readonly GameObject HitTarget;
+        public readonly string HitParticleName;
+        public readonly float PullForce;
+        public readonly float AirborneForce;
+        public readonly float KnockbackForce;
+        public readonly float KnockbackDrag;
+        public readonly float GrabDuration;
+        public readonly AnimKey VictimForcedAnimKey;
+        public readonly bool GuaranteedReaction;
+        public readonly AttackReactionData ReactionData;
+        public readonly HitRequestType RequestType;
+        public readonly float SpecialDamageByMaxHpRate;
+        public readonly float SpecialFixedDamage;
+        public readonly float SpecialMinReferenceHealth;
+
+        public bool IsSpecialBreak => RequestType == HitRequestType.SpecialBreak;
+
+        public HitRequest(
+            GameActor attacker,
+            AnimKey animKey,
+            int hitPhaseIndex,
+            AttackKind attackKind,
+            AttackReactionType reactionType,
+            AttackDefenseType defenseType,
+            float damage,
+            float poiseDamage,
+            float breakDamage,
+            float reactionDuration,
+            bool forceReaction,
+            bool forceBreakExpose,
+            float criticalMultiplier,
+            bool isCounterAttack,
+            bool useCounterHitFeedback,
+            bool isProjectile,
+            Vector3 hitPoint,
+            Vector3 attackDirection,
+            GameObject hitTarget,
+            string hitParticleName,
+            float pullForce,
+            float airborneForce,
+            float knockbackForce,
+            float knockbackDrag,
+            float grabDuration,
+            AnimKey victimForcedAnimKey,
+            bool guaranteedReaction,
+            AttackReactionData reactionData,
+            HitRequestType requestType = HitRequestType.Standard,
+            float specialDamageByMaxHpRate = 0f,
+            float specialFixedDamage = 0f,
+            float specialMinReferenceHealth = 0f)
+        {
+            Attacker = attacker;
+            AnimKey = animKey;
+            HitPhaseIndex = hitPhaseIndex;
+            AttackKind = attackKind;
+            ReactionType = reactionType;
+            DefenseType = defenseType;
+            Damage = damage;
+            PoiseDamage = poiseDamage;
+            BreakDamage = breakDamage;
+            ReactionDuration = reactionDuration;
+            ForceReaction = forceReaction;
+            ForceBreakExpose = forceBreakExpose;
+            CriticalMultiplier = criticalMultiplier;
+            IsCounterAttack = isCounterAttack;
+            UseCounterHitFeedback = useCounterHitFeedback;
+            IsProjectile = isProjectile;
+            HitPoint = hitPoint;
+            AttackDirection = attackDirection;
+            HitTarget = hitTarget;
+            HitParticleName = hitParticleName;
+            PullForce = pullForce;
+            AirborneForce = airborneForce;
+            KnockbackForce = knockbackForce;
+            KnockbackDrag = knockbackDrag;
+            GrabDuration = grabDuration;
+            VictimForcedAnimKey = victimForcedAnimKey;
+            GuaranteedReaction = guaranteedReaction;
+            ReactionData = reactionData;
+            RequestType = requestType;
+            SpecialDamageByMaxHpRate = specialDamageByMaxHpRate;
+            SpecialFixedDamage = specialFixedDamage;
+            SpecialMinReferenceHealth = specialMinReferenceHealth;
+        }
+
+        public static HitRequest FromAttackData(AttackData data)
+        {
+            if (data == null)
+                return default;
+
+            return new HitRequest(
+                data.attacker,
+                data.animKey,
+                data.hitPhaseIndex,
+                data.attackKind,
+                data.reactionType,
+                data.defenseType,
+                data.damage,
+                data.poiseDamage,
+                data.breakDamage,
+                data.reactionDuration,
+                data.forceReaction,
+                data.forceBreakExpose,
+                data.criticalMultiplier,
+                data.isCounterAttack,
+                data.useCounterHitFeedback,
+                data.isProjectile,
+                data.hitPoint,
+                data.attackDirection,
+                data.hitTarget,
+                data.hitParticleName,
+                data.pullForce,
+                data.airborneForce,
+                data.knockbackForce,
+                data.knockbackDrag,
+                data.grabDuration,
+                data.victimForcedAnimKey,
+                data.guaranteedReaction,
+                data.reactionData);
+        }
+
+        public static HitRequest CreateSpecialBreak(
+            GameActor attacker,
+            MonsterActor victim,
+            float damageByMaxHpRate,
+            float fixedDamage,
+            float minReferenceHealth,
+            Vector3 hitPoint)
+        {
+            float effectiveHealth = Mathf.Max(
+                victim != null ? victim.MaxHealth : 0f,
+                Mathf.Max(0f, minReferenceHealth));
+            float requestedDamage = Mathf.Max(0f, fixedDamage)
+                                    + effectiveHealth * Mathf.Max(0f, damageByMaxHpRate);
+            return new HitRequest(
+                attacker,
+                AnimKey.None,
+                0,
+                AttackKind.FinishAttack,
+                AttackReactionType.Knockdown,
+                AttackDefenseType.Unblockable,
+                requestedDamage,
+                0f,
+                0f,
+                0f,
+                false,
+                false,
+                1f,
+                false,
+                false,
+                false,
+                hitPoint,
+                Vector3.zero,
+                victim != null ? victim.gameObject : null,
+                null,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                AnimKey.None,
+                true,
+                null,
+                HitRequestType.SpecialBreak,
+                damageByMaxHpRate,
+                fixedDamage,
+                minReferenceHealth);
+        }
+
+        /// <summary>
+        /// 상태/애니메이션 계층의 기존 API를 위한 변환이다.
+        /// 전투 판정과 계산에는 이 객체를 사용하지 않는다.
+        /// </summary>
+        public AttackData ToReactionData()
+        {
+            return new AttackData
+            {
+                attacker = Attacker,
+                animKey = AnimKey,
+                hitPhaseIndex = HitPhaseIndex,
+                attackKind = AttackKind,
+                reactionType = ReactionType,
+                defenseType = DefenseType,
+                damage = Damage,
+                poiseDamage = PoiseDamage,
+                breakDamage = BreakDamage,
+                reactionDuration = ReactionDuration,
+                forceReaction = ForceReaction,
+                forceBreakExpose = ForceBreakExpose,
+                criticalMultiplier = CriticalMultiplier,
+                isCounterAttack = IsCounterAttack,
+                useCounterHitFeedback = UseCounterHitFeedback,
+                isProjectile = IsProjectile,
+                hitPoint = HitPoint,
+                attackDirection = AttackDirection,
+                hitTarget = HitTarget,
+                hitParticleName = HitParticleName,
+                pullForce = PullForce,
+                airborneForce = AirborneForce,
+                knockbackForce = KnockbackForce,
+                knockbackDrag = KnockbackDrag,
+                grabDuration = GrabDuration,
+                victimForcedAnimKey = VictimForcedAnimKey,
+                guaranteedReaction = GuaranteedReaction,
+                reactionData = ReactionData,
+            };
+        }
+    }
+}

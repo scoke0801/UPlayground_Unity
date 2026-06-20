@@ -789,7 +789,7 @@ namespace UPlayGround.Manager
             if (Mathf.Approximately(min, max))
                 return Mathf.Approximately(min, 0f) ? 1f : min;
 
-            return Random.Range(min, max);
+            return UnityEngine.Random.Range(min, max);
         }
     }
 }

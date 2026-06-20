@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -10,7 +11,7 @@ namespace UPlayGround.State
         public override string StateName => "Knockdown";
         public override bool BlocksBehaviorTree => true;
 
-        private readonly AttackData _attackData;
+        private readonly HitContext _hit;
         private readonly float _overrideDownDuration;
         private readonly float _knockbackDistance;
         private readonly float _knockbackDuration;
@@ -28,14 +29,14 @@ namespace UPlayGround.State
         /// <param name="knockbackSource">날아가는 방향 기준(공격자). null이면 -forward.</param>
         public EnemyKnockdownState(
             ActorMovementController controller,
-            AttackData attackData = null,
+            in HitContext hit = default,
             float overrideDownDuration = 0f,
             float knockbackDistance = 0f,
             float knockbackDuration = 0f,
             float maxKnockbackSpeed = 0f,
             Transform knockbackSource = null) : base(controller)
         {
-            _attackData = attackData;
+            _hit = hit;
             _overrideDownDuration = Mathf.Max(0f, overrideDownDuration);
             _knockbackDistance = Mathf.Max(0f, knockbackDistance);
             _knockbackDuration = Mathf.Max(0f, knockbackDuration);
@@ -55,7 +56,7 @@ namespace UPlayGround.State
             _knockbackDirection = ResolveKnockbackDirection();
             _downTimer = _overrideDownDuration > 0f
                 ? _overrideDownDuration
-                : (_attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.0f);
+                : (_hit.ReactionDuration > 0f ? _hit.ReactionDuration : 1.0f);
 
             AnimKey animKey = gameActor.Animator.HasMotion(AnimKey.Knockdown, true)
                 ? AnimKey.Knockdown

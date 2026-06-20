@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -16,13 +17,13 @@ namespace UPlayGround.State
         public override string StateName => "Grabbed";
         public override bool BlocksBehaviorTree => true;
 
-        private readonly AttackData _attackData;
+        private readonly HitContext _hit;
         private float _remainingDuration;
 
-        public EnemyGrabbedState(ActorMovementController controller, AttackData attackData)
+        public EnemyGrabbedState(ActorMovementController controller, in HitContext hit)
             : base(controller)
         {
-            _attackData = attackData;
+            _hit = hit;
         }
 
         public override bool CanTransitionState(string stateName)
@@ -34,15 +35,15 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            _remainingDuration = _attackData?.grabDuration ?? 1.5f;
+            _remainingDuration = _hit.GrabDuration;
 
-            if (_attackData?.attacker != null)
-                _attackData.attacker.OnForcedMotionReleased += Escape;
+            if (_hit.Attacker != null)
+                _hit.Attacker.OnForcedMotionReleased += Escape;
 
             AnimKey animKey;
-            if (_attackData?.victimForcedAnimKey != AnimKey.None &&
-                gameActor.Animator.HasMotion(_attackData.victimForcedAnimKey))
-                animKey = _attackData.victimForcedAnimKey;
+            if (_hit.VictimForcedAnimKey != AnimKey.None &&
+                gameActor.Animator.HasMotion(_hit.VictimForcedAnimKey))
+                animKey = _hit.VictimForcedAnimKey;
             else if (gameActor.Animator.HasMotion(AnimKey.Grabbed))
                 animKey = AnimKey.Grabbed;
             else
@@ -55,8 +56,8 @@ namespace UPlayGround.State
         {
             base.OnExit(toState);
 
-            if (_attackData?.attacker != null)
-                _attackData.attacker.OnForcedMotionReleased -= Escape;
+            if (_hit.Attacker != null)
+                _hit.Attacker.OnForcedMotionReleased -= Escape;
         }
 
         public override void UpdateState(float deltaTime)

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
@@ -112,18 +113,18 @@ namespace UPlayGround.Component
             RefreshUi();
         }
 
-        public float TakeBreakDamage(AttackData attackData)
+        public float TakeBreakDamage(in HitContext hit)
         {
             if (!CanAccumulate()) return 0f;
 
-            if (attackData != null && attackData.forceBreakExpose)
+            if (hit.ForceBreakExpose)
             {
                 float before = _currentGauge;
                 ForceExpose();
                 return Mathf.Max(0f, before - _currentGauge);
             }
 
-            float breakDamage = attackData?.breakDamage ?? 0f;
+            float breakDamage = hit.BreakDamage;
             if (breakDamage <= 0f) return 0f;
 
             float finalBreakDamage = breakDamage * (1f - Mathf.Clamp01(_data.breakResist));

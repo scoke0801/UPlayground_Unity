@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
-using UPlayGround.Component;
-using UPlayGround.Data;
-using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Event;
+using UPlayGround.Combat;
 
 namespace UPlayGround
 {
@@ -11,8 +8,8 @@ namespace UPlayGround
         // <summary>
         /// 데미지를 받는다
         /// </summary>
-        /// <param name="attackData">공격 정보</param>
-        void TakeDamage(AttackData attackData);
+        /// <param name="request">피격 경계에서 고정된 공격 입력</param>
+        CombatResult ReceiveHit(in HitRequest request);
         
         /// <summary>
         /// 생존 여부 확인

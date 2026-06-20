@@ -335,6 +335,7 @@ Assets/
 | [ATTACK_CANCEL_SYSTEM_GUIDE.md](ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
 | [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](Complete/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
 | [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](TODO/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |
+| [ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md](TODO/ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md) | 부착형 HitBox 충돌 판정 구현 계획 — Hurtbox 없이 무기·신체 Collider 기반 판정, Sweep 보정, 자동 부착 에디터와 MotionSet 검증 설계 |
 | [ENEMY_LOCOMOTION_GUIDE.md](Complete/ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](guide/PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](guide/WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |

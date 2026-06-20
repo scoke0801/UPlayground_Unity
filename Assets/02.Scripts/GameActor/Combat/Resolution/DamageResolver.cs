@@ -1,6 +1,5 @@
 using UnityEngine;
 using UPlayGround.Component;
-using UPlayGround.Data;
 using UPlayGround.UI;
 
 namespace UPlayGround.Combat
@@ -10,16 +9,16 @@ namespace UPlayGround.Combat
     /// </summary>
     public static class DamageResolver
     {
-        public static DamageResult ResolvePlayerDamage(PlayerActor target, AttackData attackData, bool includeCritical = true)
+        public static DamageResult ResolvePlayerDamage(PlayerActor target, in HitContext hit, bool includeCritical = true)
         {
-            float baseDamage = Mathf.Max(0f, attackData?.damage ?? 0f);
-            float attackerPower = attackData?.attacker != null
-                ? attackData.attacker.Stats.AttackPower
+            float baseDamage = Mathf.Max(0f, hit.Damage);
+            float attackerPower = hit.Attacker != null
+                ? hit.Attacker.Stats.AttackPower
                 : 1f;
             float defenseRate = target != null
                 ? Mathf.Clamp01(target.Stats.Defense)
                 : 0f;
-            float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(attackData) : 1f;
+            float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
             float finalDamage = baseDamage
                                 * attackerPower
                                 * (1f - defenseRate)
@@ -42,12 +41,12 @@ namespace UPlayGround.Combat
 
         public static DamageResult ResolveMonsterDamage(
             MonsterActor target,
-            AttackData attackData,
+            in HitContext hit,
             MonsterBreakGauge breakGauge)
         {
-            float baseDamage = Mathf.Max(0f, attackData?.damage ?? 0f);
-            float attackerPower = attackData?.attacker != null
-                ? attackData.attacker.Stats.AttackPower
+            float baseDamage = Mathf.Max(0f, hit.Damage);
+            float attackerPower = hit.Attacker != null
+                ? hit.Attacker.Stats.AttackPower
                 : 1f;
             float defenseRate = target != null
                 ? Mathf.Clamp01(target.Stats.Defense)
@@ -55,7 +54,7 @@ namespace UPlayGround.Combat
             float damageTakenMultiplier = breakGauge != null
                 ? breakGauge.DamageTakenMultiplier
                 : 1f;
-            float criticalMultiplier = ResolveCriticalMultiplier(attackData);
+            float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
             float finalDamage = baseDamage
                                 * attackerPower
                                 * (1f - defenseRate)
@@ -99,12 +98,7 @@ namespace UPlayGround.Combat
                 FloatStyle.Critical);
         }
 
-        private static float ResolveCriticalMultiplier(AttackData attackData)
-        {
-            if (attackData == null || attackData.criticalMultiplier <= 1f)
-                return 1f;
-
-            return attackData.criticalMultiplier;
-        }
+        private static float ResolveCriticalMultiplier(float multiplier)
+            => multiplier > 1f ? multiplier : 1f;
     }
 }

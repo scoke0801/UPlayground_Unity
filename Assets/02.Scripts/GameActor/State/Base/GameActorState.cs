@@ -1,6 +1,7 @@
 ﻿using KinematicCharacterController;
 using System;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.MovementController;
 
@@ -43,7 +44,7 @@ namespace UPlayGround.State
         /// 이 상태에서 일반 피격 리액션 애니메이션을 재생할 수 있는지 여부.
         /// Poise Break 같은 강제 무력화 판정은 이 값과 별도로 처리한다.
         /// </summary>
-        public virtual bool CanPlayHitReaction(AttackData attackData) => !SuppressesHitReaction;
+        public virtual bool CanPlayHitReaction(in HitContext hit) => !SuppressesHitReaction;
 
         /// <summary>
         /// true이면 BT가 이 상태를 중간에 다른 판단으로 덮지 않고 상태 자체의 종료 로직을 기다린다.

@@ -186,7 +186,11 @@ namespace UPlayGround
                 if (damageable == null)
                     damageable = hit.GetComponentInParent<IDamageable>();
 
-                if (damageable == null || !damageable.CanTakeDamage())
+                bool deliverable = damageable != null
+                                   && (owner.HasActorType(ActorType.Monster)
+                                       ? damageable.IsAlive()
+                                       : damageable.CanTakeDamage());
+                if (!deliverable)
                     continue;
 
                 // 쿨타임 중인 대상 스킵
@@ -206,13 +210,14 @@ namespace UPlayGround
                 
                 _damageCooldowns[damageable] = damageCooldown;
 
-                damageable.TakeDamage(attackData);
+                UPlayGround.Combat.CombatResult result =
+                    damageable.ReceiveHit(UPlayGround.Combat.HitRequest.FromAttackData(attackData));
 
                 // P4: 플레이어 소유 AOE attacker-side 피드백 통일.
                 // 대상별: 데미지 숫자 + 히트 VFX + 스킬 게이지. 임팩트(히트스톱/카메라/바이탈오브/킬캠)는 AOE당 1회.
                 if (_ownerPlayerCombat != null)
                 {
-                    _ownerPlayerCombat.ShowExternalHitFeedback(attackData);
+                    _ownerPlayerCombat.ShowExternalHitFeedback(result);
                     _ownerPlayerCombat.NotifyAttackHit(attackData);
                     if (!_impactFeedbackApplied)
                     {

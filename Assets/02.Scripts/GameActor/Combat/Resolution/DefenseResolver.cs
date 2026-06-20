@@ -1,4 +1,3 @@
-using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -49,9 +48,9 @@ namespace UPlayGround.Combat
     {
         public static DefenseResult ResolvePlayerDefense(
             in PlayerDefenseQuery query,
-            AttackData attackData)
+            in HitContext hit)
         {
-            AttackDefenseType defenseType = attackData?.defenseType ?? AttackDefenseType.Parryable;
+            AttackDefenseType defenseType = hit.DefenseType;
 
             if (query.IsGuarding
                 && query.IsGuardState
@@ -60,7 +59,7 @@ namespace UPlayGround.Combat
                 return new DefenseResult(DefenseOutcome.Guarded, false);
             }
 
-            if (CanParry(query, defenseType, attackData))
+            if (CanParry(query, defenseType, hit.IsProjectile))
                 return new DefenseResult(DefenseOutcome.Parried, false);
 
             if (!query.CanTakeDamage)
@@ -80,10 +79,10 @@ namespace UPlayGround.Combat
                 : DefenseResult.None;
         }
 
-        private static bool CanParry(in PlayerDefenseQuery query, AttackDefenseType defenseType, AttackData attackData)
+        private static bool CanParry(in PlayerDefenseQuery query, AttackDefenseType defenseType, bool isProjectile)
         {
             // 투사체/AOE는 전달 방식 자체가 패리·카운터 대상이 아니다(디버그 AlwaysParry보다 우선).
-            if (attackData != null && attackData.isProjectile)
+            if (isProjectile)
                 return false;
 
             if (query.AlwaysParry)

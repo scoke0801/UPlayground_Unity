@@ -256,10 +256,6 @@ namespace UPlayGround.CameraSystem
             in CombatResult result,
             in PlayerAttackHitFeedbackProfile profile)
         {
-            AttackData source = result.Hit.Source;
-            if (source != null)
-                return CreatePlayerAttackHitIntent(source, profile);
-
             CameraShakeIdType shakeKey = result.Hit.AttackKind is AttackKind.HeavyAttack
                                                             or AttackKind.SkillAttack
                                                             or AttackKind.ChargeAttack

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Component;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
@@ -51,9 +52,9 @@ namespace UPlayGround.State
 
         public override bool CanTransitionState(string stateName) => true;
 
-        public override bool CanPlayHitReaction(AttackData attackData)
+        public override bool CanPlayHitReaction(in HitContext hit)
         {
-            return base.CanPlayHitReaction(attackData)
+            return base.CanPlayHitReaction(hit)
                    && _phase is Phase.Approach or Phase.Telegraph or Phase.Recovery;
         }
 
@@ -389,7 +390,7 @@ namespace UPlayGround.State
                     reactionData = phase?.reactionProfile?.Resolve(),
                 };
 
-                damageable.TakeDamage(attackData);
+                damageable.ReceiveHit(HitRequest.FromAttackData(attackData));
             }
         }
 

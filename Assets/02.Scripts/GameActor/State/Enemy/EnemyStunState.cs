@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -10,12 +11,12 @@ namespace UPlayGround.State
         public override string StateName => "Stun";
         public override bool BlocksBehaviorTree => true;
 
-        private readonly AttackData _attackData;
+        private readonly HitContext _hit;
         private float _remainingDuration;
 
-        public EnemyStunState(ActorMovementController controller, AttackData attackData = null) : base(controller)
+        public EnemyStunState(ActorMovementController controller, in HitContext hit = default) : base(controller)
         {
-            _attackData = attackData;
+            _hit = hit;
         }
 
         public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
@@ -24,7 +25,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
-            _remainingDuration = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 2.5f;
+            _remainingDuration = _hit.ReactionDuration > 0f ? _hit.ReactionDuration : 2.5f;
             gameActor.Animator.PlayMotion(GetStunAnimKey(), 0.15f);
         }
 

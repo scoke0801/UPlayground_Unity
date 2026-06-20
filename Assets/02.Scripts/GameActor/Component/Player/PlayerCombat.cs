@@ -124,18 +124,14 @@ namespace UPlayGround.Component
         [Tooltip("도지 시작 후 이 시간(초) 내에 피격 시도가 감지되면 퍼펙트 도지로 판정")]
         [SerializeField] private float _perfectDodgeWindow = 0.25f;
 
-        private float _perfectDodgeWindowEnd = -999f;
-
         /// <summary> 퍼펙트 도지 판정 창이 열려 있는지 여부 </summary>
-        public bool IsPerfectDodgeWindow => Time.time <= _perfectDodgeWindowEnd;
+        public bool IsPerfectDodgeWindow => _defenseController != null && _defenseController.IsPerfectDodgeWindow;
 
         /// <summary> PlayerDodgeState.OnEnter에서 호출. 퍼펙트 도지 판정 창을 연다. </summary>
-        public void OpenPerfectDodgeWindow()
-            => _perfectDodgeWindowEnd = Time.time + _perfectDodgeWindow;
+        public void OpenPerfectDodgeWindow() => _defenseController?.OpenPerfectDodge();
 
         /// <summary> 퍼펙트 도지 발동 후 중복 방지를 위해 창을 즉시 닫는다. </summary>
-        public void ClosePerfectDodgeWindow()
-            => _perfectDodgeWindowEnd = -999f;
+        public void ClosePerfectDodgeWindow() => _defenseController?.ClosePerfectDodge();
         // ──────────────────────────────────────────────────────────────
 
         [Header("Hit Feedback — Punch Strength")]
@@ -179,7 +175,6 @@ namespace UPlayGround.Component
         private int               _normalComboIndex    = -1;
         private int               _heavyComboIndex     = -1;
         private CharacterActorType _comboCharacterType = CharacterActorType.None;
-        private readonly Dictionary<CharacterActorType, CharacterComboState> _comboStatesByCharacter = new();
         private PlayerActor       _playerActor;
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
@@ -236,101 +231,78 @@ namespace UPlayGround.Component
         [Tooltip("어시스트 스왑(§4.3) 직후 입장 캐릭터가 적 공격을 패리로 받는 창 길이 (초)")]
         [SerializeField] private float _assistParryWindow = 0.4f;
 
-        private int   _guardHitCount;
-        private float _guardEndTime = -999f;
-        private float _perfectGuardCounterEndTime = -999f;
-        private float _parryCounterEndTime = -999f;
-        private float _dodgeCounterEndTime = -999f;
-        private float _assistParryWindowEnd = -999f;
-        private GameActor _dodgeCounterTarget;
+        private PlayerDefenseController _defenseController;
+        private PlayerAttackController _attackController;
+        private PlayerComboController _comboController;
+        private PlayerTargetingController _targetingController;
+        private PlayerCombatPresenter _presenter;
 
-        public bool IsGuardBroken { get; private set; }
-        public int  GuardHitCount => _guardHitCount;
-        public int  MaxGuardCount => _maxGuardCount;
+        public bool IsGuardBroken => _defenseController != null && _defenseController.IsGuardBroken;
+        public int GuardHitCount => _defenseController?.GuardHitCount ?? 0;
+        public int MaxGuardCount => _defenseController?.MaxGuardCount ?? Mathf.Max(1, _maxGuardCount);
 
         /// <summary> 퍼펙트 가드 반격 창이 열려 있는지 여부 </summary>
-        public bool IsPerfectGuardCounterAvailable => Time.time <= _perfectGuardCounterEndTime;
+        public bool IsPerfectGuardCounterAvailable => _defenseController != null && _defenseController.IsPerfectGuardCounterAvailable;
 
         /// <summary> 퍼펙트 가드 성공 시 호출. 반격 입력 창을 연다. </summary>
         public void OpenPerfectGuardCounterWindow(float durationOverride = -1f)
-        {
-            float duration = durationOverride > 0f ? durationOverride : _perfectGuardCounterWindow;
-            _perfectGuardCounterEndTime = Time.time + Mathf.Max(0f, duration);
-        }
+            => _defenseController?.OpenPerfectGuardCounter(durationOverride);
 
         /// <summary> 반격 창을 즉시 닫는다 (반격 실행 후 중복 방지) </summary>
-        public void ClosePerfectGuardCounterWindow()
-            => _perfectGuardCounterEndTime = -999f;
+        public void ClosePerfectGuardCounterWindow() => _defenseController?.ClosePerfectGuardCounter();
 
         public bool ConsumePerfectGuardCounterWindow()
         {
-            if (!IsPerfectGuardCounterAvailable)
-                return false;
-
-            ClosePerfectGuardCounterWindow();
-            return true;
+            return _defenseController != null && _defenseController.ConsumePerfectGuardCounter();
         }
 
         /// <summary> 패리 반격 창이 열려 있는지 여부 </summary>
-        public bool IsParryCounterAvailable => Time.time <= _parryCounterEndTime;
+        public bool IsParryCounterAvailable => _defenseController != null && _defenseController.IsParryCounterAvailable;
 
         /// <summary> 패리 성공 시 호출. 반격 입력 창을 연다. </summary>
         public void OpenParryCounterWindow(float durationOverride = -1f)
-        {
-            float duration = durationOverride > 0f ? durationOverride : _parryCounterWindow;
-            _parryCounterEndTime = Time.time + Mathf.Max(0f, duration);
-        }
+            => _defenseController?.OpenParryCounter(durationOverride);
 
         /// <summary> 패리 반격 창을 즉시 닫는다 </summary>
-        public void CloseParryCounterWindow()
-            => _parryCounterEndTime = -999f;
+        public void CloseParryCounterWindow() => _defenseController?.CloseParryCounter();
 
-        public bool IsDodgeCounterAvailable => Time.time <= _dodgeCounterEndTime;
-        public GameActor DodgeCounterTarget => IsDodgeCounterAvailable ? _dodgeCounterTarget : null;
+        public bool IsDodgeCounterAvailable => _defenseController != null && _defenseController.IsDodgeCounterAvailable;
+        public GameActor DodgeCounterTarget => _defenseController?.DodgeCounterTarget;
 
         public void OpenDodgeCounterWindow(AttackData incomingAttack, float durationOverride = -1f)
         {
-            float duration = durationOverride > 0f ? durationOverride : _dodgeCounterWindow;
-            _dodgeCounterEndTime = Time.time + Mathf.Max(0f, duration);
-            _dodgeCounterTarget = incomingAttack?.attacker;
+            _defenseController?.OpenDodgeCounter(incomingAttack?.attacker, durationOverride);
         }
 
         public bool ConsumeDodgeCounterWindow()
         {
-            if (!IsDodgeCounterAvailable)
-                return false;
-
-            CloseDodgeCounterWindow();
-            return true;
+            return _defenseController != null && _defenseController.ConsumeDodgeCounter();
         }
 
         public void CloseDodgeCounterWindow()
         {
-            _dodgeCounterEndTime = -999f;
-            _dodgeCounterTarget = null;
+            _defenseController?.CloseDodgeCounter();
         }
 
         /// <summary> 어시스트 패리(§4.3) 윈도우가 열려 있는지 여부 </summary>
-        public bool IsAssistParryWindow => Time.time <= _assistParryWindowEnd;
+        public bool IsAssistParryWindow => _defenseController != null && _defenseController.IsAssistParryWindow;
 
         /// <summary> 어시스트 패리 윈도우 기본 길이(초). 폴백 타이머 계산에 사용. </summary>
-        public float AssistParryWindowDuration => Mathf.Max(0f, _assistParryWindow);
+        public float AssistParryWindowDuration => _defenseController?.AssistParryWindowDuration ?? Mathf.Max(0f, _assistParryWindow);
 
         /// <summary> 어시스트 스왑 발동 시 호출. 입장 캐릭터에 패리 판정 창을 연다. </summary>
         public void OpenAssistParryWindow(float durationOverride = -1f)
         {
-            float duration = durationOverride > 0f ? durationOverride : _assistParryWindow;
-            _assistParryWindowEnd = Time.time + Mathf.Max(0f, duration);
+            _defenseController?.OpenAssistParry(durationOverride);
         }
 
         /// <summary> 어시스트 패리 창을 즉시 닫는다(패리 성공/폴백 후 중복 방지). </summary>
-        public void CloseAssistParryWindow()
-            => _assistParryWindowEnd = -999f;
+        public void CloseAssistParryWindow() => _defenseController?.CloseAssistParry();
 
         public AttackData CurrentAttackData => _currentAttackData;
         public int        CurrentComboIndex { get; private set; }
         public float      LastAttackTime    { get; private set; }
-        public bool       CanCombo          { get; private set; }
+        public bool       CanCombo          => _comboController != null && _comboController.IsWindowOpen;
         public LayerMask  WarpTargetLayer   => _targetLayerMask;
         public Transform  CurrentAttackPreferredTarget =>
             _currentAttackPreferredTarget != null && _currentAttackPreferredTarget.CanTakeDamage()
@@ -436,6 +408,18 @@ namespace UPlayGround.Component
         private void Awake()
         {
             _playerActor   = GetComponent<PlayerActor>();
+            _defenseController = new PlayerDefenseController(
+                _maxGuardCount,
+                _guardResetDelay,
+                _perfectGuardCounterWindow,
+                _parryCounterWindow,
+                _dodgeCounterWindow,
+                _assistParryWindow,
+                _perfectDodgeWindow);
+            _attackController = new PlayerAttackController();
+            _comboController = new PlayerComboController();
+            _targetingController = new PlayerTargetingController(transform);
+            _presenter = new PlayerCombatPresenter(CreatePlayerAttackHitFeedbackProfile());
             // PlayerEquipment / ActorAnimator는 Model 하위에 있으므로 GetComponentInChildren 사용.
             // 최초에는 인스펙터 직렬화 값이 있으면 유지, 없으면 자동 탐색한다.
             if (_equipment     == null) _equipment     = GetComponentInChildren<PlayerEquipment>();
@@ -577,32 +561,20 @@ namespace UPlayGround.Component
             => OnChangeCombatState?.Invoke(isInCombat);
 
         public bool IsGuardBreak(AttackData incomingAttack)
-        {
-            if (IsGuardBroken) return true;
-            _guardHitCount++;
-            if (_guardHitCount >= _maxGuardCount)
-            {
-                IsGuardBroken = true;
-                return true;
-            }
-            return false;
-        }
+            => _defenseController != null && _defenseController.RegisterGuardHit();
 
-        public bool CanGuard() => Time.time - _guardEndTime >= _guardResetDelay;
+        public bool CanGuard() => _defenseController == null || _defenseController.CanGuard();
 
         public void OnGuardStart()
         {
-            IsGuardBroken  = false;
-            _guardHitCount = 0;
+            _defenseController?.BeginGuard();
         }
 
-        public void OnGuardBreakConfirmed() => _guardEndTime = Time.time;
+        public void OnGuardBreakConfirmed() => _defenseController?.ConfirmGuardBreak();
 
         public void ResetGuardCount()
         {
-            _guardHitCount = 0;
-            IsGuardBroken  = false;
-            _guardEndTime  = -999f;
+            _defenseController?.Reset();
         }
 
         public void RefreshCombatState()
@@ -653,7 +625,7 @@ namespace UPlayGround.Component
             CurrentComboIndex = _normalComboIndex;                 // 약 체인 보존 인덱스 복원(-1 = 미시작)
             // stale 콤보 윈도우 닫기: 전환 시 ResetCombo가 하던 CanCombo=false 대체.
             // advance 평가 전에 닫아, 캔슬 경로(isCombo=false)가 이전 공격의 열린 윈도우에 기대지 않게 한다.
-            CanCombo          = false;
+            _comboController?.CloseWindow();
             CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _normalComboIndex = CurrentComboIndex;                 // 약 체인 저장
             // 태그 상호배타: ResetCombo(반대태그 제거)가 사라졌으므로 직접 반대태그 제거 후 추가.
@@ -671,7 +643,7 @@ namespace UPlayGround.Component
             ClearResidualAttackContext();
             _attackState      = AttackState.HeavyAttack;           // 전환(ResetCombo 호출 제거 — 약 체인 보존)
             CurrentComboIndex = _heavyComboIndex;                  // 강 체인 보존 인덱스 복원(-1 = 미시작)
-            CanCombo          = false;                             // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)
+            _comboController?.CloseWindow();                       // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)
             CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _heavyComboIndex  = CurrentComboIndex;                 // 강 체인 저장
             _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
@@ -1122,79 +1094,16 @@ namespace UPlayGround.Component
 
         private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo, AttackKind attackKind)
         {
+            if (attackInfo?.baseInfo == null)
+                return null;
             _currentAttackInfoBase = attackInfo.baseInfo;
             _currentResidualHitPhases = attackInfo.baseInfo.hitPhases;
-            var phase0 = attackInfo.baseInfo.GetHitPhase(0);
-
-            return new AttackData
-            {
-                animKey          = attackInfo.baseInfo.animKey,
-                damage           = UPlayGround.Util.ApplyRandomValue(phase0.damage, -0.2f, 0.2f),
-                poiseDamage      = phase0.poiseDamage,
-                breakDamage      = phase0.breakDamage,
-                reactionDuration = phase0.reactionDuration,
-                forceReaction    = phase0.forceReaction,
-                forceBreakExpose = phase0.forceBreakExpose,
-                interruptActions = attackInfo.interruptActions,
-                moveCancelDelayAfterLastHit = Mathf.Max(0f, attackInfo.moveCancelDelayAfterLastHit),
-                reactionType     = phase0.reactionType,
-                hitRange         = phase0.attackRadius,
-                hitAngle         = attackInfo.hitAngle,
-                hitHeightOffset  = phase0.attackOffset.y,
-                hitHeightRange   = phase0.hitHeightRange,
-                hitParticleName  = phase0.hitParticleName,
-                pullForce        = phase0.pullForce,
-                knockbackForce   = phase0.knockBackForce,
-                knockbackDrag    = phase0.knockBackDrag,
-                airborneForce    = phase0.airborneForce,
-                hitPhaseIndex          = 0,
-                attackKind             = attackKind,
-                victimForcedAnimKey    = phase0.victimForcedAnimKey,
-                guaranteedReaction     = phase0.guaranteedReaction,
-                reactionData           = phase0.reactionProfile?.Resolve(),
-            };
+            return _attackController.Create(attackInfo, attackKind);
         }
 
         private static AttackData CopyAttackData(AttackData source)
         {
-            if (source == null) return null;
-
-            return new AttackData
-            {
-                animKey = source.animKey,
-                damage = source.damage,
-                poiseDamage = source.poiseDamage,
-                breakDamage = source.breakDamage,
-                reactionDuration = source.reactionDuration,
-                forceReaction = source.forceReaction,
-                forceBreakExpose = source.forceBreakExpose,
-                interruptActions = source.interruptActions,
-                moveCancelDelayAfterLastHit = source.moveCancelDelayAfterLastHit,
-                attackKind = source.attackKind,
-                reactionType = source.reactionType,
-                attacker = source.attacker,
-                hitRange = source.hitRange,
-                hitAngle = source.hitAngle,
-                hitHeightOffset = source.hitHeightOffset,
-                hitHeightRange = source.hitHeightRange,
-                hitPoint = source.hitPoint,
-                hitTarget = source.hitTarget,
-                criticalMultiplier = source.criticalMultiplier,
-                isCounterAttack = source.isCounterAttack,
-                useCounterHitFeedback = source.useCounterHitFeedback,
-                attackDirection = source.attackDirection,
-                hitParticleName = source.hitParticleName,
-                defenseType = source.defenseType,
-                pullForce = source.pullForce,
-                airborneForce = source.airborneForce,
-                knockbackForce = source.knockbackForce,
-                knockbackDrag = source.knockbackDrag,
-                grabDuration = source.grabDuration,
-                victimForcedAnimKey = source.victimForcedAnimKey,
-                guaranteedReaction = source.guaranteedReaction,
-                hitPhaseIndex = source.hitPhaseIndex,
-                reactionData = source.reactionData,
-            };
+            return PlayerAttackController.Copy(source);
         }
 
         #endregion
@@ -1245,8 +1154,8 @@ namespace UPlayGround.Component
                 _currentAttackData.attackDirection = hit.AttackDirection;
 
                 _hitTargets.Add(hit.Damageable);
-                hit.Damageable.TakeDamage(_currentAttackData);
-                ShowAttackHitFeedback(_currentAttackData);
+                CombatResult result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_currentAttackData));
+                ShowAttackHitFeedback(result);
                 OnAttackHit?.Invoke(_currentAttackData);
 
                 if (!hitOccurred)
@@ -1268,32 +1177,12 @@ namespace UPlayGround.Component
             }
         }
 
-        private void ShowAttackHitFeedback(AttackData attackData)
-        {
-            var context = new CombatFeedbackContext(
-                attackData,
-                attackData.hitPoint,
-                attackData.attackDirection,
-                attackData.hitTarget,
-                attackData.damage,
-                CombatFeedbackDispatcher.GetPlayerAttackFloaterStyle(attackData.attackKind),
-                GetHitFxKey(attackData));
-
-            CombatFeedbackDispatcher.ShowDamageFloater(context);
-            CombatFeedbackDispatcher.ShowHitFx(context);
-        }
+        private void ShowAttackHitFeedback(in CombatResult result)
+            => _presenter?.ShowHit(result);
 
         private void ApplyHitFeedback()
         {
-            // 패리 반격 창이 열려 있으면 Execute(PlayerGuard) 슬로우를 보호한다.
-            // 단, 이미 실행된 카운터 공격의 실제 적중 피드백은 막지 않는다.
-            if (IsParryCounterAvailable
-                && !(_currentAttackData?.isCounterAttack ?? false)
-                && !(_currentAttackData?.useCounterHitFeedback ?? false)) return;
-
-            CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
-                _currentAttackData,
-                CreatePlayerAttackHitFeedbackProfile());
+            _presenter?.ApplyImpact(_currentAttackData, IsParryCounterAvailable);
         }
 
         // ── P4: 외부 소스(투사체/AOE) attacker-side 피드백 통일 ──────────────
@@ -1301,24 +1190,16 @@ namespace UPlayGround.Component
         // _currentAttackData가 아니라 전달된 attackData로 동작해 투사체/AOE의 실제 공격 정보를 반영한다.
 
         /// <summary>외부 소스의 단일 히트 연출 — 데미지 숫자 + 히트 VFX. 대상마다 호출한다.</summary>
-        public void ShowExternalHitFeedback(AttackData attackData)
+        public void ShowExternalHitFeedback(in CombatResult result)
         {
-            if (attackData == null) return;
-            ShowAttackHitFeedback(attackData);
+            ShowAttackHitFeedback(result);
         }
 
         /// <summary>외부 소스의 임팩트 연출 — 히트스톱/카메라/바이탈오브/킬캠. 공격 1회당 호출(AOE는 1회로 제한).</summary>
         public void ApplyExternalAttackImpact(AttackData attackData)
         {
             if (attackData == null) return;
-            // 근접 ApplyHitFeedback과 동일하게 패리 반격 슬로우를 보호한다.
-            if (IsParryCounterAvailable
-                && !attackData.isCounterAttack
-                && !attackData.useCounterHitFeedback) return;
-
-            CombatFeedbackDispatcher.ApplyPlayerAttackHitFeedback(
-                attackData,
-                CreatePlayerAttackHitFeedbackProfile());
+            _presenter?.ApplyImpact(attackData, IsParryCounterAvailable);
         }
 
         private PlayerAttackHitFeedbackProfile CreatePlayerAttackHitFeedbackProfile()
@@ -1428,13 +1309,13 @@ namespace UPlayGround.Component
 
         public void OpenComboWindow()
         {
-            CanCombo = true;
+            _comboController?.OpenWindow();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.ComboWindowOpened, _currentAttackData?.hitPhaseIndex ?? 0);
         }
 
         public void CloseComboWindow()
         {
-            CanCombo = false;
+            _comboController?.CloseWindow();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.ComboWindowClosed, _currentAttackData?.hitPhaseIndex ?? 0);
         }
 
@@ -1594,7 +1475,15 @@ namespace UPlayGround.Component
         {
             if (characterType == CharacterActorType.None) return;
 
-            _comboStatesByCharacter[characterType] = CaptureComboState();
+            CharacterComboState state = CaptureComboState();
+            _comboController?.Save(characterType, new PlayerComboController.Snapshot(
+                state.CurrentComboIndex,
+                state.NormalComboIndex,
+                state.HeavyComboIndex,
+                state.LastAttackTime,
+                state.CanCombo,
+                (int)state.AttackState,
+                state.LastAttackAnimKey));
             _comboCharacterType = characterType;
         }
 
@@ -1652,7 +1541,7 @@ namespace UPlayGround.Component
                 _normalComboIndex = -1;
                 _heavyComboIndex  = -1;
             }
-            CanCombo          = false;
+            _comboController?.ResetWindow();
             ApplyComboTags();
             OnComboReset?.Invoke();
             if (clearInputBuffer)
@@ -1678,22 +1567,30 @@ namespace UPlayGround.Component
             if (characterType == CharacterActorType.None)
                 return false;
 
-            if (!_comboStatesByCharacter.TryGetValue(characterType, out var state))
+            if (_comboController == null
+                || !_comboController.TryRestore(characterType, maxCarryTime, out PlayerComboController.Snapshot snapshot))
                 return false;
 
-            bool isExpired = maxCarryTime > 0f && Time.time - state.LastAttackTime > maxCarryTime;
-            if (isExpired)
+            var state = new CharacterComboState
             {
-                _comboStatesByCharacter.Remove(characterType);
-                return false;
-            }
+                CurrentComboIndex = snapshot.CurrentIndex,
+                NormalComboIndex = snapshot.NormalIndex,
+                HeavyComboIndex = snapshot.HeavyIndex,
+                LastAttackTime = snapshot.LastAttackTime,
+                CanCombo = snapshot.CanCombo,
+                AttackState = (AttackState)snapshot.AttackState,
+                LastAttackAnimKey = snapshot.LastAnimKey,
+            };
 
             _attackState = state.AttackState;
             CurrentComboIndex = Mathf.Clamp(state.CurrentComboIndex, 0, Mathf.Max(0, GetComboLength(_attackState) - 1));
             _normalComboIndex = Mathf.Clamp(state.NormalComboIndex, -1, GetComboLength(AttackState.NormalAttack) - 1);
             _heavyComboIndex  = Mathf.Clamp(state.HeavyComboIndex,  -1, GetComboLength(AttackState.HeavyAttack) - 1);
             LastAttackTime = state.LastAttackTime;
-            CanCombo = state.CanCombo || (state.LastAttackAnimKey != AnimKey.None && GetComboLength(_attackState) > 1);
+            if (state.CanCombo || (state.LastAttackAnimKey != AnimKey.None && GetComboLength(_attackState) > 1))
+                _comboController.OpenWindow();
+            else
+                _comboController.CloseWindow();
             ApplyComboTags();
             return true;
         }
@@ -1705,7 +1602,10 @@ namespace UPlayGround.Component
             _normalComboIndex = state.NormalComboIndex;
             _heavyComboIndex  = state.HeavyComboIndex;
             LastAttackTime = state.LastAttackTime;
-            CanCombo = state.CanCombo;
+            if (state.CanCombo)
+                _comboController?.OpenWindow();
+            else
+                _comboController?.CloseWindow();
             ApplyComboTags();
         }
 
@@ -1893,28 +1793,7 @@ namespace UPlayGround.Component
 
         public void FillEnemyAIControllersInRadius(float radius, List<IEnemyAIController> result)
         {
-            if (result == null)
-                return;
-
-            result.Clear();
-            int hitCount = Physics.OverlapSphereNonAlloc(
-                transform.position,
-                radius,
-                _threatOverlapBuffer,
-                _targetLayerMask);
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                var hit = _threatOverlapBuffer[i];
-                if (hit == null)
-                    continue;
-
-                var monster = hit.GetComponent<MonsterActor>()
-                              ?? hit.GetComponentInParent<MonsterActor>();
-                var aiController = monster?.AIController;
-                if (aiController != null && !result.Contains(aiController))
-                    result.Add(aiController);
-            }
+            _targetingController?.FillEnemyControllers(radius, _targetLayerMask, result);
         }
 
         #endregion
@@ -1963,58 +1842,13 @@ namespace UPlayGround.Component
             float searchRange,
             float searchAngle,
             bool skipIfAlreadyCovered)
-        {
-            Vector3 origin  = transform.position;
-            Vector3 forward = transform.forward;
-
-            if (skipIfAlreadyCovered && HasTargetInRange(origin, forward, hitRange, hitAngle))
-                return null;
-
-            searchAngle = Mathf.Clamp(searchAngle, 0f, 180f);
-            Collider[] hits        = Physics.OverlapSphere(origin, searchRange, _targetLayerMask);
-
-            Transform bestTarget = null;
-            float     bestDistSq = float.MaxValue;
-
-            foreach (var hit in hits)
-            {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
-
-                Vector3 dirToTarget = hit.transform.position - origin;
-                dirToTarget.y = 0f;
-                if (Vector3.Angle(forward, dirToTarget) > searchAngle) continue;
-
-                IDamageable damageable = hit.GetComponent<IDamageable>()
-                                      ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.CanTakeDamage()) continue;
-
-                float distSq = dirToTarget.sqrMagnitude;
-                if (distSq < bestDistSq)
-                {
-                    bestDistSq = distSq;
-                    bestTarget = hit.transform;
-                }
-            }
-            return bestTarget;
-        }
-
-        private bool HasTargetInRange(Vector3 origin, Vector3 forward, float range, float angle)
-        {
-            Collider[] hits = Physics.OverlapSphere(origin, range, _targetLayerMask);
-            foreach (var hit in hits)
-            {
-                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
-
-                Vector3 dir = hit.transform.position - origin;
-                dir.y = 0f;
-                if (Vector3.Angle(forward, dir) > angle) continue;
-
-                IDamageable damageable = hit.GetComponent<IDamageable>()
-                                      ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable != null && damageable.CanTakeDamage()) return true;
-            }
-            return false;
-        }
+            => _targetingController?.FindAttackTarget(
+                hitRange,
+                hitAngle,
+                searchRange,
+                searchAngle,
+                _targetLayerMask,
+                skipIfAlreadyCovered);
 
         #endregion
 

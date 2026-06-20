@@ -6,8 +6,7 @@ namespace UPlayGround.Combat
 {
     /// <summary>
     /// 단일 히트 1회의 입력 정보를 표현하는 값 객체 (P1 도입).
-    /// legacy <see cref="AttackData"/>를 점진적으로 대체하기 위한 기준점이며, 아직 AttackData를 삭제하지 않으므로
-    /// 승격하지 않은 필드(반응 물리 파라미터 등)는 <see cref="Source"/>로 접근한다.
+    /// HitRequest와 피격 대상을 결합한 파이프라인 입력이다.
     /// </summary>
     public readonly struct HitContext
     {
@@ -24,75 +23,64 @@ namespace UPlayGround.Combat
         public readonly float PoiseDamage;
         public readonly float BreakDamage;
         public readonly bool IsCounterAttack;
+        public readonly bool UseCounterHitFeedback;
+        public readonly bool IsProjectile;
+        public readonly float ReactionDuration;
+        public readonly bool ForceReaction;
+        public readonly bool ForceBreakExpose;
+        public readonly float CriticalMultiplier;
 
         /// <summary>raw attackData.hitPoint. 피드백의 zero 폴백 판정이 동일하게 동작하도록 가공하지 않고 보관한다.</summary>
         public readonly Vector3 HitPoint;
         public readonly Vector3 AttackDirection;
         public readonly GameObject HitTarget;
         public readonly string HitParticleName;
+        public readonly float PullForce;
+        public readonly float AirborneForce;
+        public readonly float KnockbackForce;
+        public readonly float KnockbackDrag;
+        public readonly float GrabDuration;
+        public readonly AnimKey VictimForcedAnimKey;
+        public readonly bool GuaranteedReaction;
+        public readonly AttackReactionData ReactionData;
+        public readonly HitRequestType RequestType;
+        public bool IsSpecialBreak => RequestType == HitRequestType.SpecialBreak;
 
-        /// <summary>미승격 필드 접근용 back-reference. 전환 기간 한정이며 P3/P4 이후 제거 대상.</summary>
-        public readonly AttackData Source;
-
-        public HitContext(
-            GameActor attacker,
-            GameActor victim,
-            AnimKey animKey,
-            int hitPhaseIndex,
-            AttackKind attackKind,
-            AttackReactionType reactionType,
-            AttackDefenseType defenseType,
-            float damage,
-            float poiseDamage,
-            float breakDamage,
-            bool isCounterAttack,
-            Vector3 hitPoint,
-            Vector3 attackDirection,
-            GameObject hitTarget,
-            string hitParticleName,
-            AttackData source)
+        public HitContext(in HitRequest request, GameActor victim)
         {
-            Attacker = attacker;
+            Attacker = request.Attacker;
             Victim = victim;
-            AnimKey = animKey;
-            HitPhaseIndex = hitPhaseIndex;
-            AttackKind = attackKind;
-            ReactionType = reactionType;
-            DefenseType = defenseType;
-            Damage = damage;
-            PoiseDamage = poiseDamage;
-            BreakDamage = breakDamage;
-            IsCounterAttack = isCounterAttack;
-            HitPoint = hitPoint;
-            AttackDirection = attackDirection;
-            HitTarget = hitTarget;
-            HitParticleName = hitParticleName;
-            Source = source;
+            AnimKey = request.AnimKey;
+            HitPhaseIndex = request.HitPhaseIndex;
+            AttackKind = request.AttackKind;
+            ReactionType = request.ReactionType;
+            DefenseType = request.DefenseType;
+            Damage = request.Damage;
+            PoiseDamage = request.PoiseDamage;
+            BreakDamage = request.BreakDamage;
+            ReactionDuration = request.ReactionDuration;
+            ForceReaction = request.ForceReaction;
+            ForceBreakExpose = request.ForceBreakExpose;
+            CriticalMultiplier = request.CriticalMultiplier;
+            IsCounterAttack = request.IsCounterAttack;
+            UseCounterHitFeedback = request.UseCounterHitFeedback;
+            IsProjectile = request.IsProjectile;
+            HitPoint = request.HitPoint;
+            AttackDirection = request.AttackDirection;
+            HitTarget = request.HitTarget;
+            HitParticleName = request.HitParticleName;
+            PullForce = request.PullForce;
+            AirborneForce = request.AirborneForce;
+            KnockbackForce = request.KnockbackForce;
+            KnockbackDrag = request.KnockbackDrag;
+            GrabDuration = request.GrabDuration;
+            VictimForcedAnimKey = request.VictimForcedAnimKey;
+            GuaranteedReaction = request.GuaranteedReaction;
+            ReactionData = request.ReactionData;
+            RequestType = request.RequestType;
         }
 
-        /// <summary>legacy AttackData를 HitContext로 변환한다. victim은 피격 대상 액터.</summary>
-        public static HitContext FromAttackData(AttackData attackData, GameActor victim)
-        {
-            if (attackData == null)
-                return default;
-
-            return new HitContext(
-                attackData.attacker,
-                victim,
-                attackData.animKey,
-                attackData.hitPhaseIndex,
-                attackData.attackKind,
-                attackData.reactionType,
-                attackData.defenseType,
-                attackData.damage,
-                attackData.poiseDamage,
-                attackData.breakDamage,
-                attackData.isCounterAttack,
-                attackData.hitPoint,
-                attackData.attackDirection,
-                attackData.hitTarget,
-                attackData.hitParticleName,
-                attackData);
-        }
+        public static HitContext Create(in HitRequest request, GameActor victim)
+            => new HitContext(request, victim);
     }
 }

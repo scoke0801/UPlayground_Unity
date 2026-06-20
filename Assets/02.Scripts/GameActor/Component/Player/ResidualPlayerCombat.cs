@@ -220,8 +220,8 @@ namespace UPlayGround.Component
                 _attackData.attackDirection = hit.AttackDirection;
 
                 _hitTargets.Add(hit.Damageable);
-                hit.Damageable.TakeDamage(_attackData);
-                ShowDamageFloater(_attackData);
+                CombatResult result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_attackData));
+                ShowDamageFloater(result);
                 GameObjectManager.Instance?.ShowFX(GetHitFxKey(_attackData), hit.HitPoint);
                 OnAttackHit?.Invoke(_attackData);
                 _ownerPlayer?.GetCombat()?.NotifyAttackHit(_attackData);
@@ -292,23 +292,22 @@ namespace UPlayGround.Component
             return phases[Mathf.Clamp(index, 0, phases.Count - 1)];
         }
 
-        private void ShowDamageFloater(AttackData attackData)
+        private void ShowDamageFloater(in CombatResult result)
         {
-            var style = attackData.attackKind is AttackKind.HeavyAttack
-                                              or AttackKind.SkillAttack
-                                              or AttackKind.FinishAttack
-                                              or AttackKind.ChargeAttack
-                ? FloatStyle.Critical
-                : FloatStyle.Normal;
+            if (!result.DamageApplied || result.FinalDamage <= 0f)
+                return;
 
             if (_showCharacterOnDamageFloater && _ownerType != CharacterActorType.None)
             {
-                string label = $"{_ownerType} {Mathf.RoundToInt(attackData.damage)}";
-                UIManager.Instance?.ShowDamageFloaterLabel(attackData.hitPoint, label, style);
+                string label = $"{_ownerType} {Mathf.RoundToInt(result.FinalDamage)}";
+                UIManager.Instance?.ShowDamageFloaterLabel(result.Hit.HitPoint, label, result.FloaterStyle);
             }
             else
             {
-                UIManager.Instance?.ShowDamageFloater(attackData.hitPoint, attackData.damage, style);
+                UIManager.Instance?.ShowDamageFloater(
+                    result.Hit.HitPoint,
+                    result.FinalDamage,
+                    result.FloaterStyle);
             }
         }
 

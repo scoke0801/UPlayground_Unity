@@ -113,24 +113,35 @@ namespace UPlayGround
 
         #region IDamageable Implementation
         
-        public void TakeDamage(AttackData attackData)
+        public CombatResult ReceiveHit(in HitRequest request)
+            => CombatResolutionPipeline.Execute(this, request);
+
+        internal bool CanResolveHit(in HitRequest request)
         {
+            if (request.IsSpecialBreak)
+                return IsAlive() && _breakGauge != null && _breakGauge.IsExposed;
+
             if (_combat != null && _combat.IsGuarding)
             {
                 if (MovementController.CurrentState is EnemyGuardState guardState)
                 {
-                    guardState.OnAttackBlocked(attackData);
-                    return;
+                    // AttackData 재구체화는 실제 가드 블록 처리에만 필요하므로 이 분기 안에서 할당한다.
+                    guardState.OnAttackBlocked(request.ToReactionData());
+                    return false;
                 }
             }
 
             if (!CanTakeDamage())
             {
                 Debug.Log($"[MonsterActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
-                return;
+                return false;
             }
-            
-            CombatResult combatResult = CombatResolutionPipeline.ResolveMonsterHit(this, attackData, _breakGauge);
+
+            return true;
+        }
+
+        internal CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
+        {
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
@@ -146,20 +157,21 @@ namespace UPlayGround
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             AIController?.UpdatePhase(GetHealthPercent());
 
-            _detection?.AcquireTarget(attackData?.attacker?.transform);
+            if (request.IsSpecialBreak)
+                return ApplySpecialBreakResult(request, combatResult);
+
+            _detection?.AcquireTarget(combatResult.Hit.Attacker?.transform);
 
             ReactionDecision reactionDecision = OnDamaged(
-                attackData,
+                combatResult.Hit,
                 out ResourceChangeSet appliedResources);
-            CombatResolutionPipeline.RecordIfDamageApplied(
-                CombatResolutionPipeline.WithMonsterAppliedResources(
-                    combatResult,
-                    reactionDecision,
-                    -appliedResources.PoiseDelta,
-                    -appliedResources.BreakDelta));
-            
             if (_currentHealth <= 0)
-                OnDeath(attackData);
+                OnDeath();
+            return CombatResolutionPipeline.WithMonsterAppliedResources(
+                combatResult,
+                reactionDecision,
+                -appliedResources.PoiseDelta,
+                -appliedResources.BreakDelta);
         }
 
         public void OnTakeFinishAttack(Vector3 attackDirection)
@@ -170,7 +182,7 @@ namespace UPlayGround
 
             MovementController.AddVelocity(attackDirection.normalized * 30.0f);
             GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
-            OnDeath(null);
+            OnDeath();
         }
 
         /// <summary>
@@ -182,43 +194,31 @@ namespace UPlayGround
         {
             if (!IsAlive()) return;
 
-            DamageResult damageResult = DamageResolver.ResolveSpecialBreakDamage(
-                _maxHealth,
-                damageByMaxHpRate,
-                fixedDamage,
-                minReferenceHealth);
-            float finalDamage = damageResult.FinalDamage;
-            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
-
-            if (_uiHpBar == null) AttachHpUI();
-            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-            AIController?.UpdatePhase(GetHealthPercent());
-
-            _breakGauge?.ConsumeBySpecialAttack();
-            CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
-
-            Vector3 floaterPos = TryGetSocket(ActorSocketType.Center, out var center)
+            Vector3 hitPoint = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
-            CombatResult combatResult = CombatResolutionPipeline.ResolveSpecialBreakHit(
+            ReceiveHit(HitRequest.CreateSpecialBreak(
                 attacker,
                 this,
-                damageResult,
-                floaterPos);
-            CombatResolutionPipeline.RecordIfDamageApplied(combatResult);
+                damageByMaxHpRate,
+                fixedDamage,
+                minReferenceHealth,
+                hitPoint));
+        }
+
+        private CombatResult ApplySpecialBreakResult(
+            in HitRequest request,
+            in CombatResult combatResult)
+        {
+            _breakGauge?.ConsumeBySpecialAttack();
+            CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
             CombatFeedbackDispatcher.ShowDamageFloater(
-                CombatFeedbackContext.FromCombatResult(combatResult, floaterPos));
+                CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
 
             if (_currentHealth <= 0)
             {
-                var attackData = new AttackData
-                {
-                    attacker = attacker,
-                    attackKind = AttackKind.FinishAttack,
-                    reactionType = AttackReactionType.Knockdown,
-                };
-                OnDeath(attackData);
-                return;
+                OnDeath();
+                return combatResult;
             }
 
             // 생존 시 — 브레이크 공격 마무리로 넘어뜨린다. Knockdown 모션이 없으면 Stun.
@@ -238,9 +238,18 @@ namespace UPlayGround
                         knockbackDistance: breakKnockbackDistance,
                         knockbackDuration: breakKnockbackDuration,
                         maxKnockbackSpeed: breakMaxKnockbackSpeed,
-                        knockbackSource: attacker != null ? attacker.transform : null)
+                        knockbackSource: request.Attacker != null ? request.Attacker.transform : null)
                     : new EnemyStunState(MovementController));
             }
+
+            CombatReactionState state = MovementController != null
+                                        && Animator != null
+                                        && Animator.HasMotion(AnimKey.Knockdown, true)
+                ? CombatReactionState.Knockdown
+                : CombatReactionState.Stun;
+            return CombatResolutionPipeline.WithReaction(
+                combatResult,
+                new ReactionDecision(true, true, false, state));
         }
         
         public bool IsAlive()          => _currentHealth > 0;
@@ -290,12 +299,14 @@ namespace UPlayGround
             AIController?.UpdatePhase(GetHealthPercent());
 
             if (wasAlive && _currentHealth <= 0f)
-                OnDeath(null);
+                OnDeath();
         }
         
         #endregion
 
-        protected virtual ReactionDecision OnDamaged(AttackData attackData, out ResourceChangeSet appliedResources)
+        protected virtual ReactionDecision OnDamaged(
+            in HitContext hit,
+            out ResourceChangeSet appliedResources)
         {
             float poiseDamageApplied = 0f;
             float breakDamageApplied = 0f;
@@ -303,14 +314,14 @@ namespace UPlayGround
             if (_poiseStat != null)
             {
                 float previousPoise = _poiseStat.CurrentPoise;
-                poiseBrokenNow = _poiseStat.TakePoiseDamage(attackData?.poiseDamage ?? 0f);
+                poiseBrokenNow = _poiseStat.TakePoiseDamage(hit.PoiseDamage);
                 poiseDamageApplied = Mathf.Max(0f, previousPoise - _poiseStat.CurrentPoise);
             }
 
             bool isPoiseBroken = _poiseStat != null && _poiseStat.IsPoiseBroken;
-            GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(attackData, isPoiseBroken);
+            GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(hit, isPoiseBroken);
             AIController?.Group?.Memory?.NotifyMemberTookDamage();
-            breakDamageApplied = _breakGauge != null ? _breakGauge.TakeBreakDamage(attackData) : 0f;
+            breakDamageApplied = _breakGauge != null ? _breakGauge.TakeBreakDamage(hit) : 0f;
 
             // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
             // 받는 피해 증가(DamageTakenMultiplier)는 TakeDamage 단계에서 이미 적용된다.
@@ -319,9 +330,9 @@ namespace UPlayGround
             // 패리 직후 몬스터는 Stun 상태이고 CanPlayHitReaction이 "Stun"을 제외하므로 일반 리액션 경로로는
             // 어떤 힘도 적용되지 않는다. 또한 카운터는 패리 '보상'이므로 일반 피격 경직을 막는 등급 정책
             // (allowHit=false 등)에 묶이면 안 된다 → 정책 게이트 없이 직접 shove를 적용한다.
-            if (attackData != null && attackData.isCounterAttack)
+            if (hit.IsCounterAttack)
             {
-                ApplyBreakStyleShove(attackData.attacker);
+                ApplyBreakStyleShove(hit.Attacker);
                 CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
                 appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
                 return new ReactionDecision(true, true, false, CombatReactionState.Hit);
@@ -330,30 +341,30 @@ namespace UPlayGround
             ReactionDecision reactionDecision = ReactionResolver.ResolveMonsterReaction(
                 new MonsterReactionQuery(
                     poiseBrokenNow,
-                    CanPlayHitReaction(attackData),
-                    ShouldEnterAirborneState(attackData),
-                    CanEnterKnockdownState(attackData),
+                    CanPlayHitReaction(hit),
+                    ShouldEnterAirborneState(hit),
+                    CanEnterKnockdownState(hit),
                     Grade,
                     Definition != null ? Definition.combatReactionPolicy : null),
-                attackData);
+                hit);
 
             bool appliedReactionForce = false;
-            if (attackData != null && reactionDecision.ShouldApplyForce)
+            if (reactionDecision.ShouldApplyForce)
             {
-                switch (attackData.reactionType)
+                switch (hit.ReactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce,
-                            attackData.knockbackDrag);
+                        MovementController.AddImpulse(hit.AttackDirection.normalized * hit.KnockbackForce,
+                            hit.KnockbackDrag);
                         appliedReactionForce = true;
                         break;
 
                     case AttackReactionType.Pull:
-                        if (attackData.attacker != null)
+                        if (hit.Attacker != null)
                         {
-                            Vector3 pullDir = (attackData.attacker.transform.position - transform.position).normalized;
+                            Vector3 pullDir = (hit.Attacker.transform.position - transform.position).normalized;
                             pullDir.y = 0f;
-                            MovementController.AddVelocity(pullDir * attackData.pullForce);
+                            MovementController.AddVelocity(pullDir * hit.PullForce);
                         }
                         appliedReactionForce = true;
 
@@ -361,14 +372,14 @@ namespace UPlayGround
 
                     case AttackReactionType.Airborne:
                     {
-                        Vector3 launchDir = attackData.attackDirection.normalized;
+                        Vector3 launchDir = hit.AttackDirection.normalized;
                         launchDir.y = 0f;
-                        Vector3 airborneVelocity = ShouldEnterAirborneState(attackData)
-                            ? Vector3.up * attackData.airborneForce
+                        Vector3 airborneVelocity = ShouldEnterAirborneState(hit)
+                            ? Vector3.up * hit.AirborneForce
                             : Vector3.zero;
                         MovementController.AddImpulse(
-                            launchDir * attackData.knockbackForce + airborneVelocity,
-                            attackData.knockbackDrag);
+                            launchDir * hit.KnockbackForce + airborneVelocity,
+                            hit.KnockbackDrag);
                         appliedReactionForce = true;
                         break;
                     }
@@ -384,17 +395,16 @@ namespace UPlayGround
             bool isPlainPoiseBreak = poiseBrokenNow
                 && reactionDecision.ShouldEnterState
                 && !appliedReactionForce
-                && attackData != null
-                && attackData.reactionType is AttackReactionType.Light
+                && hit.ReactionType is AttackReactionType.Light
                     or AttackReactionType.Hit
                     or AttackReactionType.Heavy;
 
             if (reactionDecision.ShouldEnterState)
             {
                 if (isPlainPoiseBreak)
-                    ApplyShoveImpulse(attackData.attacker);
+                    ApplyShoveImpulse(hit.Attacker);
 
-                ApplyMonsterReactionState(reactionDecision.TargetState, attackData);
+                ApplyMonsterReactionState(reactionDecision.TargetState, hit);
             }
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
@@ -402,7 +412,7 @@ namespace UPlayGround
             return reactionDecision;
         }
 
-        private bool CanPlayHitReaction(AttackData attackData)
+        private bool CanPlayHitReaction(in HitContext hit)
         {
             if (_externalHitReactionSuppressionCount > 0)
                 return false;
@@ -412,10 +422,10 @@ namespace UPlayGround
                 return false;
 
             return state.StateName is not ("Death" or "Hit" or "Airborne" or "Knockdown" or "Stun" or "Grabbed" or "SpecialBreakVictim")
-                   && state.CanPlayHitReaction(attackData);
+                   && state.CanPlayHitReaction(hit);
         }
 
-        private void ApplyMonsterReactionState(CombatReactionState reactionState, AttackData attackData)
+        private void ApplyMonsterReactionState(CombatReactionState reactionState, in HitContext hit)
         {
             if (MovementController == null)
                 return;
@@ -426,40 +436,40 @@ namespace UPlayGround
                     MovementController.TransitionToState(new EnemyAirborneState(MovementController));
                     break;
                 case CombatReactionState.Grabbed:
-                    MovementController.TransitionToState(new EnemyGrabbedState(MovementController, attackData));
+                    MovementController.TransitionToState(new EnemyGrabbedState(MovementController, hit));
                     break;
                 case CombatReactionState.Stun:
-                    MovementController.TransitionToState(new EnemyStunState(MovementController, attackData));
+                    MovementController.TransitionToState(new EnemyStunState(MovementController, hit));
                     break;
                 case CombatReactionState.Knockdown:
-                    MovementController.TransitionToState(new EnemyKnockdownState(MovementController, attackData));
+                    MovementController.TransitionToState(new EnemyKnockdownState(MovementController, hit));
                     break;
                 case CombatReactionState.Hit:
-                    MovementController.TransitionToState(new EnemyHitState(MovementController, attackData));
+                    MovementController.TransitionToState(new EnemyHitState(MovementController, hit));
                     break;
             }
         }
 
-        private bool ShouldEnterAirborneState(AttackData attackData)
+        private bool ShouldEnterAirborneState(in HitContext hit)
         {
-            if (attackData == null || attackData.reactionType != AttackReactionType.Airborne)
+            if (hit.ReactionType != AttackReactionType.Airborne)
                 return false;
 
-            if (attackData.airborneForce >= MinAirborneStateForce)
+            if (hit.AirborneForce >= MinAirborneStateForce)
                 return true;
 
             return false;
         }
 
-        private bool CanEnterKnockdownState(AttackData attackData)
+        private bool CanEnterKnockdownState(in HitContext hit)
         {
-            if (attackData == null || attackData.reactionType != AttackReactionType.Knockdown)
+            if (hit.ReactionType != AttackReactionType.Knockdown)
                 return false;
 
             return Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
         }
 
-        protected virtual void OnDeath(AttackData attackData)
+        protected virtual void OnDeath()
         {
             if (_isDead) return;
             _isDead = true;
@@ -734,6 +744,8 @@ namespace UPlayGround
 
             Vector3 dir = ApplyShoveImpulse(attacker);
 
+            // 카운터 셸브는 합성 입력이라 HitRequest 경계를 거쳐 HitContext로 변환한다(드문 경로라 할당 허용).
+            // EnemyHitState는 ReactionType(KnockBack→Knockback 애니)만 읽으므로 그 값 보존이 핵심이다.
             var shoveData = new AttackData
             {
                 attacker        = attacker,
@@ -744,7 +756,8 @@ namespace UPlayGround
                 knockbackDrag   = BreakShoveDrag,
                 attackDirection = dir,
             };
-            MovementController.TransitionToState(new EnemyHitState(MovementController, shoveData));
+            HitContext shoveHit = HitContext.Create(HitRequest.FromAttackData(shoveData), this);
+            MovementController.TransitionToState(new EnemyHitState(MovementController, shoveHit));
         }
 
         /// <summary>
@@ -757,14 +770,9 @@ namespace UPlayGround
 
             AIController?.OnParried();
 
-            var stunData = new AttackData
-            {
-                reactionType   = AttackReactionType.Stun,
-                damage         = 0f,
-                poiseDamage    = 0f,
-                knockbackForce = 0f,
-            };
-            MovementController.TransitionToState(new EnemyStunState(MovementController, stunData));
+            // 패리 스턴은 reactionDuration 미지정(=기본 2.5초) 외 EnemyStunState가 읽는 필드가 없으므로
+            // 기본 HitContext 생성자와 동작이 동일하다(합성 AttackData 불필요).
+            MovementController.TransitionToState(new EnemyStunState(MovementController));
         }
 
         private void ResetHealthFromStats()

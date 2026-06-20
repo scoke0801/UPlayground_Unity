@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -265,13 +266,13 @@ namespace UPlayGround.Component
             ConsecutiveGuardCount = 0;
         }
 
-        public void NotifyTookDamage(AttackData attackData, bool poiseBroken)
+        public void NotifyTookDamage(in HitContext hit, bool poiseBroken)
         {
             NotifyTookDamage();
 
-            LastHitReactionType = attackData?.reactionType ?? AttackReactionType.None;
+            LastHitReactionType = hit.ReactionType;
             WasLastHitPoiseBreak = poiseBroken;
-            LastHitDirection = attackData?.attackDirection ?? Vector3.zero;
+            LastHitDirection = hit.AttackDirection;
         }
 
         public void NotifyBlocked()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Component;
 using UPlayGround.Data;
@@ -50,9 +51,9 @@ namespace UPlayGround.State
             return true;
         }
 
-        public override bool CanPlayHitReaction(AttackData attackData)
+        public override bool CanPlayHitReaction(in HitContext hit)
         {
-            return base.CanPlayHitReaction(attackData)
+            return base.CanPlayHitReaction(hit)
                    && _combat != null
                    && !_combat.IsPossibleCollide;
         }

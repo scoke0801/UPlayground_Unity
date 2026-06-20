@@ -1,4 +1,3 @@
-using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -57,9 +56,9 @@ namespace UPlayGround.Combat
     {
         public static ReactionDecision ResolvePlayerReaction(
             in PlayerReactionQuery query,
-            AttackData attackData)
+            in HitContext hit)
         {
-            if (query.IgnoreHitReaction || attackData == null)
+            if (query.IgnoreHitReaction)
                 return ReactionDecision.None;
 
             bool shouldEnterReactionBlock = !query.IsAlreadyHitOrGrabbed;
@@ -67,7 +66,7 @@ namespace UPlayGround.Combat
             // 경직 내성(Stagger Protection): 리액션 회복 직후 창 동안 약한 리액션(None/Light/Hit)을 무시한다.
             // 데미지는 본류(TakeDamage)에서 이미 적용 — 여기서는 상태 전환/카메라 흔들림만 억제해 통제권을 보호한다.
             // 큰 리액션(Heavy/넉백/에어본/다운/스턴/잡기)은 통과시켜 강한 한 방엔 여전히 흔들리게 한다.
-            if (query.IsStaggerImmune && IsMinorPlayerReaction(attackData.reactionType))
+            if (query.IsStaggerImmune && IsMinorPlayerReaction(hit.ReactionType))
                 shouldEnterReactionBlock = false;
 
             bool shouldEnterState = shouldEnterReactionBlock && query.CanTransitionToHit;
@@ -76,21 +75,20 @@ namespace UPlayGround.Combat
                 shouldApplyForce: true,
                 shouldEnterState,
                 shouldPlayCameraFeedback: shouldEnterReactionBlock,
-                ResolveTargetState(attackData, query.ShouldEnterAirborne, attackData.reactionType == AttackReactionType.Knockdown));
+                ResolveTargetState(hit.ReactionType, query.ShouldEnterAirborne, hit.ReactionType == AttackReactionType.Knockdown));
         }
 
         public static ReactionDecision ResolveMonsterReaction(
             in MonsterReactionQuery query,
-            AttackData attackData)
+            in HitContext hit)
         {
             // guaranteedReaction: 등급 리액션 정책을 우회해 피격 리액션을 보장한다(보스 등 강인한 적도 흔들림).
             // 단 상태 기반 제외(Death/Hit/Airborne 등 = CanPlayHitReaction)는 안전상 유지한다.
-            bool guaranteed = attackData != null && attackData.guaranteedReaction;
-            bool shouldPlayHitReaction = attackData != null
-                                         && attackData.reactionType != AttackReactionType.None
+            bool guaranteed = hit.GuaranteedReaction;
+            bool shouldPlayHitReaction = hit.ReactionType != AttackReactionType.None
                                          && query.CanPlayHitReaction
                                          && (guaranteed
-                                             || (attackData.forceReaction
+                                             || (hit.ForceReaction
                                                  && CombatPolicyResolver.AllowsMonsterForceReaction(query.Policy, query.Grade)));
             bool shouldApplyForce = query.PoiseBrokenNow || shouldPlayHitReaction;
 
@@ -112,7 +110,7 @@ namespace UPlayGround.Combat
                 return new ReactionDecision(shouldApplyForce, false, false, CombatReactionState.None);
 
             CombatReactionState targetState = ResolveTargetState(
-                attackData,
+                hit.ReactionType,
                 query.ShouldEnterAirborne,
                 query.CanEnterKnockdown);
 
@@ -150,14 +148,14 @@ namespace UPlayGround.Combat
                         or AttackReactionType.Hit;
 
         private static CombatReactionState ResolveTargetState(
-            AttackData attackData,
+            AttackReactionType reactionType,
             bool shouldEnterAirborne,
             bool canEnterKnockdown)
         {
             if (shouldEnterAirborne)
                 return CombatReactionState.Airborne;
 
-            return attackData?.reactionType switch
+            return reactionType switch
             {
                 AttackReactionType.Grab => CombatReactionState.Grabbed,
                 AttackReactionType.Stun => CombatReactionState.Stun,

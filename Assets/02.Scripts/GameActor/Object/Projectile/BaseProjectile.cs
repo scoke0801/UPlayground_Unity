@@ -146,7 +146,11 @@ namespace UPlayGround
             if (damageable != null && _hitTargets.Contains(damageable))
                 return;
             
-            if (damageable != null && damageable.CanTakeDamage())
+            bool deliverable = damageable != null
+                               && (owner.HasActorType(ActorType.Monster)
+                                   ? damageable.IsAlive()
+                                   : damageable.CanTakeDamage());
+            if (deliverable)
             {
                 _hitTargets.Add(damageable);
                 
@@ -156,12 +160,13 @@ namespace UPlayGround
                 attackData.attacker = owner;
                 
                 // 데미지 적용
-                damageable.TakeDamage(attackData);
+                UPlayGround.Combat.CombatResult result =
+                    damageable.ReceiveHit(UPlayGround.Combat.HitRequest.FromAttackData(attackData));
 
                 if (owner.HasActorType(ActorType.Player) && _ownerPlayerCombat != null)
                 {
                     // P4: 근접과 동일한 attacker-side 피드백으로 통일(데미지 숫자/히트 VFX/히트스톱/카메라/바이탈오브/킬캠).
-                    _ownerPlayerCombat.ShowExternalHitFeedback(attackData);
+                    _ownerPlayerCombat.ShowExternalHitFeedback(result);
                     _ownerPlayerCombat.ApplyExternalAttackImpact(attackData);
                     _ownerPlayerCombat.NotifyAttackHit(attackData);
                 }

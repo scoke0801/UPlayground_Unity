@@ -349,6 +349,7 @@ Assets/
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
+| [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability System 적용 스펙 — 언리얼 ASC 개념을 UPlayground의 상태 머신, MotionSet, 전투 파이프라인, 스탯·태그 구조에 점진 적용하는 설계 기준 |
 | [EVENT_MANAGER_GUIDE.md](Complete/EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](Complete/GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |
 | [DIALOGUE_SYSTEM_GUIDE.md](Complete/DIALOGUE_SYSTEM_GUIDE.md) | Dialogue 시스템 — DialogueGraphSO/NodeSO, Main/System/Monologue 채널 Runner, ConditionSO/ActionSO 확장, GlobalFlagManager 세이브 연동 |

@@ -17,6 +17,13 @@ namespace UPlayGround.Manager
 
     public class AssetManager : BaseManager<AssetManager>, IManager, IAsyncInitializableManager
     {
+        // 에디터 첫 임포트/번들 빌드가 느린 환경의 오탐(타임아웃)을 피하려 에디터에서는 더 길게 둔다.
+#if UNITY_EDITOR
+        private const int LOAD_TIMEOUT_SECONDS = 60;
+#else
+        private const int LOAD_TIMEOUT_SECONDS = 15;
+#endif
+
         private sealed class AssetHandleRecord
         {
             public AsyncOperationHandle Handle;
@@ -135,10 +142,35 @@ namespace UPlayGround.Manager
 
             if (handles.TryGetValue(cacheKey, out AssetHandleRecord cachedRecord))
             {
-                AddOwner(cachedRecord, owner);
+                bool cachedOwnerAdded = AddOwner(cachedRecord, owner);
 
                 if (!cachedRecord.Handle.IsDone)
-                    await cachedRecord.Handle.Task;
+                {
+                    using var cachedTimeoutCancellation =
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    cachedTimeoutCancellation.CancelAfter(
+                        TimeSpan.FromSeconds(LOAD_TIMEOUT_SECONDS));
+
+                    try
+                    {
+                        await cachedRecord.Handle.ToUniTask(
+                            cancellationToken: cachedTimeoutCancellation.Token);
+                    }
+                    catch (OperationCanceledException)
+                        when (!cancellationToken.IsCancellationRequested)
+                    {
+                        // 타임아웃으로 에셋을 받지 못했으므로 호출자는 ReleaseAsset을 호출하지 않는다.
+                        // 이번 호출로 추가한 소유자를 되돌리지 않으면 refcount가 0에 도달하지 못해
+                        // 해당 에셋이 영구히 해제되지 않는다(신규 로드 경로와 대칭 정리).
+                        if (cachedOwnerAdded)
+                            RemoveOwner(cachedRecord, owner);
+
+                        throw new TimeoutException(
+                            $"[AssetManager] 캐시된 '{key}' ({typeof(T).Name}) 로드가 " +
+                            $"{LOAD_TIMEOUT_SECONDS}초를 초과했습니다. " +
+                            $"수명={lifetime}, 소유자={FormatOwners(cachedRecord)}");
+                    }
+                }
 
                 cancellationToken.ThrowIfCancellationRequested();
                 T cachedResult = cachedRecord.Handle.Result as T;
@@ -154,9 +186,14 @@ namespace UPlayGround.Manager
             AddOwner(record, owner);
             handles.Add(cacheKey, record);
 
+            using var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken);
+            timeoutCancellation.CancelAfter(TimeSpan.FromSeconds(LOAD_TIMEOUT_SECONDS));
+
             try
             {
-                T result = await handle.Task;
+                T result = await handle.ToUniTask(
+                    cancellationToken: timeoutCancellation.Token);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (result == null)
@@ -170,11 +207,21 @@ namespace UPlayGround.Manager
             }
             catch (OperationCanceledException)
             {
+                bool timedOut = !cancellationToken.IsCancellationRequested;
+
                 if (record.Owners.Count <= 1)
                 {
                     handles.Remove(cacheKey);
                     if (handle.IsValid())
                         Addressables.Release(handle);
+                }
+
+                if (timedOut)
+                {
+                    throw new TimeoutException(
+                        $"[AssetManager] '{key}' ({typeof(T).Name}) 로드가 " +
+                        $"{LOAD_TIMEOUT_SECONDS}초를 초과했습니다. " +
+                        $"수명={lifetime}, 소유자={FormatOwners(record)}");
                 }
 
                 throw;
@@ -206,9 +253,16 @@ namespace UPlayGround.Manager
             AssetLifetime lifetime) =>
             lifetime == AssetLifetime.Scene ? _sceneHandles : _globalHandles;
 
-        private static void AddOwner(AssetHandleRecord record, string owner)
+        // 반환값: 이번 호출로 새로 추가된 소유자면 true, 이미 등록돼 있던 소유자면 false.
+        // 실패 경로에서 "내가 추가한 소유자"만 정확히 되돌리기 위해 사용한다.
+        private static bool AddOwner(AssetHandleRecord record, string owner)
         {
-            record.Owners.Add(string.IsNullOrWhiteSpace(owner) ? "Unknown" : owner);
+            return record.Owners.Add(string.IsNullOrWhiteSpace(owner) ? "Unknown" : owner);
+        }
+
+        private static void RemoveOwner(AssetHandleRecord record, string owner)
+        {
+            record.Owners.Remove(string.IsNullOrWhiteSpace(owner) ? "Unknown" : owner);
         }
 
         private static string FormatOwners(AssetHandleRecord record) =>

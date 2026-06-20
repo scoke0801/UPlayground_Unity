@@ -181,6 +181,7 @@ namespace UPlayGround.Animation.Editor
         // ====================================================================
         public void DrawFullGUI(MotionSet set)
         {
+            HandleGlobalDragTermination();
             if (set == null) return;
 
             EditorGUILayout.Space(4);
@@ -217,6 +218,56 @@ namespace UPlayGround.Animation.Editor
 
             if (isDraggingCursor || _isDraggingStart || _isDraggingEnd || _isDraggingBody
                 || _clipHandleDraggingStart || _clipHandleDraggingEnd) Repaint();
+        }
+
+        /// <summary>
+        /// 개별 이벤트 바의 가시성이나 호출 여부와 무관하게 드래그 상태를 종료한다.
+        /// IMGUI에서는 창 밖 MouseUp 또는 포커스 손실 시 대상 컨트롤이 종료 이벤트를 받지 못할 수 있다.
+        /// </summary>
+        void HandleGlobalDragTermination()
+        {
+            Event e = Event.current;
+            if (e == null) return;
+
+            if (e.type == EventType.MouseDown && e.button == 0)
+            {
+                // 이전 MouseUp을 놓친 상태가 새 클릭으로 이어지지 않도록 먼저 정리한다.
+                ResetEventDragState();
+                return;
+            }
+
+            bool shiftReleased = e.type == EventType.KeyUp &&
+                                 (e.keyCode == KeyCode.LeftShift || e.keyCode == KeyCode.RightShift);
+            bool bodyDragLostShift = _isDraggingBody && e.type == EventType.MouseDrag && !e.shift;
+            bool pointerReleased = e.type == EventType.MouseUp;
+            bool pointerLeftWindow = e.type == EventType.MouseLeaveWindow;
+            bool inputInterrupted = e.type == EventType.Ignore;
+
+            if (shiftReleased || bodyDragLostShift || pointerReleased || pointerLeftWindow || inputInterrupted)
+            {
+                ResetEventDragState();
+
+                if (pointerReleased || pointerLeftWindow || inputInterrupted)
+                    CancelDragState();
+            }
+        }
+
+        public void CancelDragState()
+        {
+            ResetEventDragState();
+            isDraggingCursor = false;
+            _clipHandleDraggingStart = false;
+            _clipHandleDraggingEnd = false;
+            _clipHandleMotionIndex = -1;
+        }
+
+        void ResetEventDragState()
+        {
+            _isDraggingStart = false;
+            _isDraggingEnd = false;
+            _isDraggingBody = false;
+            _dragEventMotionIndex = -1;
+            _dragEventIndex = -1;
         }
 
         float CalcTimelineAndInspectorHeight(MotionSet set)
@@ -1985,13 +2036,6 @@ namespace UPlayGround.Animation.Editor
             {
                 Vector2 localPos = e.mousePosition;
 
-                // MouseUp 누락(이벤트가 화면 밖으로 밀려나 가시성 체크 실패, 윈도우 포커스 손실 등)으로
-                // 드래그 플래그가 stale 상태로 남으면 Shift 없는 다음 클릭+이동이 그대로 드래그로 이어진다.
-                // 새 클릭 진입 시점에 강제 리셋하여 매칭되는 분기에서만 다시 설정되도록 한다.
-                _isDraggingStart = false;
-                _isDraggingEnd = false;
-                _isDraggingBody = false;
-
                 if (startRect.Contains(localPos))
                 {
                     _isDraggingStart = true;
@@ -2058,15 +2102,6 @@ namespace UPlayGround.Animation.Editor
                 }
             }
 
-            if (e.type == EventType.MouseUp && (_isDraggingStart || _isDraggingEnd || _isDraggingBody))
-            {
-                _isDraggingStart = false;
-                _isDraggingEnd = false;
-                _isDraggingBody = false;
-                _dragEventMotionIndex = -1;
-                _dragEventIndex = -1;
-                e.Use();
-            }
         }
 
         static void DrawDiamond(float cx, float cy, float size, Color color)

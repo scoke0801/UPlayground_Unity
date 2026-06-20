@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: Action_Charge_GapCloser
   _comment: "\uB3C4\uB9DD\uAC00\uB294 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uB3CC\uC9C4\uC73C\uB85C
     \uC555\uBC15."
-  _editorPosition: {x: 1520, y: 1200}
+  _editorPosition: {x: 1844, y: 3246.5}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
   _guid: cd_approach_charge
   _displayName: Cooldown_Charge_8s
   _comment: "\uAC2D\uD074\uB85C\uC800 \uB3CC\uC9C4 \uC8FC\uAE30 8\uCD08."
-  _editorPosition: {x: 1520, y: 1000}
+  _editorPosition: {x: 1844, y: 2945}
   _children:
   - {fileID: -8912774837237725689}
   _disabled: 0
@@ -61,7 +61,7 @@ MonoBehaviour:
   _displayName: Condition_TargetFar_GE_3_2m
   _comment: "\uC811\uADFC \uBC34\uB4DC \uC2DC\uC791 3.2m \u2014 \uD558\uB77C\uC2A4
     \uBC34\uB4DC(3.5m)\uC640 \uACB9\uCCD0 \uACBD\uACC4 \uB5A8\uB9BC \uBC29\uC9C0."
-  _editorPosition: {x: 1460, y: 800}
+  _editorPosition: {x: 1996, y: 2201}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -84,7 +84,7 @@ MonoBehaviour:
   _displayName: Sync_Phase_HpBased
   _comment: "HP \uAE30\uBC18 \uD398\uC774\uC988 \uD0A4(HpPercent, AllowCharge \uB4F1)
     \uB3D9\uAE30\uD654."
-  _editorPosition: {x: -100, y: 400}
+  _editorPosition: {x: -148, y: 578}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -104,7 +104,7 @@ MonoBehaviour:
   _displayName: Sync_Blackboard_Basic
   _comment: "\uD0C0\uAC9F/\uAC70\uB9AC/\uD604\uC7AC \uC0C1\uD0DC\uB97C Blackboard\uC5D0
     \uB3D9\uAE30\uD654."
-  _editorPosition: {x: -500, y: 400}
+  _editorPosition: {x: -548, y: 578}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
   _displayName: Condition_TargetIn_3_5m_Harass
   _comment: "\uADFC\uC811 \uACAC\uC81C \uBC34\uB4DC 3.5m \u2014 \uACF5\uACA9 \uBC34\uB4DC(2.8m)\uC640
     \uACB9\uCCD0 \uB370\uB4DC\uC874 \uCC28\uB2E8."
-  _editorPosition: {x: 1180, y: 800}
+  _editorPosition: {x: 1396, y: 2173}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
   _comment: "3\uC5F0\uC18D \uACF5\uACA9 \uD6C4\uC5D4 \uBC18\uB4DC\uC2DC \uC774\uB3D9
     \uBD84\uAE30\uB85C \uBE60\uC838 \uB9AC\uB4EC \uD615\uC131 (\uC18C\uC6B8\uB77C\uC774\uD06C
     \uACF5\uACA9-\uCFE8\uB2E4\uC6B4 \uB9AC\uB4EC)."
-  _editorPosition: {x: 540, y: 800}
+  _editorPosition: {x: 592, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
     \uC751\uC9D5 \u2014 4m\uAE4C\uC9C0 \uB2EC\uB824\uAC00 \uACF5\uACA9. \uD589\uB3D9
     \uC778\uD130\uBC8C \uAC8C\uC774\uD2B8\uB97C \uC758\uB3C4\uC801\uC73C\uB85C \uBB34\uC2DC(\uBE48\uD2C8\uC740
     \uC989\uC2DC \uCC98\uBC8C)."
-  _editorPosition: {x: -340, y: 600}
+  _editorPosition: {x: -512, y: 1522}
   _children:
   - {fileID: 3835574919053939933}
   - {fileID: -6192193835643141083}
@@ -196,7 +196,7 @@ MonoBehaviour:
   _displayName: Condition_CanUseSkill_Recovery
   _comment: "\uD604\uC7AC \uAC70\uB9AC\uC5D0\uC11C \uC4F8 \uC218 \uC788\uB294 \uC2A4\uD0AC\uC774
     \uC788\uC5B4\uC57C \uC751\uC9D5."
-  _editorPosition: {x: 40, y: 800}
+  _editorPosition: {x: 92, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -216,7 +216,7 @@ MonoBehaviour:
   _guid: act_guard_react
   _displayName: Action_Guard_React
   _comment: "\uACF5\uACA9 \uC77D\uACE0 \uAC00\uB4DC."
-  _editorPosition: {x: -531, y: 1479}
+  _editorPosition: {x: -487, y: 3427}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -239,7 +239,7 @@ MonoBehaviour:
   _guid: act_attack_punish_stagger
   _displayName: Action_Attack_PunishStagger
   _comment: "\uC2A4\uD0DC\uAC70 \uC751\uC9D5 \uACF5\uACA9."
-  _editorPosition: {x: -220, y: 800}
+  _editorPosition: {x: -168, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
   _displayName: Condition_RevengeWindow_1_5s
   _comment: "\uD53C\uACA9 \uD6C4 1.5\uCD08 \uB0B4\uC5D0\uB9CC \uBCF5\uC218 \uBC1C\uB3D9
     \u2014 \uC989\uAC01\uC801 \uBC18\uACA9\uC73C\uB85C \uB290\uAEF4\uC9C0\uAC8C."
-  _editorPosition: {x: -920, y: 800}
+  _editorPosition: {x: -868, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -280,7 +280,7 @@ MonoBehaviour:
   _guid: cond_poise_broken
   _displayName: Condition_PoiseBroken
   _comment: "\uD3EC\uC774\uC988 \uBE0C\uB808\uC774\uD06C \uC0C1\uD0DC \uD310\uC815."
-  _editorPosition: {x: -1280, y: 800}
+  _editorPosition: {x: -1448, y: 2238}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -299,7 +299,7 @@ MonoBehaviour:
   _guid: act_retreat_survival
   _displayName: Action_Retreat_Survival
   _comment: "\uAC70\uB9AC\uB97C \uBC8C\uB824 \uD55C\uC228 \uB3CC\uB9AC\uB294 \uC5F0\uCD9C."
-  _editorPosition: {x: -1440, y: 1000}
+  _editorPosition: {x: -1396, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -324,7 +324,7 @@ MonoBehaviour:
   _comment: "\uCFE8\uB2E4\uC6B4 \uB85C\uD14C\uC774\uC158\uC73C\uB85C \uAC00\uC911\uCE58
     \uC5C6\uC774 \uBCC0\uD654 \uC0DD\uC131: 5\uCD08\uC5D0 1\uBC88 \uCE21\uBA74 \uCE68\uD22C(Flank),
     \uB098\uBA38\uC9C0\uB294 \uC11C\uD074\uB9C1."
-  _editorPosition: {x: 1300, y: 800}
+  _editorPosition: {x: 1660, y: 2169.5}
   _children:
   - {fileID: -4722174277596366801}
   - {fileID: 2835516726852252754}
@@ -349,7 +349,7 @@ MonoBehaviour:
   _comment: "HP 25% \uC774\uD558\uC77C \uB54C 12\uCD08\uC5D0 1\uBC88\uB9CC \uD6C4\uD1F4
     \u2014 '\uC0C1\uCC98 \uC785\uC740 \uC9D0\uC2B9' \uC5F0\uCD9C. \uCFE8\uB2E4\uC6B4\uC774
     \uB05D\uB098\uBA74 \uB2E4\uC2DC \uACF5\uACA9\uC801\uC73C\uB85C \uBCF5\uADC0."
-  _editorPosition: {x: -1500, y: 600}
+  _editorPosition: {x: -1672, y: 1522}
   _children:
   - {fileID: -28820967268275391}
   - {fileID: 6795320255828695780}
@@ -372,7 +372,7 @@ MonoBehaviour:
   _guid: cd_harass_flank
   _displayName: Cooldown_HarassFlank_5s
   _comment: "\uCE21\uBA74 \uCE68\uD22C \uC8FC\uAE30 5\uCD08."
-  _editorPosition: {x: 1240, y: 1000}
+  _editorPosition: {x: 1284, y: 2948}
   _children:
   - {fileID: -2348166998709785737}
   _disabled: 0
@@ -394,7 +394,7 @@ MonoBehaviour:
   _displayName: Action_Retreat_PersonalSpace
   _comment: "\uD55C \uAC78\uC74C \uBB3C\uB7EC\uB098 \uB2E4\uC74C \uACF5\uACA9 \uAC01
     \uB9CC\uB4E4\uAE30."
-  _editorPosition: {x: 1060, y: 1000}
+  _editorPosition: {x: 1008, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -417,7 +417,7 @@ MonoBehaviour:
   _guid: act_attack_punish_recovery
   _displayName: Action_Attack_PunishRecovery
   _comment: "\uD68C\uBCF5 \uC751\uC9D5 \uACF5\uACA9."
-  _editorPosition: {x: 140, y: 800}
+  _editorPosition: {x: 192, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -437,7 +437,7 @@ MonoBehaviour:
   _guid: act_counter_revenge
   _displayName: Action_Counter_Revenge
   _comment: "\uBCF5\uC218 \uCE74\uC6B4\uD130 \uBC1C\uB3D9."
-  _editorPosition: {x: -820, y: 1000}
+  _editorPosition: {x: -776, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -462,7 +462,7 @@ MonoBehaviour:
   _comment: "\uC804\uD22C \uBD84\uAE30. \uB9E4 \uC9C4\uC785\uB9C8\uB2E4 \uAC70\uB9AC/\uD50C\uB808\uC774\uC5B4
     \uD589\uB3D9/\uD398\uC774\uC988\uB97C \uD3F4\uB9C1 \uD6C4 \uC758\uC0AC\uACB0\uC815\uC73C\uB85C
     \uC704\uC784."
-  _editorPosition: {x: 0, y: 200}
+  _editorPosition: {x: -36, y: 18}
   _children:
   - {fileID: -8115537436843118243}
   - {fileID: 4702638748574090619}
@@ -488,10 +488,10 @@ MonoBehaviour:
   _guid: seq_patrol
   _displayName: Branch_PatrolEnabled
   _comment: "\uC21C\uCC30 \uD5C8\uC6A9 \uC2DC \uC21C\uCC30."
-  _editorPosition: {x: 960, y: 600}
+  _editorPosition: {x: 736, y: 1522}
   _children:
-  - {fileID: 8180406132149405263}
   - {fileID: 128879876078048358}
+  - {fileID: 8180406132149405263}
   _disabled: 0
   _breakpoint: 0
   _services: []
@@ -512,7 +512,7 @@ MonoBehaviour:
   _displayName: Action_Idle_NoPatrol
   _comment: "\uBE44\uC804\uD22C\uC5D0\uC11C\uB9CC \uD5C8\uC6A9\uB418\uB294 \uC720\uC77C\uD55C
     Idle."
-  _editorPosition: {x: 1140, y: 600}
+  _editorPosition: {x: 1408, y: 1542}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -537,7 +537,7 @@ MonoBehaviour:
   _comment: "\uACF5\uACA9\uC774 \uBD88\uAC00\uB2A5\uD55C\uB370 0.7m\uAE4C\uC9C0 \uBD99\uC5B4
     \uC788\uC73C\uBA74 4\uCD08\uC5D0 1\uBC88 \uAC70\uB9AC \uC7AC\uC124\uC815 \u2014
     \uBAB8 \uBE44\uBE44\uAE30 \uBC29\uC9C0."
-  _editorPosition: {x: 1000, y: 600}
+  _editorPosition: {x: 1060, y: 1536}
   _children:
   - {fileID: -2629576363165034933}
   - {fileID: 883455741013207193}
@@ -560,7 +560,7 @@ MonoBehaviour:
   _guid: cd_poise_dodge
   _displayName: Cooldown_PoiseDodge_4s
   _comment: "\uD68C\uD53C \uC2A4\uD338 \uBC29\uC9C0 4\uCD08."
-  _editorPosition: {x: -1160, y: 800}
+  _editorPosition: {x: -1168, y: 2260}
   _children:
   - {fileID: -1558020293268576265}
   _disabled: 0
@@ -581,7 +581,7 @@ MonoBehaviour:
   _guid: cond_too_close_0_7m
   _displayName: Condition_TargetTooClose_0_7m
   _comment: "\uD37C\uC2A4\uB110 \uC2A4\uD398\uC774\uC2A4 0.7m."
-  _editorPosition: {x: 940, y: 800}
+  _editorPosition: {x: 992, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -604,7 +604,7 @@ MonoBehaviour:
   _displayName: Action_Flank_Harass
   _comment: "\uD50C\uB808\uC774\uC5B4 \uC2DC\uC57C \uBC16 \uCE21\uBA74\uC73C\uB85C
     \uD30C\uACE0\uB4E4\uAE30."
-  _editorPosition: {x: 1240, y: 1200}
+  _editorPosition: {x: 1288, y: 3560.5}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -630,7 +630,7 @@ MonoBehaviour:
     \uC548\uC5D0\uC11C\uB294 \uAC00\uB9CC\uD788 \uC788\uC9C0 \uC54A\uACE0 \uCE21\uBA74
     \uC774\uB3D9 \u2014 '\uC81C\uC790\uB9AC \uBA48\uCDA4' \uD574\uC18C\uC758 \uD575\uC2EC
     \uBD84\uAE30."
-  _editorPosition: {x: 1240, y: 600}
+  _editorPosition: {x: 1660, y: 1528}
   _children:
   - {fileID: -8064940756624977837}
   - {fileID: -4782224343524897563}
@@ -654,7 +654,7 @@ MonoBehaviour:
   _displayName: Branch_NonCombat_PatrolOrIdle
   _comment: "\uBE44\uC804\uD22C: \uC21C\uCC30 \uAC00\uB2A5\uD558\uBA74 \uC21C\uCC30,
     \uC544\uB2C8\uBA74 Idle."
-  _editorPosition: {x: 900, y: 200}
+  _editorPosition: {x: 912, y: -160}
   _children:
   - {fileID: 3062337004825621409}
   - {fileID: -306057286872509497}
@@ -679,7 +679,7 @@ MonoBehaviour:
   _displayName: Action_Counter_React
   _comment: "\uACF5\uACA9 \uC77D\uACE0 \uCE74\uC6B4\uD130 \u2014 \uB0AE\uC740 \uD655\uB960\uC774\uB77C
     \uBC1C\uB3D9 \uC2DC \uC778\uC0C1\uC801."
-  _editorPosition: {x: -220, y: 1479}
+  _editorPosition: {x: -176, y: 3427}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -702,7 +702,7 @@ MonoBehaviour:
   _guid: cond_recovery_range_3_5m
   _displayName: Condition_TargetIn_3_5m
   _comment: "\uD68C\uBCF5 \uC751\uC9D5 \uC0AC\uAC70\uB9AC 3.5m."
-  _editorPosition: {x: -60, y: 800}
+  _editorPosition: {x: -8, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -725,7 +725,7 @@ MonoBehaviour:
   _displayName: Condition_IsBlockedState
   _comment: "\uD53C\uACA9/\uC0AC\uB9DD/\uC7A1\uD798/\uACF5\uC911 \uB4F1 \uC678\uBD80
     \uC81C\uC5B4 \uC0C1\uD0DC\uC778\uC9C0 \uD310\uC815."
-  _editorPosition: {x: -1000, y: 400}
+  _editorPosition: {x: -1404, y: 582}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -745,7 +745,7 @@ MonoBehaviour:
   _displayName: Action_Dodge_PoiseBreak
   _comment: "\uBE0C\uB808\uC774\uD06C\uC5D0\uC11C \uD68C\uBCF5\uD558\uBA70 \uCE21\uBA74/\uD6C4\uBC29\uC73C\uB85C
     \uC774\uD0C8."
-  _editorPosition: {x: -1160, y: 1000}
+  _editorPosition: {x: -1116, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -768,7 +768,7 @@ MonoBehaviour:
   _guid: act_dodge_react
   _displayName: Action_Dodge_React
   _comment: "\uACF5\uACA9 \uC77D\uACE0 \uD68C\uD53C."
-  _editorPosition: {x: -908, y: 1479}
+  _editorPosition: {x: -864, y: 3427}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -791,7 +791,7 @@ MonoBehaviour:
   _guid: sel_noncombat_choice
   _displayName: NonCombat_Choice
   _comment: "\uC21C\uCC30 \uC6B0\uC120, \uBD88\uAC00 \uC2DC Idle."
-  _editorPosition: {x: 1020, y: 400}
+  _editorPosition: {x: 1144, y: 684}
   _children:
   - {fileID: -3391755222145474428}
   - {fileID: -3287711848714418053}
@@ -814,7 +814,7 @@ MonoBehaviour:
   _guid: cond_no_target
   _displayName: Condition_NoTarget
   _comment: "\uD0C0\uAC9F \uC5C6\uC74C \uD655\uC778."
-  _editorPosition: {x: 900, y: 400}
+  _editorPosition: {x: 900, y: 564}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -834,7 +834,7 @@ MonoBehaviour:
   _guid: cond_react_range_3m
   _displayName: Condition_TargetIn_3m
   _comment: "\uBC29\uC5B4 \uBC18\uC751\uC740 \uC704\uD611 \uBC94\uC704(3m) \uC548\uC5D0\uC11C\uB9CC."
-  _editorPosition: {x: -620, y: 800}
+  _editorPosition: {x: -568, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -856,7 +856,7 @@ MonoBehaviour:
   _guid: cd_guard_pressure
   _displayName: Cooldown_GuardPressure_6s
   _comment: "\uAC00\uB4DC \uAE68\uAE30 \uC555\uBC15 \uC8FC\uAE30 6\uCD08."
-  _editorPosition: {x: 360, y: 800}
+  _editorPosition: {x: 412, y: 2160}
   _children:
   - {fileID: 3483380465054228630}
   _disabled: 0
@@ -877,7 +877,7 @@ MonoBehaviour:
   _guid: cond_self_low_hp
   _displayName: Condition_SelfHp_LE_25pct
   _comment: "\uC790\uAE30 HP 25% \uC774\uD558."
-  _editorPosition: {x: -1560, y: 800}
+  _editorPosition: {x: -2108, y: 2218.5}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1154,7 +1154,7 @@ MonoBehaviour:
   _guid: act_patrol
   _displayName: Action_Patrol
   _comment: "\uC21C\uCC30 \uC0C1\uD0DC \uC804\uD658."
-  _editorPosition: {x: 1020, y: 800}
+  _editorPosition: {x: 920, y: 2492}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1178,7 +1178,7 @@ MonoBehaviour:
   _displayName: Condition_TargetIn_2_8m_Attack
   _comment: "\uACF5\uACA9 \uBC34\uB4DC 2.8m \u2014 \uAE30\uC874 2.4m\uC640 \uCD94\uACA9
     2.5m \uC0AC\uC774 \uB370\uB4DC\uC874\uC744 \uC5C6\uC560\uAE30 \uC704\uD574 \uD655\uC7A5."
-  _editorPosition: {x: 440, y: 800}
+  _editorPosition: {x: 492, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1202,7 +1202,7 @@ MonoBehaviour:
   _comment: "Hit/Death/Grabbed \uB4F1 \uD589\uB3D9 \uAE08\uC9C0 \uC0C1\uD0DC\uC5D0\uC11C\uB294
     \uD2B8\uB9AC\uAC00 \uAC1C\uC785\uD558\uC9C0 \uC54A\uACE0 \uD604 \uC0C1\uD0DC
     \uC720\uC9C0."
-  _editorPosition: {x: -900, y: 200}
+  _editorPosition: {x: -1008, y: 18}
   _children:
   - {fileID: -1752113663817228450}
   - {fileID: 9172919004551228902}
@@ -1227,7 +1227,7 @@ MonoBehaviour:
   _comment: "\uC720\uAE30\uC801 \uADFC\uC811 \uC801 \uB8E8\uD2B8. LowerPriority abort\uB85C
     \uCC28\uB2E8\uC0C1\uD0DC/\uC804\uD22C \uC9C4\uC785\uC774 \uD558\uC704 \uBD84\uAE30\uB97C
     \uC989\uC2DC \uAC00\uB85C\uCC48\uB2E4."
-  _editorPosition: {x: 0, y: 0}
+  _editorPosition: {x: 12, y: -360}
   _children:
   - {fileID: 478035872494654664}
   - {fileID: -3645128911740206049}
@@ -1253,7 +1253,7 @@ MonoBehaviour:
   _comment: "\uAC19\uC740 \uC0C1\uD669\uC5D0\uC11C\uB3C4 \uB2E4\uB978 \uBC18\uC751
     \u2014 \uC608\uCE21 \uBD88\uAC00\uC131. \uAD8C\uC7A5 \uAC00\uC911\uCE58: Dodge
     0.5 / Guard 0.3 / Counter 0.2 (\uC5D0\uB514\uD130\uC5D0\uC11C \uC124\uC815)."
-  _editorPosition: {x: -520, y: 1000}
+  _editorPosition: {x: -476, y: 2948}
   _children:
   - {fileID: -385254110892677995}
   - {fileID: -6265988587323432172}
@@ -1283,7 +1283,7 @@ MonoBehaviour:
     Failure \u2192 \uC544\uB798 \uD558\uB77C\uC2A4 \uBD84\uAE30\uB85C \uC790\uC5F0\uC2A4\uB7FD\uAC8C
     \uC804\uD658 (Halo\uC2DD \uD1A0\uD070: \uC2AC\uB86F \uC5C6\uC73C\uBA74 \uACAC\uC81C
     \uC774\uB3D9)."
-  _editorPosition: {x: 840, y: 800}
+  _editorPosition: {x: 892, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1303,7 +1303,7 @@ MonoBehaviour:
   _guid: cond_has_target
   _displayName: Condition_HasTarget
   _comment: "\uD0C0\uAC9F\uC774 \uC788\uC5B4\uC57C \uC804\uD22C \uBD84\uAE30 \uC9C4\uD589."
-  _editorPosition: {x: 100, y: 400}
+  _editorPosition: {x: 60, y: 559}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1324,7 +1324,7 @@ MonoBehaviour:
   _displayName: Cooldown_PersonalSpace_4s
   _comment: "\uBC31\uC2A4\uD15D \uBC18\uBCF5 \uBC29\uC9C0 4\uCD08 \u2014 \uCFE8\uB2E4\uC6B4
     \uC911\uC5D4 \uC544\uB798 \uD558\uB77C\uC2A4(\uC11C\uD074)\uB85C \uBE60\uC9C4\uB2E4."
-  _editorPosition: {x: 1060, y: 800}
+  _editorPosition: {x: 1216, y: 2483}
   _children:
   - {fileID: -4344451869194882687}
   _disabled: 0
@@ -1348,7 +1348,7 @@ MonoBehaviour:
     \uBBF8\uB9CC + \uD589\uB3D9 \uC778\uD130\uBC8C + \uC0AC\uC6A9 \uAC00\uB2A5 \uC2A4\uD0AC
     + \uADF8\uB8F9 \uACF5\uACA9 \uC2AC\uB86F(ExecuteEnemyAttack \uB0B4\uBD80 \uCC98\uB9AC)\uC774
     \uBAA8\uB450 \uCDA9\uC871\uB3FC\uC57C \uBC1C\uB3D9."
-  _editorPosition: {x: 540, y: 600}
+  _editorPosition: {x: 368, y: 1522}
   _children:
   - {fileID: 235863454353076881}
   - {fileID: -8027948247077725388}
@@ -1377,7 +1377,7 @@ MonoBehaviour:
     \uBC29\uC5B4 \uBC18\uC751. \uCFE8\uB2E4\uC6B4 2.5\uCD08 \u2014 \uB9E4 \uC2A4\uC719\uB9C8\uB2E4
     \uBC18\uC751\uD558\uBA74 \uBABB \uB54C\uB9AC\uB294 \uC801\uC774 \uB418\uBBC0\uB85C
     \uAC00\uB054\uB9CC."
-  _editorPosition: {x: -640, y: 600}
+  _editorPosition: {x: -812, y: 1522}
   _children:
   - {fileID: -128576574393131860}
   - {fileID: 8516453918090599912}
@@ -1402,7 +1402,7 @@ MonoBehaviour:
   _comment: "\uD50C\uB808\uC774\uC5B4\uAC00 \uAC00\uB4DC\uB85C \uBC84\uD2F0\uBA74
     6\uCD08\uC5D0 1\uBC88 \uAC00\uB4DC \uAE68\uAE30 \uC555\uBC15 \u2014 \uAC70\uBD81\uC774
     \uD50C\uB808\uC774 \uC5B5\uC81C."
-  _editorPosition: {x: 240, y: 600}
+  _editorPosition: {x: 68, y: 1522}
   _children:
   - {fileID: 2168293383512833997}
   - {fileID: -61836829352262677}
@@ -1427,7 +1427,7 @@ MonoBehaviour:
   _comment: "\uC9E7\uC740 \uC2DC\uAC04\uC5D0 2\uD68C \uC774\uC0C1 \uB9DE\uC73C\uBA74
     \uBCF5\uC218 \uCE74\uC6B4\uD130 \u2014 \uC77C\uBC29\uC801\uC73C\uB85C \uB9DE\uC544\uC8FC\uB294
     \uC0CC\uB4DC\uBC31 \uB290\uB08C \uC81C\uAC70."
-  _editorPosition: {x: -940, y: 600}
+  _editorPosition: {x: -1112, y: 1522}
   _children:
   - {fileID: 9035360715012866627}
   - {fileID: -5580010879515251181}
@@ -1451,7 +1451,7 @@ MonoBehaviour:
   _guid: cond_guard_range_2_8m
   _displayName: Condition_TargetIn_2_8m
   _comment: "\uAC00\uB4DC \uAE68\uAE30 \uC0AC\uAC70\uB9AC 2.8m."
-  _editorPosition: {x: 260, y: 800}
+  _editorPosition: {x: 312, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1473,7 +1473,7 @@ MonoBehaviour:
   _guid: act_circle_harass
   _displayName: Action_Circle_Harass
   _comment: "\uAE30\uBCF8 \uACAC\uC81C \uC11C\uD074\uB9C1."
-  _editorPosition: {x: 1380, y: 1000}
+  _editorPosition: {x: 1520, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1497,7 +1497,7 @@ MonoBehaviour:
   _displayName: Sync_Blackboard_NoTargetCheck
   _comment: "\uBE44\uC804\uD22C \uC9C4\uC785 \uC804 \uD0C0\uAC9F \uC7AC\uD655\uC778\uC6A9
     \uB3D9\uAE30\uD654."
-  _editorPosition: {x: 780, y: 400}
+  _editorPosition: {x: 624, y: 496}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1517,7 +1517,7 @@ MonoBehaviour:
   _displayName: Action_Attack_GuardBreak
   _comment: "\uAC00\uB4DC \uC704\uB85C \uAC15\uACF5 \u2014 \uAC00\uB4DC \uAC8C\uC774\uC9C0/\uD3EC\uC774\uC988
     \uC555\uBC15."
-  _editorPosition: {x: 360, y: 1000}
+  _editorPosition: {x: 404, y: 2948}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1537,7 +1537,7 @@ MonoBehaviour:
   _guid: cond_stagger_range_4m
   _displayName: Condition_TargetIn_4m
   _comment: "\uC2A4\uD0DC\uAC70 \uC751\uC9D5 \uC0AC\uAC70\uB9AC 4m."
-  _editorPosition: {x: -320, y: 800}
+  _editorPosition: {x: -268, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1563,7 +1563,7 @@ MonoBehaviour:
     > \uC774\uB3D9 \uC555\uBC15. LowerPriority abort\uB85C \uC774\uB3D9/\uACF5\uACA9
     \uC911\uC5D0\uB3C4 \uC0C1\uC704 \uBC18\uC751 \uBD84\uAE30\uAC00 \uC989\uC2DC
     \uAC00\uB85C\uCC48\uB2E4."
-  _editorPosition: {x: 300, y: 400}
+  _editorPosition: {x: 276, y: 780}
   _children:
   - {fileID: -4754003081345326075}
   - {fileID: 7742645760120137614}
@@ -1598,7 +1598,7 @@ MonoBehaviour:
   _comment: "\uD50C\uB808\uC774\uC5B4 \uACF5\uACA9/\uAC00\uB4DC/\uC2A4\uD0DC\uAC70/\uD68C\uBCF5/\uD68C\uD53C\uBE48\uB3C4
     \uAD00\uCC30\uAC12 \uB3D9\uAE30\uD654 \u2014 \uBC18\uC751\uD615 \uBD84\uAE30\uC758
     \uC785\uB825."
-  _editorPosition: {x: -300, y: 400}
+  _editorPosition: {x: -348, y: 578}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1618,7 +1618,7 @@ MonoBehaviour:
   _displayName: Approach_Rotation_Charge_Chase
   _comment: "\uB3CC\uC9C4\uC740 \uCFE8\uB2E4\uC6B4 8\uCD08 \u2014 \uB9E4\uBC88 \uB3CC\uC9C4\uD558\uBA74
     \uD328\uD134\uD654\uB418\uBBC0\uB85C \uAC00\uB054 \uAE30\uC2B5\uC801\uC73C\uB85C."
-  _editorPosition: {x: 1580, y: 800}
+  _editorPosition: {x: 2276, y: 2192}
   _children:
   - {fileID: -8754367647646179438}
   - {fileID: 8847367749081011061}
@@ -1643,7 +1643,7 @@ MonoBehaviour:
   _comment: "3.2m \uBC16(\uB3C4\uC8FC \uD3EC\uD568)\uC5D0\uC11C\uB294 8\uCD08\uC5D0
     1\uBC88 \uB3CC\uC9C4 \uAC2D\uD074\uB85C\uC800, \uD3C9\uC18C\uC5D4 \uCD94\uACA9
     \u2014 DOOM\uC2DD \uB3C4\uC8FC \uC751\uC9D5 \uC555\uBC15."
-  _editorPosition: {x: 1520, y: 600}
+  _editorPosition: {x: 1940, y: 1528}
   _children:
   - {fileID: -8504875637235935049}
   - {fileID: 4885917355747434292}
@@ -1668,7 +1668,7 @@ MonoBehaviour:
   _comment: "\uC804\uD22C \uC911 \uCD5C\uC885 fallback\uC740 \uC808\uB300 Idle\uC774
     \uC544\uB2C8\uB77C \uC11C\uD074\uB9C1 \u2014 \uBAA8\uB4E0 \uBD84\uAE30\uAC00
     \uC2E4\uD328\uD574\uB3C4 \uBC1C\uC740 \uACC4\uC18D \uC6C0\uC9C1\uC778\uB2E4."
-  _editorPosition: {x: 1800, y: 600}
+  _editorPosition: {x: 2220, y: 1528}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1692,7 +1692,7 @@ MonoBehaviour:
   _displayName: Condition_CanUseSkill_Main
   _comment: "\uD604\uC7AC \uAC70\uB9AC\uC5D0\uC11C \uBC1C\uB3D9 \uAC00\uB2A5\uD55C
     \uC2A4\uD0AC \uC874\uC7AC \uC5EC\uBD80."
-  _editorPosition: {x: 740, y: 800}
+  _editorPosition: {x: 792, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1712,7 +1712,7 @@ MonoBehaviour:
   _guid: cd_revenge_counter
   _displayName: Cooldown_Revenge_5s
   _comment: "\uCE74\uC6B4\uD130 \uB0A8\uBC1C \uBC29\uC9C0 5\uCD08."
-  _editorPosition: {x: -820, y: 800}
+  _editorPosition: {x: -768, y: 2160}
   _children:
   - {fileID: -3890101737602691245}
   _disabled: 0
@@ -1734,7 +1734,7 @@ MonoBehaviour:
   _displayName: Cooldown_Survival_12s
   _comment: "\uC800HP \uD6C4\uD1F4\uAC00 \uB3C4\uC8FC \uB8E8\uD504\uAC00 \uB418\uC9C0
     \uC54A\uB3C4\uB85D 12\uCD08 \uC81C\uD55C."
-  _editorPosition: {x: -1440, y: 800}
+  _editorPosition: {x: -1784, y: 2219}
   _children:
   - {fileID: -5475649241052366734}
   _disabled: 0
@@ -1757,7 +1757,7 @@ MonoBehaviour:
   _comment: "\uD3EC\uC774\uC988 \uBE0C\uB808\uC774\uD06C \uC9C1\uD6C4 \uAC70\uB9AC
     \uC774\uD0C8 \u2014 \uAC19\uC740 \uC790\uB9AC\uC5D0\uC11C \uC5F0\uC18D\uC73C\uB85C
     \uB450\uB4E4\uACA8 \uB9DE\uB294 \uB290\uB08C \uBC29\uC9C0."
-  _editorPosition: {x: -1220, y: 600}
+  _editorPosition: {x: -1392, y: 1522}
   _children:
   - {fileID: -5543958892806951117}
   - {fileID: -3051483815481614522}
@@ -1781,7 +1781,7 @@ MonoBehaviour:
   _displayName: Condition_ActionDelayElapsed
   _comment: "\uD589\uB3D9 \uAC04 \uC778\uD130\uBC8C \uAC8C\uC774\uD2B8 \u2014 \uC778\uD130\uBC8C
     \uB3D9\uC548\uC740 \uC544\uB798 \uC774\uB3D9 \uBD84\uAE30\uAC00 \uCC44\uC6B4\uB2E4."
-  _editorPosition: {x: 640, y: 800}
+  _editorPosition: {x: 692, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1804,7 +1804,7 @@ MonoBehaviour:
   _displayName: Branch_Punish_PlayerRecovery
   _comment: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5(\uBB3C\uC57D \uB4F1) \uBAA8\uC158\uC740
     3.5m \uC548\uC774\uBA74 \uC751\uC9D5."
-  _editorPosition: {x: -60, y: 600}
+  _editorPosition: {x: -232, y: 1522}
   _children:
   - {fileID: -2017917921516157032}
   - {fileID: -7379755667975197735}
@@ -1828,7 +1828,7 @@ MonoBehaviour:
   _guid: cond_patrol_enabled
   _displayName: Condition_PatrolEnabled
   _comment: "EnemyAIContext.EnablePatrol \uD655\uC778."
-  _editorPosition: {x: 900, y: 800}
+  _editorPosition: {x: 952, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1849,7 +1849,7 @@ MonoBehaviour:
   _comment: "\uBC29\uC5B4 \uBC18\uC751 \uBE48\uB3C4 \uC81C\uD55C \u2014 \uD50C\uB808\uC774\uC5B4
     \uACF5\uACA9\uC774 \uAC00\uB054 \uC77D\uD788\uB294 \uC815\uB3C4\uAC00 \uC7AC\uBBF8\uC758
     \uC801\uC815\uC120."
-  _editorPosition: {x: -520, y: 800}
+  _editorPosition: {x: -468, y: 2160}
   _children:
   - {fileID: 495174470003615165}
   _disabled: 0
@@ -1870,7 +1870,7 @@ MonoBehaviour:
   _guid: act_chase_far
   _displayName: Action_Chase
   _comment: "\uAE30\uBCF8 \uCD94\uACA9."
-  _editorPosition: {x: 1660, y: 1000}
+  _editorPosition: {x: 2164, y: 2913}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1893,7 +1893,7 @@ MonoBehaviour:
   _guid: cond_recent_hits_ge2
   _displayName: Condition_RecentHitCount_GE_2
   _comment: "\uCD5C\uADFC \uD53C\uACA9 2\uD68C \uC774\uC0C1."
-  _editorPosition: {x: -1020, y: 800}
+  _editorPosition: {x: -968, y: 2160}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -1915,7 +1915,7 @@ MonoBehaviour:
   _comment: "\uBB34\uD55C Running\uC73C\uB85C \uD2B8\uB9AC \uC7AC\uACB0\uC815\uC744
     \uB9C9\uB294\uB2E4. \uCC28\uB2E8 \uD574\uC81C\uB294 root\uC758 LowerPriority
     abort\uAC00 \uCC98\uB9AC."
-  _editorPosition: {x: -800, y: 400}
+  _editorPosition: {x: -948, y: 582}
   _children: []
   _disabled: 0
   _breakpoint: 0

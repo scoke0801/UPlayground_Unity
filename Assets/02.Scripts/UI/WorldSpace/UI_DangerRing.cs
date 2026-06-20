@@ -19,7 +19,7 @@ using UPlayGround.Data.EnumType;
 /// 즉시 사라지는 대신 짧은 ease-out 수축 + 페이드아웃으로 자연스럽게 꺼진다.
 ///
 /// 위치 추적·카메라 뒤 처리는 UI_ActorHpBar 패턴을 따른다.
-/// 진행은 LateUpdate에서 Time.deltaTime(스케일 시간)으로 다루므로
+/// 진행은 UI_WorldSpaceHudLayer의 일괄 LateUpdate에서 스케일 시간을 전달받으므로
 /// 히트스톱/일시정지(Time.timeScale 변화) 시 자동으로 함께 멈춘다.
 /// Screen Space - Overlay Canvas(UI_WorldSpaceHudLayer) 아래에 부착된다.
 /// </summary>
@@ -65,6 +65,8 @@ public class UI_DangerRing : MonoBehaviour
     private bool    _closing;
     private float   _closeElapsed;
     private Vector3 _closeStartScale;
+    private UI_WorldSpaceHudLayer _owner;
+    private GameObject _poolKey;
 
     private void Awake()
     {
@@ -78,14 +80,23 @@ public class UI_DangerRing : MonoBehaviour
 
     /// <param name="duration">큰 크기→작은 크기로 수축하는 시간(초). 윈드업 시작 → 타격 간격에 맞춘다.</param>
     /// <param name="defenseType">링 색 결정. Unblockable=빨강, 그 외=노랑.</param>
-    public void Init(GameActor actor, Camera camera, Canvas parentCanvas, float duration, AttackDefenseType defenseType)
+    public void Init(
+        GameActor actor,
+        Camera camera,
+        RectTransform parentCanvasRect,
+        float duration,
+        AttackDefenseType defenseType,
+        UI_WorldSpaceHudLayer owner,
+        GameObject poolKey)
     {
+        _owner = owner;
+        _poolKey = poolKey;
         _actor  = actor;
         _target = actor != null ? actor.transform : null;
         _socket = ResolveAnchorSocket(actor);
 
         _mainCamera       = camera;
-        _parentCanvasRect = parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
+        _parentCanvasRect = parentCanvasRect;
 
         _duration       = Mathf.Max(0.01f, duration);
         _shrinkProgress = 0f;
@@ -124,26 +135,27 @@ public class UI_DangerRing : MonoBehaviour
         _                             => _parryableColor, // Parryable / GuardableOnly
     };
 
-    private void LateUpdate()
+    public bool ManagedLateTick(float deltaTime, float unscaledTime)
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized) return false;
 
         // 타겟 소멸 시 자가 정리 (UI_ActorHpBar와 동일)
         if (_target == null)
         {
-            Destroy(gameObject);
-            return;
+            Release();
+            return false;
         }
 
         UpdatePosition();
 
         if (_closing)
         {
-            UpdateClose();
-            return;
+            UpdateClose(deltaTime);
+            return _isInitialized;
         }
 
-        UpdateShrink();
+        UpdateShrink(deltaTime);
+        return _isInitialized;
     }
 
     private void UpdatePosition()
@@ -175,7 +187,7 @@ public class UI_DangerRing : MonoBehaviour
         _rect.anchoredPosition = localPoint;
     }
 
-    private void UpdateShrink()
+    private void UpdateShrink(float deltaTime)
     {
         if (_completed || _rect == null) return;
 
@@ -183,7 +195,7 @@ public class UI_DangerRing : MonoBehaviour
         // 질의가 불가능하면 초기 duration 기반 시간 진행으로 폴백한다.
         float target = TryGetCollisionProgress(out float live)
             ? live
-            : _shrinkProgress + Time.deltaTime / _duration;
+            : _shrinkProgress + deltaTime / _duration;
 
         // 단조 증가 보장 — 다음 Collision 이벤트로 질의가 점프해도 링이 다시 커지지 않도록.
         _shrinkProgress  = Mathf.Clamp01(Mathf.Max(_shrinkProgress, target));
@@ -239,9 +251,9 @@ public class UI_DangerRing : MonoBehaviour
         _closeStartScale = _rect.localScale;
     }
 
-    private void UpdateClose()
+    private void UpdateClose(float deltaTime)
     {
-        _closeElapsed += Time.deltaTime;
+        _closeElapsed += deltaTime;
         float t     = Mathf.Clamp01(_closeElapsed / _closeDuration);
         float eased = 1f - (1f - t) * (1f - t); // ease-out — 남은 수축을 부드럽게 마무리
 
@@ -254,6 +266,17 @@ public class UI_DangerRing : MonoBehaviour
     /// <summary> 텔레그래프 정리 시 호출 (EnemyCombat.ClearTelegraphs). </summary>
     public void Release()
     {
-        if (this != null) Destroy(gameObject);
+        if (!_isInitialized)
+            return;
+
+        _isInitialized = false;
+        _actor = null;
+        _target = null;
+        _socket = null;
+        _closing = false;
+        _completed = false;
+        _owner?.ReturnDangerRingToPool(this, _poolKey);
+        _owner = null;
+        _poolKey = null;
     }
 }

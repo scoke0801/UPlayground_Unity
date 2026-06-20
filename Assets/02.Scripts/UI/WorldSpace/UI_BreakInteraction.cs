@@ -6,7 +6,7 @@ using UPlayGround.Data.EnumType;
 /// 적의 Break 게이지가 가득 차 '브레이크 공격 가능' 상태(노출)가 되었을 때
 /// 적 몸통(Center 소켓) 위에 표시되는 입력 상호작용 표시(F키 아이콘 등).
 ///
-/// 노출 상태 동안에만 존재하며, 생성/파괴는 <see cref="MonsterActor"/>가
+/// 노출 상태 동안에만 활성화되며, 대여/반환은 <see cref="MonsterActor"/>가
 /// <c>MonsterBreakGauge.OnBreakExposed / OnBreakRecovered</c> 이벤트로 제어한다.
 /// 위치 추적·카메라 뒤 처리는 UI_ActorHpBar / UI_DangerRing 패턴을 그대로 따른다.
 /// Screen Space Canvas(UI_WorldSpaceHudLayer) 아래에 부착된다.
@@ -31,6 +31,7 @@ public class UI_BreakInteraction : MonoBehaviour
     private CanvasGroup   _canvasGroup;
     private Vector3       _baseScale = Vector3.one;
     private bool          _isInitialized;
+    private UI_WorldSpaceHudLayer _owner;
 
     private void Awake()
     {
@@ -42,13 +43,18 @@ public class UI_BreakInteraction : MonoBehaviour
         if (_rect != null) _baseScale = _rect.localScale;
     }
 
-    public void Init(GameActor actor, Camera camera, Canvas parentCanvas)
+    public void Init(
+        GameActor actor,
+        Camera camera,
+        RectTransform parentCanvasRect,
+        UI_WorldSpaceHudLayer owner)
     {
+        _owner = owner;
         _target = actor != null ? actor.transform : null;
         _socket = actor != null ? actor.GetSocket(ActorSocketType.Center) : null;
 
         _mainCamera       = camera;
-        _parentCanvasRect = parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
+        _parentCanvasRect = parentCanvasRect;
 
         if (_canvasGroup != null) _canvasGroup.alpha = 1f;
         if (_rect != null) _rect.localScale = _baseScale;
@@ -56,19 +62,20 @@ public class UI_BreakInteraction : MonoBehaviour
         _isInitialized = true;
     }
 
-    private void LateUpdate()
+    public bool ManagedLateTick(float deltaTime, float unscaledTime)
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized) return false;
 
         // 타겟 소멸 시 자가 정리 (UI_ActorHpBar / UI_DangerRing 패턴)
         if (_target == null)
         {
-            Destroy(gameObject);
-            return;
+            Release();
+            return false;
         }
 
         UpdatePosition();
-        UpdatePulse();
+        UpdatePulse(unscaledTime);
+        return true;
     }
 
     private void UpdatePosition()
@@ -90,12 +97,24 @@ public class UI_BreakInteraction : MonoBehaviour
         _rect.position = screenPos;
     }
 
-    private void UpdatePulse()
+    private void UpdatePulse(float unscaledTime)
     {
         if (_pulseAmplitude <= 0f || _rect == null) return;
 
         // 히트스톱/일시정지(Time.timeScale)와 무관하게 항상 눈에 띄도록 unscaledTime 사용.
-        float s = 1f + Mathf.Sin(Time.unscaledTime * _pulseFrequency * Mathf.PI * 2f) * _pulseAmplitude;
+        float s = 1f + Mathf.Sin(unscaledTime * _pulseFrequency * Mathf.PI * 2f) * _pulseAmplitude;
         _rect.localScale = _baseScale * s;
+    }
+
+    public void Release()
+    {
+        if (!_isInitialized)
+            return;
+
+        _isInitialized = false;
+        _target = null;
+        _socket = null;
+        _owner?.ReturnBreakInteractionToPool(this);
+        _owner = null;
     }
 }

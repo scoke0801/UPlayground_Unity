@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
@@ -13,9 +16,11 @@ namespace UPlayGround.Manager
     {
         private const string SoundDatabaseKey = "SoundDatabase";
         private const string AudioMixerKey = "AudioMixer";
+        private const string BgmRoutingKey = "BgmRouting";
 
         [Header("Database")]
         [SerializeField] private SoundDatabaseSO _soundDatabase;
+        [SerializeField] private BgmRoutingSO _bgmRouting;
 
         // 믹서 그룹은 Addressable로 로드한 AudioMixer에서 이름으로 자동 매핑한다(아래 LoadAudioMixerAsync).
         // 씬/프리팹 인스턴스에서 직접 할당하면 그 값이 우선되고 Addressable 로드는 건너뛴다(UIManager._uiRootPrefab 폴백과 동일).
@@ -48,6 +53,11 @@ namespace UPlayGround.Manager
         private string _currentBgmKey;
         private bool _databaseNotReadyWarningLogged;
 
+        // 이벤트 기반 BGM override(보스전 등): 직전 평시 곡을 기억했다가 Restore 시 복귀.
+        private string _bgmKeyBeforeOverride;
+        private bool _bgmOverrideActive;
+        private readonly List<IDisposable> _bgmEventSubscriptions = new();
+
         public bool IsDatabaseLoaded => _soundDatabase != null;
 
         /// <summary>로드된 AudioMixer. SettingsManager 등에서 믹서 볼륨 제어에 재사용할 수 있다.</summary>
@@ -62,17 +72,24 @@ namespace UPlayGround.Manager
         {
             UniTask databaseTask = LoadSoundDatabaseAsync(cancellationToken);
             UniTask mixerTask = LoadAudioMixerAsync(cancellationToken);
-            await UniTask.WhenAll(databaseTask, mixerTask);
+            UniTask routingTask = LoadBgmRoutingAsync(cancellationToken);
+            await UniTask.WhenAll(databaseTask, mixerTask, routingTask);
         }
 
-        public void AfterInit() { }
+        public void AfterInit()
+        {
+            SubscribeBgmEvents();
+        }
 
         public void Dispose()
         {
             StopAllCoroutines();
             StopAllSounds();
 
+            UnsubscribeBgmEvents();
+
             _soundDatabase = null;
+            _bgmRouting = null;
             _audioMixer = null;
             _listenerTransform = null;
         }
@@ -88,6 +105,31 @@ namespace UPlayGround.Manager
         public void OnSceneChanged(string sceneType)
         {
             _listenerTransform = null;
+
+            // 씬 전환 중 보스 override가 남아 있으면 직전 키가 무의미해지므로 초기화한다.
+            _bgmOverrideActive = false;
+            _bgmKeyBeforeOverride = null;
+
+            ApplySceneBgm(sceneType);
+        }
+
+        /// <summary>
+        /// BgmRouting 테이블로 현재 씬/맵의 평시 BGM을 결정해 적용한다.
+        /// 매칭되는 라우트가 없으면 현재 BGM을 그대로 유지한다(Loading/Boot 등에서 음악 끊김 방지).
+        /// </summary>
+        private void ApplySceneBgm(string sceneType)
+        {
+            if (_bgmRouting == null)
+                return;
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (!_bgmRouting.TryResolve(sceneType, mapId, out string bgmKey))
+                return;
+
+            if (string.IsNullOrWhiteSpace(bgmKey))
+                StopBgm();
+            else
+                PlayBgm(bgmKey);
         }
 
         public void Play(string key, Vector3? position = null, float volumeScale = 1f)
@@ -191,6 +233,126 @@ namespace UPlayGround.Manager
 
             _bgmFadeRoutine = StartCoroutine(FadeOutBgm(_currentBgmSource, fadeTime));
             _currentBgmKey = null;
+        }
+
+        /// <summary>
+        /// 현재 BGM을 임시로 덮어쓴다(보스전 진입 등). 직전 곡 key를 기억해 PopBgm으로 복귀할 수 있다.
+        /// 이미 override 중이면 직전 곡은 그대로 유지하고 곡만 교체한다(중첩 override는 단일 키로 평탄화).
+        /// </summary>
+        public void PushBgm(string key, float fadeTime = 1.5f)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return;
+
+            if (!_bgmOverrideActive)
+            {
+                _bgmKeyBeforeOverride = _currentBgmKey;
+                _bgmOverrideActive = true;
+            }
+
+            PlayBgm(key, fadeTime);
+        }
+
+        /// <summary>
+        /// PushBgm으로 건 override를 해제하고 직전 BGM으로 복귀한다(보스전 종료 등).
+        /// 직전 곡이 없었다면 정지한다. override 중이 아니면 아무 것도 하지 않는다.
+        /// </summary>
+        public void PopBgm(float fadeTime = 1.5f)
+        {
+            if (!_bgmOverrideActive)
+                return;
+
+            _bgmOverrideActive = false;
+            string restoreKey = _bgmKeyBeforeOverride;
+            _bgmKeyBeforeOverride = null;
+
+            if (string.IsNullOrWhiteSpace(restoreKey))
+                StopBgm(fadeTime);
+            else
+                PlayBgm(restoreKey, fadeTime);
+        }
+
+        private void SubscribeBgmEvents()
+        {
+            if (_bgmEventSubscriptions.Count > 0)
+                return;
+
+            if (EventManager.Instance == null)
+            {
+                // 부트 순서상 EventManager가 SoundManager보다 먼저 등록되므로 정상 경로에선 도달하지 않는다.
+                // 순서가 바뀌면 BGM 이벤트(Change/Override/Restore/Stop)가 영구 무반응이 되므로 명시적으로 경고한다.
+                Debug.LogWarning(
+                    "[SoundManager] EventManager가 준비되지 않아 BGM 이벤트 구독을 건너뜁니다. " +
+                    "BGM 전환 이벤트가 동작하지 않습니다(매니저 등록 순서 확인 필요).");
+                return;
+            }
+
+            _bgmEventSubscriptions.Add(EventManager.Instance.Subscribe<BgmEvent, BgmRequestData>(
+                BgmEvent.Change, OnBgmChangeRequested, EventSubscriptionScope.Global));
+            _bgmEventSubscriptions.Add(EventManager.Instance.Subscribe<BgmEvent, BgmRequestData>(
+                BgmEvent.Override, OnBgmOverrideRequested, EventSubscriptionScope.Global));
+            _bgmEventSubscriptions.Add(EventManager.Instance.Subscribe<BgmEvent, BgmRequestData>(
+                BgmEvent.Restore, OnBgmRestoreRequested, EventSubscriptionScope.Global));
+            _bgmEventSubscriptions.Add(EventManager.Instance.Subscribe<BgmEvent, BgmRequestData>(
+                BgmEvent.Stop, OnBgmStopRequested, EventSubscriptionScope.Global));
+        }
+
+        private void UnsubscribeBgmEvents()
+        {
+            foreach (var subscription in _bgmEventSubscriptions)
+                subscription?.Dispose();
+
+            _bgmEventSubscriptions.Clear();
+        }
+
+        private void OnBgmChangeRequested(BgmRequestData data)
+        {
+            if (data == null) return;
+            PlayBgm(data.bgmKey, data.fadeTime);
+        }
+
+        private void OnBgmOverrideRequested(BgmRequestData data)
+        {
+            if (data == null) return;
+            PushBgm(data.bgmKey, data.fadeTime);
+        }
+
+        private void OnBgmRestoreRequested(BgmRequestData data)
+        {
+            PopBgm(data?.fadeTime ?? 1.5f);
+        }
+
+        private void OnBgmStopRequested(BgmRequestData data)
+        {
+            _bgmOverrideActive = false;
+            _bgmKeyBeforeOverride = null;
+            StopBgm(data?.fadeTime ?? 1.5f);
+        }
+
+        private async UniTask LoadBgmRoutingAsync(CancellationToken cancellationToken)
+        {
+            // 인스펙터에서 직접 할당했다면 Addressable 로드를 건너뛴다(직접 할당 우선).
+            if (_bgmRouting != null)
+                return;
+
+            try
+            {
+                _bgmRouting = await AssetManager.Instance.LoadGlobalAsync<BgmRoutingSO>(
+                    BgmRoutingKey,
+                    nameof(SoundManager),
+                    cancellationToken);
+
+                if (_bgmRouting == null)
+                    Debug.LogWarning($"[SoundManager] '{BgmRoutingKey}' Addressable을 찾을 수 없습니다. 씬 기반 BGM 자동 전환은 비활성화됩니다(PlayBgm/이벤트는 정상 동작).");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SoundManager] BgmRouting 로드 실패: {e.Message}");
+            }
         }
 
         private async UniTask LoadSoundDatabaseAsync(CancellationToken cancellationToken)
@@ -301,7 +463,7 @@ namespace UPlayGround.Manager
             return groups[0];
         }
 
-        private bool TryGetEntry(string key, out SoundEntry entry)
+        private bool TryGetEntry(string key, out SoundEntrySO entry)
         {
             if (_soundDatabase == null)
             {
@@ -326,7 +488,7 @@ namespace UPlayGround.Manager
             return true;
         }
 
-        private void PlayEntry(SoundEntry entry, Vector3? position, float volumeScale)
+        private void PlayEntry(SoundEntrySO entry, Vector3? position, float volumeScale)
         {
             if (entry == null || entry.clip == null)
                 return;
@@ -437,7 +599,7 @@ namespace UPlayGround.Manager
             }
         }
 
-        private bool IsAudible(SoundEntry entry, Vector3 position)
+        private bool IsAudible(SoundEntrySO entry, Vector3 position)
         {
             var listener = GetAudioListenerTransform();
             if (listener == null)
@@ -457,7 +619,7 @@ namespace UPlayGround.Manager
             return _listenerTransform;
         }
 
-        private bool CanPlayByCooldown(SoundEntry entry)
+        private bool CanPlayByCooldown(SoundEntrySO entry)
         {
             if (entry.cooldown <= 0f || string.IsNullOrWhiteSpace(entry.key))
                 return true;
@@ -471,7 +633,7 @@ namespace UPlayGround.Manager
             return true;
         }
 
-        private bool CanPlayBySimultaneousLimit(SoundEntry entry)
+        private bool CanPlayBySimultaneousLimit(SoundEntrySO entry)
         {
             if (entry.maxSimultaneous <= 0 || string.IsNullOrWhiteSpace(entry.key))
                 return true;
@@ -619,7 +781,7 @@ namespace UPlayGround.Manager
             };
         }
 
-        private static float RandomPitch(SoundEntry entry)
+        private static float RandomPitch(SoundEntrySO entry)
         {
             float min = Mathf.Min(entry.pitchMin, entry.pitchMax);
             float max = Mathf.Max(entry.pitchMin, entry.pitchMax);

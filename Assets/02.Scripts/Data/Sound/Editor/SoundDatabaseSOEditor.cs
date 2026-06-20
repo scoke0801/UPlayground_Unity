@@ -95,14 +95,15 @@ namespace UPlayGround.Data.Sound.Editor
 
                 if (entry == null)
                 {
-                    messages.Add(Error($"{label}: entry가 null입니다."));
+                    messages.Add(Error($"{label}: SoundEntrySO 참조가 비어 있습니다(에셋 미할당)."));
                     continue;
                 }
 
-                string key = entry.key?.Trim();
+                // key가 비면 런타임에서 에셋 이름을 key로 사용하므로 유효 key 기준으로 검증한다.
+                string key = string.IsNullOrWhiteSpace(entry.key) ? entry.name?.Trim() : entry.key.Trim();
                 if (string.IsNullOrWhiteSpace(key))
                 {
-                    messages.Add(Error($"{label}: key가 비어 있습니다."));
+                    messages.Add(Error($"{label}: key와 에셋 이름이 모두 비어 있습니다."));
                 }
                 else if (keyToIndex.TryGetValue(key, out int firstIndex))
                 {
@@ -114,34 +115,34 @@ namespace UPlayGround.Data.Sound.Editor
                 }
 
                 if (entry.clip == null)
-                    messages.Add(Error($"{label} '{entry.key}': AudioClip이 비어 있습니다."));
+                    messages.Add(Error($"{label} '{key}': AudioClip이 비어 있습니다."));
 
                 if (entry.distanceMode == SoundDistanceMode.Custom3D &&
                     (entry.customRolloff == null || entry.customRolloff.length == 0))
                 {
-                    messages.Add(Warning($"{label} '{entry.key}': Custom3D인데 customRolloff가 비어 있습니다. 런타임에서는 기본 Logarithmic에 가까운 동작으로 남을 수 있습니다."));
+                    messages.Add(Warning($"{label} '{key}': Custom3D인데 customRolloff가 비어 있습니다. 런타임에서는 기본 Logarithmic에 가까운 동작으로 남을 수 있습니다."));
                 }
 
                 if (entry.distanceMode != SoundDistanceMode.None2D)
                 {
                     if (entry.minDistance <= 0f)
-                        messages.Add(Warning($"{label} '{entry.key}': minDistance는 0보다 커야 합니다."));
+                        messages.Add(Warning($"{label} '{key}': minDistance는 0보다 커야 합니다."));
 
                     if (entry.maxDistance <= entry.minDistance)
-                        messages.Add(Warning($"{label} '{entry.key}': maxDistance는 minDistance보다 커야 합니다."));
+                        messages.Add(Warning($"{label} '{key}': maxDistance는 minDistance보다 커야 합니다."));
                 }
 
                 if (entry.pitchMin <= 0f || entry.pitchMax <= 0f)
-                    messages.Add(Warning($"{label} '{entry.key}': pitchMin/pitchMax는 0보다 커야 합니다."));
+                    messages.Add(Warning($"{label} '{key}': pitchMin/pitchMax는 0보다 커야 합니다."));
 
                 if (entry.maxSimultaneous < 0)
-                    messages.Add(Warning($"{label} '{entry.key}': maxSimultaneous가 음수입니다. 0은 제한 없음으로 처리됩니다."));
+                    messages.Add(Warning($"{label} '{key}': maxSimultaneous가 음수입니다. 0은 제한 없음으로 처리됩니다."));
 
                 if (entry.cooldown < 0f)
-                    messages.Add(Warning($"{label} '{entry.key}': cooldown이 음수입니다."));
+                    messages.Add(Warning($"{label} '{key}': cooldown이 음수입니다."));
 
                 if (entry.distanceMode == SoundDistanceMode.None2D && entry.preCullByMaxDistance)
-                    messages.Add(Warning($"{label} '{entry.key}': 2D 사운드에는 preCullByMaxDistance가 적용되지 않습니다."));
+                    messages.Add(Warning($"{label} '{key}': 2D 사운드에는 preCullByMaxDistance가 적용되지 않습니다."));
             }
         }
 

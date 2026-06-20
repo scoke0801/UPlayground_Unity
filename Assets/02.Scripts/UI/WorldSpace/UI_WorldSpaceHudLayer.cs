@@ -14,6 +14,7 @@ using UPlayGround.UI;
 public class UI_WorldSpaceHudLayer : MonoBehaviour
 {
     private Canvas _parentCanvas;
+    private RectTransform _parentCanvasRect;
     private Camera _mainCamera;
 
     private GameObject _hpBarPrefab;
@@ -22,7 +23,15 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
     private GameObject              _floaterPrefab;
     private DamageFloaterConfigSO   _floaterConfig;
-    private Queue<UI_DamageFloater> _floaterPool = new Queue<UI_DamageFloater>();
+    private readonly Queue<UI_DamageFloater> _floaterPool = new();
+    private readonly Queue<UI_ActorHpBar> _hpBarPool = new();
+    private readonly Queue<UI_BreakInteraction> _breakInteractionPool = new();
+    private readonly Dictionary<GameObject, Queue<UI_DangerRing>> _dangerRingPools = new();
+
+    private readonly List<UI_DamageFloater> _activeFloaters = new();
+    private readonly List<UI_ActorHpBar> _activeHpBars = new();
+    private readonly List<UI_DangerRing> _activeDangerRings = new();
+    private readonly List<UI_BreakInteraction> _activeBreakInteractions = new();
 
     // 풀 준비 완료 여부 — 미준비 상태에서 호출 시 조용히 스킵
     private bool _isPoolReady = false;
@@ -30,7 +39,21 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
     public void Init(Canvas parentCanvas)
     {
         _parentCanvas = parentCanvas;
+        _parentCanvasRect = parentCanvas != null
+            ? parentCanvas.GetComponent<RectTransform>()
+            : null;
         _mainCamera   = Camera.main;
+    }
+
+    private void LateUpdate()
+    {
+        float deltaTime = Time.deltaTime;
+        float unscaledTime = Time.unscaledTime;
+
+        TickActive(_activeHpBars, deltaTime, unscaledTime);
+        TickActive(_activeDangerRings, deltaTime, unscaledTime);
+        TickActive(_activeBreakInteractions, deltaTime, unscaledTime);
+        TickActive(_activeFloaters, deltaTime, unscaledTime);
     }
 
     // ── HP Bar ────────────────────────────────────────────────────────
@@ -42,9 +65,36 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         if (_hpBarPrefab == null) return null;
         if (_mainCamera  == null) _mainCamera = Camera.main;
 
-        var hpBar = Instantiate(_hpBarPrefab, transform)?.GetComponent<UI_ActorHpBar>();
-        hpBar?.Init(actor, _mainCamera, _parentCanvas);
+        UI_ActorHpBar hpBar;
+        if (_hpBarPool.Count > 0)
+        {
+            hpBar = _hpBarPool.Dequeue();
+        }
+        else
+        {
+            GameObject instance = Instantiate(_hpBarPrefab, transform);
+            hpBar = instance.GetComponent<UI_ActorHpBar>();
+            if (hpBar == null)
+                Destroy(instance);
+        }
+
+        if (hpBar == null)
+            return null;
+
+        hpBar.gameObject.SetActive(true);
+        hpBar.Init(actor, _mainCamera, _parentCanvasRect, this);
+        _activeHpBars.Add(hpBar);
         return hpBar;
+    }
+
+    public void ReturnHpBarToPool(UI_ActorHpBar hpBar)
+    {
+        if (hpBar == null)
+            return;
+
+        _activeHpBars.Remove(hpBar);
+        hpBar.gameObject.SetActive(false);
+        _hpBarPool.Enqueue(hpBar);
     }
 
     // ── Danger Ring ───────────────────────────────────────────────────
@@ -58,16 +108,41 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         if (prefab == null) return null;
         if (_mainCamera == null) _mainCamera = Camera.main;
 
-        var instance = Instantiate(prefab, transform);
-        var ring = instance.GetComponent<UI_DangerRing>();
-        if (ring == null)
+        Queue<UI_DangerRing> pool = GetDangerRingPool(prefab);
+        UI_DangerRing ring;
+        if (pool.Count > 0)
         {
-            // 프리팹에 UI_DangerRing 컴포넌트가 없으면 인스턴스가 떠돌지 않도록 즉시 파괴.
-            Destroy(instance);
-            return null;
+            ring = pool.Dequeue();
         }
-        ring.Init(actor, _mainCamera, _parentCanvas, duration, defenseType);
+        else
+        {
+            GameObject instance = Instantiate(prefab, transform);
+            ring = instance.GetComponent<UI_DangerRing>();
+            if (ring == null)
+                Destroy(instance);
+        }
+
+        if (ring == null)
+            return null;
+
+        ring.gameObject.SetActive(true);
+        ring.Init(actor, _mainCamera, _parentCanvasRect, duration, defenseType, this, prefab);
+        _activeDangerRings.Add(ring);
         return ring;
+    }
+
+    public void ReturnDangerRingToPool(UI_DangerRing ring, GameObject poolKey)
+    {
+        if (ring == null)
+            return;
+
+        _activeDangerRings.Remove(ring);
+        ring.gameObject.SetActive(false);
+
+        if (poolKey != null)
+            GetDangerRingPool(poolKey).Enqueue(ring);
+        else
+            Destroy(ring.gameObject);
     }
 
     // ── Break Interaction ─────────────────────────────────────────────
@@ -82,16 +157,36 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         if (_breakInteractionPrefab == null) return null;
         if (_mainCamera == null) _mainCamera = Camera.main;
 
-        var instance = Instantiate(_breakInteractionPrefab, transform);
-        var interaction = instance.GetComponent<UI_BreakInteraction>();
-        if (interaction == null)
+        UI_BreakInteraction interaction;
+        if (_breakInteractionPool.Count > 0)
         {
-            // 프리팹에 UI_BreakInteraction 컴포넌트가 없으면 인스턴스가 떠돌지 않도록 즉시 파괴.
-            Destroy(instance);
-            return null;
+            interaction = _breakInteractionPool.Dequeue();
         }
-        interaction.Init(actor, _mainCamera, _parentCanvas);
+        else
+        {
+            GameObject instance = Instantiate(_breakInteractionPrefab, transform);
+            interaction = instance.GetComponent<UI_BreakInteraction>();
+            if (interaction == null)
+                Destroy(instance);
+        }
+
+        if (interaction == null)
+            return null;
+
+        interaction.gameObject.SetActive(true);
+        interaction.Init(actor, _mainCamera, _parentCanvasRect, this);
+        _activeBreakInteractions.Add(interaction);
         return interaction;
+    }
+
+    public void ReturnBreakInteractionToPool(UI_BreakInteraction interaction)
+    {
+        if (interaction == null)
+            return;
+
+        _activeBreakInteractions.Remove(interaction);
+        interaction.gameObject.SetActive(false);
+        _breakInteractionPool.Enqueue(interaction);
     }
 
     // ── 데미지 플로터 ─────────────────────────────────────────────────
@@ -134,7 +229,14 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
         GetFloaterFromPool().Play(worldPos, $"+{Mathf.RoundToInt(amount)}", style);
     }
 
-    public void ReturnFloaterToPool(UI_DamageFloater floater) => _floaterPool.Enqueue(floater);
+    public void ReturnFloaterToPool(UI_DamageFloater floater)
+    {
+        if (floater == null)
+            return;
+
+        _activeFloaters.Remove(floater);
+        _floaterPool.Enqueue(floater);
+    }
 
     private UI_DamageFloater GetFloaterFromPool()
     {
@@ -143,6 +245,7 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
 
         var floater = _floaterPool.Count > 0 ? _floaterPool.Dequeue() : CreateFloater();
         floater.UpdateCamera(_mainCamera);
+        _activeFloaters.Add(floater);
         return floater;
     }
 
@@ -150,8 +253,91 @@ public class UI_WorldSpaceHudLayer : MonoBehaviour
     {
         var go      = Instantiate(_floaterPrefab, transform);
         var floater = go.GetComponent<UI_DamageFloater>();
-        floater.Init(_mainCamera, _parentCanvas, _floaterConfig, this);
+        floater.Init(_mainCamera, _parentCanvasRect, _floaterConfig, this);
         go.SetActive(false);
         return floater;
+    }
+
+    private Queue<UI_DangerRing> GetDangerRingPool(GameObject prefab)
+    {
+        if (!_dangerRingPools.TryGetValue(prefab, out Queue<UI_DangerRing> pool))
+        {
+            pool = new Queue<UI_DangerRing>();
+            _dangerRingPools.Add(prefab, pool);
+        }
+
+        return pool;
+    }
+
+    private static void TickActive(
+        List<UI_ActorHpBar> items,
+        float deltaTime,
+        float unscaledTime)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            UI_ActorHpBar item = items[i];
+            if (item == null)
+            {
+                items.RemoveAt(i);
+                continue;
+            }
+
+            item.ManagedLateTick(deltaTime, unscaledTime);
+        }
+    }
+
+    private static void TickActive(
+        List<UI_DangerRing> items,
+        float deltaTime,
+        float unscaledTime)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            UI_DangerRing item = items[i];
+            if (item == null)
+            {
+                items.RemoveAt(i);
+                continue;
+            }
+
+            item.ManagedLateTick(deltaTime, unscaledTime);
+        }
+    }
+
+    private static void TickActive(
+        List<UI_BreakInteraction> items,
+        float deltaTime,
+        float unscaledTime)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            UI_BreakInteraction item = items[i];
+            if (item == null)
+            {
+                items.RemoveAt(i);
+                continue;
+            }
+
+            item.ManagedLateTick(deltaTime, unscaledTime);
+        }
+    }
+
+    private static void TickActive(
+        List<UI_DamageFloater> items,
+        float deltaTime,
+        float unscaledTime)
+    {
+        for (int i = items.Count - 1; i >= 0; i--)
+        {
+            UI_DamageFloater item = items[i];
+            if (item == null)
+            {
+                items.RemoveAt(i);
+                continue;
+            }
+
+            item.ManagedLateTick(deltaTime, unscaledTime);
+        }
     }
 }

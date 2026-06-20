@@ -24,6 +24,9 @@ public class KCCSimulator : MonoBehaviour
         = new Dictionary<float, List<KinematicCharacterMotor>>();
 
     private readonly List<PhysicsMover> _emptyMovers = new List<PhysicsMover>();
+    private readonly Dictionary<KinematicCharacterMotor, GameActor> _actorCache = new();
+    private readonly List<KinematicCharacterMotor> _staleActorCacheKeys = new();
+    private readonly List<float> _emptyGroupKeys = new();
 
     private void Awake()
     {
@@ -56,8 +59,6 @@ public class KCCSimulator : MonoBehaviour
 
     private void FixedUpdate()
     {
-        DisableAutoSimulation();
-
         float baseDt = Time.deltaTime;
         var motors  = KinematicCharacterSystem.CharacterMotors;
         var movers  = KinematicCharacterSystem.PhysicsMovers;
@@ -72,7 +73,7 @@ public class KCCSimulator : MonoBehaviour
             movers[i].VelocityUpdate(baseDt);
 
         // ── motor를 LocalTimeScale 값으로 그룹핑 ──
-        BuildGroups(motors, baseDt);
+        BuildGroups(motors);
 
         foreach (var (scale, group) in _groups)
         {
@@ -112,12 +113,15 @@ public class KCCSimulator : MonoBehaviour
             if (motor.CharacterController == null)
             {
                 Debug.LogWarning($"[KCCSimulator] CharacterController가 없는 모터를 시뮬레이션 목록에서 제거합니다: {motor.name}", motor);
+                _actorCache.Remove(motor);
                 motors.RemoveAt(i);
             }
         }
+
+        PruneActorCache();
     }
 
-    private void BuildGroups(List<KinematicCharacterMotor> motors, float baseDt)
+    private void BuildGroups(List<KinematicCharacterMotor> motors)
     {
         // 리스트는 재사용하되 내용만 초기화
         foreach (var list in _groups.Values)
@@ -129,7 +133,12 @@ public class KCCSimulator : MonoBehaviour
             if (motor == null || !motor.isActiveAndEnabled || motor.CharacterController == null)
                 continue;
 
-            var actor = motor.GetComponent<GameActor>();
+            if (!_actorCache.TryGetValue(motor, out var actor))
+            {
+                actor = motor.GetComponent<GameActor>();
+                _actorCache.Add(motor, actor);
+            }
+
             // 소수점 3자리 반올림: 0.05f / 0.1f 등 근사값이 다른 키로 분류되는 것 방지
             float scale = actor != null ? Mathf.Round(actor.LocalTimeScale * 1000f) / 1000f : 1f;
 
@@ -142,10 +151,26 @@ public class KCCSimulator : MonoBehaviour
         }
 
         // 비어있는 그룹 제거 (이전 프레임에서 생성됐지만 더 이상 없는 scale 값)
-        var toRemove = new List<float>();
+        _emptyGroupKeys.Clear();
         foreach (var kv in _groups)
-            if (kv.Value.Count == 0) toRemove.Add(kv.Key);
-        foreach (var key in toRemove)
-            _groups.Remove(key);
+            if (kv.Value.Count == 0) _emptyGroupKeys.Add(kv.Key);
+        for (int i = 0; i < _emptyGroupKeys.Count; i++)
+            _groups.Remove(_emptyGroupKeys[i]);
+    }
+
+    private void PruneActorCache()
+    {
+        if (_actorCache.Count <= KinematicCharacterSystem.CharacterMotors.Count)
+            return;
+
+        _staleActorCacheKeys.Clear();
+        foreach (var pair in _actorCache)
+        {
+            if (pair.Key == null || !KinematicCharacterSystem.CharacterMotors.Contains(pair.Key))
+                _staleActorCacheKeys.Add(pair.Key);
+        }
+
+        for (int i = 0; i < _staleActorCacheKeys.Count; i++)
+            _actorCache.Remove(_staleActorCacheKeys[i]);
     }
 }

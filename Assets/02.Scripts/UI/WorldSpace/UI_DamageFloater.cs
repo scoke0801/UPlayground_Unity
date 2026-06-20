@@ -28,7 +28,7 @@ namespace UPlayGround.UI
         private TextMeshProUGUI       _text;
         private RectTransform         _rect;
         private Camera                _camera;
-        private Canvas                _canvas;
+        private RectTransform         _canvasRect;
         private DamageFloaterConfigSO _config;
         private UI_WorldSpaceHudLayer _owner;
 
@@ -42,10 +42,10 @@ namespace UPlayGround.UI
             _rect = GetComponent<RectTransform>();
         }
 
-        public void Init(Camera cam, Canvas canvas, DamageFloaterConfigSO config, UI_WorldSpaceHudLayer owner)
+        public void Init(Camera cam, RectTransform canvasRect, DamageFloaterConfigSO config, UI_WorldSpaceHudLayer owner)
         {
             _camera = cam;
-            _canvas = canvas;
+            _canvasRect = canvasRect;
             _config = config;
             _owner  = owner;
         }
@@ -69,15 +69,15 @@ namespace UPlayGround.UI
         /// <summary>씬 전환 후 카메라 레퍼런스를 갱신할 때 사용</summary>
         public void UpdateCamera(Camera cam) => _camera = cam;
 
-        private void LateUpdate()
+        public bool ManagedLateTick(float deltaTime, float unscaledTime)
         {
-            if (!_isPlaying) return;
+            if (!_isPlaying) return false;
 
             // 카메라가 파괴/미초기화 상태면 Camera.main으로 재시도
             if (_camera == null) _camera = Camera.main;
-            if (_camera == null) return;
+            if (_camera == null) return true;
 
-            _elapsed += Time.deltaTime;
+            _elapsed += deltaTime;
             float t = Mathf.Clamp01(_elapsed / _config.lifetime);
 
             // ── 위치 ──────────────────────────────────────────────────
@@ -91,7 +91,7 @@ namespace UPlayGround.UI
             else
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _canvas.GetComponent<RectTransform>(),
+                    _canvasRect,
                     screenPos, null, out var localPoint);
                 _rect.anchoredPosition = localPoint;
                 _text.alpha = _config.fadeCurve.Evaluate(t);
@@ -102,6 +102,8 @@ namespace UPlayGround.UI
 
             if (t >= 1f)
                 ReturnToPool();
+
+            return _isPlaying;
         }
 
         /// <summary>

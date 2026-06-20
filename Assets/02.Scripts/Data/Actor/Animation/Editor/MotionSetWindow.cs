@@ -278,6 +278,11 @@ namespace UPlayGround.Animation.Editor
                 Repaint();
             }
         }
+
+        void OnLostFocus()
+        {
+            _drawer?.CancelDragState();
+        }
         
         void FindAndSetTargetActor()
         {

@@ -22,6 +22,8 @@ namespace UPlayGround.Manager
         private readonly List<IUpdatableManager> _updatableManagers = new();
         private readonly List<IFixedUpdatableManager> _fixedUpdatableManagers = new();
         private readonly List<ILateUpdatableManager> _lateUpdatableManagers = new();
+        private readonly HashSet<IManager> _runtimeReadyManagers = new();
+        private readonly HashSet<IManager> _afterInitializedManagers = new();
         // GetManager<T> 선형 탐색 제거용 타입 캐시
         private Dictionary<System.Type, IManager> _managerLookup = new Dictionary<System.Type, IManager>();
         private readonly Dictionary<string, float> _managerInitializationMilliseconds = new();
@@ -102,41 +104,97 @@ namespace UPlayGround.Manager
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);
 
-            await InitializeAsyncManagers(cancellationToken);
+            var bootStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            // Init이후에 후처리 필요한 경우 
-            AfterInit();
+            // Addressables 자체와 전역 설정은 다른 비동기 매니저보다 먼저 준비한다.
+            await InitializeAsyncManager(AssetManager.Instance, cancellationToken);
+            await InitializeAsyncManager(SettingsManager.Instance, cancellationToken);
+
+            // 서로의 InitializeAsync 결과를 직접 요구하지 않는 핵심 런타임 시스템은 병렬 로드한다.
+            // 가장 오래 걸리는 UI/카메라/각종 DB 로드가 직렬로 누적되지 않게 한다.
+            await UniTask.WhenAll(
+                InitializeAsyncManager(SoundManager.Instance, cancellationToken),
+                InitializeAsyncManager(UIManager.Instance, cancellationToken),
+                InitializeAsyncManager(CameraManager.Instance, cancellationToken),
+                InitializeAsyncManager(GameObjectManager.Instance, cancellationToken),
+                InitializeAsyncManager(PartyManager.Instance, cancellationToken),
+                InitializeAsyncManager(ItemManager.Instance, cancellationToken),
+                InitializeAsyncManager(DialogueManager.Instance, cancellationToken),
+                InitializeAsyncManager(ActorSpawnManager.Instance, cancellationToken)
+#if UNITY_EDITOR
+                , InitializeAsyncManager(DebugGizmoManager.Instance, cancellationToken)
+#endif
+            );
+
+            // 실제 플레이어 탐색과 CameraManager.SetTarget 연결은 PartyManager.AfterInit에서 일어난다.
+            // Recipe/Quest DB가 느려도 첫 카메라 세팅은 기다리지 않도록 핵심 후처리를 먼저 수행한다.
+            RunAfterInit(CameraManager.Instance);
+            RunAfterInit(GameObjectManager.Instance);
+            RunAfterInit(PartyManager.Instance);
+            Debug.Log($"[GameManager] 핵심 런타임 준비 완료 ({bootStopwatch.Elapsed.TotalMilliseconds:F1} ms)");
+
+            // 제작/퀘스트는 핵심 런타임과 데이터 매니저가 준비된 뒤 서로 병렬로 로드한다.
+            await UniTask.WhenAll(
+                InitializeAsyncManager(RecipeManager.Instance, cancellationToken),
+                InitializeAsyncManager(QuestManager.Instance, cancellationToken));
+
+            // 비동기 초기화 구현이 새로 추가됐지만 위 단계에 명시되지 않은 매니저가 있으면
+            // 누락하지 않고 마지막 안전 단계에서 초기화한다.
+            await InitializeRemainingAsyncManagers(cancellationToken);
+
+            RunRemainingAfterInit();
             
             IsInitialized = true;
             BootState = GameBootState.Ready;
+            bootStopwatch.Stop();
 
-            Debug.Log($"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료");
+            Debug.Log(
+                $"[GameManager] {_registeredManagers.Count}개의 매니저 초기화 완료 " +
+                $"({bootStopwatch.Elapsed.TotalMilliseconds:F1} ms)");
         }
 
-        private async UniTask InitializeAsyncManagers(CancellationToken cancellationToken)
+        private async UniTask InitializeRemainingAsyncManagers(CancellationToken cancellationToken)
         {
             foreach (var manager in _registeredManagers)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (manager is not IAsyncInitializableManager asyncManager)
+                if (manager is not IAsyncInitializableManager ||
+                    _runtimeReadyManagers.Contains(manager))
                     continue;
 
-                string managerName = manager.GetType().Name;
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                Debug.Log($"[GameManager] {managerName} 비동기 초기화 시작");
+                await InitializeAsyncManager(manager, cancellationToken);
+            }
+        }
 
-                try
-                {
-                    await asyncManager.InitializeAsync(cancellationToken);
-                }
-                finally
-                {
-                    stopwatch.Stop();
-                    float elapsedMilliseconds = (float)stopwatch.Elapsed.TotalMilliseconds;
-                    _managerInitializationMilliseconds[managerName] = elapsedMilliseconds;
-                    Debug.Log($"[GameManager] {managerName} 비동기 초기화 종료 ({elapsedMilliseconds:F1} ms)");
-                }
+        private async UniTask InitializeAsyncManager(
+            IManager manager,
+            CancellationToken cancellationToken)
+        {
+            if (manager == null || _runtimeReadyManagers.Contains(manager))
+                return;
+
+            if (manager is not IAsyncInitializableManager asyncManager)
+            {
+                _runtimeReadyManagers.Add(manager);
+                return;
+            }
+
+            string managerName = manager.GetType().Name;
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            Debug.Log($"[GameManager] {managerName} 비동기 초기화 시작");
+
+            try
+            {
+                await asyncManager.InitializeAsync(cancellationToken);
+                _runtimeReadyManagers.Add(manager);
+            }
+            finally
+            {
+                stopwatch.Stop();
+                float elapsedMilliseconds = (float)stopwatch.Elapsed.TotalMilliseconds;
+                _managerInitializationMilliseconds[managerName] = elapsedMilliseconds;
+                Debug.Log($"[GameManager] {managerName} 비동기 초기화 종료 ({elapsedMilliseconds:F1} ms)");
             }
         }
 
@@ -182,6 +240,8 @@ namespace UPlayGround.Manager
             if (manager is ILateUpdatableManager lateUpdatable)
                 _lateUpdatableManagers.Add(lateUpdatable);
             manager.Init();
+            if (manager is not IAsyncInitializableManager)
+                _runtimeReadyManagers.Add(manager);
 
             Debug.Log($"[GameManager] {manager.GetType().Name} 등록 완료");
         }
@@ -204,6 +264,8 @@ namespace UPlayGround.Manager
                     _fixedUpdatableManagers.Remove(fixedUpdatable);
                 if (manager is ILateUpdatableManager lateUpdatable)
                     _lateUpdatableManagers.Remove(lateUpdatable);
+                _runtimeReadyManagers.Remove(manager);
+                _afterInitializedManagers.Remove(manager);
                 Debug.Log($"[GameManager] {manager.GetType().Name} 등록 해제");
             }
         }
@@ -229,10 +291,20 @@ namespace UPlayGround.Manager
             return null;
         }
 
-        private void AfterInit()
+        private void RunAfterInit(IManager manager)
+        {
+            if (manager == null ||
+                !_runtimeReadyManagers.Contains(manager) ||
+                !_afterInitializedManagers.Add(manager))
+                return;
+
+            manager.AfterInit();
+        }
+
+        private void RunRemainingAfterInit()
         {
             foreach (var manager in _registeredManagers)
-                manager?.AfterInit();
+                RunAfterInit(manager);
         }
 
         /// <summary>
@@ -244,28 +316,41 @@ namespace UPlayGround.Manager
             foreach (var manager in _registeredManagers)
                 manager?.OnSceneChanged(sceneType);
         }
+
+        // [부분 활성 틱 계약]
+        // 매니저는 자신의 AfterInit가 끝난 시점부터 OnUpdate/OnFixedUpdate/OnLateUpdate를 받는다.
+        // 부트가 단계화되어(Camera/GameObject/Party 등 핵심 매니저 우선 AfterInit) 일부 매니저는
+        // 전체 부트 완료(IsInitialized) 전에 먼저 틱이 시작될 수 있다.
+        // => 모든 매니저의 OnUpdate 계열은 아직 준비되지 않았을 수 있는 다른 매니저/타깃 참조를
+        //    반드시 null 가드해야 한다(예: CameraManager는 _target null 시 즉시 return).
         private void Update()
         {
-            if (!IsInitialized) return;
-
             for (int i = 0; i < _updatableManagers.Count; i++)
-                _updatableManagers[i].OnUpdate();
+            {
+                if (_updatableManagers[i] is IManager manager &&
+                    _afterInitializedManagers.Contains(manager))
+                    _updatableManagers[i].OnUpdate();
+            }
         }
 
         private void FixedUpdate()
         {
-            if (!IsInitialized) return;
-
             for (int i = 0; i < _fixedUpdatableManagers.Count; i++)
-                _fixedUpdatableManagers[i].OnFixedUpdate();
+            {
+                if (_fixedUpdatableManagers[i] is IManager manager &&
+                    _afterInitializedManagers.Contains(manager))
+                    _fixedUpdatableManagers[i].OnFixedUpdate();
+            }
         }
 
         private void LateUpdate()
         {
-            if (!IsInitialized) return;
-
             for (int i = 0; i < _lateUpdatableManagers.Count; i++)
-                _lateUpdatableManagers[i].OnLateUpdate();
+            {
+                if (_lateUpdatableManagers[i] is IManager manager &&
+                    _afterInitializedManagers.Contains(manager))
+                    _lateUpdatableManagers[i].OnLateUpdate();
+            }
         }
 
         protected override void OnDestroy()
@@ -283,6 +368,8 @@ namespace UPlayGround.Manager
             _updatableManagers.Clear();
             _fixedUpdatableManagers.Clear();
             _lateUpdatableManagers.Clear();
+            _runtimeReadyManagers.Clear();
+            _afterInitializedManagers.Clear();
             _managerLookup.Clear();
             _managerInitializationMilliseconds.Clear();
             IsInitialized = false;

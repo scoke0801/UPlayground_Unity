@@ -480,8 +480,7 @@ namespace UPlayGround
 
             if (_uiHpBar != null)
             {
-                OnHealthChanged -= _uiHpBar.UpdateHealth;
-                Destroy(_uiHpBar.gameObject);
+                ReleaseHpBar();
             }
 
             UnregisterExposed();
@@ -612,12 +611,25 @@ namespace UPlayGround
 
         protected override void OnDestroy()
         {
+            ReleaseHpBar();
             base.OnDestroy();
             UnregisterExposed();
             HideBreakInteraction();
             if (_breakGauge == null) return;
             _breakGauge.OnBreakExposed -= OnBreakExposed;
             _breakGauge.OnBreakRecovered -= OnBreakRecovered;
+        }
+
+        private void ReleaseHpBar()
+        {
+            if (_uiHpBar == null)
+                return;
+
+            OnHealthChanged -= _uiHpBar.UpdateHealth;
+            _poiseStat?.ConnectUiBar(null);
+            _breakGauge?.ConnectUiBar(null);
+            _uiHpBar.Release();
+            _uiHpBar = null;
         }
 
         // 현재 노출(브레이크 가능) 중인 몬스터 레지스트리.
@@ -673,7 +685,7 @@ namespace UPlayGround
         private void HideBreakInteraction()
         {
             if (_breakInteraction == null) return;
-            Destroy(_breakInteraction.gameObject);
+            _breakInteraction.Release();
             _breakInteraction = null;
         }
 

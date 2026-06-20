@@ -39,6 +39,7 @@ public class UI_ActorHpBar : MonoBehaviour
     
     private bool _isInitialized;
     private bool _isShowing = false;
+    private UI_WorldSpaceHudLayer _owner;
     
     // SetActive 토글 대신 사용 — Animator 트리거 소실 방지
     private CanvasGroup _canvasGroup;
@@ -54,8 +55,13 @@ public class UI_ActorHpBar : MonoBehaviour
             _breakActiveUI = transform.Find("breakEffect")?.gameObject;
     }
 
-    public void Init(GameActor actor, Camera targetCamera, Canvas parentCanvas)
+    public void Init(
+        GameActor actor,
+        Camera targetCamera,
+        RectTransform parentCanvasRect,
+        UI_WorldSpaceHudLayer owner)
     {
+        _owner = owner;
         _target = actor.transform;
         _headSocket = actor?.GetSocket(socketType: ActorSocketType.UI_HpBar);
 
@@ -68,7 +74,7 @@ public class UI_ActorHpBar : MonoBehaviour
         }
         
         _mainCamera = targetCamera;
-        _parentCanvasRect = parentCanvas.GetComponent<RectTransform>();
+        _parentCanvasRect = parentCanvasRect;
 
         if (_fillHpImage != null) _fillHpImage.fillAmount = 1f;
         if (_fillHpDelayImage != null) _fillHpDelayImage.fillAmount = 1f;
@@ -87,21 +93,30 @@ public class UI_ActorHpBar : MonoBehaviour
         _isInitialized = true;
     }
 
-    private void LateUpdate()
+    public bool ManagedLateTick(float deltaTime, float unscaledTime)
     {
         if (!_isInitialized || _target == null)
         {
-            Destroy(gameObject);
-            return;
+            Release();
+            return false;
+        }
+
+        // 적이 타겟을 상실하면 비전투 상태로 간주해 HP UI를 즉시 숨긴다.
+        // 풀에는 반환하지 않아 같은 적이 다시 전투에 진입할 때 기존 연결을 그대로 재사용한다.
+        if (_detection != null && !_detection.HasTarget)
+        {
+            Hide();
+            SetCanvasVisible(false);
+            return true;
         }
 
         UpdatePosition();
-        UpdateDelayFill();
+        UpdateDelayFill(deltaTime);
 
         if (_isShowing && (Time.time > _lastDisplayedTime + _displayTime))
         {
             if (_detection == null)
-                return;
+                return true;
             
             bool hasTarget = (_target != null) && _detection.HasTarget;
             if (hasTarget == false)
@@ -109,6 +124,8 @@ public class UI_ActorHpBar : MonoBehaviour
                 Hide();
             }
         }
+
+        return true;
     }
 
     private void Show()
@@ -141,8 +158,7 @@ public class UI_ActorHpBar : MonoBehaviour
 
         bool behindCamera = screenPos.z < 0f;
         // SetActive 대신 alpha 처리 — SetActive(false)시 Animator 트리거가 소실되는 버그 방지
-        _canvasGroup.alpha = behindCamera ? 0f : 1f;
-        _canvasGroup.blocksRaycasts = !behindCamera;
+        SetCanvasVisible(!behindCamera);
         if (behindCamera) return;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -154,14 +170,20 @@ public class UI_ActorHpBar : MonoBehaviour
         _rect.anchoredPosition = localPoint;
     }
 
-    private void UpdateDelayFill()
+    private void SetCanvasVisible(bool visible)
+    {
+        _canvasGroup.alpha = visible ? 1f : 0f;
+        _canvasGroup.blocksRaycasts = visible;
+    }
+
+    private void UpdateDelayFill(float deltaTime)
     {
         if (_fillHpDelayImage != null && _fillHpDelayImage.fillAmount > _targetHpFill)
         {
             _fillHpDelayImage.fillAmount = Mathf.Lerp(
                 _fillHpDelayImage.fillAmount,
                 _targetHpFill,
-                Time.deltaTime * _delayFillSpeed
+                deltaTime * _delayFillSpeed
             );
         }
         
@@ -170,7 +192,7 @@ public class UI_ActorHpBar : MonoBehaviour
             _fillPoiseDelayImage.fillAmount = Mathf.Lerp(
                 _fillPoiseDelayImage.fillAmount,
                 _targetPoiseFill,
-                Time.deltaTime * _delayFillSpeed
+                deltaTime * _delayFillSpeed
             );
         }
 
@@ -215,5 +237,19 @@ public class UI_ActorHpBar : MonoBehaviour
     {
         if (_breakActiveUI != null && _breakActiveUI.activeSelf != active)
             _breakActiveUI.SetActive(active);
+    }
+
+    public void Release()
+    {
+        if (!_isInitialized)
+            return;
+
+        _isInitialized = false;
+        _target = null;
+        _headSocket = null;
+        _detection = null;
+        _isShowing = false;
+        _owner?.ReturnHpBarToPool(this);
+        _owner = null;
     }
 }

@@ -8,6 +8,14 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public partial class BehaviorTreeEditorWindow
     {
+        // 트레이스는 노드 기록마다 Version이 올라 노드 viz(0.15s)와 같은 빈도로 리스트를 재구성하면
+        // 비용이 크다. 별도 저빈도로 throttle하고, Label을 풀링/재사용해 매 갱신 전체 재생성을 막는다.
+        private const double TraceViewRefreshInterval = 0.4d;
+        private const int TraceViewMaxRows = 60;
+        private double _nextTraceViewRefreshTime;
+        private readonly List<Label> _traceRowPool = new();
+        private Label _traceEmptyLabel;
+
         private void UpdateBreadcrumb(bool debugActive)
         {
             if (_breadcrumbBar == null)
@@ -214,42 +222,94 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (_traceBox == null || _activeTab != PropertyTab.Trace)
                 return;
 
+            // 실행 중에는 Version이 틱마다 수십 번 올라 노드 viz와 같은 빈도로 갱신하면 사람이 읽지도 못하고
+            // 비용만 크다. 일시정지/스텝 중이 아니면 저빈도로 throttle한다(첫 호출은 즉시 렌더).
+            bool running = _debugRunner != null && _debugRunner.State == BehaviorTreeRunnerState.Running;
+            var now = EditorApplication.timeSinceStartup;
+            if (running && _lastTraceViewVersion >= 0 && now < _nextTraceViewRefreshTime)
+                return;
+
             if (_lastTraceViewVersion == traceVersion)
                 return;
 
             _lastTraceViewVersion = traceVersion;
-            _traceBox.Clear();
+            _nextTraceViewRefreshTime = now + TraceViewRefreshInterval;
+
             var trace = _debugRunner != null && _debugRunner.DebugMode ? _debugRunner.DebugTrace : null;
             if (trace == null || trace.Records.Count == 0)
             {
-                var empty = new Label("Play Mode에서 Debug Runner를 지정하면 최근 Tick Trace가 표시됩니다.");
-                empty.style.color = new Color(0.72f, 0.72f, 0.72f);
-                empty.style.whiteSpace = WhiteSpace.Normal;
-                _traceBox.Add(empty);
+                ShowTraceEmpty(true);
+                for (int i = 0; i < _traceRowPool.Count; i++)
+                    _traceRowPool[i].style.display = DisplayStyle.None;
                 return;
             }
 
+            ShowTraceEmpty(false);
+
+            // 가장 최근 TraceViewMaxRows개만 표시한다. Queue는 오래된→최신 순이라 앞쪽 (Count-N)개를 건너뛴다.
+            int total = trace.Records.Count;
+            int skip = Mathf.Max(0, total - TraceViewMaxRows);
+            int visible = total - skip;
+            EnsureTraceRowCount(visible);
+
+            int rowIndex = 0;
+            int idx = 0;
             foreach (var record in trace.Records)
             {
-                var row = new Label($"#{record.Tick:000} {record.EventType,-16} {record.Status,-7} {record.NodeName} [{ShortGuid(record.NodeGuid)}] {record.Detail}");
-                row.style.fontSize = 10f;
+                if (idx++ < skip)
+                    continue;
+
+                var row = _traceRowPool[rowIndex++];
+                row.style.display = DisplayStyle.Flex;
+                row.text = $"#{record.Tick} {record.EventType,-16} {record.Status,-7} {record.NodeName} [{ShortGuid(record.NodeGuid)}] {record.Detail}";
                 row.style.color = GetTraceColor(record);
+                row.userData = record.NodeGuid;
+            }
+
+            for (int i = rowIndex; i < _traceRowPool.Count; i++)
+                _traceRowPool[i].style.display = DisplayStyle.None;
+        }
+
+        // Label을 풀에서 재사용한다. 매 갱신마다 새 Label/콜백/문자열을 생성·파괴하던 비용을 제거한다.
+        private void EnsureTraceRowCount(int count)
+        {
+            while (_traceRowPool.Count < count)
+            {
+                var row = new Label
+                {
+                    tooltip = "클릭하면 해당 노드로 이동합니다."
+                };
+                row.style.fontSize = 10f;
                 row.style.whiteSpace = WhiteSpace.Normal;
                 row.style.marginBottom = 2f;
                 row.style.paddingLeft = 4f;
                 row.style.paddingRight = 4f;
-                row.tooltip = "클릭하면 해당 노드로 이동합니다.";
-                var nodeGuid = record.NodeGuid;
-                row.RegisterCallback<MouseDownEvent>(evt =>
-                {
-                    if (evt.button != 0)
-                        return;
-
-                    _graphView?.FocusNodeByGuid(nodeGuid);
-                    evt.StopPropagation();
-                });
+                row.RegisterCallback<MouseDownEvent>(OnTraceRowClicked);
+                _traceRowPool.Add(row);
                 _traceBox.Add(row);
             }
+        }
+
+        private void OnTraceRowClicked(MouseDownEvent evt)
+        {
+            if (evt.button != 0 || evt.currentTarget is not Label row || row.userData is not string guid)
+                return;
+
+            _graphView?.FocusNodeByGuid(guid);
+            evt.StopPropagation();
+        }
+
+        private void ShowTraceEmpty(bool show)
+        {
+            if (_traceEmptyLabel == null)
+            {
+                _traceEmptyLabel = new Label("Play Mode에서 Debug Runner를 지정하면 최근 Tick Trace가 표시됩니다.");
+                _traceEmptyLabel.style.color = new Color(0.72f, 0.72f, 0.72f);
+                _traceEmptyLabel.style.whiteSpace = WhiteSpace.Normal;
+                _traceBox.Insert(0, _traceEmptyLabel);
+            }
+
+            _traceEmptyLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private static string ShortGuid(string guid)

@@ -241,7 +241,10 @@
       "PowerShell(& 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\_menu_flatten.ps1')",
       "PowerShell(& 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\_menu_ko.ps1')",
       "Bash(awk '$1+$2 > 4 {print}')",
-      "Bash(awk -F'/' 'NF>3')"
+      "Bash(awk -F'/' 'NF>3')",
+      "Bash(ls -1 .claude/commands/)",
+      "Bash(find .claude -iname \"*.md\" -path \"*review-cs*\")",
+      "Bash(find .claude -name \"SKILL.md\")"
     ]
   }
 }

@@ -54,7 +54,9 @@
 - 주소(Address)를 정확히 **`AudioMixer`** 로 지정 (`SoundManager.AudioMixerKey` 상수와 일치)
 
 ### 5. SoundDatabase 준비 (key 기반 재생용)
-- `SoundDatabaseSO` 에셋을 만들고 사운드 엔트리(key, clip, bus, 거리 설정 등)를 등록
+- 개별 사운드는 **`SoundEntrySO` 에셋** 단위로 만든다: Project 창 우클릭 → **Create → UPlayGround → 오디오 → Sound Entry** (clip, bus, 거리/쿨다운/동시재생 설정 등).
+  - `key`를 비워 두면 **에셋 이름이 자동으로 key**가 됩니다(`OnValidate`/런타임 폴백). 명시적으로 다른 key를 쓰고 싶을 때만 입력.
+- `SoundDatabaseSO` 에셋을 만들고 `entries` 리스트에 위 `SoundEntrySO` 에셋들을 드래그해 등록(중복 key는 첫 항목만 사용).
 - 이 에셋을 Addressable 주소 **`SoundDatabase`** 로 등록 (`SoundManager.SoundDatabaseKey`와 일치)
 - key 없이 `AudioClip`을 직접 넘기는 재생(`PlayClip`)은 DB 없이도 동작합니다.
 
@@ -62,6 +64,34 @@
 - 씬/프리팹에 `SoundManager` 컴포넌트를 배치하고 인스펙터의 **Mixer Groups** 항목에 6개 그룹(또는 일부)을 드래그
 - 하나라도 직접 할당되어 있으면 Addressable 로드는 건너뜁니다.
 - 이 경우 `Audio Mixer` 필드도 함께 할당하는 것을 권장(미할당 시 그룹에서 역참조로 채움).
+
+### 7. BGM 자동 전환 준비 (씬/맵 + 이벤트)
+BGM은 두 경로로 전환된다. **(A) 씬/맵 진입 시 평시 BGM 자동 전환**, **(B) 보스전 등 이벤트 기반 override**.
+
+**(A) 씬/맵 라우팅 — `BgmRoutingSO`**
+- Project 창 우클릭 → **Create → UPlayGround → 오디오 → BGM Routing** 으로 에셋 생성.
+- `mapRoutes`(맵별, 우선)와 `sceneRoutes`(씬 타입별, 폴백)에 `MapID`/`SceneType` → `bgmKey`(= SoundDatabase의 사운드 key, BGM 버스 권장)를 등록.
+  - 우선순위: **mapId 매칭 > sceneType 매칭 > 매칭 없음(현재 BGM 유지)**.
+  - `bgmKey`를 **비워 둔 라우트**가 매칭되면 그 씬/맵에서는 **BGM 정지** 의도로 동작.
+  - 매칭되는 라우트가 **아예 없으면** 현재 BGM을 그대로 유지(Loading/Boot 통과 시 음악 끊김 방지).
+- 이 에셋을 Addressable 주소 **`BgmRouting`** 으로 등록 (`SoundManager.BgmRoutingKey`와 일치). 미등록 시 (A) 자동 전환만 비활성(이벤트·`PlayBgm`은 정상).
+- `SceneContext.MapID`는 `BgmRoutingSO.mapRoutes[].mapId` 와 정확히 일치해야 함.
+
+**(B) 이벤트 기반 override — `BgmTrigger` 또는 `EventManager`**
+- 가장 쉬운 방법: 보스룸에 **`BgmTrigger` 컴포넌트**(+ Trigger 콜라이더) 배치.
+  - `Mode = Override` (기본): 진입 시 현재 BGM 위에 보스 BGM을 덮고, **영역 이탈/`Deactivate()` 시 직전 곡으로 복귀**.
+  - `Mode = ChangeBase`: 평시 BGM 자체를 교체(지역 전환 등, 복귀 없음).
+  - 콜라이더 없이 보스 스크립트가 `Activate()`/`Deactivate()`를 직접 호출해도 됨(`_useColliderTrigger = false`).
+- 코드/연출에서 직접 발화하려면:
+  ```csharp
+  EventManager.Instance.Send<BgmEvent, BgmRequestData>(
+      BgmEvent.Override, new BgmRequestData { bgmKey = "Bgm_Boss", fadeTime = 1.5f });
+  // 보스 종료
+  EventManager.Instance.Send<BgmEvent, BgmRequestData>(
+      BgmEvent.Restore, new BgmRequestData { fadeTime = 2f });
+  ```
+- `SoundManager` public API로도 직접 호출 가능: `PlayBgm(key)` / `StopBgm()` / `PushBgm(key)` / `PopBgm()`.
+- 씬이 바뀌면 boss override 상태는 자동 초기화되고 (A) 라우팅이 다시 평시 BGM을 잡는다.
 
 ---
 
@@ -71,6 +101,7 @@
 |------|-----------|-----|
 | 믹서 Addressable 키 | `SoundManager.AudioMixerKey` | `"AudioMixer"` |
 | 사운드 DB Addressable 키 | `SoundManager.SoundDatabaseKey` | `"SoundDatabase"` |
+| BGM 라우팅 Addressable 키 | `SoundManager.BgmRoutingKey` | `"BgmRouting"` |
 | 설정 데이터 Addressable 키 | `SettingsManager.SETTINGS_DATA_KEY` | `"SettingsData"` |
 | 버스 그룹 이름 | `SoundBusType` enum | `Master / BGM / SFX / UI / Voice / Ambience` |
 | 노출 볼륨 파라미터 | `SettingsApplier.ApplyAudio` | `MasterVolume / BGMVolume / SFXVolume / VoiceVolume` |

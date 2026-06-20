@@ -314,6 +314,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             _traceBox.style.flexGrow = 1;
             traceScroll.Add(_traceBox);
             _tracePanel = traceScroll;
+            // _traceBox가 새로 만들어지면 이전 박스에 붙어있던 풀 Label은 무효다. 풀을 리셋해 재구축을 강제한다.
+            _traceRowPool.Clear();
+            _traceEmptyLabel = null;
+            _lastTraceViewVersion = -1;
 
             _timelineView = new IntentScoreTimelineView();
             _timelineView.SetDebugRunner(_debugRunner);

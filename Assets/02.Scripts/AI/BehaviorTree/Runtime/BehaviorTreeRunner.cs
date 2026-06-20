@@ -85,6 +85,20 @@ namespace UPlayGround.AI.BehaviorTree
             StopTree();
         }
 
+        private void OnValidate()
+        {
+            // DebugTrace는 StartTree/Restart 시점의 _debugMode로만 생성된다. 플레이 도중 인스펙터에서
+            // Debug Mode를 켜면 _debugMode만 true가 되고 트레이스 버퍼는 null로 남아 Trace 탭/per-tick
+            // 하이라이트가 비는 문제가 있어, 런타임 토글에도 버퍼를 지연 생성/해제한다.
+            if (!Application.isPlaying)
+                return;
+
+            if (_debugMode && _runtimeTree != null && DebugTrace == null)
+                DebugTrace = new BehaviorTreeDebugTrace(_debugTraceCapacity);
+            else if (!_debugMode)
+                DebugTrace = null;
+        }
+
         /// <summary>
         /// <see cref="AgentTickManager"/>가 매 프레임 호출. 기존 Update 본문과 동일하다.
         /// </summary>

@@ -22,9 +22,12 @@ public class UISettingPageGraphic : UISettingPageBase
     [SerializeField] private UICommonDropdown _windowModeDropdown;
     [SerializeField] private UICommonSlider _frameRateSlider;
     [SerializeField] private UICommonSlider _brightnessSlider;
+    private UISwitchButton[] _switches;
 
     protected override void BindControls(SettingsData settingsData)
     {
+        CacheControls();
+
         if (_resolutionDropdown != null)
         {
             _resolutionDropdown.SetOptions(ResolutionOptions, settingsData.resolutionIndex);
@@ -43,13 +46,25 @@ public class UISettingPageGraphic : UISettingPageBase
 
         if (_frameRateSlider != null) _frameRateSlider.OnValueChanged += value => settingsData.targetFrameRate = RoundToInt(value);
         if (_brightnessSlider != null) _brightnessSlider.OnValueChanged += value => settingsData.brightness = RoundToInt(value);
+
+        var runInBackground = GetAt(_switches, 0);
+        if (runInBackground != null)
+            runInBackground.OnValueChanged += value => settingsData.runInBackground = value;
     }
 
     public override void SyncUIFromData(SettingsData settingsData)
     {
+        CacheControls();
+
         _resolutionDropdown?.SetIndexWithoutNotify(settingsData.resolutionIndex);
         _windowModeDropdown?.SetIndexWithoutNotify(settingsData.windowModeIndex);
         _frameRateSlider?.SetValueWithoutNotify(settingsData.targetFrameRate);
         _brightnessSlider?.SetValueWithoutNotify(settingsData.brightness);
+        GetAt(_switches, 0)?.SetValueWithoutNotify(settingsData.runInBackground);
+    }
+
+    private void CacheControls()
+    {
+        _switches ??= GetComponentsInChildren<UISwitchButton>(true);
     }
 }

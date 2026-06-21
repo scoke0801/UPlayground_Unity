@@ -29,8 +29,10 @@ namespace UPlayGround.CameraSystem
             Vector3 pivotPosition = frame.Pose.PivotPosition;
             Vector3 pivotBase = frame.PivotBase;
 
-            Quaternion targetRot = Quaternion.Euler(state.CurrentPitch, state.CurrentYaw, 0f);
-            Vector3 camDir = targetRot * Vector3.back;
+            // Follow 단계에서 스무딩된 실제 카메라 회전을 사용한다.
+            // 누적 상태의 목표 회전을 다시 사용하면 충돌 단계에서 위치만 선행해 회전과 궤도가 불일치한다.
+            Quaternion appliedRotation = frame.Pose.CameraRotation;
+            Vector3 camDir = appliedRotation * Vector3.back;
             float desiredDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, settings.maxDistance)
                                     + frame.Effects.distanceDelta;
 

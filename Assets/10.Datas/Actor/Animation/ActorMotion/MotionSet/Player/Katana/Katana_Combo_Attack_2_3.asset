@@ -24,26 +24,42 @@ MonoBehaviour:
       - rid: 7399917168494117008
       - rid: 7399917168494117009
       - rid: 5351031959771152510
-      - rid: 889909851589181447
+      - rid: 889910008326651939
+      - rid: 889910008326652156
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 889909851589181447
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 889910008326651939
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.35560346
-        endTime: 0.85560346
+        startTime: 0.31376773
+        endTime: 0.81376773
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
-        spawnPointName: Line Bottom
-        offset: {x: 0, y: 0, z: -1}
-        rotationOffset: {x: 30, y: 30, z: 90}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 1
-        particleLifeTime: 0
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652156
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.35329464
+        endTime: 0.757874
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        preset: {fileID: 0}
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: -40, y: 116, z: 144}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 5351031959771152510
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

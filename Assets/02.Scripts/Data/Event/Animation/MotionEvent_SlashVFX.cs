@@ -21,11 +21,11 @@ namespace UPlayGround.Data.Event
     public class SlashVFXEvent : MotionEventBase
     {
         [Header("Slash VFX Setting")]
-        [Tooltip("WeaponSlashVfxSpawner를 찾으면 Spawner에 설정된 prefab/offset/scale/destroyDelay를 사용한다.")]
+        [Tooltip("WeaponSlashVfxSpawner를 찾으면 Spawner 설정을 사용한다. 단, vfxPrefab이 직접 지정되어 있으면 Spawner의 prefab보다 우선한다.")]
         public bool useSpawnerSettings = true;
         [Tooltip("useSpawnerSettings가 켜져 있어도 위치/회전/스케일/수명은 이 이벤트 값을 사용한다.")]
-        public bool overrideSpawnerTransform;
-        public SlashVFXPresetSO preset;
+        public bool overrideSpawnerTransform = true;
+        
         public GameObject vfxPrefab;
 
         [Header("Blade Point")]
@@ -37,9 +37,9 @@ namespace UPlayGround.Data.Event
         public string tipPointName = "Blade_Tip";
 
         [Header("Offset")]
-        public SlashVFXPositionSpace positionSpace = SlashVFXPositionSpace.Blade;
+        public SlashVFXPositionSpace positionSpace = SlashVFXPositionSpace.World;
         public Vector3 positionOffset;
-        public SlashVFXRotationSpace rotationSpace = SlashVFXRotationSpace.BladeOffset;
+        public SlashVFXRotationSpace rotationSpace = SlashVFXRotationSpace.World;
         public Vector3 rotationOffset;
 
         [Header("Lifecycle")]
@@ -50,7 +50,7 @@ namespace UPlayGround.Data.Event
 
         public override string GetShortLabel()
         {
-            GameObject prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
+            GameObject prefab = vfxPrefab;
             return prefab != null ? $"Slash VFX: {prefab.name}" : "Slash VFX: (None)";
         }
 
@@ -74,13 +74,13 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            GameObject prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
-            string baseName = preset != null && !string.IsNullOrEmpty(preset.basePointName) ? preset.basePointName : basePointName;
-            string tipName = preset != null && !string.IsNullOrEmpty(preset.tipPointName) ? preset.tipPointName : tipPointName;
-            Vector3 offset = preset != null ? preset.positionOffset : positionOffset;
-            Vector3 rotOffset = preset != null ? preset.rotationOffset : rotationOffset;
-            float destroy = preset != null ? preset.destroyDelay : destroyDelay;
-            Vector3 finalScale = preset != null ? preset.scaleMultiplier : Vector3.one * scale;
+            GameObject prefab = vfxPrefab;
+            string baseName = basePointName;
+            string tipName = tipPointName;
+            Vector3 offset = positionOffset;
+            Vector3 rotOffset = rotationOffset;
+            float destroy = destroyDelay;
+            Vector3 finalScale =  Vector3.one * scale;
 
             if (prefab == null)
                 return;
@@ -122,9 +122,7 @@ namespace UPlayGround.Data.Event
                 return false;
             }
 
-            GameObject prefab = spawner.SlashVfxPrefab;
-            if (prefab == null)
-                prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
+            GameObject prefab = vfxPrefab != null ? vfxPrefab : spawner.SlashVfxPrefab;
 
             if (prefab == null)
             {

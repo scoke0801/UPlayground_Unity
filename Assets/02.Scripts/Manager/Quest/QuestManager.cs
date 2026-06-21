@@ -6,6 +6,7 @@ using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Sound;
 using UPlayGround.Story;
 
 namespace UPlayGround.Manager
@@ -330,6 +331,7 @@ namespace UPlayGround.Manager
 
             GiveRewards(runtime.QuestSO.reward);
             SendQuestEvent(QuestEvent.QuestCompleted, questId, runtime.QuestSO.questName);
+            SoundManager.Instance?.PlayUi(GameSoundKey.QuestClear);
             Debug.Log($"[QuestManager] 퀘스트 완료: {runtime.QuestSO.questName}");
 
             AutoAcceptNextQuests(runtime.QuestSO);

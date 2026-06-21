@@ -65,12 +65,15 @@ namespace UPlayGround.CameraSystem
             Vector3 pivotPosition = state.SmoothPosition;
             frame.PivotBase = pivotBase;
 
-            // 무충돌 카메라 위치 (Collision(800)이 덮어씀)
-            Quaternion targetRot = Quaternion.Euler(state.CurrentPitch, state.CurrentYaw, 0f);
-            Vector3 camDir = targetRot * Vector3.back;
+            // 실제 회전과 카메라 궤도 위치에 같은 회전을 사용한다.
+            // 서로 다른 회전을 쓰면 정렬 중 위치는 먼저 이동하고 시선은 뒤따라가 프레임 단위 끊김처럼 보인다.
+            Quaternion cameraRotation = EvaluateCameraRotation(
+                context.MainCamera,
+                state,
+                rotSmoothTime,
+                deltaTime);
+            Vector3 camDir = cameraRotation * Vector3.back;
             Vector3 cameraPosition = pivotPosition + camDir * effectDistance;
-
-            Quaternion cameraRotation = EvaluateCameraRotation(context.MainCamera, state, rotSmoothTime);
 
             state.CurrentDistance = state.TargetDistance;
 
@@ -82,16 +85,21 @@ namespace UPlayGround.CameraSystem
             frame.Pose.Distance = state.TargetDistance;
         }
 
-        private static Quaternion EvaluateCameraRotation(Camera mainCamera, CameraState state, float smoothTime)
+        private static Quaternion EvaluateCameraRotation(
+            Camera mainCamera,
+            CameraState state,
+            float smoothTime,
+            float deltaTime)
         {
             Quaternion targetRot = Quaternion.Euler(state.CurrentPitch, state.CurrentYaw, 0f);
             if (mainCamera == null || smoothTime <= 0f)
                 return targetRot;
 
+            float blend = 1f - Mathf.Exp(-Mathf.Max(deltaTime, 0f) / smoothTime);
             return Quaternion.Slerp(
                 mainCamera.transform.rotation,
                 targetRot,
-                1f - Mathf.Exp(-10f / smoothTime));
+                blend);
         }
     }
 }

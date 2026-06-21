@@ -16,6 +16,7 @@ namespace UPlayGround.Data.Sound
         public const string CombatPerfectGuard = "Combat_PerfectGuard";
         public const string CombatParry = "Combat_Parry";
         public const string CombatPerfectDodge = "Combat_PerfectDodge";
+        public const string CombatSpecialBreak = "Combat_SpecialBreak";
 
         public const string PlayerDash = "Player_Dash";
         public const string PlayerDashEvade = "Player_DashEvade";
@@ -23,6 +24,8 @@ namespace UPlayGround.Data.Sound
         public const string LevelUp = "LevelUp";
         public const string Heal = "Heal";
         public const string RestPointHeal = "RestPoint_Heal";
+        public const string QuestClear = "QuestClear";
+        public const string GetItem = "GetItem";
     }
 
     /// <summary>

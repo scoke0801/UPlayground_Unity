@@ -25,6 +25,8 @@ namespace UPlayGround.Manager
 
         public static void ApplyGraphics(SettingsData data)
         {
+            Application.runInBackground = data.runInBackground;
+
             if ((uint)data.resolutionIndex < (uint)SupportedResolutions.Length)
             {
                 var (w, h) = SupportedResolutions[data.resolutionIndex];

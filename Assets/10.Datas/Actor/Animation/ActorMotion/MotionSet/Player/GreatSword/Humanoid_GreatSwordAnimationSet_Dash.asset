@@ -31,6 +31,7 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 0.05
+        globalStartTimeOffset: 0
         soundKey: Player_Dash
         audioClip: {fileID: 0}
         volume: 1

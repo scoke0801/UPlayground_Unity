@@ -25,6 +25,7 @@ MonoBehaviour:
       - rid: 7432452544598638593
       - rid: 889909855229575301
       - rid: 7432452544598638594
+      - rid: 889910008326652114
     globalEvents: []
   references:
     version: 2
@@ -38,17 +39,27 @@ MonoBehaviour:
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
         preset: {fileID: 11400000, guid: fa4a16a8bc306e9479e7597aad962e9d, type: 2}
-        vfxPrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
+        vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
         spawnerObjectName: 
         weaponRootName: 
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0, y: 1, z: 0}
+        positionOffset: {x: 0, y: 0, z: 0}
         rotationSpace: 0
         rotationOffset: {x: 0, y: 0, z: -90}
         scale: 1
         destroyDelay: 10
+    - rid: 889910008326652114
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5717545
+        endTime: 1.0717542
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452544598638592
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

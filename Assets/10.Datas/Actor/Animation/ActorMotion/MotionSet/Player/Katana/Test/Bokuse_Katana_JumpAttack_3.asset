@@ -23,19 +23,27 @@ MonoBehaviour:
       events:
       - rid: 5351032134217498883
       - rid: 5351032134217498884
+      - rid: 889910008326652096
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652096
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.18826064
+        endTime: 0.68826044
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5351032134217498883
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.23211816
         endTime: 0.31230322
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0
     - rid: 5351032134217498884
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}

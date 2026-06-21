@@ -28,6 +28,8 @@ namespace UPlayGround.Data.Config
         public int qualityIndex = 2; // 0=낮음 ~ 3=최고
         [Range(30, 144)] public int targetFrameRate = 60;
         [Range(0, 10)] public int brightness = 5;
+        [Tooltip("창이 포커스를 잃어도 게임 로직과 오디오를 계속 실행합니다.")]
+        public bool runInBackground = false;
 
         [Header("오디오")]
         [Range(0, 10)] public int masterVolume = 8;
@@ -60,6 +62,7 @@ namespace UPlayGround.Data.Config
             screenShake = true; aimAssist = true; languageIndex = 0;
             cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
             resolutionIndex = 0; windowModeIndex = 1; fullscreen = true; qualityIndex = 2; targetFrameRate = 60; brightness = 5;
+            runInBackground = false;
             masterVolume = 8; bgmVolume = 7; sfxVolume = 9; voiceVolume = 8;
             debugMotionWarpEnabled = true;
         }
@@ -76,7 +79,7 @@ namespace UPlayGround.Data.Config
         public bool invertY, screenShake, aimAssist;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, windowModeIndex, qualityIndex, targetFrameRate, brightness;
-        public bool fullscreen;
+        public bool fullscreen, runInBackground;
         public int masterVolume, bgmVolume, sfxVolume, voiceVolume;
 
         public static SettingsSnapshot From(SettingsData data) => new()
@@ -90,6 +93,7 @@ namespace UPlayGround.Data.Config
             windowModeIndex = data.windowModeIndex, qualityIndex = data.qualityIndex,
             targetFrameRate = data.targetFrameRate, brightness = data.brightness,
             fullscreen = data.fullscreen,
+            runInBackground = data.runInBackground,
             masterVolume = data.masterVolume, bgmVolume = data.bgmVolume,
             sfxVolume = data.sfxVolume, voiceVolume = data.voiceVolume
         };
@@ -105,6 +109,7 @@ namespace UPlayGround.Data.Config
             data.windowModeIndex = windowModeIndex; data.qualityIndex = qualityIndex;
             data.targetFrameRate = targetFrameRate; data.brightness = brightness;
             data.fullscreen = fullscreen;
+            data.runInBackground = runInBackground;
             data.masterVolume = masterVolume; data.bgmVolume = bgmVolume;
             data.sfxVolume = sfxVolume; data.voiceVolume = voiceVolume;
         }

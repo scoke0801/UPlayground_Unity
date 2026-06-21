@@ -24,26 +24,42 @@ MonoBehaviour:
       - rid: 7399917007448309863
       - rid: 7399917007448310084
       - rid: 5351031959771152506
-      - rid: 889909851589181441
+      - rid: 889910008326651933
+      - rid: 889910008326652149
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 889909851589181441
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 889910008326651933
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.22569445
-        endTime: 0.7256944
+        startTime: 0.19871958
+        endTime: 0.69871956
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
-        spawnPointName: Line Tip
-        offset: {x: 0, y: 0, z: -1}
-        rotationOffset: {x: 0, y: -180, z: 0}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 1
-        particleLifeTime: 0
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652149
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.21938458
+        endTime: 0.65245545
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        preset: {fileID: 0}
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.5, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 180, y: -116.4, z: -144.4}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 5351031959771152506
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

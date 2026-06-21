@@ -37,17 +37,16 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
-        preset: {fileID: 0}
         vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
         spawnerObjectName: 
         weaponRootName: 
         basePointName: Blade_Base
         tipPointName: Blade_Tip
-        positionSpace: 0
-        positionOffset: {x: 0, y: 0, z: 0}
-        rotationSpace: 0
-        rotationOffset: {x: 0, y: 0, z: 0}
-        scale: 1
+        positionSpace: 1
+        positionOffset: {x: 0.78, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 119.9, y: 90, z: 0}
+        scale: 0.7
         destroyDelay: 2
     - rid: 889910008326652142
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}

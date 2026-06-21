@@ -74,13 +74,12 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
-        preset: {fileID: 0}
         vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
         spawnerObjectName: 
         weaponRootName: 
         basePointName: Blade_Base
         tipPointName: Blade_Tip
-        positionSpace: 0
+        positionSpace: 1
         positionOffset: {x: 0, y: 0, z: 0}
         rotationSpace: 1
         rotationOffset: {x: 0, y: 0, z: 0}
@@ -94,14 +93,13 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
-        preset: {fileID: 0}
         vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
         spawnerObjectName: 
         weaponRootName: 
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: -0.5, y: 0, z: 0}
+        positionOffset: {x: 0, y: -0.5, z: 0}
         rotationSpace: 1
         rotationOffset: {x: -40, y: 116, z: 144}
         scale: 0.7
@@ -114,14 +112,13 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
-        preset: {fileID: 0}
         vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
         spawnerObjectName: 
         weaponRootName: 
         basePointName: Blade_Base
         tipPointName: Blade_Tip
-        positionSpace: 0
-        positionOffset: {x: -0.5, y: 0, z: 0}
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
         rotationSpace: 1
         rotationOffset: {x: 180, y: -117, z: -144}
         scale: 0.7

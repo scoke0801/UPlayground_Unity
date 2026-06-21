@@ -25,6 +25,7 @@ MonoBehaviour:
       - rid: 7432452531840876557
       - rid: 7432452531840876558
       - rid: 889909850590150792
+      - rid: 889910011055833234
     globalEvents: []
   references:
     version: 2
@@ -37,13 +38,23 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
         spawnPointName: Line Tip
-        offset: {x: 0, y: 0, z: -2}
+        offset: {x: 0.3, y: 0, z: -2}
         rotationOffset: {x: 0, y: 180, z: 90}
         attachToTarget: 1
         detachAfterSpawn: 1
         useSpawnRotation: 1
         destroyOnFinish: 0
         particleLifeTime: 0
+    - rid: 889910011055833234
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.34189805
+        endTime: 0.841898
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452531840876556
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

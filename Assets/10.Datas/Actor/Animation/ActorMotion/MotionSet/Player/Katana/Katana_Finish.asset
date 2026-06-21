@@ -26,6 +26,7 @@ MonoBehaviour:
       - rid: 7399917265539825789
       - rid: 7399917266253643776
       - rid: 889910008326652110
+      - rid: 889910011055833229
     globalEvents: []
   references:
     version: 2
@@ -33,10 +34,20 @@ MonoBehaviour:
     - rid: 889910008326652110
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.92387176
-        endTime: 1.4238718
+        startTime: 0.78426343
+        endTime: 1.2842636
         globalStartTimeOffset: 0
         soundKey: Katana_Attack_Finish
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910011055833229
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.1106827
+        endTime: 2.610683
+        globalStartTimeOffset: 0
+        soundKey: Attack_Kick
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1

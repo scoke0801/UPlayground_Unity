@@ -36,12 +36,14 @@ public class UI_PauseMenu : UI_Base
         go?.GetComponent<UI_SaveSlotMenu>()?.SetMode(UI_SaveSlotMenu.SaveSlotMode.Save);
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         base.OnShow();
 
         GameTimeManager.Instance.SetPause(true);
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
 
         if (playTimeText != null)
             playTimeText.text = GameTimeManager.Instance.FormatPlayTime();
@@ -50,7 +52,6 @@ public class UI_PauseMenu : UI_Base
     protected override void OnHide()
     {
         GameTimeManager.Instance.SetPause(false);
-        InputManager.Instance.SetInputLayer(InputLayer.None);
         base.OnHide();
     }
 

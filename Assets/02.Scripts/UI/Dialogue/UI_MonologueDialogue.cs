@@ -17,6 +17,9 @@ public class UI_MonologueDialogue : UI_Base
 
     private Coroutine _typingCoroutine;
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         DialogueManager.Instance.OnMonologueNodeEnter += HandleNodeEnter;
@@ -24,8 +27,6 @@ public class UI_MonologueDialogue : UI_Base
 
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputNext, null, null, null, InputLayer.Level_1);
-
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
     }
 
     protected override void OnHide()
@@ -35,8 +36,6 @@ public class UI_MonologueDialogue : UI_Base
 
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputNext, null);
-
-        InputManager.Instance.SetInputLayer(InputLayer.None);
 
         if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
     }

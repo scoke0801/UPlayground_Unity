@@ -46,10 +46,11 @@ public class UI_Inventory : UI_Base
         Init();
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
-        
         RefreshDictItem();
         SetInventory();
         InitPlayerEquipmentSlot();
@@ -66,11 +67,6 @@ public class UI_Inventory : UI_Base
         // ESC 키 입력 시 닫는다.
         Hide();
         return false;
-    }
-
-    protected override void OnHide()
-    {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
     }
     
     public void SetInventory()

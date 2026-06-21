@@ -8,6 +8,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Combat;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Data.Sound;
 using UPlayGround.UI;
 
 namespace UPlayGround.Combat
@@ -45,6 +46,23 @@ namespace UPlayGround.Combat
         public static void ApplyColorHit(ActorColorChanger colorChanger)
         {
             colorChanger?.OnHit();
+        }
+
+        /// <summary>
+        /// 실제 피해가 적용된 순간에 재생하는 충돌음.
+        /// 공격 모션의 휘두르기음과 분리해 헛스윙에는 재생하지 않는다.
+        /// </summary>
+        public static void PlayDamageImpact(in HitContext hit)
+        {
+            string soundKey = IsHeavyImpact(hit)
+                ? GameSoundKey.CombatHitHeavy
+                : GameSoundKey.CombatHitLight;
+
+            Vector3 position = hit.HitPoint;
+            if (position == Vector3.zero && hit.Victim != null)
+                position = hit.Victim.transform.position;
+
+            SoundManager.Instance?.PlaySfx(soundKey, position);
         }
 
         public static void ApplyPlayerDamagedCamera(
@@ -306,6 +324,24 @@ namespace UPlayGround.Combat
             duration = Mathf.Max(0f, reactionData.hitStopDuration);
             timeScale = Mathf.Clamp(reactionData.hitStopScale, 0.001f, 1f);
             return true;
+        }
+
+        private static bool IsHeavyImpact(in HitContext hit)
+        {
+            if (hit.AttackKind is AttackKind.HeavyAttack
+                or AttackKind.ChargeAttack
+                or AttackKind.SkillAttack
+                or AttackKind.FinishAttack
+                or AttackKind.DashAttack
+                or AttackKind.JumpAttack)
+                return true;
+
+            return hit.ReactionType is AttackReactionType.Heavy
+                or AttackReactionType.KnockBack
+                or AttackReactionType.Airborne
+                or AttackReactionType.Knockdown
+                or AttackReactionType.Stun
+                or AttackReactionType.Grab;
         }
 
         private static void ResolvePlayerAttackGlobalPulse(

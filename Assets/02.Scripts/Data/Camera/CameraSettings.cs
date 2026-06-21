@@ -34,9 +34,16 @@ namespace UPlayGround.Data
         public float maxDistance = 8.5f;
 
         [Header("회전")]
+        [Tooltip("마우스 delta(프레임당 픽셀 누적값) 기준 회전 스칼라. 게임패드에는 적용되지 않는다.")]
         public float rotationSpeed = 20f;
         public float minVerticalAngle = -30f;   // 음수 = 위쪽, 양수 = 아래쪽
         public float maxVerticalAngle = 70f;
+
+        [Header("게임패드 룩 (각속도 °/s)")]
+        [Tooltip("게임패드 우측 스틱 풀 입력 시 좌우 회전 속도(초당 도). 스틱은 정규화 축이라 마우스(rotationSpeed)와 별개의 각속도로 적분한다.")]
+        public float gamepadYawSpeed = 220f;
+        [Tooltip("게임패드 우측 스틱 풀 입력 시 상하 회전 속도(초당 도). 보통 yaw보다 약간 낮게 둔다.")]
+        public float gamepadPitchSpeed = 140f;
 
         [Header("경사 보정")]
         [Tooltip("경사면 감지 레이캐스트 거리")]

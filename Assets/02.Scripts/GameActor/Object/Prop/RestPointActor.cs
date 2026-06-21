@@ -3,6 +3,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+using UPlayGround.Data.Sound;
 
 namespace UPlayGround
 {
@@ -34,6 +35,7 @@ namespace UPlayGround
 
             // 연출: FX (기존 키 재사용)
             GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
+            SoundManager.Instance?.PlaySfx(GameSoundKey.RestPointHeal, transform.position);
         }
 
         public void StopInteract() => _isInteracting = false;

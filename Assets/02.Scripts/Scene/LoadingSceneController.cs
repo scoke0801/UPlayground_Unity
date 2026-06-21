@@ -20,6 +20,9 @@ namespace UPlayGround
         [SerializeField] private string[] _tips;
 
         private bool _activationTriggered = false;
+        private GameObject _persistentCanvasRoot;
+        private bool _isPresentationPersistent;
+        private bool _releaseRequested;
 
         private void Start()
         {
@@ -74,7 +77,101 @@ namespace UPlayGround
         {
             _progressSlider.value = 100f;
             yield return new WaitForSeconds(0.3f);
+            PreserveLoadingPresentation();
             SceneManager.Instance.ActivatePendingScene();
+        }
+
+        private void PreserveLoadingPresentation()
+        {
+            if (_isPresentationPersistent)
+                return;
+
+            Canvas canvas = _progressSlider != null
+                ? _progressSlider.GetComponentInParent<Canvas>()
+                : null;
+            if (canvas == null)
+            {
+                Debug.LogWarning("[LoadingSceneController] 유지할 로딩 Canvas를 찾지 못했습니다.");
+                return;
+            }
+
+            _isPresentationPersistent = true;
+            _persistentCanvasRoot = canvas.gameObject;
+            canvas.sortingOrder = short.MaxValue;
+            EnsureOpaqueBackground(canvas.transform);
+            DontDestroyOnLoad(_persistentCanvasRoot);
+            DontDestroyOnLoad(gameObject);
+
+            SceneManager.Instance.OnLoadComplete += HandleLoadComplete;
+            SceneManager.Instance.OnLoadFailed += HandleLoadFailed;
+        }
+
+        private void HandleLoadComplete(string sceneName)
+        {
+            if (!_releaseRequested)
+                StartCoroutine(ReleaseAfterRenderedFrames());
+        }
+
+        private void HandleLoadFailed(string sceneName, string reason)
+        {
+            ReleaseLoadingPresentation();
+        }
+
+        private IEnumerator ReleaseAfterRenderedFrames()
+        {
+            _releaseRequested = true;
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            ReleaseLoadingPresentation();
+        }
+
+        private static void EnsureOpaqueBackground(Transform canvasTransform)
+        {
+            var background = new GameObject(
+                "LoadingPersistentBackground",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            background.transform.SetParent(canvasTransform, false);
+            background.transform.SetAsFirstSibling();
+
+            var rect = background.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            var image = background.GetComponent<Image>();
+            image.color = Color.black;
+            image.raycastTarget = false;
+        }
+
+        private void ReleaseLoadingPresentation()
+        {
+            if (!_isPresentationPersistent)
+                return;
+
+            _isPresentationPersistent = false;
+            _releaseRequested = false;
+            if (SceneManager.Instance != null)
+            {
+                SceneManager.Instance.OnLoadComplete -= HandleLoadComplete;
+                SceneManager.Instance.OnLoadFailed -= HandleLoadFailed;
+            }
+
+            if (_persistentCanvasRoot != null)
+                Destroy(_persistentCanvasRoot);
+
+            Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            if (SceneManager.Instance == null)
+                return;
+
+            SceneManager.Instance.OnLoadComplete -= HandleLoadComplete;
+            SceneManager.Instance.OnLoadFailed -= HandleLoadFailed;
         }
 
         private void ShowRandomTip()

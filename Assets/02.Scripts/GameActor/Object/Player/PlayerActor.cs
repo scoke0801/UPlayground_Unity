@@ -1078,6 +1078,7 @@ namespace UPlayGround
 
             CombatFeedbackDispatcher.ShowDamageFloater(
                 CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
+            CombatFeedbackDispatcher.PlayDamageImpact(combatResult.Hit);
 
             if (_currentHealth <= 0)
             {

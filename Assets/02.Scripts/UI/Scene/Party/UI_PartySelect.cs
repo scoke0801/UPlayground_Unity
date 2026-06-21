@@ -102,6 +102,9 @@ public class UI_PartySelect : UI_Base
         BindFieldPreviewTextures();
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         base.OnShow();
@@ -110,8 +113,6 @@ public class UI_PartySelect : UI_Base
         {
             GameTimeManager.Instance?.SetPause(true);
         }
-
-        InputManager.Instance?.SetInputLayer(_layer.ToInputLayer());
 
         var partyManager = PartyManager.Instance;
         if (partyManager != null)
@@ -150,8 +151,6 @@ public class UI_PartySelect : UI_Base
         }
 
         HideFieldPreviews();
-
-        InputManager.Instance?.SetInputLayer(InputLayer.None);
 
         base.OnHide();
     }

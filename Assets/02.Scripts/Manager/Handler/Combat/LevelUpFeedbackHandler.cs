@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager.Handler;
 using UPlayGround.UI;
+using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager.Combat
 {
@@ -14,7 +15,6 @@ namespace UPlayGround.Manager.Combat
     {
         // FX 프리팹 키. 해당 키의 FX가 등록되어 있지 않으면 ShowFX가 무시한다(안전).
         private const string LevelUpFxKey = "LevelUp";
-        private const string LevelUpSoundKey = "LevelUp";
         private const float  FxDuration   = 3f;
         private const float  HeadOffsetY  = 2.2f;
 
@@ -91,7 +91,7 @@ namespace UPlayGround.Manager.Combat
             UIManager.Instance?.ShowDamageFloaterLabel(
                 basePos + Vector3.up * HeadOffsetY, $"LEVEL UP!  Lv.{level}", FloatStyle.Critical);
 
-            SoundManager.Instance?.PlayUi(LevelUpSoundKey);
+            SoundManager.Instance?.PlayUi(GameSoundKey.LevelUp);
         }
     }
 }

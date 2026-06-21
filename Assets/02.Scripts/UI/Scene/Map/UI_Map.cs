@@ -124,6 +124,9 @@ public class UI_Map : UI_Base
         }
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         if (_mapConfigDB == null)
@@ -141,8 +144,7 @@ public class UI_Map : UI_Base
             return;
         }
 
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
-        InputManager.Instance.ShowCursor(true, true);
+        // 커서 표시·입력 레이어 상승은 UI_Base가 일괄 처리한다(BlocksLowerInput/_layer 기준).
         _player = GameObjectManager.Instance?.Player;
 
         SetupMapBackground();
@@ -177,9 +179,7 @@ public class UI_Map : UI_Base
 
     protected override void OnHide()
     {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
-
-        InputManager.Instance.ShowCursor(false);
+        // 커서 숨김·입력 레이어 복원도 UI_Base가 짝 맞춰 처리한다.
         if (GameObjectManager.Instance != null)
         {
             GameObjectManager.Instance.OnActorRegistered   -= RegisterActor;

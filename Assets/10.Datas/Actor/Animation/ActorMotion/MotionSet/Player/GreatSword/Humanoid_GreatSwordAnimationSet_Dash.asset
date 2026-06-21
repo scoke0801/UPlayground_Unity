@@ -20,8 +20,18 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 8100000000000000003
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8100000000000000003
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.05
+        soundKey: Player_Dash
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1

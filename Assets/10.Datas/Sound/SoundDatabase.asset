@@ -13,4 +13,12 @@ MonoBehaviour:
   m_Name: SoundDatabase
   m_EditorClassIdentifier: 
   entries:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: a0eb7ca0f3450724c93cdefc26bd7fa8, type: 2}
+  - {fileID: 11400000, guid: 39802d8f899bdfc479a3f52b1edec3a0, type: 2}
+  - {fileID: 11400000, guid: 43ec3aaaa362a5e41830c189f177daf9, type: 2}
+  - {fileID: 11400000, guid: e88e1ba9d9a701c4c8413fefd4516ed3, type: 2}
+  - {fileID: 11400000, guid: d930966fcfab8954899a98e12400325d, type: 2}
+  - {fileID: 11400000, guid: 0bd74be568804bc478ed78bc06772bbe, type: 2}
+  - {fileID: 11400000, guid: 9d50bf6fd2dedcf469dcdb431b2ad06f, type: 2}
+  - {fileID: 11400000, guid: 16e362906a38ab242866e78f73dc897e, type: 2}
+  - {fileID: 11400000, guid: 1434a9f6c60c9c343a11e2ffe102b947, type: 2}

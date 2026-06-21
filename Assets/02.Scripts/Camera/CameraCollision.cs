@@ -43,20 +43,29 @@ namespace UPlayGround.CameraSystem
             float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance);
             float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
 
-            float smoothTime = targetDistance < _collisionDistance
-                ? _settings.collisionOccludedSmoothTime
-                : _settings.collisionReturnSpeed;
-
-            float maxSpeed = _settings.collisionMaxDistanceChangeSpeed > 0f
-                ? _settings.collisionMaxDistanceChangeSpeed
-                : Mathf.Infinity;
-
-            if (targetDistance >= _collisionDistance && _collisionDistanceVel < 0f)
+            if (targetDistance < _collisionDistance)
+            {
+                // 정설(asymmetric damping): 당김은 즉시. 스무딩하면 그 몇 프레임 동안 카메라가
+                // 벽 뒤에 남아 지오메트리 내부가 비친다(클리핑). 안전 우선이라 속도 제한도 두지 않는다.
+                // 당김 타깃(heldBlockedDistance)은 MultiProbe+법선필터+히스테리시스로 안정화되어
+                // 단조 수렴하므로 즉시 스냅해도 평면 벽에서는 부드럽게 추종한다.
+                _collisionDistance = targetDistance;
                 _collisionDistanceVel = 0f;
+            }
+            else
+            {
+                // 복귀(밖으로)는 부드럽게. 즉시 튀어나오면 거슬린다(jarring snap-back).
+                float maxSpeed = _settings.collisionMaxDistanceChangeSpeed > 0f
+                    ? _settings.collisionMaxDistanceChangeSpeed
+                    : Mathf.Infinity;
 
-            _collisionDistance = smoothTime > 0f
-                ? Mathf.SmoothDamp(_collisionDistance, targetDistance, ref _collisionDistanceVel, smoothTime, maxSpeed, deltaTime)
-                : MoveDistanceImmediateOrLimited(_collisionDistance, targetDistance, maxSpeed, deltaTime);
+                if (_collisionDistanceVel < 0f)
+                    _collisionDistanceVel = 0f;
+
+                _collisionDistance = _settings.collisionReturnSpeed > 0f
+                    ? Mathf.SmoothDamp(_collisionDistance, targetDistance, ref _collisionDistanceVel, _settings.collisionReturnSpeed, maxSpeed, deltaTime)
+                    : MoveDistanceImmediateOrLimited(_collisionDistance, targetDistance, maxSpeed, deltaTime);
+            }
 
             return Mathf.Clamp(_collisionDistance, 0f, desiredDistance);
         }

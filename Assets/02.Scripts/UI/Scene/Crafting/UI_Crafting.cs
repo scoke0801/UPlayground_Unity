@@ -80,10 +80,11 @@ public class UI_Crafting : UI_Base
         _tabSpecial?.onClick.AddListener(()     => SetCategoryFilter(CraftingCategory.Special));
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
-
         // RecipeManager 이벤트 구독
         RecipeManager.Instance.OnRecipeUnlocked    += OnRecipeUnlocked;
         RecipeManager.Instance.OnCraftingStarted   += OnCraftingStarted;
@@ -103,8 +104,6 @@ public class UI_Crafting : UI_Base
 
     protected override void OnHide()
     {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
-
         RecipeManager.Instance.OnRecipeUnlocked    -= OnRecipeUnlocked;
         RecipeManager.Instance.OnCraftingStarted   -= OnCraftingStarted;
         RecipeManager.Instance.OnCraftingCompleted -= OnCraftingCompleted;

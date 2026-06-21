@@ -72,25 +72,32 @@ namespace UPlayGround.CameraSystem
                 }
             }
 
-            float smoothTime = targetDistance < _safeBackDistance
-                ? settings.collisionOccludedSmoothTime
-                : settings.collisionReturnSpeed;
-            float maxSpeed = settings.collisionMaxDistanceChangeSpeed > 0f
-                ? settings.collisionMaxDistanceChangeSpeed
-                : Mathf.Infinity;
-
-            if (targetDistance >= _safeBackDistance && _safeBackDistanceVel < 0f)
+            // Pass 2는 클리핑 방지용 백스톱이다(아래 Min 클램프로 절대 더 밀어내지 않음).
+            // 복귀(밖으로)는 Pass 1(CameraCollision.Evaluate)이 이미 collisionReturnSpeed로 스무딩하므로,
+            // 여기서 또 스무딩하면 2단 러버밴딩이 생겨 벽에서 떨어질 때 굼뜬 복귀가 된다 → 복귀는 즉시 추종.
+            // 안으로 당기는(클리핑 회피) 경우만 빠르게 스무딩해 안전성을 유지한다.
+            if (targetDistance >= _safeBackDistance)
+            {
+                _safeBackDistance = targetDistance;
                 _safeBackDistanceVel = 0f;
+            }
+            else
+            {
+                float smoothTime = settings.collisionOccludedSmoothTime;
+                float maxSpeed = settings.collisionMaxDistanceChangeSpeed > 0f
+                    ? settings.collisionMaxDistanceChangeSpeed
+                    : Mathf.Infinity;
 
-            _safeBackDistance = smoothTime > 0f
-                ? Mathf.SmoothDamp(
-                    _safeBackDistance,
-                    targetDistance,
-                    ref _safeBackDistanceVel,
-                    smoothTime,
-                    maxSpeed,
-                    Mathf.Max(deltaTime, 0.0001f))
-                : Mathf.MoveTowards(_safeBackDistance, targetDistance, maxSpeed * Mathf.Max(deltaTime, 0.0001f));
+                _safeBackDistance = smoothTime > 0f
+                    ? Mathf.SmoothDamp(
+                        _safeBackDistance,
+                        targetDistance,
+                        ref _safeBackDistanceVel,
+                        smoothTime,
+                        maxSpeed,
+                        Mathf.Max(deltaTime, 0.0001f))
+                    : Mathf.MoveTowards(_safeBackDistance, targetDistance, maxSpeed * Mathf.Max(deltaTime, 0.0001f));
+            }
 
             _safeBackDistance = Mathf.Min(_safeBackDistance, toCamDist);
             return pivotBase + toCamDir * _safeBackDistance;

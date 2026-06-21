@@ -11,6 +11,7 @@ using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
+using UPlayGround.Data.Sound;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -231,6 +232,7 @@ namespace UPlayGround.State
             {
                 var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
                 GameObjectManager.Instance.ShowFX(FXKeyType.playerGuardFX, socketTM.position);
+                SoundManager.Instance?.PlaySfx(GameSoundKey.CombatGuard, socketTM.position);
             }
         }
 

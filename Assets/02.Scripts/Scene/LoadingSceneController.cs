@@ -86,19 +86,22 @@ namespace UPlayGround
             if (_isPresentationPersistent)
                 return;
 
-            Canvas canvas = _progressSlider != null
+            Canvas childCanvas = _progressSlider != null
                 ? _progressSlider.GetComponentInParent<Canvas>()
                 : null;
-            if (canvas == null)
+            Canvas rootCanvas = childCanvas != null
+                ? childCanvas.rootCanvas
+                : null;
+            if (rootCanvas == null)
             {
-                Debug.LogWarning("[LoadingSceneController] 유지할 로딩 Canvas를 찾지 못했습니다.");
+                Debug.LogWarning("[LoadingSceneController] 유지할 루트 로딩 Canvas를 찾지 못했습니다.");
                 return;
             }
 
             _isPresentationPersistent = true;
-            _persistentCanvasRoot = canvas.gameObject;
-            canvas.sortingOrder = short.MaxValue;
-            EnsureOpaqueBackground(canvas.transform);
+            _persistentCanvasRoot = rootCanvas.gameObject;
+            rootCanvas.sortingOrder = short.MaxValue;
+            EnsureOpaqueBackground(rootCanvas.transform);
             DontDestroyOnLoad(_persistentCanvasRoot);
             DontDestroyOnLoad(gameObject);
 

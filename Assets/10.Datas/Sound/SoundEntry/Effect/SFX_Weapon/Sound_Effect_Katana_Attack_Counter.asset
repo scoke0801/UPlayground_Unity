@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_Katana_Attack_Counter
   m_EditorClassIdentifier: 
   key: Katana_Attack_Counter
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: e28018bf7f09aa6459d5573f27e050bf, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

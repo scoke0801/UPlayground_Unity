@@ -211,6 +211,12 @@ public class UI_HudPlayerInfo : UI_Base
     private void OnLevelUp(CharacterActorType type, int newLevel)
     {
         if (_playerActor == null || type != _playerActor.CharacterType) return;
+
+        // OnLevelUp은 PartyManager가 레벨 딕셔너리에 최종 값을 커밋하기 전에 발화한다.
+        // GetLevel을 다시 조회하지 않고 이벤트로 전달된 새 레벨을 즉시 표시한다.
+        if (_levelText != null)
+            _levelText.text = $"Lv. {Mathf.Max(1, newLevel)}";
+
         PunchLevelText();
     }
 

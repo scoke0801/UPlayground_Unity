@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bec6608de8ecd064e8dd401566922995, type: 3}
   m_Name: Sound_Effect_Guard
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   key: Combat_Guard
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: 37f12e8bae0ff4b458e855f94ecc795f, type: 3}
   bus: 2
   distanceMode: 1
   volume: 0.9

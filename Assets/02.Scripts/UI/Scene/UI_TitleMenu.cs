@@ -48,9 +48,15 @@ public class UI_TitleMenu : UI_Base
         UIManager.Instance.HideAllUI();
 
         if (recent >= 0)
+        {
             SaveManager.Instance.LoadGameToScene(recent);
+        }
         else
+        {
+            // 저장이 없어 새 게임으로 폴백하는 경우도 새 게임과 동일하게 상태를 초기화한다.
+            SaveManager.Instance.ResetForNewGame();
             SceneManager.Instance.LoadScene(SceneName.InGame);
+        }
     }
     
     private void OnClickLoadButton()
@@ -62,6 +68,9 @@ public class UI_TitleMenu : UI_Base
     
     private void OnClickNewGameButton()
     {
+        // 새 게임: 이전 세션의 진행 상태(처치 몬스터·레벨·플래그 등)가 누수되지 않도록
+        // 모든 ISaveable 매니저의 인메모리 상태를 초기화한 뒤 진입한다.
+        SaveManager.Instance.ResetForNewGame();
         UIManager.Instance.HideAllUI();
         SceneManager.Instance.LoadScene(SceneName.InGame);
     }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_DoubleAxe_Attack_Break
   m_EditorClassIdentifier: 
   key: DoubleAxe_Attack_Break
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: 0c7838b85e857bb40a8be51fea51e2f7, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

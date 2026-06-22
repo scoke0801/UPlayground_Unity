@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_GreatSword_Attack_Break
   m_EditorClassIdentifier: 
   key: GreatSword_Attack_Break
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: 73c32ea56572a0c4083da53a04c35c64, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

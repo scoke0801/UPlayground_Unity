@@ -46,7 +46,7 @@ MonoBehaviour:
         positionSpace: 1
         positionOffset: {x: 0, y: 0, z: 0}
         rotationSpace: 1
-        rotationOffset: {x: 0, y: 90, z: 90}
+        rotationOffset: {x: 90, y: 90, z: 0}
         scale: 1
         destroyDelay: 2
     - rid: 889910011055833231

@@ -67,9 +67,9 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0, y: -0.5, z: 0}
+        positionOffset: {x: -0.5, y: -0.5, z: 0}
         rotationSpace: 1
-        rotationOffset: {x: -39.5, y: 116, z: 144}
+        rotationOffset: {x: -24.4, y: 116, z: 144}
         scale: 0.7
         destroyDelay: 2
     - rid: 889910008326652155
@@ -86,9 +86,9 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0.3, y: 0.5, z: 0}
+        positionOffset: {x: 0.3, y: 0, z: 0}
         rotationSpace: 1
-        rotationOffset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: -60.2, z: 0}
         scale: 0.7
         destroyDelay: 2
     - rid: 5351031959771152509

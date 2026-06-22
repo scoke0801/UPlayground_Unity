@@ -339,6 +339,7 @@ Assets/
 | [ENEMY_LOCOMOTION_GUIDE.md](Complete/ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](guide/PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](guide/WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
+| [WEAPON_RIG_SYSTEM_GUIDE.md](WEAPON_RIG_SYSTEM_GUIDE.md) | Weapon Rig 시스템 — 현재 무기/투사체 조준 구조 분석, 공통 조준점, WeaponAimPivot과 양손 IK 단계별 도입 설계 |
 | [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md) | 레벨 / 등급 기반 전투 시간 밸런스 정책 — 저레벨·동레벨 Normal, Elite, Boss 기준 전투 시간과 검증 절차 |
 | [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |

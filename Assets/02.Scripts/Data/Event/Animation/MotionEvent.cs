@@ -48,6 +48,15 @@ namespace UPlayGround.Data.Event
         public virtual string GetShortLabel() => GetDisplayName();
 
         /// <summary>
+        /// true면 이벤트 발화 결정(Update)과 실제 Execute를 분리해, 본(스켈레톤) 평가가 끝난 뒤
+        /// LateUpdate에서 실행한다. 블레이드 본 등 라이브 트랜스폼의 월드 포즈를 즉석 샘플링하는
+        /// 공간 이벤트(SlashVFX 등)는 Update 시점에 실행하면 직전 프레임 포즈를 읽어 위치가
+        /// 프레임 타이밍에 따라 흔들리므로 반드시 본 평가 후에 샘플링해야 한다.
+        /// 콜리전/워프/Freeze 등 타이밍이 민감한 이벤트는 false를 유지해 기존 Update 타이밍을 보존한다.
+        /// </summary>
+        public virtual bool RequiresPostEvaluation => false;
+
+        /// <summary>
         /// 이벤트 실행 (런타임)
         /// </summary>
         public abstract void Execute(GameObject target);

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_Attack_Kick
   m_EditorClassIdentifier: 
   key: Attack_Kick
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: d0f166575306db84091dc03fce0eff69, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

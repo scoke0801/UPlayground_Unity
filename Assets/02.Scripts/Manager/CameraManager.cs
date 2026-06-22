@@ -93,7 +93,9 @@ namespace UPlayGround.Manager
         private bool _isScenePoseApplyPending;
         private Transform _sceneCameraExpectedTarget;
         private int _sceneAlignedRenderFrames;
+        private int _sceneCameraInitializationVersion;
         private const int REQUIRED_SCENE_ALIGNED_RENDER_FRAMES = 3;
+        private const float SCENE_INIT_DIAGNOSTIC_LOG_INTERVAL = 5f;
         private const float SCENE_PIVOT_ALIGNMENT_TOLERANCE = 0.01f;
         private const float LOCK_ON_TOGGLE_DEBOUNCE_TIME = 0.08f;
 
@@ -191,6 +193,7 @@ namespace UPlayGround.Manager
         {
             Debug.Log("[CameraManager] 정리 시작");
 
+            _sceneCameraInitializationVersion++;
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
             settings = null;
@@ -207,6 +210,7 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            int initializationVersion = ++_sceneCameraInitializationVersion;
             _isSceneCameraInitialized = false;
             _isSceneCameraReady = false;
             _isScenePoseApplyPending = false;
@@ -218,22 +222,41 @@ namespace UPlayGround.Manager
             _isInputLocked = false;
             _modeController?.ForceMode(CameraModeType.InGame);
 
-            StartCoroutine(CoInitializeCameraOnSceneChanged());
+            StartCoroutine(CoInitializeCameraOnSceneChanged(initializationVersion));
         }
 
-        private System.Collections.IEnumerator CoInitializeCameraOnSceneChanged()
+        private System.Collections.IEnumerator CoInitializeCameraOnSceneChanged(
+            int initializationVersion)
         {
-            // Camera.main은 씬 전환 직후 한 프레임 늦게 등록되는 경우가 있어 1프레임 대기
-            yield return null;
+            // 씬 오브젝트의 Start/Awake 순서에 따라 Player와 Camera.main 등록이 늦을 수 있다.
+            // 둘 다 준비될 때까지 재수집해 로딩 완료 조건이 영구히 누락되지 않도록 한다.
+            // 비정상적으로 준비가 끝나지 않는 경우를 진단할 수 있도록 일정 간격마다 상태를 로그로 남긴다.
+            float waitStartedAt = Time.realtimeSinceStartup;
+            float lastDiagnosticLogAt = waitStartedAt;
+            while (initializationVersion == _sceneCameraInitializationVersion)
+            {
+                yield return null;
 
-            InitializeCamera();
+                InitializeCamera();
+                if (_target == null || _mainCamera == null || _cameraPivot == null)
+                {
+                    float now = Time.realtimeSinceStartup;
+                    if (now - lastDiagnosticLogAt >= SCENE_INIT_DIAGNOSTIC_LOG_INTERVAL)
+                    {
+                        lastDiagnosticLogAt = now;
+                        Debug.LogWarning(
+                            $"[CameraManager] 씬 카메라 초기화가 {now - waitStartedAt:F1}초째 완료되지 않았습니다. " +
+                            $"플레이어={_target != null}, 메인카메라={_mainCamera != null}, 피벗={_cameraPivot != null}");
+                    }
+                    continue;
+                }
 
-            RebuildTargetSubsystems(preserveLockOnTarget: false);
-
-            SyncCameraContext();
-            SyncRigStateFromFields();
-            _isSceneCameraInitialized =
-                _target != null && _mainCamera != null && _cameraPivot != null;
+                RebuildTargetSubsystems(preserveLockOnTarget: false);
+                SyncCameraContext();
+                SyncRigStateFromFields();
+                _isSceneCameraInitialized = true;
+                yield break;
+            }
         }
 
         public void OnUpdate()

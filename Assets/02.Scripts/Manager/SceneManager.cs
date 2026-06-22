@@ -11,6 +11,7 @@ namespace UPlayGround.Manager
     public partial class SceneManager : BaseManager<SceneManager>, IManager
     {
         private const float SceneStabilizationTimeout = 2f;
+        private const float SceneWaitDiagnosticLogInterval = 5f;
         private const float NearbyMonsterRadius = 35f;
         private const int RequiredStableFixedFrames = 2;
 
@@ -154,12 +155,17 @@ namespace UPlayGround.Manager
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
 
-                bool actorsStable = player != null
+                PartyManager partyManager = PartyManager.Instance;
+                bool sceneRestoreReady = partyManager == null
+                                         || partyManager.EnsurePendingSceneRestoreApplied(player);
+                bool actorsStable = sceneRestoreReady
+                                    && player != null
                                     && IsGrounded(player.PlayerController)
                                     && AreNearbyMonstersStable(player.transform.position);
                 CameraManager cameraManager = CameraManager.Instance;
 
-                if (actorsStable
+                if (sceneRestoreReady
+                    && player != null
                     && !cameraPreparationRequested
                     && cameraManager != null
                     && cameraManager.IsSceneCameraInitialized)
@@ -190,37 +196,53 @@ namespace UPlayGround.Manager
             }
 
             Debug.LogWarning(
-                $"[SceneManager] 액터 안정화가 {SceneStabilizationTimeout:F1}초 내 완료되지 않아 카메라 준비 단계로 진행합니다. " +
+                $"[SceneManager] 액터 안정화가 {SceneStabilizationTimeout:F1}초 내 완료되지 않았습니다. " +
+                $"로딩 화면을 유지한 채 카메라 준비를 계속 대기합니다. " +
                 $"플레이어={player != null}, 카메라초기화={CameraManager.Instance?.IsSceneCameraInitialized ?? false}, " +
                 $"카메라포즈={CameraManager.Instance?.IsSceneCameraReady ?? false}");
 
-            // 타임아웃 폴백: 액터가 끝내 안정화되지 않아도 카메라만은 best-effort로 준비시킨 뒤 진행한다.
-            // 단, 플레이어/카메라가 끝내 나타나지 않는 비정상 상황에서도 영구 대기하지 않도록
-            // 추가 예산(SceneStabilizationTimeout)을 두고, 소진되면 그대로 완료 단계로 넘어간다.
-            float fallbackStartedAt = Time.realtimeSinceStartup;
-            bool fallbackPrepareRequested = false;
-
-            while (Time.realtimeSinceStartup - fallbackStartedAt < SceneStabilizationTimeout)
+            // 게임플레이 화면은 카메라가 플레이어 기준 포즈를 실제 LateUpdate에 적용한 뒤에만 공개한다.
+            // 플레이어/카메라 생성이 늦더라도 시간 초과로 로딩 화면을 먼저 제거하지 않는다.
+            // 단, 비정상적으로 끝나지 않는 경우를 진단할 수 있도록 일정 간격마다 상태를 로그로 남긴다.
+            float waitStartedAt = Time.realtimeSinceStartup;
+            float lastDiagnosticLogAt = waitStartedAt;
+            while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
 
+                PartyManager partyManager = PartyManager.Instance;
+                bool sceneRestoreReady = partyManager == null
+                                         || partyManager.EnsurePendingSceneRestoreApplied(player);
                 CameraManager cameraManager = CameraManager.Instance;
-                if (player != null
-                    && !fallbackPrepareRequested
+                if (sceneRestoreReady
+                    && player != null
+                    && !cameraPreparationRequested
                     && cameraManager != null
                     && cameraManager.IsSceneCameraInitialized)
                 {
-                    fallbackPrepareRequested = cameraManager.PrepareSceneCamera(player.transform);
+                    cameraPreparationRequested = cameraManager.PrepareSceneCamera(player.transform);
                 }
 
-                if (fallbackPrepareRequested
+                if (cameraPreparationRequested
                     && cameraManager != null
                     && cameraManager.IsSceneCameraReadyFor(player.transform))
                 {
                     break;
+                }
+
+                float now = Time.realtimeSinceStartup;
+                if (now - lastDiagnosticLogAt >= SceneWaitDiagnosticLogInterval)
+                {
+                    lastDiagnosticLogAt = now;
+                    Debug.LogWarning(
+                        $"[SceneManager] 씬 준비가 {now - waitStartedAt:F1}초째 완료되지 않아 로딩 화면을 유지 중입니다. " +
+                        $"플레이어={player != null}, 씬복원완료={sceneRestoreReady}, " +
+                        $"카메라준비요청={cameraPreparationRequested}, " +
+                        $"카메라초기화={cameraManager?.IsSceneCameraInitialized ?? false}, " +
+                        $"카메라포즈={cameraManager?.IsSceneCameraReady ?? false}");
                 }
 
                 await UniTask.WaitForFixedUpdate(cancellationToken);

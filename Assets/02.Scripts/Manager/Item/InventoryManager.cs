@@ -274,6 +274,17 @@ namespace UPlayGround.Manager
                 ApplyPendingLoad();
         }
 
+        public void ResetForNewGame()
+        {
+            _pendingLoad = null;
+            _itemPair.Clear();
+            Gold = 0;
+
+            // 신규 실행 직후 OnItemDatabaseReady와 동일하게 기본 아이템을 채운다.
+            if (ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded)
+                MakeTestItems();
+        }
+
         /// <summary>
         /// ItemManager가 DB 로드 완료 후 호출한다.
         /// pending 세이브 데이터가 있으면 복원하고, 없으면 테스트 아이템을 채운다.

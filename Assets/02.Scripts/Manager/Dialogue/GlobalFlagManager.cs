@@ -64,6 +64,11 @@ namespace UPlayGround.Dialogue
             LoadFlags(saveData.flags.flags ?? new Dictionary<string, bool>());
         }
 
+        public void ResetForNewGame()
+        {
+            _flags.Clear();
+        }
+
         #endregion
     }
 }

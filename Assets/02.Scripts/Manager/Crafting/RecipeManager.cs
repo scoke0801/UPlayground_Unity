@@ -509,6 +509,28 @@ namespace UPlayGround.Manager
                 ApplyPendingLoad();
         }
 
+        public void ResetForNewGame()
+        {
+            _pendingLoad = null;
+
+            // 진행 중이던 제작 취소(신규 실행과 동일한 기본 상태).
+            _craftingRecipeID = -1;
+            _craftingQuantity = 1;
+            _craftingProgress = 0f;
+            _castTimeRemaining = 0f;
+            _totalCastTime = 0f;
+
+            _unlocked.Clear();
+            _craftCounts.Clear();
+            _monsterKills.Clear();
+            _monsterKillsByActorId.Clear();
+            _itemCollectCounts.Clear();
+
+            // DB가 로드돼 있으면 기본 언락 상태로 재시딩(InitUnlockStates = fresh launch 경로).
+            if (IsDBLoaded)
+                InitUnlockStates();
+        }
+
         private void ApplyPendingLoad()
         {
             var data = _pendingLoad;

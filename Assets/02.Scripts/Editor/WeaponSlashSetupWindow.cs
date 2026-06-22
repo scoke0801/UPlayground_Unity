@@ -692,7 +692,6 @@ namespace UPlayGround.Editor.VFX
                 ? spawner.TryGetSpawnPose(
                     slashVfxPrefab,
                     positionOffset,
-                    positionSpace == SlashVFXPositionSpace.World,
                     rotationOffsetEuler,
                     rotationSpace == SlashVFXRotationSpace.World,
                     out spawnPosition,

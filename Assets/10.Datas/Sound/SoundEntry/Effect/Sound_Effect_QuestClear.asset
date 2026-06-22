@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_QuestClear
   m_EditorClassIdentifier: 
   key: QuestClear
-  clip: {fileID: 8300000, guid: 4dbfbd1a56081db4ca174255a4d56b1f, type: 3}
+  clip: {fileID: 0}
   bus: 2
   distanceMode: 1
   volume: 1

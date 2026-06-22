@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_Hit_Heavy
   m_EditorClassIdentifier: 
   key: Combat_Hit_Heavy
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: 3df9bbbc130ccb344af5f3fc793a630f, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

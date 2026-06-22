@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sound_Effect_SwordShield_Attack_Break
   m_EditorClassIdentifier: 
   key: SwordShield_Attack_Break
-  clip: {fileID: 8300000, guid: 980b61aa720be2242bff8dcba06f3571, type: 3}
+  clip: {fileID: 8300000, guid: 6942eaf187f656c4fb573f1335e89ad0, type: 3}
   bus: 2
   distanceMode: 1
   volume: 1

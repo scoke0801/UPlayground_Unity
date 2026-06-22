@@ -127,6 +127,12 @@ namespace UPlayGround.Story
                 _completedStories.Add(id);
         }
 
+        public void ResetForNewGame()
+        {
+            _currentProgress = 0;
+            _completedStories.Clear();
+        }
+
         #endregion
 
         // ── 내부 ────────────────────────────────────────────────────

@@ -22,10 +22,21 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5351032134217498893
+      - rid: 889910008326652093
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652093
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.43230224
+        endTime: 0.93230224
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5351032134217498893
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

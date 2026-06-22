@@ -25,6 +25,8 @@ MonoBehaviour:
       - rid: 7399917265539825788
       - rid: 7399917266253643776
       - rid: 889909689146671290
+      - rid: 889910008326652143
+      - rid: 889910008326652144
     globalEvents: []
   references:
     version: 2
@@ -69,6 +71,26 @@ MonoBehaviour:
         bakedPathLen: 1.244901
         bakedStartTime: 0
         bakedEndTime: 0
+    - rid: 889910008326652143
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.88900864
+        endTime: 1.3890089
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Finish
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652144
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.3637678
+        endTime: 0.86376804
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Finish
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7399917265539825775
       type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -24,6 +24,7 @@ MonoBehaviour:
       - rid: 889909665029423236
       - rid: 889909689146671292
       - rid: 889909850590150810
+      - rid: 889910011055833259
     globalEvents: []
   references:
     version: 2
@@ -89,3 +90,13 @@ MonoBehaviour:
         useSpawnRotation: 1
         destroyOnFinish: 1
         particleLifeTime: 0
+    - rid: 889910011055833259
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.37323868
+        endTime: 0.8732387
+        globalStartTimeOffset: 0
+        soundKey: GreatSword_Attack_Break
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1

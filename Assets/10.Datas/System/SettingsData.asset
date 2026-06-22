@@ -24,6 +24,7 @@ MonoBehaviour:
   qualityIndex: 2
   targetFrameRate: 60
   brightness: 5
+  runInBackground: 0
   masterVolume: 8
   bgmVolume: 7
   sfxVolume: 9

@@ -6,6 +6,7 @@ using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Sound;
 using UPlayGround.Story;
 
 namespace UPlayGround.Manager
@@ -330,6 +331,7 @@ namespace UPlayGround.Manager
 
             GiveRewards(runtime.QuestSO.reward);
             SendQuestEvent(QuestEvent.QuestCompleted, questId, runtime.QuestSO.questName);
+            SoundManager.Instance?.PlayUi(GameSoundKey.QuestClear);
             Debug.Log($"[QuestManager] 퀘스트 완료: {runtime.QuestSO.questName}");
 
             AutoAcceptNextQuests(runtime.QuestSO);
@@ -780,6 +782,20 @@ namespace UPlayGround.Manager
         {
             _pendingLoad = saveData.quest;
             if (IsDBLoaded) ApplyPendingLoad();
+        }
+
+        public void ResetForNewGame()
+        {
+            // 신규 실행 직후와 동일하게 런타임 상태를 비운다(DB는 유지).
+            _pendingLoad = null;
+            _activeQuests.Clear();
+            _completedQuestIds.Clear();
+            _failedQuestIds.Clear();
+            _pendingAcceptQuestIds.Clear();
+            _pendingReachedLocationIds.Clear();
+            _trackedQuestId = null;
+            _isQuestTrackingSuppressed = false;
+            _autoAcceptChainDepth = 0;
         }
 
         private void ApplyPendingLoad()

@@ -82,6 +82,7 @@ namespace UPlayGround.Manager
         public event Action                           OnPartyHealthRefreshed;   // HUD 벤치 엔트리 일괄 갱신 신호
 
         public PlayerActor               ActiveCharacter     => _player;
+        public bool                      HasPendingSceneRestore => _pendingPartyLoad != null;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
         public int                       ActiveIndex         => _activeIndex;
         public int                       MaxBattleSize       => _maxBattleSize;
@@ -786,7 +787,54 @@ namespace UPlayGround.Manager
             // 파티 구성(_player)이 끝나기 전에 호출될 수 있으므로 보관 후 적용 시도.
             // AfterInit/OnSceneChanged에서 구성이 끝나면 TryApplyPendingPartyLoad가 마저 적용한다.
             _pendingPartyLoad = party;
+
+            // 저장된 씬으로 이동하는 로드는 현재 씬에 플레이어가 있더라도 적용하지 않는다.
+            // 대상 씬의 PlayerActor가 준비된 뒤 OnSceneChanged/SceneManager 안정화 단계에서 적용한다.
+            if (SaveManager.Instance?.IsPreparingSceneLoad == true)
+                return;
+
             TryApplyPendingPartyLoad();
+        }
+
+        public void ResetForNewGame()
+        {
+            // 보류 중인 로드 데이터와 누적된 성장/쿨다운 상태를 비운다.
+            // _roster/_battleOrder/_growthLookup은 다음 씬 진입 시 BuildPartyFromScene이
+            // _config(PartyConfigSO)에서 재시딩하며, InitializeLevelIfMissing은 _levels가
+            // 비어 있어야 초기 레벨을 다시 부여하므로 여기서 반드시 비워야 한다.
+            // (캐릭터별 HP/스킬게이지는 PlayerActor에 있어 새 씬의 신규 플레이어에서 초기화됨)
+            _pendingPartyLoad = null;
+            _levels.Clear();
+            _exp.Clear();
+            _swapCooldownEndTimes.Clear();
+        }
+
+        /// <summary>
+        /// 대상 씬의 플레이어에 보류 중인 파티/위치 데이터를 적용한다.
+        /// SceneManager가 카메라 준비 전에 호출해 최종 복원 위치를 보장한다.
+        /// </summary>
+        public bool EnsurePendingSceneRestoreApplied(PlayerActor scenePlayer)
+        {
+            if (_pendingPartyLoad == null)
+                return true;
+
+            if (scenePlayer == null)
+                return false;
+
+            if (_player != scenePlayer)
+            {
+                UnsubscribeCombatEvents();
+                BuildPartyFromScene();
+                if (_player == null || _player != scenePlayer || _battleOrder.Count == 0)
+                    return false;
+
+                InitializePartyStates();
+                SubscribeCombatEvents();
+                NotifyActivePlayerChanged();
+            }
+
+            TryApplyPendingPartyLoad();
+            return _pendingPartyLoad == null;
         }
 
         /// <summary>

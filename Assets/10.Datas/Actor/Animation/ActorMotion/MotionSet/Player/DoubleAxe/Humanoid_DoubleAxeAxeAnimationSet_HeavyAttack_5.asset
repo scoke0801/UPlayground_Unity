@@ -25,10 +25,72 @@ MonoBehaviour:
       - rid: 7432452544598638631
       - rid: 7432452544598638632
       - rid: 7432452544598638633
+      - rid: 889910008326652133
+      - rid: 889910008326652134
+      - rid: 889910008326652135
+      - rid: 889910008326652136
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652133
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6031313
+        endTime: 1.1031313
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652134
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3352561
+        endTime: 1.8352561
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652135
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.6066177
+        endTime: 1.0947009
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0.5, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 90, y: 90, z: 0}
+        scale: 0.7
+        destroyDelay: 2
+    - rid: 889910008326652136
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3817699
+        endTime: 1.869853
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 0
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 90, y: 90, z: 0}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 7432452544598638630
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -67,6 +129,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: -0.04709916, y: 0, z: -0.12764205}
         bakedPathLen: 0.46157727
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452544598638631
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

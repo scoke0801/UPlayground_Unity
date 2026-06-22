@@ -26,6 +26,9 @@ namespace UPlayGround
         [Tooltip("재생할 BGM의 SoundDatabase key")]
         [SerializeField] private string _bgmKey;
 
+        [Tooltip("여러 곡을 번갈아 재생할 플레이리스트. 설정 시 _bgmKey보다 우선(ChangeBase 모드 권장). Override 모드에서는 무시됨.")]
+        [SerializeField] private Data.Sound.BgmPlaylistSO _playlist;
+
         [SerializeField] private float _fadeTime = 1.5f;
 
         [SerializeField] private BgmTriggerMode _mode = BgmTriggerMode.Override;
@@ -75,9 +78,12 @@ namespace UPlayGround
                 ? BgmEvent.Override
                 : BgmEvent.Change;
 
+            // 플레이리스트는 평시 BGM 교체(ChangeBase) 용도. Override(보스전 등)는 단일 곡만 사용한다.
+            var playlist = _mode == BgmTriggerMode.ChangeBase ? _playlist : null;
+
             EventManager.Instance?.Send<BgmEvent, BgmRequestData>(
                 eventType,
-                new BgmRequestData { bgmKey = _bgmKey, fadeTime = _fadeTime });
+                new BgmRequestData { bgmKey = _bgmKey, playlist = playlist, fadeTime = _fadeTime });
         }
 
         /// <summary>Override 모드에서 직전 BGM으로 복귀시킨다(보스전 종료 등). ChangeBase 모드에서는 무효.</summary>

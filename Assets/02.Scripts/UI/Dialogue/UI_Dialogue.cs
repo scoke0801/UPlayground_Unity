@@ -40,16 +40,17 @@ public class UI_Dialogue : UI_Base
         advanceButton.onClick.AddListener(() => DialogueManager.Instance.Advance());
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         DialogueManager.Instance.OnMainNodeEnter   += HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented += HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
-        
+
         InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
-        
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
     }
 
     protected override void OnHide()
@@ -57,11 +58,9 @@ public class UI_Dialogue : UI_Base
         DialogueManager.Instance.OnMainNodeEnter   -= HandleNodeEnter;
         DialogueManager.Instance.OnChoicePresented -= HandleChoicePresented;
         DialogueManager.Instance.OnDialogueEnd     -= HandleDialogueEnd;
-        
+
         InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
             null, OnInputDialogueNext, null);
-        
-        InputManager.Instance.SetInputLayer(InputLayer.None);
     }
 
     // ── 이벤트 핸들러 ───────────────────────────────────────────────

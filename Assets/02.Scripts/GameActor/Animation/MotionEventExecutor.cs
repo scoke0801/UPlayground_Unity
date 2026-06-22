@@ -21,6 +21,10 @@ namespace UPlayGround.Animation
         private HashSet<MotionEventBase> _activeEvents = new HashSet<MotionEventBase>();
         private HashSet<MotionEventBase> _executedEvents = new HashSet<MotionEventBase>();
 
+        // RequiresPostEvaluation 이벤트는 발화 결정(UpdateTime)과 실제 Execute를 분리해,
+        // 본 평가가 끝난 뒤 FlushDeferredEvents(LateUpdate)에서 실행한다.
+        private List<MotionEventBase> _deferredExecute = new List<MotionEventBase>();
+
         // 인스펙터에서 _targetObject를 지정하지 않은 경우, 부모의 GameActor를 자동 탐색해 캐싱한다.
         // 모션 이벤트들은 target.GetComponent<GameActor>() 로 액터를 찾으므로,
         // Executor가 모델(GameActor의 자식)에 붙은 경우 반드시 부모의 GameActor.gameObject로 해석되어야 한다.
@@ -55,7 +59,8 @@ namespace UPlayGround.Animation
             _lastTime = -0.001f; // 0초에 걸린 이벤트도 실행되도록 약간 음수에서 시작
             _activeEvents.Clear();
             _executedEvents.Clear();
-            
+            _deferredExecute.Clear();
+
             // 재생 시작 시 모든 이벤트의 글로벌 시작 시간 오프셋을 미리 계산
             CalculateEventOffsets();
         }
@@ -109,7 +114,13 @@ namespace UPlayGround.Animation
             {
                 if (!_executedEvents.Contains(evt))
                 {
-                    ExecuteEvent(evt);
+                    // 공간 샘플링 이벤트는 본 평가 후 실행해야 하므로 Execute만 LateUpdate로 미룬다.
+                    // active/complete 추적은 기존과 동일하게 이 시점에 등록한다.
+                    if (evt.RequiresPostEvaluation)
+                        _deferredExecute.Add(evt);
+                    else
+                        ExecuteEvent(evt);
+
                     _executedEvents.Add(evt);
                     _activeEvents.Add(evt);
                 }
@@ -137,6 +148,21 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// 본(스켈레톤) 평가가 끝난 뒤(LateUpdate) 호출한다.
+        /// 이번 프레임 UpdateTime에서 발화가 결정된 RequiresPostEvaluation 이벤트들을 실행한다.
+        /// 이로써 블레이드 본 등 라이브 트랜스폼을 항상 이번 프레임 최종 포즈로 샘플링한다.
+        /// </summary>
+        public void FlushDeferredEvents()
+        {
+            if (_deferredExecute.Count == 0) return;
+
+            for (int i = 0; i < _deferredExecute.Count; i++)
+                ExecuteEvent(_deferredExecute[i]);
+
+            _deferredExecute.Clear();
+        }
+
+        /// <summary>
         /// 타임라인 정지
         /// </summary>
         public void Stop()
@@ -148,6 +174,8 @@ namespace UPlayGround.Animation
             }
             _activeEvents.Clear();
             _executedEvents.Clear();
+            // 중단 시점의 부정확한 포즈로 내보내지 않도록 미실행 지연 이벤트는 폐기한다.
+            _deferredExecute.Clear();
             MotionSetEventDebugOverlay.Clear();
         }
 
@@ -159,6 +187,7 @@ namespace UPlayGround.Animation
             if (_currentMotionSet == null) return;
 
             _executedEvents.Clear();
+            _deferredExecute.Clear();
             _currentTime = time;
 
             // 현재 시간까지의 모든 이벤트를 실행된 것으로 표시

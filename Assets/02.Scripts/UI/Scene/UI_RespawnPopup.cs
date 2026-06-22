@@ -40,11 +40,13 @@ public class UI_RespawnPopup : UI_Base
         if (_portalReviveButton != null) _portalReviveButton.onClick.AddListener(OnPortalReviveClicked);
     }
 
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
+
     protected override void OnShow()
     {
         base.OnShow();
         GameTimeManager.Instance?.SetPause(true);
-        InputManager.Instance?.SetInputLayer(_layer.ToInputLayer());
         FadeIn(0.3f);
         RefreshItemCount();
     }
@@ -52,7 +54,6 @@ public class UI_RespawnPopup : UI_Base
     protected override void OnHide()
     {
         GameTimeManager.Instance?.SetPause(false);
-        InputManager.Instance?.SetInputLayer(UPlayGround.InputDefine.InputLayer.None);
         _onSpotRevive  = null;
         _onPortalRevive = null;
         base.OnHide();

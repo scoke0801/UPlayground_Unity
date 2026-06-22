@@ -618,7 +618,6 @@ namespace UPlayGround.Editor.VFX
             slashEvent.endTime = startTime + eventDuration;
             slashEvent.useSpawnerSettings = true;
             slashEvent.overrideSpawnerTransform = overrideSpawnerTransform;
-            slashEvent.preset = null;
             slashEvent.vfxPrefab = slashVfxPrefab;
             slashEvent.spawnerObjectName = spawner != null ? spawner.gameObject.name : "";
             slashEvent.weaponRootName = weaponRootObject != null ? weaponRootObject.name : "";
@@ -693,7 +692,6 @@ namespace UPlayGround.Editor.VFX
                 ? spawner.TryGetSpawnPose(
                     slashVfxPrefab,
                     positionOffset,
-                    positionSpace == SlashVFXPositionSpace.World,
                     rotationOffsetEuler,
                     rotationSpace == SlashVFXRotationSpace.World,
                     out spawnPosition,

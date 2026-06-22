@@ -123,5 +123,12 @@ namespace UPlayGround.Manager
             // 현재 씬이 이미 로드돼 있다면(인게임에서 즉시 로드 등) 바로 적용.
             ApplyKilledToScene(SceneManager.Instance?.CurrentMapID);
         }
+
+        public void ResetForNewGame()
+        {
+            // 처치 기록을 모두 비운다. 이후 씬 전환 시 ApplyKilledToScene이 제거할 대상이
+            // 없으므로 배치 몬스터가 전부 정상 스폰된다(새 게임 = 전 맵 몬스터 부활).
+            _killedMonsters.Clear();
+        }
     }
 }

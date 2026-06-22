@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
+using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Data.Event
 {
@@ -11,6 +12,7 @@ namespace UPlayGround.Data.Event
     {
         public string vfxPrefabKey;
         public string vfxAuraPrefabKey;
+        public string soundKey = GameSoundKey.Heal;
         [FormerlySerializedAs("vfxPlayTime")] public float vfxLifeTime = 0f;
         
         public override string GetDisplayName() => "HealSkill";
@@ -56,8 +58,13 @@ namespace UPlayGround.Data.Event
                 GameObjectManager.Instance.ShowFX(vfxPrefabKey,     vfxPosition, duration: vfxLifeTime);
                 GameObjectManager.Instance.ShowFX(vfxAuraPrefabKey, vfxPosition, duration: vfxLifeTime);
 
+                float healthBefore = skillTarget.GetCurrentHealth();
+
                 // 힐 실행 — MonsterActor.Heal() 내부에서 플로터 출력
                 skillTarget.Heal(actor.Combat.CurrentSkill.baseInfo.damage);
+
+                if (skillTarget.GetCurrentHealth() > healthBefore && !string.IsNullOrWhiteSpace(soundKey))
+                    SoundManager.Instance?.PlaySfx(soundKey, vfxPosition);
             }
         }
 

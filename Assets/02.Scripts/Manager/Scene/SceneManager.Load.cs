@@ -14,6 +14,7 @@ namespace UPlayGround.Manager
         AwaitingActivation,
         Activating,
         WaitingForSceneContext,
+        Stabilizing,
         Completed,
         Failed,
     }

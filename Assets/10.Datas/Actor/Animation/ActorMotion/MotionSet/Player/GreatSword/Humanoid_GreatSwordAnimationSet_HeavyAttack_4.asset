@@ -24,10 +24,21 @@ MonoBehaviour:
       - rid: 7432452531840876582
       - rid: 7432452531840876583
       - rid: 7432452531840876584
+      - rid: 889910011055833248
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910011055833248
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.32765234
+        endTime: 0.8276522
+        globalStartTimeOffset: 0
+        soundKey: Attack_Kick
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452531840876582
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

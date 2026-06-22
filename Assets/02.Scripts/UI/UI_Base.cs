@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Manager;
+using UPlayGround.Data.Sound;
+using UPlayGround.InputDefine;
 
 /// <summary>
 /// 모든 UI의 기본 클래스
@@ -17,6 +20,9 @@ public abstract class UI_Base : MonoBehaviour
     protected RectTransform _rectTransform;
 
     [SerializeField]protected Animator _animator;
+    [Header("Sound")]
+    [SerializeField] private bool _playDefaultButtonSound = true;
+    private readonly List<Button> _soundBoundButtons = new();
     
     #endregion
 
@@ -73,6 +79,14 @@ public abstract class UI_Base : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
+        // Hide를 거치지 않고 파괴되는 경우(Close→OnClose, 씬 전환 등)에도
+        // push한 커서 표시를 pop해 스택 누수를 막는다.
+        if (_cursorVisiblePushed)
+        {
+            InputManager.Instance?.ShowCursor(false);
+            _cursorVisiblePushed = false;
+        }
+
         OnDispose();
     }
 
@@ -89,8 +103,55 @@ public abstract class UI_Base : MonoBehaviour
             return;
 
         OnInit();
+        BindDefaultButtonSounds();
         IsInitialized = true;
     }
+
+    private void BindDefaultButtonSounds()
+    {
+        if (!_playDefaultButtonSound)
+            return;
+
+        var buttons = GetComponentsInChildren<Button>(true);
+        foreach (var button in buttons)
+        {
+            if (button == null
+                || button.GetComponentInParent<UI_Base>(true) != this
+                || _soundBoundButtons.Contains(button))
+                continue;
+
+            button.onClick.AddListener(PlayDefaultButtonSound);
+            _soundBoundButtons.Add(button);
+        }
+    }
+
+    private static void PlayDefaultButtonSound()
+    {
+        SoundManager.Instance?.PlayUi(GameSoundKey.UiClick);
+    }
+
+    /// <summary>
+    /// 이 UI가 표시되는 동안 마우스 커서를 보여야 하는 레이어인지 여부.
+    /// Scene(Level_1) 이상의 모달 UI는 커서가 필요하고, HUD/WorldSpace는 제외한다.
+    /// (HUD 레이어라도 커서가 필요한 특수 UI는 개별적으로 ShowCursor를 호출한다.)
+    /// </summary>
+    protected virtual bool RequiresCursorVisible =>
+        _layer >= CanvasLayer.Scene && _layer < CanvasLayer.WorldSpace;
+
+    // RequiresCursorVisible 조건으로 커서 스택을 push했는지 추적한다.
+    // 가시성(wasVisible)이 아니라 이 플래그로 push/pop을 짝 맞춰,
+    // 도중에 _layer가 바뀌거나 Hide 없이 파괴되는 경우에도 스택 누수를 막는다.
+    private bool _cursorVisiblePushed;
+
+    /// <summary>
+    /// 이 UI가 열려 있는 동안 게임플레이 등 하위 레이어 입력을 차단할지 여부.
+    /// 전체 화면 메뉴·다이얼로그처럼 입력을 독점해야 하는 모달은 true로 오버라이드한다.
+    /// (Scene 레이어라도 월드 상호작용 프롬프트처럼 입력을 막으면 안 되는 UI는 기본값 false 유지.)
+    /// </summary>
+    protected virtual bool BlocksLowerInput => false;
+
+    // BlocksLowerInput으로 입력 레이어를 올렸는지 추적해 Show/Hide 짝을 맞춘다.
+    private bool _inputLayerRaised;
 
     /// <summary>
     /// UI 표시
@@ -105,8 +166,23 @@ public abstract class UI_Base : MonoBehaviour
         gameObject.SetActive(true);
         IsVisible = true;
 
+        // Scene(Level_1) 이상 모달 UI가 열려 있는 동안 커서를 표시한다(스택 push).
+        // _cursorVisiblePushed로 1회만 push해 중복 Show로 스택이 새는 것을 방지.
+        if (!_cursorVisiblePushed && RequiresCursorVisible)
+        {
+            InputManager.Instance?.ShowCursor(true);
+            _cursorVisiblePushed = true;
+        }
+
+        // 입력을 독점하는 모달이면 입력 레이어를 자신의 _layer로 올려 하위(게임플레이 등) 입력을 차단한다.
+        if (!_inputLayerRaised && BlocksLowerInput)
+        {
+            InputManager.Instance?.SetInputLayer(_layer.ToInputLayer());
+            _inputLayerRaised = true;
+        }
+
         RegisterInputEvents();
-        
+
         OnShow();
     }
 
@@ -116,14 +192,29 @@ public abstract class UI_Base : MonoBehaviour
     public void Hide()
     {
         IsVisible = false;
-        
+
+        // Show에서 push한 커서 표시를 짝 맞춰 pop.
+        if (_cursorVisiblePushed)
+        {
+            InputManager.Instance?.ShowCursor(false);
+            _cursorVisiblePushed = false;
+        }
+
+        // Show에서 올린 입력 레이어를 복원한다(None → 현재 최상위 표시 UI 레이어로 재계산).
+        // IsVisible은 위에서 이미 false이므로 GetTopCanvasLayer가 자신을 제외한다.
+        if (_inputLayerRaised)
+        {
+            InputManager.Instance?.SetInputLayer(InputLayer.None);
+            _inputLayerRaised = false;
+        }
+
         UnRegisterInputEvents();
-        
+
         OnHide();
         if(this.gameObject != null)
         {
             gameObject.SetActive(false);
-            
+
         }
     }
     
@@ -192,7 +283,13 @@ public abstract class UI_Base : MonoBehaviour
     /// </summary>
     protected virtual void OnDispose()
     {
-        // 이벤트 해제, 리소스 정리 등
+        foreach (var button in _soundBoundButtons)
+        {
+            if (button != null)
+                button.onClick.RemoveListener(PlayDefaultButtonSound);
+        }
+
+        _soundBoundButtons.Clear();
     }
 
     #endregion

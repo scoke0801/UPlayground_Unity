@@ -88,6 +88,15 @@ namespace UPlayGround.Manager
         private int _suppressCapsuleClearanceUntilFrame = -1;
         private bool _heldCombatStateForSwap;
         private float _holdCombatStateUntilTime = -999f;
+        private bool _isSceneCameraInitialized;
+        private bool _isSceneCameraReady;
+        private bool _isScenePoseApplyPending;
+        private Transform _sceneCameraExpectedTarget;
+        private int _sceneAlignedRenderFrames;
+        private int _sceneCameraInitializationVersion;
+        private const int REQUIRED_SCENE_ALIGNED_RENDER_FRAMES = 3;
+        private const float SCENE_INIT_DIAGNOSTIC_LOG_INTERVAL = 5f;
+        private const float SCENE_PIVOT_ALIGNMENT_TOLERANCE = 0.01f;
         private const float LOCK_ON_TOGGLE_DEBOUNCE_TIME = 0.08f;
 
         private System.Func<bool> _combatStateProvider;
@@ -184,6 +193,7 @@ namespace UPlayGround.Manager
         {
             Debug.Log("[CameraManager] 정리 시작");
 
+            _sceneCameraInitializationVersion++;
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
             settings = null;
@@ -200,26 +210,53 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            int initializationVersion = ++_sceneCameraInitializationVersion;
+            _isSceneCameraInitialized = false;
+            _isSceneCameraReady = false;
+            _isScenePoseApplyPending = false;
+            _sceneCameraExpectedTarget = null;
+            _sceneAlignedRenderFrames = 0;
             _lockOn?.Release();
             _effectManager?.StopAll(immediate: true);
             _killCamController?.ForceStop();
             _isInputLocked = false;
             _modeController?.ForceMode(CameraModeType.InGame);
 
-            StartCoroutine(CoInitializeCameraOnSceneChanged());
+            StartCoroutine(CoInitializeCameraOnSceneChanged(initializationVersion));
         }
 
-        private System.Collections.IEnumerator CoInitializeCameraOnSceneChanged()
+        private System.Collections.IEnumerator CoInitializeCameraOnSceneChanged(
+            int initializationVersion)
         {
-            // Camera.main은 씬 전환 직후 한 프레임 늦게 등록되는 경우가 있어 1프레임 대기
-            yield return null;
+            // 씬 오브젝트의 Start/Awake 순서에 따라 Player와 Camera.main 등록이 늦을 수 있다.
+            // 둘 다 준비될 때까지 재수집해 로딩 완료 조건이 영구히 누락되지 않도록 한다.
+            // 비정상적으로 준비가 끝나지 않는 경우를 진단할 수 있도록 일정 간격마다 상태를 로그로 남긴다.
+            float waitStartedAt = Time.realtimeSinceStartup;
+            float lastDiagnosticLogAt = waitStartedAt;
+            while (initializationVersion == _sceneCameraInitializationVersion)
+            {
+                yield return null;
 
-            InitializeCamera();
+                InitializeCamera();
+                if (_target == null || _mainCamera == null || _cameraPivot == null)
+                {
+                    float now = Time.realtimeSinceStartup;
+                    if (now - lastDiagnosticLogAt >= SCENE_INIT_DIAGNOSTIC_LOG_INTERVAL)
+                    {
+                        lastDiagnosticLogAt = now;
+                        Debug.LogWarning(
+                            $"[CameraManager] 씬 카메라 초기화가 {now - waitStartedAt:F1}초째 완료되지 않았습니다. " +
+                            $"플레이어={_target != null}, 메인카메라={_mainCamera != null}, 피벗={_cameraPivot != null}");
+                    }
+                    continue;
+                }
 
-            RebuildTargetSubsystems(preserveLockOnTarget: false);
-
-            SyncCameraContext();
-            SyncRigStateFromFields();
+                RebuildTargetSubsystems(preserveLockOnTarget: false);
+                SyncCameraContext();
+                SyncRigStateFromFields();
+                _isSceneCameraInitialized = true;
+                yield break;
+            }
         }
 
         public void OnUpdate()
@@ -241,6 +278,15 @@ namespace UPlayGround.Manager
         {
             if (_target == null || _mainCamera == null || _cameraPivot == null) return;
 
+            if (_isScenePoseApplyPending && _target == _sceneCameraExpectedTarget)
+            {
+                Vector3 pivotBase = _target.position + _cameraOffset;
+                _cameraPivot.position = pivotBase;
+                _smoothPosition = pivotBase;
+                _positionVelocity = Vector3.zero;
+                _offsetVelocity = Vector3.zero;
+            }
+
             SyncCameraContext();
             SyncRigStateFromFields();
             CameraEffectState fx = _effectManager.UpdateAndComputeState(Time.deltaTime);
@@ -252,6 +298,27 @@ namespace UPlayGround.Manager
             SyncFieldsFromCameraContext();
             _cameraResolver.Apply(pose, _mainCamera, _cameraPivot);
             SyncRigStateFromFields();
+
+            if (_isScenePoseApplyPending
+                && _target == _sceneCameraExpectedTarget
+                && _mainCamera != null
+                && _cameraPivot != null)
+            {
+                Vector3 expectedPivot = _sceneCameraExpectedTarget.position + _cameraOffset;
+                bool aligned = (_cameraPivot.position - expectedPivot).sqrMagnitude
+                               <= SCENE_PIVOT_ALIGNMENT_TOLERANCE
+                               * SCENE_PIVOT_ALIGNMENT_TOLERANCE;
+
+                _sceneAlignedRenderFrames = aligned
+                    ? _sceneAlignedRenderFrames + 1
+                    : 0;
+
+                if (_sceneAlignedRenderFrames >= REQUIRED_SCENE_ALIGNED_RENDER_FRAMES)
+                {
+                    _isScenePoseApplyPending = false;
+                    _isSceneCameraReady = true;
+                }
+            }
         }
 
         #endregion
@@ -817,6 +884,36 @@ namespace UPlayGround.Manager
             SyncRigStateFromFields();
         }
 
+        /// <summary>
+        /// 씬 전환 해제 전에 플레이어 기준 카메라 포즈를 강제로 준비한다.
+        /// 이 요청 이후 LateUpdate 카메라 파이프라인이 실제 적용돼야 준비 완료로 판정한다.
+        /// </summary>
+        public bool PrepareSceneCamera(Transform expectedTarget)
+        {
+            if (!_isSceneCameraInitialized || expectedTarget == null)
+                return false;
+
+            _isSceneCameraReady = false;
+            _isScenePoseApplyPending = true;
+            _sceneCameraExpectedTarget = expectedTarget;
+            _sceneAlignedRenderFrames = 0;
+
+            SetTarget(expectedTarget);
+            _modeController?.ForceMode(CameraModeType.InGame);
+            SnapToTarget(expectedTarget.position);
+            SyncCameraContext();
+            SyncRigStateFromFields();
+            return true;
+        }
+
+        public bool IsSceneCameraReadyFor(Transform expectedTarget)
+        {
+            return _isSceneCameraReady
+                   && expectedTarget != null
+                   && _target == expectedTarget
+                   && _sceneCameraExpectedTarget == expectedTarget;
+        }
+
         public CameraModeType CurrentCameraMode => _modeController?.CurrentModeType ?? CameraModeType.InGame;
 
         public bool SetCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
@@ -889,6 +986,8 @@ namespace UPlayGround.Manager
         }
 
         public bool IsFreeCameraActive => CurrentCameraMode == CameraModeType.Free;
+        public bool IsSceneCameraInitialized => _isSceneCameraInitialized;
+        public bool IsSceneCameraReady => _isSceneCameraReady;
         public CombatCameraEventRouter CombatCamera => _combatCameraEventRouter;
         public float TimeSinceLastManualCameraInput => Time.unscaledTime - _lastManualCameraInputTime;
         public float SettingsCombatCameraShakeScale => settings != null ? settings.combatCameraShakeScale : 1f;

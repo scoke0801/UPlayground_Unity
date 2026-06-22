@@ -7,13 +7,19 @@ namespace UPlayGround.Data.Event
 {
     public enum SlashVFXPositionSpace
     {
+        // 오프셋을 칼날(Blade) 로컬 기준으로 적용 — 칼날 방향을 따라간다.
         Blade,
+        // 오프셋을 액터(캐릭터) 루트 회전 기준으로 적용. 칼날 방향은 무시하고 캐릭터가 바라보는 방향만 따른다.
+        // (직렬화 호환을 위해 멤버명은 World 유지. 캐릭터 정면=identity일 때 절대 월드와 동일하게 동작한다.)
         World,
     }
 
     public enum SlashVFXRotationSpace
     {
+        // 칼날 회전 * 오프셋 — 칼날 방향을 따라간다.
         BladeOffset,
+        // 액터(캐릭터) 루트 회전 * 오프셋. 칼날 방향은 무시하고 캐릭터가 바라보는 방향만 따른다.
+        // (직렬화 호환을 위해 멤버명은 World 유지. 캐릭터 정면=identity일 때 절대 월드와 동일하게 동작한다.)
         World,
     }
 
@@ -21,11 +27,11 @@ namespace UPlayGround.Data.Event
     public class SlashVFXEvent : MotionEventBase
     {
         [Header("Slash VFX Setting")]
-        [Tooltip("WeaponSlashVfxSpawner를 찾으면 Spawner에 설정된 prefab/offset/scale/destroyDelay를 사용한다.")]
+        [Tooltip("WeaponSlashVfxSpawner를 찾으면 Spawner 설정을 사용한다. 단, vfxPrefab이 직접 지정되어 있으면 Spawner의 prefab보다 우선한다.")]
         public bool useSpawnerSettings = true;
         [Tooltip("useSpawnerSettings가 켜져 있어도 위치/회전/스케일/수명은 이 이벤트 값을 사용한다.")]
-        public bool overrideSpawnerTransform;
-        public SlashVFXPresetSO preset;
+        public bool overrideSpawnerTransform = true;
+        
         public GameObject vfxPrefab;
 
         [Header("Blade Point")]
@@ -37,20 +43,30 @@ namespace UPlayGround.Data.Event
         public string tipPointName = "Blade_Tip";
 
         [Header("Offset")]
-        public SlashVFXPositionSpace positionSpace = SlashVFXPositionSpace.Blade;
+        [Tooltip("World = 액터(캐릭터) 루트 회전 기준. 칼날 방향은 무시하고 캐릭터가 바라보는 방향을 따른다(정면=identity일 때 절대 월드와 동일). Blade = 칼날 로컬 기준.")]
+        public SlashVFXPositionSpace positionSpace = SlashVFXPositionSpace.World;
         public Vector3 positionOffset;
-        public SlashVFXRotationSpace rotationSpace = SlashVFXRotationSpace.BladeOffset;
+        [Tooltip("World = 액터(캐릭터) 루트 회전 기준. 칼날 방향은 무시하고 캐릭터가 바라보는 방향을 따른다(정면=identity일 때 절대 월드와 동일). BladeOffset = 칼날 회전 기준.")]
+        public SlashVFXRotationSpace rotationSpace = SlashVFXRotationSpace.World;
         public Vector3 rotationOffset;
 
         [Header("Lifecycle")]
         public float scale = 1f;
         public float destroyDelay = 2f;
 
+        [Tooltip("켜면 생성된 VFX를 액터 루트에 부착해 루트모션/호밍 이동을 따라간다(월드 포즈 유지). " +
+                 "끄면 스폰 위치에 월드 고정(허공 고정) — 칼자국을 의도적으로 남기는 연출용. " +
+                 "정지 공격에서는 둘이 동일하게 보인다.")]
+        public bool attachToActor = true;
+
+        // 블레이드 Base/Tip 본의 월드 포즈를 즉석 샘플링하므로 본 평가 후(LateUpdate)에 실행해야 한다.
+        public override bool RequiresPostEvaluation => true;
+
         public override string GetDisplayName() => "Slash VFX";
 
         public override string GetShortLabel()
         {
-            GameObject prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
+            GameObject prefab = vfxPrefab;
             return prefab != null ? $"Slash VFX: {prefab.name}" : "Slash VFX: (None)";
         }
 
@@ -74,13 +90,13 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            GameObject prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
-            string baseName = preset != null && !string.IsNullOrEmpty(preset.basePointName) ? preset.basePointName : basePointName;
-            string tipName = preset != null && !string.IsNullOrEmpty(preset.tipPointName) ? preset.tipPointName : tipPointName;
-            Vector3 offset = preset != null ? preset.positionOffset : positionOffset;
-            Vector3 rotOffset = preset != null ? preset.rotationOffset : rotationOffset;
-            float destroy = preset != null ? preset.destroyDelay : destroyDelay;
-            Vector3 finalScale = preset != null ? preset.scaleMultiplier : Vector3.one * scale;
+            GameObject prefab = vfxPrefab;
+            string baseName = basePointName;
+            string tipName = tipPointName;
+            Vector3 offset = positionOffset;
+            Vector3 rotOffset = rotationOffset;
+            float destroy = destroyDelay;
+            Vector3 finalScale =  Vector3.one * scale;
 
             if (prefab == null)
                 return;
@@ -98,9 +114,9 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            bool useWorldPositionOffset = positionSpace == SlashVFXPositionSpace.World;
             bool useWorldRotation = rotationSpace == SlashVFXRotationSpace.World;
-            if (!WeaponSlashVfxSpawner.TryGetSpawnPose(bladeBase, bladeTip, target.transform, offset, useWorldPositionOffset, rotOffset, useWorldRotation, out Vector3 spawnPosition, out Quaternion rotation))
+            // 회전 기준 = 현재 루트 회전(캐릭터가 바라보는 방향). 위치 offset은 칼날 기준이라 이 값과 무관.
+            if (!WeaponSlashVfxSpawner.TryGetSpawnPose(bladeBase, bladeTip, target.transform, offset, rotOffset, useWorldRotation, target.transform.rotation, out Vector3 spawnPosition, out Quaternion rotation))
             {
                 Debug.LogWarning($"{nameof(SlashVFXEvent)}: Invalid blade direction.", target);
                 return;
@@ -108,6 +124,7 @@ namespace UPlayGround.Data.Event
 
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
             instance.transform.localScale = Vector3.Scale(instance.transform.localScale, finalScale);
+            AttachToActorIfNeeded(instance, target.transform);
 
             if (destroy > 0f)
                 GameObject.Destroy(instance, destroy);
@@ -122,9 +139,7 @@ namespace UPlayGround.Data.Event
                 return false;
             }
 
-            GameObject prefab = spawner.SlashVfxPrefab;
-            if (prefab == null)
-                prefab = preset != null ? preset.vfxPrefab : vfxPrefab;
+            GameObject prefab = vfxPrefab != null ? vfxPrefab : spawner.SlashVfxPrefab;
 
             if (prefab == null)
             {
@@ -134,16 +149,17 @@ namespace UPlayGround.Data.Event
 
             Vector3 offset = overrideSpawnerTransform ? positionOffset : spawner.PositionOffset;
             Vector3 rotOffset = overrideSpawnerTransform ? rotationOffset : spawner.RotationOffsetEuler;
-            bool useWorldPositionOffset = overrideSpawnerTransform && positionSpace == SlashVFXPositionSpace.World;
             bool useWorldRotation = overrideSpawnerTransform && rotationSpace == SlashVFXRotationSpace.World;
 
-            if (!spawner.TryGetSpawnPose(prefab, offset, useWorldPositionOffset, rotOffset, useWorldRotation, out Vector3 spawnPosition, out Quaternion rotation))
+            // 회전 기준 = 현재 루트 회전. 위치 offset은 칼날 기준이라 이 값과 무관.
+            if (!WeaponSlashVfxSpawner.TryGetSpawnPose(spawner.BladeBase, spawner.BladeTip, target.transform, offset, rotOffset, useWorldRotation, target.transform.rotation, out Vector3 spawnPosition, out Quaternion rotation))
             {
                 Debug.LogWarning($"{nameof(SlashVFXEvent)}: Failed to resolve spawn pose from spawner={spawner.name}. Check Blade Base / Blade Tip references.", spawner);
                 return false;
             }
 
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
+            AttachToActorIfNeeded(instance, target.transform);
             float finalScale = overrideSpawnerTransform ? scale : spawner.Scale;
             instance.transform.localScale *= finalScale;
 
@@ -160,13 +176,14 @@ namespace UPlayGround.Data.Event
             if (spawner == null)
                 return false;
 
-            bool useWorldPositionOffset = positionSpace == SlashVFXPositionSpace.World;
             bool useWorldRotation = rotationSpace == SlashVFXRotationSpace.World;
-            if (!spawner.TryGetSpawnPose(prefab, offset, useWorldPositionOffset, rotOffset, useWorldRotation, out Vector3 spawnPosition, out Quaternion rotation))
+            // 회전 기준 = 현재 루트 회전. 위치 offset은 칼날 기준이라 이 값과 무관.
+            if (!WeaponSlashVfxSpawner.TryGetSpawnPose(spawner.BladeBase, spawner.BladeTip, target.transform, offset, rotOffset, useWorldRotation, target.transform.rotation, out Vector3 spawnPosition, out Quaternion rotation))
                 return false;
 
             GameObject instance = GameObject.Instantiate(prefab, spawnPosition, rotation);
             instance.transform.localScale = Vector3.Scale(instance.transform.localScale, finalScale);
+            AttachToActorIfNeeded(instance, target.transform);
 
             if (destroy > 0f)
                 GameObject.Destroy(instance, destroy);
@@ -225,6 +242,17 @@ namespace UPlayGround.Data.Event
                 return target;
 
             return FindTransformByName(target, rootName) ?? target;
+        }
+
+        // 생성된 VFX를 액터 루트에 부착해 루트모션/호밍 이동을 따라가게 한다(월드 포즈 유지).
+        // 블레이드가 아니라 루트에 붙이는 이유: 블레이드에 붙이면 진행 중인 스윙을 따라 번진다.
+        // attachToActor가 false면 스폰 위치에 월드 고정("허공 고정") — 의도적으로 칼자국을 남기는 연출용.
+        private void AttachToActorIfNeeded(GameObject instance, Transform actorRoot)
+        {
+            if (instance == null || !attachToActor || actorRoot == null)
+                return;
+
+            instance.transform.SetParent(actorRoot, worldPositionStays: true);
         }
 
         private Transform FindTransformByName(Transform parent, string transformName)

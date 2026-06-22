@@ -26,6 +26,8 @@ MonoBehaviour:
       - rid: 7399917265539825789
       - rid: 7399917266253643776
       - rid: 889909689146671291
+      - rid: 889910011055833260
+      - rid: 889910011055833261
     globalEvents: []
   references:
     version: 2
@@ -70,6 +72,26 @@ MonoBehaviour:
         bakedPathLen: 0.24293838
         bakedStartTime: 0
         bakedEndTime: 0
+    - rid: 889910011055833260
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.512951
+        endTime: 3.012951
+        globalStartTimeOffset: 0
+        soundKey: Attack_Kick
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910011055833261
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8205553
+        endTime: 1.3205552
+        globalStartTimeOffset: 0
+        soundKey: GreatSword_Attack_Finish
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7399917265539825775
       type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

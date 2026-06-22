@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Data.Combat
 {
@@ -42,6 +43,7 @@ namespace UPlayGround.Data.Combat
         [Header("Feedback")]
         public CameraShakeIdType shakeKey = CameraShakeIdType.CriticalHit;
         public string fxKey;
+        public string soundKey;
         public VitalOrbTrigger vitalOrbTrigger = VitalOrbTrigger.PerfectGuard;
         public bool spawnVitalOrb = true;
 
@@ -61,6 +63,7 @@ namespace UPlayGround.Data.Combat
                     profile.postProcessFadeOutDuration = 0.22f;
                     profile.counterWindowDuration = 1.5f;
                     profile.shakeKey = CameraShakeIdType.CriticalHit;
+                    profile.soundKey = GameSoundKey.CombatParry;
                     profile.vitalOrbTrigger = VitalOrbTrigger.PerfectGuard;
                     break;
 
@@ -74,6 +77,7 @@ namespace UPlayGround.Data.Combat
                     profile.postProcessFadeOutDuration = 0.20f;
                     profile.counterWindowDuration = 1.5f;
                     profile.shakeKey = CameraShakeIdType.CriticalHit;
+                    profile.soundKey = GameSoundKey.CombatPerfectGuard;
                     profile.vitalOrbTrigger = VitalOrbTrigger.PerfectGuard;
                     break;
 
@@ -87,6 +91,7 @@ namespace UPlayGround.Data.Combat
                     profile.postProcessFadeOutDuration = 0.28f;
                     profile.counterWindowDuration = 1.2f;
                     profile.shakeKey = CameraShakeIdType.PlayerHit;
+                    profile.soundKey = GameSoundKey.CombatPerfectDodge;
                     profile.vitalOrbTrigger = VitalOrbTrigger.Dodge;
                     break;
             }
@@ -116,6 +121,7 @@ namespace UPlayGround.Data.Combat
             // 깊고 길게 — 월드만 느려지는 tail 구간에서 회피가 또렷하게 읽힘
             profile.tailDuration = 0.45f;
             profile.tailTimeScale = 0.10f;
+            profile.soundKey = GameSoundKey.PlayerDashEvade;
 
             return profile;
         }

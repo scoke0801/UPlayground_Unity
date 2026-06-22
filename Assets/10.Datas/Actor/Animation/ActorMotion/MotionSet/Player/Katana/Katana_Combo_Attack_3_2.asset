@@ -26,58 +26,103 @@ MonoBehaviour:
       - rid: 7399917168494117015
       - rid: 7399917168494117016
       - rid: 5351031959771152512
-      - rid: 889909851589181449
-      - rid: 889909851589181451
-      - rid: 889909851589181450
+      - rid: 889910008326652080
+      - rid: 889910008326652082
+      - rid: 889910008326652081
+      - rid: 889910008326652158
+      - rid: 889910008326652160
+      - rid: 889910008326652159
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 889909851589181449
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 889910008326652080
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.2545005
-        endTime: 0.75450027
+        startTime: 0.24752788
+        endTime: 0.74752784
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
-        spawnPointName: Line Bottom
-        offset: {x: 0, y: 0, z: 0}
-        rotationOffset: {x: 180, y: -60, z: 0}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 1
-        particleLifeTime: 0
-    - rid: 889909851589181450
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652081
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.7681796
-        endTime: 1.2681795
+        startTime: 0.740289
+        endTime: 1.240289
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
-        spawnPointName: Line Bottom
-        offset: {x: 0, y: 0, z: 0}
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652082
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.513679
+        endTime: 1.013679
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652158
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.264971
+        endTime: 0.8803875
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.5, y: -0.5, z: 0}
+        rotationSpace: 1
         rotationOffset: {x: 180, y: -90, z: 0}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 1
-        particleLifeTime: 0
-    - rid: 889909851589181451
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+        scale: 0.7
+        destroyDelay: 2
+    - rid: 889910008326652159
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.524138
-        endTime: 1.0241377
+        startTime: 0.77083504
+        endTime: 1.3862514
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
-        spawnPointName: Line Bottom
-        offset: {x: 0, y: 0, z: 0}
-        rotationOffset: {x: 0, y: 0, z: 0}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 1
-        particleLifeTime: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: -0.5, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: -40, y: 116, z: 144}
+        scale: 0.7
+        destroyDelay: 2
+    - rid: 889910008326652160
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5315064
+        endTime: 1.146923
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 180, y: -117, z: -144}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 5351031959771152512
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

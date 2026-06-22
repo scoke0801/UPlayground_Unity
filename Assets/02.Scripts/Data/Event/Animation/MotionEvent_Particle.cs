@@ -21,6 +21,12 @@ namespace UPlayGround.Data.Event
         public float particleLifeTime = 0f;
         
         private GameObject _instance;
+
+        // 월드 포즈를 스냅샷으로 고정하는 모드(비부착 생성, 또는 생성 직후 분리)만 본 평가 후(LateUpdate)에
+        // 실행해야 한다. 순수 부착(attachToTarget && !detachAfterSpawn)은 파티클이 부모(본/소켓)를
+        // 매 프레임 따라가므로 평가 순서와 무관하다.
+        public override bool RequiresPostEvaluation => !attachToTarget || detachAfterSpawn;
+
         public override string GetDisplayName() => "Particle";
 
         public override string GetShortLabel()

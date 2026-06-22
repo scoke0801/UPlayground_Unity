@@ -22,10 +22,41 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917011524124806
+      - rid: 889910008326652108
+      - rid: 889910008326652175
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652108
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.69377536
+        endTime: 1.1937753
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Swap
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652175
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.69804186
+        endTime: 1.0798283
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 90, y: -90, z: 0}
+        scale: 1
+        destroyDelay: 2
     - rid: 7399917011524124806
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -53,9 +53,26 @@ namespace UPlayGround.CameraSystem
                     Vector2 look = lookAction.ReadValue<Vector2>();
                     ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
 
-                    float rotationUnit = context.Settings.rotationSpeed * 0.01f;
-                    state.CurrentYaw += look.x * rotationUnit * sensitivityX;
-                    state.CurrentPitch -= look.y * rotationUnit * sensitivityY * (invertY ? -1f : 1f);
+                    // 마우스 delta는 프레임당 픽셀 누적값이라 그대로 적용(시간 비의존), 게임패드 스틱은
+                    // 정규화 축(-1~1)이므로 각속도(°/s)로 적분해야 프레임레이트·디바이스 독립이 된다.
+                    // 마우스가 히트스톱 중에도 동작하는 것과 맞추기 위해 unscaledDeltaTime을 쓴다.
+                    bool isGamepadLook = lookAction.activeControl?.device is Gamepad;
+                    float yawDelta, pitchDelta;
+                    if (isGamepadLook)
+                    {
+                        float dt = Time.unscaledDeltaTime;
+                        yawDelta = look.x * context.Settings.gamepadYawSpeed * sensitivityX * dt;
+                        pitchDelta = look.y * context.Settings.gamepadPitchSpeed * sensitivityY * dt;
+                    }
+                    else
+                    {
+                        float rotationUnit = context.Settings.rotationSpeed * 0.01f;
+                        yawDelta = look.x * rotationUnit * sensitivityX;
+                        pitchDelta = look.y * rotationUnit * sensitivityY;
+                    }
+
+                    state.CurrentYaw += yawDelta;
+                    state.CurrentPitch -= pitchDelta * (invertY ? -1f : 1f);
                     if (look.sqrMagnitude > 0.0001f)
                         context.NotifyManualCameraInput?.Invoke();
 

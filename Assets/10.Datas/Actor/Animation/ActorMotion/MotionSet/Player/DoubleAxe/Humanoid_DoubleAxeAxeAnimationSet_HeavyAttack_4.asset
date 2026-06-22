@@ -24,10 +24,41 @@ MonoBehaviour:
       - rid: 7432452544598638627
       - rid: 7432452544598638628
       - rid: 7432452544598638629
+      - rid: 889910008326652131
+      - rid: 889910008326652132
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652131
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5578093
+        endTime: 1.2446117
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 0
+        vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.9, y: 0, z: 0}
+        rotationSpace: 0
+        rotationOffset: {x: 0, y: 0, z: 0}
+        scale: 0.7
+        destroyDelay: 2
+    - rid: 889910008326652132
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5508367
+        endTime: 1.0508367
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452544598638627
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -66,6 +97,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.13758956, y: 0, z: 1.4138937}
         bakedPathLen: 1.4348618
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452544598638628
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -23,10 +23,41 @@ MonoBehaviour:
       events:
       - rid: 5792125035945394309
       - rid: 5351031959771152519
+      - rid: 889910008326652091
+      - rid: 889910008326652171
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652091
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.50551474
+        endTime: 1.0055147
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652171
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5156963
+        endTime: 0.85474515
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0.3, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 0, y: 0, z: 0}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 5351031959771152519
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -65,6 +96,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.00007259217, y: 0, z: -0.06011001}
         bakedPathLen: 0.16303541
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 5792125035945394309
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

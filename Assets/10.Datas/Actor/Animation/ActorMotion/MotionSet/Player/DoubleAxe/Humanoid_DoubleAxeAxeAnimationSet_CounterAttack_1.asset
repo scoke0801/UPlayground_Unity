@@ -23,10 +23,41 @@ MonoBehaviour:
       events:
       - rid: 7432452544598638615
       - rid: 7432452544598638616
+      - rid: 889910008326652139
+      - rid: 889910008326652140
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652139
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.55083674
+        endTime: 1.0508368
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Counter
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652140
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.5787272
+        endTime: 0.87854975
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1919708242137258, guid: e60d36cff17a1ce4db49ef54f9e72f61, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 0
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 0
+        rotationOffset: {x: 0, y: 0, z: 0}
+        scale: 0.7
+        destroyDelay: 2
     - rid: 7432452544598638615
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

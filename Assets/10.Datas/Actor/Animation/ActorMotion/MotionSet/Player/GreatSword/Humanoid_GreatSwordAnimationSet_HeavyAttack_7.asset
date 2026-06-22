@@ -23,26 +23,41 @@ MonoBehaviour:
       events:
       - rid: 7432452531840876591
       - rid: 7432452531840876592
-      - rid: 889909850590150805
+      - rid: 889910011055833252
+      - rid: 889910011055833253
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 889909850590150805
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 889910011055833252
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.6558882
-        endTime: 2.1122684
+        startTime: 0.643908
+        endTime: 1.143908
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
-        spawnPointName: Line Tip
-        offset: {x: 0, y: 0, z: -2}
-        rotationOffset: {x: 0, y: 0, z: 90}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 0
-        particleLifeTime: 0
+        soundKey: BeginParticleEvent
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910011055833253
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.66100293
+        endTime: 1.1795483
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
+        rotationOffset: {x: 90, y: 90, z: 0}
+        scale: 1
+        destroyDelay: 2
     - rid: 7432452531840876591
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -279,6 +279,17 @@ namespace UPlayGround.Animation
             }
         }
 
+        private void LateUpdate()
+        {
+            // Animancer(본) 평가가 끝난 이후 시점.
+            // 이번 프레임 UpdateTime에서 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
+            // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다. (Update 시점 실행 시 직전 프레임 포즈)
+            if (_isPlayingMotionSet)
+            {
+                _eventExecutor?.FlushDeferredEvents();
+            }
+        }
+
         public void SetLayerWeight(int layerIndex, float weight)
         {
             if (_animator.Layers.Count > layerIndex)

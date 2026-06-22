@@ -23,7 +23,8 @@ MonoBehaviour:
       events:
       - rid: 7432452531840876569
       - rid: 889909846579871876
-      - rid: 889909850590150808
+      - rid: 889910011055833254
+      - rid: 889910011055833257
     globalEvents: []
   references:
     version: 2
@@ -68,21 +69,35 @@ MonoBehaviour:
         bakedPathLen: 0
         bakedStartTime: 0
         bakedEndTime: 0.5
-    - rid: 889909850590150808
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+    - rid: 889910011055833254
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.5266204
-        endTime: 2.3379629
+        startTime: 0.52139455
+        endTime: 1.3932345
         globalStartTimeOffset: 0
-        particlePrefab: {fileID: 1893033738566276, guid: 3e04efdf8ee665d48962b33b06e8e3d3, type: 3}
-        spawnPointName: Line Bottom
-        offset: {x: 0, y: 0, z: 0}
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1893033738566276, guid: 3e04efdf8ee665d48962b33b06e8e3d3, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: 0}
+        rotationSpace: 1
         rotationOffset: {x: 0, y: 0, z: 0}
-        attachToTarget: 1
-        detachAfterSpawn: 1
-        useSpawnRotation: 1
-        destroyOnFinish: 0
-        particleLifeTime: 0
+        scale: 1
+        destroyDelay: 2
+    - rid: 889910011055833257
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.4416183
+        endTime: 0.94161826
+        globalStartTimeOffset: 0
+        soundKey: GreatSword_Attack_Counter
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452531840876569
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

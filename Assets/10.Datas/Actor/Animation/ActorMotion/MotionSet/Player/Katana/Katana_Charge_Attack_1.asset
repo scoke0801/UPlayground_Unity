@@ -25,10 +25,41 @@ MonoBehaviour:
       - rid: 5792125535029297270
       - rid: 5792125557290303606
       - rid: 5792125557290303607
+      - rid: 889910008326652109
+      - rid: 889910008326652176
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910008326652109
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.244612
+        endTime: 1.7446121
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652176
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2821177
+        endTime: 1.9516681
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1610259402245616, guid: 09a2baab97fbf474f9499bf610686e4d, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: 0, y: 0, z: -1}
+        rotationSpace: 1
+        rotationOffset: {x: 0, y: 0, z: 0}
+        scale: 1
+        destroyDelay: 2
     - rid: 5792125535029297270
       type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

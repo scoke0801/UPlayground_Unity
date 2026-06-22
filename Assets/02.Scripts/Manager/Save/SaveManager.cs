@@ -24,6 +24,12 @@ namespace UPlayGround.Manager
         private const string SAVE_FOLDER = "saves";
         private const string SAVE_FILE_PREFIX = "save_slot_";
         private const string SAVE_FILE_EXTENSION = ".sav";   // 암호화 바이너리
+
+        /// <summary>
+        /// 저장 데이터를 현재 씬에 즉시 적용하지 않고, 저장된 씬 진입 시점까지 보류해야 하는지 여부.
+        /// LoadGameToScene의 ImportSaveData 디스패치 동안만 true다.
+        /// </summary>
+        public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
         private const string CURRENT_SAVE_VERSION = "2.0";    // 1.0=평문 JSON, 2.0=AES 암호화
@@ -158,6 +164,39 @@ namespace UPlayGround.Manager
         #endregion
 
         // ──────────────────────────────────────────────────────────
+        #region 새 게임
+
+        /// <summary>
+        /// 새 게임을 시작하기 전에 모든 ISaveable 매니저의 인메모리 상태를 초기화한다.
+        ///
+        /// 로드와 달리 파일을 읽지 않고, 각 매니저를 신규 실행(fresh launch) 직후와
+        /// 동일한 기본 상태로 되돌린다. 한 세션 안에서 플레이 → 타이틀 복귀 → 새 게임을
+        /// 했을 때, 이전 플레이의 상태(처치 몬스터·레벨·경험치·플래그·인벤토리 등)가
+        /// 새 게임에 누수되는 것을 막는다.
+        ///
+        /// 호출 시점: 타이틀에서 새 게임 버튼 → 대상 씬 로드 직전.
+        /// 이후 씬 초기화 훅(PartyManager.BuildPartyFromScene 등)이 기본값을 재시딩한다.
+        /// </summary>
+        public void ResetForNewGame()
+        {
+            foreach (var saveable in _saveables)
+            {
+                try
+                {
+                    saveable.ResetForNewGame();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[SaveManager] {saveable.GetType().Name} 새 게임 초기화 실패: {e.Message}");
+                }
+            }
+
+            Debug.Log("[SaveManager] 새 게임 상태 초기화 완료");
+        }
+
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
         #region 로드
 
         /// <summary>
@@ -181,10 +220,21 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool LoadGameToScene(int slot = 0)
         {
-            if (!LoadGameInternal(slot, out var data, out SaveOperationResult result))
+            GameSaveData data;
+            SaveOperationResult result;
+
+            IsPreparingSceneLoad = true;
+            try
             {
-                LastOperationResult = result;
-                return false;
+                if (!LoadGameInternal(slot, out data, out result))
+                {
+                    LastOperationResult = result;
+                    return false;
+                }
+            }
+            finally
+            {
+                IsPreparingSceneLoad = false;
             }
 
             LastOperationResult = result;

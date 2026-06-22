@@ -58,6 +58,20 @@ namespace UPlayGround.Manager
         private bool _bgmOverrideActive;
         private readonly List<IDisposable> _bgmEventSubscriptions = new();
 
+        // 플레이리스트(한 씬에서 여러 곡 번갈아 재생): 한 트랙을 끝까지 재생 → 무음 간격 → 다음 트랙.
+        private enum PlaylistPhase { Inactive, Playing, Gap }
+        private BgmPlaylistSO _activePlaylist;
+        private PlaylistPhase _playlistPhase = PlaylistPhase.Inactive;
+        private int _playlistIndex = -1;
+        private float _playlistTrackEndTime;   // 현재 트랙의 예상 종료 시각(Time.unscaledTime 기준)
+        private float _playlistGapTimer;        // 곡 사이 남은 무음 시간(초)
+
+        // override 진입 시 직전 플레이리스트도 기억했다가 Restore 시 복귀.
+        private BgmPlaylistSO _playlistBeforeOverride;
+        private int _playlistIndexBeforeOverride = -1;
+        // 플레이리스트 내부 트랙 시작은 같은 key 연속 재생도 허용해야 하므로 dedup 가드를 우회한다.
+        private bool _bypassBgmDedup;
+
         public bool IsDatabaseLoaded => _soundDatabase != null;
 
         /// <summary>로드된 AudioMixer. SettingsManager 등에서 믹서 볼륨 제어에 재사용할 수 있다.</summary>
@@ -97,6 +111,7 @@ namespace UPlayGround.Manager
         public void OnUpdate()
         {
             ProcessActiveSounds();
+            UpdatePlaylist();
         }
 
         public void OnFixedUpdate() { }
@@ -106,9 +121,11 @@ namespace UPlayGround.Manager
         {
             _listenerTransform = null;
 
-            // 씬 전환 중 보스 override가 남아 있으면 직전 키가 무의미해지므로 초기화한다.
+            // 씬 전환 중 보스 override가 남아 있으면 직전 키/플레이리스트가 무의미해지므로 초기화한다.
             _bgmOverrideActive = false;
             _bgmKeyBeforeOverride = null;
+            _playlistBeforeOverride = null;
+            _playlistIndexBeforeOverride = -1;
 
             ApplySceneBgm(sceneType);
         }
@@ -123,13 +140,15 @@ namespace UPlayGround.Manager
                 return;
 
             string mapId = SceneManager.Instance?.CurrentMapID;
-            if (!_bgmRouting.TryResolve(sceneType, mapId, out string bgmKey))
+            if (!_bgmRouting.TryResolve(sceneType, mapId, out var route))
                 return;
 
-            if (string.IsNullOrWhiteSpace(bgmKey))
+            if (route.HasPlaylist)
+                PlayBgmPlaylist(route.Playlist);
+            else if (route.IsStop)
                 StopBgm();
             else
-                PlayBgm(bgmKey);
+                PlayBgm(route.BgmKey);
         }
 
         public void Play(string key, Vector3? position = null, float volumeScale = 1f)
@@ -186,28 +205,41 @@ namespace UPlayGround.Manager
             });
         }
 
+        /// <summary>단일 곡을 무한 반복 재생한다. 진행 중인 플레이리스트가 있으면 종료한다.</summary>
         public void PlayBgm(string key, float fadeTime = 1f)
         {
-            if (string.IsNullOrWhiteSpace(key))
-                return;
+            StopPlaylist();
+            PlayBgmTrack(key, fadeTime, loop: true);
+        }
 
-            if (_currentBgmKey == key && _currentBgmSource != null && _currentBgmSource.isPlaying)
-                return;
+        /// <summary>
+        /// 실제 BGM 트랙을 크로스페이드로 재생한다. 플레이리스트 진행은 loop=false로 호출한다.
+        /// 반환값은 재생 시작 성공 여부(플레이리스트 advance가 실패를 감지하는 데 사용).
+        /// </summary>
+        private bool PlayBgmTrack(string key, float fadeTime, bool loop)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return false;
+
+            // 플레이리스트 내부 트랙 시작은 같은 key 연속 재생도 의도이므로 dedup 가드를 우회한다.
+            if (!_bypassBgmDedup
+                && _currentBgmKey == key && _currentBgmSource != null && _currentBgmSource.isPlaying)
+                return true;
 
             if (!TryGetEntry(key, out var entry))
-                return;
+                return false;
 
             if (entry.clip == null)
             {
                 Debug.LogWarning($"[SoundManager] BGM clip이 비어 있습니다: {key}");
-                return;
+                return false;
             }
 
             EnsureRuntimeObjects();
 
             _nextBgmSource = _currentBgmSource == _bgmSourceA ? _bgmSourceB : _bgmSourceA;
             _nextBgmSource.clip = entry.clip;
-            _nextBgmSource.loop = true;
+            _nextBgmSource.loop = loop;
             _nextBgmSource.outputAudioMixerGroup = GetMixerGroup(SoundBusType.BGM);
             _nextBgmSource.ignoreListenerPause = true;
             _nextBgmSource.spatialBlend = 0f;
@@ -221,10 +253,22 @@ namespace UPlayGround.Manager
             _bgmFadeRoutine = StartCoroutine(CrossFadeBgm(_currentBgmSource, _nextBgmSource, entry.volume, fadeTime));
             _currentBgmSource = _nextBgmSource;
             _currentBgmKey = key;
+
+            // 비반복 트랙(플레이리스트)의 예상 종료 시각을 unscaled 타이머로 기록한다.
+            // isPlaying 폴링보다 일시정지/히트스톱(timeScale 0)에서 안정적이다.
+            if (!loop)
+            {
+                float pitch = Mathf.Max(0.01f, _nextBgmSource.pitch);
+                _playlistTrackEndTime = Time.unscaledTime + entry.clip.length / pitch;
+            }
+
+            return true;
         }
 
         public void StopBgm(float fadeTime = 1f)
         {
+            StopPlaylist();
+
             if (_currentBgmSource == null)
                 return;
 
@@ -246,7 +290,10 @@ namespace UPlayGround.Manager
 
             if (!_bgmOverrideActive)
             {
+                // 직전 평시 곡 또는 플레이리스트를 기억해 둔다(PlayBgm이 플레이리스트를 종료하기 전에 캡처).
                 _bgmKeyBeforeOverride = _currentBgmKey;
+                _playlistBeforeOverride = _activePlaylist;
+                _playlistIndexBeforeOverride = _playlistIndex;
                 _bgmOverrideActive = true;
             }
 
@@ -264,12 +311,119 @@ namespace UPlayGround.Manager
 
             _bgmOverrideActive = false;
             string restoreKey = _bgmKeyBeforeOverride;
+            BgmPlaylistSO restorePlaylist = _playlistBeforeOverride;
+            int restoreIndex = _playlistIndexBeforeOverride;
             _bgmKeyBeforeOverride = null;
+            _playlistBeforeOverride = null;
+            _playlistIndexBeforeOverride = -1;
 
-            if (string.IsNullOrWhiteSpace(restoreKey))
+            if (restorePlaylist != null)
+                ResumeBgmPlaylist(restorePlaylist, restoreIndex, fadeTime);
+            else if (string.IsNullOrWhiteSpace(restoreKey))
                 StopBgm(fadeTime);
             else
                 PlayBgm(restoreKey, fadeTime);
+        }
+
+        /// <summary>
+        /// 여러 BGM을 번갈아 재생하는 플레이리스트를 시작한다.
+        /// 한 트랙을 끝까지(loop=false) 재생한 뒤, 곡 사이에 무음 간격을 두고 다음 트랙으로 넘어간다.
+        /// 동일 플레이리스트가 이미 재생 중이면 무시한다(씬 재진입 시 끊김 방지).
+        /// </summary>
+        public void PlayBgmPlaylist(BgmPlaylistSO playlist, float? fadeTime = null)
+        {
+            if (playlist == null || playlist.Count == 0)
+            {
+                StopBgm(fadeTime ?? 1f);
+                return;
+            }
+
+            if (_activePlaylist == playlist && _playlistPhase != PlaylistPhase.Inactive)
+                return;
+
+            _activePlaylist = playlist;
+            _playlistIndex = -1;
+            AdvancePlaylist(fadeTime ?? playlist.TrackFadeTime);
+        }
+
+        /// <summary>override 종료 후 직전 플레이리스트를 재개한다. 저장된 인덱스의 다음 트랙부터 이어간다.</summary>
+        private void ResumeBgmPlaylist(BgmPlaylistSO playlist, int fromIndex, float fadeTime)
+        {
+            _activePlaylist = playlist;
+            _playlistIndex = fromIndex;
+            AdvancePlaylist(fadeTime);
+        }
+
+        /// <summary>플레이리스트의 다음 트랙을 재생한다.</summary>
+        private void AdvancePlaylist(float fadeTime)
+        {
+            if (_activePlaylist == null)
+                return;
+
+            _playlistIndex = _activePlaylist.GetNextIndex(_playlistIndex);
+            string key = _activePlaylist.GetKey(_playlistIndex);
+
+            _bypassBgmDedup = true;
+            bool started = PlayBgmTrack(key, fadeTime, loop: false);
+            _bypassBgmDedup = false;
+
+            if (started)
+            {
+                _playlistPhase = PlaylistPhase.Playing;
+            }
+            else
+            {
+                // 잘못된 key 등으로 재생 실패: 다음 트랙으로 즉시 넘어가기보다 짧은 무음 후 재시도(무한루프 방지).
+                _playlistPhase = PlaylistPhase.Gap;
+                _playlistGapTimer = 1f;
+            }
+        }
+
+        /// <summary>플레이리스트 진행 상태머신. OnUpdate에서 매 프레임 폴링한다.</summary>
+        private void UpdatePlaylist()
+        {
+            if (_activePlaylist == null)
+                return;
+
+            switch (_playlistPhase)
+            {
+                case PlaylistPhase.Playing:
+                    // 트랙 예상 종료 시각(항상 fade-in 이후)이 지나면 다음 단계로.
+                    // 주의: fade 코루틴 핸들(_bgmFadeRoutine)을 게이트로 쓰지 않는다 —
+                    // CrossFadeBgm의 fadeTime<=0 분기는 동기 완료되며 자신이 찍은 null이
+                    // StartCoroutine 반환 핸들로 덮어써져 non-null로 남기 때문(TrackFadeTime=0에서 영구 정지 유발).
+                    if (Time.unscaledTime >= _playlistTrackEndTime)
+                    {
+                        float gap = _activePlaylist.GetRandomGap();
+                        if (gap > 0f)
+                        {
+                            // 곡 사이 무음 간격(상용 게임 탐험 BGM 패턴).
+                            _playlistPhase = PlaylistPhase.Gap;
+                            _playlistGapTimer = gap;
+                        }
+                        else
+                        {
+                            // gap==0: 곧바로 다음 트랙으로 크로스페이드(1프레임 갭 — sample-accurate 아님).
+                            AdvancePlaylist(_activePlaylist.TrackFadeTime);
+                        }
+                    }
+                    break;
+
+                case PlaylistPhase.Gap:
+                    _playlistGapTimer -= Time.unscaledDeltaTime;
+                    if (_playlistGapTimer <= 0f)
+                        AdvancePlaylist(_activePlaylist.TrackFadeTime);
+                    break;
+            }
+        }
+
+        /// <summary>플레이리스트 진행을 중단한다(단일 곡 재생/정지/씬 전환 시). 현재 재생 중인 소스는 호출부가 처리.</summary>
+        private void StopPlaylist()
+        {
+            _activePlaylist = null;
+            _playlistPhase = PlaylistPhase.Inactive;
+            _playlistIndex = -1;
+            _playlistGapTimer = 0f;
         }
 
         private void SubscribeBgmEvents()
@@ -308,7 +462,11 @@ namespace UPlayGround.Manager
         private void OnBgmChangeRequested(BgmRequestData data)
         {
             if (data == null) return;
-            PlayBgm(data.bgmKey, data.fadeTime);
+
+            if (data.playlist != null)
+                PlayBgmPlaylist(data.playlist, data.fadeTime);
+            else
+                PlayBgm(data.bgmKey, data.fadeTime);
         }
 
         private void OnBgmOverrideRequested(BgmRequestData data)
@@ -696,6 +854,8 @@ namespace UPlayGround.Manager
             if (_bgmSourceA != null) _bgmSourceA.Stop();
             if (_bgmSourceB != null) _bgmSourceB.Stop();
             _currentBgmKey = null;
+
+            StopPlaylist();
         }
 
         private IEnumerator CrossFadeBgm(AudioSource from, AudioSource to, float targetVolume, float fadeTime)

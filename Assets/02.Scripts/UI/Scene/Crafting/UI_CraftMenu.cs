@@ -26,15 +26,8 @@ public class UI_CraftMenu : UI_Base
         base.Awake();
     }
 
-    protected override void OnShow()
-    {
-        InputManager.Instance.SetInputLayer(_layer.ToInputLayer());
-    }
-
-    protected override void OnHide()
-    {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
-    }
+    // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
 
     protected override void OnDispose()
     {

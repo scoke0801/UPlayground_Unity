@@ -33,18 +33,9 @@ public class UI_MenuPanel : UI_Base
         _configButton.onClick.AddListener(OnClickedConfigButton);
     }
 
-    protected override void OnShow()
-    {
-        base.OnShow();
-        
-        InputManager.Instance.ShowCursor(true);
-    }
-
-    protected override void OnHide()
-    {
-        InputManager.Instance.SetInputLayer(InputLayer.None);
-        InputManager.Instance.ShowCursor(false);
-    }
+    // 메뉴가 열려 있는 동안 게임플레이 입력을 차단한다.
+    // 커서 표시와 입력 레이어 상승/복원은 UI_Base가 _layer/BlocksLowerInput 기준으로 일괄 처리한다.
+    protected override bool BlocksLowerInput => true;
 
     protected override void OnDispose()
     {

@@ -111,7 +111,9 @@ namespace UPlayGround.Manager
 
         private void OnStartedShowCursor(InputAction.CallbackContext obj)
         {
-            ShowCursor(true, true);
+            // force가 아닌 push로 처리해야 UI가 올린 커서 스택을 덮어쓰지 않는다.
+            // (force로 두면 Alt를 눌렀다 떼는 순간 스택이 0으로 떨어져 열린 UI 위에서 커서가 사라짐)
+            ShowCursor(true);
         }
 
         private void OnCanceledShowCursor(InputAction.CallbackContext obj)

@@ -27,6 +27,7 @@ namespace UPlayGround.Component
                 ResolveHitFxKey(result.Hit));
             CombatFeedbackDispatcher.ShowDamageFloater(context);
             CombatFeedbackDispatcher.ShowHitFx(context);
+            CombatFeedbackDispatcher.PlayDamageImpact(result.Hit);
         }
 
         public void ApplyImpact(AttackData attackData, bool protectParryWindow)

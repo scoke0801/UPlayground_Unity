@@ -191,6 +191,9 @@ namespace UPlayGround.Manager.Combat
             if (!string.IsNullOrWhiteSpace(fxKey))
                 GameObjectManager.Instance?.ShowFX(fxKey, context.Position);
 
+            if (!string.IsNullOrWhiteSpace(profile.soundKey))
+                SoundManager.Instance?.PlaySfx(profile.soundKey, context.Position);
+
             if (profile.spawnVitalOrb)
                 GameCombatManager.Instance?.GameVitalOrb?.TrySpawn(profile.vitalOrbTrigger, context.Position);
         }

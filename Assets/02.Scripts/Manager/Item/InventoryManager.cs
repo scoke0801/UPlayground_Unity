@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
 {
@@ -196,6 +197,7 @@ namespace UPlayGround.Manager
         // 매니저 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
         private void NotifyItemCollected(int itemId, int count)
         {
+            SoundManager.Instance?.PlayUi(GameSoundKey.GetItem);
             QuestManager.Instance?.NotifyItemCollected(itemId, count);
 
             if (RecipeManager.Instance != null)
@@ -270,6 +272,17 @@ namespace UPlayGround.Manager
             // ItemDatabase가 이미 로드된 경우 즉시 복원
             if (ItemManager.Instance.IsItemDBLoaded)
                 ApplyPendingLoad();
+        }
+
+        public void ResetForNewGame()
+        {
+            _pendingLoad = null;
+            _itemPair.Clear();
+            Gold = 0;
+
+            // 신규 실행 직후 OnItemDatabaseReady와 동일하게 기본 아이템을 채운다.
+            if (ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded)
+                MakeTestItems();
         }
 
         /// <summary>

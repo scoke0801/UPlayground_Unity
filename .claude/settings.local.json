@@ -244,7 +244,9 @@
       "Bash(awk -F'/' 'NF>3')",
       "Bash(ls -1 .claude/commands/)",
       "Bash(find .claude -iname \"*.md\" -path \"*review-cs*\")",
-      "Bash(find .claude -name \"SKILL.md\")"
+      "Bash(find .claude -name \"SKILL.md\")",
+      "WebFetch(domain:www.gameaipro.com)",
+      "WebFetch(domain:moonjump.com)"
     ]
   }
 }

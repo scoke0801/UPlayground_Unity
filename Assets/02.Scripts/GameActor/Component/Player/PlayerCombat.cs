@@ -190,6 +190,7 @@ namespace UPlayGround.Component
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
         private CombatHitboxSet _hitboxSet;
         private string _requestedHitboxGroupId;
+        private int _lastHitDetectionFrame = -1;
         private readonly List<CombatHit> _detectedHits = new List<CombatHit>(32);
         private PlayerCombatStateTracker _combatStateTracker;
         private CombatActionRunner _actionRunner;
@@ -486,11 +487,17 @@ namespace UPlayGround.Component
         private void Update()
         {
             // 워프 타이머는 MotionWarpController.Update 가 처리.
-            if (IsPossibleCollide)
-                PerformHitDetection();
-
             _combatStateTracker?.Tick();
             UpdateBreakInteractionTarget();
+        }
+
+        private void LateUpdate()
+        {
+            // 히트 검출은 LateUpdate에서 수행한다. Animancer(PlayableGraph)는 MonoBehaviour.Update
+            // 이후에 포즈를 적용하므로 Update에서 본/무기 트랜스폼을 읽으면 직전 프레임 포즈(1프레임 지연)를
+            // 검출하게 된다. LateUpdate는 갓 적용된 포즈를 읽으면서 스윕 연속성도 유지한다.
+            if (IsPossibleCollide)
+                PerformHitDetection();
         }
 
         // ── Break Interaction 게이팅 ──────────────────────────────────
@@ -1136,6 +1143,12 @@ namespace UPlayGround.Component
 
             if (_hitboxSet == null || !_hitboxSet.IsActive)
                 return;
+
+            // 프레임당 1회만 검출한다. LateUpdate 폴링과 애니메이션 이벤트(OnAnimationEvent_HitCheck)가
+            // 같은 프레임에 함께 들어오면 스윕 기준 형상이 이중 커밋되어 스윕 구간을 잃기 때문이다.
+            if (_lastHitDetectionFrame == Time.frameCount)
+                return;
+            _lastHitDetectionFrame = Time.frameCount;
 
             _hitboxSet.DetectActiveGroup(
                 transform,

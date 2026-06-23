@@ -101,6 +101,8 @@ namespace UPlayGround.Component
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
         private CombatHitboxSet _hitboxSet;
         private string _requestedHitboxGroupId;
+        private int _lastMeleeHitCheckFrame = -1;
+        private int _meleeHitCheckRequestedFrame = -1;
         private float _lastTelegraphStartTime = -999f;
         private float _lastTelegraphDuration;
         private int _lastTelegraphHitPhaseIndex;
@@ -176,6 +178,22 @@ namespace UPlayGround.Component
             UpdateCooldowns();
             // 워프 타이머는 MotionWarpController.Update 가 처리.
         }
+
+        private void LateUpdate()
+        {
+            // 히트 검출은 LateUpdate에서 수행한다(갓 적용된 애니메이션 포즈를 읽기 위함). 단, 공격 상태가
+            // 이번 프레임에 검출을 요청했을 때만 수행해 "상태 틱 게이트"를 보존한다. 이렇게 해야 공격이
+            // 중단되어 충돌 윈도우(IsPossibleCollide)가 닫히지 않은 채 누수돼도(예: 카운터 피격 중단)
+            // 상태가 멈추면 요청이 없어 유령 히트가 발생하지 않는다.
+            if (_meleeHitCheckRequestedFrame == Time.frameCount)
+                CheckMeleeAttackHit();
+        }
+
+        /// <summary>
+        /// 공격 상태(Update 단계)가 "이번 프레임 근접 히트 검출 필요"를 표시한다.
+        /// 실제 Overlap 질의는 LateUpdate에서 수행해 갓 적용된 포즈를 읽는다(1프레임 지연 제거).
+        /// </summary>
+        public void RequestMeleeHitCheck() => _meleeHitCheckRequestedFrame = Time.frameCount;
 
         private void UpdateCooldowns()
         {
@@ -424,6 +442,12 @@ namespace UPlayGround.Component
             var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
             if (_hitboxSet == null || !_hitboxSet.IsActive)
                 return;
+
+            // 프레임당 1회만 검출한다(스윕 기준 형상 이중 커밋 방지). LateUpdate 폴링과
+            // 상태/애니메이션 이벤트가 같은 프레임에 함께 들어와도 안전하게 한다.
+            if (_lastMeleeHitCheckFrame == Time.frameCount)
+                return;
+            _lastMeleeHitCheckFrame = Time.frameCount;
 
             // 무적 플레이어도 전달해 방어 레이어가 퍼펙트 도지/대시 회피를 판정한다.
             _hitboxSet.DetectActiveGroup(

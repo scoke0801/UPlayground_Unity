@@ -87,8 +87,9 @@ namespace UPlayGround.State
         {
             if (!_isActive) return;
 
+            // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).
             if (_skill?.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
-                _combat.CheckMeleeAttackHit();
+                _combat.RequestMeleeHitCheck();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

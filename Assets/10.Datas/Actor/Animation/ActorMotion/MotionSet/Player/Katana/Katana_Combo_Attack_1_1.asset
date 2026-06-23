@@ -59,6 +59,7 @@ MonoBehaviour:
         rotationOffset: {x: 180, y: -90, z: 0}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031836564258953
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

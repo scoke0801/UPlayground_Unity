@@ -357,6 +357,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 ? shapeOverride
                 : profile?.PreferredShape ?? CombatHitboxPreferredShape.Auto;
             Collider collider = ApplyShape(hitboxObject, PrepareBounds(bounds, profile), profile, resolvedShape);
+            if (collider == null)
+                return Result(root, 0, 0, 1, $"{groupId}: Collider 생성 실패 — 콘솔 로그를 확인하세요.");
             hitbox.Configure(
                 groupId,
                 collider,
@@ -402,7 +404,12 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 if (oldBox != null)
                     Undo.DestroyObjectImmediate(oldBox);
-                CapsuleCollider capsule = oldCapsule ?? Undo.AddComponent<CapsuleCollider>(target);
+                CapsuleCollider capsule = EnsureComponent(target, oldCapsule);
+                if (capsule == null)
+                {
+                    Debug.LogError($"[CombatHitboxAutoFitter] {target.name}에 CapsuleCollider를 추가하지 못했습니다.", target);
+                    return null;
+                }
                 capsule.center = bounds.center;
                 capsule.direction = longestAxis;
                 capsule.radius = Mathf.Max(ResolveMinimumThickness(profile) * 0.5f, second * 0.5f);
@@ -414,12 +421,42 @@ namespace UPlayGround.Tool.Editor.Combat
 
             if (oldCapsule != null)
                 Undo.DestroyObjectImmediate(oldCapsule);
-            BoxCollider box = oldBox ?? Undo.AddComponent<BoxCollider>(target);
+            BoxCollider box = EnsureComponent(target, oldBox);
+            if (box == null)
+            {
+                Debug.LogError($"[CombatHitboxAutoFitter] {target.name}에 BoxCollider를 추가하지 못했습니다.", target);
+                return null;
+            }
             box.center = bounds.center;
             box.size = size;
             box.isTrigger = true;
             box.enabled = false;
             return box;
+        }
+
+        /// <summary>
+        /// 콜라이더를 안전하게 확보한다. Undo.AddComponent는 RegisterCreatedObjectUndo로 만든 새 GameObject에
+        /// 같은 프레임 다중 호출 시 일부가 null을 반환하는 에디터 한계가 있어(marker+CombatHitbox 추가 후
+        /// Collider 추가가 실패), null이면 일반 AddComponent로 폴백한다. 객체 생성 전체가 이미 하나의 Undo로
+        /// 묶이므로 폴백해도 Undo 정합성은 유지된다.
+        /// </summary>
+        private static T EnsureComponent<T>(GameObject target, T existing) where T : UnityEngine.Component
+        {
+            if (existing != null)
+                return existing;
+            T component = target.GetComponent<T>();
+            if (component != null)
+                return component;
+            component = Undo.AddComponent<T>(target);
+            if (component == null)
+            {
+                // Undo.AddComponent 폴백은 Undo 스택에 잡히지 않으므로, refit(기존 GameObject) 경로에서도
+                // Ctrl+Z로 잔존 컴포넌트가 남지 않도록 생성 자체를 명시적으로 등록한다.
+                component = target.AddComponent<T>();
+                if (component != null)
+                    Undo.RegisterCreatedObjectUndo(component, "Add Collider");
+            }
+            return component;
         }
 
         private static Bounds PrepareBounds(Bounds bounds, CombatHitboxSetupProfileSO profile)
